@@ -153,6 +153,8 @@ namespace WorldPackets
         PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit);
     };
 
+    [[noreturn]] void OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit);
+
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
@@ -200,6 +202,8 @@ namespace WorldPackets
 
         Array& operator=(Array&& other) noexcept = delete;
 
+        ~Array() = default;
+
         iterator begin() { return _storage.begin(); }
         const_iterator begin() const { return _storage.begin(); }
 
@@ -218,7 +222,7 @@ namespace WorldPackets
         void resize(size_type newSize)
         {
             if (newSize > max_capacity::value)
-                throw PacketArrayMaxCapacityException(newSize, max_capacity::value);
+                OnInvalidArraySize(newSize, max_capacity::value);
 
             _storage.resize(newSize);
         }
@@ -226,7 +230,7 @@ namespace WorldPackets
         void push_back(value_type const& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(value);
         }
@@ -234,7 +238,7 @@ namespace WorldPackets
         void push_back(value_type&& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(std::forward<value_type>(value));
         }

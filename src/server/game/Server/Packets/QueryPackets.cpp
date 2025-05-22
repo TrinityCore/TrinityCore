@@ -398,6 +398,9 @@ void QuestPOIQuery::Read()
 {
     _worldPacket >> MissingQuestCount;
 
+    if (MissingQuestCount > std::ssize(MissingQuestPOIs))
+        OnInvalidArraySize(MissingQuestCount, MissingQuestPOIs.size());
+
     for (std::size_t i = 0; i < MissingQuestPOIs.size(); ++i)
         _worldPacket >> MissingQuestPOIs[i];
 }

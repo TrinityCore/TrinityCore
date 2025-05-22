@@ -140,7 +140,7 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemBonuses& itemBonusInstanceData)
     uint32 bonusListIdSize;
     data >> bonusListIdSize;
     if (bonusListIdSize > 32)
-        throw PacketArrayMaxCapacityException(bonusListIdSize, 32);
+        OnInvalidArraySize(bonusListIdSize, 32);
 
     itemBonusInstanceData.BonusListIDs.resize(bonusListIdSize);
 

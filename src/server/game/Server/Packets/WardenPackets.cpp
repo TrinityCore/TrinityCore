@@ -23,6 +23,10 @@ namespace WorldPackets::Warden
 void WardenData::Read()
 {
     uint32 requestedSize = _worldPacket.read<uint32>();
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+    if (requestedSize > remainingSize)
+        OnInvalidArraySize(requestedSize, remainingSize);
 
     Data.resize(requestedSize);
     _worldPacket.read(Data.data(), requestedSize);

@@ -442,15 +442,15 @@ class TC_SHARED_API ByteBuffer
 
         uint8& operator[](size_t const pos)
         {
-            if (pos >= size())
-                throw ByteBufferPositionException(pos, 1, size());
+            if (pos >= _storage.size())
+                OnInvalidPosition(pos, 1);
             return _storage[pos];
         }
 
         uint8 const& operator[](size_t const pos) const
         {
-            if (pos >= size())
-                throw ByteBufferPositionException(pos, 1, size());
+            if (pos >= _storage.size())
+                OnInvalidPosition(pos, 1);
             return _storage[pos];
         }
 
@@ -490,8 +490,8 @@ class TC_SHARED_API ByteBuffer
 
         void read_skip(size_t skip)
         {
-            if (_rpos + skip > size())
-                throw ByteBufferPositionException(_rpos, skip, size());
+            if (_rpos + skip > _storage.size())
+                OnInvalidPosition(_rpos, skip);
 
             ResetBitPos();
             _rpos += skip;
@@ -509,8 +509,9 @@ class TC_SHARED_API ByteBuffer
         template <typename T>
         T read(size_t pos) const
         {
-            if (pos + sizeof(T) > size())
-                throw ByteBufferPositionException(pos, sizeof(T), size());
+            if (pos + sizeof(T) > _storage.size())
+                OnInvalidPosition(pos, sizeof(T));
+
             T val;
             std::memcpy(&val, &_storage[pos], sizeof(T));
             EndianConvert(val);
@@ -530,8 +531,8 @@ class TC_SHARED_API ByteBuffer
 
         void read(uint8* dest, size_t len)
         {
-            if (_rpos + len > size())
-                throw ByteBufferPositionException(_rpos, len, size());
+            if (_rpos + len > _storage.size())
+                OnInvalidPosition(_rpos, len);
 
             ResetBitPos();
             std::memcpy(dest, &_storage[_rpos], len);
@@ -626,6 +627,8 @@ class TC_SHARED_API ByteBuffer
         void hexlike() const;
 
     protected:
+        [[noreturn]] void OnInvalidPosition(size_t pos, size_t valueSize) const;
+
         size_t _rpos, _wpos;
         uint8 _bitpos;
         uint8 _curbitval;

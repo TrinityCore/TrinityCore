@@ -282,7 +282,7 @@ void AuctionBrowseQuery::Read()
     uint32 knownPetsSize = _worldPacket.read<uint32>();
     uint32 const sizeLimit = sBattlePetSpeciesStore.GetNumRows() / (sizeof(decltype(KnownPets)::value_type) * 8) + 1;
     if (knownPetsSize >= sizeLimit)
-        throw PacketArrayMaxCapacityException(knownPetsSize, sizeLimit);
+        OnInvalidArraySize(knownPetsSize, sizeLimit);
 
     KnownPets.resize(knownPetsSize);
     _worldPacket >> MaxPetLevel;

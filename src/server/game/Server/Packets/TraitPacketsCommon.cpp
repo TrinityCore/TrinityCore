@@ -84,7 +84,7 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitSubTreeCache& traitSubTreeCache)
     data >> traitSubTreeCache.TraitSubTreeID;
     uint32 entriesSize = data.read<uint32>();
     if (entriesSize > 100)
-        throw PacketArrayMaxCapacityException(entriesSize, 100);
+        OnInvalidArraySize(entriesSize, 100);
 
     traitSubTreeCache.Entries.resize(entriesSize);
     for (TraitEntry& traitEntry : traitSubTreeCache.Entries)
@@ -115,13 +115,13 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
     data >> As<int32>(traitConfig.Type);
     uint32 entriesSize = data.read<uint32>();
     if (entriesSize > 100)
-        throw PacketArrayMaxCapacityException(entriesSize, 100);
+        OnInvalidArraySize(entriesSize, 100);
 
     traitConfig.Entries.resize(entriesSize);
 
     uint32 subtreesSize = data.read<uint32>();
     if (subtreesSize > 10)
-        throw PacketArrayMaxCapacityException(subtreesSize, 10);
+        OnInvalidArraySize(subtreesSize, 10);
 
     traitConfig.SubTrees.resize(subtreesSize);
 
