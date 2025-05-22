@@ -513,10 +513,32 @@ namespace WorldPackets
     namespace SizedString
     {
         template<uint32 BitCount, typename Container>
-        inline BitsSizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
+        struct SizeWriter
+        {
+            Container const& Value;
+
+            friend inline ByteBuffer& operator<<(ByteBuffer& data, SizeWriter const& bits)
+            {
+                data.WriteBits(static_cast<uint32>(bits.Value.length()), BitCount);
+                return data;
+            }
+        };
 
         template<uint32 BitCount, typename Container>
-        inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
+        struct SizeReaderWriter : SizeWriter<BitCount, Container>
+        {
+            friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& bits)
+            {
+                const_cast<Container&>(bits.Value).resize(data.ReadBits(BitCount));
+                return data;
+            }
+        };
+
+        template<uint32 BitCount, typename Container>
+        inline SizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
+
+        template<uint32 BitCount, typename Container>
+        inline SizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
 
         template<typename Container>
         struct DataWriter
