@@ -17,16 +17,18 @@
 
 #include "TokenPackets.h"
 
-void WorldPackets::Token::CommerceTokenGetLog::Read()
+namespace WorldPackets::Token
+{
+void CommerceTokenGetLog::Read()
 {
     _worldPacket >> ClientToken;
 }
 
-WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
+WorldPacket const* CommerceTokenGetLogResponse::Write()
 {
     _worldPacket << ClientToken;
     _worldPacket << Result;
-    _worldPacket << uint32(AuctionableTokens.size());
+    _worldPacket << Size<uint32>(AuctionableTokens);
     for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokens)
     {
         _worldPacket << auctionableTokenAuctionable.Id;
@@ -39,12 +41,12 @@ WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
     return &_worldPacket;
 }
 
-void WorldPackets::Token::CommerceTokenGetMarketPrice::Read()
+void CommerceTokenGetMarketPrice::Read()
 {
     _worldPacket >> ClientToken;
 }
 
-WorldPacket const* WorldPackets::Token::CommerceTokenGetMarketPriceResponse::Write()
+WorldPacket const* CommerceTokenGetMarketPriceResponse::Write()
 {
     _worldPacket << PriceGuarantee;
     _worldPacket << ClientToken;
@@ -52,4 +54,5 @@ WorldPacket const* WorldPackets::Token::CommerceTokenGetMarketPriceResponse::Wri
     _worldPacket << PriceLockDurationSeconds;
 
     return &_worldPacket;
+}
 }

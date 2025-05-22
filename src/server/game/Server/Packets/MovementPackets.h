@@ -294,8 +294,8 @@ namespace WorldPackets
         struct TeleportLocation
         {
             TaggedPosition<Position::XYZO> Pos;
-            int32 Unused901_1 = -1;
-            int32 Unused901_2 = -1;
+            int32 FloorDifficulty = -1;
+            int32 FloorIndex = -1;
         };
 
         class NewWorld final : public ServerPacket

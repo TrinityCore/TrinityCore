@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PacketUtilities_h__
-#define PacketUtilities_h__
+#ifndef TRINITYCORE_PACKET_UTILITIES_H
+#define TRINITYCORE_PACKET_UTILITIES_H
 
 #include "ByteBuffer.h"
 #include "Duration.h"
@@ -648,4 +648,4 @@ namespace WorldPackets
     }
 }
 
-#endif // PacketUtilities_h__
+#endif // TRINITYCORE_PACKET_UTILITIES_H

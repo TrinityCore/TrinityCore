@@ -278,7 +278,8 @@ ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineFilter const& monsterSplin
     data << int16(monsterSplineFilter.AddedToStart);
     for (MonsterSplineFilterKey const& filterKey : monsterSplineFilter.FilterKeys)
         data << filterKey;
-    data.WriteBits(monsterSplineFilter.FilterFlags, 2);
+
+    data << Bits<2>(monsterSplineFilter.FilterFlags);
     data.FlushBits();
 
     return data;
@@ -753,8 +754,8 @@ WorldPacket const* TransferAborted::Write()
 ByteBuffer& operator<<(ByteBuffer& data, TeleportLocation const& teleportLocation)
 {
     data << teleportLocation.Pos;
-    data << int32(teleportLocation.Unused901_1);
-    data << int32(teleportLocation.Unused901_2);
+    data << int32(teleportLocation.FloorDifficulty);
+    data << int32(teleportLocation.FloorIndex);
 
     return data;
 }

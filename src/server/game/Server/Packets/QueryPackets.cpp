@@ -422,7 +422,7 @@ WorldPacket const* QuestPOIQueryResponse::Write()
 
 void QueryQuestCompletionNPCs::Read()
 {
-    QuestCompletionNPCs.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(QuestCompletionNPCs);
     if (!QuestCompletionNPCs.empty())
         _worldPacket.read(QuestCompletionNPCs.data(), QuestCompletionNPCs.size());
 }
