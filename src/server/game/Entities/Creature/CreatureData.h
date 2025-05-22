@@ -579,7 +579,11 @@ struct TC_GAME_API CreatureBaseStats
 
     // Helpers
 
-    uint32 GenerateHealth(CreatureDifficulty const* difficulty) const { return uint32(ceil(BaseHealth[difficulty->GetHealthScalingExpansion()] * difficulty->HealthModifier)); }
+    uint32 GenerateHealth(CreatureDifficulty const* difficulty) const
+    {
+        return uint32(std::round(std::max(BaseHealth[difficulty->GetHealthScalingExpansion()] * difficulty->HealthModifier, 1.0f)));
+    }
+
     uint32 GenerateMana(CreatureDifficulty const* difficulty) const
     {
         // Mana can be 0.
