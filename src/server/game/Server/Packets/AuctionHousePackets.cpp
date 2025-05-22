@@ -149,7 +149,7 @@ ByteBuffer& operator<<(ByteBuffer& data, BucketInfo const& bucketInfo)
     data << int32(bucketInfo.TotalQuantity);
     data << int32(bucketInfo.RequiredLevel);
     data << uint64(bucketInfo.MinPrice);
-    data << uint32(bucketInfo.ItemModifiedAppearanceIDs.size());
+    data << Size<uint32>(bucketInfo.ItemModifiedAppearanceIDs);
     if (!bucketInfo.ItemModifiedAppearanceIDs.empty())
         data.append(bucketInfo.ItemModifiedAppearanceIDs.data(), bucketInfo.ItemModifiedAppearanceIDs.size());
 
@@ -560,7 +560,7 @@ WorldPacket const* AuctionHelloResponse::Write()
 
 WorldPacket const* AuctionListBiddedItemsResult::Write()
 {
-    _worldPacket << uint32(Items.size());
+    _worldPacket << Size<uint32>(Items);
     _worldPacket << uint32(DesiredDelay);
     _worldPacket << Bits<1>(HasMoreResults);
     _worldPacket.FlushBits();
@@ -573,7 +573,7 @@ WorldPacket const* AuctionListBiddedItemsResult::Write()
 
 WorldPacket const* AuctionListBucketsResult::Write()
 {
-    _worldPacket << uint32(Buckets.size());
+    _worldPacket << Size<uint32>(Buckets);
     _worldPacket << uint32(DesiredDelay);
     _worldPacket << int32(Unknown830_0);
     _worldPacket << int32(Unknown830_1);
@@ -590,7 +590,7 @@ WorldPacket const* AuctionListBucketsResult::Write()
 WorldPacket const* AuctionListItemsResult::Write()
 {
     {
-        _worldPacket << uint32(Items.size());
+        _worldPacket << Size<uint32>(Items);
         _worldPacket << uint32(Unknown830);
         _worldPacket << uint32(DesiredDelay);
         for (AuctionItem const& item : Items)
@@ -611,8 +611,8 @@ WorldPacket const* AuctionListItemsResult::Write()
 
 WorldPacket const* AuctionListOwnedItemsResult::Write()
 {
-    _worldPacket << int32(Items.size());
-    _worldPacket << int32(SoldItems.size());
+    _worldPacket << Size<int32>(Items);
+    _worldPacket << Size<int32>(SoldItems);
     _worldPacket << uint32(DesiredDelay);
     _worldPacket << Bits<1>(HasMoreResults);
     _worldPacket.FlushBits();
@@ -651,7 +651,7 @@ WorldPacket const* AuctionReplicateResponse::Write()
     _worldPacket << uint32(ChangeNumberGlobal);
     _worldPacket << uint32(ChangeNumberCursor);
     _worldPacket << uint32(ChangeNumberTombstone);
-    _worldPacket << uint32(Items.size());
+    _worldPacket << Size<uint32>(Items);
 
     for (AuctionItem const& item : Items)
         _worldPacket << item;

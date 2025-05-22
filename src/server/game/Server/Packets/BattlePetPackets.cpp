@@ -70,8 +70,8 @@ ByteBuffer& operator<<(ByteBuffer& data, BattlePet const& pet)
 WorldPacket const* BattlePetJournal::Write()
 {
     _worldPacket << uint16(Trap);
-    _worldPacket << uint32(Slots.size());
-    _worldPacket << uint32(Pets.size());
+    _worldPacket << Size<uint32>(Slots);
+    _worldPacket << Size<uint32>(Pets);
     _worldPacket << Bits<1>(HasJournalLock);
     _worldPacket.FlushBits();
 
@@ -86,7 +86,7 @@ WorldPacket const* BattlePetJournal::Write()
 
 WorldPacket const* BattlePetUpdates::Write()
 {
-    _worldPacket << uint32(Pets.size());
+    _worldPacket << Size<uint32>(Pets);
     _worldPacket << Bits<1>(PetAdded);
     _worldPacket.FlushBits();
 
@@ -98,7 +98,7 @@ WorldPacket const* BattlePetUpdates::Write()
 
 WorldPacket const* PetBattleSlotUpdates::Write()
 {
-    _worldPacket << uint32(Slots.size());
+    _worldPacket << Size<uint32>(Slots);
     _worldPacket << Bits<1>(NewSlot);
     _worldPacket << Bits<1>(AutoSlotted);
     _worldPacket.FlushBits();

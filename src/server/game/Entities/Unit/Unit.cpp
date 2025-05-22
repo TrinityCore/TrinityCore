@@ -2525,7 +2525,15 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    SendMessageToSet(WorldPackets::Combat::SAttackStop(this, victim).Write(), true);
+    WorldPackets::Combat::SAttackStop attackStop;
+    attackStop.Attacker = GetGUID();
+    if (victim)
+    {
+        attackStop.Victim = victim->GetGUID();
+        attackStop.NowDead = !victim->IsAlive();
+    }
+
+    SendMessageToSet(attackStop.Write(), true);
 
     if (victim)
         TC_LOG_DEBUG("entities.unit", "{} stopped attacking {}", GetGUID().ToString(), victim->GetGUID().ToString());
