@@ -345,19 +345,26 @@ namespace WorldPackets
         ChronoDuration _value = ChronoDuration::zero();
     };
 
-    template<typename Underlying, typename T>
+    template<typename T>
+    concept AsWritable = std::is_default_constructible_v<T> && HasByteBufferShiftOperators<T>;
+
+    template<typename T, typename Underlying>
+    concept AsWritableFor = requires { static_cast<Underlying>(std::declval<T>()); }
+                         && requires { static_cast<T>(Underlying()); };
+
+    template<AsWritable Underlying, AsWritableFor<Underlying> T>
     struct AsWriter
     {
         T const& Value;
 
         friend inline ByteBuffer& operator<<(ByteBuffer& data, AsWriter const& opt)
         {
-            data << Underlying(opt.Value);
+            data << static_cast<Underlying>(opt.Value);
             return data;
         }
     };
 
-    template<typename Underlying, typename T>
+    template<AsWritable Underlying, AsWritableFor<Underlying> T>
     struct AsReaderWriter : AsWriter<Underlying, T>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, AsReaderWriter const& opt)
@@ -369,13 +376,16 @@ namespace WorldPackets
         }
     };
 
-    template<typename Underlying, typename T>
+    template<AsWritable Underlying, AsWritableFor<Underlying> T>
     inline AsWriter<Underlying, T> As(T const& value) { return { value }; }
 
-    template<typename Underlying, typename T>
+    template<AsWritable Underlying, AsWritableFor<Underlying> T>
     inline AsReaderWriter<Underlying, T> As(T& value) { return { value }; }
 
     template<typename T>
+    concept OptionalWritable = std::is_default_constructible_v<T>;
+
+    template<OptionalWritable T>
     struct OptionalInitWriter
     {
         Optional<T> const& Opt;
@@ -387,7 +397,7 @@ namespace WorldPackets
         }
     };
 
-    template<typename T>
+    template<OptionalWritable T>
     struct OptionalInitReaderWriter : OptionalInitWriter<T>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, OptionalInitReaderWriter const& opt)
@@ -398,13 +408,13 @@ namespace WorldPackets
         }
     };
 
-    template<typename T>
+    template<OptionalWritable T>
     inline OptionalInitWriter<T> OptionalInit(Optional<T> const& value) { return { value }; }
 
-    template<typename T>
+    template<OptionalWritable T>
     inline OptionalInitReaderWriter<T> OptionalInit(Optional<T>& value) { return { value }; }
 
-    template<typename T>
+    template<OptionalWritable T>
     struct PtrInitWriter
     {
         std::unique_ptr<T> const& Ptr;
@@ -416,7 +426,7 @@ namespace WorldPackets
         }
     };
 
-    template<typename T>
+    template<OptionalWritable T>
     struct PtrInitReaderWriter : PtrInitWriter<T>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, PtrInitReaderWriter const& opt)
@@ -427,41 +437,62 @@ namespace WorldPackets
         }
     };
 
-    template<typename T>
+    template<OptionalWritable T>
     inline PtrInitWriter<T> OptionalInit(std::unique_ptr<T> const& value) { return { value }; }
 
-    template<typename T>
+    template<OptionalWritable T>
     inline PtrInitReaderWriter<T> OptionalInit(std::unique_ptr<T>& value) { return { value }; }
 
-    template<uint32 BitCount, typename T>
+    template<typename T>
+    concept BitsWritable = AsWritableFor<T, uint32>;
+
+    template<uint32 BitCount, BitsWritable T>
     struct BitsWriter
     {
         T const& Value;
 
         friend inline ByteBuffer& operator<<(ByteBuffer& data, BitsWriter const& bits)
         {
-            data.WriteBits(static_cast<uint32>(bits.Value), BitCount);
+            if constexpr (BitCount != 1)
+                data.WriteBits(static_cast<uint32>(bits.Value), BitCount);
+            else
+                data.WriteBit(static_cast<uint32>(bits.Value) != 0);
+
             return data;
         }
     };
 
-    template<uint32 BitCount, typename T>
+    template<uint32 BitCount, BitsWritable T>
     struct BitsReaderWriter : BitsWriter<BitCount, T>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, BitsReaderWriter const& bits)
         {
-            const_cast<T&>(bits.Value) = static_cast<T>(data.ReadBits(BitCount));
+            if constexpr (BitCount != 1)
+                const_cast<T&>(bits.Value) = static_cast<T>(data.ReadBits(BitCount));
+            else
+                const_cast<T&>(bits.Value) = static_cast<T>(data.ReadBit() ? 1 : 0);
+
             return data;
         }
     };
 
-    template<uint32 BitCount, typename T>
+    template<uint32 BitCount, BitsWritable T>
     inline BitsWriter<BitCount, T> Bits(T const& value) { return { value }; }
 
-    template<uint32 BitCount, typename T>
+    template<uint32 BitCount, BitsWritable T>
     inline BitsReaderWriter<BitCount, T> Bits(T& value) { return { value }; }
 
-    template<typename Underlying, typename Container>
+    template<typename T, typename SizeType>
+    concept ContainerWritable = requires(T const& container) { { container.size() } -> AsWritableFor<SizeType>; }
+                             && !std::same_as<T, std::string_view>
+                             && !std::same_as<T, std::string>;
+
+    template<typename T, typename SizeType>
+    concept ContainerReadable = ContainerWritable<T, SizeType>
+                             && !std::is_const_v<T>
+                             && requires(T & container) { container.resize(SizeType{}); };
+
+    template<AsWritable Underlying, ContainerWritable<Underlying> Container>
     struct SizeWriter
     {
         Container const& Value;
@@ -473,7 +504,7 @@ namespace WorldPackets
         }
     };
 
-    template<typename Underlying, typename Container>
+    template<AsWritable Underlying, ContainerReadable<Underlying> Container>
     struct SizeReaderWriter : SizeWriter<Underlying, Container>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& size)
@@ -485,13 +516,13 @@ namespace WorldPackets
         }
     };
 
-    template<typename Underlying, typename Container>
+    template<AsWritable Underlying, ContainerWritable<Underlying> Container>
     inline SizeWriter<Underlying, Container> Size(Container const& value) { return { value }; }
 
-    template<typename Underlying, typename Container>
+    template<AsWritable Underlying, ContainerReadable<Underlying> Container>
     inline SizeReaderWriter<Underlying, Container> Size(Container& value) { return { value }; }
 
-    template<uint32 BitCount, typename Container>
+    template<uint32 BitCount, ContainerWritable<uint32> Container>
     struct BitsSizeWriter
     {
         Container const& Value;
@@ -503,7 +534,7 @@ namespace WorldPackets
         }
     };
 
-    template<uint32 BitCount, typename Container>
+    template<uint32 BitCount, ContainerReadable<uint32> Container>
     struct BitsSizeReaderWriter : BitsSizeWriter<BitCount, Container>
     {
         friend inline ByteBuffer& operator>>(ByteBuffer& data, BitsSizeReaderWriter const& bits)
@@ -513,15 +544,26 @@ namespace WorldPackets
         }
     };
 
-    template<uint32 BitCount, typename Container>
+    template<uint32 BitCount, ContainerWritable<uint32> Container>
     inline BitsSizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
 
-    template<uint32 BitCount, typename Container>
+    template<uint32 BitCount, ContainerReadable<uint32> Container>
     inline BitsSizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
+
+    template<typename T>
+    concept StringWritable = requires(T const& container) { { container.length() } -> AsWritableFor<uint32>; }
+                          && requires(ByteBuffer& data, T const& string) { data.WriteString(static_cast<std::string_view>(string)); /*TODO: Kill String class and remove the cast*/ };
+
+    template<typename T>
+    concept StringReadable = StringWritable<T>
+                          && !std::is_const_v<T>
+                          && !std::same_as<T, std::string_view>
+                          && requires(T& container) { container.resize(uint32()); }
+                          && requires(ByteBuffer& data, T& string) { string = data.ReadString(uint32(), bool()); };
 
     namespace SizedString
     {
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringWritable Container>
         struct SizeWriter
         {
             Container const& Value;
@@ -533,7 +575,7 @@ namespace WorldPackets
             }
         };
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringReadable Container>
         struct SizeReaderWriter : SizeWriter<BitCount, Container>
         {
             friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& bits)
@@ -543,13 +585,13 @@ namespace WorldPackets
             }
         };
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringWritable Container>
         inline SizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringReadable Container>
         inline SizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
 
-        template<typename Container>
+        template<StringWritable Container>
         struct DataWriter
         {
             Container const& Value;
@@ -561,7 +603,7 @@ namespace WorldPackets
             }
         };
 
-        template<typename Container, Strings::Utf8Mode Mode>
+        template<StringReadable Container, Strings::Utf8Mode Mode>
         struct DataReaderWriter : DataWriter<Container>
         {
             static constexpr bool IsUtf8() { return Mode == Strings::ValidUtf8; }
@@ -573,17 +615,17 @@ namespace WorldPackets
             }
         };
 
-        template<Strings::Utf8Mode = Strings::ValidUtf8, typename Container>
+        template<Strings::Utf8Mode = Strings::ValidUtf8, StringWritable Container>
         inline DataWriter<Container> Data(Container const& value) { return { value }; }
 
-        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, typename Container>
+        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, StringReadable Container>
         inline DataReaderWriter<Container, Mode> Data(Container& value) { return { value }; }
     }
 
     // SizedCString (sends size + string + null terminator but only if not empty)
     namespace SizedCString
     {
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringWritable Container>
         struct SizeWriter
         {
             Container const& Value;
@@ -595,7 +637,7 @@ namespace WorldPackets
             }
         };
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringReadable Container>
         struct SizeReaderWriter : SizeWriter<BitCount, Container>
         {
             friend inline ByteBuffer& operator>>(ByteBuffer& data, SizeReaderWriter const& bits)
@@ -606,13 +648,13 @@ namespace WorldPackets
             }
         };
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringWritable Container>
         inline SizeWriter<BitCount, Container> BitsSize(Container const& value) { return { value }; }
 
-        template<uint32 BitCount, typename Container>
+        template<uint32 BitCount, StringReadable Container>
         inline SizeReaderWriter<BitCount, Container> BitsSize(Container& value) { return { value }; }
 
-        template<typename Container>
+        template<StringWritable Container>
         struct DataWriter
         {
             Container const& Value;
@@ -628,7 +670,7 @@ namespace WorldPackets
             }
         };
 
-        template<typename Container, Strings::Utf8Mode Mode>
+        template<StringReadable Container, Strings::Utf8Mode Mode>
         struct DataReaderWriter : DataWriter<Container>
         {
             static constexpr bool IsUtf8() { return Mode == Strings::ValidUtf8; }
@@ -644,10 +686,10 @@ namespace WorldPackets
             }
         };
 
-        template<Strings::Utf8Mode = Strings::ValidUtf8, typename Container>
+        template<Strings::Utf8Mode = Strings::ValidUtf8, StringWritable Container>
         inline DataWriter<Container> Data(Container const& value) { return { value }; }
 
-        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, typename Container>
+        template<Strings::Utf8Mode Mode = Strings::ValidUtf8, StringReadable Container>
         inline DataReaderWriter<Container, Mode> Data(Container& value) { return { value }; }
     }
 }

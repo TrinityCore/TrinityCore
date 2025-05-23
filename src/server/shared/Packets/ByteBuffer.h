@@ -18,8 +18,9 @@
 #ifndef TRINITYCORE_BYTE_BUFFER_H
 #define TRINITYCORE_BYTE_BUFFER_H
 
-#include "Define.h"
 #include "ByteConverter.h"
+#include "Concepts.h"
+#include "Define.h"
 #include <array>
 #include <string>
 #include <vector>
@@ -49,6 +50,14 @@ class TC_SHARED_API ByteBufferInvalidValueException : public ByteBufferException
 public:
     ByteBufferInvalidValueException(char const* type, std::string_view value);
 };
+
+template <typename T>
+concept ByteBufferNumeric = std::same_as<T, int8> || std::same_as<T, uint8>
+    || std::same_as<T, int16> || std::same_as<T, uint16>
+    || std::same_as<T, int32> || std::same_as<T, uint32>
+    || std::same_as<T, int64> || std::same_as<T, uint64>
+    || std::same_as<T, float> || std::same_as<T, double>
+    || std::same_as<T, char> || std::is_enum_v<T>;
 
 class TC_SHARED_API ByteBuffer
 {
@@ -117,10 +126,9 @@ class TC_SHARED_API ByteBuffer
             _storage.clear();
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         void append(T value)
         {
-            static_assert(std::is_trivially_copyable_v<T>, "append(T) must be used with trivially copyable types");
             EndianConvert(value);
             append(reinterpret_cast<uint8 const*>(&value), sizeof(value));
         }
@@ -248,10 +256,9 @@ class TC_SHARED_API ByteBuffer
             return value;
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         void put(std::size_t pos, T value)
         {
-            static_assert(std::is_trivially_copyable_v<T>, "put(size_t, T) must be used with trivially copyable types");
             EndianConvert(value);
             put(pos, reinterpret_cast<uint8 const*>(&value), sizeof(value));
         }
@@ -469,7 +476,7 @@ class TC_SHARED_API ByteBuffer
             return _wpos * 8 + 8 - _bitpos;
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         void read_skip() { read_skip(sizeof(T)); }
 
         void read_skip(size_t skip)
@@ -481,7 +488,7 @@ class TC_SHARED_API ByteBuffer
             _rpos += skip;
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         T read()
         {
             ResetBitPos();
@@ -490,7 +497,7 @@ class TC_SHARED_API ByteBuffer
             return r;
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         T read(size_t pos) const
         {
             if (pos + sizeof(T) > _storage.size())
@@ -502,7 +509,7 @@ class TC_SHARED_API ByteBuffer
             return val;
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         void read(T* dest, size_t count)
         {
             static_assert(std::is_trivially_copyable_v<T>, "read(T*, size_t) must be used with trivially copyable types");
@@ -523,8 +530,8 @@ class TC_SHARED_API ByteBuffer
             _rpos += len;
         }
 
-        template <size_t Size>
-        void read(std::array<uint8, Size>& arr)
+        template <ByteBufferNumeric T, size_t Size>
+        void read(std::array<T, Size>& arr)
         {
             read(arr.data(), Size);
         }
@@ -549,6 +556,8 @@ class TC_SHARED_API ByteBuffer
                 append(str, len);
         }
 
+        void ReadSkipCString(bool requireValidUtf8 = true) { (void)ReadCString(requireValidUtf8); }
+
         std::string_view ReadCString(bool requireValidUtf8 = true);
 
         std::string_view ReadString(uint32 length, bool requireValidUtf8 = true);
@@ -563,12 +572,12 @@ class TC_SHARED_API ByteBuffer
         {
             _storage.resize(newsize, 0);
             _rpos = 0;
-            _wpos = size();
+            _wpos = _storage.size();
         }
 
         void reserve(size_t ressize)
         {
-            if (ressize > size())
+            if (ressize > _storage.size())
                 _storage.reserve(ressize);
         }
 
@@ -577,7 +586,7 @@ class TC_SHARED_API ByteBuffer
             _storage.shrink_to_fit();
         }
 
-        template <typename T>
+        template <ByteBufferNumeric T>
         void append(T const* src, size_t cnt)
         {
 #if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
@@ -596,8 +605,8 @@ class TC_SHARED_API ByteBuffer
                 append(buffer.data(), buffer.size());
         }
 
-        template <size_t Size>
-        void append(std::array<uint8, Size> const& arr)
+        template <ByteBufferNumeric T, std::size_t Size>
+        void append(std::array<T, Size> const& arr)
         {
             append(arr.data(), Size);
         }
@@ -619,30 +628,7 @@ class TC_SHARED_API ByteBuffer
         std::vector<uint8> _storage;
 };
 
-template <>
-inline std::string ByteBuffer::read<std::string>()
-{
-    return std::string(ReadCString());
-}
-
-template <>
-inline void ByteBuffer::read_skip<char*>()
-{
-    (void)ReadCString();
-}
-
-template <>
-inline void ByteBuffer::read_skip<char const*>()
-{
-    read_skip<char*>();
-}
-
-template <>
-inline void ByteBuffer::read_skip<std::string>()
-{
-    read_skip<char*>();
-}
-
+extern template char ByteBuffer::read<char>();
 extern template uint8 ByteBuffer::read<uint8>();
 extern template uint16 ByteBuffer::read<uint16>();
 extern template uint32 ByteBuffer::read<uint32>();
@@ -653,5 +639,9 @@ extern template int32 ByteBuffer::read<int32>();
 extern template int64 ByteBuffer::read<int64>();
 extern template float ByteBuffer::read<float>();
 extern template double ByteBuffer::read<double>();
+
+template <typename T>
+concept HasByteBufferShiftOperators = requires(ByteBuffer& data, T const& value) { { data << value } -> std::convertible_to<ByteBuffer&>; }
+                                   && requires(ByteBuffer& data, T& value)       { { data >> value } -> std::convertible_to<ByteBuffer&>; };
 
 #endif

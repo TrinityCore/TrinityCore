@@ -575,7 +575,7 @@ WorldPacket const* LoadCUFProfiles::Write()
 
         // Bool Options
         for (uint8 option = 0; option < CUF_BOOL_OPTIONS_COUNT; option++)
-            _worldPacket << Bits<1>(cufProfile->BoolOptions[option]);
+            _worldPacket.WriteBit(cufProfile->BoolOptions[option]);
 
         // Other Options
         _worldPacket << uint16(cufProfile->FrameHeight);

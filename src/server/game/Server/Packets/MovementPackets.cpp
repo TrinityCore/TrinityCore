@@ -1095,7 +1095,33 @@ WorldPacket const* ResumeToken::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, MoveSetCompoundState::MoveStateChange const& stateChange)
+ByteBuffer& operator<<(ByteBuffer& data, CollisionHeightInfo const& collisionHeightInfo)
+{
+    data << float(collisionHeightInfo.Height);
+    data << float(collisionHeightInfo.Scale);
+    data << uint8(collisionHeightInfo.Reason);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, StateChangeRangeInfo const& stateChangeRangeInfo)
+{
+    data << float(stateChangeRangeInfo.Min);
+    data << float(stateChangeRangeInfo.Max);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, KnockBackInfo const& knockBackInfo)
+{
+    data << float(knockBackInfo.HorzSpeed);
+    data << knockBackInfo.Direction;
+    data << float(knockBackInfo.InitVertSpeed);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, MoveStateChange const& stateChange)
 {
     data << uint32(stateChange.MessageID);
     data << uint32(stateChange.SequenceIndex);
@@ -1118,27 +1144,16 @@ ByteBuffer& operator<<(ByteBuffer& data, MoveSetCompoundState::MoveStateChange c
         data << float(*stateChange.Speed);
 
     if (stateChange.Range)
-    {
-        data << float(stateChange.Range->Min);
-        data << float(stateChange.Range->Max);
-    }
+        data << *stateChange.Range;
 
     if (stateChange.KnockBack)
-    {
-        data << float(stateChange.KnockBack->HorzSpeed);
-        data << stateChange.KnockBack->Direction;
-        data << float(stateChange.KnockBack->InitVertSpeed);
-    }
+        data << *stateChange.KnockBack;
 
     if (stateChange.VehicleRecID)
         data << int32(*stateChange.VehicleRecID);
 
     if (stateChange.CollisionHeight)
-    {
-        data << float(stateChange.CollisionHeight->Height);
-        data << float(stateChange.CollisionHeight->Scale);
-        data << uint8(stateChange.CollisionHeight->Reason);
-    }
+        data << *stateChange.CollisionHeight;
 
     if (stateChange.MovementForceGUID)
         data << *stateChange.MovementForceGUID;

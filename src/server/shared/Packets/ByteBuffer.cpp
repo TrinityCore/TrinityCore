@@ -198,6 +198,7 @@ void ByteBuffer::OnInvalidPosition(size_t pos, size_t valueSize) const
     throw ByteBufferPositionException(pos, _storage.size(), valueSize);
 }
 
+template TC_SHARED_API char ByteBuffer::read<char>();
 template TC_SHARED_API uint8 ByteBuffer::read<uint8>();
 template TC_SHARED_API uint16 ByteBuffer::read<uint16>();
 template TC_SHARED_API uint32 ByteBuffer::read<uint32>();
