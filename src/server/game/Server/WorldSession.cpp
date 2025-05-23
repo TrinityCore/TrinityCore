@@ -523,9 +523,9 @@ void WorldSession::LogoutPlayer(bool save)
         if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
-        ///- Teleport to home if the player is in an invalid instance
+        ///- Teleport out if the player is in an invalid instance
         if (!_player->m_InstanceValid && !_player->IsGameMaster())
-            _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
+            _player->TeleportToBGEntryPoint();
 
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
