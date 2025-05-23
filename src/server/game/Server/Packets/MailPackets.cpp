@@ -19,6 +19,7 @@
 #include "GameTime.h"
 #include "Item.h"
 #include "Mail.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Mail

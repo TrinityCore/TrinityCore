@@ -18,6 +18,7 @@
 #include "ItemPacketsCommon.h"
 #include "Item.h"
 #include "Loot.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Item

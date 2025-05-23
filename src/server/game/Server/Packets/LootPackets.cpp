@@ -16,6 +16,7 @@
  */
 
 #include "LootPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Loot
 {

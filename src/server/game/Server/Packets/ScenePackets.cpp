@@ -16,7 +16,7 @@
  */
 
 #include "ScenePackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Scenes
 {

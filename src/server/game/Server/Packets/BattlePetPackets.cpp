@@ -16,6 +16,7 @@
  */
 
 #include "BattlePetPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::BattlePet
 {

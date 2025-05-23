@@ -16,6 +16,7 @@
  */
 
 #include "VoidStoragePackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::VoidStorage
 {

@@ -21,6 +21,7 @@
 #include "Ed25519.h"
 #include "HMAC.h"
 #include "ObjectMgr.h"
+#include "PacketOperators.h"
 #include "RSA.h"
 
 namespace WorldPackets::Auth

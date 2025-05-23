@@ -16,7 +16,7 @@
  */
 
 #include "CombatLogPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 #include "Spell.h"
 #include "UnitDefines.h"
 

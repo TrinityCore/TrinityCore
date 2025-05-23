@@ -19,7 +19,7 @@
 #include "MoveSpline.h"
 #include "MoveSplineFlag.h"
 #include "MovementTypedefs.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 #include "UnitDefines.h"
 #include "Util.h"
 

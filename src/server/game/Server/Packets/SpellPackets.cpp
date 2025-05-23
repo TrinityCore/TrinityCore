@@ -18,6 +18,7 @@
 #include "SpellPackets.h"
 #include "CharacterPackets.h"
 #include "MovementPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Spells
 {

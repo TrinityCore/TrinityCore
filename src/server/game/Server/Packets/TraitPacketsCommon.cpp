@@ -17,6 +17,7 @@
 
 #include "TraitPacketsCommon.h"
 #include "DBCEnums.h"
+#include "PacketOperators.h"
 #include "UpdateFields.h"
 
 namespace WorldPackets::Traits

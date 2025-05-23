@@ -16,6 +16,7 @@
  */
 
 #include "AchievementPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Achievement
 {

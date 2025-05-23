@@ -16,6 +16,7 @@
  */
 
 #include "MiscPackets.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Misc

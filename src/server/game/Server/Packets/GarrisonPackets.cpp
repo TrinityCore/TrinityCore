@@ -18,6 +18,7 @@
 #include "GarrisonPackets.h"
 #include "DB2Structure.h"
 #include "Errors.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Garrison
 {
