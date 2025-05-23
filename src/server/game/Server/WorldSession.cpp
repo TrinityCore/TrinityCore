@@ -523,10 +523,6 @@ void WorldSession::LogoutPlayer(bool save)
         if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
-        ///- Teleport out if the player is in an invalid instance
-        if (!_player->m_InstanceValid && !_player->IsGameMaster())
-            _player->TeleportToBGEntryPoint();
-
         sOutdoorPvPMgr->HandlePlayerLeaveZone(_player, _player->GetZoneId());
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
