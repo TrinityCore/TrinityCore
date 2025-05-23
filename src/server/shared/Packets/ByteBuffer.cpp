@@ -18,8 +18,6 @@
 #include "ByteBuffer.h"
 #include "Errors.h"
 #include "Log.h"
-#include "MessageBuffer.h"
-#include "Util.h"
 #include <utf8.h>
 #include <algorithm>
 #include <sstream>
@@ -32,10 +30,6 @@ ByteBufferPositionException::ByteBufferPositionException(size_t pos, size_t size
 
 ByteBufferInvalidValueException::ByteBufferInvalidValueException(char const* type, std::string_view value)
     : ByteBufferException(Trinity::StringFormat("Invalid {} value ({}) found in ByteBuffer", type, value))
-{
-}
-
-ByteBuffer::ByteBuffer(MessageBuffer&& buffer) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0), _storage(buffer.Move())
 {
 }
 
