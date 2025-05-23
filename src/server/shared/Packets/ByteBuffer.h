@@ -25,8 +25,6 @@
 #include <vector>
 #include <cstring>
 
-class MessageBuffer;
-
 // Root of ByteBuffer exception hierarchy
 class TC_SHARED_API ByteBufferException : public std::exception
 {
@@ -58,34 +56,32 @@ class TC_SHARED_API ByteBuffer
         constexpr static size_t DEFAULT_SIZE = 0x1000;
         constexpr static uint8 InitialBitPos = 8;
 
-        // constructor
-        ByteBuffer() : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
-        {
-            _storage.reserve(DEFAULT_SIZE);
-        }
-
         // reserve/resize tag
         struct Reserve { };
         struct Resize { };
 
-        ByteBuffer(size_t size, Reserve) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
+        // constructor
+        explicit ByteBuffer() : ByteBuffer(DEFAULT_SIZE, Reserve{}) { }
+
+        explicit ByteBuffer(size_t size, Reserve) : _rpos(0), _wpos(0), _bitpos(InitialBitPos), _curbitval(0)
         {
             _storage.reserve(size);
         }
 
-        ByteBuffer(size_t size, Resize) : _rpos(0), _wpos(size), _bitpos(InitialBitPos), _curbitval(0)
+        explicit ByteBuffer(size_t size, Resize) : _rpos(0), _wpos(size), _bitpos(InitialBitPos), _curbitval(0)
         {
             _storage.resize(size);
         }
 
-        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos),
-            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf.Move()) { }
-
         ByteBuffer(ByteBuffer const& right) = default;
 
-        ByteBuffer(MessageBuffer&& buffer);
+        ByteBuffer(ByteBuffer&& buf) noexcept : _rpos(buf._rpos), _wpos(buf._wpos),
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(std::move(buf).Release()) { }
 
-        std::vector<uint8>&& Move() noexcept
+        explicit ByteBuffer(std::vector<uint8>&& buffer) noexcept : _rpos(0), _wpos(buffer.size()),
+            _bitpos(InitialBitPos), _curbitval(0), _storage(std::move(buffer)) { }
+
+        std::vector<uint8>&& Release() && noexcept
         {
             _rpos = 0;
             _wpos = 0;
@@ -94,19 +90,7 @@ class TC_SHARED_API ByteBuffer
             return std::move(_storage);
         }
 
-        ByteBuffer& operator=(ByteBuffer const& right)
-        {
-            if (this != &right)
-            {
-                _rpos = right._rpos;
-                _wpos = right._wpos;
-                _bitpos = right._bitpos;
-                _curbitval = right._curbitval;
-                _storage = right._storage;
-            }
-
-            return *this;
-        }
+        ByteBuffer& operator=(ByteBuffer const& right) = default;
 
         ByteBuffer& operator=(ByteBuffer&& right) noexcept
         {
@@ -116,7 +100,7 @@ class TC_SHARED_API ByteBuffer
                 _wpos = right._wpos;
                 _bitpos = right._bitpos;
                 _curbitval = right._curbitval;
-                _storage = right.Move();
+                _storage = std::move(right).Release();
             }
 
             return *this;
