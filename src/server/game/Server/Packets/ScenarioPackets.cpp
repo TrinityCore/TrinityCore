@@ -16,6 +16,7 @@
  */
 
 #include "ScenarioPackets.h"
+#include "PacketOperators.h"
 #include "ScenarioMgr.h"
 
 namespace WorldPackets::Scenario

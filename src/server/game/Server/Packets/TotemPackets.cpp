@@ -16,6 +16,7 @@
  */
 
 #include "TotemPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Totem
 {

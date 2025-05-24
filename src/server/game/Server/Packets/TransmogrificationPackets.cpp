@@ -16,6 +16,7 @@
  */
 
 #include "TransmogrificationPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Transmogrification
 {

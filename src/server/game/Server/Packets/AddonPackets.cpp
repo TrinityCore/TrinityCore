@@ -17,7 +17,7 @@
 
 #include "AddonPackets.h"
 #include "ByteBuffer.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Addon
 {

@@ -16,7 +16,7 @@
  */
 
 #include "GameObjectPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 void WorldPackets::GameObject::GameObjUse::Read()
 {

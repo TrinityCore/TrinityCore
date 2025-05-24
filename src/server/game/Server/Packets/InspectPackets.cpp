@@ -18,6 +18,7 @@
 #include "InspectPackets.h"
 #include "AzeriteItem.h"
 #include "Item.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Inspect

@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Field.h"
 #include "ObjectMgr.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "StringConvert.h"
 #include "World.h"

@@ -16,6 +16,7 @@
  */
 
 #include "TradePackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Trade
 {

@@ -16,6 +16,7 @@
  */
 
 #include "BattlenetPackets.h"
+#include "PacketOperators.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets::Battlenet

@@ -16,6 +16,7 @@
  */
 
 #include "ClientConfigPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::ClientConfig
 {

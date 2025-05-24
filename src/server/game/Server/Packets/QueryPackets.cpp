@@ -20,6 +20,7 @@
 #include "CharacterCache.h"
 #include "ClubUtils.h"
 #include "ObjectMgr.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "World.h"
 
