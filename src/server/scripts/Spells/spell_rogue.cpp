@@ -361,9 +361,8 @@ class spell_rog_deepening_shadows : public AuraScript
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo) const
     {
-        Spell const* procSpell = procInfo.GetProcSpell();
-        int32 amount = aurEff->GetAmount() * *procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
-        GetTarget()->GetSpellHistory()->ModifyChargeRecoveryTime((sSpellMgr->AssertSpellInfo(SPELL_ROGUE_SHADOW_DANCE, GetCastDifficulty())->ChargeCategoryId), -Seconds(amount) / 10);
+        Milliseconds amount = -Seconds(aurEff->GetAmount()) * *procInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        GetTarget()->GetSpellHistory()->ModifyChargeRecoveryTime(sSpellMgr->AssertSpellInfo(SPELL_ROGUE_SHADOW_DANCE, GetCastDifficulty())->ChargeCategoryId, amount / 10);
     }
 
     void Register() override
