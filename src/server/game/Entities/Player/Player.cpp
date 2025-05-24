@@ -26144,17 +26144,23 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
     if (!offItem)
         return;
 
+    ItemTemplate const* offhandTemplate = offItem->GetTemplate();
+
     // unequip offhand weapon if player doesn't have dual wield anymore
     if (!CanDualWield()
-        && ((offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPONOFFHAND && !offItem->GetTemplate()->HasFlag(ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD))
-            || offItem->GetTemplate()->GetInventoryType() == INVTYPE_WEAPON))
+        && ((offhandTemplate->GetInventoryType() == INVTYPE_WEAPONOFFHAND && !offhandTemplate->HasFlag(ITEM_FLAG3_ALWAYS_ALLOW_DUAL_WIELD))
+            || offhandTemplate->GetInventoryType() == INVTYPE_WEAPON))
         force = true;
 
     // need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
-    if (!force && CanTitanGrip(offItem))
+    if (!force)
     {
         Item* mainItem = GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-        if (!mainItem || CanTitanGrip(mainItem))
+        if ((!mainItem || mainItem->GetTemplate()->GetInventoryType() != INVTYPE_2HWEAPON)
+            && offhandTemplate->GetInventoryType() != INVTYPE_2HWEAPON)
+            return;
+
+        if ((!mainItem || CanTitanGrip(mainItem)) && CanTitanGrip(offItem))
             return;
     }
 
