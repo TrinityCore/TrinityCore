@@ -68,3 +68,5 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 (@OGUID+32, 214501, 530, 4080, 0, '0', '0', 0, 12882.4931640625, -7341.705078125, 65.53025054931640625, 1.09095311164855957, 0, 0, 0.518825531005859375, 0.854880154132843017, 120, 255, 1, 60822), -- Instance Portal (Party + Heroic) (Area: 0 - Difficulty: 0) CreateObject1
 (@OGUID+33, 214501, 585, 4131, 4131, '1,2,24', '0', 0, -5.75173616409301757, 0.276041656732559204, -0.23753274977207183, 0, 0, 0, 0, 1, 7200, 255, 1, 60822); -- Instance Portal (Party + Heroic) (Area: Magisters' Terrace - Difficulty: 0) CreateObject1
 
+-- remove old portals that no longer exist in gameobject_template table
+DELETE FROM `gameobject` WHERE `guid` IN (235180, 235181, 235182, 235183);
