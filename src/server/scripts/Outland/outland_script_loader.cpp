@@ -80,6 +80,7 @@ void AddSC_boss_ahune();
 void AddSC_instance_the_underbog();
 void AddSC_boss_hungarfen();
 void AddSC_boss_the_black_stalker();
+void AddSC_boss_swamplord_muselek();
 
 // Gruul's Lair
 void AddSC_boss_gruul();
@@ -204,6 +205,7 @@ void AddOutlandScripts()
     AddSC_instance_the_underbog();
     AddSC_boss_hungarfen();
     AddSC_boss_the_black_stalker();
+    AddSC_boss_swamplord_muselek();
 
     // Gruul's Lair
     AddSC_boss_gruul();
