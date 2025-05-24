@@ -26,7 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Says
+enum TeronTexts
 {
     SAY_INTRO      = 0,
     SAY_AGGRO      = 1,
@@ -37,7 +37,7 @@ enum Says
     SAY_DEATH      = 6
 };
 
-enum Spells
+enum TeronSpells
 {
     //Teron
     SPELL_INCINERATE                 = 40239,
@@ -71,14 +71,14 @@ enum Spells
     SPELL_SPIRIT_LANCE               = 40157
 };
 
-enum Npcs
+enum TeronCreatures
 {
     NPC_DOOM_BLOSSOM      = 23123,
     NPC_SHADOWY_CONSTRUCT = 23111,
     NPC_VENGEFUL_SPIRIT   = 23109 //Npc controlled by player
 };
 
-enum Events
+enum TeronEvents
 {
     EVENT_ENRAGE = 1,
     EVENT_INCINERATE,
@@ -87,7 +87,7 @@ enum Events
     EVENT_CRUSHING_SHADOWS
 };
 
-enum Actions
+enum TeronActions
 {
     ACTION_START_INTRO = 1
 };
@@ -100,6 +100,7 @@ uint32 const SkeletronSpells[4] =
     SPELL_SUMMON_SKELETRON_4
 };
 
+// 22871 - Teron Gorefiend
 struct boss_teron_gorefiend : public BossAI
 {
     boss_teron_gorefiend(Creature* creature) : BossAI(creature, DATA_TERON_GOREFIEND) { }
@@ -162,22 +163,22 @@ struct boss_teron_gorefiend : public BossAI
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_INCINERATE);
                     Talk(SAY_INCINERATE);
-                    events.Repeat(Seconds(12), Seconds(20));
+                    events.Repeat(12s, 20s);
                     break;
                 case EVENT_SUMMON_DOOM_BLOSSOM:
                     DoCastSelf(SPELL_SUMMON_DOOM_BLOSSOM, true);
                     Talk(SAY_BLOSSOM);
-                    events.Repeat(Seconds(30), Seconds(40));
+                    events.Repeat(30s, 40s);
                     break;
                 case EVENT_SHADOW_DEATH:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, true, -SPELL_SPIRITUAL_VENGEANCE))
                         DoCast(target, SPELL_SHADOW_OF_DEATH);
-                    events.Repeat(Seconds(30), Seconds(35));
+                    events.Repeat(30s, 35s);
                     break;
                 case EVENT_CRUSHING_SHADOWS:
                     DoCastSelf(SPELL_CRUSHING_SHADOWS, { SPELLVALUE_MAX_TARGETS, 5 });
                     Talk(SAY_CRUSHING);
-                    events.Repeat(Seconds(18), Seconds(30));
+                    events.Repeat(18s, 30s);
                     break;
                 default:
                     break;
@@ -191,6 +192,7 @@ struct boss_teron_gorefiend : public BossAI
     }
 };
 
+// 23123 - Doom Blossom
 struct npc_doom_blossom : public NullCreatureAI
 {
     npc_doom_blossom(Creature* creature) : NullCreatureAI(creature), _instance(me->GetInstanceScript()) { }
@@ -206,12 +208,12 @@ struct npc_doom_blossom : public NullCreatureAI
         DoCast(SPELL_SUMMON_BLOSSOM_MOVE_TARGET);
         _scheduler.CancelAll();
         DoZoneInCombat();
-        _scheduler.Schedule(Seconds(12), [this](TaskContext shadowBolt)
+        _scheduler.Schedule(12s, [this](TaskContext shadowBolt)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 DoCast(target, SPELL_SHADOWBOLT);
 
-            shadowBolt.Repeat(Seconds(2));
+            shadowBolt.Repeat(2s);
         });
     }
 
@@ -228,6 +230,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 23111 - Shadowy Construct
 struct npc_shadowy_construct : public ScriptedAI
 {
     npc_shadowy_construct(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -242,12 +245,12 @@ struct npc_shadowy_construct : public ScriptedAI
 
         targetGUID.Clear();
         _scheduler.CancelAll();
-        _scheduler.Schedule(Seconds(12), [this](TaskContext atrophy)
+        _scheduler.Schedule(12s, [this](TaskContext atrophy)
         {
             DoCastVictim(SPELL_ATROPHY);
-            atrophy.Repeat(Seconds(10), Seconds(12));
+            atrophy.Repeat(10s, 12s);
         });
-        _scheduler.Schedule(Milliseconds(200), [this](TaskContext checkPlayer)
+        _scheduler.Schedule(200ms, [this](TaskContext checkPlayer)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
             {
@@ -257,7 +260,7 @@ struct npc_shadowy_construct : public ScriptedAI
             else
                 SelectNewTarget();
 
-            checkPlayer.Repeat(Seconds(1));
+            checkPlayer.Repeat(1s);
         });
 
         if (Creature* teron = _instance->GetCreature(DATA_TERON_GOREFIEND))
