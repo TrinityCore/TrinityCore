@@ -379,7 +379,7 @@ class spell_swamplord_muselek_move_away_primer : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-	    // This should be more tricky. More like random position but with min and max distance, not just random
+        // This should be more tricky. More like random position but with min and max distance, not just random
         Position pos = GetCaster()->GetRandomNearPosition(30.0f);
         GetCaster()->GetMotionMaster()->MovePoint(POINT_MOVE_AWAY, pos);
     }
