@@ -564,7 +564,7 @@ struct npc_ashtongue_channeler : public PassiveAI
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(2), [this](TaskContext channel)
+        _scheduler.Schedule(2s, [this](TaskContext channel)
         {
             if (Creature* shade = _instance->GetCreature(DATA_SHADE_OF_AKAMA))
             {
@@ -708,7 +708,7 @@ struct npc_ashtongue_sorcerer : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->DespawnOrUnsummon(Seconds(5));
+        me->DespawnOrUnsummon(5s);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override { }
@@ -789,7 +789,7 @@ struct npc_ashtongue_defender : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->DespawnOrUnsummon(Seconds(5));
+        me->DespawnOrUnsummon(5s);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -856,7 +856,7 @@ struct npc_ashtongue_rogue : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->DespawnOrUnsummon(Seconds(5));
+        me->DespawnOrUnsummon(5s);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -915,7 +915,7 @@ struct npc_ashtongue_elementalist : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->DespawnOrUnsummon(Seconds(5));
+        me->DespawnOrUnsummon(5s);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -983,7 +983,7 @@ struct npc_ashtongue_spiritbinder : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->DespawnOrUnsummon(Seconds(5));
+        me->DespawnOrUnsummon(5s);
     }
 
     void JustEngagedWith(Unit* /*who*/) override

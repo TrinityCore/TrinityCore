@@ -942,7 +942,7 @@ struct boss_illidan_stormrage : public BossAI
                     break;
                 case EVENT_AGONIZING_FLAMES:
                     DoCastSelf(SPELL_AGONIZING_FLAMES_SELECTOR);
-                    events.Repeat(Seconds(53));
+                    events.Repeat(53s);
                     break;
                 case EVENT_DEMON:
                     me->SetControlled(true, UNIT_STATE_ROOT);
@@ -1312,7 +1312,7 @@ struct npc_akama_illidan : public ScriptedAI
                 case EVENT_HEALING_POTION:
                     if (me->HealthBelowPct(20))
                         DoCastSelf(SPELL_HEALING_POTION);
-                    _events.Repeat(Seconds(1));
+                    _events.Repeat(1s);
                     break;
                 case EVENT_AKAMA_MINIONS:
                     Talk(SAY_AKAMA_MINIONS);
@@ -1334,7 +1334,7 @@ struct npc_akama_illidan : public ScriptedAI
                     break;
                 case EVENT_CHAIN_LIGHTNING:
                     DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                    _events.Repeat(Seconds(8) + Milliseconds(500));
+                    _events.Repeat(8s + 500ms);
                     break;
                 case EVENT_AKAMA_MOVE_BACK:
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_MOVE_BACK, SPLINE_MOVE_BACK, false);
@@ -1390,7 +1390,7 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
         if (Creature* illidan = _instance->GetCreature(DATA_ILLIDAN_STORMRAGE))
             illidan->AI()->JustSummoned(me);
         me->SetReactState(REACT_PASSIVE);
-        _scheduler.Schedule(Seconds(2), [this](TaskContext /*context*/)
+        _scheduler.Schedule(2s, [this](TaskContext /*context*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             DoZoneInCombat();
@@ -1445,7 +1445,7 @@ struct npc_blade_of_azzinoth : public NullCreatureAI
         _flameGuid.Clear();
         me->PlayDirectSound(WARGLAIVE_SPAWN_SOUND_ID);
         DoCastSelf(SPELL_BIRTH, true);
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_SUMMON_TEAR_OF_AZZINOTH);
             _scheduler.Schedule(500ms, [this](TaskContext /*context*/)
@@ -1592,7 +1592,7 @@ struct npc_shadow_demon : public PassiveAI
 
         DoCastSelf(SPELL_SHADOW_DEMON_PASSIVE);
         DoCastSelf(SPELL_FIND_TARGET);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext checkTarget)
+        _scheduler.Schedule(1s, [this](TaskContext checkTarget)
         {
             if (Unit* target = ObjectAccessor::GetUnit(*me, _targetGUID))
             {
@@ -2360,7 +2360,7 @@ class spell_illidan_despawn_akama : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())
-            target->DespawnOrUnsummon(Seconds(1));
+            target->DespawnOrUnsummon(1s);
     }
 
     void Register() override

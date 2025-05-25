@@ -422,7 +422,7 @@ struct boss_essence_of_desire : public BossAI
                 reliquary->AI()->DoAction(ACTION_ESSENCE_OF_DESIRE_DEAD);
 
             DoCastSelf(SPELL_SUBMERGE_VISUAL, true);
-            me->DespawnOrUnsummon(Seconds(2));
+            me->DespawnOrUnsummon(2s);
         }
     }
 
