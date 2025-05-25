@@ -22,7 +22,7 @@
 #include "violet_hold.h"
 
 enum CyanigosaTexts
-{                                  
+{
     SAY_AGGRO                      = 0,
     SAY_SLAY                       = 1,
     SAY_DEATH                      = 2,
