@@ -18,6 +18,7 @@
 #include "InspectPackets.h"
 #include "AzeriteItem.h"
 #include "Item.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Inspect
@@ -40,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AzeriteEssenceData const& azeriteEssenc
     data << uint32(azeriteEssenceData.Index);
     data << uint32(azeriteEssenceData.AzeriteEssenceID);
     data << uint32(azeriteEssenceData.Rank);
-    data.WriteBit(azeriteEssenceData.SlotUnlocked);
+    data << Bits<1>(azeriteEssenceData.SlotUnlocked);
     data.FlushBits();
 
     return data;
@@ -50,16 +51,16 @@ ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
     data << uint8(itemData.Index);
-    data << uint32(itemData.AzeritePowers.size());
-    data << uint32(itemData.AzeriteEssences.size());
+    data << Size<uint32>(itemData.AzeritePowers);
+    data << Size<uint32>(itemData.AzeriteEssences);
 
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
 
     data << itemData.Item;
-    data.WriteBit(itemData.Usable);
-    data.WriteBits(itemData.Enchants.size(), 4);
-    data.WriteBits(itemData.Gems.size(), 2);
+    data << Bits<1>(itemData.Usable);
+    data << BitsSize<4>(itemData.Enchants);
+    data << BitsSize<2>(itemData.Gems);
     data.FlushBits();
 
     for (AzeriteEssenceData const& azeriteEssenceData : itemData.AzeriteEssences)
@@ -95,13 +96,13 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerModelDisplayInfo const& displayIn
 {
     data << displayInfo.GUID;
     data << int32(displayInfo.SpecializationID);
-    data << uint32(displayInfo.Items.size());
-    data.WriteBits(displayInfo.Name.length(), 6);
+    data << Size<uint32>(displayInfo.Items);
+    data << SizedString::BitsSize<6>(displayInfo.Name);
     data << uint8(displayInfo.GenderID);
     data << uint8(displayInfo.Race);
     data << uint8(displayInfo.ClassID);
-    data << uint32(displayInfo.Customizations.size());
-    data.WriteString(displayInfo.Name);
+    data << Size<uint32>(displayInfo.Customizations);
+    data << SizedString::Data(displayInfo.Name);
 
     for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
         data << customization;
@@ -141,7 +142,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
     data << int32(bracket.RoundsSeasonWon);
     data << int32(bracket.RoundsWeeklyPlayed);
     data << int32(bracket.RoundsWeeklyWon);
-    data.WriteBit(bracket.Disqualified);
+    data << Bits<1>(bracket.Disqualified);
     data.FlushBits();
 
     return data;
@@ -208,9 +209,9 @@ InspectItemData::InspectItemData(::Item const* item, uint8 index)
 WorldPacket const* InspectResult::Write()
 {
     _worldPacket << DisplayInfo;
-    _worldPacket << uint32(Glyphs.size());
-    _worldPacket << uint32(Talents.size());
-    _worldPacket << uint32(PvpTalents.size());
+    _worldPacket << Size<uint32>(Glyphs);
+    _worldPacket << Size<uint32>(Talents);
+    _worldPacket << Size<uint32>(PvpTalents);
     _worldPacket << int32(ItemLevel);
     _worldPacket << uint8(LifetimeMaxRank);
     _worldPacket << uint16(TodayHK);
@@ -224,8 +225,8 @@ WorldPacket const* InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
-    _worldPacket.WriteBit(GuildData.has_value());
-    _worldPacket.WriteBit(AzeriteLevel.has_value());
+    _worldPacket << OptionalInit(GuildData);
+    _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();
 
     for (PVPBracketData const& bracket : Bracket)

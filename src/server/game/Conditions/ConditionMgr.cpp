@@ -3285,13 +3285,6 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     return true;
 }
 
-static ByteBuffer HexToBytes(std::string_view const& hex)
-{
-    ByteBuffer buffer(hex.length() / 2, ByteBuffer::Resize{});
-    Trinity::Impl::HexStrToByteArray(hex, buffer.data(), buffer.size());
-    return buffer;
-}
-
 static constexpr int32(* const WorldStateExpressionFunctions[WSE_FUNCTION_MAX])(Map const*, uint32, uint32) =
 {
     // WSE_FUNCTION_NONE
@@ -3636,7 +3629,7 @@ bool EvalRelOp(ByteBuffer& buffer, Map const* map)
 
 bool ConditionMgr::IsMeetingWorldStateExpression(Map const* map, WorldStateExpressionEntry const* expression) try
 {
-    ByteBuffer buffer = HexToBytes(expression->Expression);
+    ByteBuffer buffer(HexStrToByteVector(expression->Expression));
     if (buffer.empty())
         return false;
 

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WhoPackets_h__
-#define WhoPackets_h__
+#ifndef TRINITYCORE_WHO_PACKETS_H
+#define TRINITYCORE_WHO_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -30,7 +30,7 @@ namespace WorldPackets
         class WhoIsRequest final : public ClientPacket
         {
         public:
-            WhoIsRequest(WorldPacket&& packet) : ClientPacket(CMSG_WHO_IS, std::move(packet)) { }
+            explicit WhoIsRequest(WorldPacket&& packet) : ClientPacket(CMSG_WHO_IS, std::move(packet)) { }
 
             void Read() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class WhoIsResponse final : public ServerPacket
         {
         public:
-            WhoIsResponse() : ServerPacket(SMSG_WHO_IS, 2) { }
+            explicit WhoIsResponse() : ServerPacket(SMSG_WHO_IS, 2) { }
 
             WorldPacket const* Write() override;
 
@@ -79,7 +79,7 @@ namespace WorldPackets
         class WhoRequestPkt final : public ClientPacket
         {
         public:
-            WhoRequestPkt(WorldPacket&& packet) : ClientPacket(CMSG_WHO, std::move(packet)) { }
+            explicit WhoRequestPkt(WorldPacket&& packet) : ClientPacket(CMSG_WHO, std::move(packet)) { }
 
             void Read() override;
 
@@ -108,7 +108,7 @@ namespace WorldPackets
         class WhoResponsePkt final : public ServerPacket
         {
         public:
-            WhoResponsePkt() : ServerPacket(SMSG_WHO, 1) { }
+            explicit WhoResponsePkt() : ServerPacket(SMSG_WHO, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -118,4 +118,4 @@ namespace WorldPackets
     }
 }
 
-#endif // WhoPackets_h__
+#endif // TRINITYCORE_WHO_PACKETS_H

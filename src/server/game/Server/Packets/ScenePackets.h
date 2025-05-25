@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ScenePackets_h__
-#define ScenePackets_h__
+#ifndef TRINITYCORE_SCENE_PACKETS_H
+#define TRINITYCORE_SCENE_PACKETS_H
 
 #include "ObjectGuid.h"
 #include "Packet.h"
@@ -29,7 +29,7 @@ namespace WorldPackets
         class TC_GAME_API PlayScene final : public ServerPacket
         {
         public:
-            PlayScene() : ServerPacket(SMSG_PLAY_SCENE, 34) { }
+            explicit PlayScene() : ServerPacket(SMSG_PLAY_SCENE, 4 + 4 + 4 + 4 + 4 + 16 + 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -46,7 +46,7 @@ namespace WorldPackets
         class TC_GAME_API CancelScene final : public ServerPacket
         {
         public:
-            CancelScene() : ServerPacket(SMSG_CANCEL_SCENE, 4) { }
+            explicit CancelScene() : ServerPacket(SMSG_CANCEL_SCENE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -56,7 +56,7 @@ namespace WorldPackets
         class SceneTriggerEvent final : public ClientPacket
         {
         public:
-            SceneTriggerEvent(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_TRIGGER_EVENT, std::move(packet)) { }
+            explicit SceneTriggerEvent(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_TRIGGER_EVENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -67,7 +67,7 @@ namespace WorldPackets
         class ScenePlaybackComplete final : public ClientPacket
         {
         public:
-            ScenePlaybackComplete(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_COMPLETE, std::move(packet)) { }
+            explicit ScenePlaybackComplete(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_COMPLETE, std::move(packet)) { }
 
             void Read() override;
 
@@ -78,7 +78,7 @@ namespace WorldPackets
         class ScenePlaybackCanceled final : public ClientPacket
         {
         public:
-            ScenePlaybackCanceled(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_CANCELED, std::move(packet)) { }
+            explicit ScenePlaybackCanceled(WorldPacket&& packet) : ClientPacket(CMSG_SCENE_PLAYBACK_CANCELED, std::move(packet)) { }
 
             void Read() override;
 
@@ -88,4 +88,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ScenePackets_h__
+#endif // TRINITYCORE_SCENE_PACKETS_H

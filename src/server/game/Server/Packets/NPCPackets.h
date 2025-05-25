@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NPCPackets_h__
-#define NPCPackets_h__
+#ifndef TRINITYCORE_NPC_PACKETS_H
+#define TRINITYCORE_NPC_PACKETS_H
 
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
@@ -43,7 +43,7 @@ namespace WorldPackets
         class Hello final : public ClientPacket
         {
         public:
-            Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit Hello(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
@@ -53,7 +53,7 @@ namespace WorldPackets
         class TC_GAME_API NPCInteractionOpenResult final : public ServerPacket
         {
         public:
-            NPCInteractionOpenResult() : ServerPacket(SMSG_NPC_INTERACTION_OPEN_RESULT, 16 + 4 + 1) { }
+            explicit NPCInteractionOpenResult() : ServerPacket(SMSG_NPC_INTERACTION_OPEN_RESULT, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -112,7 +112,7 @@ namespace WorldPackets
         class GossipMessage final : public ServerPacket
         {
         public:
-            GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 200) { }
+            explicit GossipMessage() : ServerPacket(SMSG_GOSSIP_MESSAGE, 200) { }
 
             WorldPacket const* Write() override;
 
@@ -129,7 +129,7 @@ namespace WorldPackets
         class GossipSelectOption final : public ClientPacket
         {
         public:
-            GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
+            explicit GossipSelectOption(WorldPacket&& packet) : ClientPacket(CMSG_GOSSIP_SELECT_OPTION, std::move(packet)) { }
 
             void Read() override;
 
@@ -142,7 +142,7 @@ namespace WorldPackets
         class GossipOptionNPCInteraction final : public ServerPacket
         {
         public:
-            GossipOptionNPCInteraction() : ServerPacket(SMSG_GOSSIP_OPTION_NPC_INTERACTION, 16 + 4 + 4 + 4) { }
+            explicit GossipOptionNPCInteraction() : ServerPacket(SMSG_GOSSIP_OPTION_NPC_INTERACTION, 16 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -154,7 +154,7 @@ namespace WorldPackets
         class GossipComplete final : public ServerPacket
         {
         public:
-            GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
+            explicit GossipComplete() : ServerPacket(SMSG_GOSSIP_COMPLETE, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -179,7 +179,7 @@ namespace WorldPackets
         class VendorInventory final : public ServerPacket
         {
         public:
-            VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
+            explicit VendorInventory() : ServerPacket(SMSG_VENDOR_INVENTORY, 600) { }
 
             WorldPacket const* Write() override;
 
@@ -202,7 +202,7 @@ namespace WorldPackets
         class TrainerList final : public ServerPacket
         {
         public:
-            TrainerList() : ServerPacket(SMSG_TRAINER_LIST, 150) { }
+            explicit TrainerList() : ServerPacket(SMSG_TRAINER_LIST, 150) { }
 
             WorldPacket const* Write() override;
 
@@ -216,7 +216,7 @@ namespace WorldPackets
         class GossipPOI final : public ServerPacket
         {
         public:
-            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 2 + 4 + 4 + 4 + 4) { }
+            explicit GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 2 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -232,7 +232,7 @@ namespace WorldPackets
         class SpiritHealerActivate final : public ClientPacket
         {
         public:
-            SpiritHealerActivate(WorldPacket&& packet) : ClientPacket(CMSG_SPIRIT_HEALER_ACTIVATE, std::move(packet)) { }
+            explicit SpiritHealerActivate(WorldPacket&& packet) : ClientPacket(CMSG_SPIRIT_HEALER_ACTIVATE, std::move(packet)) { }
 
             void Read() override;
 
@@ -242,7 +242,7 @@ namespace WorldPackets
         class TabardVendorActivate final : public ClientPacket
         {
         public:
-            TabardVendorActivate(WorldPacket&& packet) : ClientPacket(CMSG_TABARD_VENDOR_ACTIVATE, std::move(packet)) { }
+            explicit TabardVendorActivate(WorldPacket&& packet) : ClientPacket(CMSG_TABARD_VENDOR_ACTIVATE, std::move(packet)) { }
 
             void Read() override;
 
@@ -253,7 +253,7 @@ namespace WorldPackets
         class TrainerBuySpell final : public ClientPacket
         {
         public:
-            TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
+            explicit TrainerBuySpell(WorldPacket&& packet) : ClientPacket(CMSG_TRAINER_BUY_SPELL, std::move(packet)) { }
 
             void Read() override;
 
@@ -265,7 +265,7 @@ namespace WorldPackets
         class TrainerBuyFailed final : public ServerPacket
         {
         public:
-            TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 16 + 4 + 4) { }
+            explicit TrainerBuyFailed() : ServerPacket(SMSG_TRAINER_BUY_FAILED, 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -277,7 +277,7 @@ namespace WorldPackets
         class RequestStabledPets final : public ClientPacket
         {
         public:
-            RequestStabledPets(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_STABLED_PETS, std::move(packet)) { }
+            explicit RequestStabledPets(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_STABLED_PETS, std::move(packet)) { }
 
             void Read() override;
 
@@ -287,7 +287,7 @@ namespace WorldPackets
         class SetPetSlot final : public ClientPacket
         {
         public:
-            SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
+            explicit SetPetSlot(WorldPacket&& packet) : ClientPacket(CMSG_SET_PET_SLOT, std::move(packet)) { }
 
             void Read() override;
 
@@ -298,4 +298,4 @@ namespace WorldPackets
     }
 }
 
-#endif // NPCPackets_h__
+#endif // TRINITYCORE_NPC_PACKETS_H
