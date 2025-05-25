@@ -924,7 +924,7 @@ void WorldSession::HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingU
 
                     if (activeQuestObjective)
                     {
-                        SpawnTrackingState state = _player->GetSpawnTrackingStateByObjective(spawnTrackingId, activeQuestObjective->ID);
+                        SpawnTrackingState state = _player->GetSpawnTrackingStateByObjectives(spawnTrackingId, data->spawnTrackingQuestObjectives);
                         responseInfo.Visible = data->spawnTrackingStates[AsUnderlyingType(state)].Visible;
                         break;
                     }
