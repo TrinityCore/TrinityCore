@@ -266,6 +266,11 @@ class spell_dalaran_teleport_to_dalaran : public SpellScript
 {
     PrepareSpellScript(spell_dalaran_teleport_to_dalaran);
 
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_DALARAN });
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_DALARAN);
@@ -286,6 +291,11 @@ enum TeleportToLakeWintergrasp
 class spell_dalaran_teleport_to_lake_wintergrasp : public SpellScript
 {
     PrepareSpellScript(spell_dalaran_teleport_to_lake_wintergrasp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_LAKE_WINTERGRASP });
+    }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
