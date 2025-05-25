@@ -2693,6 +2693,10 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             if (getLootState() != GO_ACTIVATED)
                 SetLootState(GO_ACTIVATED, player);
 
+            // Cast spell before sending loot
+            if (spellCaster)
+                spellCaster->CastSpell(nullptr, info->chest.spell, spellArgs);
+
             // Send loot
             if (Loot* loot = GetLootForPlayer(player))
                 player->SendLoot(*loot);
