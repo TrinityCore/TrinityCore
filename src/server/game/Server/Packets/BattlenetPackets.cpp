@@ -16,6 +16,7 @@
  */
 
 #include "BattlenetPackets.h"
+#include "PacketOperators.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets::Battlenet
@@ -82,7 +83,7 @@ void Request::Read()
     _worldPacket >> protoSize;
 
     if (protoSize > 0xFFFF)
-        throw PacketArrayMaxCapacityException(protoSize, 0xFFFF);
+        OnInvalidArraySize(protoSize, 0xFFFF);
 
     if (protoSize)
     {

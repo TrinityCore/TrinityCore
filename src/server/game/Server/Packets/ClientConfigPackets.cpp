@@ -16,6 +16,7 @@
  */
 
 #include "ClientConfigPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::ClientConfig
 {
@@ -66,7 +67,7 @@ void UserClientUpdateAccountData::Read()
     std::size_t pos = _worldPacket.rpos();
     std::size_t remainingSize = _worldPacket.size() - pos;
     if (compressedSize > remainingSize)
-        throw ByteBufferPositionException(_worldPacket.rpos(), _worldPacket.size(), compressedSize);
+        OnInvalidArraySize(compressedSize, remainingSize);
 
     CompressedData = { _worldPacket.data() + pos, compressedSize };
     _worldPacket.rpos(pos + compressedSize);

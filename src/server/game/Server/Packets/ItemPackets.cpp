@@ -16,6 +16,7 @@
  */
 
 #include "ItemPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Item
 {

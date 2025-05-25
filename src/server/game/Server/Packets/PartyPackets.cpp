@@ -17,6 +17,7 @@
 
 #include "PartyPackets.h"
 #include "Group.h"
+#include "PacketOperators.h"
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"

@@ -5542,7 +5542,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     data.SpellID = aura->GetId();
     data.LogData.Initialize(this);
 
-    WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffect;
+    WorldPackets::CombatLog::PeriodicAuraLogEffect& spellLogEffect = data.Effects.emplace_back();
     spellLogEffect.Effect = aura->GetAuraType();
     spellLogEffect.Amount = info->damage;
     spellLogEffect.OriginalDamage = info->originalDamage;
@@ -5557,8 +5557,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     if (Unit* caster = ObjectAccessor::GetUnit(*this, aura->GetCasterGUID()))
         if (contentTuningParams.GenerateDataForUnits(caster, this))
             spellLogEffect.ContentTuning = contentTuningParams;
-
-    data.Effects.push_back(spellLogEffect);
 
     SendCombatLogMessage(&data);
 }

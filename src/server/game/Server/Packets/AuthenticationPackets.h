@@ -91,17 +91,13 @@ namespace WorldPackets
         public:
             static constexpr uint32 DigestLength = 24;
 
-            explicit AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet))
-            {
-                LocalChallenge.fill(0);
-                Digest.fill(0);
-            }
+            explicit AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet)) { }
 
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
-            std::array<uint8, 32> LocalChallenge;
-            std::array<uint8, DigestLength> Digest;
+            std::array<uint8, 32> LocalChallenge = { };
+            std::array<uint8, DigestLength> Digest = { };
             uint64 DosResponse = 0;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
@@ -142,53 +138,51 @@ namespace WorldPackets
             VirtualRealmNameInfo RealmNameInfo;
         };
 
+        struct GameTime
+        {
+            uint32 BillingType = 0;
+            uint32 MinutesRemaining = 0;
+            uint32 RealBillingType = 0;
+            bool IsInIGR = false;
+            bool IsPaidForByIGR = false;
+            bool IsCAISEnabled = false;
+        };
+
+        struct BaseBuildKey
+        {
+            std::array<uint8, 16> BuildKey = { };
+            std::array<uint8, 16> ConfigKey = { };
+        };
+
+        struct AuthSuccessInfo
+        {
+            uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
+            uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
+            uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+
+            uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
+            uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
+            uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+            Timestamp<> Time;
+
+            GameTime GameTimeInfo;
+
+            std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
+            std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
+
+            std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
+
+            bool IsExpansionTrial = false;
+            bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
+            Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
+            Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
+            Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
+            Optional<BaseBuildKey> CurrentBuild;
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
-            struct AuthSuccessInfo
-            {
-                struct GameTime
-                {
-                    uint32 BillingType = 0;
-                    uint32 MinutesRemaining = 0;
-                    uint32 RealBillingType = 0;
-                    bool IsInIGR = false;
-                    bool IsPaidForByIGR = false;
-                    bool IsCAISEnabled = false;
-                };
-
-                struct NewBuild
-                {
-                    std::array<uint8, 16> NewBuildKey = { };
-                    std::array<uint8, 16> SomeKey = { };
-                };
-
-                AuthSuccessInfo() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
-
-                uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
-                uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
-
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
-                uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
-                uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
-                Timestamp<> Time;
-
-                GameTime GameTimeInfo;
-
-                std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
-
-                std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
-
-                bool IsExpansionTrial = false;
-                bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
-                Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
-                Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
-                Optional<NewBuild> NewBuildKeys;
-            };
-
             explicit AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
 
             WorldPacket const* Write() override;
@@ -274,16 +268,12 @@ namespace WorldPackets
         public:
             static constexpr uint32 DigestLength = 24;
 
-            explicit AuthContinuedSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
-            {
-                LocalChallenge.fill(0);
-                Digest.fill(0);
-            }
+            explicit AuthContinuedSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet)) { }
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
-            std::array<uint8, 32> LocalChallenge;
-            std::array<uint8, DigestLength> Digest;
+            std::array<uint8, 32> LocalChallenge = { };
+            std::array<uint8, DigestLength> Digest = { };
 
         private:
             friend EarlyProcessClientPacket;

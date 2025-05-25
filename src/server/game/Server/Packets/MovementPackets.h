@@ -294,8 +294,8 @@ namespace WorldPackets
         struct TeleportLocation
         {
             TaggedPosition<Position::XYZO> Pos;
-            int32 Unused901_1 = -1;
-            int32 Unused901_2 = -1;
+            int32 FloorDifficulty = -1;
+            int32 FloorIndex = -1;
         };
 
         class NewWorld final : public ServerPacket
@@ -691,47 +691,47 @@ namespace WorldPackets
             uint32 Reason = 1;
         };
 
+        struct CollisionHeightInfo
+        {
+            float Height = 0.0f;
+            float Scale = 0.0f;
+            UpdateCollisionHeightReason Reason = UpdateCollisionHeightReason::Scale;
+        };
+
+        struct StateChangeRangeInfo
+        {
+            float Min = 0.0f;
+            float Max = 0.0f;
+        };
+
+        struct KnockBackInfo
+        {
+            float HorzSpeed = 0.0f;
+            TaggedPosition<Position::XY> Direction;
+            float InitVertSpeed = 0.0f;
+        };
+
+        struct MoveStateChange
+        {
+            MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
+
+            uint32 MessageID = 0;
+            uint32 SequenceIndex = 0;
+            Optional<float> Speed;
+            Optional<StateChangeRangeInfo> Range;
+            Optional<KnockBackInfo> KnockBack;
+            Optional<int32> VehicleRecID;
+            Optional<CollisionHeightInfo> CollisionHeight;
+            Optional<MovementForce> MovementForce_;
+            Optional<ObjectGuid> MovementForceGUID;
+            Optional<int32> MovementInertiaID;
+            Optional<uint32> MovementInertiaLifetimeMs;
+            Optional<int32> DriveCapabilityRecID;
+        };
+
         class MoveSetCompoundState final : public ServerPacket
         {
         public:
-            struct CollisionHeightInfo
-            {
-                float Height = 0.0f;
-                float Scale = 0.0f;
-                UpdateCollisionHeightReason Reason = UpdateCollisionHeightReason::Scale;
-            };
-
-            struct KnockBackInfo
-            {
-                float HorzSpeed = 0.0f;
-                TaggedPosition<Position::XY> Direction;
-                float InitVertSpeed = 0.0f;
-            };
-
-            struct StateChangeRangeInfo
-            {
-                float Min = 0.0f;
-                float Max = 0.0f;
-            };
-
-            struct MoveStateChange
-            {
-                MoveStateChange(OpcodeServer messageId, uint32 sequenceIndex) : MessageID(messageId), SequenceIndex(sequenceIndex) { }
-
-                uint32 MessageID = 0;
-                uint32 SequenceIndex = 0;
-                Optional<float> Speed;
-                Optional<StateChangeRangeInfo> Range;
-                Optional<KnockBackInfo> KnockBack;
-                Optional<int32> VehicleRecID;
-                Optional<CollisionHeightInfo> CollisionHeight;
-                Optional<MovementForce> MovementForce_;
-                Optional<ObjectGuid> MovementForceGUID;
-                Optional<int32> MovementInertiaID;
-                Optional<uint32> MovementInertiaLifetimeMs;
-                Optional<int32> DriveCapabilityRecID;
-            };
-
             explicit MoveSetCompoundState() : ServerPacket(SMSG_MOVE_SET_COMPOUND_STATE, 4 + 1) { }
 
             WorldPacket const* Write() override;

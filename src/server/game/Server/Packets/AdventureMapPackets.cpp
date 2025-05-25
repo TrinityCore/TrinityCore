@@ -16,7 +16,7 @@
  */
 
 #include "AdventureMapPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::AdventureMap
 {
