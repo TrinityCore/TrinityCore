@@ -32,7 +32,7 @@ enum CyanigosaTexts
     SAY_SPECIAL_ATTACK             = 6
 };
 
-enum Spells
+enum CyanigosaSpells
 {
     SPELL_SUMMON_PLAYER            = 21150,
     SPELL_ARCANE_VACUUM            = 58694,
