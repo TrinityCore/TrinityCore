@@ -18,7 +18,7 @@
 #include "ChannelPackets.h"
 #include "Channel.h"
 #include "Errors.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Channel
 {

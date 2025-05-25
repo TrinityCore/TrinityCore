@@ -1987,7 +1987,7 @@ class TC_GAME_API WorldSession
         Minutes _timezoneOffset;
         std::atomic<uint32> m_latency;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
+        std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> _tutorials;
         uint8 _tutorialsChanged;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;

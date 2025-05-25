@@ -17,6 +17,7 @@
 
 #include "ChatPackets.h"
 #include "Creature.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "World.h"
 

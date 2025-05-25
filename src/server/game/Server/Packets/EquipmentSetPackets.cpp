@@ -16,6 +16,7 @@
  */
 
 #include "EquipmentSetPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::EquipmentSet
 {
