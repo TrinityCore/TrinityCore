@@ -16,6 +16,7 @@
  */
 
 #include "ArtifactPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Artifact
 {

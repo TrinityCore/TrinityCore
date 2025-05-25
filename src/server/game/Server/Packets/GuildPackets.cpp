@@ -16,6 +16,7 @@
  */
 
 #include "GuildPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Guild
 {

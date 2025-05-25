@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "Map.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"

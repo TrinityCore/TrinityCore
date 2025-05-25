@@ -16,6 +16,7 @@
  */
 
 #include "TokenPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Token
 {

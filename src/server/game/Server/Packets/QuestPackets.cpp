@@ -16,6 +16,7 @@
  */
 
 #include "QuestPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Quest
 {

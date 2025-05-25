@@ -80,6 +80,7 @@ enum RogueSpells
     SPELL_ROGUE_RUTHLESS_PRECISION                  = 193357,
     SPELL_ROGUE_SANCTUARY                           = 98877,
     SPELL_ROGUE_SKULL_AND_CROSSBONES                = 199603,
+    SPELL_ROGUE_SHADOW_DANCE                        = 185313,
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
     SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
@@ -341,6 +342,35 @@ class spell_rog_deadly_poison : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_rog_deadly_poison::HandleInstantDamage, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 185314 - Deepening Shadows
+class spell_rog_deepening_shadows : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ROGUE_SHADOW_DANCE });
+    }
+
+    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procEvent)
+    {
+        if (Spell const* procSpell = procEvent.GetProcSpell())
+            return procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS) > 0;
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo) const
+    {
+        Milliseconds amount = -Seconds(aurEff->GetAmount()) * *procInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_COMBO_POINTS);
+        GetTarget()->GetSpellHistory()->ModifyChargeRecoveryTime(sSpellMgr->AssertSpellInfo(SPELL_ROGUE_SHADOW_DANCE, GetCastDifficulty())->ChargeCategoryId, amount / 10);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_rog_deepening_shadows::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_rog_deepening_shadows::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1369,6 +1399,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellScript(spell_rog_blade_flurry);
     RegisterSpellScript(spell_rog_cheat_death);
     RegisterSpellScript(spell_rog_deadly_poison);
+    RegisterSpellScript(spell_rog_deepening_shadows);
     RegisterSpellScript(spell_rog_envenom);
     RegisterSpellScript(spell_rog_eviscerate);
     RegisterSpellScript(spell_rog_grand_melee);

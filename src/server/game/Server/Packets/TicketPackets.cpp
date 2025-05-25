@@ -16,7 +16,7 @@
  */
 
 #include "TicketPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 #include "SupportMgr.h"
 
 namespace WorldPackets::Ticket

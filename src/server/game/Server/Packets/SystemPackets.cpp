@@ -16,9 +16,48 @@
  */
 
 #include "SystemPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::System
 {
+ByteBuffer& operator<<(ByteBuffer& data, SocialQueueConfig const& socialQueueConfig)
+{
+    data << Bits<1>(socialQueueConfig.ToastsDisabled);
+    data << float(socialQueueConfig.ToastDuration);
+    data << float(socialQueueConfig.DelayDuration);
+    data << float(socialQueueConfig.QueueMultiplier);
+    data << float(socialQueueConfig.PlayerMultiplier);
+    data << float(socialQueueConfig.PlayerFriendValue);
+    data << float(socialQueueConfig.PlayerGuildValue);
+    data << float(socialQueueConfig.ThrottleInitialThreshold);
+    data << float(socialQueueConfig.ThrottleDecayTime);
+    data << float(socialQueueConfig.ThrottlePrioritySpike);
+    data << float(socialQueueConfig.ThrottleMinThreshold);
+    data << float(socialQueueConfig.ThrottlePvPPriorityNormal);
+    data << float(socialQueueConfig.ThrottlePvPPriorityLow);
+    data << float(socialQueueConfig.ThrottlePvPHonorThreshold);
+    data << float(socialQueueConfig.ThrottleLfgListPriorityDefault);
+    data << float(socialQueueConfig.ThrottleLfgListPriorityAbove);
+    data << float(socialQueueConfig.ThrottleLfgListPriorityBelow);
+    data << float(socialQueueConfig.ThrottleLfgListIlvlScalingAbove);
+    data << float(socialQueueConfig.ThrottleLfgListIlvlScalingBelow);
+    data << float(socialQueueConfig.ThrottleRfPriorityAbove);
+    data << float(socialQueueConfig.ThrottleRfIlvlScalingAbove);
+    data << float(socialQueueConfig.ThrottleDfMaxItemLevel);
+    data << float(socialQueueConfig.ThrottleDfBestPriority);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SessionAlertConfig const& sessionAlert)
+{
+    data << int32(sessionAlert.Delay);
+    data << int32(sessionAlert.Period);
+    data << int32(sessionAlert.DisplayTime);
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, SavedThrottleObjectState const& throttleState)
 {
     data << uint32(throttleState.MaxTries);
@@ -37,6 +76,15 @@ ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketS
     data << Bits<1>(europaTicketSystemStatus.SuggestionsEnabled);
 
     data << europaTicketSystemStatus.ThrottleState;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SquelchInfo const& squelch)
+{
+    data << Bits<1>(squelch.IsSquelched);
+    data << squelch.BnetAccountGuid;
+    data << squelch.GuildGuid;
 
     return data;
 }
@@ -167,46 +215,14 @@ WorldPacket const* FeatureSystemStatus::Write()
 
     _worldPacket.FlushBits();
 
-    {
-        _worldPacket << Bits<1>(QuickJoinConfig.ToastsDisabled);
-        _worldPacket << float(QuickJoinConfig.ToastDuration);
-        _worldPacket << float(QuickJoinConfig.DelayDuration);
-        _worldPacket << float(QuickJoinConfig.QueueMultiplier);
-        _worldPacket << float(QuickJoinConfig.PlayerMultiplier);
-        _worldPacket << float(QuickJoinConfig.PlayerFriendValue);
-        _worldPacket << float(QuickJoinConfig.PlayerGuildValue);
-        _worldPacket << float(QuickJoinConfig.ThrottleInitialThreshold);
-        _worldPacket << float(QuickJoinConfig.ThrottleDecayTime);
-        _worldPacket << float(QuickJoinConfig.ThrottlePrioritySpike);
-        _worldPacket << float(QuickJoinConfig.ThrottleMinThreshold);
-        _worldPacket << float(QuickJoinConfig.ThrottlePvPPriorityNormal);
-        _worldPacket << float(QuickJoinConfig.ThrottlePvPPriorityLow);
-        _worldPacket << float(QuickJoinConfig.ThrottlePvPHonorThreshold);
-        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityDefault);
-        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityAbove);
-        _worldPacket << float(QuickJoinConfig.ThrottleLfgListPriorityBelow);
-        _worldPacket << float(QuickJoinConfig.ThrottleLfgListIlvlScalingAbove);
-        _worldPacket << float(QuickJoinConfig.ThrottleLfgListIlvlScalingBelow);
-        _worldPacket << float(QuickJoinConfig.ThrottleRfPriorityAbove);
-        _worldPacket << float(QuickJoinConfig.ThrottleRfIlvlScalingAbove);
-        _worldPacket << float(QuickJoinConfig.ThrottleDfMaxItemLevel);
-        _worldPacket << float(QuickJoinConfig.ThrottleDfBestPriority);
-    }
+    _worldPacket << QuickJoinConfig;
 
     if (SessionAlert)
-    {
-        _worldPacket << int32(SessionAlert->Delay);
-        _worldPacket << int32(SessionAlert->Period);
-        _worldPacket << int32(SessionAlert->DisplayTime);
-    }
+        _worldPacket << *SessionAlert;
 
     _worldPacket << SizedString::Data(Unknown1027);
 
-    {
-        _worldPacket << Bits<1>(Squelch.IsSquelched);
-        _worldPacket << Squelch.BnetAccountGuid;
-        _worldPacket << Squelch.GuildGuid;
-    }
+    _worldPacket << Squelch;
 
     if (EuropaTicketSystemStatus)
         _worldPacket << *EuropaTicketSystemStatus;

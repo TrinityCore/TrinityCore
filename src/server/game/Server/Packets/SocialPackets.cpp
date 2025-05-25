@@ -16,7 +16,7 @@
  */
 
 #include "SocialPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Social
 {

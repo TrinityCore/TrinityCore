@@ -16,6 +16,7 @@
  */
 
 #include "TalentPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Talent
 {

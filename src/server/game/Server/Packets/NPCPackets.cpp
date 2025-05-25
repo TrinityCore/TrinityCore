@@ -16,6 +16,7 @@
  */
 
 #include "NPCPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::NPC
 {
