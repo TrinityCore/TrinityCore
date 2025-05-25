@@ -16,6 +16,7 @@
  */
 
 #include "BlackMarketPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::BlackMarket
 {

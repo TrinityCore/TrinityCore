@@ -16,6 +16,7 @@
  */
 
 #include "MythicPlusPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::MythicPlus
 {

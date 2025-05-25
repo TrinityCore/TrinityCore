@@ -16,7 +16,7 @@
  */
 
 #include "CombatPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Combat
 {

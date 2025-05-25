@@ -16,6 +16,7 @@
  */
 
 #include "CraftingPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Crafting
 {

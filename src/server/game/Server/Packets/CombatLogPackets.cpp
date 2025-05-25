@@ -16,7 +16,7 @@
  */
 
 #include "CombatLogPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 #include "Spell.h"
 #include "UnitDefines.h"
 
@@ -191,6 +191,42 @@ WorldPacket const* SpellHealLog::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, PeriodicalAuraLogEffectDebugInfo const& debugInfo)
+{
+    data << float(debugInfo.CritRollMade);
+    data << float(debugInfo.CritRollNeeded);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, PeriodicAuraLogEffect const& effect)
+{
+    data << int32(effect.Effect);
+    data << int32(effect.Amount);
+    data << int32(effect.OriginalDamage);
+    data << int32(effect.OverHealOrKill);
+    data << int32(effect.SchoolMaskOrPower);
+    data << int32(effect.AbsorbedOrAmplitude);
+    data << int32(effect.Resisted);
+    data << Size<uint32>(effect.Supporters);
+
+    for (Spells::SpellSupportInfo const& supportInfo : effect.Supporters)
+        data << supportInfo;
+
+    data << Bits<1>(effect.Crit);
+    data << OptionalInit(effect.DebugInfo);
+    data << OptionalInit(effect.ContentTuning);
+    data.FlushBits();
+
+    if (effect.ContentTuning)
+        data << *effect.ContentTuning;
+
+    if (effect.DebugInfo)
+        data << *effect.DebugInfo;
+
+    return data;
+}
+
 WorldPacket const* SpellPeriodicAuraLog::Write()
 {
     *this << TargetGUID;
@@ -200,34 +236,8 @@ WorldPacket const* SpellPeriodicAuraLog::Write()
     WriteLogDataBit();
     FlushBits();
 
-    for (SpellLogEffect const& effect : Effects)
-    {
-        *this << int32(effect.Effect);
-        *this << int32(effect.Amount);
-        *this << int32(effect.OriginalDamage);
-        *this << int32(effect.OverHealOrKill);
-        *this << int32(effect.SchoolMaskOrPower);
-        *this << int32(effect.AbsorbedOrAmplitude);
-        *this << int32(effect.Resisted);
-        *this << Size<uint32>(effect.Supporters);
-
-        for (Spells::SpellSupportInfo const& supportInfo : effect.Supporters)
-            *this << supportInfo;
-
-        *this << Bits<1>(effect.Crit);
-        *this << OptionalInit(effect.DebugInfo);
-        *this << OptionalInit(effect.ContentTuning);
-        FlushBits();
-
-        if (effect.ContentTuning)
-            *this << *effect.ContentTuning;
-
-        if (effect.DebugInfo)
-        {
-            *this << float(effect.DebugInfo->CritRollMade);
-            *this << float(effect.DebugInfo->CritRollNeeded);
-        }
-    }
+    for (PeriodicAuraLogEffect const& effect : Effects)
+        *this << effect;
 
     WriteLogData();
 

@@ -16,7 +16,7 @@
  */
 
 #include "PetPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Pet
 {

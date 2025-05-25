@@ -587,4 +587,4 @@ namespace WorldPackets
     }
 }
 
-#endif // CalendarPackets_h__
+#endif // TRINITYCORE_CALENDAR_PACKETS_H

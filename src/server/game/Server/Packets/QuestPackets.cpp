@@ -16,6 +16,7 @@
  */
 
 #include "QuestPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Quest
 {
@@ -889,6 +890,9 @@ ByteBuffer& operator>>(ByteBuffer& data, SpawnTrackingRequestInfo& spawnTracking
 void SpawnTrackingUpdate::Read()
 {
     uint32 requests = _worldPacket.read<uint32>();
+    if (requests > 10000)
+        OnInvalidArraySize(requests, 10000);
+
     SpawnTrackingRequests.resize(requests);
     for (SpawnTrackingRequestInfo& spawnTrackingRequestInfo : SpawnTrackingRequests)
         _worldPacket >> spawnTrackingRequestInfo;
