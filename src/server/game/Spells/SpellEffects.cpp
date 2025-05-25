@@ -2201,6 +2201,9 @@ void Spell::EffectDispel()
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
 
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
 
@@ -4170,6 +4173,9 @@ void Spell::EffectDispelMechanic()
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
+
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
 
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
