@@ -16,7 +16,7 @@
  */
 
 #include "CollectionPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Collections
 {
@@ -41,7 +41,7 @@ WorldPacket const* AccountItemCollectionData::Write()
 {
     _worldPacket << uint32(Unknown1110_1);
     _worldPacket << uint8(Type);
-    _worldPacket << uint32(Items.size());
+    _worldPacket << Size<uint32>(Items);
 
     for (ItemCollectionItemData const& item : Items)
         _worldPacket << item;
