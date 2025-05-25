@@ -334,7 +334,7 @@ class spell_rog_cloaked_in_shadows : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT);
+        return GetCaster()->HasAuraEffect(SPELL_ROGUE_CLOAKED_IN_SHADOWS_TALENT, EFFECT_0);
     }
 
     void HandleCloakedInShadows() const
@@ -345,7 +345,7 @@ class spell_rog_cloaked_in_shadows : public SpellScript
         if (!cloakedInShadows)
             return;
 
-        int32 amount = CalculatePct(caster->GetMaxHealth(), cloakedInShadows->GetAmount());
+        int32 amount = caster->CountPctFromMaxHealth(cloakedInShadows->GetAmount());
 
         caster->CastSpell(caster, SPELL_ROGUE_CLOAKED_IN_SHADOWS_ABSORB, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
