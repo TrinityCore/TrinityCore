@@ -1662,6 +1662,75 @@ class spell_shadowmoon_quest_credit_crazed_colossus : public SpellScript
     }
 };
 
+/*######
+## Quest 10637, 10688: A Necessary Distraction
+######*/
+
+enum ANecessaryDistraction
+{
+    SPELL_BANISH_AZALOTH     = 37833
+};
+
+// 37834 - Unbanish Azaloth
+class spell_shadowmoon_unbanish_azaloth : public SpellScript
+{
+    PrepareSpellScript(spell_shadowmoon_unbanish_azaloth);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BANISH_AZALOTH });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_BANISH_AZALOTH);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_unbanish_azaloth::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 10672: Frankly, It Makes No Sense...
+######*/
+
+enum FranklyItMakesNoSense
+{
+    SPELL_ARCANO_SCORP_CONTROL_01     = 37868,
+    SPELL_ARCANO_SCORP_CONTROL_02     = 37893,
+    SPELL_ARCANO_SCORP_CONTROL_03     = 37895
+};
+
+// 37867 - Arcano-Scorp Control
+// 37892 - Arcano-Scorp Control
+// 37894 - Arcano-Scorp Control
+class spell_shadowmoon_arcano_scorp_control : public SpellScript
+{
+    PrepareSpellScript(spell_shadowmoon_arcano_scorp_control);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_shadowmoon_arcano_scorp_control::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_shadowmoon_arcano_scorp_control(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
+};
+
 void AddSC_shadowmoon_valley()
 {
     new npc_invis_infernal_caster();
@@ -1678,4 +1747,8 @@ void AddSC_shadowmoon_valley()
     new npc_shadowmoon_tuber_node();
     RegisterSpellScript(spell_shadowmoon_illidari_agent_illusion);
     RegisterSpellScript(spell_shadowmoon_quest_credit_crazed_colossus);
+    RegisterSpellScript(spell_shadowmoon_unbanish_azaloth);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_01", SPELL_ARCANO_SCORP_CONTROL_01);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_02", SPELL_ARCANO_SCORP_CONTROL_02);
+    RegisterSpellScriptWithArgs(spell_shadowmoon_arcano_scorp_control, "spell_shadowmoon_arcano_scorp_control_03", SPELL_ARCANO_SCORP_CONTROL_03);
 }
