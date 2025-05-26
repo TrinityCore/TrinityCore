@@ -120,7 +120,14 @@ namespace WorldPackets
             Spells::SpellCastLogData LogData;
 
         protected:
-            template <typename T>
+            template <ByteBufferNumeric T>
+            void operator<<(T val)
+            {
+                _worldPacket << val;
+                _fullLogPacket << val;
+            }
+
+            template <typename T> requires (!ByteBufferNumeric<T>)
             void operator<<(T const& val)
             {
                 _worldPacket << val;

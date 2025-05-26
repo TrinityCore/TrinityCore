@@ -16,6 +16,7 @@
  */
 
 #include "MiscPackets.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
 namespace WorldPackets::Misc
@@ -535,7 +536,7 @@ void FarSight::Read()
 
 void SaveCUFProfiles::Read()
 {
-    CUFProfiles.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(CUFProfiles);
     for (std::unique_ptr<CUFProfile>& cufProfile : CUFProfiles)
     {
         cufProfile = std::make_unique<CUFProfile>();
@@ -575,7 +576,7 @@ WorldPacket const* LoadCUFProfiles::Write()
 
         // Bool Options
         for (uint8 option = 0; option < CUF_BOOL_OPTIONS_COUNT; option++)
-            _worldPacket << Bits<1>(cufProfile->BoolOptions[option]);
+            _worldPacket.WriteBit(cufProfile->BoolOptions[option]);
 
         // Other Options
         _worldPacket << uint16(cufProfile->FrameHeight);

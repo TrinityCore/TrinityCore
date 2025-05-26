@@ -20,6 +20,7 @@
 #include "CharacterCache.h"
 #include "ClubUtils.h"
 #include "ObjectMgr.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "World.h"
 
@@ -398,6 +399,9 @@ void QuestPOIQuery::Read()
 {
     _worldPacket >> MissingQuestCount;
 
+    if (MissingQuestCount > std::ssize(MissingQuestPOIs))
+        OnInvalidArraySize(MissingQuestCount, MissingQuestPOIs.size());
+
     for (std::size_t i = 0; i < MissingQuestPOIs.size(); ++i)
         _worldPacket >> MissingQuestPOIs[i];
 }
@@ -422,7 +426,7 @@ WorldPacket const* QuestPOIQueryResponse::Write()
 
 void QueryQuestCompletionNPCs::Read()
 {
-    QuestCompletionNPCs.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(QuestCompletionNPCs);
     if (!QuestCompletionNPCs.empty())
         _worldPacket.read(QuestCompletionNPCs.data(), QuestCompletionNPCs.size());
 }
