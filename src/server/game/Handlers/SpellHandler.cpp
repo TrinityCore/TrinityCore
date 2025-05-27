@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameObjectPackets.h"
 #include "Guild.h"
@@ -559,9 +560,7 @@ void WorldSession::HandleMissileTrajectoryCollision(WorldPackets::Spells::Missil
     if (!spell || !spell->m_targets.HasDst())
         return;
 
-    Position pos = *spell->m_targets.GetDstPos();
-    pos.Relocate(packet.CollisionPos);
-    spell->m_targets.ModDst(pos);
+    spell->m_targets.ModDst(packet.CollisionPos);
 
     // we changed dest, recalculate flight time
     spell->RecalculateDelayMomentForDst();

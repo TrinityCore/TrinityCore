@@ -16,7 +16,7 @@
  */
 
 #include "AdventureJournalPackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::AdventureJournal
 {
@@ -41,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AdventureJournalEntry const& adventureJ
 WorldPacket const* AdventureJournalDataResponse::Write()
 {
     _worldPacket << Bits<1>(OnLevelUp);
-    _worldPacket << uint32(Entries.size());
+    _worldPacket << Size<uint32>(Entries);
 
     for (AdventureJournalEntry const& adventureJournalEntry : Entries)
         _worldPacket << adventureJournalEntry;
