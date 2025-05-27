@@ -17634,7 +17634,9 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
         eqSet.Data.SetName    = fields[2].GetString();
         eqSet.Data.SetIcon    = fields[3].GetString();
         eqSet.Data.IgnoreMask = fields[4].GetUInt32();
-        eqSet.Data.AssignedSpecIndex = fields[5].GetInt32();
+        if (int32 assignedSpecIndex = fields[5].GetInt32(); assignedSpecIndex != -1)
+            eqSet.Data.AssignedSpecIndex = assignedSpecIndex;
+
         eqSet.State           = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -27856,7 +27858,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetName);
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
-                    stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex);
+                    stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex.value_or(-1));
                     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
                     stmt->setUInt64(j++, GetGUID().GetCounter());
@@ -27893,7 +27895,7 @@ void Player::_SaveEquipmentSets(CharacterDatabaseTransaction trans)
                     stmt->setString(j++, eqSet.Data.SetName);
                     stmt->setString(j++, eqSet.Data.SetIcon);
                     stmt->setUInt32(j++, eqSet.Data.IgnoreMask);
-                    stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex);
+                    stmt->setInt32(j++, eqSet.Data.AssignedSpecIndex.value_or(-1));
                     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
                         stmt->setUInt64(j++, eqSet.Data.Pieces[i].GetCounter());
                 }

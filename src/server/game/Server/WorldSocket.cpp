@@ -157,7 +157,7 @@ void WorldSocketProtocolInitializer::HandleDataReady()
 {
     try
     {
-        ByteBuffer buffer(std::move(_packetBuffer));
+        ByteBuffer buffer(std::move(_packetBuffer).Release());
         if (buffer.ReadString(ClientConnectionInitialize.length()) != ClientConnectionInitialize)
         {
             _socket->CloseSocket();
@@ -365,7 +365,7 @@ WorldSocket::ReadDataHandlerResult WorldSocket::ReadDataHandler()
         return ReadDataHandlerResult::Error;
     }
 
-    WorldPacket packet(std::move(_packetBuffer), GetConnectionType());
+    WorldPacket packet(std::move(_packetBuffer).Release(), GetConnectionType());
     OpcodeClient opcode = packet.read<OpcodeClient>();
     if (!opcodeTable.IsValid(opcode))
     {

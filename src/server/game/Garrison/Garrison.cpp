@@ -29,6 +29,7 @@
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "VehicleDefines.h"
+#include "advstd.h"
 
 Garrison::Garrison(Player* owner) : _owner(owner), _siteLevel(nullptr), _followerActivationsRemainingToday(1)
 {
@@ -839,8 +840,5 @@ uint32 Garrison::Follower::GetItemLevel() const
 
 bool Garrison::Follower::HasAbility(uint32 garrAbilityId) const
 {
-    return std::find_if(PacketInfo.AbilityID.begin(), PacketInfo.AbilityID.end(), [garrAbilityId](GarrAbilityEntry const* garrAbility)
-    {
-        return garrAbility->ID == garrAbilityId;
-    }) != PacketInfo.AbilityID.end();
+    return advstd::ranges::contains(PacketInfo.AbilityID, garrAbilityId, &GarrAbilityEntry::ID);
 }

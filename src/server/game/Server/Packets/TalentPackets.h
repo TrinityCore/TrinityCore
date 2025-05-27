@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TalentPackets_h__
-#define TalentPackets_h__
+#ifndef TRINITYCORE_TALENT_PACKETS_H
+#define TRINITYCORE_TALENT_PACKETS_H
 
 #include "Packet.h"
 #include "DBCEnums.h"
@@ -50,7 +50,7 @@ namespace WorldPackets
         class UpdateTalentData final : public ServerPacket
         {
         public:
-            UpdateTalentData() : ServerPacket(SMSG_UPDATE_TALENT_DATA, 2+4+4+4+12) { }
+            explicit UpdateTalentData() : ServerPacket(SMSG_UPDATE_TALENT_DATA, 2+4+4+4+12) { }
 
             WorldPacket const* Write() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class LearnTalents final : public ClientPacket
         {
         public:
-            LearnTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENTS, std::move(packet)) { }
+            explicit LearnTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_TALENTS, std::move(packet)) { }
 
             void Read() override;
             Array<uint16, MAX_TALENT_TIERS> Talents;
@@ -69,7 +69,7 @@ namespace WorldPackets
         class RespecWipeConfirm final : public ServerPacket
         {
         public:
-            RespecWipeConfirm() : ServerPacket(SMSG_RESPEC_WIPE_CONFIRM, 16 + 4 +1) { }
+            explicit RespecWipeConfirm() : ServerPacket(SMSG_RESPEC_WIPE_CONFIRM, 16 + 4 +1) { }
 
             WorldPacket const* Write() override;
 
@@ -81,7 +81,7 @@ namespace WorldPackets
         class ConfirmRespecWipe final : public ClientPacket
         {
         public:
-            ConfirmRespecWipe(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_RESPEC_WIPE, std::move(packet)) { }
+            explicit ConfirmRespecWipe(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_RESPEC_WIPE, std::move(packet)) { }
 
             void Read() override;
 
@@ -92,7 +92,7 @@ namespace WorldPackets
         class LearnTalentFailed final : public ServerPacket
         {
         public:
-            LearnTalentFailed() : ServerPacket(SMSG_LEARN_TALENT_FAILED, 1 + 4 + 4 + 2 * MAX_TALENT_TIERS) { }
+            explicit LearnTalentFailed() : ServerPacket(SMSG_LEARN_TALENT_FAILED, 1 + 4 + 4 + 2 * MAX_TALENT_TIERS) { }
 
             WorldPacket const* Write() override;
 
@@ -112,7 +112,7 @@ namespace WorldPackets
         class ActiveGlyphs final : public ServerPacket
         {
         public:
-            ActiveGlyphs() : ServerPacket(SMSG_ACTIVE_GLYPHS) { }
+            explicit ActiveGlyphs() : ServerPacket(SMSG_ACTIVE_GLYPHS) { }
 
             WorldPacket const* Write() override;
 
@@ -123,7 +123,7 @@ namespace WorldPackets
         class LearnPvpTalents final : public ClientPacket
         {
         public:
-            LearnPvpTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PVP_TALENTS, std::move(packet)) { }
+            explicit LearnPvpTalents(WorldPacket&& packet) : ClientPacket(CMSG_LEARN_PVP_TALENTS, std::move(packet)) { }
 
             void Read() override;
 
@@ -133,7 +133,7 @@ namespace WorldPackets
         class LearnPvpTalentFailed final : public ServerPacket
         {
         public:
-            LearnPvpTalentFailed() : ServerPacket(SMSG_LEARN_PVP_TALENT_FAILED, 1 + 4 + 4 + (2 + 1) * MAX_PVP_TALENT_SLOTS) { }
+            explicit LearnPvpTalentFailed() : ServerPacket(SMSG_LEARN_PVP_TALENT_FAILED, 1 + 4 + 4 + (2 + 1) * MAX_PVP_TALENT_SLOTS) { }
 
             WorldPacket const* Write() override;
 
@@ -144,4 +144,4 @@ namespace WorldPackets
     }
 }
 
-#endif // TalentPackets_h__
+#endif // TRINITYCORE_TALENT_PACKETS_H

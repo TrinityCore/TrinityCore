@@ -83,6 +83,20 @@ enum WarriorMisc
     SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
+// 107574 - Avatar
+class spell_warr_avatar : public SpellScript
+{
+    void HandleRemoveImpairingAuras(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->RemoveMovementImpairingAuras(true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_avatar::HandleRemoveImpairingAuras, EFFECT_5, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 23881 - Bloodthirst
 class spell_warr_bloodthirst : public SpellScript
 {
@@ -860,6 +874,7 @@ class spell_warr_victory_rush : public SpellScript
 
 void AddSC_warrior_spell_scripts()
 {
+    RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
     RegisterSpellScript(spell_warr_charge);

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LFGPackets_h__
-#define LFGPackets_h__
+#ifndef TRINITYCORE_LFG_PACKETS_H
+#define TRINITYCORE_LFG_PACKETS_H
 
 #include "Packet.h"
 #include "PacketUtilities.h"
@@ -36,7 +36,7 @@ namespace WorldPackets
         class DFJoin final : public ClientPacket
         {
         public:
-            DFJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_JOIN, std::move(packet)) { }
+            explicit DFJoin(WorldPacket&& packet) : ClientPacket(CMSG_DF_JOIN, std::move(packet)) { }
 
             void Read() override;
 
@@ -50,7 +50,7 @@ namespace WorldPackets
         class DFLeave final : public ClientPacket
         {
         public:
-            DFLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_LEAVE, std::move(packet)) { }
+            explicit DFLeave(WorldPacket&& packet) : ClientPacket(CMSG_DF_LEAVE, std::move(packet)) { }
 
             void Read() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class DFProposalResponse final : public ClientPacket
         {
         public:
-            DFProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_DF_PROPOSAL_RESPONSE, std::move(packet)) { }
+            explicit DFProposalResponse(WorldPacket&& packet) : ClientPacket(CMSG_DF_PROPOSAL_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -73,7 +73,7 @@ namespace WorldPackets
         class DFSetRoles final : public ClientPacket
         {
         public:
-            DFSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_ROLES, std::move(packet)) { }
+            explicit DFSetRoles(WorldPacket&& packet) : ClientPacket(CMSG_DF_SET_ROLES, std::move(packet)) { }
 
             void Read() override;
 
@@ -84,7 +84,7 @@ namespace WorldPackets
         class DFBootPlayerVote final : public ClientPacket
         {
         public:
-            DFBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_DF_BOOT_PLAYER_VOTE, std::move(packet)) { }
+            explicit DFBootPlayerVote(WorldPacket&& packet) : ClientPacket(CMSG_DF_BOOT_PLAYER_VOTE, std::move(packet)) { }
 
             void Read() override;
 
@@ -94,7 +94,7 @@ namespace WorldPackets
         class DFTeleport final : public ClientPacket
         {
         public:
-            DFTeleport(WorldPacket&& packet) : ClientPacket(CMSG_DF_TELEPORT, std::move(packet)) { }
+            explicit DFTeleport(WorldPacket&& packet) : ClientPacket(CMSG_DF_TELEPORT, std::move(packet)) { }
 
             void Read() override;
 
@@ -104,7 +104,7 @@ namespace WorldPackets
         class DFGetSystemInfo final : public ClientPacket
         {
         public:
-            DFGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_SYSTEM_INFO, std::move(packet)) { }
+            explicit DFGetSystemInfo(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_SYSTEM_INFO, std::move(packet)) { }
 
             void Read() override;
 
@@ -115,7 +115,7 @@ namespace WorldPackets
         class DFGetJoinStatus final : public ClientPacket
         {
         public:
-            DFGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_JOIN_STATUS, std::move(packet)) { }
+            explicit DFGetJoinStatus(WorldPacket&& packet) : ClientPacket(CMSG_DF_GET_JOIN_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -197,7 +197,7 @@ namespace WorldPackets
         class LfgPlayerInfo final : public ServerPacket
         {
         public:
-            LfgPlayerInfo() : ServerPacket(SMSG_LFG_PLAYER_INFO) { }
+            explicit LfgPlayerInfo() : ServerPacket(SMSG_LFG_PLAYER_INFO) { }
 
             WorldPacket const* Write() override;
 
@@ -208,7 +208,7 @@ namespace WorldPackets
         class LfgPartyInfo final : public ServerPacket
         {
         public:
-            LfgPartyInfo() : ServerPacket(SMSG_LFG_PARTY_INFO) { }
+            explicit LfgPartyInfo() : ServerPacket(SMSG_LFG_PARTY_INFO) { }
 
             WorldPacket const* Write() override;
 
@@ -218,7 +218,7 @@ namespace WorldPackets
         class LFGUpdateStatus final : public ServerPacket
         {
         public:
-            LFGUpdateStatus() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
+            explicit LFGUpdateStatus() : ServerPacket(SMSG_LFG_UPDATE_STATUS) { }
 
             WorldPacket const* Write() override;
 
@@ -240,7 +240,7 @@ namespace WorldPackets
         class RoleChosen final : public ServerPacket
         {
         public:
-            RoleChosen() : ServerPacket(SMSG_ROLE_CHOSEN, 16 + 4 + 1) { }
+            explicit RoleChosen() : ServerPacket(SMSG_ROLE_CHOSEN, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -264,7 +264,7 @@ namespace WorldPackets
         class LFGRoleCheckUpdate final : public ServerPacket
         {
         public:
-            LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
+            explicit LFGRoleCheckUpdate() : ServerPacket(SMSG_LFG_ROLE_CHECK_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -281,7 +281,7 @@ namespace WorldPackets
         class LFGJoinResult final : public ServerPacket
         {
         public:
-            LFGJoinResult() : ServerPacket(SMSG_LFG_JOIN_RESULT) { }
+            explicit LFGJoinResult() : ServerPacket(SMSG_LFG_JOIN_RESULT) { }
 
             WorldPacket const* Write() override;
 
@@ -289,13 +289,13 @@ namespace WorldPackets
             int32 Result = 0;
             uint8 ResultDetail = 0;
             std::vector<LFGBlackList> BlackList;
-            std::vector<std::string const*> BlackListNames;
+            std::vector<std::string_view> BlackListNames;
         };
 
         class LFGQueueStatus final : public ServerPacket
         {
         public:
-            LFGQueueStatus() : ServerPacket(SMSG_LFG_QUEUE_STATUS, 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 * 3 + 3 + 4) { }
+            explicit LFGQueueStatus() : ServerPacket(SMSG_LFG_QUEUE_STATUS, 16 + 4 + 4 + 4 + 4 + 4 + 4 + 4 * 3 + 3 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -334,7 +334,7 @@ namespace WorldPackets
         class LFGPlayerReward final : public ServerPacket
         {
         public:
-            LFGPlayerReward() : ServerPacket(SMSG_LFG_PLAYER_REWARD) { }
+            explicit LFGPlayerReward() : ServerPacket(SMSG_LFG_PLAYER_REWARD) { }
 
             WorldPacket const* Write() override;
 
@@ -362,7 +362,7 @@ namespace WorldPackets
         class LfgBootPlayer final : public ServerPacket
         {
         public:
-            LfgBootPlayer() : ServerPacket(SMSG_LFG_BOOT_PLAYER) { }
+            explicit LfgBootPlayer() : ServerPacket(SMSG_LFG_BOOT_PLAYER) { }
 
             WorldPacket const* Write() override;
 
@@ -382,7 +382,7 @@ namespace WorldPackets
         class LFGProposalUpdate final : public ServerPacket
         {
         public:
-            LFGProposalUpdate() : ServerPacket(SMSG_LFG_PROPOSAL_UPDATE) { }
+            explicit LFGProposalUpdate() : ServerPacket(SMSG_LFG_PROPOSAL_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -403,7 +403,7 @@ namespace WorldPackets
         class LFGDisabled final : public ServerPacket
         {
         public:
-            LFGDisabled() : ServerPacket(SMSG_LFG_DISABLED, 0) { }
+            explicit LFGDisabled() : ServerPacket(SMSG_LFG_DISABLED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -411,7 +411,7 @@ namespace WorldPackets
         class LFGOfferContinue final : public ServerPacket
         {
         public:
-            LFGOfferContinue(uint32 slot) : ServerPacket(SMSG_LFG_OFFER_CONTINUE, 4), Slot(slot) { }
+            explicit LFGOfferContinue(uint32 slot) : ServerPacket(SMSG_LFG_OFFER_CONTINUE, 4), Slot(slot) { }
 
             WorldPacket const* Write() override;
 
@@ -421,7 +421,7 @@ namespace WorldPackets
         class LFGTeleportDenied final : public ServerPacket
         {
         public:
-            LFGTeleportDenied(lfg::LfgTeleportResult reason) : ServerPacket(SMSG_LFG_TELEPORT_DENIED, 1), Reason(reason) { }
+            explicit LFGTeleportDenied(lfg::LfgTeleportResult reason) : ServerPacket(SMSG_LFG_TELEPORT_DENIED, 1), Reason(reason) { }
 
             WorldPacket const* Write() override;
 
@@ -430,4 +430,4 @@ namespace WorldPackets
     }
 }
 
-#endif // LFGPackets_h__
+#endif // TRINITYCORE_LFG_PACKETS_H

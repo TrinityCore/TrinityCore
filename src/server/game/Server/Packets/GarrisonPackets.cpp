@@ -18,6 +18,7 @@
 #include "GarrisonPackets.h"
 #include "DB2Structure.h"
 #include "Errors.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Garrison
 {
@@ -53,7 +54,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonBuildingInfo const& buildingInf
     data << buildingInfo.TimeBuilt;
     data << uint32(buildingInfo.CurrentGarSpecID);
     data << buildingInfo.TimeSpecCooldown;
-    data.WriteBit(buildingInfo.Active);
+    data << Bits<1>(buildingInfo.Active);
     data.FlushBits();
 
     return data;
@@ -71,7 +72,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonFollower const& follower)
     data << uint32(follower.Durability);
     data << uint32(follower.CurrentBuildingID);
     data << uint32(follower.CurrentMissionID);
-    data << uint32(follower.AbilityID.size());
+    data << Size<uint32>(follower.AbilityID);
     data << uint32(follower.ZoneSupportSpellID);
     data << uint32(follower.FollowerStatus);
     data << int32(follower.Health);
@@ -80,9 +81,10 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonFollower const& follower)
     for (GarrAbilityEntry const* ability : follower.AbilityID)
         data << uint32(ability->ID);
 
-    data.WriteBits(follower.CustomName.length(), 7);
+    data << SizedString::BitsSize<7>(follower.CustomName);
     data.FlushBits();
-    data.WriteString(follower.CustomName);
+
+    data << SizedString::Data(follower.CustomName);
 
     return data;
 }
@@ -90,7 +92,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonFollower const& follower)
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonEncounter const& encounter)
 {
     data << int32(encounter.GarrEncounterID);
-    data << uint32(encounter.Mechanics.size());
+    data << Size<uint32>(encounter.Mechanics);
     data << int32(encounter.GarrAutoCombatantID);
     data << int32(encounter.Health);
     data << int32(encounter.MaxHealth);
@@ -112,7 +114,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMissionReward const& missionRew
     data << uint32(missionRewardItem.FollowerXP);
     data << uint32(missionRewardItem.GarrMssnBonusAbilityID);
     data << int32(missionRewardItem.ItemFileDataID);
-    data.WriteBit(missionRewardItem.ItemInstance.has_value());
+    data << OptionalInit(missionRewardItem.ItemInstance);
     data.FlushBits();
 
     if (missionRewardItem.ItemInstance)
@@ -135,9 +137,9 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonMission const& mission)
     data << uint32(mission.Flags);
     data << float(mission.MissionScalar);
     data << int32(mission.ContentTuningID);
-    data << uint32(mission.Encounters.size());
-    data << uint32(mission.Rewards.size());
-    data << uint32(mission.OvermaxRewards.size());
+    data << Size<uint32>(mission.Encounters);
+    data << Size<uint32>(mission.Rewards);
+    data << Size<uint32>(mission.OvermaxRewards);
 
     for (GarrisonEncounter const& encounter : mission.Encounters)
         data << encounter;
@@ -173,7 +175,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonTalent const& talent)
     data << int32(talent.Rank);
     data << talent.ResearchStartTime;
     data << int32(talent.Flags);
-    data.WriteBit(talent.Socket.has_value());
+    data << OptionalInit(talent.Socket);
     data.FlushBits();
 
     if (talent.Socket)
@@ -193,7 +195,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonCollectionEntry const& collecti
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonCollection const& collection)
 {
     data << int32(collection.Type);
-    data << uint32(collection.Entries.size());
+    data << Size<uint32>(collection.Entries);
     for (GarrisonCollectionEntry const& collectionEntry : collection.Entries)
         data << collectionEntry;
 
@@ -211,7 +213,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonEventEntry const& event)
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonEventList const& eventList)
 {
     data << int32(eventList.Type);
-    data << uint32(eventList.Events.size());
+    data << Size<uint32>(eventList.Events);
     for (GarrisonEventEntry const& event : eventList.Events)
         data << event;
 
@@ -235,20 +237,20 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
     data << uint8(garrison.GarrTypeID);
     data << int32(garrison.GarrSiteID);
     data << int32(garrison.GarrSiteLevelID);
-    data << uint32(garrison.Buildings.size());
-    data << uint32(garrison.Plots.size());
-    data << uint32(garrison.Followers.size());
-    data << uint32(garrison.AutoTroops.size());
-    data << uint32(garrison.Missions.size());
-    data << uint32(garrison.MissionRewards.size());
-    data << uint32(garrison.MissionOvermaxRewards.size());
-    data << uint32(garrison.MissionAreaBonuses.size());
-    data << uint32(garrison.Talents.size());
-    data << uint32(garrison.Collections.size());
-    data << uint32(garrison.EventLists.size());
-    data << uint32(garrison.SpecGroups.size());
-    data << uint32(garrison.CanStartMission.size());
-    data << uint32(garrison.ArchivedMissions.size());
+    data << Size<uint32>(garrison.Buildings);
+    data << Size<uint32>(garrison.Plots);
+    data << Size<uint32>(garrison.Followers);
+    data << Size<uint32>(garrison.AutoTroops);
+    data << Size<uint32>(garrison.Missions);
+    data << Size<uint32>(garrison.MissionRewards);
+    data << Size<uint32>(garrison.MissionOvermaxRewards);
+    data << Size<uint32>(garrison.MissionAreaBonuses);
+    data << Size<uint32>(garrison.Talents);
+    data << Size<uint32>(garrison.Collections);
+    data << Size<uint32>(garrison.EventLists);
+    data << Size<uint32>(garrison.SpecGroups);
+    data << Size<uint32>(garrison.CanStartMission);
+    data << Size<uint32>(garrison.ArchivedMissions);
     data << int32(garrison.NumFollowerActivationsRemaining);
     data << uint32(garrison.NumMissionsStartedToday);
     data << int32(garrison.MinAutoTroopLevel);
@@ -257,10 +259,10 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
         data << *plot;
 
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionRewards)
-        data << uint32(missionReward.size());
+        data << Size<uint32>(missionReward);
 
     for (std::vector<GarrisonMissionReward> const& missionReward : garrison.MissionOvermaxRewards)
-        data << uint32(missionReward.size());
+        data << Size<uint32>(missionReward);
 
     for (GarrisonMissionBonusAbility const* areaBonus : garrison.MissionAreaBonuses)
         data << *areaBonus;
@@ -281,7 +283,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonInfo const& garrison)
         data << *building;
 
     for (bool canStartMission : garrison.CanStartMission)
-        data.WriteBit(canStartMission);
+        data << Bits<1>(canStartMission);
 
     data.FlushBits();
 
@@ -318,8 +320,8 @@ ByteBuffer& operator<<(ByteBuffer& data, FollowerSoftCapInfo const& followerSoft
 WorldPacket const* GetGarrisonInfoResult::Write()
 {
     _worldPacket << int8(FactionIndex);
-    _worldPacket << uint32(Garrisons.size());
-    _worldPacket << uint32(FollowerSoftCaps.size());
+    _worldPacket << Size<uint32>(Garrisons);
+    _worldPacket << Size<uint32>(FollowerSoftCaps);
     for (FollowerSoftCapInfo const& followerSoftCapInfo : FollowerSoftCaps)
         _worldPacket << followerSoftCapInfo;
 
@@ -340,7 +342,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonRemoteBuildingInfo const& build
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonRemoteSiteInfo const& site)
 {
     data << uint32(site.GarrSiteLevelID);
-    data << uint32(site.Buildings.size());
+    data << Size<uint32>(site.Buildings);
     for (GarrisonRemoteBuildingInfo const& building : site.Buildings)
         data << building;
 
@@ -349,7 +351,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonRemoteSiteInfo const& site)
 
 WorldPacket const* GarrisonRemoteInfo::Write()
 {
-    _worldPacket << uint32(Sites.size());
+    _worldPacket << Size<uint32>(Sites);
     for (GarrisonRemoteSiteInfo const& site : Sites)
         _worldPacket << site;
 
@@ -368,7 +370,7 @@ WorldPacket const* GarrisonPlaceBuildingResult::Write()
     _worldPacket << uint8(GarrTypeID);
     _worldPacket << uint32(Result);
     _worldPacket << BuildingInfo;
-    _worldPacket.WriteBit(PlayActivationCinematic);
+    _worldPacket << Bits<1>(PlayActivationCinematic);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -434,7 +436,7 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonBuildingMapData const& building
 
 WorldPacket const* GarrisonMapDataResponse::Write()
 {
-    _worldPacket << uint32(Buildings.size());
+    _worldPacket << Size<uint32>(Buildings);
     for (GarrisonBuildingMapData& landmark : Buildings)
         _worldPacket << landmark;
 
