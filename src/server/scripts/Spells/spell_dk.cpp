@@ -54,8 +54,10 @@ enum DeathKnightSpells
     SPELL_DK_BRITTLE_DEBUFF                     = 374557,
     SPELL_DK_CLEAVING_STRIKES                   = 316916,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    SPELL_DK_CRIMSON_SCOURGE_BUFF               = 81141,
     SPELL_DK_DARK_SIMULACRUM_BUFF               = 77616,
     SPELL_DK_DARK_SIMULACRUM_SPELLPOWER_BUFF    = 94984,
+    SPELL_DK_DEATH_AND_DECAY                    = 43265,
     SPELL_DK_DEATH_AND_DECAY_DAMAGE             = 52212,
     SPELL_DK_DEATH_AND_DECAY_INCREASE_TARGETS   = 188290,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
@@ -356,6 +358,33 @@ class spell_dk_brittle : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dk_brittle::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 81136 - Crimson Scourge
+class spell_dk_crimson_scourge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_BLOOD_PLAGUE, SPELL_DK_CRIMSON_SCOURGE_BUFF, SPELL_DK_DEATH_AND_DECAY });
+    }
+
+    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
+    {
+        return procInfo.GetProcTarget()->HasAura(SPELL_DK_BLOOD_PLAGUE, procInfo.GetActor()->GetGUID());
+    }
+
+    static void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        Unit* actor = eventInfo.GetActor();
+        actor->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DK_DEATH_AND_DECAY, DIFFICULTY_NONE)->ChargeCategoryId);
+        actor->CastSpell(actor, SPELL_DK_CRIMSON_SCOURGE_BUFF, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dk_crimson_scourge::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dk_crimson_scourge::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1420,6 +1449,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_blooddrinker);
     RegisterSpellScript(spell_dk_blood_boil);
     RegisterSpellScript(spell_dk_brittle);
+    RegisterSpellScript(spell_dk_crimson_scourge);
     RegisterSpellScript(spell_dk_dancing_rune_weapon);
     RegisterSpellScript(spell_dk_dark_simulacrum);
     RegisterSpellScript(spell_dk_dark_simulacrum_buff);
