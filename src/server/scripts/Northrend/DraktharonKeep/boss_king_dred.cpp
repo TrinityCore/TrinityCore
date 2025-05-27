@@ -15,13 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ScriptMgr.h"
+#include "drak_tharon_keep.h"
 #include "Containers.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
-#include "drak_tharon_keep.h"
 
 enum DredTexts
 {
