@@ -1,6 +1,6 @@
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 6200;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
-(6200, 'at_vashjir_whirlpool_entrance');
+(6200, 'at_abyssal_depths_whirlpool_entrance');
 
 UPDATE `creature_template` SET `faction`=14, `speed_walk`=2.799999952316284179, `speed_run`=1, `unit_flags`=0x2000000, `unit_flags3`=0x1, `VehicleId`=1023, `AIName`='', `ScriptName`='npc_abyssal_depths_whirlpool_vehicle' WHERE `entry`=44373; -- Whirlpool Vehicle
 

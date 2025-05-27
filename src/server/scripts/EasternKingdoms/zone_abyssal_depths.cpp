@@ -41,11 +41,11 @@ namespace Paths
     static constexpr uint32 PathUnderWhirlpool = 4437300;
 }
 
-// 6200 - Vashj'ir Whirlpool Entrance
-class at_vashjir_whirlpool_entrance : public AreaTriggerScript
+// 6200 - Abyssal Depths Whirlpool Entrance
+class at_abyssal_depths_whirlpool_entrance : public AreaTriggerScript
 {
 public:
-    at_vashjir_whirlpool_entrance() : AreaTriggerScript("at_vashjir_whirlpool_entrance") { }
+    at_abyssal_depths_whirlpool_entrance() : AreaTriggerScript("at_abyssal_depths_whirlpool_entrance") { }
 
     bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
@@ -98,7 +98,7 @@ void AddSC_abyssal_depths()
 {
     using namespace Scripts::EasternKingdoms::AbyssalDepths;
 
-    new at_vashjir_whirlpool_entrance();
+    new at_abyssal_depths_whirlpool_entrance();
 
     RegisterCreatureAI(npc_abyssal_depths_whirlpool_vehicle);
 }
