@@ -117,8 +117,7 @@ enum SaurfangSpells
 
     SPELL_RIDE_VEHICLE                        = 70640, // Outro
     SPELL_ACHIEVEMENT                         = 72928,
-    SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
-    SPELL_PERMANENT_FEIGN_DEATH               = 70628
+    SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -318,6 +317,14 @@ struct boss_deathbringer_saurfang : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
+        _JustDied();
+        _dead = true;
+        DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
+        DoCastSelf(SPELL_ACHIEVEMENT, true);
+        Talk(SAY_DEATH);
+        DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
+        if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SAURFANG_EVENT_NPC)))
+            creature->AI()->DoAction(ACTION_START_OUTRO);
     }
 
     void AttackStart(Unit* victim) override
@@ -353,31 +360,11 @@ struct boss_deathbringer_saurfang : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (damage >= me->GetHealth())
-            damage = me->GetHealth() - 1;
-
         if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
         {
             _frenzied = true;
             DoCastSelf(SPELL_FRENZY, true);
             Talk(SAY_FRENZY);
-        }
-
-        if (!_dead && me->GetHealth()-damage < FightWonValue)
-        {
-            _dead = true;
-            _JustDied();
-            _EnterEvadeMode();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            me->SetImmuneToPC(true);
-            me->RemoveAurasOnEvade();
-            DoCastAOE(SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION);
-            DoCastSelf(SPELL_ACHIEVEMENT, true);
-            Talk(SAY_DEATH);
-            DoCastSelf(SPELL_REPUTATION_BOSS_KILL, true);
-            DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
-            if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_SAURFANG_EVENT_NPC)))
-                creature->AI()->DoAction(ACTION_START_OUTRO);
         }
     }
 
@@ -606,16 +593,12 @@ struct boss_deathbringer_saurfang : public BossAI
         return BossAI::CanAIAttack(target);
     }
 
-    static uint32 const FightWonValue;
-
 private:
     uint32 _fallenChampionCastCount;
     bool _introDone;
     bool _frenzied;   // faster than iterating all auras to find Frenzy
     bool _dead;
 };
-
-uint32 const boss_deathbringer_saurfang::FightWonValue = 100000;
 
 // 37187 - High Overlord Saurfang
 struct npc_high_overlord_saurfang_icc : public ScriptedAI
@@ -886,7 +869,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
 
                 // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                 if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
-                    deathbringer->DespawnOrUnsummon(5s);
+                    deathbringer->DespawnOrUnsummon(10s);
                 break;
             }
             case ACTION_INTERRUPT_INTRO:
