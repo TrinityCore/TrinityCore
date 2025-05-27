@@ -29,7 +29,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Texts
+enum BloodCouncilTexts
 {
     // Blood Queen Lana'Thel
     SAY_INTRO_1                 = 0,
@@ -62,7 +62,7 @@ enum Texts
     SAY_VALANAR_DEATH           = 6
 };
 
-enum Spells
+enum BloodCouncilSpells
 {
     SPELL_FEIGN_DEATH                   = 71598,
     SPELL_OOC_INVOCATION_VISUAL         = 70934,
@@ -124,7 +124,7 @@ enum Spells
     SPELL_INVOCATION_VISUAL_KELESETH    = 71080
 };
 
-enum Events
+enum BloodCouncilEvents
 {
     EVENT_INTRO_1               = 1,
     EVENT_INTRO_2,
@@ -147,7 +147,7 @@ enum Events
     EVENT_CONTINUE_FALLING
 };
 
-enum Actions
+enum BloodCouncilActions
 {
     ACTION_START_INTRO          = 1,
     ACTION_INTRO_DONE,
@@ -158,13 +158,13 @@ enum Actions
     ACTION_FLAME_BALL_CHASE
 };
 
-enum Points
+enum BloodCouncilPoints
 {
     POINT_INTRO_DESPAWN         = 380040,
     POINT_KINETIC_BOMB_IMPACT   = 384540
 };
 
-enum Misc
+enum BloodCouncilMisc
 {
     DISPLAY_KINETIC_BOMB        = 31095,
     SUMMON_PRINCES_GROUP        = 1,
@@ -216,6 +216,7 @@ uint32 const PrincesData[] =
     DATA_PRINCE_VALANAR
 };
 
+// 38008 - Blood Orb Controller
 struct boss_blood_council_controller : public BossAI
 {
     boss_blood_council_controller(Creature* creature) : BossAI(creature, DATA_BLOOD_PRINCE_COUNCIL)
@@ -285,7 +286,7 @@ struct boss_blood_council_controller : public BossAI
                 DoZoneInCombat(prince);
             }
 
-        events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, Seconds(46) + Milliseconds(500));
+        events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46s + 500ms);
 
         _invocationOrder[0] = InvocationData(instance->GetGuidData(DATA_PRINCE_VALANAR), SPELL_INVOCATION_OF_BLOOD_VALANAR, EMOTE_VALANAR_INVOCATION, SPELL_INVOCATION_VISUAL_VALANAR);
         if (roll_chance(50))
@@ -389,7 +390,7 @@ struct boss_blood_council_controller : public BossAI
                     }
 
                     DoCastSelf(_invocationOrder[_invocationStage].spellId);
-                    events.Repeat(Seconds(46) + Milliseconds(500));
+                    events.Repeat(46s + 500ms);
                     break;
                 }
                 default:
@@ -607,6 +608,7 @@ protected:
     bool _isEmpowered;
 };
 
+// 37972 - Prince Keleseth
 struct boss_prince_keleseth_icc : public BloodPrincesBossAI
 {
     boss_prince_keleseth_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_KELESETH)
@@ -659,11 +661,11 @@ struct boss_prince_keleseth_icc : public BloodPrincesBossAI
                 case EVENT_SHADOW_RESONANCE:
                     Talk(SAY_KELESETH_SPECIAL);
                     DoCastSelf(SPELL_SHADOW_RESONANCE);
-                    events.Repeat(Seconds(10), Seconds(15));
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_SHADOW_LANCE:
                     _isEmpowered ? DoCastVictim(SPELL_EMPOWERED_SHADOW_LANCE) : DoCastVictim(SPELL_SHADOW_LANCE);
-                    events.Repeat(Seconds(2));
+                    events.Repeat(2s);
                     break;
                 default:
                     break;
@@ -675,6 +677,7 @@ struct boss_prince_keleseth_icc : public BloodPrincesBossAI
     }
 };
 
+// 37973 - Prince Taldaram
 struct boss_prince_taldaram_icc : public BloodPrincesBossAI
 {
     boss_prince_taldaram_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_TALDARAM) { }
@@ -722,18 +725,18 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
                     break;
                 case EVENT_GLITTERING_SPARKS:
                     DoCastVictim(SPELL_GLITTERING_SPARKS);
-                    events.Repeat(Seconds(15), Seconds(50));
+                    events.Repeat(15s, 50s);
                     break;
                 case EVENT_CONJURE_FLAME:
                     if (_isEmpowered)
                     {
                         DoCastSelf(SPELL_CONJURE_EMPOWERED_FLAME);
-                        events.Repeat(Seconds(15), Seconds(25));
+                        events.Repeat(15s, 25s);
                     }
                     else
                     {
                         DoCastSelf(SPELL_CONJURE_FLAME);
-                        events.Repeat(Seconds(20), Seconds(30));
+                        events.Repeat(20s, 30s);
                     }
                     Talk(SAY_TALDARAM_SPECIAL);
                     break;
@@ -747,6 +750,7 @@ struct boss_prince_taldaram_icc : public BloodPrincesBossAI
     }
 };
 
+// 37970 - Prince Valanar
 struct boss_prince_valanar_icc : public BloodPrincesBossAI
 {
     boss_prince_valanar_icc(Creature* creature) : BloodPrincesBossAI(creature, DATA_PRINCE_VALANAR) { }
@@ -815,20 +819,20 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
                         DoCast(target, SPELL_KINETIC_BOMB_TARGET);
                         Talk(SAY_VALANAR_SPECIAL);
                     }
-                    events.Repeat(Seconds(18), Seconds(24));
+                    events.Repeat(18s, 24s);
                     break;
                 case EVENT_SHOCK_VORTEX:
                     if (_isEmpowered)
                     {
                         DoCastSelf(SPELL_EMPOWERED_SHOCK_VORTEX);
                         Talk(EMOTE_VALANAR_SHOCK_VORTEX);
-                        events.Repeat(Seconds(30));
+                        events.Repeat(30s);
                     }
                     else
                     {
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                             DoCast(target, SPELL_SHOCK_VORTEX);
-                        events.Repeat(Seconds(18), Seconds(23));
+                        events.Repeat(18s, 23s);
                     }
                     break;
                 default:
@@ -841,6 +845,7 @@ struct boss_prince_valanar_icc : public BloodPrincesBossAI
     }
 };
 
+// 38004 - Blood-Queen Lana'thel
 struct npc_blood_queen_lana_thel : public PassiveAI
 {
     npc_blood_queen_lana_thel(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -859,7 +864,7 @@ struct npc_blood_queen_lana_thel : public PassiveAI
             case ACTION_START_INTRO:
                 Talk(SAY_INTRO_1);
                 _events.SetPhase(1);
-                _events.ScheduleEvent(EVENT_INTRO_1, Seconds(14));
+                _events.ScheduleEvent(EVENT_INTRO_1, 14s);
                 // summon a visual trigger
                 if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15s, TEMPSUMMON_TIMED_DESPAWN))
                 {
@@ -902,6 +907,8 @@ private:
     InstanceScript* _instance;
 };
 
+// 38332 - Ball of Flame
+// 38451 - Ball of Inferno Flame
 struct npc_ball_of_flame : public ScriptedAI
 {
     npc_ball_of_flame(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -923,7 +930,7 @@ struct npc_ball_of_flame : public ScriptedAI
         {
             me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
             DoCastSelf(SPELL_FLAMES);
-            _scheduler.Schedule(Seconds(2), [this](TaskContext const& /*context*/)
+            _scheduler.Schedule(2s, [this](TaskContext const& /*context*/)
             {
                 DoCastSelf(SPELL_FLAME_SPHERE_DEATH_EFFECT);
             });
@@ -971,6 +978,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 38454 - Kinetic Bomb
 struct npc_kinetic_bomb : public ScriptedAI
 {
     npc_kinetic_bomb(Creature* creature) : ScriptedAI(creature), _x(0.f), _y(0.f), _groundZ(0.f) { }
@@ -999,7 +1007,7 @@ struct npc_kinetic_bomb : public ScriptedAI
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), POINT_KINETIC_BOMB_IMPACT);
             }
-            _events.RescheduleEvent(EVENT_CONTINUE_FALLING, Seconds(3));
+            _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3s);
         }
     }
 
@@ -1032,6 +1040,7 @@ private:
     float _groundZ;
 };
 
+// 38369 - Dark Nucleus
 struct npc_dark_nucleus : public ScriptedAI
 {
     npc_dark_nucleus(Creature* creature) : ScriptedAI(creature) { }
@@ -1044,7 +1053,7 @@ struct npc_dark_nucleus : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        _scheduler.Schedule(Seconds(1), [this](TaskContext& targetAuraCheck)
+        _scheduler.Schedule(1s, [this](TaskContext& targetAuraCheck)
         {
             if (Unit* victim = me->GetVictim())
             {

@@ -33,7 +33,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum Texts
+enum SindragosaTexts
 {
     SAY_AGGRO                           = 0, // You are fools to have come to this place! The icy winds of Northrend will consume your souls!
     SAY_UNCHAINED_MAGIC                 = 1, // Suffer, mortals, as your pathetic magic betrays you!
@@ -50,7 +50,7 @@ enum Texts
     EMOTE_BERSERK_RAID                  = 11
 };
 
-enum Spells
+enum SindragosaSpells
 {
     // Sindragosa
     SPELL_SINDRAGOSA_S_FURY     = 70608,
@@ -100,7 +100,7 @@ enum Spells
     SPELL_FROST_INFUSION        = 72292,
 };
 
-enum Events
+enum SindragosaEvents
 {
     // Sindragosa
     EVENT_BERSERK                   = 1,
@@ -138,7 +138,7 @@ enum Events
     EVENT_GROUP_LAND_PHASE          = 1,
 };
 
-enum FrostwingData
+enum SindragosaFrostwingData
 {
     DATA_MYSTIC_BUFFET_STACK    = 0,
     DATA_FROSTWYRM_OWNER        = 1,
@@ -148,7 +148,7 @@ enum FrostwingData
     DATA_IS_THIRD_PHASE         = 5
 };
 
-enum MovementPoints
+enum SindragosaPoints
 {
     POINT_FROSTWYRM_FLY_IN  = 1,
     POINT_FROSTWYRM_LAND    = 2,
@@ -159,7 +159,7 @@ enum MovementPoints
     POINT_LAND_GROUND       = 7,
 };
 
-enum Shadowmourne
+enum SindragosMisc
 {
     QUEST_FROST_INFUSION        = 24757
 };
@@ -223,6 +223,7 @@ class FrostBeaconSelector : NonTankTargetSelector
         }
 };
 
+// 36853 - Sindragosa
 struct boss_sindragosa : public BossAI
 {
     boss_sindragosa(Creature* creature) : BossAI(creature, DATA_SINDRAGOSA)
@@ -571,6 +572,7 @@ private:
     bool _isThirdPhase;
 };
 
+// 36980 - Ice Tomb
 struct npc_ice_tomb : public ScriptedAI
 {
     npc_ice_tomb(Creature* creature) : ScriptedAI(creature)
@@ -639,6 +641,7 @@ private:
     uint32 _existenceCheckTimer;
 };
 
+// 37534 - Spinestalker
 struct npc_spinestalker : public ScriptedAI
 {
     npc_spinestalker(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summoned(false) { }
@@ -756,6 +759,7 @@ private:
     bool _summoned;
 };
 
+// 37533 - Rimefang
 struct npc_rimefang_icc : public ScriptedAI
 {
     npc_rimefang_icc(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _summoned(false)
@@ -908,6 +912,8 @@ private:
     bool _summoned;
 };
 
+// 37531 - Frostwarden Handler
+// 37532 - Frostwing Whelp
 struct npc_sindragosa_trash : public ScriptedAI
 {
     npc_sindragosa_trash(Creature* creature) : ScriptedAI(creature)
