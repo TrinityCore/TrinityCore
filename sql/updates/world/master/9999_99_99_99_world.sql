@@ -19,7 +19,7 @@ SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x2, NULL, 'Whirlpool Vehicle - Fly Under Whirlpool');
+(@PATH, 1, 0x2, 21, 'Whirlpool Vehicle - Fly Under Whirlpool');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
