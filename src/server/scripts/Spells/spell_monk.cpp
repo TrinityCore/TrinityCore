@@ -20,12 +20,12 @@
  * Scriptnames of files in this file should be prefixed with "spell_monk_".
  */
 
+#include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "DB2Stores.h"
 #include "PathGenerator.h"
 #include "Player.h"
-#include "ScriptMgr.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellInfo.h"
