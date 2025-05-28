@@ -15,28 +15,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Ambassador_Hellmaw
-SD%Complete: 80
-SDComment: Enrage spell missing/not known
-SDCategory: Auchindoun, Shadow Labyrinth
-EndScriptData */
-
-#include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ScriptedEscortAI.h"
+#include "MotionMaster.h"
+#include "ScriptMgr.h"
 #include "shadow_labyrinth.h"
 
-enum Yells
+enum HellmawTexts
 {
-    SAY_INTRO       = 0,
-    SAY_AGGRO       = 1,
-    SAY_HELP        = 2,
-    SAY_SLAY        = 3,
-    SAY_DEATH       = 4
+    SAY_AGGRO               = 1,
+    SAY_HELP                = 2,
+    SAY_SLAY                = 3,
+    SAY_DEATH               = 4
 };
 
-enum Spells
+enum HellmawSpells
 {
     SPELL_BANISH            = 30231,
     SPELL_CORROSIVE_ACID    = 33551,
@@ -44,35 +36,36 @@ enum Spells
     SPELL_ENRAGE            = 34970
 };
 
-enum Events
+enum HellmawEvents
 {
-    EVENT_CORROSIVE_ACID = 1,
+    EVENT_CORROSIVE_ACID    = 1,
     EVENT_FEAR,
-    EVENT_BERSERK
+    EVENT_BERSERK,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2
 };
 
-struct boss_ambassador_hellmaw : public EscortAI
+enum HellmawMisc
 {
-    boss_ambassador_hellmaw(Creature* creature) : EscortAI(creature)
+    PATH_INTRO              = 669990,
+    SOUND_INTRO             = 9349
+};
+
+// 18731 - Ambassador Hellmaw
+struct boss_ambassador_hellmaw : public BossAI
+{
+    boss_ambassador_hellmaw(Creature* creature) : BossAI(creature, DATA_AMBASSADOR_HELLMAW) { }
+
+    void JustEngagedWith(Unit* who) override
     {
-        _instance = creature->GetInstanceScript();
-        _intro = false;
-    }
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
 
-    void Reset() override
-    {
-        if (!me->IsAlive())
-            return;
-
-        _events.Reset();
-        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, NOT_STARTED);
-
-        _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
-        _events.ScheduleEvent(EVENT_FEAR, 25s, 30s);
+        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 5s, 10s);
+        events.ScheduleEvent(EVENT_FEAR, 25s, 30s);
         if (IsHeroic())
-            _events.ScheduleEvent(EVENT_BERSERK, 3min);
-
-        DoAction(ACTION_AMBASSADOR_HELLMAW_BANISH);
+            events.ScheduleEvent(EVENT_BERSERK, 3min);
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -80,38 +73,22 @@ struct boss_ambassador_hellmaw : public EscortAI
         if (me->HasAura(SPELL_BANISH))
             return;
 
-        EscortAI::MoveInLineOfSight(who);
+        ScriptedAI::MoveInLineOfSight(who);
     }
 
     void DoAction(int32 actionId) override
     {
         if (actionId == ACTION_AMBASSADOR_HELLMAW_INTRO)
-            DoIntro();
+            events.ScheduleEvent(EVENT_INTRO_1, 0s);
         else if (actionId == ACTION_AMBASSADOR_HELLMAW_BANISH)
         {
-            if (_instance->GetData(DATA_FEL_OVERSEER) && me->HasAura(SPELL_BANISH))
-                DoCast(me, SPELL_BANISH, true); // this will not work, because he is immune to banish
+            if (instance->GetData(DATA_FEL_OVERSEER))
+            {
+                /// !HACK: He is immune to banish
+                me->ApplySpellImmune(-1, IMMUNITY_MECHANIC, MECHANIC_BANISH, false);
+                DoCastSelf(SPELL_BANISH);
+            }
         }
-    }
-
-    void DoIntro()
-    {
-        if (_intro)
-            return;
-
-        _intro = true;
-
-        if (me->HasAura(SPELL_BANISH))
-            me->RemoveAurasDueToSpell(SPELL_BANISH);
-
-        Talk(SAY_INTRO);
-        Start(true, false, ObjectGuid::Empty, nullptr, false, true);
-    }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, IN_PROGRESS);
-        Talk(SAY_AGGRO);
     }
 
     void KilledUnit(Unit* who) override
@@ -122,14 +99,37 @@ struct boss_ambassador_hellmaw : public EscortAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        _instance->SetBossState(DATA_AMBASSADOR_HELLMAW, DONE);
+        _JustDied();
         Talk(SAY_DEATH);
     }
 
-    void UpdateEscortAI(uint32 diff) override
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_INTRO_1:
+                        me->RemoveAurasDueToSpell(SPELL_BANISH);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                        DoPlaySoundToSet(me, SOUND_INTRO);
+                        me->ApplySpellImmune(-1, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
+                        events.ScheduleEvent(EVENT_INTRO_2, 1500ms);
+                        break;
+                    case EVENT_INTRO_2:
+                        me->GetMotionMaster()->MovePath(PATH_INTRO, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             return;
+        }
 
         if (me->HasAura(SPELL_BANISH))
         {
@@ -137,25 +137,25 @@ struct boss_ambassador_hellmaw : public EscortAI
             return;
         }
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_CORROSIVE_ACID:
                     DoCastVictim(SPELL_CORROSIVE_ACID);
-                    _events.ScheduleEvent(EVENT_CORROSIVE_ACID, 15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 case EVENT_FEAR:
                     DoCastAOE(SPELL_FEAR);
-                    _events.ScheduleEvent(EVENT_FEAR, 20s, 35s);
+                    events.Repeat(20s, 35s);
                     break;
                 case EVENT_BERSERK:
-                    DoCast(me, SPELL_ENRAGE, true);
+                    DoCastSelf(SPELL_ENRAGE);
                     break;
                 default:
                     break;
@@ -164,11 +164,6 @@ struct boss_ambassador_hellmaw : public EscortAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    InstanceScript* _instance;
-    EventMap _events;
-    bool _intro;
 };
 
 void AddSC_boss_ambassador_hellmaw()

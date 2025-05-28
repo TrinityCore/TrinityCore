@@ -15,12 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Murmur
-SD%Complete: 90
-SDComment: Timers may be incorrect
-SDCategory: Auchindoun, Shadow Labyrinth
-EndScriptData */
+/* Timers requires update */
 
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
@@ -29,12 +24,12 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Texts
+enum MurmurTexts
 {
     EMOTE_SONIC_BOOM            = 0
 };
 
-enum Spells
+enum MurmurSpells
 {
     SPELL_RESONANCE             = 33657,
     SPELL_MAGNETIC_PULL         = 33689,
@@ -50,16 +45,17 @@ enum Spells
     SPELL_SHOCKWAVE_KNOCK_BACK  = 33673
 };
 
-enum Events
+enum MurmurEvents
 {
     EVENT_SONIC_BOOM            = 1,
-    EVENT_MURMURS_TOUCH         = 2,
-    EVENT_RESONANCE             = 3,
-    EVENT_MAGNETIC_PULL         = 4,
-    EVENT_THUNDERING_STORM      = 5,
-    EVENT_SONIC_SHOCK           = 6
+    EVENT_MURMURS_TOUCH,
+    EVENT_RESONANCE,
+    EVENT_MAGNETIC_PULL,
+    EVENT_THUNDERING_STORM,
+    EVENT_SONIC_SHOCK
 };
 
+// 18708 - Murmur
 struct boss_murmur : public BossAI
 {
     boss_murmur(Creature* creature) : BossAI(creature, DATA_MURMUR)
@@ -103,20 +99,20 @@ struct boss_murmur : public BossAI
             {
                 case EVENT_SONIC_BOOM:
                     Talk(EMOTE_SONIC_BOOM);
-                    DoCast(me, SPELL_SONIC_BOOM_CAST);
-                    events.ScheduleEvent(EVENT_SONIC_BOOM, 30s);
+                    DoCastSelf(SPELL_SONIC_BOOM_CAST);
+                    events.Repeat(30s);
                     events.ScheduleEvent(EVENT_RESONANCE, 1500ms);
                     break;
                 case EVENT_MURMURS_TOUCH:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
                         DoCast(target, SPELL_MURMURS_TOUCH);
-                    events.ScheduleEvent(EVENT_MURMURS_TOUCH, 25s, 35s);
+                    events.Repeat(25s, 35s);
                     break;
                 case EVENT_RESONANCE:
                     if (!(me->IsWithinMeleeRange(me->GetVictim())))
                     {
-                        DoCast(me, SPELL_RESONANCE);
-                        events.ScheduleEvent(EVENT_RESONANCE, 5s);
+                        DoCastSelf(SPELL_RESONANCE);
+                        events.Repeat(5s);
                     }
                     break;
                 case EVENT_MAGNETIC_PULL:
@@ -130,12 +126,12 @@ struct boss_murmur : public BossAI
                     break;
                 case EVENT_THUNDERING_STORM:
                     DoCastAOE(SPELL_THUNDERING_STORM, true);
-                    events.ScheduleEvent(EVENT_THUNDERING_STORM, 15s);
+                    events.Repeat(15s);
                     break;
                 case EVENT_SONIC_SHOCK:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 20.0f, false))
                         DoCast(target, SPELL_SONIC_SHOCK);
-                    events.ScheduleEvent(EVENT_SONIC_SHOCK, 10s, 20s);
+                    events.Repeat(10s, 20s);
                     break;
             }
 
