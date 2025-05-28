@@ -76,7 +76,6 @@ class instance_steam_vault : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDungeonEncounterData(encounters);
-                distillerState = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -101,19 +100,10 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
-                if (type == DATA_DISTILLER)
-                    distillerState = data;
-                else if (type == ACTION_OPEN_DOOR)
+                if (type == ACTION_OPEN_DOOR)
                     CheckMainDoor();
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_DISTILLER)
-                    return distillerState;
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -139,9 +129,6 @@ class instance_steam_vault : public InstanceMapScript
 
                 return true;
             }
-
-        protected:
-            uint8 distillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
