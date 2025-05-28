@@ -19,12 +19,11 @@
  * Distillers should respawn at some point, probably in case of wipe
  * All distillers should cast SPELL_QUIET_SUICIDE when encounter is finished */
 
+#include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "InstanceScript.h"
-#include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 #include "steam_vault.h"
 
 enum KalithreshTexts
@@ -136,7 +135,10 @@ struct boss_warlord_kalithresh : public BossAI
 
     void KilledUnit(Unit* /*victim*/) override
     {
-        roll_chance_i(50) ? Talk(SAY_SLAY) : DoPlaySoundToSet(me, SOUND_ID_SLAY);
+        if (roll_chance_i(50))
+            Talk(SAY_SLAY);
+        else
+            DoPlaySoundToSet(me, SOUND_ID_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
