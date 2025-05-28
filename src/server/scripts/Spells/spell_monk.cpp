@@ -451,17 +451,12 @@ struct at_monk_song_of_chi_ji : AreaTriggerAI
         if (!caster)
             return;
 
-        Position destPos = at->GetFirstCollisionPosition(40.0f, 0.0f);
+        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetMaxRange(false, caster), 0.0f);
         PathGenerator path(at);
 
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
         at->InitSplines(path.GetPath());
-    }
-
-    void OnDestinationReached() override
-    {
-        at->Remove();
     }
 
     void OnUnitEnter(Unit* unit) override
