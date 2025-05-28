@@ -254,14 +254,22 @@ private:
     EventMap events;
 };
 
+enum TeleportToDalaran
+{
+    SPELL_TELEPORT_TO_DALARAN     = 53360
+};
+
 // 54620 - Teleport Crystal: Teleport to Dalaran AICast Script
 class spell_dalaran_teleport_to_dalaran : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_DALARAN });
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        /// @todo: replace this with spell
-        if (Player* target = GetHitUnit()->ToPlayer())
-            target->TeleportTo(571, 5807.75f, 588.063f, 660.939f, 1.64659f);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_DALARAN);
     }
 
     void Register() override
@@ -270,14 +278,22 @@ class spell_dalaran_teleport_to_dalaran : public SpellScript
     }
 };
 
+enum TeleportToLakeWintergrasp
+{
+    SPELL_TELEPORT_TO_LAKE_WINTERGRASP     = 58681
+};
+
 // 58622 - Teleport to Lake Wintergrasp
 class spell_dalaran_teleport_to_lake_wintergrasp : public SpellScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_LAKE_WINTERGRASP });
+    }
+
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        /// @todo: replace this with spell
-        if (Player* target = GetHitUnit()->ToPlayer())
-            target->TeleportTo(571, 5386.05f, 2840.97f, 418.675f, 3.14159f);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_LAKE_WINTERGRASP);
     }
 
     void Register() override
