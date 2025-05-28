@@ -245,7 +245,7 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
 {
     data->append(fragments.data(), fragments.size());
-    *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
+    *data << uint8(WowCS::EntityFragment::End);
 }
 
 void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
@@ -640,7 +640,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
         if (hasOrbit)
+        {
+            using WorldPackets::AreaTrigger::operator<<;
             *data << areaTrigger->GetOrbit();
+        }
     }
 
     if (flags.GameObject)

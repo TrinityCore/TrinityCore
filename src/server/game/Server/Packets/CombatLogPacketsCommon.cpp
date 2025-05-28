@@ -19,14 +19,13 @@
 #include "Creature.h"
 #include "DB2Stores.h"
 #include "Map.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "Unit.h"
 
-namespace WorldPackets
-{
-namespace Spells
+namespace WorldPackets::Spells
 {
 void SpellCastLogData::Initialize(Unit const* unit)
 {
@@ -188,8 +187,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ContentTuningParams const& contentTunin
     data << int32(contentTuningParams.PlayerContentTuningID);
     data << int32(contentTuningParams.TargetContentTuningID);
     data << int32(contentTuningParams.Unused927);
-    data.WriteBits(contentTuningParams.Type, 4);
+    data << Bits<4>(contentTuningParams.Type);
     data.FlushBits();
+
     return data;
 }
 
@@ -219,9 +219,11 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellSupportInfo const& supportInfo)
     return data;
 }
 }
-}
 
-ByteBuffer& WorldPackets::CombatLog::CombatLogServerPacket::WriteLogData()
+namespace WorldPackets::CombatLog
+{
+ByteBuffer& CombatLogServerPacket::WriteLogData()
 {
     return _fullLogPacket << LogData;
+}
 }
