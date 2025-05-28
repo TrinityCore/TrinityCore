@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VoidStoragePackets_h__
-#define VoidStoragePackets_h__
+#ifndef TRINITYCORE_VOID_STORAGE_PACKETS_H
+#define TRINITYCORE_VOID_STORAGE_PACKETS_H
 
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
@@ -30,7 +30,7 @@ namespace WorldPackets
         class VoidTransferResult final : public ServerPacket
         {
         public:
-            VoidTransferResult(int32 result) : ServerPacket(SMSG_VOID_TRANSFER_RESULT, 4), Result(result) { }
+            explicit VoidTransferResult(int32 result) : ServerPacket(SMSG_VOID_TRANSFER_RESULT, 4), Result(result) { }
 
             WorldPacket const* Write() override;
 
@@ -40,7 +40,7 @@ namespace WorldPackets
         class UnlockVoidStorage final : public ClientPacket
         {
         public:
-            UnlockVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_UNLOCK_VOID_STORAGE, std::move(packet)) { }
+            explicit UnlockVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_UNLOCK_VOID_STORAGE, std::move(packet)) { }
 
             void Read() override;
 
@@ -50,7 +50,7 @@ namespace WorldPackets
         class QueryVoidStorage final : public ClientPacket
         {
         public:
-            QueryVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_VOID_STORAGE, std::move(packet)) { }
+            explicit QueryVoidStorage(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_VOID_STORAGE, std::move(packet)) { }
 
             void Read() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class VoidStorageFailed final : public ServerPacket
         {
         public:
-            VoidStorageFailed() : ServerPacket(SMSG_VOID_STORAGE_FAILED, 1) { }
+            explicit VoidStorageFailed() : ServerPacket(SMSG_VOID_STORAGE_FAILED, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -78,7 +78,7 @@ namespace WorldPackets
         class VoidStorageContents final : public ServerPacket
         {
         public:
-            VoidStorageContents() : ServerPacket(SMSG_VOID_STORAGE_CONTENTS, 0) { }
+            explicit VoidStorageContents() : ServerPacket(SMSG_VOID_STORAGE_CONTENTS, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -88,7 +88,7 @@ namespace WorldPackets
         class VoidStorageTransfer final : public ClientPacket
         {
         public:
-            VoidStorageTransfer(WorldPacket&& packet) : ClientPacket(CMSG_VOID_STORAGE_TRANSFER, std::move(packet)) { }
+            explicit VoidStorageTransfer(WorldPacket&& packet) : ClientPacket(CMSG_VOID_STORAGE_TRANSFER, std::move(packet)) { }
 
             void Read() override;
 
@@ -100,7 +100,7 @@ namespace WorldPackets
         class VoidStorageTransferChanges final : public ServerPacket
         {
         public:
-            VoidStorageTransferChanges() : ServerPacket(SMSG_VOID_STORAGE_TRANSFER_CHANGES, 0) { }
+            explicit VoidStorageTransferChanges() : ServerPacket(SMSG_VOID_STORAGE_TRANSFER_CHANGES, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -111,7 +111,7 @@ namespace WorldPackets
         class SwapVoidItem final : public ClientPacket
         {
         public:
-            SwapVoidItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_VOID_ITEM, std::move(packet)) { }
+            explicit SwapVoidItem(WorldPacket&& packet) : ClientPacket(CMSG_SWAP_VOID_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -123,7 +123,7 @@ namespace WorldPackets
         class VoidItemSwapResponse final : public ServerPacket
         {
         public:
-            VoidItemSwapResponse() : ServerPacket(SMSG_VOID_ITEM_SWAP_RESPONSE, 16 + 16 + 4 + 4) { }
+            explicit VoidItemSwapResponse() : ServerPacket(SMSG_VOID_ITEM_SWAP_RESPONSE, 16 + 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -135,4 +135,4 @@ namespace WorldPackets
     }
 }
 
-#endif // VoidStoragePackets_h__
+#endif // TRINITYCORE_VOID_STORAGE_PACKETS_H

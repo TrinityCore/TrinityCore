@@ -2257,7 +2257,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void KillPlayer();
         static void OfflineResurrect(ObjectGuid const& guid, CharacterDatabaseTransaction trans);
         bool HasCorpse() const { return _corpseLocation.GetMapId() != MAPID_INVALID; }
-        WorldLocation GetCorpseLocation() const { return _corpseLocation; }
+        WorldLocation const& GetCorpseLocation() const { return _corpseLocation; }
         void InitializeSelfResurrectionSpells();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);
         void BuildPlayerRepop();

@@ -1576,55 +1576,50 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
     FOREACH_SCRIPT(FormulaScript)->OnGroupRateCalculation(rate, count, isRaid);
 }
 
-#define SCR_MAP_BGN(M, V, I, E, C, T) \
-    if (V->GetEntry() && V->GetEntry()->T()) \
-    { \
-        FOR_SCRIPTS(M, I, E) \
-        { \
-            MapEntry const* C = I->second->GetEntry(); \
-            if (!C) \
-                continue; \
-            if (C->ID == V->GetId()) \
-            {
-
-#define SCR_MAP_END \
-                return; \
-            } \
-        } \
+template <typename ScriptType, typename MapType, typename... Args, std::invocable<ScriptType*, MapType*, Args...> Action>
+static inline void ForEachMapScriptType(Action const& action, MapType* map, Args... args)
+{
+    if constexpr (is_script_database_bound<ScriptType>::value)
+    {
+        if (ScriptType* script = ScriptRegistry<ScriptType>::Instance()->GetScriptById(map->GetScriptId()))
+            action(script, map, args...);
     }
+    else
+    {
+        for (auto const& [_, script] : ScriptRegistry<ScriptType>::Instance()->GetScripts())
+        {
+            MapEntry const* entry = script->GetEntry();
+            if (!entry || entry->ID != map->GetId())
+                continue;
+
+            action(script.get(), map, args...);
+        }
+    }
+}
+
+template <typename... Args, typename Action>
+static inline void ForEachMapScript(Action const& action, Map* map, Args... args)
+{
+    if (InstanceMap* instanceMap = map->ToInstanceMap())
+        ForEachMapScriptType<InstanceMapScript>(action, instanceMap, args...);
+    else if (BattlegroundMap* battlegroundMap = map->ToBattlegroundMap())
+        ForEachMapScriptType<BattlegroundMapScript>(action, battlegroundMap, args...);
+    else if (map->GetEntry()->IsWorldMap())
+        ForEachMapScriptType<WorldMapScript>(action, map, args...);
+}
 
 void ScriptMgr::OnCreateMap(Map* map)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
-        itr->second->OnCreate(map);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnCreate((InstanceMap*)map);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
-        itr->second->OnCreate((BattlegroundMap*)map);
-    SCR_MAP_END;
+    ForEachMapScript([](auto* script, auto* map) { script->OnCreate(map); }, map);
 }
 
 void ScriptMgr::OnDestroyMap(Map* map)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
-        itr->second->OnDestroy(map);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnDestroy((InstanceMap*)map);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
-        itr->second->OnDestroy((BattlegroundMap*)map);
-    SCR_MAP_END;
+    ForEachMapScript([](auto* script, auto* map) { script->OnDestroy(map); }, map);
 }
 
 void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
@@ -1634,17 +1629,7 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
 
     FOREACH_SCRIPT(PlayerScript)->OnMapChanged(player);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
-        itr->second->OnPlayerEnter(map, player);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnPlayerEnter((InstanceMap*)map, player);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
-        itr->second->OnPlayerEnter((BattlegroundMap*)map, player);
-    SCR_MAP_END;
+    ForEachMapScript([](auto* script, auto* map, Player* player) { script->OnPlayerEnter(map, player); }, map, player);
 }
 
 void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
@@ -1652,38 +1637,15 @@ void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
     ASSERT(map);
     ASSERT(player);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
-        itr->second->OnPlayerLeave(map, player);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnPlayerLeave((InstanceMap*)map, player);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
-        itr->second->OnPlayerLeave((BattlegroundMap*)map, player);
-    SCR_MAP_END;
+    ForEachMapScript([](auto* script, auto* map, Player* player) { script->OnPlayerLeave(map, player); }, map, player);
 }
 
 void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 {
     ASSERT(map);
 
-    SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
-        itr->second->OnUpdate(map, diff);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnUpdate((InstanceMap*)map, diff);
-    SCR_MAP_END;
-
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
-        itr->second->OnUpdate((BattlegroundMap*)map, diff);
-    SCR_MAP_END;
+    ForEachMapScript([](auto* script, auto* map, uint32 diff) { script->OnUpdate(map, diff); }, map, diff);
 }
-
-#undef SCR_MAP_BGN
-#undef SCR_MAP_END
 
 InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 {
