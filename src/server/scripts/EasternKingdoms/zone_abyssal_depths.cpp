@@ -60,19 +60,21 @@ public:
 // 44373 - Whirlpool Vehicle
 struct npc_abyssal_depths_whirlpool_vehicle : public ScriptedAI
 {
-    npc_abyssal_depths_whirlpool_vehicle(Creature* creature) : ScriptedAI(creature) { }
+    explicit npc_abyssal_depths_whirlpool_vehicle(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
         if (Unit* owner = me->GetOwner())
         {
-            owner->CastSpell(me, Spells::RideVehicleHardcoded, true);
+            owner->CastSpell(me, Spells::RideVehicleHardcoded);
 
             _scheduler.Schedule(3s + 500ms, [this](TaskContext /*task*/)
             {
                 me->SetAIAnimKitId(822);
+                me->CastSpell(nullptr, Spells::TeleportUnderWhirlpool, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_SET_FACING
+                });
                 me->GetMotionMaster()->MovePath(Paths::PathUnderWhirlpool, false);
-                me->CastSpell(nullptr, Spells::TeleportUnderWhirlpool);
             });
         }
     }
