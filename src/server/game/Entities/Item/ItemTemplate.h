@@ -910,10 +910,20 @@ struct TC_GAME_API ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return IsWeapon() &&
-               (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
+        if (!IsWeapon())
+            return false;
+
+        switch (ItemSubclassWeapon(GetSubClass()))
+        {
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 
     inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }
