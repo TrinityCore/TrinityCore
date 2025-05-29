@@ -6090,6 +6090,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
             charm->m_ControlledByPlayer = true;
             /// @todo maybe we can use this flag to check if controlled by player
             charm->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+            charm->GetThreatManager().ClearAllThreat();
+            charm->CombatStop(true);
         }
         else
             charm->m_ControlledByPlayer = false;
