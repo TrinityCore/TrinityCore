@@ -88,7 +88,7 @@ struct boss_herod : public BossAI
         {
             Position randomNearPosition = me->GetRandomPoint(ScarletTraineePos, 5.f);
             randomNearPosition.SetOrientation(ScarletTraineePos.GetOrientation());
-            me->SummonCreature(NPC_SCARLET_TRAINEE, randomNearPosition, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min);
+            me->SummonCreature(NPC_SCARLET_TRAINEE, randomNearPosition, TEMPSUMMON_TIMED_DESPAWN, 10min);
         }
     }
 
@@ -130,6 +130,7 @@ struct npc_scarlet_trainee : public EscortAI
     npc_scarlet_trainee(Creature* creature) : EscortAI(creature)
     {
         _startTimer = urand(1000, 6000);
+        SetDespawnAtEnd(false);
     }
 
     void UpdateAI(uint32 diff) override
