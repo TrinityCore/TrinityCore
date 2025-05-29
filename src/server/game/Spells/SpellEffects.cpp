@@ -1109,7 +1109,7 @@ void Spell::EffectPowerDrain()
         return;
 
     Powers powerType = Powers(effectInfo->MiscValue);
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || (unitTarget->GetPowerType() != powerType && powerType != POWER_HAPPINESS) || damage < 0)
         return;
 
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
@@ -5162,7 +5162,7 @@ void Spell::EffectTitanGrip()
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true, effectInfo->MiscValue);
+        m_caster->ToPlayer()->SetCanTitanGrip(true, effectInfo->MiscValue, m_spellInfo->EquippedItemClass, m_spellInfo->EquippedItemSubClassMask);
 }
 
 void Spell::EffectRedirectThreat()

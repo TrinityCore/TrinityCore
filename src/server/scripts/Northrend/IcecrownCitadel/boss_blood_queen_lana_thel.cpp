@@ -29,7 +29,7 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Texts
+enum LanathelTexts
 {
     SAY_AGGRO                   = 0,
     SAY_VAMPIRIC_BITE           = 1,
@@ -46,7 +46,7 @@ enum Texts
     EMOTE_BERSERK_RAID          = 12
 };
 
-enum Spells
+enum LanathelSpells
 {
     SPELL_SHROUD_OF_SORROW                  = 70986,
     SPELL_FRENZIED_BLOODTHIRST_VISUAL       = 71949,
@@ -77,7 +77,7 @@ enum Spells
     SPELL_BLOOD_INFUSION_CREDIT             = 72934
 };
 
-enum Shadowmourne
+enum LanathelMisc
 {
     QUEST_BLOOD_INFUSION                    = 24756,
 
@@ -98,7 +98,7 @@ uint32 const vampireAuras[3][MAX_DIFFICULTY] =
 #define DELIRIOUS_SLASH            RAID_MODE<uint32>(71623, 71624, 71625, 71626)
 #define PRESENCE_OF_THE_DARKFALLEN RAID_MODE<uint32>(70994, 71962, 71963, 71964)
 
-enum Events
+enum LanathelEvents
 {
     EVENT_BERSERK                   = 1,
     EVENT_VAMPIRIC_BITE             = 2,
@@ -115,13 +115,13 @@ enum Events
     EVENT_GROUP_CANCELLABLE         = 2,
 };
 
-enum Guids
+enum LanathelGuids
 {
     GUID_VAMPIRE    = 1,
     GUID_BLOODBOLT  = 2,
 };
 
-enum Points
+enum LanathelPoints
 {
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
@@ -141,6 +141,7 @@ bool IsVampire(Unit const* unit)
     return false;
 }
 
+// 37955 - Blood-Queen Lana'thel
 struct boss_blood_queen_lana_thel : public BossAI
 {
     boss_blood_queen_lana_thel(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)

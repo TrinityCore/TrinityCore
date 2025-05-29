@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Old comment: "Inhibit Magic should stack slower far from the boss" - really? */
-
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
@@ -129,12 +127,17 @@ struct npc_focus_fire : public ScriptedAI
         // Should be in this sniffed order but makes it ignore other spell casts, so disabled
         // DoCastSelf(SPELL_BIRTH);
         DoCastSelf(SPELL_FOCUS_TARGET_VISUAL);
-        DoCastSelf(SPELL_PING_SHIRRAK);
 
         _scheduler.Schedule(5s, [this](TaskContext /*task*/)
         {
-            DoCastSelf(SPELL_FIERY_BLAST);
+            DoCastSelf(SPELL_PING_SHIRRAK);
         });
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_FOCUS_FIRE_DUMMY)
+            DoCastSelf(SPELL_FIERY_BLAST);
     }
 
     void UpdateAI(uint32 diff) override
