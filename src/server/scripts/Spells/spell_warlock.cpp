@@ -1160,31 +1160,55 @@ class spell_warl_seed_of_corruption_generic : public AuraScript
 // 17877 - Shadowburn
 class spell_warl_shadowburn : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo ({ SPELL_WARLOCK_SHADOWBURN_ENERGIZE });
+        return ValidateSpellInfo({ SPELL_WARLOCK_SHADOWBURN_ENERGIZE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
     }
 
-    void HandleEnergize(SpellEffIndex /*effIndex*/) const
+    void HandleEnergize() const
     {
-        Unit* caster = GetCaster();
+        if (GetHitUnit()->IsAlive())
+            return;
 
-        caster->CastSpell(caster, SPELL_WARLOCK_SHADOWBURN_ENERGIZE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
+        // killing target with current spell doesn't apply the aura (apply/remove scripts don't execute)
+        // but we can use the fact that it still gets created and immediately marked as removed to detect that case
+        Aura* hitAura = GetHitAura(false, true);
+        if (!hitAura || !hitAura->IsRemoved())
+            return;
+
+        TryEnergize(Object::ToPlayer(GetCaster()), GetHitUnit(), GetSpellInfo(), GetSpell(), nullptr);
     }
 
     void CalcCritChance(Unit const* victim, float& critChance) const
     {
         if (victim->HealthBelowPct(GetEffectInfo(EFFECT_3).CalcValue(GetCaster())))
-            critChance = GetEffectInfo(EFFECT_2).CalcValue(GetCaster());
+            critChance += GetEffectInfo(EFFECT_2).CalcValue(GetCaster());
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_shadowburn::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterHit += SpellHitFn(spell_warl_shadowburn::HandleEnergize);
         OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_shadowburn::CalcCritChance);
+    }
+
+public:
+    static void TryEnergize(Player* caster, Unit const* target, SpellInfo const* spellInfo,
+        Spell const* triggeringSpell, AuraEffect const* triggeringAura)
+    {
+        if (!caster)
+            return;
+
+        if (caster->isHonorOrXPTarget(target))
+        {
+            caster->CastSpell(caster, SPELL_WARLOCK_SHADOWBURN_ENERGIZE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = triggeringSpell,
+                .TriggeringAura = triggeringAura
+            });
+
+            caster->GetSpellHistory()->RestoreCharge(spellInfo->ChargeCategoryId);
+        }
     }
 };
 
@@ -1195,19 +1219,7 @@ class spell_warl_shadowburn_aura : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
             return;
 
-        Player* caster = Object::ToPlayer(GetCaster());
-        if (!caster)
-            return;
-
-        if (caster->isHonorOrXPTarget(GetTarget()))
-        {
-            caster->CastSpell(caster, SPELL_WARLOCK_SHADOWBURN_ENERGIZE, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff
-            });
-
-            caster->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(GetId(), DIFFICULTY_NONE)->ChargeCategoryId);
-        }
+        spell_warl_shadowburn::TryEnergize(Object::ToPlayer(GetCaster()), GetTarget(), GetSpellInfo(), nullptr, aurEff);
     }
 
     void Register() override
