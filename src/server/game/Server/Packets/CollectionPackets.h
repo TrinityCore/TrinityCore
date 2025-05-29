@@ -28,7 +28,7 @@ namespace WorldPackets
         class CollectionItemSetFavorite final : public ClientPacket
         {
         public:
-            CollectionItemSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_COLLECTION_ITEM_SET_FAVORITE, std::move(packet)) { }
+            explicit CollectionItemSetFavorite(WorldPacket&& packet) : ClientPacket(CMSG_COLLECTION_ITEM_SET_FAVORITE, std::move(packet)) { }
 
             void Read() override;
 
@@ -48,7 +48,7 @@ namespace WorldPackets
         class AccountItemCollectionData final : public ServerPacket
         {
         public:
-            AccountItemCollectionData() : ServerPacket(SMSG_ACCOUNT_ITEM_COLLECTION_DATA) { }
+            explicit AccountItemCollectionData() : ServerPacket(SMSG_ACCOUNT_ITEM_COLLECTION_DATA) { }
 
             WorldPacket const* Write() override;
 

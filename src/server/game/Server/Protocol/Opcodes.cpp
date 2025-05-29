@@ -58,7 +58,7 @@ bool OpcodeTable::ValidateClientOpcode(OpcodeClient opcode, char const* name) co
     }
 
     std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
-    if (index < 0 || index >= std::ptrdiff_t(NUM_CMSG_OPCODES))
+    if (index < 0 || index >= std::ssize(_internalTableClient))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
@@ -95,7 +95,7 @@ bool OpcodeTable::ValidateServerOpcode(OpcodeServer opcode, char const* name, Co
     }
 
     std::ptrdiff_t index = GetOpcodeArrayIndex(opcode);
-    if (index < 0 || index >= std::ptrdiff_t(NUM_SMSG_OPCODES))
+    if (index < 0 || index >= std::ssize(_internalTableServer))
     {
         TC_LOG_ERROR("network", "Tried to set handler for an invalid opcode {}", opcode);
         return false;
@@ -1014,7 +1014,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_UPDATE_CRAFTING_NPC_RECIPES,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory);
     DEFINE_HANDLER(CMSG_UPDATE_RAID_TARGET,                                 STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateRaidTargetOpcode);
-    DEFINE_HANDLER(CMSG_UPDATE_SPELL_VISUAL,                                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_UPDATE_SPELL_VISUAL,                                STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleUpdateAuraVisual);
     DEFINE_HANDLER(CMSG_UPDATE_VAS_PURCHASE_STATES,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPGRADE_GARRISON,                                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPGRADE_RUNEFORGE_LEGENDARY,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
@@ -2284,7 +2284,7 @@ void OpcodeTable::InitializeServerOpcodes()
 }
 
 template<typename OpcodeDefinition, std::size_t N, typename T>
-inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
+static inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
 {
     uint32 opcode = uint32(id);
     char const* name = nullptr;
