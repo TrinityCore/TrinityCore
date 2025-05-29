@@ -29,7 +29,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Texts
+enum LokenTexts
 {
     SAY_INTRO_1                                   = 0,
     SAY_INTRO_2                                   = 1,
@@ -43,7 +43,7 @@ enum Texts
     EMOTE_NOVA                                    = 9
 };
 
-enum Spells
+enum LokenSpells
 {
     SPELL_ARC_LIGHTNING                           = 52921,
     SPELL_LIGHTNING_NOVA                          = 52960,
@@ -52,7 +52,7 @@ enum Spells
     SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
 };
 
-enum Events
+enum LokenEvents
 {
     EVENT_ARC_LIGHTNING = 1,
     EVENT_LIGHTNING_NOVA,
@@ -60,14 +60,14 @@ enum Events
     EVENT_INTRO_DIALOGUE
 };
 
-enum Phases
+enum LokenPhases
 {
     // Phases are used to allow executing the intro event while UpdateVictim() returns false and convenience.
     PHASE_INTRO = 1,
     PHASE_NORMAL
 };
 
-enum Misc
+enum LokenMisc
 {
     ACHIEV_TIMELY_DEATH_START_EVENT               = 20384
 };
@@ -78,7 +78,7 @@ enum Misc
 
 struct boss_loken : public BossAI
 {
-    boss_loken(Creature* creature) : BossAI(creature, DATA_LOKEN)
+    boss_loken(Creature* creature) : BossAI(creature, BOSS_LOKEN)
     {
         Initialize();
         _isIntroDone = false;
