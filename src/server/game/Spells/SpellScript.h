@@ -1044,7 +1044,7 @@ public:
     bool IsHitCrit() const;
     Spell* GetSpell() const { return m_spell; }
     // returns current spell hit target aura
-    Aura* GetHitAura(bool dynObjAura = false) const;
+    Aura* GetHitAura(bool dynObjAura = false, bool withRemoved = false) const;
     // prevents applying aura on current spell hit target
     void PreventHitAura();
 
