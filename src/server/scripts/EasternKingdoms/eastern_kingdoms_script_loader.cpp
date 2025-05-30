@@ -181,6 +181,7 @@ void AddSC_boss_venoxis();
 void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
+void AddSC_abyssal_depths();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
@@ -373,6 +374,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_zanzil();
     AddSC_instance_zulgurub();
 
+    AddSC_abyssal_depths();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
     AddSC_blasted_lands();
