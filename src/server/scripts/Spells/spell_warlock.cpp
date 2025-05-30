@@ -83,6 +83,7 @@ enum WarlockSpells
     SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE              = 194192,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 453000,
+    SPELL_WARLOCK_SOUL_FIRE_ENERGIZE                = 281490,
     SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
     SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
     SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
@@ -97,7 +98,9 @@ enum WarlockSpells
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_ENERGIZE      = 31117,
     SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
     SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035,
-    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034
+    SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
+    SPELL_WARLOCK_WITHER_PERIODIC                   = 445474,
+    SPELL_WARLOCK_WITHER_TALENT                     = 445465,
 };
 
 enum MiscSpells
@@ -1288,6 +1291,44 @@ class spell_warl_siphon_life : public AuraScript
     }
 };
 
+// 6353 - Soul Fire
+class spell_warl_soul_fire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_WARLOCK_SOUL_FIRE_ENERGIZE,
+            SPELL_WARLOCK_WITHER_TALENT,
+            SPELL_WARLOCK_WITHER_PERIODIC,
+            SPELL_WARLOCK_IMMOLATE_PERIODIC
+        });
+    }
+
+    void HandleTriggers(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        caster->CastSpell(caster, SPELL_WARLOCK_SOUL_FIRE_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        uint32 periodicDamage = GetCaster()->HasAura(SPELL_WARLOCK_WITHER_TALENT)
+            ? SPELL_WARLOCK_WITHER_PERIODIC
+            : SPELL_WARLOCK_IMMOLATE_PERIODIC;
+        caster->CastSpell(GetHitUnit(), periodicDamage, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_soul_fire::HandleTriggers, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 86121 - Soul Swap
 class spell_warl_soul_swap : public SpellScript
 {
@@ -1692,6 +1733,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_shadow_bolt);
     RegisterSpellScript(spell_warl_shadow_invocation);
     RegisterSpellScript(spell_warl_siphon_life);
+    RegisterSpellScript(spell_warl_soul_fire);
     RegisterSpellScript(spell_warl_soul_swap);
     RegisterSpellScript(spell_warl_soul_swap_dot_marker);
     RegisterSpellScript(spell_warl_soul_swap_exhale);
