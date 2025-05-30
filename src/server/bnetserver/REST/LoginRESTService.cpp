@@ -17,6 +17,7 @@
 
 #include "LoginRESTService.h"
 #include "Base64.h"
+#include "Common.h"
 #include "Configuration/Config.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
@@ -42,7 +43,6 @@ bool LoginRESTService::StartNetwork(Trinity::Asio::IoContext& ioContext, std::st
     if (!HttpService::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    using namespace std::string_view_literals;
     using Trinity::Net::Http::RequestHandlerFlag;
 
     RegisterHandler(boost::beast::http::verb::get, "/bnetserver/login/"sv, [this](std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context)
@@ -149,8 +149,6 @@ std::string const& LoginRESTService::GetHostnameForClient(boost::asio::ip::addre
 
 std::string LoginRESTService::ExtractAuthorization(HttpRequest const& request)
 {
-    using namespace std::string_view_literals;
-
     std::string ticket;
     auto itr = request.find(boost::beast::http::field::authorization);
     if (itr == request.end())

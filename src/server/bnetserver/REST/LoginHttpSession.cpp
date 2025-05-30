@@ -30,7 +30,6 @@ namespace
 {
 std::shared_ptr<Trinity::Net::Http::SessionState> ObtainSessionState(Trinity::Net::Http::RequestContext& context, boost::asio::ip::address const& remoteAddress)
 {
-    using namespace std::string_literals;
     std::shared_ptr<Trinity::Net::Http::SessionState> state;
     auto cookieItr = context.request.find(boost::beast::http::field::cookie);
     if (cookieItr != context.request.end())

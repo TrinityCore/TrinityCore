@@ -2687,6 +2687,10 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                 if (uint32 trapEntry = info->chest.linkedTrap)
                     TriggeringLinkedGameObject(trapEntry, player);
 
+                // Cast spell before sending loot
+                if (spellCaster && info->chest.spell)
+                    spellCaster->CastSpell(nullptr, info->chest.spell, spellArgs);
+
                 AddUniqueUse(player);
             }
 

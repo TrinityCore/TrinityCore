@@ -98,7 +98,7 @@ enum WorldTimers
 };
 
 /// Configuration elements
-enum WorldBoolConfigs
+enum WorldBoolConfigs : uint32
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
     CONFIG_ADDON_CHANNEL,
@@ -200,7 +200,7 @@ enum WorldBoolConfigs
     BOOL_CONFIG_VALUE_COUNT
 };
 
-enum WorldFloatConfigs
+enum WorldFloatConfigs : uint32
 {
     CONFIG_GROUP_XP_DISTANCE = 0,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
@@ -231,7 +231,7 @@ enum WorldFloatConfigs
     FLOAT_CONFIG_VALUE_COUNT
 };
 
-enum WorldIntConfigs
+enum WorldIntConfigs : uint32
 {
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
@@ -440,7 +440,7 @@ enum WorldIntConfigs
     INT_CONFIG_VALUE_COUNT
 };
 
-enum WorldInt64Configs
+enum WorldInt64Configs : uint32
 {
     CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK,
     CONFIG_START_PLAYER_MONEY,
@@ -448,7 +448,7 @@ enum WorldInt64Configs
 };
 
 /// Server rates
-enum Rates
+enum Rates : uint32
 {
     RATE_HEALTH = 0,
     RATE_POWER_MANA,

@@ -16,6 +16,7 @@
  */
 
 #include "Config.h"
+#include "Common.h"
 #include "Log.h"
 #include "StringConvert.h"
 #include <boost/filesystem/directory.hpp>
@@ -68,8 +69,6 @@ namespace
     //   LogDB.Opt.ClearTime => LOG_DB_OPT_CLEAR_TIME
     std::string IniKeyToEnvVarKey(std::string_view const& key)
     {
-        using namespace std::string_view_literals;
-
         std::string result;
 
         size_t n = key.length();
@@ -317,8 +316,6 @@ std::string ConfigMgr::GetStringDefault(std::string_view name, std::string_view 
 
 bool ConfigMgr::GetBoolDefault(std::string_view name, bool def, bool quiet) const
 {
-    using namespace std::string_view_literals;
-
     std::string val = GetValueDefault<std::string_view, std::string>(name, def ? "1"sv : "0"sv, quiet);
     std::erase(val, '"');
     if (Optional<bool> boolVal = Trinity::StringTo<bool>(val))

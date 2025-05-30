@@ -623,17 +623,14 @@ bool SpellScript::IsHitCrit() const
     }
     if (Unit* hitUnit = GetHitUnit())
     {
-        auto itr = std::find_if(m_spell->m_UniqueTargetInfo.begin(), m_spell->m_UniqueTargetInfo.end(), [hitUnit](Spell::TargetInfo const& targetInfo)
-        {
-            return targetInfo.TargetGUID == hitUnit->GetGUID();
-        });
+        auto itr = std::ranges::find(m_spell->m_UniqueTargetInfo, hitUnit->GetGUID(), &Spell::TargetInfo::TargetGUID);
         ASSERT(itr != m_spell->m_UniqueTargetInfo.end());
         return itr->IsCrit;
     }
     return false;
 }
 
-Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/) const
+Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/, bool withRemoved /*= false*/) const
 {
     if (!IsInTargetHook())
     {
@@ -645,7 +642,7 @@ Aura* SpellScript::GetHitAura(bool dynObjAura /*= false*/) const
     if (dynObjAura)
         aura = m_spell->_dynObjAura;
 
-    if (!aura || aura->IsRemoved())
+    if (!aura || (aura->IsRemoved() && !withRemoved))
         return nullptr;
 
     return aura;
