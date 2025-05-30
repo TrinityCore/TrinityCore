@@ -155,7 +155,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {});
         void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {});
         bool HasSplines() const;
-        ::Movement::Spline<int32> const& GetSpline() const { return *std::get<std::unique_ptr<::Movement::Spline<int32>>>(_movement); }
+        ::Movement::Spline<float> const& GetSpline() const { return *std::get<std::unique_ptr<::Movement::Spline<float>>>(_movement); }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
         void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {});
@@ -223,7 +223,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         Position _rollPitchYaw;
         Position _targetRollPitchYaw;
         std::vector<Position> _polygonVertices;
-        std::variant<std::monostate, std::unique_ptr<::Movement::Spline<int32>>, std::unique_ptr<AreaTriggerOrbitInfo>> _movement;
+        std::variant<std::monostate, std::unique_ptr<::Movement::Spline<float>>, std::unique_ptr<AreaTriggerOrbitInfo>> _movement;
 
         bool _reachedDestination;
         int32 _lastSplineIndex;

@@ -16,6 +16,7 @@
  */
 
 #include "LFGPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::LFG
 {

@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Battleground
 {
@@ -90,7 +91,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPMatchStatistics::PVPMatchPlayerStati
     data << int32(playerData.Faction);
     data << uint32(playerData.DamageDone);
     data << uint32(playerData.HealingDone);
-    data << uint32(playerData.Stats.size());
+    data << Size<uint32>(playerData.Stats);
     data << int32(playerData.PrimaryTalentTree);
     data << int8(playerData.Sex);
     data << int8(playerData.Race);
@@ -134,7 +135,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPMatchStatistics::PVPMatchPlayerStati
 ByteBuffer& operator<<(ByteBuffer& data, PVPMatchStatistics const& pvpLogData)
 {
     data << OptionalInit(pvpLogData.Ratings);
-    data << uint32(pvpLogData.Statistics.size());
+    data << Size<uint32>(pvpLogData.Statistics);
     data.append(pvpLogData.PlayerCount.data(), pvpLogData.PlayerCount.size());
 
     if (pvpLogData.Ratings)
@@ -175,7 +176,7 @@ void BattlemasterJoinArena::Read()
 ByteBuffer& operator<<(ByteBuffer& data, BattlefieldStatusHeader const& header)
 {
     data << header.Ticket;
-    data << uint32(header.QueueID.size());
+    data << Size<uint32>(header.QueueID);
     data << uint8(header.RangeMin);
     data << uint8(header.RangeMax);
     data << uint8(header.TeamSize);
@@ -262,7 +263,7 @@ WorldPacket const* BattlefieldList::Write()
     _worldPacket << int32(BattlemasterListID);
     _worldPacket << uint8(MinLevel);
     _worldPacket << uint8(MaxLevel);
-    _worldPacket << uint32(Battlefields.size());
+    _worldPacket << Size<uint32>(Battlefields);
     if (!Battlefields.empty())
         _worldPacket.append(Battlefields.data(), Battlefields.size());
 
@@ -317,7 +318,7 @@ ByteBuffer& operator<<(ByteBuffer& data, BattlegroundPlayerPosition const& playe
 
 WorldPacket const* BattlegroundPlayerPositions::Write()
 {
-    _worldPacket << uint32(FlagCarriers.size());
+    _worldPacket << Size<uint32>(FlagCarriers);
     for (BattlegroundPlayerPosition const& pos : FlagCarriers)
         _worldPacket << pos;
 

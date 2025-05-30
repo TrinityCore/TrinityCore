@@ -16,6 +16,7 @@
  */
 
 #include "AchievementPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Achievement
 {
@@ -50,8 +51,8 @@ ByteBuffer& operator<<(ByteBuffer& data, CriteriaProgress const& criteria)
 
 ByteBuffer& operator<<(ByteBuffer& data, AllAchievements const& allAchievements)
 {
-    data << uint32(allAchievements.Earned.size());
-    data << uint32(allAchievements.Progress.size());
+    data << Size<uint32>(allAchievements.Earned);
+    data << Size<uint32>(allAchievements.Progress);
 
     for (EarnedAchievement const& earned : allAchievements.Earned)
         data << earned;
@@ -71,7 +72,7 @@ WorldPacket const* AllAchievementData::Write()
 
 WorldPacket const* AllAccountCriteria::Write()
 {
-    _worldPacket << uint32(Progress.size());
+    _worldPacket << Size<uint32>(Progress);
     for (CriteriaProgress const& progress : Progress)
         _worldPacket << progress;
 
@@ -154,7 +155,7 @@ WorldPacket const* BroadcastAchievement::Write()
 
 WorldPacket const* GuildCriteriaUpdate::Write()
 {
-    _worldPacket << uint32(Progress.size());
+    _worldPacket << Size<uint32>(Progress);
 
     for (GuildCriteriaProgress const& progress : Progress)
     {
@@ -204,7 +205,7 @@ WorldPacket const* GuildAchievementEarned::Write()
 
 WorldPacket const* AllGuildAchievements::Write()
 {
-    _worldPacket << uint32(Earned.size());
+    _worldPacket << Size<uint32>(Earned);
 
     for (EarnedAchievement const& earned : Earned)
         _worldPacket << earned;
@@ -229,7 +230,7 @@ WorldPacket const* GuildAchievementMembers::Write()
 {
     _worldPacket << GuildGUID;
     _worldPacket << int32(AchievementID);
-    _worldPacket << uint32(Member.size());
+    _worldPacket << Size<uint32>(Member);
     for (GuildAchievementMember const& member : Member)
         _worldPacket << member;
 

@@ -51,7 +51,7 @@ struct MetricData
 {
     std::string Category;
     SystemTimePoint Timestamp;
-    MetricDataType Type;
+    MetricDataType Type = METRIC_DATA_VALUE;
 
     // LogValue-specific fields
     Optional<std::variant<std::array<MetricTag, 2>, std::vector<MetricTag>>> Tags;
