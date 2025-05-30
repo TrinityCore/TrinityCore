@@ -328,7 +328,6 @@ class TC_GAME_API Item : public Object
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
-        bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
         uint32 GetItemLevel(Player const* owner) const;
         static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,

@@ -148,7 +148,7 @@ namespace WorldPackets
         {
         public:
             static void WriteCreateObjectSplineDataBlock(::Movement::MoveSpline const& moveSpline, ByteBuffer& data);
-            static void WriteCreateObjectAreaTriggerSpline(::Movement::Spline<int32> const& spline, ByteBuffer& data);
+            static void WriteCreateObjectAreaTriggerSpline(::Movement::Spline<float> const& spline, ByteBuffer& data);
 
             static void WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition = nullptr);
         };
