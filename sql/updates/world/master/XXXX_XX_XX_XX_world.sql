@@ -23,7 +23,7 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 -- Condition
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 10832 AND `SourceEntry` = 0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
-(26, 10832, 0, 0, 0, 47, 0, 46728, 2|8|64, 0, 0, 'Apply Phase 10832 if Quest 46728 is in progress | complete | rewarded');
+(26, 10832, 0, 0, 0, 47, 0, 46728, 2|8|64, 0, 0, 'Apply Phase 10832 if Quest 46728 is in progress | complete | rewarded'),
 (26, 10832, 0, 0, 0, 47, 0, 51341, 64, 0, 1, 'Apply Phase 10832 if Quest 51341 is not rewarded');
 
 -- SpellScript names
