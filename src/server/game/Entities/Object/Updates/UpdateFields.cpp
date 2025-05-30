@@ -262,10 +262,10 @@ void SocketedGem::ClearChangesMask()
 
 void ItemData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Item const* owner, Player const* receiver) const
 {
-    data << Owner;
-    data << ContainedIn;
-    data << Creator;
-    data << GiftCreator;
+    data << *Owner;
+    data << *ContainedIn;
+    data << *Creator;
+    data << *GiftCreator;
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
         data << uint32(StackCount);
@@ -299,7 +299,7 @@ void ItemData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     {
         data << uint32(ZoneFlags);
     }
-    data << ItemBonusKey;
+    data << *ItemBonusKey;
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
         data << uint16(DEBUGItemLevel);
@@ -384,19 +384,19 @@ void ItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[3])
         {
-            data << Owner;
+            data << *Owner;
         }
         if (changesMask[4])
         {
-            data << ContainedIn;
+            data << *ContainedIn;
         }
         if (changesMask[5])
         {
-            data << Creator;
+            data << *Creator;
         }
         if (changesMask[6])
         {
-            data << GiftCreator;
+            data << *GiftCreator;
         }
         if (changesMask[7])
         {
@@ -444,7 +444,7 @@ void ItemData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[19])
         {
-            data << ItemBonusKey;
+            data << *ItemBonusKey;
         }
         if (changesMask[20])
         {
@@ -945,19 +945,19 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     {
         data << uint32((*stateWorldEffectIDs)[i]);
     }
-    data << Charm;
-    data << Summon;
+    data << *Charm;
+    data << *Summon;
     if (fieldVisibilityFlags.HasFlag(UpdateFieldFlag::Owner))
     {
-        data << Critter;
+        data << *Critter;
     }
-    data << CharmedBy;
-    data << SummonedBy;
-    data << CreatedBy;
-    data << DemonCreator;
-    data << LookAtControllerTarget;
-    data << Target;
-    data << BattlePetCompanionGUID;
+    data << *CharmedBy;
+    data << *SummonedBy;
+    data << *CreatedBy;
+    data << *DemonCreator;
+    data << *LookAtControllerTarget;
+    data << *Target;
+    data << *BattlePetCompanionGUID;
     data << uint64(BattlePetDBID);
     ChannelData->WriteCreate(data, owner, receiver);
     data << int8(SpellEmpowerStage);
@@ -1112,7 +1112,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << int32(LookAtControllerID);
     data << int32(PerksVendorItemID);
     data << int32(TaxiNodesID);
-    data << GuildGUID;
+    data << *GuildGUID;
     data << uint32(PassiveSpells.size());
     data << uint32(WorldEffects.size());
     data << uint32(ChannelObjects.size());
@@ -1125,7 +1125,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << uint32(CurrentAreaID);
     data << float(Field_31C);
     data << float(Field_320);
-    data << NameplateAttachToGUID;
+    data << *NameplateAttachToGUID;
     for (uint32 i = 0; i < PassiveSpells.size(); ++i)
     {
         PassiveSpells[i].WriteCreate(data, owner, receiver);
@@ -1283,43 +1283,43 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[14])
         {
-            data << Charm;
+            data << *Charm;
         }
         if (changesMask[15])
         {
-            data << Summon;
+            data << *Summon;
         }
         if (changesMask[16])
         {
-            data << Critter;
+            data << *Critter;
         }
         if (changesMask[17])
         {
-            data << CharmedBy;
+            data << *CharmedBy;
         }
         if (changesMask[18])
         {
-            data << SummonedBy;
+            data << *SummonedBy;
         }
         if (changesMask[19])
         {
-            data << CreatedBy;
+            data << *CreatedBy;
         }
         if (changesMask[20])
         {
-            data << DemonCreator;
+            data << *DemonCreator;
         }
         if (changesMask[21])
         {
-            data << LookAtControllerTarget;
+            data << *LookAtControllerTarget;
         }
         if (changesMask[22])
         {
-            data << Target;
+            data << *Target;
         }
         if (changesMask[23])
         {
-            data << BattlePetCompanionGUID;
+            data << *BattlePetCompanionGUID;
         }
         if (changesMask[24])
         {
@@ -1716,7 +1716,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[123])
         {
-            data << GuildGUID;
+            data << *GuildGUID;
         }
         if (changesMask[124])
         {
@@ -1759,7 +1759,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[134])
         {
-            data << NameplateAttachToGUID;
+            data << *NameplateAttachToGUID;
         }
     }
     if (changesMask[135])
@@ -2347,11 +2347,11 @@ void CustomTabardInfo::ClearChangesMask()
 
 void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Player const* owner, Player const* receiver) const
 {
-    data << DuelArbiter;
-    data << WowAccount;
-    data << BnetAccount;
+    data << *DuelArbiter;
+    data << *WowAccount;
+    data << *BnetAccount;
     data << uint64(GuildClubMemberID);
-    data << LootTargetGUID;
+    data << *LootTargetGUID;
     data << uint32(PlayerFlags);
     data << uint32(PlayerFlagsEx);
     data << uint32(GuildRankID);
@@ -2405,7 +2405,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     CtrOptions->WriteCreate(data, owner, receiver);
     data << int32(CovenantID);
     data << int32(SoulbindID);
-    data << SpectateTarget;
+    data << *SpectateTarget;
     data << int32(Field_200);
     data << uint32(VisualItemReplacements.size());
     for (uint32 i = 0; i < 19; ++i)
@@ -2444,7 +2444,7 @@ void PlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVi
     }
     data.WriteBit(HasLevelLink);
     data.WriteBits(DeclinedNames.has_value(), 1);
-    data << DungeonScore;
+    data << *DungeonScore;
     data.WriteString(Name);
     for (uint32 i = 0; i < 16; ++i)
     {
@@ -2610,15 +2610,15 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[9])
         {
-            data << DuelArbiter;
+            data << *DuelArbiter;
         }
         if (changesMask[10])
         {
-            data << WowAccount;
+            data << *WowAccount;
         }
         if (changesMask[11])
         {
-            data << BnetAccount;
+            data << *BnetAccount;
         }
         if (changesMask[12])
         {
@@ -2626,7 +2626,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[13])
         {
-            data << LootTargetGUID;
+            data << *LootTargetGUID;
         }
         if (changesMask[14])
         {
@@ -2733,7 +2733,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[42])
         {
-            data << SpectateTarget;
+            data << *SpectateTarget;
         }
         if (changesMask[43])
         {
@@ -2751,7 +2751,7 @@ void PlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         data.FlushBits();
         if (changesMask[41])
         {
-            data << DungeonScore;
+            data << *DungeonScore;
         }
         if (changesMask[34])
         {
@@ -3486,7 +3486,7 @@ bool RecipeProgressionInfo::operator==(RecipeProgressionInfo const& right) const
 
 void ActivePlayerUnk901::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << Field_0;
+    data << *Field_0;
     data << int32(Field_10);
 }
 
@@ -3503,7 +3503,7 @@ void ActivePlayerUnk901::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, P
     {
         if (changesMask[1])
         {
-            data << Field_0;
+            data << *Field_0;
         }
         if (changesMask[2])
         {
@@ -3521,7 +3521,7 @@ void ActivePlayerUnk901::ClearChangesMask()
 
 void QuestSession::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << Owner;
+    data << *Owner;
     QuestCompleted->WriteCreate(data, owner, receiver);
 }
 
@@ -3538,7 +3538,7 @@ void QuestSession::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player 
     {
         if (changesMask[1])
         {
-            data << Owner;
+            data << *Owner;
         }
         if (changesMask[2])
         {
@@ -3808,8 +3808,8 @@ void TraitConfig::ClearChangesMask()
 void CraftingOrderItem::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << uint64(Field_0);
-    data << ItemGUID;
-    data << OwnerGUID;
+    data << *ItemGUID;
+    data << *OwnerGUID;
     data << int32(ItemID);
     data << uint32(Quantity);
     data << int32(ReagentQuality);
@@ -3836,11 +3836,11 @@ void CraftingOrderItem::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
     }
     if (changesMask[1])
     {
-        data << ItemGUID;
+        data << *ItemGUID;
     }
     if (changesMask[2])
     {
-        data << OwnerGUID;
+        data << *OwnerGUID;
     }
     if (changesMask[3])
     {
@@ -3879,8 +3879,8 @@ void CraftingOrderItem::ClearChangesMask()
 
 void CraftingOrderCustomer::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << CustomerGUID;
-    data << CustomerAccountGUID;
+    data << *CustomerGUID;
+    data << *CustomerAccountGUID;
 }
 
 void CraftingOrderCustomer::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player const* owner, Player const* receiver) const
@@ -3894,11 +3894,11 @@ void CraftingOrderCustomer::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask
     data.FlushBits();
     if (changesMask[0])
     {
-        data << CustomerGUID;
+        data << *CustomerGUID;
     }
     if (changesMask[1])
     {
-        data << CustomerAccountGUID;
+        data << *CustomerAccountGUID;
     }
 }
 
@@ -3954,8 +3954,8 @@ void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Playe
     data << int64(TipAmount);
     data << int64(ConsortiumCut);
     data << uint32(Flags);
-    data << CrafterGUID;
-    data << PersonalCrafterGUID;
+    data << *CrafterGUID;
+    data << *PersonalCrafterGUID;
     data << int32(NpcCraftingOrderSetID);
     data << int32(NpcTreasureID);
     data << uint32(Reagents.size());
@@ -3984,7 +3984,7 @@ void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Playe
     }
     if (OutputItemData.has_value())
     {
-        data << OutputItemData;
+        data << *OutputItemData;
     }
     data.FlushBits();
 }
@@ -4072,11 +4072,11 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         }
         if (changesMask[15])
         {
-            data << CrafterGUID;
+            data << *CrafterGUID;
         }
         if (changesMask[16])
         {
-            data << PersonalCrafterGUID;
+            data << *PersonalCrafterGUID;
         }
         if (changesMask[17])
         {
@@ -4135,7 +4135,7 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         {
             if (OutputItemData.has_value())
             {
-                data << OutputItemData;
+                data << *OutputItemData;
             }
         }
     }
@@ -4177,7 +4177,7 @@ void CraftingOrder::WriteCreate(ByteBuffer& data, Player const* owner, Player co
     data.FlushBits();
     if (RecraftItemInfo.has_value())
     {
-        data << RecraftItemInfo;
+        data << *RecraftItemInfo;
     }
     for (uint32 i = 0; i < Enchantments.size(); ++i)
     {
@@ -4243,7 +4243,7 @@ void CraftingOrder::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player
     {
         if (RecraftItemInfo.has_value())
         {
-            data << RecraftItemInfo;
+            data << *RecraftItemInfo;
         }
     }
     data.FlushBits();
@@ -4448,7 +4448,7 @@ void StablePetInfo::ClearChangesMask()
 void StableInfo::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
     data << uint32(Pets.size());
-    data << StableMaster;
+    data << *StableMaster;
     for (uint32 i = 0; i < Pets.size(); ++i)
     {
         Pets[i].WriteCreate(data, owner, receiver);
@@ -4488,7 +4488,7 @@ void StableInfo::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player co
         }
         if (changesMask[2])
         {
-            data << StableMaster;
+            data << *StableMaster;
         }
     }
 }
@@ -4690,8 +4690,8 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         data << InvSlots[i];
     }
-    data << FarsightObject;
-    data << SummonedBattlePetGUID;
+    data << *FarsightObject;
+    data << *SummonedBattlePetGUID;
     data << uint32(KnownTitles.size());
     data << uint64(Coinage);
     data << uint64(AccountBankCoinage);
@@ -5003,9 +5003,9 @@ void ActivePlayerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     {
         QuestSession->WriteCreate(data, owner, receiver);
     }
-    data << FrozenPerksVendorItem;
+    data << *FrozenPerksVendorItem;
     Field_1410->WriteCreate(data, owner, receiver);
-    data << DungeonScore;
+    data << *DungeonScore;
     for (uint32 i = 0; i < PvpInfo.size(); ++i)
     {
         PvpInfo[i].WriteCreate(data, owner, receiver);
@@ -5749,11 +5749,11 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[47])
         {
-            data << FarsightObject;
+            data << *FarsightObject;
         }
         if (changesMask[48])
         {
-            data << SummonedBattlePetGUID;
+            data << *SummonedBattlePetGUID;
         }
         if (changesMask[49])
         {
@@ -6135,7 +6135,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[125])
         {
-            data << FrozenPerksVendorItem;
+            data << *FrozenPerksVendorItem;
         }
         if (changesMask[127])
         {
@@ -6143,7 +6143,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[133])
         {
-            data << DungeonScore;
+            data << *DungeonScore;
         }
     }
     if (changesMask[134])
@@ -6478,8 +6478,8 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     {
         data << uint32((*stateWorldEffectIDs)[i]);
     }
-    data << CreatedBy;
-    data << GuildGUID;
+    data << *CreatedBy;
+    data << *GuildGUID;
     data << uint32(ViewerDependentValue<FlagsTag>::GetValue(this, owner, receiver));
     data << float(ParentRotation->x);
     data << float(ParentRotation->y);
@@ -6598,11 +6598,11 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[10])
         {
-            data << CreatedBy;
+            data << *CreatedBy;
         }
         if (changesMask[11])
         {
-            data << GuildGUID;
+            data << *GuildGUID;
         }
         if (changesMask[12])
         {
@@ -6693,7 +6693,7 @@ void GameObjectData::ClearChangesMask()
 
 void DynamicObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, DynamicObject const* owner, Player const* receiver) const
 {
-    data << Caster;
+    data << *Caster;
     data << uint8(Type);
     SpellVisual->WriteCreate(data, owner, receiver);
     data << int32(SpellID);
@@ -6715,7 +6715,7 @@ void DynamicObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, b
     {
         if (changesMask[1])
         {
-            data << Caster;
+            data << *Caster;
         }
         if (changesMask[2])
         {
@@ -6754,9 +6754,9 @@ void DynamicObjectData::ClearChangesMask()
 void CorpseData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Corpse const* owner, Player const* receiver) const
 {
     data << uint32(DynamicFlags);
-    data << Owner;
-    data << PartyGUID;
-    data << GuildGUID;
+    data << *Owner;
+    data << *PartyGUID;
+    data << *GuildGUID;
     data << uint32(DisplayID);
     for (uint32 i = 0; i < 19; ++i)
     {
@@ -6816,15 +6816,15 @@ void CorpseData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ign
         }
         if (changesMask[3])
         {
-            data << Owner;
+            data << *Owner;
         }
         if (changesMask[4])
         {
-            data << PartyGUID;
+            data << *PartyGUID;
         }
         if (changesMask[5])
         {
-            data << GuildGUID;
+            data << *GuildGUID;
         }
         if (changesMask[6])
         {
@@ -7001,7 +7001,7 @@ void VisualAnim::ClearChangesMask()
 void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
     OverrideScaleCurve->WriteCreate(data, owner, receiver);
-    data << Caster;
+    data << *Caster;
     data << uint32(Duration);
     data << uint32(TimeToTarget);
     data << uint32(TimeToTargetScale);
@@ -7012,11 +7012,11 @@ void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
     SpellVisual->WriteCreate(data, owner, receiver);
     data << float(BoundsRadius2D);
     data << uint32(DecalPropertiesID);
-    data << CreatingEffectGUID;
+    data << *CreatingEffectGUID;
     data << uint32(NumUnitsInside);
     data << uint32(NumPlayersInside);
-    data << OrbitPathTarget;
-    data << RollPitchYaw;
+    data << *OrbitPathTarget;
+    data << *RollPitchYaw;
     data << int32(PositionalSoundKitID);
     ExtraScaleCurve->WriteCreate(data, owner, receiver);
     data.FlushBits();
@@ -7058,7 +7058,7 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
         }
         if (changesMask[8])
         {
-            data << Caster;
+            data << *Caster;
         }
         if (changesMask[9])
         {
@@ -7102,7 +7102,7 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
         }
         if (changesMask[19])
         {
-            data << CreatingEffectGUID;
+            data << *CreatingEffectGUID;
         }
         if (changesMask[20])
         {
@@ -7114,11 +7114,11 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
         }
         if (changesMask[22])
         {
-            data << OrbitPathTarget;
+            data << *OrbitPathTarget;
         }
         if (changesMask[23])
         {
-            data << RollPitchYaw;
+            data << *RollPitchYaw;
         }
         if (changesMask[24])
         {
@@ -7182,7 +7182,7 @@ void SceneObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
 {
     data << int32(ScriptPackageID);
     data << uint32(RndSeedVal);
-    data << CreatedBy;
+    data << *CreatedBy;
     data << uint32(SceneType);
 }
 
@@ -7208,7 +7208,7 @@ void SceneObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
         }
         if (changesMask[3])
         {
-            data << CreatedBy;
+            data << *CreatedBy;
         }
         if (changesMask[4])
         {
