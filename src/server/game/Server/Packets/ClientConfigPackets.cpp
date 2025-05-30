@@ -16,8 +16,11 @@
  */
 
 #include "ClientConfigPackets.h"
+#include "PacketOperators.h"
 
-WorldPacket const* WorldPackets::ClientConfig::AccountDataTimes::Write()
+namespace WorldPackets::ClientConfig
+{
+WorldPacket const* AccountDataTimes::Write()
 {
     _worldPacket << PlayerGuid;
     _worldPacket << ServerTime;
@@ -27,32 +30,33 @@ WorldPacket const* WorldPackets::ClientConfig::AccountDataTimes::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::ClientConfig::ClientCacheVersion::Write()
+WorldPacket const* ClientCacheVersion::Write()
 {
     _worldPacket << uint32(CacheVersion);
 
     return &_worldPacket;
 }
 
-void WorldPackets::ClientConfig::RequestAccountData::Read()
+void RequestAccountData::Read()
 {
     _worldPacket >> PlayerGuid;
     _worldPacket >> DataType;
 }
 
-WorldPacket const* WorldPackets::ClientConfig::UpdateAccountData::Write()
+WorldPacket const* UpdateAccountData::Write()
 {
     _worldPacket << Time;
     _worldPacket << uint32(Size);
     _worldPacket << Player;
     _worldPacket << int32(DataType);
-    _worldPacket << uint32(CompressedData.size());
-    _worldPacket.append(CompressedData);
+    _worldPacket << WorldPackets::Size<uint32>(CompressedData);
+    if (!CompressedData.empty())
+        _worldPacket.append(CompressedData.data(), CompressedData.size());
 
     return &_worldPacket;
 }
 
-void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
+void UserClientUpdateAccountData::Read()
 {
     _worldPacket >> Time;
     _worldPacket >> Size;
@@ -60,17 +64,17 @@ void WorldPackets::ClientConfig::UserClientUpdateAccountData::Read()
     _worldPacket >> DataType;
 
     uint32 compressedSize = _worldPacket.read<uint32>();
-    if (compressedSize > _worldPacket.size() - _worldPacket.rpos())
-        throw ByteBufferPositionException(_worldPacket.rpos(), _worldPacket.size(), compressedSize);
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+    if (compressedSize > remainingSize)
+        OnInvalidArraySize(compressedSize, remainingSize);
 
-    if (compressedSize)
-    {
-        CompressedData.resize(compressedSize);
-        _worldPacket.read(CompressedData.contents(), compressedSize);
-    }
+    CompressedData = { _worldPacket.data() + pos, compressedSize };
+    _worldPacket.rpos(pos + compressedSize);
 }
 
-void WorldPackets::ClientConfig::SetAdvancedCombatLogging::Read()
+void SetAdvancedCombatLogging::Read()
 {
-    Enable = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Enable);
+}
 }

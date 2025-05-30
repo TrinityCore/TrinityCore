@@ -38,8 +38,6 @@ bool HyperlinkColor::operator==(ItemQualities q) const
 // Validates a single hyperlink
 HyperlinkInfo Trinity::Hyperlinks::ParseSingleHyperlink(std::string_view str)
 {
-    using namespace std::string_view_literals;
-
     std::string_view color;
     std::string_view tag;
     std::string_view data;

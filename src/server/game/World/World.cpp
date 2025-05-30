@@ -564,8 +564,6 @@ static void StoreConfigValue(T& oldValue, std::type_identity_t<T> value, ConfigO
 /// Initialize config values
 void World::LoadConfigSettings(bool reload)
 {
-    using namespace std::string_view_literals;
-
     if (reload)
     {
         std::vector<std::string> configErrors;
