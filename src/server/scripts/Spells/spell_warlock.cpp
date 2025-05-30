@@ -99,8 +99,8 @@ enum WarlockSpells
     SPELL_WARLOCK_VILE_TAINT_DAMAGE                 = 386931,
     SPELL_WARLOCK_VOLATILE_AGONY_DAMAGE             = 453035,
     SPELL_WARLOCK_VOLATILE_AGONY_TALENT             = 453034,
-    SPELL_WARLOCK_WITHER                            = 445465,
-    SPELL_WARLOCK_WITHER_PERIODIC_DAMAGE            = 445474
+    SPELL_WARLOCK_WITHER_PERIODIC                   = 445474,
+    SPELL_WARLOCK_WITHER_TALENT                     = 445465,
 };
 
 enum MiscSpells
@@ -1296,10 +1296,16 @@ class spell_warl_soul_fire : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_WARLOCK_SOUL_FIRE_ENERGIZE, SPELL_WARLOCK_WITHER, SPELL_WARLOCK_WITHER_PERIODIC_DAMAGE, SPELL_WARLOCK_IMMOLATE_PERIODIC });
+        return ValidateSpellInfo
+        ({
+            SPELL_WARLOCK_SOUL_FIRE_ENERGIZE,
+            SPELL_WARLOCK_WITHER_TALENT,
+            SPELL_WARLOCK_WITHER_PERIODIC,
+            SPELL_WARLOCK_IMMOLATE_PERIODIC
+        });
     }
 
-    void HandleAfterCast(SpellEffIndex /*effIndex*/) const
+    void HandleTriggers(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
 
@@ -1307,12 +1313,11 @@ class spell_warl_soul_fire : public SpellScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-    }
 
-    void HandleSoulFire() const
-    {
-        GetCaster()->CastSpell(GetHitUnit(), GetCaster()->HasAura(SPELL_WARLOCK_WITHER) ? SPELL_WARLOCK_WITHER_PERIODIC_DAMAGE : SPELL_WARLOCK_IMMOLATE_PERIODIC,
-            CastSpellExtraArgsInit{
+        uint32 periodicDamage = GetCaster()->HasAura(SPELL_WARLOCK_WITHER_TALENT)
+            ? SPELL_WARLOCK_WITHER_PERIODIC
+            : SPELL_WARLOCK_IMMOLATE_PERIODIC;
+        caster->CastSpell(GetHitUnit(), periodicDamage, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -1320,8 +1325,7 @@ class spell_warl_soul_fire : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_soul_fire::HandleAfterCast, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        AfterHit += SpellHitFn(spell_warl_soul_fire::HandleSoulFire);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_soul_fire::HandleTriggers, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
