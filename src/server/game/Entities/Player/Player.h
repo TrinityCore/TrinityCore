@@ -1785,7 +1785,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
         void SendForceSpawnTrackingUpdate(uint32 questId) const;
         QuestObjective const* GetActiveQuestObjectiveForForSpawnTracking(uint32 spawnTrackingId) const;
-        SpawnTrackingState GetSpawnTrackingStateByObjective(uint32 spawnTrackingId, uint32 questObjectiveId) const;
+        SpawnTrackingState GetSpawnTrackingStateByObjectives(uint32 spawnTrackingId, std::vector<uint32> const& questObjectives) const;
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/

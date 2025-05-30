@@ -145,8 +145,8 @@ public:
                     dynFlags |= GO_DYNFLAG_LO_NO_INTERACT;
 
                 if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_GAMEOBJECT, gameObject->GetSpawnId()))
-                    if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
-                        if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId) != SpawnTrackingState::Active)
+                    if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
+                        if (receiver->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives) != SpawnTrackingState::Active)
                             dynFlags &= ~GO_DYNFLAG_LO_ACTIVATE;
             }
 

@@ -629,7 +629,14 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
+    uint32 spawnTrackingQuestObjectiveId = [&]() -> uint32
+    {
+        if (data && !data->spawnTrackingQuestObjectives.empty())
+            return Trinity::Containers::SelectRandomContainerElement(data->spawnTrackingQuestObjectives);
+
+        return 0;
+    }();
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), spawnTrackingQuestObjectiveId);
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -3207,9 +3214,9 @@ SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Playe
 
     if (CreatureData const* data = GetCreatureData())
     {
-        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
         {
-            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives);
             return &data->spawnTrackingStates[AsUnderlyingType(state)];
         }
     }
