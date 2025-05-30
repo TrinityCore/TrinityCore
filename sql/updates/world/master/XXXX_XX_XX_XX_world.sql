@@ -1,17 +1,3 @@
--- Conversation
-DELETE FROM `conversation_template` WHERE `Id`=7705;
-INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
-(7705, 17614, 0, 60822);
-
-DELETE FROM `conversation_actors` WHERE (`ConversationId`=7705 AND `Idx`=0);
-INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
-(7705, 0, 0, 0, 0, 0, 0, 60822); -- Full: 0x203CE0CD607665C0002AC600002B903B Creature/0 R3896/S10950 Map: 1643 (Kul Tiras) Entry: 121239 (Flynn Fairwind) Low: 2854971
-
-DELETE FROM `conversation_line_template` WHERE `Id` IN (17615, 17614);
-INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `ChatType`, `VerifiedBuild`) VALUES
-(17615, 0, 0, 0, 0, 60822),
-(17614, 0, 0, 0, 0, 60822);
-
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` = 120922;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
@@ -35,10 +21,10 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_end`, `aura_spe
 (281429, 8568, 46728, 51341, 0, 0, 2, 0x03, 74, 11);
 
 -- Condition
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 11261 AND `SourceEntry` = 0);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 10832 AND `SourceEntry` = 0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
-(26, 11261, 0, 0, 0, 47, 0, 48180, 2|64, 0, 0, 'Apply Phase 11261 if Quest 48180 is complete | rewarded'),
-(26, 11261, 0, 0, 0, 47, 0, 51341, 64, 0, 1, 'Apply Phase 11261 if Quest 51341 is not rewarded');
+(26, 10832, 0, 0, 0, 47, 0, 46728, 2|8|64, 0, 0, 'Apply Phase 10832 if Quest 46728 is in progress | complete | rewarded');
+(26, 10832, 0, 0, 0, 47, 0, 51341, 64, 0, 1, 'Apply Phase 10832 if Quest 51341 is not rewarded');
 
 -- SpellScript names
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_boralus_teleport_off_ship', 'spell_boralus_teleport_to_tol_dagor');
