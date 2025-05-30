@@ -79,6 +79,7 @@ enum WarlockSpells
     SPELL_WARLOCK_ROARING_BLAZE                     = 205184,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE         = 27285,
     SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
+    SPELL_WARLOCK_SHADOWBURN_ENERGIZE               = 245731,
     SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE              = 194192,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 453000,
@@ -1159,6 +1160,77 @@ class spell_warl_seed_of_corruption_generic : public AuraScript
     }
 };
 
+// 17877 - Shadowburn
+class spell_warl_shadowburn : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SHADOWBURN_ENERGIZE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
+    }
+
+    void HandleEnergize() const
+    {
+        if (GetHitUnit()->IsAlive())
+            return;
+
+        // killing target with current spell doesn't apply the aura (apply/remove scripts don't execute)
+        // but we can use the fact that it still gets created and immediately marked as removed to detect that case
+        Aura* hitAura = GetHitAura(false, true);
+        if (!hitAura || !hitAura->IsRemoved())
+            return;
+
+        TryEnergize(Object::ToPlayer(GetCaster()), GetHitUnit(), GetSpellInfo(), GetSpell(), nullptr);
+    }
+
+    void CalcCritChance(Unit const* victim, float& critChance) const
+    {
+        if (victim->HealthBelowPct(GetEffectInfo(EFFECT_3).CalcValue(GetCaster())))
+            critChance += GetEffectInfo(EFFECT_2).CalcValue(GetCaster());
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_warl_shadowburn::HandleEnergize);
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_shadowburn::CalcCritChance);
+    }
+
+public:
+    static void TryEnergize(Player* caster, Unit const* target, SpellInfo const* spellInfo,
+        Spell const* triggeringSpell, AuraEffect const* triggeringAura)
+    {
+        if (!caster)
+            return;
+
+        if (caster->isHonorOrXPTarget(target))
+        {
+            caster->CastSpell(caster, SPELL_WARLOCK_SHADOWBURN_ENERGIZE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = triggeringSpell,
+                .TriggeringAura = triggeringAura
+            });
+
+            caster->GetSpellHistory()->RestoreCharge(spellInfo->ChargeCategoryId);
+        }
+    }
+};
+
+class spell_warl_shadowburn_aura : public AuraScript
+{
+    void RemoveEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+            return;
+
+        spell_warl_shadowburn::TryEnergize(Object::ToPlayer(GetCaster()), GetTarget(), GetSpellInfo(), nullptr, aurEff);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_warl_shadowburn_aura::RemoveEffect, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 // 686 - Shadow Bolt
 class spell_warl_shadow_bolt : public SpellScript
 {
@@ -1653,6 +1725,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_seed_of_corruption);
     RegisterSpellAndAuraScriptPair(spell_warl_seed_of_corruption_dummy, spell_warl_seed_of_corruption_dummy_aura);
     RegisterSpellScript(spell_warl_seed_of_corruption_generic);
+    RegisterSpellAndAuraScriptPair(spell_warl_shadowburn, spell_warl_shadowburn_aura);
     RegisterSpellScript(spell_warl_shadow_bolt);
     RegisterSpellScript(spell_warl_shadow_invocation);
     RegisterSpellScript(spell_warl_siphon_life);
