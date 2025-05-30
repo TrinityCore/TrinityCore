@@ -510,8 +510,11 @@ struct npc_redridge_subdued_canyon_ettin : public CreatureAI
 
     void OnDespawn() override
     {
-        if (Player* player = me->GetOwner()->ToPlayer())
-            player->RemoveAurasDueToSpell(SPELL_CANYON_ETTIN_SPAWN_SPELL);
+        Unit* owner = me->GetOwner();
+        if (!owner)
+            return;
+
+        owner->RemoveAurasDueToSpell(SPELL_CANYON_ETTIN_SPAWN_SPELL);
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spell) override
