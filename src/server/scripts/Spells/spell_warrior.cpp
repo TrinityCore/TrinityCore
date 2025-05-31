@@ -518,9 +518,9 @@ class spell_warr_intimidating_shout_menace_knock_back : public SpellScript
     void HandleRoot(SpellEffIndex /*effIndex*/) const
     {
         CastSpellExtraArgs const args(GetSpell());
-        GetCaster()->m_Events.AddEventAtOffset([caster = GetCaster(), target = GetHitUnit()->GetGUID(), castArgs = args]()
+        GetCaster()->m_Events.AddEventAtOffset([caster = GetCaster(), targetGUID = GetHitUnit()->GetGUID(), castArgs = args]()
         {
-            if (Unit* targetUnit = ObjectAccessor::GetUnit(*caster, target))
+            if (Unit* targetUnit = ObjectAccessor::GetUnit(*caster, targetGUID))
                 caster->CastSpell(targetUnit, SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE, castArgs);
         }, 500ms);
     }
