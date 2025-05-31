@@ -52,6 +52,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
+    SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE     = 316595,
     SPELL_WARRIOR_IN_FOR_THE_KILL                   = 248621,
     SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE             = 248622,
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
@@ -482,15 +483,51 @@ class spell_warr_impending_victory : public SpellScript
 // 5246 - Intimidating Shout
 class spell_warr_intimidating_shout : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& unitList)
+    void FilterTargets(std::list<WorldObject*>& unitList) const
     {
         unitList.remove(GetExplTargetWorldObject());
     }
 
+    void ClearTargets(std::list<WorldObject*>& unitList) const
+    {
+        // This is used in effect 3, which is an AOE Root effect.
+        // This doesn't seem to be a thing anymore, so we clear the targets list here.
+        unitList.clear();
+    }
+
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout::ClearTargets, EFFECT_3, TARGET_UNIT_SRC_AREA_ENEMY);
+    }
+};
+
+// 316594 - Intimidating Shout (Menace Talent, knock back -> root)
+class spell_warr_intimidating_shout_menace_knock_back : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE });
+    }
+    void FilterTargets(std::list<WorldObject*>& unitList) const
+    {
+        unitList.remove(GetExplTargetWorldObject());
+    }
+
+    void HandleRoot(SpellEffIndex /*effIndex*/) const
+    {
+        CastSpellExtraArgs const args(GetSpell());
+        GetCaster()->m_Events.AddEventAtOffset([caster = GetCaster(), target = GetHitUnit()->GetGUID(), castArgs = args]()
+        {
+            if (Unit* targetUnit = ObjectAccessor::GetUnit(*caster, target))
+                caster->CastSpell(targetUnit, SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE, castArgs);
+        }, 500ms);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout_menace_knock_back::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_intimidating_shout_menace_knock_back::HandleRoot, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
     }
 };
 
@@ -889,6 +926,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap_jump);
     RegisterSpellScript(spell_warr_impending_victory);
     RegisterSpellScript(spell_warr_intimidating_shout);
+    RegisterSpellScript(spell_warr_intimidating_shout_menace_knock_back);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_rallying_cry);
