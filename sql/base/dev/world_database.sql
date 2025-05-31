@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.41, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.41-0ubuntu0.22.04.1
+-- Server version	8.0.42-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1630,7 +1630,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2189 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2291 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1810,7 +1810,7 @@ CREATE TABLE `gameobject_template` (
   `entry` int unsigned NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
   `displayId` int unsigned NOT NULL DEFAULT '0',
-  `name` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `IconName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `castBarCaption` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `unk1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -2744,7 +2744,6 @@ CREATE TABLE `playerchoice_response_maw_power` (
   `ResponseId` int NOT NULL,
   `TypeArtFileID` int DEFAULT '0',
   `Rarity` int DEFAULT '0',
-  `RarityColor` int unsigned DEFAULT '0',
   `SpellID` int DEFAULT '0',
   `MaxStacks` int DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -3470,6 +3469,7 @@ CREATE TABLE `quest_template` (
   `Flags` int unsigned NOT NULL DEFAULT '0',
   `FlagsEx` int unsigned NOT NULL DEFAULT '0',
   `FlagsEx2` int unsigned NOT NULL DEFAULT '0',
+  `FlagsEx3` int unsigned NOT NULL DEFAULT '0',
   `RewardItem1` int unsigned NOT NULL DEFAULT '0',
   `RewardAmount1` int unsigned NOT NULL DEFAULT '0',
   `RewardItem2` int unsigned NOT NULL DEFAULT '0',
@@ -4771,6 +4771,7 @@ DROP TABLE IF EXISTS `vehicle_template`;
 CREATE TABLE `vehicle_template` (
   `creatureId` int unsigned NOT NULL,
   `despawnDelayMs` int NOT NULL DEFAULT '0',
+  `Pitch` float DEFAULT NULL,
   PRIMARY KEY (`creatureId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5056,4 +5057,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-29  1:12:17
+-- Dump completed on 2025-05-31 19:45:59
