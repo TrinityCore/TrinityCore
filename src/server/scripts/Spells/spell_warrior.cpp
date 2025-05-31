@@ -37,11 +37,10 @@ enum WarriorSpells
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
+    SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 218104,
     SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL       = 198337,
-    SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY           = 109128,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
-    SPELL_WARRIOR_CHARGE_SLOW_EFFECT                = 236027,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
@@ -157,18 +156,13 @@ class spell_warr_charge : public SpellScript
     {
         return ValidateSpellInfo
         ({
-            SPELL_WARRIOR_CHARGE_EFFECT,
             SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL
         });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        uint32 spellId = SPELL_WARRIOR_CHARGE_EFFECT;
-        if (GetCaster()->HasAura(SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL))
-            spellId = SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL;
-
-        GetCaster()->CastSpell(GetHitUnit(), spellId, true);
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL, CastSpellExtraArgs(GetSpell()));
     }
 
     void Register() override
@@ -196,31 +190,31 @@ class spell_warr_charge_drop_fire_periodic : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_charge_drop_fire_periodic::DropFireVisual, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_charge_drop_fire_periodic::DropFireVisual, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 198337 - Charge Effect (dropping Blazing Trail)
-// 218104 - Charge Effect
 class spell_warr_charge_effect : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo
         ({
-            SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY,
             SPELL_WARRIOR_CHARGE_ROOT_EFFECT,
-            SPELL_WARRIOR_CHARGE_SLOW_EFFECT
+            SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC
         });
     }
 
-    void HandleCharge(SpellEffIndex /*effIndex*/)
+    void HandleCharge(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-        caster->CastSpell(caster, SPELL_WARRIOR_CHARGE_PAUSE_RAGE_DECAY, CastSpellExtraArgs(TRIGGERED_FULL_MASK).AddSpellMod(SPELLVALUE_BASE_POINT0, 0));
-        caster->CastSpell(target, SPELL_WARRIOR_CHARGE_ROOT_EFFECT, true);
-        caster->CastSpell(target, SPELL_WARRIOR_CHARGE_SLOW_EFFECT, true);
+
+        if (caster->HasAura(SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL))
+            caster->CastSpell(target, SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC, CastSpellExtraArgs(GetSpell()));
+
+        caster->CastSpell(target, SPELL_WARRIOR_CHARGE_ROOT_EFFECT, CastSpellExtraArgs(GetSpell()));
     }
 
     void Register() override
