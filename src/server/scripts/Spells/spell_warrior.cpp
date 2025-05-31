@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "Map.h"
 #include "MoveSpline.h"
+#include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
 #include "Spell.h"
