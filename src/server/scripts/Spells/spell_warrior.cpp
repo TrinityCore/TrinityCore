@@ -162,7 +162,12 @@ class spell_warr_charge : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL, CastSpellExtraArgs(GetSpell()));
+        CastSpellExtraArgsInit argsInit = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL, std::move(argsInit));
     }
 
     void Register() override
@@ -211,10 +216,15 @@ class spell_warr_charge_effect : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (caster->HasAura(SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL))
-            caster->CastSpell(target, SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC, CastSpellExtraArgs(GetSpell()));
+        CastSpellExtraArgs const args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_FULL_MASK & ~TRIGGERED_CAST_DIRECTLY,
+            .TriggeringSpell = GetSpell()
+        };
 
-        caster->CastSpell(target, SPELL_WARRIOR_CHARGE_ROOT_EFFECT, CastSpellExtraArgs(GetSpell()));
+        if (caster->HasAura(SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL))
+            caster->CastSpell(target, SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC, args);
+
+        caster->CastSpell(target, SPELL_WARRIOR_CHARGE_ROOT_EFFECT, args);
     }
 
     void Register() override
