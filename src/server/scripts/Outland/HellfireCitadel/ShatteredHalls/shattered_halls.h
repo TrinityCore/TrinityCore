@@ -120,4 +120,6 @@ inline AI* GetShatteredHallsAI(T* obj)
     return GetInstanceAI<AI>(obj, SHScriptName);
 }
 
+#define RegisterShatteredHallsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShatteredHallsAI)
+
 #endif
