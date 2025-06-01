@@ -517,12 +517,12 @@ class spell_warr_intimidating_shout_menace_knock_back : public SpellScript
 
     void HandleRoot(SpellEffIndex /*effIndex*/) const
     {
-        CastSpellExtraArgs const args = CastSpellExtraArgsInit{
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         };
 
-        GetCaster()->m_Events.AddEventAtOffset([caster = GetCaster(), targetGUID = GetHitUnit()->GetGUID(), castArgs = args]()
+        GetCaster()->m_Events.AddEventAtOffset([caster = GetCaster(), targetGUID = GetHitUnit()->GetGUID(), castArgs = std::move(args)]()
         {
             if (Unit* targetUnit = ObjectAccessor::GetUnit(*caster, targetGUID))
                 caster->CastSpell(targetUnit, SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE, castArgs);
