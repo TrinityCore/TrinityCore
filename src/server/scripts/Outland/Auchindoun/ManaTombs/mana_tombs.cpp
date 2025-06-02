@@ -16,10 +16,58 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "Unit.h"
+#include "mana_tombs.h"
 
-enum
+enum YorSpells
+{
+    SPELL_DOUBLE_BREATH          = 38361
+};
+
+// 22930 - Yor
+struct npc_yor : public ScriptedAI
+{
+    npc_yor(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
+        {
+            me->SetFaction(FACTION_MONSTER_2);
+        });
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _scheduler.Schedule(6s, 14s, [this](TaskContext task)
+        {
+            DoCastVictim(SPELL_DOUBLE_BREATH);
+            task.Repeat(8s, 14s);
+        });
+    }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        _scheduler.CancelAll();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+enum SummonArcaneFiends
 {
     SPELL_SUMMON_ARCANE_FIEND_1   = 32349,
     SPELL_SUMMON_ARCANE_FIEND_2   = 32353
@@ -54,5 +102,6 @@ class spell_mana_tombs_summon_arcane_fiends : public SpellScript
 
 void AddSC_mana_tombs()
 {
+    RegisterManaTombsCreatureAI(npc_yor);
     RegisterSpellScript(spell_mana_tombs_summon_arcane_fiends);
 }
