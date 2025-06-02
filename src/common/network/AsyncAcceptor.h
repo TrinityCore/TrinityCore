@@ -98,14 +98,14 @@ public:
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Could not bind to {}:{} {}", _endpoint.address().to_string(), _endpoint.port(), errorCode.message());
+            TC_LOG_INFO("network", "Could not bind to {}:{} {}", _endpoint.address(), _endpoint.port(), errorCode.message());
             return false;
         }
 
         _acceptor.listen(TRINITY_MAX_LISTEN_CONNECTIONS, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Failed to start listening on {}:{} {}", _endpoint.address().to_string(), _endpoint.port(), errorCode.message());
+            TC_LOG_INFO("network", "Failed to start listening on {}:{} {}", _endpoint.address(), _endpoint.port(), errorCode.message());
             return false;
         }
 
