@@ -33,7 +33,7 @@ struct npc_yor : public ScriptedAI
 
     void JustAppeared() override
     {
-        _scheduler.Schedule(1500ms, [this](TaskContext task)
+        _scheduler.Schedule(1500ms, [this](TaskContext /*task*/)
         {
             me->SetFaction(FACTION_MONSTER_2);
         });
