@@ -568,6 +568,41 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
+// 275339 - (attached to 46968 - Shockwave)
+class spell_warr_rumbling_earth : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_RUMBLING_EARTH, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_RUMBLING_EARTH);
+    }
+
+    void HandleCooldownReduction(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Aura const* rumblingEarth = caster->GetAura(SPELL_WARRIOR_RUMBLING_EARTH);
+        if (!rumblingEarth)
+            return;
+
+        AuraEffect const* minTargetCount = rumblingEarth->GetEffect(EFFECT_0); // rumblingEarth->GetEffect(EFFECT_0).CalcValue();
+        AuraEffect const* cooldownReduction = rumblingEarth->GetEffect(EFFECT_1);
+        if (!minTargetCount || !cooldownReduction)
+            return;
+
+        if (GetUnitTargetCountForEffect(EFFECT_0) >= minTargetCount->GetAmount())
+            GetCaster()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, Seconds(-cooldownReduction->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_rumbling_earth::HandleCooldownReduction, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 2565 - Shield Block
 class spell_warr_shield_block : public SpellScript
 {
@@ -611,8 +646,7 @@ class spell_warr_shockwave : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE_STUN, SPELL_WARRIOR_RUMBLING_EARTH })
-            && ValidateSpellEffect({{ SPELL_WARRIOR_RUMBLING_EARTH, EFFECT_1 }});
+        return ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE_STUN });
     }
 
     bool Load() override
@@ -620,37 +654,18 @@ class spell_warr_shockwave : public SpellScript
         return GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleStun(SpellEffIndex /*effIndex*/)
+    void HandleStun(SpellEffIndex /*effIndex*/) const
     {
-        CastSpellExtraArgsInit argsInit = CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SHOCKWAVE_STUN, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
-        };
-
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SHOCKWAVE_STUN, std::move(argsInit));
-        ++_targetCount;
-    }
-
-    void HandleAfterCast() const
-    {
-        if (!GetCaster()->HasAura(SPELL_WARRIOR_RUMBLING_EARTH))
-            return;
-
-        SpellInfo const* rumblingEarth = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_RUMBLING_EARTH, GetCastDifficulty());
-        int32 const minTargetCount = rumblingEarth->GetEffect(EFFECT_0).CalcValue();
-        Seconds const cooldownReduction = Seconds(rumblingEarth->GetEffect(EFFECT_1).CalcValue());
-
-        if (_targetCount >= static_cast<uint32>(minTargetCount))
-            GetCaster()->ToPlayer()->GetSpellHistory()->ModifyCooldown(GetSpellInfo()->Id, -cooldownReduction);
+        });
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_shockwave::HandleStun, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        AfterCast += SpellCastFn(spell_warr_shockwave::HandleAfterCast);
     }
-
-    uint32 _targetCount = 0;
 };
 
 // 107570 - Storm Bolt
@@ -904,6 +919,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_rallying_cry);
+    RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);
     RegisterSpellScript(spell_warr_shockwave);
