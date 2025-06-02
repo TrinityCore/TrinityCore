@@ -15,28 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IpBanCheckConnectionInitializer.h"
-#include "DatabaseEnv.h"
+#ifndef TRINITYCORE_STRING_FORMAT_FWD_H
+#define TRINITYCORE_STRING_FORMAT_FWD_H
 
-QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(boost::asio::ip::address const& ipAddress)
+#include <stdexcept>
+
+namespace fmt
 {
-    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->setString(0, ipAddress.to_string());
-    return LoginDatabase.AsyncQuery(stmt);
+inline namespace v10
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
+}
 }
 
-bool Trinity::Net::IpBanCheckHelpers::IsBanned(PreparedQueryResult const& result)
+namespace Trinity
 {
-    if (result)
+struct NoArgFormatterBase
+{
+    template <typename ParseContext>
+    constexpr typename ParseContext::iterator parse(ParseContext& ctx)
     {
-        do
-        {
-            Field* fields = result->Fetch();
-            if (fields[0].GetUInt64() != 0)
-                return true;
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
 
-        } while (result->NextRow());
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
+
+        return begin;
     }
-
-    return false;
+};
 }
+
+#endif // TRINITYCORE_STRING_FORMAT_FWD_H
