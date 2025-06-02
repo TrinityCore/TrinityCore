@@ -19,6 +19,7 @@
 #define TRINITYCORE_IP_ADDRESS_H
 
 #include "Define.h"
+#include "StringFormatFwd.h"
 #include <boost/asio/ip/address.hpp>
 
 namespace Trinity::Net
@@ -28,6 +29,25 @@ namespace Trinity::Net
     using boost::asio::ip::make_address_v6;
     using boost::asio::ip::v4_mapped_t::v4_mapped;
     inline uint32 address_to_uint(boost::asio::ip::address_v4 const& address) { return address.to_uint(); }
+
+    namespace Impl
+    {
+        struct AddressFormatter : NoArgFormatterBase
+        {
+            template <typename FormatContext>
+            typename FormatContext::iterator format(boost::asio::ip::address_v4 const& address, FormatContext& ctx) const;
+
+            template <typename FormatContext>
+            typename FormatContext::iterator format(boost::asio::ip::address_v6 const& address, FormatContext& ctx) const;
+
+            template <typename FormatContext>
+            typename FormatContext::iterator format(boost::asio::ip::address const& address, FormatContext& ctx) const;
+        };
+    }
 }
+
+template <> struct fmt::formatter<boost::asio::ip::address_v4, char, void> : Trinity::Net::Impl::AddressFormatter { };
+template <> struct fmt::formatter<boost::asio::ip::address_v6, char, void> : Trinity::Net::Impl::AddressFormatter { };
+template <> struct fmt::formatter<boost::asio::ip::address, char, void> : Trinity::Net::Impl::AddressFormatter { };
 
 #endif // TRINITYCORE_IP_ADDRESS_H

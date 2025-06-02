@@ -135,7 +135,7 @@ void SessionService::InitAndStoreSessionState(std::shared_ptr<SessionState> stat
         while (state->Id.is_nil() || _sessions.contains(state->Id))
             std::copy_n(Trinity::Crypto::GetRandomBytes<16>().begin(), 16, state->Id.begin());
 
-        TC_LOG_DEBUG(_logger, "Client at {} created new session {}", address.to_string(), boost::uuids::to_string(state->Id));
+        TC_LOG_DEBUG(_logger, "Client at {} created new session {}", address, boost::uuids::to_string(state->Id));
         _sessions[state->Id] = std::move(state);
     }
 }
@@ -175,7 +175,7 @@ std::shared_ptr<SessionState> SessionService::FindAndRefreshSessionState(std::st
         auto itr = _sessions.find(boost::uuids::string_generator()(id.begin(), id.end()));
         if (itr == _sessions.end())
         {
-            TC_LOG_DEBUG(_logger, "Client at {} attempted to use a session {} that was expired", address.to_string(), id);
+            TC_LOG_DEBUG(_logger, "Client at {} attempted to use a session {} that was expired", address, id);
             return nullptr; // no session
         }
 
@@ -185,7 +185,7 @@ std::shared_ptr<SessionState> SessionService::FindAndRefreshSessionState(std::st
     if (state->RemoteAddress != address)
     {
         TC_LOG_ERROR(_logger, "Client at {} attempted to use a session {} that was last accessed from {}, denied access",
-            address.to_string(), id, state->RemoteAddress.to_string());
+            address, id, state->RemoteAddress);
         return nullptr;
     }
 

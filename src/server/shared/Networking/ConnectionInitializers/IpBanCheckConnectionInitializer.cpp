@@ -18,10 +18,10 @@
 #include "IpBanCheckConnectionInitializer.h"
 #include "DatabaseEnv.h"
 
-QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(std::string_view ipAddress)
+QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(boost::asio::ip::address const& ipAddress)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_INFO);
-    stmt->setString(0, ipAddress);
+    stmt->setString(0, ipAddress.to_string());
     return LoginDatabase.AsyncQuery(stmt);
 }
 

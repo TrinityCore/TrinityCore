@@ -36,7 +36,7 @@ public:
 
     void Start();
 
-    std::string GetRemoteIpAddress() const { return _socket.remote_endpoint().address().to_string(); }
+    boost::asio::ip::address GetRemoteIpAddress() const { return _socket.remote_endpoint().address(); }
     uint16 GetRemotePort() const { return _socket.remote_endpoint().port(); }
 
 private:
