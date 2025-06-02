@@ -24,7 +24,7 @@ INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 SET @PATH=@TIMMY * 10;
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`, `move_type`, `action`, `action_chance`, `wpguid`) VALUES
-(@PATH, 1, 3622.56, -3187.69, 130.639, NULL, 0, 0, 0, 100, 0),
+(@PATH, 1, 3625.36, -3188.11, 130.398, NULL, 0, 0, 0, 100, 0),
 (@PATH, 2, 3637.91, -3196.12, 128.729, NULL, 0, 0, 0, 100, 0),
 (@PATH, 3, 3653.79, -3202.95, 127.506, NULL, 0, 0, 0, 100, 0),
 (@PATH, 4, 3674.53, -3204.6, 126.548, NULL, 0, 0, 0, 100, 0),
