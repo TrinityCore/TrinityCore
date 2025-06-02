@@ -588,7 +588,7 @@ class spell_warr_rumbling_earth : public SpellScript
         if (!rumblingEarth)
             return;
 
-        AuraEffect const* minTargetCount = rumblingEarth->GetEffect(EFFECT_0); // rumblingEarth->GetEffect(EFFECT_0).CalcValue();
+        AuraEffect const* minTargetCount = rumblingEarth->GetEffect(EFFECT_0);
         AuraEffect const* cooldownReduction = rumblingEarth->GetEffect(EFFECT_1);
         if (!minTargetCount || !cooldownReduction)
             return;
