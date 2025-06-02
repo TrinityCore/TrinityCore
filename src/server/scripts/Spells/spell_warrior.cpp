@@ -649,11 +649,6 @@ class spell_warr_shockwave : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_SHOCKWAVE_STUN });
     }
 
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
     void HandleStun(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_SHOCKWAVE_STUN, CastSpellExtraArgsInit{
