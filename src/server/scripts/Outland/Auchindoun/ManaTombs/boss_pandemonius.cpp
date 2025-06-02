@@ -15,53 +15,49 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ * Is Dark Shell cast really delayed?
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "mana_tombs.h"
 
-enum Texts
+enum PandemoniusTexts
 {
-    SAY_AGGRO                       = 0,
-    SAY_KILL                        = 1,
-    SAY_DEATH                       = 2,
-    EMOTE_DARK_SHELL                = 3
+    SAY_AGGRO                 = 0,
+    SAY_SLAY                  = 1,
+    SAY_DEATH                 = 2,
+    EMOTE_DARK_SHELL          = 3
 };
 
-enum Spells
+enum PandemoniusSpells
 {
-    SPELL_VOID_BLAST = 32325,
-    SPELL_DARK_SHELL = 32358
+    SPELL_VOID_BLAST          = 32325,
+    SPELL_VOID_BLAST_SCRIPT   = 32326,    // NYI. Is it used? What it does?
+    SPELL_DARK_SHELL          = 32358
 };
 
-enum Events
+enum PandemoniusEvents
 {
-    EVENT_VOID_BLAST = 1,
+    EVENT_VOID_BLAST          = 1,
     EVENT_DARK_SHELL
 };
 
 uint32 constexpr DARK_SHELL_EVENT_GROUP = 1;
 
+// 18341 - Pandemonius
 struct boss_pandemonius : public BossAI
 {
-    boss_pandemonius(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS)
-    {
-        VoidBlastCounter = 0;
-    }
+    boss_pandemonius(Creature* creature) : BossAI(creature, DATA_PANDEMONIUS), _voidBlastCounter(0) { }
 
     void Reset() override
     {
         _Reset();
-        VoidBlastCounter = 0;
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        Talk(SAY_DEATH);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_KILL);
+        _voidBlastCounter = 0;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -72,6 +68,23 @@ struct boss_pandemonius : public BossAI
         events.ScheduleEvent(EVENT_VOID_BLAST, 8s, 23s);
     }
 
+    void OnSpellStart(SpellInfo const* spell) override
+    {
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_SHELL, me))
+            Talk(EMOTE_DARK_SHELL);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
@@ -80,12 +93,12 @@ struct boss_pandemonius : public BossAI
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                 {
                     DoCast(target, SPELL_VOID_BLAST);
-                    ++VoidBlastCounter;
+                    ++_voidBlastCounter;
                 }
 
-                if (VoidBlastCounter == 5)
+                if (_voidBlastCounter == 5)
                 {
-                    VoidBlastCounter = 0;
+                    _voidBlastCounter = 0;
                     events.ScheduleEvent(EVENT_VOID_BLAST, 15s, 25s);
                 }
                 else
@@ -95,10 +108,7 @@ struct boss_pandemonius : public BossAI
                 }
                 break;
             case EVENT_DARK_SHELL:
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(true);
-                Talk(EMOTE_DARK_SHELL);
-                DoCast(me, SPELL_DARK_SHELL);
+                DoCastSelf(SPELL_DARK_SHELL);
                 events.ScheduleEvent(EVENT_DARK_SHELL, 20s, DARK_SHELL_EVENT_GROUP);
                 break;
             default:
@@ -106,8 +116,8 @@ struct boss_pandemonius : public BossAI
         }
     }
 
-    private:
-        uint32 VoidBlastCounter;
+private:
+    uint32 _voidBlastCounter;
 };
 
 void AddSC_boss_pandemonius()
