@@ -46,9 +46,8 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 (@PATH, 20, 3634.09, -3178.54, 128.862, NULL, 0, 0, 0, 100, 0),
 (@PATH, 21, 3623.95, -3180.23, 130.456, NULL, 0, 0, 0, 100, 0);
 
--- any reason why visibilityDistanceType was 3 ?
-UPDATE `creature_template_addon` SET `SheathState`=1,`visibilityDistanceType`=0 WHERE `entry`=@TIMMY; -- 10808 (Timmy the Cruel)
+UPDATE `creature_template_addon` SET `SheathState`=1 WHERE `entry`=@TIMMY; -- 10808 (Timmy the Cruel)
 
 DELETE FROM `creature_addon` WHERE `guid`=@CGUID;
 INSERT INTO `creature_addon` (`guid`, `path_id`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `visibilityDistanceType`, `auras`) VALUES
-(@CGUID, @PATH, 0, 0, 0, 0, 0, 1, 0, 0, 0, NULL);
+(@CGUID, @PATH, 0, 0, 0, 0, 0, 1, 0, 0, 3, NULL);
