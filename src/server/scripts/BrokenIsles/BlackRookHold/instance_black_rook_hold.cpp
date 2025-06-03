@@ -22,7 +22,7 @@
 ObjectData const creatureData[] =
 {
     { BOSS_AMALGAM_OF_SOULS,         DATA_AMALGAM_OF_SOULS         },
-    { BOSS_ILYSANA_RAVENCREST,       DATA_ILYSANA_RAVENCREST       },
+    { BOSS_ILLYSANNA_RAVENCREST,     DATA_ILLYSANNA_RAVENCREST     },
     { BOSS_SMASHPITE_THE_HATEFUL,    DATA_SMASHPITE_THE_HATEFUL    },
     { BOSS_LORD_KURTALOS_RAVENCREST, DATA_LORD_KURTALOS_RAVENCREST },
     { 0,                             0                             }  // END
@@ -46,7 +46,7 @@ DoorData const doorData[] =
 DungeonEncounterData const encounters[] =
 {
     { DATA_AMALGAM_OF_SOULS,         {{ 1832 }} },
-    { DATA_ILYSANA_RAVENCREST,       {{ 1833 }} },
+    { DATA_ILLYSANNA_RAVENCREST,     {{ 1833 }} },
     { DATA_SMASHPITE_THE_HATEFUL,    {{ 1834 }} },
     { DATA_LORD_KURTALOS_RAVENCREST, {{ 1835 }} },
 };
