@@ -111,14 +111,18 @@ class spell_warr_bloodthirst : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_BLOODTHIRST_HEAL });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void CastHeal() const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_bloodthirst::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_warr_bloodthirst::CastHeal);
     }
 };
 
