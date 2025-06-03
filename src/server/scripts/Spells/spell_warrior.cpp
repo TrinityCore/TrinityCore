@@ -58,7 +58,7 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPENDING_VICTORY_HEAL            = 202166,
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
-    SPELL_WARRIOR_MORTAL_WOUNDS                     = 213667,
+    SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
@@ -529,15 +529,21 @@ class spell_warr_mortal_strike : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_MORTAL_WOUNDS });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
         if (Unit* target = GetHitUnit())
-            GetCaster()->CastSpell(target, SPELL_WARRIOR_MORTAL_WOUNDS, true);
+        {
+            GetCaster()->CastSpell(target, SPELL_WARRIOR_MORTAL_WOUNDS, CastSpellExtraArgsInit
+            {
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+        }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_mortal_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_mortal_strike::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
