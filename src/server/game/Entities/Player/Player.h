@@ -1784,8 +1784,9 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool HasPvPForcingQuest() const;
 
         void SendForceSpawnTrackingUpdate(uint32 questId) const;
-        QuestObjective const* GetActiveQuestObjectiveForForSpawnTracking(uint32 spawnTrackingId) const;
+        QuestObjective const* GetActiveQuestObjectiveForSpawnTracking(uint32 spawnTrackingId) const;
         SpawnTrackingState GetSpawnTrackingStateByObjectives(uint32 spawnTrackingId, std::vector<uint32> const& questObjectives) const;
+        SpawnTrackingState GetSpawnTrackingStateByObjective(uint32 spawnTrackingId, uint32 questObjectiveId) const;
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/

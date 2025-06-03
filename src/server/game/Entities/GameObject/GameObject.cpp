@@ -1969,8 +1969,9 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
 
     uint32 spawnTrackingQuestObjectiveId = [&]() -> uint32
     {
-        if (data && !data->spawnTrackingQuestObjectives.empty())
-            return Trinity::Containers::SelectRandomContainerElement(data->spawnTrackingQuestObjectives);
+        // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this gameobject
+        if (data && data->spawnTrackingQuestObjectives.size() == 1)
+            return data->spawnTrackingQuestObjectives.front();
 
         return 0;
     }();

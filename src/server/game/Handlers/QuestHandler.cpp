@@ -896,7 +896,7 @@ void WorldSession::HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingU
         responseInfo.ObjectID = requestInfo.ObjectID;
 
         SpawnTrackingTemplateData const* spawnTrackingTemplateData = sObjectMgr->GetSpawnTrackingData(requestInfo.SpawnTrackingID);
-        QuestObjective const* activeQuestObjective = _player->GetActiveQuestObjectiveForForSpawnTracking(requestInfo.SpawnTrackingID);
+        QuestObjective const* activeQuestObjective = _player->GetActiveQuestObjectiveForSpawnTracking(requestInfo.SpawnTrackingID);
 
         // Send phase info if map is the same or spawn tracking related quests are taken or completed
         if (spawnTrackingTemplateData && (_player->GetMapId() == spawnTrackingTemplateData->MapId || activeQuestObjective))

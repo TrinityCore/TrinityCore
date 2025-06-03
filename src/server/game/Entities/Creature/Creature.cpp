@@ -631,8 +631,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     uint32 spawnTrackingQuestObjectiveId = [&]() -> uint32
     {
-        if (data && !data->spawnTrackingQuestObjectives.empty())
-            return Trinity::Containers::SelectRandomContainerElement(data->spawnTrackingQuestObjectives);
+        // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
+        if (data && data->spawnTrackingQuestObjectives.size() == 1)
+            return data->spawnTrackingQuestObjectives.front();
 
         return 0;
     }();

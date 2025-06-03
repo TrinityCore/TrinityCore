@@ -278,6 +278,39 @@ public:
 };
 
 template<>
+class ViewerDependentValue<UF::UnitData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::UnitData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::UnitData const* unitData, Unit const* unit, Player const* receiver)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = unitData->StateWorldEffectsQuestObjectiveID;
+
+        if (unit->IsCreature() && !stateWorldEffectsQuestObjectiveId)
+        {
+            if (CreatureData const* data = unit->ToCreature()->GetCreatureData())
+            {
+                for (uint32 objectiveId : data->spawnTrackingQuestObjectives)
+                {
+                    if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, objectiveId) != SpawnTrackingState::Active)
+                        continue;
+
+                    stateWorldEffectsQuestObjectiveId = objectiveId;
+                    break;
+                }
+
+                // If there is no valid objective for player, fill UF with first objective (if any)
+                if (!stateWorldEffectsQuestObjectiveId && !data->spawnTrackingQuestObjectives.empty())
+                    stateWorldEffectsQuestObjectiveId = data->spawnTrackingQuestObjectives.front();
+            }
+        }
+
+        return stateWorldEffectsQuestObjectiveId;
+    }
+};
+
+template<>
 class ViewerDependentValue<UF::UnitData::FactionTemplateTag>
 {
 public:
@@ -535,6 +568,38 @@ public:
             stateAnimKitId = spawnTrackingStateData->StateAnimKitId.value_or(0);
 
         return stateAnimKitId;
+    }
+};
+
+template<>
+class ViewerDependentValue<UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag>
+{
+public:
+    using value_type = UF::GameObjectData::StateWorldEffectsQuestObjectiveIDTag::value_type;
+
+    static value_type GetValue(UF::GameObjectData const* gameObjectData, GameObject const* gameObject, Player const* receiver)
+    {
+        value_type stateWorldEffectsQuestObjectiveId = gameObjectData->StateWorldEffectsQuestObjectiveID;
+
+        if (!stateWorldEffectsQuestObjectiveId)
+        {
+            if (::GameObjectData const* data = gameObject->GetGameObjectData())
+            {
+                for (uint32 objectiveId : data->spawnTrackingQuestObjectives)
+                {
+                    if (receiver->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, objectiveId) != SpawnTrackingState::Active)
+                        continue;
+
+                    stateWorldEffectsQuestObjectiveId = objectiveId;
+                    break;
+                }
+
+                // If there is no valid objective for player, fill UF with first objective (if any)
+                if (!stateWorldEffectsQuestObjectiveId && !data->spawnTrackingQuestObjectives.empty())
+                    stateWorldEffectsQuestObjectiveId = data->spawnTrackingQuestObjectives.front();
+            }
+        }
+        return stateWorldEffectsQuestObjectiveId;
     }
 };
 
