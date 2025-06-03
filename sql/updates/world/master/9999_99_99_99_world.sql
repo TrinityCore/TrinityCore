@@ -32,11 +32,11 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `A
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id` = @ATCREATEID;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATCREATEID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 10, 8, 30, 10, 8, 30, 0, 0, '', 0);
+(@ATCREATEID, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 4, 6, 10, 4, 6, 10, 0, 0, '', 0);
 
 DELETE FROM `areatrigger` WHERE `SpawnId` = @ATSPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `Comment`) VALUES
-(@ATSPAWNID, @ATCREATEID, 1, 1279, '1,2,8,23,24', 417, 1303, 125.41, 5.8, 0, 'The Everbloom - Exit');
+(@ATSPAWNID, @ATCREATEID, 1, 1279, '1,2,8,23,24', 417.81, 1306.52, 125.41, 1.12, 0, 'The Everbloom - Exit');
 
 DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId` = @ATID;
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `ActionType`, `ActionParam`, `TargetType`) VALUES
