@@ -20,6 +20,7 @@
 #include "Conversation.h"
 #include "ConversationAI.h"
 #include "Creature.h"
+#include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "PathGenerator.h"
