@@ -3,7 +3,7 @@ SET @TIMMY=10808;
 SET @CGUID=39690;
 SET @SGROUP=461;
 
-DELETE FROM `creature` WHERE `guid`=@CGUID;
+DELETE FROM `creature` WHERE `guid`=@CGUID AND `id`=@TIMMY;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
 (@CGUID, @TIMMY, 329, 2017, 0, 1, 1, 0, 0, 3625.3583984375, -3188.1083984375, 130.3984832763671875, 4.834561824798583984, 604800, 0, 0, 22968, 0, 2, 0, 0, 0, '', NULL, 11159); -- Timmy the Cruel (Area: 0 - Difficulty: 0) CreateObject2 (possible waypoints or random movement)
 
