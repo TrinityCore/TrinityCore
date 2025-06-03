@@ -323,7 +323,7 @@ struct npc_amalgam_of_souls_lord_etheldrin_ravencrest : public ScriptedAI
 
                     velandras->AI()->DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_MID);
                     velandras->DespawnOrUnsummon(6s);
-                    
+
                     staellis->AI()->DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_LEFT);
                     staellis->DespawnOrUnsummon(6s);
 
