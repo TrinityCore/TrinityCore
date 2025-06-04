@@ -7152,7 +7152,7 @@ Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iter
 
 AreaTriggerStruct const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
-    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
+    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find({trigger, false});
     if (itr != _areaTriggerStore.end())
         return &itr->second;
     return nullptr;
@@ -7298,7 +7298,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         at.target_Z           = portLoc->Loc.GetPositionZ();
         at.target_Orientation = portLoc->Loc.GetOrientation();
 
-        _areaTriggerStore[areaTriggerId] = at;
+        _areaTriggerStore[{areaTriggerId, isCustom}] = at;
 
     } while (result->NextRow());
 
