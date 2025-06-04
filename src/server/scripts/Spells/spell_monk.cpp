@@ -34,6 +34,8 @@
 
 enum MonkSpells
 {
+    SPELL_MONK_BURST_OF_LIFE_TALENT                     = 399226,
+    SPELL_MONK_BURST_OF_LIFE_HEAL                       = 399230,
     SPELL_MONK_CALMING_COALESCENCE                      = 388220,
     SPELL_MONK_COMBAT_CONDITIONING                      = 128595,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
@@ -60,6 +62,57 @@ enum MonkSpells
     SPELL_MONK_STAGGER_LIGHT                            = 124275,
     SPELL_MONK_STAGGER_MODERATE                         = 124274,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+};
+
+// 399226 - Burst of Life (attached to 116849 - Life Cocoon)
+class spell_monk_burst_of_life : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_BURST_OF_LIFE_TALENT, SPELL_MONK_BURST_OF_LIFE_HEAL });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MONK_BURST_OF_LIFE_TALENT);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_MONK_BURST_OF_LIFE_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_monk_burst_of_life::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 399230 - Burst of Life
+class spell_monk_burst_of_life_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0 } });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MONK_BURST_OF_LIFE_TALENT, GetCastDifficulty());
+        uint32 maxTargets = spell->GetEffect(EFFECT_0).CalcValue(GetCaster());
+
+        if (targets.size() > maxTargets)
+            targets.resize(maxTargets);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_burst_of_life_heal::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+    }
 };
 
 // 117952 - Crackling Jade Lightning
@@ -700,6 +753,8 @@ class spell_monk_tigers_lust : public SpellScript
 
 void AddSC_monk_spell_scripts()
 {
+    RegisterSpellScript(spell_monk_burst_of_life);
+    RegisterSpellScript(spell_monk_burst_of_life_heal);
     RegisterSpellScript(spell_monk_crackling_jade_lightning);
     RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
     RegisterSpellScript(spell_monk_jade_walk);
