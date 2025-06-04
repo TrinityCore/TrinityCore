@@ -7443,10 +7443,10 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         if (InstanceTemplate const* iTemplate = GetInstanceTemplate(Map))
             parentId = iTemplate->Parent;
 
-    uint32 entrance_map = parentId.value_or(mapEntry->CorpseMapID);
-    if (entrance_map < 0)
+    if (!parentId && mapEntry->CorpseMapID < 0)
         return nullptr;
 
+    uint32 entrance_map = parentId.value_or(mapEntry->CorpseMapID);
     for (auto const& itr : _areaTriggerStore)
     {
         if (itr.second.target_mapId == entrance_map && itr.second.mapId == Map)
