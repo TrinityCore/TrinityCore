@@ -7152,8 +7152,8 @@ Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iter
 
 AreaTriggerStruct const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
-    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find({trigger, false});
-    if (itr != _areaTriggerStore.end())
+    ClientAreaTriggerContainer::const_iterator itr = _clientAreaTriggerStore.find(trigger);
+    if (itr != _clientAreaTriggerStore.end())
         return &itr->second;
     return nullptr;
 }
@@ -7219,10 +7219,10 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 {
     uint32 oldMSTime = getMSTime();
 
-    _areaTriggerStore.clear(); // needed for reload case
+    _clientAreaTriggerStore.clear(); // needed for reload case
 
-    //                                               0   1         2
-    QueryResult result = WorldDatabase.Query("SELECT ID, IsCustom, PortLocID FROM areatrigger_teleport");
+    //                                               0   1
+    QueryResult result = WorldDatabase.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
@@ -7238,48 +7238,13 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         ++count;
 
         uint32 areaTriggerId = fields[0].GetUInt32();
-        bool isCustom        = fields[1].GetBool();
-        uint32 portLocId     = fields[2].GetUInt32();
+        uint32 portLocId     = fields[1].GetUInt32();
 
-        uint32 mapId;
-
-        if (isCustom)
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(areaTriggerId);
+        if (!atEntry)
         {
-            AreaTriggerSpawn const* atSpawn = sAreaTriggerDataStore->GetAreaTriggerSpawn(areaTriggerId);
-            if (!atSpawn)
-            {
-                TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) does not exist in areatrigger table.", areaTriggerId);
-                continue;
-            }
-
-            AreaTriggerCreateProperties const* atCreateProperties = sAreaTriggerDataStore->GetAreaTriggerCreateProperties(atSpawn->Id);
-            if (!atCreateProperties)
-            {
-                TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) has no record in areatrigger_create_properties table.", areaTriggerId);
-                continue;
-            }
-
-            auto teleportActionItr = std::ranges::find_if(atCreateProperties->Template->Actions, [](AreaTriggerAction const& action) { return action.ActionType == AREATRIGGER_ACTION_TELEPORT; });
-            if (teleportActionItr == atCreateProperties->Template->Actions.end())
-            {
-                TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) does not specify a teleport action.", areaTriggerId);
-                continue;
-            }
-
-            // don't require duplicate data in areatrigger_teleport table
-            portLocId = teleportActionItr->Param;
-            mapId = atSpawn->mapId;
-        }
-        else
-        {
-            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(areaTriggerId);
-            if (!atEntry)
-            {
-                TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) does not exist in AreaTrigger.dbc.", areaTriggerId);
-                continue;
-            }
-
-            mapId = atEntry->ContinentID;
+            TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) does not exist in AreaTrigger.dbc.", areaTriggerId);
+            continue;
         }
 
         WorldSafeLocsEntry const* portLoc = GetWorldSafeLoc(portLocId);
@@ -7291,14 +7256,16 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         AreaTriggerStruct at;
 
-        at.mapId              = mapId;
+        at.mapId              = atEntry->ContinentID;
         at.target_mapId       = portLoc->Loc.GetMapId();
         at.target_X           = portLoc->Loc.GetPositionX();
         at.target_Y           = portLoc->Loc.GetPositionY();
         at.target_Z           = portLoc->Loc.GetPositionZ();
         at.target_Orientation = portLoc->Loc.GetOrientation();
 
-        _areaTriggerStore[{areaTriggerId, isCustom}] = at;
+        _clientAreaTriggerStore[areaTriggerId] = at;
+
+        _teleportAreaTriggerStore.emplace_back(at);
 
     } while (result->NextRow());
 
@@ -7447,10 +7414,10 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
         return nullptr;
 
     uint32 entrance_map = parentId.value_or(mapEntry->CorpseMapID);
-    for (auto const& itr : _areaTriggerStore)
+    for (auto const& itr : _teleportAreaTriggerStore)
     {
-        if (itr.second.target_mapId == entrance_map && itr.second.mapId == Map)
-            return &itr.second;
+        if (itr.target_mapId == entrance_map && itr.mapId == Map)
+            return &itr;
     }
 
     return nullptr;
@@ -7461,13 +7428,18 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
  */
 AreaTriggerStruct const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
-    for (auto const& itr : _areaTriggerStore)
+    for (auto const& itr : _teleportAreaTriggerStore)
     {
-        if (itr.second.target_mapId == Map)
-            return &itr.second;
+        if (itr.target_mapId == Map)
+            return &itr;
     }
 
     return nullptr;
+}
+
+void ObjectMgr::AddTeleportAreaTrigger(AreaTriggerStruct const& trigger)
+{
+    _teleportAreaTriggerStore.emplace_back(trigger);
 }
 
 void ObjectMgr::SetHighestGuids()

@@ -1632,14 +1632,8 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading World locations...");
     sObjectMgr->LoadWorldSafeLocs();                            // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
 
-    TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
-    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
-
-    TC_LOG_INFO("server.loading", "Loading AreaTrigger Spawns...");
-    sAreaTriggerDataStore->LoadAreaTriggerSpawns();
-
     TC_LOG_INFO("server.loading", "Loading Area Trigger Teleports definitions...");
-    sObjectMgr->LoadAreaTriggerTeleports();                      // must be after LoadAreaTriggerTemplates and LoadAreaTriggerSpawns
+    sObjectMgr->LoadAreaTriggerTeleports();
 
     TC_LOG_INFO("server.loading", "Loading Area Trigger Polygon data...");
     sObjectMgr->LoadAreaTriggerPolygons();
@@ -1685,6 +1679,12 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Pet Name Parts...");
     sObjectMgr->LoadPetNames();
+
+    TC_LOG_INFO("server.loading", "Loading AreaTrigger Templates...");
+    sAreaTriggerDataStore->LoadAreaTriggerTemplates();
+
+    TC_LOG_INFO("server.loading", "Loading AreaTrigger Spawns...");
+    sAreaTriggerDataStore->LoadAreaTriggerSpawns();
 
     TC_LOG_INFO("server.loading", "Loading Conversation Templates...");
     sConversationDataStore->LoadConversationTemplates();

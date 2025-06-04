@@ -1078,7 +1078,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Trinity::unique_trackable_ptr<Quest>> QuestContainer;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<std::pair<uint32, bool>, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerStruct> ClientAreaTriggerContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -1236,6 +1236,7 @@ class TC_GAME_API ObjectMgr
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
         AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
         AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
+        void AddTeleportAreaTrigger(AreaTriggerStruct const& trigger);
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         uint32 GetEventScriptId(uint32 eventId) const;
@@ -1807,6 +1808,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, std::unordered_set<uint32>> QuestAreaTriggerContainer;
         typedef std::set<uint32> TavernAreaTriggerContainer;
         typedef std::set<uint32> GameObjectForQuestContainer;
+        typedef std::vector<AreaTriggerStruct> TeleportAreaTriggerContainer;
 
         QuestAreaTriggerContainer _questAreaTriggerStore;
         TavernAreaTriggerContainer _tavernAreaTriggerStore;
@@ -1814,7 +1816,8 @@ class TC_GAME_API ObjectMgr
         NpcTextContainer _npcTextStore;
         QuestGreetingContainer _questGreetingStore;
         QuestGreetingLocaleContainer _questGreetingLocaleStore;
-        AreaTriggerContainer _areaTriggerStore;
+        ClientAreaTriggerContainer _clientAreaTriggerStore;
+        TeleportAreaTriggerContainer _teleportAreaTriggerStore;
         AreaTriggerScriptContainer _areaTriggerScriptStore;
         std::unordered_map<uint32, AreaTriggerPolygon> _areaTriggerPolygons;
         AccessRequirementContainer _accessRequirementStore;

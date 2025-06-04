@@ -409,6 +409,26 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.scriptId = sObjectMgr->GetScriptId(fields[12].GetString());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
+            // If the trigger has a teleport action, use it for checking go back/map entrance locations
+            auto teleportActionItr = std::ranges::find_if(createProperties->Template->Actions, [](AreaTriggerAction const& action) { return action.ActionType == AREATRIGGER_ACTION_TELEPORT; });
+            if (teleportActionItr != createProperties->Template->Actions.end())
+            {
+                WorldSafeLocsEntry const* portLoc = sObjectMgr->GetWorldSafeLoc(teleportActionItr->Param);
+                if (portLoc)
+                {
+                    AreaTriggerStruct at;
+
+                    at.mapId              = spawn.mapId;
+                    at.target_mapId       = portLoc->Loc.GetMapId();
+                    at.target_X           = portLoc->Loc.GetPositionX();
+                    at.target_Y           = portLoc->Loc.GetPositionY();
+                    at.target_Z           = portLoc->Loc.GetPositionZ();
+                    at.target_Orientation = portLoc->Loc.GetOrientation();
+
+                    sObjectMgr->AddTeleportAreaTrigger(at);
+                }
+            }
+
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
             CellCoord cellCoord = Trinity::ComputeCellCoord(spawn.spawnPoint.GetPositionX(), spawn.spawnPoint.GetPositionY());
             for (Difficulty difficulty : difficulties)
