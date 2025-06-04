@@ -17,20 +17,22 @@
 
 #include "AreaTriggerPackets.h"
 #include "PacketOperators.h"
+#include "Spline.h"
 
 namespace WorldPackets::AreaTrigger
 {
+void WriteAreaTriggerSpline(ByteBuffer& data, uint32 timeToTarget, uint32 elapsedTimeForMovement, ::Movement::Spline<float> const& areaTriggerSpline)
+{
+    data << uint32(timeToTarget);
+    data << uint32(elapsedTimeForMovement);
+
+    data << BitsSize<16>(areaTriggerSpline.getPoints());
+    data.append(reinterpret_cast<float const*>(areaTriggerSpline.getPoints().data()), areaTriggerSpline.getPoints().size() * 3);
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerSplineInfo const& areaTriggerSpline)
 {
-    data << uint32(areaTriggerSpline.TimeToTarget);
-    data << uint32(areaTriggerSpline.ElapsedTimeForMovement);
-
-    data << BitsSize<16>(areaTriggerSpline.Points);
-    data.FlushBits();
-
-    for (TaggedPosition<Position::XYZ> const& point : areaTriggerSpline.Points)
-        data << point;
-
+    WriteAreaTriggerSpline(data, areaTriggerSpline.TimeToTarget, areaTriggerSpline.ElapsedTimeForMovement, *areaTriggerSpline.Points);
     return data;
 }
 
