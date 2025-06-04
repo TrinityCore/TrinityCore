@@ -28,7 +28,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 
-enum Spells
+enum GeneralBjarngrimSpells
 {
     // General Bjarngrim
     SPELL_CHARGE_UP                     = 52098,
@@ -57,7 +57,7 @@ enum Spells
     SPELL_CHARGE_UP_DUMMY               = 56458
 };
 
-enum Events
+enum GeneralBjarngrimEvents
 {
     // General Bjarngrim
     EVENT_CHARGE_UP = 1,
@@ -75,24 +75,24 @@ enum Events
     EVENT_CHECK_BJARNGRIMS_HEALTH
 };
 
-enum EventGroups
+enum GeneralBjarngrimEventGroups
 {
     EVENT_GROUP_DEFENSIVE_STANCE = 1,
     EVENT_GROUP_BERSERKER_STANCE,
     EVENT_GROUP_BATTLE_STANCE
 };
 
-enum Actions
+enum GeneralBjarngrimActions
 {
     ACTION_SWITCH_STANCE = 0
 };
 
-enum Phases
+enum GeneralBjarngrimPhases
 {
     PHASE_OUT_OF_COMBAT = 1
 };
 
-enum Texts
+enum GeneralBjarngrimTexts
 {
     // General Bjarngrim
     SAY_AGGRO                       = 0,
@@ -106,14 +106,14 @@ enum Texts
     SAY_DEATH                       = 8
 };
 
-enum VirtualItemIds
+enum GeneralBjarngrimVirtualItemIds
 {
     ITEM_ID_AXE         = 43625,
     ITEM_ID_SHIELD      = 39384,
     ITEM_ID_GREATAXE    = 43623
 };
 
-enum Stances
+enum GeneralBjarngrimStances
 {
     STANCE_DEFENSIVE = 0,
     STANCE_BERSERKER = 1,
@@ -158,7 +158,7 @@ static std::array<StanceInfo, MAX_STANCE> const StanceData =
 
 struct boss_general_bjarngrim : public BossAI
 {
-    boss_general_bjarngrim(Creature* creature) : BossAI(creature, DATA_GENERAL_BJARNGRIM), _currentStanceId(STANCE_BATTLE) { }
+    boss_general_bjarngrim(Creature* creature) : BossAI(creature, BOSS_GENERAL_BJARNGRIM), _currentStanceId(STANCE_BATTLE) { }
 
     void JustAppeared() override
     {
@@ -357,7 +357,7 @@ struct npc_bjarngrim_stormforged_lieutenant : public ScriptedAI
                     _events.Repeat(22s);
                     break;
                 case EVENT_CHECK_BJARNGRIMS_HEALTH:
-                    if (Creature* bjarngrim = _instance->GetCreature(DATA_GENERAL_BJARNGRIM))
+                    if (Creature* bjarngrim = _instance->GetCreature(BOSS_GENERAL_BJARNGRIM))
                         if (bjarngrim->GetHealthPct() <= 75.f) // @todo: validate
                             DoCast(bjarngrim, SPELL_RENEW_STEEL);
 

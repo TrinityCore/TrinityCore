@@ -27,7 +27,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
-enum ScriptTexts
+enum SaurfangTexts
 {
     // Deathbringer Saurfang
     SAY_INTRO_ALLIANCE_2            = 0,
@@ -89,7 +89,7 @@ enum ScriptTexts
     SAY_OUTRO_ALLIANCE_20           = 3,
 };
 
-enum Spells
+enum SaurfangSpells
 {
     // Deathbringer Saurfang
     SPELL_ZERO_POWER                          = 72242,
@@ -124,7 +124,7 @@ enum Spells
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
 #define BOILING_BLOOD_HELPER RAID_MODE<int32>(72385, 72441, 72442, 72443)
 
-enum EventTypes
+enum SaurfangEvents
 {
     EVENT_INTRO_ALLIANCE_1      = 1,
     EVENT_INTRO_ALLIANCE_2      = 2,
@@ -185,14 +185,14 @@ enum EventTypes
     EVENT_OUTRO_HORDE_8         = 51,
 };
 
-enum Phases
+enum SaurfangPhases
 {
     PHASE_INTRO_A       = 1,
     PHASE_INTRO_H       = 2,
     PHASE_COMBAT        = 3
 };
 
-enum Actions
+enum SaurfangActions
 {
     ACTION_START_EVENT                  = -3781300,
     ACTION_CONTINUE_INTRO               = -3781301,
@@ -203,7 +203,7 @@ enum Actions
     ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293,
 };
 
-enum Misc
+enum SaurfangMisc
 {
     DATA_MADE_A_MESS                    = 45374613, // 4537, 4613 are achievement IDs
 
@@ -213,7 +213,7 @@ enum Misc
     SPAWN_GROUP_ENTRANCE_THE_DAMNED_EVENT   = 275,
 };
 
-enum MovePoints
+enum SaurfangPoints
 {
     POINT_SAURFANG          = 3781300,
     POINT_FIRST_STEP        = 3781301,
@@ -249,6 +249,7 @@ Position const chokePos[6] =
 
 Position const finalPos = {-563.7552f, 2211.328f, 538.7848f, 0.0f};
 
+// 37813 - Deathbringer Saurfang
 struct boss_deathbringer_saurfang : public BossAI
 {
     boss_deathbringer_saurfang(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG), _introDone(false), _frenzied(false), _dead(false)
@@ -616,6 +617,7 @@ private:
 
 uint32 const boss_deathbringer_saurfang::FightWonValue = 100000;
 
+// 37187 - High Overlord Saurfang
 struct npc_high_overlord_saurfang_icc : public ScriptedAI
 {
     npc_high_overlord_saurfang_icc(Creature* creature) : ScriptedAI(creature)
@@ -814,6 +816,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 37200 - Muradin Bronzebeard
 struct npc_muradin_bronzebeard_icc : public ScriptedAI
 {
     npc_muradin_bronzebeard_icc(Creature* creature) : ScriptedAI(creature)
@@ -949,6 +952,8 @@ private:
     InstanceScript* _instance;
 };
 
+// 37830 - Skybreaker Marine
+// 37920 - Kor'kron Reaver
 struct npc_saurfang_event : public ScriptedAI
 {
     npc_saurfang_event(Creature* creature) : ScriptedAI(creature)

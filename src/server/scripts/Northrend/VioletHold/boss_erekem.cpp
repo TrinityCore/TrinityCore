@@ -22,28 +22,30 @@
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
-enum Spells
+enum ErekemTexts
 {
-    SPELL_BLOODLUST                             = 54516,
-    SPELL_BREAK_BONDS                           = 59463,
-    SPELL_CHAIN_HEAL                            = 54481,
-    SPELL_EARTH_SHIELD                          = 54479,
-    SPELL_EARTH_SHOCK                           = 54511,
-    SPELL_LIGHTNING_BOLT                        = 53044,
-    SPELL_STORMSTRIKE                           = 51876,
-    SPELL_WINDFURY                              = 54493
+    SAY_AGGRO                 = 0,
+    SAY_SLAY                  = 1,
+    SAY_DEATH                 = 2,
+    SAY_SPAWN                 = 3,
+    SAY_ADD_KILLED            = 4,
+    SAY_BOTH_ADDS_KILLED      = 5
 };
 
-enum Yells
+enum ErekemSpells
 {
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    SAY_SPAWN                                   = 3,
-    SAY_ADD_KILLED                              = 4,
-    SAY_BOTH_ADDS_KILLED                        = 5
+    SPELL_BLOODLUST           = 54516,
+    SPELL_BREAK_BONDS         = 59463,
+    SPELL_CHAIN_HEAL          = 54481,
+    SPELL_EARTH_SHIELD        = 54479,
+    SPELL_EARTH_SHOCK         = 54511,
+    SPELL_LIGHTNING_BOLT      = 53044,
+    SPELL_STORMSTRIKE         = 51876,
+    SPELL_WINDFURY            = 54493
 };
 
+// 29315 - Erekem
+// 32226 - Arakkoa Windwalker
 struct boss_erekem : public BossAI
 {
     boss_erekem(Creature* creature) : BossAI(creature, DATA_EREKEM)
@@ -179,43 +181,43 @@ struct boss_erekem : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(20), [this](TaskContext task)
+        scheduler.Schedule(20s, [this](TaskContext task)
         {
             if (Unit* ally = DoSelectLowestHpFriendly(30.0f))
                 DoCast(ally, SPELL_EARTH_SHIELD);
 
-            task.Repeat(Seconds(20));
+            task.Repeat(20s);
         });
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext task)
         {
             DoCast(SPELL_BLOODLUST);
-            task.Repeat(Seconds(35), Seconds(45));
+            task.Repeat(35s, 45s);
         });
 
-        scheduler.Schedule(Seconds(2), [this](TaskContext task)
+        scheduler.Schedule(2s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f))
                 DoCast(target, SPELL_LIGHTNING_BOLT);
 
-            task.Repeat(Milliseconds(2500));
+            task.Repeat(2500ms);
         });
 
-        scheduler.Schedule(Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(10s, [this](TaskContext task)
         {
             if (Unit* ally = DoSelectLowestHpFriendly(40.0f))
                 DoCast(ally, SPELL_CHAIN_HEAL);
 
             if (!CheckGuardAlive())
-                task.Repeat(Seconds(3));
+                task.Repeat(3s);
             else
-                task.Repeat(Seconds(8), Seconds(11));
+                task.Repeat(8s, 11s);
         });
 
-        scheduler.Schedule(Seconds(2), Seconds(8), [this](TaskContext task)
+        scheduler.Schedule(2s, 8s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_EARTH_SHOCK);
-            task.Repeat(Seconds(8), Seconds(13));
+            task.Repeat(8s, 13s);
         });
 
         scheduler.Schedule(0s, [this](TaskContext task)
@@ -227,11 +229,11 @@ struct boss_erekem : public BossAI
                 if (guard && guard->IsAlive() && CheckGuardAuras(guard))
                 {
                     DoCastAOE(SPELL_BREAK_BONDS);
-                    task.Repeat(Seconds(10));
+                    task.Repeat(10s);
                     return;
                 }
             }
-            task.Repeat(Milliseconds(500));
+            task.Repeat(500ms);
         });
     }
 
@@ -246,6 +248,8 @@ enum GuardSpells
     SPELL_STRIKE                          = 14516
 };
 
+// 29395 - Erekem Guard
+// 32228 - Arakkoa Talon Guard
 struct npc_erekem_guard : public ScriptedAI
 {
     npc_erekem_guard(Creature* creature) : ScriptedAI(creature) { }
@@ -271,22 +275,22 @@ struct npc_erekem_guard : public ScriptedAI
 
     void ScheduledTasks()
     {
-        scheduler.Schedule(Seconds(4), Seconds(8), [this](TaskContext task)
+        scheduler.Schedule(4s, 8s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_STRIKE);
-            task.Repeat(Seconds(4), Seconds(8));
+            task.Repeat(4s, 8s);
         });
 
-        scheduler.Schedule(Seconds(8), Seconds(13), [this](TaskContext task)
+        scheduler.Schedule(8s, 13s, [this](TaskContext task)
         {
             DoCastAOE(SPELL_HOWLING_SCREECH);
-            task.Repeat(Seconds(8), Seconds(13));
+            task.Repeat(8s, 13s);
         });
 
-        scheduler.Schedule(Seconds(1), Seconds(3), [this](TaskContext task)
+        scheduler.Schedule(1s, 3s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_GUSHING_WOUND);
-            task.Repeat(Seconds(7), Seconds(12));
+            task.Repeat(7s, 12s);
         });
     }
 
