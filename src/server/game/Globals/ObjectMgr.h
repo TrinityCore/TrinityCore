@@ -449,6 +449,7 @@ typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 
 struct AreaTriggerStruct
 {
+    uint32 mapId;
     uint32 target_mapId;
     float  target_X;
     float  target_Y;
