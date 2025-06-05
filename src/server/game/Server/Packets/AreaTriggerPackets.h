@@ -20,8 +20,15 @@
 
 #include "Packet.h"
 #include "AreaTriggerTemplate.h"
+#include "CombatLogPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+
+namespace Movement
+{
+template<class index_type>
+class Spline;
+}
 
 namespace WorldPackets
 {
@@ -31,7 +38,7 @@ namespace WorldPackets
         {
             uint32 TimeToTarget = 0;
             uint32 ElapsedTimeForMovement = 0;
-            std::vector<TaggedPosition<Position::XYZ>> Points;
+            ::Movement::Spline<float>* Points = nullptr;
         };
 
         struct AreaTriggerMovementScriptInfo
@@ -96,6 +103,19 @@ namespace WorldPackets
             uint32 SpellVisualID = 0;
         };
 
+        class UpdateAreaTriggerVisual final : public ClientPacket
+        {
+        public:
+            explicit UpdateAreaTriggerVisual(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_AREA_TRIGGER_VISUAL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SpellID = 0;
+            Spells::SpellCastVisual Visual;
+            ObjectGuid TargetGUID;
+        };
+
+        void WriteAreaTriggerSpline(ByteBuffer& data, uint32 timeToTarget, uint32 elapsedTimeForMovement, ::Movement::Spline<float> const& areaTriggerSpline);
         ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement);
     }
 }

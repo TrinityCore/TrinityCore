@@ -372,6 +372,37 @@ TC_COMMON_API void wstrToLower(std::wstring& str);
 TC_COMMON_API void strToUpper(std::string& str);
 TC_COMMON_API void strToLower(std::string& str);
 
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end bound is known (for example std::array storage)
+ */
+template <typename Iterator>
+struct CStringBoundedSentinel
+{
+    Iterator End;
+    constexpr bool operator==(Iterator itr) const;
+};
+
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator
+ */
+struct CStringSentinel_T
+{
+    template <typename Iterator>
+    inline constexpr bool operator==(Iterator itr) const { return *itr == static_cast<std::iter_value_t<Iterator>>(0); }
+
+    /**
+     * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end of valid memory is known (for example std::array partially filled by the string)
+     */
+    template <typename Iterator>
+    inline constexpr CStringBoundedSentinel<Iterator> Checked(Iterator end) const { return { .End = end }; }
+} inline constexpr CStringSentinel;
+
+template <typename Iterator>
+inline constexpr bool CStringBoundedSentinel<Iterator>::operator==(Iterator itr) const
+{
+    return itr == End || itr == CStringSentinel;
+}
+
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);

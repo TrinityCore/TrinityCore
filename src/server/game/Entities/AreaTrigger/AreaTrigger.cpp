@@ -161,13 +161,12 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         spellForVisuals = sSpellMgr->GetSpellInfo(*GetCreateProperties()->SpellForVisuals, DIFFICULTY_NONE);
 
         if (spellForVisuals)
-            spellVisual.SpellXSpellVisualID = spellForVisuals->GetSpellXSpellVisualId();
+            spellVisual.SpellXSpellVisualID = caster ? caster->GetCastSpellXSpellVisualId(spellForVisuals) : spellForVisuals->GetSpellXSpellVisualId();
     }
     if (spellForVisuals)
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellForVisuals), spellForVisuals->Id);
 
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::SpellXSpellVisualID), spellVisual.SpellXSpellVisualID);
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::SpellVisual).ModifyValue(&UF::SpellCastVisual::ScriptVisualID), spellVisual.ScriptVisualID);
+    SetSpellVisual(spellVisual);
     if (!IsStaticSpawn())
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), GetCreateProperties()->TimeToTargetScale != 0 ? GetCreateProperties()->TimeToTargetScale : *m_areaTriggerData->Duration);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetCreateProperties()->Shape.GetMaxSearchRadius());
@@ -318,7 +317,7 @@ void AreaTrigger::Update(uint32 diff)
         }
         else if (HasOrbit())
         {
-            UpdateOrbitPosition(diff);
+            UpdateOrbitPosition(*std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement), diff);
         }
         else if (GetCreateProperties() && GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
         {
@@ -337,7 +336,7 @@ void AreaTrigger::Update(uint32 diff)
         }
         else if (HasSplines())
         {
-            UpdateSplinePosition(diff);
+            UpdateSplinePosition(*std::get<std::unique_ptr<::Movement::Spline<float>>>(_movement), diff);
         }
         else
         {
@@ -431,6 +430,14 @@ void AreaTrigger::ClearOverrideMoveCurve()
     ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveX));
     ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveY));
     ClearScaleCurve(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OverrideMoveCurveZ));
+}
+
+void AreaTrigger::SetSpellVisual(SpellCastVisual const& visual)
+{
+    auto spellVisualMutator = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::SpellVisual);
+
+    SetUpdateFieldValue(spellVisualMutator.ModifyValue(&UF::SpellCastVisual::SpellXSpellVisualID), visual.SpellXSpellVisualID);
+    SetUpdateFieldValue(spellVisualMutator.ModifyValue(&UF::SpellCastVisual::ScriptVisualID), visual.ScriptVisualID);
 }
 
 void AreaTrigger::SetDuration(int32 newDuration)
@@ -882,11 +889,6 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
         std::ranges::count_if(_insideUnits, [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
 }
 
-AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
-{
-    return _areaTriggerTemplate;
-}
-
 uint32 AreaTrigger::GetScriptId() const
 {
     if (_spawnId)
@@ -1071,17 +1073,16 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Option
 
     // This is needed to rotate the spline, following caster orientation
     std::vector<G3D::Vector3> rotatedPoints;
-    rotatedPoints.reserve(offsets.size());
-    for (Position const& offset : offsets)
+    rotatedPoints.resize(offsets.size());
+    for (std::size_t i = 0; i < offsets.size(); ++i)
     {
-        float x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
-        float y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
-        float z = GetPositionZ();
+        Position const& offset = offsets[i];
+        rotatedPoints[i].x = GetPositionX() + (offset.GetPositionX() * angleCos - offset.GetPositionY() * angleSin);
+        rotatedPoints[i].y = GetPositionY() + (offset.GetPositionY() * angleCos + offset.GetPositionX() * angleSin);
+        rotatedPoints[i].z = GetPositionZ();
 
-        UpdateAllowedPositionZ(x, y, z);
-        z += offset.GetPositionZ();
-
-        rotatedPoints.emplace_back(x, y, z);
+        UpdateAllowedPositionZ(rotatedPoints[i].x, rotatedPoints[i].y, rotatedPoints[i].z);
+        rotatedPoints[i].z += offset.GetPositionZ();
     }
 
     InitSplines(rotatedPoints, overrideSpeed);
@@ -1119,19 +1120,13 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
         reshape.AreaTriggerSpline.emplace();
         reshape.AreaTriggerSpline->ElapsedTimeForMovement = GetElapsedTimeForMovement();
         reshape.AreaTriggerSpline->TimeToTarget = timeToTarget;
-        for (G3D::Vector3 const& vec : spline->getPoints())
-            reshape.AreaTriggerSpline->Points.emplace_back(vec.x, vec.y, vec.z);
+        reshape.AreaTriggerSpline->Points = spline.get();
 
         SendMessageToSet(reshape.Write(), true);
     }
 
     _reachedDestination = false;
     _movement = std::move(spline);
-}
-
-bool AreaTrigger::HasSplines() const
-{
-    return std::holds_alternative<std::unique_ptr<::Movement::Spline<float>>>(_movement);
 }
 
 void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed)
@@ -1163,11 +1158,6 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     }
 
     _movement = std::move(movementOrbit);
-}
-
-bool AreaTrigger::HasOrbit() const
-{
-    return std::holds_alternative<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
 }
 
 Position const* AreaTrigger::GetOrbitCenterPosition() const
@@ -1236,9 +1226,8 @@ Position AreaTrigger::CalculateOrbitPosition() const
     return { x, y, z, orientation };
 }
 
-void AreaTrigger::UpdateOrbitPosition(uint32 /*diff*/)
+void AreaTrigger::UpdateOrbitPosition(AreaTriggerOrbitInfo& orbit, uint32 /*diff*/)
 {
-    AreaTriggerOrbitInfo& orbit = *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement);
     if (orbit.StartDelay > GetElapsedTimeForMovement())
         return;
 
@@ -1252,14 +1241,12 @@ void AreaTrigger::UpdateOrbitPosition(uint32 /*diff*/)
 #endif
 }
 
-void AreaTrigger::UpdateSplinePosition(uint32 diff)
+void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline, uint32 diff)
 {
     if (_reachedDestination)
         return;
 
     _movementTime += diff;
-
-    Movement::Spline<float>& spline = **std::get_if<std::unique_ptr<::Movement::Spline<float>>>(&_movement);
 
     if (_movementTime >= GetTimeToTarget())
     {

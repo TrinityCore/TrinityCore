@@ -15,21 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ChatCommandHelpers.h"
-#include "Chat.h"
+#ifndef TRINITYCORE_STRING_FORMAT_FWD_H
+#define TRINITYCORE_STRING_FORMAT_FWD_H
 
-void Trinity::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
+#include <stdexcept>
+
+namespace fmt
 {
-    handler->SendSysMessage(str);
-    handler->SetSentErrorMessage(true);
+inline namespace v10
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
+}
 }
 
-char const* Trinity::Impl::ChatCommands::GetTrinityString(ChatHandler const* handler, TrinityStrings which)
+namespace Trinity
 {
-    return handler->GetTrinityString(which);
+struct NoArgFormatterBase
+{
+    template <typename ParseContext>
+    constexpr typename ParseContext::iterator parse(ParseContext& ctx)
+    {
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
+
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
+
+        return begin;
+    }
+};
 }
 
-std::string Trinity::Impl::ChatCommands::FormatTrinityString(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
-{
-    return ChatHandler::StringVPrintf(messageFormat, messageFormatArgs);
-}
+#endif // TRINITYCORE_STRING_FORMAT_FWD_H
