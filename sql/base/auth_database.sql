@@ -1927,6 +1927,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,457),
 (196,458),
 (196,459),
+(196,460),
 (196,461),
 (196,463),
 (196,464),
@@ -2134,6 +2135,7 @@ INSERT INTO `rbac_linked_permissions` VALUES
 (196,877),
 (196,878),
 (196,879),
+(196,880),
 (196,881),
 (196,882),
 (196,883),
@@ -3025,7 +3027,6 @@ INSERT INTO `rbac_permissions` VALUES
 (838,'Command: pet level'),
 (839,'Command: server shutdown force'),
 (840,'Command: server restart force'),
-(841,'Command: .debug neargraveyard'),
 (842,'Command: reload character_template'),
 (843,'Command: reload quest_greeting'),
 (844,'Command: scene'),
@@ -3629,7 +3630,8 @@ INSERT INTO `updates` VALUES
 ('2025_05_30_00_auth.sql','37191DD7967326918A3BE9EB919CEECBA42098A2','ARCHIVED','2025-05-30 11:42:16',0),
 ('2025_05_31_00_auth.sql','5EF8B1EBE4CF99E5D1C02BD6141FB35EA19FED6C','ARCHIVED','2025-05-31 19:45:56',0),
 ('2025_06_03_00_auth.sql','2ADB0D37ED7223C2EA94497B0F7B7C0BF91A72B8','RELEASED','2025-06-03 01:11:51',0),
-('2025_06_05_00_auth.sql','E40328A6899D04BCDB6A36337BD243837AF92205','RELEASED','2025-06-05 00:26:43',0);
+('2025_06_05_00_auth.sql','E40328A6899D04BCDB6A36337BD243837AF92205','RELEASED','2025-06-05 00:26:43',0),
+('2025_06_05_02_auth.sql','C2B67F688AC54CF6994F4709D0ECE692C968F346','RELEASED','2025-06-05 16:22:53',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
