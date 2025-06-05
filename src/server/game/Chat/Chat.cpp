@@ -159,6 +159,11 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(GetTrinityString(entry));
 }
 
+std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+{
+    return fmt::vsprintf<char>(messageFormat, messageFormatArgs);
+}
+
 bool ChatHandler::_ParseCommands(std::string_view text)
 {
     if (Trinity::ChatCommands::TryExecuteCommand(*this, text))
