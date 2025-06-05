@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "AreaTriggerTemplate.h"
+#include "CombatLogPacketsCommon.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 
@@ -100,6 +101,18 @@ namespace WorldPackets
 
             ObjectGuid AreaTriggerGUID;
             uint32 SpellVisualID = 0;
+        };
+
+        class UpdateAreaTriggerVisual final : public ClientPacket
+        {
+        public:
+            explicit UpdateAreaTriggerVisual(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_AREA_TRIGGER_VISUAL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SpellID = 0;
+            Spells::SpellCastVisual Visual;
+            ObjectGuid TargetGUID;
         };
 
         void WriteAreaTriggerSpline(ByteBuffer& data, uint32 timeToTarget, uint32 elapsedTimeForMovement, ::Movement::Spline<float> const& areaTriggerSpline);
