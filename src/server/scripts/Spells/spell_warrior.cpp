@@ -38,8 +38,7 @@ enum WarriorSpells
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
-    SPELL_WARRIOR_CHARGE_EFFECT                     = 218104,
-    SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL       = 198337,
+    SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
@@ -155,20 +154,15 @@ class spell_warr_charge : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL
-        });
+        return ValidateSpellInfo({ SPELL_WARRIOR_CHARGE_EFFECT });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        CastSpellExtraArgsInit argsInit = CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_CHARGE_EFFECT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
-        };
-
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_CHARGE_EFFECT_BLAZING_TRAIL, std::move(argsInit));
+        });
     }
 
     void Register() override
@@ -200,7 +194,7 @@ class spell_warr_charge_drop_fire_periodic : public AuraScript
     }
 };
 
-// 198337 - Charge Effect (dropping Blazing Trail)
+// 198337 - Charge Effect
 class spell_warr_charge_effect : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
