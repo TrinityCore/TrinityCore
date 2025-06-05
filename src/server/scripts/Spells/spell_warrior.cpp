@@ -177,13 +177,20 @@ class spell_warr_charge_drop_fire_periodic : public AuraScript
     void DropFireVisual(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
-        if (GetTarget()->IsSplineEnabled())
+
+        Unit* target = GetTarget();
+        if (target->IsSplineEnabled())
         {
-            for (uint32 i = 0; i < 5; ++i)
+            Movement::Location from = target->movespline->ComputePosition();
+            Movement::Location to = target->movespline->ComputePosition(aurEff->GetPeriod());
+
+            int32 fireCount = std::lround((to - from).length());
+
+            for (int32 i = 0; i < fireCount; ++i)
             {
-                int32 timeOffset = 6 * i * aurEff->GetPeriod() / 25;
-                Movement::Location loc = GetTarget()->movespline->ComputePosition(timeOffset);
-                GetTarget()->SendPlaySpellVisual(Position(loc.x, loc.y, loc.z), SPELL_VISUAL_BLAZING_CHARGE, 0, 0, 1.f, true);
+                int32 timeOffset = i * aurEff->GetPeriod() / fireCount;
+                Movement::Location loc = target->movespline->ComputePosition(timeOffset);
+                target->SendPlaySpellVisual(Position(loc.x, loc.y, loc.z), SPELL_VISUAL_BLAZING_CHARGE, 0, 0, 1.f, true);
             }
         }
     }
