@@ -1256,7 +1256,7 @@ public:
             {
                 /// @todo: implement female support
                 uint8 locale = handler->GetSessionDbcLocale();
-                std::string name = titleInfo->Name[locale];
+                std::string_view name = titleInfo->Name[locale];
                 if (name.empty())
                     continue;
 
@@ -1291,8 +1291,7 @@ public:
                         ? handler->GetTrinityString(LANG_ACTIVE)
                         : "";
 
-                    char titleNameStr[80];
-                    snprintf(titleNameStr, 80, name.c_str(), targetName);
+                    std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
 
                     // send title in "id (idx:idx) - [namedlink locale]" format
                     if (handler->GetSession())
