@@ -513,12 +513,6 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
     }
 }
 
-void CommonMovement::WriteCreateObjectAreaTriggerSpline(::Movement::Spline<float> const& spline, ByteBuffer& data)
-{
-    data << BitsSize<16>(spline.getPoints());
-    data.append(reinterpret_cast<float const*>(spline.getPoints().data()), spline.getPoints().size() * 3);
-}
-
 void CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)
 {
     data << movementForce.ID;
