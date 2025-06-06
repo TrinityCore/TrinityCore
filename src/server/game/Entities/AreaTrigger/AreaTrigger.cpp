@@ -264,9 +264,6 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         }
     }
 
-    if (IsStaticSpawn())
-        setActive(true);
-
     if (caster)
         caster->_RegisterAreaTrigger(this);
 
@@ -891,6 +888,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumUnitsInside), _insideUnits.size());
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumPlayersInside),
         std::ranges::count_if(_insideUnits, [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
+
+    if (IsStaticSpawn())
+        setActive(!_insideUnits.empty());
 }
 
 uint32 AreaTrigger::GetScriptId() const
