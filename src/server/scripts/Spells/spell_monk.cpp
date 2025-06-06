@@ -69,21 +69,34 @@ class spell_monk_burst_of_life : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MONK_BURST_OF_LIFE_TALENT, SPELL_MONK_BURST_OF_LIFE_HEAL });
+        return ValidateSpellInfo({ SPELL_MONK_BURST_OF_LIFE_HEAL })
+            && ValidateSpellEffect({ { SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0 } });
     }
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_MONK_BURST_OF_LIFE_TALENT);
+        Unit* caster = GetCaster();
+        return caster && caster->HasAuraEffect(SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0);
     }
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        if (removeMode != AURA_REMOVE_BY_EXPIRE && (removeMode != AURA_REMOVE_BY_ENEMY_SPELL || aurEff->GetAmount()))
             return;
 
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(GetTarget(), SPELL_MONK_BURST_OF_LIFE_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* burstOfLife = caster->GetAuraEffect(SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0);
+        if (!burstOfLife)
+            return;
+
+        caster->CastSpell(GetTarget(), SPELL_MONK_BURST_OF_LIFE_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_MAX_TARGETS, burstOfLife->GetAmount() } }
+        });
     }
 
     void Register() override
@@ -95,18 +108,9 @@ class spell_monk_burst_of_life : public AuraScript
 // 399230 - Burst of Life
 class spell_monk_burst_of_life_heal : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect({ { SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0 } });
-    }
-
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_MONK_BURST_OF_LIFE_TALENT, GetCastDifficulty());
-        uint32 maxTargets = spell->GetEffect(EFFECT_0).CalcValue(GetCaster());
-
-        if (targets.size() > maxTargets)
-            targets.resize(maxTargets);
+        Trinity::SelectRandomInjuredTargets(targets, GetSpellValue()->MaxAffectedTargets, true, GetExplTargetUnit());
     }
 
     void Register() override
