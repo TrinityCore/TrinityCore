@@ -78,7 +78,7 @@ struct TypeListContainer
     }
 
     template <typename ObjectType> requires TypeExists<ObjectType>
-    bool Size() const
+    std::size_t Size() const
     {
         return UnderlyingContainer<ObjectType>::Size(Data.template FindContainer<ObjectType>());
     }
