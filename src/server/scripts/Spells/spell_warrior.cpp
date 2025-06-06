@@ -43,6 +43,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
+    SPELL_WARRIOR_ENRAGE                            = 184362,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
@@ -50,6 +51,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
+    SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
     SPELL_WARRIOR_IN_FOR_THE_KILL                   = 248621,
     SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE             = 248622,
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
@@ -75,6 +77,7 @@ enum WarriorSpells
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
 };
 
 enum WarriorMisc
@@ -548,6 +551,42 @@ class spell_warr_mortal_strike : public SpellScript
     }
 };
 
+// 383854 - Improved Raging Blow (attached to 85288 - Raging Blow, 335097 - Crushing Blow)
+// 392936 - Wrath and Fury (attached to 85288 - Raging Blow, 335097 - Crushing Blow)
+class spell_warr_raging_blow_cooldown_reset : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_RAGING_BLOW })
+            && ValidateSpellEffect({{ SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0 }});
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || GetCaster()->HasAura(SPELL_WARRIOR_WRATH_AND_FURY);
+    }
+
+    void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
+    {
+        // it is currently impossible to have Wrath and Fury without having Improved Raging Blow, but we will check it anyway
+        int32 value = 0;
+        if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
+            value = GetEffectValue();
+
+        if (GetCaster()->HasAura(SPELL_WARRIOR_ENRAGE))
+            if (AuraEffect const* auraEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0, GetCaster()->GetGUID()))
+                value += auraEffect->GetAmount();
+
+        if (roll_chance_i(value))
+            GetCaster()->GetSpellHistory()->ResetCooldown(GetSpellInfo()->Id, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_raging_blow_cooldown_reset::HandleResetCooldown, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 97462 - Rallying Cry
 class spell_warr_rallying_cry : public SpellScript
 {
@@ -899,6 +938,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_intimidating_shout);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
+    RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
     RegisterSpellScript(spell_warr_rallying_cry);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
