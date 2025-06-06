@@ -209,7 +209,7 @@ class spell_vexallus_energy_feedback : public AuraScript
 {
     PrepareAuraScript(spell_vexallus_energy_feedback);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ENERGY_FEEDBACK, SPELL_ENERGY_FEEDBACK_SCALE });
     }
