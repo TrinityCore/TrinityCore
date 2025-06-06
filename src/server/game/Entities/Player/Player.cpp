@@ -6476,9 +6476,9 @@ void Player::UpdateTavernRestingState()
         return;
     }
 
-    if (!innTrigger->IsCustom)
+    if (innTrigger->IsDBC)
     {
-        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(innTrigger->AreaTriggerId);
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(innTrigger->AreaTriggerEntryId);
 
         if (_restMgr->HasRestFlag(REST_FLAG_IN_TAVERN) && (!atEntry || !IsInAreaTrigger(atEntry)))
         {

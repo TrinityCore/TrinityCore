@@ -58,8 +58,8 @@ enum RestFlag : uint32
 
 struct InnAreaTrigger
 {
-    uint32 AreaTriggerId = 0;
-    bool IsCustom = false;
+    bool IsDBC = true;
+    uint32 AreaTriggerEntryId = 0;
 };
 
 class TC_GAME_API RestMgr

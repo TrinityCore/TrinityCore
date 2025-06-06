@@ -1057,7 +1057,7 @@ void AreaTrigger::DoActions(Unit* unit)
                     case AREATRIGGER_ACTION_TAVERN:
                         if (Player* player = caster->ToPlayer())
                         {
-                            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .AreaTriggerId = static_cast<uint32>(_spawnId), .IsCustom = true});
+                            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .IsDBC = false });
                             player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN);
                         }
                         break;

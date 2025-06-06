@@ -568,7 +568,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
         // set resting flag we are in the inn
         if (packet.Entered)
         {
-            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .AreaTriggerId = atEntry->ID, .IsCustom = false});
+            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .IsDBC = true, .AreaTriggerEntryId = atEntry->ID });
         }
         else
         {
