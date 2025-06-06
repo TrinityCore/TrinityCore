@@ -28,3 +28,8 @@ char const* Trinity::Impl::ChatCommands::GetTrinityString(ChatHandler const* han
 {
     return handler->GetTrinityString(which);
 }
+
+std::string Trinity::Impl::ChatCommands::FormatTrinityString(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+{
+    return ChatHandler::StringVPrintf(messageFormat, messageFormatArgs);
+}
