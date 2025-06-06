@@ -16,6 +16,8 @@
  */
 
 #include "WorldSession.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerPackets.h"
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
@@ -605,6 +607,22 @@ void WorldSession::HandleUpdateAuraVisual(WorldPackets::Spells::UpdateAuraVisual
 
     if (_player->GetChannelSpellId() == spellInfo->Id)
         _player->SetChannelVisual({ .SpellXSpellVisualID = spellXspellVisualId });
+}
+
+void WorldSession::HandleUpdateAreaTriggerVisual(WorldPackets::AreaTrigger::UpdateAreaTriggerVisual const& updateAreaTriggerVisual)
+{
+    AreaTrigger* target = ObjectAccessor::GetAreaTrigger(*_player, updateAreaTriggerVisual.TargetGUID);
+    if (!target)
+        return;
+
+    if (target->GetCasterGuid() != _player->GetGUID())
+        return;
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(target->m_areaTriggerData->SpellForVisuals, _player->GetMap()->GetDifficultyID());
+    if (!spellInfo)
+        return;
+
+    target->SetSpellVisual({ .SpellXSpellVisualID = _player->GetCastSpellXSpellVisualId(spellInfo) });
 }
 
 void WorldSession::HandleKeyboundOverride(WorldPackets::Spells::KeyboundOverride& keyboundOverride)
