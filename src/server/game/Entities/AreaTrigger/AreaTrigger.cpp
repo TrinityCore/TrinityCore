@@ -33,6 +33,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "RestMgr.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -262,6 +263,9 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             return false;
         }
     }
+
+    if (IsStaticSpawn())
+        setActive(true);
 
     if (caster)
         caster->_RegisterAreaTrigger(this);
@@ -1050,6 +1054,13 @@ void AreaTrigger::DoActions(Unit* unit)
                         }
                         break;
                     }
+                    case AREATRIGGER_ACTION_TAVERN:
+                        if (Player* player = caster->ToPlayer())
+                        {
+                            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .AreaTriggerId = _spawnId, .IsCustom = true});
+                            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1061,9 +1072,25 @@ void AreaTrigger::DoActions(Unit* unit)
 void AreaTrigger::UndoActions(Unit* unit)
 {
     if (GetTemplate())
+    {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
-            if (action.ActionType == AREATRIGGER_ACTION_CAST || action.ActionType == AREATRIGGER_ACTION_ADDAURA)
-                unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+        {
+            switch (action.ActionType)
+            {
+                case AREATRIGGER_ACTION_CAST:
+                    [[fallthrough]];
+                case AREATRIGGER_ACTION_ADDAURA:
+                    unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+                    break;
+                case AREATRIGGER_ACTION_TAVERN:
+                    if (Player* player = unit->ToPlayer())
+                        player->GetRestMgr().SetInnTrigger(std::nullopt);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)

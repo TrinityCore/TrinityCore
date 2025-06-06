@@ -567,9 +567,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     {
         // set resting flag we are in the inn
         if (packet.Entered)
-            player->GetRestMgr().SetInnTriggerID(atEntry->ID);
+        {
+            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .AreaTriggerId = atEntry->ID, .IsCustom = false});
+        }
         else
+        {
             player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
+            player->GetRestMgr().SetInnTrigger(std::nullopt);
+        }
 
         if (sWorld->IsFFAPvPRealm())
         {
