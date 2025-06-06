@@ -243,7 +243,7 @@ class spell_monk_life_cocoon : public SpellScript
 };
 
 // 388548 - Mists of Life (attached to 116849 - Life Cocoon)
-class spell_monk_mists_of_life : public AuraScript
+class spell_monk_mists_of_life : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -252,17 +252,17 @@ class spell_monk_mists_of_life : public AuraScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_MONK_MISTS_OF_LIFE);
+        return GetCaster()->HasAuraEffect(SPELL_MONK_MISTS_OF_LIFE, EFFECT_0);
     }
 
-    void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleEffectApply(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetTarget();
+        Unit* target = GetHitUnit();
 
         CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_CAST_TIME;
-        args.TriggeringAura = aurEff;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
 
         caster->CastSpell(target, SPELL_MONK_RENEWING_MIST, args);
         caster->CastSpell(target, SPELL_MONK_ENVELOPING_MIST, args);
@@ -270,7 +270,7 @@ class spell_monk_mists_of_life : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_monk_mists_of_life::HandleEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        OnEffectHitTarget += SpellEffectFn(spell_monk_mists_of_life::HandleEffectApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
