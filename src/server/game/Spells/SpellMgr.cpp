@@ -4736,6 +4736,24 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF MAW OF SOULS SPELLS
 
     //
+    // BLACK ROOK HOLD SPELLS
+    //
+
+    // Soul Echoes
+    ApplySpellFix({ 194981 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // Vision Range (AOI)
+    });
+
+    // Soulgorge
+    ApplySpellFix({ 196930 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10 yd
+    });
+
+    // ENDOF BLACK ROOK HOLD SPELLS
+
+    //
     // ANTORUS THE BURNING THRONE SPELLS
     //
 
