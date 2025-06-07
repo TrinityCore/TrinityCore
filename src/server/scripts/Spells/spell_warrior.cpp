@@ -44,6 +44,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_ENRAGE                            = 184362,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -604,6 +605,28 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
+// 184367 - Rampage (triggers enrage)
+class spell_warr_rampage_enrage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_ENRAGE });
+    }
+
+    void HandleCast() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_warr_rampage_enrage::HandleCast);
+    }
+};
+
 // 275339 - (attached to 46968 - Shockwave)
 class spell_warr_rumbling_earth : public SpellScript
 {
@@ -930,6 +953,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_rallying_cry);
+    RegisterSpellScript(spell_warr_rampage_enrage);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);
