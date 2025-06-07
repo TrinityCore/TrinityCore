@@ -44,6 +44,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
     SPELL_WARRIOR_EXECUTE                           = 20647,
+    SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -57,6 +58,7 @@ enum WarriorSpells
     SPELL_WARRIOR_IMPROVED_HEROIC_LEAP              = 157449,
     SPELL_WARRIOR_MORTAL_STRIKE                     = 12294,
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
+    SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
@@ -345,6 +347,56 @@ class spell_warr_execute_damage : public SpellScript
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
+// 383848 - Frenzied Enrage (attched to 184362 - Enrage)
+class spell_warr_frenzied_enrage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRENZIED_ENRAGE });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_WARRIOR_FRENZIED_ENRAGE);
+    }
+
+    static void HandleFrenziedEnrage(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_0, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
+// 440277 - Powerful Enrage (attached to 184362 - Enrage)
+class spell_warr_powerful_enrage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_POWERFUL_ENRAGE });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_WARRIOR_POWERFUL_ENRAGE);
+    }
+
+    static void HandlePowerfulEnrage(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_powerful_enrage::HandlePowerfulEnrage, EFFECT_4, TARGET_UNIT_CASTER);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_powerful_enrage::HandlePowerfulEnrage, EFFECT_5, TARGET_UNIT_CASTER);
     }
 };
 
@@ -892,6 +944,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_execute_damage);
+    RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
@@ -899,6 +952,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_intimidating_shout);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
+    RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_rallying_cry);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
