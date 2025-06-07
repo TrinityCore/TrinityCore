@@ -16,10 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
-#include "GridNotifiersImpl.h"
 #include "Player.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -75,21 +73,16 @@ class spell_love_is_in_the_air_romantic_picnic : public AuraScript
         bool foundSomeone = false;
         // For nearby players, check if they have the same aura. If so, cast Romantic Picnic (45123)
         // required by achievement and "hearts" visual
-        std::list<Player*> playerList;
-        Trinity::AnyPlayerInObjectRangeCheck checker(target, INTERACTION_DISTANCE*2);
-        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(target, playerList, checker);
-        Cell::VisitWorldObjects(target, searcher, INTERACTION_DISTANCE * 2);
-        for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+        std::vector<Player*> playerList;
+        target->GetPlayerListInGrid(playerList, INTERACTION_DISTANCE * 2);
+        for (Player* playerFound : playerList)
         {
-            if (Player* playerFound = (*itr))
+            if (target != playerFound && playerFound->HasAura(GetId()))
             {
-                if (target != playerFound && playerFound->HasAura(GetId()))
-                {
-                    playerFound->CastSpell(playerFound, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
-                    target->CastSpell(target, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
-                    foundSomeone = true;
-                    break;
-                }
+                playerFound->CastSpell(playerFound, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
+                target->CastSpell(target, SPELL_ROMANTIC_PICNIC_ACHIEV, true);
+                foundSomeone = true;
+                break;
             }
         }
 

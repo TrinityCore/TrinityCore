@@ -30,13 +30,13 @@ npc_magwin
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GameObjectAI.h"
-#include "GridNotifiersImpl.h"
+#include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -571,14 +571,12 @@ public:
         void CompleteQuest()
         {
             float radius = 50.0f;
-            std::list<Player*> players;
-            Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
-            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            Cell::VisitWorldObjects(me, searcher, radius);
+            std::vector<Player*> players;
+            me->GetPlayerListInGrid(players, radius);
 
-            for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(NPC_SPARK);
+            for (Player* player : players)
+                if (player->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && player->HasAura(SPELL_TREE_DISGUISE))
+                    player->KilledMonsterCredit(NPC_SPARK);
         }
 
         void DespawnNagaFlag(bool despawn)
