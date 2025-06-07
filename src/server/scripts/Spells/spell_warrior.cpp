@@ -518,10 +518,10 @@ class spell_warr_invigorating_fury : public SpellScript
     void CastHeal() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_INVIGORATING_FURY, CastSpellExtraArgsInit
-            {
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringSpell = GetSpell()
-            });
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
