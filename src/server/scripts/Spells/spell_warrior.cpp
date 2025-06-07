@@ -50,6 +50,8 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
+    SPELL_WARRIOR_INVIGORATING_FURY                 = 385174,
+    SPELL_WARRIOR_INVIGORATING_FURY_TALENT          = 383468,
     SPELL_WARRIOR_IN_FOR_THE_KILL                   = 248621,
     SPELL_WARRIOR_IN_FOR_THE_KILL_HASTE             = 248622,
     SPELL_WARRIOR_IMPENDING_VICTORY                 = 202168,
@@ -500,6 +502,33 @@ class spell_warr_intimidating_shout : public SpellScript
     }
 };
 
+// 385174 - Invigorating Fury (attached to 184364 - Enraged Regeneration)
+class spell_warr_invigorating_fury : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_INVIGORATING_FURY, SPELL_WARRIOR_INVIGORATING_FURY_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_INVIGORATING_FURY_TALENT);
+    }
+
+    void CastHeal() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_INVIGORATING_FURY, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warr_invigorating_fury::CastHeal);
+    }
+};
+
 // 70844 - Item - Warrior T10 Protection 4P Bonus
 class spell_warr_item_t10_prot_4p_bonus : public AuraScript
 {
@@ -897,6 +926,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap_jump);
     RegisterSpellScript(spell_warr_impending_victory);
     RegisterSpellScript(spell_warr_intimidating_shout);
+    RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_rallying_cry);
