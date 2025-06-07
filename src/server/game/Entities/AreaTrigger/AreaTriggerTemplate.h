@@ -42,7 +42,8 @@ enum AreaTriggerActionTypes
     AREATRIGGER_ACTION_CAST        = 0,
     AREATRIGGER_ACTION_ADDAURA     = 1,
     AREATRIGGER_ACTION_TELEPORT    = 2,
-    AREATRIGGER_ACTION_MAX         = 3
+    AREATRIGGER_ACTION_TAVERN      = 3,
+    AREATRIGGER_ACTION_MAX         = 4
 };
 
 enum AreaTriggerActionUserTypes

@@ -33,6 +33,7 @@
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "RestMgr.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -887,6 +888,9 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumUnitsInside), _insideUnits.size());
     SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::NumPlayersInside),
         std::ranges::count_if(_insideUnits, [](ObjectGuid const& guid) { return guid.IsPlayer(); }));
+
+    if (IsStaticSpawn())
+        setActive(!_insideUnits.empty());
 }
 
 uint32 AreaTrigger::GetScriptId() const
@@ -1050,6 +1054,13 @@ void AreaTrigger::DoActions(Unit* unit)
                         }
                         break;
                     }
+                    case AREATRIGGER_ACTION_TAVERN:
+                        if (Player* player = caster->ToPlayer())
+                        {
+                            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .IsDBC = false });
+                            player->GetRestMgr().SetRestFlag(REST_FLAG_IN_TAVERN);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1061,9 +1072,25 @@ void AreaTrigger::DoActions(Unit* unit)
 void AreaTrigger::UndoActions(Unit* unit)
 {
     if (GetTemplate())
+    {
         for (AreaTriggerAction const& action : GetTemplate()->Actions)
-            if (action.ActionType == AREATRIGGER_ACTION_CAST || action.ActionType == AREATRIGGER_ACTION_ADDAURA)
-                unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+        {
+            switch (action.ActionType)
+            {
+                case AREATRIGGER_ACTION_CAST:
+                    [[fallthrough]];
+                case AREATRIGGER_ACTION_ADDAURA:
+                    unit->RemoveAurasDueToSpell(action.Param, GetCasterGuid());
+                    break;
+                case AREATRIGGER_ACTION_TAVERN:
+                    if (Player* player = unit->ToPlayer())
+                        player->GetRestMgr().SetInnTrigger(std::nullopt);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)
