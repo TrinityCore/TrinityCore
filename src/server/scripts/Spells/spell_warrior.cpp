@@ -573,7 +573,7 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
         if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
             value = GetEffectValue();
 
-        if (GetCaster()->HasAura(SPELL_WARRIOR_ENRAGE))
+        if (GetCaster()->HasAuraState(AURA_STATE_ENRAGED))
             if (AuraEffect const* auraEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0, GetCaster()->GetGUID()))
                 value += auraEffect->GetAmount();
 
