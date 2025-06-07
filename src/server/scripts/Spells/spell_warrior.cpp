@@ -563,21 +563,23 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || GetCaster()->HasAura(SPELL_WARRIOR_WRATH_AND_FURY);
+        Unit const* caster = GetCaster();
+        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || caster->HasAura(SPELL_WARRIOR_WRATH_AND_FURY);
     }
 
     void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
     {
         // it is currently impossible to have Wrath and Fury without having Improved Raging Blow, but we will check it anyway
+        Unit* caster = GetCaster();
         int32 value = 0;
-        if (GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
+        if (caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW))
             value = GetEffectValue();
 
-        if (AuraEffect const* auraEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0, GetCaster()->GetGUID()))
+        if (AuraEffect const* auraEffect = caster->GetAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0))
             value += auraEffect->GetAmount();
 
         if (roll_chance_i(value))
-            GetCaster()->GetSpellHistory()->ResetCooldown(GetSpellInfo()->Id, true);
+            caster->GetSpellHistory()->RestoreCharge(GetSpellInfo()->ChargeCategoryId);
     }
 
     void Register() override
