@@ -108,6 +108,14 @@ enum class map_liquidHeaderTypeFlags : uint8
 
 DEFINE_ENUM_FLAG(map_liquidHeaderTypeFlags);
 
+enum class LiquidMaterialFlags : int32
+{
+    Transparent = 0x1,
+    VisualOnly  = 0x2,
+};
+
+DEFINE_ENUM_FLAG(LiquidMaterialFlags);
+
 struct map_liquidHeader
 {
     u_map_magic liquidMagic;
