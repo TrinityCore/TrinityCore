@@ -464,17 +464,21 @@ TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
 inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
-template <typename T>
-inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
-{
-    return StringContainsStringI(haystack.second, needle);
-}
 TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
 
 struct StringCompareLessI_T
 {
     bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
 };
+
+TC_COMMON_API void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement);
+
+[[nodiscard]] inline std::string StringReplaceAll(std::string_view str, std::string_view text, std::string_view replacement)
+{
+    std::string result(str);
+    StringReplaceAll(&result, text, replacement);
+    return result;
+}
 
 // simple class for not-modifyable list
 template <typename T>

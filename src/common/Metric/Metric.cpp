@@ -21,7 +21,6 @@
 #include "IoContext.h"
 #include "Log.h"
 #include "Util.h"
-#include <boost/algorithm/string/replace.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
 void Metric::Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger)
@@ -38,8 +37,7 @@ bool Metric::Connect()
 {
     auto& stream = static_cast<boost::asio::ip::tcp::iostream&>(GetDataStream());
     stream.connect(_hostname, _port);
-    auto error = stream.error();
-    if (error)
+    if (boost::system::error_code const& error = stream.error())
     {
         TC_LOG_ERROR("metric", "Error connecting to '{}:{}', disabling Metric. Error message : {}",
             _hostname, _port, error.message());
@@ -266,18 +264,23 @@ void Metric::ScheduleOverallStatusLog()
 
 std::string Metric::FormatInfluxDBValue(bool value)
 {
-    return value ? "t" : "f";
+    return std::string(1, value ? 't' : 'f');
 }
 
 template<class T>
 std::string Metric::FormatInfluxDBValue(T value)
 {
-    return std::to_string(value) + 'i';
+    std::string result = std::to_string(value);
+    result += 'i';
+    return result;
 }
 
 std::string Metric::FormatInfluxDBValue(std::string const& value)
 {
-    return '"' + boost::replace_all_copy(value, "\"", "\\\"") + '"';
+    std::string result = StringReplaceAll(value, "\"", "\\\"");
+    result.insert(result.begin(), '"');
+    result.append(1, '"');
+    return result;
 }
 
 std::string Metric::FormatInfluxDBValue(char const* value)
@@ -298,7 +301,7 @@ std::string Metric::FormatInfluxDBValue(float value)
 std::string Metric::FormatInfluxDBTagValue(std::string const& value)
 {
     // ToDo: should handle '=' and ',' characters too
-    return boost::replace_all_copy(value, " ", "\\ ");
+    return StringReplaceAll(value, " ", "\\ ");
 }
 
 std::string Metric::FormatInfluxDBValue(std::chrono::nanoseconds value)

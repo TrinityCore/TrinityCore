@@ -818,10 +818,10 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
     }
 
     std::string result;
-    result.reserve(arrayLen * 2);
-    auto inserter = std::back_inserter(result);
+    result.resize(arrayLen * 2);
+    auto inserter = result.data();
     for (int32 i = init; i != end; i += op)
-        Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
+        inserter = Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
 
     return result;
 }
@@ -860,6 +860,16 @@ bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 bool StringCompareLessI(std::string_view a, std::string_view b)
 {
     return std::ranges::lexicographical_compare(a, b, {}, charToLower, charToLower);
+}
+
+void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement)
+{
+    std::size_t pos = str->find(text, 0);
+    while (pos != std::string::npos)
+    {
+        str->replace(pos, text.length(), replacement);
+        pos = str->find(text, pos + replacement.length());
+    }
 }
 
 std::string Trinity::Impl::GetTypeName(std::type_info const& info)
