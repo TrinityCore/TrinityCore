@@ -935,7 +935,6 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
-
 // 215538 - Trauma
 class spell_warr_trauma : public AuraScript
 {
