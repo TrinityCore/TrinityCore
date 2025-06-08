@@ -340,6 +340,45 @@ class spell_warr_devastator : public AuraScript
     }
 };
 
+// 184361 - Enrage
+class spell_warr_enrage_proc : public AuraScript
+{
+    static bool CheckRampageProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x0, 0x0, 0x8000000 }))  // Rampage
+            return false;
+
+        return true;
+    }
+
+    static bool CheckBloodthirstProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
+            return false;
+
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell()
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_enrage_proc::CheckRampageProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_enrage_proc::CheckBloodthirstProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnProc += AuraProcFn(spell_warr_enrage_proc::HandleProc);
+    }
+};
+
 // 260798 - Execute (Arms, Protection)
 class spell_warr_execute_damage : public SpellScript
 {
@@ -702,28 +741,6 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
-// 184367 - Rampage (triggers enrage)
-class spell_warr_rampage_enrage : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_ENRAGE });
-    }
-
-    void HandleCast() const
-    {
-        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_warr_rampage_enrage::HandleCast);
-    }
-};
-
 // 275339 - (attached to 46968 - Shockwave)
 class spell_warr_rumbling_earth : public SpellScript
 {
@@ -1040,6 +1057,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
+    RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
@@ -1053,7 +1071,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
     RegisterSpellScript(spell_warr_rallying_cry);
-    RegisterSpellScript(spell_warr_rampage_enrage);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);
