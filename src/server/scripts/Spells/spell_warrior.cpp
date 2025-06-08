@@ -955,38 +955,33 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
-// 394329 - Titanic Rage (attached to 385059 - Odyn's Fury)
-class spell_warr_titanic_rage : public SpellScript
+// 394329 - Titanic Rage
+class spell_warr_titanic_rage : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_TITANIC_RAGE, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA });
+        return ValidateSpellInfo({ SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA });
     }
 
-    bool Load() override
-    {
-        return GetCaster()->HasAura(SPELL_WARRIOR_TITANIC_RAGE);
-    }
-
-    void HandleCast() const
+    void HandleProc(ProcEventInfo const& eventInfo) const
     {
         Unit* caster = GetCaster();
         caster->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
+            .TriggeringSpell = eventInfo.GetProcSpell()
         });
 
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, GetCastDifficulty());
         caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
+            .TriggeringSpell = eventInfo.GetProcSpell(),
             .SpellValueOverrides = {{ SPELLVALUE_AURA_STACK, static_cast<int32>(spellInfo->StackAmount) }}
         });
     }
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_warr_titanic_rage::HandleCast);
+        OnProc += AuraProcFn(spell_warr_titanic_rage::HandleProc);
     }
 };
 
