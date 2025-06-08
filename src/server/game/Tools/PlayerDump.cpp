@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "StringConvert.h"
 #include "World.h"
-#include <boost/algorithm/string/find.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -303,7 +302,7 @@ void PlayerDump::InitializeTables()
 
             TableField f;
             f.FieldName = columnName;
-            f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
+            f.IsBinaryField = StringContainsStringI(typeName, "binary"sv) || StringContainsStringI(typeName, "blob"sv);
 
             bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
             ASSERT(toUpperResult);
