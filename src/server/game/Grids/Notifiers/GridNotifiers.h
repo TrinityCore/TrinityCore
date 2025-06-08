@@ -1599,28 +1599,6 @@ namespace Trinity
         Customizer& i_customizer;
     };
 
-    class AnyPlayerInObjectRangeCheck
-    {
-        public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) { }
-
-            bool operator()(Player* u) const
-            {
-                if (_reqAlive && !u->IsAlive())
-                    return false;
-
-                if (!_obj->IsWithinDist(u, _range))
-                    return false;
-
-                return true;
-            }
-
-        private:
-            WorldObject const* _obj;
-            float _range;
-            bool _reqAlive;
-    };
-
     class AnyPlayerInPositionRangeCheck
     {
     public:

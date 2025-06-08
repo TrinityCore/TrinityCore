@@ -57,7 +57,7 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
         if (!splineflags.HasFlag(MoveSplineFlagEnum::OrientationFixed | MoveSplineFlagEnum::Falling | MoveSplineFlagEnum::JumpOrientationFixed))
         {
             Vector3 hermite;
-            spline.evaluate_derivative(point_Idx, u, hermite);
+            spline.evaluate_derivative(point_index, u, hermite);
             if (hermite.x != 0.f || hermite.y != 0.f)
                 c.orientation = std::atan2(hermite.y, hermite.x);
         }
