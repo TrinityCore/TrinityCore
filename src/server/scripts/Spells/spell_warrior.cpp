@@ -1054,7 +1054,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_mortal_strike);
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_rallying_cry);
-    RegisterSpellScript(spell_warr_rampage_enrage);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);
