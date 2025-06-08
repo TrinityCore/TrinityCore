@@ -651,7 +651,7 @@ class spell_warr_raging_blow_cooldown_reset : public SpellScript
     bool Load() override
     {
         Unit const* caster = GetCaster();
-        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || caster->HasAura(SPELL_WARRIOR_WRATH_AND_FURY);
+        return caster->HasAura(SPELL_WARRIOR_IMPROVED_RAGING_BLOW) || caster->HasAuraEffect(SPELL_WARRIOR_WRATH_AND_FURY, EFFECT_0);
     }
 
     void HandleResetCooldown(SpellEffIndex /*effIndex*/) const
