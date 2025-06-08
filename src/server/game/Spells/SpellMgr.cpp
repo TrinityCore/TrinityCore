@@ -5368,6 +5368,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
     });
 
+    // Keg Smash
+    ApplySpellFix({ 121253 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_6, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
