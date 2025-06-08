@@ -353,12 +353,15 @@ class spell_warr_execute_damage : public SpellScript
     }
 };
 
-// 383848 - Frenzied Enrage (attched to 184362 - Enrage)
+// 383848 - Frenzied Enrage (attached to 184362 - Enrage)
 class spell_warr_frenzied_enrage : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_FRENZIED_ENRAGE });
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRENZIED_ENRAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_MELEE_SLOW)
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_MOD_INCREASE_SPEED);
     }
 
     bool Load() override
@@ -381,9 +384,12 @@ class spell_warr_frenzied_enrage : public SpellScript
 // 440277 - Powerful Enrage (attached to 184362 - Enrage)
 class spell_warr_powerful_enrage : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_POWERFUL_ENRAGE });
+        return ValidateSpellInfo({ SPELL_WARRIOR_POWERFUL_ENRAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_4 } })
+            && spellInfo->GetEffect(EFFECT_3).IsAura(SPELL_AURA_ADD_PCT_MODIFIER) && spellInfo->GetEffect(EFFECT_3).MiscValue == int32(SpellModOp::HealingAndDamage)
+            && spellInfo->GetEffect(EFFECT_4).IsAura(SPELL_AURA_ADD_PCT_MODIFIER) && spellInfo->GetEffect(EFFECT_4).MiscValue == int32(SpellModOp::PeriodicHealingAndDamage);
     }
 
     bool Load() override
@@ -398,8 +404,8 @@ class spell_warr_powerful_enrage : public SpellScript
 
     void Register() override
     {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_powerful_enrage::HandlePowerfulEnrage, EFFECT_3, TARGET_UNIT_CASTER);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_powerful_enrage::HandlePowerfulEnrage, EFFECT_4, TARGET_UNIT_CASTER);
-        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_powerful_enrage::HandlePowerfulEnrage, EFFECT_5, TARGET_UNIT_CASTER);
     }
 };
 
