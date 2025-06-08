@@ -35,6 +35,8 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
+    SPELL_WARRIOR_BLOODBATH                         = 335096,
+    SPELL_WARRIOR_BLOODTHIRST                       = 23881,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
@@ -63,6 +65,7 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
+    SPELL_WARRIOR_RAMPAGE                           = 184367,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -335,6 +338,63 @@ class spell_warr_devastator : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_warr_devastator::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 184361 - Enrage
+class spell_warr_enrage_rampage : public AuraScript
+{
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        PreventDefaultAction();
+        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
+        {
+            if (SpellInfo const* damagingSpell = damageInfo->GetSpellInfo())
+            {
+                if (damagingSpell->Id == SPELL_WARRIOR_RAMPAGE)
+                {
+                    GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                        .TriggeringSpell = eventInfo.GetProcSpell()
+                    });
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_enrage_rampage::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 184361 - Enrage
+class spell_warr_enrage_bloodthirst : public AuraScript
+{
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        if (!roll_chance_i(aurEff->GetAmount()))
+            return;
+
+        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
+        {
+            if (SpellInfo const* damagingSpell = damageInfo->GetSpellInfo())
+            {
+                if (damagingSpell->Id == SPELL_WARRIOR_BLOODTHIRST || damagingSpell->Id == SPELL_WARRIOR_BLOODBATH)
+                {
+                    GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                        .TriggeringSpell = eventInfo.GetProcSpell()
+                    });
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_enrage_bloodthirst::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -663,28 +723,6 @@ class spell_warr_rallying_cry : public SpellScript
     }
 };
 
-// 184367 - Rampage (triggers enrage)
-class spell_warr_rampage_enrage : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_ENRAGE });
-    }
-
-    void HandleCast() const
-    {
-        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
-        });
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_warr_rampage_enrage::HandleCast);
-    }
-};
-
 // 275339 - (attached to 46968 - Shockwave)
 class spell_warr_rumbling_earth : public SpellScript
 {
@@ -897,6 +935,7 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
+
 // 215538 - Trauma
 class spell_warr_trauma : public AuraScript
 {
@@ -1001,6 +1040,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
+    RegisterSpellScript(spell_warr_enrage_bloodthirst);
+    RegisterSpellScript(spell_warr_enrage_rampage);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
