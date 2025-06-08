@@ -35,8 +35,6 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
-    SPELL_WARRIOR_BLOODBATH                         = 335096,
-    SPELL_WARRIOR_BLOODTHIRST                       = 23881,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
@@ -66,7 +64,6 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
-    SPELL_WARRIOR_RAMPAGE                           = 184367,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -344,59 +341,41 @@ class spell_warr_devastator : public AuraScript
 };
 
 // 184361 - Enrage
-class spell_warr_enrage_rampage : public AuraScript
+class spell_warr_enrage_proc : public AuraScript
 {
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo const& eventInfo)
+    static bool CheckRampageProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x0, 0x0, 0x8000000 }))  // Rampage
+            return false;
+
+        return true;
+    }
+
+    static bool CheckBloodthirstProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
+        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
+            return false;
+
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo)
     {
         PreventDefaultAction();
-        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
-        {
-            if (SpellInfo const* damagingSpell = damageInfo->GetSpellInfo())
-            {
-                if (damagingSpell->Id == SPELL_WARRIOR_RAMPAGE)
-                {
-                    GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
-                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                        .TriggeringSpell = eventInfo.GetProcSpell()
-                    });
-                }
-            }
-        }
+
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_warr_enrage_rampage::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-    }
-};
-
-// 184361 - Enrage
-class spell_warr_enrage_bloodthirst : public AuraScript
-{
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
-    {
-        PreventDefaultAction();
-        if (!roll_chance_i(aurEff->GetAmount()))
-            return;
-
-        if (DamageInfo const* damageInfo = eventInfo.GetDamageInfo())
-        {
-            if (SpellInfo const* damagingSpell = damageInfo->GetSpellInfo())
-            {
-                if (damagingSpell->Id == SPELL_WARRIOR_BLOODTHIRST || damagingSpell->Id == SPELL_WARRIOR_BLOODBATH)
-                {
-                    GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
-                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                        .TriggeringSpell = eventInfo.GetProcSpell()
-                    });
-                }
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectProc += AuraEffectProcFn(spell_warr_enrage_bloodthirst::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_enrage_proc::CheckRampageProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_enrage_proc::CheckBloodthirstProc, EFFECT_1, SPELL_AURA_DUMMY);
+        OnProc += AuraProcFn(spell_warr_enrage_proc::HandleProc);
     }
 };
 
@@ -1078,8 +1057,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_devastator);
-    RegisterSpellScript(spell_warr_enrage_bloodthirst);
-    RegisterSpellScript(spell_warr_enrage_rampage);
+    RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
