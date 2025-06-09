@@ -46,6 +46,8 @@ enum WarriorSpells
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_ENRAGE                            = 184362,
     SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
+    SPELL_WARRIOR_FRESH_MEAT_DEBUFF                 = 316044,
+    SPELL_WARRIOR_FRESH_MEAT_TALENT                 = 215568,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -421,6 +423,46 @@ class spell_warr_frenzied_enrage : public SpellScript
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_0, TARGET_UNIT_CASTER);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
+// 215568 - Fresh Meat (attached to 23881 - Bloodthirst)
+// 215568 - Fresh Meat (attached to 335096 - Bloodbath)
+class spell_warr_fresh_meat : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_DEBUFF, SPELL_WARRIOR_FRESH_MEAT_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT);
+    }
+
+    void ApplyFreshMeat(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
+        if (target != GetExplTargetUnit())
+            return;
+
+        Unit* caster = GetCaster();
+
+        if (target->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
+            return;
+
+        caster->CastSpell(target, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+
+        caster->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_fresh_meat::ApplyFreshMeat, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1097,6 +1139,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
+    RegisterSpellScript(spell_warr_fresh_meat);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
