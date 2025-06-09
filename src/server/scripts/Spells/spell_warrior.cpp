@@ -567,7 +567,7 @@ class spell_warr_fresh_meat : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_DEBUFF, SPELL_WARRIOR_FRESH_MEAT_TALENT });
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_DEBUFF, SPELL_WARRIOR_FRESH_MEAT_TALENT, SPELL_WARRIOR_ENRAGE });
     }
 
     bool Load() override
