@@ -980,7 +980,7 @@ class spell_warr_titanic_rage : public AuraScript
 
         target->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .SpellValueOverrides = {{ SPELLVALUE_AURA_STACK, stackAmount }}
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
         });
     }
 
