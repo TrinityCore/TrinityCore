@@ -104,6 +104,7 @@ class spell_warr_avatar : public SpellScript
 };
 
 // 23881 - Bloodthirst
+// 335096 - Bloodbath
 class spell_warr_bloodthirst : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
