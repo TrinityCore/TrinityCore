@@ -965,17 +965,22 @@ class spell_warr_titanic_rage : public AuraScript
 
     void HandleProc(ProcEventInfo const& eventInfo) const
     {
-        Unit* caster = GetCaster();
-        caster->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+        Player* target = GetTarget()->ToPlayer();
+        if (!target)
+            return;
+
+        target->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = eventInfo.GetProcSpell()
         });
 
         SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, GetCastDifficulty());
-        caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
+        int32 stackAmount = static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount);
+        target->ApplySpellMod(whirlwindCleaveAuraInfo, SpellModOp::MaxAuraStacks, stackAmount);
+
+        target->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = eventInfo.GetProcSpell(),
-            .SpellValueOverrides = {{ SPELLVALUE_AURA_STACK, static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount) }}
+            .SpellValueOverrides = {{ SPELLVALUE_AURA_STACK, stackAmount }}
         });
     }
 
