@@ -4,4 +4,4 @@ INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyM
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (393931);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
-(393931,0x00,4,0x00000000,0x00000000,0x00000000,0x08000000,0x0,0x0,0x0,0x4,0x0,0x10,0x0,0,0,0,0); -- Slaughtering Strikes
+(393931,0x00,4,0x00000000,0x00000000,0x00000000,0x08000000,0x0,0x0,0x0,0x4,0x0,0x0,0x0,0,0,0,1); -- Slaughtering Strikes
