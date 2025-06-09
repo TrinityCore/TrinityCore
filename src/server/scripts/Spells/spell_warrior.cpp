@@ -597,7 +597,7 @@ class spell_warr_fresh_meat : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_fresh_meat::ApplyFreshMeat, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_fresh_meat::ApplyFreshMeat, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
