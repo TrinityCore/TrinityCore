@@ -991,7 +991,7 @@ TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unit
 
     if (targetDest._position.GetMapId() == unitTarget->GetMapId())
     {
-        options |= TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET;
+        options |= TELE_TO_NOT_LEAVE_COMBAT;
 
         if (unitTarget->GetTransGUID() == targetDest._transportGUID)
             options |= TELE_TO_NOT_LEAVE_TRANSPORT;
