@@ -53,7 +53,7 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (5293, 0, 10015, 0, 4, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_amalgam_of_souls_call_souls', 60822); -- Spell: 196925 (Call Souls)
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (194981, 196930, 196078, 196587);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_amalgam_of_souls_soul_echoes_clone_caster', 'spell_amalgam_of_souls_soulgorge', 'spell_amalgam_of_souls_call_souls', 'spell_amalgam_of_souls_soul_burst');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (194981, 'spell_amalgam_of_souls_soul_echoes_clone_caster'),
 (196930, 'spell_amalgam_of_souls_soulgorge'),

@@ -119,12 +119,12 @@ constexpr Position StaellisOutroPosition =  { 3233.22f, 7548.13f, 15.162442f };
 // 98542 - Amalgam of Souls
 struct boss_amalgam_of_souls : public BossAI
 {
-    boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS), callSoulsActive(false) { }
+    boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS), _callSoulsActive(false) { }
 
     void Reset() override
     {
         _Reset();
-        callSoulsActive = false;
+        _callSoulsActive = false;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -172,9 +172,9 @@ struct boss_amalgam_of_souls : public BossAI
     {
         if (IsHeroicOrHigher())
         {
-            if (me->HealthBelowPctDamaged(50, damage) && !callSoulsActive)
+            if (me->HealthBelowPctDamaged(50, damage) && !_callSoulsActive)
             {
-                callSoulsActive = true;
+                _callSoulsActive = true;
 
                 DoStopAttack();
                 me->SetReactState(REACT_PASSIVE);
@@ -252,7 +252,7 @@ struct boss_amalgam_of_souls : public BossAI
     }
 
 private:
-    bool callSoulsActive = false;
+    bool _callSoulsActive;
 };
 
 // 99090 - Soul Echoes Stalker
@@ -322,10 +322,10 @@ struct npc_amalgam_of_souls_lord_etheldrin_ravencrest : public ScriptedAI
                     DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_RIGHT);
                     me->DespawnOrUnsummon(6s);
 
-                    velandras->AI()->DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_MID);
+                    velandras->CastSpell(velandras, SPELL_SECRET_DOOR_CHANNEL_MID);
                     velandras->DespawnOrUnsummon(6s);
 
-                    staellis->AI()->DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_LEFT);
+                    staellis->CastSpell(staellis, SPELL_SECRET_DOOR_CHANNEL_LEFT);
                     staellis->DespawnOrUnsummon(6s);
 
                     task.Schedule(6s, [this](TaskContext /*task*/)
@@ -378,7 +378,11 @@ class spell_amalgam_of_souls_soulgorge : public AuraScript
 {
     void OnApply(AuraEffect const* /*auraEffect*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (Creature* creatureCaster = GetCaster()->ToCreature())
+        Creature* creatureCaster = GetCaster()->ToCreature();
+        if (!creatureCaster)
+            return;
+
+        if (creatureCaster)
             creatureCaster->DespawnOrUnsummon(3s);
     }
 
@@ -548,7 +552,7 @@ struct at_amalgam_of_souls_swirling_scythe : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (!unit->IsPlayer() || !at->GetCaster())
+        if (!unit->IsPlayer())
             return;
 
         unit->CastSpell(unit, SPELL_SWIRLING_SCYTHE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
@@ -595,20 +599,23 @@ public:
         {
             case EVENT_OUTRO:
             {
-                Creature* etheldrin = conversation->FindNearestCreature(NPC_LORD_ETHELDRIN_RAVENCREST, 100.0f);
-                Creature* velandras = conversation->FindNearestCreature(NPC_LADY_VELANDRAS_RAVENCREST, 100.0f);
-                Creature* staellis = conversation->FindNearestCreature(NPC_STAELLIS_RIVERMOOR, 100.0f);
-                if (!etheldrin|| !velandras || !staellis)
-                    return;
+                if (Creature* etheldrin = conversation->FindNearestCreature(NPC_LORD_ETHELDRIN_RAVENCREST, 100.0f))
+                {
+                    etheldrin->SetStandState(UNIT_STAND_STATE_STAND);
+                    etheldrin->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, EtheldrinOutroPosition);
+                }
 
-                etheldrin->SetStandState(UNIT_STAND_STATE_STAND);
-                etheldrin->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, EtheldrinOutroPosition);
+                if (Creature* velandras = conversation->FindNearestCreature(NPC_LADY_VELANDRAS_RAVENCREST, 100.0f))
+                {
+                    velandras->SetStandState(UNIT_STAND_STATE_STAND);
+                    velandras->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, VelandrasOutroPosition);
+                }
 
-                velandras->SetStandState(UNIT_STAND_STATE_STAND);
-                velandras->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, VelandrasOutroPosition);
-
-                staellis->SetStandState(UNIT_STAND_STATE_STAND);
-                staellis->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, StaellisOutroPosition);
+                if (Creature* staellis = conversation->FindNearestCreature(NPC_STAELLIS_RIVERMOOR, 100.0f))
+                {
+                    staellis->SetStandState(UNIT_STAND_STATE_STAND);
+                    staellis->GetMotionMaster()->MovePoint(POINT_SECRET_DOOR, StaellisOutroPosition);
+                }
                 break;
             }
             default:
