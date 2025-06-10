@@ -19,11 +19,12 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "steam_vault.h"
 
 enum ThespiaTexts
 {
-    SAY_SUMMON                  = 0,
+    SAY_CLOUD                   = 0,
     SAY_AGGRO                   = 1,
     SAY_SLAY                    = 2,
     SAY_DEATH                   = 3
@@ -58,6 +59,13 @@ struct boss_hydromancer_thespia : public BossAI
         events.ScheduleEvent(EVENT_LIGHTNING_CLOUD, 10s, 15s);
         events.ScheduleEvent(EVENT_LUNG_BURST, 7s, 12s);
         events.ScheduleEvent(EVENT_ENVELOPING_WINDS, 10s, 15s);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_LIGHTNING_CLOUD)
+            if (roll_chance_i(50))
+                Talk(SAY_CLOUD);
     }
 
     void KilledUnit(Unit* who) override
