@@ -29,6 +29,12 @@
 
 constexpr uint32 AuctionHouseIds[MAX_AUCTION_HOUSE_TYPE] = { 1, 2, 6 };
 
+AuctionBotConfig::AuctionBotConfig() : _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20), _configUint32Values(), _configBoolValues(), _configFloatValues()
+{
+}
+
+AuctionBotConfig::~AuctionBotConfig() = default;
+
 AuctionBotConfig* AuctionBotConfig::instance()
 {
     static AuctionBotConfig instance;

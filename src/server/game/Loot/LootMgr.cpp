@@ -110,6 +110,11 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItem const* Roll(uint16 lootMode, Player const* personalLooter = nullptr) const;
 };
 
+LootStore::LootStore(char const* name, char const* entryName, bool ratesAllowed)
+    : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed)
+{
+}
+
 LootStore::LootStore(LootStore&&) noexcept = default;
 LootStore& LootStore::operator=(LootStore&&) noexcept = default;
 LootStore::~LootStore() = default;

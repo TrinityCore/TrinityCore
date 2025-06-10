@@ -57,6 +57,11 @@ class TC_GAME_API AccountMgr
         ~AccountMgr();
 
     public:
+        AccountMgr(AccountMgr const&) = delete;
+        AccountMgr(AccountMgr&&) = delete;
+        AccountMgr& operator=(AccountMgr const&) = delete;
+        AccountMgr& operator=(AccountMgr&&) = delete;
+
         static AccountMgr* instance();
 
         AccountOpResult CreateAccount(std::string username, std::string password, std::string email = "", uint32 bnetAccountId = 0, uint8 bnetIndex = 0);

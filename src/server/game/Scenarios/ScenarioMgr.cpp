@@ -24,6 +24,9 @@
 #include "MapUtils.h"
 #include "ScenarioPackets.h"
 
+ScenarioMgr::ScenarioMgr() = default;
+ScenarioMgr::~ScenarioMgr() = default;
+
 ScenarioMgr* ScenarioMgr::Instance()
 {
     static ScenarioMgr instance;

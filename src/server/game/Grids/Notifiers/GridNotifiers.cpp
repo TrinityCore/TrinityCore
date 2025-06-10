@@ -26,6 +26,12 @@
 
 using namespace Trinity;
 
+VisibleNotifier::VisibleNotifier(Player& player): i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs)
+{
+}
+
+VisibleNotifier::~VisibleNotifier() = default;
+
 void VisibleNotifier::SendToSelf()
 {
     // at this moment i_clientGUIDs have guids that not iterate at grid level checks

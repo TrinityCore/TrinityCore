@@ -97,6 +97,11 @@ class TC_GAME_API GameEventMgr
         ~GameEventMgr();
 
     public:
+        GameEventMgr(GameEventMgr const&) = delete;
+        GameEventMgr(GameEventMgr&&) = delete;
+        GameEventMgr& operator=(GameEventMgr const&) = delete;
+        GameEventMgr& operator=(GameEventMgr&&) = delete;
+
         static GameEventMgr* instance();
 
         typedef std::set<uint16> ActiveEvents;

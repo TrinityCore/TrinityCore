@@ -26,11 +26,14 @@
 class TC_COMMON_API ConfigMgr
 {
     ConfigMgr() = default;
-    ConfigMgr(ConfigMgr const&) = delete;
-    ConfigMgr& operator=(ConfigMgr const&) = delete;
     ~ConfigMgr() = default;
 
 public:
+    ConfigMgr(ConfigMgr const&) = delete;
+    ConfigMgr(ConfigMgr&&) = delete;
+    ConfigMgr& operator=(ConfigMgr const&) = delete;
+    ConfigMgr& operator=(ConfigMgr&&) = delete;
+
     /// Method used only for loading main configuration files (bnetserver.conf and worldserver.conf)
     bool LoadInitial(std::string file, std::vector<std::string> args, std::string& error);
     bool LoadAdditionalFile(std::string file, bool keepOnReload, std::string& error);

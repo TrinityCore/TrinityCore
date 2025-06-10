@@ -140,13 +140,12 @@ class TC_GAME_API BattlegroundQueue
     This class is used to invite player to BG again, when minute lasts from his first invitation
     it is capable to solve all possibilities
 */
-class TC_GAME_API BGQueueInviteEvent : public BasicEvent
+class BGQueueInviteEvent : public BasicEvent
 {
     public:
-        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint32 removeTime, BattlegroundQueueTypeId queueId) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime), m_QueueId(queueId)
-          { }
-        virtual ~BGQueueInviteEvent() { }
+        BGQueueInviteEvent(ObjectGuid pl_guid, uint32 BgInstanceGUID, BattlegroundTypeId BgTypeId, uint32 removeTime, BattlegroundQueueTypeId queueId)
+            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_RemoveTime(removeTime), m_QueueId(queueId)
+        { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time) override;
         virtual void Abort(uint64 e_time) override;
@@ -163,14 +162,12 @@ class TC_GAME_API BGQueueInviteEvent : public BasicEvent
     We must store removeInvite time in case player left queue and joined and is invited again
     We must store bgQueueTypeId, because battleground can be deleted already, when player entered it
 */
-class TC_GAME_API BGQueueRemoveEvent : public BasicEvent
+class BGQueueRemoveEvent : public BasicEvent
 {
     public:
         BGQueueRemoveEvent(ObjectGuid pl_guid, uint32 bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint32 removeTime)
             : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgQueueTypeId(bgQueueTypeId)
         { }
-
-        virtual ~BGQueueRemoveEvent() { }
 
         virtual bool Execute(uint64 e_time, uint32 p_time) override;
         virtual void Abort(uint64 e_time) override;

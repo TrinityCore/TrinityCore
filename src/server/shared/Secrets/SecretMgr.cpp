@@ -50,6 +50,9 @@ static constexpr SecretInfo secret_info[NUM_SECRETS] =
 
 SecretOwner SecretMgr::OWNER;
 
+SecretMgr::SecretMgr() = default;
+SecretMgr::~SecretMgr() = default;
+
 /*static*/ SecretMgr* SecretMgr::instance()
 {
     static SecretMgr instance;

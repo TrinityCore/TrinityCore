@@ -124,6 +124,11 @@ class TC_GAME_API BlackMarketMgr
     ~BlackMarketMgr();
 
   public:
+    BlackMarketMgr(BlackMarketMgr const&) = delete;
+    BlackMarketMgr(BlackMarketMgr&&) = delete;
+    BlackMarketMgr& operator=(BlackMarketMgr const&) = delete;
+    BlackMarketMgr& operator=(BlackMarketMgr&&) = delete;
+
     static BlackMarketMgr* Instance();
 
     typedef std::unordered_map<int32, BlackMarketEntry*> BlackMarketEntryMap;

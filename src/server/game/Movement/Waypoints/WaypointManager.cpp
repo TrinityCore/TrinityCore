@@ -25,6 +25,9 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 
+WaypointMgr::WaypointMgr() = default;
+WaypointMgr::~WaypointMgr() = default;
+
 void WaypointMgr::LoadPaths()
 {
     _LoadPaths();

@@ -73,8 +73,7 @@ typedef std::set<uint32> LootIdSet;
 class TC_GAME_API LootStore
 {
     public:
-        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
-            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) { }
+        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed);
 
         LootStore(LootStore const&) = delete;
         LootStore(LootStore&&) noexcept;

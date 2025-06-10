@@ -91,6 +91,10 @@ class TC_GAME_API Ticket
 public:
     Ticket();
     Ticket(Player* player);
+    Ticket(Ticket const&) = delete;
+    Ticket(Ticket&&) = delete;
+    Ticket& operator=(Ticket const&) = delete;
+    Ticket& operator=(Ticket&&) = delete;
     virtual ~Ticket();
 
     bool IsClosed() const { return !_closedBy.IsEmpty(); }
@@ -233,6 +237,11 @@ private:
     ~SupportMgr();
 
 public:
+    SupportMgr(SupportMgr const&) = delete;
+    SupportMgr(SupportMgr&&) = delete;
+    SupportMgr& operator=(SupportMgr const&) = delete;
+    SupportMgr& operator=(SupportMgr&&) = delete;
+
     static SupportMgr* instance();
 
     template<typename T>

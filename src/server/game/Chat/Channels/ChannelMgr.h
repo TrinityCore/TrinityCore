@@ -34,7 +34,7 @@ class TC_GAME_API ChannelMgr
     typedef std::unordered_map<ObjectGuid, Channel*> BuiltinChannelContainer;
 
     protected:
-        explicit ChannelMgr(Team team) : _team(team), _guidGenerator(HighGuid::ChatChannel) { }
+        explicit ChannelMgr(Team team);
         ~ChannelMgr();
 
     public:

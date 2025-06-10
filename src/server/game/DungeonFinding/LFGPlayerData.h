@@ -31,6 +31,10 @@ class TC_GAME_API LfgPlayerData
 {
     public:
         LfgPlayerData();
+        LfgPlayerData(LfgPlayerData const&) = delete;
+        LfgPlayerData(LfgPlayerData&& other) noexcept;
+        LfgPlayerData& operator=(LfgPlayerData const&) = delete;
+        LfgPlayerData& operator=(LfgPlayerData&& right) noexcept;
         ~LfgPlayerData();
 
         // General

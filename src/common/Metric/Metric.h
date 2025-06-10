@@ -105,6 +105,10 @@ private:
 public:
     Metric();
     ~Metric();
+    Metric(Metric const&) = delete;
+    Metric(Metric&&) = delete;
+    Metric& operator=(Metric const&) = delete;
+    Metric& operator=(Metric&&) = delete;
     static Metric* instance();
 
     void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);
