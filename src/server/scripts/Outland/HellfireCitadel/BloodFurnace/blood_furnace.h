@@ -91,5 +91,6 @@ inline AI* GetBloodFurnaceAI(T* obj)
 }
 
 #define RegisterBloodFurnaceCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBloodFurnaceAI)
+#define RegisterBloodFurnaceGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetBloodFurnaceAI)
 
 #endif // BLOOD_FURNACE_H_
