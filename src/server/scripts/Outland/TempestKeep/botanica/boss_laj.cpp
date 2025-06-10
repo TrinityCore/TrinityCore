@@ -19,12 +19,12 @@
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
 
-enum Texts
+enum LajTexts
 {
     EMOTE_SUMMON               = 0
 };
 
-enum Spells
+enum LajSpells
 {
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
@@ -42,7 +42,7 @@ enum Spells
     SPELL_TRANSFORM_SHADOW     = 34710
 };
 
-enum Events
+enum LajEvents
 {
     EVENT_TELEPORT             = 1,
     EVENT_EMOTE,
@@ -52,6 +52,7 @@ enum Events
     EVENT_THRASH
 };
 
+// 17980 - Laj
 struct boss_laj : public BossAI
 {
     boss_laj(Creature* creature) : BossAI(creature, DATA_LAJ), _activeTransformAura(0) { }
