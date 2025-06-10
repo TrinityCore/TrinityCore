@@ -62,13 +62,13 @@ enum KelidanMisc
     NPC_CHANNELER               = 17653
 };
 
-const float ShadowmoonChannelers[5][4]=
+Position const ShadowmoonChannelers[5] =
 {
-    {301.988f, -86.7465f, -24.4517f, 0.15708f},
-    {320.750f, -63.6121f, -24.6361f, 4.88692f},
-    {345.848f, -74.4559f, -24.6402f, 3.59538f},
-    {343.584f, -103.631f, -24.5688f, 2.35619f},
-    {316.274f, -108.877f, -24.6027f, 1.25664f}
+    { 301.988f, -86.7465f, -24.4517f, 0.15708f },
+    { 320.750f, -63.6121f, -24.6361f, 4.88692f },
+    { 345.848f, -74.4559f, -24.6402f, 3.59538f },
+    { 343.584f, -103.631f, -24.5688f, 2.35619f },
+    { 316.274f, -108.877f, -24.6027f, 1.25664f }
 };
 
 // 17377 - Keli'dan the Breaker
@@ -171,7 +171,7 @@ struct boss_kelidan_the_breaker : public BossAI
         {
             Creature* channeler = ObjectAccessor::GetCreature(*me, Channelers[i]);
             if (!channeler || channeler->isDead())
-                channeler = me->SummonCreature(NPC_CHANNELER, ShadowmoonChannelers[i][0], ShadowmoonChannelers[i][1], ShadowmoonChannelers[i][2], ShadowmoonChannelers[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
+                channeler = me->SummonCreature(NPC_CHANNELER, ShadowmoonChannelers[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5min);
             if (channeler)
                 Channelers[i] = channeler->GetGUID();
             else
