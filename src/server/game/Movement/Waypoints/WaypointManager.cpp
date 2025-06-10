@@ -308,7 +308,7 @@ WaypointNode const* WaypointMgr::GetNode(uint32 pathId, uint32 nodeId) const
     if (!path)
         return nullptr;
 
-    return GetNode(path->Id, nodeId);
+    return GetNode(path, nodeId);
 }
 
 WaypointPath const* WaypointMgr::GetPathByVisualGUID(ObjectGuid guid) const
