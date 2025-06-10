@@ -97,6 +97,27 @@ struct npc_brunnhildar_prisoner : public ScriptedAI
     }
 };
 
+// 55048 - Free Brunnhildar Prisoner
+class spell_storm_peaks_free_brunnhildar_prisoner : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_free_brunnhildar_prisoner);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ICE_PRISON });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_ICE_PRISON);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_free_brunnhildar_prisoner::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 /*######
 ## npc_freed_protodrake
 ######*/
@@ -1250,6 +1271,7 @@ class spell_storm_peaks_call_of_earth : public SpellScript
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
+    RegisterSpellScript(spell_storm_peaks_free_brunnhildar_prisoner);
     RegisterCreatureAI(npc_freed_protodrake);
     RegisterCreatureAI(npc_icefang);
     RegisterCreatureAI(npc_hyldsmeet_protodrake);
