@@ -15,7 +15,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (48730, 'spell_gen_cast_target_to_target'),
 (54640, 'spell_gen_cast_target_to_target');
 UPDATE `smart_scripts` SET `action_type` = 11, `action_param2` = 2 WHERE `entryorguid` IN (27234,27235,27236,27237) AND `id` = 1;
-DELETE FROM `conditions` WHERE `SourceEntry` IN (48724,48726,48728,48730) AND `SourceTypeOrReferenceId` = 13;
+UPDATE `conditions` SET `ConditionTypeOrReference`=32,`ConditionValue1`=144,`ConditionValue2`=0 WHERE `SourceEntry` IN (48724,48726,48728,48730) AND `SourceTypeOrReferenceId` = 13;
 
 DELETE FROM `spell_scripts` WHERE `id` IN (28698);
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_dreaming_glory';
