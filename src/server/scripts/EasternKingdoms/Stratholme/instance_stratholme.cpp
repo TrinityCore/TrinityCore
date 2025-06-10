@@ -50,7 +50,7 @@ enum StratholmeMisc
 
 enum SpawnGroups
 {
-    SPAWN_GROUP_STR_TIMMY   = 461
+    SPAWN_GROUP_STR_TIMMY   = 327
 };
 
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
