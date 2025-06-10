@@ -51,7 +51,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (214443, 0, 1, 0, '', 6, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 443494, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Crystal Shard - On Just Died - Cast \'Crystalline Eruption\'');
 
 -- Spells
-DELETE FROM `spell_script_names` WHERE `spell_id` IN ('spell_skarmorak_crystal_shards', 'spell_skarmorak_crystalline_smash', 'spell_skarmorak_unstable_crash', 'spell_skarmorak_fortified_shell_energize', 'spell_skarmorak_fortified_shell_selector', 'spell_skarmorak_fortified_shell_absorb', 'spell_skarmorak_fortified_shell_periodic_absorb', 'spell_skarmorak_unstable_crash_fragment_selector', 'spell_skarmorak_unstable_energy_area', 'spell_skarmorak_unstable_energy');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_skarmorak_crystal_shards', 'spell_skarmorak_crystalline_smash', 'spell_skarmorak_unstable_crash', 'spell_skarmorak_fortified_shell_energize', 'spell_skarmorak_fortified_shell_selector', 'spell_skarmorak_fortified_shell_absorb', 'spell_skarmorak_fortified_shell_periodic_absorb', 'spell_skarmorak_unstable_crash_fragment_selector', 'spell_skarmorak_unstable_energy_area', 'spell_skarmorak_unstable_energy');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (422294, 'spell_skarmorak_crystal_shards'),
 (422233, 'spell_skarmorak_crystalline_smash'),
