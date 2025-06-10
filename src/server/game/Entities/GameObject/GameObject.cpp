@@ -1366,6 +1366,9 @@ void GameObject::SetRespawnTime(int32 respawn)
     m_respawnDelayTime = respawn > 0 ? respawn : 0;
     if (respawn && !m_spawnedByDefault)
         UpdateObjectVisibility(true);
+
+    if (m_spawnedByDefault && !m_respawnCompatibilityMode && m_respawnTime > 0)
+        SetLootState(GO_JUST_DEACTIVATED);
 }
 
 void GameObject::Respawn()

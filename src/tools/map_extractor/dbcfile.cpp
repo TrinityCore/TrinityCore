@@ -15,10 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-
 #include "dbcfile.h"
-#include "mpq_libmpq04.h"
+#include "mpq_libmpq.h"
 
 DBCFile::DBCFile(const std::string& filename):
     filename(filename), recordSize(0), recordCount(0), fieldCount(0), stringSize(0), data(nullptr), stringTable(nullptr)

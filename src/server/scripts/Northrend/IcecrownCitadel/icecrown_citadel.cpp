@@ -135,7 +135,7 @@ enum ICCSpells
     SPELL_DARK_MENDING              = 71020
 };
 
-enum ICCTimedEventIds
+enum ICCEvents
 {
     // Light's Hammer RP
     EVENT_TIRION_INTRO_2 = 1,
@@ -208,7 +208,7 @@ enum ICCMisc
     POINT_LAND          = 1,
 };
 
-// at Light's Hammer
+// 37119 - Highlord Tirion Fordring (At Light's Hammer)
 struct npc_highlord_tirion_fordring_lh : public ScriptedAI
 {
     npc_highlord_tirion_fordring_lh(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -443,6 +443,7 @@ private:
     Unit const* _me;
 };
 
+// 38490, 38494 - Rotting Frost Giant
 struct npc_rotting_frost_giant : public ScriptedAI
 {
     npc_rotting_frost_giant(Creature* creature) : ScriptedAI(creature) { }
@@ -507,6 +508,7 @@ private:
     EventMap _events;
 };
 
+// 37744 - Frost Freeze Trap
 struct npc_frost_freeze_trap: public ScriptedAI
 {
     npc_frost_freeze_trap(Creature* creature) : ScriptedAI(creature)
@@ -542,6 +544,7 @@ private:
     EventMap _events;
 };
 
+// 38501 - Alchemist Adrianna
 struct npc_alchemist_adrianna : public ScriptedAI
 {
     npc_alchemist_adrianna(Creature* creature) : ScriptedAI(creature) { }
@@ -555,6 +558,7 @@ struct npc_alchemist_adrianna : public ScriptedAI
     }
 };
 
+// 30298 - Invisible Stalker (Float, Uninteractible, LargeAOI)
 class npc_arthas_teleport_visual : public CreatureScript
 {
     public:
@@ -605,6 +609,8 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
+// 39371 - King Varian Wrynn
+// 39372 - Garrosh Hellscream
 struct npc_entrance_faction_leader : public ScriptedAI
 {
     npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
@@ -657,6 +663,7 @@ static Emote const DarkFallensEmotes[]=
     EMOTE_ONESHOT_NO
 };
 
+// 38463 - Empowering Orb Visual Stalker
 struct npc_icc_orb_controller : public ScriptedAI
 {
     npc_icc_orb_controller(Creature* creature) : ScriptedAI(creature), _isInCombat(false), _isLongRepeat(false) { }
@@ -859,6 +866,7 @@ protected:
     uint32 AttackSpellId;
 };
 
+// 37595 - Darkfallen Blood Knight
 struct npc_darkfallen_blood_knight : public DarkFallenAI
 {
     npc_darkfallen_blood_knight(Creature* creature) : DarkFallenAI(creature) { }
@@ -882,6 +890,7 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
     }
 };
 
+// 37663 - Darkfallen Noble
 struct npc_darkfallen_noble : public DarkFallenAI
 {
     npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature) { }
@@ -905,6 +914,7 @@ struct npc_darkfallen_noble : public DarkFallenAI
     }
 };
 
+// 37901 - Vampiric Fiend
 struct npc_vampiric_fiend : public ScriptedAI
 {
     npc_vampiric_fiend(Creature* creature) : ScriptedAI(creature) { }
@@ -942,6 +952,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 37664 - Darkfallen Archmage
 struct npc_darkfallen_archmage : public DarkFallenAI
 {
     npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature) { }
@@ -969,6 +980,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
     }
 };
 
+// 37571 - Darkfallen Advisor
 struct npc_darkfallen_advisor : public DarkFallenAI
 {
     npc_darkfallen_advisor(Creature* creature) : DarkFallenAI(creature) { }
@@ -989,6 +1001,7 @@ struct npc_darkfallen_advisor : public DarkFallenAI
     }
 };
 
+// 37666 - Darkfallen Tactician
 struct npc_darkfallen_tactician : public DarkFallenAI
 {
     npc_darkfallen_tactician(Creature* creature) : DarkFallenAI(creature) { }
@@ -1012,6 +1025,7 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
+// 36725 - Nerub'ar Broodkeeper
 struct npc_icc_nerubar_broodkeeper : public ScriptedAI
 {
     npc_icc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature) { }
@@ -1111,6 +1125,7 @@ private:
     EventMap _events;
 };
 
+// 201741 - Empowering Blood Orb
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
