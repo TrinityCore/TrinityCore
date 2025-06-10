@@ -201,7 +201,6 @@ class spell_skarmorak_fortified_shell_absorb : public AuraScript
             return;
 
         Creature* skarmorak = instance->GetCreature(DATA_SKARMORAK);
-
         if (!skarmorak)
             return;
 
@@ -255,7 +254,7 @@ class spell_skarmorak_fortified_shell_selector : public SpellScript
         });
 
         GetHitUnit()->CastSpell(GetCaster(), SPELL_FORTIFIED_SHELL_PERIODIC_ABSORB_STACK, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
 
@@ -277,10 +276,6 @@ class spell_skarmorak_fortified_shell_periodic_absorb : public AuraScript
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
         Unit* target = GetTarget();
-
-        if (!target)
-            return;
-
         target->CastSpell(target, SPELL_FORTIFIED_SHELL_ABSORB, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff
