@@ -601,6 +601,21 @@ class spell_warr_fresh_meat : public SpellScript
     }
 };
 
+// 316044 - Fresh Meat
+class spell_warr_fresh_meat_aura_dummy : public AuraScript
+{
+    void OnOwnerOutOfCombat(bool isNowInCombat) const
+    {
+        if (!isNowInCombat)
+            GetTarget()->RemoveAura(GetAura());
+    }
+
+    void Register() override
+    {
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_warr_fresh_meat_aura_dummy::OnOwnerOutOfCombat);
+    }
+};
+
 // 440277 - Powerful Enrage (attached to 184362 - Enrage)
 class spell_warr_powerful_enrage : public SpellScript
 {
@@ -1455,6 +1470,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
     RegisterSpellScript(spell_warr_fresh_meat);
+    RegisterSpellScript(spell_warr_fresh_meat_aura_dummy);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
