@@ -74,7 +74,7 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
             {
                 if (player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_AN_IMPORTANT_MISSION) == QUEST_STATUS_NONE)
                     player->CastSpell(player, SPELL_SUMMON_DALTON_WARRIOR, true);
-                else if (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_A_DESPERATE_PLEA == QUEST_STATE_NONE))
+                else if (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_A_DESPERATE_PLEA) == QUEST_STATE_NONE)
                     player->CastSpell(player, SPELL_SUMMON_EITRIGG_WARRIOR, true);
                 break;
             }
