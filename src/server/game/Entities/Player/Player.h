@@ -1088,7 +1088,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetVirtualItemSlot(uint8 i, Item* item);
         void SetSheath(SheathState sheathed) override;             // overwrite Unit version
-        uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
+        uint8 FindEquipSlot(Item const* item, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
@@ -1875,8 +1875,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
-        bool CanTitanGrip() const { return m_canTitanGrip; }
-        void SetCanTitanGrip(bool value, uint32 penaltySpellId = 0);
+        bool CanTitanGrip(Item const* item) const;
+        void SetCanTitanGrip(bool value, uint32 penaltySpellId = 0, int32 allowedItemClass = 0, int32 allowedItemSubClassMask = 0);
         void CheckTitanGripPenalty();
         bool CanTameExoticPets() const { return IsGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
 
@@ -2440,6 +2440,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_canParry;
         bool m_canBlock;
         bool m_canTitanGrip;
+        uint32 m_titanGripWeaponSubclasses;
+        uint32 m_titanGripArmorSubclasses;
         uint32 m_titanGripPenaltySpellId;
         uint8 m_swingErrorMsg;
         float m_ammoDPS;

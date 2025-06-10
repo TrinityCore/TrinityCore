@@ -25,6 +25,7 @@ void AddSC_instance_auchenai_crypts();
 void AddSC_boss_pandemonius();
 void AddSC_boss_nexusprince_shaffar();
 void AddSC_instance_mana_tombs();
+void AddSC_mana_tombs();
 
 // Auchindoun - Sekketh Halls
 void AddSC_boss_darkweaver_syth();
@@ -79,6 +80,7 @@ void AddSC_boss_ahune();
 void AddSC_instance_the_underbog();
 void AddSC_boss_hungarfen();
 void AddSC_boss_the_black_stalker();
+void AddSC_boss_swamplord_muselek();
 
 // Gruul's Lair
 void AddSC_boss_gruul();
@@ -148,6 +150,7 @@ void AddOutlandScripts()
     AddSC_boss_pandemonius();
     AddSC_boss_nexusprince_shaffar();
     AddSC_instance_mana_tombs();
+    AddSC_mana_tombs();
 
     // Auchindoun - Sekketh Halls
     AddSC_boss_darkweaver_syth();
@@ -202,6 +205,7 @@ void AddOutlandScripts()
     AddSC_instance_the_underbog();
     AddSC_boss_hungarfen();
     AddSC_boss_the_black_stalker();
+    AddSC_boss_swamplord_muselek();
 
     // Gruul's Lair
     AddSC_boss_gruul();

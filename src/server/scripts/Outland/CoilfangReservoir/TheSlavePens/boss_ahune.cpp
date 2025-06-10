@@ -34,7 +34,7 @@
 #include "TemporarySummon.h"
 #include "the_slave_pens.h"
 
-enum Spells
+enum AhuneSpells
 {
     // Ahune
     SPELL_SYNCH_HEALTH                  = 46430,
@@ -94,21 +94,21 @@ enum Spells
     SPELL_GHOST_DISGUISE                = 46786
 };
 
-enum Emotes
+enum AhuneEmotes
 {
     EMOTE_EARTHEN_ASSAULT               = 0,
     EMOTE_RETREAT                       = 0,
     EMOTE_RESURFACE                     = 1
 };
 
-enum Says
+enum AhuneTexts
 {
     SAY_PLAYER_TEXT_1                    = 0,
     SAY_PLAYER_TEXT_2                    = 1,
     SAY_PLAYER_TEXT_3                    = 2
 };
 
-enum Events
+enum AhuneEvents
 {
     EVENT_EMERGE = 1,
     EVENT_INITIAL_EMERGE,
@@ -127,7 +127,7 @@ enum Events
     EVENT_STOP_LOOKING_FOR_OPENING
 };
 
-enum Actions
+enum AhuneActions
 {
     ACTION_START_EVENT     = -2574500,
     ACTION_STOP_EVENT      = -2574501,
@@ -136,20 +136,20 @@ enum Actions
     ACTION_EMOTE_RESURFACE = -2575400
 };
 
-enum Phases
+enum AhunePhases
 {
     PHASE_ONE = 0,
     PHASE_TWO = 1
 };
 
-enum Points
+enum AhunePoints
 {
     POINT_FLAMECALLER_000,
     POINT_FLAMECALLER_001,
     POINT_FLAMECALLER_002
 };
 
-enum Misc
+enum AhuneMisc
 {
     MAX_FLAMECALLERS = 3
 };
@@ -170,6 +170,7 @@ Position const FlameCallerSpots[] =
     { -129.0413f, -132.1494f, -2.09285f, 5.460842f }
 };
 
+// 25740 - Ahune
 struct boss_ahune : public BossAI
 {
     boss_ahune(Creature* creature) : BossAI(creature, DATA_AHUNE)
@@ -272,6 +273,7 @@ struct boss_ahune : public BossAI
     }
 };
 
+// 25865 - Frozen Core
 struct npc_frozen_core : public ScriptedAI
 {
     npc_frozen_core(Creature* creature) : ScriptedAI(creature)
@@ -342,6 +344,7 @@ private:
     EventMap _events;
 };
 
+// 25745 - [PH] Ahune Summon Loc Bunny
 struct npc_ahune_bunny : public ScriptedAI
 {
     npc_ahune_bunny(Creature* creature) : ScriptedAI(creature), _summons(me)
@@ -477,6 +480,7 @@ private:
     bool _submerged;
 };
 
+// 25754 - Earthen Ring Flamecaller
 struct npc_earthen_ring_flamecaller : public ScriptedAI
 {
     npc_earthen_ring_flamecaller(Creature* creature) : ScriptedAI(creature)
@@ -594,6 +598,7 @@ private:
     uint8 _mySpot;
 };
 
+// 25985 - Ahune Ice Spear Bunny
 struct npc_ahune_ice_spear_bunny : public ScriptedAI
 {
     npc_ahune_ice_spear_bunny(Creature* creature) : ScriptedAI(creature) { }
@@ -680,9 +685,9 @@ class spell_ahune_synch_health : public SpellScript
 };
 
 // 45926 - Summoning Rhyme Aura
-class spell_summoning_rhyme_aura : public AuraScript
+class spell_ahune_summoning_rhyme_aura : public AuraScript
 {
-    PrepareAuraScript(spell_summoning_rhyme_aura);
+    PrepareAuraScript(spell_ahune_summoning_rhyme_aura);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -719,14 +724,14 @@ class spell_summoning_rhyme_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_summoning_rhyme_aura::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ahune_summoning_rhyme_aura::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 46878 - Summon Ice Spear Delayer
-class spell_summon_ice_spear_delayer : public AuraScript
+class spell_ahune_summon_ice_spear_delayer : public AuraScript
 {
-    PrepareAuraScript(spell_summon_ice_spear_delayer);
+    PrepareAuraScript(spell_ahune_summon_ice_spear_delayer);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -742,14 +747,14 @@ class spell_summon_ice_spear_delayer : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_summon_ice_spear_delayer::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ahune_summon_ice_spear_delayer::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 46371 - Ice Spear Control Aura
-class spell_ice_spear_control_aura : public AuraScript
+class spell_ahune_ice_spear_control_aura : public AuraScript
 {
-    PrepareAuraScript(spell_ice_spear_control_aura);
+    PrepareAuraScript(spell_ahune_ice_spear_control_aura);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -764,14 +769,14 @@ class spell_ice_spear_control_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ice_spear_control_aura::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_ahune_ice_spear_control_aura::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 46372 - Ice Spear Target Picker
-class spell_ice_spear_target_picker : public SpellScript
+class spell_ahune_ice_spear_target_picker : public SpellScript
 {
-    PrepareSpellScript(spell_ice_spear_target_picker);
+    PrepareSpellScript(spell_ahune_ice_spear_target_picker);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -795,15 +800,15 @@ class spell_ice_spear_target_picker : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ice_spear_target_picker::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_ice_spear_target_picker::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ahune_ice_spear_target_picker::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_ahune_ice_spear_target_picker::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 // 46320 - Spell Slippery Floor Periodic
-class spell_slippery_floor_periodic : public SpellScript
+class spell_ahune_slippery_floor_periodic : public SpellScript
 {
-    PrepareSpellScript(spell_slippery_floor_periodic);
+    PrepareSpellScript(spell_ahune_slippery_floor_periodic);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -822,7 +827,7 @@ class spell_slippery_floor_periodic : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_slippery_floor_periodic::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_ahune_slippery_floor_periodic::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -866,9 +871,9 @@ class spell_ahune_minion_despawner : public SpellScript
 };
 
 // 46398 - Spell Ice Bombardment Dest Picker
-class spell_ice_bombardment_dest_picker : public SpellScript
+class spell_ahune_ice_bombardment_dest_picker : public SpellScript
 {
-    PrepareSpellScript(spell_ice_bombardment_dest_picker);
+    PrepareSpellScript(spell_ahune_ice_bombardment_dest_picker);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -882,7 +887,7 @@ class spell_ice_bombardment_dest_picker : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_ice_bombardment_dest_picker::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_ahune_ice_bombardment_dest_picker::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -896,12 +901,12 @@ void AddSC_boss_ahune()
     RegisterSlavePensGameObjectAI(go_ahune_ice_spear);
     RegisterSlavePensGameObjectAI(go_ahune_ice_stone);
     RegisterSpellScript(spell_ahune_synch_health);
-    RegisterSpellScript(spell_summoning_rhyme_aura);
-    RegisterSpellScript(spell_summon_ice_spear_delayer);
-    RegisterSpellScript(spell_ice_spear_control_aura);
-    RegisterSpellScript(spell_ice_spear_target_picker);
-    RegisterSpellScript(spell_slippery_floor_periodic);
+    RegisterSpellScript(spell_ahune_summoning_rhyme_aura);
+    RegisterSpellScript(spell_ahune_summon_ice_spear_delayer);
+    RegisterSpellScript(spell_ahune_ice_spear_control_aura);
+    RegisterSpellScript(spell_ahune_ice_spear_target_picker);
+    RegisterSpellScript(spell_ahune_slippery_floor_periodic);
     RegisterSpellScript(spell_ahune_spanky_hands);
     RegisterSpellScript(spell_ahune_minion_despawner);
-    RegisterSpellScript(spell_ice_bombardment_dest_picker);
+    RegisterSpellScript(spell_ahune_ice_bombardment_dest_picker);
 }

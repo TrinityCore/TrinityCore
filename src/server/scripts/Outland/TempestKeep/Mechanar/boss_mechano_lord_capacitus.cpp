@@ -22,15 +22,22 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Spells
+enum CapacitusTexts
+{
+    SAY_AGGRO                       = 0,
+    SAY_REFLECTIVE_MAGIC_SHIELD     = 1,
+    SAY_REFLECTIVE_DAMAGE_SHIELD    = 2,
+    SAY_SLAY                        = 3,
+    SAY_DEATH                       = 4
+};
+
+enum CapacitusSpells
 {
     SPELL_HEADCRACK                 = 35161,
     SPELL_REFLECTIVE_MAGIC_SHIELD   = 35158,
     SPELL_REFLECTIVE_DAMAGE_SHIELD  = 35159,
     SPELL_POLARITY_SHIFT            = 39096,
     SPELL_BERSERK                   = 26662,
-    SPELL_NETHER_CHARGE_TIMER       = 37670,
-    SPELL_NETHER_CHARGE_PASSIVE     = 35150,
 
     SPELL_SUMMON_NETHER_CHARGE_NE   = 35153,
     SPELL_SUMMON_NETHER_CHARGE_NW   = 35904,
@@ -46,32 +53,17 @@ enum Spells
     SPELL_NEGATIVE_CHARGE           = 39093
 };
 
-enum Yells
+enum CapacitusEvents
 {
-    YELL_AGGRO                      = 0,
-    YELL_REFLECTIVE_MAGIC_SHIELD    = 1,
-    YELL_REFLECTIVE_DAMAGE_SHIELD   = 2,
-    YELL_KILL                       = 3,
-    YELL_DEATH                      = 4
-};
-
-enum Creatures
-{
-    NPC_NETHER_CHARGE               = 20405
-};
-
-enum Events
-{
-    EVENT_NONE                      = 0,
-
     EVENT_HEADCRACK                 = 1,
-    EVENT_REFLECTIVE_DAMAGE_SHIELD  = 2,
-    EVENT_REFLECTIVE_MAGIE_SHIELD   = 3,
-    EVENT_POSITIVE_SHIFT            = 4,
-    EVENT_SUMMON_NETHER_CHARGE      = 5,
-    EVENT_BERSERK                   = 6
+    EVENT_REFLECTIVE_DAMAGE_SHIELD,
+    EVENT_REFLECTIVE_MAGIE_SHIELD,
+    EVENT_POSITIVE_SHIFT,
+    EVENT_SUMMON_NETHER_CHARGE,
+    EVENT_BERSERK
 };
 
+// 19219 - Mechano-Lord Capacitus
 struct boss_mechano_lord_capacitus : public BossAI
 {
     boss_mechano_lord_capacitus(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
@@ -79,7 +71,7 @@ struct boss_mechano_lord_capacitus : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        Talk(YELL_AGGRO);
+        Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_HEADCRACK, 10s);
         events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15s);
         events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10s);
@@ -91,13 +83,13 @@ struct boss_mechano_lord_capacitus : public BossAI
 
     void KilledUnit(Unit* /*victim*/) override
     {
-        Talk(YELL_KILL);
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
-        Talk(YELL_DEATH);
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -116,21 +108,21 @@ struct boss_mechano_lord_capacitus : public BossAI
             {
                 case EVENT_HEADCRACK:
                     DoCastVictim(SPELL_HEADCRACK);
-                    events.ScheduleEvent(EVENT_HEADCRACK, 10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_REFLECTIVE_DAMAGE_SHIELD:
-                    Talk(YELL_REFLECTIVE_DAMAGE_SHIELD);
-                    DoCast(me, SPELL_REFLECTIVE_DAMAGE_SHIELD);
-                    events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30s);
+                    Talk(SAY_REFLECTIVE_DAMAGE_SHIELD);
+                    DoCastSelf(SPELL_REFLECTIVE_DAMAGE_SHIELD);
+                    events.Repeat(30s);
                     break;
                 case EVENT_REFLECTIVE_MAGIE_SHIELD:
-                    Talk(YELL_REFLECTIVE_MAGIC_SHIELD);
-                    DoCast(me, SPELL_REFLECTIVE_MAGIC_SHIELD);
-                    events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30s);
+                    Talk(SAY_REFLECTIVE_MAGIC_SHIELD);
+                    DoCastSelf(SPELL_REFLECTIVE_MAGIC_SHIELD);
+                    events.Repeat(30s);
                     break;
                 case EVENT_POSITIVE_SHIFT:
                     DoCastAOE(SPELL_POLARITY_SHIFT);
-                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 45s, 60s);
+                    events.Repeat(45s, 60s);
                     break;
                 case EVENT_SUMMON_NETHER_CHARGE:
                 {
@@ -140,11 +132,11 @@ struct boss_mechano_lord_capacitus : public BossAI
                                           SPELL_SUMMON_NETHER_CHARGE_SW);
                     Milliseconds netherChargeTimer = DUNGEON_MODE(randtime(9s, 11s), randtime(2s, 5s));
                     DoCastSelf(spellId);
-                    events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, netherChargeTimer);
+                    events.Repeat(netherChargeTimer);
                     break;
                 }
                 case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK);
+                    DoCastSelf(SPELL_BERSERK);
                     break;
                 default:
                     break;
