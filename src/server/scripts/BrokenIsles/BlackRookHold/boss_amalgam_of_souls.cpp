@@ -378,7 +378,11 @@ class spell_amalgam_of_souls_soulgorge : public AuraScript
 {
     void OnApply(AuraEffect const* /*auraEffect*/, AuraEffectHandleModes /*mode*/) const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Creature* creatureCaster = caster->ToCreature();
         if (!creatureCaster)
             return;
 
