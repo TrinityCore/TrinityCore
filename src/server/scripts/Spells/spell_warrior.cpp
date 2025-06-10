@@ -43,6 +43,7 @@ enum WarriorSpells
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
+    SPELL_WARRIOR_DEFT_EXPERIENCE                   = 383295,
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_ENRAGE                            = 184362,
     SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
@@ -313,6 +314,37 @@ class spell_warr_critical_thinking : public AuraScript
     void Register() override
     {
         AfterEffectProc += AuraEffectProcFn(spell_warr_critical_thinking::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+    }
+};
+
+// 383295 - Deft Experience (attached to 23881 - Bloodthirst)
+// 383295 - Deft Experience (attached to 335096 - Bloodbath)
+class spell_warr_deft_experience : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1);
+    }
+
+    void HandleDeftExperience(SpellEffIndex /*effIndex*/) const
+    {
+        if (GetHitUnit() != GetExplTargetUnit())
+            return;
+
+        Unit const* caster = GetCaster();
+        if (Aura* enrageAura = caster->GetAura(SPELL_WARRIOR_ENRAGE))
+            if (AuraEffect const* deftExperienceAuraEff = caster->GetAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1))
+                enrageAura->SetDuration(enrageAura->GetDuration() + deftExperienceAuraEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_deft_experience::HandleDeftExperience, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1093,6 +1125,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge_effect);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
+    RegisterSpellScript(spell_warr_deft_experience);
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
