@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
