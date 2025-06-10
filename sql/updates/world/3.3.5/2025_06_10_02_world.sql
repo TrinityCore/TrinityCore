@@ -1,7 +1,7 @@
 -- Stratholme: Move Timmy the Cruel to database
 SET @TIMMY=10808;
 SET @CGUID=39690;
-SET @SGROUP=461;
+SET @SGROUP=327;
 
 DELETE FROM `creature` WHERE `guid`=@CGUID AND `id`=@TIMMY;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `ScriptName`, `StringId`, `VerifiedBuild`) VALUES
@@ -14,11 +14,6 @@ INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 DELETE FROM `spawn_group` WHERE `groupId`=@SGROUP;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 (@SGROUP, 0, @CGUID);
-
--- since we manually "force" spawn it I guess this have no purpose atm
--- DELETE FROM `instance_spawn_groups` WHERE `spawnGroupId`=@SGROUP;
--- INSERT INTO `instance_spawn_groups` (`instanceMapId`, `bossStateId`, `bossStates`, `spawnGroupId`, `flags`) VALUES
--- (329, 1, 17, @SGROUP, 1);
 
 -- Thanks @Rushor for wp
 SET @PATH=@TIMMY * 10;
