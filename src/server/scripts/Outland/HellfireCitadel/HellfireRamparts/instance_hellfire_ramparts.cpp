@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Hellfire_Ramparts
-SD%Complete: 50
-SDComment:
-SDCategory: Hellfire Ramparts
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "hellfire_ramparts.h"
