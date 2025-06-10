@@ -57,7 +57,7 @@ enum OrderCampaignDalaranIntro
     SPELL_SUMMON_RUNETOTEM_DRUID            = 199277
 };
 
-// 224240 - 7.0 Order Campaign - Dalaran Aura  
+// 224240 - 7.0 Order Campaign - Dalaran Aura
 class spell_dalaran_order_campaign_intro_aura : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
