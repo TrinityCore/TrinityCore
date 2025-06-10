@@ -25,7 +25,6 @@
 
 #include "ScriptMgr.h"
 #include "gruuls_lair.h"
-#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -149,11 +148,6 @@ class spell_gruul_hurtful_strike_primer : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (targets.empty())
-            return;
 
         // First we get rid of all targets that are not within melee range
         targets.remove_if([&](WorldObject* target)
@@ -176,7 +170,7 @@ class spell_gruul_hurtful_strike_primer : public SpellScript
             });
 
             // Now we nuke the top threat target so we are only left with the 2nd top victim
-            targets.erase(targets.begin());
+            targets.pop_front();
 
             if (targets.size() >= 2)
                 targets.resize(1);
@@ -218,8 +212,7 @@ class spell_gruul_ground_slam : public SpellScript
            that case player will be knocked back for a really small distance. It may look weird and wrong.
            Script for 19198 is handled in SAI. 19198 probably is used in Cata dungeons or raids too, also at least in
            one TBC raid or dungeon since there are more spells to summon that creature. */
-        if (Unit* target = GetHitUnit())
-            target->CastSpell(target, SPELL_SUMMON_RANDOM_TRACTOR);
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_RANDOM_TRACTOR);
     }
 
     void Register() override
@@ -240,8 +233,7 @@ class spell_gruul_look_around : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* target = GetTarget();
-        if (Creature* creature = target->ToCreature())
+        if (Creature* creature = GetTarget()->ToCreature())
         {
             creature->AI()->Talk(EMOTE_ROAR);
             creature->AI()->Talk(SAY_SHATTER);
@@ -267,11 +259,9 @@ class spell_gruul_shatter : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* target = GetHitUnit())
-        {
-            target->RemoveAurasDueToSpell(SPELL_STONED);
-            target->CastSpell(nullptr, SPELL_SHATTER_EFFECT, true);
-        }
+        Unit* target = GetHitUnit();
+        target->RemoveAurasDueToSpell(SPELL_STONED);
+        target->CastSpell(nullptr, SPELL_SHATTER_EFFECT, true);
     }
 
     void Register() override
