@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "black_rook_hold.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_AMALGAM_OF_SOULS, new CircleBoundary(Position(3251.350098f, 7582.790039f), 34.0f) },
+};
 
 ObjectData const creatureData[] =
 {
@@ -64,6 +70,7 @@ class instance_black_rook_hold : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameobjectData);
                 LoadDoorData(doorData);
+                LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
             }
         };
