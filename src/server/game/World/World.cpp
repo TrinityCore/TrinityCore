@@ -1491,6 +1491,10 @@ void World::LoadConfigSettings(bool reload)
     TC_LOG_INFO("server.loading", "VMap data directory is: {}vmaps", m_dataPath);
 
     m_int_configs[CONFIG_MAX_WHO] = sConfigMgr->GetIntDefault("MaxWhoListReturns", 49);
+    m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("MaxWhoListReturns", 5);
+    if (m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] < 1)
+        m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] = 1;
+
     m_bool_configs[CONFIG_START_ALL_SPELLS] = sConfigMgr->GetBoolDefault("PlayerStart.AllSpells", false);
     if (m_bool_configs[CONFIG_START_ALL_SPELLS])
         TC_LOG_WARN("server.loading", "PlayerStart.AllSpells enabled - may not function as intended!");
