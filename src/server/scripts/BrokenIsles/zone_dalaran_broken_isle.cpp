@@ -73,59 +73,59 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
             case CLASS_WARRIOR:
             {
                 if (player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_AN_IMPORTANT_MISSION) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_DALTON_WARRIOR, true);
-                else if (player->GetTeamId() == TEAM_HORDE && (player->GetQuestStatus(QUEST_A_DESPERATE_PLEA) == QUEST_STATE_NONE))
-                    player->CastSpell(player, SPELL_SUMMON_EITRIGG_WARRIOR, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_DALTON_WARRIOR, true);
+                else if (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_A_DESPERATE_PLEA) == QUEST_STATE_NONE)
+                    player->CastSpell(nullptr, SPELL_SUMMON_EITRIGG_WARRIOR, true);
                 break;
             }
             case CLASS_HUNTER:
             {
                 if (player->GetQuestStatus(QUEST_NEEDS_OF_THE_HUNTER) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_SNOWFEATHER_HUNTER, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_SNOWFEATHER_HUNTER, true);
                 break;
             }
             case CLASS_MAGE:
             {
                 if (player->GetQuestStatus(QUEST_FELSTORMS_PLEA) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_MAGE_ORDER_FORMATION, true);
+                    player->CastSpell(nullptr, SPELL_MAGE_ORDER_FORMATION, true);
                 break;
             }
             case CLASS_ROGUE:
             {
                 if (player->GetQuestStatus(QUEST_CALL_OF_THE_UNCROWNED) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_RAVENHOLDT_COURIER_ROGUE, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_RAVENHOLDT_COURIER_ROGUE, true);
                 break;
             }
             case CLASS_PRIEST:
             {
                 if (player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_PRIESTLY_MATTERS) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_A_SUMMON_MESSENGER_PRIEST, true);
-                else if (player->GetTeamId() == TEAM_HORDE && (player->GetQuestStatus(QUEST_PRIESTLY_MATTERS) == QUEST_STATUS_NONE))
-                    player->CastSpell(player, SPELL_H_SUMMON_MESSENGER_PRIEST, true);
+                    player->CastSpell(nullptr, SPELL_A_SUMMON_MESSENGER_PRIEST, true);
+                else if (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_PRIESTLY_MATTERS) == QUEST_STATUS_NONE)
+                    player->CastSpell(nullptr, SPELL_H_SUMMON_MESSENGER_PRIEST, true);
                 break;
             }
             case CLASS_WARLOCK:
             {
                 if (player->GetQuestStatus(QUEST_THE_SIXTH) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_RYSSTINS_PORTAL_WARLOCK, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_RYSSTINS_PORTAL_WARLOCK, true);
                 break;
             }
             case CLASS_PALADIN:
             {
                 if (player->GetQuestStatus(QUEST_AN_URGENT_GATHERING) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_MAXWELL_TYROSUS_PALADIN, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_MAXWELL_TYROSUS_PALADIN, true);
                 break;
             }
             case CLASS_DRUID:
             {
                 if (player->GetQuestStatus(QUEST_A_SUMMONS_FROM_MOONGLADE) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_RUNETOTEM_DRUID, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_RUNETOTEM_DRUID, true);
                 break;
             }
             case CLASS_MONK:
             {
                 if (player->GetQuestStatus(QUEST_BEFORE_THE_STORM) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_SUMMON_DA_NEL_MONK, true);
+                    player->CastSpell(nullptr, SPELL_SUMMON_DA_NEL_MONK, true);
                 break;
             }
             case CLASS_DEMON_HUNTER:
@@ -134,9 +134,11 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
             case CLASS_DEATH_KNIGHT:
             {
                 if (player->GetQuestStatus(QUEST_THE_CALL_TO_WAR) == QUEST_STATUS_NONE)
-                    player->CastSpell(player, SPELL_AN_AUDIENCE_WITH_THE_KING, true);
+                    player->CastSpell(nullptr, SPELL_AN_AUDIENCE_WITH_THE_KING, true);
                 break;
             }
+        Default:
+            break;
         }
     }
 
