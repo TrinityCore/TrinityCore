@@ -20,8 +20,7 @@ target_link_libraries(vmap4extractor
   PRIVATE
     trinity-core-interface
   PUBLIC
-    common
-    mpq)
+    extractor_common)
 
 set_target_properties(vmap4extractor
     PROPERTIES

@@ -30,7 +30,7 @@
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
 
-enum Texts
+enum RotfaceTexts
 {
     SAY_PRECIOUS_DIES           = 0,
     SAY_AGGRO                   = 1,
@@ -50,7 +50,7 @@ enum Texts
     EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
 
-enum Spells
+enum RotfaceSpells
 {
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
@@ -85,7 +85,7 @@ enum Spells
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 
-enum Events
+enum RotfaceEvents
 {
     // Rotface
     EVENT_SLIME_SPRAY       = 1,
@@ -101,6 +101,7 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
+// 36627 - Rotface
 struct boss_rotface : public BossAI
 {
     boss_rotface(Creature* creature) : BossAI(creature, DATA_ROTFACE)
@@ -238,6 +239,7 @@ private:
     uint32 infectionStage;
 };
 
+// 36897 - Little Ooze
 struct npc_little_ooze : public ScriptedAI
 {
     npc_little_ooze(Creature* creature) : ScriptedAI(creature) { }
@@ -279,6 +281,7 @@ private:
     EventMap events;
 };
 
+// 36899 - Big Ooze
 struct npc_big_ooze : public ScriptedAI
 {
     npc_big_ooze(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
@@ -338,6 +341,7 @@ private:
     InstanceScript* instance;
 };
 
+// 37217 - Precious
 struct npc_precious_icc : public ScriptedAI
 {
     npc_precious_icc(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript()) { }

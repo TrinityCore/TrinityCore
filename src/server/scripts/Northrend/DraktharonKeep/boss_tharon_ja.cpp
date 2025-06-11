@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Known Issues: Spell 49356 and 53463 will be interrupted for an unknown reason
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -22,11 +26,16 @@
 #include "Player.h"
 #include "drak_tharon_keep.h"
 
-/*
- * Known Issues: Spell 49356 and 53463 will be interrupted for an unknown reason
- */
+enum TharonjaTexts
+{
+    SAY_AGGRO                                     = 0,
+    SAY_KILL                                      = 1,
+    SAY_FLESH                                     = 2,
+    SAY_SKELETON                                  = 3,
+    SAY_DEATH                                     = 4
+};
 
-enum Spells
+enum TharonjaSpells
 {
     // Skeletal Spells (phase 1)
     SPELL_CURSE_OF_LIFE                           = 49527,
@@ -45,7 +54,7 @@ enum Spells
     SPELL_DUMMY                                   = 49551
 };
 
-enum Events
+enum TharonjaEvents
 {
     EVENT_CURSE_OF_LIFE                           = 1,
     EVENT_RAIN_OF_FIRE,
@@ -61,20 +70,12 @@ enum Events
     EVENT_GOING_SKELETAL
 };
 
-enum Yells
-{
-    SAY_AGGRO                                     = 0,
-    SAY_KILL                                      = 1,
-    SAY_FLESH                                     = 2,
-    SAY_SKELETON                                  = 3,
-    SAY_DEATH                                     = 4
-};
-
-enum Models
+enum TharonjaMisc
 {
     MODEL_FLESH                                   = 27073
 };
 
+// 26632 - The Prophet Tharon'ja
 struct boss_tharon_ja : public BossAI
 {
     boss_tharon_ja(Creature* creature) : BossAI(creature, DATA_THARON_JA) { }
@@ -128,30 +129,30 @@ struct boss_tharon_ja : public BossAI
                 case EVENT_CURSE_OF_LIFE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_CURSE_OF_LIFE);
-                    events.ScheduleEvent(EVENT_CURSE_OF_LIFE, 10s, 15s);
+                    events.Repeat(10s, 15s);
                     return;
                 case EVENT_SHADOW_VOLLEY:
                     DoCastVictim(SPELL_SHADOW_VOLLEY);
-                    events.ScheduleEvent(EVENT_SHADOW_VOLLEY, 8s, 10s);
+                    events.Repeat(8s, 10s);
                     return;
                 case EVENT_RAIN_OF_FIRE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_RAIN_OF_FIRE);
-                    events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 14s, 18s);
+                    events.Repeat(14s, 18s);
                     return;
                 case EVENT_LIGHTNING_BREATH:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_LIGHTNING_BREATH);
-                    events.ScheduleEvent(EVENT_LIGHTNING_BREATH, 6s, 7s);
+                    events.Repeat(6s, 7s);
                     return;
                 case EVENT_EYE_BEAM:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_EYE_BEAM);
-                    events.ScheduleEvent(EVENT_EYE_BEAM, 4s, 6s);
+                    events.Repeat(4s, 6s);
                     return;
                 case EVENT_POISON_CLOUD:
                     DoCastAOE(SPELL_POISON_CLOUD);
-                    events.ScheduleEvent(EVENT_POISON_CLOUD, 10s, 12s);
+                    events.Repeat(10s, 12s);
                     return;
                 case EVENT_DECAY_FLESH:
                     DoCastAOE(SPELL_DECAY_FLESH);

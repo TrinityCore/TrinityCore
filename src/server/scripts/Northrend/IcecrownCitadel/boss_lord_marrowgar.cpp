@@ -29,7 +29,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum ScriptTexts
+enum MarrowgarTexts
 {
     SAY_ENTER_ZONE              = 0,
     SAY_AGGRO                   = 1,
@@ -41,7 +41,7 @@ enum ScriptTexts
     EMOTE_BONE_STORM            = 7,
 };
 
-enum Spells
+enum MarrowgarSpells
 {
     // Lord Marrowgar
     SPELL_BONE_SLICE            = 69055,
@@ -61,7 +61,7 @@ enum Spells
 
 uint32 const BoneSpikeSummonId[3] = {69062, 72669, 72670};
 
-enum Events
+enum MarrowgarEvents
 {
     EVENT_BONE_SPIKE_GRAVEYARD  = 1,
     EVENT_COLDFLAME             = 2,
@@ -78,13 +78,13 @@ enum Events
     EVENT_GROUP_SPECIAL         = 1,
 };
 
-enum MovementPoints
+enum MarrowgarPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
     POINT_TARGET_COLDFLAME          = 36672631,
 };
 
-enum MiscInfo
+enum MarrowgarMisc
 {
     DATA_COLDFLAME_GUID             = 0,
 
@@ -98,7 +98,7 @@ enum MiscInfo
     MAX_BONE_SPIKE_IMMUNE           = 3,
 };
 
-enum Actions
+enum MarrowgarActions
 {
     ACTION_CLEAR_SPIKE_IMMUNITIES = 1,
     ACTION_TALK_ENTER_ZONE        = 2
@@ -129,6 +129,7 @@ class BoneSpikeTargetSelector
         UnitAI* _ai;
 };
 
+// 36612 - Lord Marrowgar
 struct boss_lord_marrowgar : public BossAI
 {
     boss_lord_marrowgar(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR)
@@ -354,6 +355,7 @@ private:
 
 typedef boss_lord_marrowgar MarrowgarAI;
 
+// 36672 - Coldflame
 struct npc_coldflame : public ScriptedAI
 {
     npc_coldflame(Creature* creature) : ScriptedAI(creature) { }
@@ -412,6 +414,7 @@ private:
     EventMap _events;
 };
 
+// 36619, 38711, 38712 - Bone Spike
 struct npc_bone_spike : public ScriptedAI
 {
     npc_bone_spike(Creature* creature) : ScriptedAI(creature), _hasTrappedUnit(false)

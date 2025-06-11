@@ -20,14 +20,16 @@
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
-enum Spells
+enum LavanthorSpells
 {
-    SPELL_CAUTERIZING_FLAMES                    = 59466, // Only in heroic
-    SPELL_FIREBOLT                              = 54235,
-    SPELL_FLAME_BREATH                          = 54282,
-    SPELL_LAVA_BURN                             = 54249
+    SPELL_CAUTERIZING_FLAMES     = 59466, // Only in heroic
+    SPELL_FIREBOLT               = 54235,
+    SPELL_FLAME_BREATH           = 54282,
+    SPELL_LAVA_BURN              = 54249
 };
 
+// 29312 - Lavanthor
+// 32237 - Lava Hound
 struct boss_lavanthor : public BossAI
 {
     boss_lavanthor(Creature* creature) : BossAI(creature, DATA_LAVANTHOR) { }
@@ -59,24 +61,24 @@ struct boss_lavanthor : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        scheduler.Schedule(1s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
                 DoCast(target, SPELL_FIREBOLT);
-            task.Repeat(Seconds(5), Seconds(13));
+            task.Repeat(5s, 13s);
         });
 
-        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        scheduler.Schedule(5s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_FLAME_BREATH);
-            task.Repeat(Seconds(10), Seconds(15));
+            task.Repeat(10s, 15s);
         });
 
-        scheduler.Schedule(Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(10s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f))
                 DoCast(target, SPELL_LAVA_BURN);
-            task.Repeat(Seconds(15), Seconds(23));
+            task.Repeat(15s, 23s);
         });
 
         if (IsHeroic())
@@ -84,7 +86,7 @@ struct boss_lavanthor : public BossAI
             scheduler.Schedule(Seconds(3), [this](TaskContext task)
             {
                 DoCastAOE(SPELL_CAUTERIZING_FLAMES);
-                task.Repeat(Seconds(10), Seconds(16));
+                task.Repeat(10s, 16s);
             });
         }
     }

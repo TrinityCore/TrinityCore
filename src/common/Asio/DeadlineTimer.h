@@ -18,18 +18,17 @@
 #ifndef DeadlineTimer_h__
 #define DeadlineTimer_h__
 
-#include <boost/asio/deadline_timer.hpp>
+#include "Duration.h"
+#include <boost/asio/basic_waitable_timer.hpp>
+#include <boost/asio/io_context.hpp>
 
-namespace Trinity
+namespace Trinity::Asio
 {
-    namespace Asio
-    {
-        class DeadlineTimer : public boost::asio::basic_deadline_timer<boost::posix_time::ptime, boost::asio::time_traits<boost::posix_time::ptime>, boost::asio::io_context::executor_type>
-        {
-        public:
-            using basic_deadline_timer::basic_deadline_timer;
-        };
-    }
+class DeadlineTimer : public boost::asio::basic_waitable_timer<std::chrono::steady_clock, boost::asio::wait_traits<std::chrono::steady_clock>, boost::asio::io_context::executor_type>
+{
+public:
+    using basic_waitable_timer::basic_waitable_timer;
+};
 }
 
 #endif // DeadlineTimer_h__

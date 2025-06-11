@@ -16,10 +16,12 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "zulgurub.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Unit.h"
 
 /*######
  ## go_brazier_of_madness
@@ -74,7 +76,34 @@ public:
     }
 };
 
+enum PoisonousBlood
+{
+    SPELL_POISONOUS_BLOOD     = 24321
+};
+
+// 24320 - Poisonous Blood
+class spell_zulgurub_poisonous_blood : public SpellScript
+{
+    PrepareSpellScript(spell_zulgurub_poisonous_blood);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POISONOUS_BLOOD });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_POISONOUS_BLOOD);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zulgurub_poisonous_blood::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zulgurub()
 {
     new go_brazier_of_madness();
+    RegisterSpellScript(spell_zulgurub_poisonous_blood);
 }

@@ -16,8 +16,8 @@
  */
 
 #include "ChatCommandArgs.h"
-#include "AchievementMgr.h"
 #include "ChatCommand.h"
+#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Util.h"
@@ -29,7 +29,7 @@ struct AchievementVisitor
 {
     using value_type = AchievementEntry const*;
     value_type operator()(Hyperlink<achievement> achData) const { return achData->Achievement; }
-    value_type operator()(uint32 achId) const { return sAchievementMgr->GetAchievement(achId); }
+    value_type operator()(uint32 achId) const { return sAchievementStore.LookupEntry(achId); }
 };
 ChatCommandResult Trinity::Impl::ChatCommands::ArgInfo<AchievementEntry const*>::TryConsume(AchievementEntry const*& data, ChatHandler const* handler, std::string_view args)
 {

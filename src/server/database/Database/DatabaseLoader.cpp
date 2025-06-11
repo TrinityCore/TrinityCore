@@ -68,7 +68,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             if (error)
             {
                 TC_LOG_ERROR("sql.driver", "\nDatabasePool {} NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors. Read wiki at http://www.trinitycore.info/display/tc/TrinityCore+Home", name);
+                    "for specific errors. Read wiki at https://www.trinitycore.info", name);
 
                 return false;
             }

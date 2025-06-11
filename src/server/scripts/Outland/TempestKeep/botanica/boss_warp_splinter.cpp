@@ -20,7 +20,7 @@
 #include "SpellInfo.h"
 #include "the_botanica.h"
 
-enum Texts
+enum WarpSplinterTexts
 {
     SAY_AGGRO                 = 0,
     SAY_SLAY                  = 1,
@@ -28,7 +28,7 @@ enum Texts
     SAY_DEATH                 = 3
 };
 
-enum Spells
+enum WarpSplinterSpells
 {
     SPELL_STOMP               = 34716,
     SPELL_ARCANE_VOLLEY       = 36705,
@@ -44,7 +44,7 @@ enum Spells
     SPELL_MOONFIRE_VISUAL     = 36704
 };
 
-enum Events
+enum WarpSplinterEvents
 {
     EVENT_SUMMON              = 1,
     EVENT_STOMP,
@@ -57,6 +57,7 @@ uint32 const SummonSaplingsSpells[] =
     SPELL_SUMMON_SAPLING_4, SPELL_SUMMON_SAPLING_5, SPELL_SUMMON_SAPLING_6
 };
 
+// 17977 - Warp Splinter
 struct boss_warp_splinter : public BossAI
 {
     boss_warp_splinter(Creature* creature) : BossAI(creature, DATA_WARP_SPLINTER) { }
@@ -142,6 +143,7 @@ struct boss_warp_splinter : public BossAI
     }
 };
 
+// 19949 - Sapling
 struct npc_warp_splinter_sapling : public ScriptedAI
 {
     npc_warp_splinter_sapling(Creature* creature) : ScriptedAI(creature) { }

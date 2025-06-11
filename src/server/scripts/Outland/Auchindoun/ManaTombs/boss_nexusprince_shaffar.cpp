@@ -15,80 +15,74 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_NexusPrince_Shaffar
-SD%Complete: 80
-SDComment: Need more tuning of spell timers, it should not be as linear fight as current. Also should possibly find a better way to deal with his three initial beacons to make sure all aggro.
-SDCategory: Auchindoun, Mana Tombs
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ * Find a better way to deal with his three initial beacons to make sure all aggro
+ * His caster mode requires rechecks
+ * Move away after succesful Frost Nova cast (seems like doesn't always triggered)
+ */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "mana_tombs.h"
 #include "MotionMaster.h"
-#include "ScriptedCreature.h"
 
-enum Yells
+enum ShaffarTexts
 {
     SAY_INTRO                       = 0,
     SAY_AGGRO                       = 1,
     SAY_SLAY                        = 2,
     SAY_SUMMON                      = 3,
-    SAY_DEAD                        = 4
+    SAY_DEATH                       = 4
 };
 
-enum Spells
+enum ShaffarSpells
 {
+    // Shaffar
     SPELL_BLINK                     = 34605,
-    SPELL_FROSTBOLT                 = 32364,
     SPELL_FIREBALL                  = 32363,
+    SPELL_FROSTBOLT                 = 32364,
     SPELL_FROSTNOVA                 = 32365,
 
-    SPELL_ETHEREAL_BEACON           = 32371,                // Summons NPC_BEACON
-    SPELL_ETHEREAL_BEACON_VISUAL    = 32368,
+    SPELL_ETHEREAL_BEACON           = 32371,
 
     // Ethereal Beacon
+    SPELL_ETHEREAL_BEACON_VISUAL    = 32368,
     SPELL_ARCANE_BOLT               = 15254,
-    SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
+    SPELL_ETHEREAL_APPRENTICE       = 32372
 };
 
-enum Creatures
+enum ShaffarEvents
+{
+    EVENT_BLINK                     = 1,
+    EVENT_BEACON,
+    EVENT_MAIN_SPELL,
+    EVENT_FROST_NOVA,
+
+    // Ethereal Beacon
+    EVENT_SUMMON_APPRENTICE,
+    EVENT_ARCANE_BOLT
+};
+
+enum ShaffarCreatures
 {
     NPC_BEACON                      = 18431,
     NPC_SHAFFAR                     = 18344
 };
 
-enum Misc
-{
-    NR_INITIAL_BEACONS              = 3
-};
-
-enum Events
-{
-    EVENT_BLINK                     = 1,
-    EVENT_BEACON,
-    EVENT_FIREBALL,
-    EVENT_FROSTBOLT,
-    EVENT_FROST_NOVA
-};
-
+// 18344 - Nexus-Prince Shaffar
 struct boss_nexusprince_shaffar : public BossAI
 {
-    boss_nexusprince_shaffar(Creature* creature) : BossAI(creature, DATA_NEXUSPRINCE_SHAFFAR)
-    {
-        _hasTaunted = false;
-    }
+    boss_nexusprince_shaffar(Creature* creature) : BossAI(creature, DATA_NEXUSPRINCE_SHAFFAR), _hasTaunted(false) { }
 
     void Reset() override
     {
         _Reset();
 
-        float dist = 8.0f;
-        float posX, posY, posZ, angle;
-        me->GetHomePosition(posX, posY, posZ, angle);
-
-        me->SummonCreature(NPC_BEACON, posX - dist, posY - dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
-        me->SummonCreature(NPC_BEACON, posX - dist, posY + dist, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
-        me->SummonCreature(NPC_BEACON, posX + dist, posY, posZ, angle, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 2h);
+        me->SummonCreature(NPC_BEACON, -191.116f, 3.82914f, 16.7834f, 3.62003f, TEMPSUMMON_MANUAL_DESPAWN);
+        me->SummonCreature(NPC_BEACON, -180.408f, 10.9629f, 16.7025f, 3.45070f, TEMPSUMMON_MANUAL_DESPAWN);
+        me->SummonCreature(NPC_BEACON, -185.980f, 14.4201f, 16.7234f, 1.31540f, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
     void MoveInLineOfSight(Unit* who) override
@@ -105,23 +99,31 @@ struct boss_nexusprince_shaffar : public BossAI
         Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
 
-        events.ScheduleEvent(EVENT_BEACON, 10s);
-        events.ScheduleEvent(EVENT_FIREBALL, 8s);
-        events.ScheduleEvent(EVENT_FROSTBOLT, 4s);
-        events.ScheduleEvent(EVENT_FROST_NOVA, 15s);
+        events.ScheduleEvent(EVENT_BLINK, 20s, 30s);
+        events.ScheduleEvent(EVENT_BEACON, 10s, 30s);
+        events.ScheduleEvent(EVENT_MAIN_SPELL, 0s, 6s);
+        events.ScheduleEvent(EVENT_FROST_NOVA, 15s, 35s);
     }
 
     void JustSummoned(Creature* summoned) override
     {
         if (summoned->GetEntry() == NPC_BEACON)
         {
-            summoned->CastSpell(summoned, SPELL_ETHEREAL_BEACON_VISUAL, false);
-
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                 summoned->AI()->AttackStart(target);
+
+            if (!me->IsInCombat())
+                summoned->GetMotionMaster()->MoveRandom(5.0f);
         }
 
         summons.Summon(summoned);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_ETHEREAL_BEACON)
+            if (roll_chance_i(50))
+                Talk(SAY_SUMMON);
     }
 
     void KilledUnit(Unit* victim) override
@@ -132,7 +134,7 @@ struct boss_nexusprince_shaffar : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        Talk(SAY_DEAD);
+        Talk(SAY_DEATH);
         _JustDied();
     }
 
@@ -141,34 +143,25 @@ struct boss_nexusprince_shaffar : public BossAI
         switch (eventId)
         {
             case EVENT_BLINK:
-                if (me->IsNonMeleeSpellCast(false))
-                    me->InterruptNonMeleeSpells(true);
-
-                // expire movement, will prevent from running right back to victim after cast
-                // (but should MoveChase be used again at a certain time or should he not move?)
-                me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
-
-                DoCast(me, SPELL_BLINK);
+                DoCastSelf(SPELL_BLINK);
+                events.Repeat(40s, 60s);
+                events.RescheduleEvent(EVENT_MAIN_SPELL, 0s);
                 break;
             case EVENT_BEACON:
-                if (!urand(0, 3))
-                    Talk(SAY_SUMMON);
+                DoCastSelf(SPELL_ETHEREAL_BEACON);
+                events.Repeat(20s);
+                break;
+            case EVENT_MAIN_SPELL:
+                DoCastVictim(RAND(SPELL_FIREBALL, SPELL_FROSTBOLT));
 
-                DoCast(me, SPELL_ETHEREAL_BEACON, true);
-                events.ScheduleEvent(EVENT_BEACON, 10s);
-                break;
-            case EVENT_FIREBALL:
-                DoCastVictim(SPELL_FROSTBOLT);
-                events.ScheduleEvent(EVENT_FIREBALL, 4500ms, 6s);
-                break;
-            case EVENT_FROSTBOLT:
-                DoCastVictim(SPELL_FROSTBOLT);
-                events.ScheduleEvent(EVENT_FROSTBOLT, 4500ms, 6s);
+                if (me->IsWithinMeleeRange(me->GetVictim()))
+                    events.Repeat(1s, 6s);
+                else
+                    events.Repeat(1s);
                 break;
             case EVENT_FROST_NOVA:
-                DoCast(me, SPELL_FROSTNOVA);
-                events.ScheduleEvent(EVENT_FROST_NOVA, 17500ms, 25s);
-                events.ScheduleEvent(EVENT_BLINK, 1500ms);
+                DoCastSelf(SPELL_FROSTNOVA);
+                events.Repeat(15s, 25s);
                 break;
             default:
                 break;
@@ -179,15 +172,15 @@ private:
     bool _hasTaunted;
 };
 
-enum EtherealBeacon
-{
-    EVENT_APPRENTICE = 1,
-    EVENT_ARCANE_BOLT
-};
-
+// 18431 - Ethereal Beacon
 struct npc_ethereal_beacon : public ScriptedAI
 {
     npc_ethereal_beacon(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_ETHEREAL_BEACON_VISUAL);
+    }
 
     void Reset() override
     {
@@ -200,8 +193,8 @@ struct npc_ethereal_beacon : public ScriptedAI
             if (!shaffar->IsInCombat())
                 shaffar->AI()->AttackStart(who);
 
-        _events.ScheduleEvent(EVENT_APPRENTICE, DUNGEON_MODE(20s, 10s));
-        _events.ScheduleEvent(EVENT_ARCANE_BOLT, 1s);
+        _events.ScheduleEvent(EVENT_SUMMON_APPRENTICE, DUNGEON_MODE(20s, 10s));
+        _events.ScheduleEvent(EVENT_ARCANE_BOLT, 3s, 10s);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -223,13 +216,17 @@ struct npc_ethereal_beacon : public ScriptedAI
         {
             switch (eventId)
             {
-                case EVENT_APPRENTICE:
-                    DoCast(me, SPELL_ETHEREAL_APPRENTICE, true);
-                    me->DespawnOrUnsummon();
+                case EVENT_SUMMON_APPRENTICE:
+                    DoCastSelf(SPELL_ETHEREAL_APPRENTICE);
+                    me->AttackStop();
+                    me->SetReactState(REACT_PASSIVE);
+                    me->SetImmuneToPC(true);
+                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->DespawnOrUnsummon(2s);
                     break;
                 case EVENT_ARCANE_BOLT:
                     DoCastVictim(SPELL_ARCANE_BOLT);
-                    _events.ScheduleEvent(EVENT_ARCANE_BOLT, 2s, 4500ms);
+                    _events.Repeat(3s, 10s);
                     break;
                 default:
                     break;
@@ -243,15 +240,22 @@ private:
 
 enum EtherealApprentice
 {
+    SPELL_SIMPLE_TELEPORT                       = 12980,
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370,
     EVENT_ETHEREAL_APPRENTICE_FIREBOLT          = 1,
     EVENT_ETHEREAL_APPRENTICE_FROSTBOLT
 };
 
+// 18430 - Ethereal Apprentice
 struct npc_ethereal_apprentice : public ScriptedAI
 {
     npc_ethereal_apprentice(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_SIMPLE_TELEPORT);
+    }
 
     void Reset() override
     {
@@ -260,7 +264,7 @@ struct npc_ethereal_apprentice : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3s);
+        _events.ScheduleEvent(RAND(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, EVENT_ETHEREAL_APPRENTICE_FROSTBOLT), 0s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -278,11 +282,11 @@ struct npc_ethereal_apprentice : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ETHEREAL_APPRENTICE_FIREBOLT:
-                    DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
+                    DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FIREBOLT);
                     _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FROSTBOLT, 3s);
                     break;
                 case EVENT_ETHEREAL_APPRENTICE_FROSTBOLT:
-                    DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
+                    DoCastVictim(SPELL_ETHEREAL_APPRENTICE_FROSTBOLT);
                     _events.ScheduleEvent(EVENT_ETHEREAL_APPRENTICE_FIREBOLT, 3s);
                     break;
                 default:
@@ -295,55 +299,9 @@ private:
     EventMap _events;
 };
 
-enum Yor
-{
-    SPELL_DOUBLE_BREATH          = 38361,
-    EVENT_DOUBLE_BREATH          = 1
-};
-
-struct npc_yor : public ScriptedAI
-{
-    npc_yor(Creature* creature) : ScriptedAI(creature) { }
-
-    void Reset() override { }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _events.ScheduleEvent(EVENT_DOUBLE_BREATH, 6s, 9s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        _events.Update(diff);
-
-        while (uint32 eventId = _events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_DOUBLE_BREATH:
-                    if (me->IsWithinDist(me->GetVictim(), ATTACK_DISTANCE))
-                        DoCastVictim(SPELL_DOUBLE_BREATH);
-                    _events.ScheduleEvent(EVENT_DOUBLE_BREATH, 6s, 9s);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        DoMeleeAttackIfReady();
-    }
-
-    private:
-        EventMap _events;
-};
-
 void AddSC_boss_nexusprince_shaffar()
 {
     RegisterManaTombsCreatureAI(boss_nexusprince_shaffar);
     RegisterManaTombsCreatureAI(npc_ethereal_beacon);
     RegisterManaTombsCreatureAI(npc_ethereal_apprentice);
-    RegisterManaTombsCreatureAI(npc_yor);
 }

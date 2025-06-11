@@ -20,8 +20,6 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_SHARED)
-
 add_library(shared
   ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
@@ -38,6 +36,10 @@ target_include_directories(shared
     ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
+
+set_target_properties(shared
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED)
 
 target_link_libraries(shared
   PRIVATE

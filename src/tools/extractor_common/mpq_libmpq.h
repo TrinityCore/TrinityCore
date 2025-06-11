@@ -18,30 +18,33 @@
 #ifndef MPQ_H
 #define MPQ_H
 
-#include "loadlib/loadlib.h"
-#include "libmpq/mpq.h"
-
-#include <string.h>
+#include "Define.h"
+#include <libmpq/mpq.h>
 #include <string>
+#include <utility>
 #include <vector>
-#include <deque>
+#include <cstring>
 
 class MPQArchive
 {
-
 public:
     mpq_archive_s *mpq_a;
 
     MPQArchive(char const* filename);
-    ~MPQArchive() { if (isOpened()) close(); }
+    MPQArchive(MPQArchive const&) = delete;
+    MPQArchive(MPQArchive&& other) noexcept : mpq_a(std::exchange(other.mpq_a, nullptr)) { }
+    MPQArchive& operator=(MPQArchive const&) = delete;
+    MPQArchive& operator=(MPQArchive&& other) noexcept { if (this != &other) mpq_a = std::exchange(other.mpq_a, nullptr); return *this; }
+    ~MPQArchive() { close(); }
+    void close();
 
     void GetFileListTo(std::vector<std::string>& filelist) {
         uint32_t filenum;
-        if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
+        if(!mpq_a || libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
         libmpq__off_t size, transferred;
         libmpq__file_size_unpacked(mpq_a, filenum, &size);
 
-        char *buffer = new char[size + 1];
+        char *buffer = new char[size+1];
         buffer[size] = '\0';
 
         libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
@@ -62,12 +65,9 @@ public:
 
         delete[] buffer;
     }
-
-private:
-    void close();
-    bool isOpened() const;
 };
-typedef std::deque<MPQArchive*> ArchiveSet;
+typedef std::vector<MPQArchive> ArchiveSet;
+extern ArchiveSet gOpenArchives;
 
 class MPQFile
 {
@@ -76,6 +76,7 @@ class MPQFile
     char *buffer;
     libmpq__off_t pointer,size;
 
+    // disable copying
     MPQFile(MPQFile const& /*f*/) = delete;
     void operator=(MPQFile const& /*f*/) = delete;
 
@@ -95,8 +96,19 @@ public:
 
 inline void flipcc(char *fcc)
 {
-    std::swap(fcc[0], fcc[3]);
-    std::swap(fcc[1], fcc[2]);
+    char t;
+    t=fcc[0];
+    fcc[0]=fcc[3];
+    fcc[3]=t;
+    t=fcc[1];
+    fcc[1]=fcc[2];
+    fcc[2]=t;
+}
+
+namespace MPQ
+{
+bool OpenArchives(std::string_view inputPath, std::string_view localeName);
+void CloseArchives();
 }
 
 #endif

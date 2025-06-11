@@ -3448,7 +3448,7 @@ void Spell::_cast(bool skipCheck)
 
     if (Unit* unitCaster = m_caster->ToUnit())
         if (m_spellInfo->HasAttribute(SPELL_ATTR1_DISMISS_PET))
-            if (Creature* pet = ObjectAccessor::GetCreature(*m_caster, unitCaster->GetPetGUID()))
+            if (Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*m_caster, unitCaster->GetPetGUID()))
                 pet->DespawnOrUnsummon();
 
     PrepareTriggersExecutedOnHit();
@@ -4372,10 +4372,13 @@ void Spell::SendSpellGo()
     }
 
     if (castFlags & CAST_FLAG_AMMO)
-    {
-        castData.Ammo.emplace();
-        UpdateSpellCastDataAmmo(*castData.Ammo);
-    }
+        UpdateSpellCastDataAmmo(castData.Ammo.emplace());
+
+    if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
+        castData.DestLocSpellCastIndex.emplace();
+
+    if (m_targets.GetTargetMask() & TARGET_FLAG_UNUSED20)
+        castData.TargetPoints.emplace();
 
     // should be sent to self only
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF && m_caster->IsPlayer())

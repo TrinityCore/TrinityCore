@@ -445,6 +445,51 @@ class spell_midsummer_fling_torch_missed : public SpellScript
     }
 };
 
+enum CleansingFlames
+{
+    SPELL_CREATE_FLAME_OF_DARNASSUS        = 29099,
+    SPELL_CREATE_FLAME_OF_STORMWIND        = 29101,
+    SPELL_CREATE_FLAME_OF_IRONFORGE        = 29102,
+    SPELL_CREATE_FLAME_OF_ORGRIMMAR        = 29130,
+    SPELL_CREATE_FLAME_OF_THUNDER_BLUFF    = 29132,
+    SPELL_CREATE_FLAME_OF_THE_UNDERCITY    = 29133,
+    SPELL_CREATE_FLAME_OF_SILVERMOON       = 46689,
+    SPELL_CREATE_FLAME_OF_THE_EXODAR       = 46690
+};
+
+// 29126 - Cleansing Flames
+// 29137 - Cleansing Flames
+// 29135 - Cleansing Flames
+// 29136 - Cleansing Flames
+// 29138 - Cleansing Flames
+// 29139 - Cleansing Flames
+// 46672 - Cleansing Flames
+// 46671 - Cleansing Flames
+class spell_midsummer_cleansing_flames : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_cleansing_flames);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpell });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpell);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_midsummer_cleansing_flames::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    uint32 _triggeredSpell;
+
+public:
+    explicit spell_midsummer_cleansing_flames(CleansingFlames triggeredSpell) : _triggeredSpell(triggeredSpell) { }
+};
+
 void AddSC_event_midsummer()
 {
     RegisterSpellScript(spell_midsummer_braziers_hit);
@@ -458,4 +503,12 @@ void AddSC_event_midsummer()
     RegisterSpellScript(spell_midsummer_fling_torch_triggered);
     RegisterSpellScript(spell_midsummer_fling_torch_catch);
     RegisterSpellScript(spell_midsummer_fling_torch_missed);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_darnassus", SPELL_CREATE_FLAME_OF_DARNASSUS);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_stormwind", SPELL_CREATE_FLAME_OF_STORMWIND);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_ironforge", SPELL_CREATE_FLAME_OF_IRONFORGE);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_orgrimmar", SPELL_CREATE_FLAME_OF_ORGRIMMAR);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_thunder_bluff", SPELL_CREATE_FLAME_OF_THUNDER_BLUFF);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_undercity", SPELL_CREATE_FLAME_OF_THE_UNDERCITY);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_silvermoon", SPELL_CREATE_FLAME_OF_SILVERMOON);
+    RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_exodar", SPELL_CREATE_FLAME_OF_THE_EXODAR);
 }

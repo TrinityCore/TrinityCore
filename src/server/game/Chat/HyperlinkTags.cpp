@@ -16,7 +16,7 @@
  */
 
 #include "Hyperlinks.h"
-#include "AchievementMgr.h"
+#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
@@ -63,7 +63,7 @@ bool Trinity::Hyperlinks::LinkTags::achievement::StoreTo(AchievementLinkData& va
     uint32 achievementId;
     if (!t.TryConsumeTo(achievementId))
         return false;
-    val.Achievement = sAchievementMgr->GetAchievement(achievementId);
+    val.Achievement = sAchievementStore.LookupEntry(achievementId);
 
     if (!(val.Achievement && t.TryConsumeTo(val.CharacterId) && t.TryConsumeTo(val.IsFinished) && t.TryConsumeTo(val.Month) && t.TryConsumeTo(val.Day)))
         return false;

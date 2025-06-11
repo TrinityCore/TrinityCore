@@ -556,7 +556,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr2>::ToString(SpellAttr2 value)
         case SPELL_ATTR2_UNK27: return { "SPELL_ATTR2_UNK27", "Unknown attribute 27@Attr2", "" };
         case SPELL_ATTR2_UNK28: return { "SPELL_ATTR2_UNK28", "Unknown attribute 28@Attr2", "" };
         case SPELL_ATTR2_CANT_CRIT: return { "SPELL_ATTR2_CANT_CRIT", "Cannot critically strike", "" };
-        case SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC: return { "SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC", "Allow triggered spell to trigger (type 1)", "Without this attribute, any triggered spell will be unable to trigger other auras' procs" };
+        case SPELL_ATTR2_ACTIVE_THREAT: return { "SPELL_ATTR2_ACTIVE_THREAT", "Active Threat", "" };
         case SPELL_ATTR2_FOOD_BUFF: return { "SPELL_ATTR2_FOOD_BUFF", "Food buff (client only)", "" };
         default: throw std::out_of_range("value");
     }
@@ -600,7 +600,7 @@ TC_API_EXPORT SpellAttr2 EnumUtils<SpellAttr2>::FromIndex(size_t index)
         case 27: return SPELL_ATTR2_UNK27;
         case 28: return SPELL_ATTR2_UNK28;
         case 29: return SPELL_ATTR2_CANT_CRIT;
-        case 30: return SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC;
+        case 30: return SPELL_ATTR2_ACTIVE_THREAT;
         case 31: return SPELL_ATTR2_FOOD_BUFF;
         default: throw std::out_of_range("index");
     }
@@ -641,7 +641,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr2>::ToIndex(SpellAttr2 value)
         case SPELL_ATTR2_UNK27: return 27;
         case SPELL_ATTR2_UNK28: return 28;
         case SPELL_ATTR2_CANT_CRIT: return 29;
-        case SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC: return 30;
+        case SPELL_ATTR2_ACTIVE_THREAT: return 30;
         case SPELL_ATTR2_FOOD_BUFF: return 31;
         default: throw std::out_of_range("value");
     }
@@ -664,7 +664,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr3>::ToString(SpellAttr3 value)
         case SPELL_ATTR3_UNK6: return { "SPELL_ATTR3_UNK6", "Unknown attribute 6@Attr3", "" };
         case SPELL_ATTR3_STACK_FOR_DIFF_CASTERS: return { "SPELL_ATTR3_STACK_FOR_DIFF_CASTERS", "Stack separately for each caster", "" };
         case SPELL_ATTR3_ONLY_TARGET_PLAYERS: return { "SPELL_ATTR3_ONLY_TARGET_PLAYERS", "Can only target players", "" };
-        case SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2: return { "SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2", "Allow triggered spell to trigger (type 2)", "Without this attribute, any triggered spell will be unable to trigger other auras' procs" };
+        case SPELL_ATTR3_NOT_A_PROC: return { "SPELL_ATTR3_NOT_A_PROC", "Not a Proc", "Without this attribute, any triggered spell will be unable to trigger other auras' procs" };
         case SPELL_ATTR3_MAIN_HAND: return { "SPELL_ATTR3_MAIN_HAND", "Require main hand weapon", "" };
         case SPELL_ATTR3_BATTLEGROUND: return { "SPELL_ATTR3_BATTLEGROUND", "Can only be cast in battleground", "" };
         case SPELL_ATTR3_ONLY_TARGET_GHOSTS: return { "SPELL_ATTR3_ONLY_TARGET_GHOSTS", "Can only target ghost players", "" };
@@ -681,7 +681,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr3>::ToString(SpellAttr3 value)
         case SPELL_ATTR3_UNK23: return { "SPELL_ATTR3_UNK23", "Unknown attribute 23@Attr3", "" };
         case SPELL_ATTR3_REQ_OFFHAND: return { "SPELL_ATTR3_REQ_OFFHAND", "Requires offhand weapon", "" };
         case SPELL_ATTR3_TREAT_AS_PERIODIC: return { "SPELL_ATTR3_TREAT_AS_PERIODIC", "Treat as periodic effect", "" };
-        case SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED: return { "SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED", "Can trigger from triggered spells", "" };
+        case SPELL_ATTR3_CAN_PROC_FROM_PROCS: return { "SPELL_ATTR3_CAN_PROC_FROM_PROCS", "Can Proc From Procs", "" };
         case SPELL_ATTR3_DRAIN_SOUL: return { "SPELL_ATTR3_DRAIN_SOUL", "Drain Soul", "" };
         case SPELL_ATTR3_UNK28: return { "SPELL_ATTR3_UNK28", "Unknown attribute 28@Attr3", "" };
         case SPELL_ATTR3_NO_DONE_BONUS: return { "SPELL_ATTR3_NO_DONE_BONUS", "Damage dealt is unaffected by modifiers", "" };
@@ -708,7 +708,7 @@ TC_API_EXPORT SpellAttr3 EnumUtils<SpellAttr3>::FromIndex(size_t index)
         case 6: return SPELL_ATTR3_UNK6;
         case 7: return SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
         case 8: return SPELL_ATTR3_ONLY_TARGET_PLAYERS;
-        case 9: return SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2;
+        case 9: return SPELL_ATTR3_NOT_A_PROC;
         case 10: return SPELL_ATTR3_MAIN_HAND;
         case 11: return SPELL_ATTR3_BATTLEGROUND;
         case 12: return SPELL_ATTR3_ONLY_TARGET_GHOSTS;
@@ -725,7 +725,7 @@ TC_API_EXPORT SpellAttr3 EnumUtils<SpellAttr3>::FromIndex(size_t index)
         case 23: return SPELL_ATTR3_UNK23;
         case 24: return SPELL_ATTR3_REQ_OFFHAND;
         case 25: return SPELL_ATTR3_TREAT_AS_PERIODIC;
-        case 26: return SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+        case 26: return SPELL_ATTR3_CAN_PROC_FROM_PROCS;
         case 27: return SPELL_ATTR3_DRAIN_SOUL;
         case 28: return SPELL_ATTR3_UNK28;
         case 29: return SPELL_ATTR3_NO_DONE_BONUS;
@@ -749,7 +749,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr3>::ToIndex(SpellAttr3 value)
         case SPELL_ATTR3_UNK6: return 6;
         case SPELL_ATTR3_STACK_FOR_DIFF_CASTERS: return 7;
         case SPELL_ATTR3_ONLY_TARGET_PLAYERS: return 8;
-        case SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2: return 9;
+        case SPELL_ATTR3_NOT_A_PROC: return 9;
         case SPELL_ATTR3_MAIN_HAND: return 10;
         case SPELL_ATTR3_BATTLEGROUND: return 11;
         case SPELL_ATTR3_ONLY_TARGET_GHOSTS: return 12;
@@ -766,7 +766,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr3>::ToIndex(SpellAttr3 value)
         case SPELL_ATTR3_UNK23: return 23;
         case SPELL_ATTR3_REQ_OFFHAND: return 24;
         case SPELL_ATTR3_TREAT_AS_PERIODIC: return 25;
-        case SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED: return 26;
+        case SPELL_ATTR3_CAN_PROC_FROM_PROCS: return 26;
         case SPELL_ATTR3_DRAIN_SOUL: return 27;
         case SPELL_ATTR3_UNK28: return 28;
         case SPELL_ATTR3_NO_DONE_BONUS: return 29;

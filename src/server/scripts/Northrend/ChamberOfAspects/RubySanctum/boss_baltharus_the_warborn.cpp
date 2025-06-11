@@ -22,7 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Texts
+enum BaltharusTexts
 {
     SAY_BALTHARUS_INTRO         = 0,    // Your power wanes, ancient one.... Soon you will join your friends.
     SAY_AGGRO                   = 1,    // Ah, the entertainment has arrived.
@@ -31,7 +31,7 @@ enum Texts
     SAY_DEATH                   = 4    // I... didn't see that coming....
 };
 
-enum Spells
+enum BaltharusSpells
 {
     SPELL_BARRIER_CHANNEL       = 76221,
     SPELL_ENERVATING_BRAND      = 74502,
@@ -44,9 +44,9 @@ enum Spells
     SPELL_SPAWN_EFFECT          = 64195
 };
 
-enum Events
+enum BaltharusEvents
 {
-    EVENT_BLADE_TEMPEST  = 1,
+    EVENT_BLADE_TEMPEST         = 1,
     EVENT_CLEAVE,
     EVENT_ENERVATING_BRAND,
     EVENT_INTRO_TALK,
@@ -54,18 +54,19 @@ enum Events
     EVENT_CLONE
 };
 
-enum Actions
+enum BaltharusActions
 {
-    ACTION_CLONE    = 1
+    ACTION_CLONE                = 1
 };
 
-enum Phases
+enum BaltharusPhases
 {
-    PHASE_ALL   = 0,
+    PHASE_ALL                   = 0,
     PHASE_INTRO,
     PHASE_COMBAT
 };
 
+// 39751 - Baltharus the Warborn
 struct boss_baltharus_the_warborn : public BossAI
 {
     boss_baltharus_the_warborn(Creature* creature) : BossAI(creature, DATA_BALTHARUS_THE_WARBORN), _cloneCount(0) { }
@@ -87,7 +88,7 @@ struct boss_baltharus_the_warborn : public BossAI
             case ACTION_INTRO_BALTHARUS:
                 me->setActive(true);
                 me->SetFarVisible(true);
-                events.ScheduleEvent(EVENT_INTRO_TALK, Seconds(7), 0, PHASE_INTRO);
+                events.ScheduleEvent(EVENT_INTRO_TALK, 7s, 0, PHASE_INTRO);
                 break;
             case ACTION_CLONE:
             {
@@ -108,9 +109,9 @@ struct boss_baltharus_the_warborn : public BossAI
         BossAI::JustEngagedWith(who);
         events.Reset();
         events.SetPhase(PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_CLEAVE, Seconds(13), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_ENERVATING_BRAND, Seconds(13), 0, PHASE_COMBAT);
-        events.ScheduleEvent(EVENT_BLADE_TEMPEST, Seconds(18), 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_CLEAVE, 13s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_ENERVATING_BRAND, 13s, 0, PHASE_COMBAT);
+        events.ScheduleEvent(EVENT_BLADE_TEMPEST, 18s, 0, PHASE_COMBAT);
         Talk(SAY_AGGRO);
     }
 
@@ -142,7 +143,7 @@ struct boss_baltharus_the_warborn : public BossAI
             if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 0)
             {
                 ++_cloneCount;
-                events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                events.ScheduleEvent(EVENT_CLONE, 1ms);
             }
         }
         else
@@ -150,12 +151,12 @@ struct boss_baltharus_the_warborn : public BossAI
             if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 0)
             {
                 ++_cloneCount;
-                events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                events.ScheduleEvent(EVENT_CLONE, 1ms);
             }
             else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
             {
                 ++_cloneCount;
-                events.ScheduleEvent(EVENT_CLONE, Milliseconds(1));
+                events.ScheduleEvent(EVENT_CLONE, 1ms);
             }
         }
 
@@ -193,17 +194,17 @@ struct boss_baltharus_the_warborn : public BossAI
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(Seconds(20), Seconds(24));
+                    events.Repeat(20s, 24s);
                     break;
                 case EVENT_BLADE_TEMPEST:
                     DoCastSelf(SPELL_BLADE_TEMPEST);
-                    events.Repeat(Seconds(24));
+                    events.Repeat(24s);
                     break;
                 case EVENT_ENERVATING_BRAND:
                     for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
                             DoCast(target, SPELL_ENERVATING_BRAND);
-                    events.Repeat(Seconds(26));
+                    events.Repeat(26s);
                     break;
                 case EVENT_SUMMONS_ATTACK:
                     summons.DoZoneInCombat(NPC_BALTHARUS_THE_WARBORN_CLONE);
@@ -226,6 +227,7 @@ private:
     uint8 _cloneCount;
 };
 
+// 39899 - Baltharus the Warborn
 struct npc_baltharus_the_warborn_clone : public BossAI
 {
     npc_baltharus_the_warborn_clone(Creature* creature) : BossAI(creature, DATA_BALTHARUS_CLONE) { }
@@ -279,17 +281,17 @@ struct npc_baltharus_the_warborn_clone : public BossAI
             {
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(Seconds(20), Seconds(24));
+                    events.Repeat(20s, 24s);
                     break;
                 case EVENT_BLADE_TEMPEST:
                     DoCastVictim(SPELL_BLADE_TEMPEST);
-                    events.Repeat(Seconds(24));
+                    events.Repeat(24s);
                     break;
                 case EVENT_ENERVATING_BRAND:
                     for (uint8 i = 0; i < RAID_MODE<uint8>(2, 4, 2, 4); i++)
                         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true, false, -SPELL_ENERVATING_BRAND))
                             DoCast(target, SPELL_ENERVATING_BRAND);
-                    events.Repeat(Seconds(26));
+                    events.Repeat(26s);
                     break;
                 default:
                     break;

@@ -15,94 +15,78 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Lord_Alexei_Barov
-SD%Complete: 100
-SDComment: aura applied/defined in database
-SDCategory: Scholomance
-EndScriptData */
-
 #include "scholomance.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum AlexeiSpells
 {
     SPELL_IMMOLATE                  = 20294,
-    SPELL_VEILOFSHADOW              = 17820,
+    SPELL_VEIL_OF_SHADOW            = 17820,
     SPELL_UNHOLY_AURA               = 17467
 };
 
-enum Events
+enum AlexeiEvents
 {
-    EVENT_IMMOLATE                  = 1,
-    EVENT_VEILOFSHADOW              = 2
+    EVENT_IMMOLATE = 1,
+    EVENT_VEIL_OF_SHADOW
 };
 
-class boss_lord_alexei_barov : public CreatureScript
+// 10504 - Lord Alexei Barov
+struct boss_lord_alexei_barov : public BossAI
 {
-    public: boss_lord_alexei_barov() : CreatureScript("boss_lord_alexei_barov") { }
+    boss_lord_alexei_barov(Creature* creature) : BossAI(creature, DATA_LORD_ALEXEI_BAROV) { }
 
-        struct boss_lordalexeibarovAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+
+        if (!me->HasAura(SPELL_UNHOLY_AURA))
+            DoCastSelf(SPELL_UNHOLY_AURA);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_IMMOLATE, 7s);
+        events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORD_ALEXEI_BAROV) { }
-
-            void Reset() override
+            switch (eventId)
             {
-                _Reset();
-
-                if (!me->HasAura(SPELL_UNHOLY_AURA))
-                    DoCast(me, SPELL_UNHOLY_AURA);
+                case EVENT_IMMOLATE:
+                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_IMMOLATE);
+                    events.Repeat(12s);
+                    break;
+                case EVENT_VEIL_OF_SHADOW:
+                    DoCastVictim(SPELL_VEIL_OF_SHADOW);
+                    events.Repeat(20s);
+                    break;
+                default:
+                    break;
             }
 
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                events.ScheduleEvent(EVENT_IMMOLATE, 7s);
-                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_IMMOLATE:
-                            DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_IMMOLATE, true);
-                            events.ScheduleEvent(EVENT_IMMOLATE, 12s);
-                            break;
-                        case EVENT_VEILOFSHADOW:
-                            DoCastVictim(SPELL_VEILOFSHADOW, true);
-                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetScholomanceAI<boss_lordalexeibarovAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_lordalexeibarov()
 {
-    new boss_lord_alexei_barov();
+    RegisterScholomanceCreatureAI(boss_lord_alexei_barov);
 }

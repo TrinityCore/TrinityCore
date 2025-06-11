@@ -28,7 +28,7 @@
 #include "TemporarySummon.h"
 #include "VehicleDefines.h"
 
-enum ICCSisterSvalnaTexts
+enum SvalnaTexts
 {
     SAY_SVALNA_KILL_CAPTAIN       = 1, // happens when she kills a captain
     SAY_SVALNA_KILL               = 4,
@@ -57,75 +57,75 @@ enum ICCSisterSvalnaTexts
     SAY_CROK_DEATH                = 8,
 };
 
-enum ICCSisterSvalnaSpells
+enum SvalnaSpells
 {
     // Crok Scourgebane
-    SPELL_ICEBOUND_ARMOR = 70714,
-    SPELL_SCOURGE_STRIKE = 71488,
-    SPELL_DEATH_STRIKE = 71489,
+    SPELL_ICEBOUND_ARMOR              = 70714,
+    SPELL_SCOURGE_STRIKE              = 71488,
+    SPELL_DEATH_STRIKE                = 71489,
 
     // Sister Svalna
-    SPELL_CARESS_OF_DEATH = 70078,
-    SPELL_IMPALING_SPEAR_KILL = 70196,
-    SPELL_REVIVE_CHAMPION = 70053,
-    SPELL_UNDEATH = 70089,
-    SPELL_IMPALING_SPEAR = 71443,
-    SPELL_AETHER_SHIELD = 71463,
-    SPELL_HURL_SPEAR = 71466,
-    SPELL_DIVINE_SURGE = 71465,
+    SPELL_CARESS_OF_DEATH             = 70078,
+    SPELL_IMPALING_SPEAR_KILL         = 70196,
+    SPELL_REVIVE_CHAMPION             = 70053,
+    SPELL_UNDEATH                     = 70089,
+    SPELL_IMPALING_SPEAR              = 71443,
+    SPELL_AETHER_SHIELD               = 71463,
+    SPELL_HURL_SPEAR                  = 71466,
+    SPELL_DIVINE_SURGE                = 71465,
 
     // Captain Arnath
-    SPELL_DOMINATE_MIND = 14515,
-    SPELL_FLASH_HEAL_NORMAL = 71595,
-    SPELL_POWER_WORD_SHIELD_NORMAL = 71548,
-    SPELL_SMITE_NORMAL = 71546,
-    SPELL_FLASH_HEAL_UNDEAD = 71782,
-    SPELL_POWER_WORD_SHIELD_UNDEAD = 71780,
-    SPELL_SMITE_UNDEAD = 71778,
+    SPELL_DOMINATE_MIND               = 14515,
+    SPELL_FLASH_HEAL_NORMAL           = 71595,
+    SPELL_POWER_WORD_SHIELD_NORMAL    = 71548,
+    SPELL_SMITE_NORMAL                = 71546,
+    SPELL_FLASH_HEAL_UNDEAD           = 71782,
+    SPELL_POWER_WORD_SHIELD_UNDEAD    = 71780,
+    SPELL_SMITE_UNDEAD                = 71778,
 
     // Captain Brandon
-    SPELL_CRUSADER_STRIKE = 71549,
-    SPELL_DIVINE_SHIELD = 71550,
-    SPELL_JUDGEMENT_OF_COMMAND = 71551,
-    SPELL_HAMMER_OF_BETRAYAL = 71784,
+    SPELL_CRUSADER_STRIKE             = 71549,
+    SPELL_DIVINE_SHIELD               = 71550,
+    SPELL_JUDGEMENT_OF_COMMAND        = 71551,
+    SPELL_HAMMER_OF_BETRAYAL          = 71784,
 
     // Captain Grondel
-    SPELL_CHARGE = 71553,
-    SPELL_MORTAL_STRIKE = 71552,
-    SPELL_SUNDER_ARMOR = 71554,
-    SPELL_CONFLAGRATION = 71785,
+    SPELL_CHARGE                      = 71553,
+    SPELL_MORTAL_STRIKE               = 71552,
+    SPELL_SUNDER_ARMOR                = 71554,
+    SPELL_CONFLAGRATION               = 71785,
 
     // Captain Rupert
-    SPELL_FEL_IRON_BOMB_NORMAL = 71592,
-    SPELL_MACHINE_GUN_NORMAL = 71594,
-    SPELL_ROCKET_LAUNCH_NORMAL = 71590,
-    SPELL_FEL_IRON_BOMB_UNDEAD = 71787,
-    SPELL_MACHINE_GUN_UNDEAD = 71788,
-    SPELL_ROCKET_LAUNCH_UNDEAD = 71786,
+    SPELL_FEL_IRON_BOMB_NORMAL        = 71592,
+    SPELL_MACHINE_GUN_NORMAL          = 71594,
+    SPELL_ROCKET_LAUNCH_NORMAL        = 71590,
+    SPELL_FEL_IRON_BOMB_UNDEAD        = 71787,
+    SPELL_MACHINE_GUN_UNDEAD          = 71788,
+    SPELL_ROCKET_LAUNCH_UNDEAD        = 71786,
 
     // Ymirjar Vrykuls
-    SPELL_ARCTIC_CHILL = 71270,
-    SPELL_FROZEN_ORB_CAST = 71274,
-    SPELL_FROZEN_ORB_MISSILE = 71285,
-    SPELL_SPIRIT_STREAM = 69929,
-    SPELL_TWISTED_WINDS = 71306,
-    SPELL_BARBARIC_STRIKE = 71257,
-    SPELL_ADRENALINE_RUSH = 71258,
-    SPELL_WHIRLWIND = 41056,
-    SPELL_RAPID_SHOT = 71251,
-    SPELL_ICE_TRAP = 71249,
-    SPELL_SUMMON_WARHAWK = 71705,
-    SPELL_VOLLEY = 71252,
-    SPELL_YMIRJAR_SHOOT = 71253,
-    SPELL_YMIRJAR_SHADOW_BOLT = 71296,
-    SPELL_DEATH_EMBRACE = 71299,
-    SPELL_BANISH = 71298,
-    SPELL_SUMMON_YMIRJAR = 71303,
-    SPELL_AWAKEN_YMIRJAR_FALLEN = 71302,
-    SPELL_WARLORDS_PRESENCE = 71244,
+    SPELL_ARCTIC_CHILL                = 71270,
+    SPELL_FROZEN_ORB_CAST             = 71274,
+    SPELL_FROZEN_ORB_MISSILE          = 71285,
+    SPELL_SPIRIT_STREAM               = 69929,
+    SPELL_TWISTED_WINDS               = 71306,
+    SPELL_BARBARIC_STRIKE             = 71257,
+    SPELL_ADRENALINE_RUSH             = 71258,
+    SPELL_WHIRLWIND                   = 41056,
+    SPELL_RAPID_SHOT                  = 71251,
+    SPELL_ICE_TRAP                    = 71249,
+    SPELL_SUMMON_WARHAWK              = 71705,
+    SPELL_VOLLEY                      = 71252,
+    SPELL_YMIRJAR_SHOOT               = 71253,
+    SPELL_YMIRJAR_SHADOW_BOLT         = 71296,
+    SPELL_DEATH_EMBRACE               = 71299,
+    SPELL_BANISH                      = 71298,
+    SPELL_SUMMON_YMIRJAR              = 71303,
+    SPELL_AWAKEN_YMIRJAR_FALLEN       = 71302,
+    SPELL_WARLORDS_PRESENCE           = 71244
 };
 
-enum ICCSisterSvalnaTimedEventIds
+enum SvalnaEvents
 {
     // Crok Scourgebane
     EVENT_SCOURGE_STRIKE = 1,
@@ -182,7 +182,7 @@ enum ICCSisterSvalnaTimedEventIds
     EVENT_YMIRJAR_SUMMON,
 };
 
-enum ICCSisterSvalnaActions
+enum SvalnaActions
 {
     ACTION_KILL_CAPTAIN = 1,
     ACTION_START_GAUNTLET,
@@ -191,12 +191,12 @@ enum ICCSisterSvalnaActions
     ACTION_RESET_EVENT
 };
 
-enum ICCSisterSvalnaMovePoints
+enum SvalnaPoints
 {
     POINT_SVALNA_LAND = 1
 };
 
-enum ICCYmirjarFrostWingMisc
+enum SvalnaMisc
 {
     NPC_YMIRJAR_WARHAWK = 38154
 };
@@ -302,6 +302,7 @@ private:
     Creature const* _owner;
 };
 
+// 37126 - Sister Svalna
 struct boss_sister_svalna : public BossAI
 {
     boss_sister_svalna(Creature* creature) : BossAI(creature, DATA_SISTER_SVALNA), _isEventInProgress(false) { }
@@ -513,6 +514,7 @@ private:
     bool _isEventInProgress;
 };
 
+// 37129 - Crok Scourgebane
 struct npc_crok_scourgebane : public EscortAI
 {
     npc_crok_scourgebane(Creature* creature) : EscortAI(creature), _instance(creature->GetInstanceScript()), _respawnTime(creature->GetRespawnDelay()), _corpseDelay(creature->GetCorpseDelay())
@@ -923,6 +925,7 @@ private:
     bool _firstDeath;
 };
 
+// 37122 - Captain Arnath
 struct npc_captain_arnath : public npc_argent_captainAI
 {
     npc_captain_arnath(Creature* creature) : npc_argent_captainAI(creature)
@@ -997,6 +1000,7 @@ private:
     }
 };
 
+// 37123 - Captain Brandon
 struct npc_captain_brandon : public npc_argent_captainAI
 {
     npc_captain_brandon(Creature* creature) : npc_argent_captainAI(creature)
@@ -1057,6 +1061,7 @@ struct npc_captain_brandon : public npc_argent_captainAI
     }
 };
 
+// 37124 - Captain Grondel
 struct npc_captain_grondel : public npc_argent_captainAI
 {
     npc_captain_grondel(Creature* creature) : npc_argent_captainAI(creature)
@@ -1116,6 +1121,7 @@ struct npc_captain_grondel : public npc_argent_captainAI
     }
 };
 
+// 37125 - Captain Rupert
 struct npc_captain_rupert : public npc_argent_captainAI
 {
     npc_captain_rupert(Creature* creature) : npc_argent_captainAI(creature)
@@ -1171,6 +1177,11 @@ struct npc_captain_rupert : public npc_argent_captainAI
     }
 };
 
+/* 37127 - Ymirjar Frostbinder
+   37132 - Ymirjar Battle-Maiden
+   37133 - Ymirjar Warlord
+   37134 - Ymirjar Huntress
+   38125 - Ymirjar Deathbringer */
 struct npc_frostwing_ymirjar_vrykul : public ScriptedAI
 {
     npc_frostwing_ymirjar_vrykul(Creature* creature) : ScriptedAI(creature), _summons(creature)
@@ -1373,6 +1384,7 @@ private:
     SummonList _summons;
 };
 
+// 38248 - Impaling Spear
 struct npc_impaling_spear : public CreatureAI
 {
     npc_impaling_spear(Creature* creature) : CreatureAI(creature)

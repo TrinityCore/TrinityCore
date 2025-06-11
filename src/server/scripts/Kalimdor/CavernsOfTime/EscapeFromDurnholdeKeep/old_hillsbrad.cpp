@@ -440,11 +440,10 @@ struct npc_thrall_old_hillsbrad : public EscortAI
             DoUnmount();
     }
 
-    void JustReachedHome() override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        EscortAI::JustReachedHome();
-        if (HadMount)
-            DoMount();
+        EscortAI::EnterEvadeMode(why);
+        Reset();
     }
 
     void JustSummoned(Creature* summoned) override

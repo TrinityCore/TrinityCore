@@ -347,10 +347,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 
             *data << object->GetOrientation();
 
-            if (GetTypeId() == TYPEID_CORPSE)
-                *data << float(object->GetOrientation());
+            if (transport)
+                *data << float(object->GetTransOffsetO());
             else
-                *data << float(0);
+                *data << float(object->GetOrientation());
         }
         else
         {

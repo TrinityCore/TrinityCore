@@ -27,7 +27,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Yells
+enum MagtheridonTexts
 {
     SAY_TAUNT           = 0,
     SAY_FREE            = 1,
@@ -41,7 +41,7 @@ enum Yells
     EMOTE_BLAST_NOVA    = 9
 };
 
-enum Spells
+enum MagtheridonSpells
 {
     // Magtheridon
     SPELL_BLAST_NOVA            = 30616,
@@ -80,7 +80,7 @@ enum Spells
     SPELL_BLAZE                 = 30542
 };
 
-enum Events
+enum MagtheridonEvents
 {
     // Magtheridon
     EVENT_BERSERK = 1,
@@ -103,7 +103,7 @@ enum Events
     EVENT_ABYSSAL
 };
 
-enum Phases
+enum MagtheridonPhases
 {
     PHASE_BANISH = 1,
     PHASE_1,
@@ -111,12 +111,13 @@ enum Phases
     PHASE_3
 };
 
-enum Misc
+enum MagtheridonMisc
 {
     SUMMON_GROUP_CHANNELERS       = 1,
     ACTION_START_CHANNELERS_EVENT = 2
 };
 
+// 17257 - Magtheridon
 struct boss_magtheridon : public BossAI
 {
     boss_magtheridon(Creature* creature) : BossAI(creature, DATA_MAGTHERIDON), _channelersCount(5) { }
@@ -128,7 +129,7 @@ struct boss_magtheridon : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_CHANNELERS);
         events.SetPhase(PHASE_BANISH);
         _channelersCount = 5;
-        events.ScheduleEvent(EVENT_TAUNT, Minutes(4), Minutes(5));
+        events.ScheduleEvent(EVENT_TAUNT, 4min, 5min);
     }
 
     void CombatStart()
@@ -230,15 +231,15 @@ struct boss_magtheridon : public BossAI
                     break;
                 case EVENT_CLEAVE:
                     DoCastVictim(SPELL_CLEAVE);
-                    events.Repeat(Seconds(10));
+                    events.Repeat(10s);
                     break;
                 case EVENT_BLAZE:
                     DoCastAOE(SPELL_BLAZE_TARGET, { SPELLVALUE_MAX_TARGETS, 1 });
-                    events.Repeat(Seconds(20));
+                    events.Repeat(20s);
                     break;
                 case EVENT_QUAKE:
                     DoCastAOE(SPELL_QUAKE, { SPELLVALUE_MAX_TARGETS, 5 });
-                    events.Repeat(Seconds(60));
+                    events.Repeat(60s);
                     break;
                 case EVENT_START_FIGHT:
                     CombatStart();
@@ -269,7 +270,7 @@ struct boss_magtheridon : public BossAI
                     break;
                 case EVENT_DEBRIS:
                     DoCastAOE(SPELL_DEBRIS_SERVERSIDE);
-                    events.Repeat(Seconds(20));
+                    events.Repeat(20s);
                     break;
                 case EVENT_NEARLY_EMOTE:
                     Talk(EMOTE_NEARLY_FREE, me);
@@ -277,11 +278,11 @@ struct boss_magtheridon : public BossAI
                 case EVENT_BLAST_NOVA:
                     Talk(EMOTE_BLAST_NOVA, me);
                     DoCastAOE(SPELL_BLAST_NOVA);
-                    events.Repeat(Seconds(55));
+                    events.Repeat(55s);
                     break;
                 case EVENT_TAUNT:
                     Talk(SAY_TAUNT);
-                    events.Repeat(Minutes(4), Minutes(5));
+                    events.Repeat(4min, 5min);
                     break;
                 default:
                     break;
@@ -298,6 +299,7 @@ private:
     uint8 _channelersCount;
 };
 
+// 17256 - Hellfire Channeler
 struct npc_hellfire_channeler : public ScriptedAI
 {
     npc_hellfire_channeler(Creature* creature) : ScriptedAI(creature), _instance(me->GetInstanceScript()), _canCastDarkMending(true)
@@ -366,12 +368,12 @@ struct npc_hellfire_channeler : public ScriptedAI
             {
                 case EVENT_SHADOWBOLT:
                     DoCastAOE(SPELL_SHADOW_BOLT_VOLLEY);
-                    _events.Repeat(Seconds(15), Seconds(20));
+                    _events.Repeat(15s, 20s);
                     break;
                 case EVENT_FEAR:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                         DoCast(target, SPELL_FEAR);
-                    _events.Repeat(Seconds(25), Seconds(40));
+                    _events.Repeat(25s, 40s);
                     break;
                 case EVENT_CHECK_FRIEND:
                     if (_canCastDarkMending)
@@ -383,14 +385,14 @@ struct npc_hellfire_channeler : public ScriptedAI
                             _events.ScheduleEvent(EVENT_DARK_MENDING, 10s, 20s);
                         }
                     }
-                    _events.Repeat(Seconds(1));
+                    _events.Repeat(1s);
                     break;
                 case EVENT_DARK_MENDING:
                     _canCastDarkMending = true;
                     break;
                 case EVENT_ABYSSAL:
                     DoCastVictim(SPELL_BURNING_ABYSSAL);
-                    _events.Repeat(Seconds(60));
+                    _events.Repeat(60s);
                     break;
                 default:
                     break;
@@ -409,6 +411,7 @@ private:
     bool _canCastDarkMending;
 };
 
+// 17516 - Magtheridon's Room
 struct npc_magtheridon_room : public PassiveAI
 {
     npc_magtheridon_room(Creature* creature) : PassiveAI(creature) { }
@@ -417,7 +420,7 @@ struct npc_magtheridon_room : public PassiveAI
     {
         DoCastSelf(SPELL_DEBRIS_VISUAL);
 
-        _scheduler.Schedule(Seconds(5), [this](TaskContext /*context*/)
+        _scheduler.Schedule(5s, [this](TaskContext /*context*/)
         {
             DoCastAOE(SPELL_DEBRIS_DAMAGE);
         });
@@ -432,6 +435,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 181713 - Manticron Cube
 struct go_manticron_cube : public GameObjectAI
 {
     go_manticron_cube(GameObject* go) : GameObjectAI(go) { }

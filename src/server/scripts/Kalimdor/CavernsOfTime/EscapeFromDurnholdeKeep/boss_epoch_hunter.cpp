@@ -15,66 +15,56 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Epoch_Hunter
-SD%Complete: 60
-SDComment: Missing spawns pre-event, missing speech to be coordinated with rest of escort event.
-SDCategory: Caverns of Time, Old Hillsbrad Foothills
-EndScriptData */
+/* Missing spawns pre-event, missing speech to be coordinated with rest of escort event  */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "old_hillsbrad.h"
 #include "ScriptedCreature.h"
 
-/*###################
-# boss_epoch_hunter #
-####################*/
-
-enum EpochHunter
+enum EpochHunterTexts
 {
     SAY_ENTER                   = 0,
     SAY_AGGRO                   = 1,
     SAY_SLAY                    = 2,
     SAY_BREATH                  = 3,
-    SAY_DEATH                   = 4,
+    SAY_DEATH                   = 4
+};
 
+enum EpochHunterSpells
+{
     SPELL_SAND_BREATH           = 31914,
     SPELL_IMPENDING_DEATH       = 31916,
     SPELL_MAGIC_DISRUPTION_AURA = 33834,
     SPELL_WING_BUFFET           = 31475
 };
 
+enum EpochHunterEvents
+{
+    EVENT_SAND_BREATH           = 1,
+    EVENT_IMPENDING_DEATH,
+    EVENT_MAGIC_DISRUPTION_AURA,
+    EVENT_WING_BUFFET
+};
+
+// 18096 - Epoch Hunter
 struct boss_epoch_hunter : public BossAI
 {
-    boss_epoch_hunter(Creature* creature) : BossAI(creature, DATA_EPOCH_HUNTER)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        SandBreath_Timer = urand(8000, 16000);
-        ImpendingDeath_Timer = urand(25000, 30000);
-        WingBuffet_Timer = 35000;
-        Mda_Timer = 40000;
-    }
-
-    uint32 SandBreath_Timer;
-    uint32 ImpendingDeath_Timer;
-    uint32 WingBuffet_Timer;
-    uint32 Mda_Timer;
+    boss_epoch_hunter(Creature* creature) : BossAI(creature, DATA_EPOCH_HUNTER) { }
 
     void Reset() override
     {
         BossAI::Reset();
-        Initialize();
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_SAND_BREATH, 8s, 16s);
+        events.ScheduleEvent(EVENT_IMPENDING_DEATH, 25s, 30s);
+        events.ScheduleEvent(EVENT_MAGIC_DISRUPTION_AURA, 40s);
+        events.ScheduleEvent(EVENT_WING_BUFFET, 35s);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -92,41 +82,42 @@ struct boss_epoch_hunter : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        //Sand Breath
-        if (SandBreath_Timer <= diff)
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            if (me->IsNonMeleeSpellCast(false))
-                me->InterruptNonMeleeSpells(false);
+            switch (eventId)
+            {
+                case EVENT_SAND_BREATH:
+                    DoCastVictim(SPELL_SAND_BREATH);
+                    Talk(SAY_BREATH);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_IMPENDING_DEATH:
+                    DoCastVictim(SPELL_IMPENDING_DEATH);
+                    events.Repeat(25s, 30s);
+                    break;
+                case EVENT_MAGIC_DISRUPTION_AURA:
+                    DoCastSelf(SPELL_MAGIC_DISRUPTION_AURA);
+                    events.Repeat(15s);
+                    break;
+                case EVENT_WING_BUFFET:
+                    DoCastSelf(SPELL_WING_BUFFET);
+                    events.Repeat(25s, 35s);
+                    break;
+                default:
+                    break;
+            }
 
-            DoCastVictim(SPELL_SAND_BREATH);
-
-            Talk(SAY_BREATH);
-
-            SandBreath_Timer = urand(10000, 20000);
-        } else SandBreath_Timer -= diff;
-
-        if (ImpendingDeath_Timer <= diff)
-        {
-            DoCastVictim(SPELL_IMPENDING_DEATH);
-            ImpendingDeath_Timer = 25000 + rand32() % 5000;
-        } else ImpendingDeath_Timer -= diff;
-
-        if (WingBuffet_Timer <= diff)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                DoCast(target, SPELL_WING_BUFFET);
-            WingBuffet_Timer = 25000 + rand32() % 10000;
-        } else WingBuffet_Timer -= diff;
-
-        if (Mda_Timer <= diff)
-        {
-            DoCast(me, SPELL_MAGIC_DISRUPTION_AURA);
-            Mda_Timer = 15000;
-        } else Mda_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         DoMeleeAttackIfReady();
     }

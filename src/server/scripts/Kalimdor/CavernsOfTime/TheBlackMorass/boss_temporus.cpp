@@ -15,41 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-Name: Boss_Temporus
-%Complete: 75
-Comment: More abilities need to be implemented
-Category: Caverns of Time, The Black Morass
-*/
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "the_black_morass.h"
 
-enum Enums
+enum TemporusTexts
 {
     SAY_ENTER               = 0,
     SAY_AGGRO               = 1,
     SAY_BANISH              = 2,
     SAY_SLAY                = 3,
-    SAY_DEATH               = 4,
+    SAY_DEATH               = 4
+};
 
+enum TemporusSpells
+{
     SPELL_HASTE             = 31458,
     SPELL_MORTAL_WOUND      = 31464,
     SPELL_WING_BUFFET       = 31475,
-    H_SPELL_WING_BUFFET     = 38593,
-    SPELL_REFLECT           = 38592                       //Not Implemented (Heroic mod)
+    SPELL_REFLECT           = 38592
 };
 
-enum Events
+enum TemporusEvents
 {
     EVENT_HASTE             = 1,
-    EVENT_MORTAL_WOUND      = 2,
-    EVENT_WING_BUFFET       = 3,
-    EVENT_SPELL_REFLECTION  = 4
+    EVENT_MORTAL_WOUND,
+    EVENT_WING_BUFFET,
+    EVENT_SPELL_REFLECTION
 };
 
+// 17880 - Temporus
 struct boss_temporus : public BossAI
 {
     boss_temporus(Creature* creature) : BossAI(creature, TYPE_TEMPORUS) { }
@@ -97,7 +93,6 @@ struct boss_temporus : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
@@ -111,20 +106,20 @@ struct boss_temporus : public BossAI
             switch (eventId)
             {
                 case EVENT_HASTE:
-                    DoCast(me, SPELL_HASTE);
-                    events.ScheduleEvent(EVENT_HASTE, 20s, 25s);
+                    DoCastSelf(SPELL_HASTE);
+                    events.Repeat(20s, 25s);
                     break;
                 case EVENT_MORTAL_WOUND:
-                    DoCast(me, SPELL_MORTAL_WOUND);
-                    events.ScheduleEvent(EVENT_MORTAL_WOUND, 10s, 20s);
+                    DoCastVictim(SPELL_MORTAL_WOUND);
+                    events.Repeat(10s, 20s);
                     break;
                 case EVENT_WING_BUFFET:
-                     DoCast(me, SPELL_WING_BUFFET);
-                    events.ScheduleEvent(EVENT_WING_BUFFET, 20s, 30s);
+                    DoCastSelf(SPELL_WING_BUFFET);
+                    events.Repeat(20s, 30s);
                     break;
-                case EVENT_SPELL_REFLECTION: // Only in Heroic
-                    DoCast(me, SPELL_REFLECT);
-                    events.ScheduleEvent(EVENT_SPELL_REFLECTION, 25s, 35s);
+                case EVENT_SPELL_REFLECTION:
+                    DoCastSelf(SPELL_REFLECT);
+                    events.Repeat(25s, 35s);
                     break;
                 default:
                     break;
@@ -133,6 +128,7 @@ struct boss_temporus : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
+
         DoMeleeAttackIfReady();
     }
 };

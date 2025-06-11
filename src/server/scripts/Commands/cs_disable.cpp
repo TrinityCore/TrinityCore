@@ -23,8 +23,8 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "AchievementMgr.h"
 #include "Chat.h"
+#include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "Language.h"
@@ -129,7 +129,7 @@ public:
             }
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             {
-                if (!sAchievementMgr->GetAchievementCriteria(entry))
+                if (!sAchievementCriteriaStore.LookupEntry(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND);
                     handler->SetSentErrorMessage(true);

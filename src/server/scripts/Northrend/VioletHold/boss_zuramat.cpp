@@ -20,7 +20,17 @@
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
 
-enum Spells
+enum ZuramatTexts
+{
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_SHIELD                                  = 4,
+    SAY_WHISPER                                 = 5
+};
+
+enum ZuramatSpells
 {
     SPELL_SHROUD_OF_DARKNESS                    = 54524,
     SPELL_SUMMON_VOID_SENTRY                    = 54369,
@@ -32,22 +42,14 @@ enum Spells
     SPELL_SUMMON_VOID_SENTRY_BALL               = 58650
 };
 
-enum Yells
-{
-    SAY_AGGRO                                   = 0,
-    SAY_SLAY                                    = 1,
-    SAY_DEATH                                   = 2,
-    SAY_SPAWN                                   = 3,
-    SAY_SHIELD                                  = 4,
-    SAY_WHISPER                                 = 5
-};
-
-enum Misc
+enum ZuramatMisc
 {
     ACTION_DESPAWN_VOID_SENTRY_BALL             = 1,
     DATA_VOID_DANCE                             = 2153
 };
 
+// 29314 - Zuramat the Obliterator
+// 32230 - Void Lord
 struct boss_zuramat : public BossAI
 {
     boss_zuramat(Creature* creature) : BossAI(creature, DATA_ZURAMAT)
@@ -122,23 +124,23 @@ struct boss_zuramat : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(4), [this](TaskContext task)
+        scheduler.Schedule(4s, [this](TaskContext task)
         {
             DoCast(me, SPELL_SUMMON_VOID_SENTRY);
-            task.Repeat(Seconds(7), Seconds(10));
+            task.Repeat(7s, 10s);
         });
 
-        scheduler.Schedule(Seconds(9), [this](TaskContext task)
+        scheduler.Schedule(9s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 60.0f, true))
                 DoCast(target, SPELL_VOID_SHIFT);
-            task.Repeat(Seconds(15));
+            task.Repeat(15s);
         });
 
-        scheduler.Schedule(Seconds(18), Seconds(20), [this](TaskContext task)
+        scheduler.Schedule(18s, 20s, [this](TaskContext task)
         {
             DoCast(me, SPELL_SHROUD_OF_DARKNESS);
-            task.Repeat(Seconds(18), Seconds(20));
+            task.Repeat(18s, 20s);
         });
     }
 
@@ -146,6 +148,7 @@ private:
     bool _voidDance;
 };
 
+// 29364 - Void Sentry
 struct npc_void_sentry : public ScriptedAI
 {
     npc_void_sentry(Creature* creature) : ScriptedAI(creature), _summons(creature)

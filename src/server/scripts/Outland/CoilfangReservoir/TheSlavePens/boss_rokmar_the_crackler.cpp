@@ -15,18 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_rokmar_the_crackler
-SD%Complete: 100%
-SDComment:
-SDCategory: Coilfang Reservoir, The Slave Pens
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_slave_pens.h"
 
-enum Spells
+enum RokmarSpells
 {
     SPELL_GRIEVOUS_WOUND            = 31956,
     SPELL_ENSNARING_MOSS            = 31948,
@@ -34,34 +27,23 @@ enum Spells
     SPELL_FRENZY                    = 34970
 };
 
-enum Events
+enum RokmarEvents
 {
     EVENT_GRIEVOUS_WOUND            = 1,
-    EVENT_ENSNARING_MOSS            = 2,
-    EVENT_WATER_SPIT                = 3
+    EVENT_ENSNARING_MOSS,
+    EVENT_WATER_SPIT,
+    EVENT_FRENZY
 };
 
+// 17991 - Rokmar the Crackler
 struct boss_rokmar_the_crackler : public BossAI
 {
-    boss_rokmar_the_crackler(Creature* creature) : BossAI(creature, DATA_ROKMAR_THE_CRACKLER)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        rokmarFrenzy = false;
-    }
+    boss_rokmar_the_crackler(Creature* creature) : BossAI(creature, DATA_ROKMAR_THE_CRACKLER), _frenzied(false) { }
 
     void Reset() override
     {
         _Reset();
-        Initialize();
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
+        _frenzied = false;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -72,7 +54,14 @@ struct boss_rokmar_the_crackler : public BossAI
         events.ScheduleEvent(EVENT_WATER_SPIT, 14s);
     }
 
-    void KilledUnit(Unit* /*victim*/) override { }
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_frenzied && me->HealthBelowPctDamaged(10, damage))
+        {
+            _frenzied = true;
+            events.ScheduleEvent(EVENT_FRENZY, 0s);
+        }
+    }
 
     void UpdateAI(uint32 diff) override
     {
@@ -89,16 +78,19 @@ struct boss_rokmar_the_crackler : public BossAI
             switch (eventId)
             {
                 case EVENT_GRIEVOUS_WOUND:
-                    DoCastVictim(SPELL_GRIEVOUS_WOUND, true);
-                    events.ScheduleEvent(EVENT_GRIEVOUS_WOUND, 20s, 30s);
+                    DoCastVictim(SPELL_GRIEVOUS_WOUND);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_ENSNARING_MOSS:
                     DoCastAOE(SPELL_ENSNARING_MOSS);
-                    events.ScheduleEvent(EVENT_ENSNARING_MOSS, 20s, 30s);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_WATER_SPIT:
                     DoCastAOE(SPELL_WATER_SPIT);
-                    events.ScheduleEvent(EVENT_WATER_SPIT, 14s, 18s);
+                    events.Repeat(14s, 18s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
                     break;
                 default:
                     break;
@@ -108,17 +100,11 @@ struct boss_rokmar_the_crackler : public BossAI
                 return;
         }
 
-        if (HealthBelowPct(10) && !rokmarFrenzy)
-        {
-            DoCast(me, SPELL_FRENZY);
-            rokmarFrenzy = true;
-        }
-
         DoMeleeAttackIfReady();
     }
 
 private:
-    bool rokmarFrenzy;
+    bool _frenzied;
 };
 
 void AddSC_boss_rokmar_the_crackler()

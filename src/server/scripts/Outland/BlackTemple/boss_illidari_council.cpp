@@ -26,7 +26,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Says
+enum CouncilTexts
 {
     SAY_COUNCIL_AGRO     = 0,
     SAY_COUNCIL_ENRAGE   = 1,
@@ -36,7 +36,7 @@ enum Says
     SAY_COUNCIL_DEATH    = 5
 };
 
-enum Spells
+enum CouncilSpells
 {
     // Illidari Council (Trigger)
     SPELL_EMPYREAL_BALANCE         = 41499,
@@ -89,7 +89,7 @@ enum Spells
     SPELL_ENVENOM_DUMMY             = 41510
 };
 
-enum IllidariEvents
+enum CouncilEvents
 {
     EVENT_EMPYREAL_EQUIVALENCY = 1,
     EVENT_VANISH,
@@ -109,7 +109,7 @@ enum IllidariEvents
     EVENT_BERSERK
 };
 
-enum IllidariMisc
+enum CouncilMisc
 {
     SUMMON_COUNCIL_GROUP = 1,
     ACTION_REFRESH_DAMPEN
@@ -133,6 +133,7 @@ static uint32 GetRandomBossExcept(uint32 exception)
     return Trinity::Containers::SelectRandomContainerElement(bossData);
 }
 
+// 23426 - The Illidari Council
 struct boss_illidari_council : public BossAI
 {
     boss_illidari_council(Creature* creature) : BossAI(creature, DATA_ILLIDARI_COUNCIL), _inCombat(false) { }
@@ -206,7 +207,7 @@ struct boss_illidari_council : public BossAI
             {
                 case EVENT_EMPYREAL_EQUIVALENCY:
                     DoCastSelf(SPELL_EMPYREAL_EQUIVALENCY, true);
-                    events.Repeat(Seconds(2));
+                    events.Repeat(2s);
                     break;
                 case EVENT_BERSERK:
                     for (uint32 bossData : CouncilData)
@@ -301,6 +302,7 @@ private:
     Unit const* _me;
 };
 
+// 22949 - Gathios the Shatterer
 struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
 {
     boss_gathios_the_shatterer(Creature* creature) : IllidariCouncilBossAI(creature, DATA_GATHIOS_THE_SHATTERER) { }
@@ -331,25 +333,25 @@ struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
                     Unit* target = Trinity::Containers::SelectRandomContainerElement(TargetList);
                     DoCast(target, RAND(SPELL_BLESS_PROTECTION, SPELL_BLESS_SPELL_WARDING));
                 }
-                events.Repeat(Seconds(30), Seconds(45));
+                events.Repeat(30s, 45s);
                 break;
             }
             case EVENT_AURA:
                 DoCastSelf(RAND(SPELL_CHROMATIC_AURA, SPELL_DEVOTION_AURA));
-                events.Repeat(Seconds(30));
+                events.Repeat(30s);
                 break;
             case EVENT_HAMMER_OF_JUSTICE:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, HammerTargetSelector(me)))
                     DoCast(target, SPELL_HAMMER_OF_JUSTICE);
-                events.Repeat(Seconds(20));
+                events.Repeat(20s);
                 break;
             case EVENT_JUDGEMENT:
                 DoCastVictim(SPELL_JUDGEMENT);
-                events.Repeat(Seconds(15));
+                events.Repeat(15s);
                 break;
             case EVENT_CONSECRATION:
                 DoCastSelf(SPELL_CONSECRATION);
-                events.Repeat(Seconds(30), Seconds(35));
+                events.Repeat(30s, 35s);
                 break;
             default:
                 break;
@@ -357,6 +359,7 @@ struct boss_gathios_the_shatterer : public IllidariCouncilBossAI
     }
 };
 
+// 22950 - High Nethermancer Zerevor
 struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
 {
     boss_high_nethermancer_zerevor(Creature* creature) : IllidariCouncilBossAI(creature, DATA_HIGH_NETHERMANCER_ZEREVOR), _canUseArcaneExplosion(true) { }
@@ -381,6 +384,7 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
         if (actionId == ACTION_REFRESH_DAMPEN)
             events.ScheduleEvent(EVENT_DAMPEN_MAGIC, 50s);
     }
+
     void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
@@ -389,12 +393,12 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_FLAMESTRIKE);
                 Talk(SAY_COUNCIL_SPECIAL);
-                events.Repeat(Seconds(40));
+                events.Repeat(40s);
                 break;
             case EVENT_BLIZZARD:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_BLIZZARD);
-                events.Repeat(Seconds(15), Seconds(40));
+                events.Repeat(15s, 40s);
                 break;
             case EVENT_ARCANE_EXPLOSION_CHECK:
                 _canUseArcaneExplosion = true;
@@ -406,7 +410,7 @@ struct boss_high_nethermancer_zerevor : public IllidariCouncilBossAI
                     _canUseArcaneExplosion = false;
                     events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_CHECK, 5s);
                 }
-                events.Repeat(Seconds(1));
+                events.Repeat(1s);
                 break;
             case EVENT_DAMPEN_MAGIC:
                 DoCastSelf(SPELL_DAMPEN_MAGIC);
@@ -440,6 +444,7 @@ private:
     bool _canUseArcaneExplosion;
 };
 
+// 22951 - Lady Malande
 struct boss_lady_malande : public IllidariCouncilBossAI
 {
     boss_lady_malande(Creature* creature) : IllidariCouncilBossAI(creature, DATA_LADY_MALANDE) { }
@@ -463,16 +468,16 @@ struct boss_lady_malande : public IllidariCouncilBossAI
         {
             case EVENT_CIRCLE_OF_HEALING:
                 DoCastSelf(SPELL_CIRCLE_OF_HEALING);
-                events.Repeat(Seconds(20), Seconds(35));
+                events.Repeat(20s, 35s);
                 break;
             case EVENT_REFLECTIVE_SHIELD:
                 DoCastSelf(SPELL_REFLECTIVE_SHIELD);
                 Talk(SAY_COUNCIL_SPECIAL);
-                events.Repeat(Seconds(40));
+                events.Repeat(40s);
                 break;
             case EVENT_DIVINE_WRATH:
                 DoCastVictim(SPELL_DIVINE_WRATH);
-                events.Repeat(Seconds(20));
+                events.Repeat(20s);
                 break;
             default:
                 break;
@@ -500,6 +505,7 @@ struct boss_lady_malande : public IllidariCouncilBossAI
     }
 };
 
+// 22952 - Veras Darkshadow
 struct boss_veras_darkshadow : public IllidariCouncilBossAI
 {
     boss_veras_darkshadow(Creature* creature) : IllidariCouncilBossAI(creature, DATA_VERAS_DARKSHADOW) { }
@@ -522,7 +528,7 @@ struct boss_veras_darkshadow : public IllidariCouncilBossAI
                 Talk(SAY_COUNCIL_SPECIAL);
                 DoCastSelf(SPELL_VANISH);
                 DoCastSelf(SPELL_DEADLY_STRIKE);
-                events.Repeat(Seconds(60));
+                events.Repeat(60s);
                 break;
             default:
                 break;
@@ -530,6 +536,7 @@ struct boss_veras_darkshadow : public IllidariCouncilBossAI
     }
 };
 
+// 23451 - Veras Vanish Effect
 struct npc_veras_vanish_effect : public PassiveAI
 {
     npc_veras_vanish_effect(Creature* creature) : PassiveAI(creature) { }
@@ -537,7 +544,7 @@ struct npc_veras_vanish_effect : public PassiveAI
     void Reset() override
     {
         DoCastSelf(SPELL_BIRTH, true);
-        _scheduler.Schedule(Seconds(1), [this](TaskContext /*context*/)
+        _scheduler.Schedule(1s, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_ENVENOM_DUMMY, true);
         });

@@ -15,30 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Captain_Skarloc
-SD%Complete: 75
-SDComment: Missing adds, missing waypoints to move up to Thrall once spawned + speech before enter combat.
-SDCategory: Caverns of Time, Old Hillsbrad Foothills
-EndScriptData */
+/* Missing adds, missing waypoints to move up to Thrall once spawned + speech before enter combat */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 
-/*######################
-# boss_captain_skarloc #
-#######################*/
-
-enum CaptainSkarloc
+enum SkarlocTexts
 {
     SAY_ENTER                   = 0,
     SAY_TAUNT1                  = 1,
     SAY_TAUNT2                  = 2,
     SAY_SLAY                    = 3,
     SAY_DEATH                   = 4,
+};
 
+enum SkarlocSpells
+{
     SPELL_HOLY_LIGHT            = 29427,
     SPELL_CLEANSE               = 29380,
     SPELL_HAMMER_OF_JUSTICE     = 13005,
@@ -47,34 +41,24 @@ enum CaptainSkarloc
     SPELL_CONSECRATION          = 38385
 };
 
+enum SkarlocEvents
+{
+    EVENT_HOLY_LIGHT            = 1,
+    EVENT_CLEANSE,
+    EVENT_HAMMER_OF_JUSTICE,
+    EVENT_HOLY_SHIELD,
+    EVENT_DEVOTION_AURA,
+    EVENT_CONSECRATION
+};
+
+// 17862 - Captain Skarloc
 struct boss_captain_skarloc : public BossAI
 {
-    boss_captain_skarloc(Creature* creature) : BossAI(creature, DATA_CAPTAIN_SKARLOC)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        Holy_Light_Timer = urand(20000, 30000);
-        Cleanse_Timer = 10000;
-        HammerOfJustice_Timer = urand(20000, 35000);
-        HolyShield_Timer = 240000;
-        DevotionAura_Timer = 3000;
-        Consecration_Timer = 8000;
-    }
-
-    uint32 Holy_Light_Timer;
-    uint32 Cleanse_Timer;
-    uint32 HammerOfJustice_Timer;
-    uint32 HolyShield_Timer;
-    uint32 DevotionAura_Timer;
-    uint32 Consecration_Timer;
+    boss_captain_skarloc(Creature* creature) : BossAI(creature, DATA_CAPTAIN_SKARLOC) { }
 
     void Reset() override
     {
         BossAI::Reset();
-        Initialize();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -83,6 +67,12 @@ struct boss_captain_skarloc : public BossAI
         //This is not correct. Should taunt Thrall before engage in combat
         Talk(SAY_TAUNT1);
         Talk(SAY_TAUNT2);
+        events.ScheduleEvent(EVENT_HOLY_LIGHT, 20s, 30s);
+        events.ScheduleEvent(EVENT_CLEANSE, 10s);
+        events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 20s, 35s);
+        events.ScheduleEvent(EVENT_HOLY_SHIELD, 240s);
+        events.ScheduleEvent(EVENT_DEVOTION_AURA, 3s);
+        events.ScheduleEvent(EVENT_CONSECRATION, 8s);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -100,51 +90,49 @@ struct boss_captain_skarloc : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        //Holy_Light
-        if (Holy_Light_Timer <= diff)
-        {
-            DoCast(me, SPELL_HOLY_LIGHT);
-            Holy_Light_Timer = 30000;
-        } else Holy_Light_Timer -= diff;
+        events.Update(diff);
 
-        //Cleanse
-        if (Cleanse_Timer <= diff)
-        {
-            DoCast(me, SPELL_CLEANSE);
-            Cleanse_Timer = 10000;
-        } else Cleanse_Timer -= diff;
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
-        //Hammer of Justice
-        if (HammerOfJustice_Timer <= diff)
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
-            HammerOfJustice_Timer = 60000;
-        } else HammerOfJustice_Timer -= diff;
+            switch (eventId)
+            {
+                case EVENT_HOLY_LIGHT:
+                    DoCastSelf(SPELL_HOLY_LIGHT);
+                    events.Repeat(30s);
+                    break;
+                case EVENT_CLEANSE:
+                    DoCastSelf(SPELL_CLEANSE);
+                    events.Repeat(10s);
+                    break;
+                case EVENT_HAMMER_OF_JUSTICE:
+                    DoCastVictim(SPELL_HAMMER_OF_JUSTICE);
+                    events.Repeat(60s);
+                    break;
+                case EVENT_HOLY_SHIELD:
+                    DoCastSelf(SPELL_HOLY_SHIELD);
+                    events.Repeat(240s);
+                    break;
+                case EVENT_DEVOTION_AURA:
+                    DoCastSelf(SPELL_DEVOTION_AURA);
+                    events.Repeat(45s, 55s);
+                    break;
+                case EVENT_CONSECRATION:
+                    DoCastSelf(SPELL_CONSECRATION);
+                    events.Repeat(5s, 10s);
+                    break;
+                default:
+                    break;
+            }
 
-        //Holy Shield
-        if (HolyShield_Timer <= diff)
-        {
-            DoCast(me, SPELL_HOLY_SHIELD);
-            HolyShield_Timer = 240000;
-        } else HolyShield_Timer -= diff;
-
-        //Devotion_Aura
-        if (DevotionAura_Timer <= diff)
-        {
-            DoCast(me, SPELL_DEVOTION_AURA);
-            DevotionAura_Timer = urand(45000, 55000);
-        } else DevotionAura_Timer -= diff;
-
-        //Consecration
-        if (Consecration_Timer <= diff)
-        {
-            //DoCastVictim(SPELL_CONSECRATION);
-            Consecration_Timer = urand(5000, 10000);
-        } else Consecration_Timer -= diff;
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
 
         DoMeleeAttackIfReady();
     }

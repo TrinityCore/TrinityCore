@@ -717,6 +717,7 @@ class TC_GAME_API Guild
         bool DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding = false, bool isKicked = false);
         bool ChangeMemberRank(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8 newRank);
         bool IsMember(ObjectGuid guid) const;
+        uint32 GetMembersCount() const { return uint32(m_members.size()); }
         uint64 GetMemberAvailableMoneyForRepairItems(ObjectGuid guid) const;
 
         // Bank
@@ -726,6 +727,7 @@ class TC_GAME_API Guild
         // Bank tabs
         void SetBankTabText(uint8 tabId, std::string_view text);
 
+        EmblemInfo const& GetEmblemInfo() const { return m_emblemInfo; }
         void ResetTimes();
 
         Trinity::unique_weak_ptr<Guild> GetWeakPtr() const { return m_weakRef; }

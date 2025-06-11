@@ -157,6 +157,12 @@ Battleground::~Battleground()
         m_Map->SetBG(nullptr);
         m_Map = nullptr;
     }
+
+    // Clear Group::m_bgGroup, Group might later reference it in its own destructor
+    for (Group* bgRaid : m_BgRaids)
+        if (bgRaid)
+            bgRaid->SetBattlegroundGroup(nullptr);
+
     // remove from bg free slot queue
     RemoveFromBGFreeSlotQueue();
 

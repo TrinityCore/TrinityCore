@@ -24,7 +24,16 @@
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Spells
+enum TrollgoreTexts
+{
+    SAY_AGGRO                           = 0,
+    SAY_SLAY                            = 1,
+    SAY_CONSUME                         = 2,
+    SAY_EXPLODE                         = 3,
+    SAY_DEATH                           = 4
+};
+
+enum TrollgoreSpells
 {
     SPELL_INFECTED_WOUND                = 49637,
     SPELL_CRUSH                         = 49639,
@@ -43,48 +52,32 @@ enum Spells
 
 #define SPELL_CONSUME_BUFF_HELPER DUNGEON_MODE<uint32>(SPELL_CONSUME_BUFF, SPELL_CONSUME_BUFF_H)
 
-enum Yells
+enum TrollgoreEvents
 {
-    SAY_AGGRO                           = 0,
-    SAY_KILL                            = 1,
-    SAY_CONSUME                         = 2,
-    SAY_EXPLODE                         = 3,
-    SAY_DEATH                           = 4
-};
-
-enum Misc
-{
-    DATA_CONSUMPTION_JUNCTION           = 1,
-    POINT_LANDING                       = 1
-};
-
-enum Events
-{
-    EVENT_CONSUME = 1,
+    EVENT_CONSUME                       = 1,
     EVENT_CRUSH,
     EVENT_INFECTED_WOUND,
     EVENT_CORPSE_EXPLODE,
     EVENT_SPAWN
 };
 
+enum TrollgoreMisc
+{
+    DATA_CONSUMPTION_JUNCTION           = 1,
+    POINT_LANDING                       = 1
+};
+
 Position const Landing = { -263.0534f, -660.8658f, 26.50903f, 0.0f };
 
+// 26630 - Trollgore
 struct boss_trollgore : public BossAI
 {
-    boss_trollgore(Creature* creature) : BossAI(creature, DATA_TROLLGORE)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        _consumptionJunction = true;
-    }
+    boss_trollgore(Creature* creature) : BossAI(creature, DATA_TROLLGORE), _consumptionJunction(true) { }
 
     void Reset() override
     {
         _Reset();
-        Initialize();
+        _consumptionJunction = true;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -97,6 +90,34 @@ struct boss_trollgore : public BossAI
         events.ScheduleEvent(EVENT_INFECTED_WOUND, 10s, 60s);
         events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 3s);
         events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
+    }
+
+    uint32 GetData(uint32 type) const override
+    {
+        if (type == DATA_CONSUMPTION_JUNCTION)
+            return _consumptionJunction ? 1 : 0;
+
+        return 0;
+    }
+
+    void JustSummoned(Creature* summon) override
+    {
+        summon->GetMotionMaster()->MovePoint(POINT_LANDING, Landing);
+        summons.Summon(summon);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -116,27 +137,27 @@ struct boss_trollgore : public BossAI
                 case EVENT_CONSUME:
                     Talk(SAY_CONSUME);
                     DoCastAOE(SPELL_CONSUME);
-                    events.ScheduleEvent(EVENT_CONSUME, 15s);
+                    events.Repeat(15s);
                     break;
                 case EVENT_CRUSH:
                     DoCastVictim(SPELL_CRUSH);
-                    events.ScheduleEvent(EVENT_CRUSH, 10s, 15s);
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_INFECTED_WOUND:
                     DoCastVictim(SPELL_INFECTED_WOUND);
-                    events.ScheduleEvent(EVENT_INFECTED_WOUND, 25s, 35s);
+                    events.Repeat(25s, 35s);
                     break;
                 case EVENT_CORPSE_EXPLODE:
                     Talk(SAY_EXPLODE);
                     DoCastAOE(SPELL_CORPSE_EXPLODE);
-                    events.ScheduleEvent(EVENT_CORPSE_EXPLODE, 15s, 19s);
+                    events.Repeat(15s, 19s);
                     break;
                 case EVENT_SPAWN:
                     for (uint8 i = 0; i < 3; ++i)
                         if (Creature* trigger = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_TROLLGORE_INVADER_SUMMONER_1 + i)))
                             trigger->CastSpell(trigger, RAND(SPELL_SUMMON_INVADER_A, SPELL_SUMMON_INVADER_B, SPELL_SUMMON_INVADER_C), me->GetGUID());
 
-                    events.ScheduleEvent(EVENT_SPAWN, 30s, 40s);
+                    events.Repeat(30s, 40s);
                     break;
                 default:
                     break;
@@ -156,38 +177,11 @@ struct boss_trollgore : public BossAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_CONSUMPTION_JUNCTION)
-            return _consumptionJunction ? 1 : 0;
-
-        return 0;
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        if (victim->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        Talk(SAY_KILL);
-    }
-
-    void JustSummoned(Creature* summon) override
-    {
-        summon->GetMotionMaster()->MovePoint(POINT_LANDING, Landing);
-        summons.Summon(summon);
-    }
-
-    private:
-        bool _consumptionJunction;
+private:
+    bool _consumptionJunction;
 };
 
+// 27709, 27753, 27754 - Drakkari Invader
 struct npc_drakkari_invader : public ScriptedAI
 {
     npc_drakkari_invader(Creature* creature) : ScriptedAI(creature) { }

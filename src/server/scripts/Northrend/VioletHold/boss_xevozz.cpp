@@ -30,35 +30,7 @@
  * - Implement Ethereal Summon Target
  */
 
-enum Spells
-{
-    SPELL_ARCANE_BARRAGE_VOLLEY                 = 54202,
-    SPELL_ARCANE_BUFFET                         = 54226,
-    SPELL_SUMMON_TARGET_VISUAL                  = 54111
-};
-
-static uint32 const EtherealSphereCount = 3;
-static uint32 const EtherealSphereSummonSpells[EtherealSphereCount] = { 54102, 54137, 54138 };
-static uint32 const EtherealSphereHeroicSummonSpells[EtherealSphereCount] = { 54102, 54137, 54138 };
-
-enum NPCs
-{
-    NPC_ETHEREAL_SPHERE                         = 29271,
-    NPC_ETHEREAL_SPHERE2                        = 32582,
-    NPC_ETHEREAL_SUMMON_TARGET                  = 29276
-};
-
-enum CreatureSpells
-{
-    SPELL_ARCANE_POWER                          = 54160,
-    H_SPELL_ARCANE_POWER                        = 59474,
-    SPELL_MAGIC_PULL                            = 50770,
-    SPELL_SUMMON_PLAYERS                        = 54164,
-    SPELL_POWER_BALL_VISUAL                     = 54141,
-    SPELL_POWER_BALL_DAMAGE_TRIGGER             = 54207
-};
-
-enum Yells
+enum XevozzTexts
 {
     // Xevozz
     SAY_AGGRO                                   = 0,
@@ -73,11 +45,41 @@ enum Yells
     SAY_ETHEREAL_SPHERE_SUMMON                  = 0
 };
 
-enum SphereActions
+enum XevozzSpells
 {
-    ACTION_SUMMON                               = 1,
+    SPELL_ARCANE_BARRAGE_VOLLEY                 = 54202,
+    SPELL_ARCANE_BUFFET                         = 54226,
+    SPELL_SUMMON_TARGET_VISUAL                  = 54111
 };
 
+static uint32 const EtherealSphereCount = 3;
+static uint32 const EtherealSphereSummonSpells[EtherealSphereCount] = { 54102, 54137, 54138 };
+static uint32 const EtherealSphereHeroicSummonSpells[EtherealSphereCount] = { 54102, 54137, 54138 };
+
+enum XevozzCreatures
+{
+    NPC_ETHEREAL_SPHERE                         = 29271,
+    NPC_ETHEREAL_SPHERE2                        = 32582,
+    NPC_ETHEREAL_SUMMON_TARGET                  = 29276
+};
+
+enum XevozzCreatureSpells
+{
+    SPELL_ARCANE_POWER                          = 54160,
+    H_SPELL_ARCANE_POWER                        = 59474,
+    SPELL_MAGIC_PULL                            = 50770,
+    SPELL_SUMMON_PLAYERS                        = 54164,
+    SPELL_POWER_BALL_VISUAL                     = 54141,
+    SPELL_POWER_BALL_DAMAGE_TRIGGER             = 54207
+};
+
+enum XevozzActions
+{
+    ACTION_SUMMON                               = 1
+};
+
+// 29266 - Xevozz
+// 32231 - Ethereal Wind Trader
 struct boss_xevozz : public BossAI
 {
     boss_xevozz(Creature* creature) : BossAI(creature, DATA_XEVOZZ) { }
@@ -134,20 +136,20 @@ struct boss_xevozz : public BossAI
 
     void ScheduleTasks() override
     {
-        scheduler.Schedule(Seconds(8), Seconds(10), [this](TaskContext task)
+        scheduler.Schedule(8s, 10s, [this](TaskContext task)
         {
             DoCastAOE(SPELL_ARCANE_BARRAGE_VOLLEY);
-            task.Repeat(Seconds(8), Seconds(10));
+            task.Repeat(8s, 10s);
         });
 
-        scheduler.Schedule(Seconds(10), Seconds(11), [this](TaskContext task)
+        scheduler.Schedule(10s, 11s, [this](TaskContext task)
         {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 45.0f, true))
                 DoCast(target, SPELL_ARCANE_BUFFET);
-            task.Repeat(Seconds(15), Seconds(20));
+            task.Repeat(15s, 20s);
         });
 
-        scheduler.Schedule(Seconds(5), [this](TaskContext task)
+        scheduler.Schedule(5s, [this](TaskContext task)
         {
             Talk(SAY_REPEAT_SUMMON);
 
@@ -166,17 +168,19 @@ struct boss_xevozz : public BossAI
                 });
             }
 
-            task.Schedule(Seconds(33), Seconds(35), [this](TaskContext /*task*/)
+            task.Schedule(33s, 35s, [this](TaskContext /*task*/)
             {
                 DummyEntryCheckPredicate pred;
                 summons.DoAction(ACTION_SUMMON, pred);
             });
 
-            task.Repeat(Seconds(45), Seconds(47));
+            task.Repeat(45s, 47s);
         });
     }
 };
 
+// 29271 - Ethereal Sphere
+// 32582 - Ethereal Sphere
 struct npc_ethereal_sphere : public ScriptedAI
 {
     npc_ethereal_sphere(Creature* creature) : ScriptedAI(creature)
@@ -211,7 +215,7 @@ struct npc_ethereal_sphere : public ScriptedAI
 
     void ScheduledTasks()
     {
-        scheduler.Schedule(Seconds(1), [this](TaskContext task)
+        scheduler.Schedule(1s, [this](TaskContext task)
         {
             if (Creature* xevozz = instance->GetCreature(DATA_XEVOZZ))
             {

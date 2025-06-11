@@ -105,8 +105,8 @@ namespace Trainer
 
         player->ModifyMoney(-moneyCost);
 
-        npc->SendPlaySpellVisual(179);
-        npc->SendPlaySpellImpact(player->GetGUID(), 362);
+        npc->SendPlaySpellVisualKit(179, 0);     // 53 SpellCastDirected
+        player->SendPlaySpellVisualKit(362, 1);  // 113 EmoteSalute
 
         // learn explicitly or cast explicitly
         if (trainerSpell->IsCastable())

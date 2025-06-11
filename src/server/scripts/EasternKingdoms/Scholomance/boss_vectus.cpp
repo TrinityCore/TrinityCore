@@ -19,12 +19,12 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Emotes
+enum VectusTexts
 {
     EMOTE_FRENZY                 = 0
 };
 
-enum Spells
+enum VectusSpells
 {
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
@@ -32,92 +32,78 @@ enum Spells
     SPELL_FRENZY                 = 8269  // 28371
 };
 
-enum Events
+enum VectusEvents
 {
     EVENT_FIRE_SHIELD = 1,
     EVENT_BLAST_WAVE,
     EVENT_FRENZY
 };
 
-class boss_vectus : public CreatureScript
+// 10432 - Vectus
+struct boss_vectus : public ScriptedAI
 {
-public:
-    boss_vectus() : CreatureScript("boss_vectus") { }
+    boss_vectus(Creature* creature) : ScriptedAI(creature) { }
 
-    struct boss_vectusAI : public ScriptedAI
+    void Reset() override
     {
-        boss_vectusAI(Creature* creature) : ScriptedAI(creature) { }
+        _events.Reset();
+    }
 
-        void Reset() override
-        {
-            events.Reset();
-        }
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
+        _events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
+    }
 
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-            events.ScheduleEvent(EVENT_FIRE_SHIELD, 2s);
-            events.ScheduleEvent(EVENT_BLAST_WAVE, 14s);
-        }
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!me->HasAura(SPELL_FRENZY) && me->HealthBelowPctDamaged(25, damage))
+            _events.ScheduleEvent(EVENT_FRENZY, 0s);
+    }
 
-        void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            if (me->HealthBelowPctDamaged(25, damage))
+            switch (eventId)
             {
-                DoCast(me, SPELL_FRENZY);
-                Talk(EMOTE_FRENZY);
-                events.ScheduleEvent(EVENT_FRENZY, 24s);
+                case EVENT_FIRE_SHIELD:
+                    DoCastSelf(SPELL_FIRE_SHIELD);
+                    _events.Repeat(90s);
+                    break;
+                case EVENT_BLAST_WAVE:
+                    DoCastSelf(SPELL_BLAST_WAVE);
+                    _events.Repeat(12s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    Talk(EMOTE_FRENZY);
+                    _events.Repeat(24s);
+                    break;
+                default:
+                    break;
             }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_FIRE_SHIELD:
-                        DoCast(me, SPELL_FIRE_SHIELD);
-                        events.ScheduleEvent(EVENT_FIRE_SHIELD, 90s);
-                        break;
-                    case EVENT_BLAST_WAVE:
-                        DoCast(me, SPELL_BLAST_WAVE);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12s);
-                        break;
-                    case EVENT_FRENZY:
-                        DoCast(me, SPELL_FRENZY);
-                        Talk(EMOTE_FRENZY);
-                        events.ScheduleEvent(EVENT_FRENZY, 24s);
-                        break;
-                    default:
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-
-            DoMeleeAttackIfReady();
         }
 
-        private:
-            EventMap events;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetScholomanceAI<boss_vectusAI>(creature);
+        DoMeleeAttackIfReady();
     }
+
+private:
+    EventMap _events;
 };
 
 void AddSC_boss_vectus()
 {
-    new boss_vectus();
+    RegisterScholomanceCreatureAI(boss_vectus);
 }

@@ -27,7 +27,7 @@
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
-enum Spells
+enum IonarSpells
 {
     SPELL_BALL_LIGHTNING                          = 52780,
     SPELL_STATIC_OVERLOAD                         = 52658,
@@ -41,7 +41,7 @@ enum Spells
     SPELL_RANDOM_LIGHTNING_VISUAL                 = 52663
 };
 
-enum Yells
+enum IonarTexts
 {
     SAY_AGGRO                                     = 0,
     SAY_SPLIT                                     = 1,
@@ -49,12 +49,12 @@ enum Yells
     SAY_DEATH                                     = 3
 };
 
-enum Creatures
+enum IonarCreatures
 {
     NPC_SPARK_OF_IONAR                            = 28926
 };
 
-enum Misc
+enum IonarMisc
 {
     DATA_MAX_SPARKS                               = 5,
     DATA_POINT_CALLBACK                           = 0
@@ -68,7 +68,7 @@ static constexpr float DATA_MAX_SPARK_DISTANCE = 90; // Distance to boss - preve
 
 struct boss_ionar : public BossAI
 {
-    boss_ionar(Creature* creature) : BossAI(creature, DATA_IONAR)
+    boss_ionar(Creature* creature) : BossAI(creature, BOSS_IONAR)
     {
         Initialize();
     }
@@ -97,8 +97,6 @@ struct boss_ionar : public BossAI
 
         if (!me->IsVisible())
             me->SetVisible(true);
-
-        instance->SetBossState(DATA_IONAR, NOT_STARTED);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -315,7 +313,7 @@ struct npc_spark_of_ionar : public ScriptedAI
     void UpdateAI(uint32 uiDiff) override
     {
         // Despawn if the encounter is not running
-        if (_instance->GetBossState(DATA_IONAR) != IN_PROGRESS)
+        if (_instance->GetBossState(BOSS_IONAR) != IN_PROGRESS)
         {
             me->DespawnOrUnsummon();
             return;
@@ -324,7 +322,7 @@ struct npc_spark_of_ionar : public ScriptedAI
         // Prevent them to follow players through the whole instance
         if (uiCheckTimer <= uiDiff)
         {
-            Creature* ionar = _instance->GetCreature(DATA_IONAR);
+            Creature* ionar = _instance->GetCreature(BOSS_IONAR);
             if (ionar && ionar->IsAlive())
             {
                 if (me->GetDistance(ionar) > DATA_MAX_SPARK_DISTANCE)

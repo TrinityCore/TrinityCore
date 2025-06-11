@@ -17,152 +17,167 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "the_botanica.h"
 
-enum Says
+enum ThorngrinTexts
 {
     SAY_AGGRO                   = 0,
     SAY_20_PERCENT_HP           = 1,
-    SAY_KILL                    = 2,
+    SAY_SLAY                    = 2,
     SAY_CAST_SACRIFICE          = 3,
     SAY_50_PERCENT_HP           = 4,
     SAY_CAST_HELLFIRE           = 5,
     SAY_DEATH                   = 6,
-    EMOTE_ENRAGE                = 7
+    EMOTE_ENRAGE                = 7,
+    SAY_INTRO                   = 8
 };
 
-enum Spells
+enum ThorngrinSpells
 {
     SPELL_SACRIFICE             = 34661,
     SPELL_HELLFIRE              = 34659,
+    SPELL_HELLFIRE_H            = 39131,
     SPELL_ENRAGE                = 34670
 };
 
-enum Events
+enum ThorngrinEvents
 {
     EVENT_SACRIFICE             = 1,
-    EVENT_HELLFIRE              = 2,
-    EVENT_ENRAGE                = 3
+    EVENT_HELLFIRE,
+    EVENT_ENRAGE
 };
 
-class boss_thorngrin_the_tender : public CreatureScript
+enum ThorngrinPhases : uint8
 {
-    public: boss_thorngrin_the_tender() : CreatureScript("thorngrin_the_tender") { }
+    PHASE_NONE                  = 0,
+    PHASE_HEALTH_50,
+    PHASE_HEALTH_20
+};
 
-        struct boss_thorngrin_the_tenderAI : public BossAI
+// 17978 - Thorngrin the Tender
+struct boss_thorngrin_the_tender : public BossAI
+{
+    boss_thorngrin_the_tender(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER), _phase(PHASE_NONE), _introDone(false) { }
+
+    void Reset() override
+    {
+        _Reset();
+        _phase = PHASE_NONE;
+        _introDone = false;
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 75.0f))
         {
-            boss_thorngrin_the_tenderAI(Creature* creature) : BossAI(creature, DATA_THORNGRIN_THE_TENDER)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _phase1 = true;
-                _phase2 = true;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SACRIFICE, 5700ms);
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_HELLFIRE, 17400ms, 19300ms);
-                else
-                    events.ScheduleEvent(EVENT_HELLFIRE, 18s);
-                events.ScheduleEvent(EVENT_ENRAGE, 12s);
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_KILL);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
-            }
-
-            void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
-            {
-                if (me->HealthBelowPctDamaged(50, damage) && _phase1)
-                {
-                    _phase1 = false;
-                    Talk(SAY_50_PERCENT_HP);
-                }
-                if (me->HealthBelowPctDamaged(20, damage) && _phase2)
-                {
-                    _phase2 = false;
-                    Talk(SAY_20_PERCENT_HP);
-                }
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SACRIFICE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
-                            {
-                                Talk(SAY_CAST_SACRIFICE);
-                                DoCast(target, SPELL_SACRIFICE, true);
-                            }
-                            events.ScheduleEvent(EVENT_SACRIFICE, 29400ms);
-                            break;
-                        case EVENT_HELLFIRE:
-                            Talk(SAY_CAST_HELLFIRE);
-                            DoCastVictim(SPELL_HELLFIRE, true);
-                            if (IsHeroic())
-                                events.ScheduleEvent(EVENT_HELLFIRE, 17400ms, 19300ms);
-                            else
-                                events.ScheduleEvent(EVENT_HELLFIRE, 18s);
-                            break;
-                        case EVENT_ENRAGE:
-                            Talk(EMOTE_ENRAGE);
-                            DoCast(me, SPELL_ENRAGE);
-                            events.ScheduleEvent(EVENT_ENRAGE, 33s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            bool _phase1;
-            bool _phase2;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetBotanicaAI<boss_thorngrin_the_tenderAI>(creature);
+            _introDone = true;
+            Talk(SAY_INTRO);
         }
+
+        BossAI::MoveInLineOfSight(who);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+        events.ScheduleEvent(EVENT_SACRIFICE, 30s, 40s);
+        events.ScheduleEvent(EVENT_HELLFIRE, 5s, 15s);
+        events.ScheduleEvent(EVENT_ENRAGE, 30s, 40s);
+    }
+
+    void OnSpellStart(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SACRIFICE)
+            Talk(SAY_CAST_SACRIFICE);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_HELLFIRE:
+            case SPELL_HELLFIRE_H:
+                Talk(SAY_CAST_HELLFIRE);
+                break;
+            case SPELL_ENRAGE:
+                Talk(EMOTE_ENRAGE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase < PHASE_HEALTH_50 && me->HealthBelowPctDamaged(50, damage))
+        {
+            _phase++;
+            Talk(SAY_50_PERCENT_HP);
+        }
+        if (_phase < PHASE_HEALTH_20 && me->HealthBelowPctDamaged(20, damage))
+        {
+            _phase++;
+            Talk(SAY_20_PERCENT_HP);
+        }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SACRIFICE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                        DoCast(target, SPELL_SACRIFICE);
+                    events.Repeat(25s, 30s);
+                    break;
+                case EVENT_HELLFIRE:
+                    DoCastSelf(SPELL_HELLFIRE);
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_ENRAGE:
+                    DoCastSelf(SPELL_ENRAGE);
+                    events.Repeat(30s, 40s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint8 _phase;
+    bool _introDone;
 };
 
 void AddSC_boss_thorngrin_the_tender()
 {
-    new boss_thorngrin_the_tender();
+    RegisterBotanicaCreatureAI(boss_thorngrin_the_tender);
 }

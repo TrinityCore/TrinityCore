@@ -28,10 +28,10 @@ uint32 const EncounterCount = 4;
 enum HOLDataTypes
 {
     // Bosses
-    DATA_GENERAL_BJARNGRIM  = 0,
-    DATA_VOLKHAN            = 1,
-    DATA_IONAR              = 2,
-    DATA_LOKEN              = 3,
+    BOSS_GENERAL_BJARNGRIM  = 0,
+    BOSS_VOLKHAN            = 1,
+    BOSS_IONAR              = 2,
+    BOSS_LOKEN              = 3,
 
     // Additional Data
     /*General Bjarngrim*/

@@ -241,6 +241,8 @@ namespace WorldPackets
     {
         class QueryCreature;
         class QueryGameObject;
+        class QueryCorpseLocationFromClient;
+        class QueryCorpseTransport;
         class QueryItemSingle;
         class QuestPOIQuery;
     }
@@ -980,8 +982,8 @@ class TC_GAME_API WorldSession
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
-        void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
+        void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
+        void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 

@@ -23,15 +23,15 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Says
+enum GurtoggTexts
 {
-    SAY_AGGRO     = 0,
-    SAY_SLAY      = 1,
-    SAY_SPECIAL   = 2,
-    SAY_ENRAGE    = 3
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_SPECIAL                 = 2,
+    SAY_ENRAGE                  = 3
 };
 
-enum Spells
+enum GurtoggSpells
 {
     //Gurtogg
     SPELL_BLOODBOIL             = 42005,
@@ -59,23 +59,23 @@ enum Spells
     SPELL_BIRTH                 = 40031
 };
 
-enum Phases
+enum GurtoggPhases
 {
-    PHASE_1       = 1,
-    PHASE_2       = 2,
-    GROUP_PHASE_1 = 1,
-    GROUP_PHASE_2 = 2
+    PHASE_1                     = 1,
+    PHASE_2                     = 2,
+    GROUP_PHASE_1               = 1,
+    GROUP_PHASE_2               = 2
 };
 
-enum Sounds
+enum GurtoggSounds
 {
-    SOUND_ID_DEATH  = 11439,
-    SOUND_ID_ENRAGE = 11437
+    SOUND_ID_DEATH              = 11439,
+    SOUND_ID_ENRAGE             = 11437
 };
 
-enum Events
+enum GurtoggEvents
 {
-    EVENT_BERSERK = 1,
+    EVENT_BERSERK               = 1,
     EVENT_BLOODBOIL,
     EVENT_ARCING_SMASH,
     EVENT_FEL_ACID_BREATH,
@@ -89,6 +89,7 @@ enum Events
     EVENT_CHARGE_PLAYER
 };
 
+// 22948 - Gurtogg Bloodboil
 struct boss_gurtogg_bloodboil : public BossAI
 {
     boss_gurtogg_bloodboil(Creature* creature) : BossAI(creature, DATA_GURTOGG_BLOODBOIL)
@@ -143,18 +144,18 @@ struct boss_gurtogg_bloodboil : public BossAI
     {
         if (events.IsInPhase(PHASE_1))
         {
-            events.ScheduleEvent(EVENT_BLOODBOIL, Seconds(10), GROUP_PHASE_1, PHASE_1);
-            events.ScheduleEvent(EVENT_ARCING_SMASH, Seconds(10), GROUP_PHASE_1, PHASE_1);
-            events.ScheduleEvent(EVENT_FEL_ACID_BREATH, Seconds(25), GROUP_PHASE_1, PHASE_1);
-            events.ScheduleEvent(EVENT_EJECT, Seconds(35), GROUP_PHASE_1, PHASE_1);
-            events.ScheduleEvent(EVENT_BEWILDERING_STRIKE, Seconds(47), GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_BLOODBOIL, 10s, GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_ARCING_SMASH, 10s, GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_FEL_ACID_BREATH, 25s, GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_EJECT, 35s, GROUP_PHASE_1, PHASE_1);
+            events.ScheduleEvent(EVENT_BEWILDERING_STRIKE, 47s, GROUP_PHASE_1, PHASE_1);
         }
         else if (events.IsInPhase(PHASE_2))
         {
-            events.ScheduleEvent(EVENT_START_PHASE_2, Milliseconds(100), GROUP_PHASE_2, PHASE_2);
-            events.ScheduleEvent(EVENT_EJECT_2, Seconds(14), GROUP_PHASE_2, PHASE_2);
-            events.ScheduleEvent(EVENT_FEL_ACID_BREATH_2, Seconds(16), GROUP_PHASE_2, PHASE_2);
-            events.ScheduleEvent(EVENT_ARCING_SMASH_2, Seconds(8), GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_START_PHASE_2, 100ms, GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_EJECT_2, 14s, GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_FEL_ACID_BREATH_2, 16s, GROUP_PHASE_2, PHASE_2);
+            events.ScheduleEvent(EVENT_ARCING_SMASH_2, 8s, GROUP_PHASE_2, PHASE_2);
         }
     }
 
@@ -186,16 +187,16 @@ struct boss_gurtogg_bloodboil : public BossAI
             {
                 case EVENT_BLOODBOIL:
                     DoCast(SPELL_BLOODBOIL);
-                    events.Repeat(Seconds(10));
+                    events.Repeat(10s);
                     break;
                 case EVENT_ARCING_SMASH:
                     DoCastVictim(SPELL_ARCING_SMASH);
-                    events.Repeat(Seconds(10));
+                    events.Repeat(10s);
                     break;
                 case EVENT_FEL_ACID_BREATH:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, me->GetCombatReach()))
                         DoCast(target, SPELL_FEL_ACID_BREATH);
-                    events.Repeat(Seconds(25), Seconds(30));
+                    events.Repeat(25s, 30s);
                     break;
                 case EVENT_EJECT:
                     Talk(SAY_SPECIAL);
@@ -226,7 +227,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                         target->CastSpell(target, SPELL_TAUNT_GURTOGG, true);
                         DoCastAOE(SPELL_INSIGNIFIGANCE, true);
 
-                        events.ScheduleEvent(EVENT_CHARGE_PLAYER, Seconds(2), GROUP_PHASE_2, PHASE_2);
+                        events.ScheduleEvent(EVENT_CHARGE_PLAYER, 2s, GROUP_PHASE_2, PHASE_2);
 
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
@@ -236,7 +237,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                         events.SetPhase(PHASE_1);
                         events.CancelEventGroup(GROUP_PHASE_2);
                         ScheduleEvents();
-                        events.RescheduleEvent(EVENT_CHANGE_PHASE, Seconds(60));
+                        events.RescheduleEvent(EVENT_CHANGE_PHASE, 60s);
                     }
                     break;
                 case EVENT_CHARGE_PLAYER:
@@ -251,7 +252,7 @@ struct boss_gurtogg_bloodboil : public BossAI
                     break;
                 case EVENT_ARCING_SMASH_2:
                     DoCastVictim(SPELL_ARCING_SMASH_2);
-                    events.Repeat(Seconds(13));
+                    events.Repeat(13s);
                     break;
                 case EVENT_BERSERK:
                     DoCast(SPELL_BERSERK);
@@ -303,6 +304,7 @@ private:
     float _oldThreat;
 };
 
+// 23254 - Fel Geyser
 struct npc_fel_geyser : public PassiveAI
 {
     npc_fel_geyser(Creature* creature) : PassiveAI(creature) { }

@@ -48,7 +48,11 @@ enum StratholmeMisc
     SAY_YSIDA_SAVED         = 0
 };
 
-Position const timmyTheCruelSpawnPosition = { 3625.358f, -3188.108f, 130.3985f, 4.834562f };
+enum SpawnGroups
+{
+    SPAWN_GROUP_STR_TIMMY   = 327
+};
+
 EllipseBoundary const beforeScarletGate(Position(3671.158f, -3181.79f), 60.0f, 40.0f);
 
 enum class StratholmeGateTrapType : uint8
@@ -137,7 +141,7 @@ class instance_stratholme : public InstanceMapScript
                             {
                                 if (++scarletsKilled >= TIMMY_THE_CRUEL_CRUSADERS_REQUIRED)
                                 {
-                                    instance->SummonCreature(NPC_TIMMY_THE_CRUEL, timmyTheCruelSpawnPosition);
+                                    instance->SpawnGroupSpawn(SPAWN_GROUP_STR_TIMMY);
                                     timmySpawned = true;
                                 }
                             }

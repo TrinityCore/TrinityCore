@@ -15,99 +15,145 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Harbinger_Skyriss
-SD%Complete: 45
-SDComment: CombatAI not fully implemented. Timers will need adjustments. Need more docs on how event fully work. Reset all event and force start over if fail at one point?
-SDCategory: Tempest Keep, The Arcatraz
-EndScriptData */
-
-/* ContentData
-boss_harbinger_skyriss
-boss_harbinger_skyriss_illusion
-EndContentData */
+/* Need more docs on how event fully work. Reset all event and force start over if fail at one point? */
 
 #include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "arcatraz.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 
-enum Says
+enum SkyrissTexts
 {
-    SAY_INTRO              = 0,
-    SAY_AGGRO              = 1,
-    SAY_KILL               = 2,
-    SAY_MIND               = 3,
-    SAY_FEAR               = 4,
-    SAY_IMAGE              = 5,
-    SAY_DEATH              = 6
+    SAY_INTRO                    = 0,
+    SAY_AGGRO                    = 1,
+    SAY_KILL                     = 2,
+    SAY_MIND                     = 3,
+    SAY_FEAR                     = 4,
+    SAY_IMAGE                    = 5,
+    SAY_DEATH                    = 6
 };
 
-enum Spells
+enum SkyrissSpells
 {
-    SPELL_FEAR              = 39415,
-    SPELL_MIND_REND         = 36924,
-    H_SPELL_MIND_REND       = 39017,
-    SPELL_DOMINATION        = 37162,
-    H_SPELL_DOMINATION      = 39019,
-    H_SPELL_MANA_BURN       = 39020,
-    SPELL_66_ILLUSION       = 36931,                       //entry 21466
-    SPELL_33_ILLUSION       = 36932,                       //entry 21467
+    // Intro
+    SPELL_SIMPLE_TELEPORT        = 12980,
+    SPELL_MIND_REND_COSMETIC     = 36859,
+    // Combat
+    SPELL_FEAR                   = 39415,
+    SPELL_MIND_REND              = 36924,
+    SPELL_DOMINATION             = 37162,
+    SPELL_DOMINATION_H           = 39019,
+    SPELL_MANA_BURN              = 39020,
 
-    SPELL_MIND_REND_IMAGE   = 36929,
-    H_SPELL_MIND_REND_IMAGE = 39021
+    SPELL_SUMMON_66_ILLUSION     = 36931,
+    SPELL_SUMMON_33_ILLUSION     = 36932,
+
+    SPELL_BIRTH                  = 26262,
+    SPELL_BLINK_VISUAL           = 36937,
+    SPELL_66_HEALTH              = 36928,
+    SPELL_33_HEALTH              = 36930,
+    SPELL_MIND_REND_IMAGE        = 36929,
+    SPELL_MIND_REND_IMAGE_H      = 39021
 };
 
+enum SkyrissEvents
+{
+    EVENT_MIND_REND              = 1,
+    EVENT_FEAR,
+    EVENT_DOMINATION,
+    EVENT_MANA_BURN,
+    EVENT_SUMMON_66,
+    EVENT_SUMMON_33
+};
+
+enum SkyrissMisc
+{
+    NPC_ILLUSION_66              = 21466,
+    NPC_ILLUSION_33              = 21467
+};
+
+enum SkyrissPhases : uint8
+{
+    PHASE_NONE                   = 0,
+    PHASE_HEALTH_66,
+    PHASE_HEALTH_33
+};
+
+// 20912 - Harbinger Skyriss
 struct boss_harbinger_skyriss : public BossAI
 {
-    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS)
-    {
-        Initialize();
-        Intro = false;
-    }
+    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _intro(false), _phase(PHASE_NONE) { }
 
     void Initialize()
     {
-        IsImage33 = false;
-        IsImage66 = false;
-
         Intro_Phase = 1;
         Intro_Timer = 5000;
-        MindRend_Timer = 3000;
-        Fear_Timer = 15000;
-        Domination_Timer = 30000;
-        ManaBurn_Timer = 25000;
     }
-
-    bool Intro;
-    bool IsImage33;
-    bool IsImage66;
 
     uint32 Intro_Phase;
     uint32 Intro_Timer;
-    uint32 MindRend_Timer;
-    uint32 Fear_Timer;
-    uint32 Domination_Timer;
-    uint32 ManaBurn_Timer;
 
     void Reset() override
     {
+        DoCastSelf(SPELL_SIMPLE_TELEPORT);
         _Reset();
-
-        me->SetImmuneToAll(!Intro);
+        _intro = false;
+        _phase = PHASE_NONE;
+        me->SetImmuneToAll(!_intro);
         Initialize();
     }
 
-    void MoveInLineOfSight(Unit* who) override
+    void JustEngagedWith(Unit* who) override
     {
-        if (!Intro)
-            return;
-
-        ScriptedAI::MoveInLineOfSight(who);
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_MIND_REND, 2s, 10s);
+        events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
+        events.ScheduleEvent(EVENT_DOMINATION, 30s, 40s);
+        if (IsHeroic())
+            events.ScheduleEvent(EVENT_MANA_BURN, 25s);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override { }
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        switch (spell->Id)
+        {
+            case SPELL_FEAR:
+                Talk(SAY_FEAR);
+                break;
+            case SPELL_DOMINATION:
+            case SPELL_DOMINATION_H:
+                Talk(SAY_MIND);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        // Won't yell killing pet/other unit
+        if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
+            return;
+
+        Talk(SAY_KILL);
+    }
+
+    void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase < PHASE_HEALTH_66 && me->HealthBelowPctDamaged(66, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SUMMON_66, 0s);
+        }
+        if (_phase < PHASE_HEALTH_33 && me->HealthBelowPctDamaged(33, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_SUMMON_33, 0s);
+        }
+    }
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -115,47 +161,9 @@ struct boss_harbinger_skyriss : public BossAI
         _JustDied();
     }
 
-    void JustSummoned(Creature* summon) override
-    {
-        if (!summon)
-            return;
-        if (IsImage66)
-            summon->SetHealth(summon->CountPctFromMaxHealth(33));
-        else
-            summon->SetHealth(summon->CountPctFromMaxHealth(66));
-        if (me->GetVictim())
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                summon->AI()->AttackStart(target);
-
-        summons.Summon(summon);
-        summon->SetImmuneToAll(false);
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        //won't yell killing pet/other unit
-        if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
-            return;
-
-        Talk(SAY_KILL);
-    }
-
-    void DoSplit(uint32 val)
-    {
-        if (me->IsNonMeleeSpellCast(false))
-            me->InterruptNonMeleeSpells(false);
-
-        Talk(SAY_IMAGE);
-
-        if (val == 66)
-            DoCast(me, SPELL_66_ILLUSION);
-        else
-            DoCast(me, SPELL_33_ILLUSION);
-    }
-
     void UpdateAI(uint32 diff) override
     {
-        if (!Intro)
+        if (!_intro)
         {
             if (Intro_Timer <= diff)
             {
@@ -181,107 +189,145 @@ struct boss_harbinger_skyriss : public BossAI
                     break;
                 case 3:
                     me->SetImmuneToAll(false);
-                    Intro = true;
+                    _intro = true;
                     break;
                 }
             }
             else
                 Intro_Timer -=diff;
         }
+
         if (!UpdateVictim())
             return;
 
-        if (!IsImage66 && !HealthAbovePct(66))
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            DoSplit(66);
-            IsImage66 = true;
-        }
-        if (!IsImage33 && !HealthAbovePct(33))
-        {
-            DoSplit(33);
-            IsImage33 = true;
-        }
-
-        if (MindRend_Timer <= diff)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                DoCast(target, SPELL_MIND_REND);
-            else
-                DoCastVictim(SPELL_MIND_REND);
-
-            MindRend_Timer = 8000;
-        }
-        else
-            MindRend_Timer -=diff;
-
-        if (Fear_Timer <= diff)
-        {
-            if (me->IsNonMeleeSpellCast(false))
-                return;
-
-            Talk(SAY_FEAR);
-
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                DoCast(target, SPELL_FEAR);
-            else
-                DoCastVictim(SPELL_FEAR);
-
-            Fear_Timer = 25000;
-        }
-        else
-            Fear_Timer -=diff;
-
-        if (Domination_Timer <= diff)
-        {
-            if (me->IsNonMeleeSpellCast(false))
-                return;
-
-            Talk(SAY_MIND);
-
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                DoCast(target, SPELL_DOMINATION);
-            else
-                DoCastVictim(SPELL_DOMINATION);
-
-            Domination_Timer = 16000 + rand32() % 16000;
-        }
-        else
-            Domination_Timer -=diff;
-
-        if (IsHeroic())
-        {
-            if (ManaBurn_Timer <= diff)
+            switch (eventId)
             {
-                if (me->IsNonMeleeSpellCast(false))
-                    return;
-
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                    DoCast(target, H_SPELL_MANA_BURN);
-
-                ManaBurn_Timer = 16000 + rand32() % 16000;
+                case EVENT_MIND_REND:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_MIND_REND);
+                    events.Repeat(8s, 12s);
+                    break;
+                case EVENT_FEAR:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FEAR);
+                    events.Repeat(25s, 35s);
+                    break;
+                case EVENT_DOMINATION:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_DOMINATION);
+                    events.Repeat(30s, 40s);
+                    break;
+                case EVENT_MANA_BURN:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_MANA_BURN);
+                    events.Repeat(15s, 30s);
+                    break;
+                case EVENT_SUMMON_66:
+                    Talk(SAY_IMAGE);
+                    DoCastSelf(SPELL_SUMMON_66_ILLUSION);
+                    DoCastSelf(SPELL_BLINK_VISUAL);
+                    break;
+                case EVENT_SUMMON_33:
+                    Talk(SAY_IMAGE);
+                    DoCastSelf(SPELL_SUMMON_33_ILLUSION);
+                    DoCastSelf(SPELL_BLINK_VISUAL);
+                    break;
+                default:
+                    break;
             }
-            else
-                ManaBurn_Timer -=diff;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _intro;
+    uint8 _phase;
 };
 
+// 21466, 21467 - Harbinger Skyriss
 struct boss_harbinger_skyriss_illusion : public ScriptedAI
 {
     boss_harbinger_skyriss_illusion(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
-        me->SetImmuneToPC(false);
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+        _scheduler.CancelAll();
+        me->SetCorpseDelay(0, true);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override { }
+    void JustAppeared() override
+    {
+        DoZoneInCombat();
+        // Should be in this sniffed order but makes it ignore other spell casts, so disabled
+        // DoCastSelf(SPELL_BIRTH);
+        DoCastSelf(SPELL_BLINK_VISUAL);
+
+        switch (me->GetEntry())
+        {
+            case NPC_ILLUSION_66:
+                DoCastSelf(SPELL_66_HEALTH);
+                break;
+            case NPC_ILLUSION_33:
+                DoCastSelf(SPELL_33_HEALTH);
+                break;
+            default:
+                break;
+        }
+
+        _scheduler.Schedule(2s, 10s, [this](TaskContext task)
+        {
+            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                DoCast(target, IsHeroic() ? SPELL_MIND_REND_IMAGE_H : SPELL_MIND_REND_IMAGE);
+            task.Repeat(8s, 12s);
+        });
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
+            DoMeleeAttackIfReady();
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 36928 - 66% Health
+// 36930 - 33% Health
+class spell_harbinger_skyriss_health : public SpellScript
+{
+    PrepareSpellScript(spell_harbinger_skyriss_health);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetHealth(GetCaster()->CountPctFromMaxHealth(uint32(GetEffectValue())));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_harbinger_skyriss_health::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_harbinger_skyriss()
 {
     RegisterArcatrazCreatureAI(boss_harbinger_skyriss);
     RegisterArcatrazCreatureAI(boss_harbinger_skyriss_illusion);
+    RegisterSpellScript(spell_harbinger_skyriss_health);
 }
