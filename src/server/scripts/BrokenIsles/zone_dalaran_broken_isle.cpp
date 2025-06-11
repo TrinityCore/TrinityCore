@@ -137,8 +137,8 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
                     player->CastSpell(nullptr, SPELL_AN_AUDIENCE_WITH_THE_KING, true);
                 break;
             }
-        Default:
-            break;
+            default:
+                break;
         }
     }
 
