@@ -34,9 +34,13 @@ enum OrderCampaignDalaranIntro
     QUEST_AN_URGENT_GATHERING               = 38710,
     QUEST_A_SUMMONS_FROM_MOONGLADE          = 40643,
     QUEST_BEFORE_THE_STORM                  = 12103,
-    QUEST_CALL_OF_THE_ILLIDARI_ALTRIUS      = 39047,
+    QUEST_CALL_OF_THE_ILLIDARI_ALTRUIS      = 39047,
     QUEST_CALL_OF_THE_ILLIDARI_JAYCE        = 39261,
     QUEST_THE_CALL_TO_WAR                   = 40714,
+
+    // Tracking Quests DH
+    QUEST_A_NEW_DIRECTION_ALTRUIS           = 40375,
+    QUEST_A_NEW_DIRECTION_JAYCE             = 40374,
 
     // Mage
     SPELL_MAGE_ORDER_FORMATION              = 195356,
@@ -129,8 +133,13 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
                 break;
             }
             case CLASS_DEMON_HUNTER:
-                // ToDo: Quest depends if you choose Jayce or Altruis during Vault of the Betrayer questchain after Mardum.
+            {
+                if (player->GetQuestStatus(QUEST_CALL_OF_THE_ILLIDARI_ALTRUIS) == QUEST_STATUS_NONE && player->GetQuestStatus(QUEST_A_NEW_DIRECTION_ALTRUIS) == QUEST_STATUS_REWARDED)
+                    player->CastSpell(nullptr, SPELL_SUMMON_KORVAS_DH, true);
+                else if (player->GetQuestStatus(QUEST_CALL_OF_THE_ILLIDARI_JAYCE) == QUEST_STATUS_NONE && player->GetQuestStatus(QUEST_A_NEW_DIRECTION_JAYCE) == QUEST_STATUS_REWARDED)
+                    player->CastSpell(nullptr, SPELL_SUMMON_KORVAS_DH, true);
                 break;
+            }
             case CLASS_DEATH_KNIGHT:
             {
                 if (player->GetQuestStatus(QUEST_THE_CALL_TO_WAR) == QUEST_STATUS_NONE)
