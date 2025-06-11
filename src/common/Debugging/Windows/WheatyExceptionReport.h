@@ -5,7 +5,7 @@
 
 #include "Define.h"
 #include "Optional.h"
-#include <windows.h>
+#include <Windows.h>
 #include <winnt.h>
 #include <winternl.h>
 #include <dbghelp.h>
