@@ -604,10 +604,10 @@ class spell_warr_fresh_meat : public SpellScript
 // 316044 - Fresh Meat
 class spell_warr_fresh_meat_aura_dummy : public AuraScript
 {
-    void OnOwnerOutOfCombat(bool isNowInCombat) const
+    void OnOwnerOutOfCombat(bool isNowInCombat)
     {
         if (!isNowInCombat)
-            GetTarget()->RemoveAura(GetAura());
+            Remove();
     }
 
     void Register() override
