@@ -389,7 +389,7 @@ void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField 
     meta->TypeName = FieldTypeToString(field->type, field->flags);
     meta->Index = fieldIndex;
     meta->Type = MysqlTypeToFieldType(field->type, field->flags);
-    meta->Converter = binaryProtocol ? BinaryValueConverters[AsUnderlyingType(meta->Type)].get() : FromStringValueConverters[AsUnderlyingType(meta->Type)].get();
+    meta->Converter = binaryProtocol ? BinaryValueConverters[std::ptrdiff_t(meta->Type)].get() : FromStringValueConverters[std::ptrdiff_t(meta->Type)].get();
 }
 }
 
