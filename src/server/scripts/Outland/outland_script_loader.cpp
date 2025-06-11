@@ -126,6 +126,7 @@ void AddSC_boss_pathaleon_the_calculator();
 void AddSC_boss_mechano_lord_capacitus();
 void AddSC_instance_mechanar();
 
+void AddSC_shartuul_event();
 void AddSC_blades_edge_mountains();
 void AddSC_boss_doomlordkazzak();
 void AddSC_boss_doomwalker();
@@ -251,6 +252,7 @@ void AddOutlandScripts()
     AddSC_boss_mechano_lord_capacitus();
     AddSC_instance_mechanar();
 
+    AddSC_shartuul_event();
     AddSC_blades_edge_mountains();
     AddSC_boss_doomlordkazzak();
     AddSC_boss_doomwalker();
