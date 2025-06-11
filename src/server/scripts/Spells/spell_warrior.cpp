@@ -75,6 +75,8 @@ enum WarriorSpells
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
+    SPELL_WARRIOR_SUDDEN_DEATH                      = 280721,
+    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 280776,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -1036,6 +1038,26 @@ class spell_warr_t3_prot_8p_bonus : public AuraScript
     }
 };
 
+class spell_warr_sudden_death_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SUDDEN_DEATH_BUFF });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_SUDDEN_DEATH_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 32215 - Victorious State
 class spell_warr_victorious_state : public AuraScript
 {
@@ -1115,6 +1137,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolt);
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
+    RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
