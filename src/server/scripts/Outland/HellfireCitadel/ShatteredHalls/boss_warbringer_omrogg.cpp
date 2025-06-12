@@ -20,10 +20,9 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
-#include "Spell.h"
-#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellScript.h"
 #include "shattered_halls.h"
 
 enum OmroggTexts
