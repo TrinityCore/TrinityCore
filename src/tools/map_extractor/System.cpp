@@ -25,6 +25,7 @@
 #include "IteratorPair.h"
 #include "Locales.h"
 #include "MapDefines.h"
+#include "MapUtils.h"
 #include "StringFormat.h"
 #include "Util.h"
 #include "adt.h"
@@ -59,6 +60,7 @@ struct MapEntry
 
 struct LiquidMaterialEntry
 {
+    EnumFlag<LiquidMaterialFlags> Flags = { { } };
     int8 LVF = 0;
 };
 
@@ -330,6 +332,7 @@ void ReadLiquidMaterialTable()
             continue;
 
         LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
+        liquidType.Flags = static_cast<LiquidMaterialFlags>(record.GetUInt32("Flags"));
         liquidType.LVF = record.GetUInt8("LVF");
     }
 
@@ -653,6 +656,13 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                 if (!h)
                     continue;
 
+                liquid_entry[i][j] = h2o->GetLiquidType(h);
+                LiquidTypeEntry const& liquidTypeEntry = LiquidTypes.at(liquid_entry[i][j]);
+
+                if (LiquidMaterialEntry const* liquidMaterial = Trinity::Containers::MapGetValuePtr(LiquidMaterials, liquidTypeEntry.MaterialID))
+                    if (liquidMaterial->Flags.HasFlag(LiquidMaterialFlags::VisualOnly))
+                        continue;
+
                 adt_liquid_attributes attrs = h2o->GetLiquidAttributes(i, j);
 
                 int32 count = 0;
@@ -672,8 +682,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                     }
                 }
 
-                liquid_entry[i][j] = h2o->GetLiquidType(h);
-                switch (LiquidTypes.at(liquid_entry[i][j]).SoundBank)
+                switch (liquidTypeEntry.SoundBank)
                 {
                     case LIQUID_TYPE_WATER: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Water; break;
                     case LIQUID_TYPE_OCEAN: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Ocean; if (!ignoreDeepWater && attrs.Deep) liquid_flags[i][j] |= map_liquidHeaderTypeFlags::DarkWater; break;
