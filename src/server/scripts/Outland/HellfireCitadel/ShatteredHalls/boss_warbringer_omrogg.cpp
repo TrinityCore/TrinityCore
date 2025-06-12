@@ -209,11 +209,11 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_AGGRO_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_AGGRO_1_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 2:
                             Talk(SAY_AGGRO_1_2);
@@ -230,7 +230,7 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_AGGRO_2);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_AGGRO_2_1);
@@ -247,7 +247,7 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_AGGRO_3);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_AGGRO_3_1);
@@ -264,11 +264,11 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_ATTACK_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_ATTACK_1_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 2:
                             Talk(SAY_ATTACK_1_2);
@@ -285,7 +285,7 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_ATTACK_2);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_ATTACK_2_1);
@@ -302,11 +302,11 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_ATTACK_3);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_ATTACK_3_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 2:
                             Talk(SAY_ATTACK_3_2);
@@ -323,11 +323,11 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             RightHeadTalk(SAY_ATTACK_4);
-							task.Repeat(2s);
+                            task.Repeat(2s);
                             break;
                         case 1:
                             Talk(SAY_ATTACK_4_1);
-							task.Repeat(2s);
+                            task.Repeat(2s);
                             break;
                         case 2:
                             RightHeadTalk(SAY_ATTACK_4_2);
@@ -350,7 +350,7 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_SLAY_2);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_SLAY_2_1);
@@ -367,12 +367,12 @@ struct npc_omrogg_heads : public ScriptedAI
                     {
                         case 0:
                             Talk(SAY_DEATH_1);
-							task.Repeat(3s);
+                            task.Repeat(3s);
                             break;
                         case 1:
                             RightHeadTalk(SAY_DEATH_1_1);
-							me->DespawnOrUnsummon(4s);
-							if (Creature* rightHead = _instance->GetCreature(DATA_RIGHT_HEAD))
+                            me->DespawnOrUnsummon(4s);
+                            if (Creature* rightHead = _instance->GetCreature(DATA_RIGHT_HEAD))
                                 rightHead->DespawnOrUnsummon(4s);
                             break;
                         default:
