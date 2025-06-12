@@ -16,6 +16,7 @@
  */
 
 #include "AuthenticationService.h"
+#include "Session.h"
 
 Battlenet::Services::Authentication::Authentication(Session* session) : AuthenticationService(session)
 {

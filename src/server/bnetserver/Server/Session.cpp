@@ -16,6 +16,8 @@
  */
 
 #include "Session.h"
+#include "AccountService.h"
+#include "AuthenticationService.h"
 #include "BattlenetRpcErrorCodes.h"
 #include "ByteConverter.h"
 #include "CryptoRandom.h"
@@ -33,6 +35,10 @@
 #include "ServiceDispatcher.h"
 #include "SslContext.h"
 #include "Timezone.h"
+#include "attribute_types.pb.h"
+#include "challenge_service.pb.h"
+#include "game_utilities_service.pb.h"
+#include "rpc_types.pb.h"
 #include <rapidjson/document.h>
 #include <zlib.h>
 
