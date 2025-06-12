@@ -301,6 +301,11 @@ class TC_GAME_API ConditionMgr
         ~ConditionMgr();
 
     public:
+        ConditionMgr(ConditionMgr const&) = delete;
+        ConditionMgr(ConditionMgr&&) = delete;
+        ConditionMgr& operator=(ConditionMgr const&) = delete;
+        ConditionMgr& operator=(ConditionMgr&&) = delete;
+
         static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);

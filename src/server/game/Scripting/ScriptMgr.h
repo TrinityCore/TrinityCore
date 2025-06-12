@@ -321,6 +321,11 @@ class TC_GAME_API MapScript
 
     public:
 
+        MapScript(MapScript const& right) = delete;
+        MapScript(MapScript&& right) = delete;
+        MapScript& operator=(MapScript const& right) = delete;
+        MapScript& operator=(MapScript&& right) = delete;
+
         // Gets the MapEntry structure associated with this script. Can return NULL.
         MapEntry const* GetEntry() const;
 

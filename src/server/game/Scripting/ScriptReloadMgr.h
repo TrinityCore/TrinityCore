@@ -38,7 +38,7 @@ class path;
 class ModuleReference
 {
 public:
-    virtual ~ModuleReference() { }
+    virtual ~ModuleReference() = default;
 
     /// Returns the git revision hash of the referenced script module
     virtual char const* GetScriptModuleRevisionHash() const = 0;
@@ -56,10 +56,14 @@ public:
 class TC_GAME_API ScriptReloadMgr
 {
 protected:
-    ScriptReloadMgr() { }
+    ScriptReloadMgr() = default;
 
 public:
-    virtual ~ScriptReloadMgr() { }
+    ScriptReloadMgr(ScriptReloadMgr const&) = delete;
+    ScriptReloadMgr(ScriptReloadMgr&&) = delete;
+    ScriptReloadMgr& operator=(ScriptReloadMgr const&) = delete;
+    ScriptReloadMgr& operator=(ScriptReloadMgr&&) = delete;
+    virtual ~ScriptReloadMgr() = default;
 
     /// Initializes the ScriptReloadMgr
     virtual void Initialize() { }
