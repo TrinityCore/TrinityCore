@@ -1043,6 +1043,32 @@ class spell_bem_dispelling_analysis : public SpellScript
     }
 };
 
+/*######
+## Quest 10544: A Curse Upon Both of Your Clans!
+######*/
+
+enum ACurseUponBothOfYourClans
+{
+    NPC_OGRE_BUILDING_BUNNY_LARGE     = 21351
+};
+
+// 32580 - Wicked Strong Fetish
+class spell_bem_wicked_strong_fetish : public SpellScript
+{
+    PrepareSpellScript(spell_bem_wicked_strong_fetish);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->SummonCreature(NPC_OGRE_BUILDING_BUNNY_LARGE, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_bem_wicked_strong_fetish::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1053,4 +1079,5 @@ void AddSC_blades_edge_mountains()
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
     RegisterSpellScript(spell_bem_dispelling_analysis);
+    RegisterSpellScript(spell_bem_wicked_strong_fetish);
 }

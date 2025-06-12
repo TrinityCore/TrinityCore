@@ -23,7 +23,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Texts
+enum SavianaTexts
 {
     SAY_AGGRO                   = 0, // You will sssuffer for this intrusion! (17528)
     SAY_CONFLAGRATION           = 1, // Burn in the master's flame! (17532)
@@ -31,7 +31,7 @@ enum Texts
     SAY_KILL                    = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
 };
 
-enum Spells
+enum SavianaSpells
 {
     SPELL_CONFLAGRATION         = 74452,
     SPELL_FLAME_BEACON          = 74453,
@@ -40,7 +40,7 @@ enum Spells
     SPELL_FLAME_BREATH          = 74403,
 };
 
-enum Events
+enum SavianaEvents
 {
     EVENT_ENRAGE                = 1,
     EVENT_FLIGHT                = 2,
@@ -53,7 +53,7 @@ enum Events
     EVENT_GROUP_LAND_PHASE      = 1,
 };
 
-enum MovementPoints
+enum SavianaPoints
 {
     POINT_FLIGHT                = 1,
     POINT_LAND                  = 2,
@@ -61,15 +61,16 @@ enum MovementPoints
     POINT_LAND_GROUND           = 4
 };
 
-enum Misc
+enum SavianaMisc
 {
-    SOUND_ID_DEATH              = 17531,
+    SOUND_ID_DEATH              = 17531
 };
 
 Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};
 Position const SavianaRagefireFlyInPos   = {3151.07f, 636.443f, 79.540f, 4.69f};
 Position const SavianaRagefireLandPos    = {3151.07f, 636.443f, 78.649f, 4.69f};
 
+// 39747 - Saviana Ragefire
 struct boss_saviana_ragefire : public BossAI
 {
     boss_saviana_ragefire(Creature* creature) : BossAI(creature, DATA_SAVIANA_RAGEFIRE) { }
@@ -87,9 +88,9 @@ struct boss_saviana_ragefire : public BossAI
         BossAI::JustEngagedWith(who);
         Talk(SAY_AGGRO);
         events.Reset();
-        events.ScheduleEvent(EVENT_ENRAGE, Seconds(20), EVENT_GROUP_LAND_PHASE);
-        events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(14), EVENT_GROUP_LAND_PHASE);
-        events.ScheduleEvent(EVENT_FLIGHT, Seconds(60), EVENT_GROUP_LAND_PHASE);
+        events.ScheduleEvent(EVENT_ENRAGE, 20s, EVENT_GROUP_LAND_PHASE);
+        events.ScheduleEvent(EVENT_FLAME_BREATH, 14s, EVENT_GROUP_LAND_PHASE);
+        events.ScheduleEvent(EVENT_FLIGHT, 60s, EVENT_GROUP_LAND_PHASE);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -110,18 +111,18 @@ struct boss_saviana_ragefire : public BossAI
                 Talk(SAY_CONFLAGRATION);
                 break;
             case POINT_LAND:
-                events.ScheduleEvent(EVENT_LAND_GROUND, Milliseconds(1));
+                events.ScheduleEvent(EVENT_LAND_GROUND, 1ms);
                 break;
             case POINT_LAND_GROUND:
                 me->SetCanFly(false);
                 me->SetDisableGravity(false);
                 me->SetReactState(REACT_AGGRESSIVE);
-                events.ScheduleEvent(EVENT_ENRAGE, Seconds(1), EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FLAME_BREATH, Seconds(2), Seconds(4), EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_FLIGHT, Seconds(50), EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_ENRAGE, 1s, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FLAME_BREATH, 2s, 4s, EVENT_GROUP_LAND_PHASE);
+                events.ScheduleEvent(EVENT_FLIGHT, 50s, EVENT_GROUP_LAND_PHASE);
                 break;
             case POINT_TAKEOFF:
-                events.ScheduleEvent(EVENT_AIR_MOVEMENT, Milliseconds(1));
+                events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1ms);
                 break;
             default:
                 break;
@@ -172,11 +173,11 @@ struct boss_saviana_ragefire : public BossAI
                 case EVENT_ENRAGE:
                     DoCastSelf(SPELL_ENRAGE);
                     Talk(EMOTE_ENRAGED);
-                    events.Repeat(Seconds(24));
+                    events.Repeat(24s);
                     break;
                 case EVENT_FLAME_BREATH:
                     DoCastVictim(SPELL_FLAME_BREATH);
-                    events.Repeat(Seconds(20), Seconds(30));
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_AIR_MOVEMENT:
                     me->GetMotionMaster()->MovePoint(POINT_FLIGHT, SavianaRagefireFlyOutPos);
