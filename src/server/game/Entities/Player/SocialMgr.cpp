@@ -201,6 +201,9 @@ bool PlayerSocial::HasIgnore(ObjectGuid const& ignoreGuid, ObjectGuid const& ign
     return _HasContact(ignoreGuid, SOCIAL_FLAG_IGNORED) || _ignoredAccounts.find(ignoreAccountGuid) != _ignoredAccounts.end();
 }
 
+SocialMgr::SocialMgr() = default;
+SocialMgr::~SocialMgr() = default;
+
 SocialMgr* SocialMgr::instance()
 {
     static SocialMgr instance;

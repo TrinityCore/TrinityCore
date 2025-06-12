@@ -25,6 +25,9 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 
+WaypointMgr::WaypointMgr() = default;
+WaypointMgr::~WaypointMgr() = default;
+
 void WaypointMgr::LoadPaths()
 {
     _LoadPaths();
@@ -305,7 +308,7 @@ WaypointNode const* WaypointMgr::GetNode(uint32 pathId, uint32 nodeId) const
     if (!path)
         return nullptr;
 
-    return GetNode(path->Id, nodeId);
+    return GetNode(path, nodeId);
 }
 
 WaypointPath const* WaypointMgr::GetPathByVisualGUID(ObjectGuid guid) const
