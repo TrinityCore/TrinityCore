@@ -172,7 +172,7 @@ enum Spells
     SPELL_HEMORRHAGE        = 16511,
     SPELL_PREMEDITATION     = 14183,
     SPELL_SHADOW_DANCE      = 51713,
-    SPELL_PREPARATION       = 14185,
+    SPELL_ROGUE_PREPARATION = 14185,
     SPELL_SHADOWSTEP        = 36554,
 
     /* Priest - Generic */
@@ -804,7 +804,7 @@ PlayerAI::TargetedSpell SimpleCharmedPlayerAI::SelectAppropriateCastForSpec()
                     break;
                 case SPEC_ROGUE_SUBLETY:
                     builder = SPELL_HEMORRHAGE, finisher = SPELL_EVISCERATE;
-                    VerifyAndPushSpellCast(spells, SPELL_PREPARATION, TARGET_NONE, 10);
+                    VerifyAndPushSpellCast(spells, SPELL_ROGUE_PREPARATION, TARGET_NONE, 10);
                     if (!me->IsWithinMeleeRange(me->GetVictim()))
                         VerifyAndPushSpellCast(spells, SPELL_SHADOWSTEP, TARGET_VICTIM, 25);
                     VerifyAndPushSpellCast(spells, SPELL_SHADOW_DANCE, TARGET_NONE, 10);
