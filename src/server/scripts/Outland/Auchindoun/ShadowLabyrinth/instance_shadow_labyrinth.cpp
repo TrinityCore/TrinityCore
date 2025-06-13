@@ -143,7 +143,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_FEL_OVERSEER:
-                        return FelOverseerCount ? 1 : 0;
+                        return !FelOverseerCount ? 1 : 0;
                     default:
                         break;
                 }
