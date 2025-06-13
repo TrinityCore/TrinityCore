@@ -150,9 +150,6 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         // Variables
         // *************
 
-        // For fleeing
-        bool IsFleeing;
-
         // *************
         // Pure virtual functions
         // *************
@@ -312,7 +309,7 @@ class TC_GAME_API BossAI : public ScriptedAI
 {
     public:
         BossAI(Creature* creature, uint32 bossId);
-        virtual ~BossAI() { }
+        virtual ~BossAI();
 
         InstanceScript* const instance;
 
@@ -359,7 +356,7 @@ class TC_GAME_API WorldBossAI : public ScriptedAI
 {
     public:
         WorldBossAI(Creature* creature);
-        virtual ~WorldBossAI() { }
+        virtual ~WorldBossAI();
 
         void JustSummoned(Creature* summon) override;
         void SummonedCreatureDespawn(Creature* summon) override;
