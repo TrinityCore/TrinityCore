@@ -2074,7 +2074,7 @@ struct at_fel_lord_caza_intro : AreaTriggerAI
             return;
 
         Creature* felLordCaza = player->FindNearestCreature(NPC_FEL_LORD_CAZA, 100.0f);
-        if (!felLordCaza || felLordCaza->HasAura(SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA))
+        if (!felLordCaza)
             return;
 
         // This should have a cooldown of 2 minutes
