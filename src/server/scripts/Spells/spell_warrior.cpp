@@ -70,6 +70,10 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
+    SPELL_WARRIOR_RAVAGER                           = 228920,
+    SPELL_WARRIOR_RAVAGER_RAGE_GAIN                 = 334934,
+    SPELL_WARRIOR_RAVAGER_PERIODIC_DAMAGE           = 156287,
+    SPELL_WARRIOR_RAVAGER_SUMMON                    = 227876,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
@@ -99,7 +103,8 @@ enum WarriorSpells
 
 enum WarriorMisc
 {
-    SPELL_VISUAL_BLAZING_CHARGE = 26423
+    SPELL_VISUAL_BLAZING_CHARGE = 26423,
+    SPELL_VISUAL_RAVAGER        = 36990
 };
 
 static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spell const* triggeringSpell)
@@ -1394,6 +1399,89 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// 228920 - Ravager
+class spell_warr_ravager : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RAVAGER_SUMMON });
+    }
+
+    void SummonRavager(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_WARRIOR_RAVAGER_SUMMON, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_ravager::SummonRavager, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 228920 - Ravager - Periodic AuraScript
+class spell_warr_ravager_aurascript : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RAVAGER_PERIODIC_DAMAGE })
+            && ValidateSpellEffect({ { SPELL_WARRIOR_RAVAGER_SUMMON, EFFECT_0 } });
+    }
+
+    std::vector<Unit*> FindRavagerSummons(Unit const* owner) const
+    {
+        std::vector<Unit*> summons;
+        int32 const summonedCreatureEntry = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_RAVAGER_SUMMON, GetCastDifficulty())->GetEffect(EFFECT_0).MiscValue;
+        for (Unit* summon : owner->m_Controlled)
+            if (summon->GetEntry() == static_cast<uint32>(summonedCreatureEntry))
+                summons.push_back(summon);
+
+        return summons;
+    }
+
+    void HandlePeriodic(AuraEffect const* /*auraEffect*/) const
+    {
+        std::vector<Unit*> const ravagers = FindRavagerSummons(GetTarget());
+        for (Unit* ravager : ravagers)
+        {
+            GetTarget()->CastSpell(ravager->GetWorldLocation(), SPELL_WARRIOR_RAVAGER_PERIODIC_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
+
+            ravager->SendPlaySpellVisual(ravager->GetPosition(), SPELL_VISUAL_RAVAGER, 0, 0, 0, true, 0);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_ravager_aurascript::HandlePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 156287 - Ravager (damage)
+class spell_warr_ravager_damage_rage_gain : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RAVAGER_RAGE_GAIN });
+    }
+
+    void HandleRavagerDamage() const
+    {
+        GetCaster()->CastSpell(nullptr, SPELL_WARRIOR_RAVAGER_RAGE_GAIN, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_warr_ravager_damage_rage_gain::HandleRavagerDamage);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_ashen_juggernaut);
@@ -1425,6 +1513,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_powerful_enrage);
     RegisterSpellScript(spell_warr_raging_blow_cooldown_reset);
     RegisterSpellScript(spell_warr_rallying_cry);
+    RegisterSpellAndAuraScriptPair(spell_warr_ravager, spell_warr_ravager_aurascript);
+    RegisterSpellScript(spell_warr_ravager_damage_rage_gain);
     RegisterSpellScript(spell_warr_rumbling_earth);
     RegisterSpellScript(spell_warr_shield_block);
     RegisterSpellScript(spell_warr_shield_charge);
