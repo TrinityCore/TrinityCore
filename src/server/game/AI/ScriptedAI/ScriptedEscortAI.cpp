@@ -34,7 +34,7 @@ enum Points
     POINT_HOME          = 0xFFFFFE
 };
 
-EscortAI::EscortAI(Creature* creature) : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+EscortAI::EscortAI(Creature* creature) noexcept : ScriptedAI(creature), _pauseTimer(2500ms), _playerCheckTimer(1000), _escortState(STATE_ESCORT_NONE), _maxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
     _escortQuest(nullptr), _activeAttacker(true), _instantRespawn(false), _returnToStart(false), _despawnAtEnd(true), _despawnAtFar(true),
     _hasImmuneToNPCFlags(false), _started(false), _ended(false), _resume(false)
 {

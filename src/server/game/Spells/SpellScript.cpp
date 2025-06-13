@@ -35,7 +35,7 @@ bool SpellScriptBase::_Validate(SpellInfo const* entry)
     return true;
 }
 
-SpellScriptBase::SpellScriptBase(): m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptSpellId(0)
+SpellScriptBase::SpellScriptBase() noexcept : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptSpellId(0)
 {
 }
 
@@ -268,7 +268,7 @@ template TC_GAME_API SpellScriptBase::HookList<SpellScript::DamageAndHealingCalc
 template TC_GAME_API SpellScriptBase::HookList<SpellScript::OnCalculateResistAbsorbHandler>& SpellScriptBase::HookList<SpellScript::OnCalculateResistAbsorbHandler>::operator+=(SpellScript::OnCalculateResistAbsorbHandler&& hook);
 template TC_GAME_API SpellScriptBase::HookList<SpellScript::EmpowerStageCompletedHandler>& SpellScriptBase::HookList<SpellScript::EmpowerStageCompletedHandler>::operator+=(SpellScript::EmpowerStageCompletedHandler&& hook);
 
-SpellScript::SpellScript(): m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0)
+SpellScript::SpellScript() noexcept : m_spell(nullptr), m_hitPreventEffectMask(0), m_hitPreventDefaultEffectMask(0)
 {
 }
 
@@ -948,7 +948,7 @@ std::string AuraScript::EffectBase::ToString() const
     }
 }
 
-AuraScript::AuraScript(): SpellScriptBase(), m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
+AuraScript::AuraScript() noexcept : m_aura(nullptr), m_auraApplication(nullptr), m_defaultActionPrevented(false)
 {
 }
 
