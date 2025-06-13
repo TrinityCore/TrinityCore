@@ -64,6 +64,7 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
+    SPELL_WARRIOR_RECKLESSNESS                      = 1719,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -1036,6 +1037,39 @@ class spell_warr_t3_prot_8p_bonus : public AuraScript
     }
 };
 
+// 389603 - Unbridled Ferocity
+class spell_warr_unbridled_ferocity : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RECKLESSNESS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && spellInfo->GetEffect(EFFECT_0).IsAura(SPELL_AURA_DUMMY)
+            && spellInfo->GetEffect(EFFECT_1).IsAura(SPELL_AURA_DUMMY);
+    }
+
+    void HandleProc(ProcEventInfo& /*eventInfo*/) const
+    {
+        int32 durationMs = GetAura()->GetEffect(EFFECT_1)->GetAmount();
+
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_RECKLESSNESS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, durationMs } }
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& /*eventInfo*/) const
+    {
+        return roll_chance_i(GetAura()->GetEffect(EFFECT_0)->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_unbridled_ferocity::CheckProc);
+        OnProc += AuraProcFn(spell_warr_unbridled_ferocity::HandleProc);
+    }
+};
+
 // 32215 - Victorious State
 class spell_warr_victorious_state : public AuraScript
 {
@@ -1119,6 +1153,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
+    RegisterSpellScript(spell_warr_unbridled_ferocity);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
 }
