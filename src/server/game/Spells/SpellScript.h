@@ -73,7 +73,7 @@ class TC_GAME_API SpellScriptBase
 // internal use classes & functions
 // DO NOT OVERRIDE THESE IN SCRIPTS
 public:
-    SpellScriptBase();
+    SpellScriptBase() noexcept;
     virtual ~SpellScriptBase();
 
     SpellScriptBase(SpellScriptBase const& right) = delete;
@@ -806,7 +806,7 @@ public:
      // left for custom compatibility only, DO NOT USE
     #define PrepareSpellScript(CLASSNAME)
 
-    SpellScript();
+    SpellScript() noexcept;
     ~SpellScript();
     bool _Validate(SpellInfo const* entry) override;
     bool _Load(Spell* spell);
@@ -2042,7 +2042,7 @@ public:
     #define PrepareAuraScript(CLASSNAME)
 
 public:
-    AuraScript();
+    AuraScript() noexcept;
     ~AuraScript();
     bool _Validate(SpellInfo const* entry) override;
     bool _Load(Aura* aura);

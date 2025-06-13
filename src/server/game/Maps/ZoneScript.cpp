@@ -26,7 +26,7 @@ ControlZoneHandler& ControlZoneHandler::operator=(ControlZoneHandler const& righ
 ControlZoneHandler& ControlZoneHandler::operator=(ControlZoneHandler&& right) noexcept = default;
 ControlZoneHandler::~ControlZoneHandler() = default;
 
-ZoneScript::ZoneScript() = default;
+ZoneScript::ZoneScript() noexcept = default;
 ZoneScript::ZoneScript(ZoneScript const& right) = default;
 ZoneScript::ZoneScript(ZoneScript&& right) noexcept = default;
 ZoneScript& ZoneScript::operator=(ZoneScript const& right) = default;

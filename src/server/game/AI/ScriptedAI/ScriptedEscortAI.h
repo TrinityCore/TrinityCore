@@ -36,7 +36,7 @@ enum EscortState : uint32
 struct TC_GAME_API EscortAI : public ScriptedAI
 {
     public:
-        explicit EscortAI(Creature* creature);
+        explicit EscortAI(Creature* creature) noexcept;
         ~EscortAI() { }
 
         void InitializeAI() override;

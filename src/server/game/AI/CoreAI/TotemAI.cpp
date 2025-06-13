@@ -33,7 +33,7 @@ int32 TotemAI::Permissible(Creature const* creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature* creature, uint32 scriptId) : NullCreatureAI(creature, scriptId), _victimGUID()
+TotemAI::TotemAI(Creature* creature, uint32 scriptId) noexcept : NullCreatureAI(creature, scriptId), _victimGUID()
 {
     ASSERT(creature->IsTotem(), "TotemAI: AI assigned to a non-totem creature (%s)!", creature->GetGUID().ToString().c_str());
 }

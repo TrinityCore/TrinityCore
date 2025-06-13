@@ -15,14 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Conversation.h"
 #include "ConversationAI.h"
+#include "Conversation.h"
 
-ConversationAI::ConversationAI(Conversation* c, uint32 scriptId) : _scriptId(scriptId ? scriptId : c->GetScriptId()), conversation(c)
+ConversationAI::ConversationAI(Conversation* c, uint32 scriptId) noexcept : _scriptId(scriptId ? scriptId : c->GetScriptId()), conversation(c)
 {
     ASSERT(_scriptId, "A ConversationAI was initialized with an invalid scriptId!");
 }
 
-ConversationAI::~ConversationAI()
-{
-}
+ConversationAI::~ConversationAI() = default;

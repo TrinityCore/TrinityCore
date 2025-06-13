@@ -32,7 +32,11 @@ class TC_GAME_API AreaTriggerAI
     protected:
         AreaTrigger* const at;
     public:
-        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {});
+        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {}) noexcept;
+        AreaTriggerAI(AreaTriggerAI const&) = delete;
+        AreaTriggerAI(AreaTriggerAI&&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI const&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI&&) = delete;
         virtual ~AreaTriggerAI();
 
         // Called when the AreaTrigger has just been initialized, just before added to map

@@ -31,7 +31,7 @@ enum Points
     POINT_COMBAT_START = 0xFFFFFF
 };
 
-FollowerAI::FollowerAI(Creature* creature) : ScriptedAI(creature), _updateFollowTimer(2500), _followState(STATE_FOLLOW_NONE), _questForFollow(0) { }
+FollowerAI::FollowerAI(Creature* creature) noexcept : ScriptedAI(creature), _updateFollowTimer(2500), _followState(STATE_FOLLOW_NONE), _questForFollow(0) { }
 
 void FollowerAI::MoveInLineOfSight(Unit* who)
 {

@@ -42,6 +42,10 @@ class TC_GAME_API SmartScript
 {
     public:
         SmartScript();
+        SmartScript(SmartScript const& other);
+        SmartScript(SmartScript&& other) noexcept;
+        SmartScript& operator=(SmartScript const& other);
+        SmartScript& operator=(SmartScript&& other) noexcept;
         ~SmartScript();
 
         void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr, Quest const* qst = nullptr, uint32 evnt = 0);

@@ -24,7 +24,7 @@
 class TC_GAME_API PassiveAI : public CreatureAI
 {
     public:
-        explicit PassiveAI(Creature* creature, uint32 scriptId = {});
+        explicit PassiveAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
@@ -36,7 +36,7 @@ class TC_GAME_API PassiveAI : public CreatureAI
 class TC_GAME_API PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature* creature, uint32 scriptId = {});
+        explicit PossessedAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit* target) override;
@@ -54,7 +54,7 @@ class TC_GAME_API PossessedAI : public CreatureAI
 class TC_GAME_API NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature* creature, uint32 scriptId = {});
+        explicit NullCreatureAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         void MoveInLineOfSight(Unit*) override { }
         void AttackStart(Unit*) override { }
@@ -71,7 +71,7 @@ class TC_GAME_API NullCreatureAI : public CreatureAI
 class TC_GAME_API CritterAI : public PassiveAI
 {
     public:
-        explicit CritterAI(Creature* creature, uint32 scriptId = {});
+        explicit CritterAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         void JustEngagedWith(Unit* /*who*/) override;
 

@@ -67,7 +67,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        explicit CreatureAI(Creature* creature, uint32 scriptId = {});
+        explicit CreatureAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         virtual ~CreatureAI();
 
