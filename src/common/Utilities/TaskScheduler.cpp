@@ -18,6 +18,15 @@
 #include "TaskScheduler.h"
 #include "Errors.h"
 
+TaskScheduler::TaskScheduler()
+    : self_reference(this, [](TaskScheduler const*) { }),
+    _now(clock_t::now()),
+    _predicate(EmptyValidator)
+{
+}
+
+TaskScheduler::~TaskScheduler() = default;
+
 TaskScheduler& TaskScheduler::ClearValidator()
 {
     _predicate = EmptyValidator;
@@ -34,6 +43,13 @@ TaskScheduler& TaskScheduler::Update(success_t const& callback/* = nullptr*/)
 TaskScheduler& TaskScheduler::Update(size_t milliseconds, success_t const& callback/* = nullptr*/)
 {
     return Update(std::chrono::milliseconds(milliseconds), callback);
+}
+
+TaskScheduler& TaskScheduler::Update(duration_t difftime, success_t const& callback/* = nullptr*/)
+{
+    _now += difftime;
+    Dispatch(callback);
+    return *this;
 }
 
 TaskScheduler& TaskScheduler::Async(std::function<void()> callable)
@@ -67,10 +83,73 @@ TaskScheduler& TaskScheduler::CancelGroupsOf(std::vector<group_t> const& groups)
     return *this;
 }
 
+TaskScheduler& TaskScheduler::DelayAll(duration_t duration)
+{
+    _task_holder.ModifyIf([&duration](TaskContainer const& task) -> bool
+    {
+        task->_end += duration;
+        return true;
+    });
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::DelayGroup(group_t const group, duration_t duration)
+{
+    _task_holder.ModifyIf([&duration, group](TaskContainer const& task) -> bool
+    {
+        if (task->IsInGroup(group))
+        {
+            task->_end += duration;
+            return true;
+        }
+        else
+            return false;
+    });
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::RescheduleAll(duration_t duration)
+{
+    auto const end = _now + duration;
+    _task_holder.ModifyIf([end](TaskContainer const& task) -> bool
+    {
+        task->_end = end;
+        return true;
+    });
+    return *this;
+}
+
+TaskScheduler& TaskScheduler::RescheduleGroup(group_t const group, duration_t duration)
+{
+    auto const end = _now + duration;
+    _task_holder.ModifyIf([end, group](TaskContainer const& task) -> bool
+    {
+        if (task->IsInGroup(group))
+        {
+            task->_end = end;
+            return true;
+        }
+        else
+            return false;
+    });
+    return *this;
+}
+
 TaskScheduler& TaskScheduler::InsertTask(TaskContainer task)
 {
     _task_holder.Push(std::move(task));
     return *this;
+}
+
+TaskScheduler& TaskScheduler::ScheduleAt(timepoint_t end, duration_t time, task_handler_t task)
+{
+    return InsertTask(TaskContainer(new Task(end + time, time, std::move(task))));
+}
+
+TaskScheduler& TaskScheduler::ScheduleAt(timepoint_t end, duration_t time, group_t const group, task_handler_t task)
+{
+    static constexpr repeated_t DEFAULT_REPEATED = 0;
+    return InsertTask(TaskContainer(new Task(end + time, time, group, DEFAULT_REPEATED, std::move(task))));
 }
 
 void TaskScheduler::Dispatch(success_t const& callback/* = nullptr*/)
@@ -198,11 +277,44 @@ TaskScheduler::repeated_t TaskContext::GetRepeatCounter() const
     return _task->_repeated;
 }
 
+TaskContext& TaskContext::Repeat(TaskScheduler::duration_t duration)
+{
+    AssertOnConsumed();
+
+    // Set new duration, in-context timing and increment repeat counter
+    _task->_duration = duration;
+    _task->_end += duration;
+    _task->_repeated += 1;
+    (*_consumed) = true;
+    return this->Dispatch([this](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.InsertTask(_task);
+    });
+}
+
 TaskContext& TaskContext::Async(std::function<void()> const& callable)
 {
     return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
     {
         return scheduler.Async(callable);
+    });
+}
+
+TaskContext& TaskContext::Schedule(TaskScheduler::duration_t time, TaskScheduler::task_handler_t task)
+{
+    auto const end = _task->_end;
+    return this->Dispatch([end, time, task = std::move(task)](TaskScheduler& scheduler) mutable -> TaskScheduler&
+    {
+        return scheduler.ScheduleAt(end, time, std::move(task));
+    });
+}
+
+TaskContext& TaskContext::Schedule(TaskScheduler::duration_t time, TaskScheduler::group_t const group, TaskScheduler::task_handler_t task)
+{
+    auto const end = _task->_end;
+    return this->Dispatch([end, time, group, task = std::move(task)](TaskScheduler& scheduler) mutable -> TaskScheduler&
+    {
+        return scheduler.ScheduleAt(end, time, group, std::move(task));
     });
 }
 
@@ -224,6 +336,38 @@ TaskContext& TaskContext::CancelGroupsOf(std::vector<TaskScheduler::group_t> con
     return Dispatch([&](TaskScheduler& scheduler) -> TaskScheduler&
     {
         return scheduler.CancelGroupsOf(groups);
+    });
+}
+
+TaskContext& TaskContext::DelayAll(TaskScheduler::duration_t duration)
+{
+    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.DelayAll(duration);
+    });
+}
+
+TaskContext& TaskContext::DelayGroup(TaskScheduler::group_t const group, TaskScheduler::duration_t duration)
+{
+    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.DelayGroup(group, duration);
+    });
+}
+
+TaskContext& TaskContext::RescheduleAll(TaskScheduler::duration_t duration)
+{
+    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.RescheduleAll(duration);
+    });
+}
+
+TaskContext& TaskContext::RescheduleGroup(TaskScheduler::group_t const group, TaskScheduler::duration_t duration)
+{
+    return this->Dispatch([=](TaskScheduler& scheduler) -> TaskScheduler&
+    {
+        return scheduler.RescheduleGroup(group, duration);
     });
 }
 

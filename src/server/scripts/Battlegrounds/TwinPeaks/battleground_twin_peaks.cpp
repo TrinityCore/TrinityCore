@@ -190,7 +190,8 @@ struct battleground_twin_peaks : BattlegroundScript
         TriggerGameEvent(TwinPeaks::Events::StartBattle);
     }
 
-    void DoForFlagKeepers(std::function<void(Player*)> const& action) const
+    template <std::invocable<Player*> Action>
+    void DoForFlagKeepers(Action const& action) const
     {
         for (ObjectGuid flagGUID : _flags)
             if (GameObject const* flag = battlegroundMap->GetGameObject(flagGUID))

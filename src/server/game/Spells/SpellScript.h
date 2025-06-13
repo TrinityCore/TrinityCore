@@ -89,6 +89,14 @@ public:
 protected:
     virtual bool _Validate(SpellInfo const* entry);
 
+    // compile barrier to avoid instantiating operator+= in every script file
+    template <typename T>
+    class HookList : public ::HookList<T>
+    {
+    public:
+        HookList& operator+=(T&& t);
+    };
+
     class TC_GAME_API EffectHook
     {
     public:

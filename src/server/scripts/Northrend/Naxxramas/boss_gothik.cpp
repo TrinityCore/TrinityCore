@@ -160,12 +160,25 @@ static Player* FindEligibleTarget(Creature const* me, bool isGateOpen)
 }
 
 /* Wave data */
-typedef std::pair<uint32, uint8> GothikWaveEntry; // (npcEntry, npcCount)
-typedef std::set<GothikWaveEntry> GothikWave;
-typedef std::pair<GothikWave, uint8> GothikWaveInfo; // (wave, secondsToNext)
-typedef std::vector<GothikWaveInfo> GothikWaveData;
-const GothikWaveData waves10 =
+struct GothikWaveEntry
 {
+    uint32 CreatureId = 0;
+    uint32 Count = 0;
+};
+
+struct GothikWaveInfo
+{
+    constexpr GothikWaveInfo(std::initializer_list<GothikWaveEntry> waves, int64 timeToNextWave) : TimeToNextWave(timeToNextWave)
+    {
+        std::ranges::copy_n(waves.begin(), std::min(std::ranges::ssize(waves), std::ranges::ssize(Creatures)), Creatures.begin());
+    }
+
+    std::array<GothikWaveEntry, 3> Creatures;
+    Seconds TimeToNextWave;
+};
+
+static constexpr std::array<GothikWaveInfo, 19> waves10 =
+{ {
     {
         {{NPC_LIVE_TRAINEE, 2}},
     20},
@@ -223,10 +236,10 @@ const GothikWaveData waves10 =
     {
         {{NPC_LIVE_TRAINEE, 2}},
     0}
-};
+} };
 
-const GothikWaveData waves25 =
-{
+static constexpr std::array<GothikWaveInfo, 18> waves25 =
+{ {
     {
         {{NPC_LIVE_TRAINEE, 3}},
     20},
@@ -281,7 +294,7 @@ const GothikWaveData waves25 =
     {
         {{NPC_LIVE_RIDER, 1}, {NPC_LIVE_KNIGHT, 2}, {NPC_LIVE_TRAINEE, 3}},
     0}
-};
+} };
 
 // GUID of first trigger NPC (used as offset for guid checks)
 // 0-1 are living side soul triggers, 2-3 are spectral side soul triggers, 4 is living rider spawn trigger, 5-7 are living other spawn trigger, 8-12 are skull pile triggers
@@ -426,7 +439,7 @@ struct boss_gothik : public BossAI
             {
                 case EVENT_SUMMON:
                 {
-                    if (RAID_MODE(waves10,waves25).size() <= _waveCount) // bounds check
+                    if (RAID_MODE(waves10.size(), waves25.size()) <= _waveCount) // bounds check
                     {
                         TC_LOG_INFO("scripts", "GothikAI: Wave count {} is out of range for difficulty {}.", _waveCount, static_cast<uint32>(GetDifficulty()));
                         break;
@@ -434,8 +447,9 @@ struct boss_gothik : public BossAI
 
                     std::list<Creature*> triggers;
                     me->GetCreatureListWithEntryInGrid(triggers, NPC_TRIGGER, 150.0f);
-                    for (GothikWaveEntry entry : RAID_MODE(waves10, waves25)[_waveCount].first)
-                        for (uint8 i = 0; i < entry.second; ++i)
+                    for (GothikWaveEntry entry : RAID_MODE(waves10[_waveCount], waves25[_waveCount]).Creatures)
+                    {
+                        for (uint32 i = 0; i < entry.Count; ++i)
                         {
                             // GUID layout is as follows:
                             // CGUID+4: center (back of platform) - primary rider spawn
@@ -443,7 +457,7 @@ struct boss_gothik : public BossAI
                             // CGUID+6: center (front of platform) - second spawn
                             // CGUID+7: south (front of platform) - primary trainee spawn
                             uint32 targetDBGuid;
-                            switch (entry.first)
+                            switch (entry.CreatureId)
                             {
                                 case NPC_LIVE_RIDER: // only spawns from center (back) > north
                                     targetDBGuid = (CGUID_TRIGGER + 4) + (i % 2);
@@ -455,19 +469,17 @@ struct boss_gothik : public BossAI
                                     targetDBGuid = (CGUID_TRIGGER + 7) - (i % 3);
                                     break;
                                 default:
-                                    targetDBGuid = 0;
+                                    continue;
                             }
 
-                            for (Creature* trigger : triggers)
-                                if (trigger && trigger->GetSpawnId() == targetDBGuid)
-                                {
-                                    DoSummon(entry.first, trigger, 1.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                                    break;
-                                }
+                            auto triggerItr = std::ranges::find(triggers, targetDBGuid, [](Creature const* trigger) { return trigger->GetSpawnId(); });
+                            if (triggerItr != triggers.end())
+                                DoSummon(entry.CreatureId, *triggerItr, 1.0f, 15s, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                         }
+                    }
 
-                    if (uint8 timeToNext = RAID_MODE(waves10, waves25)[_waveCount].second)
-                        events.Repeat(Seconds(timeToNext));
+                    if (Seconds timeToNext = RAID_MODE(waves10[_waveCount], waves25[_waveCount]).TimeToNextWave; timeToNext > 0s)
+                        events.Repeat(timeToNext);
 
                     ++_waveCount;
                     break;
@@ -531,6 +543,8 @@ struct boss_gothik : public BossAI
                     break;
                 case EVENT_INTRO_4:
                     Talk(SAY_INTRO_4);
+                    break;
+                default:
                     break;
             }
         }

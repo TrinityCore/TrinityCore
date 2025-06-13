@@ -159,6 +159,11 @@ void InstanceScript::SetHeaders(std::string const& dataHeaders)
     headers = dataHeaders;
 }
 
+void InstanceScript::SetBossNumber(uint32 number)
+{
+    bosses.resize(number);
+}
+
 void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)
 {
     for (BossBoundaryEntry const& entry : data)

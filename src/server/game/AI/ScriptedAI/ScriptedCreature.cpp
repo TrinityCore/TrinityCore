@@ -124,7 +124,7 @@ void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
 
 ScriptedAI::ScriptedAI(Creature* creature) : ScriptedAI(creature, creature->GetScriptId()) { }
 
-ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), IsFleeing(false), _isCombatMovementAllowed(true)
+ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _isCombatMovementAllowed(true)
 {
     _difficulty = me->GetMap()->GetDifficultyID();
 }
@@ -538,6 +538,8 @@ BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature), instan
     });
 }
 
+BossAI::~BossAI() = default;
+
 void BossAI::_Reset()
 {
     if (!me->IsAlive())
@@ -656,6 +658,8 @@ void BossAI::_DespawnAtEvade(Seconds delayToRespawn /*= 30s*/, Creature* who /*=
 
 // WorldBossAI - for non-instanced bosses
 WorldBossAI::WorldBossAI(Creature* creature) : ScriptedAI(creature), summons(creature) { }
+
+WorldBossAI::~WorldBossAI() = default;
 
 void WorldBossAI::_Reset()
 {
