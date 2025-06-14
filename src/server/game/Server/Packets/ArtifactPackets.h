@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ArtifactPackets_h__
-#define ArtifactPackets_h__
+#ifndef TRINITYCORE_ARTIFACT_PACKETS_H
+#define TRINITYCORE_ARTIFACT_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -26,16 +26,16 @@ namespace WorldPackets
 {
     namespace Artifact
     {
+        struct ArtifactPowerChoice
+        {
+            int32 ArtifactPowerID = 0;
+            uint8 Rank = 0;
+        };
+
         class ArtifactAddPower final : public ClientPacket
         {
         public:
-            struct ArtifactPowerChoice
-            {
-                int32 ArtifactPowerID = 0;
-                uint8 Rank = 0;
-            };
-
-            ArtifactAddPower(WorldPacket&& packet) : ClientPacket(CMSG_ARTIFACT_ADD_POWER, std::move(packet)) { }
+            explicit ArtifactAddPower(WorldPacket&& packet) : ClientPacket(CMSG_ARTIFACT_ADD_POWER, std::move(packet)) { }
 
             void Read() override;
 
@@ -47,7 +47,7 @@ namespace WorldPackets
         class ArtifactSetAppearance final : public ClientPacket
         {
         public:
-            ArtifactSetAppearance(WorldPacket&& packet) : ClientPacket(CMSG_ARTIFACT_SET_APPEARANCE, std::move(packet)) { }
+            explicit ArtifactSetAppearance(WorldPacket&& packet) : ClientPacket(CMSG_ARTIFACT_SET_APPEARANCE, std::move(packet)) { }
 
             void Read() override;
 
@@ -59,7 +59,7 @@ namespace WorldPackets
         class ConfirmArtifactRespec final : public ClientPacket
         {
         public:
-            ConfirmArtifactRespec(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_ARTIFACT_RESPEC, std::move(packet)) { }
+            explicit ConfirmArtifactRespec(WorldPacket&& packet) : ClientPacket(CMSG_CONFIRM_ARTIFACT_RESPEC, std::move(packet)) { }
 
             void Read() override;
 
@@ -70,7 +70,7 @@ namespace WorldPackets
         class OpenArtifactForge final : public ServerPacket
         {
         public:
-            OpenArtifactForge() : ServerPacket(SMSG_OPEN_ARTIFACT_FORGE, 16 + 16) { }
+            explicit OpenArtifactForge() : ServerPacket(SMSG_OPEN_ARTIFACT_FORGE, 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -81,7 +81,7 @@ namespace WorldPackets
         class ArtifactRespecPrompt final : public ServerPacket
         {
         public:
-            ArtifactRespecPrompt() : ServerPacket(SMSG_ARTIFACT_RESPEC_PROMPT, 16 + 16) { }
+            explicit ArtifactRespecPrompt() : ServerPacket(SMSG_ARTIFACT_RESPEC_PROMPT, 16 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -92,7 +92,7 @@ namespace WorldPackets
         class ArtifactXpGain final : public ServerPacket
         {
         public:
-            ArtifactXpGain() : ServerPacket(SMSG_ARTIFACT_XP_GAIN, 16 + 4) { }
+            explicit ArtifactXpGain() : ServerPacket(SMSG_ARTIFACT_XP_GAIN, 16 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -102,4 +102,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ArtifactPackets_h__
+#endif // TRINITYCORE_ARTIFACT_PACKETS_H

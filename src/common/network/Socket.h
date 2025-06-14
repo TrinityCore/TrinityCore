@@ -19,6 +19,7 @@
 #define TRINITYCORE_SOCKET_H
 
 #include "Concepts.h"
+#include "IpAddress.h"
 #include "Log.h"
 #include "MessageBuffer.h"
 #include "SocketConnectionInitializer.h"
@@ -203,7 +204,7 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress().to_string(),
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress(),
                 shutdownError.value(), shutdownError.message());
 
         this->OnClose();
@@ -262,7 +263,7 @@ protected:
         _socket.set_option(boost::asio::ip::tcp::no_delay(enable), err);
         if (err)
             TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for {} - {} ({})",
-                GetRemoteIpAddress().to_string(), err.value(), err.message());
+                GetRemoteIpAddress(), err.value(), err.message());
     }
 
 private:

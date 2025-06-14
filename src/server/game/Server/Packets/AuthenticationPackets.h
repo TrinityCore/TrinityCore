@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef AuthenticationPacketsWorld_h__
-#define AuthenticationPacketsWorld_h__
+#ifndef TRINITYCORE_AUTHENTICATION_PACKETS_H
+#define TRINITYCORE_AUTHENTICATION_PACKETS_H
 
 #include "Packet.h"
 #include "Define.h"
@@ -32,30 +32,42 @@ namespace WorldPackets
 {
     namespace Auth
     {
+        template <typename Derived>
         class EarlyProcessClientPacket : public ClientPacket
         {
-        public:
-            EarlyProcessClientPacket(OpcodeClient opcode, WorldPacket&& packet) : ClientPacket(opcode, std::move(packet)) { }
+            explicit EarlyProcessClientPacket(OpcodeClient opcode, WorldPacket&& packet) : ClientPacket(opcode, std::move(packet)) { }
 
-            bool ReadNoThrow();
+        public:
+            bool ReadNoThrow() try
+            {
+                static_cast<Derived*>(this)->Read();
+                return true;
+            }
+            catch (ByteBufferException const& /*ex*/)
+            {
+                return false;
+            }
+
+            friend Derived;
         };
 
-        class Ping final : public EarlyProcessClientPacket
+        class Ping final : public EarlyProcessClientPacket<Ping>
         {
         public:
-            Ping(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_PING, std::move(packet)) { }
+            explicit Ping(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_PING, std::move(packet)) { }
 
             uint32 Serial = 0;
             uint32 Latency = 0;
 
         private:
-            void Read();
+            friend EarlyProcessClientPacket;
+            void Read() override;
         };
 
         class Pong final : public ServerPacket
         {
         public:
-            Pong(uint32 serial) : ServerPacket(SMSG_PONG, 4), Serial(serial) { }
+            explicit Pong(uint32 serial) : ServerPacket(SMSG_PONG, 4), Serial(serial) { }
 
             WorldPacket const* Write() override;
 
@@ -65,7 +77,7 @@ namespace WorldPackets
         class AuthChallenge final : public ServerPacket
         {
         public:
-            AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 16 + 4 * 8 + 1) { }
+            explicit AuthChallenge() : ServerPacket(SMSG_AUTH_CHALLENGE, 16 + 4 * 8 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -74,27 +86,24 @@ namespace WorldPackets
             uint8 DosZeroBits = 0;
         };
 
-        class AuthSession final : public EarlyProcessClientPacket
+        class AuthSession final : public EarlyProcessClientPacket<AuthSession>
         {
         public:
-            static uint32 const DigestLength = 24;
+            static constexpr uint32 DigestLength = 24;
 
-            AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet))
-            {
-                LocalChallenge.fill(0);
-                Digest.fill(0);
-            }
+            explicit AuthSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_SESSION, std::move(packet)) { }
 
             uint32 RegionID = 0;
             uint32 BattlegroupID = 0;
             uint32 RealmID = 0;
-            std::array<uint8, 32> LocalChallenge;
-            std::array<uint8, DigestLength> Digest;
+            std::array<uint8, 32> LocalChallenge = { };
+            std::array<uint8, DigestLength> Digest = { };
             uint64 DosResponse = 0;
             std::string RealmJoinTicket;
             bool UseIPv6 = false;
 
         private:
+            friend EarlyProcessClientPacket;
             void Read() override;
         };
 
@@ -129,54 +138,52 @@ namespace WorldPackets
             VirtualRealmNameInfo RealmNameInfo;
         };
 
+        struct GameTime
+        {
+            uint32 BillingType = 0;
+            uint32 MinutesRemaining = 0;
+            uint32 RealBillingType = 0;
+            bool IsInIGR = false;
+            bool IsPaidForByIGR = false;
+            bool IsCAISEnabled = false;
+        };
+
+        struct BaseBuildKey
+        {
+            std::array<uint8, 16> BuildKey = { };
+            std::array<uint8, 16> ConfigKey = { };
+        };
+
+        struct AuthSuccessInfo
+        {
+            uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
+            uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
+            uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
+
+            uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
+            uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
+            uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
+            Timestamp<> Time;
+
+            GameTime GameTimeInfo;
+
+            std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
+            std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
+
+            std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
+
+            bool IsExpansionTrial = false;
+            bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
+            Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
+            Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
+            Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
+            Optional<BaseBuildKey> CurrentBuild;
+        };
+
         class AuthResponse final : public ServerPacket
         {
         public:
-            struct AuthSuccessInfo
-            {
-                struct GameTime
-                {
-                    uint32 BillingType = 0;
-                    uint32 MinutesRemaining = 0;
-                    uint32 RealBillingType = 0;
-                    bool IsInIGR = false;
-                    bool IsPaidForByIGR = false;
-                    bool IsCAISEnabled = false;
-                };
-
-                struct NewBuild
-                {
-                    std::array<uint8, 16> NewBuildKey = { };
-                    std::array<uint8, 16> SomeKey = { };
-                };
-
-                AuthSuccessInfo() { } // work around clang bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
-
-                uint8 ActiveExpansionLevel = 0; ///< the current server expansion, the possible values are in @ref Expansions
-                uint8 AccountExpansionLevel = 0; ///< the current expansion of this account, the possible values are in @ref Expansions
-                uint32 TimeRested = 0; ///< affects the return value of the GetBillingTimeRested() client API call, it is the number of seconds you have left until the experience points and loot you receive from creatures and quests is reduced. It is only used in the Asia region in retail, it's not implemented in TC and will probably never be.
-
-                uint32 VirtualRealmAddress = 0; ///< a special identifier made from the Index, BattleGroup and Region.
-                uint32 TimeSecondsUntilPCKick = 0; ///< @todo research
-                uint32 CurrencyID = 0; ///< this is probably used for the ingame shop. @todo implement
-                Timestamp<> Time;
-
-                GameTime GameTimeInfo;
-
-                std::vector<VirtualRealmInfo> VirtualRealms;     ///< list of realms connected to this one (inclusive) @todo implement
-                std::vector<CharacterTemplate const*> Templates; ///< list of pre-made character templates.
-
-                std::vector<RaceClassAvailability> const* AvailableClasses = nullptr; ///< the minimum AccountExpansion required to select race/class combinations
-
-                bool IsExpansionTrial = false;
-                bool ForceCharacterTemplate = false; ///< forces the client to always use a character template when creating a new character. @see Templates. @todo implement
-                Optional<uint16> NumPlayersHorde; ///< number of horde players in this realm. @todo implement
-                Optional<uint16> NumPlayersAlliance; ///< number of alliance players in this realm. @todo implement
-                Optional<Timestamp<>> ExpansionTrialExpiration; ///< expansion trial expiration unix timestamp
-                Optional<NewBuild> NewBuildKeys;
-            };
-
-            AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
+            explicit AuthResponse() : ServerPacket(SMSG_AUTH_RESPONSE, 132) { }
 
             WorldPacket const* Write() override;
 
@@ -188,7 +195,7 @@ namespace WorldPackets
         class WaitQueueUpdate final : public ServerPacket
         {
         public:
-            WaitQueueUpdate() : ServerPacket(SMSG_WAIT_QUEUE_UPDATE, 4 + 4 + 1) { }
+            explicit WaitQueueUpdate() : ServerPacket(SMSG_WAIT_QUEUE_UPDATE, 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -198,7 +205,7 @@ namespace WorldPackets
         class WaitQueueFinish final : public ServerPacket
         {
         public:
-            WaitQueueFinish() : ServerPacket(SMSG_WAIT_QUEUE_FINISH, 0) { }
+            explicit WaitQueueFinish() : ServerPacket(SMSG_WAIT_QUEUE_FINISH, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -246,7 +253,7 @@ namespace WorldPackets
                 std::array<uint8, 256> Signature = { };
             };
 
-            ConnectTo();
+            explicit ConnectTo() : ServerPacket(SMSG_CONNECT_TO, 256 + 1 + 16 + 2 + 4 + 1 + 8) { }
 
             WorldPacket const* Write() override;
 
@@ -256,43 +263,41 @@ namespace WorldPackets
             uint8 Con = 0;
         };
 
-        class AuthContinuedSession final : public EarlyProcessClientPacket
+        class AuthContinuedSession final : public EarlyProcessClientPacket<AuthContinuedSession>
         {
         public:
-            static uint32 const DigestLength = 24;
+            static constexpr uint32 DigestLength = 24;
 
-            AuthContinuedSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet))
-            {
-                LocalChallenge.fill(0);
-                Digest.fill(0);
-            }
+            explicit AuthContinuedSession(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_AUTH_CONTINUED_SESSION, std::move(packet)) { }
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
-            std::array<uint8, 32> LocalChallenge;
-            std::array<uint8, DigestLength> Digest;
+            std::array<uint8, 32> LocalChallenge = { };
+            std::array<uint8, DigestLength> Digest = { };
 
         private:
+            friend EarlyProcessClientPacket;
             void Read() override;
         };
 
         class ResumeComms final : public ServerPacket
         {
         public:
-            ResumeComms(ConnectionType connection) : ServerPacket(SMSG_RESUME_COMMS, 0, connection) { }
+            explicit ResumeComms(ConnectionType connection) : ServerPacket(SMSG_RESUME_COMMS, 0, connection) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class ConnectToFailed final : public EarlyProcessClientPacket
+        class ConnectToFailed final : public EarlyProcessClientPacket<ConnectToFailed>
         {
         public:
-            ConnectToFailed(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
+            explicit ConnectToFailed(WorldPacket&& packet) : EarlyProcessClientPacket(CMSG_CONNECT_TO_FAILED, std::move(packet)) { }
 
             ConnectToSerial Serial = ConnectToSerial::None;
             uint8 Con = 0;
 
         private:
+            friend EarlyProcessClientPacket;
             void Read() override;
         };
 
@@ -302,7 +307,7 @@ namespace WorldPackets
             static bool InitializeEncryption();
             static void ShutdownEncryption();
 
-            EnterEncryptedMode(std::array<uint8, 32> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
+            explicit EnterEncryptedMode(std::array<uint8, 32> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
@@ -317,16 +322,16 @@ namespace WorldPackets
         class QueuedMessagesEnd final : public ClientPacket
         {
         public:
-            QueuedMessagesEnd(WorldPacket&& packet) : ClientPacket(CMSG_QUEUED_MESSAGES_END, std::move(packet)) { }
+            explicit QueuedMessagesEnd(WorldPacket&& packet) : ClientPacket(CMSG_QUEUED_MESSAGES_END, std::move(packet)) { }
 
             void Read() override;
 
             uint32 Timestamp = 0;
         };
+
+        ByteBuffer& operator<<(ByteBuffer& data, VirtualRealmInfo const& realmInfo);
+        ByteBuffer& operator<<(ByteBuffer& data, VirtualRealmNameInfo const& realmInfo);
     }
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmInfo const& realmInfo);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Auth::VirtualRealmNameInfo const& realmInfo);
-
-#endif // AuthenticationPacketsWorld_h__
+#endif // TRINITYCORE_AUTHENTICATION_PACKETS_H

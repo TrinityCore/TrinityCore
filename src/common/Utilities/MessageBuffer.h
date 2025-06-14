@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __MESSAGEBUFFER_H_
-#define __MESSAGEBUFFER_H_
+#ifndef TRINITYCORE_MESSAGE_BUFFER_H
+#define TRINITYCORE_MESSAGE_BUFFER_H
 
 #include "Define.h"
 #include <vector>
@@ -36,11 +36,11 @@ public:
     {
     }
 
-    MessageBuffer(MessageBuffer const& right) : _wpos(right._wpos), _rpos(right._rpos), _storage(right._storage)
-    {
-    }
+    MessageBuffer(MessageBuffer const& right) = default;
 
-    MessageBuffer(MessageBuffer&& right) noexcept : _wpos(right._wpos), _rpos(right._rpos), _storage(right.Move()) { }
+    MessageBuffer(MessageBuffer&& right) noexcept : _wpos(right._wpos), _rpos(right._rpos), _storage(std::move(right).Release()) { }
+
+    ~MessageBuffer() = default;
 
     void Reset()
     {
@@ -76,6 +76,7 @@ public:
         {
             if (_rpos != _wpos)
                 memmove(GetBasePointer(), GetReadPointer(), GetActiveSize());
+
             _wpos -= _rpos;
             _rpos = 0;
         }
@@ -98,24 +99,13 @@ public:
         }
     }
 
-    std::vector<uint8>&& Move()
+    std::vector<uint8>&& Release() &&
     {
-        _wpos = 0;
-        _rpos = 0;
+        Reset();
         return std::move(_storage);
     }
 
-    MessageBuffer& operator=(MessageBuffer const& right)
-    {
-        if (this != &right)
-        {
-            _wpos = right._wpos;
-            _rpos = right._rpos;
-            _storage = right._storage;
-        }
-
-        return *this;
-    }
+    MessageBuffer& operator=(MessageBuffer const& right) = default;
 
     MessageBuffer& operator=(MessageBuffer&& right) noexcept
     {
@@ -123,7 +113,7 @@ public:
         {
             _wpos = right._wpos;
             _rpos = right._rpos;
-            _storage = right.Move();
+            _storage = std::move(right).Release();
         }
 
         return *this;
