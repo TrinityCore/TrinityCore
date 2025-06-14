@@ -53,6 +53,7 @@ enum WarriorSpells
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
     SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
+    SPELL_WARRIOR_IMPROVED_WHIRLWIND                = 12950,
     SPELL_WARRIOR_INVIGORATING_FURY                 = 385174,
     SPELL_WARRIOR_INVIGORATING_FURY_TALENT          = 383468,
     SPELL_WARRIOR_IN_FOR_THE_KILL                   = 248621,
@@ -83,6 +84,7 @@ enum WarriorSpells
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
+    SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
     SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
 };
 
@@ -586,6 +588,58 @@ class spell_warr_impending_victory : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_warr_impending_victory::HandleAfterCast);
+    }
+};
+
+// 12950 - Improved Whirlwind (attached to 190411 - Whirlwind)
+class spell_improved_whirlwind : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_IMPROVED_WHIRLWIND, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 }, { SPELL_WARRIOR_WHIRLWIND_ENERGIZE, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_IMPROVED_WHIRLWIND);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (!targetsHit)
+            return;
+
+        Player* caster = GetCaster()->ToPlayer();
+        if (!caster)
+            return;
+
+        int32 const ragePerTarget = GetEffectValue();
+        int32 const baseRage = GetEffectInfo(EFFECT_0).CalcValue();
+        int32 const maxRage = baseRage + (ragePerTarget * GetEffectInfo(EFFECT_2).CalcValue());
+        int32 const rageGained = std::min<int32>(baseRage + (targetsHit * ragePerTarget), maxRage);
+
+        caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT0, rageGained * 10 } }
+        });
+
+        SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, GetCastDifficulty());
+        int32 stackAmount = static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount);
+        caster->ApplySpellMod(whirlwindCleaveAuraInfo, SpellModOp::MaxAuraStacks, stackAmount);
+
+        caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_improved_whirlwind::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1101,6 +1155,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
     RegisterSpellScript(spell_warr_impending_victory);
+    RegisterSpellScript(spell_improved_whirlwind);
     RegisterSpellScript(spell_warr_intimidating_shout);
     RegisterSpellScript(spell_warr_invigorating_fury);
     RegisterSpellScript(spell_warr_item_t10_prot_4p_bonus);
