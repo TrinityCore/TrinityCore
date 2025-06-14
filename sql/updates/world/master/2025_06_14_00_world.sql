@@ -1,4 +1,4 @@
-SET @CGUID := 100000000;
+SET @CGUID := 10006613;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` = @CGUID+0;
@@ -30,7 +30,8 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=426181;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 426181, 0, 0, 51, 0, 5, 212299, 0, '', 0, 0, 0, '', 'Spell \'Fortified Shell\' can only hit \'Reinforce Stalker\''),
-(13, 2, 426181, 0, 0, 51, 0, 5, 214443, 0, '', 0, 0, 0, '', 'Spell \'Fortified Shell\' can only hit \'Crystal Shard\'');
+(13, 2, 426181, 0, 0, 51, 0, 5, 214443, 0, '', 0, 0, 0, '', 'Spell \'Fortified Shell\' can only hit \'Crystal Shard\''),
+(13, 2, 426181, 0, 0, 36, 0, 0, 0, 0, '', 0, 0, 0, '', 'Potential target of the spell is alive');
 
 -- Texts
 DELETE FROM `creature_text` WHERE `CreatureID`=210156;

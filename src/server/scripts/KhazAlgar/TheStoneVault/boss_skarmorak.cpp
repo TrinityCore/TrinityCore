@@ -50,7 +50,8 @@ enum SkarmorakSpells
     SPELL_UNSTABLE_FRAGMENTS                    = 423557,
     SPELL_UNSTABLE_FRAGMENT_DAMAGE              = 464980,
     SPELL_UNSTABLE_FRAGMENT_MOD_DAMAGE          = 438583,
-    SPELL_VOID_DISCHARGE                        = 423324
+    SPELL_VOID_DISCHARGE                        = 423324,
+    SPELL_VOID_DISCHARGE_STACKS                 = 423327
 };
 
 enum SkarmorakEvents
@@ -107,18 +108,34 @@ struct boss_skarmorak : public BossAI
         _DespawnAtEvade();
     }
 
+    void HandleFortifiedShellEnded()
+    {
+        me->RemoveAurasDueToSpell(SPELL_FORTIFIED_SHELL_INDICATOR);
+        me->RemoveAurasDueToSpell(SPELL_VOID_DISCHARGE);
+        me->RemoveAurasDueToSpell(SPELL_VOID_DISCHARGE_STACKS);
+
+        events.ScheduleEvent(EVENT_CRYSTALLINE_SMASH, 10s);
+        events.ScheduleEvent(EVENT_UNSTABLE_CRASH, 16100ms);
+        events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
+    }
+
     void DoAction(int32 action) override
     {
         if (action != ACTION_FORTIFIED_SHELL)
             return;
 
-        me->RemoveAurasDueToSpell(SPELL_FORTIFIED_SHELL_INDICATOR);
-        me->RemoveAurasDueToSpell(SPELL_VOID_DISCHARGE);
         DoCastSelf(SPELL_SHATTERED_SHELL, TRIGGERED_FULL_MASK);
 
-        events.ScheduleEvent(EVENT_CRYSTALLINE_SMASH, 10s);
-        events.ScheduleEvent(EVENT_UNSTABLE_CRASH, 16100ms);
-        events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
+        HandleFortifiedShellEnded();
+    }
+
+    void OnChannelFinished(SpellInfo const* spell) override
+    {
+        if (spell->Id != SPELL_VOID_DISCHARGE)
+            return;
+
+        me->RemoveAurasDueToSpell(SPELL_FORTIFIED_SHELL_ABSORB);
+        HandleFortifiedShellEnded();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -185,9 +202,6 @@ struct boss_skarmorak : public BossAI
             default:
                 break;
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
     }
 };
 
@@ -198,6 +212,9 @@ class spell_skarmorak_fortified_shell_absorb : public AuraScript
     {
         InstanceScript* instance = GetTarget()->GetInstanceScript();
         if (!instance)
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
             return;
 
         Creature* skarmorak = instance->GetCreature(DATA_SKARMORAK);
@@ -362,7 +379,7 @@ class spell_skarmorak_unstable_crash : public SpellScript
         return ValidateSpellInfo({ SPELL_UNSTABLE_CRASH_FRAGMENT_SELECTOR });
     }
 
-    void HandleAfterCast()
+    void HandleAfterCast() const
     {
         Unit* caster = GetCaster();
         caster->CastSpell(caster, SPELL_UNSTABLE_CRASH_FRAGMENT_SELECTOR, CastSpellExtraArgsInit{
