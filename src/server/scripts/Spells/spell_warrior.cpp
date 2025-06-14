@@ -34,6 +34,8 @@
 
 enum WarriorSpells
 {
+    SPELL_WARRIOR_AVATAR                            = 107574,
+    SPELL_WARRIOR_BLADESTORM                        = 227847,
     SPELL_WARRIOR_BLADESTORM_PERIODIC_WHIRLWIND     = 50622,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
@@ -64,11 +66,14 @@ enum WarriorSpells
     SPELL_WARRIOR_MORTAL_WOUNDS                     = 115804,
     SPELL_WARRIOR_POWERFUL_ENRAGE                   = 440277,
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
+    SPELL_WARRIOR_RAVAGER                           = 228920,
+    SPELL_WARRIOR_RECKLESSNESS                      = 1719,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
     SPELL_WARRIOR_SHIELD_SLAM                       = 23922,
     SPELL_WARRIOR_SHIELD_SLAM_MARKER                = 224324,
+    SPELL_WARRIOR_SHIELD_WALL                       = 871,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
     SPELL_WARRIOR_STOICISM                          = 70845,
@@ -82,6 +87,7 @@ enum WarriorSpells
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
+    SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
 };
@@ -89,6 +95,104 @@ enum WarriorSpells
 enum WarriorMisc
 {
     SPELL_VISUAL_BLAZING_CHARGE = 26423
+};
+
+// 152278 - Anger Management
+class spell_warr_anger_management_proc : public AuraScript
+{
+    static bool ValidateProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, ChrSpecialization spec)
+    {
+        if (aurEff->GetAmount() == 0)
+            return false;
+
+        Player const* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        if (procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) == 0)
+            return false;
+
+        return player->GetPrimarySpecialization() == spec;
+    }
+
+    static bool CheckArmsProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorArms);
+    }
+
+    static bool CheckFuryProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorFury);
+    }
+
+    static bool CheckProtectionProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorProtection);
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_WARRIOR_COLOSSUS_SMASH,
+            SPELL_WARRIOR_BLADESTORM,
+            SPELL_WARRIOR_RAVAGER,
+            SPELL_WARRIOR_WARBREAKER,
+            SPELL_WARRIOR_RECKLESSNESS,
+            SPELL_WARRIOR_AVATAR,
+            SPELL_WARRIOR_SHIELD_WALL
+        });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, std::array<int32, 3> const& spellIds) const
+    {
+        int32 const rageCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) / 10; // db values are 10x the actual rage cost
+        float const multiplier  = static_cast<float>(rageCost) / static_cast<float>(aurEff->GetAmount());
+        Milliseconds const cooldownMod = -Milliseconds(static_cast<int32>(multiplier * CooldownReduction.count()));
+
+        for (int32 const spellId : spellIds)
+            if (spellId > 0)
+                GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, cooldownMod);
+    }
+
+    void OnProcArms(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        if (GetTarget()->HasSpell(SPELL_WARRIOR_WARBREAKER))
+            HandleProc(aurEff, eventInfo, ArmsWarbreakerSpellIds);
+        else
+            HandleProc(aurEff, eventInfo, ArmsColossusSmashSpellIds);
+    }
+
+    void OnProcFury(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        HandleProc(aurEff, eventInfo, FurySpellIds);
+    }
+
+    void OnProcProtection(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        HandleProc(aurEff, eventInfo, ProtectionSpellIds);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_anger_management_proc::CheckArmsProc, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_anger_management_proc::CheckProtectionProc, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_anger_management_proc::CheckFuryProc, EFFECT_2, SPELL_AURA_DUMMY);
+
+        OnEffectProc += AuraEffectProcFn(spell_warr_anger_management_proc::OnProcArms, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_anger_management_proc::OnProcProtection, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_anger_management_proc::OnProcFury, EFFECT_2, SPELL_AURA_DUMMY);
+    }
+
+    static constexpr Milliseconds CooldownReduction = 1000ms;
+    static constexpr std::array<int32, 3> ArmsColossusSmashSpellIds = { SPELL_WARRIOR_COLOSSUS_SMASH, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
+    static constexpr std::array<int32, 3> ArmsWarbreakerSpellIds = { SPELL_WARRIOR_WARBREAKER, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
+    static constexpr std::array<int32, 3> FurySpellIds = { SPELL_WARRIOR_RECKLESSNESS, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
+    static constexpr std::array<int32, 3> ProtectionSpellIds = { SPELL_WARRIOR_AVATAR, SPELL_WARRIOR_SHIELD_WALL, 0 };
 };
 
 // 107574 - Avatar
@@ -1085,6 +1189,7 @@ class spell_warr_victory_rush : public SpellScript
 
 void AddSC_warrior_spell_scripts()
 {
+    RegisterSpellScript(spell_warr_anger_management_proc);
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
