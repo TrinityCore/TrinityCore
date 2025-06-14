@@ -104,7 +104,7 @@ enum AmalgamOfSoulsMisc
     SOUL_ECHOES_STALKER_ANIM_KIT_3 = 9176
 };
 
-uint16 RandomAnimKit[3] =
+constexpr uint16 RandomAnimKit[3] =
 {
     SOUL_ECHOES_STALKER_ANIM_KIT_1,
     SOUL_ECHOES_STALKER_ANIM_KIT_2,
@@ -170,21 +170,18 @@ struct boss_amalgam_of_souls : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (IsHeroicOrHigher())
-        {
-            if (me->HealthBelowPctDamaged(50, damage) && !_callSoulsActive)
-            {
-                _callSoulsActive = true;
+        if (!IsHeroicOrHigher() || _callSoulsActive || !me->HealthBelowPctDamaged(50, damage))
+            return;
 
-                DoStopAttack();
-                me->SetReactState(REACT_PASSIVE);
-                events.CancelEvent(EVENT_SWIRLING_SCYTE);
-                events.CancelEvent(EVENT_SOUL_ECHOES);
-                events.CancelEvent(EVENT_REAP_SOUL);
+        _callSoulsActive = true;
 
-                me->GetMotionMaster()->MovePoint(POINT_START_CALL_SOULS, me->GetHomePosition(), false);
-            }
-        }
+        DoStopAttack();
+        me->SetReactState(REACT_PASSIVE);
+        events.CancelEvent(EVENT_SWIRLING_SCYTE);
+        events.CancelEvent(EVENT_SOUL_ECHOES);
+        events.CancelEvent(EVENT_REAP_SOUL);
+
+        me->GetMotionMaster()->MovePoint(POINT_START_CALL_SOULS, me->GetHomePosition(), false);
     }
 
     void UpdateAI(uint32 diff) override
@@ -225,8 +222,7 @@ struct boss_amalgam_of_souls : public BossAI
                 }
                 case EVENT_CHECK_ALIVE_SOULS:
                 {
-                    Creature* restlessSoul = me->FindNearestCreature(NPC_RESTLESS_SOUL, 100.0f);
-                    if (restlessSoul)
+                    if (me->FindNearestCreature(NPC_RESTLESS_SOUL, 100.0f))
                         events.Repeat(500ms);
                     else
                         events.ScheduleEvent(EVENT_SOUL_BURST, 5s);
@@ -306,39 +302,40 @@ struct npc_amalgam_of_souls_lord_etheldrin_ravencrest : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
-        if (id == POINT_SECRET_DOOR)
+        if (id != POINT_SECRET_DOOR)
+            return;
+
+        Milliseconds delay = 1s;
+        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
         {
-            _scheduler.Schedule(1s, [this](TaskContext task)
+            Talk(SAY_OUTRO);
+        });
+
+        delay += 4s;
+        _scheduler.Schedule(delay, [this](TaskContext /*task*/)
+        {
+            if (Creature* velandras = me->FindNearestCreature(NPC_LADY_VELANDRAS_RAVENCREST, 100.0f))
             {
-                Talk(SAY_OUTRO);
+                velandras->CastSpell(velandras, SPELL_SECRET_DOOR_CHANNEL_MID);
+                velandras->DespawnOrUnsummon(6s);
+            }
 
-                task.Schedule(4s, [this](TaskContext task)
-                {
-                    Creature* velandras = me->FindNearestCreature(NPC_LADY_VELANDRAS_RAVENCREST, 100.0f);
-                    Creature* staellis = me->FindNearestCreature(NPC_STAELLIS_RIVERMOOR, 100.0f);
-                    if (!velandras || !staellis)
-                        return;
+            if (Creature* staellis = me->FindNearestCreature(NPC_STAELLIS_RIVERMOOR, 100.0f))
+            {
+                staellis->CastSpell(staellis, SPELL_SECRET_DOOR_CHANNEL_LEFT);
+                staellis->DespawnOrUnsummon(6s);
+            }
 
-                    DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_RIGHT);
-                    me->DespawnOrUnsummon(6s);
+            DoCastSelf(SPELL_SECRET_DOOR_CHANNEL_RIGHT);
+            me->DespawnOrUnsummon(6s);
+        });
 
-                    velandras->CastSpell(velandras, SPELL_SECRET_DOOR_CHANNEL_MID);
-                    velandras->DespawnOrUnsummon(6s);
-
-                    staellis->CastSpell(staellis, SPELL_SECRET_DOOR_CHANNEL_LEFT);
-                    staellis->DespawnOrUnsummon(6s);
-
-                    task.Schedule(6s, [this](TaskContext /*task*/)
-                    {
-                        if (InstanceScript* instance = me->GetInstanceScript())
-                        {
-                            if (GameObject* door = instance->GetGameObject(DATA_BOSS_1_POST_BOSS_DOOR))
-                                door->SetGoState(GO_STATE_ACTIVE);
-                        }
-                    });
-                });
-            });
-        }
+        delay += 6s;
+        _scheduler.Schedule(delay, [this](TaskContext /*task*/)
+        {
+            if (GameObject* door = me->GetInstanceScript()->GetGameObject(DATA_BOSS_1_POST_BOSS_DOOR))
+                door->SetGoState(GO_STATE_ACTIVE);
+        });
     }
 
     void UpdateAI(uint32 diff) override
@@ -378,15 +375,7 @@ class spell_amalgam_of_souls_soulgorge : public AuraScript
 {
     void OnApply(AuraEffect const* /*auraEffect*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        Creature* creatureCaster = caster->ToCreature();
-        if (!creatureCaster)
-            return;
-
-        if (creatureCaster)
+        if (Creature* creatureCaster = Object::ToCreature(GetCaster()))
             creatureCaster->DespawnOrUnsummon(3s);
     }
 

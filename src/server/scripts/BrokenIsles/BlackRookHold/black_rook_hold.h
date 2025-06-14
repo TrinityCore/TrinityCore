@@ -23,9 +23,9 @@
 #define DataHeader "BlackRookHold"
 #define BRHScriptName "instance_black_rook_hold"
 
-uint32 const EncounterCount = 4;
+constexpr uint32 EncounterCount = 4;
 
-enum BRHDataTypes
+enum BRHDataTypes : uint8
 {
     // Encounters
     DATA_AMALGAM_OF_SOULS = 0,
