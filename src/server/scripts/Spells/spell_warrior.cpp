@@ -440,6 +440,24 @@ class spell_warr_enrage_proc : public AuraScript
         if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
             return false;
 
+        // Fresh Meat talent handling
+        if (Unit const* actor = eventInfo.GetActor())
+        {
+            if (actor->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
+            {
+                Spell const* procSpell = eventInfo.GetProcSpell();
+                if (!procSpell)
+                    return false;
+
+                Unit const* target = procSpell->m_targets.GetUnitTarget();
+                if (!target)
+                    return false;
+
+                if (!target->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, actor->GetGUID()))
+                    return true;
+            }
+        }
+
         return roll_chance_i(aurEff->GetAmount());
     }
 
@@ -447,10 +465,34 @@ class spell_warr_enrage_proc : public AuraScript
     {
         PreventDefaultAction();
 
-        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+        Unit* auraTarget = GetTarget();
+
+        auraTarget->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = eventInfo.GetProcSpell()
         });
+
+        // Fresh Meat talent handling
+        if (auraTarget->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
+        {
+            Spell const* procSpell = eventInfo.GetProcSpell();
+            if (!procSpell)
+                return;
+
+            if (!procSpell->GetSpellInfo()->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 })) // Bloodthirst/Bloodbath
+                return;
+
+            if (Unit* bloodthirstTarget = procSpell->m_targets.GetUnitTarget())
+            {
+                if (!bloodthirstTarget->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, auraTarget->GetGUID()))
+                {
+                    auraTarget->CastSpell(bloodthirstTarget, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
+                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                    });
+                }
+            }
+        }
+
     }
 
     void Register() override
@@ -558,46 +600,6 @@ class spell_warr_frenzy_rampage : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_frenzy_rampage::HandleAfterCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 215568 - Fresh Meat (attached to 23881 - Bloodthirst)
-// 215568 - Fresh Meat (attached to 335096 - Bloodbath)
-class spell_warr_fresh_meat : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_DEBUFF, SPELL_WARRIOR_FRESH_MEAT_TALENT, SPELL_WARRIOR_ENRAGE });
-    }
-
-    bool Load() override
-    {
-        return GetCaster()->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT);
-    }
-
-    void ApplyFreshMeat(SpellEffIndex /*effIndex*/) const
-    {
-        Unit* target = GetHitUnit();
-        if (target != GetExplTargetUnit())
-            return;
-
-        Unit* caster = GetCaster();
-
-        if (target->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, caster->GetGUID()))
-            return;
-
-        caster->CastSpell(target, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
-
-        caster->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_fresh_meat::ApplyFreshMeat, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1469,7 +1471,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
-    RegisterSpellScript(spell_warr_fresh_meat);
     RegisterSpellScript(spell_warr_fresh_meat_aura_dummy);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
