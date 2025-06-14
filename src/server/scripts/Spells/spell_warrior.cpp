@@ -125,12 +125,15 @@ class spell_warr_anger_management_proc : public AuraScript
 {
     static bool ValidateProc(ProcEventInfo const& eventInfo, ChrSpecialization spec)
     {
+        Player const* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
         Spell const* procSpell = eventInfo.GetProcSpell();
         if (!procSpell)
             return false;
 
-        Player const* player = eventInfo.GetActor()->ToPlayer();
-        if (!player)
+        if (!procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) > 0)
             return false;
 
         return player->GetPrimarySpecialization() == spec;
