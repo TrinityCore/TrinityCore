@@ -123,36 +123,32 @@ static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spel
 // 152278 - Anger Management
 class spell_warr_anger_management_proc : public AuraScript
 {
-    static bool ValidateSpec(ProcEventInfo const& eventInfo, ChrSpecialization spec)
+    static bool ValidateProc(ProcEventInfo const& eventInfo, ChrSpecialization spec)
     {
-        if (Player const* player = eventInfo.GetActor()->ToPlayer())
-            return player->GetPrimarySpecialization() == spec;
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
 
-        return false;
-    }
+        Player const* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
 
-    static int32 GetRageSpellCost(SpellInfo const* spellInfo)
-    {
-        for (SpellPowerEntry const* powerCost : spellInfo->PowerCosts)
-            if (powerCost && powerCost->PowerType == POWER_RAGE)
-                return powerCost->ManaCost / 10;
-
-        return 0;
+        return player->GetPrimarySpecialization() == spec;
     }
 
     static bool CheckArmsProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        return ValidateSpec(eventInfo, ChrSpecialization::WarriorArms);
+        return ValidateProc(eventInfo, ChrSpecialization::WarriorArms);
     }
 
     static bool CheckFuryProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        return ValidateSpec(eventInfo, ChrSpecialization::WarriorFury);
+        return ValidateProc(eventInfo, ChrSpecialization::WarriorFury);
     }
 
     static bool CheckProtectionProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        return ValidateSpec(eventInfo, ChrSpecialization::WarriorProtection);
+        return ValidateProc(eventInfo, ChrSpecialization::WarriorProtection);
     }
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -174,18 +170,19 @@ class spell_warr_anger_management_proc : public AuraScript
         _rageSpent += rageAmount;
 
         int32 const effectMultiplier = _rageSpent / effectAmount;
-        _rageSpent = _rageSpent % effectAmount;
+        _rageSpent %= effectAmount;
         return effectMultiplier;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, std::array<int32, 3> const& spellIds)
     {
-        int32 const rageCost = GetRageSpellCost(eventInfo.GetSpellInfo());
+        int32 const rageCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) / 10; // db values are 10x the actual rage cost
         int32 const multiplier = HandleRageSpend(rageCost, aurEff->GetAmount());
+        Milliseconds const cooldownMod = -(multiplier * CooldownReduction);
 
         for (int32 const spellId : spellIds)
-            if (spellId)
-                GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -(multiplier * CooldownReduction));
+            if (spellId > 0)
+                GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, cooldownMod);
     }
 
     void OnProcArms(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
