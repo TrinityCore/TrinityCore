@@ -1,4 +1,4 @@
-SET @CGUID := 1000000000;
+SET @CGUID := 4000758;
 
 -- Areatrigger 7736
 DELETE FROM `areatrigger_scripts` WHERE `entry`=7736;
@@ -11,7 +11,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (30, 0, 7736, 0, 0, 47, 0, 29420, 2, 0, 0, 0, 0, '', 'Areatrigger 7736 only triggers when quest 29420 is taken'),
 (30, 0, 7736, 0, 0, 1, 0, 92571, 0, 0, 1, 0, 0, '', 'Areatrigger 7736 only triggers when player has not aura 92571');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=0 AND `SourceEntry`=59626;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=32 AND `SourceGroup`=5 AND `SourceEntry`=59626;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (32, 5, 59626, 0, 0, 47, 0, 29420, 2, 0, '', 0, 0, 0, '', 'Flame Spout gets visible if Quest: 29420 is completed');
 
@@ -78,3 +78,5 @@ DELETE FROM `quest_request_items_locale` WHERE (`locale`='esES' AND `ID` IN (294
 INSERT INTO `quest_request_items_locale` (`ID`, `locale`, `CompletionText`, `VerifiedBuild`) VALUES
 (29418, 'esES', 'Espero que no te importe ensuciarte las manos.', 55461),
 (29523, 'esES', 'Cuando se presenta la oportunidad, es responsabilidad nuestra extender la mano y atraparla. Dudar equivale a rendirse.', 55461);
+
+UPDATE `creature_template` SET `flags_extra`=`flags_extra`|0x80 WHERE `entry`=59626;
