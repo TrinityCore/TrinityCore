@@ -245,7 +245,7 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
 {
     data->append(fragments.data(), fragments.size());
-    *data << WorldPackets::As<uint8>(WowCS::EntityFragment::End);
+    *data << uint8(WowCS::EntityFragment::End);
 }
 
 void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
@@ -506,7 +506,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.AreaTrigger)
     {
-        AreaTrigger const* areaTrigger = ToAreaTrigger();
+        AreaTrigger const* areaTrigger = static_cast<AreaTrigger const*>(this);
         AreaTriggerCreateProperties const* createProperties = areaTrigger->GetCreateProperties();
         AreaTriggerShapeInfo const& shape = areaTrigger->GetShape();
 
@@ -586,8 +586,6 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
         bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
-        bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasOrbit               = areaTrigger->HasOrbit();
         bool hasMovementScript      = false;
         bool hasPositionalSoundKitID= false;
 
@@ -604,19 +602,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasFacingCurveID);
         data->WriteBit(hasMoveCurveID);
         data->WriteBit(hasPositionalSoundKitID);
-        data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasOrbit);
+        data->WriteBit(areaTrigger->HasSplines());
+        data->WriteBit(areaTrigger->HasOrbit());
         data->WriteBit(hasMovementScript);
 
         data->FlushBits();
 
-        if (hasAreaTriggerSpline)
-        {
-            *data << uint32(areaTrigger->GetTimeToTarget());
-            *data << uint32(areaTrigger->GetElapsedTimeForMovement());
-
-            WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(areaTrigger->GetSpline(), *data);
-        }
+        if (areaTrigger->HasSplines())
+            WorldPackets::AreaTrigger::WriteAreaTriggerSpline(*data, areaTrigger->GetTimeToTarget(), areaTrigger->GetElapsedTimeForMovement(), areaTrigger->GetSpline());
 
         if (hasTargetRollPitchYaw)
             *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
@@ -639,8 +632,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         //if (hasMovementScript)
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
-        if (hasOrbit)
+        if (areaTrigger->HasOrbit())
+        {
+            using WorldPackets::AreaTrigger::operator<<;
             *data << areaTrigger->GetOrbit();
+        }
     }
 
     if (flags.GameObject)
@@ -658,9 +654,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->FlushBits();
         if (transport)
         {
-            *data << uint32(transport->GetTransportPeriod());
-            *data << uint32(transport->GetTimer());
-            data->WriteBit(transport->IsStopRequested());
+            uint32 period = transport->GetTransportPeriod();
+
+            *data << uint32((((int64(transport->GetTimer()) - int64(GameTime::GetGameTimeMS())) % period) + period) % period);  // TimeOffset
+            *data << uint32(transport->GetNextStopTimestamp().value_or(0));
+            data->WriteBit(transport->GetNextStopTimestamp().has_value());
             data->WriteBit(transport->IsStopped());
             data->WriteBit(false);
             data->FlushBits();
@@ -1576,18 +1574,18 @@ SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
     return _smoothPhasing.get();
 }
 
-bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bool distanceCheck, bool checkAlert) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs const& args /*= { }*/) const
 {
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisibleFor(this, implicitDetect) || CanNeverSee(obj))
+    if (obj->IsNeverVisibleFor(this, args.ImplicitDetection) || CanNeverSee(obj, args.IgnorePhaseShift))
         return false;
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    if (!obj->CheckPrivateObjectOwnerVisibility(this))
+    if (!args.IncludeAnyPrivateObject && !obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 
     if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
@@ -1598,13 +1596,14 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
         return false;
 
     // Spawn tracking
-    if (Player const* player = ToPlayer())
-        if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
-            if (!spawnTrackingStateData->Visible)
-                return false;
+    if (!args.IncludeHiddenBySpawnTracking)
+        if (Player const* player = ToPlayer())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+                if (!spawnTrackingStateData->Visible)
+                    return false;
 
     bool corpseVisibility = false;
-    if (distanceCheck)
+    if (args.DistanceCheck)
     {
         bool corpseCheck = false;
         if (Player const* thisPlayer = ToPlayer())
@@ -1672,15 +1671,15 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
     if (obj->IsInvisibleDueToDespawn(this))
         return false;
 
-    if (!CanDetect(obj, implicitDetect, checkAlert))
+    if (!CanDetect(obj, args.ImplicitDetection, args.AlertCheck))
         return false;
 
     return true;
 }
 
-bool WorldObject::CanNeverSee(WorldObject const* obj) const
+bool WorldObject::CanNeverSee(WorldObject const* obj, bool ignorePhaseShift /*= false*/) const
 {
-    return GetMap() != obj->GetMap() || !InSamePhase(obj);
+    return GetMap() != obj->GetMap() || (!ignorePhaseShift && !InSamePhase(obj));
 }
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool implicitDetect, bool checkAlert) const
@@ -3122,11 +3121,16 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (unit)
     {
         // can't attack invisible
-        if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT))
+        CanSeeOrDetectExtraArgs canSeeOrDetectExtraArgs;
+        if (bySpell)
         {
-            if (!unit->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
-                return false;
+            canSeeOrDetectExtraArgs.ImplicitDetection = bySpell->IsAffectingArea();
+            canSeeOrDetectExtraArgs.IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT);
+            canSeeOrDetectExtraArgs.IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING);
+            canSeeOrDetectExtraArgs.IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT);
         }
+        if (!unit->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
+            return false;
     }
 
     // can't attack dead
@@ -3282,7 +3286,15 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     }
 
     // can't assist invisible
-    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT)) && !CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
+    CanSeeOrDetectExtraArgs canSeeOrDetectExtraArgs;
+    if (bySpell)
+    {
+        canSeeOrDetectExtraArgs.ImplicitDetection = bySpell->IsAffectingArea();
+        canSeeOrDetectExtraArgs.IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT);
+        canSeeOrDetectExtraArgs.IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING);
+        canSeeOrDetectExtraArgs.IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT);
+    }
+    if (!CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return false;
 
     // can't assist dead
@@ -3374,9 +3386,9 @@ Unit* WorldObject::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spel
                     // Set up missile speed based delay
                     float hitDelay = spellInfo->LaunchDelay;
                     if (spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
-                        hitDelay += spellInfo->Speed;
+                        hitDelay += std::max(spellInfo->Speed, spellInfo->MinDuration);
                     else if (spellInfo->Speed > 0.0f)
-                        hitDelay += std::max(victim->GetDistance(this), 5.0f) / spellInfo->Speed;
+                        hitDelay += std::max(std::max(victim->GetDistance(this), 5.0f) / spellInfo->Speed, spellInfo->MinDuration);
 
                     uint32 delay = uint32(std::floor(hitDelay * 1000.0f));
                     // Schedule charge drop
@@ -3440,8 +3452,8 @@ void WorldObject::GetCreatureListWithOptionsInGrid(Container& creatureContainer,
 template <typename Container>
 void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive /*= true*/) const
 {
-    Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange, alive);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerContainer, checker);
+    Trinity::AnyUnitInObjectRangeCheck checker(this, maxSearchRange, true, alive);
+    Trinity::PlayerListSearcher searcher(this, playerContainer, checker);
     Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
 
@@ -3734,26 +3746,23 @@ void WorldObject::DestroyForNearbyPlayers()
     if (!IsInWorld())
         return;
 
-    std::list<Player*> targets;
-    Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange(), false);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
-    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
-    for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    auto destroyer = [this](Player* player)
     {
-        Player* player = (*iter);
-
         if (player == this)
-            continue;
+            return;
 
         if (!player->HaveAtClient(this))
-            continue;
+            return;
 
         if (Unit const* unit = ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
-            continue;
+            return;
 
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
-    }
+    };
+
+    Trinity::PlayerDistWorker worker(this, GetVisibilityRange(), destroyer);
+    Cell::VisitWorldObjects(this, worker, GetVisibilityRange());
 }
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)

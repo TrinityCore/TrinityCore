@@ -436,13 +436,13 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
 
                     charInfo.Customizations.clear();
 
-                    if (!(charInfo.Flags2 & (CHAR_CUSTOMIZE_FLAG_CUSTOMIZE | CHAR_CUSTOMIZE_FLAG_FACTION | CHAR_CUSTOMIZE_FLAG_RACE)))
+                    if (!(charInfo.Flags2 & (CHARACTER_FLAG_2_CUSTOMIZE | CHARACTER_FLAG_2_FACTION_CHANGE | CHARACTER_FLAG_2_RACE_CHANGE)))
                     {
                         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                         stmt->setUInt16(0, uint16(AT_LOGIN_CUSTOMIZE));
                         stmt->setUInt64(1, charInfo.Guid.GetCounter());
                         CharacterDatabase.Execute(stmt);
-                        charInfo.Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+                        charInfo.Flags2 = CHARACTER_FLAG_2_CUSTOMIZE;
                     }
                 }
 
@@ -1522,7 +1522,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
     features.CharUndeleteEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED);
-    features.BpayStoreEnabled = sWorld->getBoolConfig(CONFIG_FEATURE_SYSTEM_BPAY_STORE_ENABLED);
     features.IsChatMuted = !CanSpeak();
 
     features.SpeakForMeAllowed = false;

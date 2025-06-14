@@ -137,6 +137,7 @@ enum DemonHunterSpells
     SPELL_DH_ILLIDANS_GRASP                        = 205630,
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
     SPELL_DH_ILLIDANS_GRASP_JUMP_DEST              = 208175,
+    SPELL_DH_IMMOLATION_AURA                       = 258920,
     SPELL_DH_INNER_DEMON_BUFF                      = 390145,
     SPELL_DH_INNER_DEMON_DAMAGE                    = 390137,
     SPELL_DH_INNER_DEMON_TALENT                    = 389693,
@@ -186,6 +187,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_CHAINS_SNARE                 = 204843,
     SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_VISUAL                = 208673,
+    SPELL_DH_SIGIL_OF_FLAME                        = 204596,
     SPELL_DH_SIGIL_OF_FLAME_AOE                    = 204598,
     SPELL_DH_SIGIL_OF_FLAME_FLAME_CRASH            = 228973,
     SPELL_DH_SIGIL_OF_FLAME_VISUAL                 = 208710,
@@ -208,6 +210,7 @@ enum DemonHunterSpells
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
+    SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
@@ -716,6 +719,60 @@ class spell_dh_deflecting_spikes : public SpellScript
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_deflecting_spikes::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
     }
+};
+
+// 213410 - Demonic (attached to 212084 - Fel Devastation and 198013 - Eye Beam)
+class spell_dh_demonic : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _transformSpellId })
+            && ValidateSpellEffect({ { SPELL_DH_DEMONIC, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DH_DEMONIC, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura();
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
+    }
+
+    void TriggerMetamorphosis() const
+    {
+        Unit* caster = GetCaster();
+        AuraEffect const* demonic = caster->GetAuraEffect(SPELL_DH_DEMONIC, EFFECT_0);
+        if (!demonic)
+            return;
+
+        int32 duration = demonic->GetAmount() + GetSpell()->GetChannelDuration();
+
+        if (Aura* aura = caster->GetAura(_transformSpellId))
+        {
+            aura->SetMaxDuration(aura->GetDuration() + duration);
+            aura->SetDuration(aura->GetMaxDuration());
+            return;
+        }
+
+        SpellCastTargets targets;
+        targets.SetUnitTarget(caster);
+
+        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE),
+            TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            ObjectGuid::Empty, GetSpell()->m_castId);
+        spell->m_SpellVisual.SpellXSpellVisualID = 0;
+        spell->m_SpellVisual.ScriptVisualID = 0;
+        spell->SetSpellValue({ SPELLVALUE_DURATION, duration });
+        spell->prepare(targets);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dh_demonic::TriggerMetamorphosis);
+    }
+
+    uint32 _transformSpellId;
+
+public:
+    explicit spell_dh_demonic(uint32 transformSpellId) : _transformSpellId(transformSpellId) { }
 };
 
 // 203720 - Demon Spikes
@@ -1603,6 +1660,31 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
     }
 };
 
+// 452409 - Violent Transformation
+class spell_dh_violent_transformation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_VENGEANCE_DEMON_HUNTER, SPELL_DH_FEL_DEVASTATION, SPELL_DH_IMMOLATION_AURA });
+    }
+
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SIGIL_OF_FLAME, GetCastDifficulty())->ChargeCategoryId);
+
+        if (target->HasAura(SPELL_DH_VENGEANCE_DEMON_HUNTER))
+            target->GetSpellHistory()->ResetCooldown(SPELL_DH_FEL_DEVASTATION, true);
+        else
+            target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_IMMOLATION_AURA, GetCastDifficulty())->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_violent_transformation::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_army_unto_oneself);
@@ -1621,6 +1703,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
+    RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
@@ -1645,6 +1729,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
+    RegisterSpellScript(spell_dh_violent_transformation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>>("areatrigger_dh_sigil_of_chains");

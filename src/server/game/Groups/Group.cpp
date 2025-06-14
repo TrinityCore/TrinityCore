@@ -824,7 +824,7 @@ void Group::SendTargetIconList(WorldSession* session) const
     WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
     updateAll.PartyIndex = GetGroupCategory();
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
-        updateAll.TargetIcons.try_emplace(i, m_targetIcons[i]);
+        updateAll.TargetIcons.emplace_back(i, m_targetIcons[i]);
 
     session->SendPacket(updateAll.Write());
 }
