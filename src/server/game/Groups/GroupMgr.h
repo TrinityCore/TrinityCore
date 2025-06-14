@@ -30,6 +30,11 @@ private:
     ~GroupMgr();
 
 public:
+    GroupMgr(GroupMgr const&) = delete;
+    GroupMgr(GroupMgr&&) = delete;
+    GroupMgr& operator=(GroupMgr const&) = delete;
+    GroupMgr& operator=(GroupMgr&&) = delete;
+
     static GroupMgr* instance();
 
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;

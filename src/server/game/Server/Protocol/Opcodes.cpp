@@ -1009,7 +1009,7 @@ void OpcodeTable::InitializeClientOpcodes()
     DEFINE_HANDLER(CMSG_UPDATE_AADC_STATUS,                                 STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleChatUpdateAADCStatus);
     DEFINE_HANDLER(CMSG_UPDATE_ACCOUNT_BANK_TAB_SETTINGS,                   STATUS_UNHANDLED, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_ACCOUNT_DATA,                                STATUS_AUTHED,    PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateAccountData);
-    DEFINE_HANDLER(CMSG_UPDATE_AREA_TRIGGER_VISUAL,                         STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
+    DEFINE_HANDLER(CMSG_UPDATE_AREA_TRIGGER_VISUAL,                         STATUS_LOGGEDIN,  PROCESS_INPLACE,      &WorldSession::HandleUpdateAreaTriggerVisual);
     DEFINE_HANDLER(CMSG_UPDATE_CLIENT_SETTINGS,                             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_CRAFTING_NPC_RECIPES,                        STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL);
     DEFINE_HANDLER(CMSG_UPDATE_MISSILE_TRAJECTORY,                          STATUS_LOGGEDIN,  PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateMissileTrajectory);

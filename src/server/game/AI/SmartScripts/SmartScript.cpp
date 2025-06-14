@@ -71,9 +71,11 @@ SmartScript::SmartScript()
     mAllEventFlags = 0;
 }
 
-SmartScript::~SmartScript()
-{
-}
+SmartScript::SmartScript(SmartScript const& other) = default;
+SmartScript::SmartScript(SmartScript&& other) noexcept = default;
+SmartScript& SmartScript::operator=(SmartScript const& other) = default;
+SmartScript& SmartScript::operator=(SmartScript&& other) noexcept = default;
+SmartScript::~SmartScript() = default;
 
 bool SmartScript::IsSmart(Creature* c, bool silent) const
 {

@@ -1711,10 +1711,15 @@ typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::cons
 class TC_GAME_API SmartAIMgr
 {
     private:
-        SmartAIMgr() { }
-        ~SmartAIMgr() { }
+        SmartAIMgr();
+        ~SmartAIMgr();
 
     public:
+        SmartAIMgr(SmartAIMgr const&) = delete;
+        SmartAIMgr(SmartAIMgr&&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr const&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr&&) = delete;
+
         static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();

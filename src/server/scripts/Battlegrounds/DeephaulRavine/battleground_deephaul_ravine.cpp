@@ -743,7 +743,8 @@ struct battleground_deephaul_ravine : BattlegroundScript
         return false;
     }
 
-    void DoForLeaders(std::function<void(Creature*)> const& fn) const
+    template <std::invocable<Creature*> Action>
+    void DoForLeaders(Action const& fn) const
     {
         for (ObjectGuid const& guid : _leaderGUIDs)
             if (Creature* creature = battlegroundMap->GetCreature(guid))
