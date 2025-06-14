@@ -25,6 +25,7 @@
 #include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
