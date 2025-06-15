@@ -47,6 +47,8 @@ enum WarriorSpells
     SPELL_WARRIOR_EXECUTE                           = 20647,
     SPELL_WARRIOR_ENRAGE                            = 184362,
     SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
+    SPELL_WARRIOR_FRENZY_TALENT                     = 335077,
+    SPELL_WARRIOR_FRENZY_BUFF                       = 335082,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -107,6 +109,7 @@ class spell_warr_avatar : public SpellScript
 };
 
 // 23881 - Bloodthirst
+// 335096 - Bloodbath
 class spell_warr_bloodthirst : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -114,14 +117,21 @@ class spell_warr_bloodthirst : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_BLOODTHIRST_HEAL });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void CastHeal(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        if (GetHitUnit() != GetExplTargetUnit())
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_bloodthirst::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst::CastHeal, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -453,6 +463,63 @@ class spell_warr_frenzied_enrage : public SpellScript
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_0, TARGET_UNIT_CASTER);
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warr_frenzied_enrage::HandleFrenziedEnrage, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
+// 335082 - frenzy
+class spell_warr_frenzy : public AuraScript
+{
+public:
+    void SetTargetGUID(ObjectGuid const& guid) { _targetGUID = guid; }
+    ObjectGuid const& GetTargetGUID() const { return _targetGUID; }
+
+private:
+    void Register() override { }
+
+    ObjectGuid _targetGUID;
+};
+
+// 335077 - Frenzy (attached to 184367 - Rampage)
+class spell_warr_frenzy_rampage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRENZY_BUFF, SPELL_WARRIOR_FRENZY_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_FRENZY_TALENT);
+    }
+
+    void HandleAfterCast(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* hitUnit = GetHitUnit();
+
+        if (hitUnit != GetExplTargetUnit())
+            return;
+
+        caster->CastSpell(nullptr, SPELL_WARRIOR_FRENZY_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        if (Aura* frenzyAura = caster->GetAura(SPELL_WARRIOR_FRENZY_BUFF))
+        {
+            if (spell_warr_frenzy* script = frenzyAura->GetScript<spell_warr_frenzy>())
+            {
+                if (!script->GetTargetGUID().IsEmpty() && script->GetTargetGUID() != hitUnit->GetGUID())
+                    frenzyAura->SetStackAmount(1);
+
+                script->SetTargetGUID(hitUnit->GetGUID());
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_frenzy_rampage::HandleAfterCast, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1130,6 +1197,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
     RegisterSpellScript(spell_warr_frenzied_enrage);
+    RegisterSpellScript(spell_warr_frenzy);
+    RegisterSpellScript(spell_warr_frenzy_rampage);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
