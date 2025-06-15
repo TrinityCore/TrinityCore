@@ -43,7 +43,11 @@ class TC_GAME_API ChatHandler
         WorldSession const* GetSession() const { return m_session; }
         Player* GetPlayer() const;
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
-        virtual ~ChatHandler() { }
+        ChatHandler(ChatHandler const&) = delete;
+        ChatHandler(ChatHandler&&) = delete;
+        ChatHandler& operator=(ChatHandler const&) = delete;
+        ChatHandler& operator=(ChatHandler&&) = delete;
+        virtual ~ChatHandler() = default;
 
         static char* LineFromMessage(char*& pos);
 

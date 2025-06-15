@@ -135,10 +135,15 @@ class TC_GAME_API PlayerSocial
 class SocialMgr
 {
     private:
-        SocialMgr() { }
-        ~SocialMgr() { }
+        SocialMgr();
+        ~SocialMgr();
 
     public:
+        SocialMgr(SocialMgr const&) = delete;
+        SocialMgr(SocialMgr&&) = delete;
+        SocialMgr& operator=(SocialMgr const&) = delete;
+        SocialMgr& operator=(SocialMgr&&) = delete;
+
         static SocialMgr* instance();
 
         // Misc

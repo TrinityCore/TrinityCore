@@ -52,9 +52,15 @@ namespace Trinity
         std::set<WorldObject*> i_visibleNow;
         GuidUnorderedSet vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) { }
+        VisibleNotifier(Player &player);
+        ~VisibleNotifier();
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
+
+        VisibleNotifier(VisibleNotifier const&) = delete;
+        VisibleNotifier(VisibleNotifier&&) = delete;
+        VisibleNotifier& operator=(VisibleNotifier const&) = delete;
+        VisibleNotifier& operator=(VisibleNotifier&&) = delete;
     };
 
     struct VisibleChangesNotifier

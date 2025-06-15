@@ -482,7 +482,7 @@ TC_COMMON_API void StringReplaceAll(std::string* str, std::string_view text, std
 
 // simple class for not-modifyable list
 template <typename T>
-class HookList final
+class HookList
 {
     private:
         typedef std::vector<T> ContainerType;
@@ -495,7 +495,7 @@ class HookList final
 
         HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(std::move(t));
+            _container.emplace_back(std::move(t));
             return *this;
         }
 

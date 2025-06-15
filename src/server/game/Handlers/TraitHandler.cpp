@@ -47,7 +47,7 @@ void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitCo
 
     auto findEntry = [](WorldPackets::Traits::TraitConfig& config, int32 traitNodeId, int32 traitNodeEntryId) -> WorldPackets::Traits::TraitEntry*
     {
-        auto entryItr = std::find_if(config.Entries.begin(), config.Entries.end(), [=](WorldPackets::Traits::TraitEntry const& traitEntry)
+        auto entryItr = std::ranges::find_if(config.Entries, [=](WorldPackets::Traits::TraitEntry const& traitEntry)
         {
             return traitEntry.TraitNodeID == traitNodeId && traitEntry.TraitNodeEntryID == traitNodeEntryId;
         });
@@ -118,10 +118,10 @@ void WorldSession::HandleTraitsCommitConfig(WorldPackets::Traits::TraitsCommitCo
             if (newEntry.Rank)
                 traitEntry->Rank = newEntry.Rank;
             else
-                newConfigState.Entries.erase(std::remove_if(newConfigState.Entries.begin(), newConfigState.Entries.end(), [&newEntry](WorldPackets::Traits::TraitEntry const& traitEntry)
+                std::erase_if(newConfigState.Entries, [&newEntry](WorldPackets::Traits::TraitEntry const& traitEntry)
                 {
                     return traitEntry.TraitNodeID == newEntry.TraitNodeID && traitEntry.TraitNodeEntryID == newEntry.TraitNodeEntryID;
-                }), newConfigState.Entries.end());
+                });
         }
         else
             newConfigState.Entries.emplace_back() = newEntry;
@@ -152,7 +152,7 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
     if ((classTalentsRequestNewConfig.Config.CombatConfigFlags & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None)
         return;
 
-    int64 configCount = std::count_if(_player->m_activePlayerData->TraitConfigs.begin(), _player->m_activePlayerData->TraitConfigs.end(), [](UF::TraitConfig const& traitConfig)
+    int64 configCount = std::ranges::count_if(_player->m_activePlayerData->TraitConfigs, [](UF::TraitConfig const& traitConfig)
     {
         return static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
             && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None;
@@ -179,7 +179,7 @@ void WorldSession::HandleClassTalentsRequestNewConfig(WorldPackets::Traits::Clas
 
     for (UF::TraitEntry const& grantedEntry : TraitMgr::GetGrantedTraitEntriesForConfig(classTalentsRequestNewConfig.Config, _player))
     {
-        auto entryItr = std::find_if(classTalentsRequestNewConfig.Config.Entries.begin(), classTalentsRequestNewConfig.Config.Entries.end(),
+        auto entryItr = std::ranges::find_if(classTalentsRequestNewConfig.Config.Entries,
             [&](WorldPackets::Traits::TraitEntry const& entry) { return entry.TraitNodeID == grantedEntry.TraitNodeID && entry.TraitNodeEntryID == grantedEntry.TraitNodeEntryID; });
 
         WorldPackets::Traits::TraitEntry& newEntry = entryItr != classTalentsRequestNewConfig.Config.Entries.end() ? *entryItr : classTalentsRequestNewConfig.Config.Entries.emplace_back();
