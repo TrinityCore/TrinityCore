@@ -866,11 +866,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
     {
-        Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid);
-        if (!leavingUnit && exitUnitGuid.IsPlayer())
-            leavingUnit = ObjectAccessor::FindConnectedPlayer(exitUnitGuid);
-
-        if (leavingUnit)
+        if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
         {
             if (Player* player = leavingUnit->ToPlayer())
             {
