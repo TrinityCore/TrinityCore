@@ -108,6 +108,7 @@ class spell_warr_avatar : public SpellScript
 };
 
 // 23881 - Bloodthirst
+// 335096 - Bloodbath
 class spell_warr_bloodthirst : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -115,14 +116,21 @@ class spell_warr_bloodthirst : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_BLOODTHIRST_HEAL });
     }
 
-    void HandleDummy(SpellEffIndex /*effIndex*/)
+    void CastHeal(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, true);
+        if (GetHitUnit() != GetExplTargetUnit())
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BLOODTHIRST_HEAL, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_warr_bloodthirst::HandleDummy, EFFECT_3, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst::CastHeal, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
