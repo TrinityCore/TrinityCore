@@ -33,8 +33,6 @@
 #include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <sstream>
 
 Player* ChatHandler::GetPlayer() const { return m_session ? m_session->GetPlayer() : nullptr; }
 
@@ -112,19 +110,11 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
 
 void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 {
-    std::string msg{ str };
+    std::string msg(str);
 
     // Replace every "|" with "||" in msg
-    if (escapeCharacters && msg.find('|') != std::string::npos)
-    {
-        std::vector<std::string_view> tokens = Trinity::Tokenize(msg, '|', true);
-        std::ostringstream stream;
-        for (size_t i = 0; i < tokens.size() - 1; ++i)
-            stream << tokens[i] << "||";
-        stream << tokens[tokens.size() - 1];
-
-        msg = stream.str();
-    }
+    if (escapeCharacters)
+        StringReplaceAll(&msg, "|"sv, "||"sv);
 
     WorldPackets::Chat::Chat packet;
     for (std::string_view line : Trinity::Tokenize(str, '\n', true))
@@ -157,6 +147,11 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 void ChatHandler::SendSysMessage(uint32 entry)
 {
     SendSysMessage(GetTrinityString(entry));
+}
+
+std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+{
+    return fmt::vsprintf<char>(messageFormat, messageFormatArgs);
 }
 
 bool ChatHandler::_ParseCommands(std::string_view text)
@@ -601,7 +596,10 @@ LocaleConstant ChatHandler::GetSessionDbLocaleIndex() const
 
 std::string ChatHandler::playerLink(std::string const& name) const
 {
-    return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+    if (m_session)
+        return Trinity::StringFormat("|cffffffff|Hplayer:{0}|h[{0}]|h|r", name);
+    else
+        return name;
 }
 
 std::string ChatHandler::GetNameLink(Player* chr) const
@@ -782,7 +780,8 @@ void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escap
     msg.append(echo, 4);
     std::string body(str);
     if (escapeCharacters)
-        boost::replace_all(body, "|", "||");
+        StringReplaceAll(&body, "|"sv, "||"sv);
+
     size_t pos, lastpos;
     for (lastpos = 0, pos = body.find('\n', lastpos); pos != std::string::npos; lastpos = pos + 1, pos = body.find('\n', lastpos))
     {

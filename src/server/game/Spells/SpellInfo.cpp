@@ -35,6 +35,7 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TraitMgr.h"
 #include "Vehicle.h"
 #include <G3D/g3dmath.h>
 #include <bit>
@@ -346,13 +347,13 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 101 TARGET_UNIT_PASSENGER_5
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 102 TARGET_UNIT_PASSENGER_6
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 103 TARGET_UNIT_PASSENGER_7
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 104 TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 104 TARGET_UNIT_CONE_CASTER_TO_DEST_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_AREA,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 105 TARGET_UNIT_CASTER_AND_PASSENGERS
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 106 TARGET_DEST_NEARBY_DB
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_NEARBY,  TARGET_CHECK_ENTRY,    TARGET_DIR_NONE},        // 107 TARGET_DEST_NEARBY_ENTRY_2
-    {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 108 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ENEMY
-    {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 109 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ALLY
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENTRY,    TARGET_DIR_FRONT},       // 110 TARGET_UNIT_CONE_CASTER_TO_DEST_ENTRY
+    {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENEMY,    TARGET_DIR_FRONT},       // 108 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ENEMY
+    {TARGET_OBJECT_TYPE_GOBJ, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 109 TARGET_GAMEOBJECT_CONE_CASTER_TO_DEST_ALLY
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ENTRY,    TARGET_DIR_FRONT},       // 110 TARGET_UNIT_CONE_CASTER_TO_DEST_ENTRY
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 111
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 112
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_TARGET, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 113
@@ -378,7 +379,7 @@ std::array<SpellImplicitTargetInfo::StaticData, TOTAL_SPELL_TARGETS> SpellImplic
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_LINE,    TARGET_CHECK_ALLY,     TARGET_DIR_NONE},        // 133 TARGET_UNIT_LINE_CASTER_TO_DEST_ALLY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_LINE,    TARGET_CHECK_ENEMY,    TARGET_DIR_NONE},        // 134 TARGET_UNIT_LINE_CASTER_TO_DEST_ENEMY
     {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_LINE,    TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 135 TARGET_UNIT_LINE_CASTER_TO_DEST
-    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 136 TARGET_UNIT_CONE_CASTER_TO_DEST_ALLY
+    {TARGET_OBJECT_TYPE_UNIT, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_CONE,    TARGET_CHECK_ALLY,     TARGET_DIR_FRONT},       // 136 TARGET_UNIT_CONE_CASTER_TO_DEST_ALLY
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_CASTER, TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 137 TARGET_DEST_CASTER_MOVEMENT_DIRECTION
     {TARGET_OBJECT_TYPE_DEST, TARGET_REFERENCE_TYPE_DEST,   TARGET_SELECT_CATEGORY_DEFAULT, TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 138 TARGET_DEST_DEST_GROUND
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 139
@@ -503,7 +504,35 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
     Unit const* casterUnit = nullptr;
     if (caster)
+    {
         casterUnit = caster->ToUnit();
+        if (Player const* playerCaster = caster->ToPlayer())
+        {
+            if (Optional<PlayerSpellTrait> trait = playerCaster->GetTraitInfoForSpell(_spellInfo->Id))
+            {
+                if (std::vector<TraitDefinitionEffectPointsEntry const*> const* traitDefinitionEffectPoints = TraitMgr::GetTraitDefinitionEffectPointModifiers(trait->DefinitionId))
+                {
+                    auto pointsOverride = std::ranges::find(*traitDefinitionEffectPoints, EffectIndex, &TraitDefinitionEffectPointsEntry::EffectIndex);
+                    if (pointsOverride != traitDefinitionEffectPoints->end())
+                    {
+                        float traitBasePoints = sDB2Manager.GetCurveValueAt((*pointsOverride)->CurveID, trait->Rank);
+                        switch ((*pointsOverride)->GetOperationType())
+                        {
+                            case TraitPointsOperationType::Set:
+                                value = traitBasePoints;
+                                break;
+                            case TraitPointsOperationType::Multiply:
+                                value *= traitBasePoints;
+                                break;
+                            case TraitPointsOperationType::None:
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if (Scaling.Variance)
     {
@@ -4492,7 +4521,6 @@ void SpellInfo::_InitializeExplicitTargetMask()
         // add explicit target flags based on spell effects which have EFFECT_IMPLICIT_TARGET_EXPLICIT and no valid target provided
         if (effect.GetImplicitTargetType() == EFFECT_IMPLICIT_TARGET_EXPLICIT)
         {
-
             // extend explicit target mask only if valid targets for effect could not be provided by target types
             uint32 effectTargetMask = effect.GetMissingTargetMask(srcSet, dstSet, targetMask);
 

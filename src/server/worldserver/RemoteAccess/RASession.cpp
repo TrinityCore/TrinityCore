@@ -19,6 +19,7 @@
 #include "AccountMgr.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
+#include "IpAddress.h"
 #include "Log.h"
 #include "Util.h"
 #include "World.h"

@@ -1250,20 +1250,13 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
 
 void Spell::SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, SpellImplicitTargetInfo const& targetType, SpellTargetIndex targetIndex, uint32 effMask)
 {
-    Position coneSrc = m_caster->GetPosition();
-    float coneAngle = m_spellInfo->ConeAngle;
-    switch (targetType.GetReferenceType())
+    if (targetType.GetReferenceType() != TARGET_REFERENCE_TYPE_CASTER)
     {
-        case TARGET_REFERENCE_TYPE_CASTER:
-            break;
-        case TARGET_REFERENCE_TYPE_DEST:
-            if (m_caster->GetExactDist2d(m_targets.GetDstPos()) > 0.1f)
-                coneSrc.SetOrientation(m_caster->GetAbsoluteAngle(m_targets.GetDstPos()));
-            break;
-        default:
-            break;
+        ABORT_MSG("Spell::SelectImplicitConeTargets: received not implemented target reference type");
+        return;
     }
 
+    float coneAngle = m_spellInfo->ConeAngle;
     switch (targetType.GetTarget())
     {
         case TARGET_UNIT_CONE_180_DEG_ENEMY:
@@ -1283,7 +1276,7 @@ void Spell::SelectImplicitConeTargets(SpellEffectInfo const& spellEffectInfo, Sp
     if (uint32 containerTypeMask = GetSearcherTypeMask(m_spellInfo, spellEffectInfo, objectType, condList))
     {
         float extraSearchRadius = radius > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
-        Trinity::WorldObjectSpellConeTargetCheck check(coneSrc, DegToRad(coneAngle), m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
+        Trinity::WorldObjectSpellConeTargetCheck check(*m_caster, DegToRad(coneAngle), m_spellInfo->Width ? m_spellInfo->Width : m_caster->GetCombatReach(), radius, m_caster, m_spellInfo, selectionType, condList, objectType);
         Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
         SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellConeTargetCheck> >(searcher, containerTypeMask, m_caster, m_caster, radius + extraSearchRadius);
 
@@ -6291,7 +6284,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     if (!glyphBindableSpells)
                         return SPELL_FAILED_INVALID_GLYPH;
 
-                    if (std::find(glyphBindableSpells->begin(), glyphBindableSpells->end(), m_misc.SpellId) == glyphBindableSpells->end())
+                    if (!advstd::ranges::contains(*glyphBindableSpells, m_misc.SpellId))
                         return SPELL_FAILED_INVALID_GLYPH;
 
                     if (std::vector<ChrSpecialization> const* glyphRequiredSpecs = sDB2Manager.GetGlyphRequiredSpecs(glyphId))
@@ -6299,7 +6292,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         if (caster->GetPrimarySpecialization() == ChrSpecialization::None)
                             return SPELL_FAILED_GLYPH_NO_SPEC;
 
-                        if (std::find(glyphRequiredSpecs->begin(), glyphRequiredSpecs->end(), caster->GetPrimarySpecialization()) == glyphRequiredSpecs->end())
+                        if (!advstd::ranges::contains(*glyphRequiredSpecs, caster->GetPrimarySpecialization()))
                             return SPELL_FAILED_GLYPH_INVALID_SPEC;
                     }
 
@@ -6308,7 +6301,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     {
                         if (std::vector<uint32> const* activeGlyphBindableSpells = sDB2Manager.GetGlyphBindableSpells(activeGlyphId))
                         {
-                            if (std::find(activeGlyphBindableSpells->begin(), activeGlyphBindableSpells->end(), m_misc.SpellId) != activeGlyphBindableSpells->end())
+                            if (advstd::ranges::contains(*activeGlyphBindableSpells, m_misc.SpellId))
                             {
                                 replacedGlyph = activeGlyphId;
                                 break;
@@ -6324,8 +6317,12 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                         if (activeGlyphId == glyphId)
                             return SPELL_FAILED_UNIQUE_GLYPH;
 
-                        if (sGlyphPropertiesStore.AssertEntry(activeGlyphId)->GlyphExclusiveCategoryID == glyphProperties->GlyphExclusiveCategoryID)
+                        if (glyphProperties->GlyphExclusiveCategoryID && sGlyphPropertiesStore.AssertEntry(activeGlyphId)->GlyphExclusiveCategoryID == glyphProperties->GlyphExclusiveCategoryID)
+                        {
+                            if (param1)
+                                *param1 = glyphProperties->GlyphExclusiveCategoryID;
                             return SPELL_FAILED_GLYPH_EXCLUSIVE_CATEGORY;
+                        }
                     }
                 }
                 break;

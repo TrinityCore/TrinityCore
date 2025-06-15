@@ -31,7 +31,7 @@ void ActiveState::Update(Map& map, NGridType& grid, GridInfo& info, uint32 diff)
     info.UpdateTimeTracker(diff);
     if (info.getTimeTracker().Passed())
     {
-        if (!grid.GetWorldObjectCountInNGrid<Player>() && !map.ActiveObjectsNearGrid(grid))
+        if (!grid.HasWorldObjectsInNGrid<Player>() && !map.ActiveObjectsNearGrid(grid))
         {
             ObjectGridStoper worker;
             TypeContainerVisitor<ObjectGridStoper, GridTypeMapContainer> visitor(worker);
