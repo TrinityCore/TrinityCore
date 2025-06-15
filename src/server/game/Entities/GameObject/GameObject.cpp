@@ -1472,8 +1472,8 @@ void GameObject::Update(uint32 diff)
                     {
                         // Environmental trap: Any player
                         Player* player = nullptr;
-                        Trinity::AnyPlayerInObjectRangeCheck checker(this, radius);
-                        Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                        Trinity::AnyUnitInObjectRangeCheck checker(this, radius);
+                        Trinity::PlayerSearcher searcher(this, player, checker);
                         Cell::VisitWorldObjects(this, searcher, radius);
                         target = player;
                     }
@@ -2686,6 +2686,10 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                 // triggering linked GO
                 if (uint32 trapEntry = info->chest.linkedTrap)
                     TriggeringLinkedGameObject(trapEntry, player);
+
+                // Cast spell before sending loot
+                if (spellCaster && info->chest.spell)
+                    spellCaster->CastSpell(nullptr, info->chest.spell, spellArgs);
 
                 AddUniqueUse(player);
             }

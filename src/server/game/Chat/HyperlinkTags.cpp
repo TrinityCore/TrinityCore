@@ -163,6 +163,15 @@ bool Trinity::Hyperlinks::LinkTags::conduit::StoreTo(SoulbindConduitRankEntry co
     return !!(val = sDB2Manager.GetSoulbindConduitRank(soulbindConduitId, rank));
 }
 
+bool Trinity::Hyperlinks::LinkTags::curio::StoreTo(SpellInfo const*& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    uint32 spellId;
+    if (!(t.TryConsumeTo(spellId) && t.IsEmpty()))
+        return false;
+    return !!(val = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE));
+}
+
 bool Trinity::Hyperlinks::LinkTags::currency::StoreTo(CurrencyLinkData& val, std::string_view text)
 {
     HyperlinkDataTokenizer t(text);
@@ -424,6 +433,15 @@ bool Trinity::Hyperlinks::LinkTags::mount::StoreTo(MountLinkData& val, std::stri
     if (!t.TryConsumeTo(val.DisplayId) || !sCreatureDisplayInfoStore.LookupEntry(val.DisplayId))
         return false;
     return t.TryConsumeTo(val.Customizations) && t.IsEmpty();
+}
+
+bool Trinity::Hyperlinks::LinkTags::perksactivity::StoreTo(PerksActivityEntry const*& val, std::string_view text)
+{
+    HyperlinkDataTokenizer t(text);
+    uint32 perksActivityId;
+    if (!t.TryConsumeTo(perksActivityId))
+        return false;
+    return !!(val = sPerksActivityStore.LookupEntry(perksActivityId)) && t.IsEmpty();
 }
 
 bool Trinity::Hyperlinks::LinkTags::pvptal::StoreTo(PvpTalentEntry const*& val, std::string_view text)

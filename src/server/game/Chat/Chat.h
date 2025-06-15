@@ -43,7 +43,11 @@ class TC_GAME_API ChatHandler
         WorldSession const* GetSession() const { return m_session; }
         Player* GetPlayer() const;
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
-        virtual ~ChatHandler() { }
+        ChatHandler(ChatHandler const&) = delete;
+        ChatHandler(ChatHandler&&) = delete;
+        ChatHandler& operator=(ChatHandler const&) = delete;
+        ChatHandler& operator=(ChatHandler&&) = delete;
+        virtual ~ChatHandler() = default;
 
         static char* LineFromMessage(char*& pos);
 
@@ -54,22 +58,30 @@ class TC_GAME_API ChatHandler
         void SendSysMessage(uint32 entry);
 
         template<typename... Args>
-        void PSendSysMessage(const char* fmt, Args&&... args)
+        void PSendSysMessage(char const* fmt, Args&&... args)
         {
-            SendSysMessage(fmt::sprintf(fmt, std::forward<Args>(args)...));
+            SendSysMessage(StringVPrintf(fmt, fmt::make_printf_args(std::forward<Args>(args)...)));
         }
 
         template<typename... Args>
         void PSendSysMessage(uint32 entry, Args&&... args)
         {
-            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
+            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...));
+        }
+
+        template<typename... Args>
+        static std::string PGetParseString(std::string_view fmt, Args&&... args)
+        {
+            return StringVPrintf(fmt, fmt::make_printf_args(std::forward<Args>(args)...));
         }
 
         template<typename... Args>
         std::string PGetParseString(uint32 entry, Args&&... args) const
         {
-            return fmt::sprintf(GetTrinityString(entry), std::forward<Args>(args)...);
+            return PGetParseString(GetTrinityString(entry), std::forward<Args>(args)...);
         }
+
+        static std::string StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs);
 
         bool _ParseCommands(std::string_view text);
         virtual bool ParseCommands(std::string_view text);

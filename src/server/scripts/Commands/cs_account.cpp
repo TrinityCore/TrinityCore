@@ -30,7 +30,6 @@ EndScriptData */
 #include "CryptoGenerics.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
-#include "IpAddress.h"
 #include "IPLocation.h"
 #include "Language.h"
 #include "Log.h"
@@ -449,8 +448,6 @@ public:
         }
         else
         {
-            using namespace std::string_view_literals;
-
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_COUNTRY);
             stmt->setString(0, "00"sv);
             stmt->setUInt32(1, handler->GetSession()->GetAccountId());

@@ -86,7 +86,7 @@ private:
     std::unordered_set<std::string> _subRegions;
     uint32 _updateInterval;
     std::unique_ptr<Trinity::Asio::DeadlineTimer> _updateTimer;
-    std::unique_ptr<Trinity::Asio::Resolver> _resolver;
+    std::unique_ptr<Trinity::Net::Resolver> _resolver;
     Optional<Battlenet::RealmHandle> _currentRealmId;
 };
 

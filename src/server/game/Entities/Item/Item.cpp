@@ -63,6 +63,13 @@ Item* NewItemOrBag(ItemTemplate const* proto)
     return new Item();
 }
 
+struct ItemSetEffect
+{
+    uint32 ItemSetID;
+    std::unordered_set<Item const*> EquippedItems;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
+};
+
 void AddItemsSetItem(Player* player, Item const* item)
 {
     ItemTemplate const* proto = item->GetTemplate();
@@ -203,6 +210,34 @@ void RemoveItemsSetItem(Player* player, Item const* item)
         delete eff;
         player->ItemSetEff[setindex] = nullptr;
     }
+}
+
+void UpdateItemSetAuras(Player* player, bool formChange)
+{
+    // item set bonuses not dependent from item broken state
+    for (ItemSetEffect* eff : player->ItemSetEff)
+    {
+        if (!eff)
+            continue;
+
+        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
+
+            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                player->ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
+            else
+            {
+                player->ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+                player->ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+            }
+        }
+    }
+}
+
+void DeleteItemSetEffects(ItemSetEffect* itemSetEffect)
+{
+    delete itemSetEffect;
 }
 
 bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
@@ -673,8 +708,6 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             if (m_itemData->Gems.size())
             {
-                using namespace std::string_view_literals;
-
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ITEM_INSTANCE_GEMS);
                 stmt->setUInt64(0, GetGUID().GetCounter());
                 uint32 i = 0;
@@ -1039,6 +1072,21 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     }
 
     return true;
+}
+
+void Item::LoadAdditionalDataFromDB(Player const* owner, ItemAdditionalLoadInfo* addionalData)
+{
+    if (GetTemplate()->GetArtifactID() && addionalData->Artifact)
+        LoadArtifactData(owner, addionalData->Artifact->Xp, addionalData->Artifact->ArtifactAppearanceId,
+            addionalData->Artifact->ArtifactTierId, addionalData->Artifact->ArtifactPowers);
+
+    if (addionalData->AzeriteItem)
+        if (AzeriteItem* azeriteItem = ToAzeriteItem())
+            azeriteItem->LoadAzeriteItemData(owner, *addionalData->AzeriteItem);
+
+    if (addionalData->AzeriteEmpoweredItem)
+        if (AzeriteEmpoweredItem* azeriteEmpoweredItem = ToAzeriteEmpoweredItem())
+            azeriteEmpoweredItem->LoadAzeriteEmpoweredItemData(owner, *addionalData->AzeriteEmpoweredItem);
 }
 
 void Item::LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers)
@@ -2597,20 +2645,25 @@ bool Item::IsArtifactDisabled() const
     return true;
 }
 
+int32 Item::GetArtifactPowerIndex(uint32 artifactPowerId) const
+{
+    return m_itemData->ArtifactPowers.FindIndexIf([artifactPowerId](UF::ArtifactPower const& artifactPower)
+    {
+        return uint32(artifactPower.ArtifactPowerID) == artifactPowerId;
+    });
+}
+
 UF::ArtifactPower const* Item::GetArtifactPower(uint32 artifactPowerId) const
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
-        return &m_itemData->ArtifactPowers[indexItr->second];
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
+        return &m_itemData->ArtifactPowers[index];
 
     return nullptr;
 }
 
 void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 {
-    uint16 index = uint16(m_artifactPowerIdToIndex.size());
-    m_artifactPowerIdToIndex[artifactPower->ArtifactPowerId] = index;
-
     UF::ArtifactPower& powerField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactPowers));
     powerField.ArtifactPowerID = artifactPower->ArtifactPowerId;
     powerField.PurchasedRank = artifactPower->PurchasedRank;
@@ -2619,27 +2672,31 @@ void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 
 void Item::SetArtifactPower(uint16 artifactPowerId, uint8 purchasedRank, uint8 currentRankWithBonus)
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::PurchasedRank), purchasedRank);
 
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), currentRankWithBonus);
     }
 }
 
 void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
 {
+    std::unordered_set<uint32> knownPowers;
+    for (UF::ArtifactPower const& power : m_itemData->ArtifactPowers)
+        knownPowers.insert(power.ArtifactPowerID);
+
     for (ArtifactPowerEntry const* artifactPower : sDB2Manager.GetArtifactPowers(artifactId))
     {
         if (artifactPower->Tier != artifactTier)
             continue;
 
-        if (m_artifactPowerIdToIndex.find(artifactPower->ID) != m_artifactPowerIdToIndex.end())
+        if (knownPowers.contains(artifactPower->ID))
             continue;
 
         ArtifactPowerData powerData;
@@ -2714,20 +2771,20 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     break;
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
                 {
-                    if (uint16 const* artifactPowerIndex = Trinity::Containers::MapGetValuePtr(m_artifactPowerIdToIndex, enchant->EffectArg[i]))
+                    if (int32 artifactPowerIndex = GetArtifactPowerIndex(enchant->EffectArg[i]); artifactPowerIndex >= 0)
                     {
-                        uint8 newRank = m_itemData->ArtifactPowers[*artifactPowerIndex].CurrentRankWithBonus;
+                        uint8 newRank = m_itemData->ArtifactPowers[artifactPowerIndex].CurrentRankWithBonus;
                         if (apply)
                             newRank += enchant->EffectPointsMin[i];
                         else
                             newRank -= enchant->EffectPointsMin[i];
 
                         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-                            .ModifyValue(&UF::ItemData::ArtifactPowers, *artifactPowerIndex)
+                            .ModifyValue(&UF::ItemData::ArtifactPowers, artifactPowerIndex)
                             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
 
                         if (IsEquipped())
-                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[*artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
+                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
                                 owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                     }
                     break;

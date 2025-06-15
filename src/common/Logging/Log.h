@@ -53,12 +53,13 @@ class TC_COMMON_API Log
     private:
         Log();
         ~Log();
+
+    public:
         Log(Log const&) = delete;
         Log(Log&&) = delete;
         Log& operator=(Log const&) = delete;
         Log& operator=(Log&&) = delete;
 
-    public:
         static Log* instance();
 
         void Initialize(Trinity::Asio::IoContext* ioContext);

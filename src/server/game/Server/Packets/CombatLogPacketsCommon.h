@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CombatLogPacketsCommon_h__
-#define CombatLogPacketsCommon_h__
+#ifndef TRINITYCORE_COMBAT_LOG_PACKETS_COMMON_H
+#define TRINITYCORE_COMBAT_LOG_PACKETS_COMMON_H
 
 #include "ObjectGuid.h"
 #include "Packet.h"
@@ -120,7 +120,14 @@ namespace WorldPackets
             Spells::SpellCastLogData LogData;
 
         protected:
-            template<typename T>
+            template <ByteBufferNumeric T>
+            void operator<<(T val)
+            {
+                _worldPacket << val;
+                _fullLogPacket << val;
+            }
+
+            template <typename T> requires (!ByteBufferNumeric<T>)
             void operator<<(T const& val)
             {
                 _worldPacket << val;
@@ -139,19 +146,6 @@ namespace WorldPackets
                 _fullLogPacket.FlushBits();
             }
 
-            bool WriteBit(bool bit)
-            {
-                _worldPacket.WriteBit(bit);
-                _fullLogPacket.WriteBit(bit);
-                return bit;
-            }
-
-            void WriteBits(uint32 value, uint32 bitCount)
-            {
-                _worldPacket.WriteBits(value, bitCount);
-                _fullLogPacket.WriteBits(value, bitCount);
-            }
-
             ByteBuffer& WriteLogData();
 
             WorldPacket _fullLogPacket;
@@ -159,4 +153,4 @@ namespace WorldPackets
     }
 }
 
-#endif // CombatLogPacketsCommon_h__
+#endif // TRINITYCORE_COMBAT_LOG_PACKETS_COMMON_H
