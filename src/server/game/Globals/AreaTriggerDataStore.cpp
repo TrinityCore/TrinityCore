@@ -414,7 +414,8 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             if (teleportActionItr != createProperties->Template->Actions.end())
             {
                 WorldSafeLocsEntry const* portLoc = sObjectMgr->GetWorldSafeLoc(teleportActionItr->Param);
-                if (portLoc)
+                // ignore any teleports within a single map
+                if (portLoc && spawn.mapId != portLoc->Loc.GetMapId())
                 {
                     AreaTriggerStruct at;
 
