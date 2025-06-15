@@ -94,6 +94,8 @@
 #include <sstream>
 #include <cmath>
 
+#include "AreaTriggerAI.h"
+
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                  // MOVE_WALK
@@ -5464,6 +5466,29 @@ void Unit::RemoveAllAreaTriggers(AreaTriggerRemoveReason reason /*= AreaTriggerR
             continue;
 
         at->Remove();
+    }
+}
+
+void Unit::EnterAreaTrigger(AreaTrigger* areaTrigger)
+{
+    m_insideAreaTriggers.push_back(areaTrigger);
+}
+
+void Unit::ExitAreaTrigger(AreaTrigger* areaTrigger)
+{
+    std::erase(m_insideAreaTriggers, areaTrigger);
+}
+
+std::vector<AreaTrigger*> Unit::GetInsideAreaTriggers() const
+{
+    return m_insideAreaTriggers;
+}
+
+void Unit::ExitAllAreaTriggers()
+{
+    for (AreaTrigger* at : m_insideAreaTriggers)
+    {
+        at->HandleUnitExit(this, true);
     }
 }
 
