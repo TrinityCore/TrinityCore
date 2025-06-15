@@ -1472,8 +1472,8 @@ void GameObject::Update(uint32 diff)
                     {
                         // Environmental trap: Any player
                         Player* player = nullptr;
-                        Trinity::AnyPlayerInObjectRangeCheck checker(this, radius);
-                        Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, checker);
+                        Trinity::AnyUnitInObjectRangeCheck checker(this, radius);
+                        Trinity::PlayerSearcher searcher(this, player, checker);
                         Cell::VisitWorldObjects(this, searcher, radius);
                         target = player;
                     }

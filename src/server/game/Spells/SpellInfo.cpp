@@ -35,6 +35,7 @@
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
+#include "TraitMgr.h"
 #include "Vehicle.h"
 #include <G3D/g3dmath.h>
 #include <bit>
@@ -503,7 +504,35 @@ int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 
 
     Unit const* casterUnit = nullptr;
     if (caster)
+    {
         casterUnit = caster->ToUnit();
+        if (Player const* playerCaster = caster->ToPlayer())
+        {
+            if (Optional<PlayerSpellTrait> trait = playerCaster->GetTraitInfoForSpell(_spellInfo->Id))
+            {
+                if (std::vector<TraitDefinitionEffectPointsEntry const*> const* traitDefinitionEffectPoints = TraitMgr::GetTraitDefinitionEffectPointModifiers(trait->DefinitionId))
+                {
+                    auto pointsOverride = std::ranges::find(*traitDefinitionEffectPoints, EffectIndex, &TraitDefinitionEffectPointsEntry::EffectIndex);
+                    if (pointsOverride != traitDefinitionEffectPoints->end())
+                    {
+                        float traitBasePoints = sDB2Manager.GetCurveValueAt((*pointsOverride)->CurveID, trait->Rank);
+                        switch ((*pointsOverride)->GetOperationType())
+                        {
+                            case TraitPointsOperationType::Set:
+                                value = traitBasePoints;
+                                break;
+                            case TraitPointsOperationType::Multiply:
+                                value *= traitBasePoints;
+                                break;
+                            case TraitPointsOperationType::None:
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     if (Scaling.Variance)
     {

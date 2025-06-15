@@ -52,9 +52,15 @@ namespace Trinity
         std::set<WorldObject*> i_visibleNow;
         GuidUnorderedSet vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) { }
+        VisibleNotifier(Player &player);
+        ~VisibleNotifier();
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
+
+        VisibleNotifier(VisibleNotifier const&) = delete;
+        VisibleNotifier(VisibleNotifier&&) = delete;
+        VisibleNotifier& operator=(VisibleNotifier const&) = delete;
+        VisibleNotifier& operator=(VisibleNotifier&&) = delete;
     };
 
     struct VisibleChangesNotifier
@@ -1597,28 +1603,6 @@ namespace Trinity
         WorldObject const& i_obj;
         FindGameObjectOptions const& i_args;
         Customizer& i_customizer;
-    };
-
-    class AnyPlayerInObjectRangeCheck
-    {
-        public:
-            AnyPlayerInObjectRangeCheck(WorldObject const* obj, float range, bool reqAlive = true) : _obj(obj), _range(range), _reqAlive(reqAlive) { }
-
-            bool operator()(Player* u) const
-            {
-                if (_reqAlive && !u->IsAlive())
-                    return false;
-
-                if (!_obj->IsWithinDist(u, _range))
-                    return false;
-
-                return true;
-            }
-
-        private:
-            WorldObject const* _obj;
-            float _range;
-            bool _reqAlive;
     };
 
     class AnyPlayerInPositionRangeCheck
