@@ -338,7 +338,7 @@ class spell_warr_deft_experience : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1);
+        return GetCaster()->HasAura(SPELL_WARRIOR_DEFT_EXPERIENCE);
     }
 
     void HandleDeftExperience(SpellEffIndex /*effIndex*/) const
@@ -348,8 +348,8 @@ class spell_warr_deft_experience : public SpellScript
 
         Unit const* caster = GetCaster();
         if (Aura* enrageAura = caster->GetAura(SPELL_WARRIOR_ENRAGE))
-            if (AuraEffect const* deftExperienceAuraEff = caster->GetAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1))
-                enrageAura->SetDuration(enrageAura->GetDuration() + deftExperienceAuraEff->GetAmount());
+            if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_WARRIOR_DEFT_EXPERIENCE, EFFECT_1))
+                enrageAura->SetDuration(enrageAura->GetDuration() + aurEff->GetAmount());
     }
 
     void Register() override
