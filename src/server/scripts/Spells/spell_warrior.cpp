@@ -83,6 +83,7 @@ enum WarriorSpells
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_TITANIC_RAGE                      = 394329,
     SPELL_WARRIOR_TRAUMA_EFFECT                     = 215537,
+    SPELL_WARRIOR_VICIOUS_CONTEMPT                  = 383885,
     SPELL_WARRIOR_VICTORIOUS                        = 32216,
     SPELL_WARRIOR_VICTORY_RUSH_HEAL                 = 118779,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
@@ -1135,6 +1136,35 @@ class spell_warr_t3_prot_8p_bonus : public AuraScript
     }
 };
 
+// 383885 - Vicious Contempt (attached to 23881 - Bloodthirst)
+// 383885 - Vicious Contempt (attached to 335096 - Bloodbath)
+class spell_warr_vicious_contempt : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_WARRIOR_VICIOUS_CONTEMPT, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_VICIOUS_CONTEMPT);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (!victim->HasAuraState(AURA_STATE_WOUNDED_35_PERCENT))
+            return;
+
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_WARRIOR_VICIOUS_CONTEMPT, EFFECT_0))
+            AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_warr_vicious_contempt::CalculateDamage);
+    }
+};
+
 // 32215 - Victorious State
 class spell_warr_victorious_state : public AuraScript
 {
@@ -1221,6 +1251,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
+    RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
 }
