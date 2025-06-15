@@ -77,6 +77,8 @@ enum HunterSpells
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
     SPELL_HUNTER_REJUVENATING_WIND_HEAL             = 385540,
     SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
+    SPELL_HUNTER_SHRAPNEL_SHOT_TALENT               = 473520,
+    SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF               = 474310,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
@@ -950,6 +952,33 @@ class spell_hun_scrappy : public AuraScript
     }
 };
 
+// 473520 - Shrapnel Shot (attached to 212680 - Explosive Shot)
+class spell_hun_shrapnel_shot : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_HUNTER_SHRAPNEL_SHOT_TALENT, SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_HUNTER_SHRAPNEL_SHOT_TALENT);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_hun_shrapnel_shot::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 56641 - Steady Shot
 class spell_hun_steady_shot : public SpellScript
 {
@@ -1280,6 +1309,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
+    RegisterSpellScript(spell_hun_shrapnel_shot);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_streamline);
     RegisterSpellScript(spell_hun_surging_shots);
