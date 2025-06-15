@@ -1048,7 +1048,7 @@ class spell_warr_vicious_contempt : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAuraEffect(SPELL_WARRIOR_VICIOUS_CONTEMPT, EFFECT_0);
+        return GetCaster()->HasAura(SPELL_WARRIOR_VICIOUS_CONTEMPT);
     }
 
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
@@ -1056,8 +1056,8 @@ class spell_warr_vicious_contempt : public SpellScript
         if (!victim->HasAuraState(AURA_STATE_WOUNDED_35_PERCENT))
             return;
 
-        if (AuraEffect const* auraEffect = GetCaster()->GetAuraEffect(SPELL_WARRIOR_VICIOUS_CONTEMPT, EFFECT_0))
-            AddPct(pctMod, auraEffect->GetAmount());
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_WARRIOR_VICIOUS_CONTEMPT, EFFECT_0))
+            AddPct(pctMod, aurEff->GetAmount());
     }
 
     void Register() override
