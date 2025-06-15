@@ -468,11 +468,6 @@ class spell_warr_frenzy_rampage : public SpellScript
         if (hitUnit != GetExplTargetUnit())
             return;
 
-        bool setStacksAtOne = true;
-        if (Aura const* frenzyAura = caster->GetAura(SPELL_WARRIOR_FRENZY_BUFF))
-            if (spell_warr_frenzy const* script = frenzyAura->GetScript<spell_warr_frenzy>())
-                setStacksAtOne = script->GetTargetGUID() != hitUnit->GetGUID();
-
         caster->CastSpell(nullptr, SPELL_WARRIOR_FRENZY_BUFF, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
@@ -480,11 +475,13 @@ class spell_warr_frenzy_rampage : public SpellScript
 
         if (Aura* frenzyAura = caster->GetAura(SPELL_WARRIOR_FRENZY_BUFF))
         {
-            if (setStacksAtOne)
-                frenzyAura->SetStackAmount(1);
-
             if (spell_warr_frenzy* script = frenzyAura->GetScript<spell_warr_frenzy>())
+            {
+                if (!script->GetTargetGUID().IsEmpty() && script->GetTargetGUID() != hitUnit->GetGUID())
+                    frenzyAura->SetStackAmount(1);
+
                 script->SetTargetGUID(hitUnit->GetGUID());
+            }
         }
     }
 
