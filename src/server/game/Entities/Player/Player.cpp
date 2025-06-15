@@ -1418,6 +1418,9 @@ bool Player::TeleportTo(TeleportLocation const& teleportLocation, TeleportToOpti
         // remove all areatriggers entities
         RemoveAllAreaTriggers();
 
+        // exit all areatriggers the unit is in
+        ExitAllAreaTriggers();
+
         // stop spellcasting
         // not attempt interrupt teleportation spell at caster teleport
         if (!(options & TELE_TO_SPELL))
