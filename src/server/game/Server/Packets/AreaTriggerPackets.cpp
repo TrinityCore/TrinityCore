@@ -113,4 +113,11 @@ WorldPacket const* AreaTriggerPlaySpellVisual::Write()
 
     return &_worldPacket;
 }
+
+void UpdateAreaTriggerVisual::Read()
+{
+    _worldPacket >> SpellID;
+    _worldPacket >> Visual;
+    _worldPacket >> TargetGUID;
+}
 }

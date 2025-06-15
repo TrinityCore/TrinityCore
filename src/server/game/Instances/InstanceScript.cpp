@@ -64,7 +64,7 @@ DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficul
     return itr != DungeonEncounters.end() ? *itr : nullptr;
 }
 
-InstanceScript::InstanceScript(InstanceMap* map) : instance(map), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
+InstanceScript::InstanceScript(InstanceMap* map) noexcept : instance(map), _instanceSpawnGroups(sObjectMgr->GetInstanceSpawnGroupsForMap(map->GetId())),
 _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatResurrectionCharges(0), _combatResurrectionTimerStarted(false)
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -157,6 +157,11 @@ GameObject* InstanceScript::GetGameObject(uint32 type)
 void InstanceScript::SetHeaders(std::string const& dataHeaders)
 {
     headers = dataHeaders;
+}
+
+void InstanceScript::SetBossNumber(uint32 number)
+{
+    bosses.resize(number);
 }
 
 void InstanceScript::LoadBossBoundaries(BossBoundaryData const& data)

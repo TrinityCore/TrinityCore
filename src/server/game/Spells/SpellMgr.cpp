@@ -5001,6 +5001,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Flame Spout
+    ApplySpellFix({ 114685 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
+    });
+
     // ENDOF THE WANDERING ISLE SPELLS
     //
 
@@ -5354,6 +5361,30 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 212680 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, 212431, EFFECT_1, {}, {});
+    });
+
+    // Revival
+    ApplySpellFix({ 115310 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Restoral
+    ApplySpellFix({ 388615 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Keg Smash
+    ApplySpellFix({ 121253 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_6, {}, {});
+    });
+
+    // Odyn's Fury
+    ApplySpellFix({ 385060, 385061, 385062 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 385059, EFFECT_5, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
