@@ -699,7 +699,7 @@ class spell_warr_intimidating_shout : public SpellScript
         unitList.remove(GetExplTargetWorldObject());
     }
 
-    void ClearTargets(std::list<WorldObject*>& unitList) const
+    static void ClearTargets(std::list<WorldObject*>& unitList)
     {
         // This is used in effect 3, which is an AOE Root effect.
         // This doesn't seem to be a thing anymore, so we clear the targets list here.
@@ -720,6 +720,7 @@ class spell_warr_intimidating_shout_menace_knock_back : public SpellScript
     {
         return ValidateSpellInfo({ SPELL_WARRIOR_INTIMIDATING_SHOUT_MENACE_AOE });
     }
+
     void FilterTargets(std::list<WorldObject*>& unitList) const
     {
         unitList.remove(GetExplTargetWorldObject());
