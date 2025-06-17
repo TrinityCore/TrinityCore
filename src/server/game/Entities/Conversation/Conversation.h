@@ -70,10 +70,7 @@ class TC_GAME_API Conversation final : public WorldObject, public GridObject<Con
         ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
-        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+        Position const& GetStationaryPosition() const override { return _stationaryPosition; }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
