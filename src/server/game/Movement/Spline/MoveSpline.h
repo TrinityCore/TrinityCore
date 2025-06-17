@@ -95,6 +95,7 @@ namespace Movement
         void computeFallElevation(int32 time_point, float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
+        void reinit_spline_for_next_cycle();
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
 
