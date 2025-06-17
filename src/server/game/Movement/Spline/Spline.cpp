@@ -306,7 +306,7 @@ std::string SplineBase::ToString() const
     for (index_type i = 0; i < count; ++i)
         str << "point " << i << " : " << points[i].toString() << std::endl;
 
-    return str.str();
+    return std::move(str).str();
 }
 
 }
