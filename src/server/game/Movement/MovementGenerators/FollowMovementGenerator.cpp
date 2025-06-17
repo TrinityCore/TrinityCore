@@ -24,7 +24,6 @@
 #include "PathGenerator.h"
 #include "Pet.h"
 #include "Unit.h"
-#include "Util.h"
 
 static void DoMovementInform(Unit* owner, Unit* target)
 {
@@ -51,7 +50,7 @@ FollowMovementGenerator::~FollowMovementGenerator() = default;
 
 static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseAngle> angle = {})
 {
-    if (owner->GetExactDistSq(target) > square(owner->GetCombatReach() + target->GetCombatReach() + range))
+    if (!owner->IsInDist(target, owner->GetCombatReach() + target->GetCombatReach() + range))
         return false;
 
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
