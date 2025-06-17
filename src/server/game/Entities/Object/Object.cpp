@@ -465,10 +465,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     if (flags.Stationary)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << float(self->GetStationaryX());
-        *data << float(self->GetStationaryY());
-        *data << float(self->GetStationaryZ());
-        *data << float(self->GetStationaryO());
+        *data << self->GetStationaryPosition().PositionXYZOStream();
     }
 
     if (flags.CombatVictim)
