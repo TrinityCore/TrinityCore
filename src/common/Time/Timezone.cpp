@@ -20,6 +20,7 @@
 #include "MapUtils.h"
 #include "Tuples.h"
 #include <algorithm>
+#include <array>
 #include <unordered_map>
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
