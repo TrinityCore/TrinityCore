@@ -29,9 +29,9 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     ASSERT(Initialized());
 
     float u = 1.0f;
-    int32 seg_time = spline.length(point_index, point_index + 1);
+    float seg_time = float(spline.length(point_index, point_index + 1));
     if (seg_time > 0)
-        u = (time_point - spline.length(point_index)) / (float)seg_time;
+        u = std::min(float(time_point - spline.length(point_index)) / seg_time, 1.0f);
 
     Location c;
     c.orientation = initialOrientation;
@@ -51,6 +51,10 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
         else if (facing.type == MONSTER_MOVE_FACING_SPOT)
             c.orientation = std::atan2(facing.f.y - c.y, facing.f.x - c.x);
         //nothing to do for MoveSplineFlag::Final_Target flag
+    }
+    else if (splineflags.Turning)
+    {
+        c.orientation = Position::NormalizeOrientation(turn->StartFacing + float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec);
     }
     else
     {
@@ -171,6 +175,13 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
         TC_LOG_ERROR("misc", "MoveSpline::init_spline: zero length spline, wrong input data?");
         spline.set_length(spline.last(), spline.isCyclic() ? 1000 : 1);
     }
+
+    if (turn)
+    {
+        MySpline::LengthType totalTurnTime = static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS));
+        spline.set_length(spline.last(), std::max(spline.length(), totalTurnTime));
+    }
+
     point_Idx = spline.first();
 }
 
@@ -186,6 +197,7 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     vertical_acceleration = 0.f;
     effect_start_time = 0;
     spell_effect_extra = args.spellEffectExtra;
+    turn = args.turnData;
     anim_tier = args.animTier;
     splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 

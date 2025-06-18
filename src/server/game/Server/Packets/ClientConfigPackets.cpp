@@ -73,6 +73,15 @@ void UserClientUpdateAccountData::Read()
     _worldPacket.rpos(pos + compressedSize);
 }
 
+WorldPacket const* UpdateAccountDataComplete::Write()
+{
+    _worldPacket << Player;
+    _worldPacket << int32(DataType);
+    _worldPacket << int32(Result);
+
+    return &_worldPacket;
+}
+
 void SetAdvancedCombatLogging::Read()
 {
     _worldPacket >> Bits<1>(Enable);

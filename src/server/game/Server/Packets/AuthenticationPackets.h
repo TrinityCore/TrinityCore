@@ -307,15 +307,15 @@ namespace WorldPackets
             static bool InitializeEncryption();
             static void ShutdownEncryption();
 
-            explicit EnterEncryptedMode(std::array<uint8, 32> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 256 + 1),
+            explicit EnterEncryptedMode(std::array<uint8, 32> const& encryptionKey, bool enabled) : ServerPacket(SMSG_ENTER_ENCRYPTED_MODE, 4 + 256 + 1),
                 EncryptionKey(encryptionKey), Enabled(enabled)
             {
             }
 
             WorldPacket const* Write() override;
 
-            std::array<uint8, 32> const& EncryptionKey;
             int32 RegionGroup = 0;
+            std::array<uint8, 32> const& EncryptionKey;
             bool Enabled = false;
         };
 

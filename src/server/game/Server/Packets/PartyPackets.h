@@ -395,7 +395,7 @@ namespace WorldPackets
             explicit SetPartyAssignment(WorldPacket&& packet) : ClientPacket(CMSG_SET_PARTY_ASSIGNMENT, std::move(packet)) { }
 
             void Read() override;
-            uint8 Assignment = 0;
+            int32 Assignment = 0;
             Optional<uint8> PartyIndex;
             ObjectGuid Target;
             bool Set = false;
@@ -525,15 +525,15 @@ namespace WorldPackets
 
         struct PartyLFGInfo
         {
-            uint8 MyFlags = 0;
             uint32 Slot = 0;
-            uint8 BootCount = 0;
+            uint8 MyFlags = 0;
             uint32 MyRandomSlot = 0;
-            bool Aborted = false;
             uint8 MyPartialClear = 0;
             float MyGearDiff = 0.0f;
             uint8 MyStrangerCount = 0;
             uint8 MyKickVoteCount = 0;
+            uint8 BootCount = 0;
+            bool Aborted = false;
             bool MyFirstReward = false;
         };
 

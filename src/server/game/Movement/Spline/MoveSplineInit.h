@@ -157,6 +157,8 @@ namespace Movement
 
         void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
+        void SetTurning(float startFacing, float totalTurnRads, float radsPerSec);
+
         PointsArray& Path() { return args.path; }
 
         /* Disables transport coordinate transformations for cases where raw offsets are available
@@ -214,6 +216,16 @@ namespace Movement
     inline void MoveSplineInit::SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData)
     {
         args.spellEffectExtra = spellEffectExtraData;
+    }
+
+    inline void MoveSplineInit::SetTurning(float startFacing, float totalTurnRads, float radsPerSec)
+    {
+        args.flags.Turning = true;
+
+        TurnData& turn = args.turnData.emplace();
+        turn.StartFacing = startFacing;
+        turn.TotalTurnRads = totalTurnRads;
+        turn.RadsPerSec = radsPerSec;
     }
 
     struct MoveSplineInitFacingVisitor

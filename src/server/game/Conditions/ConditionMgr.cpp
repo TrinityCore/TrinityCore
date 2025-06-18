@@ -21,6 +21,7 @@
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundScript.h"
+#include "CollectionMgr.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
@@ -3062,8 +3063,32 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         std::array<bool, std::tuple_size_v<decltype(condition->ItemID)>> results;
         results.fill(true);
         for (std::size_t i = 0; i < condition->ItemID.size(); ++i)
+        {
             if (condition->ItemID[i])
-                results[i] = player->GetItemCount(condition->ItemID[i], condition->ItemFlags != 0) >= condition->ItemCount[i];
+            {
+                EnumFlag<ItemSearchLocation> where = ItemSearchLocation::Equipment;
+                if ((condition->ItemFlags & 1) != 0)    // include banks
+                    where |= ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank | ItemSearchLocation::AccountBank;
+                if ((condition->ItemFlags & 2) == 0)    // ignore inventory
+                    where |= ItemSearchLocation::Inventory;
+
+                uint32 foundCount = 0;
+                results[i] = !player->ForEachItem(where, [&](Item const* item)
+                {
+                    if (item->GetEntry() == uint32(condition->ItemID[i]))
+                    {
+                        foundCount += item->GetCount();
+                        if (foundCount >= condition->ItemCount[i])
+                            return ItemSearchCallbackResult::Stop;
+                    }
+
+                    return ItemSearchCallbackResult::Continue;
+                });
+
+                if (!results[i] && condition->ItemCount[i] == 1 && sDB2Manager.IsToyItem(condition->ItemID[i]))
+                    results[i] = player->GetSession()->GetCollectionMgr()->HasToy(condition->ItemID[i]);
+            }
+        }
 
         if (!PlayerConditionLogic(condition->ItemLogic, results))
             return false;

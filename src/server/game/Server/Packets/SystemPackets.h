@@ -237,6 +237,8 @@ namespace WorldPackets
             bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool CharacterSelectListModeRealmless    = false;
+            bool WowTokenLimitedMode                 = false; // classic only
+            bool PandarenLevelBoostAllowed           = false; // classic only
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 CommercePricePollTimeSeconds      = 0;     // NYI
