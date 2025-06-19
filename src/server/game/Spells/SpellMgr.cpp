@@ -3519,6 +3519,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_0).RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_150_YARDS); // 150yd
     });
 
+    // Radius in DBC is not enough
+    ApplySpellFix({
+        36854, // Channel
+        36856  // Channel
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+    });
+
     // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
     // To prevent aura staying on target after talent unlearned
     ApplySpellFix({ 48420 }, [](SpellInfo* spellInfo)

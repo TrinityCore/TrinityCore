@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Need more docs on how event fully work. Reset all event and force start over if fail at one point? */
-
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -29,7 +27,7 @@ enum SkyrissTexts
 {
     SAY_INTRO                    = 0,
     SAY_AGGRO                    = 1,
-    SAY_KILL                     = 2,
+    SAY_SLAY                     = 2,
     SAY_MIND                     = 3,
     SAY_FEAR                     = 4,
     SAY_IMAGE                    = 5,
@@ -50,7 +48,7 @@ enum SkyrissSpells
 
     SPELL_SUMMON_66_ILLUSION     = 36931,
     SPELL_SUMMON_33_ILLUSION     = 36932,
-
+    // Illusion
     SPELL_BIRTH                  = 26262,
     SPELL_BLINK_VISUAL           = 36937,
     SPELL_66_HEALTH              = 36928,
@@ -66,7 +64,11 @@ enum SkyrissEvents
     EVENT_DOMINATION,
     EVENT_MANA_BURN,
     EVENT_SUMMON_66,
-    EVENT_SUMMON_33
+    EVENT_SUMMON_33,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+    EVENT_INTRO_3
 };
 
 enum SkyrissMisc
@@ -85,25 +87,17 @@ enum SkyrissPhases : uint8
 // 20912 - Harbinger Skyriss
 struct boss_harbinger_skyriss : public BossAI
 {
-    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _intro(false), _phase(PHASE_NONE) { }
+    boss_harbinger_skyriss(Creature* creature) : BossAI(creature, DATA_HARBINGER_SKYRISS), _phase(PHASE_NONE) { }
 
-    void Initialize()
+    void JustAppeared() override
     {
-        Intro_Phase = 1;
-        Intro_Timer = 5000;
+        events.ScheduleEvent(EVENT_INTRO_1, 0s);
     }
-
-    uint32 Intro_Phase;
-    uint32 Intro_Timer;
 
     void Reset() override
     {
-        DoCastSelf(SPELL_SIMPLE_TELEPORT);
         _Reset();
-        _intro = false;
         _phase = PHASE_NONE;
-        me->SetImmuneToAll(!_intro);
-        Initialize();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -132,13 +126,9 @@ struct boss_harbinger_skyriss : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim) override
+    void KilledUnit(Unit* /*victim*/) override
     {
-        // Won't yell killing pet/other unit
-        if (victim->GetEntry() == NPC_ALPHA_POD_TARGET)
-            return;
-
-        Talk(SAY_KILL);
+        Talk(SAY_SLAY);
     }
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -163,42 +153,34 @@ struct boss_harbinger_skyriss : public BossAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (!_intro)
+        if (!UpdateVictim())
         {
-            if (Intro_Timer <= diff)
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (Intro_Phase)
+                switch (eventId)
                 {
-                case 1:
-                    Talk(SAY_INTRO);
-                    instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), true);
-                    ++Intro_Phase;
-                    Intro_Timer = 25000;
-                    break;
-                case 2:
-                    Talk(SAY_AGGRO);
-                    if (Unit* mellic = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_MELLICHAR)))
-                    {
-                        //should have a better way to do this. possibly spell exist.
-                        mellic->setDeathState(JUST_DIED);
-                        mellic->SetHealth(0);
-                        instance->HandleGameObject(instance->GetGuidData(DATA_WARDENS_SHIELD), false);
-                    }
-                    ++Intro_Phase;
-                    Intro_Timer = 3000;
-                    break;
-                case 3:
-                    me->SetImmuneToAll(false);
-                    _intro = true;
-                    break;
+                    case EVENT_INTRO_1:
+                        Talk(SAY_INTRO);
+                        DoCastSelf(SPELL_SIMPLE_TELEPORT);
+                        events.ScheduleEvent(EVENT_INTRO_2, 30s);
+                        break;
+                    case EVENT_INTRO_2:
+                        Talk(SAY_AGGRO);
+                        DoCastSelf(SPELL_MIND_REND_COSMETIC);
+                        events.ScheduleEvent(EVENT_INTRO_3, 2s);
+                        break;
+                    case EVENT_INTRO_3:
+                        me->SetImmuneToAll(false);
+                        DoZoneInCombat();
+                        break;
+                    default:
+                        break;
                 }
             }
-            else
-                Intro_Timer -=diff;
-        }
-
-        if (!UpdateVictim())
             return;
+        }
 
         events.Update(diff);
 
@@ -251,7 +233,6 @@ struct boss_harbinger_skyriss : public BossAI
     }
 
 private:
-    bool _intro;
     uint8 _phase;
 };
 
