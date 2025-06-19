@@ -756,11 +756,6 @@ class spell_mage_firestarter_dots : public AuraScript
 // 108853 - Fire Blast
 class spell_mage_fire_blast : public SpellScript
 {
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
     void CalcCritChance(Unit const* /*victim*/, float& critChance) const
     {
         critChance = 100.0f;
