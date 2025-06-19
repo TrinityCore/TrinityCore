@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* 
+/*
  * The way Mellichar's event is reset requires additional research
  */
 
@@ -403,7 +403,7 @@ Position const PrisonerSpawnPos[5] =
 struct npc_warden_mellichar : public ScriptedAI
 {
     npc_warden_mellichar(Creature* creature) : ScriptedAI(creature),
-        _instance(creature->GetInstanceScript()), _inProgress(false), _summons(me) { }
+        _instance(creature->GetInstanceScript()), _summons(me), _inProgress(false) { }
 
     void Reset() override
     {
