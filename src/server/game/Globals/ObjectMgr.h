@@ -936,28 +936,26 @@ struct PlayerChoiceResponse
 
 struct PlayerChoice
 {
-    int32 ChoiceId;
-    int32 UiTextureKitId;
-    uint32 SoundKitId;
-    uint32 CloseSoundKitId;
-    int64 Duration;
+    int32 ChoiceId = 0;
+    int32 UiTextureKitId = 0;
+    uint32 SoundKitId = 0;
+    uint32 CloseSoundKitId = 0;
+    int64 Duration = 0;
     std::string Question;
     std::string PendingChoiceText;
     std::vector<PlayerChoiceResponse> Responses;
-    bool HideWarboardHeader;
-    bool KeepOpenAfterChoice;
+    bool HideWarboardHeader = false;
+    bool KeepOpenAfterChoice = false;
 
     PlayerChoiceResponse const* GetResponse(int32 responseId) const
     {
-        auto itr = std::find_if(Responses.begin(), Responses.end(),
-            [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
+        auto itr = std::ranges::find(Responses, responseId, &PlayerChoiceResponse::ResponseId);
         return itr != Responses.end() ? &(*itr) : nullptr;
     }
 
     PlayerChoiceResponse const* GetResponseByIdentifier(int32 responseIdentifier) const
     {
-        auto itr = std::find_if(Responses.begin(), Responses.end(),
-            [responseIdentifier](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseIdentifier == responseIdentifier; });
+        auto itr = std::ranges::find(Responses, responseIdentifier, &PlayerChoiceResponse::ResponseIdentifier);
         return itr != Responses.end() ? &(*itr) : nullptr;
     }
 };

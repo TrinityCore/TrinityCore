@@ -54,33 +54,26 @@ uint32 GossipMenu::AddMenuItem(int32 gossipOptionId, int32 orderIndex, GossipOpt
         {
             // set baseline orderIndex as higher than whatever exists in db
             Trinity::IteratorPair bounds = sObjectMgr->GetGossipMenuItemsMapBounds(_menuId);
-            auto itr = std::max_element(bounds.begin(), bounds.end(), [](GossipMenuItemsContainer::value_type const& a, GossipMenuItemsContainer::value_type const& b)
-            {
-                return a.second.OrderIndex < b.second.OrderIndex;
-            });
+            auto itr = std::ranges::max_element(bounds, std::ranges::less(),
+                [](GossipMenuItemsContainer::value_type const& a) { return a.second.OrderIndex; });
+
             if (itr != bounds.end())
                 orderIndex = itr->second.OrderIndex + 1;
         }
 
-        if (!_menuItems.empty())
+        for (GossipMenuItem const& _menuItem : _menuItems)
         {
-            for (GossipMenuItemContainer::const_iterator itr = _menuItems.begin(); itr != _menuItems.end(); ++itr)
-            {
-                if (int32(itr->OrderIndex) > orderIndex)
-                    break;
+            if (int32(_menuItem.OrderIndex) > orderIndex)
+                break;
 
-                orderIndex = itr->OrderIndex + 1;
-            }
+            orderIndex = _menuItem.OrderIndex + 1;
         }
     }
 
     if (!gossipOptionId)
         gossipOptionId = -(int32(_menuId) * 100 + orderIndex);
 
-    auto where = std::lower_bound(_menuItems.begin(), _menuItems.end(), orderIndex, [](GossipMenuItem const& item, int32 index)
-    {
-        return int32(item.OrderIndex) < index;
-    });
+    auto where = std::ranges::lower_bound(_menuItems, uint32(orderIndex), std::ranges::less(), &GossipMenuItem::OrderIndex);
 
     GossipMenuItem& menuItem = *_menuItems.emplace(where);
     menuItem.GossipOptionID = gossipOptionId;
@@ -116,10 +109,8 @@ void GossipMenu::AddMenuItem(uint32 menuId, uint32 menuItemId, uint32 sender, ui
     Trinity::IteratorPair bounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
     /// Find the one with the given menu item id.
-    auto itr = std::find_if(bounds.begin(), bounds.end(), [menuItemId](std::pair<uint32 const, GossipMenuItems> const& itemPair)
-    {
-        return itemPair.second.OrderIndex == menuItemId;
-    });
+    auto itr = std::ranges::find(bounds, menuItemId,
+        [](std::pair<uint32 const, GossipMenuItems> const& itemPair) { return itemPair.second.OrderIndex; });
 
     if (itr == bounds.end())
         return;
@@ -167,11 +158,7 @@ void GossipMenu::AddMenuItem(GossipMenuItems const& menuItem, uint32 sender, uin
 
 GossipMenuItem const* GossipMenu::GetItem(int32 gossipOptionId) const
 {
-    auto itr = std::find_if(_menuItems.begin(), _menuItems.end(), [gossipOptionId](GossipMenuItem const& item)
-    {
-        return item.GossipOptionID == gossipOptionId;
-    });
-
+    auto itr = std::ranges::find(_menuItems, gossipOptionId, &GossipMenuItem::GossipOptionID);
     if (itr != _menuItems.end())
         return &*itr;
 
@@ -180,11 +167,7 @@ GossipMenuItem const* GossipMenu::GetItem(int32 gossipOptionId) const
 
 GossipMenuItem const* GossipMenu::GetItemByIndex(uint32 orderIndex) const
 {
-    auto itr = std::find_if(_menuItems.begin(), _menuItems.end(), [orderIndex](GossipMenuItem const& item)
-    {
-        return item.OrderIndex == orderIndex;
-    });
-
+    auto itr = std::ranges::find(_menuItems, orderIndex, &GossipMenuItem::OrderIndex);
     if (itr != _menuItems.end())
         return &*itr;
 
@@ -193,8 +176,7 @@ GossipMenuItem const* GossipMenu::GetItemByIndex(uint32 orderIndex) const
 
 uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 {
-    GossipMenuItem const* item = GetItemByIndex(orderIndex);
-    if (item)
+    if (GossipMenuItem const* item = GetItemByIndex(orderIndex))
         return item->Sender;
 
     return 0;
@@ -202,8 +184,7 @@ uint32 GossipMenu::GetMenuItemSender(uint32 orderIndex) const
 
 uint32 GossipMenu::GetMenuItemAction(uint32 orderIndex) const
 {
-    GossipMenuItem const* item = GetItemByIndex(orderIndex);
-    if (item)
+    if (GossipMenuItem const* item = GetItemByIndex(orderIndex))
         return item->Action;
 
     return 0;
@@ -211,11 +192,10 @@ uint32 GossipMenu::GetMenuItemAction(uint32 orderIndex) const
 
 bool GossipMenu::IsMenuItemCoded(uint32 orderIndex) const
 {
-    GossipMenuItem const* item = GetItemByIndex(orderIndex);
-    if (item)
+    if (GossipMenuItem const* item = GetItemByIndex(orderIndex))
         return item->BoxCoded;
 
-    return 0;
+    return false;
 }
 
 void GossipMenu::ClearMenu()
@@ -362,21 +342,15 @@ void QuestMenu::AddMenuItem(uint32 QuestId, uint8 Icon)
 
     ASSERT(_questMenuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
-    QuestMenuItem questMenuItem;
+    QuestMenuItem& questMenuItem = _questMenuItems.emplace_back();
 
     questMenuItem.QuestId        = QuestId;
     questMenuItem.QuestIcon      = Icon;
-
-    _questMenuItems.push_back(questMenuItem);
 }
 
 bool QuestMenu::HasItem(uint32 questId) const
 {
-    for (QuestMenuItemList::const_iterator i = _questMenuItems.begin(); i != _questMenuItems.end(); ++i)
-        if (i->QuestId == questId)
-            return true;
-
-    return false;
+    return advstd::ranges::contains(_questMenuItems, questId, &QuestMenuItem::QuestId);
 }
 
 void QuestMenu::ClearMenu()
@@ -460,7 +434,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGU
     packet.PortraitTurnInName = quest->GetPortraitTurnInName();
 
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
-    std::transform(quest->GetConditionalQuestDescription().begin(), quest->GetConditionalQuestDescription().end(), std::back_inserter(packet.ConditionalDescriptionText), [localeConstant](QuestConditionalText const& text)
+    std::ranges::transform(quest->GetConditionalQuestDescription(), std::back_inserter(packet.ConditionalDescriptionText), [localeConstant](QuestConditionalText const& text)
     {
         std::string_view content = text.Text[LOCALE_enUS];
         ObjectMgr::GetLocaleString(text.Text, localeConstant, content);
@@ -559,7 +533,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     packet.PortraitTurnInName = quest->GetPortraitTurnInName();
 
     LocaleConstant locale = _session->GetSessionDbLocaleIndex();
-    std::transform(quest->GetConditionalOfferRewardText().begin(), quest->GetConditionalOfferRewardText().end(), std::back_inserter(packet.ConditionalRewardText), [locale](QuestConditionalText const& text)
+    std::ranges::transform(quest->GetConditionalOfferRewardText(), std::back_inserter(packet.ConditionalRewardText), [locale](QuestConditionalText const& text)
     {
         std::string_view content = text.Text[LOCALE_enUS];
         ObjectMgr::GetLocaleString(text.Text, locale, content);
@@ -634,7 +608,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
     packet.CompletionText = quest->GetRequestItemsText();
 
     LocaleConstant locale = _session->GetSessionDbLocaleIndex();
-    std::transform(quest->GetConditionalRequestItemsText().begin(), quest->GetConditionalRequestItemsText().end(), std::back_inserter(packet.ConditionalCompletionText), [locale](QuestConditionalText const& text)
+    std::ranges::transform(quest->GetConditionalRequestItemsText(), std::back_inserter(packet.ConditionalCompletionText), [locale](QuestConditionalText const& text)
     {
         std::string_view content = text.Text[LOCALE_enUS];
         ObjectMgr::GetLocaleString(text.Text, locale, content);
