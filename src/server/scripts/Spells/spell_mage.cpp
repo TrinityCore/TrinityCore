@@ -69,6 +69,7 @@ enum MageSpells
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 383608,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
@@ -1079,6 +1080,34 @@ class spell_mage_imp_mana_gems : public AuraScript
     }
 };
 
+// 383604 - Improved Scorch
+class spell_mage_improved_scorch : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
+    }
+
+    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IMPROVED_SCORCH, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_improved_scorch::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_improved_scorch::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1463 - Incanter's Flow
 class spell_mage_incanters_flow : public AuraScript
 {
@@ -1574,6 +1603,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterSpellScript(spell_mage_ignite);
     RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_improved_scorch);
     RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
