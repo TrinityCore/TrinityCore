@@ -47,6 +47,6 @@
         Indexes const& indexes = indexes_impl(Result);\
     }
 
-#define DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(fields_list) DEFINE_FIELD_ACCESSOR_CACHE(BOOST_PP_CAT(FieldAccessors, __LINE__), fields_list)
+#define DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(result_type, fields_list) DEFINE_FIELD_ACCESSOR_CACHE(BOOST_PP_CAT(FieldAccessors, __LINE__), result_type, fields_list)
 
 #endif // TRINITYCORE_QUERY_RESULT_STRUCTURED_H
