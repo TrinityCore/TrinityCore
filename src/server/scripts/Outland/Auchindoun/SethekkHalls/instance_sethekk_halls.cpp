@@ -48,17 +48,6 @@ class instance_sethekk_halls : public InstanceMapScript
                 LoadObjectData(nullptr, gameObjectData);
             }
 
-            void OnCreatureCreate(Creature* creature) override
-            {
-                if (creature->GetEntry() == NPC_ANZU)
-                {
-                    if (GetBossState(DATA_ANZU) == DONE)
-                        creature->DisappearAndDie();
-                    else
-                        SetBossState(DATA_ANZU, IN_PROGRESS);
-                }
-            }
-
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
