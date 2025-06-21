@@ -69,6 +69,7 @@ enum MageSpells
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_IMPROVED_COMBUSTION               = 383967,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
@@ -1079,6 +1080,36 @@ class spell_mage_imp_mana_gems : public AuraScript
     }
 };
 
+// 383967 - Improved Combustion (attached to 190319 - Combustion)
+class spell_mage_improved_combustion : public AuraScript
+{
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_MAGE_IMPROVED_COMBUSTION);
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_2))
+        {
+            float critChance = GetUnitOwner()->ToPlayer()->m_activePlayerData->SpellCritPercentage;
+            amount = CalculatePct(critChance, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_1))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_improved_combustion::CalcAmount, EFFECT_1, SPELL_AURA_MOD_RATING);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_improved_combustion::UpdatePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 1463 - Incanter's Flow
 class spell_mage_incanters_flow : public AuraScript
 {
@@ -1574,6 +1605,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterSpellScript(spell_mage_ignite);
     RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_improved_combustion);
     RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
