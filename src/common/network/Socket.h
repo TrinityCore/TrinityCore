@@ -267,6 +267,12 @@ protected:
     }
 
 private:
+    void CloseSocketCheck()
+    {
+        if (_openState == OpenState_Closing && _writeQueue.empty())
+            CloseSocket();
+    }
+
     bool ReadHandlerInternal(boost::system::error_code const& error, size_t transferredBytes)
     {
         if (error)
@@ -325,15 +331,13 @@ private:
                 return AsyncProcessQueue();
 
             _writeQueue.pop();
-            if (_openState == OpenState_Closing && _writeQueue.empty())
-                CloseSocket();
+            CloseSocketCheck();
             return false;
         }
         else if (bytesSent == 0)
         {
             _writeQueue.pop();
-            if (_openState == OpenState_Closing && _writeQueue.empty())
-                CloseSocket();
+            CloseSocketCheck();
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -343,8 +347,7 @@ private:
         }
 
         _writeQueue.pop();
-        if (_openState == OpenState_Closing && _writeQueue.empty())
-            CloseSocket();
+        CloseSocketCheck();
         return !_writeQueue.empty();
     }
 
