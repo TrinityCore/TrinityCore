@@ -47,6 +47,8 @@ enum WarlockSpells
     SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
     SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
     SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248,
+    SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT           = 193331,
+    SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT          = 193332,
     SPELL_WARLOCK_CONFLAGRATE_DEBUFF                = 265931,
     SPELL_WARLOCK_CONFLAGRATE_ENERGIZE              = 245330,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
@@ -60,6 +62,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
     SPELL_WARLOCK_DOOM_ENERGIZE                     = 193318,
     SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
+    SPELL_WARLOCK_DREADSTALKER_CHARGE               = 194247,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
     SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
     SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
@@ -307,6 +310,30 @@ class spell_warl_burning_rush_aura : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_burning_rush_aura::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+    }
+};
+
+// 104316 - Call Dreadstalkers
+class spell_warl_call_dreadstalkers : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT, SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT });
+    }
+
+    void HandleAfterCast() const
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+        caster->CastSpell(caster, SPELL_WARLOCK_CALL_DREADSTALKERS_LEFT, args);
+        caster->CastSpell(caster, SPELL_WARLOCK_CALL_DREADSTALKERS_RIGHT, args);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_warl_call_dreadstalkers::HandleAfterCast);
     }
 };
 
@@ -695,6 +722,33 @@ class spell_warl_drain_soul : public AuraScript
     {
         AfterEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
         DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(spell_warl_drain_soul::CalculateDamage, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+// 193325 - (Serverside/Non-DB2) Spawn
+class spell_warl_dreadstalker_spawn : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_DREADSTALKER_CHARGE });
+    }
+
+    void HandleDummy() const
+    {
+        if (Unit* owner = GetCaster()->GetOwner())
+        {
+            if (Unit* target = owner->GetVictim())
+            {
+                GetCaster()->CastSpell(*target, SPELL_WARLOCK_DREADSTALKER_CHARGE, CastSpellExtraArgs()
+                    .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                    .SetTriggeringSpell(GetSpell()));
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_warl_dreadstalker_spawn::HandleDummy);
     }
 };
 
@@ -1700,6 +1754,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_bilescourge_bombers);
     RegisterAreaTriggerAI(at_warl_bilescourge_bombers);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
+    RegisterSpellScript(spell_warl_call_dreadstalkers);
     RegisterSpellScript(spell_warl_cataclysm);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
@@ -1715,6 +1770,7 @@ void AddSC_warlock_spell_scripts()
     RegisterSpellScript(spell_warl_devour_magic);
     RegisterSpellScript(spell_warl_doom);
     RegisterSpellScript(spell_warl_drain_soul);
+    RegisterSpellScript(spell_warl_dreadstalker_spawn);
     RegisterSpellScript(spell_warl_haunt);
     RegisterSpellScript(spell_warl_health_funnel);
     RegisterSpellScript(spell_warl_healthstone_heal);
