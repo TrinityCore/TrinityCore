@@ -91,8 +91,8 @@ class spell_noxxion_summon_spawns : public AuraScript
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
-		    target->SetReactState(REACT_PASSIVE);
-		    target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetReactState(REACT_PASSIVE);
+            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
             target->CastSpell(target, SPELL_SUMMON_SPAWNS, true);
         }
     }
@@ -101,8 +101,8 @@ class spell_noxxion_summon_spawns : public AuraScript
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
-		    target->SetReactState(REACT_AGGRESSIVE);
-		    target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetReactState(REACT_AGGRESSIVE);
+            target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         }
     }
 
