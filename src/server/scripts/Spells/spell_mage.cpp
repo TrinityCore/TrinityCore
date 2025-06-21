@@ -74,6 +74,7 @@ enum MageSpells
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
     SPELL_MAGE_MASTER_OF_TIME                    = 342249,
+    SPELL_MAGE_MOLTEN_FURY                       = 458910,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -1188,6 +1189,31 @@ class spell_mage_living_bomb_periodic : public AuraScript
     }
 };
 
+// 457803 - Molten Fury
+class spell_mage_molten_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
+    }
+
+    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        if (eventInfo.GetActionTarget()->GetHealthPct() < aurEff->GetAmount())
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        else
+            eventInfo.GetActionTarget()->RemoveAurasDueToSpell(SPELL_MAGE_MOLTEN_FURY, eventInfo.GetActor()->GetGUID());
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_molten_fury::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 enum SilvermoonPolymorph
 {
     NPC_AUROSALIA       = 18744
@@ -1578,6 +1604,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
     RegisterSpellScript(spell_mage_living_bomb_periodic);
+    RegisterSpellScript(spell_mage_molten_fury);
     RegisterSpellScript(spell_mage_polymorph_visual);
     RegisterSpellScript(spell_mage_prismatic_barrier);
     RegisterSpellScript(spell_mage_radiant_spark);
