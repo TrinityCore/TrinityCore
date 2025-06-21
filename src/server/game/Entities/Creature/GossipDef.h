@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include <variant>
 
 class Object;
 class Quest;
@@ -233,19 +234,41 @@ class TC_GAME_API QuestMenu
 
 class InteractionData
 {
-    public:
-        void Reset()
-        {
-            SourceGuid.Clear();
-            TrainerId = 0;
-            PlayerChoiceId = 0;
-            IsLaunchedByQuest = false;
-        }
+    template <typename>
+    struct TaggedId
+    {
+        TaggedId() = default;
+        explicit TaggedId(uint32 id) : Id(id) { }
 
-        ObjectGuid SourceGuid;
-        uint32 TrainerId = 0;
-        uint32 PlayerChoiceId = 0;
-        bool IsLaunchedByQuest = false;
+        uint32 Id = 0;
+    };
+
+    struct TrainerTag;
+    using TrainerData = TaggedId<TrainerTag>;
+
+    struct PlayerChoiceTag;
+    using PlayerChoiceData = TaggedId<PlayerChoiceTag>;
+
+public:
+    void Reset()
+    {
+        SourceGuid.Clear();
+        IsLaunchedByQuest = false;
+        _data.emplace<std::monostate>();
+    }
+
+    ObjectGuid SourceGuid;
+
+    Optional<uint32> GetTrainerId() const { return std::holds_alternative<TrainerData>(_data) ? std::get<TrainerData>(_data).Id : Optional<uint32>(); }
+    void SetTrainerId(uint32 trainerId) { _data.emplace<TrainerData>(trainerId); }
+
+    Optional<uint32> GetPlayerChoiceId() const { return std::holds_alternative<TrainerData>(_data) ? std::get<PlayerChoiceData>(_data).Id : Optional<uint32>(); }
+    void SetPlayerChoice(uint32 choiceId) { _data.emplace<PlayerChoiceData>(choiceId); }
+
+    bool IsLaunchedByQuest = false;
+
+private:
+    std::variant<std::monostate, TrainerData, PlayerChoiceData> _data;
 };
 
 class TC_GAME_API PlayerMenu

@@ -29786,7 +29786,7 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
 
     PlayerTalkClass->GetInteractionData().Reset();
     PlayerTalkClass->GetInteractionData().SourceGuid = sender;
-    PlayerTalkClass->GetInteractionData().PlayerChoiceId = uint32(choiceId);
+    PlayerTalkClass->GetInteractionData().SetPlayerChoice(choiceId);
 
     WorldPackets::Quest::DisplayPlayerChoice displayPlayerChoice;
     displayPlayerChoice.SenderGUID = sender;

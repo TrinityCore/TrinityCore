@@ -770,10 +770,10 @@ void WorldSession::HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWor
 
 void WorldSession::HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse)
 {
-    if (_player->PlayerTalkClass->GetInteractionData().PlayerChoiceId != uint32(choiceResponse.ChoiceID))
+    if (_player->PlayerTalkClass->GetInteractionData().GetPlayerChoiceId() != uint32(choiceResponse.ChoiceID))
     {
         TC_LOG_ERROR("entities.player.cheat", "Error in CMSG_CHOICE_RESPONSE: {} tried to respond to invalid player choice {} (allowed {}) (possible packet-hacking detected)",
-            GetPlayerInfo(), choiceResponse.ChoiceID, _player->PlayerTalkClass->GetInteractionData().PlayerChoiceId);
+            GetPlayerInfo(), choiceResponse.ChoiceID, _player->PlayerTalkClass->GetInteractionData().GetPlayerChoiceId());
         return;
     }
 
