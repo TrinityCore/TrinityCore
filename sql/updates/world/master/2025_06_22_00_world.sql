@@ -1,5 +1,5 @@
 ALTER TABLE `playerchoice`
-  MODIFY `Duration` bigint NULL DEFAULT 0 AFTER `CloseSoundKitId`
+  MODIFY `Duration` bigint NULL DEFAULT 0 AFTER `CloseSoundKitId`,
   ADD `InfiniteRange` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `Question`,
   MODIFY `HideWarboardHeader` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `Question`,
   MODIFY `KeepOpenAfterChoice` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `HideWarboardHeader`,
