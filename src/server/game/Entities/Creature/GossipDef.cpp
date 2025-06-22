@@ -353,6 +353,17 @@ bool QuestMenu::HasItem(uint32 questId) const
     return advstd::ranges::contains(_questMenuItems, questId, &QuestMenuItem::QuestId);
 }
 
+Optional<uint32> PlayerChoiceData::FindIdByClientIdentifier(uint16 clientIdentifier) const
+{
+    auto itr = std::ranges::find(_responses, clientIdentifier, &Response::ClientIdentifier);
+    return itr != _responses.end() ? itr->Id : Optional<uint32>();
+}
+
+void PlayerChoiceData::AddResponse(uint32 id, uint16 clientIdentifier)
+{
+    _responses.push_back({ .Id = id, .ClientIdentifier = clientIdentifier });
+}
+
 void QuestMenu::ClearMenu()
 {
     _questMenuItems.clear();

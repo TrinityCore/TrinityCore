@@ -19,6 +19,7 @@
 #define TRINITYCORE_GOSSIP_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include <variant>
@@ -232,6 +233,33 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
+class PlayerChoiceData
+{
+public:
+    PlayerChoiceData() = default;
+    explicit PlayerChoiceData(uint32 choiceId) : _choiceId(choiceId) { }
+
+    uint32 GetChoiceId() const { return _choiceId; }
+    void SetChoiceId(uint32 choiceId) { _choiceId = choiceId; }
+
+    Optional<uint32> FindIdByClientIdentifier(uint16 clientIdentifier) const;
+    void AddResponse(uint32 id, uint16 clientIdentifier);
+
+    Optional<SystemTimePoint> GetExpireTime() const { return _expireTime; }
+    void SetExpireTime(Optional<SystemTimePoint> expireTime) { _expireTime = expireTime; }
+
+private:
+    struct Response
+    {
+        uint32 Id = 0;
+        uint16 ClientIdentifier = 0;
+    };
+
+    uint32 _choiceId = 0;
+    std::vector<Response> _responses;
+    Optional<SystemTimePoint> _expireTime;
+};
+
 class InteractionData
 {
     template <typename>
@@ -246,9 +274,6 @@ class InteractionData
     struct TrainerTag;
     using TrainerData = TaggedId<TrainerTag>;
 
-    struct PlayerChoiceTag;
-    using PlayerChoiceData = TaggedId<PlayerChoiceTag>;
-
 public:
     void Reset()
     {
@@ -262,12 +287,19 @@ public:
     Optional<uint32> GetTrainerId() const { return std::holds_alternative<TrainerData>(_data) ? std::get<TrainerData>(_data).Id : Optional<uint32>(); }
     void SetTrainerId(uint32 trainerId) { _data.emplace<TrainerData>(trainerId); }
 
-    Optional<uint32> GetPlayerChoiceId() const { return std::holds_alternative<TrainerData>(_data) ? std::get<PlayerChoiceData>(_data).Id : Optional<uint32>(); }
+    PlayerChoiceData* GetPlayerChoice() { return std::holds_alternative<PlayerChoiceData>(_data) ? &std::get<PlayerChoiceData>(_data) : nullptr; }
     void SetPlayerChoice(uint32 choiceId) { _data.emplace<PlayerChoiceData>(choiceId); }
+
+    uint16 AddPlayerChoiceResponse(uint32 responseId)
+    {
+        std::get<PlayerChoiceData>(_data).AddResponse(responseId, ++_playerChoiceResponseIdentifierGenerator);
+        return _playerChoiceResponseIdentifierGenerator;
+    }
 
     bool IsLaunchedByQuest = false;
 
 private:
+    uint16 _playerChoiceResponseIdentifierGenerator = 0; // not reset between interactions
     std::variant<std::monostate, TrainerData, PlayerChoiceData> _data;
 };
 

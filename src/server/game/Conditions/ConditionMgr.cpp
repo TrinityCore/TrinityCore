@@ -43,6 +43,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "PlayerChoice.h"
 #include "RaceMask.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
