@@ -16,8 +16,30 @@
  */
 
 #include "StringFormat.h"
-#include "Define.h"
 #include <fmt/format.h>
+
+namespace Trinity::Impl
+{
+std::string StringVFormat(FormatStringView fmt, FormatArgs args) noexcept
+try
+{
+    return fmt::vformat(fmt, args);
+}
+catch (std::exception const& formatError)
+{
+    return fmt::format(R"(An error occurred formatting string "{}" : {})", fmt, formatError.what());
+}
+
+void StringVFormatToImpl(fmt::detail::buffer<char>& buffer, FormatStringView fmt, FormatArgs args) noexcept
+try
+{
+    fmt::detail::vformat_to(buffer, fmt, args, {});
+}
+catch (std::exception const& formatError)
+{
+    fmt::detail::vformat_to(buffer, FormatStringView(R"(An error occurred formatting string "{}" : {})"), MakeFormatArgs(fmt, formatError.what()), {});
+}
+}
 
 // explicit template instantiations
 template struct TC_COMMON_API fmt::formatter<int>;
