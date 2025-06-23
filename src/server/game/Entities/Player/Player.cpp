@@ -29796,7 +29796,11 @@ void Player::SendPlayerChoice(ObjectGuid sender, int32 choiceId)
     displayPlayerChoice.SoundKitID = playerChoice->SoundKitId;
     displayPlayerChoice.CloseUISoundKitID = playerChoice->CloseSoundKitId;
     if (playerChoice->Duration > 0s)
-        displayPlayerChoice.ExpireTime = GameTime::GetSystemTime() + playerChoice->Duration;
+    {
+        SystemTimePoint expireTime = GameTime::GetSystemTime() + playerChoice->Duration;
+        PlayerTalkClass->GetInteractionData().GetPlayerChoice()->SetExpireTime(expireTime);
+        displayPlayerChoice.ExpireTime = expireTime;
+    }
 
     displayPlayerChoice.Question = playerChoice->Question;
     if (playerChoiceLocale)
