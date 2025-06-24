@@ -1206,8 +1206,8 @@ void SpellMgr::LoadSpellTargetPositions()
         }
 
         SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
-        if (!fields[7].IsNull())
-            st.SetOrientation(fields[7].GetFloat());
+        if (Optional<float> orientiation = fields[7].GetFloatOrNull())
+            st.SetOrientation(*orientiation);
         else
         {
             // target facing is in degrees for 6484 & 9268...

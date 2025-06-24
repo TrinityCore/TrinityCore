@@ -100,13 +100,12 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
 
     path.Id = pathId;
     path.Flags = WaypointPathFlags(fields[2].GetUInt8());
+    path.Velocity = fields[3].GetFloatOrNull();
 
-    if (!fields[3].IsNull())
+    if (path.Velocity && *path.Velocity <= 0.0f)
     {
-        if (fields[3].GetFloat() > 0.0f)
-            path.Velocity = fields[3].GetFloat();
-        else
-            TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid velocity {}, using default velocity instead", pathId, fields[3].GetFloat());
+        TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid velocity {}, using default velocity instead", pathId, *path.Velocity);
+        path.Velocity.reset();
     }
 
     path.Nodes.clear();
@@ -126,9 +125,7 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
     float x = fields[2].GetFloat();
     float y = fields[3].GetFloat();
     float z = fields[4].GetFloat();
-    Optional<float> o;
-    if (!fields[5].IsNull())
-        o = fields[5].GetFloat();
+    Optional<float> o = fields[5].GetFloatOrNull();
 
     Optional<Milliseconds> delay;
     if (uint32 delayMs = fields[6].GetUInt32())

@@ -449,14 +449,14 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     if (!fields[31].IsNull())
         creatureTemplate.Movement.HoverInitiallyEnabled = fields[31].GetBool();
 
-    if (!fields[32].IsNull())
-        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(fields[32].GetUInt8());
+    if (Optional<uint8> chaseMovementType = fields[32].GetUInt8OrNull())
+        creatureTemplate.Movement.Chase = static_cast<CreatureChaseMovementType>(*chaseMovementType);
 
-    if (!fields[33].IsNull())
-        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(fields[33].GetUInt8());
+    if (Optional<uint8> randomMovementType = fields[33].GetUInt8OrNull())
+        creatureTemplate.Movement.Random = static_cast<CreatureRandomMovementType>(*randomMovementType);
 
-    if (!fields[34].IsNull())
-        creatureTemplate.Movement.InteractionPauseTimer = fields[34].GetUInt32();
+    if (Optional<uint32> interactionPauseTimer = fields[34].GetUInt32OrNull())
+        creatureTemplate.Movement.InteractionPauseTimer = *interactionPauseTimer;
 
     creatureTemplate.ModExperience          = fields[35].GetFloat();
     creatureTemplate.RacialLeader           = fields[36].GetBool();
@@ -684,44 +684,35 @@ void ObjectMgr::LoadCreatureSummonedData()
         }
 
         CreatureSummonedData& summonedData = _creatureSummonedDataStore[creatureId];
+        summonedData.CreatureIDVisibleToSummoner = fields[1].GetUInt32OrNull();
+        summonedData.GroundMountDisplayID = fields[2].GetUInt32OrNull();
+        summonedData.FlyingMountDisplayID = fields[3].GetUInt32OrNull();
 
-        if (!fields[1].IsNull())
+        if (summonedData.CreatureIDVisibleToSummoner && !GetCreatureTemplate(*summonedData.CreatureIDVisibleToSummoner))
         {
-            summonedData.CreatureIDVisibleToSummoner = fields[1].GetUInt32();
-            if (!GetCreatureTemplate(*summonedData.CreatureIDVisibleToSummoner))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing creature {} in CreatureIDVisibleToSummoner for creature {}, set to 0",
-                    *summonedData.CreatureIDVisibleToSummoner, creatureId);
-                summonedData.CreatureIDVisibleToSummoner.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing creature {} in CreatureIDVisibleToSummoner for creature {}, set to 0",
+                *summonedData.CreatureIDVisibleToSummoner, creatureId);
+            summonedData.CreatureIDVisibleToSummoner.reset();
         }
 
-        if (!fields[2].IsNull())
+        if (summonedData.GroundMountDisplayID && !sCreatureDisplayInfoStore.LookupEntry(*summonedData.GroundMountDisplayID))
         {
-            summonedData.GroundMountDisplayID = fields[2].GetUInt32();
-            if (!sCreatureDisplayInfoStore.LookupEntry(*summonedData.GroundMountDisplayID))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in GroundMountDisplayID for creature {}, set to 0",
-                    *summonedData.GroundMountDisplayID, creatureId);
-                summonedData.CreatureIDVisibleToSummoner.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in GroundMountDisplayID for creature {}, set to 0",
+                *summonedData.GroundMountDisplayID, creatureId);
+            summonedData.CreatureIDVisibleToSummoner.reset();
         }
 
-        if (!fields[3].IsNull())
+        if (summonedData.FlyingMountDisplayID && !sCreatureDisplayInfoStore.LookupEntry(*summonedData.FlyingMountDisplayID))
         {
-            summonedData.FlyingMountDisplayID = fields[3].GetUInt32();
-            if (!sCreatureDisplayInfoStore.LookupEntry(*summonedData.FlyingMountDisplayID))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in FlyingMountDisplayID for creature {}, set to 0",
-                    *summonedData.FlyingMountDisplayID, creatureId);
-                summonedData.GroundMountDisplayID.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `creature_summoned_data` references non-existing display id {} in FlyingMountDisplayID for creature {}, set to 0",
+                *summonedData.FlyingMountDisplayID, creatureId);
+            summonedData.GroundMountDisplayID.reset();
         }
 
-        if (!fields[4].IsNull())
+        if (Optional<std::string_view> despawnOnQuestsRemoved = fields[4].GetStringViewOrNull())
         {
-            std::vector<uint32> questList;
-            for (std::string_view questStr : Trinity::Tokenize(fields[4].GetStringView(), ',', false))
+            summonedData.DespawnOnQuestsRemoved.emplace();
+            for (std::string_view questStr : Trinity::Tokenize(*despawnOnQuestsRemoved, ',', false))
             {
                 Optional<uint32> questId = Trinity::StringTo<uint32>(questStr);
                 if (!questId)
@@ -735,11 +726,11 @@ void ObjectMgr::LoadCreatureSummonedData()
                     continue;
                 }
 
-                questList.push_back(*questId);
+                summonedData.DespawnOnQuestsRemoved->push_back(*questId);
             }
 
-            if (!questList.empty())
-                summonedData.DespawnOnQuestsRemoved = std::move(questList);
+            if (summonedData.DespawnOnQuestsRemoved->empty())
+                summonedData.DespawnOnQuestsRemoved.reset();
         }
 
     } while (result->NextRow());
@@ -1582,12 +1573,12 @@ void ObjectMgr::LoadCreatureMovementOverrides()
         CreatureMovementData& movement = _creatureMovementOverrides[spawnId];
         if (!fields[1].IsNull())
             movement.HoverInitiallyEnabled = fields[1].GetBool();
-        if (!fields[2].IsNull())
-            movement.Chase = static_cast<CreatureChaseMovementType>(fields[2].GetUInt8());
-        if (!fields[3].IsNull())
-            movement.Random = static_cast<CreatureRandomMovementType>(fields[3].GetUInt8());
-        if (!fields[4].IsNull())
-            movement.InteractionPauseTimer = fields[4].GetUInt32();
+        if (Optional<uint8> chaseMovementType = fields[2].GetUInt8OrNull())
+            movement.Chase = static_cast<CreatureChaseMovementType>(*chaseMovementType);
+        if (Optional<uint8> randomMovementType = fields[3].GetUInt8OrNull())
+            movement.Random = static_cast<CreatureRandomMovementType>(*randomMovementType);
+        if (Optional<uint32> interactionPauseTimer = fields[4].GetUInt32OrNull())
+            movement.InteractionPauseTimer = *interactionPauseTimer;
 
         CheckCreatureMovement("creature_movement_override", spawnId, movement);
     }
@@ -2185,14 +2176,10 @@ void ObjectMgr::LoadCreatures()
         data.spawnDifficulties = ParseSpawnDifficulties(fields[14].GetStringView(), "creature", guid, data.mapId, spawnMasks[data.mapId]);
         int16 gameEvent     = fields[15].GetInt8();
         data.poolId         = fields[16].GetUInt32();
-        if (!fields[17].IsNull())
-            data.npcflag = fields[17].GetUInt64();
-        if (!fields[18].IsNull())
-            data.unit_flags = fields[18].GetUInt32();
-        if (!fields[19].IsNull())
-            data.unit_flags2 = fields[19].GetUInt32();
-        if (!fields[20].IsNull())
-            data.unit_flags3 = fields[20].GetUInt32();
+        data.npcflag        = fields[17].GetUInt64OrNull();
+        data.unit_flags     = fields[18].GetUInt32OrNull();
+        data.unit_flags2    = fields[19].GetUInt32OrNull();
+        data.unit_flags3    = fields[20].GetUInt32OrNull();
         data.phaseUseFlags  = fields[21].GetUInt8();
         data.phaseId        = fields[22].GetUInt32();
         data.phaseGroup     = fields[23].GetUInt32();
@@ -3484,17 +3471,12 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
         bool   isMinion     = fields[3].GetBool();
         uint8  summonType   = fields[4].GetUInt8();
         uint32 summonTimer  = fields[5].GetUInt32();
+        Optional<uint32> rideSpellId = fields[6].GetUInt32OrNull();
 
-        Optional<uint32> rideSpellId;
-        if (!fields[6].IsNull())
+        if (rideSpellId && !sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
         {
-            rideSpellId = fields[6].GetUInt32();
-
-            if (!sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `vehicle_template_accessory`: rideSpellId {} does not exist for entry {}.", *rideSpellId, entry);
-                continue;
-            }
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_template_accessory`: rideSpellId {} does not exist for entry {}.", *rideSpellId, entry);
+            continue;
         }
 
         if (!GetCreatureTemplate(entry))
@@ -3560,22 +3542,20 @@ void ObjectMgr::LoadVehicleTemplate()
 
         VehicleTemplate& vehicleTemplate = _vehicleTemplateStore[creatureId];
         vehicleTemplate.DespawnDelay = Milliseconds(fields[1].GetInt32());
+        vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
 
-        if (!fields[2].IsNull())
+        if (vehicleTemplate.Pitch)
         {
-            VehicleEntry const* vehicle = sVehicleStore.LookupEntry(creatureInfo->VehicleId);
-            if (!vehicle)
-                continue;
-
-            float pitch = fields[2].GetFloat();
-            if (pitch < vehicle->PitchMin || pitch > vehicle->PitchMax)
+            if (VehicleEntry const* vehicle = sVehicleStore.LookupEntry(creatureInfo->VehicleId))
             {
-                TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has invalid Pitch ({}).`. Ignoring",
-                    creatureId, pitch);
-                continue;
+                if (*vehicleTemplate.Pitch < vehicle->PitchMin || *vehicleTemplate.Pitch > vehicle->PitchMax)
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has invalid Pitch ({}).`. Ignoring",
+                        creatureId, *vehicleTemplate.Pitch);
+                    vehicleTemplate.Pitch.reset();
+                }
             }
 
-            vehicleTemplate.Pitch = pitch;
         }
     } while (result->NextRow());
 
@@ -3609,17 +3589,12 @@ void ObjectMgr::LoadVehicleAccessories()
         bool   bMinion      = fields[3].GetBool();
         uint8  uiSummonType = fields[4].GetUInt8();
         uint32 uiSummonTimer= fields[5].GetUInt32();
+        Optional<uint32> rideSpellId = fields[6].GetUInt32OrNull();
 
-        Optional<uint32> rideSpellId;
-        if (!fields[6].IsNull())
+        if (rideSpellId && !sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
         {
-            rideSpellId = fields[6].GetUInt32();
-
-            if (!sSpellMgr->GetSpellInfo(*rideSpellId, DIFFICULTY_NONE))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `vehicle_accessory`: rideSpellId {} does not exist for guid {}.", *rideSpellId, uiGUID);
-                continue;
-            }
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_accessory`: rideSpellId {} does not exist for guid {}.", *rideSpellId, uiGUID);
+            continue;
         }
 
         if (!GetCreatureTemplate(uiAccessory))
@@ -3893,8 +3868,7 @@ void ObjectMgr::LoadPlayerInfo()
                     info->createPositionNPE.emplace();
 
                     info->createPositionNPE->Loc.WorldRelocate(fields[7].GetUInt32(), fields[8].GetFloat(), fields[9].GetFloat(), fields[10].GetFloat(), fields[11].GetFloat());
-                    if (!fields[12].IsNull())
-                        info->createPositionNPE->TransportGuid = fields[12].GetUInt64();
+                    info->createPositionNPE->TransportGuid = fields[12].GetUInt64OrNull();
 
                     if (!sMapStore.LookupEntry(info->createPositionNPE->Loc.GetMapId()))
                     {
@@ -3911,34 +3885,28 @@ void ObjectMgr::LoadPlayerInfo()
                     }
                 }
 
-                if (!fields[13].IsNull())
+                info->introMovieId = fields[13].GetUInt32OrNull();
+                if (info->introMovieId && !sMovieStore.LookupEntry(*info->introMovieId))
                 {
-                    uint32 introMovieId = fields[13].GetUInt32();
-                    if (sMovieStore.LookupEntry(introMovieId))
-                        info->introMovieId = introMovieId;
-                    else
-                        TC_LOG_ERROR("sql.sql", "Invalid intro movie id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
-                            introMovieId, current_class, current_race);
+                    TC_LOG_ERROR("sql.sql", "Invalid intro movie id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
+                        *info->introMovieId, current_class, current_race);
+                    info->introMovieId.reset();
                 }
 
-                if (!fields[14].IsNull())
+                info->introSceneId = fields[14].GetUInt32OrNull();
+                if (info->introSceneId && !GetSceneTemplate(*info->introSceneId))
                 {
-                    uint32 introSceneId = fields[14].GetUInt32();
-                    if (GetSceneTemplate(introSceneId))
-                        info->introSceneId = introSceneId;
-                    else
-                        TC_LOG_ERROR("sql.sql", "Invalid intro scene id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
-                            introSceneId, current_class, current_race);
+                    TC_LOG_ERROR("sql.sql", "Invalid intro scene id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
+                        *info->introSceneId, current_class, current_race);
+                    info->introSceneId.reset();
                 }
 
-                if (!fields[15].IsNull())
+                info->introSceneIdNPE = fields[15].GetUInt32OrNull();
+                if (info->introSceneIdNPE && !GetSceneTemplate(*info->introSceneIdNPE))
                 {
-                    uint32 introSceneId = fields[15].GetUInt32();
-                    if (GetSceneTemplate(introSceneId))
-                        info->introSceneIdNPE = introSceneId;
-                    else
-                        TC_LOG_ERROR("sql.sql", "Invalid NPE intro scene id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
-                            introSceneId, current_class, current_race);
+                    TC_LOG_ERROR("sql.sql", "Invalid NPE intro scene id {} for class {} race {} pair in `playercreateinfo` table, ignoring.",
+                        *info->introSceneIdNPE, current_class, current_race);
+                    info->introSceneIdNPE.reset();
                 }
 
                 _playerInfo[{ Races(current_race), Classes(current_class) }] = std::move(info);
@@ -7117,16 +7085,11 @@ void ObjectMgr::LoadWorldSafeLocs()
                 continue;
             }
 
-            Optional<ObjectGuid::LowType> transportSpawnId = {};
-            if (!fields[6].IsNull())
+            Optional<ObjectGuid::LowType> transportSpawnId = fields[6].GetUInt64OrNull();
+            if (transportSpawnId && !sTransportMgr->GetTransportSpawn(*transportSpawnId))
             {
-                if (!sTransportMgr->GetTransportSpawn(fields[6].GetUInt64()))
-                {
-                    TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid transportSpawnID {}, skipped.", id, fields[6].GetUInt64());
-                    continue;
-                }
-
-                transportSpawnId = fields[6].GetUInt64();
+                TC_LOG_ERROR("sql.sql", "World location (ID: {}) has a invalid transportSpawnID {}, skipped.", id, *transportSpawnId);
+                continue;
             }
 
             WorldSafeLocsEntry& worldSafeLocs = _worldSafeLocs[id];
@@ -9747,18 +9710,13 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.Flags                 = GossipOptionFlags(fields[7].GetInt32());
         gMenuItem.ActionMenuID          = fields[8].GetUInt32();
         gMenuItem.ActionPoiID           = fields[9].GetUInt32();
-        if (!fields[10].IsNull())
-            gMenuItem.GossipNpcOptionID = fields[10].GetInt32();
-
+        gMenuItem.GossipNpcOptionID     = fields[10].GetInt32OrNull();
         gMenuItem.BoxCoded              = fields[11].GetBool();
         gMenuItem.BoxMoney              = fields[12].GetUInt64();
         gMenuItem.BoxText               = fields[13].GetString();
         gMenuItem.BoxBroadcastTextID    = fields[14].GetUInt32();
-        if (!fields[15].IsNull())
-            gMenuItem.SpellID           = fields[15].GetInt32();
-
-        if (!fields[16].IsNull())
-            gMenuItem.OverrideIconID    = fields[16].GetInt32();
+        gMenuItem.SpellID               = fields[15].GetInt32OrNull();
+        gMenuItem.OverrideIconID        = fields[16].GetInt32OrNull();
 
         if (gMenuItem.OptionNpc >= GossipOptionNpc::Count)
         {
@@ -11191,10 +11149,7 @@ void ObjectMgr::LoadPlayerChoices()
             choice.KeepOpenAfterChoice = fields.KeepOpenAfterChoice().GetBool();
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
             choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
-
-            if (!fields.MaxResponses().IsNull())
-                choice.MaxResponses = fields.MaxResponses().GetUInt32();
-
+            choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
             choice.ScriptId = GetScriptId(fields.ScriptName().GetString());
 
         } while (choices->NextRow());
@@ -11236,8 +11191,7 @@ void ObjectMgr::LoadPlayerChoices()
             response.ButtonTooltip      = fields.ButtonTooltip().GetStringView();
             response.Description        = fields.Description().GetStringView();
             response.Confirmation       = fields.Confirmation().GetStringView();
-            if (!fields.RewardQuestID().IsNull())
-                response.RewardQuestID  = fields.RewardQuestID().GetUInt32();
+            response.RewardQuestID  = fields.RewardQuestID().GetUInt32OrNull();
 
             ++responseCount;
 
@@ -11517,8 +11471,7 @@ void ObjectMgr::LoadPlayerChoices()
 
             PlayerChoiceResponseMawPower& mawPower = responseItr->MawPower.emplace();
             mawPower.TypeArtFileID = fields.TypeArtFileID().GetInt32();
-            if (!fields.Rarity().IsNull())
-                mawPower.Rarity = fields.Rarity().GetInt32();
+            mawPower.Rarity = fields.Rarity().GetInt32OrNull();
             mawPower.SpellID = fields.SpellID().GetInt32();
             mawPower.MaxStacks = fields.MaxStacks().GetInt32();
 
@@ -11993,46 +11946,36 @@ void ObjectMgr::LoadSpawnTrackingStates()
 
         SpawnTrackingStateData& spawnTrackingStateData = const_cast<SpawnMetadata*>(data)->spawnTrackingStates[AsUnderlyingType(state)];
         spawnTrackingStateData.Visible = fields[3].GetBool();
+        spawnTrackingStateData.StateSpellVisualId = fields[4].GetUInt32OrNull();
+        spawnTrackingStateData.StateAnimId = fields[5].GetUInt16OrNull();
+        spawnTrackingStateData.StateAnimKitId = fields[6].GetUInt16OrNull();
 
-        if (!fields[4].IsNull())
+        if (spawnTrackingStateData.StateSpellVisualId && !sSpellVisualStore.HasRecord(*spawnTrackingStateData.StateSpellVisualId))
         {
-            spawnTrackingStateData.StateSpellVisualId = fields[4].GetUInt32();
-            if (!sSpellVisualStore.HasRecord(*spawnTrackingStateData.StateSpellVisualId))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateSpellVisualId {} for spawn ({},{}), set to none.",
-                    *spawnTrackingStateData.StateSpellVisualId, uint32(spawnType), spawnId);
-                spawnTrackingStateData.StateSpellVisualId.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateSpellVisualId {} for spawn ({},{}), set to none.",
+                *spawnTrackingStateData.StateSpellVisualId, uint32(spawnType), spawnId);
+            spawnTrackingStateData.StateSpellVisualId.reset();
         }
 
-        if (!fields[5].IsNull())
+        if (spawnTrackingStateData.StateAnimId && *spawnTrackingStateData.StateAnimId != sDB2Manager.GetEmptyAnimStateID() && !sAnimationDataStore.HasRecord(*spawnTrackingStateData.StateAnimId))
         {
-            spawnTrackingStateData.StateAnimId = fields[5].GetUInt16();
-            if (*spawnTrackingStateData.StateAnimId != sDB2Manager.GetEmptyAnimStateID() && !sAnimationDataStore.HasRecord(*spawnTrackingStateData.StateAnimId))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimId {} for spawn ({},{}), set to none.",
-                    *spawnTrackingStateData.StateAnimId, uint32(spawnType), spawnId);
-                spawnTrackingStateData.StateAnimId.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimId {} for spawn ({},{}), set to none.",
+                *spawnTrackingStateData.StateAnimId, uint32(spawnType), spawnId);
+            spawnTrackingStateData.StateAnimId.reset();
         }
 
-        if (!fields[6].IsNull())
+        if (spawnTrackingStateData.StateAnimKitId && !sAnimKitStore.HasRecord(*spawnTrackingStateData.StateAnimKitId))
         {
-            spawnTrackingStateData.StateAnimKitId = fields[6].GetUInt16();
-            if (!sAnimKitStore.HasRecord(*spawnTrackingStateData.StateAnimKitId))
-            {
-                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}), set to none.",
-                    *spawnTrackingStateData.StateAnimKitId, uint32(spawnType), spawnId);
-                spawnTrackingStateData.StateAnimKitId.reset();
-            }
+            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}), set to none.",
+                *spawnTrackingStateData.StateAnimKitId, uint32(spawnType), spawnId);
+            spawnTrackingStateData.StateAnimKitId.reset();
         }
 
-        if (!fields[7].IsNull())
+        if (Optional<std::string_view> worldEffectsStr = fields[7].GetStringViewOrNull())
         {
-            std::vector<uint32> worldEffectList;
-            for (std::string_view worldEffectsStr : Trinity::Tokenize(fields[7].GetStringView(), ',', false))
+            for (std::string_view worldEffectStr : Trinity::Tokenize(*worldEffectsStr, ',', false))
             {
-                Optional<uint32> worldEffectId = Trinity::StringTo<uint32>(worldEffectsStr);
+                Optional<uint32> worldEffectId = Trinity::StringTo<uint32>(worldEffectStr);
                 if (!worldEffectId)
                     continue;
 
@@ -12043,11 +11986,8 @@ void ObjectMgr::LoadSpawnTrackingStates()
                     continue;
                 }
 
-                worldEffectList.push_back(*worldEffectId);
+                spawnTrackingStateData.StateWorldEffects.push_back(*worldEffectId);
             }
-
-            if (!worldEffectList.empty())
-                spawnTrackingStateData.StateWorldEffects = std::move(worldEffectList);
         }
 
         ++count;
@@ -12078,9 +12018,9 @@ void ObjectMgr::LoadJumpChargeParams()
         float speed = fields[1].GetFloat();
         bool treatSpeedAsMoveTimeSeconds = fields[2].GetBool();
         float jumpGravity = fields[3].GetFloat();
-        Optional<int32> spellVisualId;
-        Optional<int32> progressCurveId;
-        Optional<int32> parabolicCurveId;
+        Optional<int32> spellVisualId = fields[4].GetInt32OrNull();
+        Optional<int32> progressCurveId = fields[5].GetInt32OrNull();
+        Optional<int32> parabolicCurveId = fields[6].GetInt32OrNull();
 
         if (speed <= 0.0f)
         {
@@ -12096,31 +12036,25 @@ void ObjectMgr::LoadJumpChargeParams()
             jumpGravity = Movement::gravity;
         }
 
-        if (!fields[4].IsNull())
+        if (spellVisualId && !sSpellVisualStore.LookupEntry(*spellVisualId))
         {
-            if (sSpellVisualStore.LookupEntry(fields[4].GetInt32()))
-                spellVisualId = fields[4].GetInt32();
-            else
-                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing SpellVisual: {} for id {}, ignored.",
-                    fields[4].GetInt32(), id);
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing SpellVisual: {} for id {}, ignored.",
+                *spellVisualId, id);
+            spellVisualId.reset();
         }
 
-        if (!fields[5].IsNull())
+        if (progressCurveId && !sCurveStore.LookupEntry(*progressCurveId))
         {
-            if (sCurveStore.LookupEntry(fields[5].GetInt32()))
-                progressCurveId = fields[5].GetInt32();
-            else
-                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing progress Curve: {} for id {}, ignored.",
-                    fields[4].GetInt32(), id);
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing progress Curve: {} for id {}, ignored.",
+                *progressCurveId, id);
+            progressCurveId.reset();
         }
 
-        if (!fields[6].IsNull())
+        if (parabolicCurveId && !sCurveStore.LookupEntry(*parabolicCurveId))
         {
-            if (sCurveStore.LookupEntry(fields[6].GetInt32()))
-                parabolicCurveId = fields[6].GetInt32();
-            else
-                TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing parabolic Curve: {} for id {}, ignored.",
-                    fields[6].GetInt32(), id);
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing parabolic Curve: {} for id {}, ignored.",
+                *parabolicCurveId, id);
+            parabolicCurveId.reset();
         }
 
         JumpChargeParams& params = _jumpChargeParams[id];
