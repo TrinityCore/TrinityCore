@@ -180,17 +180,11 @@ public:
     void OnResponse(WorldObject* /*object*/, Player* player, PlayerChoice const* /*choice*/, PlayerChoiceResponse const* response, uint16 /*clientIdentifier*/)
     {
         if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_BEAST_MASTERY_WEAPON)
-        {
-            player->CastSpell(player, SPELL_FORCE_BEAST_MASTERY_SPEC, true);
-        }
+            player->CastSpell(player, SPELL_FORCE_BEAST_MASTERY_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
         else if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_SURVIVAL_WEAPON)
-        {
-            player->CastSpell(player, SPELL_FORCE_SURVIVAL_SPEC, true);
-        }
+            player->CastSpell(player, SPELL_FORCE_SURVIVAL_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
         else if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_MARKSMANSHIP_WEAPON)
-        {
-            player->CastSpell(player, SPELL_FORCE_MARKSMANSHIP_SPEC, true);
-        }
+            player->CastSpell(player, SPELL_FORCE_MARKSMANSHIP_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
 };
 

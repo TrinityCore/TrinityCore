@@ -61,6 +61,10 @@ DELETE FROM `quest_offer_reward` WHERE `ID`=40618;
 INSERT INTO `quest_offer_reward` (`ID`, `Emote1`, `Emote2`, `Emote3`, `Emote4`, `EmoteDelay1`, `EmoteDelay2`, `EmoteDelay3`, `EmoteDelay4`, `RewardText`, `VerifiedBuild`) VALUES
 (40618, 1, 1, 0, 0, 0, 0, 0, 0, 'Now you must begin your pursuit of the artifact. It will not be easy to obtain, but a weapon this powerful seldom is.$b$bAfter you succeed, return here to me and we shall speak at greater length. There is much for us to do!', 61491); -- Weapons of Legend
 
+DELETE FROM `quest_template_addon` WHERE `ID` = 41415;
+INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
+(41415, 0, 0, 0, 40384, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+
 DELETE FROM `ui_map_quest_line` WHERE (`UIMapId`=627 AND `QuestLineId` IN (270,269,220,174,173,271));
 INSERT INTO `ui_map_quest_line` (`UIMapId`, `QuestLineId`, `VerifiedBuild`) VALUES
 (627, 270, 61491),
