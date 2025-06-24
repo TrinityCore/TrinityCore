@@ -190,86 +190,6 @@ class spell_q10255_administer_antidote : public SpellScriptLoader
         }
 };
 
-// http://www.wowhead.com/quest=11396 Bring Down Those Shields (A)
-// http://www.wowhead.com/quest=11399 Bring Down Those Shields (H)
-enum Quest11396_11399Data
-{
-    SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3 = 43874,
-    SPELL_SCOURGING_CRYSTAL_CONTROLLER = 43878
-};
-
-// 43874 - Scourge Mur'gul Camp: Force Shield Arcane Purple x3
-class spell_q11396_11399_force_shield_arcane_purple_x3 : public AuraScript
-{
-    PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3);
-
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
-        target->SetImmuneToPC(true);
-        target->AddUnitState(UNIT_STATE_ROOT);
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        GetTarget()->SetImmuneToPC(false);
-    }
-
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_q11396_11399_force_shield_arcane_purple_x3::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_q11396_11399_force_shield_arcane_purple_x3::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 50133 - Scourging Crystal Controller
-class spell_q11396_11399_scourging_crystal_controller : public SpellScript
-{
-    PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3, SPELL_SCOURGING_CRYSTAL_CONTROLLER });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-            if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
-                // Make sure nobody else is channeling the same target
-                if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
-                    GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, GetCastItem());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 43882 - Scourging Crystal Controller Dummy
-class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3 });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-            if (target->GetTypeId() == TYPEID_UNIT)
-                target->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11396_11399_scourging_crystal_controller_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // http://www.wowhead.com/quest=11515 Blood for Blood
 enum Quest11515Data
 {
@@ -397,51 +317,6 @@ class spell_q12459_seeds_of_natures_wrath : public SpellScript
     }
 };
 
-// http://www.wowhead.com/quest=12634 Some Make Lemonade, Some Make Liquor
-enum Quest12634Data
-{
-    SPELL_BANANAS_FALL_TO_GROUND    = 51836,
-    SPELL_ORANGE_FALLS_TO_GROUND    = 51837,
-    SPELL_PAPAYA_FALLS_TO_GROUND    = 51839,
-    SPELL_SUMMON_ADVENTUROUS_DWARF  = 52070
-};
-
-// 51840 - Despawn Fruit Tosser
-class spell_q12634_despawn_fruit_tosser : public SpellScript
-{
-    PrepareSpellScript(spell_q12634_despawn_fruit_tosser);
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_BANANAS_FALL_TO_GROUND,
-            SPELL_ORANGE_FALLS_TO_GROUND,
-            SPELL_PAPAYA_FALLS_TO_GROUND,
-            SPELL_SUMMON_ADVENTUROUS_DWARF
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        uint32 spellId = SPELL_BANANAS_FALL_TO_GROUND;
-        switch (urand(0, 3))
-        {
-            case 1: spellId = SPELL_ORANGE_FALLS_TO_GROUND; break;
-            case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
-        }
-        // sometimes, if you're lucky, you get a dwarf
-        if (roll_chance_i(5))
-            spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
-        GetCaster()->CastSpell(GetCaster(), spellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q12634_despawn_fruit_tosser::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // http://www.wowhead.com/quest=12851 Going Bearback
 enum Quest12851Data
 {
@@ -489,38 +364,6 @@ class spell_q12851_going_bearback : public AuraScript
     void Register() override
     {
         AfterEffectApply += AuraEffectApplyFn(spell_q12851_going_bearback::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-    }
-};
-
-// http://www.wowhead.com/quest=12659 Scalps!
-enum Quest12659Data
-{
-    NPC_SCALPS_KC_BUNNY = 28622,
-};
-
-// 52090 - Ahunae's Knife
-class spell_q12659_ahunaes_knife : public SpellScript
-{
-    PrepareSpellScript(spell_q12659_ahunaes_knife);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (Creature* target = GetHitCreature())
-        {
-            target->DespawnOrUnsummon();
-            caster->KilledMonsterCredit(NPC_SCALPS_KC_BUNNY);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12659_ahunaes_knife::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -830,50 +673,6 @@ class spell_q12527_zuldrak_rat : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12527_zuldrak_rat::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-// 55368 - Summon Stefan
-class spell_q12661_q12669_q12676_q12677_q12713_summon_stefan : public SpellScript
-{
-    PrepareSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan);
-
-    void SetDest(SpellDestination& dest)
-    {
-        // Adjust effect summon position
-        Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
-        dest.RelocateOffset(offset);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
-    }
-};
-
-enum QuenchingMist
-{
-    SPELL_FLICKERING_FLAMES = 53504
-};
-
-// 53350 - Quenching Mist
-class spell_q12730_quenching_mist : public AuraScript
-{
-    PrepareAuraScript(spell_q12730_quenching_mist);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-    {
-        GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12730_quenching_mist::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1908,15 +1707,10 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q2203_thaumaturgy_channel);
     RegisterSpellScript(spell_q6124_6129_apply_salve);
     new spell_q10255_administer_antidote();
-    RegisterSpellScript(spell_q11396_11399_force_shield_arcane_purple_x3);
-    RegisterSpellScript(spell_q11396_11399_scourging_crystal_controller);
-    RegisterSpellScript(spell_q11396_11399_scourging_crystal_controller_dummy);
     new spell_q11515_fel_siphon_dummy();
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
-    RegisterSpellScript(spell_q12634_despawn_fruit_tosser);
     RegisterSpellScript(spell_q12851_going_bearback);
-    RegisterSpellScript(spell_q12659_ahunaes_knife);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
     RegisterSpellScript(spell_q13280_13283_jump_jets);
@@ -1929,8 +1723,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
     RegisterSpellScript(spell_q12527_zuldrak_rat);
-    RegisterSpellScript(spell_q12661_q12669_q12676_q12677_q12713_summon_stefan);
-    RegisterSpellScript(spell_q12730_quenching_mist);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
     RegisterSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
     RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);

@@ -796,6 +796,56 @@ class spell_sholazar_flight_to_sholazar : public SpellScript
     }
 };
 
+/*######
+## Quest 12634: Some Make Lemonade, Some Make Liquor
+######*/
+
+enum SomeMakeLemonadeSomeMakeLiquor
+{
+    SPELL_BANANAS_FALL_TO_GROUND    = 51836,
+    SPELL_ORANGE_FALLS_TO_GROUND    = 51837,
+    SPELL_PAPAYA_FALLS_TO_GROUND    = 51839,
+    SPELL_TRIGGER_SPAWN_DWARF       = 52078
+};
+
+// This should be scripted in DB but our action lists aren't good enough to properly support chance
+// 51840 - Despawn Fruit Tosser
+class spell_sholazar_despawn_fruit_tosser : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_despawn_fruit_tosser);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BANANAS_FALL_TO_GROUND,
+            SPELL_ORANGE_FALLS_TO_GROUND,
+            SPELL_PAPAYA_FALLS_TO_GROUND,
+            SPELL_TRIGGER_SPAWN_DWARF
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = SPELL_BANANAS_FALL_TO_GROUND;
+        switch (urand(0, 3))
+        {
+            case 1: spellId = SPELL_ORANGE_FALLS_TO_GROUND; break;
+            case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
+        }
+        // sometimes, if you're lucky, you get a dwarf
+        if (roll_chance_i(5))
+            spellId = SPELL_TRIGGER_SPAWN_DWARF;
+
+        GetHitUnit()->CastSpell(GetCaster(), spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_despawn_fruit_tosser::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     RegisterCreatureAI(npc_engineer_helice);
@@ -811,4 +861,5 @@ void AddSC_sholazar_basin()
     RegisterSpellScript(spell_sholazar_song_of_cleansing);
     RegisterSpellScript(spell_sholazar_lightning_strike);
     RegisterSpellScript(spell_sholazar_flight_to_sholazar);
+    RegisterSpellScript(spell_sholazar_despawn_fruit_tosser);
 }

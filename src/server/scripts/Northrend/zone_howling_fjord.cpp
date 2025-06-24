@@ -560,6 +560,41 @@ class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
     }
 };
 
+/*######
+## Quest 11396, 11399: Bring Down Those Shields
+######*/
+
+enum BringDownThoseShields
+{
+    SPELL_SCOURGING_CRYSTAL_CONTROLLER     = 43878,
+    SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3    = 43874
+};
+
+// 50133 - Scourging Crystal Controller
+class spell_fjord_scourging_crystal_controller : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_scourging_crystal_controller);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3, SPELL_SCOURGING_CRYSTAL_CONTROLLER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+            if (target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
+                // Make sure nobody else is channeling the same target. Is it necessary?
+                if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
+                    GetCaster()->CastSpell(GetCaster(), SPELL_SCOURGING_CRYSTAL_CONTROLLER, GetCastItem());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_scourging_crystal_controller::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -574,4 +609,5 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
+    RegisterSpellScript(spell_fjord_scourging_crystal_controller);
 }

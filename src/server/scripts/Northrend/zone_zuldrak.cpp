@@ -1029,7 +1029,8 @@ class spell_zuldrak_summon_nass : public SpellScript
 
 enum ConvocationAtZolHeb
 {
-    SPELL_AKALIS_STUN     = 52989
+    SPELL_AKALIS_STUN           = 52989,
+    SPELL_FLICKERING_FLAMES     = 53504
 };
 
 // 53010 - Convocation at Zol'Heb: Removef Akali's Stun
@@ -1050,6 +1051,49 @@ class spell_zuldrak_remove_akalis_stun : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_zuldrak_remove_akalis_stun::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 53350 - Quenching Mist
+class spell_zuldrak_quenching_mist : public AuraScript
+{
+    PrepareAuraScript(spell_zuldrak_quenching_mist);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_zuldrak_quenching_mist::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+/*######
+## Quest 12661: Infiltrating Voltarus / 12669: So Far, So Bad / 12676: Sabotage / 12677: Hazardous Materials / 12713: Betrayal
+######*/
+
+// 55368 - Summon Stefan
+class spell_zuldrak_summon_stefan : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_summon_stefan);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position (sniff)
+        Position const offset = { 0.0f, 0.0f, 30.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_zuldrak_summon_stefan::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
     }
 };
 
@@ -1076,4 +1120,6 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
     RegisterSpellScript(spell_zuldrak_summon_nass);
     RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
+    RegisterSpellScript(spell_zuldrak_quenching_mist);
+    RegisterSpellScript(spell_zuldrak_summon_stefan);
 }
