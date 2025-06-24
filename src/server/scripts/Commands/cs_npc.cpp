@@ -1338,7 +1338,7 @@ public:
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID)
+    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID, Optional<bool> linkedAggro, Optional<bool> formationMovement)
     {
         Creature* creature = handler->getSelectedCreature();
 
@@ -1361,17 +1361,22 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        float  followAngle = (creature->GetAbsoluteAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
-        float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        float  followAngle = creature->GetRelativeAngle(chr) * 180.0f / float(M_PI);
+        float  followDist  = chr->GetExactDist2d(creature);
         uint32 groupAI     = 0;
+        if (linkedAggro == true)
+            groupAI |= FLAG_MEMBERS_ASSIST_MEMBER;
+        if (formationMovement == true)
+            groupAI |= FLAG_IDLE_IN_FORMATION;
+
         sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
         stmt->setUInt64(0, leaderGUID);
         stmt->setUInt64(1, lowguid);
-        stmt->setFloat (2, followAngle);
-        stmt->setFloat (3, followDist);
+        stmt->setFloat (2, followDist);
+        stmt->setFloat (3, followAngle);
         stmt->setUInt32(4, groupAI);
 
         WorldDatabase.Execute(stmt);
