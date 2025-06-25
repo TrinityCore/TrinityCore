@@ -560,6 +560,11 @@ typedef std::unordered_map<uint32, WorldSession*> SessionMap;
 class TC_GAME_API World
 {
     public:
+        World(World const&) = delete;
+        World(World&&) = delete;
+        World& operator=(World const&) = delete;
+        World& operator=(World&&) = delete;
+
         static World* instance();
 
         static std::atomic<uint32> m_worldLoopCounter;

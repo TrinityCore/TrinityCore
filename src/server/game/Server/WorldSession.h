@@ -121,6 +121,7 @@ namespace WorldPackets
     namespace AreaTrigger
     {
         class AreaTrigger;
+        class UpdateAreaTriggerVisual;
     }
 
     namespace Artifact
@@ -1312,6 +1313,7 @@ class TC_GAME_API WorldSession
         void HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet);
 
         void HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigger& packet);
+        void HandleUpdateAreaTriggerVisual(WorldPackets::AreaTrigger::UpdateAreaTriggerVisual const& updateAreaTriggerVisual);
 
         void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
@@ -1576,7 +1578,7 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
-        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
+        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse const& choiceResponse);
         void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest);
         void HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker);
         void HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingUpdate& spawnTrackingUpdate);

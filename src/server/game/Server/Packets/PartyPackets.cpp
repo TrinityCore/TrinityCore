@@ -479,8 +479,8 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
 
 ByteBuffer& operator<<(ByteBuffer& data, PartyLFGInfo const& lfgInfos)
 {
-    data << uint8(lfgInfos.MyFlags);
     data << uint32(lfgInfos.Slot);
+    data << uint8(lfgInfos.MyFlags);
     data << uint32(lfgInfos.MyRandomSlot);
     data << uint8(lfgInfos.MyPartialClear);
     data << float(lfgInfos.MyGearDiff);

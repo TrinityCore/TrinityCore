@@ -149,10 +149,11 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementInfo const& movementInfo)
 
     if (hasDriveStatus)
     {
-        data.WriteBit(movementInfo.driveStatus->accelerating);
-        data.WriteBit(movementInfo.driveStatus->drifting);
         data << float(movementInfo.driveStatus->speed);
         data << float(movementInfo.driveStatus->movementAngle);
+        data.WriteBit(movementInfo.driveStatus->accelerating);
+        data.WriteBit(movementInfo.driveStatus->drifting);
+        data.FlushBits();
     }
 
     return data;
@@ -239,10 +240,10 @@ ByteBuffer& operator>>(ByteBuffer& data, MovementInfo& movementInfo)
 
         movementInfo.driveStatus.emplace();
 
-        movementInfo.driveStatus->accelerating = data.ReadBit();
-        movementInfo.driveStatus->drifting = data.ReadBit();
         data >> movementInfo.driveStatus->speed;
         data >> movementInfo.driveStatus->movementAngle;
+        movementInfo.driveStatus->accelerating = data.ReadBit();
+        movementInfo.driveStatus->drifting = data.ReadBit();
     }
 
     return data;
@@ -305,6 +306,15 @@ ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineJumpExtraData const& jumpE
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineTurnData const& turnData)
+{
+    data << float(turnData.StartFacing);
+    data << float(turnData.TotalTurnRads);
+    data << float(turnData.RadsPerSec);
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineAnimTierTransition const& animTierTransition)
 {
     data << int32(animTierTransition.TierTransitionID);
@@ -344,6 +354,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
     data << OptionalInit(movementSpline.SplineFilter);
     data << OptionalInit(movementSpline.SpellEffectExtraData);
     data << OptionalInit(movementSpline.JumpExtraData);
+    data << OptionalInit(movementSpline.TurnData);
     data << OptionalInit(movementSpline.AnimTierTransition);
     data << OptionalInit(movementSpline.Unknown901);
     data.FlushBits();
@@ -377,6 +388,9 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
     if (movementSpline.JumpExtraData)
         data << *movementSpline.JumpExtraData;
 
+    if (movementSpline.TurnData)
+        data << *movementSpline.TurnData;
+
     if (movementSpline.AnimTierTransition)
         data << *movementSpline.AnimTierTransition;
 
@@ -390,6 +404,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementMonsterSpline const& movementMo
 {
     data << movementMonsterSpline.ID;
     data << Bits<1>(movementMonsterSpline.CrzTeleport);
+    data << Bits<1>(movementMonsterSpline.StopUseFaceDirection);
     data << Bits<3>(movementMonsterSpline.StopSplineStyle);
 
     data << movementMonsterSpline.Move;
@@ -434,6 +449,7 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
         data << OptionalInit(moveSpline.spell_effect_extra);                    // HasSpellEffectExtraData
         bool hasJumpExtraData = moveSpline.splineflags.Parabolic && (!moveSpline.spell_effect_extra || moveSpline.effect_start_time);
         data << Bits<1>(hasJumpExtraData);
+        data << OptionalInit(moveSpline.turn);                                  // HasTurnData
         data << OptionalInit(moveSpline.anim_tier);                             // HasAnimTierTransition
         data.WriteBit(false);                                                   // HasUnknown901
         data.FlushBits();
@@ -492,6 +508,13 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
             data << uint32(0);                                                  // Duration (override)
         }
 
+        if (moveSpline.turn)
+        {
+            data << float(moveSpline.turn->StartFacing);
+            data << float(moveSpline.turn->TotalTurnRads);
+            data << float(moveSpline.turn->RadsPerSec);
+        }
+
         if (moveSpline.anim_tier)
         {
             data << int32(moveSpline.anim_tier->TierTransitionId);
@@ -511,12 +534,6 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
         //    }
         //}
     }
-}
-
-void CommonMovement::WriteCreateObjectAreaTriggerSpline(::Movement::Spline<float> const& spline, ByteBuffer& data)
-{
-    data << BitsSize<16>(spline.getPoints());
-    data.append(reinterpret_cast<float const*>(spline.getPoints().data()), spline.getPoints().size() * 3);
 }
 
 void CommonMovement::WriteMovementForceWithDirection(MovementForce const& movementForce, ByteBuffer& data, Position const* objectPosition /*= nullptr*/)
@@ -588,6 +605,14 @@ void MonsterMove::InitializeSplineData(::Movement::MoveSpline const& moveSpline)
         movementSpline.JumpExtraData.emplace();
         movementSpline.JumpExtraData->JumpGravity = moveSpline.vertical_acceleration;
         movementSpline.JumpExtraData->StartTime = moveSpline.effect_start_time;
+    }
+
+    if (moveSpline.turn)
+    {
+        MonsterSplineTurnData& turn = movementSpline.TurnData.emplace();
+        turn.StartFacing = moveSpline.turn->StartFacing;
+        turn.TotalTurnRads = moveSpline.turn->TotalTurnRads;
+        turn.RadsPerSec = moveSpline.turn->RadsPerSec;
     }
 
     if (splineFlags.FadeObject)

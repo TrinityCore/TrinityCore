@@ -15,8 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScheduledChangeAI.h"
-
-ScheduledChangeAI::ScheduledChangeAI(Creature* creature, uint32 scriptId /*= {}*/): CreatureAI(creature, scriptId)
-{
-}
+#include "BaseHttpSocket.h"
+#include "IpAddress.h"
+#include "Log.h"
+#include <algorithm>

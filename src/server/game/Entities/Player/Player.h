@@ -200,6 +200,14 @@ enum PlayerSpellState : uint8
     PLAYERSPELL_TEMPORARY = 4
 };
 
+struct PlayerSpellTrait
+{
+    int32 DefinitionId  : 24;
+    int32 Rank          : 8;
+
+    friend bool operator==(PlayerSpellTrait const&, PlayerSpellTrait const&) noexcept = default;
+};
+
 struct PlayerSpell
 {
     PlayerSpellState state;
@@ -207,7 +215,7 @@ struct PlayerSpell
     bool dependent         : 1;                             // learned as result another spell learn, skill grow, quest reward, etc
     bool disabled          : 1;                             // first rank has been learned in result talent learn but currently talent unlearned, save max learned ranks
     bool favorite          : 1;
-    Optional<int32> TraitDefinitionId;
+    Optional<PlayerSpellTrait> Trait;
 };
 
 struct StoredAuraTeleportLocation
@@ -784,6 +792,7 @@ enum class ItemSearchLocation
     Inventory       = 0x02,
     Bank            = 0x04,
     ReagentBank     = 0x08,
+    AccountBank     = 0x10, // NYI
 
     Default         = Equipment | Inventory,
     Everywhere      = Equipment | Inventory | Bank | ReagentBank
@@ -1891,8 +1900,8 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask) const;
         void SendKnownSpells();
         void SendUnlearnSpells();
-        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0, bool favorite = false, Optional<int32> traitDefinitionId = {});
-        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false, Optional<int32> traitDefinitionId = {});
+        bool AddSpell(uint32 spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, int32 fromSkill = 0, bool favorite = false, Optional<PlayerSpellTrait> trait = {});
+        void LearnSpell(uint32 spell_id, bool dependent, int32 fromSkill = 0, bool suppressMessaging = false, Optional<PlayerSpellTrait> trait = {});
         void RemoveSpell(uint32 spell_id, bool disabled = false, bool learn_low_rank = true, bool suppressMessaging = false);
         void ResetSpells(bool myClassOnly = false);
         void LearnCustomSpells();
@@ -1986,6 +1995,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetActiveCombatTraitConfigID(int32 traitConfigId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ActiveCombatTraitConfigID), traitConfigId); }
         void SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterBuild);
         void SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig);
+        Optional<PlayerSpellTrait> GetTraitInfoForSpell(uint32 spellId) const;
 
         uint32 GetFreePrimaryProfessionPoints() const { return m_activePlayerData->CharacterPoints; }
         void SetFreePrimaryProfessions(uint16 profs) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterPoints), profs); }
