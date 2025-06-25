@@ -389,15 +389,8 @@ class spell_stratholme_haunting_phantoms : public AuraScript
     }
 };
 
-enum StratholmeLfgDungeons
-{
-    LFG_DUNGEON_SERVICE_ENTRANCE = 274
-};
-
-enum StratholmeScenarios
-{
-    SCENARIO_SERVICE_ENTRANCE = 637
-};
+static constexpr uint32 StratholmeLfgDungeonServiceEntrance = 274;
+static constexpr uint32 StratholmeScenarioServiceEntrance = 637;
 
 // 10107 - Areatrigger
 class at_stratholme_service_entrance : public OnlyOnceAreaTriggerScript
@@ -408,8 +401,8 @@ public:
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         if (InstanceMap* map = player->GetMap()->ToInstanceMap())
-            if (map->GetLfgDungeonsId() == LFG_DUNGEON_SERVICE_ENTRANCE)
-                map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, SCENARIO_SERVICE_ENTRANCE));
+            if (map->GetLfgDungeonsId() == StratholmeLfgDungeonServiceEntrance)
+                map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, StratholmeScenarioServiceEntrance));
 
         return true;
     }
