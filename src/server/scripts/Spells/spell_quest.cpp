@@ -116,7 +116,6 @@ class spell_q6124_6129_apply_salve : public SpellScript
     }
 };
 
-
 // http://www.wowhead.com/quest=11730 Master and Servant
 enum Quest11730Data
 {
