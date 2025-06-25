@@ -1735,7 +1735,50 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 
 enum WeaknessToLightning
 {
-    SPELL_POWER_OF_THE_STORM    = 46424
+    SPELL_POWER_OF_THE_STORM_ITEM      = 46432,
+    SPELL_POWER_OF_THE_STORM           = 46424
+};
+
+// 46444 - Weakness to Lightning: Cast on Master Script Effect
+class spell_borean_tundra_weakness_to_lightning_cast_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 46446 - Weakness to Lightning: Cancel Power of the Storm Aura
+class spell_borean_tundra_weakness_to_lightning_cancel_aura : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM_ITEM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM_ITEM);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cancel_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 46550 - Weakness to Lightning: On Quest Complete
@@ -1817,6 +1860,8 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
     RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
     RegisterSpellScript(spell_borean_tundra_signal_alliance);
 }

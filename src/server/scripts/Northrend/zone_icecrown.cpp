@@ -28,6 +28,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_argent_valiant
@@ -1015,6 +1016,153 @@ class spell_icecrown_ebon_blade_banner : public SpellScript
     }
 };
 
+/*######
+## Quest 13400: The Hunter and the Prince
+######*/
+
+enum TheHunterAndThePrince
+{
+    SPELL_ILLIDAN_KILL_CREDIT      = 61748
+};
+
+// 61752 - Illidan Kill Credit Master
+class spell_icecrown_illidan_kill_credit_master : public SpellScript
+{
+   PrepareSpellScript(spell_icecrown_illidan_kill_credit_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ILLIDAN_KILL_CREDIT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
+                passenger->CastSpell(passenger, SPELL_ILLIDAN_KILL_CREDIT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_illidan_kill_credit_master::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 13280, 13283: King of the Mountain
+######*/
+
+enum KingOfTheMountain
+{
+    NPC_KING_OF_THE_MOUNTAINT_KC         = 31766,
+    SPELL_PLANT_HORDE_BATTLE_STANDARD    = 59643,
+    SPELL_HORDE_BATTLE_STANDARD_STATE    = 59642,
+    SPELL_ALLIANCE_BATTLE_STANDARD_STATE = 4339,
+    SPELL_JUMP_ROCKET_BLAST              = 4340
+};
+
+// 4338 - Plant Alliance Battle Standard
+// 59643 - Plant Horde Battle Standard
+class spell_icecrown_plant_battle_standard : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_plant_battle_standard);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        uint32 triggeredSpellID = SPELL_ALLIANCE_BATTLE_STANDARD_STATE;
+
+        caster->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+        if (caster->IsVehicle())
+            if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
+                player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC);
+
+        if (GetSpellInfo()->Id == SPELL_PLANT_HORDE_BATTLE_STANDARD)
+            triggeredSpellID = SPELL_HORDE_BATTLE_STANDARD_STATE;
+
+        target->RemoveAllAuras();
+        target->CastSpell(target, triggeredSpellID, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_plant_battle_standard::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 4336 - Jump Jets
+class spell_icecrown_jump_jets : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_jump_jets);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* rocketBunny = caster->GetVehicleKit()->GetPassenger(1))
+                rocketBunny->CastSpell(rocketBunny, SPELL_JUMP_ROCKET_BLAST, true);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_icecrown_jump_jets::HandleCast);
+    }
+};
+
+/*######
+## Quest 13291: Borrowed Technology / 13292: The Solution Solution (Daily) / 13239: Volatility / 13261: Volatiliy (Daily)
+######*/
+
+enum BorrowedTechnology
+{
+    SPELL_RIDE_FROST_WYRM         = 59319
+};
+
+// 59318 - Grab Fake Soldier
+class spell_icecrown_grab_fake_soldier : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_grab_fake_soldier);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RIDE_FROST_WYRM });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitCreature())
+            return;
+        // TO DO: Being triggered is hack, but in checkcast it doesn't pass aurastate requirements.
+        // Beside that the decoy won't keep it's freeze animation state when enter.
+        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_FROST_WYRM, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_grab_fake_soldier::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 59303 - Summon Frost Wyrm
+class spell_icecrown_summon_frost_wyrm : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_summon_frost_wyrm);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_frost_wyrm::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1032,4 +1180,9 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_gift_of_the_lich_king);
     RegisterSpellScript(spell_icecrown_consume_minions);
     RegisterSpellScript(spell_icecrown_ebon_blade_banner);
+    RegisterSpellScript(spell_icecrown_illidan_kill_credit_master);
+    RegisterSpellScript(spell_icecrown_plant_battle_standard);
+    RegisterSpellScript(spell_icecrown_jump_jets);
+    RegisterSpellScript(spell_icecrown_grab_fake_soldier);
+    RegisterSpellScript(spell_icecrown_summon_frost_wyrm);
 }

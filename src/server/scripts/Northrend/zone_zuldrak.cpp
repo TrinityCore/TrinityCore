@@ -1097,6 +1097,41 @@ class spell_zuldrak_summon_stefan : public SpellScript
     }
 };
 
+/*######
+## Quest 12527: Gluttonous Lurkers
+######*/
+
+enum GluttonousLurkers
+{
+    SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
+};
+
+// 50894 - Zul'Drak Rat
+class spell_zuldrak_zuldrak_rat : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_zuldrak_rat);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_GORGED_LURKING_BASILISK });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
+        {
+            GetHitUnit()->CastSpell((Unit*) nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+            if (Creature* basilisk = GetHitUnit()->ToCreature())
+                basilisk->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_zuldrak_rat::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1122,4 +1157,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
     RegisterSpellScript(spell_zuldrak_quenching_mist);
     RegisterSpellScript(spell_zuldrak_summon_stefan);
+    RegisterSpellScript(spell_zuldrak_zuldrak_rat);
 }

@@ -33,61 +33,6 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
-class spell_generic_quest_update_entry_SpellScript : public SpellScript
-{
-    PrepareSpellScript(spell_generic_quest_update_entry_SpellScript);
-    private:
-        uint16 _spellEffect;
-        uint8 _effIndex;
-        uint32 _originalEntry;
-        uint32 _newEntry;
-        bool _shouldAttack;
-        Milliseconds _despawnTime;
-
-    public:
-        spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, Milliseconds despawnTime = 0s) :
-            SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
-            _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
-
-        void HandleDummy(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* creatureTarget = GetHitCreature())
-                if (!creatureTarget->IsPet() && creatureTarget->GetEntry() == _originalEntry)
-                {
-                    creatureTarget->UpdateEntry(_newEntry);
-                    if (_shouldAttack)
-                        creatureTarget->EngageWithTarget(GetCaster());
-
-                    if (_despawnTime != 0s)
-                        creatureTarget->DespawnOrUnsummon(_despawnTime);
-                }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_generic_quest_update_entry_SpellScript::HandleDummy, _effIndex, _spellEffect);
-        }
-};
-
-// http://www.wowhead.com/quest=55 Morbent Fel
-enum Quest55Data
-{
-    NPC_MORBENT             = 1200,
-    NPC_WEAKENED_MORBENT    = 24782,
-};
-
-// 8913 - Sacred Cleansing
-class spell_q55_sacred_cleansing : public SpellScriptLoader
-{
-    public:
-        spell_q55_sacred_cleansing() : SpellScriptLoader("spell_q55_sacred_cleansing") { }
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_1, NPC_MORBENT, NPC_WEAKENED_MORBENT, true);
-        }
-};
-
 enum ThaumaturgyChannel
 {
     SPELL_THAUMATURGY_CHANNEL = 21029
@@ -171,43 +116,6 @@ class spell_q6124_6129_apply_salve : public SpellScript
     }
 };
 
-// http://www.wowhead.com/quest=10255 Testing the Antidote
-enum Quest10255Data
-{
-    NPC_HELBOAR     = 16880,
-    NPC_DREADTUSK   = 16992,
-};
-
-// 34665 - Administer Antidote
-class spell_q10255_administer_antidote : public SpellScriptLoader
-{
-    public:
-        spell_q10255_administer_antidote() : SpellScriptLoader("spell_q10255_administer_antidote") { }
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_0, NPC_HELBOAR, NPC_DREADTUSK, true);
-        }
-};
-
-// http://www.wowhead.com/quest=11515 Blood for Blood
-enum Quest11515Data
-{
-    NPC_FELBLOOD_INITIATE   = 24918,
-    NPC_EMACIATED_FELBLOOD  = 24955
-};
-
-// 44936 - Quest - Fel Siphon Dummy
-class spell_q11515_fel_siphon_dummy : public SpellScriptLoader
-{
-    public:
-        spell_q11515_fel_siphon_dummy() : SpellScriptLoader("spell_q11515_fel_siphon_dummy") { }
-
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_generic_quest_update_entry_SpellScript(SPELL_EFFECT_DUMMY, EFFECT_0, NPC_FELBLOOD_INITIATE, NPC_EMACIATED_FELBLOOD, true);
-        }
-};
 
 // http://www.wowhead.com/quest=11730 Master and Servant
 enum Quest11730Data
@@ -399,90 +307,6 @@ class spell_q12805_lifeblood_dummy : public SpellScript
     }
 };
 
-/*
- http://www.wowhead.com/quest=13283 King of the Mountain
- http://www.wowhead.com/quest=13280 King of the Mountain
- */
-enum BattleStandard
-{
-    NPC_KING_OF_THE_MOUNTAINT_KC         = 31766,
-    SPELL_PLANT_HORDE_BATTLE_STANDARD    = 59643,
-    SPELL_HORDE_BATTLE_STANDARD_STATE    = 59642,
-    SPELL_ALLIANCE_BATTLE_STANDARD_STATE = 4339,
-    SPELL_JUMP_ROCKET_BLAST              = 4340
-};
-
-// 4338 - Plant Alliance Battle Standard
-// 59643 - Plant Horde Battle Standard
-class spell_q13280_13283_plant_battle_standard : public SpellScript
-{
-    PrepareSpellScript(spell_q13280_13283_plant_battle_standard);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        uint32 triggeredSpellID = SPELL_ALLIANCE_BATTLE_STANDARD_STATE;
-
-        caster->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-        if (caster->IsVehicle())
-            if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
-                player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC);
-
-        if (GetSpellInfo()->Id == SPELL_PLANT_HORDE_BATTLE_STANDARD)
-            triggeredSpellID = SPELL_HORDE_BATTLE_STANDARD_STATE;
-
-        target->RemoveAllAuras();
-        target->CastSpell(target, triggeredSpellID, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13280_13283_plant_battle_standard::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 4336 - Jump Jets
-class spell_q13280_13283_jump_jets : public SpellScript
-{
-    PrepareSpellScript(spell_q13280_13283_jump_jets);
-
-    void HandleCast()
-    {
-        Unit* caster = GetCaster();
-        if (caster->IsVehicle())
-            if (Unit* rocketBunny = caster->GetVehicleKit()->GetPassenger(1))
-                rocketBunny->CastSpell(rocketBunny, SPELL_JUMP_ROCKET_BLAST, true);
-    }
-
-    void Register() override
-    {
-        OnCast += SpellCastFn(spell_q13280_13283_jump_jets::HandleCast);
-    }
-};
-
-enum FocusOnTheBeach
-{
-    SPELL_BUNNY_CREDIT_BEAM = 47390,
-};
-
-// 50546 - The Focus on the Beach: Ley Line Focus Control Ring Effect
-class spell_q12066_bunny_kill_credit : public SpellScript
-{
-    PrepareSpellScript(spell_q12066_bunny_kill_credit);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* target = GetHitCreature())
-            target->CastSpell(GetCaster(), SPELL_BUNNY_CREDIT_BEAM, false);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12066_bunny_kill_credit::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum DefendingWyrmrestTemple
 {
     SPELL_SUMMON_WYRMREST_DEFENDER       = 49207
@@ -642,90 +466,6 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount::CheckRequirement);
-    }
-};
-
-enum SpellZuldrakRat
-{
-    SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
-};
-
-// 50894 - Zul'Drak Rat
-class spell_q12527_zuldrak_rat : public SpellScript
-{
-    PrepareSpellScript(spell_q12527_zuldrak_rat);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_GORGED_LURKING_BASILISK });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
-    {
-        if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
-        {
-            GetHitUnit()->CastSpell((Unit*) nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
-            if (Creature* basilisk = GetHitUnit()->ToCreature())
-                basilisk->DespawnOrUnsummon();
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12527_zuldrak_rat::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-// 13291 - Borrowed Technology/13292 - The Solution Solution /Daily//13239 - Volatility/13261 - Volatiliy /Daily//
-enum Quest13291_13292_13239_13261Data
-{
-    // NPCs
-    NPC_SKYTALON       = 31583,
-    NPC_DECOY          = 31578,
-    // Spells
-    SPELL_RIDE         = 59319
-};
-
-// 59318 - Grab Fake Soldier
-class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy : public SpellScript
-{
-    PrepareSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_RIDE });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (!GetHitCreature())
-            return;
-        // TO DO: Being triggered is hack, but in checkcast it doesn't pass aurastate requirements.
-        // Beside that the decoy won't keep it's freeze animation state when enter.
-        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 59303 - Summon Frost Wyrm
-class spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon : public SpellScript
-{
-    PrepareSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
-
-    void SetDest(SpellDestination& dest)
-    {
-        // Adjust effect summon position
-        Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
-        dest.RelocateOffset(offset);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
     }
 };
 
@@ -1024,52 +764,6 @@ class spell_q12690_burst_at_the_seams_52510 : public SpellScript
     }
 };
 
-enum EscapeFromSilverbrook
-{
-    SPELL_SUMMON_WORGEN = 48681
-};
-
-// 48682 - Escape from Silverbrook - Periodic Dummy
-class spell_q12308_escape_from_silverbrook : public SpellScript
-{
-    PrepareSpellScript(spell_q12308_escape_from_silverbrook);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_WORGEN });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WORGEN, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q12308_escape_from_silverbrook::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 48681 - Summon Silverbrook Worgen
-class spell_q12308_escape_from_silverbrook_summon_worgen : public SpellScript
-{
-    PrepareSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen);
-
-    void ModDest(SpellDestination& dest)
-    {
-        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
-        float angle = frand(0.75f, 1.25f) * float(M_PI);
-
-        Position pos = GetCaster()->GetNearPosition(dist, angle);
-        dest.Relocate(pos);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12308_escape_from_silverbrook_summon_worgen::ModDest, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
-    }
-};
-
 enum DeathComesFromOnHigh
 {
     SPELL_FORGE_CREDIT                  = 51974,
@@ -1246,35 +940,6 @@ class spell_q12919_gymers_throw : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_throw::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-enum Quest_The_Hunter_And_The_Prince
-{
-    SPELL_ILLIDAN_KILL_CREDIT      = 61748
-};
-
-// 61752 - Illidan Kill Credit Master
-class spell_q13400_illidan_kill_master : public SpellScript
-{
-   PrepareSpellScript(spell_q13400_illidan_kill_master);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ILLIDAN_KILL_CREDIT });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (caster->IsVehicle())
-            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
-                 passenger->CastSpell(passenger, SPELL_ILLIDAN_KILL_CREDIT, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13400_illidan_kill_master::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1471,28 +1136,6 @@ class spell_q11306_failed_mix_43378 : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_q11306_failed_mix_43378::HandleEffect, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
-    }
-};
-
-// 46444 - Weakness to Lightning: Cast on Master Script Effect
-class spell_q11896_weakness_to_lightning_46444 : public SpellScript
-{
-    PrepareSpellScript(spell_q11896_weakness_to_lightning_46444);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-        {
-            if (Unit* owner = target->GetOwner())
-            {
-                target->CastSpell(owner, GetEffectValue(), true);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11896_weakness_to_lightning_46444::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1703,18 +1346,12 @@ class spell_quest_uther_grom_tribute : public SpellScript
 
 void AddSC_quest_spell_scripts()
 {
-    new spell_q55_sacred_cleansing();
     RegisterSpellScript(spell_q2203_thaumaturgy_channel);
     RegisterSpellScript(spell_q6124_6129_apply_salve);
-    new spell_q10255_administer_antidote();
-    new spell_q11515_fel_siphon_dummy();
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
     RegisterSpellScript(spell_q12851_going_bearback);
     RegisterSpellScript(spell_q12805_lifeblood_dummy);
-    RegisterSpellScript(spell_q13280_13283_plant_battle_standard);
-    RegisterSpellScript(spell_q13280_13283_jump_jets);
-    RegisterSpellScript(spell_q12066_bunny_kill_credit);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
     RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check_aura);
@@ -1722,9 +1359,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_burst);
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
-    RegisterSpellScript(spell_q12527_zuldrak_rat);
-    RegisterSpellScript(spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy);
-    RegisterSpellScript(spell_q13291_q13292_q13239_q13261_armored_decoy_summon_skytalon);
     RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);
     RegisterSpellScript(spell_q13086_cannons_target);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
@@ -1733,16 +1367,12 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
     RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);
-    RegisterSpellScript(spell_q11896_weakness_to_lightning_46444);
-    RegisterSpellScript(spell_q12308_escape_from_silverbrook_summon_worgen);
-    RegisterSpellScript(spell_q12308_escape_from_silverbrook);
     RegisterSpellScript(spell_q12641_death_comes_from_on_high);
     RegisterSpellScript(spell_q12641_recall_eye_of_acherus);
     RegisterSpellScript(spell_q12619_emblazon_runeblade);
     RegisterSpellScript(spell_q12619_emblazon_runeblade_effect);
     RegisterSpellScript(spell_q12919_gymers_grab);
     RegisterSpellScript(spell_q12919_gymers_throw);
-    RegisterSpellScript(spell_q13400_illidan_kill_master);
     RegisterSpellScript(spell_q14100_q14111_make_player_destroy_totems);
     RegisterSpellScript(spell_q10929_fumping);
     RegisterSpellScript(spell_q12414_hand_over_reins);
