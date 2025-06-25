@@ -26,8 +26,8 @@
 #include "TemporarySummon.h"
 #include "Unit.h"
 
-DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::PathQueryResult, PreparedResultSet, (PathId)(MoveType)(Flags)(Velocity));
-DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::PathNodeQueryResult, PreparedResultSet, (PathId)(NodeId)(PositionX)(PositionY)(PositionZ)(Orientation)(Delay));
+DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::, PathQueryResult, PreparedResultSet, (PathId)(MoveType)(Flags)(Velocity));
+DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::, PathNodeQueryResult, PreparedResultSet, (PathId)(NodeId)(PositionX)(PositionY)(PositionZ)(Orientation)(Delay));
 
 WaypointMgr::WaypointMgr() = default;
 WaypointMgr::~WaypointMgr() = default;
@@ -61,7 +61,7 @@ void WaypointMgr::_LoadPaths()
 
     do
     {
-        LoadPathFromDB({ .Result = *result });
+        LoadPathFromDB(*result);
         ++count;
     } while (result->NextRow());
 
@@ -88,7 +88,7 @@ void WaypointMgr::_LoadPathNodes()
 
     do
     {
-        LoadPathNodesFromDB({ .Result = *result });
+        LoadPathNodesFromDB(*result);
         ++count;
     }
     while (result->NextRow());
@@ -186,7 +186,7 @@ void WaypointMgr::ReloadPath(uint32 pathId)
 
         do
         {
-            LoadPathFromDB({ .Result = *result });
+            LoadPathFromDB(*result);
         } while (result->NextRow());
     }
 
@@ -206,7 +206,7 @@ void WaypointMgr::ReloadPath(uint32 pathId)
 
         do
         {
-            LoadPathNodesFromDB({ .Result = *result });
+            LoadPathNodesFromDB(*result);
         } while (result->NextRow());
 
         if (WaypointPath* path = Trinity::Containers::MapGetValuePtr(_pathStore, pathId))

@@ -20,6 +20,7 @@
 
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/comma_if.hpp>
+#include <boost/preprocessor/facilities/empty.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_i.hpp>
@@ -29,11 +30,11 @@
 
 #define DEFINE_FIELD_ACCESSOR_CACHE_FIELD(r, data, field) Field const& field() const\
     {\
-        return Result.Fetch()[indexes.field];\
+        return Fields[indexes.field];\
     }
 
-#define DEFINE_FIELD_ACCESSOR_CACHE(struct_name, result_type, fields_list) \
-    struct struct_name \
+#define DEFINE_FIELD_ACCESSOR_CACHE(namespace_name, struct_name, result_type, fields_list) \
+    struct namespace_name struct_name \
     { \
         struct Indexes\
         {\
@@ -42,11 +43,12 @@
             std::size_t BOOST_PP_SEQ_ENUM(fields_list);\
         };\
         BOOST_PP_SEQ_FOR_EACH(DEFINE_FIELD_ACCESSOR_CACHE_FIELD, ~, fields_list) \
-        result_type const& Result; \
+        struct_name(result_type const& result) : Fields(result.Fetch()), indexes(indexes_impl(result)) { }\
+        Field* Fields; \
         static Indexes const& indexes_impl(result_type const& result) { static Indexes const instance(result); return instance; }\
-        Indexes const& indexes = indexes_impl(Result);\
+        Indexes const& indexes;\
     }
 
-#define DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(result_type, fields_list) DEFINE_FIELD_ACCESSOR_CACHE(BOOST_PP_CAT(FieldAccessors, __LINE__), result_type, fields_list)
+#define DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(result_type, fields_list) DEFINE_FIELD_ACCESSOR_CACHE(BOOST_PP_EMPTY(), BOOST_PP_CAT(FieldAccessors, __LINE__), result_type, fields_list)
 
 #endif // TRINITYCORE_QUERY_RESULT_STRUCTURED_H
