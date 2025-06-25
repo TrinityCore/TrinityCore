@@ -33,6 +33,7 @@ EndContentData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Group.h"
+#include "ScenarioMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -388,6 +389,32 @@ class spell_stratholme_haunting_phantoms : public AuraScript
     }
 };
 
+enum StratholmeLfgDungeons
+{
+    LFG_DUNGEON_SERVICE_ENTRANCE = 274
+};
+
+enum StratholmeScenarios
+{
+    SCENARIO_SERVICE_ENTRANCE = 637
+};
+
+// 10107 - Areatrigger
+class at_stratholme_service_entrance : public OnlyOnceAreaTriggerScript
+{
+public:
+    at_stratholme_service_entrance() : OnlyOnceAreaTriggerScript("at_stratholme_service_entrance") { }
+
+    bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceMap* map = player->GetMap()->ToInstanceMap())
+            if (map->GetLfgDungeonsId() == LFG_DUNGEON_SERVICE_ENTRANCE)
+                map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, SCENARIO_SERVICE_ENTRANCE));
+
+        return true;
+    }
+};
+
 void AddSC_stratholme()
 {
     new go_gauntlet_gate();
@@ -395,4 +422,5 @@ void AddSC_stratholme()
     new npc_spectral_ghostly_citizen();
     RegisterSpellScript(spell_ysida_saved_credit);
     RegisterSpellScript(spell_stratholme_haunting_phantoms);
+    new at_stratholme_service_entrance();
 }
