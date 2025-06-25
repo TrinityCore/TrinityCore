@@ -908,20 +908,17 @@ void InstanceScript::SendBossKillCredit(uint32 encounterId)
 
 void InstanceScript::UpdateLfgEncounterState(BossInfo const* bossInfo)
 {
-    for (auto const& ref : instance->GetPlayers())
+    for (MapReference const& ref : instance->GetPlayers())
     {
-        if (Player* player = ref.GetSource())
+        if (Group* grp = ref.GetSource()->GetGroup())
         {
-            if (Group* grp = player->GetGroup())
+            if (grp->isLFGGroup())
             {
-                if (grp->isLFGGroup())
-                {
-                    std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
-                    std::transform(bossInfo->DungeonEncounters.begin(), bossInfo->DungeonEncounters.end(), dungeonEncounterIds.begin(),
-                        [](DungeonEncounterEntry const* entry) { return entry->ID; });
-                    sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
-                    break;
-                }
+                std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
+                std::ranges::transform(bossInfo->DungeonEncounters, dungeonEncounterIds.begin(),
+                    [](DungeonEncounterEntry const* entry) { return entry ? entry->ID : 0u; });
+                sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
+                break;
             }
         }
     }
