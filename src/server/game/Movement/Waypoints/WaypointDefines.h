@@ -51,15 +51,7 @@ struct WaypointNode
 {
     constexpr WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), MoveType(WaypointMoveType::Walk) { }
     constexpr WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, Optional<Milliseconds> delay = {})
-    {
-        Id = id;
-        X = x;
-        Y = y;
-        Z = z;
-        Orientation = orientation;
-        Delay = delay;
-        MoveType = WaypointMoveType::Walk;
-    }
+        : Id(id), X(x), Y(y), Z(z), Orientation(orientation), Delay(delay), MoveType(WaypointMoveType::Walk) { }
 
     uint32 Id;
     float X;
@@ -74,12 +66,7 @@ struct WaypointPath
 {
     WaypointPath() = default;
     WaypointPath(uint32 id, std::vector<WaypointNode>&& nodes, WaypointMoveType moveType = WaypointMoveType::Walk, WaypointPathFlags flags = WaypointPathFlags::None)
-    {
-        Id = id;
-        Nodes = std::move(nodes);
-        Flags = flags;
-        MoveType = moveType;
-    }
+        : Nodes(std::move(nodes)), Id(id), MoveType(moveType), Flags(flags) { }
 
     std::vector<WaypointNode> Nodes;
     std::vector<std::pair<std::size_t, std::size_t>> ContinuousSegments;

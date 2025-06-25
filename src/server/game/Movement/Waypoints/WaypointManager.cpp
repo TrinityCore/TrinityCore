@@ -22,8 +22,12 @@
 #include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "Optional.h"
+#include "QueryResultStructured.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
+
+DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::PathQueryResult, PreparedResultSet, (PathId)(MoveType)(Flags)(Velocity));
+DEFINE_FIELD_ACCESSOR_CACHE(WaypointMgr::PathNodeQueryResult, PreparedResultSet, (PathId)(NodeId)(PositionX)(PositionY)(PositionZ)(Orientation)(Delay));
 
 WaypointMgr::WaypointMgr() = default;
 WaypointMgr::~WaypointMgr() = default;
@@ -41,8 +45,11 @@ void WaypointMgr::_LoadPaths()
 
     _pathStore.clear();
 
-    //                                                    0         1      2         3
-    QueryResult result = WorldDatabase.Query("SELECT PathId, MoveType, Flags, Velocity FROM waypoint_path");
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt32(1, 1);
+
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
     {
@@ -54,7 +61,7 @@ void WaypointMgr::_LoadPaths()
 
     do
     {
-        LoadPathFromDB(result->Fetch());
+        LoadPathFromDB({ .Result = *result });
         ++count;
     } while (result->NextRow());
 
@@ -64,8 +71,12 @@ void WaypointMgr::_LoadPaths()
 void WaypointMgr::_LoadPathNodes()
 {
     uint32 oldMSTime = getMSTime();
-    //                                                    0       1          2          3          4            5      6
-    QueryResult result = WorldDatabase.Query("SELECT PathId, NodeId, PositionX, PositionY, PositionZ, Orientation, Delay FROM waypoint_path_node ORDER BY PathId, NodeId");
+
+    WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE);
+    stmt->setUInt32(0, 0);
+    stmt->setUInt32(1, 1);
+
+    PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
     {
@@ -77,7 +88,7 @@ void WaypointMgr::_LoadPathNodes()
 
     do
     {
-        LoadPathNodesFromDB(result->Fetch());
+        LoadPathNodesFromDB({ .Result = *result });
         ++count;
     }
     while (result->NextRow());
@@ -85,13 +96,13 @@ void WaypointMgr::_LoadPathNodes()
     TC_LOG_INFO("server.loading", ">> Loaded {} waypoint path nodes in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void WaypointMgr::LoadPathFromDB(Field* fields)
+void WaypointMgr::LoadPathFromDB(PathQueryResult const& fields)
 {
-    uint32 pathId = fields[0].GetUInt32();
+    uint32 pathId = fields.PathId().GetUInt32();
 
     WaypointPath& path = _pathStore[pathId];
 
-    path.MoveType = WaypointMoveType(fields[1].GetUInt8());
+    path.MoveType = WaypointMoveType(fields.MoveType().GetUInt8());
     if (path.MoveType >= WaypointMoveType::Max)
     {
         TC_LOG_ERROR("sql.sql", "PathId {} in `waypoint_path` has invalid MoveType {}, ignoring", pathId, AsUnderlyingType(path.MoveType));
@@ -99,8 +110,8 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
     }
 
     path.Id = pathId;
-    path.Flags = WaypointPathFlags(fields[2].GetUInt8());
-    path.Velocity = fields[3].GetFloatOrNull();
+    path.Flags = WaypointPathFlags(fields.Flags().GetUInt8());
+    path.Velocity = fields.Velocity().GetFloatOrNull();
 
     if (path.Velocity && *path.Velocity <= 0.0f)
     {
@@ -111,9 +122,9 @@ void WaypointMgr::LoadPathFromDB(Field* fields)
     path.Nodes.clear();
 }
 
-void WaypointMgr::LoadPathNodesFromDB(Field* fields)
+void WaypointMgr::LoadPathNodesFromDB(PathNodeQueryResult const& fields)
 {
-    uint32 pathId = fields[0].GetUInt32();
+    uint32 pathId = fields.PathId().GetUInt32();
 
     WaypointPath* path = Trinity::Containers::MapGetValuePtr(_pathStore, pathId);
     if (!path)
@@ -122,19 +133,19 @@ void WaypointMgr::LoadPathNodesFromDB(Field* fields)
         return;
     }
 
-    float x = fields[2].GetFloat();
-    float y = fields[3].GetFloat();
-    float z = fields[4].GetFloat();
-    Optional<float> o = fields[5].GetFloatOrNull();
+    float x = fields.PositionX().GetFloat();
+    float y = fields.PositionY().GetFloat();
+    float z = fields.PositionZ().GetFloat();
+    Optional<float> o = fields.Orientation().GetFloatOrNull();
 
     Optional<Milliseconds> delay;
-    if (uint32 delayMs = fields[6].GetUInt32())
+    if (uint32 delayMs = fields.Delay().GetUInt32())
         delay.emplace(delayMs);
 
     Trinity::NormalizeMapCoord(x);
     Trinity::NormalizeMapCoord(y);
 
-    path->Nodes.emplace_back(fields[1].GetUInt32(), x, y, z, o, delay);
+    path->Nodes.emplace_back(fields.NodeId().GetUInt32(), x, y, z, o, delay);
 }
 
 void WaypointMgr::DoPostLoadingChecks()
@@ -161,8 +172,9 @@ void WaypointMgr::ReloadPath(uint32 pathId)
 {
     // waypoint_path
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_BY_PATHID);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH);
         stmt->setUInt32(0, pathId);
+        stmt->setUInt32(1, 0);
 
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -174,14 +186,15 @@ void WaypointMgr::ReloadPath(uint32 pathId)
 
         do
         {
-            LoadPathFromDB(result->Fetch());
+            LoadPathFromDB({ .Result = *result });
         } while (result->NextRow());
     }
 
     // waypoint_path_data
     {
-        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE_BY_PATHID);
+        WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE);
         stmt->setUInt32(0, pathId);
+        stmt->setUInt32(1, 0);
 
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -193,7 +206,7 @@ void WaypointMgr::ReloadPath(uint32 pathId)
 
         do
         {
-            LoadPathNodesFromDB(result->Fetch());
+            LoadPathNodesFromDB({ .Result = *result });
         } while (result->NextRow());
 
         if (WaypointPath* path = Trinity::Containers::MapGetValuePtr(_pathStore, pathId))
