@@ -98,6 +98,7 @@ enum AmalgamOfSoulsMisc
     SUMMON_GROUP_RESTLESS_SOULS = 0,
 
     NPC_RESTLESS_SOUL = 99664,
+    NPC_SOUL_ECHO     = 99090,
 
     SOUL_ECHOES_STALKER_ANIM_KIT_1 = 9038,
     SOUL_ECHOES_STALKER_ANIM_KIT_2 = 9039,
@@ -121,6 +122,15 @@ struct boss_amalgam_of_souls : public BossAI
 {
     boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS), _callSoulsActive(false) { }
 
+    void DespawnSoulEchoes()
+    {
+        std::list<Creature*> soulEchoes;
+        GetCreatureListWithEntryInGrid(soulEchoes, me, NPC_SOUL_ECHO, 100.0f);
+
+        for (Creature* soulEcho : soulEchoes)
+            soulEcho->DespawnOrUnsummon();
+    }
+
     void Reset() override
     {
         _Reset();
@@ -131,6 +141,7 @@ struct boss_amalgam_of_souls : public BossAI
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         _JustDied();
+        DespawnSoulEchoes();
 
         DoCastSelf(SPELL_SUMMON_MINIBOSS_A);
         DoCastSelf(SPELL_SUMMON_MINIBOSS_B);
@@ -142,6 +153,7 @@ struct boss_amalgam_of_souls : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
         summons.DespawnAll();
+        DespawnSoulEchoes();
         _EnterEvadeMode();
         _DespawnAtEvade();
     }
@@ -406,7 +418,10 @@ class spell_amalgam_of_souls_soul_burst : public SpellScript
     void HandleAfterCast() const
     {
         if (Creature* creatureCaster = GetCaster()->ToCreature())
+        {
             creatureCaster->SetReactState(REACT_AGGRESSIVE);
+            creatureCaster->RemoveAurasDueToSpell(SPELL_SOULGORGE);
+        }
     }
 
     void Register() override

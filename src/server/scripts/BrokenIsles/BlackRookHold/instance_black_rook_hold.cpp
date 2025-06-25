@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_AMALGAM_OF_SOULS, new CircleBoundary(Position(3251.350098f, 7582.790039f), 34.0f) },
+    { DATA_AMALGAM_OF_SOULS, new CircleBoundary(Position(3251.350098f, 7582.790039f), 40.0f) }
 };
 
 ObjectData const creatureData[] =
