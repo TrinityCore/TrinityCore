@@ -101,3 +101,7 @@ DELETE FROM `smart_scripts` WHERE `entryorguid` IN (99858, 99426) AND `source_ty
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (99858, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 90, 8, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Lady Velandras Ravencrest - Just Created - Set StandState: Kneel'),
 (99426, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 90, 8, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Staellis Rivermoor - Just Created - Set StandState: Kneel');
+
+DELETE FROM `instance_template` WHERE `map`=1501;
+INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
+(1501, 0, 'instance_black_rook_hold');
