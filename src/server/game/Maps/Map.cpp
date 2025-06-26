@@ -3083,6 +3083,7 @@ std::string const& InstanceMap::GetScriptName() const
 
 void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
 {
+    ASSERT(i_scenario == nullptr, "Cannot set instance scenario to %u when scenario %u is already active", scenario->GetEntry()->ID, i_scenario->GetEntry()->ID);
     i_scenario = scenario;
 
     if (scenario)
