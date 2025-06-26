@@ -56,7 +56,7 @@ BossBoundaryData::~BossBoundaryData()
 
 DungeonEncounterEntry const* BossInfo::GetDungeonEncounterForDifficulty(Difficulty difficulty) const
 {
-    auto itr = std::find_if(DungeonEncounters.begin(), DungeonEncounters.end(), [difficulty](DungeonEncounterEntry const* dungeonEncounter)
+    auto itr = std::ranges::find_if(DungeonEncounters, [difficulty](DungeonEncounterEntry const* dungeonEncounter)
     {
         return dungeonEncounter && (dungeonEncounter->DifficultyID == 0 || Difficulty(dungeonEncounter->DifficultyID) == difficulty);
     });
@@ -77,9 +77,7 @@ _entranceId(0), _temporaryEntranceId(0), _combatResurrectionTimer(0), _combatRes
 #endif // #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 }
 
-InstanceScript::~InstanceScript()
-{
-}
+InstanceScript::~InstanceScript() = default;
 
 bool InstanceScript::IsEncounterInProgress() const
 {
@@ -176,7 +174,7 @@ void InstanceScript::LoadMinionData(MinionData const* data)
     while (data->entry)
     {
         if (data->bossId < bosses.size())
-            minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
+            minions.try_emplace(data->entry, &bosses[data->bossId]);
 
         ++data;
     }
@@ -210,8 +208,8 @@ void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objec
 {
     while (data->entry)
     {
-        ASSERT(objectInfo.find(data->entry) == objectInfo.end());
-        objectInfo[data->entry] = data->type;
+        bool inserted = objectInfo.try_emplace(data->entry, data->type).second;
+        ASSERT(inserted);
         ++data;
     }
 }
@@ -219,8 +217,9 @@ void InstanceScript::LoadObjectData(ObjectData const* data, ObjectInfoMap& objec
 void InstanceScript::LoadDungeonEncounterData(uint32 bossId, std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> const& dungeonEncounterIds)
 {
     if (bossId < bosses.size())
-        for (std::size_t i = 0; i < MAX_DUNGEON_ENCOUNTERS_PER_BOSS; ++i)
-            bosses[bossId].DungeonEncounters[i] = sDungeonEncounterStore.LookupEntry(dungeonEncounterIds[i]);
+        for (std::size_t i = 0, j = 0; i < MAX_DUNGEON_ENCOUNTERS_PER_BOSS; ++i)
+            if (dungeonEncounterIds[i])
+                bosses[bossId].DungeonEncounters[j++] = sDungeonEncounterStore.AssertEntry(dungeonEncounterIds[i]);
 }
 
 void InstanceScript::UpdateDoorState(GameObject* door)
@@ -782,10 +781,9 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
 
 bool InstanceScript::IsEncounterCompleted(uint32 dungeonEncounterId) const
 {
-    for (std::size_t i = 0; i < bosses.size(); ++i)
-        for (std::size_t j = 0; j < bosses[i].DungeonEncounters.size(); ++j)
-            if (bosses[i].DungeonEncounters[j] && bosses[i].DungeonEncounters[j]->ID == dungeonEncounterId)
-                return bosses[i].state == DONE;
+    for (BossInfo const& boss : bosses)
+        if (advstd::ranges::contains(boss.DungeonEncounters, dungeonEncounterId, &DungeonEncounterEntry::ID))
+            return boss.state == DONE;
 
     return false;
 }
@@ -915,9 +913,16 @@ void InstanceScript::UpdateLfgEncounterState(BossInfo const* bossInfo)
             if (grp->isLFGGroup())
             {
                 std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
-                std::ranges::transform(bossInfo->DungeonEncounters, dungeonEncounterIds.begin(),
-                    [](DungeonEncounterEntry const* entry) { return entry ? entry->ID : 0u; });
-                sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
+                auto itr = dungeonEncounterIds.begin();
+                for (DungeonEncounterEntry const* dungeonEncounter : bossInfo->DungeonEncounters)
+                {
+                    if (!dungeonEncounter)
+                        break;
+
+                    *itr = dungeonEncounter->ID;
+                    ++itr;
+                }
+                sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), std::span(dungeonEncounterIds.begin(), itr), instance);
                 break;
             }
         }
