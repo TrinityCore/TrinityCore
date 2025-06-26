@@ -1042,6 +1042,30 @@ class spell_grizzly_hills_escape_from_silverbrook_summon_worgen : public SpellSc
     }
 };
 
+/*######
+## Quest 12414: Mounting Up
+######*/
+
+// 49285 - Hand Over Reins
+class spell_grizzly_hills_hand_over_reins : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_hand_over_reins);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        GetHitUnit()->ExitVehicle();
+
+        if (caster)
+            caster->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_hand_over_reins::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1066,4 +1090,5 @@ void AddSC_grizzly_hills()
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_05", SPELL_ENVISION_DRAKURU_05);
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook);
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
+    RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
 }

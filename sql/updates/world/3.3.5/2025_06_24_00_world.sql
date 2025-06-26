@@ -89,3 +89,27 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (46446, 'spell_borean_tundra_weakness_to_lightning_cancel_aura');
 
 UPDATE `spell_script_names` SET `ScriptName` = 'spell_borean_tundra_weakness_to_lightning_cast_on_master' WHERE `ScriptName` = 'spell_q11896_weakness_to_lightning_46444';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_sholazar_lifeblood_dummy' WHERE `ScriptName` = 'spell_q12805_lifeblood_dummy';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_storm_peaks_flaming_arrow_triggered_effect' WHERE `ScriptName` = 'spell_q12851_going_bearback';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_eastern_kingdoms_thaumaturgy_channel' WHERE `ScriptName` = 'spell_q2203_thaumaturgy_channel';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_summon_soul_moveto_bunny' WHERE `ScriptName` = 'spell_q12847_summon_soul_moveto_bunny';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_cannons_target' WHERE `ScriptName` = 'spell_q13086_cannons_target';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_fjord_mixing_blood' WHERE `ScriptName` = 'spell_q11306_mixing_blood';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_fjord_mixing_vrykul_blood' WHERE `ScriptName` = 'spell_q11306_mixing_vrykul_blood';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_fjord_failed_mix_concoction_1' WHERE `ScriptName` = 'spell_q11306_failed_mix_43376';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_fjord_failed_mix_concoction_2' WHERE `ScriptName` = 'spell_q11306_failed_mix_43378';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_grizzly_hills_hand_over_reins' WHERE `ScriptName` = 'spell_q12414_hand_over_reins';

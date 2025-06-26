@@ -33,34 +33,6 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
-enum ThaumaturgyChannel
-{
-    SPELL_THAUMATURGY_CHANNEL = 21029
-};
-
-// 9712 - Thaumaturgy Channel
-class spell_q2203_thaumaturgy_channel : public AuraScript
-{
-    PrepareAuraScript(spell_q2203_thaumaturgy_channel);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_THAUMATURGY_CHANNEL });
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-    {
-        PreventDefaultAction();
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_THAUMATURGY_CHANNEL, false);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q2203_thaumaturgy_channel::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 // http://www.wowhead.com/quest=6124 Curing the Sick (A)
 // http://www.wowhead.com/quest=6129 Curing the Sick (H)
 enum Quests6124_6129Data
@@ -224,88 +196,6 @@ class spell_q12459_seeds_of_natures_wrath : public SpellScript
     }
 };
 
-// http://www.wowhead.com/quest=12851 Going Bearback
-enum Quest12851Data
-{
-    NPC_FROSTGIANT = 29351,
-    NPC_FROSTWORG  = 29358,
-    SPELL_FROSTGIANT_CREDIT = 58184,
-    SPELL_FROSTWORG_CREDIT  = 58183,
-    SPELL_IMMOLATION        = 54690,
-    SPELL_ABLAZE            = 54683,
-};
-
-// 54798 - FLAMING Arrow Triggered Effect
-class spell_q12851_going_bearback : public AuraScript
-{
-    PrepareAuraScript(spell_q12851_going_bearback);
-
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            Unit* target = GetTarget();
-            // Already in fire
-            if (target->HasAura(SPELL_ABLAZE))
-                return;
-
-            if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
-            {
-                switch (target->GetEntry())
-                {
-                    case NPC_FROSTWORG:
-                        target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
-                        target->CastSpell(target, SPELL_IMMOLATION, true);
-                        target->CastSpell(target, SPELL_ABLAZE, true);
-                        break;
-                    case NPC_FROSTGIANT:
-                        target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
-                        target->CastSpell(target, SPELL_IMMOLATION, true);
-                        target->CastSpell(target, SPELL_ABLAZE, true);
-                        break;
-                }
-            }
-        }
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_q12851_going_bearback::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-    }
-};
-
-enum SalvagingLifesStength
-{
-    NPC_SHARD_KILL_CREDIT                        = 29303,
-};
-
-// 54190 - Lifeblood Dummy
-class spell_q12805_lifeblood_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_q12805_lifeblood_dummy);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Player* caster = GetCaster()->ToPlayer();
-        if (Creature* target = GetHitCreature())
-        {
-            caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
-            target->CastSpell(target, uint32(GetEffectValue()), true);
-            target->DespawnOrUnsummon(2s);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12805_lifeblood_dummy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum DefendingWyrmrestTemple
 {
     SPELL_SUMMON_WYRMREST_DEFENDER       = 49207
@@ -465,47 +355,6 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScript
     void Register() override
     {
         OnCheckCast += SpellCheckCastFn(spell_q11010_q11102_q11023_q11008_check_fly_mount::CheckRequirement);
-    }
-};
-
-// 12601 - Second Chances: Summon Landgren's Soul Moveto Target Bunny
-class spell_q12847_summon_soul_moveto_bunny : public SpellScript
-{
-    PrepareSpellScript(spell_q12847_summon_soul_moveto_bunny);
-
-    void SetDest(SpellDestination& dest)
-    {
-        // Adjust effect summon position
-        Position const offset = { 0.0f, 0.0f, 2.5f, 0.0f };
-        dest.RelocateOffset(offset);
-    }
-
-    void Register() override
-    {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_q12847_summon_soul_moveto_bunny::SetDest, EFFECT_0, TARGET_DEST_CASTER);
-    }
-};
-
-// 57385 - Argent Cannon
-// 57412 - Reckoning Bomb
-class spell_q13086_cannons_target : public SpellScript
-{
-    PrepareSpellScript(spell_q13086_cannons_target);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
-    }
-
-    void HandleEffectDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (WorldLocation const* pos = GetExplTargetDest())
-            GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q13086_cannons_target::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1000,26 +849,6 @@ class spell_q10929_fumping : public AuraScript
     }
 };
 
-// 49285 - Hand Over Reins
-class spell_q12414_hand_over_reins : public SpellScript
-{
-    PrepareSpellScript(spell_q12414_hand_over_reins);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Creature* caster = GetCaster()->ToCreature();
-        GetHitUnit()->ExitVehicle();
-
-        if (caster)
-            caster->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12414_hand_over_reins::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 // 13790 13793 13811 13814 - Among the Champions
 // 13665 13745 13750 13756 13761 13767 13772 13777 13782  13787 - The Grand Melee
 class spell_q13665_q13790_bested_trigger : public SpellScript
@@ -1035,106 +864,6 @@ class spell_q13665_q13790_bested_trigger : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q13665_q13790_bested_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-enum ApplyHeatAndStir
-{
-    SPELL_SPURTS_AND_SMOKE    = 38594,
-    SPELL_FAILED_MIX_1        = 43376,
-    SPELL_FAILED_MIX_2        = 43378,
-    SPELL_FAILED_MIX_3        = 43970,
-    SPELL_SUCCESSFUL_MIX      = 43377,
-
-    CREATURE_GENERIC_TRIGGER_LAB = 24042,
-
-    TALK_0 = 0,
-    TALK_1 = 1
-};
-
-// 43972 - Mixing Blood
-class spell_q11306_mixing_blood : public SpellScript
-{
-    PrepareSpellScript(spell_q11306_mixing_blood);
-
-    void HandleEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
-                trigger->AI()->DoCastSelf(SPELL_SPURTS_AND_SMOKE);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q11306_mixing_blood::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
-    }
-};
-
-// 43375 - Mixing Vrykul Blood
-class spell_q11306_mixing_vrykul_blood : public SpellScript
-{
-    PrepareSpellScript(spell_q11306_mixing_vrykul_blood);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-        {
-            uint8 chance = urand(0, 99);
-            uint32 spellId = 0;
-
-            // 90% chance of getting one out of three failure effects
-            if (chance < 30)
-                spellId = SPELL_FAILED_MIX_1;
-            else if (chance < 60)
-                spellId = SPELL_FAILED_MIX_2;
-            else if (chance < 90)
-                spellId = SPELL_FAILED_MIX_3;
-            else // 10% chance of successful cast
-                spellId = SPELL_SUCCESSFUL_MIX;
-
-            caster->CastSpell(caster, spellId, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11306_mixing_vrykul_blood::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 43376 - Failed Mix
-class spell_q11306_failed_mix_43376 : public SpellScript
-{
-    PrepareSpellScript(spell_q11306_failed_mix_43376);
-
-    void HandleEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
-                trigger->AI()->Talk(TALK_0, caster);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q11306_failed_mix_43376::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
-    }
-};
-
-// 43378 - Failed Mix
-class spell_q11306_failed_mix_43378 : public SpellScript
-{
-    PrepareSpellScript(spell_q11306_failed_mix_43378);
-
-    void HandleEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* caster = GetCaster())
-            if (Creature* trigger = caster->FindNearestCreature(CREATURE_GENERIC_TRIGGER_LAB, 100.0f))
-                trigger->AI()->Talk(TALK_1, caster);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q11306_failed_mix_43378::HandleEffect, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
     }
 };
 
@@ -1345,12 +1074,9 @@ class spell_quest_uther_grom_tribute : public SpellScript
 
 void AddSC_quest_spell_scripts()
 {
-    RegisterSpellScript(spell_q2203_thaumaturgy_channel);
     RegisterSpellScript(spell_q6124_6129_apply_salve);
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
     RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
-    RegisterSpellScript(spell_q12851_going_bearback);
-    RegisterSpellScript(spell_q12805_lifeblood_dummy);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
     RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check_aura);
@@ -1358,8 +1084,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_burst);
     RegisterSpellScript(spell_q11010_q11102_q11023_choose_loc);
     RegisterSpellScript(spell_q11010_q11102_q11023_q11008_check_fly_mount);
-    RegisterSpellScript(spell_q12847_summon_soul_moveto_bunny);
-    RegisterSpellScript(spell_q13086_cannons_target);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death);
@@ -1374,12 +1098,7 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q12919_gymers_throw);
     RegisterSpellScript(spell_q14100_q14111_make_player_destroy_totems);
     RegisterSpellScript(spell_q10929_fumping);
-    RegisterSpellScript(spell_q12414_hand_over_reins);
     RegisterSpellScript(spell_q13665_q13790_bested_trigger);
-    RegisterSpellScript(spell_q11306_mixing_blood);
-    RegisterSpellScript(spell_q11306_mixing_vrykul_blood);
-    RegisterSpellScript(spell_q11306_failed_mix_43376);
-    RegisterSpellScript(spell_q11306_failed_mix_43378);
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);

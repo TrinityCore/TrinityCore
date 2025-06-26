@@ -1163,6 +1163,55 @@ class spell_icecrown_summon_frost_wyrm : public SpellScript
     }
 };
 
+/*######
+## Quest 12847: Second Chances
+######*/
+
+// 12601 - Second Chances: Summon Landgren's Soul Moveto Target Bunny
+class spell_icecrown_summon_soul_moveto_bunny : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_summon_soul_moveto_bunny);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        Position const offset = { 0.0f, 0.0f, 2.5f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_soul_moveto_bunny::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
+};
+
+/*######
+## Quest 13086: The Last Line Of Defense
+######*/
+
+// 57385 - Argent Cannon
+// 57412 - Reckoning Bomb
+class spell_icecrown_cannons_target : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_cannons_target);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (WorldLocation const* pos = GetExplTargetDest())
+            GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_icecrown_cannons_target::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1185,4 +1234,6 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_jump_jets);
     RegisterSpellScript(spell_icecrown_grab_fake_soldier);
     RegisterSpellScript(spell_icecrown_summon_frost_wyrm);
+    RegisterSpellScript(spell_icecrown_summon_soul_moveto_bunny);
+    RegisterSpellScript(spell_icecrown_cannons_target);
 }

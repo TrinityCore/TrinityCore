@@ -595,6 +595,110 @@ class spell_fjord_scourging_crystal_controller : public SpellScript
     }
 };
 
+/*######
+## Quest 11306: Apply Heat and Stir
+######*/
+
+enum ApplyHeatAndStir
+{
+    SPELL_SPURTS_AND_SMOKE           = 38594,
+    SPELL_FAILED_MIX_1               = 43376,
+    SPELL_FAILED_MIX_2               = 43378,
+    SPELL_FAILED_MIX_3               = 43970,
+    SPELL_SUCCESSFUL_MIX             = 43377,
+
+    NPC_GENERIC_TRIGGER_LAB          = 24042,
+
+    SAY_CONCOCTION_1                 = 0,
+    SAY_CONCOCTION_2                 = 1
+};
+
+// 43972 - Mixing Blood
+class spell_fjord_mixing_blood : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_mixing_blood);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* trigger = caster->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 100.0f))
+                trigger->AI()->DoCastSelf(SPELL_SPURTS_AND_SMOKE);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_mixing_blood::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+// 43375 - Mixing Vrykul Blood
+class spell_fjord_mixing_vrykul_blood : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_mixing_vrykul_blood);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            uint8 chance = urand(0, 99);
+            uint32 spellId = 0;
+
+            // 90% chance of getting one out of three failure effects
+            if (chance < 30)
+                spellId = SPELL_FAILED_MIX_1;
+            else if (chance < 60)
+                spellId = SPELL_FAILED_MIX_2;
+            else if (chance < 90)
+                spellId = SPELL_FAILED_MIX_3;
+            else // 10% chance of successful cast
+                spellId = SPELL_SUCCESSFUL_MIX;
+
+            caster->CastSpell(caster, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_fjord_mixing_vrykul_blood::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 43376 - Failed Mix
+class spell_fjord_failed_mix_concoction_1 : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_failed_mix_concoction_1);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* trigger = caster->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 100.0f))
+                trigger->AI()->Talk(SAY_CONCOCTION_1, caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_failed_mix_concoction_1::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
+// 43378 - Failed Mix
+class spell_fjord_failed_mix_concoction_2 : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_failed_mix_concoction_2);
+
+    void HandleEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* caster = GetCaster())
+            if (Creature* trigger = caster->FindNearestCreature(NPC_GENERIC_TRIGGER_LAB, 100.0f))
+                trigger->AI()->Talk(SAY_CONCOCTION_2, caster);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_failed_mix_concoction_2::HandleEffect, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -610,4 +714,8 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
     RegisterSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
     RegisterSpellScript(spell_fjord_scourging_crystal_controller);
+    RegisterSpellScript(spell_fjord_mixing_blood);
+    RegisterSpellScript(spell_fjord_mixing_vrykul_blood);
+    RegisterSpellScript(spell_fjord_failed_mix_concoction_1);
+    RegisterSpellScript(spell_fjord_failed_mix_concoction_2);
 }

@@ -24,6 +24,7 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "GameObject.h"
@@ -846,6 +847,43 @@ class spell_sholazar_despawn_fruit_tosser : public SpellScript
     }
 };
 
+/*######
+## Quest 12805: Salvaging Life's Strength
+######*/
+
+enum SalvagingLifesStength
+{
+    NPC_SHARD_KILL_CREDIT       = 29303
+};
+
+// 54190 - Lifeblood Dummy
+class spell_sholazar_lifeblood_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_lifeblood_dummy);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) }) &&
+            sObjectMgr->GetCreatureTemplate(NPC_SHARD_KILL_CREDIT);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->HasAura(uint32(GetEffectValue())))
+        {
+            if (Player* caster = GetCaster()->ToPlayer())
+                caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
+
+            GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_lifeblood_dummy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     RegisterCreatureAI(npc_engineer_helice);
@@ -862,4 +900,5 @@ void AddSC_sholazar_basin()
     RegisterSpellScript(spell_sholazar_lightning_strike);
     RegisterSpellScript(spell_sholazar_flight_to_sholazar);
     RegisterSpellScript(spell_sholazar_despawn_fruit_tosser);
+    RegisterSpellScript(spell_sholazar_lifeblood_dummy);
 }
