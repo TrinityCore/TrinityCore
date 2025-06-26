@@ -17,8 +17,8 @@
 
 /*
  * Scripts for spells with SPELLFAMILY_GENERIC spells used for quests.
- * Ordered alphabetically using questId and scriptname.
- * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
+ * This file is only for spells used in multiple zones.
+ * Scriptnames of files in this file should be prefixed with "spell_quest_".
  */
 
 #include "ScriptMgr.h"
@@ -153,46 +153,6 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_q11730_ultrasonic_screwdriver::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// http://www.wowhead.com/quest=12459 That Which Creates Can Also Destroy
-enum Quest12459Data
-{
-    NPC_REANIMATED_FROSTWYRM        = 26841,
-    NPC_WEAK_REANIMATED_FROSTWYRM   = 27821,
-
-    NPC_TURGID                      = 27808,
-    NPC_WEAK_TURGID                 = 27809,
-
-    NPC_DEATHGAZE                   = 27122,
-    NPC_WEAK_DEATHGAZE              = 27807,
-};
-
-// 49587 - Seeds of Nature's Wrath
-class spell_q12459_seeds_of_natures_wrath : public SpellScript
-{
-    PrepareSpellScript(spell_q12459_seeds_of_natures_wrath);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Creature* creatureTarget = GetHitCreature())
-        {
-            uint32 uiNewEntry = 0;
-            switch (creatureTarget->GetEntry())
-            {
-                case NPC_REANIMATED_FROSTWYRM:  uiNewEntry = NPC_WEAK_REANIMATED_FROSTWYRM; break;
-                case NPC_TURGID:                uiNewEntry = NPC_WEAK_TURGID;               break;
-                case NPC_DEATHGAZE:             uiNewEntry = NPC_WEAK_DEATHGAZE;            break;
-            }
-            if (uiNewEntry)
-                creatureTarget->UpdateEntry(uiNewEntry);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12459_seeds_of_natures_wrath::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -612,126 +572,6 @@ class spell_q12690_burst_at_the_seams_52510 : public SpellScript
     }
 };
 
-enum DeathComesFromOnHigh
-{
-    SPELL_FORGE_CREDIT                  = 51974,
-    SPELL_TOWN_HALL_CREDIT              = 51977,
-    SPELL_SCARLET_HOLD_CREDIT           = 51980,
-    SPELL_CHAPEL_CREDIT                 = 51982,
-
-    NPC_NEW_AVALON_FORGE                = 28525,
-    NPC_NEW_AVALON_TOWN_HALL            = 28543,
-    NPC_SCARLET_HOLD                    = 28542,
-    NPC_CHAPEL_OF_THE_CRIMSON_FLAME     = 28544
-};
-
-// 51858 - Siphon of Acherus
-class spell_q12641_death_comes_from_on_high : public SpellScript
-{
-    PrepareSpellScript(spell_q12641_death_comes_from_on_high);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_FORGE_CREDIT,
-            SPELL_TOWN_HALL_CREDIT,
-            SPELL_SCARLET_HOLD_CREDIT,
-            SPELL_CHAPEL_CREDIT
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        uint32 spellId = 0;
-
-        switch (GetHitCreature()->GetEntry())
-        {
-            case NPC_NEW_AVALON_FORGE:
-                spellId = SPELL_FORGE_CREDIT;
-                break;
-            case NPC_NEW_AVALON_TOWN_HALL:
-                spellId = SPELL_TOWN_HALL_CREDIT;
-                break;
-            case NPC_SCARLET_HOLD:
-                spellId = SPELL_SCARLET_HOLD_CREDIT;
-                break;
-            case NPC_CHAPEL_OF_THE_CRIMSON_FLAME:
-                spellId = SPELL_CHAPEL_CREDIT;
-                break;
-            default:
-                return;
-        }
-
-        GetCaster()->CastSpell(nullptr, spellId, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12641_death_comes_from_on_high::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum Recall_Eye_of_Acherus
-{
-    THE_EYE_OF_ACHERUS = 51852
-};
-
-// 52694 - Recall Eye of Acherus
-class spell_q12641_recall_eye_of_acherus : public SpellScript
-{
-    PrepareSpellScript(spell_q12641_recall_eye_of_acherus);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetCaster()->GetCharmerOrOwner()->ToPlayer())
-        {
-            player->StopCastingCharm();
-            player->StopCastingBindSight();
-            player->RemoveAura(THE_EYE_OF_ACHERUS);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12641_recall_eye_of_acherus::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-// 51769 - Emblazon Runeblade
-class spell_q12619_emblazon_runeblade : public AuraScript
-{
-    PrepareAuraScript(spell_q12619_emblazon_runeblade);
-
-    void HandleEffectPeriodic(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_q12619_emblazon_runeblade::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
-// 51770 - Emblazon Runeblade
-class spell_q12619_emblazon_runeblade_effect : public SpellScript
-{
-    PrepareSpellScript(spell_q12619_emblazon_runeblade_effect);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), false);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q12619_emblazon_runeblade_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum Quest_The_Storm_King
 {
     SPELL_RIDE_GYMER            = 43671,
@@ -791,33 +631,6 @@ class spell_q12919_gymers_throw : public SpellScript
     }
 };
 
-enum RelicOfTheEarthenRing
-{
-    SPELL_TOTEM_OF_THE_EARTHEN_RING = 66747
-};
-
-// 66744 - Make Player Destroy Totems
-class spell_q14100_q14111_make_player_destroy_totems : public SpellScript
-{
-    PrepareSpellScript(spell_q14100_q14111_make_player_destroy_totems);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_TOTEM_OF_THE_EARTHEN_RING });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* player = GetHitPlayer())
-            player->CastSpell(player, SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_FULL_MASK); // ignore reagent cost, consumed by quest
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q14100_q14111_make_player_destroy_totems::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum Fumping
 {
     SPELL_SUMMON_SAND_GNOME  = 39240,
@@ -846,24 +659,6 @@ class spell_q10929_fumping : public AuraScript
     void Register() override
     {
         OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumping::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
-// 13790 13793 13811 13814 - Among the Champions
-// 13665 13745 13750 13756 13761 13767 13772 13777 13782  13787 - The Grand Melee
-class spell_q13665_q13790_bested_trigger : public SpellScript
-{
-    PrepareSpellScript(spell_q13665_q13790_bested_trigger);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
-        target->CastSpell(target, uint32(GetEffectValue()), true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q13665_q13790_bested_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1072,11 +867,37 @@ class spell_quest_uther_grom_tribute : public SpellScript
     }
 };
 
+enum RelicOfTheEarthenRing
+{
+    SPELL_TOTEM_OF_THE_EARTHEN_RING     = 66747
+};
+
+// 66744 - Make Player Destroy Totems
+class spell_quest_make_player_destroy_totems : public SpellScript
+{
+    PrepareSpellScript(spell_quest_make_player_destroy_totems);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TOTEM_OF_THE_EARTHEN_RING });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        // Ignore reagent cost, consumed by quest
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TOTEM_OF_THE_EARTHEN_RING, TRIGGERED_IGNORE_POWER_AND_REAGENT_COST);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_quest_make_player_destroy_totems::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     RegisterSpellScript(spell_q6124_6129_apply_salve);
     RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
-    RegisterSpellScript(spell_q12459_seeds_of_natures_wrath);
     RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
     RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check_aura);
@@ -1090,16 +911,11 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
     RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);
-    RegisterSpellScript(spell_q12641_death_comes_from_on_high);
-    RegisterSpellScript(spell_q12641_recall_eye_of_acherus);
-    RegisterSpellScript(spell_q12619_emblazon_runeblade);
-    RegisterSpellScript(spell_q12619_emblazon_runeblade_effect);
     RegisterSpellScript(spell_q12919_gymers_grab);
     RegisterSpellScript(spell_q12919_gymers_throw);
-    RegisterSpellScript(spell_q14100_q14111_make_player_destroy_totems);
     RegisterSpellScript(spell_q10929_fumping);
-    RegisterSpellScript(spell_q13665_q13790_bested_trigger);
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
+    RegisterSpellScript(spell_quest_make_player_destroy_totems);
 }

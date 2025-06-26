@@ -1212,6 +1212,31 @@ class spell_icecrown_cannons_target : public SpellScript
     }
 };
 
+/*######
+## Quest 13790, 13793, 13811, 13814: Among the Champions / 13665, 13745, 13750, 13756, 13761, 13767, 13772, 13777, 13782, 13787: The Grand Melee
+######*/
+
+class spell_icecrown_bested_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_bested_trigger);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
+        target->CastSpell(target, uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_bested_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1236,4 +1261,5 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_summon_frost_wyrm);
     RegisterSpellScript(spell_icecrown_summon_soul_moveto_bunny);
     RegisterSpellScript(spell_icecrown_cannons_target);
+    RegisterSpellScript(spell_icecrown_bested_trigger);
 }

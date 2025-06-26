@@ -113,3 +113,30 @@ UPDATE `spell_script_names` SET `ScriptName` = 'spell_fjord_failed_mix_concoctio
 
 --
 UPDATE `spell_script_names` SET `ScriptName` = 'spell_grizzly_hills_hand_over_reins' WHERE `ScriptName` = 'spell_q12414_hand_over_reins';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_bested_trigger' WHERE `ScriptName` = 'spell_q13665_q13790_bested_trigger';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_chapter1_siphon_of_acherus' WHERE `ScriptName` = 'spell_q12641_death_comes_from_on_high';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_chapter1_recall_eye_of_acherus' WHERE `ScriptName` = 'spell_q12641_recall_eye_of_acherus';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_chapter1_emblazon_runeblade' WHERE `ScriptName` = 'spell_q12619_emblazon_runeblade';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_chapter1_emblazon_runeblade_effect' WHERE `ScriptName` = 'spell_q12619_emblazon_runeblade_effect';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_quest_make_player_destroy_totems' WHERE `ScriptName` = 'spell_q14100_q14111_make_player_destroy_totems';
+
+--
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_q12459_seeds_of_natures_wrath';
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 26841 AND `source_type` = 0 AND `id` = 1;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 27808 AND `source_type` = 0 AND `id` = 2;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 27122 AND `source_type` = 0 AND `id` = 2;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(26841,0,1,0,8,0,100,0,49587,0,0,0,0,36,27821,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Reanimated Frost Wyrm - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Reanimated Frost Wyrm'"),
+(27808,0,2,0,8,0,100,0,49587,0,0,0,0,36,27809,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Turgid the Vile - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Turgid the Vile'"),
+(27122,0,2,0,8,0,100,0,49587,0,0,0,0,36,27807,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Overseer Deathgaze - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Overseer Deathgaze'");
