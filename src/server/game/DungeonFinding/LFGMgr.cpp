@@ -1445,10 +1445,10 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
    Check if dungeon can be rewarded, if any.
 
    @param[in]     gguid Group guid
-   @param[in]     dungeonEncounterIds DungeonEncounter that was just completed
+   @param[in]     dungeonEncounters DungeonEncounter that was just completed
    @param[in]     currMap Map of the instance where encounter was completed
 */
-void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> const& dungeonEncounterIds, Map const* currMap)
+void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap)
 {
     if (GetState(gguid) == LFG_STATE_FINISHED_DUNGEON) // Shouldn't happen. Do not reward multiple times
     {
@@ -1459,7 +1459,7 @@ void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> cons
     uint32 gDungeonId = GetDungeon(gguid);
     LFGDungeonData const* dungeonDone = GetLFGDungeon(gDungeonId);
     // LFGDungeons can point to a DungeonEncounter from any difficulty so we need this kind of lenient check
-    if (!dungeonDone->finalDungeonEncounterId || !advstd::ranges::contains(dungeonEncounterIds, dungeonDone->finalDungeonEncounterId))
+    if (!advstd::ranges::contains(dungeonEncounters, dungeonDone->finalDungeonEncounterId))
         return;
 
     FinishDungeon(gguid, gDungeonId, currMap);
