@@ -1459,7 +1459,7 @@ void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> cons
     uint32 gDungeonId = GetDungeon(gguid);
     LFGDungeonData const* dungeonDone = GetLFGDungeon(gDungeonId);
     // LFGDungeons can point to a DungeonEncounter from any difficulty so we need this kind of lenient check
-    if (std::find(dungeonEncounterIds.begin(), dungeonEncounterIds.end(), dungeonDone->finalDungeonEncounterId) == dungeonEncounterIds.end())
+    if (!dungeonDone->finalDungeonEncounterId || !advstd::ranges::contains(dungeonEncounterIds, dungeonDone->finalDungeonEncounterId))
         return;
 
     FinishDungeon(gguid, gDungeonId, currMap);
