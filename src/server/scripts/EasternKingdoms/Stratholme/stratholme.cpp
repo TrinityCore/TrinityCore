@@ -35,6 +35,7 @@ EndContentData */
 #include "Group.h"
 #include "ScenarioMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
