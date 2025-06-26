@@ -918,7 +918,7 @@ void InstanceScript::UpdateLfgEncounterState(BossInfo const* bossInfo)
                 {
                     std::array<uint32, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> dungeonEncounterIds;
                     std::transform(bossInfo->DungeonEncounters.begin(), bossInfo->DungeonEncounters.end(), dungeonEncounterIds.begin(),
-                        [](DungeonEncounterEntry const* entry) { return entry->ID; });
+                        [](DungeonEncounterEntry const* entry) { return entry ? entry->ID : 0; });
                     sLFGMgr->OnDungeonEncounterDone(grp->GetGUID(), dungeonEncounterIds, instance);
                     break;
                 }
