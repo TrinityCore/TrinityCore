@@ -3081,6 +3081,19 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
+void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
+{
+    i_scenario = scenario;
+
+    if (scenario)
+    {
+        DoOnPlayers([scenario](Player* player)
+        {
+            scenario->OnPlayerEnter(player);
+        });
+    }
+}
+
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
 {
     if (i_instanceLock)

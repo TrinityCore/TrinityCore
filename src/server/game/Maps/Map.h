@@ -906,7 +906,7 @@ class TC_GAME_API InstanceMap : public Map
         InstanceScript const* GetInstanceScript() const { return i_data; }
         InstanceScenario* GetInstanceScenario() { return i_scenario; }
         InstanceScenario const* GetInstanceScenario() const { return i_scenario; }
-        void SetInstanceScenario(InstanceScenario* scenario) { i_scenario = scenario; }
+        void SetInstanceScenario(InstanceScenario* scenario);
         InstanceLock const* GetInstanceLock() const { return i_instanceLock; }
         void UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent);
         void UpdateInstanceLock(UpdateAdditionalSaveDataEvent const& updateSaveDataEvent);
