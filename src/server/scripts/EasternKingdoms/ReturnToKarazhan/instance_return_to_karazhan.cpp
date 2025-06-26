@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_RTK_MAIDEN_OF_VIRTUE, new CircleBoundary(Position(-10945.900391f, -2103.530029f), 55.0f) }
+    { DATA_RTK_MAIDEN_OF_VIRTUE, new CircleBoundary(Position(-10945.900391f, -2103.530029f, 92.794197f), 55.0f) }
 };
 
 ObjectData const creatureData[] =

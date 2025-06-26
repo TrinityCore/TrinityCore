@@ -104,9 +104,9 @@ struct boss_rtk_maiden_of_virtue : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         events.ScheduleEvent(EVENT_HOLY_BOLT, 8500ms);
-        events.ScheduleEvent(EVENT_HOLY_SHOCK, 14900ms);
-        events.ScheduleEvent(EVENT_SACRED_GROUND, 10s);
-        events.ScheduleEvent(EVENT_MASS_REPENTANCE, 45200ms);
+        events.ScheduleEvent(EVENT_HOLY_SHOCK, 15800ms);
+        events.ScheduleEvent(EVENT_SACRED_GROUND, 10900ms);
+        events.ScheduleEvent(EVENT_MASS_REPENTANCE, 48500ms);
     }
 
     void DoAction(int32 action) override
@@ -114,10 +114,12 @@ struct boss_rtk_maiden_of_virtue : public BossAI
         if (action == ACTION_INTERRUPT_HOLY_WRATH)
         {
             me->InterruptNonMeleeSpells(false);
+            events.CancelEvent(EVENT_HOLY_WRATH);
+            me->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_HOLY_BOLT, 8500ms);
-            events.ScheduleEvent(EVENT_HOLY_SHOCK, 14900ms);
-            events.ScheduleEvent(EVENT_SACRED_GROUND, 10s);
-            events.ScheduleEvent(EVENT_MASS_REPENTANCE, 45200ms);
+            events.ScheduleEvent(EVENT_HOLY_SHOCK, 15800ms);
+            events.ScheduleEvent(EVENT_SACRED_GROUND, 10900ms);
+            events.ScheduleEvent(EVENT_MASS_REPENTANCE, 48500ms);
         }
     }
 
@@ -138,7 +140,7 @@ struct boss_rtk_maiden_of_virtue : public BossAI
                 case EVENT_HOLY_BOLT:
                 {
                     Talk(SAY_HOLY_BOLT);
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 55.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_HOLY_BOLT);
                     events.Repeat(9700ms);
                     break;
@@ -146,7 +148,7 @@ struct boss_rtk_maiden_of_virtue : public BossAI
                 case EVENT_HOLY_SHOCK:
                 {
                     Talk(SAY_HOLY_SHOCK);
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 55.0f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_HOLY_SHOCK);
                     events.Repeat(13300ms);
                     break;
@@ -154,7 +156,7 @@ struct boss_rtk_maiden_of_virtue : public BossAI
                 case EVENT_SACRED_GROUND:
                 {
                     Talk(SAY_SACRED_GROUND);
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                     {
                         Talk(SAY_SACRED_GROUND_WARNING, target);
                         DoCast(target, SPELL_SACRED_GROUND);
@@ -166,16 +168,18 @@ struct boss_rtk_maiden_of_virtue : public BossAI
                 {
                     Talk(SAY_MASS_REPENTANCE_WARNING);
                     Talk(SAY_MASS_REPENTANCE);
-                    DoCastSelf(SPELL_MASS_REPENTANCE);
                     events.CancelEvent(EVENT_HOLY_BOLT);
                     events.CancelEvent(EVENT_HOLY_SHOCK);
                     events.CancelEvent(EVENT_SACRED_GROUND);
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCastSelf(SPELL_MASS_REPENTANCE);
                     events.ScheduleEvent(EVENT_HOLY_BULWARK, 7300ms);
                     events.Repeat(51s);
                     break;
                 }
                 case EVENT_HOLY_BULWARK:
                 {
+                    events.CancelEvent(EVENT_MASS_REPENTANCE);
                     Talk(SAY_HOLY_BULWARK);
                     DoCastSelf(SPELL_HOLY_BULWARK);
                     events.ScheduleEvent(EVENT_HOLY_WRATH, 1200ms);
@@ -219,7 +223,7 @@ class spell_maiden_of_virtue_sacred_ground : public AuraScript
 // 227817 - Holy Bulwark
 class spell_maiden_of_virtue_holy_bulwark : public AuraScript
 {
-    void OnAbsorb(AuraEffect const* /*aurEff*/, DamageInfo& /*dmgInfo*/, uint32& /*absorbAmount*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         InstanceScript* instance = GetCaster()->GetInstanceScript();
         if (!instance)
@@ -231,7 +235,7 @@ class spell_maiden_of_virtue_holy_bulwark : public AuraScript
 
     void Register() override
     {
-        AfterEffectAbsorb += AuraEffectAbsorbFn(spell_maiden_of_virtue_holy_bulwark::OnAbsorb, EFFECT_0);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_maiden_of_virtue_holy_bulwark::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -245,7 +249,11 @@ struct at_maiden_of_virtue_sacred_ground : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(unit, SPELL_SACRED_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_SACRED_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
