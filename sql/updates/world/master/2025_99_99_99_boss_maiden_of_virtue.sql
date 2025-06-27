@@ -1,13 +1,13 @@
 UPDATE `creature_template` SET `ScriptName`='boss_rtk_maiden_of_virtue' WHERE `entry`=113971;
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_maiden_of_virtue_sacred_ground', 'spell_maiden_of_virtue_holy_bulwark');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_maiden_of_virtue_rtk_sacred_ground', 'spell_maiden_of_virtue_rtk_holy_bulwark');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(227793, 'spell_maiden_of_virtue_sacred_ground'),
-(227817, 'spell_maiden_of_virtue_holy_bulwark');
+(227793, 'spell_maiden_of_virtue_rtk_sacred_ground'),
+(227817, 'spell_maiden_of_virtue_rtk_holy_bulwark');
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` = 8812);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(8812, 0, 12880, 0, 2, 0, 2537, 0, 0, -1, 0, 86, 0, 180000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_maiden_of_virtue_sacred_ground', 61609); -- Spell: 227789 (Sacred Ground)
+(8812, 0, 12880, 0, 2, 0, 2537, 0, 0, -1, 0, 86, 0, 180000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_maiden_of_virtue_rtk_sacred_ground', 61609); -- Spell: 227789 (Sacred Ground)
 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` = 12880);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES

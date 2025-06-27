@@ -25,7 +25,7 @@
 #include "SpellScript.h"
 #include "return_to_karazhan.h"
 
-enum MaidenOfVirtueSpells
+enum MaidenOfVirtueRTKSpells
 {
     SPELL_HOLY_BOLT              = 227809,
     SPELL_HOLY_SHOCK             = 227800,
@@ -37,7 +37,7 @@ enum MaidenOfVirtueSpells
     SPELL_HOLY_WRATH             = 227823
 };
 
-enum MaidenOfVirtueEvents
+enum MaidenOfVirtueRTKEvents
 {
     EVENT_HOLY_BOLT = 1,
     EVENT_HOLY_SHOCK,
@@ -47,12 +47,12 @@ enum MaidenOfVirtueEvents
     EVENT_HOLY_WRATH
 };
 
-enum MaidenOfVirtueActions
+enum MaidenOfVirtueRTKActions
 {
     ACTION_INTERRUPT_HOLY_WRATH = 1
 };
 
-enum MaidenOfVirtueTexts
+enum MaidenOfVirtueRTKTexts
 {
     SAY_AGGRO                   = 0,
     SAY_WIPE                    = 1,
@@ -204,7 +204,7 @@ struct boss_rtk_maiden_of_virtue : public BossAI
 };
 
 // 227793 - Sacred Ground
-class spell_maiden_of_virtue_sacred_ground : public AuraScript
+class spell_maiden_of_virtue_rtk_rtk_sacred_ground : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
@@ -217,16 +217,20 @@ class spell_maiden_of_virtue_sacred_ground : public AuraScript
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_maiden_of_virtue_sacred_ground::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_maiden_of_virtue_rtk_sacred_ground::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
 // 227817 - Holy Bulwark
-class spell_maiden_of_virtue_holy_bulwark : public AuraScript
+class spell_maiden_of_virtue_rtk_rtk_holy_bulwark : public AuraScript
 {
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        InstanceScript* instance = GetCaster()->GetInstanceScript();
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        InstanceScript* instance = caster->GetInstanceScript();
         if (!instance)
             return;
 
@@ -236,12 +240,12 @@ class spell_maiden_of_virtue_holy_bulwark : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_maiden_of_virtue_holy_bulwark::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_maiden_of_virtue_rtk_holy_bulwark::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 227789 - Sacred Ground
-struct at_maiden_of_virtue_sacred_ground : AreaTriggerAI
+struct at_maiden_of_virtue_rtk_sacred_ground : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
@@ -262,8 +266,8 @@ void AddSC_boss_rtk_maiden_of_virtue()
 {
     RegisterReturnToKarazhanCreatureAI(boss_rtk_maiden_of_virtue);
 
-    RegisterSpellScript(spell_maiden_of_virtue_sacred_ground);
-    RegisterSpellScript(spell_maiden_of_virtue_holy_bulwark);
+    RegisterSpellScript(spell_maiden_of_virtue_rtk_sacred_ground);
+    RegisterSpellScript(spell_maiden_of_virtue_rtk_holy_bulwark);
 
-    RegisterAreaTriggerAI(at_maiden_of_virtue_sacred_ground);
+    RegisterAreaTriggerAI(at_maiden_of_virtue_rtk_sacred_ground);
 }
