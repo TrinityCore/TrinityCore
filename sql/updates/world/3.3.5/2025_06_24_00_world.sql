@@ -140,3 +140,14 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (26841,0,1,0,8,0,100,0,49587,0,0,0,0,36,27821,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Reanimated Frost Wyrm - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Reanimated Frost Wyrm'"),
 (27808,0,2,0,8,0,100,0,49587,0,0,0,0,36,27809,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Turgid the Vile - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Turgid the Vile'"),
 (27122,0,2,0,8,0,100,0,49587,0,0,0,0,36,27807,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Overseer Deathgaze - On Spellhit 'Seeds of Nature's Wrath' - Update Template To 'Weakened Overseer Deathgaze'");
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip' WHERE `ScriptName` = 'spell_q12372_cast_from_gossip_trigger';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_dragonblight_defending_wyrmrest_temple_dummy' WHERE `ScriptName` = 'spell_q12372_destabilize_azure_dragonshrine_dummy';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_borean_tundra_ultrasonic_screwdriver' WHERE `ScriptName` = 'spell_q11730_ultrasonic_screwdriver';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_zuldrak_gymers_grab' WHERE `ScriptName` = 'spell_q12919_gymers_grab';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_zuldrak_gymers_throw' WHERE `ScriptName` = 'spell_q12919_gymers_throw';

@@ -1132,6 +1132,70 @@ class spell_zuldrak_zuldrak_rat : public SpellScript
     }
 };
 
+/*######
+## Quest 12919: The Storm King's Vengeance
+######*/
+
+enum TheStormKingsVengeance
+{
+    SPELL_RIDE_GYMER            = 43671,
+    SPELL_GRABBED               = 55424,
+    SPELL_VARGUL_EXPLOSION      = 55569
+};
+
+// 55516 - Gymer's Grab
+class spell_zuldrak_gymers_grab : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_gymers_grab);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RIDE_GYMER, SPELL_GRABBED });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitCreature())
+            return;
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(2);
+        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
+        GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_gymers_grab::HandleScript, EFFECT_0,  SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 55421 - Gymer's Throw
+class spell_zuldrak_gymers_throw : public SpellScript
+{
+   PrepareSpellScript(spell_zuldrak_gymers_throw);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VARGUL_EXPLOSION });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(1))
+            {
+                passenger->ExitVehicle();
+                caster->CastSpell(passenger, SPELL_VARGUL_EXPLOSION, true);
+            }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_gymers_throw::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1158,4 +1222,6 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_quenching_mist);
     RegisterSpellScript(spell_zuldrak_summon_stefan);
     RegisterSpellScript(spell_zuldrak_zuldrak_rat);
+    RegisterSpellScript(spell_zuldrak_gymers_grab);
+    RegisterSpellScript(spell_zuldrak_gymers_throw);
 }

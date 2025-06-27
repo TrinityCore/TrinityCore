@@ -88,123 +88,6 @@ class spell_q6124_6129_apply_salve : public SpellScript
     }
 };
 
-// http://www.wowhead.com/quest=11730 Master and Servant
-enum Quest11730Data
-{
-    SPELL_SUMMON_SCAVENGEBOT_004A8  = 46063,
-    SPELL_SUMMON_SENTRYBOT_57K      = 46068,
-    SPELL_SUMMON_DEFENDOTANK_66D    = 46058,
-    SPELL_SUMMON_SCAVENGEBOT_005B6  = 46066,
-    SPELL_SUMMON_55D_COLLECTATRON   = 46034,
-    SPELL_ROBOT_KILL_CREDIT         = 46027,
-    NPC_SCAVENGEBOT_004A8           = 25752,
-    NPC_SENTRYBOT_57K               = 25753,
-    NPC_DEFENDOTANK_66D             = 25758,
-    NPC_SCAVENGEBOT_005B6           = 25792,
-    NPC_55D_COLLECTATRON            = 25793
-};
-
-// 46023 - The Ultrasonic Screwdriver
-class spell_q11730_ultrasonic_screwdriver : public SpellScript
-{
-    PrepareSpellScript(spell_q11730_ultrasonic_screwdriver);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
-    }
-
-    bool Validate(SpellInfo const* /*spellEntry*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_SUMMON_SCAVENGEBOT_004A8,
-            SPELL_SUMMON_SENTRYBOT_57K,
-            SPELL_SUMMON_DEFENDOTANK_66D,
-            SPELL_SUMMON_SCAVENGEBOT_005B6,
-            SPELL_SUMMON_55D_COLLECTATRON,
-            SPELL_ROBOT_KILL_CREDIT
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        Item* castItem = GetCastItem();
-        Unit* caster = GetCaster();
-        if (Creature* target = GetHitCreature())
-        {
-            uint32 spellId = 0;
-            switch (target->GetEntry())
-            {
-                case NPC_SCAVENGEBOT_004A8: spellId = SPELL_SUMMON_SCAVENGEBOT_004A8;    break;
-                case NPC_SENTRYBOT_57K:     spellId = SPELL_SUMMON_SENTRYBOT_57K;        break;
-                case NPC_DEFENDOTANK_66D:   spellId = SPELL_SUMMON_DEFENDOTANK_66D;      break;
-                case NPC_SCAVENGEBOT_005B6: spellId = SPELL_SUMMON_SCAVENGEBOT_005B6;    break;
-                case NPC_55D_COLLECTATRON:  spellId = SPELL_SUMMON_55D_COLLECTATRON;     break;
-                default:
-                    return;
-            }
-            caster->CastSpell(caster, spellId, castItem);
-            caster->CastSpell(caster, SPELL_ROBOT_KILL_CREDIT, true);
-            target->DespawnOrUnsummon();
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q11730_ultrasonic_screwdriver::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum DefendingWyrmrestTemple
-{
-    SPELL_SUMMON_WYRMREST_DEFENDER       = 49207
-};
-
-// 49213 - Defending Wyrmrest Temple: Character Script Cast From Gossip
-class spell_q12372_cast_from_gossip_trigger : public SpellScript
-{
-    PrepareSpellScript(spell_q12372_cast_from_gossip_trigger);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12372_cast_from_gossip_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-// http://www.wowhead.com/quest=12372 Defending Wyrmrest Temple
-enum Quest12372Data
-{
-    // NPCs
-    NPC_WYRMREST_TEMPLE_CREDIT       = 27698
-};
-
-// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
-class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScript
-{
-    PrepareSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        if (GetHitCreature())
-            if (Unit* caster = GetOriginalCaster())
-                if (Vehicle* vehicle = caster->GetVehicleKit())
-                    if (Unit* passenger = vehicle->GetPassenger(0))
-                        if (Player* player = passenger->ToPlayer())
-                            player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12372_destabilize_azure_dragonshrine_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 // "Bombing Run" and "Bomb Them Again!"
 enum Quest11010_11102_11023Data
 {
@@ -572,65 +455,6 @@ class spell_q12690_burst_at_the_seams_52510 : public SpellScript
     }
 };
 
-enum Quest_The_Storm_King
-{
-    SPELL_RIDE_GYMER            = 43671,
-    SPELL_GRABBED               = 55424
-};
-
-// 55516 - Gymer's Grab
-class spell_q12919_gymers_grab : public SpellScript
-{
-    PrepareSpellScript(spell_q12919_gymers_grab);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_RIDE_GYMER });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (!GetHitCreature())
-            return;
-        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-        args.AddSpellBP0(2);
-        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
-        GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_grab::HandleScript, EFFECT_0,  SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-enum Quest_The_Storm_King_Throw
-{
-    SPELL_VARGUL_EXPLOSION      = 55569
-};
-
-// 55421 - Gymer's Throw
-class spell_q12919_gymers_throw : public SpellScript
-{
-   PrepareSpellScript(spell_q12919_gymers_throw);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (caster->IsVehicle())
-            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(1))
-            {
-                 passenger->ExitVehicle();
-                 caster->CastSpell(passenger, SPELL_VARGUL_EXPLOSION, true);
-            }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12919_gymers_throw::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
 enum Fumping
 {
     SPELL_SUMMON_SAND_GNOME  = 39240,
@@ -897,9 +721,6 @@ class spell_quest_make_player_destroy_totems : public SpellScript
 void AddSC_quest_spell_scripts()
 {
     RegisterSpellScript(spell_q6124_6129_apply_salve);
-    RegisterSpellScript(spell_q11730_ultrasonic_screwdriver);
-    RegisterSpellScript(spell_q12372_cast_from_gossip_trigger);
-    RegisterSpellScript(spell_q12372_destabilize_azure_dragonshrine_dummy);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check_aura);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_check);
     RegisterSpellScript(spell_q11010_q11102_q11023_aggro_burst);
@@ -911,8 +732,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_area_restrict_abom);
     RegisterSpellScript(spell_q13264_q13276_q13288_q13289_assign_credit_to_master);
     RegisterSpellScript(spell_q12690_burst_at_the_seams_52510);
-    RegisterSpellScript(spell_q12919_gymers_grab);
-    RegisterSpellScript(spell_q12919_gymers_throw);
     RegisterSpellScript(spell_q10929_fumping);
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
