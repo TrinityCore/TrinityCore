@@ -204,7 +204,7 @@ struct boss_rtk_maiden_of_virtue : public BossAI
 };
 
 // 227793 - Sacred Ground
-class spell_maiden_of_virtue_rtk_rtk_sacred_ground : public AuraScript
+class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
 {
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
@@ -222,7 +222,7 @@ class spell_maiden_of_virtue_rtk_rtk_sacred_ground : public AuraScript
 };
 
 // 227817 - Holy Bulwark
-class spell_maiden_of_virtue_rtk_rtk_holy_bulwark : public AuraScript
+class spell_maiden_of_virtue_rtk_holy_bulwark : public AuraScript
 {
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
