@@ -86,7 +86,6 @@ enum Spells
     // Leviathan MK II
     SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
     SPELL_NAPALM_SHELL                          = 63666,
-    SPELL_NAPALM_SHELL_25                       = 65026,
     SPELL_FORCE_CAST_NAPALM_SHELL               = 64539,
     SPELL_PLASMA_BLAST                          = 62997,
     SPELL_SCRIPT_EFFECT_PLASMA_BLAST            = 64542,
@@ -502,9 +501,7 @@ class boss_mimiron : public CreatureScript
                     {
                         case EVENT_SUMMON_FLAMES:
                             if (Creature* worldtrigger = instance->GetCreature(DATA_MIMIRON_WORLD_TRIGGER))
-                                worldtrigger->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                    .SetOriginalCaster(me->GetGUID())
-                                    .AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
+                                worldtrigger->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_SUMMON_FLAMES_INITIAL, CastSpellExtraArgs(me->GetGUID()).AddSpellMod(SPELLVALUE_MAX_TARGETS, 3));
                             events.RescheduleEvent(EVENT_SUMMON_FLAMES, 28s);
                             break;
                         case EVENT_INTRO_1:
@@ -1054,8 +1051,7 @@ class boss_vx_001 : public CreatureScript
                 // Handle rotation during SPELL_SPINNING_UP, SPELL_P3WX2_LASER_BARRAGE, SPELL_RAPID_BURST, and SPELL_HAND_PULSE_LEFT/RIGHT
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                 {
-                    auto const& channelObjects = me->m_unitData->ChannelObjects;
-                    if (Unit* channelTarget = (channelObjects.size() == 1 ? ObjectAccessor::GetUnit(*me, *channelObjects.begin()) : nullptr))
+                    if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, me->GetChannelObjectGuid()))
                         me->SetFacingToObject(channelTarget);
                     return;
                 }
@@ -1887,7 +1883,7 @@ class spell_mimiron_magnetic_core_summon : public SpellScript
     {
         Unit* caster = GetCaster();
         Position pos = caster->GetPosition();
-        float z = caster->GetMap()->GetHeight(caster->GetPhaseShift(), pos);
+        float z = caster->GetMap()->GetHeight(pos);
         pos.m_positionZ = z;
         dest.Relocate(pos);
     }
@@ -1983,7 +1979,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/) override
             {
-                return ValidateSpellInfo({ SPELL_NAPALM_SHELL, SPELL_NAPALM_SHELL_25 });
+                return ValidateSpellInfo({ SPELL_NAPALM_SHELL });
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2004,7 +2000,7 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->CastSpell(GetHitUnit(), GetCaster()->GetMap()->Is25ManRaid() ? SPELL_NAPALM_SHELL_25 : SPELL_NAPALM_SHELL);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_NAPALM_SHELL);
             }
 
             void Register() override
@@ -2017,6 +2013,33 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
         SpellScript* GetSpellScript() const override
         {
             return new spell_mimiron_napalm_shell_SpellScript();
+        }
+};
+
+// 63274 - P3Wx2 Laser Barrage -- HACK! Core will currently not set UNIT_FIELD_CHANNEL_OBJECT automatially if the spell targets more than a single target.
+class spell_mimiron_p3wx2_laser_barrage : public SpellScriptLoader
+{
+    public:
+        spell_mimiron_p3wx2_laser_barrage() : SpellScriptLoader("spell_mimiron_p3wx2_laser_barrage") { }
+
+        class spell_mimiron_p3wx2_laser_barrage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mimiron_p3wx2_laser_barrage_SpellScript);
+
+            void OnHit(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mimiron_p3wx2_laser_barrage_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mimiron_p3wx2_laser_barrage_SpellScript();
         }
 };
 
@@ -2228,20 +2251,17 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                if (GetSpellInfo()->Id == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
-                {
+                if (m_scriptSpellId == SPELL_ROCKET_STRIKE_SINGLE && GetCaster()->IsVehicle())
                     if (WorldObject* target = GetCaster()->GetVehicleKit()->GetPassenger(RAND(ROCKET_SEAT_LEFT, ROCKET_SEAT_RIGHT)))
                     {
                         targets.clear();
                         targets.push_back(target);
                     }
-                }
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                GetHitUnit()->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCaster(GetCaster()->GetGUID()));
+                GetHitUnit()->CastSpell(nullptr, SPELL_SCRIPT_EFFECT_ROCKET_STRIKE, GetCaster()->GetGUID());
             }
 
             void Register() override
@@ -2339,8 +2359,7 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ROCKET_STRIKE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                        .SetOriginalCaster(instance->GetGuidData(DATA_VX_001)));
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_SUMMON_ROCKET_STRIKE, instance->GetGuidData(DATA_VX_001));
                 GetCaster()->SetDisplayId(11686);
             }
 
@@ -2385,6 +2404,35 @@ class spell_mimiron_self_repair : public SpellScriptLoader
         }
 };
 
+// 63414 - Spinning Up -- HACK! Core will currently not set UNIT_FIELD_CHANNEL_OBJECT automatially if the spell targets more than a single target.
+// eff0 will hit both caster and target due to hack in spellmgr.cpp, it is necessary because caster will interrupt itself if aura is not active on caster.
+class spell_mimiron_spinning_up : public SpellScriptLoader
+{
+    public:
+        spell_mimiron_spinning_up() : SpellScriptLoader("spell_mimiron_spinning_up") { }
+
+        class spell_mimiron_spinning_up_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mimiron_spinning_up_SpellScript);
+
+            void OnHit(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitUnit() != GetCaster())
+                    GetCaster()->SetChannelObjectGuid(GetHitUnit()->GetGUID());
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mimiron_spinning_up_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_mimiron_spinning_up_SpellScript();
+        }
+};
+
 // 64426 - Summon Scrap Bot
 class spell_mimiron_summon_assault_bot : public SpellScriptLoader
 {
@@ -2405,9 +2453,7 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_ASSAULT_BOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetTriggeringAura(aurEff)
-                                .SetOriginalCaster(instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)));
+                            caster->CastSpell(caster, SPELL_SUMMON_ASSAULT_BOT, { aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT) });
             }
 
             void Register() override
@@ -2474,9 +2520,7 @@ class spell_mimiron_summon_fire_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_FIRE_BOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetTriggeringAura(aurEff)
-                                .SetOriginalCaster(instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)));
+                            caster->CastSpell(caster, SPELL_SUMMON_FIRE_BOT, { aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT) });
             }
 
             void Register() override
@@ -2664,9 +2708,7 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                     if (InstanceScript* instance = caster->GetInstanceScript())
                         if (instance->GetBossState(DATA_MIMIRON) == IN_PROGRESS)
-                            caster->CastSpell(caster, SPELL_SUMMON_JUNK_BOT, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetTriggeringAura(aurEff)
-                                .SetOriginalCaster(instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT)));
+                            caster->CastSpell(caster, SPELL_SUMMON_JUNK_BOT, { aurEff, instance->GetGuidData(DATA_AERIAL_COMMAND_UNIT) });
             }
 
             void Register() override
@@ -2814,6 +2856,7 @@ void AddSC_boss_mimiron()
     RegisterSpellScript(spell_mimiron_magnetic_core_summon);
     new spell_mimiron_magnetic_core();
     new spell_mimiron_napalm_shell();
+    new spell_mimiron_p3wx2_laser_barrage();
     new spell_mimiron_plasma_blast();
     new spell_mimiron_proximity_explosion();
     new spell_mimiron_proximity_mines();
@@ -2823,6 +2866,7 @@ void AddSC_boss_mimiron()
     new spell_mimiron_rocket_strike_damage();
     new spell_mimiron_rocket_strike_target_select();
     new spell_mimiron_self_repair();
+    new spell_mimiron_spinning_up();
     new spell_mimiron_summon_assault_bot();
     new spell_mimiron_summon_assault_bot_target();
     new spell_mimiron_summon_fire_bot();

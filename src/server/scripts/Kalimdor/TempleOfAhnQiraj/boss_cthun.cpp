@@ -25,8 +25,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "MapReference.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 #include "TemporarySummon.h"
@@ -342,10 +342,10 @@ public:
                         if (DarkGlareTickTimer <= diff)
                         {
                             //Set angle and cast
-                            if (ClockWise)
-                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * float(M_PI) / 35);
-                            else
-                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * float(M_PI) / 35);
+                            float angle = ClockWise ? DarkGlareAngle + DarkGlareTick * float(M_PI) / 35 : DarkGlareAngle - DarkGlareTick * float(M_PI) / 35;
+
+                            me->SetOrientation(angle);
+                            me->SetFacingTo(angle);
 
                             me->StopMoving();
 
@@ -749,8 +749,7 @@ public:
                             //Set target in stomach
                             Stomach_Map[target->GetGUID()] = true;
                             target->InterruptNonMeleeSpells(false);
-                            target->CastSpell(target, SPELL_MOUTH_TENTACLE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCaster(me->GetGUID()));
+                            target->CastSpell(target, SPELL_MOUTH_TENTACLE, me->GetGUID());
                             StomachEnterTarget = target->GetGUID();
                             StomachEnterVisTimer = 3800;
                         }
@@ -758,7 +757,7 @@ public:
                         StomachEnterTimer = 13800;
                     } else StomachEnterTimer -= diff;
 
-                    if (StomachEnterVisTimer && !StomachEnterTarget.IsEmpty())
+                    if (StomachEnterVisTimer && StomachEnterTarget)
                     {
                         if (StomachEnterVisTimer <= diff)
                         {

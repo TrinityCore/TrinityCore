@@ -46,11 +46,12 @@ class go_shadowforge_brazier : public GameObjectScript
                     instance->SetData(TYPE_LYCEUM, DONE);
                 else
                     instance->SetData(TYPE_LYCEUM, IN_PROGRESS);
-                // If used brazier open linked doors (North or South)
-                if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_N))
+                // If used both braziers, open linked doors (North and South)
+                if (instance->GetData(TYPE_LYCEUM) == DONE)
+                {
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_N), true);
-                else if (me->GetGUID() == instance->GetGuidData(DATA_SF_BRAZIER_S))
                     instance->HandleGameObject(instance->GetGuidData(DATA_GOLEM_DOOR_S), true);
+                }
 
                 return false;
             }
@@ -97,7 +98,7 @@ class at_ring_of_law : public AreaTriggerScript
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
 
-    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
     {
         if (InstanceScript* instance = player->GetInstanceScript())
         {
@@ -246,7 +247,7 @@ public:
                 {
                     MobDeath_Timer = 2500;
 
-                    if (!RingBossGUID.IsEmpty())
+                    if (RingBossGUID)
                     {
                         Creature* boss = ObjectAccessor::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->IsAlive() && boss->isDead())
@@ -479,7 +480,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                     !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
                     player->HasItemCount(ITEM_SULFURON_INGOT))
                 {
-                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
 
                 if (player->GetReputationRank(59) < REP_FRIENDLY)
@@ -600,7 +601,7 @@ public:
             EscortAI::UpdateAI(diff);
         }
 
-        void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*item*/) override
+        void OnQuestReward(Player* /*player*/, Quest const* quest, uint32 /*item*/) override
         {
             if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
                 return;

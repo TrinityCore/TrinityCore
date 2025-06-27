@@ -21,7 +21,6 @@
 #ifdef _WIN32 // Windows
 #include <Windows.h>
 #elif defined(__linux__)
-#include <cstring>
 #include <sched.h>
 #include <sys/resource.h>
 #define PROCESS_HIGH_PRIORITY -15 // [-20, 19], default is 0

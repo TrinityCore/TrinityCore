@@ -1215,7 +1215,7 @@ class spell_jormungars_slime_pool : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
@@ -1290,7 +1290,7 @@ class spell_icehowl_arctic_breath : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1341,7 +1341,7 @@ class spell_icehowl_massive_crash : public AuraScript
     void HandleSpeed(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Player* target = GetTarget()->ToPlayer())
-            if (target->GetMap()->IsHeroic())
+            if (target->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL || target->GetRaidDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                 target->CastSpell(target, SPELL_SURGE_OF_ADRENALINE, true);
     }
 

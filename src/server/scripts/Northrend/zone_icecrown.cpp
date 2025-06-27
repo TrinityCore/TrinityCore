@@ -18,11 +18,13 @@
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "Containers.h"
-#include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -272,7 +274,7 @@ struct npc_tournament_training_dummy : ScriptedAI
             case EVENT_DUMMY_RESET:
                 if (UpdateVictim())
                 {
-                    EnterEvadeMode(EvadeReason::Other);
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
                 }
                 break;
@@ -866,7 +868,7 @@ class spell_icecrown_through_the_eye_the_eye_of_the_lk : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_IMAGE_OF_VARDMADRA, SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST }) &&
-            sBroadcastTextStore.LookupEntry(TEXT_USING_THE_EYE_OF_THE_LK);
+            sObjectMgr->GetBroadcastText(TEXT_USING_THE_EYE_OF_THE_LK);
     }
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -935,6 +937,84 @@ class spell_icecrown_summon_freed_crusader : public SpellScript
     }
 };
 
+/*######
+## Quest 13236, 13395: Army of the Damned
+######*/
+
+enum ArmyOfTheDamned
+{
+    SPELL_GIFT_OF_THE_LICH_KING     = 58915,
+    SPELL_CONSUME_MINIONS           = 58919
+};
+
+// 58916 - Gift of the Lich King
+class spell_icecrown_gift_of_the_lich_king : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_gift_of_the_lich_king);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_GIFT_OF_THE_LICH_KING });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_GIFT_OF_THE_LICH_KING);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_gift_of_the_lich_king::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 58917 - Consume Minions
+class spell_icecrown_consume_minions : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_consume_minions);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CONSUME_MINIONS });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_CONSUME_MINIONS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_consume_minions::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12995: Leave Our Mark
+######*/
+
+enum LeaveOurMark
+{
+    NPC_LEAVE_OUR_MARK_KILL_CREDIT_BUNNY     = 30220
+};
+
+// 23301 - Ebon Blade Banner
+class spell_icecrown_ebon_blade_banner : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_ebon_blade_banner);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* caster = GetCaster()->ToPlayer())
+            caster->KilledMonsterCredit(NPC_LEAVE_OUR_MARK_KILL_CREDIT_BUNNY);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_ebon_blade_banner::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -949,4 +1029,7 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_through_the_eye_the_eye_of_the_lk);
     RegisterSpellScript(spell_icecrown_through_the_eye_kill_credit_to_master);
     RegisterSpellScript(spell_icecrown_summon_freed_crusader);
+    RegisterSpellScript(spell_icecrown_gift_of_the_lich_king);
+    RegisterSpellScript(spell_icecrown_consume_minions);
+    RegisterSpellScript(spell_icecrown_ebon_blade_banner);
 }

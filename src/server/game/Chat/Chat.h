@@ -18,9 +18,14 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
+#include "Common.h"
+#include "ChatCommand.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include "StringFormat.h"
 #include <fmt/printf.h>
+#include <string>
+#include <vector>
 
 class ChatHandler;
 class Creature;
@@ -30,10 +35,9 @@ class Player;
 class Unit;
 class WorldSession;
 class WorldObject;
+class WorldPacket;
 
 struct GameTele;
-
-enum LocaleConstant : uint8;
 
 class TC_GAME_API ChatHandler
 {
@@ -45,7 +49,15 @@ class TC_GAME_API ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) { }
         virtual ~ChatHandler() { }
 
-        static char* LineFromMessage(char*& pos);
+        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, ObjectGuid senderGUID, ObjectGuid receiverGUID, std::string_view message, uint8 chatTag,
+                                    std::string const& senderName = "", std::string const& receiverName = "",
+                                    uint32 achievementId = 0, bool gmMessage = false, std::string const& channelName = "");
+
+        // Builds chat packet and returns receiver guid position in the packet to substitute in whisper builders
+        static size_t BuildChatPacket(WorldPacket& data, ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0, std::string const& channelName = "", LocaleConstant locale = DEFAULT_LOCALE);
+
+        static char* LineFromMessage(char*& pos) { char* start = strtok(pos, "\n"); pos = nullptr; return start; }
 
         // function with different implementation for chat/console
         virtual char const* GetTrinityString(uint32 entry) const;
@@ -62,7 +74,7 @@ class TC_GAME_API ChatHandler
         template<typename... Args>
         void PSendSysMessage(uint32 entry, Args&&... args)
         {
-            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...).c_str());
+            SendSysMessage(PGetParseString(entry, std::forward<Args>(args)...));
         }
 
         template<typename... Args>
@@ -82,7 +94,7 @@ class TC_GAME_API ChatHandler
         virtual std::string GetNameLink() const;
         virtual bool needReportToTarget(Player* chr) const;
         virtual LocaleConstant GetSessionDbcLocale() const;
-        virtual LocaleConstant GetSessionDbLocaleIndex() const;
+        virtual int GetSessionDbLocaleIndex() const;
 
         bool HasLowerSecurity(Player* target, ObjectGuid guid, bool strong = false);
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
@@ -98,14 +110,13 @@ class TC_GAME_API ChatHandler
         char* extractKeyFromLink(char* text, char const* linkType, char** something1 = nullptr);
         char* extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = nullptr);
         char* extractQuotedArg(char* args);
-        uint32 extractSpellIdFromLink(char* text);
         ObjectGuid::LowType extractLowGuidFromLink(char* text, HighGuid& guidHigh);
-        bool GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
+        bool GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline = false);
         std::string extractPlayerNameFromLink(char* text);
         // select by arg (name/link) or in-game selection online/offline player or self if a creature is selected
         bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
-        std::string playerLink(std::string const& name) const;
+        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
         std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
@@ -137,7 +148,7 @@ class TC_GAME_API CliHandler : public ChatHandler
         std::string GetNameLink() const override;
         bool needReportToTarget(Player* chr) const override;
         LocaleConstant GetSessionDbcLocale() const override;
-        LocaleConstant GetSessionDbLocaleIndex() const override;
+        int GetSessionDbLocaleIndex() const override;
 
     private:
         void* m_callbackArg;
@@ -147,8 +158,6 @@ class TC_GAME_API CliHandler : public ChatHandler
 class TC_GAME_API AddonChannelCommandHandler : public ChatHandler
 {
     public:
-        static std::string const PREFIX;
-
         using ChatHandler::ChatHandler;
         bool ParseCommands(std::string_view str) override;
         void SendSysMessage(std::string_view, bool escapeCharacters) override;

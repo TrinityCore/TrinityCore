@@ -20,7 +20,9 @@
 #include "GameObject.h"
 #include "gnomeregan.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "Map.h"
+#include "Player.h"
 
 class instance_gnomeregan : public InstanceMapScript
 {

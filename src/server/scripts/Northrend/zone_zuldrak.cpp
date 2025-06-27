@@ -906,6 +906,153 @@ class spell_zuldrak_chains_of_the_scourge : public SpellScript
     }
 };
 
+/*######
+## Quest 12721: Rampage
+######*/
+
+enum Rampage
+{
+    SPELL_RAMPAGE_SUMMON_AKILZON    = 52934,
+    SPELL_RAMPAGE_SUMMON_HALAZZI    = 52935,
+    SPELL_RAMPAGE_SUMMON_JANALAI    = 52936,
+    SPELL_RAMPAGE_SUMMON_NALORAKK   = 52937
+};
+
+// 52933 - Rampage: Summon Zul'Aman Gods Master
+class spell_zuldrak_rampage_summon_zulaman_gods_master : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_rampage_summon_zulaman_gods_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RAMPAGE_SUMMON_AKILZON,
+            SPELL_RAMPAGE_SUMMON_HALAZZI,
+            SPELL_RAMPAGE_SUMMON_JANALAI,
+            SPELL_RAMPAGE_SUMMON_NALORAKK
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_AKILZON);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_HALAZZI);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_JANALAI);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_NALORAKK);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_zuldrak_rampage_summon_zulaman_gods_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12627: Breaking Through Jin'Alai
+######*/
+
+enum BreakingThroughJinAlai
+{
+    SPELL_BREAKING_THROUGH_SUMMON_AKILZON    = 51861,
+    SPELL_BREAKING_THROUGH_SUMMON_JANALAI    = 52452,
+    SPELL_BREAKING_THROUGH_SUMMON_HALAZZI    = 52453,
+    SPELL_BREAKING_THROUGH_SUMMON_NALORAKK   = 52454
+};
+
+// 51862 - Breaking Through Jin'Alai: Summon Zul'Aman Gods Master
+class spell_zuldrak_breaking_through_summon_zulaman_gods_master : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BREAKING_THROUGH_SUMMON_AKILZON,
+            SPELL_BREAKING_THROUGH_SUMMON_JANALAI,
+            SPELL_BREAKING_THROUGH_SUMMON_HALAZZI,
+            SPELL_BREAKING_THROUGH_SUMMON_NALORAKK
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_AKILZON);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_JANALAI);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_HALAZZI);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_NALORAKK);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_zuldrak_breaking_through_summon_zulaman_gods_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12630: Kickin' Nass and Takin' Manes
+######*/
+
+enum KickinNassAndTakinManes
+{
+    SPELL_SUMMON_NASS     = 51865
+};
+
+// 51864 - Player Summon Nass
+// 51889 - Quest Accept Summon Nass
+class spell_zuldrak_summon_nass : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_summon_nass);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_NASS });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_NASS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_summon_nass::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12730: Convocation at Zol'Heb
+######*/
+
+enum ConvocationAtZolHeb
+{
+    SPELL_AKALIS_STUN     = 52989
+};
+
+// 53010 - Convocation at Zol'Heb: Removef Akali's Stun
+class spell_zuldrak_remove_akalis_stun : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_remove_akalis_stun);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AKALIS_STUN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_AKALIS_STUN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_remove_akalis_stun::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -925,4 +1072,8 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_cocooned_on_quest);
     RegisterSpellScript(spell_zuldrak_scourgewagon_explosion);
     RegisterSpellScript(spell_zuldrak_chains_of_the_scourge);
+    RegisterSpellScript(spell_zuldrak_rampage_summon_zulaman_gods_master);
+    RegisterSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
+    RegisterSpellScript(spell_zuldrak_summon_nass);
+    RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
 }

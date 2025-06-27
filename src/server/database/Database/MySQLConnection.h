@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -92,7 +93,7 @@ class TC_DATABASE_API MySQLConnection
 
         uint32 GetServerVersion() const;
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, std::string_view sql, ConnectionFlags flags);
+        void PrepareStatement(uint32 index, std::string const& sql, ConnectionFlags flags);
 
         virtual void DoPrepareStatements() = 0;
 

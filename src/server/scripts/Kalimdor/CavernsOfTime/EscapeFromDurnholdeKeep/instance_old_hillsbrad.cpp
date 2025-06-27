@@ -39,13 +39,6 @@ EndScriptData */
 #define QUEST_ENTRY_DIVERSION   10283
 #define LODGE_QUEST_TRIGGER     20155
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_LIEUTENANT_DRAKE, {{ 1905 }} },
-    { DATA_CAPTAIN_SKARLOC, {{ 1907 }} },
-    { DATA_EPOCH_HUNTER, {{ 1906 }} }
-};
-
 class instance_old_hillsbrad : public InstanceMapScript
 {
 public:
@@ -62,7 +55,6 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(OldHillsbradFoothillsBossCount);
-            LoadDungeonEncounterData(encounters);
 
             ThrallEscortState = OH_ESCORT_PRISON_TO_SKARLOC;
             mBarrelCount = 0;
@@ -81,9 +73,14 @@ public:
         {
             Map::PlayerList const& players = instance->GetPlayers();
 
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if (Player* player = itr->GetSource())
-                    player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
+            if (!players.isEmpty())
+            {
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    if (Player* player = itr->GetSource())
+                        player->KilledMonsterCredit(LODGE_QUEST_TRIGGER);
+                }
+            }
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -175,7 +172,7 @@ public:
             return ObjectGuid::Empty;
         }
 
-        void AfterDataLoad() override
+        void ReadSaveDataMore(std::istringstream&) override
         {
             if (GetBossState(DATA_LIEUTENANT_DRAKE) == DONE)
                 mBarrelCount = 5;

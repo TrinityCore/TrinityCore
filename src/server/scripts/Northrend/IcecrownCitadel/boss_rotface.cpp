@@ -30,7 +30,7 @@
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
 
-enum Texts
+enum RotfaceTexts
 {
     SAY_PRECIOUS_DIES           = 0,
     SAY_AGGRO                   = 1,
@@ -50,7 +50,7 @@ enum Texts
     EMOTE_PRECIOUS_ZOMBIES      = 0,
 };
 
-enum Spells
+enum RotfaceSpells
 {
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
@@ -85,7 +85,7 @@ enum Spells
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
 
-enum Events
+enum RotfaceEvents
 {
     // Rotface
     EVENT_SLIME_SPRAY       = 1,
@@ -101,6 +101,7 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
+// 36627 - Rotface
 struct boss_rotface : public BossAI
 {
     boss_rotface(Creature* creature) : BossAI(creature, DATA_ROTFACE)
@@ -126,7 +127,7 @@ struct boss_rotface : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_ROTFACE, who->ToPlayer()))
         {
-            EnterEvadeMode(EvadeReason::Other);
+            EnterEvadeMode(EVADE_REASON_OTHER);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -238,6 +239,7 @@ private:
     uint32 infectionStage;
 };
 
+// 36897 - Little Ooze
 struct npc_little_ooze : public ScriptedAI
 {
     npc_little_ooze(Creature* creature) : ScriptedAI(creature) { }
@@ -279,6 +281,7 @@ private:
     EventMap events;
 };
 
+// 36899 - Big Ooze
 struct npc_big_ooze : public ScriptedAI
 {
     npc_big_ooze(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
@@ -338,6 +341,7 @@ private:
     InstanceScript* instance;
 };
 
+// 37217 - Precious
 struct npc_precious_icc : public ScriptedAI
 {
     npc_precious_icc(Creature* creature) : ScriptedAI(creature), _summons(me), _instance(creature->GetInstanceScript()) { }
@@ -430,8 +434,7 @@ class spell_rotface_ooze_flood : public SpellScript
             return;
 
         triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCaster(GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty));
+        GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : ObjectGuid::Empty);
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -440,8 +443,8 @@ class spell_rotface_ooze_flood : public SpellScript
         targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
 
         // .resize() runs pop_back();
-        if (targets.size() > 4)
-            targets.resize(4);
+        if (targets.size() > 5)
+            targets.resize(5);
 
         while (targets.size() > 2)
             targets.pop_front();
@@ -492,15 +495,13 @@ class spell_rotface_mutated_infection_aura : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_2 && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_2).CalcValue()) });
     }
 
     void HandleEffectRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetTriggeringAura(aurEff)
-            .SetOriginalCaster(GetCasterGUID()));
+        target->CastSpell(target, uint32(GetEffectInfo(EFFECT_2).CalcValue()), { aurEff, GetCasterGUID() });
     }
 
     void Register() override
@@ -686,10 +687,10 @@ class spell_rotface_unstable_ooze_explosion : public SpellScript
 
         uint32 triggered_spell_id = GetEffectInfo().TriggerSpell;
 
+        // let Rotface handle the cast - caster dies before this executes
         if (InstanceScript* script = GetCaster()->GetInstanceScript())
             if (Creature* rotface = script->instance->GetCreature(script->GetGuidData(DATA_ROTFACE)))
-                rotface->CastSpell(*GetExplTargetDest(), triggered_spell_id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetOriginalCaster(GetCaster()->GetGUID()));
+                rotface->CastSpell(*GetExplTargetDest(), triggered_spell_id, GetCaster()->GetGUID());
     }
 
     void Register() override

@@ -140,7 +140,7 @@ struct boss_high_astromancer_solarian : public BossAI
     {
         Initialize();
         _Reset();
-        me->SetArmor(defaultarmor, 0);
+        me->SetArmor(defaultarmor);
         me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
         me->SetVisible(true);
         me->SetDisplayId(MODEL_HUMAN);
@@ -392,7 +392,7 @@ struct boss_high_astromancer_solarian : public BossAI
             me->SetVisible(true);
             Talk(SAY_VOIDA);
             Talk(SAY_VOIDB);
-            me->SetArmor(WV_ARMOR, 0);
+            me->SetArmor(WV_ARMOR);
             me->SetDisplayId(MODEL_VOIDWALKER);
         }
 
@@ -480,10 +480,9 @@ class spell_astromancer_wrath_of_the_astromancer : public AuraScript
 {
     PrepareAuraScript(spell_astromancer_wrath_of_the_astromancer);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo({ SPELL_WRATH_OF_THE_ASTROMANCER_DOT });
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

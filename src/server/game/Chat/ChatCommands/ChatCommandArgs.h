@@ -298,13 +298,6 @@ namespace Trinity::Impl::ChatCommands
         static ChatCommandResult TryConsume(AchievementEntry const*&, ChatHandler const*, std::string_view);
     };
 
-    // CurrencyTypesEntry* from numeric id or link
-    template <>
-    struct TC_GAME_API ArgInfo<CurrencyTypesEntry const*>
-    {
-        static ChatCommandResult TryConsume(CurrencyTypesEntry const*&, ChatHandler const*, std::string_view);
-    };
-
     // GameTele* from string name or link
     template <>
     struct TC_GAME_API ArgInfo<GameTele const*>

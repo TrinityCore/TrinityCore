@@ -31,7 +31,9 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "Spell.h"
 #include "TemporarySummon.h"
+#include "WorldSession.h"
 
 enum LadyVashj
 {
@@ -72,6 +74,9 @@ enum LadyVashj
 #define SPOREBAT_Y                  -925.297761f
 #define SPOREBAT_Z                  77.176567f
 #define SPOREBAT_O                  5.223932f
+
+#define TEXT_NOT_INITIALIZED          "Instance script not initialized"
+#define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
 
 float ElementPos[8][4] =
 {
@@ -199,7 +204,7 @@ struct boss_lady_vashj : public BossAI
 
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (!ShieldGeneratorChannel[i].IsEmpty())
+            if (ShieldGeneratorChannel[i])
             {
                 if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                 {
@@ -816,11 +821,14 @@ class item_tainted_core : public ItemScript
 public:
     item_tainted_core() : ItemScript("item_tainted_core") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& targets) override
     {
         InstanceScript* instance = player->GetInstanceScript();
         if (!instance)
+        {
+            player->GetSession()->SendNotification(TEXT_NOT_INITIALIZED);
             return true;
+        }
 
         Creature* vashj = ObjectAccessor::GetCreature((*player), instance->GetGuidData(DATA_LADYVASHJ));
         if (vashj && (ENSURE_AI(boss_lady_vashj, vashj->AI())->Phase == 2))
@@ -852,7 +860,10 @@ public:
                 }
 
                 if (instance->GetData(identifier))
+                {
+                    player->GetSession()->SendNotification(TEXT_ALREADY_DEACTIVATED);
                     return true;
+                }
 
                 // get and remove channel
                 if (Unit* channel = ObjectAccessor::GetCreature(*vashj, ENSURE_AI(boss_lady_vashj, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))

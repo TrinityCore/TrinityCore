@@ -107,12 +107,12 @@ uint32 MySQLConnection::Open()
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
         port = 0;
-        unix_socket = nullptr;
+        unix_socket = 0;
     }
     else                                                    // generic case
     {
         port = atoi(m_connectionInfo.port_or_socket.c_str());
-        unix_socket = nullptr;
+        unix_socket = 0;
     }
     #else
     if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
@@ -213,6 +213,25 @@ bool MySQLConnection::Execute(char const* sql)
     return true;
 }
 
+static auto mysql_bind_param_no_deprecated(MYSQL_STMT* stmt, MYSQL_BIND* bnd)
+{
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
+
+    return mysql_stmt_bind_param(stmt, bnd);
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#else
+#pragma warning(pop)
+#endif
+}
+
 bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 {
     if (!m_Mysql)
@@ -230,7 +249,7 @@ bool MySQLConnection::Execute(PreparedStatementBase* stmt)
 
     uint32 _s = getMSTime();
 
-    if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+    if (mysql_bind_param_no_deprecated(msql_STMT, msql_BIND))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
         TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}", m_mStmt->getQueryString(), lErrno, mysql_stmt_error(msql_STMT));
@@ -278,7 +297,7 @@ bool MySQLConnection::_Query(PreparedStatementBase* stmt, MySQLPreparedStatement
 
     uint32 _s = getMSTime();
 
-    if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+    if (mysql_bind_param_no_deprecated(msql_STMT, msql_BIND))
     {
         uint32 lErrno = mysql_errno(m_Mysql);
         TC_LOG_ERROR("sql.sql", "SQL(p): {}\n [ERROR]: [{}] {}", m_mStmt->getQueryString(), lErrno, mysql_stmt_error(msql_STMT));
@@ -479,7 +498,7 @@ MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
     return ret;
 }
 
-void MySQLConnection::PrepareStatement(uint32 index, std::string_view sql, ConnectionFlags flags)
+void MySQLConnection::PrepareStatement(uint32 index, std::string const& sql, ConnectionFlags flags)
 {
     // Check if specified query should be prepared on this connection
     // i.e. don't prepare async statements on synchronous connections
@@ -499,7 +518,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string_view sql, Conne
     }
     else
     {
-        if (mysql_stmt_prepare(stmt, sql.data(), static_cast<unsigned long>(sql.size())))
+        if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.size())))
         {
             TC_LOG_ERROR("sql.sql", "In mysql_stmt_prepare() id: {}, sql: \"{}\"", index, sql);
             TC_LOG_ERROR("sql.sql", "{}", mysql_stmt_error(stmt));
@@ -507,7 +526,7 @@ void MySQLConnection::PrepareStatement(uint32 index, std::string_view sql, Conne
             m_prepareError = true;
         }
         else
-            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), std::string(sql));
+            m_stmts[index] = std::make_unique<MySQLPreparedStatement>(reinterpret_cast<MySQLStmt*>(stmt), sql);
     }
 }
 
@@ -559,7 +578,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
                 {
                     TC_LOG_FATAL("sql.sql", "Could not re-prepare statements!");
                     std::this_thread::sleep_for(std::chrono::seconds(10));
-                    std::abort();
+                    ABORT();
                 }
 
                 TC_LOG_INFO("sql.sql", "Successfully reconnected to {} @{}:{} ({}).",
@@ -579,7 +598,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
 
                 // We could also initiate a shutdown through using std::raise(SIGTERM)
                 std::this_thread::sleep_for(std::chrono::seconds(10));
-                std::abort();
+                ABORT();
             }
             else
             {
@@ -602,12 +621,12 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo, uint8 attempts /*= 5*/)
         case ER_NO_SUCH_TABLE:
             TC_LOG_ERROR("sql.sql", "Your database structure is not up to date. Please make sure you've executed all queries in the sql/updates folders.");
             std::this_thread::sleep_for(std::chrono::seconds(10));
-            std::abort();
+            ABORT();
             return false;
         case ER_PARSE_ERROR:
             TC_LOG_ERROR("sql.sql", "Error while parsing SQL. Core fix required.");
             std::this_thread::sleep_for(std::chrono::seconds(10));
-            std::abort();
+            ABORT();
             return false;
         default:
             TC_LOG_ERROR("sql.sql", "Unhandled MySQL errno {}. Unexpected behaviour possible.", errNo);

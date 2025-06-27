@@ -24,6 +24,7 @@
 #include "QuestDef.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
@@ -390,7 +391,7 @@ class spell_fjord_the_cleansing_shrine_cast : public SpellScript
             if (target->HasAura(SPELL_RECENT_MEDITATION) || (!(target->GetQuestStatus(QUEST_THE_CLEANSING_H) == QUEST_STATUS_INCOMPLETE ||
                 target->GetQuestStatus(QUEST_THE_CLEANSING_A) == QUEST_STATUS_INCOMPLETE)))
             {
-                Spell::SendCastResult(target, GetSpellInfo(), GetSpell()->m_SpellVisual, GetSpell()->m_castId, SPELL_FAILED_FIZZLE);
+                Spell::SendCastResult(target, GetSpellInfo(), 0, SPELL_FAILED_FIZZLE);
                 return SPELL_FAILED_FIZZLE;
             }
         }

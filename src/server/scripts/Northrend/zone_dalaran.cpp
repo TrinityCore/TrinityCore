@@ -31,6 +31,9 @@ Script Data End */
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
+#include "WorldSession.h"
 
 /*******************************************************
  * npc_mageguard_dalaran
@@ -173,7 +176,7 @@ struct npc_minigob_manabonk : public ScriptedAI
     {
         CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
         int16 deliverDelay = irand(MAIL_DELIVER_DELAY_MIN, MAIL_DELIVER_DELAY_MAX);
-        MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, uint64(me->GetEntry())), MAIL_CHECK_MASK_NONE, deliverDelay);
+        MailDraft(MAIL_MINIGOB_ENTRY, true).SendMailTo(trans, MailReceiver(player), MailSender(MAIL_CREATURE, me->GetEntry()), MAIL_CHECK_MASK_NONE, deliverDelay);
         CharacterDatabase.CommitTransaction(trans);
     }
 
@@ -253,8 +256,62 @@ private:
     EventMap events;
 };
 
+enum TeleportToDalaran
+{
+    SPELL_TELEPORT_TO_DALARAN     = 53360
+};
+
+// 54620 - Teleport Crystal: Teleport to Dalaran AICast Script
+class spell_dalaran_teleport_to_dalaran : public SpellScript
+{
+    PrepareSpellScript(spell_dalaran_teleport_to_dalaran);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_DALARAN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_DALARAN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleport_to_dalaran::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum TeleportToLakeWintergrasp
+{
+    SPELL_TELEPORT_TO_LAKE_WINTERGRASP     = 58681
+};
+
+// 58622 - Teleport to Lake Wintergrasp
+class spell_dalaran_teleport_to_lake_wintergrasp : public SpellScript
+{
+    PrepareSpellScript(spell_dalaran_teleport_to_lake_wintergrasp);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_LAKE_WINTERGRASP });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_LAKE_WINTERGRASP);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dalaran_teleport_to_lake_wintergrasp::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dalaran()
 {
     RegisterCreatureAI(npc_mageguard_dalaran);
     RegisterCreatureAI(npc_minigob_manabonk);
+    RegisterSpellScript(spell_dalaran_teleport_to_dalaran);
+    RegisterSpellScript(spell_dalaran_teleport_to_lake_wintergrasp);
 }

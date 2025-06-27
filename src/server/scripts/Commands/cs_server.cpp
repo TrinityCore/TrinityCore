@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "Config.h"
 #include "DatabaseEnv.h"
 #include "DatabaseLoader.h"
@@ -33,14 +32,18 @@ EndScriptData */
 #include "Language.h"
 #include "Log.h"
 #include "MySQLThreading.h"
+#include "ObjectAccessor.h"
+#include "Player.h"
 #include "RBAC.h"
 #include "Realm.h"
+#include "ServerMotd.h"
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager2.h"
 #include "World.h"
 #include "WorldSession.h"
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <openssl/crypto.h>
 #include <openssl/opensslv.h>
@@ -130,7 +133,7 @@ public:
                 dbPort = (*res)[0].GetUInt16();
 
             if (dbPort)
-                dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port %" PRIu16, realm.Id.Realm, dbPort);
+                dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", realm.Id.Realm, dbPort);
             else
                 dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", realm.Id.Realm);
         }
@@ -148,30 +151,28 @@ public:
             handler->SendSysMessage("Automatic database updates are disabled for all databases!");
         else
         {
-            static char const* const databaseNames[] =
+            static char const* const databaseNames[3 /*TOTAL_DATABASES*/] =
             {
                 "Auth",
                 "Characters",
-                "World",
-                "Hotfixes"
+                "World"
             };
-            static size_t constexpr databaseCount = std::extent<decltype(databaseNames)>::value;
 
             std::string availableUpdateDatabases;
-            for (uint32 i = 0; i < databaseCount; ++i)
+            for (uint32 i = 0; i < 3 /* TOTAL_DATABASES*/; ++i)
             {
                 if (!(updateFlags & (1 << i)))
                     continue;
 
                 availableUpdateDatabases += databaseNames[i];
-                if (i != databaseCount - 1)
+                if (i != 3 /*TOTAL_DATABASES*/ - 1)
                     availableUpdateDatabases += ", ";
             }
 
             handler->PSendSysMessage("Automatic database updates are enabled for the following databases: %s", availableUpdateDatabases.c_str());
         }
 
-        handler->PSendSysMessage("Worldserver listening connections on port %" PRIu16, worldPort);
+        handler->PSendSysMessage("Worldserver listening connections on port {}", worldPort);
         handler->PSendSysMessage("%s", dbPortOutput.c_str());
 
         bool vmapIndoorCheck = sWorld->getBoolConfig(CONFIG_VMAP_INDOOR_CHECK);
@@ -281,10 +282,7 @@ public:
     // Display the 'Message of the day' for the realm
     static bool HandleServerMotdCommand(ChatHandler* handler, char const* /*args*/)
     {
-        std::string motd;
-        for (std::string const& line : sWorld->GetMotd())
-            motd += line;
-        handler->PSendSysMessage(LANG_MOTD_CURRENT, motd.c_str());
+        handler->PSendSysMessage(LANG_MOTD_CURRENT, Motd::GetMotd());
         return true;
     }
 
@@ -406,7 +404,7 @@ public:
     // Define the 'Message of the day' for the realm
     static bool HandleServerSetMotdCommand(ChatHandler* handler, char const* args)
     {
-        sWorld->SetMotd(args);
+        Motd::SetMotd(args);
         handler->PSendSysMessage(LANG_MOTD_NEW, args);
         return true;
     }

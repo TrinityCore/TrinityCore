@@ -17,15 +17,18 @@
 
 #include "SecretMgr.h"
 #include "AES.h"
-#include "Argon2.h"
+#include "Argon2Hash.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
 #include "DatabaseEnv.h"
 #include "Errors.h"
 #include "Log.h"
+#include "SharedDefines.h"
+#include <functional>
+#include <unordered_map>
 
-#define SECRET_FLAG_FOR(key, val, server) server ## _ ## key = (val ## ull << (16*SECRET_OWNER_ ## server))
-#define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, BNETSERVER), SECRET_FLAG_FOR(key, val, WORLDSERVER)
+#define SECRET_FLAG_FOR(key, val, server) server ## _ ## key = (val ## ull << (16*SERVER_PROCESS_ ## server))
+#define SECRET_FLAG(key, val) SECRET_FLAG_ ## key = val, SECRET_FLAG_FOR(key, val, AUTHSERVER), SECRET_FLAG_FOR(key, val, WORLDSERVER)
 enum SecretFlags : uint64
 {
     SECRET_FLAG(DEFER_LOAD, 0x1)
@@ -38,17 +41,15 @@ struct SecretInfo
     char const* configKey;
     char const* oldKey;
     int bits;
-    SecretOwner owner;
+    ServerProcessTypes owner;
     uint64 _flags;
-    uint16 flags() const { return static_cast<uint16>(_flags >> (16*SecretMgr::OWNER)); }
+    uint16 flags() const { return static_cast<uint16>(_flags >> (16*THIS_SERVER_PROCESS)); }
 };
 
 static constexpr SecretInfo secret_info[NUM_SECRETS] =
 {
-    { "TOTPMasterSecret", "TOTPOldMasterSecret", 128, SECRET_OWNER_BNETSERVER, WORLDSERVER_DEFER_LOAD }
+    { "TOTPMasterSecret", "TOTPOldMasterSecret", 128, SERVER_PROCESS_AUTHSERVER, WORLDSERVER_DEFER_LOAD }
 };
-
-SecretOwner SecretMgr::OWNER;
 
 /*static*/ SecretMgr* SecretMgr::instance()
 {
@@ -82,10 +83,8 @@ static Optional<BigNumber> GetHexFromConfig(char const* configKey, int bits)
     return secret;
 }
 
-void SecretMgr::Initialize(SecretOwner owner)
+void SecretMgr::Initialize()
 {
-    OWNER = owner;
-
     for (uint32 i = 0; i < NUM_SECRETS; ++i)
     {
         if (secret_info[i].flags() & SECRET_FLAG_DEFER_LOAD)
@@ -125,7 +124,7 @@ void SecretMgr::AttemptLoad(Secrets i, LogLevel errorLevel, std::unique_lock<std
         (oldDigest && !Trinity::Crypto::Argon2::Verify(currentValue->AsHexStr(), *oldDigest)) // there is an old digest, and the current secret does not match it
         )
     {
-        if (info.owner != OWNER)
+        if (info.owner != THIS_SERVER_PROCESS)
         {
             if (currentValue)
                 TC_LOG_MESSAGE_BODY("server.loading", errorLevel, "Invalid value for '{}' specified - this is not actually the secret being used in your auth DB.", info.configKey);

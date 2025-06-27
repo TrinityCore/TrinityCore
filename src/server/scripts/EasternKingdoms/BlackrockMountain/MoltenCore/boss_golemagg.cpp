@@ -26,6 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "molten_core.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 
 enum Texts

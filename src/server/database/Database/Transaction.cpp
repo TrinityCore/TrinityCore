@@ -15,15 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Transaction.h"
 #include "Log.h"
+#include "Transaction.h"
 #include "MySQLConnection.h"
 #include "PreparedStatement.h"
 #include "Timer.h"
 #include <mysqld_error.h>
 #include <sstream>
 #include <thread>
-#include <cstring>
 
 std::mutex TransactionTask::_deadlockLock;
 

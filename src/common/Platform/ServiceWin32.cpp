@@ -17,6 +17,7 @@
 
 #ifdef _WIN32
 
+#include "Common.h"
 #include "Log.h"
 #include <cstring>
 #include <windows.h>
@@ -39,18 +40,18 @@ extern int m_ServiceStatus;
 
 SERVICE_STATUS serviceStatus;
 
-SERVICE_STATUS_HANDLE serviceStatusHandle = nullptr;
+SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
 
 typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
 
 bool WinServiceInstall()
 {
-    SC_HANDLE serviceControlManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CREATE_SERVICE);
+    SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
 
     if (serviceControlManager)
     {
         char path[_MAX_PATH + 10];
-        if (GetModuleFileName( nullptr, path, sizeof(path)/sizeof(path[0]) ) > 0)
+        if (GetModuleFileName( 0, path, sizeof(path)/sizeof(path[0]) ) > 0)
         {
             SC_HANDLE service;
             std::strcat(path, " --service run");
@@ -63,11 +64,11 @@ bool WinServiceInstall()
                 SERVICE_AUTO_START,                         // start type
                 SERVICE_ERROR_IGNORE,                       // error control type
                 path,                                       // service's binary
-                nullptr,                                    // no load ordering group
-                nullptr,                                    // no tag identifier
-                nullptr,                                    // no dependencies
-                nullptr,                                    // LocalSystem account
-                nullptr);                                   // no password
+                0,                                          // no load ordering group
+                0,                                          // no tag identifier
+                0,                                          // no dependencies
+                0,                                          // LocalSystem account
+                0);                                         // no password
             if (service)
             {
                 HMODULE advapi32 = GetModuleHandle("ADVAPI32.DLL");
@@ -119,7 +120,7 @@ bool WinServiceInstall()
 
 bool WinServiceUninstall()
 {
-    SC_HANDLE serviceControlManager = OpenSCManager(nullptr, nullptr, SC_MANAGER_CONNECT);
+    SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CONNECT);
 
     if (serviceControlManager)
     {
@@ -200,7 +201,7 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
         char path[_MAX_PATH + 1];
         unsigned int i, last_slash = 0;
 
-        GetModuleFileName(nullptr, path, sizeof(path)/sizeof(path[0]));
+        GetModuleFileName(0, path, sizeof(path)/sizeof(path[0]));
 
         size_t pathLen = std::strlen(path);
         for (i = 0; i < pathLen; i++)
@@ -248,7 +249,7 @@ bool WinServiceRun()
     SERVICE_TABLE_ENTRY serviceTable[] =
     {
         { serviceName, ServiceMain },
-        { nullptr, nullptr }
+        { 0, 0 }
     };
 
     if (!StartServiceCtrlDispatcher(serviceTable))

@@ -1,0 +1,1 @@
+UPDATE `spell_dbc` SET `BaseLevel`=0, `SpellLevel`=0, `SpellFamilyName`=0, `SpellFamilyFlags1`=0, `PreventionType`=0, `Effect2`=6, `EffectImplicitTargetA2`=1, `EffectApplyAuraName1`=136, `EffectApplyAuraName2`=88, `EffectMiscValueB1`=0 WHERE `Id`=47802;

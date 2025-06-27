@@ -26,6 +26,9 @@
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <fmt/ostream.h>
+#include <cmath>
+#include <cstring>
+#include <iostream>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -155,7 +158,7 @@ namespace Trinity::ChatCommands
 
         operator uint32() const { return _id; }
         operator std::string const& () const { return _name; }
-        operator std::string_view() const { return _name; }
+        operator std::string_view() const { return { _name }; }
 
         uint32 GetID() const { return _id; }
         std::string const& GetName() const { return _name; }
@@ -311,7 +314,7 @@ namespace Trinity::ChatCommands
 }
 
 template <typename T1, typename... Ts>
-struct fmt::formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : ostream_formatter {};
+struct fmt::formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : ostream_formatter { };
 
 template <typename T1, typename... Ts>
 struct fmt::printf_formatter<Trinity::ChatCommands::Variant<T1, Ts...>> : formatter<T1>

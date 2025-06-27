@@ -19,35 +19,39 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
-enum Yells
-{
-};
-
 enum Spells
 {
+    SPELL_AMBUSH = 34794,
+    SPELL_THOUSANDBLADES = 34799
 };
 
-enum Events
+enum Misc
 {
+    EQUIP_ID_MAIN_HAND = 0 // was item display id 31818, but this id does not exist
 };
 
 struct boss_renataki : public BossAI
 {
-    boss_renataki(Creature* creature) : BossAI(creature, DATA_RENATAKI)
+    boss_renataki(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS)
     {
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _invisibleTimer = urand(8000, 18000);
+        _ambushTimer = 3000;
+        _visibleTimer = 4000;
+        _aggroTimer = urand(15000, 25000);
+        _thousandBladesTimer = urand(4000, 8000);
+        _invisible = false;
+        _ambushed = false;
     }
 
     void Reset() override
     {
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        BossAI::JustEngagedWith(who);
+        _Reset();
+        Initialize();
     }
 
     void UpdateAI(uint32 diff) override
@@ -55,23 +59,87 @@ struct boss_renataki : public BossAI
         if (!UpdateVictim())
             return;
 
-        events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-        /*
-        while (uint32 eventId = events.ExecuteEvent())
+        if (_invisibleTimer <= diff)
         {
-            switch (eventId)
-            {
-                default:
-                    break;
-            }
+            me->InterruptSpell(CURRENT_GENERIC_SPELL);
+            SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+            me->SetDisplayId(11686);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            _invisible = true;
+            _invisibleTimer = urand(15000, 30000);
         }
-        */
+        else
+            _invisibleTimer -= diff;
+
+        if (_invisible)
+        {
+            if (_ambushTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                {
+                    DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
+                    DoCast(target, SPELL_AMBUSH);
+                }
+
+                _ambushed = true;
+                _ambushTimer = 3000;
+            }
+            else
+                _ambushTimer -= diff;
+        }
+
+        if (_ambushed)
+        {
+            if (_visibleTimer <= diff)
+            {
+                me->InterruptSpell(CURRENT_GENERIC_SPELL);
+                me->SetDisplayId(15268);
+                SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
+                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                _invisible = false;
+                _visibleTimer = 4000;
+            }
+            else
+                _visibleTimer -= diff;
+        }
+
+        // Resetting some aggro so he attacks other gamers
+        if (!_invisible)
+        {
+            if (_aggroTimer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
+                {
+                    if (GetThreat(me->GetVictim()))
+                        ModifyThreatByPercent(me->GetVictim(), -50);
+                    AttackStart(target);
+                }
+
+                _aggroTimer = urand(7000, 20000);
+            }
+            else
+                _aggroTimer -= diff;
+
+            if (_thousandBladesTimer <= diff)
+            {
+                DoCastVictim(SPELL_THOUSANDBLADES);
+                _thousandBladesTimer = urand(7000, 12000);
+            }
+            else
+                _thousandBladesTimer -= diff;
+        }
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    uint32 _invisibleTimer;
+    uint32 _ambushTimer;
+    uint32 _visibleTimer;
+    uint32 _aggroTimer;
+    uint32 _thousandBladesTimer;
+    bool _invisible;
+    bool _ambushed;
 };
 
 void AddSC_boss_renataki()

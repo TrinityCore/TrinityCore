@@ -19,27 +19,27 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
-enum Yells
-{
-};
-
 enum Spells
 {
+    SPELL_LIGHTNINGCLOUD = 25033,
+    SPELL_LIGHTNINGWAVE = 24819
 };
 
 enum Events
 {
+    EVENT_LIGHTNINGCLOUD = 1,
+    EVENT_LIGHTNINGWAVE = 2
 };
 
 struct boss_wushoolay : public BossAI
 {
-    boss_wushoolay(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
-    {
-    }
+    boss_wushoolay(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 5s, 10s);
+        events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 8s, 16s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -51,11 +51,19 @@ struct boss_wushoolay : public BossAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        /*
+
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
+                case EVENT_LIGHTNINGCLOUD:
+                    DoCastVictim(SPELL_LIGHTNINGCLOUD, true);
+                    events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, 15s, 20s);
+                    break;
+                case EVENT_LIGHTNINGWAVE:
+                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_LIGHTNINGWAVE);
+                    events.ScheduleEvent(EVENT_LIGHTNINGWAVE, 12s, 16s);
+                    break;
                 default:
                     break;
             }
@@ -63,7 +71,6 @@ struct boss_wushoolay : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        */
 
         DoMeleeAttackIfReady();
     }

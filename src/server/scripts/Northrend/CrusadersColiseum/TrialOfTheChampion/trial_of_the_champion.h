@@ -21,7 +21,7 @@
 #include "CreatureAIImpl.h"
 
 #define ToCScriptName "instance_trial_of_the_champion"
-#define DataHeader "TCv0.1"
+#define DataHeader "TC"
 
 enum TCData
 {

@@ -22,6 +22,7 @@
 #include "ObjectMgr.h"
 #include "QuestDef.h"
 #include "Timer.h"
+#include "Transaction.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -162,7 +163,7 @@ void QuestPoolMgr::LoadFromDB()
 
     // post-processing and sanity checks
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    for (auto const& pair : lookup)
+    for (auto pair : lookup)
     {
         if (!pair.second.first)
             continue;

@@ -47,7 +47,7 @@ done
 
 show_header() {
 echo "======================================================"
-echo "Trinitycore (master) DBC, Maps, VMaps & MMaps Extractor"
+echo "Trinitycore (3.3.5) DBC, Maps, VMaps & MMaps Extractor"
 echo "======================================================"
 echo
 echo
@@ -58,7 +58,7 @@ echo
 
 extract_dbc_maps() {
 echo
-echo "Extracting DBC, gt, Camera and Maps files"
+echo "Extracting DBC, Camera and Maps files"
 echo
 echo "-- Using $MAPEXTRACTOR"
 echo "-- Copying extracted data to ${DATA_DIR}"
@@ -73,12 +73,12 @@ sleep 5
 cd ${CLIENT_DIR}
 $MAPEXTRACTOR
 
-echo "-- Extraction complete, copying dbc, gt and maps files"
-cp -r dbc gt maps ${DATA_DIR}
-if [[ -d ${CLIENT_DIR}/cameras ]]
+echo "-- Extraction complete, copying dbc and maps files"
+cp -r dbc maps ${DATA_DIR}
+if [[ -d ${CLIENT_DIR}/Cameras ]]
 then
 	echo "-- Camera files found, copying"
-	cp -r cameras ${DATA_DIR}
+	cp -r Cameras ${DATA_DIR}
 fi
 
 echo "-- Done"
@@ -129,14 +129,14 @@ echo
 echo "Cleaning up extracted client files (copied server files are not removed)"
 echo
 echo "Deleting the following directories from ${CLIENT_DIR}"
-echo "-- Buildings, cameras, dbc, gt, maps, mmaps, vmaps"
+echo "-- Buildings, Cameras, dbc, maps, mmaps, vmaps"
 echo
 echo "Enter y to continue or anything else to cancel"
 read a
 if [[ ${a} = "y" ]]
 then
 	cd ${CLIENT_DIR}
-	rm -fr Buildings cameras dbc gt maps mmaps vmaps
+	rm -fr Buildings Cameras dbc maps mmaps vmaps
 	echo "Done"
 fi
 }

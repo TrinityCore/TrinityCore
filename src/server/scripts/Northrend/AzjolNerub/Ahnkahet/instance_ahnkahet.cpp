@@ -17,6 +17,7 @@
 
 #include "ahnkahet.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -49,15 +50,6 @@ BossBoundaryData const boundaries =
     { DATA_JEDOGA_SHADOWSEEKER, new ParallelogramBoundary(Position(460.365f, -661.997f, -20.985f), Position(364.958f,-790.211f, -14.207f), Position(347.436f,-657.978f,14.478f)) }
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_ELDER_NADOX, {{ 1969 }} },
-    { DATA_PRINCE_TALDARAM, {{ 1966 }} },
-    { DATA_JEDOGA_SHADOWSEEKER, {{ 1967 }} },
-    { DATA_AMANITAR, {{ 1989 }} },
-    { DATA_HERALD_VOLAZJ, {{ 1968 }} }
-};
-
 class instance_ahnkahet : public InstanceMapScript
 {
     public:
@@ -72,7 +64,6 @@ class instance_ahnkahet : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
-                LoadDungeonEncounterData(encounters);
 
                 SpheresState[0]             = 0;
                 SpheresState[1]             = 0;
@@ -137,13 +128,15 @@ class instance_ahnkahet : public InstanceMapScript
                 return 0;
             }
 
-            void AfterDataLoad() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                if (GetBossState(DATA_PRINCE_TALDARAM) == DONE)
-                {
-                    SpheresState[0] = IN_PROGRESS;
-                    SpheresState[1] = IN_PROGRESS;
-                }
+                data << SpheresState[0] << ' ' << SpheresState[1];
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                data >> SpheresState[0];
+                data >> SpheresState[1];
             }
 
         protected:

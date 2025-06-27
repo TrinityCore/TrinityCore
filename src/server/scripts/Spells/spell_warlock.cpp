@@ -22,56 +22,123 @@
  */
 
 #include "ScriptMgr.h"
-#include "AreaTrigger.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "ObjectAccessor.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Optional.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellAuraEffects.h"
-#include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum WarlockSpells
 {
-    SPELL_WARLOCK_CREATE_HEALTHSTONE                = 23517,
-    SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
+    SPELL_WARLOCK_DRAIN_SOUL_R1                     = 1120,
+    SPELL_WARLOCK_CREATE_SOULSHARD                  = 43836,
+    SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
-    SPELL_WARLOCK_DEVOUR_MAGIC_HEAL                 = 19658,
-    SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE               = 205292,
-    SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING           = 56249,
-    SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP                = 56226,
-    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
-    SPELL_WARLOCK_IMMOLATE_PERIODIC                 = 157736,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
+    SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS      = 54435,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER    = 54443,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD      = 54508,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
+    SPELL_WARLOCK_DEMONIC_PACT_PROC                 = 48090,
+    SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA          = 58070,
+    SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC          = 58068,
+    SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME              = 63311,
+    SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 56216,
+    SPELL_WARLOCK_HAUNT                             = 48181,
+    SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
+    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
+    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
-    SPELL_WARLOCK_RAIN_OF_FIRE                      = 5740,
-    SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE               = 42223,
-    SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE         = 27285,
-    SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
-    SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE              = 194192,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
+    SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
+    SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
+    SPELL_WARLOCK_NETHER_PROTECTION_HOLY            = 54370,
+    SPELL_WARLOCK_NETHER_PROTECTION_FIRE            = 54371,
+    SPELL_WARLOCK_NETHER_PROTECTION_FROST           = 54372,
+    SPELL_WARLOCK_NETHER_PROTECTION_ARCANE          = 54373,
+    SPELL_WARLOCK_NETHER_PROTECTION_SHADOW          = 54374,
+    SPELL_WARLOCK_NETHER_PROTECTION_NATURE          = 54375,
     SPELL_WARLOCK_SOULSHATTER_EFFECT                = 32835,
-    SPELL_WARLOCK_SOUL_SWAP_CD_MARKER               = 94229,
-    SPELL_WARLOCK_SOUL_SWAP_OVERRIDE                = 86211,
-    SPELL_WARLOCK_SOUL_SWAP_MOD_COST                = 92794,
-    SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER              = 92795,
-    SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
+    SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117,
+    SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED       = 63321,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1      = 27285,
+    SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC        = 32865,
+    SPELL_WARLOCK_SHADOW_TRANCE                     = 17941,
+    SPELL_WARLOCK_SOUL_LEECH_HEAL                   = 30294,
+    SPELL_WARLOCK_IMP_SOUL_LEECH_R1                 = 54117,
+    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1             = 54607,
+    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2             = 59118,
+    SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1          = 54300,
+    SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2          = 59117,
+    SPELL_REPLENISHMENT                             = 57669,
     SPELL_WARLOCK_SHADOWFLAME                       = 37378,
     SPELL_WARLOCK_FLAMESHADOW                       = 37379,
+    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1            = 18213,
+    SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC          = 18371
 };
 
-enum MiscSpells
+enum WarlockSpellIcons
 {
-    SPELL_GEN_REPLENISHMENT                         = 57669,
-    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+    WARLOCK_ICON_ID_IMPROVED_LIFE_TAP               = 208,
+    WARLOCK_ICON_ID_MANA_FEED                       = 1982,
+    WARLOCK_ICON_ID_DEMONIC_PACT                    = 3220
 };
 
-// 710 - Banish
+// -980 - Curse of Agony
+class spell_warl_curse_of_agony : public AuraScript
+{
+    PrepareAuraScript(spell_warl_curse_of_agony);
+
+    void ApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        _tick_amount = aurEff->GetAmount();
+    }
+
+    void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
+    {
+        switch (aurEff->GetTickNumber())
+        {
+            // 1..4 ticks, 1/2 from normal tick damage
+            case 1:
+                aurEff->SetAmount(_tick_amount / 2);
+                break;
+            // 5..8 ticks have normal tick damage
+            case 5:
+                aurEff->SetAmount(_tick_amount);
+                break;
+            // 9..12 ticks, 3/2 from normal tick damage
+            case 9:
+                aurEff->SetAmount((_tick_amount + 1) * 3 / 2); // +1 prevent 0.5 damage possible lost at 1..4 ticks
+                break;
+            // 13 and 14 ticks (glyphed only), twice normal tick damage
+            case 13:
+                aurEff->SetAmount(_tick_amount * 2);
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_warl_curse_of_agony::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_warl_curse_of_agony::HandleEffectPeriodicUpdate, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+private:
+    uint32 _tick_amount = 0;
+};
+
+// -710 - Banish
 class spell_warl_banish : public SpellScript
 {
     PrepareSpellScript(spell_warl_banish);
@@ -99,84 +166,138 @@ private:
     }
 };
 
-// 116858 - Chaos Bolt
-class spell_warl_chaos_bolt : public SpellScript
+// -6201 - Create Healthstone (and ranks)
+class spell_warl_create_healthstone : public SpellScriptLoader
 {
-    PrepareSpellScript(spell_warl_chaos_bolt);
+    public:
+        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
 
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    void HandleDummy(SpellEffIndex /*effIndex*/)
-    {
-        SetHitDamage(GetHitDamage() + CalculatePct(GetHitDamage(), GetCaster()->ToPlayer()->m_activePlayerData->SpellCritPercentage));
-    }
-
-    void CalcCritChance(Unit const* /*victim*/, float& critChance)
-    {
-        critChance = 100.0f;
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_chaos_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_warl_chaos_bolt::CalcCritChance);
-    }
-};
-
-// 77220 - Mastery: Chaotic Energies
-class spell_warl_chaotic_energies : public AuraScript
-{
-    PrepareAuraScript(spell_warl_chaotic_energies);
-
-    void HandleAbsorb(AuraEffect* /*aurEff*/, DamageInfo& dmgInfo, uint32& absorbAmount)
-    {
-        AuraEffect const* effect1 = GetEffect(EFFECT_1);
-        if (!effect1 || !GetTargetApplication()->HasEffect(EFFECT_1))
+        class spell_warl_create_healthstone_SpellScript : public SpellScript
         {
-            PreventDefaultAction();
-            return;
+            PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
+
+            static uint32 const iTypes[8][3];
+
+            bool Validate(SpellInfo const* /*spellInfo*/) override
+            {
+                return ValidateSpellInfo({ SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1, SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2 });
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    uint8 spellRank = GetSpellInfo()->GetRank();
+                    ItemPosCountVec dest;
+                    InventoryResult msg = caster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, iTypes[spellRank - 1][0], 1, nullptr);
+                    if (msg != EQUIP_ERR_OK)
+                        return SPELL_FAILED_TOO_MANY_OF_ITEM;
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    uint32 rank = 0;
+                    // Improved Healthstone
+                    if (AuraEffect const* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
+                    {
+                        switch (aurEff->GetId())
+                        {
+                            case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1:
+                                rank = 1;
+                                break;
+                            case SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2:
+                                rank = 2;
+                                break;
+                            default:
+                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
+                                break;
+                        }
+                    }
+                    uint8 spellRank = GetSpellInfo()->GetRank();
+                    if (spellRank > 0 && spellRank <= 8)
+                        CreateItem(iTypes[spellRank - 1][rank]);
+                }
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnCheckCast += SpellCheckCastFn(spell_warl_create_healthstone_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_warl_create_healthstone_SpellScript();
         }
-
-        // You take ${$s2/3}% reduced damage
-        float damageReductionPct = float(effect1->GetAmount()) / 3;
-        // plus a random amount of up to ${$s2/3}% additional reduced damage
-        damageReductionPct += frand(0.0f, damageReductionPct);
-
-        absorbAmount = CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
-    }
-
-    void Register() override
-    {
-        OnEffectAbsorb += AuraEffectAbsorbFn(spell_warl_chaotic_energies::HandleAbsorb, EFFECT_2);
-    }
 };
 
-// 6201 - Create Healthstone
-class spell_warl_create_healthstone : public SpellScript
+uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellScript::iTypes[8][3] = {
+    { 5512, 19004, 19005},              // Minor Healthstone
+    { 5511, 19006, 19007},              // Lesser Healthstone
+    { 5509, 19008, 19009},              // Healthstone
+    { 5510, 19010, 19011},              // Greater Healthstone
+    { 9421, 19012, 19013},              // Major Healthstone
+    {22103, 22104, 22105},              // Master Healthstone
+    {36889, 36890, 36891},              // Demonic Healthstone
+    {36892, 36893, 36894}               // Fel Healthstone
+};
+
+// -603 - Curse of Doom
+class spell_warl_curse_of_doom : public AuraScript
 {
-    PrepareSpellScript(spell_warl_create_healthstone);
+    PrepareAuraScript(spell_warl_curse_of_doom);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_CREATE_HEALTHSTONE });
+        return ValidateSpellInfo({ SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT });
     }
 
     bool Load() override
     {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+        return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
     }
 
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_CREATE_HEALTHSTONE, true);
+        if (!GetCaster())
+            return;
+
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        if (removeMode != AURA_REMOVE_BY_DEATH || !IsExpired())
+            return;
+
+        if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
+            GetCaster()->CastSpell(GetTarget(), SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT, aurEff);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_create_healthstone::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+         AfterEffectRemove += AuraEffectRemoveFn(spell_warl_curse_of_doom::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// -63156 - Decimation
+class spell_warl_decimation : public AuraScript
+{
+    PrepareAuraScript(spell_warl_decimation);
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (SpellInfo const* spellInfo = eventInfo.GetSpellInfo())
+            if (eventInfo.GetActionTarget()->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellInfo, eventInfo.GetActor()))
+                return true;
+
+        return false;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warl_decimation::CheckProc);
     }
 };
 
@@ -202,7 +323,7 @@ class spell_warl_demonic_circle_summon : public AuraScript
             // WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST; allowing him to cast the WARLOCK_DEMONIC_CIRCLE_TELEPORT.
             // If not in range remove the WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST.
 
-            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT, GetCastDifficulty());
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT);
 
             if (GetTarget()->IsWithinDist(circle, spellInfo->GetMaxRange(true)))
             {
@@ -244,64 +365,268 @@ class spell_warl_demonic_circle_teleport : public AuraScript
     }
 };
 
-// 67518, 19505 - Devour Magic
-class spell_warl_devour_magic : public SpellScript
+// 47193 - Demonic Empowerment
+class spell_warl_demonic_empowerment : public SpellScript
 {
-    PrepareSpellScript(spell_warl_devour_magic);
+    PrepareSpellScript(spell_warl_demonic_empowerment);
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL })
-            && spellInfo->GetEffects().size() > EFFECT_1;
+        return ValidateSpellInfo(
+        {
+            SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS,
+            SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER,
+            SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD,
+            SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER,
+            SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP
+        });
     }
 
-    void OnSuccessfulDispel(SpellEffIndex /*effIndex*/)
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
-        Unit* caster = GetCaster();
-        CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_FULL_MASK;
-        args.AddSpellBP0(GetEffectInfo(EFFECT_1).CalcValue(caster));
-
-        caster->CastSpell(caster, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, args);
-
-        // Glyph of Felhunter
-        if (Unit* owner = caster->GetOwner())
-            if (owner->GetAura(SPELL_WARLOCK_GLYPH_OF_DEMON_TRAINING))
-                owner->CastSpell(owner, SPELL_WARLOCK_DEVOUR_MAGIC_HEAL, args);
+        if (Creature* targetCreature = GetHitCreature())
+        {
+            if (targetCreature->IsPet())
+            {
+                CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
+                ASSERT(ci);
+                switch (ci->family)
+                {
+                    case CREATURE_FAMILY_SUCCUBUS:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS, true);
+                        break;
+                    case CREATURE_FAMILY_VOIDWALKER:
+                    {
+                        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
+                        int32 hp = targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(spellInfo->GetEffect(EFFECT_0)));
+                        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+                        args.AddSpellBP0(hp);
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, args);
+                        //unitTarget->CastSpell(unitTarget, 54441, true);
+                        break;
+                    }
+                    case CREATURE_FAMILY_FELGUARD:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD, true);
+                        break;
+                    case CREATURE_FAMILY_FELHUNTER:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER, true);
+                        break;
+                    case CREATURE_FAMILY_IMP:
+                        targetCreature->CastSpell(targetCreature, SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     void Register() override
     {
-        OnEffectSuccessfulDispel += SpellEffectFn(spell_warl_devour_magic::OnSuccessfulDispel, EFFECT_0, SPELL_EFFECT_DISPEL);
+        OnEffectHitTarget += SpellEffectFn(spell_warl_demonic_empowerment::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
-// 198590 - Drain Soul
+// -1120 - Drain Soul
 class spell_warl_drain_soul : public AuraScript
 {
     PrepareAuraScript(spell_warl_drain_soul);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE });
+        return ValidateSpellInfo(
+        {
+            SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1,
+            SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC,
+            SPELL_WARLOCK_CREATE_SOULSHARD,
+            SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA,
+            SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC
+        });
     }
 
-    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+        // Drain Soul's proc tries to happen each time the warlock lands a killing blow on a unit while channeling.
+        // Make sure that dying unit is afflicted by the caster's Drain Soul debuff in order to avoid a false positive.
+
+        Unit* caster = eventInfo.GetActor();
+        Unit* victim = eventInfo.GetActionTarget();
+        return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL_R1, caster->GetGUID()) != 0;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        Unit* caster = eventInfo.GetActor();
+        // Improved Drain Soul
+        Aura const* impDrainSoul = caster->GetAuraOfRankedSpell(SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_R1, caster->GetGUID());
+        if (!impDrainSoul)
             return;
 
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_WARLOCK_DRAIN_SOUL_ENERGIZE, true);
+        int32 amount = CalculatePct(caster->GetMaxPower(POWER_MANA), impDrainSoul->GetSpellInfo()->GetEffect(EFFECT_2).CalcValue());
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(amount);
+        caster->CastSpell(nullptr, SPELL_WARLOCK_IMPROVED_DRAIN_SOUL_PROC, args);
+    }
+
+    void HandleTick(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
+        {
+            if (roll_chance_i(20))
+            {
+                caster->CastSpell(caster, SPELL_WARLOCK_CREATE_SOULSHARD, aurEff);
+                // Glyph of Drain Soul - chance to create an additional Soul Shard
+                if (AuraEffect* aur = caster->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_AURA, EFFECT_0))
+                    if (roll_chance_i(aur->GetMiscValue()))
+                        caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_DRAIN_SOUL_PROC, aur);
+            }
+        }
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectApplyFn(spell_warl_drain_soul::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        DoCheckProc += AuraCheckProcFn(spell_warl_drain_soul::CheckProc);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_drain_soul::HandleTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectProc += AuraEffectProcFn(spell_warl_drain_soul::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
-// 48181 - Haunt
+// 47422 - Everlasting Affliction
+class spell_warl_everlasting_affliction : public SpellScript
+{
+    PrepareSpellScript(spell_warl_everlasting_affliction);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (Unit* target = GetHitUnit())
+        {
+            // Refresh corruption on target
+            if (AuraEffect* aur = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, caster->GetGUID()))
+            {
+                aur->ChangeAmount(aur->CalculateAmount(aur->GetCaster()), false);
+                aur->CalculatePeriodic(caster, false, false);
+                aur->GetBase()->RefreshDuration(true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_everlasting_affliction::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// -47230 - Fel Synergy
+class spell_warl_fel_synergy : public AuraScript
+{
+    PrepareAuraScript(spell_warl_fel_synergy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_FEL_SYNERGY_HEAL });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return false;
+
+        return GetTarget()->GetGuardianPet() != nullptr;
+    }
+
+    void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        int32 heal = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(heal);
+        GetTarget()->CastSpell(nullptr, SPELL_WARLOCK_FEL_SYNERGY_HEAL, args); // TARGET_UNIT_PET
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warl_fel_synergy::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_fel_synergy::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// -18094 - Nightfall
+//  56218 - Glyph of Corruption
+class spell_warl_glyph_of_corruption_nightfall : public AuraScript
+{
+    PrepareAuraScript(spell_warl_glyph_of_corruption_nightfall);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_SHADOW_TRANCE });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = eventInfo.GetActor();
+        caster->CastSpell(caster, SPELL_WARLOCK_SHADOW_TRANCE, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_corruption_nightfall::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 63320 - Glyph of Life Tap
+class spell_warl_glyph_of_life_tap : public AuraScript
+{
+    PrepareAuraScript(spell_warl_glyph_of_life_tap);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        Unit* caster = eventInfo.GetActor();
+        caster->CastSpell(caster, SPELL_WARLOCK_GLYPH_OF_LIFE_TAP_TRIGGERED, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_life_tap::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 63310 - Glyph of Shadowflame
+class spell_warl_glyph_of_shadowflame : public AuraScript
+{
+    PrepareAuraScript(spell_warl_glyph_of_shadowflame);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME });
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warl_glyph_of_shadowflame::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// -48181 - Haunt
 class spell_warl_haunt : public SpellScript
 {
     PrepareSpellScript(spell_warl_haunt);
@@ -319,7 +644,33 @@ class spell_warl_haunt : public SpellScript
     }
 };
 
-// 755 - Health Funnel
+class spell_warl_haunt_aura : public AuraScript
+{
+    PrepareAuraScript(spell_warl_haunt_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_HAUNT_HEAL });
+    }
+
+    void HandleRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            CastSpellExtraArgs args(aurEff);
+            args.OriginalCaster = GetCasterGUID();
+            args.AddSpellBP0(aurEff->GetAmount());
+            GetTarget()->CastSpell(caster, SPELL_WARLOCK_HAUNT_HEAL, args);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectApplyFn(spell_warl_haunt_aura::HandleRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
+// -755 - Health Funnel
 class spell_warl_health_funnel : public AuraScript
 {
     PrepareAuraScript(spell_warl_health_funnel);
@@ -344,109 +695,255 @@ class spell_warl_health_funnel : public AuraScript
         target->RemoveAurasDueToSpell(SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
     }
 
-    void OnPeriodic(AuraEffect const* aurEff)
+    void Register() override
+    {
+        OnEffectRemove += AuraEffectRemoveFn(spell_warl_health_funnel::RemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectApply += AuraEffectApplyFn(spell_warl_health_funnel::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// -1454 - Life Tap
+class spell_warl_life_tap : public SpellScript
+{
+    PrepareSpellScript(spell_warl_life_tap);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+    }
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_LIFE_TAP_ENERGIZE, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2 });
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
-        //! HACK for self damage, is not blizz :/
-        uint32 damage = caster->CountPctFromMaxHealth(aurEff->GetBaseAmount());
+        int32 base = GetEffectInfo(effIndex).CalcValue();
 
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(GetSpellInfo(), SpellModOp::PowerCost0, damage);
+        float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+        float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) * 0.5f * penalty;
 
-        SpellNonMeleeDamage damageInfo(caster, caster, GetSpellInfo(), GetAura()->GetSpellVisual(), GetSpellInfo()->SchoolMask, GetAura()->GetCastId());
-        damageInfo.periodicLog = true;
-        damageInfo.damage = damage;
-        caster->DealSpellDamage(&damageInfo, false);
-        caster->SendSpellNonMeleeDamageLog(&damageInfo);
-    }
+        // Improved Life Tap mod
+        if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))
+            AddPct(fmana, aurEff->GetAmount());
+        int32 mana = round(fmana);
 
-    void Register() override
-    {
-        OnEffectApply += AuraEffectApplyFn(spell_warl_health_funnel::ApplyEffect, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_warl_health_funnel::RemoveEffect, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH, AURA_EFFECT_HANDLE_REAL);
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_health_funnel::OnPeriodic, EFFECT_0, SPELL_AURA_OBS_MOD_HEALTH);
-    }
-};
+        // Shouldn't Appear in Combat Log
+        caster->ModifyHealth(-base);
 
-// 6262 - Healthstone
-class spell_warl_healthstone_heal : public SpellScript
-{
-    PrepareSpellScript(spell_warl_healthstone_heal);
+        CastSpellExtraArgs args;
+        args.AddSpellBP0(mana);
+        caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE, args);
 
-    void HandleOnHit()
-    {
-        int32 heal = int32(CalculatePct(GetCaster()->GetCreateHealth(), GetHitHeal()));
-        SetHitHeal(heal);
-    }
+        // Mana Feed
+        int32 manaFeedVal = 0;
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_MANA_FEED, 0))
+            manaFeedVal = aurEff->GetAmount();
 
-    void Register() override
-    {
-        OnHit += SpellHitFn(spell_warl_healthstone_heal::HandleOnHit);
-    }
-};
-
-// 348 - Immolate
-class spell_warl_immolate : public SpellScript
-{
-    PrepareSpellScript(spell_warl_immolate);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARLOCK_IMMOLATE_PERIODIC});
-    }
-
-    void HandleOnEffectHit(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_IMMOLATE_PERIODIC, GetSpell());
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_immolate::HandleOnEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 6358 - Seduction (Special Ability)
-class spell_warl_seduction : public SpellScript
-{
-    PrepareSpellScript(spell_warl_seduction);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_SUCCUBUS, SPELL_PRIEST_SHADOW_WORD_DEATH });
-    }
-
-    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
+        if (manaFeedVal > 0)
         {
-            if (caster->GetOwner() && caster->GetOwner()->HasAura(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
+            ApplyPct(manaFeedVal, mana);
+            CastSpellExtraArgs manaFeedArgs(TRIGGERED_FULL_MASK);
+            manaFeedArgs.AddSpellBP0(manaFeedVal);
+            caster->CastSpell(caster, SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2, manaFeedArgs);
+        }
+    }
+
+    SpellCastResult CheckCast()
+    {
+        if (int32(GetCaster()->GetHealth()) > int32(GetEffectInfo(EFFECT_0).CalcValue()))
+            return SPELL_CAST_OK;
+        return SPELL_FAILED_FIZZLE;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warl_life_tap::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast += SpellCheckCastFn(spell_warl_life_tap::CheckCast);
+    }
+};
+
+// -30299 - Nether Protection
+class spell_warl_nether_protection : public AuraScript
+{
+    PrepareAuraScript(spell_warl_nether_protection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_WARLOCK_NETHER_PROTECTION_HOLY,
+            SPELL_WARLOCK_NETHER_PROTECTION_FIRE,
+            SPELL_WARLOCK_NETHER_PROTECTION_NATURE,
+            SPELL_WARLOCK_NETHER_PROTECTION_FROST,
+            SPELL_WARLOCK_NETHER_PROTECTION_SHADOW,
+            SPELL_WARLOCK_NETHER_PROTECTION_ARCANE
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (DamageInfo* damageInfo = eventInfo.GetDamageInfo())
+        {
+            switch (GetFirstSchoolInMask(damageInfo->GetSchoolMask()))
             {
-                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(SPELL_PRIEST_SHADOW_WORD_DEATH)); // SW:D shall not be removed.
-                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
-                target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                case SPELL_SCHOOL_HOLY:
+                case SPELL_SCHOOL_FIRE:
+                case SPELL_SCHOOL_NATURE:
+                case SPELL_SCHOOL_FROST:
+                case SPELL_SCHOOL_SHADOW:
+                case SPELL_SCHOOL_ARCANE:
+                    return true;
+                default:
+                    break;
+            }
+        }
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+        uint32 triggerspell = 0;
+
+        switch (GetFirstSchoolInMask(eventInfo.GetDamageInfo()->GetSchoolMask()))
+        {
+            case SPELL_SCHOOL_HOLY:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_HOLY;
+                break;
+            case SPELL_SCHOOL_FIRE:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_FIRE;
+                break;
+            case SPELL_SCHOOL_NATURE:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_NATURE;
+                break;
+            case SPELL_SCHOOL_FROST:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_FROST;
+                break;
+            case SPELL_SCHOOL_SHADOW:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_SHADOW;
+                break;
+            case SPELL_SCHOOL_ARCANE:
+                triggerspell = SPELL_WARLOCK_NETHER_PROTECTION_ARCANE;
+                break;
+            default:
+                return;
+        }
+
+        if (Unit* target = eventInfo.GetActionTarget())
+            target->CastSpell(target, triggerspell, aurEff);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warl_nether_protection::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_nether_protection::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 54909, 53646 - Demonic Pact
+class spell_warl_demonic_pact : public AuraScript
+{
+    PrepareAuraScript(spell_warl_demonic_pact);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_DEMONIC_PACT_PROC });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor() && eventInfo.GetActor()->IsPet();
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        if (Unit* owner = eventInfo.GetActor()->GetOwner())
+        {
+            if (AuraEffect* aurEff = owner->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_DEMONIC_PACT, EFFECT_0))
+            {
+                int32 bp = static_cast<int32>((aurEff->GetAmount() * owner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_MAGIC) + 100.0f) / 100.0f);
+                CastSpellExtraArgs args(aurEff);
+                args.AddSpellBP0(bp);
+                args.AddSpellMod(SPELLVALUE_BASE_POINT1, bp);
+                owner->CastSpell(nullptr, SPELL_WARLOCK_DEMONIC_PACT_PROC, args);
             }
         }
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_seduction::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        DoCheckProc += AuraCheckProcFn(spell_warl_demonic_pact::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_demonic_pact::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
-// 27285 - Seed of Corruption
+// 18541 - Ritual of Doom Effect
+class spell_warl_ritual_of_doom_effect : public SpellScript
+{
+    PrepareSpellScript(spell_warl_ritual_of_doom_effect);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, GetEffectValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warl_ritual_of_doom_effect::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 6358 - Seduction
+class spell_warl_seduction : public SpellScript
+{
+    PrepareSpellScript(spell_warl_seduction);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_GLYPH_OF_SUCCUBUS });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* owner = GetCaster()->GetOwner();
+        if (!owner || !owner->HasAura(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
+            return;
+
+        Unit* target = GetHitUnit();
+        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, ObjectGuid::Empty, target->GetAura(32409)); // SW:D shall not be removed.
+        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_seduction::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// -27285 - Seed of Corruption
 class spell_warl_seed_of_corruption : public SpellScript
 {
     PrepareSpellScript(spell_warl_seed_of_corruption);
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        if (GetExplTargetUnit())
-            targets.remove(GetExplTargetUnit());
+        targets.remove_if([&](WorldObject const* target)
+        {
+            if (Unit const* unitTarget = target->ToUnit())
+                if (WorldLocation const* dest = GetExplTargetDest())
+                    if (!unitTarget->IsWithinLOS(dest->GetPositionX(), dest->GetPositionY(), dest->GetPositionZ()))
+                        return true;
+
+            return false;
+        });
     }
 
     void Register() override
@@ -455,26 +952,27 @@ class spell_warl_seed_of_corruption : public SpellScript
     }
 };
 
-// 27243 - Seed of Corruption
+// -27243 - Seed of Corruption
 class spell_warl_seed_of_corruption_dummy : public AuraScript
 {
     PrepareAuraScript(spell_warl_seed_of_corruption_dummy);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE });
+        return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1 });
     }
 
-    void CalculateBuffer(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    void CalculateBuffer(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
     {
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        amount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * GetEffectInfo(EFFECT_0).CalcValue(caster) / 100;
+        // effect 1 scales with 14% of caster's SP (DBC data)
+        amount = caster->SpellDamageBonusDone(GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE, aurEff->GetSpellEffectInfo(), GetAura()->GetDonePct());
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -495,13 +993,14 @@ class spell_warl_seed_of_corruption_dummy : public AuraScript
         if (!caster)
             return;
 
-        caster->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE, aurEff);
+        uint32 spellId = sSpellMgr->GetSpellWithRank(SPELL_WARLOCK_SEED_OF_CORRUPTION_DAMAGE_R1, GetSpellInfo()->GetRank());
+        caster->CastSpell(eventInfo.GetActionTarget(), spellId, aurEff);
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_seed_of_corruption_dummy::CalculateBuffer, EFFECT_2, SPELL_AURA_DUMMY);
-        OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_dummy::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_seed_of_corruption_dummy::CalculateBuffer, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warl_seed_of_corruption_dummy::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -521,7 +1020,7 @@ class spell_warl_seed_of_corruption_generic : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_SEED_OF_CORRUPTION_GENERIC });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
@@ -550,174 +1049,129 @@ class spell_warl_seed_of_corruption_generic : public AuraScript
     }
 };
 
-// 686 - Shadow Bolt
-class spell_warl_shadow_bolt : public SpellScript
+// -6229 - Shadow Ward
+class spell_warl_shadow_ward : public AuraScript
 {
-    PrepareSpellScript(spell_warl_shadow_bolt);
+    PrepareAuraScript(spell_warl_shadow_ward);
 
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        return ValidateSpellInfo ({ SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE });
-    }
+        canBeRecalculated = false;
+        if (Unit* caster = GetCaster())
+        {
+            // +80.68% from sp bonus
+            float bonus = 0.8068f;
 
-    void HandleAfterCast()
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SHADOW_BOLT_ENERGIZE, true);
+            bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
+            bonus *= caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
+
+            amount += int32(bonus);
+        }
     }
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_warl_shadow_bolt::HandleAfterCast);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shadow_ward::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
     }
 };
 
-// 86121 - Soul Swap
-class spell_warl_soul_swap : public SpellScript
+// 63108 - Siphon Life
+class spell_warl_siphon_life : public AuraScript
 {
-    PrepareSpellScript(spell_warl_soul_swap);
+    PrepareAuraScript(spell_warl_siphon_life);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
         {
-            SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP,
-            SPELL_WARLOCK_SOUL_SWAP_CD_MARKER,
-            SPELL_WARLOCK_SOUL_SWAP_OVERRIDE
+            SPELL_WARLOCK_SIPHON_LIFE_HEAL,
+            SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE
         });
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/)
+    bool CheckProc(ProcEventInfo& eventInfo)
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SWAP_OVERRIDE, true);
-        GetHitUnit()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SWAP_DOT_MARKER, true);
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return false;
+
+        return GetTarget()->IsAlive();
+    }
+
+    void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        PreventDefaultAction();
+
+        int32 amount = CalculatePct(static_cast<int32>(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+        // Glyph of Siphon Life
+        if (AuraEffect const* glyph = GetTarget()->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE, EFFECT_0))
+            AddPct(amount, glyph->GetAmount());
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(amount);
+        GetTarget()->CastSpell(GetTarget(), SPELL_WARLOCK_SIPHON_LIFE_HEAL, args);
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_soul_swap::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        DoCheckProc += AuraCheckProcFn(spell_warl_siphon_life::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_warl_siphon_life::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
-// 86211 - Soul Swap Override - Also acts as a dot container
-class spell_warl_soul_swap_override : public AuraScript
+// -30293 - Soul Leech
+class spell_warl_soul_leech : public AuraScript
 {
-    PrepareAuraScript(spell_warl_soul_swap_override);
-
-    //! Forced to, pure virtual functions must have a body when linking
-    void Register() override { }
-
-public:
-    void AddDot(uint32 id)                          { _dotList.push_back(id); }
-    std::list<uint32> const GetDotList() const      { return _dotList; }
-    Unit* GetOriginalSwapSource() const             { return _swapCaster; }
-    void SetOriginalSwapSource(Unit* victim)        { _swapCaster = victim; }
-
-private:
-    std::list<uint32> _dotList;
-    Unit* _swapCaster = nullptr;
-};
-
-//! Soul Swap Copy Spells - 92795 - Simply copies spell IDs.
-class spell_warl_soul_swap_dot_marker : public SpellScript
-{
-    PrepareSpellScript(spell_warl_soul_swap_dot_marker);
-
-    void HandleHit(SpellEffIndex /*effIndex*/)
-    {
-        Unit* swapVictim = GetCaster();
-        Unit* warlock    = GetHitUnit();
-        if (!warlock || !swapVictim)
-            return;
-
-        Unit::AuraApplicationMap const& appliedAuras = swapVictim->GetAppliedAuras();
-        spell_warl_soul_swap_override* swapSpellScript = nullptr;
-        if (Aura* swapOverrideAura = warlock->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-            swapSpellScript = swapOverrideAura->GetScript<spell_warl_soul_swap_override>();
-
-        if (!swapSpellScript)
-            return;
-
-        flag128 classMask = GetEffectInfo().SpellClassMask;
-
-        for (Unit::AuraApplicationMap::const_iterator itr = appliedAuras.begin(); itr != appliedAuras.end(); ++itr)
-        {
-            SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
-            if (itr->second->GetBase()->GetCaster() == warlock)
-                if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags & classMask))
-                    swapSpellScript->AddDot(itr->first);
-        }
-
-        swapSpellScript->SetOriginalSwapSource(swapVictim);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_warl_soul_swap_dot_marker::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 86213 - Soul Swap Exhale
-class spell_warl_soul_swap_exhale : public SpellScript
-{
-    PrepareSpellScript(spell_warl_soul_swap_exhale);
+    PrepareAuraScript(spell_warl_soul_leech);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARLOCK_SOUL_SWAP_MOD_COST, SPELL_WARLOCK_SOUL_SWAP_OVERRIDE });
-    }
-
-    SpellCastResult CheckCast()
-    {
-        Unit* currentTarget = GetExplTargetUnit();
-        Unit* swapTarget = nullptr;
-        if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
-            if (spell_warl_soul_swap_override* swapScript = swapOverride->GetScript<spell_warl_soul_swap_override>())
-                swapTarget = swapScript->GetOriginalSwapSource();
-
-        // Soul Swap Exhale can't be cast on the same target than Soul Swap
-        if (swapTarget && currentTarget && swapTarget == currentTarget)
-            return SPELL_FAILED_BAD_TARGETS;
-
-        return SPELL_CAST_OK;
-    }
-
-    void OnEffectHit(SpellEffIndex /*effIndex*/)
-    {
-        GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SWAP_MOD_COST, true);
-        bool hasGlyph = GetCaster()->HasAura(SPELL_WARLOCK_GLYPH_OF_SOUL_SWAP);
-
-        std::list<uint32> dotList;
-        Unit* swapSource = nullptr;
-        if (Aura const* swapOverride = GetCaster()->GetAura(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE))
+        return ValidateSpellInfo(
         {
-            spell_warl_soul_swap_override* swapScript = swapOverride->GetScript<spell_warl_soul_swap_override>();
-            if (!swapScript)
-                return;
-            dotList = swapScript->GetDotList();
-            swapSource = swapScript->GetOriginalSwapSource();
-        }
+            SPELL_WARLOCK_SOUL_LEECH_HEAL,
+            SPELL_WARLOCK_IMP_SOUL_LEECH_R1,
+            SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1,
+            SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2,
+            SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1,
+            SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2,
+            SPELL_REPLENISHMENT
+        });
+    }
 
-        if (dotList.empty())
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        static uint32 const casterMana[2] = { SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_1, SPELL_WARLOCK_SOUL_LEECH_CASTER_MANA_2 };
+        static uint32 const petMana[2]    = { SPELL_WARLOCK_SOUL_LEECH_PET_MANA_1,    SPELL_WARLOCK_SOUL_LEECH_PET_MANA_2    };
+
+        PreventDefaultAction();
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
             return;
 
-        for (std::list<uint32>::const_iterator itr = dotList.begin(); itr != dotList.end(); ++itr)
-        {
-            GetCaster()->AddAura(*itr, GetHitUnit());
-            if (!hasGlyph && swapSource)
-                swapSource->RemoveAurasDueToSpell(*itr);
-        }
+        Unit* caster = eventInfo.GetActor();
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount()));
+        caster->CastSpell(caster, SPELL_WARLOCK_SOUL_LEECH_HEAL, args);
 
-        // Remove Soul Swap Exhale buff
-        GetCaster()->RemoveAurasDueToSpell(SPELL_WARLOCK_SOUL_SWAP_OVERRIDE);
+        // Improved Soul Leech code below
+        AuraEffect const* impSoulLeech = GetTarget()->GetAuraEffectOfRankedSpell(SPELL_WARLOCK_IMP_SOUL_LEECH_R1, EFFECT_1, aurEff->GetCasterGUID());
+        if (!impSoulLeech)
+            return;
 
-        if (hasGlyph) // Add a cooldown on Soul Swap if caster has the glyph
-            GetCaster()->CastSpell(GetCaster(), SPELL_WARLOCK_SOUL_SWAP_CD_MARKER, false);
+        uint8 impSoulLeechRank = impSoulLeech->GetSpellInfo()->GetRank();
+        uint32 selfSpellId = casterMana[impSoulLeechRank - 1];
+        uint32 petSpellId = petMana[impSoulLeechRank - 1];
+
+        caster->CastSpell(nullptr, selfSpellId, aurEff);
+        caster->CastSpell(nullptr, petSpellId, aurEff);
+
+        if (roll_chance_i(impSoulLeech->GetAmount()))
+            caster->CastSpell(nullptr, SPELL_REPLENISHMENT, aurEff);
     }
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_warl_soul_swap_exhale::CheckCast);
-        OnEffectHitTarget += SpellEffectFn(spell_warl_soul_swap_exhale::OnEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectProc += AuraEffectProcFn(spell_warl_soul_leech::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -747,21 +1201,21 @@ class spell_warl_soulshatter : public SpellScript
 
 // 37377 - Shadowflame
 // 39437 - Shadowflame Hellfire and RoF
-template <uint32 Trigger>
+template <uint32 TriggerSpellId>
 class spell_warl_t4_2p_bonus : public AuraScript
 {
     PrepareAuraScript(spell_warl_t4_2p_bonus);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ Trigger });
+        return ValidateSpellInfo({ TriggerSpellId });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         Unit* caster = eventInfo.GetActor();
-        caster->CastSpell(caster, Trigger, aurEff);
+        caster->CastSpell(caster, TriggerSpellId, aurEff);
     }
 
     void Register() override
@@ -770,7 +1224,7 @@ class spell_warl_t4_2p_bonus : public AuraScript
     }
 };
 
-// 30108, 34438, 34439, 35183 - Unstable Affliction
+// -30108 - Unstable Affliction
 class spell_warl_unstable_affliction : public AuraScript
 {
     PrepareAuraScript(spell_warl_unstable_affliction);
@@ -784,7 +1238,7 @@ class spell_warl_unstable_affliction : public AuraScript
     {
         if (Unit* caster = GetCaster())
         {
-            if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+            if (AuraEffect const* aurEff = GetEffect(EFFECT_0))
             {
                 if (Unit* target = dispelInfo->GetDispeller()->ToUnit())
                 {
@@ -807,61 +1261,37 @@ class spell_warl_unstable_affliction : public AuraScript
     }
 };
 
-// 5740 - Rain of Fire
-/// Updated 7.1.5
-class spell_warl_rain_of_fire : public AuraScript
-{
-    PrepareAuraScript(spell_warl_rain_of_fire);
-
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
-    {
-        std::vector<AreaTrigger*> rainOfFireAreaTriggers = GetTarget()->GetAreaTriggers(SPELL_WARLOCK_RAIN_OF_FIRE);
-        GuidUnorderedSet targetsInRainOfFire;
-
-        for (AreaTrigger* rainOfFireAreaTrigger : rainOfFireAreaTriggers)
-        {
-            GuidUnorderedSet const& insideTargets = rainOfFireAreaTrigger->GetInsideUnits();
-            targetsInRainOfFire.insert(insideTargets.begin(), insideTargets.end());
-        }
-
-        for (ObjectGuid insideTargetGuid : targetsInRainOfFire)
-            if (Unit* insideTarget = ObjectAccessor::GetUnit(*GetTarget(), insideTargetGuid))
-                if (!GetTarget()->IsFriendlyTo(insideTarget))
-                    GetTarget()->CastSpell(insideTarget, SPELL_WARLOCK_RAIN_OF_FIRE_DAMAGE, true);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_rain_of_fire::HandleDummyTick, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
 void AddSC_warlock_spell_scripts()
 {
+    RegisterSpellScript(spell_warl_curse_of_agony);
     RegisterSpellScript(spell_warl_banish);
-    RegisterSpellScript(spell_warl_chaos_bolt);
-    RegisterSpellScript(spell_warl_chaotic_energies);
-    RegisterSpellScript(spell_warl_create_healthstone);
+    new spell_warl_create_healthstone();
+    RegisterSpellScript(spell_warl_curse_of_doom);
+    RegisterSpellScript(spell_warl_decimation);
     RegisterSpellScript(spell_warl_demonic_circle_summon);
     RegisterSpellScript(spell_warl_demonic_circle_teleport);
-    RegisterSpellScript(spell_warl_devour_magic);
+    RegisterSpellScript(spell_warl_demonic_empowerment);
+    RegisterSpellScript(spell_warl_demonic_pact);
     RegisterSpellScript(spell_warl_drain_soul);
-    RegisterSpellScript(spell_warl_haunt);
+    RegisterSpellScript(spell_warl_everlasting_affliction);
+    RegisterSpellScript(spell_warl_fel_synergy);
+    RegisterSpellScript(spell_warl_glyph_of_life_tap);
+    RegisterSpellScript(spell_warl_glyph_of_shadowflame);
+    RegisterSpellAndAuraScriptPair(spell_warl_haunt, spell_warl_haunt_aura);
     RegisterSpellScript(spell_warl_health_funnel);
-    RegisterSpellScript(spell_warl_healthstone_heal);
-    RegisterSpellScript(spell_warl_immolate);
+    RegisterSpellScript(spell_warl_glyph_of_corruption_nightfall);
+    RegisterSpellScript(spell_warl_life_tap);
+    RegisterSpellScript(spell_warl_nether_protection);
+    RegisterSpellScript(spell_warl_ritual_of_doom_effect);
     RegisterSpellScript(spell_warl_seduction);
     RegisterSpellScript(spell_warl_seed_of_corruption);
     RegisterSpellScript(spell_warl_seed_of_corruption_dummy);
     RegisterSpellScript(spell_warl_seed_of_corruption_generic);
-    RegisterSpellScript(spell_warl_shadow_bolt);
-    RegisterSpellScript(spell_warl_soul_swap);
-    RegisterSpellScript(spell_warl_soul_swap_dot_marker);
-    RegisterSpellScript(spell_warl_soul_swap_exhale);
-    RegisterSpellScript(spell_warl_soul_swap_override);
+    RegisterSpellScript(spell_warl_shadow_ward);
+    RegisterSpellScript(spell_warl_siphon_life);
+    RegisterSpellScript(spell_warl_soul_leech);
     RegisterSpellScript(spell_warl_soulshatter);
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_FLAMESHADOW>, "spell_warl_t4_2p_bonus_shadow");
     RegisterSpellScriptWithArgs(spell_warl_t4_2p_bonus<SPELL_WARLOCK_SHADOWFLAME>, "spell_warl_t4_2p_bonus_fire");
     RegisterSpellScript(spell_warl_unstable_affliction);
-    RegisterSpellScript(spell_warl_rain_of_fire);
 }

@@ -27,14 +27,6 @@
 class Player;
 struct AreaTableEntry;
 
-namespace WorldPackets
-{
-    namespace Channel
-    {
-        class ChannelNotify;
-    }
-}
-
 // EnumUtils: DESCRIBE THIS
 enum ChatNotify : uint8
 {
@@ -75,9 +67,7 @@ enum ChatNotify : uint8
     CHAT_NOT_IN_AREA_NOTICE           = 0x20,           //+ "[%s] You are not in the correct area for this channel."; -- The user is trying to send a chat to a zone specific channel, and they're not physically in that zone.
     CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
     CHAT_VOICE_ON_NOTICE              = 0x22,           //+ "[%s] Channel voice enabled by %s.";
-    CHAT_VOICE_OFF_NOTICE             = 0x23,           //+ "[%s] Channel voice disabled by %s.";
-    CHAT_TRIAL_RESTRICTED             = 0x24,           //+ "[%s] Free Trial accounts cannot send messages to this channel. |cffffd000|Hstorecategory:gametime|h[Click To Upgrade]|h|r"
-    CHAT_NOT_ALLOWED_IN_CHANNEL       = 0x25            //+ "That operation is not permitted in this channel."
+    CHAT_VOICE_OFF_NOTICE             = 0x23            //+ "[%s] Channel voice disabled by %s.";
 };
 
 enum ChannelFlags
@@ -100,18 +90,17 @@ enum ChannelFlags
 
 enum ChannelDBCFlags
 {
-    CHANNEL_DBC_FLAG_NONE               = 0x00000,
-    CHANNEL_DBC_FLAG_INITIAL            = 0x00001,              // General, Trade, LocalDefense, LFG
-    CHANNEL_DBC_FLAG_ZONE_DEP           = 0x00002,              // General, Trade, LocalDefense, GuildRecruitment
-    CHANNEL_DBC_FLAG_GLOBAL             = 0x00004,              // WorldDefense
-    CHANNEL_DBC_FLAG_TRADE              = 0x00008,              // Trade, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY          = 0x00010,              // Trade, GuildRecruitment, LFG
-    CHANNEL_DBC_FLAG_CITY_ONLY2         = 0x00020,              // Trade, GuildRecruitment, LFG
-    CHANNEL_DBC_FLAG_DEFENSE            = 0x10000,              // LocalDefense, WorldDefense
-    CHANNEL_DBC_FLAG_GUILD_REQ          = 0x20000,              // GuildRecruitment
-    CHANNEL_DBC_FLAG_LFG                = 0x40000,              // LFG
-    CHANNEL_DBC_FLAG_UNK1               = 0x80000,              // General
-    CHANNEL_DBC_FLAG_NO_CLIENT_JOIN     = 0x200000
+    CHANNEL_DBC_FLAG_NONE       = 0x00000,
+    CHANNEL_DBC_FLAG_INITIAL    = 0x00001,              // General, Trade, LocalDefense, LFG
+    CHANNEL_DBC_FLAG_ZONE_DEP   = 0x00002,              // General, Trade, LocalDefense, GuildRecruitment
+    CHANNEL_DBC_FLAG_GLOBAL     = 0x00004,              // WorldDefense
+    CHANNEL_DBC_FLAG_TRADE      = 0x00008,              // Trade, LFG
+    CHANNEL_DBC_FLAG_CITY_ONLY  = 0x00010,              // Trade, GuildRecruitment, LFG
+    CHANNEL_DBC_FLAG_CITY_ONLY2 = 0x00020,              // Trade, GuildRecruitment, LFG
+    CHANNEL_DBC_FLAG_DEFENSE    = 0x10000,              // LocalDefense, WorldDefense
+    CHANNEL_DBC_FLAG_GUILD_REQ  = 0x20000,              // GuildRecruitment
+    CHANNEL_DBC_FLAG_LFG        = 0x40000,              // LFG
+    CHANNEL_DBC_FLAG_UNK1       = 0x80000               // General
 };
 
 enum ChannelMemberFlags
@@ -131,59 +120,46 @@ class TC_GAME_API Channel
 {
     struct PlayerInfo
     {
-        uint8 GetFlags() const { return _flags; }
+        uint8 flags;
+        bool invisible;
 
-        bool IsInvisible() const { return _invisible; }
-        void SetInvisible(bool on) { _invisible = on; }
+        bool IsInvisible() const { return invisible; }
+        void SetInvisible(bool on) { invisible = on; }
 
-        inline bool HasFlag(uint8 flag) const { return (_flags & flag) != 0; }
-        inline void SetFlag(uint8 flag) { _flags |= flag; }
-        inline void RemoveFlag(uint8 flag) { _flags &= ~flag; }
+        bool HasFlag(uint8 flag) const { return (flags & flag) != 0; }
+        void SetFlag(uint8 flag) { flags |= flag; }
 
-        bool IsOwner() const { return HasFlag(MEMBER_FLAG_OWNER); }
+        bool IsOwner() const { return (flags & MEMBER_FLAG_OWNER) != 0; }
         void SetOwner(bool state)
         {
-            if (state)
-                SetFlag(MEMBER_FLAG_OWNER);
-            else
-                RemoveFlag(MEMBER_FLAG_OWNER);
+            if (state) flags |= MEMBER_FLAG_OWNER;
+            else flags &= ~MEMBER_FLAG_OWNER;
         }
 
-        bool IsModerator() const { return HasFlag(MEMBER_FLAG_MODERATOR); }
+        bool IsModerator() const { return (flags & MEMBER_FLAG_MODERATOR) != 0; }
         void SetModerator(bool state)
         {
-            if (state)
-                SetFlag(MEMBER_FLAG_MODERATOR);
-            else
-                RemoveFlag(MEMBER_FLAG_MODERATOR);
+            if (state) flags |= MEMBER_FLAG_MODERATOR;
+            else flags &= ~MEMBER_FLAG_MODERATOR;
         }
 
-        bool IsMuted() const { return HasFlag(MEMBER_FLAG_MUTED); }
+        bool IsMuted() const { return (flags & MEMBER_FLAG_MUTED) != 0; }
         void SetMuted(bool state)
         {
-            if (state)
-                SetFlag(MEMBER_FLAG_MUTED);
-            else
-                RemoveFlag(MEMBER_FLAG_MUTED);
+            if (state) flags |= MEMBER_FLAG_MUTED;
+            else flags &= ~MEMBER_FLAG_MUTED;
         }
-
-    private:
-        uint8 _flags = MEMBER_FLAG_NONE;
-        bool _invisible = false;
     };
 
     public:
-        Channel(ObjectGuid const& guid, uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
-        Channel(ObjectGuid const& guid, std::string const& name, uint32 team = 0, std::string const& banList = "");     // custom player channel ctor
+        Channel(uint32 channelId, uint32 team = 0, AreaTableEntry const* zoneEntry = nullptr);  // built-in channel ctor
+        Channel(std::string const& name, uint32 team, std::string const& banList = "");         // custom player channel ctor
 
         static void GetChannelName(std::string& channelName, uint32 channelId, LocaleConstant locale, AreaTableEntry const* zoneEntry);
         std::string GetName(LocaleConstant locale = DEFAULT_LOCALE) const;
 
         uint32 GetChannelId() const { return _channelId; }
         bool IsConstant() const { return _channelId != 0; }
-
-        ObjectGuid GetGUID() const { return _channelGuid; }
-
         bool IsLFG() const { return (GetFlags() & CHANNEL_FLAG_LFG) != 0; }
 
         bool IsAnnounce() const { return _announceEnabled; }
@@ -196,7 +172,7 @@ class TC_GAME_API Channel
         void SetPassword(std::string const& password) { _channelPassword = password; }
         bool CheckPassword(std::string const& password) const { return _channelPassword.empty() || (_channelPassword == password); }
 
-        uint32 GetNumPlayers() const { return uint32(_playersStore.size()); }
+        uint32 GetNumPlayers() const { return _playersStore.size(); }
 
         uint8 GetFlags() const { return _channelFlags; }
         bool HasFlag(uint8 flag) const { return (_channelFlags & flag) != 0; }
@@ -204,7 +180,7 @@ class TC_GAME_API Channel
         AreaTableEntry const* GetZoneEntry() const { return _zoneEntry; }
 
         void JoinChannel(Player* player, std::string const& pass = "");
-        void LeaveChannel(Player* player, bool send = true, bool suspend = false);
+        void LeaveChannel(Player* player, bool send = true);
 
         void KickOrBan(Player const* player, std::string const& badname, bool ban);
         void Kick(Player const* player, std::string const& badname) { KickOrBan(player, badname, false); }
@@ -214,52 +190,49 @@ class TC_GAME_API Channel
         void Password(Player const* player, std::string const& pass);
         void SetMode(Player const* player, std::string const& p2n, bool mod, bool set);
 
-        void SetInvisible(Player const* player, bool on);
-
-        void SetOwner(ObjectGuid const& guid, bool exclaim = true);
-        void SetOwner(Player const* player, std::string const& name);
-        void SendWhoOwner(Player const* player);
-
         void SetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, true); }
         void UnsetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, false); }
         void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
-        void SilenceAll(Player const* player, std::string const& name);
-        void UnsilenceAll(Player const* player, std::string const& name);
-        void List(Player const* player);
+
+        void SetInvisible(Player const* player, bool on);
+
+        void SetOwner(ObjectGuid guid, bool exclaim = true);
+        void SetOwner(Player const* player, std::string const& name);
+        void SendWhoOwner(ObjectGuid guid);
+
+        void List(Player const* player) const;
         void Announce(Player const* player);
-        void Say(ObjectGuid const& guid, std::string const& what, uint32 lang) const;
-        void AddonSay(ObjectGuid const& guid, std::string const& prefix, std::string const& what, bool isLogged) const;
-        void DeclineInvite(Player const* player);
+        void Say(ObjectGuid guid, std::string const& what, uint32 lang) const;
         void Invite(Player const* player, std::string const& newp);
-        void JoinNotify(Player const* player);
-        void LeaveNotify(Player const* player);
+        void Voice(ObjectGuid guid1, ObjectGuid guid2) const;
+        void DeVoice(ObjectGuid guid1, ObjectGuid guid2) const;
+        void JoinNotify(ObjectGuid guid) const;                                       // invisible notify
+        void LeaveNotify(ObjectGuid guid) const;                                      // invisible notify
         void SetOwnership(bool ownership) { _ownershipEnabled = ownership; }
 
     private:
-        template <class Builder>
-        void SendToAll(Builder& builder, ObjectGuid const& guid = ObjectGuid::Empty, ObjectGuid const& accountGuid = ObjectGuid::Empty) const;
 
-        template <class Builder>
-        void SendToAllButOne(Builder& builder, ObjectGuid const& who) const;
+        template<class Builder>
+        void SendToAll(Builder&, ObjectGuid guid = ObjectGuid::Empty) const;
 
-        template <class Builder>
-        void SendToOne(Builder& builder, ObjectGuid const& who) const;
+        template<class Builder>
+        void SendToAllButOne(Builder& builder, ObjectGuid who) const;
 
-        template <class Builder>
-        void SendToAllWithAddon(Builder& builder, std::string const& addonPrefix, ObjectGuid const& guid = ObjectGuid::Empty, ObjectGuid const& accountGuid = ObjectGuid::Empty) const;
+        template<class Builder>
+        void SendToOne(Builder& builder, ObjectGuid who) const;
 
         bool IsOn(ObjectGuid who) const { return _playersStore.find(who) != _playersStore.end(); }
         bool IsBanned(ObjectGuid guid) const { return _bannedStore.find(guid) != _bannedStore.end(); }
 
-        uint8 GetPlayerFlags(ObjectGuid const& guid) const
+        uint8 GetPlayerFlags(ObjectGuid guid) const
         {
             PlayerContainer::const_iterator itr = _playersStore.find(guid);
-            return itr != _playersStore.end() ? itr->second.GetFlags() : 0;
+            return itr != _playersStore.end() ? itr->second.flags : 0;
         }
 
-        void SetModerator(ObjectGuid const& guid, bool set);
-        void SetMute(ObjectGuid const& guid, bool set);
+        void SetModerator(ObjectGuid guid, bool set);
+        void SetMute(ObjectGuid guid, bool set);
 
         typedef std::map<ObjectGuid, PlayerInfo> PlayerContainer;
         typedef GuidUnorderedSet BannedContainer;
@@ -274,7 +247,6 @@ class TC_GAME_API Channel
         uint8 _channelFlags;
         uint32 _channelId;
         uint32 _channelTeam;
-        ObjectGuid _channelGuid;
         ObjectGuid _ownerGuid;
         std::string _channelName;
         std::string _channelPassword;
@@ -283,5 +255,4 @@ class TC_GAME_API Channel
 
         AreaTableEntry const* _zoneEntry;
 };
-
 #endif

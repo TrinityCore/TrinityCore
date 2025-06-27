@@ -18,9 +18,8 @@
 #ifndef MPSCQueue_h__
 #define MPSCQueue_h__
 
-#include <array>
 #include <atomic>
-#include <new>
+#include <utility>
 
 namespace Trinity
 {
@@ -93,14 +92,12 @@ private:
 template<typename T, std::atomic<T*> T::* IntrusiveLink>
 class MPSCQueueIntrusive
 {
-    using Atomic = std::atomic<T*>;
-
 public:
-    MPSCQueueIntrusive() : _dummy(), _dummyPtr(reinterpret_cast<T*>(_dummy.data())), _head(_dummyPtr), _tail(_dummyPtr)
+    MPSCQueueIntrusive() : _dummyPtr(reinterpret_cast<T*>(std::addressof(_dummy))), _head(_dummyPtr), _tail(_dummyPtr)
     {
-        // _dummy is constructed from raw byte array and is intentionally left uninitialized (it might not be default constructible)
+        // _dummy is constructed from aligned_storage and is intentionally left uninitialized (it might not be default constructible)
         // so we init only its IntrusiveLink here
-        Atomic* dummyNext = new (&(_dummyPtr->*IntrusiveLink)) Atomic();
+        std::atomic<T*>* dummyNext = new (&(_dummyPtr->*IntrusiveLink)) std::atomic<T*>();
         dummyNext->store(nullptr, std::memory_order_relaxed);
     }
 
@@ -109,9 +106,6 @@ public:
         T* output;
         while (Dequeue(output))
             delete output;
-
-        // destruct our dummy atomic
-        (_dummyPtr->*IntrusiveLink).~Atomic();
     }
 
     void Enqueue(T* input)
@@ -158,10 +152,10 @@ public:
     }
 
 private:
-    alignas(T) std::array<std::byte, sizeof(T)> _dummy;
+    std::aligned_storage_t<sizeof(T), alignof(T)> _dummy;
     T* _dummyPtr;
-    Atomic _head;
-    Atomic _tail;
+    std::atomic<T*> _head;
+    std::atomic<T*> _tail;
 
     MPSCQueueIntrusive(MPSCQueueIntrusive const&) = delete;
     MPSCQueueIntrusive& operator=(MPSCQueueIntrusive const&) = delete;

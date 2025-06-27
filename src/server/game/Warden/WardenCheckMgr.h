@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "World.h"
+#include <shared_mutex>
 #include <unordered_map>
 #include <vector>
 

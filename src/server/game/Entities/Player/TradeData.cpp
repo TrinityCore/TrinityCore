@@ -18,8 +18,6 @@
 #include "TradeData.h"
 #include "Item.h"
 #include "Player.h"
-#include "Random.h"
-#include "TradePackets.h"
 #include "WorldSession.h"
 
 TradeData* TradeData::GetTraderData() const
@@ -69,8 +67,6 @@ void TradeData::SetItem(TradeSlots slot, Item* item, bool update /*= false*/)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
-    UpdateServerStateIndex();
-
     Update();
 
     // need remove possible trader spell applied to changed item
@@ -94,22 +90,20 @@ void TradeData::SetSpell(uint32 spell_id, Item* castItem /*= nullptr*/)
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
 
-    UpdateServerStateIndex();
-
     Update(true);                                           // send spell info to item owner
     Update(false);                                          // send spell info to caster self
 }
 
-void TradeData::SetMoney(uint64 money)
+void TradeData::SetMoney(uint32 money)
 {
     if (_money == money)
         return;
 
     if (!_player->HasEnoughMoney(money))
     {
-        WorldPackets::Trade::TradeStatus info;
-        info.Status = TRADE_STATUS_FAILED;
-        info.BagResult = EQUIP_ERR_NOT_ENOUGH_MONEY;
+        TradeStatusInfo info;
+        info.Status = TRADE_STATUS_CLOSE_WINDOW;
+        info.Result = EQUIP_ERR_NOT_ENOUGH_MONEY;
         _player->GetSession()->SendTradeStatus(info);
         return;
     }
@@ -118,8 +112,6 @@ void TradeData::SetMoney(uint64 money)
 
     SetAccepted(false);
     GetTraderData()->SetAccepted(false);
-
-    UpdateServerStateIndex();
 
     Update(true);
 }
@@ -138,16 +130,11 @@ void TradeData::SetAccepted(bool state, bool forTrader /*= false*/)
 
     if (!state)
     {
-        WorldPackets::Trade::TradeStatus info;
-        info.Status = TRADE_STATUS_UNACCEPTED;
+        TradeStatusInfo info;
+        info.Status = TRADE_STATUS_BACK_TO_TRADE;
         if (forTrader)
             _trader->GetSession()->SendTradeStatus(info);
         else
             _player->GetSession()->SendTradeStatus(info);
     }
-}
-
-void TradeData::UpdateServerStateIndex()
-{
-    _serverStateIndex = rand32();
 }

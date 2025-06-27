@@ -86,6 +86,7 @@ void RotateMovementGenerator::Initialize(Unit* owner)
      *  owner->AttackStop();
      */
 }
+
 void RotateMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
@@ -99,12 +100,22 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     float angle = owner->GetOrientation();
-    angle += (float(diff) * static_cast<float>(M_PI * 2) / _maxDuration) * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
-    angle = std::clamp(angle, 0.0f, static_cast<float>(M_PI * 2));
+    if (_direction == ROTATE_DIRECTION_LEFT)
+    {
+        angle += float(diff) * float(M_PI) * 2.f / float(_maxDuration);
+        while (angle >= float(M_PI) * 2.f)
+            angle -= float(M_PI) * 2.f;
+    }
+    else
+    {
+        angle -= float(diff) * float(M_PI) * 2.f / float(_maxDuration);
+        while (angle < 0.f)
+            angle += float(M_PI) * 2.f;
+    }
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);
-    if (!owner->GetTransGUID().IsEmpty())
+    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && owner->GetTransGUID())
         init.DisableTransportPathTransformations();
     init.SetFacing(angle);
     init.Launch();
@@ -159,7 +170,7 @@ void DistractMovementGenerator::Initialize(Unit* owner)
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);
-    if (!owner->GetTransGUID().IsEmpty())
+    if (owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && owner->GetTransGUID())
         init.DisableTransportPathTransformations();
     init.SetFacing(_orientation);
     init.Launch();

@@ -16,8 +16,9 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "Unit.h"
 
 enum BasicOrdersEmote
 {
@@ -41,7 +42,7 @@ class spell_operation_gnomeregan_basic_orders_emote : public AuraScript
     {
         Unit* target = GetTarget();
 
-        switch (GetId())
+        switch (GetSpellInfo()->Id)
         {
             case SPELL_TEST_SALUTE:
                 target->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);

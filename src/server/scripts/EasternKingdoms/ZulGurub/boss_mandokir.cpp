@@ -16,89 +16,87 @@
  */
 
 #include "zulgurub.h"
-#include "Containers.h"
-#include "GridNotifiers.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "MotionMaster.h"
-#include "Player.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
-enum Yells
+enum Says
 {
-    SAY_AGGRO                   = 0,
-    SAY_PLAYER_KILL             = 1,
-    SAY_DISMOUNT_OHGAN          = 2,
-    EMOTE_DEVASTATING_SLAM      = 3,
-    SAY_REANIMATE_OHGAN         = 4,
-    EMOTE_FRENZY                = 5,
-    SAY_FRENZY                  = 6,
-    SAY_DEATH                   = 7
+    SAY_AGGRO                 = 0,
+    SAY_DING_KILL             = 1,
+    SAY_WATCH                 = 2,
+    SAY_WATCH_WHISPER         = 3,
+    SAY_OHGAN_DEAD            = 4,
+
+    SAY_GRATS_JINDO           = 0
 };
 
 enum Spells
 {
-    // Bloodlord Mandokir
-    SPELL_BLOODLORD_AURA            = 96480,
-    SPELL_SUMMON_OHGAN              = 96717,
-    SPELL_REANIMATE_OHGAN           = 96724,
-    SPELL_DECAPITATE                = 96682,
-    SPELL_BLOODLETTING              = 96776,
-    SPELL_BLOODLETTING_DAMAGE       = 96777,
-    SPELL_BLOODLETTING_HEAL         = 96778,
-    SPELL_FRENZY                    = 96800,
-    SPELL_LEVEL_UP                  = 96662,
-    SPELL_DEVASTATING_SLAM          = 96740,
-    SPELL_DEVASTATING_SLAM_TRIGGER  = 96761,
-    SPELL_DEVASTATING_SLAM_DAMAGE   = 97385,
-    SPELL_SPIRIT_VENGEANCE_CANCEL   = 96821,
-
-    // Chained Spirit
-    SPELL_REVIVE                    = 96484,
-
-    // Ohgan
-    SPELL_OHGAN_HEART_VISUAL        = 96727,
-    SPELL_PERMANENT_FEIGN_DEATH     = 96733,
-    SPELL_CLEAR_ALL                 = 28471,
-    SPELL_OHGAN_ORDERS              = 96721,
-    SPELL_OHGAN_ORDERS_TRIGGER      = 96722
+    SPELL_CHARGE              = 24408, // seen
+    SPELL_OVERPOWER           = 24407, // Seen
+    SPELL_FEAR                = 29321,
+    SPELL_WHIRLWIND           = 13736, // Triggers 15589
+    SPELL_MORTAL_STRIKE       = 16856, // Seen
+    SPELL_FRENZY              = 24318, // seen
+    SPELL_WATCH               = 24314, // seen 24315, 24316
+    SPELL_WATCH_CHARGE        = 24315, // Triggers 24316
+    SPELL_LEVEL_UP            = 24312  //
 };
 
 enum Events
 {
-    // Bloodlord Mandokir
-    EVENT_SUMMON_OHGAN              = 1,
-    EVENT_DECAPITATE                = 2,
-    EVENT_BLOODLETTING              = 3,
-    EVENT_REANIMATE_OHGAN           = 4,
-    EVENT_REANIMATE_OHGAN_COOLDOWN  = 5,
-    EVENT_DEVASTATING_SLAM          = 6
-};
-
-enum Action
-{
-    // Bloodlord Mandokir
-    ACTION_OHGAN_IS_DEATH       = 1,
-    ACTION_START_REVIVE         = 2,
-
-    // Chained Spirit
-    ACTION_REVIVE               = 1
+    EVENT_CHECK_SPEAKER       = 1,
+    EVENT_CHECK_START,
+    EVENT_STARTED,
+    EVENT_OVERPOWER,
+    EVENT_MORTAL_STRIKE,
+    EVENT_WHIRLWIND,
+    EVENT_WATCH_PLAYER,
+    EVENT_CHARGE_PLAYER
 };
 
 enum Misc
 {
-    POINT_START_REVIVE          = 1,
-
-    DATA_OHGANOT_SO_FAST        = 5762,
-
+    MODEL_OHGAN_MOUNT         = 15271,
+    PATH_MANDOKIR             = 492861,
+    POINT_MANDOKIR_END        = 24,
+    CHAINED_SPIRT_COUNT       = 20
 };
 
-enum SummonGroups
+Position const PosSummonChainedSpirits[CHAINED_SPIRT_COUNT] =
 {
-    SUMMON_GROUP_CHAINED_SPIRIT = 0
+    { -12167.17f, -1979.330f, 133.0992f, 2.268928f },
+    { -12262.74f, -1953.394f, 133.5496f, 0.593412f },
+    { -12176.89f, -1983.068f, 133.7841f, 2.129302f },
+    { -12226.45f, -1977.933f, 132.7982f, 1.466077f },
+    { -12204.74f, -1890.431f, 135.7569f, 4.415683f },
+    { -12216.70f, -1891.806f, 136.3496f, 4.677482f },
+    { -12236.19f, -1892.034f, 134.1041f, 5.044002f },
+    { -12248.24f, -1893.424f, 134.1182f, 5.270895f },
+    { -12257.36f, -1897.663f, 133.1484f, 5.462881f },
+    { -12265.84f, -1903.077f, 133.1649f, 5.654867f },
+    { -12158.69f, -1972.707f, 133.8751f, 2.408554f },
+    { -12178.82f, -1891.974f, 134.1786f, 3.944444f },
+    { -12193.36f, -1890.039f, 135.1441f, 4.188790f },
+    { -12275.59f, -1932.845f, 134.9017f, 0.174533f },
+    { -12273.51f, -1941.539f, 136.1262f, 0.314159f },
+    { -12247.02f, -1963.497f, 133.9476f, 0.872665f },
+    { -12238.68f, -1969.574f, 133.6273f, 1.134464f },
+    { -12192.78f, -1982.116f, 132.6966f, 1.919862f },
+    { -12210.81f, -1979.316f, 133.8700f, 1.797689f },
+    { -12283.51f, -1924.839f, 133.5170f, 0.069813f }
+};
+
+Position const PosMandokir[2] =
+{
+    { -12167.8f, -1927.25f, 153.73f, 3.76991f },
+    { -12197.86f, -1949.392f, 130.2745f, 0.0f }
 };
 
 struct boss_mandokir : public BossAI
@@ -110,126 +108,129 @@ struct boss_mandokir : public BossAI
 
     void Initialize()
     {
-        _ohganotSoFast = true;
-        _reanimateOhganCooldown = false;
+        _killCount = 0;
     }
 
     void Reset() override
     {
-        DoCastAOE(SPELL_SPIRIT_VENGEANCE_CANCEL);
+        if (me->GetPositionZ() > 140.0f)
+        {
+            _Reset();
+            Initialize();
+            me->SetImmuneToAll(true);
+            events.ScheduleEvent(EVENT_CHECK_START, 1s);
+            if (Creature* speaker = instance->GetCreature(DATA_VILEBRANCH_SPEAKER))
+                if (!speaker->IsAlive())
+                    speaker->Respawn(true);
+        }
+        summons.DespawnAll();
+        me->Mount(MODEL_OHGAN_MOUNT);
+    }
 
-        _Reset();
+    void JustDied(Unit* /*killer*/) override
+    {
+        summons.DespawnEntry(NPC_CHAINED_SPIRT);
+        instance->SetBossState(DATA_MANDOKIR, DONE);
+        instance->SaveToDB();
+    }
 
-        me->SummonCreatureGroup(SUMMON_GROUP_CHAINED_SPIRIT);
-        Initialize();
-        _reviveGUID.Clear();
+    void JustReachedHome() override
+    {
+        me->SetImmuneToAll(false);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_OVERPOWER, 7s, 9s);
+        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 24s, 30s);
+        events.ScheduleEvent(EVENT_WATCH_PLAYER, 13s, 15s);
+        events.ScheduleEvent(EVENT_CHARGE_PLAYER, 33s, 38s);
+        me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
         Talk(SAY_AGGRO);
+        me->Dismount();
 
-        DoCastAOE(SPELL_BLOODLORD_AURA);
+        // Summon Ohgan (Spell missing) TEMP HACK
+        me->SummonCreature(NPC_OHGAN, me->GetPositionX() - 3, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35s);
+        // Summon Chained Spirits
+        for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
+            me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
 
-        if (!summons.empty())
-        {
-            for (SummonList::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-            {
-                if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, *itr))
-                    if (chainedSpirit->GetEntry() == NPC_CHAINED_SPIRIT && chainedSpirit->AI())
-                        chainedSpirit->SetFaction(FACTION_NONE);
-            }
-        }
-
-        events.ScheduleEvent(EVENT_DECAPITATE, 10s);
-        events.ScheduleEvent(EVENT_BLOODLETTING, 15s);
-        events.ScheduleEvent(EVENT_SUMMON_OHGAN, 20s);
-        events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 25s);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        DoCastAOE(SPELL_SPIRIT_VENGEANCE_CANCEL);
-        _JustDied();
-        Talk(SAY_DEATH);
+        DoZoneInCombat();
     }
 
     void KilledUnit(Unit* victim) override
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
+        if (victim->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (++_killCount == 3)
         {
-            Talk(SAY_PLAYER_KILL);
-            DoCast(SPELL_LEVEL_UP);
-            _reviveGUID = victim->GetGUID();
-            DoAction(ACTION_START_REVIVE);
+            Talk(SAY_DING_KILL);
+            if (Creature* jindo = instance->GetCreature(DATA_JINDO))
+                if (jindo->IsAlive())
+                    jindo->AI()->Talk(SAY_GRATS_JINDO);
+            DoCast(me, SPELL_LEVEL_UP, true);
+            _killCount = 0;
         }
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void SummonedCreatureDies(Creature* summon, Unit* /*killer*/) override
     {
-        if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
+        if (summon->GetEntry() == NPC_OHGAN)
         {
-            DoCast(me, SPELL_FRENZY, true);
-            Talk(SAY_FRENZY);
-            Talk(EMOTE_FRENZY);
+            DoCast(me, SPELL_FRENZY);
+            Talk(SAY_OHGAN_DEAD);
         }
     }
 
-    void DoAction(int32 action) override
+    void MovementInform(uint32 type, uint32 id) override
     {
-        switch (action)
+        if (type == WAYPOINT_MOTION_TYPE)
         {
-            case ACTION_OHGAN_IS_DEATH:
-                events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 4s);
-                _ohganotSoFast = false;
-                break;
-            case ACTION_START_REVIVE:
+            me->SetWalk(false);
+            if (id == POINT_MANDOKIR_END)
             {
-                std::list<Creature*> creatures;
-                GetCreatureListWithEntryInGrid(creatures, me, NPC_CHAINED_SPIRIT, 200.0f);
-                creatures.remove_if(Trinity::AnyDeadUnitCheck());
-                creatures.remove_if(Trinity::UnitAuraCheck(true, SPELL_OHGAN_ORDERS_TRIGGER));
-                Trinity::Containers::RandomResize(creatures, 1);
-                if (creatures.empty())
-                    return;
-
-                for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
-                {
-                    if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, (*itr)->GetGUID()))
-                    {
-                        chainedSpirit->AI()->SetGUID(_reviveGUID);
-                        chainedSpirit->AI()->DoAction(ACTION_REVIVE);
-                        _reviveGUID.Clear();
-                    }
-                }
-                break;
+                me->SetHomePosition(PosMandokir[1]);
+                me->GetMotionMaster()->MoveTargetedHome();
+                instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
             }
-            default:
-                break;
-
         }
-    }
-
-    uint32 GetData(uint32 type) const override
-    {
-        if (type == DATA_OHGANOT_SO_FAST)
-            return _ohganotSoFast;
-
-        return 0;
-    }
-
-    void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
-    {
-        _reviveGUID = guid;
     }
 
     void UpdateAI(uint32 diff) override
     {
-        if (!UpdateVictim())
-            return;
-
         events.Update(diff);
+
+        if (!UpdateVictim())
+        {
+            if (instance->GetBossState(DATA_MANDOKIR) == NOT_STARTED || instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+            {
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CHECK_START:
+                            if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+                            {
+                                me->GetMotionMaster()->MovePoint(0, PosMandokir[1]);
+                                events.ScheduleEvent(EVENT_STARTED, 6s);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_CHECK_START, 1s);
+                            break;
+                        case EVENT_STARTED:
+                            me->SetImmuneToAll(false);
+                            me->GetMotionMaster()->MovePath(PATH_MANDOKIR, false);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return;
+        }
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
@@ -238,40 +239,30 @@ struct boss_mandokir : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_SUMMON_OHGAN:
-                    me->SetMountDisplayId(0);
-                    DoCast(me, SPELL_SUMMON_OHGAN, true);
+                case EVENT_OVERPOWER:
+                    DoCastVictim(SPELL_OVERPOWER, true);
+                    events.ScheduleEvent(EVENT_OVERPOWER, 6s, 12s);
                     break;
-                case EVENT_DECAPITATE:
-                    DoCastAOE(SPELL_DECAPITATE);
-                    events.ScheduleEvent(EVENT_DECAPITATE, me->HasAura(SPELL_FRENZY) ? (17s + 500ms) : 35s);
+                case EVENT_MORTAL_STRIKE:
+                    if (me->GetVictim() && me->EnsureVictim()->HealthBelowPct(50))
+                        DoCastVictim(SPELL_MORTAL_STRIKE, true);
+                    events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
                     break;
-                case EVENT_BLOODLETTING:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
+                case EVENT_WHIRLWIND:
+                    DoCast(me, SPELL_WHIRLWIND);
+                    events.ScheduleEvent(EVENT_WHIRLWIND, 22s, 26s);
+                    break;
+                case EVENT_WATCH_PLAYER:
+                    if (Unit* player = SelectTarget(SelectTargetMethod::Random, 0, 100, true))
                     {
-                        DoCast(target, SPELL_BLOODLETTING, true);
-                        me->ClearUnitState(UNIT_STATE_CASTING);
+                        DoCast(player, SPELL_WATCH);
+                        Talk(SAY_WATCH, player);
                     }
-                    events.ScheduleEvent(EVENT_BLOODLETTING, 25s);
+                    events.ScheduleEvent(EVENT_WATCH_PLAYER, 12s, 15s);
                     break;
-                case EVENT_REANIMATE_OHGAN:
-                    if (_reanimateOhganCooldown)
-                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN, 1s);
-                    else
-                    {
-                        DoCastAOE(SPELL_REANIMATE_OHGAN);
-                        Talk(SAY_REANIMATE_OHGAN);
-                        // Cooldown
-                        _reanimateOhganCooldown = true;
-                        events.ScheduleEvent(EVENT_REANIMATE_OHGAN_COOLDOWN, 20s);
-                    }
-                    break;
-                case EVENT_REANIMATE_OHGAN_COOLDOWN:
-                    _reanimateOhganCooldown = false;
-                    break;
-                case EVENT_DEVASTATING_SLAM:
-                    DoCastAOE(SPELL_DEVASTATING_SLAM_TRIGGER);
-                    events.ScheduleEvent(EVENT_DEVASTATING_SLAM, 30s);
+                case EVENT_CHARGE_PLAYER:
+                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 40, true), SPELL_CHARGE);
+                    events.ScheduleEvent(EVENT_CHARGE_PLAYER, 22s, 30s);
                     break;
                 default:
                     break;
@@ -285,371 +276,136 @@ struct boss_mandokir : public BossAI
     }
 
 private:
-    bool _ohganotSoFast;
-    bool _reanimateOhganCooldown;
-    ObjectGuid _reviveGUID;
+    uint8 _killCount;
+};
+
+// Ohgan
+
+enum OhganSpells
+{
+    SPELL_SUNDERARMOR         = 24317
 };
 
 struct npc_ohgan : public ScriptedAI
 {
     npc_ohgan(Creature* creature) : ScriptedAI(creature)
     {
-        _instance = me->GetInstanceScript();
+        Initialize();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void Initialize()
     {
-        DoCastAOE(SPELL_OHGAN_ORDERS, true);
+        _sunderArmorTimer = 5000;
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void Reset() override
     {
-        if (damage >= me->GetHealth())
-         {
-            damage = 0;
-            me->AttackStop();
-            me->SetHealth(0);
-            me->SetTarget(ObjectGuid::Empty);
-            DoCast(me, SPELL_CLEAR_ALL, true);
-            DoCast(me, SPELL_PERMANENT_FEIGN_DEATH);
-
-            if (Creature* mandokir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MANDOKIR)))
-                mandokir->AI()->DoAction(ACTION_OHGAN_IS_DEATH);
-        }
+        Initialize();
     }
 
-    void KilledUnit(Unit* victim) override
-    {
-        if (Creature* creature = victim->ToCreature())
-        {
-            if (creature->GetEntry() == NPC_CHAINED_SPIRIT)
-                DoCastAOE(SPELL_OHGAN_ORDERS, true);
-        }
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
+
+        if (_sunderArmorTimer <= diff)
+        {
+            DoCastVictim(SPELL_SUNDERARMOR, true);
+            _sunderArmorTimer = urand(10000, 15000);
+        }
+        else
+            _sunderArmorTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
 
 private:
-    InstanceScript* _instance;
+    uint32 _sunderArmorTimer;
 };
 
-struct npc_chained_spirit : public ScriptedAI
+enum VilebranchSpells
 {
-    npc_chained_spirit(Creature* creature) : ScriptedAI(creature)
+    SPELL_DEMORALIZING_SHOUT  = 13730,
+    SPELL_CLEAVE              = 15284
+};
+
+struct npc_vilebranch_speaker : public ScriptedAI
+{
+    npc_vilebranch_speaker(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
     {
-        _instance = me->GetInstanceScript();
-        me->AddUnitMovementFlag(MOVEMENTFLAG_HOVER);
-        me->SetReactState(REACT_PASSIVE); // correct?
+        Initialize();
+    }
+
+    void Initialize()
+    {
+        _demoralizingShoutTimer = urand(2000, 4000);
+        _cleaveTimer = urand(5000, 8000);
     }
 
     void Reset() override
     {
-        _revivePlayerGUID.Clear();
-    }
-
-    void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
-    {
-        _revivePlayerGUID = guid;
-    }
-
-    void DoAction(int32 action) override
-    {
-        if (action == ACTION_REVIVE)
-        {
-            Position pos;
-            if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
-            {
-                target->GetNearPoint(me, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 5.0f, target->GetAbsoluteAngle(me));
-                me->GetMotionMaster()->MovePoint(POINT_START_REVIVE, pos);
-            }
-        }
-    }
-
-    void MovementInform(uint32 type, uint32 pointId) override
-    {
-        if (type != POINT_MOTION_TYPE || !_revivePlayerGUID)
-            return;
-
-        if (pointId == POINT_START_REVIVE)
-        {
-            if (Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID))
-                DoCast(target, SPELL_REVIVE);
-
-            me->DespawnOrUnsummon(2s);
-        }
+        Initialize();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
-        Player* target = ObjectAccessor::GetPlayer(*me, _revivePlayerGUID);
-        if (!target || target->IsAlive())
-            return;
-
-        if (Creature* mandokir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MANDOKIR)))
-        {
-            mandokir->GetAI()->SetGUID(target->GetGUID());
-            mandokir->GetAI()->DoAction(ACTION_START_REVIVE);
-        }
-
-        me->DespawnOrUnsummon();
+        _instance->SetBossState(DATA_MANDOKIR, SPECIAL);
     }
 
-    void UpdateAI(uint32 /*diff*/) override { }
+    void UpdateAI(uint32 diff) override
+    {
+        // Return since we have no target
+        if (!UpdateVictim())
+            return;
+
+        if (_demoralizingShoutTimer <= diff)
+        {
+            DoCast(me, SPELL_DEMORALIZING_SHOUT);
+            _demoralizingShoutTimer = urand(22000, 30000);
+        }
+        else
+            _demoralizingShoutTimer -= diff;
+
+        if (_cleaveTimer <= diff)
+        {
+            DoCastVictim(SPELL_CLEAVE, true);
+            _cleaveTimer = urand(6000, 9000);
+        }
+        else
+            _cleaveTimer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
 
 private:
+    uint32 _demoralizingShoutTimer;
+    uint32 _cleaveTimer;
     InstanceScript* _instance;
-    ObjectGuid _revivePlayerGUID;
 };
 
-// 96682 - Decapitate
-class spell_mandokir_decapitate : public SpellScript
+// 24314 - Threatening Gaze
+class spell_threatening_gaze : public AuraScript
 {
-    PrepareSpellScript(spell_mandokir_decapitate);
+    PrepareAuraScript(spell_threatening_gaze);
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Player* target = GetHitPlayer())
-            caster->CastSpell(target, uint32(GetEffectValue()), true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_decapitate::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_decapitate::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 96776 - Bloodletting
-class spell_mandokir_bloodletting : public AuraScript
-{
-    PrepareAuraScript(spell_mandokir_bloodletting);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_BLOODLETTING_DAMAGE, SPELL_BLOODLETTING_HEAL });
-    }
-
-    void HandleEffectPeriodic(AuraEffect const* aurEff)
-    {
-        Unit* target = GetTarget();
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        CastSpellExtraArgs args;
-        args.TriggerFlags = TRIGGERED_FULL_MASK;
-        args.AddSpellMod(SPELLVALUE_BASE_POINT0, std::max<int32>(7500, target->CountPctFromCurHealth(aurEff->GetAmount())));
-
-        caster->CastSpell(target, SPELL_BLOODLETTING_DAMAGE, args);
-        target->CastSpell(caster, SPELL_BLOODLETTING_HEAL, args);
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mandokir_bloodletting::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-    }
-};
-
-// 96821 - Spirit's Vengeance Cancel
-class spell_mandokir_spirit_vengeance_cancel : public SpellScript
-{
-    PrepareSpellScript(spell_mandokir_spirit_vengeance_cancel);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Player* target = GetHitPlayer())
-            target->RemoveAura(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_spirit_vengeance_cancel::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
-    }
-};
-
-class DevastatingSlamTargetSelector
-{
-    public:
-        DevastatingSlamTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
-
-        bool operator() (WorldObject* target)
-        {
-            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
-                return true;
-
-            if (target->GetTypeId() != TYPEID_PLAYER)
-                return true;
-
-            return false;
-        }
-
-        Creature* _me;
-        Unit const* _victim;
-};
-
-// 96761 - Devastating Slam
-class spell_mandokir_devastating_slam : public SpellScript
-{
-    PrepareSpellScript(spell_mandokir_devastating_slam);
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        targets.remove_if(DevastatingSlamTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        float angle = 0.0f;
-        float x, y, z;
-
-        if (Player* target = GetHitPlayer())
-        {
-            caster->AttackStop();
-            caster->SetOrientation(caster->GetAbsoluteAngle(target));
-            caster->SetFacingTo(caster->GetAbsoluteAngle(target));
-
-            caster->CastSpell(caster, SPELL_DEVASTATING_SLAM, false);
-
-            // HACK: Need better way for pos calculation
-            for (uint8 i = 0; i <= 50; ++i)
-            {
-                angle = float(rand_norm()) * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
-                caster->GetClosePoint(x, y, z, 4.0f, frand(-2.5f, 50.0f), angle);
-
-                caster->CastSpell(Position{ x, y, z }, SPELL_DEVASTATING_SLAM_DAMAGE, true);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_devastating_slam::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_devastating_slam::HandleScript, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
-    }
-};
-
-// 96721 - Ohgan's Orders
-class spell_mandokir_ohgan_orders : public SpellScript
-{
-    PrepareSpellScript(spell_mandokir_ohgan_orders);
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (Unit* target = GetHitUnit())
-            caster->CastSpell(target, uint32(GetEffectValue()), true);
-    }
-
-    void Register() override
-    {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mandokir_ohgan_orders::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_ohgan_orders::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 96722 - Ohgan's Orders
-class spell_mandokir_ohgan_orders_trigger : public AuraScript
-{
-    PrepareAuraScript(spell_mandokir_ohgan_orders_trigger);
-
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Unit* target = GetTarget();
         if (Unit* caster = GetCaster())
-        {
-            // HACK: research better way
-            caster->ClearUnitState(UNIT_STATE_CASTING);
-            caster->GetMotionMaster()->Clear();
-            caster->GetThreatManager().ResetAllThreat();
-            caster->GetThreatManager().AddThreat(target, 50000000.0f);
-            // TODO: Fixate mechanic
-        }
+            if (Unit* target = GetTarget())
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+                    caster->CastSpell(target, SPELL_WATCH_CHARGE);
     }
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_mandokir_ohgan_orders_trigger::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_threatening_gaze::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
-};
-
-// 96724 - Reanimate Ohgan
-class spell_mandokir_reanimate_ohgan : public SpellScript
-{
-    PrepareSpellScript(spell_mandokir_reanimate_ohgan);
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-        {
-            target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);
-            target->CastSpell(target, SPELL_OHGAN_HEART_VISUAL, true);
-            target->CastSpell(nullptr, SPELL_OHGAN_ORDERS, true);
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_mandokir_reanimate_ohgan::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-class achievement_ohganot_so_fast : public AchievementCriteriaScript
-{
-   public:
-       achievement_ohganot_so_fast() : AchievementCriteriaScript("achievement_ohganot_so_fast") { }
-
-       bool OnCheck(Player* /*player*/, Unit* target) override
-       {
-           return target && target->GetAI()->GetData(DATA_OHGANOT_SO_FAST);
-       }
 };
 
 void AddSC_boss_mandokir()
 {
     RegisterZulGurubCreatureAI(boss_mandokir);
     RegisterZulGurubCreatureAI(npc_ohgan);
-    RegisterZulGurubCreatureAI(npc_chained_spirit);
-    RegisterSpellScript(spell_mandokir_decapitate);
-    RegisterSpellScript(spell_mandokir_bloodletting);
-    RegisterSpellScript(spell_mandokir_spirit_vengeance_cancel);
-    RegisterSpellScript(spell_mandokir_devastating_slam);
-    RegisterSpellScript(spell_mandokir_ohgan_orders);
-    RegisterSpellScript(spell_mandokir_ohgan_orders_trigger);
-    RegisterSpellScript(spell_mandokir_reanimate_ohgan);
-    new achievement_ohganot_so_fast();
+    RegisterZulGurubCreatureAI(npc_vilebranch_speaker);
+    RegisterSpellScript(spell_threatening_gaze);
 }

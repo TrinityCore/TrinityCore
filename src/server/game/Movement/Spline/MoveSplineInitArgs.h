@@ -18,52 +18,32 @@
 #ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
-#include "Duration.h"
 #include "MoveSplineFlag.h"
-#include "MovementTypedefs.h"
-#include "ObjectGuid.h"
-#include "Optional.h"
+#include <vector>
 
 class Unit;
-
-enum class AnimTier : uint8;
 
 namespace Movement
 {
     typedef std::vector<Vector3> PointsArray;
 
-    struct FacingInfo
+    union FacingInfo
     {
-        struct
-        {
+        struct {
             float x, y, z;
         } f;
-        ObjectGuid target;
+        uint64 target;
         float angle;
 
-        MonsterMoveType type;
-
-        FacingInfo() : angle(0.0f), type(MONSTER_MOVE_NORMAL) { f.x = f.y = f.z = 0.0f; }
-    };
-
-    struct SpellEffectExtraData
-    {
-        ObjectGuid Target;
-        uint32 SpellVisualId = 0;
-        uint32 ProgressCurveId = 0;
-        uint32 ParabolicCurveId = 0;
-    };
-
-    struct AnimTierTransition
-    {
-        uint32 TierTransitionId = 0;
-        ::AnimTier AnimTier = ::AnimTier(0);
+        FacingInfo(float o) : angle(o) { }
+        FacingInfo(uint64 t) : target(t) { }
+        FacingInfo() { }
     };
 
     struct MoveSplineInitArgs
     {
-        explicit MoveSplineInitArgs(size_t path_capacity = 16);
-        MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept;
+        MoveSplineInitArgs(size_t path_capacity = 16);
+        MoveSplineInitArgs(MoveSplineInitArgs&& args);
         ~MoveSplineInitArgs();
 
         PointsArray path;
@@ -72,13 +52,9 @@ namespace Movement
         int32 path_Idx_offset;
         float velocity;
         float parabolic_amplitude;
-        float vertical_acceleration;
-        float effect_start_time_percent; // fraction of total spline duration
-        Milliseconds effect_start_time;  // absolute value
+        float time_perc;
         uint32 splineId;
         float initialOrientation;
-        Optional<SpellEffectExtraData> spellEffectExtra;
-        Optional<AnimTierTransition> animTier;
         bool walk;
         bool HasVelocity;
         bool TransformForTransport;
@@ -87,7 +63,7 @@ namespace Movement
         bool Validate(Unit* unit) const;
 
     private:
-        bool _checkPathLengths() const;
+        bool _checkPathBounds() const;
     };
 }
 

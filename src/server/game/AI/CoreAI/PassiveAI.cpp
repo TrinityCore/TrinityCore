@@ -19,19 +19,19 @@
 #include "Creature.h"
 #include "MovementDefines.h"
 
-PassiveAI::PassiveAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+PassiveAI::PassiveAI(Creature* creature) : CreatureAI(creature)
 {
-    me->SetReactState(REACT_PASSIVE);
+    creature->SetReactState(REACT_PASSIVE);
 }
 
-PossessedAI::PossessedAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+PossessedAI::PossessedAI(Creature* creature) : CreatureAI(creature)
 {
-    me->SetReactState(REACT_PASSIVE);
+    creature->SetReactState(REACT_PASSIVE);
 }
 
-NullCreatureAI::NullCreatureAI(Creature* c, uint32 scriptId) : CreatureAI(c, scriptId)
+NullCreatureAI::NullCreatureAI(Creature* creature) : CreatureAI(creature)
 {
-    me->SetReactState(REACT_PASSIVE);
+    creature->SetReactState(REACT_PASSIVE);
 }
 
 int32 NullCreatureAI::Permissible(Creature const* creature)
@@ -48,7 +48,7 @@ int32 NullCreatureAI::Permissible(Creature const* creature)
 void PassiveAI::UpdateAI(uint32)
 {
     if (me->IsEngaged() && !me->IsInCombat())
-        EnterEvadeMode(EvadeReason::NoHostiles);
+        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 }
 
 void PossessedAI::AttackStart(Unit* target)
@@ -82,7 +82,7 @@ void CritterAI::JustEngagedWith(Unit* /*who*/)
 void CritterAI::MovementInform(uint32 type, uint32 /*id*/)
 {
     if (type == TIMED_FLEEING_MOTION_TYPE)
-        EnterEvadeMode(EvadeReason::Other);
+        EnterEvadeMode(EVADE_REASON_OTHER);
 }
 
 void CritterAI::EnterEvadeMode(EvadeReason why)

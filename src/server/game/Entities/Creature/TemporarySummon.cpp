@@ -16,21 +16,15 @@
  */
 
 #include "TemporarySummon.h"
-#include "CellImpl.h"
 #include "CreatureAI.h"
-#include "DB2Structure.h"
+#include "DBCStructure.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "GridNotifiers.h"
 #include "Log.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "Pet.h"
 #include "Player.h"
-#include "SmoothPhasing.h"
-#include <boost/container/small_vector.hpp>
-#include <sstream>
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, WorldObject* owner, bool isWorldObject) :
 Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
@@ -44,7 +38,7 @@ m_timer(0), m_lifetime(0), m_canFollowOwner(true)
 
 WorldObject* TempSummon::GetSummoner() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
+    return m_summonerGUID ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
 }
 
 Unit* TempSummon::GetSummonerUnit() const
@@ -56,7 +50,7 @@ Unit* TempSummon::GetSummonerUnit() const
 
 Creature* TempSummon::GetSummonerCreatureBase() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
+    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : nullptr;
 }
 
 GameObject* TempSummon::GetSummonerGameObject() const
@@ -192,20 +186,11 @@ void TempSummon::InitStats(uint32 duration)
     Unit* owner = GetSummonerUnit();
 
     if (owner && IsTrigger() && m_spells[0])
+    {
+        SetFaction(owner->GetFaction());
+        SetLevel(owner->GetLevel());
         if (owner->GetTypeId() == TYPEID_PLAYER)
             m_ControlledByPlayer = true;
-
-    if (owner && owner->IsPlayer())
-    {
-        if (CreatureSummonedData const* summonedData = sObjectMgr->GetCreatureSummonedData(GetEntry()))
-        {
-            m_creatureIdVisibleToSummoner = summonedData->CreatureIDVisibleToSummoner;
-            if (summonedData->CreatureIDVisibleToSummoner)
-            {
-                CreatureTemplate const* creatureTemplateVisibleToSummoner = ASSERT_NOTNULL(sObjectMgr->GetCreatureTemplate(*summonedData->CreatureIDVisibleToSummoner));
-                m_displayIdVisibleToSummoner = ObjectMgr::ChooseDisplayId(creatureTemplateVisibleToSummoner, nullptr)->CreatureDisplayID;
-            }
-        }
     }
 
     if (!m_Properties)
@@ -213,10 +198,9 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        int32 slot = m_Properties->Slot;
-        if (slot > 0)
+        if (uint32 slot = m_Properties->Slot)
         {
-            if (!owner->m_SummonSlot[slot].IsEmpty() && owner->m_SummonSlot[slot] != GetGUID())
+            if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
                 Creature* oldSummon = GetMap()->GetCreature(owner->m_SummonSlot[slot]);
                 if (oldSummon && oldSummon->IsSummon())
@@ -224,20 +208,12 @@ void TempSummon::InitStats(uint32 duration)
             }
             owner->m_SummonSlot[slot] = GetGUID();
         }
-
-        if (!m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseCreatureLevel))
-            SetLevel(owner->GetLevel());
     }
 
-    uint32 faction = m_Properties->Faction;
-    if (owner && m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::UseSummonerFaction)) // TODO: Determine priority between faction and flag
-        faction = owner->GetFaction();
-
-    if (faction)
-        SetFaction(faction);
-
-    if (m_Properties->GetFlags().HasFlag(SummonPropertiesFlags::SummonFromBattlePetJournal))
-        RemoveNpcFlag(UNIT_NPC_FLAG_WILD_BATTLE_PET);
+    if (m_Properties->Faction)
+        SetFaction(m_Properties->Faction);
+    else if (IsVehicle() && owner) // properties should be vehicle
+        SetFaction(owner->GetFaction());
 }
 
 void TempSummon::InitSummon()
@@ -262,49 +238,7 @@ void TempSummon::InitSummon()
 
 void TempSummon::UpdateObjectVisibilityOnCreate()
 {
-    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
-    objectsToUpdate.push_back(this);
-
-    if (SmoothPhasing const* smoothPhasing = GetSmoothPhasing())
-    {
-        SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
-        if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
-            if (WorldObject* original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject))
-                objectsToUpdate.push_back(original);
-    }
-
-    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
-    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
-}
-
-void TempSummon::UpdateObjectVisibilityOnDestroy()
-{
-    boost::container::small_vector<WorldObject*, 2> objectsToUpdate;
-    objectsToUpdate.push_back(this);
-
-    WorldObject* original = nullptr;
-    if (SmoothPhasing const* smoothPhasing = GetSmoothPhasing())
-    {
-        SmoothPhasingInfo const* infoForSeer = smoothPhasing->GetInfoForSeer(GetDemonCreatorGUID());
-        if (infoForSeer && infoForSeer->ReplaceObject && smoothPhasing->IsReplacing(*infoForSeer->ReplaceObject))
-            original = ObjectAccessor::GetWorldObject(*this, *infoForSeer->ReplaceObject);
-
-        if (original)
-        {
-            objectsToUpdate.push_back(original);
-
-            // disable replacement without removing - it is still needed for next step (visibility update)
-            if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
-                originalSmoothPhasing->DisableReplacementForSeer(GetDemonCreatorGUID());
-        }
-    }
-
-    Trinity::VisibleChangesNotifier notifier({ objectsToUpdate.data(), objectsToUpdate.data() + objectsToUpdate.size() });
-    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
-
-    if (original) // original is only != nullptr when it was replaced
-        if (SmoothPhasing* originalSmoothPhasing = original->GetSmoothPhasing())
-            originalSmoothPhasing->ClearViewerDependentInfo(GetDemonCreatorGUID());
+    WorldObject::UpdateObjectVisibility(true);
 }
 
 void TempSummon::SetTempSummonType(TempSummonType type)
@@ -353,13 +287,10 @@ void TempSummon::RemoveFromWorld()
         return;
 
     if (m_Properties)
-    {
-        int32 slot = m_Properties->Slot;
-        if (slot > 0)
+        if (uint32 slot = m_Properties->Slot)
             if (Unit* owner = GetSummonerUnit())
                 if (owner->m_SummonSlot[slot] == GetGUID())
                     owner->m_SummonSlot[slot].Clear();
-    }
 
     //if (GetOwnerGUID())
     //    TC_LOG_ERROR("entities.unit", "Unit {} has owner guid when removed from world", GetEntry());
@@ -383,8 +314,6 @@ Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorl
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
-    /// @todo: Find correct way
-    InitCharmInfo();
 }
 
 void Minion::InitStats(uint32 duration)
@@ -394,7 +323,7 @@ void Minion::InitStats(uint32 duration)
     SetReactState(REACT_PASSIVE);
 
     SetCreatorGUID(GetOwner()->GetGUID());
-    SetFaction(GetOwner()->GetFaction()); // TODO: Is this correct? Overwrite the use of SummonPropertiesFlags::UseSummonerFaction
+    SetFaction(GetOwner()->GetFaction());
 
     GetOwner()->SetMinion(this, true);
 }
@@ -449,7 +378,7 @@ Guardian::Guardian(SummonPropertiesEntry const* properties, Unit* owner, bool is
 {
     memset(m_statFromOwner, 0, sizeof(float)*MAX_STATS);
     m_unitTypeMask |= UNIT_MASK_GUARDIAN;
-    if (properties && (SummonTitle(properties->Title) == SummonTitle::Pet || properties->Control == SUMMON_CATEGORY_PET))
+    if (properties && (properties->Title == SUMMON_TYPE_PET || properties->Control == SUMMON_CATEGORY_PET))
     {
         m_unitTypeMask |= UNIT_MASK_CONTROLABLE_GUARDIAN;
         InitCharmInfo();
@@ -497,6 +426,7 @@ Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
 void Puppet::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
+    SetLevel(GetOwner()->GetLevel());
     SetReactState(REACT_PASSIVE);
 }
 

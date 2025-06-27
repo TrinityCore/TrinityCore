@@ -35,7 +35,6 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 #include "TemporarySummon.h"
-#include <cmath>
 
 /*** Speech and sounds***/
 enum Yells
@@ -590,7 +589,7 @@ public:
             if (Creature* pKalec = instance->GetCreature(DATA_KALECGOS_KJ))
                 pKalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
 
-            me->SetCombatReach(12.0f);
+            me->SetCombatReach(12);
             summons.DespawnAll();
         }
 
@@ -1038,7 +1037,7 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE|UNIT_FLAG_NON_ATTACKABLE);
         }
 
         void JustSummoned(Creature* summoned) override

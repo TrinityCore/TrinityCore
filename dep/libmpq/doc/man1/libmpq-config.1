@@ -1,0 +1,69 @@
+.\" Copyright (c) 2003-2011 Maik Broemme <mbroemme@libmpq.org>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH libmpq 1 2011-11-06 "The MoPaQ archive library"
+.SH NAME
+libmpq-config \- script to get information about the installed version of libmpq.
+.SH SYNOPSIS
+.B libmpq-config
+[\-\-prefix\fI[=DIR]\fP] [\-\-exec\-prefix\fI[=DIR]\fP] [\-\-version]
+.br
+[\-\-cflags] [\-\-libs] [\-\-static\-libs]
+.SH DESCRIPTION
+.PP
+\fIlibmpq-config\fP is a tool that is used to determine the compiler and linker flags that should be used to compile and link programs that use \fIlibmpq\fP. Finally, it's also used internally by the .m4 macros for GNU autoconf that are included with \fIlibmpq\fP.
+.SH OPTIONS
+\fIlibmpq-config\fP accepts the following options:
+.TP 8
+.B  \-\-version
+.ti 15
+Print the currently installed version of \fIlibmpq\fP on the standard output.
+.TP 8
+.B  \-\-libs
+.ti 15
+Print the linker flags that are necessary to link \fIlibmpq\fP to a program.
+.TP 8
+.B  \-\-static\-libs
+.ti 15
+Print the linker flags that are necessary to statically link \fIlibmpq\fP to a program.
+.TP 8
+.B  \-\-cflags
+.ti 15
+Print the compiler flags that are necessary to compile a program that use \fIlibmpq\fP.
+.TP 8
+.B  \-\-prefix=PREFIX
+.ti 15
+If specified, use PREFIX instead of the installation prefix that \fIlibmpq\fP was built with when computing the output for the \-\-cflags and \-\-libs options. This option is also used for the exec prefix if \-\-exec\-prefix was not specified. This option must be specified before any \-\-libs or \-\-cflags options.
+.TP 8
+.B  \-\-exec\-prefix=PREFIX
+.ti 15
+If specified, use PREFIX instead of the installation exec prefix that \fIlibmpq\fP was built with when computing the output for the \-\-cflags and \-\-libs options.  This option must be specified before any \-\-libs or \-\-cflags options.
+.SH NOTE
+Instead of using this configuration script you should better use the pkg-config version because this would be more platform independent and makes the usage within GNU autoconf much easier.
+.SH SEE ALSO
+\fBlibmpq\fR(3)
+.SH AUTHOR
+Check documentation.
+.TP
+libmpq is (c) 2003-2011
+.B Maik Broemme <mbroemme@libmpq.org>
+.PP
+The above e-mail address can be used to send bug reports, feedbacks or library enhancements.

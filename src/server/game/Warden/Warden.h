@@ -20,6 +20,7 @@
 
 #include "ARC4.h"
 #include "AuthDefines.h"
+#include "ByteBuffer.h"
 #include "Optional.h"
 #include "WardenCheckMgr.h"
 #include <array>

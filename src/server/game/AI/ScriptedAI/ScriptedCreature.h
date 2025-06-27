@@ -18,15 +18,12 @@
 #ifndef TRINITY_SCRIPTEDCREATURE_H
 #define TRINITY_SCRIPTEDCREATURE_H
 
-#include "CreatureAI.h"
 #include "Creature.h"  // convenience include for scripts, all uses of ScriptedCreature also need Creature (except ScriptedCreature itself doesn't need Creature)
+#include "CreatureAI.h"
 #include "DBCEnums.h"
-#include "EventMap.h"
 #include "TaskScheduler.h"
 
 class InstanceScript;
-enum SelectTargetType : uint8;
-enum SelectEffect : uint8;
 
 class TC_GAME_API SummonList
 {
@@ -118,7 +115,7 @@ class TC_GAME_API EntryCheckPredicate
 {
     public:
         EntryCheckPredicate(uint32 entry) : _entry(entry) { }
-        bool operator()(ObjectGuid const& guid) const { return guid.GetEntry() == _entry; }
+        bool operator()(ObjectGuid guid) { return guid.GetEntry() == _entry; }
 
     private:
         uint32 _entry;
@@ -127,14 +124,13 @@ class TC_GAME_API EntryCheckPredicate
 class TC_GAME_API DummyEntryCheckPredicate
 {
     public:
-        bool operator()(ObjectGuid const&) const { return true; }
+        bool operator()(ObjectGuid) { return true; }
 };
 
 struct TC_GAME_API ScriptedAI : public CreatureAI
 {
     public:
         explicit ScriptedAI(Creature* creature);
-        explicit ScriptedAI(Creature* creature, uint32 scriptId);
         virtual ~ScriptedAI() { }
 
         // *************
@@ -225,7 +221,7 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         bool HealthAbovePct(uint32 pct) const;
 
         // Returns spells that meet the specified criteria from the creatures spell list
-        SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect);
+        SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
         void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
@@ -248,16 +244,16 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         Difficulty GetDifficulty() const { return _difficulty; }
 
         // return true for 25 man or 25 man heroic mode
-        bool Is25ManRaid() const { return _difficulty == DIFFICULTY_25_N || _difficulty == DIFFICULTY_25_HC; }
+        bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
         template <class T>
         inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
         {
             switch (_difficulty)
             {
-                case DIFFICULTY_NORMAL:
+                case DUNGEON_DIFFICULTY_NORMAL:
                     return normal5;
-                case DIFFICULTY_HEROIC:
+                case DUNGEON_DIFFICULTY_HEROIC:
                     return heroic10;
                 default:
                     break;
@@ -271,9 +267,9 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         {
             switch (_difficulty)
             {
-                case DIFFICULTY_10_N:
+                case RAID_DIFFICULTY_10MAN_NORMAL:
                     return normal10;
-                case DIFFICULTY_25_N:
+                case RAID_DIFFICULTY_25MAN_NORMAL:
                     return normal25;
                 default:
                     break;
@@ -287,13 +283,13 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         {
             switch (_difficulty)
             {
-                case DIFFICULTY_10_N:
+                case RAID_DIFFICULTY_10MAN_NORMAL:
                     return normal10;
-                case DIFFICULTY_25_N:
+                case RAID_DIFFICULTY_25MAN_NORMAL:
                     return normal25;
-                case DIFFICULTY_10_HC:
+                case RAID_DIFFICULTY_10MAN_HEROIC:
                     return heroic10;
-                case DIFFICULTY_25_HC:
+                case RAID_DIFFICULTY_25MAN_HEROIC:
                     return heroic25;
                 default:
                     break;
@@ -336,14 +332,12 @@ class TC_GAME_API BossAI : public ScriptedAI
 
         bool CanAIAttack(Unit const* target) const override;
 
-        uint32 GetBossId() const { return _bossId; }
-
     protected:
         void _Reset();
         void _JustEngagedWith(Unit* who);
         void _JustDied();
         void _JustReachedHome();
-        void _DespawnAtEvade(Seconds delayToRespawn = 30s, Creature* who = nullptr);
+        void _DespawnAtEvade(Seconds delayToRespawn = 30s,  Creature* who = nullptr);
 
         void TeleportCheaters();
 

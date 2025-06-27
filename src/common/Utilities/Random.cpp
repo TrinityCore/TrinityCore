@@ -63,8 +63,8 @@ Milliseconds randtime(Milliseconds min, Milliseconds max)
 {
     long long diff = max.count() - min.count();
     ASSERT(diff >= 0);
-    ASSERT(diff <= 0xFFFFFFFF);
-    return min + Milliseconds(urand(0, uint32(diff)));
+    ASSERT(diff <= (uint32)-1);
+    return min + Milliseconds(urand(0, diff));
 }
 
 uint32 rand32()

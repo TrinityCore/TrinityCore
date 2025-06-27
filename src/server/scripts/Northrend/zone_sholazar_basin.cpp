@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
-#include "DB2Stores.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -339,15 +338,16 @@ struct npc_jungle_punch_target : public ScriptedAI
         if (!quest)
             return;
 
-        if (player->GetQuestStatus(QUEST_TASTE_TEST) != QUEST_STATUS_INCOMPLETE)
+        QuestStatusMap::const_iterator itr = player->getQuestStatusMap().find(QUEST_TASTE_TEST);
+        if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
             return;
 
-        for (uint32 i = 0; i < quest->Objectives.size(); ++i)
+        for (uint8 i = 0; i < 3; ++i)
         {
-            if (uint32(quest->Objectives[i].ObjectID) != me->GetEntry())
+            if (uint32(quest->RequiredNpcOrGo[i]) != me->GetEntry())
                 continue;
 
-            if (player->GetQuestObjectiveData(quest->Objectives[i]) != 0)
+            if (itr->second.CreatureOrGOCount[i] != 0)
                 continue;
 
             player->KilledMonsterCredit(me->GetEntry());
@@ -513,7 +513,7 @@ class spell_q12589_shoot_rjr : public SpellScript
 
                     bird->KillSelf();
                     crunchy->GetMotionMaster()->MovePoint(0, bird->GetPositionX(), bird->GetPositionY(),
-                        bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhaseShift(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
+                        bird->GetMap()->GetWaterOrGroundLevel(bird->GetPhaseMask(), bird->GetPositionX(), bird->GetPositionY(), bird->GetPositionZ()));
                     /// @todo Make crunchy perform emote eat when he reaches the bird
                     break;
                 }
@@ -635,7 +635,7 @@ class spell_sholazar_take_sputum_sample : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo(
+        return ValidateSpellInfo(
         {
             uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
             uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
@@ -779,7 +779,7 @@ class spell_sholazar_flight_to_sholazar : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return sBroadcastTextStore.LookupEntry(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
+        return sObjectMgr->GetBroadcastText(uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()));
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)

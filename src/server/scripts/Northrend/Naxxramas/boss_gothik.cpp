@@ -25,7 +25,6 @@
 #include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 
 /* Constants */
@@ -45,11 +44,24 @@ enum Yells
 
 enum Spells
 {
+    /* living trainee spells */
+    SPELL_DEATH_PLAGUE          = 55604,
+
     /* living knight spells */
     SPELL_SHADOW_MARK           = 27825,
 
+    /* living rider spells */
+    SPELL_SHADOW_BOLT_VOLLEY    = 27831,
+
+    /* spectral trainee spells */
+    SPELL_ARCANE_EXPLOSION      = 27989,
+
     /* spectral knight spells */
     SPELL_WHIRLWIND             = 56408,
+
+    /* spectral rider spells */
+    SPELL_DRAIN_LIFE            = 27994,
+    SPELL_UNHOLY_FRENZY         = 55648,
 
     /* spectral horse spells */
     SPELL_STOMP                 = 27993,
@@ -75,12 +87,7 @@ enum Spells
     SPELL_TELEPORT_DEAD         = 28025,
     SPELL_TELEPORT_LIVE         = 28026
 };
-
-#define SPELL_DEATH_PLAGUE RAID_MODE<uint32>(55604, 55645)
-#define SPELL_SHADOW_BOLT_VOLLEY RAID_MODE<uint32>(27831, 55638)
-#define SPELL_ARCANE_EXPLOSION RAID_MODE<uint32>(27989, 56407)
-#define SPELL_DRAIN_LIFE RAID_MODE<uint32>(27994, 55646)
-#define SPELL_UNHOLY_FRENZY RAID_MODE<uint32>(55648,27995)
+#define SPELLHELPER_UNHOLY_FRENZY RAID_MODE<uint32>(SPELL_UNHOLY_FRENZY,27995)
 
 enum Creatures
 {
@@ -384,7 +391,7 @@ struct boss_gothik : public BossAI
         {
             case ACTION_MINION_EVADE:
                 if (_gateIsOpen || me->GetThreatManager().IsThreatListEmpty())
-                    return EnterEvadeMode(EvadeReason::NoHostiles);
+                    return EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                 if (_gateCanOpen)
                     OpenGate();
                 break;
@@ -581,7 +588,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                         AttackStart(target);
                     }
                     else
-                        EnterEvadeMode(EvadeReason::NoHostiles);
+                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     break;
             }
         }
@@ -610,7 +617,7 @@ struct npc_gothik_minion_baseAI : public ScriptedAI
                     AttackStart(newTarget);
                 }
                 else
-                    EnterEvadeMode(EvadeReason::NoHostiles);
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             }
 
             _UpdateAI(diff);
@@ -726,7 +733,7 @@ struct npc_gothik_minion_spectralrider : public npc_gothik_minion_baseAI
             _frenzyTimer = 0;
         else
         { // target priority: knight > other rider > horse > gothik
-            std::list<Creature*> potentialTargets = DoFindFriendlyMissingBuff(30.0, SPELL_UNHOLY_FRENZY);
+            std::list<Creature*> potentialTargets = DoFindFriendlyMissingBuff(30.0, SPELLHELPER_UNHOLY_FRENZY);
             Creature *knightTarget = nullptr, *riderTarget = nullptr, *horseTarget = nullptr, *gothikTarget = nullptr;
             for (Creature* pTarget : potentialTargets)
             {

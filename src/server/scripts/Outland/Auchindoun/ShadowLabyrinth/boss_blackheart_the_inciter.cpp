@@ -112,7 +112,7 @@ struct boss_blackheart_the_inciter : public BossAI
         else
         {
             if (!charmCount)
-                EnterEvadeMode(EvadeReason::Other); // sanity check
+                EnterEvadeMode(EVADE_REASON_OTHER); // sanity check
             --charmCount;
         }
         if (charmCount)
@@ -176,7 +176,7 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
         me->CastSpell(who, SPELL_INCITE_CHAOS_B, true);
 
         // ensure everyone is in combat with everyone
-        if (GuidUnorderedSet const* dummies = GetBlackheartDummies(me->GetInstanceScript()))
+        if (auto* dummies = GetBlackheartDummies(me->GetInstanceScript()))
             for (ObjectGuid const& guid : *dummies)
                 if (Creature* trigger = ObjectAccessor::GetCreature(*me, guid))
                     if (me->GetEntry() != trigger->GetEntry())

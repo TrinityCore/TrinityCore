@@ -60,9 +60,11 @@ void EscortAI::JustDied(Unit* /*killer*/)
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
                 if (Player* member = groupRef->GetSource())
                     if (member->IsInMap(player))
                         member->FailQuest(_escortQuest->GetQuestId());
+            }
         }
         else
             player->FailQuest(_escortQuest->GetQuestId());
@@ -94,8 +96,7 @@ void EscortAI::EnterEvadeMode(EvadeReason /*why*/)
 {
     me->RemoveAllAuras();
     me->CombatStop(true);
-    if (!me->IsTapListNotClearedOnEvade())
-        me->SetTappedBy(nullptr);
+    me->SetLootRecipient(nullptr);
 
     EngagementOver();
 
@@ -211,7 +212,7 @@ void EscortAI::UpdateAI(uint32 diff)
     }
 
     // Check if player or any member of his group is within range
-    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && !_playerGUID.IsEmpty() && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_playerCheckTimer <= diff)
         {
@@ -321,7 +322,6 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
     // disable npcflags
     me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
-    me->ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
     if (me->IsImmuneToNPC())
     {
         _hasImmuneToNPCFlags = true;
@@ -424,9 +424,11 @@ bool EscortAI::IsPlayerOrGroupInRange()
         if (Group* group = player->GetGroup())
         {
             for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+            {
                 if (Player* member = groupRef->GetSource())
                     if (me->IsWithinDistInMap(member, GetMaxPlayerDistance()))
                         return true;
+            }
         }
         else if (me->IsWithinDistInMap(player, GetMaxPlayerDistance()))
             return true;

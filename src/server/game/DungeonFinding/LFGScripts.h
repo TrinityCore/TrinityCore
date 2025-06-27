@@ -19,6 +19,7 @@
  * Interaction between core and LFGScripts
  */
 
+#include "Common.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
 

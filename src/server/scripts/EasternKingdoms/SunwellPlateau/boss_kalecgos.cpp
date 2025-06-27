@@ -26,6 +26,7 @@
 #include "SpellScript.h"
 #include "sunwell_plateau.h"
 #include "TemporarySummon.h"
+#include "WorldSession.h"
 
 enum Yells
 {
@@ -60,7 +61,7 @@ enum Spells
     SPELL_WILD_MAGIC_4            = 45006,
     SPELL_WILD_MAGIC_5            = 45010,
     SPELL_WILD_MAGIC_6            = 44978,
-    SPELL_BANISH                  = 136466,          // Changed in MoP  - Patch 5.3 for solo player.
+    SPELL_BANISH                  = 44836,
     SPELL_ENRAGE                  = 44807,
     SPELL_DEMONIC_VISUAL          = 44800,
     SPELL_CORRUPTION_STRIKE       = 45029,
@@ -161,7 +162,7 @@ struct boss_kalecgos : public BossAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        if (events.IsInPhase(PHASE_OUTRO) || me->HasAura(SPELL_BANISH))
+        if (events.IsInPhase(PHASE_OUTRO))
             return;
 
         _EnterEvadeMode();
@@ -499,7 +500,7 @@ struct boss_sathrovarr : public BossAI
         else if (Creature* kalecgosHuman = instance->GetCreature(DATA_KALECGOS_HUMAN))
         {
             if (kalecgosHuman->GetGUID() == target->GetGUID())
-                EnterEvadeMode(EvadeReason::Other);
+                EnterEvadeMode(EVADE_REASON_OTHER);
         }
     }
 
@@ -607,7 +608,7 @@ class spell_kalecgos_tap_check : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)

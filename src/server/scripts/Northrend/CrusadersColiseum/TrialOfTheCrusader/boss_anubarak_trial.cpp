@@ -26,6 +26,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
@@ -248,10 +249,10 @@ struct boss_anubarak_trial : public BossAI
                 _burrowGUID.push_back(summoned->GetGUID());
                 summoned->SetReactState(REACT_PASSIVE);
                 summoned->CastSpell(summoned, SPELL_CHURNING_GROUND, false);
-                summoned->SetDisplayFromModel(1);
+                summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid2);
                 break;
             case NPC_SPIKE:
-                summoned->SetDisplayFromModel(0);
+                summoned->SetDisplayId(summoned->GetCreatureTemplate()->Modelid1);
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                 {
                     summoned->EngageWithTarget(target);
@@ -589,7 +590,7 @@ struct npc_frost_sphere : public ScriptedAI
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_FROST_SPHERE);
-        me->SetDisplayFromModel(1);
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         me->GetMotionMaster()->MoveRandom(20.0f);
     }
 
@@ -802,7 +803,7 @@ class spell_pursuing_spikes : public AuraScript
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         Unit* permafrostCaster = nullptr;
-        if (Aura* permafrostAura = GetTarget()->GetAura(SPELL_PERMAFROST))
+        if (Aura* permafrostAura = GetTarget()->GetAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, GetTarget())))
             permafrostCaster = permafrostAura->GetCaster();
 
         if (permafrostCaster)
@@ -833,7 +834,7 @@ class spell_impale : public SpellScript
     void HandleDamageCalc(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
-        uint32 permafrost = SPELL_PERMAFROST;
+        uint32 permafrost = sSpellMgr->GetSpellIdForDifficulty(SPELL_PERMAFROST, target);
 
         // make sure Impale doesnt do damage if we are standing on permafrost
         if (target && target->HasAura(permafrost))

@@ -17,9 +17,14 @@
 
 #include "GuardAI.h"
 #include "Creature.h"
+#include "Errors.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "Player.h"
+
+GuardAI::GuardAI(Creature* creature) : ScriptedAI(creature)
+{
+}
 
 int32 GuardAI::Permissible(Creature const* creature)
 {

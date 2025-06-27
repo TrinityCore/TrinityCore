@@ -32,35 +32,21 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid TotemGUID;
             uint8 Slot = 0;
         };
 
         class TotemCreated final : public ServerPacket
         {
         public:
-            TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 25) { }
+            TotemCreated() : ServerPacket(SMSG_TOTEM_CREATED, 1 + 8 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Totem;
-            int32 SpellID = 0;
-            int32 Duration = 0;
             uint8 Slot = 0;
-            float TimeMod = 1.0f;
-            bool CannotDismiss = false;
-        };
-
-        class TotemMoved final : public ServerPacket
-        {
-        public:
-            TotemMoved() : ServerPacket(SMSG_TOTEM_MOVED, 18) { }
-
-            WorldPacket const* Write() override;
-
             ObjectGuid Totem;
-            uint8 Slot = 0;
-            uint8 NewSlot = 0;
+            uint32 Duration = 0;
+            uint32 SpellID = 0;
+
         };
     }
 }

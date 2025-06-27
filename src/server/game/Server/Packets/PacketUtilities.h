@@ -19,11 +19,9 @@
 #define PacketUtilities_h__
 
 #include "ByteBuffer.h"
-#include "Duration.h"
 #include "Tuples.h"
 #include <short_alloc/short_alloc.h>
 #include <string_view>
-#include <ctime>
 
 namespace WorldPackets
 {
@@ -78,7 +76,6 @@ namespace WorldPackets
 
     public:
         bool empty() const { return _storage.empty(); }
-        std::size_t length() const { return _storage.length(); }
         char const* c_str() const { return _storage.c_str(); }
 
         operator std::string_view() const { return _storage; }
@@ -89,36 +86,21 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
         {
-            std::string string = data.ReadCString(false);
-            Validate(string);
-            value._storage = std::move(string);
+            value._storage = data.ReadCString(false);
+            value.Validate();
             return data;
         }
 
-        String& operator=(std::string const& value)
-        {
-            Validate(value);
-            _storage = value;
-            return *this;
-        }
-
-        String& operator=(std::string&& value)
-        {
-            Validate(value);
-            _storage = std::move(value);
-            return *this;
-        }
-
     private:
-        static bool Validate(std::string const& value)
+        bool Validate() const
         {
-            return ValidateNth(value, std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
+            return ValidateNth(std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
         }
 
         template<std::size_t... indexes>
-        static bool ValidateNth(std::string const& value, std::index_sequence<indexes...>)
+        bool ValidateNth(std::index_sequence<indexes...>) const
         {
-            return (std::tuple_element_t<indexes, ValidatorList>::Validate(value) && ...);
+            return (std::tuple_element_t<indexes, ValidatorList>::Validate(_storage) && ...);
         }
 
         std::string _storage;
@@ -236,86 +218,6 @@ namespace WorldPackets
     private:
         arena_type _data;
         storage_type _storage;
-    };
-
-    template<typename Underlying = int64>
-    class Timestamp
-    {
-    public:
-        Timestamp() = default;
-        Timestamp(time_t value) : _value(value) { }
-        Timestamp(SystemTimePoint const& systemTime) : _value(std::chrono::system_clock::to_time_t(systemTime)) { }
-
-        Timestamp& operator=(time_t value)
-        {
-            _value = value;
-            return *this;
-        }
-
-        Timestamp& operator=(SystemTimePoint const& systemTime)
-        {
-            _value = std::chrono::system_clock::to_time_t(systemTime);
-            return *this;
-        }
-
-        operator time_t() const
-        {
-            return _value;
-        }
-
-        Underlying AsUnderlyingType() const
-        {
-            return static_cast<Underlying>(_value);
-        }
-
-        friend ByteBuffer& operator<<(ByteBuffer& data, Timestamp timestamp)
-        {
-            data << static_cast<Underlying>(timestamp._value);
-            return data;
-        }
-
-        friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
-        {
-            timestamp._value = data.read<time_t, Underlying>();
-            return data;
-        }
-
-    private:
-        time_t _value = time_t(0);
-    };
-
-    template<typename ChronoDuration, typename Underlying = int64>
-    class Duration
-    {
-    public:
-        Duration() = default;
-        Duration(ChronoDuration value) : _value(value) { }
-
-        Duration& operator=(ChronoDuration value)
-        {
-            _value = value;
-            return *this;
-        }
-
-        operator ChronoDuration() const
-        {
-            return _value;
-        }
-
-        friend ByteBuffer& operator<<(ByteBuffer& data, Duration duration)
-        {
-            data << static_cast<Underlying>(duration._value.count());
-            return data;
-        }
-
-        friend ByteBuffer& operator>>(ByteBuffer& data, Duration& duration)
-        {
-            duration._value = ChronoDuration(data.read<Underlying>());
-            return data;
-        }
-
-    private:
-        ChronoDuration _value = ChronoDuration::zero();
     };
 }
 

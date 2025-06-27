@@ -17,22 +17,28 @@
 
 #include "ScriptedCreature.h"
 #include "AreaBoundary.h"
-#include "DB2Stores.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Containers.h"
-#include "CreatureAIImpl.h"
+#include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Log.h"
-#include "Loot.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "PhasingHandler.h"
 #include "Spell.h"
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
+
+// Spell summary for ScriptedAI::SelectSpell
+struct TSpellSummary
+{
+    uint8 Targets; // set of enum SelectTarget
+    uint8 Effects; // set of enum SelectEffect
+};
+
+extern TSpellSummary* SpellSummary;
 
 void SummonList::Summon(Creature const* summon)
 {
@@ -53,7 +59,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
         if (summon && summon->IsAIEnabled()
                 && (!entry || summon->GetEntry() == entry))
         {
-            summon->AI()->DoZoneInCombat();
+            summon->AI()->DoZoneInCombat(nullptr);
         }
     }
 }
@@ -122,12 +128,10 @@ void SummonList::DoActionImpl(int32 action, StorageType& summons, uint16 max)
     }
 }
 
-ScriptedAI::ScriptedAI(Creature* creature) : ScriptedAI(creature, creature->GetScriptId()) { }
-
-ScriptedAI::ScriptedAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), IsFleeing(false), _isCombatMovementAllowed(true)
+ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature), IsFleeing(false), _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
-    _difficulty = me->GetMap()->GetDifficultyID();
+    _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
 }
 
 void ScriptedAI::AttackStartNoMove(Unit* who)
@@ -190,7 +194,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
     if (!source)
         return;
 
-    if (!sSoundKitStore.LookupEntry(soundId))
+    if (!sSoundEntriesStore.LookupEntry(soundId))
     {
         TC_LOG_ERROR("scripts.ai", "ScriptedAI::DoPlaySoundToSet: Invalid soundId {} used in DoPlaySoundToSet (Source: {})", soundId, source->GetGUID().ToString());
         return;
@@ -251,12 +255,9 @@ void ScriptedAI::ForceCombatStop(Creature* who, bool reset /*= true*/)
     who->DoNotReacquireSpellFocusTarget();
     who->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
 
-    if (reset)
-    {
+    if (reset) {
         who->LoadCreaturesAddon();
-        if (!me->IsTapListNotClearedOnEvade())
-            who->SetTappedBy(nullptr);
-
+        who->SetLootRecipient(nullptr);
         who->ResetPlayerDamageReq();
         who->SetLastDamagedTime(0);
         who->SetCannotReachTarget(false);
@@ -272,12 +273,9 @@ void ScriptedAI::ForceCombatStopForCreatureEntry(uint32 entry, float maxSearchRa
     Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, creatures, check);
 
     if (!samePhase)
-        PhasingHandler::SetAlwaysVisible(me, true, false);
+        searcher.i_phaseMask = PHASEMASK_ANYWHERE;
 
     Cell::VisitGridObjects(me, searcher, maxSearchRange);
-
-    if (!samePhase)
-        PhasingHandler::SetAlwaysVisible(me, false, false);
 
     for (Creature* creature : creatures)
         ForceCombatStop(creature, reset);
@@ -304,14 +302,14 @@ bool ScriptedAI::HealthAbovePct(uint32 pct) const
     return me->HealthAbovePct(pct);
 }
 
-SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, float rangeMin, float rangeMax, SelectEffect effect)
+SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
 {
     // No target so we can't cast
     if (!target)
         return nullptr;
 
     // Silenced so we can't cast
-    if (me->IsSilenced(school ? SpellSchoolMask(school) : SPELL_SCHOOL_MASK_MAGIC))
+    if (me->HasUnitFlag(UNIT_FLAG_SILENCED))
         return nullptr;
 
     // Using the extended script system we first create a list of viable spells
@@ -321,25 +319,23 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     uint32 spellCount = 0;
 
     SpellInfo const* tempSpell = nullptr;
-    AISpellInfoType const* aiSpell = nullptr;
 
     // Check if each spell is viable(set it to null if not)
     for (uint32 spell : me->m_spells)
     {
-        tempSpell = sSpellMgr->GetSpellInfo(spell, me->GetMap()->GetDifficultyID());
-        aiSpell = GetAISpellInfo(spell, me->GetMap()->GetDifficultyID());
+        tempSpell = sSpellMgr->GetSpellInfo(spell);
 
         // This spell doesn't exist
-        if (!tempSpell || !aiSpell)
+        if (!tempSpell)
             continue;
 
         // Targets and Effects checked first as most used restrictions
         // Check the spell targets if specified
-        if (targets && !(aiSpell->Targets & (1 << (targets-1))))
+        if (targets && !(SpellSummary[spell].Targets & (1 << (targets-1))))
             continue;
 
         // Check the type of spell if we are looking for a specific spell type
-        if (effect && !(aiSpell->Effects & (1 << (effect-1))))
+        if (effects && !(SpellSummary[spell].Effects & (1 << (effects-1))))
             continue;
 
         // Check for school if specified
@@ -350,18 +346,15 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
         if (mechanic && tempSpell->Mechanic != mechanic)
             continue;
 
-        // Continue if we don't have the mana to actually cast this spell
-        bool hasPower = true;
-        for (SpellPowerCost const& cost : tempSpell->CalcPowerCost(me, tempSpell->GetSchoolMask()))
-        {
-            if (cost.Amount > me->GetPower(cost.Power))
-            {
-                hasPower = false;
-                break;
-            }
-        }
+        // Make sure that the spell uses the requested amount of power
+        if (powerCostMin && tempSpell->ManaCost < powerCostMin)
+            continue;
 
-        if (!hasPower)
+        if (powerCostMax && tempSpell->ManaCost > powerCostMax)
+            continue;
+
+        // Continue if we don't have the mana to actually cast this spell
+        if (tempSpell->ManaCost > me->GetPower(tempSpell->PowerType))
             continue;
 
         // Check if the spell meets our range requirements
@@ -542,7 +535,7 @@ void BossAI::_JustEngagedWith(Unit* who)
         // bosses do not respawn, check only on enter combat
         if (!instance->CheckRequiredBosses(_bossId, who->ToPlayer()))
         {
-            EnterEvadeMode(EvadeReason::SequenceBreak);
+            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;
         }
         instance->SetBossState(_bossId, IN_PROGRESS);

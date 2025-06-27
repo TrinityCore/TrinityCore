@@ -20,6 +20,14 @@
 
 #include "Battlefield.h"
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 class Group;
 class BattlefieldWG;
 class WintergraspCapturePoint;
@@ -67,7 +75,7 @@ enum WintergraspSpells
     // Other spells
     SPELL_WINTERGRASP_WATER                     = 36444,
     SPELL_ESSENCE_OF_WINTERGRASP                = 58045,
-    SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA    = 91604,
+    SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA    = 58730,
 
     // Phasing spells
     SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT    = 56618, // ADDS PHASE 16
@@ -87,6 +95,10 @@ enum WintergraspData
     BATTLEFIELD_WG_DATA_MAX_VEHICLE_H,
     BATTLEFIELD_WG_DATA_VEHICLE_A,
     BATTLEFIELD_WG_DATA_VEHICLE_H,
+    BATTLEFIELD_WG_DATA_WON_A,
+    BATTLEFIELD_WG_DATA_DEF_A,
+    BATTLEFIELD_WG_DATA_WON_H,
+    BATTLEFIELD_WG_DATA_DEF_H,
     BATTLEFIELD_WG_DATA_MAX,
 
     BATTLEFIELD_WG_MAPID                         = 571               // Northrend
@@ -200,7 +212,6 @@ class WintergraspCapturePoint : public BfCapturePoint
 class BattlefieldWG : public Battlefield
 {
     public:
-        using Battlefield::Battlefield;
         ~BattlefieldWG();
         /**
          * \brief Called when the battle start
@@ -233,7 +244,7 @@ class BattlefieldWG : public Battlefield
          * - Teleport if it needed
          * - Update worldstate
          * - Update tenacity
-         * \param player : Player who accepted invite
+         * \param player: Player who accepted invite
          */
         void OnPlayerJoinWar(Player* player) override;
 
@@ -257,6 +268,14 @@ class BattlefieldWG : public Battlefield
          * \param player : Player who enters the zone
          */
         void OnPlayerEnterZone(Player* player) override;
+
+        /**
+         * \brief Called for update battlefield data
+         * - Save battle timer in database every minutes
+         * - Update imunity aura from graveyard
+         * \param diff : time elapsed since the last call (in ms)
+         */
+        bool Update(uint32 diff) override;
 
         /**
          * \brief Called when a creature is created
@@ -318,13 +337,16 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
+        void SendInitWorldStatesToAll() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
         void HandlePromotion(Player* killer, Unit* killed);
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
-        void ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker) override;
+        void ProcessEvent(WorldObject* obj, uint32 eventId) override;
 
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
@@ -346,6 +368,7 @@ class BattlefieldWG : public Battlefield
 
         TeamId m_tenacityTeam;
         uint32 m_tenacityStack;
+        uint32 m_saveTimer;
 
         ObjectGuid m_titansRelicGUID;
 };
@@ -523,6 +546,10 @@ public:
     void UpdateCreatureAndGo();
 
     void UpdateTurretAttack(bool disable);
+
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+
+    void Save();
 };
 
 // Structure for the 6 workshop
@@ -546,6 +573,10 @@ public:
     void GiveControlTo(TeamId teamId, bool init = false);
 
     void UpdateGraveyardAndWorkshop();
+
+    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
+
+    void Save();
 };
 
 #endif

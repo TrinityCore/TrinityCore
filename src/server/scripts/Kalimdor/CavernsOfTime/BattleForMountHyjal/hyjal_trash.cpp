@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
+#include "hyjalAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -491,7 +492,7 @@ public:
                 {
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                    me->SetDisplayId(me->GetNativeDisplayId());
+                    me->SetDisplayId(me->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
                     {

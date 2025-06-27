@@ -1,19 +1,19 @@
 /*
-* This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "ScriptedGossip.h"
 #include "Creature.h"
@@ -40,15 +40,15 @@ void ClearGossipMenuFor(Player* player)
 }
 
 // Using provided text, not from DB
-void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action)
+void AddGossipItemFor(Player* player, GossipOptionIcon icon, std::string const& text, uint32 sender, uint32 action)
 {
-    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, false, 0, "", {}, {}, sender, action);
+    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, "", 0);
 }
 
 // Using provided texts, not from DB
-void AddGossipItemFor(Player* player, GossipOptionNpc optionNpc, std::string text, uint32 sender, uint32 action, std::string popupText, uint32 popupMoney, bool coded)
+void AddGossipItemFor(Player* player, GossipOptionIcon icon, std::string const& text, uint32 sender, uint32 action, std::string const& popupText, uint32 popupMoney, bool coded)
 {
-    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(0, -1, optionNpc, std::move(text), 0, GossipOptionFlags::None, {}, 0, 0, coded, popupMoney, std::move(popupText), {}, {}, sender, action);
+    player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, icon, text, sender, action, popupText, popupMoney, coded);
 }
 
 // Uses gossip item info from DB

@@ -1,0 +1,2 @@
+-- In the caption to the text in the Russian localization, the initials of the English name of the NPC are indicated (see the name of this NPC in the Russian version). / В подписи к тексту в русской локализации указаны инициалы английского имени НПЦ (см. как этого НПЦ зовут в русской версии).
+UPDATE `page_text_locale` SET `Text`='Принеси мне эти вещи, Звезду, Руку и Сердце, и Книга Йагина будет твоей.$B$B-Г.К.' WHERE  `ID`=375 AND `locale`='ruRU';

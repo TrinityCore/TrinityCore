@@ -34,14 +34,6 @@ enum Secrets : uint32
     NUM_SECRETS
 };
 
-enum SecretOwner
-{
-    SECRET_OWNER_BNETSERVER,
-    SECRET_OWNER_WORLDSERVER,
-
-    NUM_SECRET_OWNERS
-};
-
 class TC_SHARED_API SecretMgr
 {
     private:
@@ -49,8 +41,6 @@ class TC_SHARED_API SecretMgr
         ~SecretMgr() {}
 
     public:
-        static SecretOwner OWNER;
-
         SecretMgr(SecretMgr const&) = delete;
         static SecretMgr* instance();
 
@@ -70,7 +60,7 @@ class TC_SHARED_API SecretMgr
             friend class SecretMgr;
         };
 
-        void Initialize(SecretOwner owner);
+        void Initialize();
         Secret const& GetSecret(Secrets i);
 
     private:

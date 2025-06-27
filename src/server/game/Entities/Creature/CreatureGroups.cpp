@@ -70,7 +70,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
         //Create new group
         TC_LOG_DEBUG("entities.unit", "Group not found: {}. Creating new group.", leaderSpawnId);
         CreatureGroup* group = new CreatureGroup(leaderSpawnId);
-        itr = map->CreatureGroupHolder.emplace(leaderSpawnId, group).first;
+        std::tie(itr, std::ignore) = map->CreatureGroupHolder.emplace(leaderSpawnId, group);
     }
 
     itr->second->AddMember(creature);
@@ -78,7 +78,7 @@ void FormationMgr::AddCreatureToGroup(ObjectGuid::LowType leaderSpawnId, Creatur
 
 void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
 {
-    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: {} from group " UI64FMTD, group->GetLeaderSpawnId(), member->GetSpawnId());
+    TC_LOG_DEBUG("entities.unit", "Deleting member pointer to GUID: {} from group {}", group->GetLeaderSpawnId(), member->GetSpawnId());
     group->RemoveMember(member);
 
     if (group->IsEmpty())
@@ -87,7 +87,7 @@ void FormationMgr::RemoveCreatureFromGroup(CreatureGroup* group, Creature* membe
 
         TC_LOG_DEBUG("entities.unit", "Deleting group with InstanceID {}", member->GetInstanceId());
         auto itr = map->CreatureGroupHolder.find(group->GetLeaderSpawnId());
-        ASSERT(itr != map->CreatureGroupHolder.end(), "Not registered group " UI64FMTD " in map %u", group->GetLeaderSpawnId(), map->GetId());
+        ASSERT(itr != map->CreatureGroupHolder.end(), "Not registered group %u in map %u", group->GetLeaderSpawnId(), map->GetId());
         map->CreatureGroupHolder.erase(itr);
         delete group;
     }
@@ -113,8 +113,8 @@ void FormationMgr::LoadCreatureFormations()
 
         //Load group member data
         FormationInfo member;
-        member.LeaderSpawnId              = fields[0].GetUInt64();
-        ObjectGuid::LowType memberSpawnId = fields[1].GetUInt64();
+        member.LeaderSpawnId              = fields[0].GetUInt32();
+        ObjectGuid::LowType memberSpawnId = fields[1].GetUInt32();
         member.FollowDist                 = 0.f;
         member.FollowAngle                = 0.f;
 
@@ -259,18 +259,21 @@ void CreatureGroup::MemberEngagingTarget(Creature* member, Unit* target)
     _engaging = false;
 }
 
-void CreatureGroup::FormationReset(bool /*dismiss*/)
+void CreatureGroup::FormationReset(bool dismiss)
 {
     for (auto const& pair : _members)
     {
         if (pair.first != _leader && pair.first->IsAlive())
         {
-            pair.first->GetMotionMaster()->MoveIdle();
-            // TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
+            if (dismiss)
+                pair.first->GetMotionMaster()->Remove(FORMATION_MOTION_TYPE, MOTION_SLOT_DEFAULT);
+            else
+                pair.first->GetMotionMaster()->MoveIdle();
+            TC_LOG_DEBUG("entities.unit", "CreatureGroup::FormationReset: Set {} movement for member {}", dismiss ? "default" : "idle", pair.first->GetGUID().ToString());
         }
     }
 
-    // _formed = !dismiss;
+    _formed = !dismiss;
 }
 
 void CreatureGroup::LeaderStartedMoving()

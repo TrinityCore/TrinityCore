@@ -16,15 +16,12 @@
  */
 
 #include "Common.h"
-#include "CriteriaHandler.h"
 #include "CharacterDatabaseCleaner.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Log.h"
-#include "World.h"
 #include "SpellMgr.h"
-#include "SpellInfo.h"
-#include <sstream>
+#include "World.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -36,7 +33,12 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     uint32 oldMSTime = getMSTime();
 
-    uint32 flags = sWorld->GetPersistentWorldVariable(World::CharacterDatabaseCleaningFlagsVarId);
+    // check flags which clean ups are necessary
+    QueryResult result = CharacterDatabase.PQuery("SELECT value FROM worldstates WHERE entry = {}", WS_CLEANING_FLAGS);
+    if (!result)
+        return;
+
+    uint32 flags = (*result)[0].GetUInt32();
 
     // clean up
     if (flags & CLEANING_FLAG_ACHIEVEMENT_PROGRESS)
@@ -57,7 +59,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     // NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
     // you need to define them at least once in worldstates.
     flags &= sWorld->getIntConfig(CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS);
-    sWorld->SetPersistentWorldVariable(World::CharacterDatabaseCleaningFlagsVarId, flags);
+    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = {} WHERE entry = {}", flags, WS_CLEANING_FLAGS);
 
     sWorld->SetCleaningFlags(flags);
 
@@ -105,7 +107,7 @@ void CharacterDatabaseCleaner::CheckUnique(char const* column, char const* table
 
 bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 {
-    return sCriteriaMgr->GetCriteria(criteria) != nullptr;
+    return sAchievementCriteriaStore.LookupEntry(criteria) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
@@ -125,8 +127,7 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id, DIFFICULTY_NONE);
-    return spellInfo && !spellInfo->HasAttribute(SPELL_ATTR0_CU_IS_TALENT);
+    return sSpellMgr->GetSpellInfo(spell_id) && !GetTalentSpellPos(spell_id);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()
@@ -140,13 +141,13 @@ bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
     if (!talentInfo)
         return false;
 
-    return sChrSpecializationStore.LookupEntry(talentInfo->SpecID) != nullptr;
+    return sTalentTabStore.LookupEntry(talentInfo->TabID) != nullptr;
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
-    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE talentGroup > {}", MAX_SPECIALIZATIONS);
-    CheckUnique("talentId", "character_talent", &TalentCheck);
+    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE talentGroup > {}", MAX_TALENT_SPECS);
+    CheckUnique("spell", "character_talent", &TalentCheck);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterQuestStatus()

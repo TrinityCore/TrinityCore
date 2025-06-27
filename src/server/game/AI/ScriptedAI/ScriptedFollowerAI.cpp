@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "Group.h"
 #include "Log.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -185,7 +186,6 @@ void FollowerAI::StartFollow(Player* player, uint32 factionForFollower, uint32 q
     me->PauseMovement();
 
     me->ReplaceAllNpcFlags(UNIT_NPC_FLAG_NONE);
-    me->ReplaceAllNpcFlags2(UNIT_NPC_FLAG_2_NONE);
 
     AddFollowState(STATE_FOLLOW_INPROGRESS);
 

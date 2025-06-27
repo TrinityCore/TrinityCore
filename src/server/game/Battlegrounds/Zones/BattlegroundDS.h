@@ -92,14 +92,15 @@ enum BattlegroundDSEvents
 class BattlegroundDS : public Arena
 {
     public:
-        BattlegroundDS(BattlegroundTemplate const* battlegroundTemplate);
+        BattlegroundDS();
 
         /* inherited from BattlegroundClass */
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     private:
         void PostUpdateImpl(uint32 diff) override;

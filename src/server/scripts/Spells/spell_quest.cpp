@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
+#include "CreatureTextMgr.h"
 #include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -820,7 +821,7 @@ class spell_q12527_zuldrak_rat : public SpellScript
     {
         if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
         {
-            GetHitUnit()->CastSpell(nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+            GetHitUnit()->CastSpell((Unit*) nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
             if (Creature* basilisk = GetHitUnit()->ToCreature())
                 basilisk->DespawnOrUnsummon();
         }
@@ -955,8 +956,7 @@ class spell_q13086_cannons_target : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty()
-            && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/)
@@ -1099,7 +1099,7 @@ class spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death : public AuraSc
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
-        target->SetUnitFlag3(UNIT_FLAG3_FAKE_DEAD);
+        target->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
         target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
 
         if (Creature* creature = target->ToCreature())
@@ -1537,78 +1537,6 @@ class spell_q10929_fumping : public AuraScript
     }
 };
 
-enum FearNoEvil
-{
-    SPELL_RENEWED_LIFE = 93097,
-    NPC_INJURED_STORMWIND_INFANTRY = 50047
-};
-
-// 93072 - Get Our Boys Back Dummy
-class spell_q28813_get_our_boys_back_dummy : public SpellScriptLoader
-{
-public:
-    spell_q28813_get_our_boys_back_dummy() : SpellScriptLoader("spell_q28813_get_our_boys_back_dummy") { }
-
-    class spell_q28813_get_our_boys_back_dummy_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_q28813_get_our_boys_back_dummy_SpellScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) override
-        {
-            return ValidateSpellInfo({ SPELL_RENEWED_LIFE });
-        }
-
-        void HandleDummyEffect()
-        {
-            Unit* caster = GetCaster();
-
-            if (Creature* injuredStormwindInfantry = caster->FindNearestCreature(NPC_INJURED_STORMWIND_INFANTRY, 5.0f, true))
-            {
-                injuredStormwindInfantry->SetCreatorGUID(caster->GetGUID());
-                injuredStormwindInfantry->CastSpell(injuredStormwindInfantry, SPELL_RENEWED_LIFE, true);
-            }
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_q28813_get_our_boys_back_dummy_SpellScript::HandleDummyEffect);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_q28813_get_our_boys_back_dummy_SpellScript();
-    }
-};
-
-// 53034 - Set Health Random
-class spell_q28813_set_health_random : public SpellScriptLoader
-{
-public:
-    spell_q28813_set_health_random() : SpellScriptLoader("spell_q28813_set_health_random") { }
-
-    class spell_q28813_set_health_random_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_q28813_set_health_random_SpellScript);
-
-        void HandleDummyEffect()
-        {
-            Unit* caster = GetCaster();
-            caster->SetHealth(caster->CountPctFromMaxHealth(urand(3, 5)*10));
-        }
-
-        void Register() override
-        {
-            OnCast += SpellCastFn(spell_q28813_set_health_random_SpellScript::HandleDummyEffect);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_q28813_set_health_random_SpellScript();
-    }
-};
-
 // 49285 - Hand Over Reins
 class spell_q12414_hand_over_reins : public SpellScript
 {
@@ -1886,9 +1814,8 @@ class spell_quest_portal_with_condition : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1
-            && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) })
-            && sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) }) &&
+            sObjectMgr->GetQuestTemplate(uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()));
     }
 
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
@@ -1975,39 +1902,61 @@ class spell_quest_uther_grom_tribute : public SpellScript
     }
 };
 
-/*######
-## Quest 14386 Leader of the Pack
-######*/
-
-enum CallAttackMastiffs
+enum Q10720
 {
-    NPC_ATTACK_MASTIFF = 36405
+    SPELL_GREEN_EYE_GROG_CREDIT        = 38996,
+    SPELL_RIPE_MOONSHINE_CREDIT        = 38997,
+    SPELL_FERMENTED_SEED_BEER_CREDIT   = 38998,
+
+    NPC_GREEN_SPOT_GROG_KEG_CREDIT     = 22356,
+    NPC_RIPE_MOONSHINE_KEG_CREDIT      = 22367,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT = 22368
 };
 
-// 68682 Call Attack Mastiffs
-class spell_q14386_call_attack_mastiffs : public SpellScript
+class spell_q10720_the_smallest_creature : public SpellScript
 {
-    PrepareSpellScript(spell_q14386_call_attack_mastiffs);
+    PrepareSpellScript(spell_q10720_the_smallest_creature);
 
-    void HandleEffect(SpellEffIndex /*eff*/)
+    bool Validate(SpellInfo const* /*spellEntry*/) override
     {
-        Unit* caster = GetCaster();
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1944.573f, 2657.402f, 0.994939f, 1.691919f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -2005.65f, 2663.526f, -2.086935f, 0.5942355f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1996.506f, 2651.347f, -1.011707f, 0.8185352f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1972.352f, 2640.07f, 1.080288f, 1.217854f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1949.322f, 2642.76f, 1.242482f, 1.58074f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1993.94f, 2672.535f, -2.322549f, 0.5766209f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1982.724f, 2662.8f, -1.773986f, 0.8628055f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1973.301f, 2655.475f, -0.7831049f, 1.098415f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
-        caster->SummonCreature(NPC_ATTACK_MASTIFF, -1956.509f, 2650.655f, 1.350571f, 1.441473f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1s);
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            uint32 spellId = 0;
+            switch (GetHitCreature()->GetEntry())
+            {
+                case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
+                    spellId = SPELL_GREEN_EYE_GROG_CREDIT;
+                    break;
+                case NPC_RIPE_MOONSHINE_KEG_CREDIT:
+                    spellId = SPELL_RIPE_MOONSHINE_CREDIT;
+                    break;
+                case NPC_FERMENTED_SEED_BEER_KEG_CREDIT:
+                    spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
+                    break;
+                default:
+                    break;
+            }
+
+            player->CastSpell(nullptr, spellId, true);
+        }
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_q14386_call_attack_mastiffs::HandleEffect, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+        OnEffectHitTarget += SpellEffectFn(spell_q10720_the_smallest_creature::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -2059,8 +2008,6 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_q13400_illidan_kill_master);
     RegisterSpellScript(spell_q14100_q14111_make_player_destroy_totems);
     RegisterSpellScript(spell_q10929_fumping);
-    new spell_q28813_get_our_boys_back_dummy();
-    new spell_q28813_set_health_random();
     RegisterSpellScript(spell_q12414_hand_over_reins);
     RegisterSpellScript(spell_q13665_q13790_bested_trigger);
     RegisterSpellScript(spell_q11306_mixing_blood);
@@ -2070,5 +2017,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
-    RegisterSpellScript(spell_q14386_call_attack_mastiffs);
+    RegisterSpellScript(spell_q10720_the_smallest_creature);
 }

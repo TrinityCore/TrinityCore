@@ -20,6 +20,7 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "razorfen_downs.h"
 #include "TemporarySummon.h"
 
@@ -136,9 +137,13 @@ public:
                         }
 
                         if (GameObject* go = instance->GetGameObject(goGongGUID))
+                        {
                             for (uint8 i = summonLowRange; i < summonHighRange; ++i)
-                                if (Creature* creature = go->SummonCreature(summonCreature, PosSummonTutenkash[i]))
+                            {
+                                Creature* creature = go->SummonCreature(summonCreature, PosSummonTutenkash[i]);
                                     creature->GetMotionMaster()->MovePoint(0, 2533.479f + float(irand(-5, 5)), 870.020f + float(irand(-5, 5)), 47.678f);
+                            }
+                        }
 
                         ++gongWave;
                         break;

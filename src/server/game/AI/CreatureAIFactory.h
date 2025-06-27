@@ -18,7 +18,6 @@
 #ifndef TRINITY_CREATUREAIFACTORY_H
 #define TRINITY_CREATUREAIFACTORY_H
 
-#include "ObjectMgr.h"
 #include "ObjectRegistry.h"
 #include "SelectableAI.h"
 
@@ -26,14 +25,13 @@ class Creature;
 class CreatureAI;
 
 template <class REAL_AI, bool is_db_allowed = true>
-struct CreatureAIFactory : public SelectableAI<Creature, CreatureAI>
+struct CreatureAIFactory : public SelectableAI<Creature, CreatureAI, is_db_allowed>
 {
-    CreatureAIFactory(std::string const& name)
-        : SelectableAI<Creature, CreatureAI>(name, sObjectMgr->GetScriptId(name, false), is_db_allowed) { }
+    CreatureAIFactory(std::string const& name) : SelectableAI<Creature, CreatureAI, is_db_allowed>(name) { }
 
     inline CreatureAI* Create(Creature* c) const override
     {
-        return new REAL_AI(c, this->GetScriptId());
+        return new REAL_AI(c);
     }
 
     int32 Permit(Creature const* c) const override

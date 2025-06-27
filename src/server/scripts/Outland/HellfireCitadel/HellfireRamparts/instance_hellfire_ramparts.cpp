@@ -15,25 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Hellfire_Ramparts
-SD%Complete: 50
-SDComment:
-SDCategory: Hellfire Ramparts
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "hellfire_ramparts.h"
 #include "InstanceScript.h"
 #include "Map.h"
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_WATCHKEEPER_GARGOLMAR, {{ 1893 }} },
-    { DATA_OMOR_THE_UNSCARRED, {{ 1891 }} },
-    { DATA_VAZRUDEN, {{ 1892 }} }
-};
 
 class instance_ramparts : public InstanceMapScript
 {
@@ -46,7 +32,6 @@ class instance_ramparts : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

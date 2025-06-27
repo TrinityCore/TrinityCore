@@ -35,36 +35,22 @@ enum EquipmentSetUpdateState
 
 struct EquipmentSetInfo
 {
-    enum EquipmentSetType : int32
-    {
-        EQUIPMENT   = 0,
-        TRANSMOG    = 1
-    };
-
     /// Data sent in EquipmentSet related packets
     struct EquipmentSetData
     {
-        EquipmentSetType Type = EQUIPMENT;
         uint64 Guid = 0;                                        ///< Set Identifier
         uint32 SetID = 0;                                       ///< Index
-        uint32 IgnoreMask = 0;                                  ///< Mask of EquipmentSlot
-        int32 AssignedSpecIndex = -1;                           ///< Index of character specialization that this set is automatically equipped for
         std::string SetName;
         std::string SetIcon;
+        uint32 IgnoreMask = 0;                                  ///< Mask of EquipmentSlot
         std::array<ObjectGuid, EQUIPMENT_SET_SLOTS> Pieces = {};
-        std::array<int32, EQUIPMENT_SET_SLOTS> Appearances = {};///< ItemModifiedAppearanceID
-        std::array<int32, 2> Enchants = {};                     ///< SpellItemEnchantmentID
-        int32 SecondaryShoulderApparanceID = 0;                 ///< Secondary shoulder appearance
-        int32 SecondaryShoulderSlot = 0;                        ///< Always 2 if secondary shoulder apperance is used
-        int32 SecondaryWeaponAppearanceID = 0;                  ///< For legion artifacts: linked child item appearance
-        int32 SecondaryWeaponSlot = 0;                          ///< For legion artifacts: which slot is used by child item
     } Data;
 
     /// Server-side data
     EquipmentSetUpdateState State = EQUIPMENT_SET_NEW;
 };
 
-#define MAX_EQUIPMENT_SET_INDEX 20                          // client limit
+#define MAX_EQUIPMENT_SET_INDEX 10                          // client limit
 
 typedef std::map<uint64, EquipmentSetInfo> EquipmentSetContainer;
 

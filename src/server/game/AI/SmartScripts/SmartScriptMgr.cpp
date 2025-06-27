@@ -16,12 +16,9 @@
  */
 
 #include "SmartScriptMgr.h"
-#include "AreaTriggerDataStore.h"
-#include "AreaTriggerTemplate.h"
-#include "ConversationDataStore.h"
 #include "CreatureTextMgr.h"
-#include "DB2Stores.h"
 #include "DatabaseEnv.h"
+#include "DBCStores.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -32,9 +29,8 @@
 #include "SpellMgr.h"
 #include "Timer.h"
 #include "UnitDefines.h"
-#include "Util.h"
+#include "Unit.h"
 #include "WaypointDefines.h"
-#include <algorithm>
 
 #define TC_SAI_IS_BOOLEAN_VALID(e, value) \
 { \
@@ -149,7 +145,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
         SmartScriptHolder temp;
 
-        temp.entryOrGuid = fields[0].GetInt64();
+        temp.entryOrGuid = fields[0].GetInt32();
         if (!temp.entryOrGuid)
         {
             TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: invalid entryorguid (0), skipped loading.");
@@ -207,44 +203,8 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     }
                     break;
                 }
-                case SMART_SCRIPT_TYPE_QUEST:
-                {
-                    if (!sObjectMgr->GetQuestTemplate((uint32)temp.entryOrGuid))
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Quest entry ({}) does not exist, skipped loading.", uint32(temp.entryOrGuid));
-                        continue;
-                    }
-                    break;
-                }
-                case SMART_SCRIPT_TYPE_SCENE:
-                {
-                    if (!sObjectMgr->GetSceneTemplate((uint32)temp.entryOrGuid))
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Scene id ({}) does not exist, skipped loading.", uint32(temp.entryOrGuid));
-                        continue;
-                    }
-                    break;
-                }
                 case SMART_SCRIPT_TYPE_TIMED_ACTIONLIST:
                     break;//nothing to check, really
-                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY:
-                {
-                    if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ (uint32)temp.entryOrGuid, false }))
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsServerSide false) does not exist, skipped loading.", uint32(temp.entryOrGuid));
-                        continue;
-                    }
-                    break;
-                }
-                case SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE:
-                {
-                    if (!sAreaTriggerDataStore->GetAreaTriggerTemplate({ (uint32)temp.entryOrGuid, true }))
-                    {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: AreaTrigger entry ({} IsServerSide true) does not exist, skipped loading.", uint32(temp.entryOrGuid));
-                        continue;
-                    }
-                    break;
-                }
                 default:
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: not yet implemented source_type {}", (uint32)source_type);
                     continue;
@@ -256,46 +216,46 @@ void SmartAIMgr::LoadSmartAIFromDB()
             {
                 case SMART_SCRIPT_TYPE_CREATURE:
                 {
-                    CreatureData const* creature = sObjectMgr->GetCreatureData(uint64(-temp.entryOrGuid));
+                    CreatureData const* creature = sObjectMgr->GetCreatureData(uint32(std::abs(temp.entryOrGuid)));
                     if (!creature)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid ({}) does not exist, skipped loading.", -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid ({}) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
 
                     CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
                     if (!creatureInfo)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) does not exist, skipped loading.", creature->id, -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) does not exist, skipped loading.", creature->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
 
                     if (creatureInfo->AIName != "SmartAI")
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) is not using SmartAI, skipped loading.", creature->id, -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) is not using SmartAI, skipped loading.", creature->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
                     break;
                 }
                 case SMART_SCRIPT_TYPE_GAMEOBJECT:
                 {
-                    GameObjectData const* gameObject = sObjectMgr->GetGameObjectData(uint64(-temp.entryOrGuid));
+                    GameObjectData const* gameObject = sObjectMgr->GetGameObjectData(uint32(std::abs(temp.entryOrGuid)));
                     if (!gameObject)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid ({}) does not exist, skipped loading.", -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid ({}) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
 
                     GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(gameObject->id);
                     if (!gameObjectInfo)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) does not exist, skipped loading.", gameObject->id, -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) does not exist, skipped loading.", gameObject->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
 
                     if (gameObjectInfo->AIName != "SmartGameObjectAI")
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) is not using SmartGameObjectAI, skipped loading.", gameObject->id, -temp.entryOrGuid);
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) is not using SmartGameObjectAI, skipped loading.", gameObject->id, uint32(std::abs(temp.entryOrGuid)));
                         continue;
                     }
                     break;
@@ -320,26 +280,23 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.event.raw.param4 = fields[11].GetUInt32();
         temp.event.raw.param5 = fields[12].GetUInt32();
 
-        temp.event.param_string = fields[13].GetString();
+        temp.action.type = (SMART_ACTION)fields[13].GetUInt8();
+        temp.action.raw.param1 = fields[14].GetUInt32();
+        temp.action.raw.param2 = fields[15].GetUInt32();
+        temp.action.raw.param3 = fields[16].GetUInt32();
+        temp.action.raw.param4 = fields[17].GetUInt32();
+        temp.action.raw.param5 = fields[18].GetUInt32();
+        temp.action.raw.param6 = fields[19].GetUInt32();
 
-        temp.action.type = (SMART_ACTION)fields[14].GetUInt8();
-        temp.action.raw.param1 = fields[15].GetUInt32();
-        temp.action.raw.param2 = fields[16].GetUInt32();
-        temp.action.raw.param3 = fields[17].GetUInt32();
-        temp.action.raw.param4 = fields[18].GetUInt32();
-        temp.action.raw.param5 = fields[19].GetUInt32();
-        temp.action.raw.param6 = fields[20].GetUInt32();
-        temp.action.raw.param7 = fields[21].GetUInt32();
-
-        temp.target.type = (SMARTAI_TARGETS)fields[22].GetUInt8();
-        temp.target.raw.param1 = fields[23].GetUInt32();
-        temp.target.raw.param2 = fields[24].GetUInt32();
-        temp.target.raw.param3 = fields[25].GetUInt32();
-        temp.target.raw.param4 = fields[26].GetUInt32();
-        temp.target.x = fields[27].GetFloat();
-        temp.target.y = fields[28].GetFloat();
-        temp.target.z = fields[29].GetFloat();
-        temp.target.o = fields[30].GetFloat();
+        temp.target.type = (SMARTAI_TARGETS)fields[20].GetUInt8();
+        temp.target.raw.param1 = fields[21].GetUInt32();
+        temp.target.raw.param2 = fields[22].GetUInt32();
+        temp.target.raw.param3 = fields[23].GetUInt32();
+        temp.target.raw.param4 = fields[24].GetUInt32();
+        temp.target.x = fields[25].GetFloat();
+        temp.target.y = fields[26].GetFloat();
+        temp.target.z = fields[27].GetFloat();
+        temp.target.o = fields[28].GetFloat();
 
         //check target
         if (!IsTargetValid(temp))
@@ -352,42 +309,41 @@ void SmartAIMgr::LoadSmartAIFromDB()
         // specific check for timed events
         switch (temp.event.type)
         {
-        case SMART_EVENT_UPDATE:
-        case SMART_EVENT_UPDATE_OOC:
-        case SMART_EVENT_UPDATE_IC:
-        case SMART_EVENT_HEALTH_PCT:
-        case SMART_EVENT_MANA_PCT:
-        case SMART_EVENT_RANGE:
-        case SMART_EVENT_FRIENDLY_HEALTH_PCT:
-        case SMART_EVENT_FRIENDLY_MISSING_BUFF:
-        case SMART_EVENT_HAS_AURA:
-        case SMART_EVENT_TARGET_BUFFED:
-            if (temp.event.minMaxRepeat.repeatMin == 0 && temp.event.minMaxRepeat.repeatMax == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
-            {
-                temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
-                    temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
-            }
-            break;
-        case SMART_EVENT_VICTIM_CASTING:
-        case SMART_EVENT_IS_BEHIND_TARGET:
-            if (temp.event.minMaxRepeat.min == 0 && temp.event.minMaxRepeat.max == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
-            {
-                temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
-                    temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
-            }
-            break;
-        case SMART_EVENT_FRIENDLY_IS_CC:
-            if (temp.event.friendlyCC.repeatMin == 0 && temp.event.friendlyCC.repeatMax == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
-            {
-                temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
-                    temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
-            }
-            break;
-        default:
-            break;
+            case SMART_EVENT_UPDATE:
+            case SMART_EVENT_UPDATE_OOC:
+            case SMART_EVENT_UPDATE_IC:
+            case SMART_EVENT_HEALTH_PCT:
+            case SMART_EVENT_MANA_PCT:
+            case SMART_EVENT_RANGE:
+            case SMART_EVENT_FRIENDLY_HEALTH_PCT:
+            case SMART_EVENT_FRIENDLY_MISSING_BUFF:
+            case SMART_EVENT_HAS_AURA:
+            case SMART_EVENT_TARGET_BUFFED:
+                if (temp.event.minMaxRepeat.repeatMin == 0 && temp.event.minMaxRepeat.repeatMax == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
+                {
+                    temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
+                        temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
+                }
+                break;
+            case SMART_EVENT_VICTIM_CASTING:
+                if (temp.event.minMaxRepeat.min == 0 && temp.event.minMaxRepeat.max == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
+                {
+                    temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
+                        temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
+                }
+                break;
+            case SMART_EVENT_FRIENDLY_IS_CC:
+                if (temp.event.friendlyCC.repeatMin == 0 && temp.event.friendlyCC.repeatMax == 0 && !(temp.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && temp.source_type != SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
+                {
+                    temp.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Entry {} SourceType {}, Event {}, Missing Repeat flag.",
+                        temp.entryOrGuid, temp.GetScriptType(), temp.event_id);
+                }
+                break;
+            default:
+                break;
         }
 
         // creature entry / guid not found in storage, create empty event list for it and increase counters
@@ -405,7 +361,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     // Post Loading Validation
     for (SmartAIEventMap& eventmap : mEventMap)
     {
-        for (std::pair<int64 const, SmartAIEventList>& eventlistpair : eventmap)
+        for (std::pair<int32 const, SmartAIEventList>& eventlistpair : eventmap)
         {
             for (SmartScriptHolder const& e : eventlistpair.second)
             {
@@ -512,15 +468,6 @@ SmartScriptHolder& SmartAIMgr::FindLinkedEvent(SmartAIEventList& list, uint32 li
         case SMART_EVENT_INSTANCE_PLAYER_ENTER:
         case SMART_EVENT_TRANSPORT_ADDCREATURE:
         case SMART_EVENT_DATA_SET:
-        case SMART_EVENT_QUEST_ACCEPTED:
-        case SMART_EVENT_QUEST_OBJ_COMPLETION:
-        case SMART_EVENT_QUEST_COMPLETION:
-        case SMART_EVENT_QUEST_FAIL:
-        case SMART_EVENT_QUEST_REWARDED:
-        case SMART_EVENT_SCENE_START:
-        case SMART_EVENT_SCENE_TRIGGER:
-        case SMART_EVENT_SCENE_CANCEL:
-        case SMART_EVENT_SCENE_COMPLETE:
             return true;
         default:
             return false;
@@ -559,38 +506,12 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         {
             if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
                 return false;
-
-            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.unitGUID.dbGuid);
-            CreatureData const* data = sObjectMgr->GetCreatureData(guid);
-            if (!data)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
-                return false;
-            }
-            else if (e.target.unitGUID.entry && e.target.unitGUID.entry != data->id)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid creature entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitGUID.entry, data->id, guid);
-                return false;
-            }
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
             if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry))
                 return false;
-
-            ObjectGuid::LowType guid = ObjectGuid::LowType(e.target.goGUID.dbGuid);
-            GameObjectData const* data = sObjectMgr->GetGameObjectData(guid);
-            if (!data)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), guid);
-                return false;
-            }
-            else if (e.target.goGUID.entry && e.target.goGUID.entry != data->id)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using invalid gameobject entry {} (expected {}) for guid {} as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goGUID.entry, data->id, guid);
-                return false;
-            }
             break;
         }
         case SMART_TARGET_PLAYER_DISTANCE:
@@ -709,7 +630,7 @@ bool SmartAIMgr::IsGameObjectValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsSpellValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sSpellMgr->GetSpellInfo(entry, DIFFICULTY_NONE))
+    if (!sSpellMgr->GetSpellInfo(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Spell entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
@@ -759,29 +680,9 @@ bool SmartAIMgr::IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry)
 
 bool SmartAIMgr::IsSoundValid(SmartScriptHolder const& e, uint32 entry)
 {
-    if (!sSoundKitStore.LookupEntry(entry))
+    if (!sSoundEntriesStore.LookupEntry(entry))
     {
         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Sound entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
-        return false;
-    }
-    return true;
-}
-
-bool SmartAIMgr::IsAnimKitValid(SmartScriptHolder const& e, uint32 entry)
-{
-    if (!sAnimKitStore.LookupEntry(entry))
-    {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent AnimKit entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
-        return false;
-    }
-    return true;
-}
-
-bool SmartAIMgr::IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry)
-{
-    if (!sSpellVisualKitStore.LookupEntry(entry))
-    {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent SpellVisualKit entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
         return false;
     }
     return true;
@@ -865,10 +766,10 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_DISTANCE_CREATURE: return sizeof(SmartEvent::distance);
             case SMART_EVENT_DISTANCE_GAMEOBJECT: return sizeof(SmartEvent::distance);
             case SMART_EVENT_COUNTER_SET: return sizeof(SmartEvent::counter);
-            case SMART_EVENT_SCENE_START: return NO_PARAMS;
-            case SMART_EVENT_SCENE_TRIGGER: return NO_PARAMS;
-            case SMART_EVENT_SCENE_CANCEL: return NO_PARAMS;
-            case SMART_EVENT_SCENE_COMPLETE: return NO_PARAMS;
+            //case SMART_EVENT_SCENE_START: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_TRIGGER: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_CANCEL: return sizeof(SmartEvent::raw);
+            //case SMART_EVENT_SCENE_COMPLETE: return sizeof(SmartEvent::raw);
             case SMART_EVENT_SUMMONED_UNIT_DIES: return sizeof(SmartEvent::summoned);
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
@@ -920,7 +821,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_THREAT_SINGLE_PCT: return sizeof(SmartAction::threatPCT);
             case SMART_ACTION_THREAT_ALL_PCT: return sizeof(SmartAction::threatPCT);
             case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: return sizeof(SmartAction::quest);
-            case SMART_ACTION_SET_INGAME_PHASE_GROUP: return sizeof(SmartAction::ingamePhaseGroup);
+            //case SMART_ACTION_RESERVED_16: return sizeof(SmartAction::raw);
             case SMART_ACTION_SET_EMOTE_STATE: return sizeof(SmartAction::emote);
             case SMART_ACTION_AUTO_ATTACK: return sizeof(SmartAction::autoAttack);
             case SMART_ACTION_ALLOW_COMBAT_MOVEMENT: return sizeof(SmartAction::combatMove);
@@ -946,7 +847,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_FORCE_DESPAWN: return sizeof(SmartAction::forceDespawn);
             case SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL: return sizeof(SmartAction::invincHP);
             case SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL: return sizeof(SmartAction::morphOrMount);
-            case SMART_ACTION_SET_INGAME_PHASE_ID: return sizeof(SmartAction::ingamePhaseId);
+            case SMART_ACTION_SET_INGAME_PHASE_MASK: return sizeof(SmartAction::ingamePhaseMask);
             case SMART_ACTION_SET_DATA: return sizeof(SmartAction::setData);
             case SMART_ACTION_ATTACK_STOP: return NO_PARAMS;
             case SMART_ACTION_SET_VISIBILITY: return sizeof(SmartAction::visibility);
@@ -1004,7 +905,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_GAME_EVENT_STOP: return sizeof(SmartAction::gameEventStop);
             case SMART_ACTION_GAME_EVENT_START: return sizeof(SmartAction::gameEventStart);
             case SMART_ACTION_START_CLOSEST_WAYPOINT: return sizeof(SmartAction::closestWaypointFromList);
-            case SMART_ACTION_MOVE_OFFSET: return sizeof(SmartAction::moveOffset);
+            case SMART_ACTION_MOVE_OFFSET: return NO_PARAMS;
             case SMART_ACTION_RANDOM_SOUND: return sizeof(SmartAction::randomSound);
             case SMART_ACTION_SET_CORPSE_DELAY: return sizeof(SmartAction::corpseDelay);
             case SMART_ACTION_DISABLE_EVADE: return sizeof(SmartAction::disableEvade);
@@ -1013,30 +914,27 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_LOAD_EQUIPMENT: return sizeof(SmartAction::loadEquipment);
             case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT: return sizeof(SmartAction::randomTimedEvent);
             case SMART_ACTION_PAUSE_MOVEMENT: return sizeof(SmartAction::pauseMovement);
-            case SMART_ACTION_PLAY_ANIMKIT: return sizeof(SmartAction::animKit);
-            case SMART_ACTION_SCENE_PLAY: return sizeof(SmartAction::scene);
-            case SMART_ACTION_SCENE_CANCEL: return sizeof(SmartAction::scene);
+            //case SMART_ACTION_PLAY_ANIMKIT: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SCENE_PLAY: return sizeof(SmartAction::raw);
+            //case SMART_ACTION_SCENE_CANCEL: return sizeof(SmartAction::raw);
             case SMART_ACTION_SPAWN_SPAWNGROUP: return sizeof(SmartAction::groupSpawn);
             case SMART_ACTION_DESPAWN_SPAWNGROUP: return sizeof(SmartAction::groupSpawn);
             case SMART_ACTION_RESPAWN_BY_SPAWNID: return sizeof(SmartAction::respawnData);
             case SMART_ACTION_INVOKER_CAST: return sizeof(SmartAction::cast);
             case SMART_ACTION_PLAY_CINEMATIC: return sizeof(SmartAction::cinematic);
             case SMART_ACTION_SET_MOVEMENT_SPEED: return sizeof(SmartAction::movementSpeed);
-            case SMART_ACTION_PLAY_SPELL_VISUAL_KIT: return sizeof(SmartAction::spellVisualKit);
+            //case SMART_ACTION_PLAY_SPELL_VISUAL_KIT: return sizeof(SmartAction::raw);
             case SMART_ACTION_OVERRIDE_LIGHT: return sizeof(SmartAction::overrideLight);
             case SMART_ACTION_OVERRIDE_WEATHER: return sizeof(SmartAction::overrideWeather);
-            case SMART_ACTION_SET_AI_ANIM_KIT: return NO_PARAMS;
+            //case SMART_ACTION_SET_AI_ANIM_KIT: return sizeof(SmartAction::raw);
             case SMART_ACTION_SET_HOVER: return sizeof(SmartAction::setHover);
             case SMART_ACTION_SET_HEALTH_PCT: return sizeof(SmartAction::setHealthPct);
-            case SMART_ACTION_CREATE_CONVERSATION: return sizeof(SmartAction::conversation);
+            //case SMART_ACTION_CREATE_CONVERSATION: return sizeof(SmartAction::raw);
             case SMART_ACTION_SET_IMMUNE_PC: return sizeof(SmartAction::setImmunePC);
             case SMART_ACTION_SET_IMMUNE_NPC: return sizeof(SmartAction::setImmuneNPC);
             case SMART_ACTION_SET_UNINTERACTIBLE: return sizeof(SmartAction::setUninteractible);
             case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::activateGameObject);
             case SMART_ACTION_ADD_TO_STORED_TARGET_LIST: return sizeof(SmartAction::addToStoredTargets);
-            case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER: return sizeof(SmartAction::becomePersonalClone);
-            case SMART_ACTION_TRIGGER_GAME_EVENT: return sizeof(SmartAction::triggerGameEvent);
-            case SMART_ACTION_DO_ACTION: return sizeof(SmartAction::doAction);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1192,7 +1090,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_SPELLHIT_TARGET:
                 if (e.event.spellHit.spell)
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.event.spellHit.spell, DIFFICULTY_NONE);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.event.spellHit.spell);
                     if (!spellInfo)
                     {
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Spell entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
@@ -1269,7 +1167,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_SAI_IS_BOOLEAN_VALID(e, e.event.kill.playerOnly);
                 break;
             case SMART_EVENT_VICTIM_CASTING:
-                if (e.event.targetCasting.spellId > 0 && !sSpellMgr->GetSpellInfo(e.event.targetCasting.spellId, DIFFICULTY_NONE))
+                if (e.event.targetCasting.spellId > 0 && !sSpellMgr->GetSpellInfo(e.event.targetCasting.spellId))
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses non-existent Spell entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
                     return false;
@@ -1342,11 +1240,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             case SMART_EVENT_AREATRIGGER_ONTRIGGER:
             {
-                if (e.event.areatrigger.id && (e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY || e.GetScriptType() == SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE))
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                    return false;
-                }
                 if (e.event.areatrigger.id && !IsAreaTriggerValid(e, e.event.areatrigger.id))
                     return false;
                 break;
@@ -1361,6 +1254,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
                 if (e.event.gameEvent.gameEventId >= events.size() || !events[e.event.gameEvent.gameEventId].isValid())
                     return false;
+                break;
+            }
+            case SMART_EVENT_ACTION_DONE:
+            {
+                if (e.event.doAction.eventId > EVENT_CHARGE)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid event id {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.doAction.eventId);
+                    return false;
+                }
                 break;
             }
             case SMART_EVENT_FRIENDLY_HEALTH_PCT:
@@ -1469,18 +1371,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_CHARMED:
                 TC_SAI_IS_BOOLEAN_VALID(e, e.event.charm.onRemove);
                 break;
-            case SMART_EVENT_QUEST_OBJ_COMPLETION:
-                if (!sObjectMgr->GetQuestObjective(e.event.questObjective.id))
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {}, skipped.", e.event.questObjective.id);
-                    return false;
-                }
-                break;
-            case SMART_EVENT_QUEST_ACCEPTED:
-            case SMART_EVENT_QUEST_COMPLETION:
-            case SMART_EVENT_QUEST_REWARDED:
-            case SMART_EVENT_QUEST_FAIL:
-                break;
             case SMART_EVENT_LINK:
             case SMART_EVENT_GO_LOOT_STATE_CHANGED:
             case SMART_EVENT_GO_EVENT_INFORM:
@@ -1489,13 +1379,17 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_TRANSPORT_RELOCATE:
             case SMART_EVENT_CORPSE_REMOVED:
             case SMART_EVENT_AI_INIT:
-            case SMART_EVENT_ACTION_DONE:
             case SMART_EVENT_TRANSPORT_ADDPLAYER:
             case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
             case SMART_EVENT_AGGRO:
             case SMART_EVENT_DEATH:
             case SMART_EVENT_EVADE:
             case SMART_EVENT_REACHED_HOME:
+            case SMART_EVENT_QUEST_ACCEPTED:
+            case SMART_EVENT_QUEST_OBJ_COMPLETION:
+            case SMART_EVENT_QUEST_COMPLETION:
+            case SMART_EVENT_QUEST_REWARDED:
+            case SMART_EVENT_QUEST_FAIL:
             case SMART_EVENT_JUST_SUMMONED:
             case SMART_EVENT_WAYPOINT_REACHED:
             case SMART_EVENT_WAYPOINT_PAUSED:
@@ -1508,10 +1402,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_FOLLOW_COMPLETED:
             case SMART_EVENT_ON_SPELLCLICK:
             case SMART_EVENT_ON_DESPAWN:
-            case SMART_EVENT_SCENE_START:
-            case SMART_EVENT_SCENE_CANCEL:
-            case SMART_EVENT_SCENE_COMPLETE:
-            case SMART_EVENT_SCENE_TRIGGER:
                 break;
             // Unused
             case SMART_EVENT_TARGET_HEALTH_PCT:
@@ -1583,20 +1473,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_EMOTE_STATE:
         case SMART_ACTION_PLAY_EMOTE:
             if (!IsEmoteValid(e, e.action.emote.emote))
-                return false;
-            break;
-        case SMART_ACTION_PLAY_ANIMKIT:
-            if (e.action.animKit.animKit && !IsAnimKitValid(e, e.action.animKit.animKit))
-                return false;
-
-            if (e.action.animKit.type > 3)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid AnimKit type {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.animKit.type);
-                return false;
-            }
-            break;
-        case SMART_ACTION_PLAY_SPELL_VISUAL_KIT:
-            if (e.action.spellVisualKit.spellVisualKitId && !IsSpellVisualKitValid(e, e.action.spellVisualKit.spellVisualKitId))
                 return false;
             break;
         case SMART_ACTION_OFFER_QUEST:
@@ -1673,13 +1549,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             if (!IsSpellValid(e, e.action.cast.spell))
                 return false;
 
-            for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(e.action.cast.spell, DIFFICULTY_NONE)->GetEffects())
+            for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(e.action.cast.spell)->GetEffects())
             {
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
                 {
                     if (spellEffectInfo.TargetA.GetTarget() == TARGET_UNIT_CASTER)
                         TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {} targetA: {} - targetB: {}) has invalid target for this Action",
-                        e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellEffectInfo.TargetA.GetTarget(), spellEffectInfo.TargetB.GetTarget());
+                            e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cast.spell, spellEffectInfo.TargetA.GetTarget(), spellEffectInfo.TargetB.GetTarget());
                 }
             }
             break;
@@ -1688,32 +1564,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (!IsSpellValid(e, e.action.crossCast.spell))
                 return false;
-
-            uint32 targetType = e.action.crossCast.targetType;
-            if (targetType == SMART_TARGET_CREATURE_GUID || targetType == SMART_TARGET_GAMEOBJECT_GUID)
-            {
-                if (e.action.crossCast.targetParam2)
-                {
-                    if (targetType == SMART_TARGET_CREATURE_GUID && !IsCreatureValid(e, e.action.crossCast.targetParam2))
-                        return false;
-                    else if (targetType == SMART_TARGET_GAMEOBJECT_GUID && !IsGameObjectValid(e, e.action.crossCast.targetParam2))
-                        return false;
-                }
-
-                ObjectGuid::LowType guid = ObjectGuid::LowType(e.action.crossCast.targetParam1);
-                SpawnObjectType spawnType = targetType == SMART_TARGET_CREATURE_GUID ? SPAWN_TYPE_CREATURE : SPAWN_TYPE_GAMEOBJECT;
-                SpawnData const* data = sObjectMgr->GetSpawnData(spawnType, guid);
-                if (!data)
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), AsUnderlyingType(spawnType), guid);
-                    return false;
-                }
-                else if (e.action.crossCast.targetParam2 && e.action.crossCast.targetParam2 != data->id)
-                {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} specifies invalid entry {} (expected {}) for CasterTargetType guid ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.crossCast.targetParam2, data->id, AsUnderlyingType(spawnType), guid);
-                    return false;
-                }
-            }
             break;
         }
         case SMART_ACTION_INVOKER_CAST:
@@ -1746,7 +1596,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_SET_EVENT_PHASE:
             if (e.action.setEventPhase.phase >= SMART_EVENT_PHASE_MAX)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} attempts to set phase {}. Phase mask cannot be used past phase {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setEventPhase.phase, SMART_EVENT_PHASE_MAX - 1);
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} attempts to set phase {}. Phase mask cannot be used past phase {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setEventPhase.phase, SMART_EVENT_PHASE_MAX-1);
                 return false;
             }
             break;
@@ -1996,115 +1846,42 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         {
             if (e.action.setInstanceData.type > 1)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid data type {} (value range 0-1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.type);
+                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} uses invalid data type {} (value range 0-1), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.type);
                 return false;
             }
             else if (e.action.setInstanceData.type == 1)
             {
                 if (e.action.setInstanceData.data > TO_BE_DECIDED)
                 {
-                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses invalid boss state {} (value range 0-5), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.data);
+                    TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} uses invalid boss state {} (value range 0-5), skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.setInstanceData.data);
                     return false;
                 }
             }
             break;
         }
-        case SMART_ACTION_SET_INGAME_PHASE_ID:
-        {
-            uint32 phaseId = e.action.ingamePhaseId.id;
-            uint32 apply = e.action.ingamePhaseId.apply;
-
-            if (apply != 0 && apply != 1)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid apply value {} (Should be 0 or 1) for creature {}, skipped", apply, e.entryOrGuid);
-                return false;
-            }
-
-            if (!sPhaseStore.LookupEntry(phaseId))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid phaseid {} for creature {}, skipped", phaseId, e.entryOrGuid);
-                return false;
-            }
-            break;
-        }
-        case SMART_ACTION_SET_INGAME_PHASE_GROUP:
-        {
-            uint32 phaseGroup = e.action.ingamePhaseGroup.groupId;
-            uint32 apply = e.action.ingamePhaseGroup.apply;
-
-            if (apply != 0 && apply != 1)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid apply value {} (Should be 0 or 1) for creature {}, skipped", apply, e.entryOrGuid);
-                return false;
-            }
-
-            if (!sDB2Manager.GetPhasesForGroup(phaseGroup))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {} for creature {}, skipped", phaseGroup, e.entryOrGuid);
-                return false;
-            }
-            break;
-        }
-        case SMART_ACTION_SCENE_PLAY:
-        {
-            if (!sObjectMgr->GetSceneTemplate(e.action.scene.sceneId))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {} but scene don't exist, skipped", e.action.scene.sceneId);
-                return false;
-            }
-
-            break;
-        }
-        case SMART_ACTION_SCENE_CANCEL:
-        {
-            if (!sObjectMgr->GetSceneTemplate(e.action.scene.sceneId))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {} but scene don't exist, skipped", e.action.scene.sceneId);
-                return false;
-            }
-
-            break;
-        }
         case SMART_ACTION_RESPAWN_BY_SPAWNID:
-        {
             if (!sObjectMgr->GetSpawnData(SpawnObjectType(e.action.respawnData.spawnType), e.action.respawnData.spawnId))
             {
                 TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} specifies invalid spawn data ({},{})", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.respawnData.spawnType, e.action.respawnData.spawnId);
                 return false;
             }
             break;
-        }
         case SMART_ACTION_ENABLE_TEMP_GOBJ:
-        {
             if (!e.action.enableTempGO.duration)
             {
                 TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} does not specify duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
-
             break;
-        }
-        case SMART_ACTION_PLAY_CINEMATIC:
-        {
-            if (!sCinematicSequencesStore.LookupEntry(e.action.cinematic.entry))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC Entry {} SourceType {} Event {} Action {} uses invalid entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.cinematic.entry);
-                return false;
-            }
-
-            break;
-        }
         case SMART_ACTION_PAUSE_MOVEMENT:
-        {
             if (!e.action.pauseMovement.pauseTimer)
             {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
 
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
-        }
         case SMART_ACTION_SET_MOVEMENT_SPEED:
         {
             if (e.action.movementSpeed.movementType >= MAX_MOVE_TYPE)
@@ -2165,11 +1942,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            break;
-        }
-        case SMART_ACTION_SET_AI_ANIM_KIT:
-        {
-            TC_LOG_ERROR("sql.sql", "SmartAIMgr: Deprecated action_type({}), event_type({}), Entry {} SourceType {} Event {}, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
             break;
         }
         case SMART_ACTION_SET_HEALTH_PCT:
@@ -2274,16 +2046,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setHealthRegen.regenHealth);
             break;
         }
-        case SMART_ACTION_CREATE_CONVERSATION:
-        {
-            if (!sConversationDataStore->GetConversationTemplate(e.action.conversation.id))
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {} SourceType {} Event {} Action {} uses invalid entry {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.conversation.id);
-                return false;
-            }
-
-            break;
-        }
         case SMART_ACTION_SET_IMMUNE_PC:
         {
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.setImmunePC.immunePC);
@@ -2330,6 +2092,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ATTACK_STOP:
         case SMART_ACTION_WP_PAUSE:
         case SMART_ACTION_FORCE_DESPAWN:
+        case SMART_ACTION_SET_INGAME_PHASE_MASK:
         case SMART_ACTION_PLAYMOVIE:
         case SMART_ACTION_CLOSE_GOSSIP:
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
@@ -2356,23 +2119,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT:
         case SMART_ACTION_SPAWN_SPAWNGROUP:
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
+        case SMART_ACTION_PLAY_CINEMATIC:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
-        case SMART_ACTION_DO_ACTION:
             break;
-        case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
-        {
-            if (e.action.becomePersonalClone.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.becomePersonalClone.type > TEMPSUMMON_MANUAL_DESPAWN)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses incorrect TempSummonType {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.becomePersonalClone.type);
-                return false;
-            }
-            break;
-        }
-        case SMART_ACTION_TRIGGER_GAME_EVENT:
-        {
-            TC_SAI_IS_BOOLEAN_VALID(e, e.action.triggerGameEvent.useSaiTargetAsGameEventSource);
-            break;
-        }
         // Unused
         case SMART_ACTION_SET_UNIT_FLAG:
         case SMART_ACTION_REMOVE_UNIT_FLAG:
@@ -2446,7 +2195,7 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder const& e, uint32 id)
 
     if (!entry || !sCreatureTextMgr->TextExist(entry, uint8(id)))
     {
-        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {}SourceType {} Event {} Action {} using non-existent Text id {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), id);
+        TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} using non-existent Text id {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), id);
         return false;
     }
 
@@ -2457,20 +2206,28 @@ void SmartAIMgr::LoadHelperStores()
 {
     uint32 oldMSTime = getMSTime();
 
-    sSpellMgr->ForEachSpellInfo([this](SpellInfo const* spellInfo)
+    SpellInfo const* spellInfo = nullptr;
+    for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
     {
+        spellInfo = sSpellMgr->GetSpellInfo(i);
+        if (!spellInfo)
+            continue;
+
         for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
         {
             if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
-                SummonCreatureSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(spellInfo->Id, spellEffectInfo.EffectIndex)));
+                SummonCreatureSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
+
             else if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON_OBJECT_WILD))
-                SummonGameObjectSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(spellInfo->Id, spellEffectInfo.EffectIndex)));
+                SummonGameObjectSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
+
             else if (spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT) || spellEffectInfo.IsEffect(SPELL_EFFECT_KILL_CREDIT2))
-                KillCreditSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(spellInfo->Id, spellEffectInfo.EffectIndex)));
+                KillCreditSpellStore.insert(std::make_pair(uint32(spellEffectInfo.MiscValue), std::make_pair(i, spellEffectInfo.EffectIndex)));
+
             else if (spellEffectInfo.IsEffect(SPELL_EFFECT_CREATE_ITEM))
-                CreateItemSpellStore.insert(std::make_pair(uint32(spellEffectInfo.ItemType), std::make_pair(spellInfo->Id, spellEffectInfo.EffectIndex)));
+                CreateItemSpellStore.insert(std::make_pair(uint32(spellEffectInfo.ItemType), std::make_pair(i, spellEffectInfo.EffectIndex)));
         }
-    });
+    }
 
     TC_LOG_INFO("server.loading", ">> Loaded SmartAIMgr Helpers in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }

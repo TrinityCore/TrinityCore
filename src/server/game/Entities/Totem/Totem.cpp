@@ -18,12 +18,11 @@
 #include "Totem.h"
 #include "Group.h"
 #include "Log.h"
-#include "Map.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "SmartEnum.h"
 #include "SpellHistory.h"
-#include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "SpellInfo.h"
 #include "TotemPackets.h"
 
 Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
@@ -57,38 +56,46 @@ void Totem::InitStats(uint32 duration)
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (Player* owner = GetOwner()->ToPlayer())
     {
-        if (m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
+        uint32 slot = m_Properties->Slot;
+        if (slot >= SUMMON_SLOT_TOTEM_FIRE && slot < MAX_TOTEM_SLOT)
         {
             WorldPackets::Totem::TotemCreated data;
             data.Totem = GetGUID();
-            data.Slot = m_Properties->Slot - SUMMON_SLOT_TOTEM;
+            data.Slot = slot - SUMMON_SLOT_TOTEM_FIRE;
             data.Duration = duration;
-            data.SpellID = m_unitData->CreatedBySpell;
+            data.SpellID = GetUInt32Value(UNIT_CREATED_BY_SPELL);
             owner->SendDirectMessage(data.Write());
         }
 
         // set display id depending on caster's race
-        if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->GetRace()))
+        if (uint32 totemDisplayId = sObjectMgr->GetModelForTotem(SummonSlot(slot), Races(owner->GetRace())))
             SetDisplayId(totemDisplayId);
         else
-            TC_LOG_DEBUG("misc", "Totem with entry {}, owned by player {}, does not have a specialized model for spell {} and race {}. Set to default.",
-                         GetEntry(), owner->GetGUID().ToString(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
+            TC_LOG_DEBUG("misc", "Totem with entry {}, owned by player {} ({} {} {}) in slot {}, created by spell {}, does not have a specialized model. Set to default.",
+                         GetEntry(), owner->GetGUID().ToString(), owner->GetLevel(), EnumUtils::ToTitle(Races(owner->GetRace())), EnumUtils::ToTitle(Classes(owner->GetClass())), slot, GetUInt32Value(UNIT_CREATED_BY_SPELL));
     }
 
     Minion::InitStats(duration);
 
     // Get spell cast by totem
-    if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(GetSpell(), GetMap()->GetDifficultyID()))
+    if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(GetSpell()))
         if (totemSpell->CalcCastTime())   // If spell has cast time -> its an active totem
             m_type = TOTEM_ACTIVE;
 
+    if (GetEntry() == SENTRY_TOTEM_ENTRY)
+        SetReactState(REACT_AGGRESSIVE);
+
     m_duration = duration;
+
+    SetLevel(GetOwner()->GetLevel());
 }
 
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
+    {
         CastSpell(this, GetSpell(), true);
+    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
@@ -107,7 +114,7 @@ void Totem::UnSummon(uint32 msTime)
     RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
     // clear owner's totem slot
-    for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+    for (uint8 i = SUMMON_SLOT_TOTEM_FIRE; i < MAX_TOTEM_SLOT; ++i)
     {
         if (GetOwner()->m_SummonSlot[i] == GetGUID())
         {
@@ -118,12 +125,16 @@ void Totem::UnSummon(uint32 msTime)
 
     GetOwner()->RemoveAurasDueToSpell(GetSpell(), GetGUID());
 
-    // remove aura all party members too
+    // Remove Sentry Totem Aura
+    if (GetEntry() == SENTRY_TOTEM_ENTRY)
+        GetOwner()->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
+
+    //remove aura all party members too
     if (Player* owner = GetOwner()->ToPlayer())
     {
         owner->SendAutoRepeatCancel(this);
 
-        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_unitData->CreatedBySpell, GetMap()->GetDifficultyID()))
+        if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(GetUInt32Value(UNIT_CREATED_BY_SPELL)))
             GetSpellHistory()->SendCooldownEvent(spell, 0, nullptr, false);
 
         if (Group* group = owner->GetGroup())
@@ -137,6 +148,10 @@ void Totem::UnSummon(uint32 msTime)
         }
     }
 
+    // any totem unsummon look like as totem kill, req. for proper animation
+    if (IsAlive())
+        setDeathState(DEAD);
+
     AddObjectToRemoveList();
 }
 
@@ -148,7 +163,7 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo c
     if (spellEffectInfo.Effect != SPELL_EFFECT_DUMMY &&
         spellEffectInfo.Effect != SPELL_EFFECT_SCRIPT_EFFECT &&
         spellInfo->IsPositive() && spellEffectInfo.TargetA.GetTarget() != TARGET_UNIT_CASTER &&
-        spellEffectInfo.TargetA.GetCheckType() != TARGET_CHECK_ENTRY)
+        spellEffectInfo.TargetA.GetCheckType() != TARGET_CHECK_ENTRY && spellInfo->Id != SENTRY_STONECLAW_SPELLID && spellInfo->Id != SENTRY_BIND_SIGHT_SPELLID)
         return true;
 
     switch (spellEffectInfo.ApplyAuraName)

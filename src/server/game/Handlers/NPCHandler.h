@@ -18,17 +18,29 @@
 #ifndef __NPCHANDLER_H
 #define __NPCHANDLER_H
 
-struct NpcTextData
+struct QEmote
 {
-    float Probability = 0.0f;
-    uint32 BroadcastTextID = 0;
+    uint32 _Emote;
+    uint32 _Delay;
 };
 
-#define MAX_NPC_TEXT_OPTIONS 8
+#define MAX_GOSSIP_TEXT_EMOTES 3
 
-struct NpcText
+struct GossipTextOption
 {
-    NpcTextData Data[MAX_NPC_TEXT_OPTIONS];
+    std::string Text_0;
+    std::string Text_1;
+    uint32 BroadcastTextID;
+    uint32 Language;
+    float Probability;
+    QEmote Emotes[MAX_GOSSIP_TEXT_EMOTES];
+};
+
+#define MAX_GOSSIP_TEXT_OPTIONS 8
+
+struct GossipText
+{
+    GossipTextOption Options[MAX_GOSSIP_TEXT_OPTIONS];
 };
 
 struct PageTextLocale
@@ -36,4 +48,11 @@ struct PageTextLocale
     std::vector<std::string> Text;
 };
 
+struct NpcTextLocale
+{
+    NpcTextLocale() { }
+
+    std::vector<std::string> Text_0[MAX_GOSSIP_TEXT_OPTIONS];
+    std::vector<std::string> Text_1[MAX_GOSSIP_TEXT_OPTIONS];
+};
 #endif

@@ -8,21 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(PRIVATE_SOURCES
-  TileAssembler.cpp
-  TileAssembler.h
-  VMapAssembler.cpp)
+set(PRIVATE_SOURCES VMapAssembler.cpp)
 
 list(APPEND PRIVATE_SOURCES ${sources_windows})
 
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
+
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set_target_properties(vmap4assembler PROPERTIES LINK_FLAGS "-framework Carbon")
+endif()
 
 target_link_libraries(vmap4assembler
   PRIVATE
     trinity-core-interface
   PUBLIC
     common
-    casc
     zlib)
 
 set_target_properties(vmap4assembler

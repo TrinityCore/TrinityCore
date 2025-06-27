@@ -21,6 +21,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -92,15 +93,6 @@ DoorData const doorData[] =
     { 0,                  0,                      DOOR_TYPE_ROOM } // END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_NORTHREND_BEASTS, {{ 1088 }} },
-    { DATA_JARAXXUS, {{ 1087 }} },
-    { DATA_FACTION_CRUSADERS, {{ 1086 }} },
-    { DATA_TWIN_VALKIRIES, {{ 1089 }} },
-    { DATA_ANUBARAK, {{ 1085 }} }
-};
-
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
     public:
@@ -115,7 +107,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
+                TrialCounter = 50;
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
                 NorthrendBeastsCount = 4;
@@ -125,14 +117,22 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 ResilienceWillFixItTimer = 0;
                 SnoboldCount = 0;
                 MistressOfPainCount = 0;
-                PlayerDeathCount = 0;
+                TributeToImmortalityEligible = true;
+                NeedSave = false;
                 CrusadersSpecialState = false;
                 TributeToDedicatedInsanity = false; // NYI, set to true when implement it
-                DoUpdateWorldState(UPDATE_STATE_UI_SHOW, instance->IsHeroic() ? 1 : 0);
             }
 
             void OnPlayerEnter(Player* player) override
             {
+                if (instance->IsHeroic())
+                {
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
+                }
+                else
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
+
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
 
@@ -147,6 +147,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     snoboldGUIDS.push_back(creature->GetGUID());
             }
 
+            // Summon prevention to heroic modes
+            uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
+            {
+                if (!TrialCounter)
+                    return 0;
+
+                return data->id;
+            }
+
             void OnGameObjectCreate(GameObject* go) override
             {
                 InstanceScript::OnGameObjectCreate(go);
@@ -158,10 +167,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             void OnUnitDeath(Unit* unit) override
             {
                 if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
-                {
-                    ++PlayerDeathCount;
-                    DoUpdateWorldState(WORLD_STATE_PLAYER_DEATHS, PlayerDeathCount);
-                }
+                    TributeToImmortalityEligible = false;
+
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -199,9 +206,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                     fordring->AI()->DoAction(ACTION_FACTION_WIPE);
                                 break;
                             case DONE:
-                                DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_DEFEAT_FACTION_CHAMPIONS);
+                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
                                 if (ResilienceWillFixItTimer > 0)
-                                    DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
+                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
                                 DoRespawnGameObject(GetGuidData(DATA_CRUSADERS_CHEST), 7_days);
                                 if (GameObject* cache = GetGameObject(DATA_CRUSADERS_CHEST))
                                     cache->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
@@ -239,6 +246,46 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case DONE:
                             {
                                 EventStage = 6000;
+                                uint32 tributeChest = 0;
+                                if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                                {
+                                    if (TrialCounter >= 50)
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_99;
+                                    else
+                                    {
+                                        if (TrialCounter >= 45)
+                                            tributeChest = GO_TRIBUTE_CHEST_10H_50;
+                                        else
+                                        {
+                                            if (TrialCounter >= 25)
+                                                tributeChest = GO_TRIBUTE_CHEST_10H_45;
+                                            else
+                                                tributeChest = GO_TRIBUTE_CHEST_10H_25;
+                                        }
+                                    }
+                                }
+                                else if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                                {
+                                    if (TrialCounter >= 50)
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_99;
+                                    else
+                                    {
+                                        if (TrialCounter >= 45)
+                                            tributeChest = GO_TRIBUTE_CHEST_25H_50;
+                                        else
+                                        {
+                                            if (TrialCounter >= 25)
+                                                tributeChest = GO_TRIBUTE_CHEST_25H_45;
+                                            else
+                                                tributeChest = GO_TRIBUTE_CHEST_25H_25;
+                                        }
+                                    }
+                                }
+
+                                if (tributeChest)
+                                    if (Creature* tirion =  GetCreature(DATA_FORDRING))
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData(), 7_days))
+                                            chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             }
                             default:
@@ -254,9 +301,29 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     TC_LOG_DEBUG("scripts", "[ToCr] BossState(type {}) {} = state {};", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
+                        if (instance->IsHeroic())
+                        {
+                            --TrialCounter;
+                            // decrease attempt counter at wipe
+                            Map::PlayerList const& PlayerList = instance->GetPlayers();
+                            for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+                                if (Player* player = itr->GetSource())
+                                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
+
+                            // if theres no more attemps allowed
+                            if (!TrialCounter)
+                            {
+                                if (Creature* anubarak = GetCreature(DATA_ANUBARAK))
+                                    anubarak->DespawnOrUnsummon();
+                            }
+                        }
+                        NeedSave = true;
                         EventStage = (type == DATA_NORTHREND_BEASTS ? 666 : 0);
                         state = NOT_STARTED;
                     }
+
+                    if (state == DONE || NeedSave)
+                        Save();
                 }
                 return true;
             }
@@ -295,6 +362,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case TYPE_COUNTER:
+                        TrialCounter = data;
+                        data = DONE;
+                        break;
                     case TYPE_EVENT:
                         EventStage = data;
                         data = NOT_STARTED;
@@ -326,7 +397,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                             case SNAKES_DONE:
                                 if (NotOneButTwoJormungarsTimer > 0)
-                                    DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_WORMS_KILLED_IN_10_SECONDS);
+                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
                                 if (Creature* tirion = GetCreature(DATA_FORDRING))
                                     tirion->AI()->DoAction(ACTION_START_ICEHOWL);
                                 HandleNorthrendBeastsDone();
@@ -377,6 +448,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case DATA_TEAM:
+                        return Team;
+                    case TYPE_COUNTER:
+                        return TrialCounter;
                     case TYPE_EVENT:
                         return EventStage;
                     case TYPE_NORTHREND_BEASTS:
@@ -496,6 +571,32 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
+            void Save()
+            {
+                SaveToDB();
+                NeedSave = false;
+            }
+
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << TrialCounter << ' '
+                    << uint32(TributeToImmortalityEligible ? 1 : 0) << ' '
+                    << uint32(TributeToDedicatedInsanity ? 1 : 0);
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                uint32 temp = 0;
+
+                data >> TrialCounter;
+
+                data >> temp;
+                TributeToImmortalityEligible = temp != 0;
+
+                data >> temp;
+                TributeToDedicatedInsanity = temp != 0;
+            }
+
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/) override
             {
                 switch (criteria_id)
@@ -511,8 +612,21 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case THREE_SIXTY_PAIN_SPIKE_25_PLAYER:
                     case THREE_SIXTY_PAIN_SPIKE_25_PLAYER_HEROIC:
                         return MistressOfPainCount >= 2;
+                    case A_TRIBUTE_TO_SKILL_10_PLAYER:
+                    case A_TRIBUTE_TO_SKILL_25_PLAYER:
+                        return TrialCounter >= 25;
+                    case A_TRIBUTE_TO_MAD_SKILL_10_PLAYER:
+                    case A_TRIBUTE_TO_MAD_SKILL_25_PLAYER:
+                        return TrialCounter >= 45;
+                    case A_TRIBUTE_TO_INSANITY_10_PLAYER:
+                    case A_TRIBUTE_TO_INSANITY_25_PLAYER:
+                    case REALM_FIRST_GRAND_CRUSADER:
+                        return TrialCounter == 50;
+                    case A_TRIBUTE_TO_IMMORTALITY_HORDE:
+                    case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
+                        return TrialCounter == 50 && TributeToImmortalityEligible;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
-                        return false; // no longer obtainable
+                        return false/*TrialCounter == 50 && TributeToDedicatedInsanity*/;
                     default:
                         break;
                 }
@@ -521,10 +635,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             }
 
             protected:
+                uint32 TrialCounter;
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 NorthrendBeasts;
                 uint32 Team;
+                bool NeedSave;
                 bool CrusadersSpecialState;
                 GuidVector snoboldGUIDS;
 
@@ -534,7 +650,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint8 SnoboldCount;
                 uint8 MistressOfPainCount;
                 uint8 NorthrendBeastsCount;
-                int32 PlayerDeathCount;
+                bool TributeToImmortalityEligible;
                 bool TributeToDedicatedInsanity;
         };
 

@@ -25,7 +25,6 @@
 #define CINEMATIC_UPDATEDIFF 500
 
 class Player;
-struct CinematicSequencesEntry;
 struct FlyByCamera;
 
 class TC_GAME_API CinematicMgr
@@ -34,14 +33,12 @@ class TC_GAME_API CinematicMgr
 public:
     explicit CinematicMgr(Player* playerref);
     ~CinematicMgr();
+
     // Cinematic camera data and remote sight functions
+    uint32 GetActiveCinematicCamera() const { return m_activeCinematicCameraId; }
+    void SetActiveCinematicCamera(uint32 cinematicCameraId = 0) { m_activeCinematicCameraId = cinematicCameraId; }
     bool IsOnCinematic() const { return (m_cinematicCamera != nullptr); }
-    void BeginCinematic(CinematicSequencesEntry const* cinematic)
-    {
-        m_activeCinematic = cinematic;
-        m_activeCinematicCameraIndex = -1;
-    }
-    void NextCinematicCamera();
+    void BeginCinematic();
     void EndCinematic();
     void UpdateCinematicLocation(uint32 diff);
 
@@ -52,12 +49,11 @@ private:
 protected:
     uint32      m_cinematicDiff;
     uint32      m_lastCinematicCheck;
-    CinematicSequencesEntry const* m_activeCinematic;
-     int32      m_activeCinematicCameraIndex;
+    uint32      m_activeCinematicCameraId;
     uint32      m_cinematicLength;
     std::vector<FlyByCamera> const* m_cinematicCamera;
     Position    m_remoteSightPosition;
-    TempSummon* m_CinematicObject;
+    ObjectGuid  m_CinematicObjectGUID;
 };
 
-#endif // CinematicMgr_h__
+#endif

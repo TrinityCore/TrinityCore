@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "CreatureAIImpl.h"
 #include "EventMap.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
@@ -734,20 +735,18 @@ public:
 
         static uint32 CheerPicker()
         {
-            uint32 ids[] =
-            {
+            uint32 newid = RAND(
                 SOUND_CHEER_1,
                 SOUND_CHEER_2,
                 SOUND_CHEER_3,
                 SOUND_CHEER_4
-            };
-            return Trinity::Containers::SelectRandomContainerElement(ids);
+            );
+            return newid;
         }
 
         static uint32 FireworksPicker()
         {
-            uint32 ids[] =
-            {
+            uint32 newid = RAND(
                 FIREWORK_SHOW_TYPE_1_RED,
                 FIREWORK_SHOW_TYPE_2_RED,
                 FIREWORK_SHOW_TYPE_1_RED_BIG,
@@ -771,14 +770,13 @@ public:
                 FIREWORK_SHOW_TYPE_2_PURPLE,
                 FIREWORK_SHOW_TYPE_1_PURPLE_BIG,
                 FIREWORK_SHOW_TYPE_2_PURPLE_BIG
-            };
-            return Trinity::Containers::SelectRandomContainerElement(ids);
+            );
+            return newid;
         }
 
         static uint32 FireworksBIGOnlyPicker()
         {
-            uint32 ids[] =
-            {
+            uint32 newid = RAND(
                 FIREWORK_SHOW_TYPE_1_RED_BIG,
                 FIREWORK_SHOW_TYPE_2_RED_BIG,
                 FIREWORK_SHOW_TYPE_1_BLUE_BIG,
@@ -791,8 +789,8 @@ public:
                 FIREWORK_SHOW_TYPE_2_YELLOW_BIG,
                 FIREWORK_SHOW_TYPE_1_PURPLE_BIG,
                 FIREWORK_SHOW_TYPE_2_PURPLE_BIG
-            };
-            return Trinity::Containers::SelectRandomContainerElement(ids);
+            );
+            return newid;
         }
 
         void UpdateAI(uint32 diff) override

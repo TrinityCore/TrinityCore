@@ -23,8 +23,8 @@
 #include "magisters_terrace.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 /*
 0  - Selin Fireheart
@@ -60,14 +60,6 @@ DoorData const doorData[] =
     { 0,                        0,                          DOOR_TYPE_ROOM      } // END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_SELIN_FIREHEART, {{ 1897 }} },
-    { DATA_VEXALLUS, {{ 1898 }} },
-    { DATA_PRIESTESS_DELRISSA, {{ 1895 }} },
-    { DATA_KAELTHAS_SUNSTRIDER, {{ 1894 }} }
-};
-
 Position const KalecgosSpawnPos = { 164.3747f, -397.1197f, 2.151798f, 1.66219f };
 Position const KaelthasTrashGroupDistanceComparisonPos = { 150.0f, 141.0f, -14.4f };
 
@@ -84,7 +76,6 @@ class instance_magisters_terrace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
             }
 
             uint32 GetData(uint32 type) const override
@@ -175,7 +166,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
             {
                 if (eventId == EVENT_SPAWN_KALECGOS)
                     if (!GetCreature(DATA_KALECGOS) && _events.Empty())
@@ -187,13 +178,7 @@ class instance_magisters_terrace : public InstanceMapScript
                 _events.Update(diff);
 
                 if (_events.ExecuteEvent() == EVENT_SPAWN_KALECGOS)
-                {
-                    if (Creature* kalecgos = instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos))
-                    {
-                        kalecgos->GetMotionMaster()->MovePath(PATH_KALECGOS_FLIGHT, false);
-                        kalecgos->AI()->Talk(SAY_KALECGOS_SPAWN);
-                    }
-                }
+                    instance->SummonCreature(NPC_KALECGOS, KalecgosSpawnPos);
             }
 
             bool SetBossState(uint32 type, EncounterState state) override

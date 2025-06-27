@@ -22,13 +22,12 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "PhasingHandler.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Texts
+enum ValithriaTexts
 {
     // The Lich King
     SAY_LICH_KING_INTRO         = 0,
@@ -44,7 +43,7 @@ enum Texts
     SAY_VALITHRIA_SUCCESS       = 7,
 };
 
-enum Spells
+enum ValithriaSpells
 {
     // Valithria Dreamwalker
     SPELL_COPY_DAMAGE                   = 71948,
@@ -63,7 +62,6 @@ enum Spells
     SPELL_CORRUPTION_VALITHRIA          = 70904,
     SPELL_MANA_VOID_AURA                = 71085,
     SPELL_COLUMN_OF_FROST_AURA          = 70715,
-    SPELL_WEAKENED_SOUL                 = 72232,
 
     // The Lich King
     SPELL_TIMER_GLUTTONOUS_ABOMINATION  = 70915,
@@ -109,7 +107,7 @@ enum Spells
 #define EMERALD_VIGOR RAID_MODE<uint32>(SPELL_EMERALD_VIGOR, SPELL_EMERALD_VIGOR, \
                                         SPELL_TWISTED_NIGHTMARE, SPELL_TWISTED_NIGHTMARE)
 
-enum Events
+enum ValithriaEvents
 {
     // Valithria Dreamwalker
     EVENT_INTRO_TALK = 1,
@@ -145,7 +143,7 @@ enum Events
     EVENT_EXPLODE,
 };
 
-enum Misc
+enum ValithriaMisc
 {
     ACTION_ENTER_COMBAT    = 1,
     MISSED_PORTALS         = 2,
@@ -183,8 +181,7 @@ class ValithriaDelayedCastEvent : public BasicEvent
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            _trigger->CastSpell(_trigger, _spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(_originalCaster));
+            _trigger->CastSpell(_trigger, _spellId, _originalCaster);
             if (_despawnTime != 0s)
                 _trigger->DespawnOrUnsummon(_despawnTime);
             return true;
@@ -258,6 +255,7 @@ class ValithriaDespawner : public BasicEvent
         Creature* _creature;
 };
 
+// 36789 - Valithria Dreamwalker
 struct boss_valithria_dreamwalker : public ScriptedAI
 {
     boss_valithria_dreamwalker(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
@@ -319,7 +317,7 @@ struct boss_valithria_dreamwalker : public ScriptedAI
     void HealReceived(Unit* healer, uint32& heal) override
     {
         if (!me->hasLootRecipient())
-            me->SetTappedBy(healer);
+            me->SetLootRecipient(healer);
 
         me->LowerPlayerDamageReq(heal);
 
@@ -472,6 +470,7 @@ private:
     bool _done;
 };
 
+// 38752 - Green Dragon Combat Trigger
 struct npc_green_dragon_combat_trigger : public BossAI
 {
     npc_green_dragon_combat_trigger(Creature* creature) : BossAI(creature, DATA_VALITHRIA_DREAMWALKER) { }
@@ -499,7 +498,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
 
         if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
         {
-            EnterEvadeMode(EvadeReason::SequenceBreak);
+            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
             return;
         }
@@ -539,6 +538,7 @@ struct npc_green_dragon_combat_trigger : public BossAI
     }
 };
 
+// 16980 - The Lich King
 struct npc_the_lich_king_controller : public ScriptedAI
 {
     npc_the_lich_king_controller(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -576,7 +576,7 @@ struct npc_the_lich_king_controller : public ScriptedAI
     void JustSummoned(Creature* summon) override
     {
         // must not be in dream phase
-        PhasingHandler::RemovePhase(summon, 173, true);
+        summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
         DoZoneInCombat(summon);
         if (summon->GetEntry() != NPC_SUPPRESSER)
             if (Unit* target = me->GetCombatManager().GetAnyTarget())
@@ -626,6 +626,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 37868 - Risen Archmage
 struct npc_risen_archmage : public ScriptedAI
 {
     npc_risen_archmage(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -741,6 +742,7 @@ private:
     bool _isInitialArchmage;
 };
 
+// 36791 - Blazing Skeleton
 struct npc_blazing_skeleton : public ScriptedAI
 {
     npc_blazing_skeleton(Creature* creature) : ScriptedAI(creature) { }
@@ -790,6 +792,7 @@ private:
     EventMap _events;
 };
 
+// 37863 - Suppresser
 struct npc_suppresser : public ScriptedAI
 {
     npc_suppresser(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -847,6 +850,7 @@ private:
     InstanceScript* const _instance;
 };
 
+// 37934 - Blistering Zombie
 struct npc_blistering_zombie : public ScriptedAI
 {
     npc_blistering_zombie(Creature* creature) : ScriptedAI(creature) { }
@@ -865,6 +869,7 @@ struct npc_blistering_zombie : public ScriptedAI
     }
 };
 
+// 37886 - Gluttonous Abomination
 struct npc_gluttonous_abomination : public ScriptedAI
 {
     npc_gluttonous_abomination(Creature* creature) : ScriptedAI(creature) { }
@@ -913,6 +918,8 @@ private:
     EventMap _events;
 };
 
+// 37945 - Dream Portal
+// 38430 - Nightmare Portal
 struct npc_dream_portal : public CreatureAI
 {
     npc_dream_portal(Creature* creature) : CreatureAI(creature), _used(false) { }
@@ -940,6 +947,8 @@ private:
     bool _used;
 };
 
+// 37985 - Dream Cloud
+// 38421 - Nightmare Cloud
 struct npc_dream_cloud : public ScriptedAI
 {
     npc_dream_cloud(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -976,8 +985,7 @@ struct npc_dream_cloud : public ScriptedAI
                 case EVENT_EXPLODE:
                     me->GetMotionMaster()->MoveIdle();
                     // must use originalCaster the same for all clouds to allow stacking
-                    me->CastSpell(me, EMERALD_VIGOR, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                        .SetOriginalCaster(_instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)));
+                    me->CastSpell(me, EMERALD_VIGOR, _instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
                     me->DespawnOrUnsummon(100ms);
                     break;
                 default:
@@ -1074,8 +1082,7 @@ class spell_dreamwalker_summoner : public SpellScript
         if (!GetHitUnit())
             return;
 
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCaster(GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING)));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
     }
 
     void Register() override
@@ -1146,8 +1153,7 @@ class spell_dreamwalker_summon_suppresser_effect : public SpellScript
         if (!GetHitUnit())
             return;
 
-        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-            .SetOriginalCaster(GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING)));
+        GetHitUnit()->CastSpell(GetCaster(), GetEffectInfo().TriggerSpell, GetCaster()->GetInstanceScript()->GetGuidData(DATA_VALITHRIA_LICH_KING));
     }
 
     void Register() override
@@ -1240,41 +1246,12 @@ class spell_dreamwalker_twisted_nightmares : public SpellScript
         PreventHitDefaultEffect(effIndex);
 
         if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
-            GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER)));
+            GetHitUnit()->CastSpell(nullptr, GetEffectInfo().TriggerSpell, instance->GetGuidData(DATA_VALITHRIA_DREAMWALKER));
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dreamwalker_twisted_nightmares::HandleScript, EFFECT_2, SPELL_EFFECT_FORCE_CAST);
-    }
-};
-
-// 47788 - Guardian Spirit
-class spell_dreamwalker_guardian_spirit_restriction : public SpellScript
-{
-    PrepareSpellScript(spell_dreamwalker_guardian_spirit_restriction);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WEAKENED_SOUL });
-    }
-
-    bool Load() override
-    {
-        return InstanceHasScript(GetCaster(), ICCScriptName);
-    }
-
-    SpellCastResult SkipWithWeakenedSoul()
-    {
-        if (!GetExplTargetUnit() || GetExplTargetUnit()->HasAura(SPELL_WEAKENED_SOUL))
-            return SPELL_FAILED_TARGET_AURASTATE;
-        return SPELL_CAST_OK;
-    }
-
-    void Register() override
-    {
-        OnCheckCast += SpellCheckCastFn(spell_dreamwalker_guardian_spirit_restriction::SkipWithWeakenedSoul);
     }
 };
 
@@ -1315,6 +1292,5 @@ void AddSC_boss_valithria_dreamwalker()
     RegisterSpellScript(spell_dreamwalker_twisted_nightmares);
 
     // Achievements
-    RegisterSpellScript(spell_dreamwalker_guardian_spirit_restriction);
     new achievement_portal_jockey();
 }

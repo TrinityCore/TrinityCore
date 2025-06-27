@@ -18,15 +18,9 @@ target_include_directories(gsoap
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_definitions(gsoap
-  PUBLIC
-    -DWITH_OPENSSL)
-
 target_link_libraries(gsoap
   PRIVATE
-    trinity-dependency-interface
-  PUBLIC
-    openssl)
+    trinity-dependency-interface)
 
 set_target_properties(gsoap
     PROPERTIES
@@ -37,5 +31,5 @@ if (MSVC)
   # Little fix for MSVC / Windows platforms
   target_compile_definitions(gsoap
     PRIVATE
-      -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=0)
+      _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=0)
 endif()

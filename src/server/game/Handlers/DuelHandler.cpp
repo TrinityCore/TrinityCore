@@ -16,55 +16,26 @@
  */
 
 #include "Common.h"
-#include "DuelPackets.h"
-#include "GameTime.h"
+#include "WorldPacket.h"
 #include "WorldSession.h"
+#include "GameTime.h"
 #include "Log.h"
 #include "Player.h"
-#include "ObjectAccessor.h"
 
-#define SPELL_DUEL  7266
-#define SPELL_MOUNTED_DUEL  62875
-
-void WorldSession::HandleCanDuel(WorldPackets::Duel::CanDuel& packet)
-{
-    Player* player = ObjectAccessor::FindPlayer(packet.TargetGUID);
-
-    if (!player)
-        return;
-
-    WorldPackets::Duel::CanDuelResult response;
-    response.TargetGUID = packet.TargetGUID;
-    response.Result = !player->duel;
-    SendPacket(response.Write());
-
-    if (response.Result)
-    {
-        if (_player->IsMounted())
-            _player->CastSpell(player, SPELL_MOUNTED_DUEL);
-        else
-            _player->CastSpell(player, SPELL_DUEL);
-    }
-}
-
-void WorldSession::HandleDuelResponseOpcode(WorldPackets::Duel::DuelResponse& duelResponse)
-{
-    if (duelResponse.Accepted && !duelResponse.Forfeited)
-        HandleDuelAccepted(duelResponse.ArbiterGUID);
-    else
-        HandleDuelCancelled();
-}
-
-void WorldSession::HandleDuelAccepted(ObjectGuid arbiterGuid)
+void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
     Player* player = GetPlayer();
     if (!player->duel || player == player->duel->Initiator || player->duel->State != DUEL_STATE_CHALLENGED)
         return;
 
+    ObjectGuid guid;
+    recvPacket >> guid;
+
     Player* target = player->duel->Opponent;
-    if (*target->m_playerData->DuelArbiter != arbiterGuid)
+    if (target->GetGuidValue(PLAYER_DUEL_ARBITER) != guid)
         return;
 
+    //TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_ACCEPTED");
     TC_LOG_DEBUG("network", "Player 1 is: {} ({})", player->GetGUID().ToString(), player->GetName());
     TC_LOG_DEBUG("network", "Player 2 is: {} ({})", target->GetGUID().ToString(), target->GetName());
 
@@ -75,17 +46,17 @@ void WorldSession::HandleDuelAccepted(ObjectGuid arbiterGuid)
     player->duel->State = DUEL_STATE_COUNTDOWN;
     target->duel->State = DUEL_STATE_COUNTDOWN;
 
-    WorldPackets::Duel::DuelCountdown packet(3000); // milliseconds
-    WorldPacket const* worldPacket = packet.Write();
-    player->GetSession()->SendPacket(worldPacket);
-    target->GetSession()->SendPacket(worldPacket);
-    player->EnablePvpRules();
-    target->EnablePvpRules();
+    player->SendDuelCountdown(3000);
+    target->SendDuelCountdown(3000);
 }
 
-void WorldSession::HandleDuelCancelled()
+void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 {
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_DUEL_CANCELLED");
     Player* player = GetPlayer();
+
+    ObjectGuid guid;
+    recvPacket >> guid;
 
     // no duel requested
     if (!player->duel || player->duel->State == DUEL_STATE_COMPLETED)

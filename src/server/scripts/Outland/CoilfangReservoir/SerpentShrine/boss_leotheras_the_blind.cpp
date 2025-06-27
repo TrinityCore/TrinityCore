@@ -306,7 +306,7 @@ struct boss_leotheras_the_blind : public BossAI
             // and reseting equipment
             me->LoadEquipment();
 
-            if (!instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
+            if (instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                     AddThreat(victim, 1);
@@ -334,7 +334,7 @@ struct boss_leotheras_the_blind : public BossAI
     {
         for (uint8 i=0; i<5; ++i)
         {
-            if (!InnderDemon[i].IsEmpty())
+            if (InnderDemon[i])
             {
                 //delete creature
                 Creature* creature = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
@@ -352,7 +352,7 @@ struct boss_leotheras_the_blind : public BossAI
     {
         for (uint8 i = 0; i < 5; ++i)
         {
-            if (!InnderDemon[i].IsEmpty())
+            if (InnderDemon[i])
             {
                 Creature* unit = ObjectAccessor::GetCreature((*me), InnderDemon[i]);
                 if (unit && unit->IsAlive())
@@ -381,7 +381,7 @@ struct boss_leotheras_the_blind : public BossAI
         Talk(SAY_DEATH);
 
         //despawn copy
-        if (!Demon.IsEmpty())
+        if (Demon)
         {
             if (Creature* pDemon = ObjectAccessor::GetCreature(*me, Demon))
                 pDemon->DespawnOrUnsummon();
@@ -696,7 +696,7 @@ struct npc_greyheart_spellbinder : public ScriptedAI
     {
         if (!me->IsInCombat() && !me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
         {
-            if (!leotherasGUID.IsEmpty())
+            if (leotherasGUID)
             {
                 Creature* leotheras = ObjectAccessor::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->IsAlive())
@@ -710,7 +710,7 @@ struct npc_greyheart_spellbinder : public ScriptedAI
         if (!leotherasGUID)
             leotherasGUID = instance->GetGuidData(DATA_LEOTHERAS);
 
-        if (!me->IsInCombat() && !instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER).IsEmpty())
+        if (!me->IsInCombat() && instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER))
         {
             if (Unit* victim = ObjectAccessor::GetUnit(*me, instance->GetGuidData(DATA_LEOTHERAS_EVENT_STARTER)))
                 AttackStart(victim);

@@ -16,6 +16,7 @@
  */
 
 #include "the_eye.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 

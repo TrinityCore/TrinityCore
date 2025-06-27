@@ -204,7 +204,7 @@ struct npc_amanitar_mushrooms : public ScriptedAI
     void Reset() override
     {
         me->SetReactState(REACT_PASSIVE);
-        me->SetDisplayFromModel(1);
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         DoCastSelf(SPELL_PUTRID_MUSHROOM);
         DoCastSelf(SPELL_SHRINK, true);
         DoCastSelf(SPELL_GROW, true);

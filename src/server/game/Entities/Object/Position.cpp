@@ -17,9 +17,11 @@
 
 #include "Position.h"
 #include "ByteBuffer.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GridDefines.h"
+#include "Random.h"
 #include "World.h"
+
 #include <G3D/g3dmath.h>
 #include <sstream>
 
@@ -60,6 +62,25 @@ Position Position::GetPositionWithOffset(Position const& offset) const
     Position ret(*this);
     ret.RelocateOffset(offset);
     return ret;
+}
+
+void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos) const
+{
+    float dx = GetPositionX() - x;
+    float dy = GetPositionY() - y;
+
+    if (std::fabs(dx) < 0.001f && std::fabs(dy) < 0.001f)
+    {
+        float angle = (float)rand_norm()*static_cast<float>(2 * M_PI);
+        vcos = std::cos(angle);
+        vsin = std::sin(angle);
+    }
+    else
+    {
+        float dist = std::sqrt((dx*dx) + (dy*dy));
+        vcos = dx / dist;
+        vsin = dy / dist;
+    }
 }
 
 bool Position::IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const
@@ -117,7 +138,7 @@ bool Position::HasInArc(float arc, Position const* obj, float border) const
 
 bool Position::HasInLine(Position const* pos, float objSize, float width) const
 {
-    if (!HasInArc(float(M_PI), pos, 2.0f))
+    if (!HasInArc(float(M_PI), pos))
         return false;
 
     width += objSize;

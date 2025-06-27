@@ -346,7 +346,8 @@ struct boss_sapphiron : public BossAI
                         std::list<Unit*> targets;
                         SelectTargetList(targets, RAID_MODE(2, 3), SelectTargetMethod::Random, 0, 200.0f, true);
                         for (Unit* target : targets)
-                            _iceboltTargets.push_back(target->GetGUID());
+                            if (target)
+                                _iceboltTargets.push_back(target->GetGUID());
                         return;
                     }
                     case EVENT_ICEBOLT:
@@ -528,7 +529,7 @@ class spell_sapphiron_icebolt : public AuraScript
 
     void HandleRemove(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (!_block.IsEmpty())
+        if (_block)
             if (GameObject* oBlock = ObjectAccessor::GetGameObject(*GetTarget(), _block))
                 oBlock->Delete();
         GetTarget()->ApplySpellImmune(SPELL_ICEBOLT, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_FROST, false);
@@ -536,7 +537,7 @@ class spell_sapphiron_icebolt : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*eff*/)
     {
-        if (!_block.IsEmpty())
+        if (_block)
             return;
         if (GetTarget()->isMoving())
             return;

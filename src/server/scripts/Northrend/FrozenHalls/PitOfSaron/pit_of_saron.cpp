@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "pit_of_saron.h"
@@ -203,7 +204,7 @@ struct npc_pit_of_saron_icicle : public PassiveAI
 {
     npc_pit_of_saron_icicle(Creature* creature) : PassiveAI(creature)
     {
-        me->SetDisplayFromModel(0);
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
     }
 
     void IsSummonedBy(WorldObject* summoner) override
@@ -291,7 +292,7 @@ public:
             instance->SetData(DATA_CAVERN_ACTIVE, 0);
 
             if (!instance->GetData(DATA_ICE_SHARDS_HIT))
-                instance->DoUpdateCriteria(CriteriaType::BeSpellTarget, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
+                instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DONT_LOOK_UP_ACHIEV_CREDIT, 0, player);
         }
 
         return true;

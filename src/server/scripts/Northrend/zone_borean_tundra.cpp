@@ -18,12 +18,11 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "PhasingHandler.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "QuestDef.h"
 #include "ScriptedEscortAI.h"
@@ -674,7 +673,7 @@ struct npc_hidden_cultist : public ScriptedAI
             AddGossipItemFor(player, charGossipItem, GOSSIP_ITEM_HIDDEN_CULTIST_OPTIONID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (me->IsVendor())
-            AddGossipItemFor(player, GossipOptionNpc::Vendor, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         SendGossipMenuFor(player, uiGossipText, me->GetGUID());
 
@@ -978,7 +977,7 @@ struct npc_thassarian : public ScriptedAI
                     break;
                 case EVENT_THASSARIAN_SCRIPT_18:
                     // Arlos say text 1
-                    me->SetEmoteState(EMOTE_STATE_READY1H);
+                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY1H);
                     if (Creature* arlos = ObjectAccessor::GetCreature(*me, _arlosGUID))
                     {
                         if (arlos->IsAIEnabled())
@@ -1414,12 +1413,12 @@ class spell_borean_tundra_nerubar_web_random_unit_not_on_quest : public SpellScr
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+        GetHitUnit()->CastSpell(GetHitUnit(), GetEffectInfo().CalcValue(), true);
     }
 
     void Register() override
@@ -1489,12 +1488,12 @@ class spell_borean_tundra_dispel_freed_soldier_debuff : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Aura* aura = GetHitUnit()->GetAura(uint32(GetEffectValue())))
+        if (Aura* aura = GetHitUnit()->GetAura(GetEffectInfo().CalcValue()))
             aura->ModStackAmount(-1);
     }
 
@@ -1548,11 +1547,11 @@ class spell_borean_tundra_kodo_delivered : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sBroadcastTextStore.HasRecord(TEXT_DELIVERED_1) &&
-            sBroadcastTextStore.HasRecord(TEXT_DELIVERED_2) &&
-            sBroadcastTextStore.HasRecord(TEXT_DELIVERED_3) &&
-            sBroadcastTextStore.HasRecord(TEXT_DELIVERED_4) &&
-            sBroadcastTextStore.HasRecord(TEXT_DELIVERED_5);
+        return sObjectMgr->GetBroadcastText(TEXT_DELIVERED_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_2) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_3) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_4) &&
+            sObjectMgr->GetBroadcastText(TEXT_DELIVERED_5);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1730,6 +1729,67 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
     }
 };
 
+/*######
+## Quest 11896: Weakness to Lightning
+######*/
+
+enum WeaknessToLightning
+{
+    SPELL_POWER_OF_THE_STORM    = 46424
+};
+
+// 46550 - Weakness to Lightning: On Quest Complete
+class spell_borean_tundra_weakness_to_lightning_on_quest_complete : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_on_quest_complete::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11711: Coward Delivery... Under 30 Minutes or it's Free
+######*/
+
+// 45958 - Signal Alliance
+class spell_borean_tundra_signal_alliance : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_signal_alliance);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo(
+        {
+            uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue())
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(uint32(GetEffectInfo(EFFECT_0).CalcValue())))
+            caster->CastSpell(caster, uint32(GetEffectValue()));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_signal_alliance::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1757,4 +1817,6 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
+    RegisterSpellScript(spell_borean_tundra_signal_alliance);
 }

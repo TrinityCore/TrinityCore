@@ -19,8 +19,11 @@
 #include "Creature.h"
 #include "Log.h"
 #include "Player.h"
+#include "Random.h"
+#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
-BattlegroundDS::BattlegroundDS(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
+BattlegroundDS::BattlegroundDS()
 {
     BgObjects.resize(BG_DS_OBJECT_MAX);
     BgCreatures.resize(BG_DS_NPC_MAX);
@@ -120,7 +123,7 @@ void BattlegroundDS::StartingEventOpenDoors()
             player->RemoveAurasDueToSpell(SPELL_WARL_DEMONIC_CIRCLE);
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
+void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -138,9 +141,16 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
                 _pipeKnockBackCount = 0;
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+}
+
+void BattlegroundDS::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    packet.Worldstates.emplace_back(3610, 1); // ARENA_WORLD_STATE_ALIVE_PLAYERS_SHOW
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundDS::SetupBattleground()

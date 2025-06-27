@@ -30,11 +30,6 @@ BossBoundaryData const boundaries =
     { DATA_MALYGOS_EVENT, new CircleBoundary(Position(754.362f, 1301.609985f), 280.0) } // sanity check boundary
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_MALYGOS_EVENT, {{ 1094 }} }
-};
-
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
@@ -52,7 +47,6 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(MAX_ENCOUNTER);
             LoadBossBoundaries(boundaries);
-            LoadDungeonEncounterData(encounters);
         }
 
         void OnPlayerEnter(Player* player) override
@@ -76,9 +70,9 @@ public:
             {
                 if (state == FAIL)
                 {
-                    for (ObjectGuid const& portalTriggerGuid : portalTriggers)
+                    for (GuidList::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
                     {
-                        if (Creature* trigger = instance->GetCreature(portalTriggerGuid))
+                        if (Creature* trigger = instance->GetCreature(*itr_trigger))
                         {
                             // just in case
                             trigger->RemoveAllAuras();
@@ -101,8 +95,14 @@ public:
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position const& pos)
         {
-            if (GameObject* go = GameObject::CreateGameObject(entry, instance, pos, QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
-                instance->AddToMap(go);
+            GameObject* go = new GameObject();
+            if (!go->Create(instance->GenerateLowGuid<HighGuid::GameObject>(), entry, instance, PHASEMASK_NORMAL, pos, QuaternionData(), 255, GO_STATE_READY))
+            {
+                delete go;
+                return;
+            }
+
+            instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -165,7 +165,7 @@ public:
             unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
-        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
+        void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
         {
             if (eventId == EVENT_FOCUSING_IRIS)
             {
@@ -244,7 +244,7 @@ public:
                     PowerSparksHandling();
                     break;
                 case DATA_RESPAWN_IRIS:
-                    SpawnGameObject(instance->GetDifficultyID() == DIFFICULTY_10_N ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
+                    SpawnGameObject(instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
                     break;
             }
         }

@@ -26,6 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "Map.h"
 #include "molten_core.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"

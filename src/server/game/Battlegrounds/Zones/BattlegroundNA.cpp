@@ -18,8 +18,10 @@
 #include "BattlegroundNA.h"
 #include "Log.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
-BattlegroundNA::BattlegroundNA(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
+BattlegroundNA::BattlegroundNA()
 {
     BgObjects.resize(BG_NA_OBJECT_MAX);
 }
@@ -61,7 +63,7 @@ void BattlegroundNA::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
+void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -72,9 +74,16 @@ void BattlegroundNA::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 4537:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+}
+
+void BattlegroundNA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    packet.Worldstates.emplace_back(2577, 1); // BATTLEGROUND_NAGRAND_ARENA_SHOW
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundNA::SetupBattleground()

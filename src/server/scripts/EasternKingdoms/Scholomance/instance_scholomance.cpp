@@ -19,19 +19,8 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Player.h"
 #include "scholomance.h"
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_DOCTORTHEOLENKRASTINOV, {{ 458 }} },
-    { DATA_INSTRUCTORMALICIA, {{ 457 }} },
-    { DATA_LADYILLUCIABAROV, {{ 462 }} },
-    { DATA_LORDALEXEIBAROV, {{ 461 }} },
-    { DATA_LOREKEEPERPOLKELT, {{ 459 }} },
-    { DATA_THERAVENIAN, {{ 460 }} },
-    { DATA_DARKMASTERGANDLING, {{ 463 }} },
-    { DATA_KIRTONOS, {{ 451 }} }
-};
 
 Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };
 
@@ -51,7 +40,6 @@ class instance_scholomance : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -97,12 +85,12 @@ class instance_scholomance : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_LORDALEXEIBAROV:
-                    case DATA_DOCTORTHEOLENKRASTINOV:
-                    case DATA_THERAVENIAN:
-                    case DATA_LOREKEEPERPOLKELT:
-                    case DATA_INSTRUCTORMALICIA:
-                    case DATA_LADYILLUCIABAROV:
+                    case DATA_LORD_ALEXEI_BAROV:
+                    case DATA_DOCTOR_THEOLEN_KRASTINOV:
+                    case DATA_THE_RAVENIAN:
+                    case DATA_LOREKEEPER_POLKELT:
+                    case DATA_INSTRUCTOR_MALICIA:
+                    case DATA_LADY_ILLUCIA_BAROV:
                         CheckToSpawnGandling();
                         break;
                     default:
@@ -145,20 +133,20 @@ class instance_scholomance : public InstanceMapScript
             {
                 switch (bossId)
                 {
-                    case DATA_DARKMASTERGANDLING:
-                        if (GetBossState(DATA_LORDALEXEIBAROV) != DONE)
+                    case DATA_DARKMASTER_GANDLING:
+                        if (GetBossState(DATA_LORD_ALEXEI_BAROV) != DONE)
                             return false;
-                        if (GetBossState(DATA_DOCTORTHEOLENKRASTINOV) != DONE)
+                        if (GetBossState(DATA_DOCTOR_THEOLEN_KRASTINOV) != DONE)
                             return false;
-                        if (GetBossState(DATA_THERAVENIAN) != DONE)
+                        if (GetBossState(DATA_THE_RAVENIAN) != DONE)
                             return false;
-                        if (GetBossState(DATA_LOREKEEPERPOLKELT) != DONE)
+                        if (GetBossState(DATA_LOREKEEPER_POLKELT) != DONE)
                             return false;
-                        if (GetBossState(DATA_INSTRUCTORMALICIA) != DONE)
+                        if (GetBossState(DATA_INSTRUCTOR_MALICIA) != DONE)
                             return false;
-                        if (GetBossState(DATA_LADYILLUCIABAROV) != DONE)
+                        if (GetBossState(DATA_LADY_ILLUCIA_BAROV) != DONE)
                             return false;
-                        if (GetBossState(DATA_DARKMASTERGANDLING) == DONE)
+                        if (GetBossState(DATA_DARKMASTER_GANDLING) == DONE)
                             return false;
                         break;
                     default:
@@ -170,11 +158,11 @@ class instance_scholomance : public InstanceMapScript
 
             void CheckToSpawnGandling()
             {
-                if (CheckPreBosses(DATA_DARKMASTERGANDLING))
+                if (CheckPreBosses(DATA_DARKMASTER_GANDLING))
                     instance->SummonCreature(NPC_DARKMASTER_GANDLING, GandlingLoc);
             }
 
-            void AfterDataLoad() override
+            void ReadSaveDataMore(std::istringstream& /*data*/) override
             {
                 CheckToSpawnGandling();
             }

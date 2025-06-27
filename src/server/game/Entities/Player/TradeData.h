@@ -36,7 +36,7 @@ class TC_GAME_API TradeData
 public:
     TradeData(Player* player, Player* trader) :
         _player(player), _trader(trader), _accepted(false), _acceptProccess(false),
-        _money(0), _spell(0), _spellCastItem(), _clientStateIndex(1), _serverStateIndex(1) { }
+        _money(0), _spell(0), _spellCastItem() { }
 
     Player* GetTrader() const { return _trader; }
     TradeData* GetTraderData() const;
@@ -52,20 +52,14 @@ public:
     Item*  GetSpellCastItem() const;
     bool HasSpellCastItem() const { return !_spellCastItem.IsEmpty(); }
 
-    uint64 GetMoney() const { return _money; }
-    void SetMoney(uint64 money);
+    uint32 GetMoney() const { return _money; }
+    void SetMoney(uint32 money);
 
     bool IsAccepted() const { return _accepted; }
     void SetAccepted(bool state, bool forTrader = false);
 
     bool IsInAcceptProcess() const { return _acceptProccess; }
     void SetInAcceptProcess(bool state) { _acceptProccess = state; }
-
-    uint32 GetClientStateIndex() const { return _clientStateIndex; }
-    void UpdateClientStateIndex() { ++_clientStateIndex; }
-
-    uint32 GetServerStateIndex() const { return _serverStateIndex; }
-    void UpdateServerStateIndex();
 
 private:
     void Update(bool for_trader = true) const;
@@ -76,15 +70,12 @@ private:
     bool       _accepted;                              // _player press accept for trade list
     bool       _acceptProccess;                        // one from player/trader press accept and this processed
 
-    uint64     _money;                                 // _player place money to trade
+    uint32     _money;                                 // _player place money to trade
 
     uint32     _spell;                                 // _player apply spell to non-traded slot item
     ObjectGuid _spellCastItem;                         // applied spell cast by item use
 
     ObjectGuid _items[TRADE_SLOT_COUNT];               // traded items from _player side including non-traded slot
-
-    uint32     _clientStateIndex;
-    uint32     _serverStateIndex;
 };
 
 #endif // TradeData_h__

@@ -27,6 +27,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -379,12 +380,12 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        CloseGossipMenuFor(player);
+                        player->PlayerTalkClass->SendCloseGossip();
                         _events.ScheduleEvent(EVENT_START_INTRO, 1s);
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
                     case 1:
-                        CloseGossipMenuFor(player);
+                        player->PlayerTalkClass->SendCloseGossip();
                         _events.ScheduleEvent(EVENT_SKIP_INTRO, 1s);
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER);
                         break;
@@ -658,7 +659,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                         if (Creature* lichking = ObjectAccessor::GetCreature(*me, _lichkingGUID))
                         {
                             if (GameObject* frostmourne = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_FROSTMOURNE)))
-                                frostmourne->SetLootState(GO_JUST_DEACTIVATED);
+                                frostmourne->SetPhaseMask(2, true);
                             lichking->CastSpell(lichking, SPELL_TAKE_FROSTMOURNE, true);
                             lichking->CastSpell(lichking, SPELL_FROSTMOURNE_VISUAL, true);
                         }
@@ -711,7 +712,7 @@ class npc_jaina_or_sylvanas_intro_hor : public CreatureScript
                     case EVENT_INTRO_LK_9:
                         if (Creature* falric = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_FALRIC)))
                             falric->AI()->Talk(SAY_FALRIC_INTRO_2);
-                        _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES, nullptr);
+                        _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES);
                         _events.ScheduleEvent(EVENT_INTRO_LK_10, 4s);
                         break;
                     case EVENT_INTRO_LK_10:
@@ -836,6 +837,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 _events.Reset();
                 _icewall = 0;
                 _events.ScheduleEvent(EVENT_ESCAPE, 1s);
+                _instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -899,7 +901,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                 switch (gossipListId)
                 {
                     case 0:
-                        CloseGossipMenuFor(player);
+                        player->PlayerTalkClass->SendCloseGossip();
                         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
                         _events.ScheduleEvent(EVENT_ESCAPE_6, 0s);
                         break;
@@ -1084,7 +1086,7 @@ class npc_jaina_or_sylvanas_escape_hor : public CreatureScript
                                 }
                             }
                             _invincibility = false;
-                            _instance->TriggerGameEvent(ACHIEV_NOT_RETREATING_EVENT);
+                            _instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                             _events.ScheduleEvent(EVENT_ESCAPE_7, 1s);
                             break;
                         case EVENT_ESCAPE_7:
@@ -1367,7 +1369,7 @@ class npc_the_lich_king_escape_hor : public CreatureScript
                 }
                 else if (me->GetCombatManager().GetPvECombatRefs().size() < 2 && me->HasAura(SPELL_REMORSELESS_WINTER))
                 {
-                    EnterEvadeMode(EvadeReason::Other);
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return false;
                 }
 
@@ -2036,7 +2038,7 @@ class at_hor_intro_start : public AreaTriggerScript
     public:
         at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2062,7 +2064,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
     public:
         at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2074,7 +2076,7 @@ class at_hor_waves_restarter : public AreaTriggerScript
 
             if (_instance->GetData(DATA_INTRO_EVENT) == DONE && _instance->GetBossState(DATA_MARWYN) != DONE)
             {
-                _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES, nullptr);
+                _instance->ProcessEvent(nullptr, EVENT_SPAWN_WAVES);
 
                 if (Creature* falric = ObjectAccessor::GetCreature(*player, _instance->GetGuidData(DATA_FALRIC)))
                 {
@@ -2097,7 +2099,7 @@ class at_hor_impenetrable_door : public AreaTriggerScript
     public:
         at_hor_impenetrable_door() : AreaTriggerScript("at_hor_impenetrable_door") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2117,7 +2119,7 @@ class at_hor_shadow_throne : public AreaTriggerScript
     public:
         at_hor_shadow_throne() : AreaTriggerScript("at_hor_shadow_throne") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*at*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2602,7 +2604,7 @@ class npc_quel_delar_sword : public CreatureScript
             npc_quel_delar_swordAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
-                me->SetDisplayFromModel(1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 _intro = true;
             }
 
@@ -2734,7 +2736,7 @@ class at_hor_uther_quel_delar_start : public AreaTriggerScript
     public:
         at_hor_uther_quel_delar_start() : AreaTriggerScript("at_hor_uther_quel_delar_start") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) override
         {
             if (player->IsGameMaster())
                 return true;
@@ -2867,7 +2869,7 @@ class spell_hor_quel_delars_will : public SpellScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void HandleReagent(SpellEffIndex effIndex)

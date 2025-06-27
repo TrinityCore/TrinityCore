@@ -16,19 +16,19 @@
  */
 
 #include "OutdoorPvPSI.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "Language.h"
 #include "Map.h"
 #include "ObjectMgr.h"
-#include "PhasingHandler.h"
+#include "OutdoorPvPMgr.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
 #include "WorldStatePackets.h"
 
-constexpr int32 SI_MAX_RESOURCES = 200;
+uint32 const SI_MAX_RESOURCES = 200;
 uint32 const SI_AREATRIGGER_H = 4168;
 uint32 const SI_AREATRIGGER_A = 4162;
 uint32 const SI_TURNIN_QUEST_CM_A = 17090;
@@ -37,32 +37,41 @@ uint32 const SI_SILITHYST_MOUND = 181597;
 uint8 const OutdoorPvPSIBuffZonesNum = 3;
 uint32 const OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
 
-OutdoorPvPSI::OutdoorPvPSI(Map* map) : OutdoorPvP(map)
+OutdoorPvPSI::OutdoorPvPSI()
 {
     m_TypeId = OUTDOOR_PVP_SI;
+    m_Gathered_A = 0;
+    m_Gathered_H = 0;
     m_LastController = 0;
+}
+
+void OutdoorPvPSI::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    packet.Worldstates.emplace_back(SI_GATHERED_A, m_Gathered_A);
+    packet.Worldstates.emplace_back(SI_GATHERED_H, m_Gathered_H);
+    packet.Worldstates.emplace_back(SI_SILITHYST_MAX, SI_MAX_RESOURCES);
 }
 
 void OutdoorPvPSI::SendRemoveWorldStates(Player* player)
 {
-    WorldPackets::WorldState::InitWorldStates initWorldStates;
-    initWorldStates.MapID = player->GetMapId();
-    initWorldStates.AreaID = player->GetZoneId();
-    initWorldStates.SubareaID = player->GetAreaId();
-    initWorldStates.Worldstates.emplace_back(SI_GATHERED_A, 0);
-    initWorldStates.Worldstates.emplace_back(SI_GATHERED_H, 0);
-    initWorldStates.Worldstates.emplace_back(SI_SILITHYST_MAX, 0);
-    player->SendDirectMessage(initWorldStates.Write());
+    player->SendUpdateWorldState(SI_GATHERED_A, 0);
+    player->SendUpdateWorldState(SI_GATHERED_H, 0);
+    player->SendUpdateWorldState(SI_SILITHYST_MAX, 0);
+}
+
+void OutdoorPvPSI::UpdateWorldState()
+{
+    SendUpdateWorldState(SI_GATHERED_A, m_Gathered_A);
+    SendUpdateWorldState(SI_GATHERED_H, m_Gathered_H);
+    SendUpdateWorldState(SI_SILITHYST_MAX, SI_MAX_RESOURCES);
 }
 
 bool OutdoorPvPSI::SetupOutdoorPvP()
 {
+    SetMapFromZone(OutdoorPvPSIBuffZones[0]);
+
     for (uint8 i = 0; i < OutdoorPvPSIBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPSIBuffZones[i]);
-
-    SetWorldState(SI_GATHERED_A, 0);
-    SetWorldState(SI_GATHERED_H, 0);
-    SetWorldState(SI_SILITHYST_MAX, SI_MAX_RESOURCES);
     return true;
 }
 
@@ -85,7 +94,7 @@ void OutdoorPvPSI::HandlePlayerLeaveZone(Player* player, uint32 zone)
     OutdoorPvP::HandlePlayerLeaveZone(player, zone);
 }
 
-bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*entered*/)
+bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     switch (trigger)
     {
@@ -94,17 +103,17 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
         {
             // remove aura
             player->RemoveAurasDueToSpell(SI_SILITHYST_FLAG);
-            int32 newScore = GetWorldState(SI_GATHERED_A) + 1;
-            if (newScore >= SI_MAX_RESOURCES)
+            ++ m_Gathered_A;
+            if (m_Gathered_A >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
                 /// @todo: confirm this text
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
+                m_map->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
                 m_LastController = ALLIANCE;
-                newScore = 0;
-                SetWorldState(SI_GATHERED_H, 0);
+                m_Gathered_A = 0;
+                m_Gathered_H = 0;
             }
-            SetWorldState(SI_GATHERED_A, newScore);
+            UpdateWorldState();
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
@@ -120,17 +129,17 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger, bool /*ente
         {
             // remove aura
             player->RemoveAurasDueToSpell(SI_SILITHYST_FLAG);
-            int32 newScore = GetWorldState(SI_GATHERED_H) + 1;
-            if (newScore >= SI_MAX_RESOURCES)
+            ++ m_Gathered_H;
+            if (m_Gathered_H >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
                 /// @todo: confirm this text
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
+                m_map->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
                 m_LastController = HORDE;
-                SetWorldState(SI_GATHERED_A, 0);
-                newScore = 0;
+                m_Gathered_A = 0;
+                m_Gathered_H = 0;
             }
-            SetWorldState(SI_GATHERED_H, newScore);
+            UpdateWorldState();
             // reward player
             player->CastSpell(player, SI_TRACES_OF_SILITHYST, true);
             // add 19 honor
@@ -150,24 +159,65 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
     if (spellId == SI_SILITHYST_FLAG)
     {
         // if it was dropped away from the player's turn-in point, then create a silithyst mound, if it was dropped near the areatrigger, then it was dispelled by the outdoorpvp, so do nothing
-        if (AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(player->GetTeam() == ALLIANCE ? SI_AREATRIGGER_A : SI_AREATRIGGER_H))
+        switch (player->GetTeam())
         {
-            // 5.0f is safe-distance
-            if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
+            case ALLIANCE:
             {
-                // he dropped it further, summon mound
-                Map* map = player->GetMap();
-                if (GameObject* go = GameObject::CreateGameObject(SI_SILITHYST_MOUND, map, *player, QuaternionData::fromEulerAnglesZYX(player->GetOrientation(), 0.0f, 0.0f), 255, GO_STATE_READY))
+                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_A);
+                if (atEntry)
                 {
-                    PhasingHandler::InheritPhaseShift(go, player);
-                    go->SetRespawnTime(0);
-
-                    if (!map->AddToMap(go))
+                    // 5.0f is safe-distance
+                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
                     {
-                        delete go;
-                        return true;
+                        // he dropped it further, summon mound
+                        GameObject* go = new GameObject;
+                        Map* map = player->GetMap();
+
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
+                        {
+                            delete go;
+                            return true;
+                        }
+
+                        go->SetRespawnTime(0);
+
+                        if (!map->AddToMap(go))
+                        {
+                            delete go;
+                            return true;
+                        }
                     }
                 }
+                break;
+            }
+            case HORDE:
+            {
+                AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(SI_AREATRIGGER_H);
+                if (atEntry)
+                {
+                    // 5.0f is safe-distance
+                    if (player->GetDistance(atEntry->Pos.X, atEntry->Pos.Y, atEntry->Pos.Z) > 5.0f + atEntry->Radius)
+                    {
+                        // he dropped it further, summon mound
+                        GameObject* go = new GameObject;
+                        Map* map = player->GetMap();
+
+                        if (!go->Create(map->GenerateLowGuid<HighGuid::GameObject>(), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), *player, QuaternionData(), 255, GO_STATE_READY))
+                        {
+                            delete go;
+                            return true;
+                        }
+
+                        go->SetRespawnTime(0);
+
+                        if (!map->AddToMap(go))
+                        {
+                            delete go;
+                            return true;
+                        }
+                    }
+                }
+                break;
             }
         }
         return true;
@@ -194,9 +244,9 @@ class OutdoorPvP_silithus : public OutdoorPvPScript
     public:
         OutdoorPvP_silithus() : OutdoorPvPScript("outdoorpvp_si") { }
 
-        OutdoorPvP* GetOutdoorPvP(Map* map) const override
+        OutdoorPvP* GetOutdoorPvP() const override
         {
-            return new OutdoorPvPSI(map);
+            return new OutdoorPvPSI();
         }
 };
 

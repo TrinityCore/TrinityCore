@@ -138,8 +138,8 @@ struct boss_felmyst : public BossAI
             if (Creature* madrigosa = instance->GetCreature(DATA_MADRIGOSA))
                 me->Relocate(madrigosa);
 
-        me->SetDisplayFromModel(0);
-        me->SetDisplayId(me->GetDisplayId(), true);
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
+        me->SetNativeDisplayId(me->GetCreatureTemplate()->Modelid1);
     }
 
     void Reset() override
@@ -301,7 +301,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode(EvadeReason::NoHostiles);
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -327,7 +327,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode(EvadeReason::NoHostiles);
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -356,7 +356,7 @@ struct boss_felmyst : public BossAI
 
                 if (!target)
                 {
-                    EnterEvadeMode(EvadeReason::NoHostiles);
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
 
@@ -396,7 +396,7 @@ struct boss_felmyst : public BossAI
                     DoStartMovement(target);
                 else
                 {
-                    EnterEvadeMode(EvadeReason::NoHostiles);
+                    EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                     return;
                 }
                 break;
@@ -415,7 +415,7 @@ struct boss_felmyst : public BossAI
         if (!UpdateVictim())
         {
             if (phase == PHASE_FLIGHT && !me->IsInEvadeMode())
-                EnterEvadeMode(EvadeReason::NoHostiles);
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
             return;
         }
 

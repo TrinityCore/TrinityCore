@@ -37,12 +37,11 @@ enum PatchwerkTexts
 enum PatchwerkSpells
 {
     SPELL_HATEFUL_STRIKE_PRIMER = 28307,
+    SPELL_HATEFUL_STRIKE        = 28308,
     SPELL_FRENZY                = 28131,
     SPELL_BERSERK               = 26662,
     SPELL_SLIME_BOLT            = 32309
 };
-
-#define SPELL_HATEFUL_STRIKE RAID_MODE(28308,59192)
 
 enum PatchwerkEvents
 {
@@ -69,6 +68,8 @@ struct boss_patchwerk : public BossAI
     {
         _Reset();
         _enraged = false;
+
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
     void KilledUnit(Unit* /*Victim*/) override
@@ -91,7 +92,7 @@ struct boss_patchwerk : public BossAI
         events.ScheduleEvent(EVENT_HATEFUL, 3600ms);
         events.ScheduleEvent(EVENT_BERSERK, 6min);
 
-        instance->TriggerGameEvent(ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
     }
 
     void UpdateAI(uint32 diff) override
@@ -119,7 +120,7 @@ struct boss_patchwerk : public BossAI
                     auto it = list.begin(), end = list.end();
                     if (it == end)
                     {
-                        EnterEvadeMode(EvadeReason::NoHostiles);
+                        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                         return;
                     }
 

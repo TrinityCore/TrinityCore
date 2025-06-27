@@ -30,15 +30,11 @@ struct CreatureData;
 class TC_GAME_API ZoneScript
 {
     public:
-        ZoneScript();
-        ZoneScript(ZoneScript const& right);
-        ZoneScript(ZoneScript&& right) noexcept;
-        ZoneScript& operator=(ZoneScript const& right);
-        ZoneScript& operator=(ZoneScript&& right) noexcept;
-        virtual ~ZoneScript();
+        ZoneScript() { }
+        virtual ~ZoneScript() { }
 
-        virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*spawnId*/, CreatureData const* data);
-        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*spawnId*/, uint32 entry) { return entry; }
+        virtual uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data);
+        virtual uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) { return entry; }
 
         virtual void OnCreatureCreate(Creature* ) { }
         virtual void OnCreatureRemove(Creature* ) { }
@@ -48,11 +44,10 @@ class TC_GAME_API ZoneScript
 
         virtual void OnUnitDeath(Unit*) { }
 
-        //All-purpose data storage ObjectGuid
+        //All-purpose data storage 64 bit
         virtual ObjectGuid GetGuidData(uint32 /*DataId*/) const { return ObjectGuid::Empty; }
         virtual void SetGuidData(uint32 /*DataId*/, ObjectGuid /*Value*/) { }
 
-        //All-purpose data storage 64 bit
         virtual uint64 GetData64(uint32 /*DataId*/) const { return 0; }
         virtual void SetData64(uint32 /*DataId*/, uint64 /*Value*/) { }
 
@@ -60,8 +55,7 @@ class TC_GAME_API ZoneScript
         virtual uint32 GetData(uint32 /*DataId*/) const { return 0; }
         virtual void SetData(uint32 /*DataId*/, uint32 /*Value*/) { }
 
-        virtual void TriggerGameEvent(uint32 gameEventId, WorldObject* source = nullptr, WorldObject* target = nullptr);
-        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/, WorldObject* /*invoker*/) { }
+        virtual void ProcessEvent(WorldObject* /*obj*/, uint32 /*eventId*/) { }
 };
 
 #endif

@@ -23,17 +23,18 @@
 #include "CreatureData.h"
 #include "DatabaseEnvFwd.h"
 #include "Duration.h"
+#include "Loot.h"
 #include "GridObject.h"
 #include "MapObject.h"
 #include <list>
 
 class CreatureAI;
 class CreatureGroup;
+class Group;
 class Quest;
 class Player;
 class SpellInfo;
 class WorldSession;
-struct Loot;
 
 enum MovementGeneratorType : uint8;
 
@@ -51,16 +52,7 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 // max different by z coordinate for creature aggro reaction
 #define CREATURE_Z_ATTACK_RANGE 3
 
-#define MAX_VENDOR_ITEMS 150                                // Limitation in 4.x.x item count in SMSG_LIST_INVENTORY
-
-enum class VendorInventoryReason : uint8
-{
-    None    = 0,
-    Empty   = 1
-};
-
-static constexpr uint8 WILD_BATTLE_PET_DEFAULT_LEVEL = 1;
-static constexpr size_t CREATURE_TAPPERS_SOFT_CAP = 5;
+#define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
 //used for handling non-repeatable random texts
 typedef std::vector<uint8> CreatureTextRepeatIds;
@@ -70,33 +62,23 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 {
     public:
         explicit Creature(bool isWorldObject = false);
-        ~Creature();
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
 
         float GetNativeObjectScale() const override;
         void SetObjectScale(float scale) override;
-        void SetDisplayId(uint32 displayId, bool setNative = false) override;
-        void SetDisplayFromModel(uint32 modelIdx);
+        void SetDisplayId(uint32 modelId) override;
 
         void DisappearAndDie() { ForcedDespawn(0); }
 
-        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 entry, Position const& pos, CreatureData const* data, uint32 vehId, bool dynamic = false);
-
-        static Creature* CreateCreature(uint32 entry, Map* map, Position const& pos, uint32 vehId = 0);
-        static Creature* CreateCreatureFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true, bool allowDuplicate = false);
-
+        bool Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32 entry, Position const& pos, CreatureData const* data = nullptr, uint32 vehId = 0, bool dynamic = false);
         bool LoadCreaturesAddon();
-        void LoadCreaturesSparringHealth();
         void SelectLevel();
         void UpdateLevelDependantStats();
-        void SelectWildBattlePetLevel();
         void LoadEquipment(int8 id = 1, bool force = false);
         void SetSpawnHealth();
         void LoadTemplateRoot();
-        bool IsTemplateRooted() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_SESSILE); }
-        void SetTemplateRooted(bool rooted);
 
         ObjectGuid::LowType GetSpawnId() const { return m_spawnId; }
 
@@ -149,29 +131,17 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         using Unit::SetImmuneToNPC;
         void SetImmuneToNPC(bool apply) override { Unit::SetImmuneToNPC(apply, HasReactState(REACT_PASSIVE)); }
 
-        void SetUnkillable(bool unkillable) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_UNKILLABLE, unkillable); }
-
         /// @todo Rename these properly
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
-        bool CanResetTalents(Player* player) const;
+        bool CanResetTalents(Player* player, bool pet) const;
         bool CanCreatureAttack(Unit const* victim, bool force = true) const;
         void LoadTemplateImmunities();
+        bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
         bool isElite() const;
         bool isWorldBoss() const;
 
-        bool HasScalableLevels() const;
-        void ApplyLevelScaling();
-        uint8 GetLevelForTarget(WorldObject const* target) const override;
-
-        uint64 GetMaxHealthByLevel(uint8 level) const;
-        float GetHealthMultiplierForTarget(WorldObject const* target) const override;
-
-        float GetBaseDamageForLevel(uint8 level) const;
-        float GetDamageMultiplierForTarget(WorldObject const* target) const override;
-
-        float GetBaseArmorForLevel(uint8 level) const;
-        float GetArmorMultiplierForTarget(WorldObject const* target) const override;
+        uint8 GetLevelForTarget(WorldObject const* target) const override; // overwrite Unit::GetLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
@@ -183,23 +153,32 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
-        SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType /*attackType*/ = BASE_ATTACK) const override { return m_meleeDamageSchoolMask; }
+        bool SetWalk(bool enable) override;
+        bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimTier = true) override;
+        bool SetSwim(bool enable) override;
+        bool SetCanFly(bool enable, bool packetOnly = false) override;
+        bool SetWaterWalking(bool enable, bool packetOnly = false) override;
+        bool SetFeatherFall(bool enable, bool packetOnly = false) override;
+        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimTier = true) override;
+
+        uint32 GetShieldBlockValue() const override;
+
+        SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType /*attackType*/ = BASE_ATTACK, uint8 /*damageIndex*/ = 0) const override { return m_meleeDamageSchoolMask; }
         void SetMeleeDamageSchool(SpellSchools school) { m_meleeDamageSchoolMask = SpellSchoolMask(1 << school); }
-        bool CanMelee() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_MELEE); }
-        void SetCanMelee(bool canMelee) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_MELEE, !canMelee); }
 
         bool HasSpell(uint32 spellID) const override;
 
         bool UpdateEntry(uint32 entry, CreatureData const* data = nullptr, bool updateLevel = true);
+        void SetPhaseMask(uint32 newPhaseMask, bool update) override;// overwrite Unit::SetPhaseMask
 
         bool UpdateStats(Stats stat) override;
         bool UpdateAllStats() override;
+        void UpdateResistances(uint32 school) override;
         void UpdateArmor() override;
         void UpdateMaxHealth() override;
         void UpdateMaxPower(Powers power) override;
-        uint32 GetPowerIndex(Powers power) const override;
         void UpdateAttackPowerAndDamage(bool ranged = false) override;
-        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage) const override;
+        void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& minDamage, float& maxDamage, uint8 damageIndex) const override;
 
         void SetCanDualWield(bool value) override;
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
@@ -219,41 +198,33 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         std::string const& GetAIName() const;
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
+        void InheritStringIds(Creature const* parent);
         bool HasStringId(std::string_view id) const;
         void SetScriptStringId(std::string id);
-        std::array<std::string_view, 3> const& GetStringIds() const { return m_stringIds; }
+        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
         // override WorldObject function for proper name localization
-        std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
+        std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const override;
 
         void setDeathState(DeathState s) override;                   // override virtual Unit::setDeathState
 
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool allowDuplicate);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
+        virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
-        bool CanHaveLoot() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_NO_LOOT); }
-        void SetCanHaveLoot(bool canHaveLoot) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_LOOT, !canHaveLoot); }
-        uint32 GetLootId() const;
-        void SetLootId(Optional<uint32> lootId);
-        std::unique_ptr<Loot> m_loot;
-        std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
+        Loot loot;
         void StartPickPocketRefillTimer();
         void ResetPickPocketRefillTimer() { _pickpocketLootRestore = 0; }
         bool CanGeneratePickPocketLoot() const;
-        GuidUnorderedSet const& GetTapList() const { return m_tapList; }
-        void SetTapList(GuidUnorderedSet tapList) { m_tapList = std::move(tapList); }
-        bool hasLootRecipient() const { return !m_tapList.empty(); }
-        bool IsTapListNotClearedOnEvade() const { return m_dontClearTapListOnEvade; }
-        void SetDontClearTapListOnEvade(bool dontClear);
+        ObjectGuid GetLootRecipientGUID() const { return m_lootRecipient; }
+        Player* GetLootRecipient() const;
+        Group* GetLootRecipientGroup() const;
+        bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
-        Loot* GetLootForPlayer(Player const* player) const override;
-        bool IsFullyLooted() const;
-        bool IsSkinnedBy(Player const* player) const;
 
-        void SetTappedBy(Unit const* unit, bool withGroup = true);
+        void SetLootRecipient (Unit* unit, bool withGroup = true);
         void AllLootRemovedFromCorpse();
 
         uint16 GetLootMode() const { return m_LootMode; }
@@ -310,13 +281,16 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
                 m_combatPulseTime = delay;
         }
 
+        uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
+        ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting corpse
+
         void SendZoneUnderAttackMessage(Player* attacker);
 
         bool hasQuest(uint32 quest_id) const override;
         bool hasInvolvedQuest(uint32 quest_id)  const override;
 
-        bool CanRegenerateHealth() const { return !_staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN) && _regenerateHealth; }
-        void SetRegenerateHealth(bool value) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_HEALTH_REGEN, !value); }
+        bool CanRegenerateHealth() const { return !_regenerateHealthLock && _regenerateHealth; }
+        void SetRegenerateHealth(bool value) { _regenerateHealthLock = !value; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
@@ -352,9 +326,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() const { return DisableReputationGain; }
-        void LowerPlayerDamageReq(uint64 unDamage);
+        bool IsDamageEnoughForLootingAndReward() const { return (m_creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ) || (m_PlayerDamageReq == 0); }
+        void LowerPlayerDamageReq(uint32 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
-        uint64 m_PlayerDamageReq;
+        uint32 m_PlayerDamageReq;
 
         uint32 GetOriginalEntry() const { return m_originalEntry; }
         void SetOriginalEntry(uint32 entry) { m_originalEntry = entry; }
@@ -370,7 +345,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast
-        void SetTarget(ObjectGuid const& guid) override;
+        void SetTarget(ObjectGuid guid) override;
         void DoNotReacquireSpellFocusTarget();
         void SetSpellFocus(Spell const* focusSpell, WorldObject const* target);
         bool HasSpellFocus(Spell const* focusSpell = nullptr) const override;
@@ -388,16 +363,10 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsEscorted() const;
 
         bool CanGiveExperience() const;
-        void SetCanGiveExperience(bool xpEnabled) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_NO_XP, !xpEnabled); }
 
         bool IsEngaged() const override;
         void AtEngage(Unit* target) override;
         void AtDisengage() override;
-
-        void OverrideSparringHealthPct(std::vector<float> const& healthPct);
-        float GetSparringHealthPct() { return _sparringHealthPct; }
-        uint32 CalculateDamageForSparring(Unit* attacker, uint32 damage);
-        bool ShouldFakeDamageFrom(Unit* attacker);
 
         bool HasCanSwimFlagOutOfCombat() const
         {
@@ -409,21 +378,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         void ExitVehicle(Position const* exitPosition = nullptr) override;
 
-        bool HasFlag(CreatureStaticFlags flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags2 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags3 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags4 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags5 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags6 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags7 flag) const { return _staticFlags.HasFlag(flag); }
-        bool HasFlag(CreatureStaticFlags8 flag) const { return _staticFlags.HasFlag(flag); }
-
-        uint32 GetGossipMenuId() const;
-        void SetGossipMenuId(uint32 gossipMenuId);
-
-        uint32 GetTrainerId() const;
-        void SetTrainerId(Optional<uint32> trainerId);
-
     protected:
         bool CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, CreatureData const* data = nullptr, uint32 vehId = 0);
         bool InitEntry(uint32 entry, CreatureData const* data = nullptr);
@@ -433,8 +387,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         static float _GetHealthMod(int32 Rank);
 
-        GuidUnorderedSet m_tapList;
-        bool m_dontClearTapListOnEvade;
+        ObjectGuid m_lootRecipient;
+        uint32 m_lootRecipientGroup;
 
         /// Timers
         time_t _pickpocketLootRestore;
@@ -471,13 +425,12 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureTemplate const* m_creatureInfo;                 // Can differ from sObjectMgr->GetCreatureTemplate(GetEntry()) in difficulty mode > 0
         CreatureData const* m_creatureData;
-        std::array<std::string_view, 3> m_stringIds;
+        std::array<std::string const*, 3> m_stringIds;
         Optional<std::string> m_scriptStringId;
 
-        Optional<uint32> m_lootId;
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
 
-        bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;
+        bool IsInvisibleDueToDespawn() const override;
         bool CanAlwaysSee(WorldObject const* obj) const override;
 
     private:
@@ -506,16 +459,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         time_t _lastDamagedTime; // Part of Evade mechanics
         CreatureTextRepeatGroup m_textRepeat;
 
-        CreatureStaticFlagsHolder _staticFlags;
-
         // Regenerate health
         bool _regenerateHealth; // Set on creation
+        bool _regenerateHealthLock; // Dynamically set
 
         bool _isMissingCanSwimFlagOutOfCombat;
-
-        uint32 _gossipMenuId;
-        Optional<uint32> _trainerId;
-        float _sparringHealthPct;
 };
 
 class TC_GAME_API AssistDelayEvent : public BasicEvent

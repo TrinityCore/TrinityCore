@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "razorfen_downs.h"
 #include "ScriptedCreature.h"
+#include "razorfen_downs.h"
 
 enum Spells
 {

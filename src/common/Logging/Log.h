@@ -22,6 +22,7 @@
 #include "AsioHacksFwd.h"
 #include "LogCommon.h"
 #include "StringFormat.h"
+
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -50,6 +51,8 @@ Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, Appe
 
 class TC_COMMON_API Log
 {
+    typedef std::unordered_map<std::string, Logger> LoggerMap;
+
     private:
         Log();
         ~Log();
@@ -65,13 +68,13 @@ class TC_COMMON_API Log
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string_view type, LogLevel level) const;
+        bool ShouldLog(std::string const& type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename... Args>
         void OutMessage(std::string_view filter, LogLevel const level, Trinity::FormatString<Args...> fmt, Args&&... args)
         {
-            OutMessageImpl(filter, level, Trinity::StringFormat(fmt, std::forward<Args>(args)...));
+            this->OutMessageImpl(filter, level, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         template<typename... Args>
@@ -80,7 +83,7 @@ class TC_COMMON_API Log
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
 
-            OutCommandImpl(Trinity::StringFormat(fmt, std::forward<Args>(args)...), std::to_string(account));
+            this->OutCommandImpl(account, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         void OutCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
@@ -90,20 +93,17 @@ class TC_COMMON_API Log
         template<class AppenderImpl>
         void RegisterAppender()
         {
-            RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
+            this->RegisterAppender(AppenderImpl::type, &CreateAppender<AppenderImpl>);
         }
 
         std::string const& GetLogsDir() const { return m_logsDir; }
         std::string const& GetLogsTimestamp() const { return m_logsTimestamp; }
 
-        void CreateAppenderFromConfigLine(std::string const& name, std::string const& options);
-        void CreateLoggerFromConfigLine(std::string const& name, std::string const& options);
-
     private:
         static std::string GetTimestampStr();
-        void write(std::unique_ptr<LogMessage>&& msg) const;
+        void write(std::unique_ptr<LogMessage> msg) const;
 
-        Logger const* GetLoggerByType(std::string_view type) const;
+        Logger const* GetLoggerByType(std::string const& type) const;
         Appender* GetAppenderByName(std::string_view name);
         uint8 NextAppenderId();
         void CreateAppenderFromConfig(std::string const& name);
@@ -111,12 +111,12 @@ class TC_COMMON_API Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void OutMessageImpl(std::string_view filter, LogLevel level, std::string&& message);
-        void OutCommandImpl(std::string&& message, std::string&& param1);
+        void OutMessageImpl(std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs);
+        void OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs);
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;
-        std::unordered_map<std::string_view, std::unique_ptr<Logger>> loggers;
+        std::unordered_map<std::string, std::unique_ptr<Logger>> loggers;
         uint8 AppenderId;
         LogLevel lowestLogLevel;
 

@@ -11,13 +11,13 @@ CHECK https://www.trinitycore.info/ FOR FURTHER HELP.
 These are the instructions for installation in a Linux environment.
 If you are using Windows, refer to https://www.trinitycore.info/ .
 
-Installing TrinityCore is fairly simple on a Linux machine, assuming you 
-have all required applications
+Installing TrinityCore is fairly simple on a Linux machine,
+assuming you have all the required applications installed:
 
 https://www.trinitycore.info/display/tc/Requirements
 
-Most of these are included on common Linux distros, others you may have 
-to install by your self. Please check your distro's repos.
+Most of these are included on common Linux distros, you may have to
+install others by yourself. Please check your distro's repo for specifics.
 
 Make a directory to build in, you can call it anything you want (like
 build or bin etc.), then go into the directory and use cmake and make.
@@ -27,11 +27,10 @@ installed in /home/trinity/server/. An example sequence of commands can be:
     cmake ../ -DCMAKE_INSTALL_PREFIX=/home/trinity/server -DTOOLS=1 -DWITH_WARNINGS=1
     make
     make install
-    
-Thats just about all thats needed. You can however tweak more settings 
-than where to install using flags built into our cmake files. Just open 
-up CMakeLists.txt in the main folder and take a look at some of the 
-flags like
+
+That's just about all that is needed. You can, however, tweak more settings
+than where to install, using flags built into our cmake files. Just open up
+CMakeLists.txt in the main folder and take a look at some of the flags like
 
     SERVERS                 Build worldserver and authserver
     SCRIPTS                 Build core with scripts included

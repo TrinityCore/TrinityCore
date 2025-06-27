@@ -25,8 +25,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "BattlefieldMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
-#include "Player.h"
 #include "RBAC.h"
 
 using namespace Trinity::ChatCommands;
@@ -55,7 +53,7 @@ public:
 
     static bool HandleBattlefieldStart(ChatHandler* handler, uint32 battleId)
     {
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(handler->GetPlayer()->GetMap(), battleId);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
@@ -70,7 +68,7 @@ public:
 
     static bool HandleBattlefieldEnd(ChatHandler* handler, uint32 battleId)
     {
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(handler->GetPlayer()->GetMap(), battleId);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
@@ -85,7 +83,7 @@ public:
 
     static bool HandleBattlefieldEnable(ChatHandler* handler, uint32 battleId)
     {
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(handler->GetPlayer()->GetMap(), battleId);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
@@ -108,7 +106,7 @@ public:
 
     static bool HandleBattlefieldSwitch(ChatHandler* handler, uint32 battleId)
     {
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(handler->GetPlayer()->GetMap(), battleId);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
@@ -122,12 +120,13 @@ public:
 
     static bool HandleBattlefieldTimer(ChatHandler* handler, uint32 battleId, uint32 time)
     {
-        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(handler->GetPlayer()->GetMap(), battleId);
+        Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
 
         if (!bf)
             return false;
 
         bf->SetTimer(time * IN_MILLISECONDS);
+        bf->SendInitWorldStatesToAll();
         if (battleId == 1)
             handler->SendGlobalGMSysMessage("Wintergrasp (Command timer used)");
 

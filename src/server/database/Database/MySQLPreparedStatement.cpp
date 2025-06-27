@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "MySQLHacks.h"
 #include "PreparedStatement.h"
+#include <chrono>
 #include <cstring>
 
 template<typename T>
@@ -114,7 +115,7 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::nullptr_t)
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     param->buffer_type = MYSQL_TYPE_NULL;
-    delete[] static_cast<char *>(param->buffer);
+    delete[] static_cast<char*>(param->buffer);
     param->buffer = nullptr;
     param->buffer_length = 0;
     param->is_null_value = 1;
@@ -145,6 +146,33 @@ void MySQLPreparedStatement::SetParameter(uint8 index, T value)
     memcpy(param->buffer, &value, len);
 }
 
+void MySQLPreparedStatement::SetParameter(uint8 index, SystemTimePoint value)
+{
+    AssertValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    uint32 len = sizeof(MYSQL_TIME);
+    param->buffer_type = MYSQL_TYPE_DATETIME;
+    delete[] static_cast<char*>(param->buffer);
+    param->buffer = new char[len];
+    param->buffer_length = len;
+    param->is_null_value = 0;
+    delete param->length;
+    param->length = new unsigned long(len);
+
+    std::chrono::year_month_day ymd(time_point_cast<std::chrono::days>(value));
+    std::chrono::hh_mm_ss hms(duration_cast<std::chrono::microseconds>(value - std::chrono::sys_days(ymd)));
+
+    MYSQL_TIME* time = reinterpret_cast<MYSQL_TIME*>(static_cast<char*>(param->buffer));
+    time->year = static_cast<int32>(ymd.year());
+    time->month = static_cast<uint32>(ymd.month());
+    time->day = static_cast<uint32>(ymd.day());
+    time->hour = hms.hours().count();
+    time->minute = hms.minutes().count();
+    time->second = hms.seconds().count();
+    time->second_part = hms.subseconds().count();
+}
+
 void MySQLPreparedStatement::SetParameter(uint8 index, std::string const& value)
 {
     AssertValidIndex(index);
@@ -169,7 +197,7 @@ void MySQLPreparedStatement::SetParameter(uint8 index, std::vector<uint8> const&
     MYSQL_BIND* param = &m_bind[index];
     uint32 len = uint32(value.size());
     param->buffer_type = MYSQL_TYPE_BLOB;
-    delete [] static_cast<char *>(param->buffer);
+    delete [] static_cast<char*>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;

@@ -157,7 +157,7 @@ class spell_ioc_parachute_ic : public AuraScript
     {
         PreventDefaultAction();
         if (Player* target = GetTarget()->ToPlayer())
-            if (target->m_movementInfo.GetFallTime() > 2000 && !target->GetTransport())
+            if (target->m_movementInfo.fallTime > 2000 && !target->GetTransport())
                 target->CastSpell(target, SPELL_PARACHUTE_IC, true);
     }
 
@@ -170,13 +170,13 @@ class spell_ioc_parachute_ic : public AuraScript
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(Position const& pos, ObjectGuid const& guid) : _pos(pos), _guid(guid)
+        StartLaunchEvent(Position const& pos, ObjectGuid::LowType lowGuid) : _pos(pos), _lowGuid(lowGuid)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = ObjectAccessor::FindPlayer(_guid);
+            Player* player = ObjectAccessor::FindPlayerByLowGUID(_lowGuid);
             if (!player || !player->GetVehicle())
                 return true;
 
@@ -191,7 +191,7 @@ class StartLaunchEvent : public BasicEvent
 
     private:
         Position _pos;
-        ObjectGuid _guid;
+        ObjectGuid::LowType _lowGuid;
 };
 
 // 66218 - Launch
@@ -204,7 +204,7 @@ class spell_ioc_launch : public SpellScript
         if (!GetCaster()->ToCreature() || !GetExplTargetDest())
             return;
 
-        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
     }
 
     void Register() override
@@ -215,10 +215,12 @@ class spell_ioc_launch : public SpellScript
 
 enum SeaforiumBombSpells
 {
-    SPELL_SEAFORIUM_BLAST       = 66676,
-    SPELL_HUGE_SEAFORIUM_BLAST  = 66672,
-    SPELL_A_BOMB_INABLE_CREDIT  = 68366,
-    SPELL_A_BOMB_INATION_CREDIT = 68367
+    SPELL_SEAFORIUM_BLAST         = 66676,
+    SPELL_SEAFORIUM_BLAST_H       = 67814,
+    SPELL_HUGE_SEAFORIUM_BLAST    = 66672,
+    SPELL_HUGE_SEAFORIUM_BLAST_H  = 67813,
+    SPELL_A_BOMB_INABLE_CREDIT    = 68366,
+    SPELL_A_BOMB_INATION_CREDIT   = 68367
 };
 
 // 66672 - Huge Seaforium Blast
@@ -239,9 +241,10 @@ class spell_ioc_seaforium_blast_credit : public SpellScript
         if (!caster)
             return;
 
-        if (GetSpellInfo()->Id == SPELL_SEAFORIUM_BLAST)
+        uint32 spellId = GetSpellInfo()->Id;
+        if (spellId == SPELL_SEAFORIUM_BLAST || spellId == SPELL_SEAFORIUM_BLAST_H)
             _creditSpell = SPELL_A_BOMB_INABLE_CREDIT;
-        else if (GetSpellInfo()->Id == SPELL_HUGE_SEAFORIUM_BLAST)
+        else if (spellId == SPELL_HUGE_SEAFORIUM_BLAST || spellId == SPELL_HUGE_SEAFORIUM_BLAST_H)
             _creditSpell = SPELL_A_BOMB_INATION_CREDIT;
 
         if (GetHitGObj() && GetHitGObj()->IsDestructibleBuilding())

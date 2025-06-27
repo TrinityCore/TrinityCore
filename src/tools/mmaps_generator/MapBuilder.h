@@ -18,18 +18,18 @@
 #ifndef _MAP_BUILDER_H
 #define _MAP_BUILDER_H
 
-#include <vector>
-#include <set>
-#include <list>
-#include <atomic>
-#include <thread>
-
 #include "TerrainBuilder.h"
 
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "Optional.h"
 #include "ProducerConsumerQueue.h"
+
+#include <vector>
+#include <set>
+#include <list>
+#include <atomic>
+#include <thread>
 
 using namespace VMAP;
 
@@ -45,7 +45,7 @@ namespace MMAP
         uint32 m_mapId;
         std::set<uint32>* m_tiles;
 
-        bool operator==(uint32 id)
+        bool operator==(uint32 id) const
         {
             return m_mapId == id;
         }
@@ -180,12 +180,10 @@ namespace MMAP
             void getTileBounds(uint32 tileX, uint32 tileY,
                 float* verts, int vertCount,
                 float* bmin, float* bmax) const;
-            void getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY);
+            void getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY) const;
 
             bool shouldSkipMap(uint32 mapID) const;
             bool isTransportMap(uint32 mapID) const;
-            bool isDevMap(uint32 mapID) const;
-            bool isBattlegroundMap(uint32 mapID) const;
             bool isContinentMap(uint32 mapID) const;
 
             rcConfig GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig) const;

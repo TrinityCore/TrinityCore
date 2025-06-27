@@ -1,6 +1,0 @@
-CascLib history
-===============
-
-Version 1.00
-
-- Created

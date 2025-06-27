@@ -22,8 +22,10 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "Containers.h"
+#include "CreatureTextMgr.h"
 #include "eye_of_eternity.h"
 #include "GameObject.h"
+#include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -100,8 +102,8 @@ enum Spells
     SPELL_RANDOM_PORTAL                      = 56047,
     SPELL_PORTAL_BEAM                        = 56046, // Malygos cast on portal to activate it during PHASE_NOT_STARTED
 
-    // Phase I
-    SPELL_BERSERK                            = 60670,
+    //Phase I
+    SPELL_BERSERK                           = 60670,
     SPELL_MALYGOS_BERSERK                    = 47008, // it's the berserk spell that will hit only Malygos after 10 min of 60670
     SPELL_PORTAL_VISUAL_CLOSED               = 55949,
     SPELL_SUMMON_POWER_PARK                  = 56142,
@@ -377,6 +379,7 @@ struct boss_malygos : public BossAI
 
         SetPhase(PHASE_NOT_STARTED, true);
         me->SetReactState(REACT_PASSIVE);
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
     }
 
@@ -399,7 +402,7 @@ struct boss_malygos : public BossAI
         {
             _summonDeaths = value;
 
-            if (GetDifficulty() == DIFFICULTY_10_N)
+            if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
             {
                 if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_10MAN)
                 {
@@ -407,7 +410,7 @@ struct boss_malygos : public BossAI
                     DoAction(ACTION_HANDLE_P_THREE_INTRO);
                 }
             }
-            else if (GetDifficulty() == DIFFICULTY_25_N)
+            else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
             {
                 if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_25MAN)
                 {
@@ -560,7 +563,7 @@ struct boss_malygos : public BossAI
         me->setActive(true);
         if (!instance->CheckRequiredBosses(DATA_MALYGOS_EVENT))
         {
-            EnterEvadeMode(EvadeReason::Other);
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return;
         }
 
@@ -568,7 +571,7 @@ struct boss_malygos : public BossAI
 
         Talk(SAY_START_P_ONE);
         DoCast(SPELL_BERSERK); // periodic aura, first tick in 10 minutes
-        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -824,7 +827,7 @@ struct boss_malygos : public BossAI
 
                     if (_arcaneReinforcements)
                     {
-                        for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == DIFFICULTY_10_N ? 4 : 5); rangeDisks++)
+                        for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 5); rangeDisks++)
                         {
                             Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
@@ -840,7 +843,7 @@ struct boss_malygos : public BossAI
 
                         _arcaneReinforcements = false;
 
-                        if (GetDifficulty() == DIFFICULTY_25_N)
+                        if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                             events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1s, 0, PHASE_TWO);
                     }
                     break;
@@ -920,7 +923,7 @@ struct boss_malygos : public BossAI
                     SetPhase(PHASE_THREE, true);
                     break;
                 case EVENT_SURGE_OF_POWER_P_THREE:
-                    if (GetDifficulty() == DIFFICULTY_10_N)
+                    if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     {
                         if (Unit* tempSurgeTarget = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, false, true, SPELL_RIDE_RED_DRAGON_BUDDY))
                         {
@@ -937,7 +940,7 @@ struct boss_malygos : public BossAI
                             }
                         }
                     }
-                    else if (GetDifficulty() == DIFFICULTY_25_N)
+                    else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                     {
                         for (ObjectGuid& guid : _surgeTargetGUID)
                             guid.Clear();
@@ -1578,10 +1581,10 @@ class spell_malygos_arcane_storm : public SpellScript
         {
             // Resize list only to objects that are vehicles.
             IsCreatureVehicleCheck check(true);
-            Trinity::Containers::RandomResize(targets, check, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
+            Trinity::Containers::RandomResize(targets, check, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
         }
         else
-            Trinity::Containers::RandomResize(targets, (malygos->GetMap()->GetDifficultyID() == DIFFICULTY_10_N ? 4 : 10));
+            Trinity::Containers::RandomResize(targets, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
     }
 
     void HandleVisual(SpellEffIndex /*effIndex*/)
@@ -1778,7 +1781,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScript
         // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
         // and if 3rd picks X again 4th will pick smth else (by not limiting the cast to certain caster).
         if (targets.size() > 1)
-            if (malygos && !malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID).IsEmpty())
+            if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID))
                 targets.remove_if(Trinity::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
 
         // Remove players not on Hover Disk from second list
@@ -1815,8 +1818,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScript
     void TriggerDamageSpellFromPlayer()
     {
         if (Player* hitTarget = GetHitPlayer())
-            hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(GetCaster()->GetGUID()));
+            hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, GetCaster()->GetGUID());
     }
 
     void Register() override
@@ -2106,10 +2108,10 @@ private:
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
-            if (target->GetMap()->GetDifficultyID() == DIFFICULTY_10_N)
-                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
-            else if (target->GetMap()->GetDifficultyID() == DIFFICULTY_25_N)
-                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData::fromEulerAnglesZYX(target->GetOrientation(), 0.0f, 0.0f), 0s);
+            if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, *target, QuaternionData(), 0s);
+            else if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, *target, QuaternionData(), 0s);
         }
     }
 

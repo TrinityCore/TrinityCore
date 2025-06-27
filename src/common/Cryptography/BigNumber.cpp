@@ -18,6 +18,7 @@
 #include "Cryptography/BigNumber.h"
 #include "Errors.h"
 #include <openssl/bn.h>
+#include <cstring>
 #include <algorithm>
 #include <memory>
 
@@ -132,7 +133,7 @@ BigNumber& BigNumber::operator<<=(int n)
     return *this;
 }
 
-int BigNumber::CompareTo(BigNumber const& bn) const
+int32 BigNumber::CompareTo(BigNumber const& bn) const
 {
     return BN_cmp(_bn, bn._bn);
 }

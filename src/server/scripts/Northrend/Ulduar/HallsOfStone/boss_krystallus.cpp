@@ -156,11 +156,6 @@ class spell_krystallus_shatter_effect : public SpellScript
 {
     PrepareSpellScript(spell_krystallus_shatter_effect);
 
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return !spellInfo->GetEffects().empty();
-    }
-
     void CalculateDamage()
     {
         if (!GetHitUnit())

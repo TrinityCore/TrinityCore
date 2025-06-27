@@ -1,1 +1,0 @@
-UPDATE `creature` SET `position_x`=1665.99658203125, `position_y`=-4354.52978515625, `position_z`=26.43378829956054687, `orientation`=2.923297643661499023, `PhaseId`=1167 WHERE `guid`=310903 AND `id`=39605;

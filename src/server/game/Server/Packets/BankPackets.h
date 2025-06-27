@@ -19,7 +19,6 @@
 #define BankPackets_h__
 
 #include "Packet.h"
-#include "ItemPacketsCommon.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
@@ -33,7 +32,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            WorldPackets::Item::InvUpdate Inv;
             uint8 Bag = 0;
             uint8 Slot = 0;
         };
@@ -45,7 +43,6 @@ namespace WorldPackets
 
             void Read() override;
 
-            WorldPackets::Item::InvUpdate Inv;
             uint8 Bag = 0;
             uint8 Slot = 0;
         };
@@ -57,41 +54,25 @@ namespace WorldPackets
 
             void Read() override;
 
-            ObjectGuid Guid;
+            ObjectGuid Banker;
         };
 
-        class AutoBankReagent final : public ClientPacket
+        class BuyBankSlotResult final : public ServerPacket
         {
         public:
-            AutoBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_REAGENT, std::move(packet)) { }
+            BuyBankSlotResult() : ServerPacket(SMSG_BUY_BANK_SLOT_RESULT, 4) { }
 
-            void Read() override;
+            WorldPacket const* Write() override;
 
-            WorldPackets::Item::InvUpdate Inv;
-            uint8 Slot = 0;
-            uint8 PackSlot = 0;
+            uint32 Result = 0;
         };
 
-        class AutoStoreBankReagent final : public ClientPacket
+        class ShowBank final : public ServerPacket
         {
         public:
-            AutoStoreBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_REAGENT, std::move(packet)) { }
+            ShowBank() : ServerPacket(SMSG_SHOW_BANK, 8) { }
 
-            void Read() override;
-
-            WorldPackets::Item::InvUpdate Inv;
-            uint8 Slot = 0;
-            uint8 PackSlot = 0;
-        };
-
-        // CMSG_BUY_REAGENT_BANK
-        // CMSG_REAGENT_BANK_DEPOSIT
-        class ReagentBank final : public ClientPacket
-        {
-        public:
-            ReagentBank(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
-
-            void Read() override;
+            WorldPacket const* Write() override;
 
             ObjectGuid Banker;
         };

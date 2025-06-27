@@ -19,6 +19,7 @@
 #include "boss_horAI.h"
 #include "halls_of_reflection.h"
 #include "InstanceScript.h"
+#include "SpellMgr.h"
 
 enum Texts
 {
@@ -90,7 +91,7 @@ class boss_falric : public CreatureScript
                     || (_hopelessnessCount < 3 && me->HealthBelowPctDamaged(10, damage)))
                 {
                     if (_hopelessnessCount)
-                        me->RemoveOwnedAura(HopelessnessHelper[_hopelessnessCount - 1]);
+                        me->RemoveOwnedAura(sSpellMgr->GetSpellIdForDifficulty(HopelessnessHelper[_hopelessnessCount - 1], me));
                     DoCast(me, HopelessnessHelper[_hopelessnessCount]);
                     ++_hopelessnessCount;
                 }

@@ -134,8 +134,7 @@ struct boss_anubrekhan : public BossAI
     void KilledUnit(Unit* victim) override
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
-            victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(me->GetGUID()));
+            victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, me->GetGUID());
 
         Talk(SAY_SLAY);
     }
@@ -145,7 +144,7 @@ struct boss_anubrekhan : public BossAI
         _JustDied();
 
         // start achievement timer (kill Maexna within 20 min)
-        instance->TriggerGameEvent(ACHIEV_TIMED_START_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -189,13 +188,13 @@ struct boss_anubrekhan : public BossAI
                 case EVENT_SCARABS:
                     if (!guardCorpses.empty())
                     {
-                        if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
-                        {
-                            creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCaster(me->GetGUID()));
-                            creatureTarget->AI()->Talk(EMOTE_SCARAB);
-                            creatureTarget->DespawnOrUnsummon();
-                        }
+                        if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
+                            if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
+                            {
+                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());
+                                creatureTarget->AI()->Talk(EMOTE_SCARAB);
+                                creatureTarget->DespawnOrUnsummon();
+                            }
                     }
                     events.Repeat(randtime(Seconds(40), Seconds(60)));
                     break;

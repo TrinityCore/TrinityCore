@@ -25,6 +25,13 @@ namespace Trinity
     template<typename... Args>
     using FormatString = fmt::format_string<Args...>;
 
+    using FormatStringView = fmt::string_view;
+
+    using FormatArgs = fmt::format_args;
+
+    template<typename... Args>
+    constexpr auto MakeFormatArgs(Args&&... args) { return fmt::make_format_args(args...); }
+
     /// Default TC string format function.
     template<typename... Args>
     inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
@@ -36,6 +43,44 @@ namespace Trinity
         catch (std::exception const& formatError)
         {
             return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    template<typename OutputIt, typename... Args>
+    inline OutputIt StringFormatTo(OutputIt out, FormatString<Args...> fmt, Args&&... args)
+    {
+        try
+        {
+            return fmt::format_to(out, fmt, std::forward<Args>(args)...);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    inline std::string StringVFormat(FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat(fmt, args);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
+        }
+    }
+
+    template<typename OutputIt>
+    inline OutputIt StringVFormatTo(OutputIt out, FormatStringView fmt, FormatArgs args)
+    {
+        try
+        {
+            return fmt::vformat_to(out, fmt, args);
+        }
+        catch (std::exception const& formatError)
+        {
+            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
         }
     }
 
@@ -51,7 +96,7 @@ namespace Trinity
         return fmt.empty();
     }
 
-    /// Returns true if the given std::string_view is empty.
+    /// Returns true if the given std::string is empty.
     inline constexpr bool IsFormatEmptyOrNull(std::string_view fmt)
     {
         return fmt.empty();

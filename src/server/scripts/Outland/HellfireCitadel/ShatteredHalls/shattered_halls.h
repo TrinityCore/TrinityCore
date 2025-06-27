@@ -19,10 +19,9 @@
 #define DEF_SHATTERED_H
 
 #include "CreatureAIImpl.h"
-#include "Position.h"
 
 #define SHScriptName "instance_shattered_halls"
-#define DataHeader "SHv1"
+#define DataHeader "SH"
 
 uint32 const EncounterCount          = 4;
 uint32 const VictimCount             = 3;

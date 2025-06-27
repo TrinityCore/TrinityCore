@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 
@@ -260,13 +261,14 @@ class npc_hive_zara_larva : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id) override
             {
-                if (type == POINT_MOTION_TYPE && id == POINT_PARALYZE)
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _instance->GetGuidData(DATA_PARALYZED)))
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                if (type == POINT_MOTION_TYPE)
+                    if (id == POINT_PARALYZE)
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
 
             void MoveInLineOfSight(Unit* who) override
+
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;

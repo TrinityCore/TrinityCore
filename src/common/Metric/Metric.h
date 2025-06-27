@@ -22,13 +22,13 @@
 #include "Duration.h"
 #include "MPSCQueue.h"
 #include "Optional.h"
+#include <boost/container/small_vector.hpp>
 #include <functional>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
-#include <variant>
 
 namespace Trinity
 {
@@ -46,6 +46,7 @@ enum MetricDataType
 };
 
 using MetricTag = std::pair<std::string, std::string>;
+using MetricTagsVector = boost::container::small_vector<MetricTag, 2>;
 
 struct MetricData
 {
@@ -54,7 +55,7 @@ struct MetricData
     MetricDataType Type;
 
     // LogValue-specific fields
-    Optional<std::variant<std::array<MetricTag, 2>, std::vector<MetricTag>>> Tags;
+    MetricTagsVector Tags;
 
     // LogEvent-specific fields
     std::string Title;
@@ -112,8 +113,8 @@ public:
     void Update();
     bool ShouldLog(std::string const& category, int64 value) const;
 
-    template<class T, class... TagsList>
-    void LogValue(std::string category, T value, TagsList&&... tags)
+    template<class T, class... Tags>
+    void LogValue(std::string category, T value, Tags&&... tags)
     {
         using namespace std::chrono;
 
@@ -123,19 +124,7 @@ public:
         data->Type = METRIC_DATA_VALUE;
         data->ValueOrEventText = FormatInfluxDBValue(value);
         if constexpr (sizeof...(tags) > 0)
-        {
-            data->Tags.emplace();
-            if constexpr (sizeof...(tags) > 2)
-            {
-                decltype(auto) tagsVector = data->Tags->emplace<1>();
-                (tagsVector.emplace_back(std::move(tags)), ...);
-            }
-            else
-            {
-                decltype(auto) tagsArray = data->Tags->emplace<0>();
-                tagsArray = { std::move(tags)... };
-            }
-        }
+            (data->Tags.emplace_back(std::move(tags)), ...);
 
         _queuedData.Enqueue(data);
     }

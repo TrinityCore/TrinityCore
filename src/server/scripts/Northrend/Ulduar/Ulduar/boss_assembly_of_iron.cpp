@@ -28,6 +28,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
@@ -207,7 +208,7 @@ class boss_steelbreaker : public CreatureScript
                 }
                 else
                 {
-                    me->SetTappedBy(nullptr);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_STEELBREAKER_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -355,7 +356,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 }
                 else
                 {
-                    me->SetTappedBy(nullptr);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_MOLGEIM_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -534,7 +535,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 }
                 else
                 {
-                    me->SetTappedBy(nullptr);
+                    me->SetLootRecipient(nullptr);
                     Talk(SAY_BRUNDIR_DEATH);
                     //DoCastAOE(SPELL_SUPERCHARGE, true);
 
@@ -617,7 +618,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_GROUND, 2500ms);
                             break;
                         case EVENT_GROUND:
-                            me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
+                            me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_TENDRILS, me));
                             me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->GetVictim());
                             events.CancelEvent(EVENT_GROUND);
@@ -739,9 +740,7 @@ class spell_assembly_rune_of_summoning : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* aurEff)
             {
                 PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                    .SetTriggeringAura(aurEff)
-                    .SetOriginalCaster(GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : ObjectGuid::Empty));
+                GetTarget()->CastSpell(GetTarget(), SPELL_RUNE_OF_SUMMONING_SUMMON, { aurEff, GetTarget()->IsSummon() ? GetTarget()->ToTempSummon()->GetSummonerGUID() : ObjectGuid::Empty });
             }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

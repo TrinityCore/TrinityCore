@@ -27,6 +27,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -83,7 +84,6 @@ enum ICCSpells
 
     // Alchemist Adrianna
     SPELL_HARVEST_BLIGHT_SPECIMEN   = 72155,
-    SPELL_HARVEST_BLIGHT_SPECIMEN25 = 72162,
 
     // Invisible Stalker (Float, Uninteractible, LargeAOI)
     SPELL_SOUL_MISSILE              = 72585,
@@ -135,7 +135,7 @@ enum ICCSpells
     SPELL_DARK_MENDING              = 71020
 };
 
-enum ICCTimedEventIds
+enum ICCEvents
 {
     // Light's Hammer RP
     EVENT_TIRION_INTRO_2 = 1,
@@ -208,7 +208,7 @@ enum ICCMisc
     POINT_LAND          = 1,
 };
 
-// at Light's Hammer
+// 37119 - Highlord Tirion Fordring (At Light's Hammer)
 struct npc_highlord_tirion_fordring_lh : public ScriptedAI
 {
     npc_highlord_tirion_fordring_lh(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -443,6 +443,7 @@ private:
     Unit const* _me;
 };
 
+// 38490, 38494 - Rotting Frost Giant
 struct npc_rotting_frost_giant : public ScriptedAI
 {
     npc_rotting_frost_giant(Creature* creature) : ScriptedAI(creature) { }
@@ -507,6 +508,7 @@ private:
     EventMap _events;
 };
 
+// 37744 - Frost Freeze Trap
 struct npc_frost_freeze_trap: public ScriptedAI
 {
     npc_frost_freeze_trap(Creature* creature) : ScriptedAI(creature)
@@ -542,19 +544,21 @@ private:
     EventMap _events;
 };
 
+// 38501 - Alchemist Adrianna
 struct npc_alchemist_adrianna : public ScriptedAI
 {
     npc_alchemist_adrianna(Creature* creature) : ScriptedAI(creature) { }
 
     bool OnGossipHello(Player* player) override
     {
-        if (!me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN) && !me->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN25))
+        if (!me->FindCurrentSpellBySpellId(sSpellMgr->GetSpellIdForDifficulty(SPELL_HARVEST_BLIGHT_SPECIMEN, me)))
             if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
                 DoCastSelf(SPELL_HARVEST_BLIGHT_SPECIMEN, false);
         return false;
     }
 };
 
+// 30298 - Invisible Stalker (Float, Uninteractible, LargeAOI)
 class npc_arthas_teleport_visual : public CreatureScript
 {
     public:
@@ -605,6 +609,8 @@ class npc_arthas_teleport_visual : public CreatureScript
         }
 };
 
+// 39371 - King Varian Wrynn
+// 39372 - Garrosh Hellscream
 struct npc_entrance_faction_leader : public ScriptedAI
 {
     npc_entrance_faction_leader(Creature* creature) : ScriptedAI(creature) { }
@@ -657,6 +663,7 @@ static Emote const DarkFallensEmotes[]=
     EMOTE_ONESHOT_NO
 };
 
+// 38463 - Empowering Orb Visual Stalker
 struct npc_icc_orb_controller : public ScriptedAI
 {
     npc_icc_orb_controller(Creature* creature) : ScriptedAI(creature), _isInCombat(false), _isLongRepeat(false) { }
@@ -859,6 +866,7 @@ protected:
     uint32 AttackSpellId;
 };
 
+// 37595 - Darkfallen Blood Knight
 struct npc_darkfallen_blood_knight : public DarkFallenAI
 {
     npc_darkfallen_blood_knight(Creature* creature) : DarkFallenAI(creature) { }
@@ -882,6 +890,7 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
     }
 };
 
+// 37663 - Darkfallen Noble
 struct npc_darkfallen_noble : public DarkFallenAI
 {
     npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature) { }
@@ -905,6 +914,7 @@ struct npc_darkfallen_noble : public DarkFallenAI
     }
 };
 
+// 37901 - Vampiric Fiend
 struct npc_vampiric_fiend : public ScriptedAI
 {
     npc_vampiric_fiend(Creature* creature) : ScriptedAI(creature) { }
@@ -942,6 +952,7 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 37664 - Darkfallen Archmage
 struct npc_darkfallen_archmage : public DarkFallenAI
 {
     npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature) { }
@@ -969,6 +980,7 @@ struct npc_darkfallen_archmage : public DarkFallenAI
     }
 };
 
+// 37571 - Darkfallen Advisor
 struct npc_darkfallen_advisor : public DarkFallenAI
 {
     npc_darkfallen_advisor(Creature* creature) : DarkFallenAI(creature) { }
@@ -989,6 +1001,7 @@ struct npc_darkfallen_advisor : public DarkFallenAI
     }
 };
 
+// 37666 - Darkfallen Tactician
 struct npc_darkfallen_tactician : public DarkFallenAI
 {
     npc_darkfallen_tactician(Creature* creature) : DarkFallenAI(creature) { }
@@ -1012,6 +1025,7 @@ struct npc_darkfallen_tactician : public DarkFallenAI
     }
 };
 
+// 36725 - Nerub'ar Broodkeeper
 struct npc_icc_nerubar_broodkeeper : public ScriptedAI
 {
     npc_icc_nerubar_broodkeeper(Creature* creature) : ScriptedAI(creature) { }
@@ -1111,6 +1125,7 @@ private:
     EventMap _events;
 };
 
+// 201741 - Empowering Blood Orb
 struct go_empowering_blood_orb : public GameObjectAI
 {
     go_empowering_blood_orb(GameObject* go) : GameObjectAI(go) { }
@@ -1222,7 +1237,7 @@ class spell_icc_siphon_essence : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL && GetTarget()->IsAIEnabled())
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL)
             GetTarget()->GetAI()->DoAction(ACTION_SIPHON_INTERRUPTED);
     }
 
@@ -1336,9 +1351,9 @@ class spell_icc_stoneform : public AuraScript
 };
 
 // 70536, 70545, 70546, 70547 - Spirit Alarm
-class spell_icc_spirit_alarm : public SpellScript
+class spell_icc_sprit_alarm : public SpellScript
 {
-    PrepareSpellScript(spell_icc_spirit_alarm);
+    PrepareSpellScript(spell_icc_sprit_alarm);
 
     void HandleEvent(SpellEffIndex effIndex)
     {
@@ -1383,7 +1398,7 @@ class spell_icc_spirit_alarm : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_icc_spirit_alarm::HandleEvent, EFFECT_1, SPELL_EFFECT_SEND_EVENT);
+        OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
     }
 };
 
@@ -1560,6 +1575,20 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         }
 };
 
+class at_icc_start_blood_quickening : public AreaTriggerScript
+{
+    public:
+        at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
+                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, IN_PROGRESS);
+            return true;
+        }
+};
+
 class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
 {
     public:
@@ -1606,7 +1635,7 @@ void AddSC_icecrown_citadel()
     RegisterSpellScript(spell_darkfallen_blood_mirror);
     RegisterSpellScript(spell_generic_remove_empowered_blood);
     RegisterSpellScript(spell_icc_stoneform);
-    RegisterSpellScript(spell_icc_spirit_alarm);
+    RegisterSpellScript(spell_icc_sprit_alarm);
     RegisterSpellScript(spell_frost_giant_death_plague);
     RegisterSpellScript(spell_icc_harvest_blight_specimen);
     RegisterSpellScript(spell_icc_soul_missile);
@@ -1614,5 +1643,6 @@ void AddSC_icecrown_citadel()
     // AreaTriggers
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
+    new at_icc_start_blood_quickening();
     new at_icc_nerubar_broodkeeper();
 }

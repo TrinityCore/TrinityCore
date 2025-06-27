@@ -37,9 +37,6 @@
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(A) ANNOTATE_HAPPENS_BEFORE(A)
 #    define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(A)  ANNOTATE_HAPPENS_AFTER(A)
 #  endif
-#  if defined(VALGRIND)
-#    include <valgrind/memcheck.h>
-#  endif
 #endif
 
 #include <cstddef>
@@ -59,7 +56,6 @@
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX 260
-#  define _USE_MATH_DEFINES
 #else // TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #  define TRINITY_PATH_MAX PATH_MAX
 #endif // TRINITY_PLATFORM
@@ -100,12 +96,6 @@
 #  define TC_COMMON_API TC_API_IMPORT
 #endif
 
-#ifdef TRINITY_API_EXPORT_PROTO
-#  define TC_PROTO_API TC_API_EXPORT
-#else
-#  define TC_PROTO_API TC_API_IMPORT
-#endif
-
 #ifdef TRINITY_API_EXPORT_DATABASE
 #  define TC_DATABASE_API TC_API_EXPORT
 #else
@@ -143,16 +133,5 @@ typedef uint64_t uint64;
 typedef uint32_t uint32;
 typedef uint16_t uint16;
 typedef uint8_t uint8;
-
-enum DBCFormer
-{
-    FT_STRING = 's',                                        // LocalizedString*
-    FT_STRING_NOT_LOCALIZED = 'S',                          // char*
-    FT_FLOAT = 'f',                                         // float
-    FT_INT = 'i',                                           // uint32
-    FT_BYTE = 'b',                                          // uint8
-    FT_SHORT = 'h',                                         // uint16
-    FT_LONG = 'l'                                           // uint64
-};
 
 #endif //TRINITY_DEFINE_H

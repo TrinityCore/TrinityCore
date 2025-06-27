@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Desolace
 SD%Complete: 100
-SDComment: Quest support: 5561, 5581
+SDComment: Quest support: 5561
 SDCategory: Desolace
 EndScriptData */
 
@@ -27,10 +27,11 @@ npc_aged_dying_ancient_kodo
 EndContentData */
 
 #include "ScriptMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
 

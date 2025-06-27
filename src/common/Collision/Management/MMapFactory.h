@@ -20,6 +20,10 @@
 
 #include "Define.h"
 #include "MMapManager.h"
+#include "DetourAlloc.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
+#include <unordered_map>
 
 namespace MMAP
 {

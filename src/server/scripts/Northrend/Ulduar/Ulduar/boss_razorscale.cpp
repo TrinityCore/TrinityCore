@@ -19,9 +19,11 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
+#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -383,7 +385,7 @@ struct boss_razorscale : public BossAI
         switch (actionId)
         {
             case ACTION_START_FIGHT:
-                me->SetImmuneToPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetSpeedRate(MOVE_RUN, 3.0f);
                 me->StopMoving();
                 me->GetMotionMaster()->MovePoint(POINT_RAZORSCALE_FLIGHT, RazorFlightPosition);
@@ -513,7 +515,7 @@ struct boss_razorscale : public BossAI
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (why == EvadeReason::Boundary && !events.IsInPhase(PHASE_PERMA_GROUND))
+        if (why == EVADE_REASON_BOUNDARY && !events.IsInPhase(PHASE_PERMA_GROUND))
             return;
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -532,7 +534,7 @@ struct boss_razorscale : public BossAI
 
     void HandleMusic(bool active)
     {
-        int32 enabled = active ? 1 : 0;
+        uint32 enabled = active ? 1 : 0;
         instance->DoUpdateWorldState(WORLD_STATE_RAZORSCALE_MUSIC, enabled);
     }
 
@@ -904,7 +906,7 @@ struct npc_expedition_defender : public ScriptedAI
             return;
 
         me->SetHomePosition(DefendersPosition[_myPositionNumber]);
-        me->SetImmuneToNPC(false);
+        me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
 private:
@@ -934,7 +936,7 @@ struct npc_expedition_trapper : public ScriptedAI
                 me->GetMotionMaster()->MoveTargetedHome();
                 break;
             case ACTION_START_FIGHT:
-                me->SetImmuneToNPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                 break;
             case ACTION_STOP_CAST:
                 me->InterruptNonMeleeSpells(false);
@@ -998,7 +1000,7 @@ struct npc_expedition_engineer : public ScriptedAI
             _scheduler.Schedule(Seconds(28), [this](TaskContext /*context*/)
             {
                 HandleHarpoonMovement();
-                me->SetImmuneToNPC(false);
+                me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
             });
         }
         else if (actionId == ACTION_FIX_HARPOONS)

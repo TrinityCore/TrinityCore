@@ -174,9 +174,9 @@ WaypointPath const* SystemMgr::GetPath(uint32 creatureEntry) const
 std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(uint32 entry, uint16 chainId) const
 {
     auto it = m_mSplineChainsMap.find({ entry, chainId });
-    if (it != m_mSplineChainsMap.end())
-        return &it->second;
-    return nullptr;
+    if (it == m_mSplineChainsMap.end())
+        return nullptr;
+    return &it->second;
 }
 
 std::vector<SplineChainLink> const* SystemMgr::GetSplineChain(Creature const* who, uint16 id) const

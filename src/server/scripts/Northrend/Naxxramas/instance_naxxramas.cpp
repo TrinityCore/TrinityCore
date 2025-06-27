@@ -18,13 +18,11 @@
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "naxxramas.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 BossBoundaryData const boundaries =
 {
@@ -107,25 +105,6 @@ ObjectData const objectData[] =
     { 0,                        0,                         }
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { BOSS_ANUBREKHAN, {{ 1107 }} },
-    { BOSS_FAERLINA, {{  1110 }} },
-    { BOSS_MAEXXNA, {{ 1116 }} },
-    { BOSS_NOTH, {{ 1117 }} },
-    { BOSS_HEIGAN, {{ 1112 }} },
-    { BOSS_LOATHEB, {{ 1115 }} },
-    { BOSS_PATCHWERK, {{ 1118 }} },
-    { BOSS_GROBBULUS, {{ 1111 }} },
-    { BOSS_GLUTH, {{ 1108 }} },
-    { BOSS_THADDIUS, {{ 1120 }} },
-    { BOSS_RAZUVIOUS, {{ 1113 }} },
-    { BOSS_GOTHIK, {{ 1109 }} },
-    { BOSS_HORSEMEN, {{ 1121 }} },
-    { BOSS_SAPPHIRON, {{ 1119 }} },
-    { BOSS_KELTHUZAD, {{ 1114 }} }
-};
-
 class instance_naxxramas : public InstanceMapScript
 {
     public:
@@ -140,10 +119,11 @@ class instance_naxxramas : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, objectData);
-                LoadDungeonEncounterData(encounters);
 
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
+
+                playerDied              = false;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -268,6 +248,12 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
+                if (!playerDied && unit->IsPlayer() && IsEncounterInProgress())
+                {
+                    playerDied = true;
+                    SaveToDB();
+                }
+
                 if (Creature* creature = unit->ToCreature())
                     if (creature->GetEntry() == NPC_BIGGLESWORTH)
                     {
@@ -540,6 +526,8 @@ class instance_naxxramas : public InstanceMapScript
                     // And They Would All Go Down Together (kill 4HM within 15sec of each other)
                     case 7600: // 25-man
                     case 7601: // 10-man
+                        if (criteria_id + instance->GetSpawnMode() == 7601)
+                            return false;
                         if (Creature* baron = instance->GetCreature(BaronGUID)) // it doesn't matter which one we use, really
                             return (baron->AI()->GetData(DATA_HORSEMEN_CHECK_ACHIEVEMENT_CREDIT) == 1u);
                         return false;
@@ -556,10 +544,24 @@ class instance_naxxramas : public InstanceMapScript
                     case 13239: // Loatheb
                     case 13240: // Thaddius
                     case 7617:  // Kel'Thuzad
+                        if (AreAllEncountersDone() && !playerDied)
+                            return true;
                         return false;
                 }
 
                 return false;
+            }
+
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << uint32(playerDied ? 1 : 0);
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                uint32 tmpState;
+                data >> tmpState;
+                playerDied = tmpState != 0;
             }
 
         protected:
@@ -605,6 +607,9 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid LichKingGUID;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
+
+            /* The Immortal / The Undying */
+            bool playerDied;
 
             EventMap events;
         };

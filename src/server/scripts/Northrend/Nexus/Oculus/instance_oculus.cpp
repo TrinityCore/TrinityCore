@@ -18,27 +18,18 @@
 #include "oculus.h"
 #include "Creature.h"
 #include "CreatureAI.h"
-#include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
-#include "PhasingHandler.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 
 DoorData const doorData[] =
 {
     { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    DOOR_TYPE_PASSAGE },
     { 0,                    0,              DOOR_TYPE_ROOM }
-};
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_DRAKOS, {{ 528, 529, 2016 }} },
-    { DATA_VAROS, {{ 530, 531, 2015 }} },
-    { DATA_UROM, {{ 532, 533, 2014 }} },
-    { DATA_EREGOS, {{ 534, 535, 2013 }} }
 };
 
 Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
@@ -57,7 +48,6 @@ class instance_oculus : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
 
                 CentrifugueConstructCounter = 0;
             }
@@ -71,24 +61,18 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case NPC_VAROS:
                         VarosGUID = creature->GetGUID();
-                        if (GetBossState(DATA_DRAKOS) != DONE)
-                            PhasingHandler::AddPhase(creature, 170, true);
-                        else
-                            PhasingHandler::RemovePhase(creature, 170, true);
+                        if (GetBossState(DATA_DRAKOS) == DONE)
+                           creature->SetPhaseMask(1, true);
                         break;
                     case NPC_UROM:
                         UromGUID = creature->GetGUID();
-                        if (GetBossState(DATA_VAROS) != DONE)
-                            PhasingHandler::AddPhase(creature, 170, true);
-                        else
-                            PhasingHandler::RemovePhase(creature, 170, true);
+                        if (GetBossState(DATA_VAROS) == DONE)
+                            creature->SetPhaseMask(1, true);
                         break;
                     case NPC_EREGOS:
                         EregosGUID = creature->GetGUID();
-                        if (GetBossState(DATA_UROM) != DONE)
-                            PhasingHandler::AddPhase(creature, 170, true);
-                        else
-                            PhasingHandler::RemovePhase(creature, 170, true);
+                        if (GetBossState(DATA_UROM) == DONE)
+                            creature->SetPhaseMask(1, true);
                         break;
                     case NPC_CENTRIFUGE_CONSTRUCT:
                         if (creature->IsAlive())
@@ -120,9 +104,10 @@ class instance_oculus : public InstanceMapScript
                         break;
                     case NPC_GREATER_WHELP:
                         if (GetBossState(DATA_UROM) == DONE)
+                        {
+                            creature->SetPhaseMask(1, true);
                             GreaterWhelpList.push_back(creature->GetGUID());
-                        else
-                            PhasingHandler::AddPhase(creature, 170, true);
+                        }
                         break;
                     default:
                         break;
@@ -160,7 +145,21 @@ class instance_oculus : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId, WorldObject* /*invoker*/) override
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+            {
+                if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
+                {
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
+                }
+                else
+                {
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
+                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
+                }
+            }
+
+            void ProcessEvent(WorldObject* /*unit*/, uint32 eventId) override
             {
                 if (eventId != EVENT_CALL_DRAGON)
                     return;
@@ -184,7 +183,7 @@ class instance_oculus : public InstanceMapScript
                             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
                             FreeDragons();
                             if (Creature* varos = instance->GetCreature(VarosGUID))
-                                PhasingHandler::RemovePhase(varos, 170, true);
+                                varos->SetPhaseMask(1, true);
                             events.ScheduleEvent(EVENT_VAROS_INTRO, 15s);
                         }
                         break;
@@ -193,7 +192,7 @@ class instance_oculus : public InstanceMapScript
                         {
                             DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
                             if (Creature* urom = instance->GetCreature(UromGUID))
-                                PhasingHandler::RemovePhase(urom, 170, true);
+                                urom->SetPhaseMask(1, true);
                         }
                         break;
                     case DATA_UROM:
@@ -201,7 +200,7 @@ class instance_oculus : public InstanceMapScript
                         {
                             if (Creature* eregos = instance->GetCreature(EregosGUID))
                             {
-                                PhasingHandler::RemovePhase(eregos, 170, true);
+                                eregos->SetPhaseMask(1, true);
                                 GreaterWhelps();
                                 events.ScheduleEvent(EVENT_EREGOS_INTRO, 5s);
                             }
@@ -303,7 +302,7 @@ class instance_oculus : public InstanceMapScript
             {
                 for (ObjectGuid guid : GreaterWhelpList)
                     if (Creature* gwhelp = instance->GetCreature(guid))
-                        PhasingHandler::RemovePhase(gwhelp, 170, true);
+                        gwhelp->SetPhaseMask(1, true);
             }
 
         protected:

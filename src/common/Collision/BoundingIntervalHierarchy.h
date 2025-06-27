@@ -28,6 +28,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
+#include <cmath>
 #include "string.h"
 
 #define MAX_STACK_SIZE 64
@@ -69,6 +70,7 @@ class TC_COMMON_API BIH
         {
             tree.clear();
             objects.clear();
+            bounds = G3D::AABox::empty();
             // create space for the first node
             tree.push_back(3u << 30u); // dummy leaf
             tree.insert(tree.end(), 2, 0);
@@ -111,17 +113,19 @@ class TC_COMMON_API BIH
             delete[] dat.indices;
         }
         uint32 primCount() const { return uint32(objects.size()); }
+        G3D::AABox const& bound() const { return bounds; }
 
         template<typename RayCallback>
         void intersectRay(const G3D::Ray &r, RayCallback& intersectCallback, float &maxDist, bool stopAtFirst = false) const
         {
             float intervalMin = -1.f;
             float intervalMax = -1.f;
-            G3D::Vector3 const& org = r.origin();
-            G3D::Vector3 const& dir = r.direction();
-            G3D::Vector3 const& invDir = r.invDirection();
+            G3D::Vector3 org = r.origin();
+            G3D::Vector3 dir = r.direction();
+            G3D::Vector3 invDir;
             for (int i=0; i<3; ++i)
             {
+                invDir[i] = 1.f / dir[i];
                 if (G3D::fuzzyNe(dir[i], 0.0f))
                 {
                     float t1 = (bounds.low()[i]  - org[i]) * invDir[i];
@@ -350,7 +354,7 @@ class TC_COMMON_API BIH
             float tfar;
         };
 
-        class TC_COMMON_API BuildStats
+        class BuildStats
         {
             private:
                 int numNodes;

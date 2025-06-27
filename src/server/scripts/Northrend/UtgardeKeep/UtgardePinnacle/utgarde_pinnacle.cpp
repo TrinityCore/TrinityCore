@@ -53,7 +53,7 @@ class spell_utgarde_pinnacle_beast_mark : public AuraScript
         return false;
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         Unit* target = GetTarget();

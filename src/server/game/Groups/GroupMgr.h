@@ -18,10 +18,7 @@
 #ifndef _GROUPMGR_H
 #define _GROUPMGR_H
 
-#include "ObjectGuid.h"
-#include <map>
-
-class Group;
+#include "Group.h"
 
 class TC_GAME_API GroupMgr
 {
@@ -35,7 +32,7 @@ public:
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;
     typedef std::vector<Group*>      GroupDbContainer;
 
-    Group* GetGroupByGUID(ObjectGuid const& guid) const;
+    Group* GetGroupByGUID(ObjectGuid::LowType guid) const;
 
     uint32 GenerateNewGroupDbStoreId();
     void   RegisterGroupDbStoreId(uint32 storageId, Group* group);

@@ -19,6 +19,7 @@
 #define TRINITY_IDLEMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
+#include "Timer.h"
 
 enum RotateDirection : uint8;
 

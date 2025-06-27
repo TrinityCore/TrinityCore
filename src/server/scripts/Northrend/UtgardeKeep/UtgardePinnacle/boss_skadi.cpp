@@ -23,7 +23,6 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "utgarde_pinnacle.h"
@@ -166,6 +165,8 @@ struct boss_skadi : public BossAI
         me->SetReactState(REACT_PASSIVE);
         if (!instance->GetCreature(DATA_GRAUF))
             me->SummonCreature(NPC_GRAUF, GraufLoc);
+
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -229,7 +230,7 @@ struct boss_skadi : public BossAI
                 SpawnFirstWave();
                 Talk(SAY_AGGRO);
                 _phase = PHASE_FLYING;
-                instance->TriggerGameEvent(ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_LODI_DODI_WE_LOVES_THE_SKADI);
 
                 scheduler
                     .Schedule(Seconds(6), [this](TaskContext resetCheck)
@@ -673,7 +674,7 @@ class spell_skadi_reset_check : public SpellScript
 
         if (InstanceScript* instance = target->GetInstanceScript())
             if (instance->GetBossState(DATA_SKADI_THE_RUTHLESS) == IN_PROGRESS)
-                target->AI()->EnterEvadeMode(EvadeReason::NoHostiles);
+                target->AI()->EnterEvadeMode(CreatureAI::EVADE_REASON_NO_HOSTILES);
     }
 
     void Register() override

@@ -19,35 +19,37 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
-enum Yells
-{
-};
-
 enum Spells
 {
+    SPELL_AVATAR = 24646, // Enrage Spell
+    SPELL_GROUND_TREMOR = 6524
 };
 
 enum Events
 {
+    EVENT_AVATAR = 1,
+    EVENT_GROUND_TREMOR = 2
 };
 
 struct boss_grilek : public BossAI
 {
-    boss_grilek(Creature* creature) : BossAI(creature, DATA_GRILEK)
-    {
-    }
+    boss_grilek(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) { }
 
     void Reset() override
     {
+        _Reset();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
+        _JustDied();
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_AVATAR, 15s, 25s);
+        events.ScheduleEvent(EVENT_GROUND_TREMOR, 15s, 25s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -59,11 +61,27 @@ struct boss_grilek : public BossAI
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
-        /*
+
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
+                case EVENT_AVATAR:
+                    DoCast(me, SPELL_AVATAR);
+                    if (Unit* victim = me->GetVictim())
+                    {
+                        if (GetThreat(victim))
+                            ModifyThreatByPercent(victim, -50);
+                    }
+
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
+                        AttackStart(target);
+                    events.ScheduleEvent(EVENT_AVATAR, 25s, 35s);
+                    break;
+                case EVENT_GROUND_TREMOR:
+                    DoCastVictim(SPELL_GROUND_TREMOR, true);
+                    events.ScheduleEvent(EVENT_GROUND_TREMOR, 12s, 16s);
+                    break;
                 default:
                     break;
             }
@@ -71,7 +89,6 @@ struct boss_grilek : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        */
 
         DoMeleeAttackIfReady();
     }

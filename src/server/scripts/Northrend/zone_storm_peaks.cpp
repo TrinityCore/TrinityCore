@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
-#include "DB2Stores.h"
 #include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -26,6 +25,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuraEffects.h"
+#include "SpellHistory.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
@@ -94,6 +94,27 @@ struct npc_brunnhildar_prisoner : public ScriptedAI
             me->CastSpell(me, SPELL_SHARD_IMPACT, true);
             freed = true;
         }
+    }
+};
+
+// 55048 - Free Brunnhildar Prisoner
+class spell_storm_peaks_free_brunnhildar_prisoner : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_free_brunnhildar_prisoner);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ICE_PRISON });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_ICE_PRISON);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_free_brunnhildar_prisoner::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -554,7 +575,7 @@ struct npc_wild_wyrm : public VehicleAI
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
-        if (!_playerGuid.IsEmpty() || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
+        if (_playerGuid || spellInfo->Id != SPELL_SPEAR_OF_HODIR)
             return;
 
         _playerGuid = caster->GetGUID();
@@ -700,7 +721,7 @@ struct npc_wild_wyrm : public VehicleAI
         if (_playerCheckTimer <= diff)
         {
             if (!EvadeCheck())
-                EnterEvadeMode(EvadeReason::NoHostiles);
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
 
             _playerCheckTimer = 1 * IN_MILLISECONDS;
         }
@@ -753,86 +774,6 @@ enum JokkumScriptcast
     EVENT_KROLMIR_7                  = 22,
     EVENT_KROLMIR_8                  = 23,
     EVENT_KROLMIR_9                  = 24,
-};
-
-struct npc_king_jokkum_vehicle : public VehicleAI
-{
-    npc_king_jokkum_vehicle(Creature* creature) : VehicleAI(creature)
-    {
-        pathEnd = false;
-    }
-
-    void Reset() override
-    {
-        playerGUID.Clear();
-        pathEnd    = false;
-    }
-
-    void OnCharmed(bool /*apply*/) override { }
-
-    void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply) override
-    {
-        if (apply)
-        {
-            playerGUID = who->GetGUID();
-            Talk(SAY_HOLD_ON, who);
-            me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-            me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
-        }
-    }
-
-    void MovementInform(uint32 type, uint32 id) override
-    {
-        if (type != WAYPOINT_MOTION_TYPE)
-            return;
-
-        if (pathEnd)
-        {
-            if (id == 4)
-            {
-
-            }
-        }
-        else
-        {
-            if (id == 19)
-            {
-                pathEnd = true;
-                me->SetFacingTo(0.418879f);
-                Talk(SAY_JOKKUM_1);
-                if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))
-                    me->CastSpell(player, SPELL_PLAYER_CAST_VERANUS_SUMMON);
-                me->CastSpell(me, SPELL_EJECT_ALL_PASSENGERS);
-
-            }
-        }
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!pathEnd)
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch (eventId)
-            {
-                case EVENT_KROLMIR_1:
-                    Talk(SAY_JOKKUM_2);
-                    events.ScheduleEvent(EVENT_KROLMIR_2, 4s);
-                    break;
-            }
-        }
-    }
-
-private:
-    EventMap events;
-    ObjectGuid playerGUID;
-    bool pathEnd;
-
 };
 
 // 61319 - Jokkum Scriptcast
@@ -1128,31 +1069,6 @@ class spell_player_mount_wyrm : public AuraScript
 };
 
 /*######
-## Quest 12823: A Flawless Plan
-######*/
-
-// 55693 - Remove Collapsing Cave Aura
-class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
-{
-    PrepareSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_storm_peaks_remove_collapsing_cave_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
-};
-
-/*######
 ## Quest 12987: Mounting Hodir's Helm
 ######*/
 
@@ -1170,8 +1086,8 @@ class spell_storm_peaks_read_pronouncement : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_1) &&
-            sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_2) &&
+        return sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_PRONOUNCEMENT_2) &&
             sObjectMgr->GetCreatureTemplate(NPC_HODIRS_HELM_KC);
     }
 
@@ -1230,7 +1146,7 @@ class spell_storm_peaks_bear_flank_fail : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sBroadcastTextStore.HasRecord(TEXT_CARVE_FAIL);
+        return sObjectMgr->GetBroadcastText(TEXT_CARVE_FAIL);
     }
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1355,12 +1271,12 @@ class spell_storm_peaks_call_of_earth : public SpellScript
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
+    RegisterSpellScript(spell_storm_peaks_free_brunnhildar_prisoner);
     RegisterCreatureAI(npc_freed_protodrake);
     RegisterCreatureAI(npc_icefang);
     RegisterCreatureAI(npc_hyldsmeet_protodrake);
     RegisterCreatureAI(npc_brann_bronzebeard_keystone);
     RegisterCreatureAI(npc_wild_wyrm);
-    RegisterCreatureAI(npc_king_jokkum_vehicle);
 
     RegisterSpellScript(spell_jokkum_scriptcast);
     RegisterSpellScript(spell_veranus_summon);
@@ -1374,7 +1290,6 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_claw_swipe_check);
     RegisterSpellScript(spell_fatal_strike);
     RegisterSpellScript(spell_player_mount_wyrm);
-    RegisterSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
     RegisterSpellScript(spell_storm_peaks_read_pronouncement);
     RegisterSpellScript(spell_storm_peaks_bear_flank_master);
     RegisterSpellScript(spell_storm_peaks_bear_flank_fail);

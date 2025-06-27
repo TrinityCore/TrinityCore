@@ -25,6 +25,7 @@ gets instead the deserter debuff.
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "diremaul.h"
@@ -68,26 +69,6 @@ enum Events
     EVENT_CRYSTAL_CREATURE_CHECK                = 2
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { 1, {{ 345 }} },
-    { 2, {{ 344 }} },
-    { 3, {{ 343 }} },
-    { 4, {{ 346 }} },
-    { 5, {{ 350 }} },
-    { 6, {{ 348 }} },
-    { 8, {{ 347 }} },
-    { 9, {{ 349 }} },
-    { 10, {{ 361 }} },
-    { 11, {{ 362 }} },
-    { 12, {{ 363 }} },
-    { 13, {{ 364 }} },
-    { 14, {{ 365 }} },
-    { 15, {{ 366 }} },
-    // { , {{ 367 }}}, Cho'Rush the Observer
-    { 16, {{ 368 }} }
-};
-
 class instance_dire_maul : public InstanceMapScript
 {
 public:
@@ -99,7 +80,6 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
-            LoadDungeonEncounterData(encounters);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -113,6 +93,9 @@ public:
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         creature->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                     break;
+                case NPC_TORTHELDRIN:
+                    _tortheldrinGUID = creature->GetGUID();
+                break;
                 default:
                     break;
             }
@@ -144,6 +127,9 @@ public:
                     if (GetBossState(DATA_FORCEFIELD) != DONE)
                         _events.ScheduleEvent(EVENT_CRYSTAL_CREATURE_STORE, 1s);
                     break;
+                case GO_PRINCE_CHEST:
+                    _princechestGUID = go->GetGUID();
+                    break;
                 default:
                     break;
             }
@@ -165,8 +151,12 @@ public:
                     return _crystalGUIDs[4];
                 case GO_FORCEFIELD:
                     return _forcefieldGUID;
+                case GO_PRINCE_CHEST:
+                    return _princechestGUID;
                 case NPC_IMMOLTHAR:
                     return _immoGUID;
+                case NPC_TORTHELDRIN:
+                    return _tortheldrinGUID;
                 default:
                     break;
             }
@@ -286,12 +276,29 @@ public:
             }
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetGUID() == _immoGUID)
+            {
+                if (Creature* tortheldrin = instance->GetCreature(_tortheldrinGUID))
+                    tortheldrin->SetFaction(FACTION_ENEMY);
+            }
+
+            if (unit->GetGUID() == _tortheldrinGUID)
+            {
+                if (GameObject* chest = instance->GetGameObject(_princechestGUID))
+                    chest->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+            }
+        }
+
 protected:
         EventMap _events;
         std::array<ObjectGuid, 5> _crystalGUIDs;
         std::array<std::array<ObjectGuid, 4>, 5> _crystalCreatureGUIDs; // 5 different Crystals, maximum of 4 Creatures
         ObjectGuid _forcefieldGUID;
+        ObjectGuid _princechestGUID;
         ObjectGuid _immoGUID;
+        ObjectGuid _tortheldrinGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

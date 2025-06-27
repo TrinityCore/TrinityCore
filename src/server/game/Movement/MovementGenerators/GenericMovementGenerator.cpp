@@ -20,13 +20,9 @@
 #include "CreatureAI.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
-#include "ObjectAccessor.h"
 #include "Unit.h"
 
-GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id,
-    uint32 arrivalSpellId /*= 0*/, ObjectGuid const& arrivalSpellTargetGuid /*= ObjectGuid::Empty*/)
-    : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0),
-    _arrivalSpellId(arrivalSpellId), _arrivalSpellTargetGuid(arrivalSpellTargetGuid)
+GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit& init)>&& initializer, MovementGeneratorType type, uint32 id) : _splineInit(std::move(initializer)), _type(type), _pointId(id), _duration(0)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -88,9 +84,6 @@ void GenericMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool movem
 
 void GenericMovementGenerator::MovementInform(Unit* owner)
 {
-    if (_arrivalSpellId)
-        owner->CastSpell(ObjectAccessor::GetUnit(*owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);
-
     if (Creature* creature = owner->ToCreature())
     {
         if (creature->AI())

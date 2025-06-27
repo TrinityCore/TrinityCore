@@ -18,15 +18,18 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
+#include "WorldPacket.h"
 
 enum Spells
 {
@@ -172,6 +175,7 @@ struct boss_xt002 : public BossAI
         events.SetPhase(PHASE_1);
         me->SetReactState(REACT_DEFENSIVE);
         Initialize();
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -189,7 +193,7 @@ struct boss_xt002 : public BossAI
         events.ScheduleEvent(EVENT_ENRAGE, 10min);
         events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, 60s, 0, PHASE_1);
         events.ScheduleEvent(EVENT_PHASE_CHECK, 1s, 0, PHASE_1);
-        instance->TriggerGameEvent(ACHIEV_MUST_DECONSTRUCT_FASTER);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
     }
 
     void DoAction(int32 action) override
@@ -247,6 +251,7 @@ struct boss_xt002 : public BossAI
             else
                 heart->DespawnOrUnsummon();
         }
+
     }
 
     void RescheduleEvents()
@@ -428,7 +433,7 @@ struct npc_xt002_heart : public NullCreatureAI
     }
 
 private:
-    InstanceScript* _instance;
+    InstanceScript * _instance;
 };
 
 struct npc_scrapbot : public ScriptedAI
@@ -485,7 +490,6 @@ struct npc_scrapbot : public ScriptedAI
 private:
     InstanceScript* _instance;
     TaskScheduler _scheduler;
-
 };
 
 struct npc_pummeller : public ScriptedAI
@@ -561,6 +565,12 @@ struct npc_boombot : public ScriptedAI
             me->DespawnOrUnsummon();
             return;
         }
+
+        // HACK/workaround:
+        // these values aren't confirmed - lack of data - and the values in DB are incorrect
+        // these values are needed for correct damage of Boom spell
+        me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
+        me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
 
         if (Creature* xt002 = _instance->GetCreature(DATA_XT002))
             xt002->AI()->JustSummoned(me);
@@ -678,9 +688,10 @@ class spell_xt002_searing_light_spawn_life_spark : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* xt002 = GetCaster())
-            if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                xt002->CastSpell(GetOwner(), SPELL_SUMMON_LIFE_SPARK, true);
+        if (Player* player = GetOwner()->ToPlayer())
+            if (Unit* xt002 = GetCaster())
+                if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
+                    xt002->CastSpell(player, SPELL_SUMMON_LIFE_SPARK, true);
     }
 
     void Register() override
@@ -701,9 +712,10 @@ class spell_xt002_gravity_bomb_aura : public AuraScript
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* xt002 = GetCaster())
-            if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
-                xt002->CastSpell(GetOwner(), SPELL_SUMMON_VOID_ZONE, true);
+        if (Player* player = GetOwner()->ToPlayer())
+            if (Unit* xt002 = GetCaster())
+                if (xt002->HasAura(aurEff->GetAmount()))   // Heartbreak aura indicating hard mode
+                    xt002->CastSpell(player, SPELL_SUMMON_VOID_ZONE, true);
     }
 
     void OnPeriodic(AuraEffect const* aurEff)
@@ -877,7 +889,7 @@ class spell_xt002_321_boombot_aura : public AuraScript
         return true;
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         if (InstanceScript* instance = eventInfo.GetActor()->GetInstanceScript())
             instance->DoCastSpellOnPlayers(SPELL_ACHIEVEMENT_CREDIT_NERF_SCRAPBOTS);
@@ -901,7 +913,7 @@ class spell_xt002_exposed_heart : public AuraScript
         return true;
     }
 
-    void OnProc(AuraEffect* /*aurEff*/, ProcEventInfo& eventInfo)
+    void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();

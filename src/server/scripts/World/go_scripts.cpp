@@ -30,16 +30,20 @@ go_bells
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "DB2Structure.h"
+#include "DBCStructure.h"
 #include "GameEventMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
 #include "Log.h"
 #include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
 
@@ -395,6 +399,23 @@ public:
 ## go_soulwell
 ######*/
 
+enum SoulWellData
+{
+    GO_SOUL_WELL_R1                     = 181621,
+    GO_SOUL_WELL_R2                     = 193169,
+
+    SPELL_IMPROVED_HEALTH_STONE_R1      = 18692,
+    SPELL_IMPROVED_HEALTH_STONE_R2      = 18693,
+
+    SPELL_CREATE_MASTER_HEALTH_STONE_R0 = 34130,
+    SPELL_CREATE_MASTER_HEALTH_STONE_R1 = 34149,
+    SPELL_CREATE_MASTER_HEALTH_STONE_R2 = 34150,
+
+    SPELL_CREATE_FEL_HEALTH_STONE_R0    = 58890,
+    SPELL_CREATE_FEL_HEALTH_STONE_R1    = 58896,
+    SPELL_CREATE_FEL_HEALTH_STONE_R2    = 58898,
+};
+
 class go_soulwell : public GameObjectScript
 {
     public:
@@ -404,15 +425,69 @@ class go_soulwell : public GameObjectScript
         {
             go_soulwellAI(GameObject* go) : GameObjectAI(go)
             {
+                _stoneSpell = 0;
+                _stoneId = 0;
+                switch (go->GetEntry())
+                {
+                    case GO_SOUL_WELL_R1:
+                        _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R0;
+                        if (Unit* owner = go->GetOwner())
+                        {
+                            if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
+                                _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R1;
+                            else if (owner->HasAura(SPELL_CREATE_MASTER_HEALTH_STONE_R2))
+                                _stoneSpell = SPELL_CREATE_MASTER_HEALTH_STONE_R2;
+                        }
+                        break;
+                    case GO_SOUL_WELL_R2:
+                        _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R0;
+                        if (Unit* owner = go->GetOwner())
+                        {
+                            if (owner->HasAura(SPELL_IMPROVED_HEALTH_STONE_R1))
+                                _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R1;
+                            else if (owner->HasAura(SPELL_CREATE_MASTER_HEALTH_STONE_R2))
+                                _stoneSpell = SPELL_CREATE_FEL_HEALTH_STONE_R2;
+                        }
+                        break;
+                }
+                if (_stoneSpell == 0) // Should never happen
+                    return;
+
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(_stoneSpell);
+                if (!spellInfo)
+                    return;
+
+                _stoneId = spellInfo->GetEffect(EFFECT_0).ItemType;
             }
 
             bool OnGossipHello(Player* player) override
             {
                 Unit* owner = me->GetOwner();
+                if (_stoneSpell == 0 || _stoneId == 0)
+                    return true;
+
                 if (!owner || owner->GetTypeId() != TYPEID_PLAYER || !player->IsInSameRaidWith(owner->ToPlayer()))
                     return true;
+
+                // Don't try to add a stone if we already have one.
+                if (player->HasItemCount(_stoneId))
+                {
+                    if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(_stoneSpell))
+                        Spell::SendCastResult(player, spell, 0, SPELL_FAILED_TOO_MANY_OF_ITEM);
+                    return true;
+                }
+
+                owner->CastSpell(player, _stoneSpell, true);
+                // Item has to actually be created to remove a charge on the well.
+                if (player->HasItemCount(_stoneId))
+                    me->AddUse();
+
                 return false;
             }
+
+        private:
+            uint32 _stoneSpell;
+            uint32 _stoneId;
         };
 
         GameObjectAI* GetAI(GameObject* go) const override
@@ -454,7 +529,7 @@ public:
             QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
             if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
             {
-                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 SendGossipMenuFor(player, GOSSIP_OUTHOUSE_VACANT, me->GetGUID());
             }
             else
@@ -518,7 +593,7 @@ class go_massive_seaforium_charge : public GameObjectScript
         }
 };
 
-/*########
+/*######
 #### go_veil_skith_cage
 #####*/
 
@@ -858,7 +933,7 @@ public:
                 {
                     case EVENT_MM_START_MUSIC:
                     {
-                        if (!IsHolidayActive(HOLIDAY_MIDSUMMER_FIRE_FESTIVAL))
+                        if (!IsHolidayActive(HOLIDAY_FIRE_FESTIVAL))
                             break;
 
                         std::vector<Player*> playersNearby;
@@ -922,7 +997,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_DFM_START_MUSIC:
-                        if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE))
+                        if (!IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_ELWYNN) && !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_THUNDER) && !IsHolidayActive(HOLIDAY_DARKMOON_FAIRE_SHATTRATH))
                             break;
                         me->PlayDirectMusic(MUSIC_DARKMOON_FAIRE_MUSIC);
                         _events.ScheduleEvent(EVENT_DFM_START_MUSIC, 5s);  // Every 5 second's SMSG_PLAY_MUSIC packet (PlayDirectMusic) is pushed to the client (sniffed value)

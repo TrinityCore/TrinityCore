@@ -19,19 +19,12 @@
 #include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_FALRIC, {{ 1992 }} },
-    { DATA_MARWYN, {{ 1993 }} },
-    { DATA_THE_LICH_KING_ESCAPE, {{ 1990 }} }
-};
+#include "WorldStatePackets.h"
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -96,7 +89,6 @@ class instance_halls_of_reflection : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                LoadDungeonEncounterData(encounters);
 
                 _teamInInstance           = 0;
                 _waveCount                = 0;
@@ -149,10 +141,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case NPC_FROSTSWORN_GENERAL:
                         FrostswornGeneralGUID = creature->GetGUID();
-                        if (GetBossState(DATA_MARWYN) != DONE)
-                            PhasingHandler::AddPhase(creature, 170, true);
-                        else
-                            PhasingHandler::RemovePhase(creature, 170, true);
+                        if (GetBossState(DATA_MARWYN) == DONE)
+                            creature->SetPhaseMask(1, true);
                         break;
                     case NPC_JAINA_ESCAPE:
                     case NPC_SYLVANAS_ESCAPE:
@@ -247,7 +237,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case GO_FROSTMOURNE:
                         FrostmourneGUID = go->GetGUID();
                         if (GetData(DATA_INTRO_EVENT) == DONE)
-                            go->SetLootState(GO_JUST_DEACTIVATED);
+                            go->SetPhaseMask(2, true);
                         break;
                     case GO_ENTRANCE_DOOR:
                         EntranceDoorGUID = go->GetGUID();
@@ -301,6 +291,12 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+            {
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVES_ENABLED, (_introState == DONE && GetBossState(DATA_MARWYN) != DONE) ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+            }
+
             bool SetBossState(uint32 type, EncounterState state) override
             {
                 if (!InstanceScript::SetBossState(type, state))
@@ -328,7 +324,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             HandleGameObject(ImpenetrableDoorGUID, true);
                             DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 0);
                             if (Creature* general = instance->GetCreature(FrostswornGeneralGUID))
-                                PhasingHandler::RemovePhase(general, 170, true);
+                                general->SetPhaseMask(1, true);
 
                             SpawnGunship();
                             SpawnEscapeEvent();
@@ -356,6 +352,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 }
                                 break;
                             case FAIL:
+                                DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+
                                 if (Creature* jainaOrSylvanas = instance->GetCreature(JainaOrSylvanasEscapeGUID))
                                     jainaOrSylvanas->DespawnOrUnsummon(10s);
 
@@ -381,7 +379,7 @@ class instance_halls_of_reflection : public InstanceMapScript
             void SpawnGunship()
             {
                 // don't spawn gunship twice
-                if (!GunshipGUID.IsEmpty())
+                if (GunshipGUID)
                     return;
 
                 if (!_teamInInstance)
@@ -392,7 +390,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             _teamInInstance = player->GetTeam();
                 }
 
-                if (Transport* gunship = sTransportMgr->CreateTransport(_teamInInstance == HORDE ? GO_ORGRIMS_HAMMER : GO_THE_SKYBREAKER, instance))
+                if (Transport* gunship = sTransportMgr->CreateTransport(_teamInInstance == HORDE ? GO_ORGRIMS_HAMMER : GO_THE_SKYBREAKER, 0, instance))
                     gunship->EnableMovement(GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE);
             }
 
@@ -443,7 +441,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         break;
                     case DATA_WAVE_COUNT:
                         if (_waveCount && data == NOT_STARTED)
-                            ProcessEvent(nullptr, EVENT_DO_WIPE, nullptr);
+                            ProcessEvent(nullptr, EVENT_DO_WIPE);
                         break;
                     case DATA_FROSTSWORN_GENERAL:
                         if (data == DONE)
@@ -465,6 +463,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                     default:
                         break;
                 }
+
+                SaveToDB();
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override
@@ -519,7 +519,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_NEXT_WAVE:
-                        ProcessEvent(nullptr, EVENT_ADD_WAVE, nullptr);
+                        ProcessEvent(nullptr, EVENT_ADD_WAVE);
                         break;
                     case EVENT_SPAWN_ESCAPE_EVENT:
                         SpawnEscapeEvent();
@@ -530,7 +530,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 }
             }
 
-            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId, WorldObject* /*invoker*/) override
+            void ProcessEvent(WorldObject* /*obj*/, uint32 eventId) override
             {
                 switch (eventId)
                 {
@@ -734,16 +734,31 @@ class instance_halls_of_reflection : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            void AfterDataLoad() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                if (GetBossState(DATA_FALRIC) == DONE)
-                {
-                    _introState = DONE;
-                    _quelDelarState = DONE;
-                }
+                data << _introState << ' ' << _frostswornGeneralState << ' ' << _quelDelarState;
+            }
 
-                if (GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
-                    _frostswornGeneralState = DONE;
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                uint32 temp = 0;
+                data >> temp;
+                if (temp == DONE)
+                    SetData(DATA_INTRO_EVENT, DONE);
+                else
+                    SetData(DATA_INTRO_EVENT, NOT_STARTED);
+
+                data >> temp;
+                if (temp == DONE)
+                    SetData(DATA_FROSTSWORN_GENERAL, DONE);
+                else
+                    SetData(DATA_FROSTSWORN_GENERAL, NOT_STARTED);
+
+                data >> temp;
+                if (temp == DONE)
+                    SetData(DATA_QUEL_DELAR_EVENT, DONE);
+                else
+                    SetData(DATA_QUEL_DELAR_EVENT, NOT_STARTED);
             }
 
         private:

@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
@@ -499,8 +500,7 @@ public:
                 {
                     summoned->CastSpell(summoned, SPELL_DOOMFIRE_SPAWN, false);
 
-                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                        .SetOriginalCaster(me->GetGUID()));
+                    summoned->CastSpell(summoned, SPELL_DOOMFIRE, me->GetGUID());
 
                     if (Unit* DoomfireSpirit = ObjectAccessor::GetUnit(*me, DoomfireSpiritGUID))
                     {

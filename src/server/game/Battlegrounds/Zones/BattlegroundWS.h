@@ -72,24 +72,17 @@ enum BG_WS_SpellId
 
 enum BG_WS_WorldStates
 {
-    BG_WS_FLAG_STATE_ALLIANCE           = 1545,
-    BG_WS_FLAG_STATE_HORDE              = 1546,
-    BG_WS_FLAG_STATE_NEUTRAL            = 1547,     // unused
-    BG_WS_HORDE_FLAG_COUNT_PICKED_UP    = 17712,    // brawl
-    BG_WS_ALLIANCE_FLAG_COUNT_PICKED_UP = 17713,    // brawl
-    BG_WS_FLAG_CAPTURES_ALLIANCE        = 1581,
-    BG_WS_FLAG_CAPTURES_HORDE           = 1582,
-    BG_WS_FLAG_CAPTURES_MAX             = 1601,
-    BG_WS_FLAG_CAPTURES_MAX_NEW         = 17303,
-    BG_WS_FLAG_CONTROL_HORDE            = 2338,
-    BG_WS_FLAG_CONTROL_ALLIANCE         = 2339,
-    BG_WS_STATE_TIMER                   = 4248,
-    BG_WS_STATE_TIMER_ACTIVE            = 4247
+    BG_WS_FLAG_UNK_ALLIANCE       = 1545,
+    BG_WS_FLAG_UNK_HORDE          = 1546,
+//    FLAG_UNK                      = 1547,
+    BG_WS_FLAG_CAPTURES_ALLIANCE  = 1581,
+    BG_WS_FLAG_CAPTURES_HORDE     = 1582,
+    BG_WS_FLAG_CAPTURES_MAX       = 1601,
+    BG_WS_FLAG_STATE_HORDE        = 2338,
+    BG_WS_FLAG_STATE_ALLIANCE     = 2339,
+    BG_WS_STATE_TIMER             = 4248,
+    BG_WS_STATE_TIMER_ACTIVE      = 4247
 };
-
-// save the day
-// alliance criteria: BG_WS_FLAG_STATE_HORDE == 1 && BG_WS_FLAG_STATE_NEUTRAL == 0 && WS(1664) > 0
-// horde criteria: BG_WS_FLAG_STATE_ALLIANCE == 1 && BG_WS_FLAG_STATE_NEUTRAL == 0 && WS(1664) > 0
 
 enum BG_WS_ObjectTypes
 {
@@ -134,10 +127,10 @@ enum BG_WS_ObjectEntry
 
 enum BG_WS_FlagState
 {
-    BG_WS_FLAG_STATE_ON_BASE      = 1,
+    BG_WS_FLAG_STATE_ON_BASE      = 0,
+    BG_WS_FLAG_STATE_WAIT_RESPAWN = 1,
     BG_WS_FLAG_STATE_ON_PLAYER    = 2,
-    BG_WS_FLAG_STATE_ON_GROUND    = 3,
-    BG_WS_FLAG_STATE_WAIT_RESPAWN = 4,
+    BG_WS_FLAG_STATE_ON_GROUND    = 3
 };
 
 enum BG_WS_Graveyards
@@ -146,12 +139,6 @@ enum BG_WS_Graveyards
     WS_GRAVEYARD_FLAGROOM_HORDE    = 770,
     WS_GRAVEYARD_MAIN_ALLIANCE     = 771,
     WS_GRAVEYARD_MAIN_HORDE        = 772
-};
-
-enum BG_WS_ExploitTeleportLocations
-{
-    WS_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3784,
-    WS_EXPLOIT_TELEPORT_LOCATION_HORDE = 3785
 };
 
 enum BG_WS_CreatureTypes
@@ -181,7 +168,7 @@ struct BattlegroundWGScore final : public BattlegroundScore
     friend class BattlegroundWS;
 
     protected:
-        BattlegroundWGScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), FlagCaptures(0), FlagReturns(0) { }
+        BattlegroundWGScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), FlagCaptures(0), FlagReturns(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -199,16 +186,10 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-            playerData.Stats.emplace_back(WS_OBJECTIVE_CAPTURE_FLAG, FlagCaptures);
-            playerData.Stats.emplace_back(WS_OBJECTIVE_RETURN_FLAG, FlagReturns);
-        }
-
-        uint32 GetAttr1() const final override { return FlagCaptures; }
-        uint32 GetAttr2() const final override { return FlagReturns; }
+        uint32 GetAttr1() const override { return FlagCaptures; }
+        uint32 GetAttr2() const override { return FlagReturns; }
 
         uint32 FlagCaptures;
         uint32 FlagReturns;
@@ -218,7 +199,7 @@ class BattlegroundWS : public Battleground
 {
     public:
         /* Construction */
-        BattlegroundWS(BattlegroundTemplate const* battlegroundTemplate);
+        BattlegroundWS();
         ~BattlegroundWS();
 
         /* inherited from BattlegroundClass */
@@ -248,13 +229,12 @@ class BattlegroundWS : public Battleground
         void HandleFlagRoomCapturePoint(int32 team);
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger) override;
         void HandleKillPlayer(Player* player, Player* killer) override;
         bool SetupBattleground() override;
         void Reset() override;
         void EndBattleground(uint32 winner) override;
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
-        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         void UpdateFlagState(uint32 team, uint32 value);
         void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
@@ -267,6 +247,7 @@ class BattlegroundWS : public Battleground
         }
 
         ObjectGuid GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)]; }
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         /* Scorekeeping */
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }
@@ -275,8 +256,8 @@ class BattlegroundWS : public Battleground
 
         uint32 GetPrematureWinner() override;
 
-    protected:
-        void PostUpdateImpl(uint32 diff) override;
+        /* Achievements*/
+        bool CheckAchievementCriteriaMeet(uint32 criteriaId, Player const* source, Unit const* target = nullptr, uint32 miscvalue1 = 0) override;
 
     private:
         ObjectGuid m_FlagKeepers[2];                            // 0 - alliance, 1 - horde
@@ -292,5 +273,8 @@ class BattlegroundWS : public Battleground
         int32 _flagSpellForceTimer;
         bool _bothFlagsKept;
         uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
+        uint8 _minutesElapsed;
+
+        void PostUpdateImpl(uint32 diff) override;
 };
 #endif

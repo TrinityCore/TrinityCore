@@ -26,64 +26,51 @@
 
 #pragma pack(push, 1)
 
-class wdt_MPHD
-{
-    union
-    {
+class wdt_MPHD{
+    union{
         uint32 fcc;
         char   fcc_txt[4];
     };
 public:
     uint32 size;
 
-    uint32 flags;
-    uint32 lgtFileDataID;
-    uint32 occFileDataID;
-    uint32 fogsFileDataID;
-    uint32 mpvFileDataID;
-    uint32 texFileDataID;
-    uint32 wdlFileDataID;
-    uint32 pd4FileDataID;
+    uint32 data1;
+    uint32 data2;
+    uint32 data3;
+    uint32 data4;
+    uint32 data5;
+    uint32 data6;
+    uint32 data7;
+    uint32 data8;
+    bool   prepareLoadedData();
 };
 
-class wdt_MAIN
-{
-    union
-    {
+class wdt_MAIN{
+    union{
         uint32 fcc;
         char   fcc_txt[4];
     };
 public:
     uint32 size;
 
-    struct adtData
-    {
-        uint32 flag;
+    struct adtData{
+        uint32 exist;
         uint32 data1;
     } adt_list[64][64];
+
+    bool   prepareLoadedData();
 };
 
-class wdt_MAID
-{
-    union
-    {
-        uint32 fcc;
-        char   fcc_txt[4];
-    };
+class WDT_file : public FileLoader{
 public:
-    uint32 size;
+    bool   prepareLoadedData();
 
-    struct
-    {
-        uint32 rootADT;         // FileDataID of mapname_xx_yy.adt
-        uint32 obj0ADT;         // FileDataID of mapname_xx_yy_obj0.adt
-        uint32 obj1ADT;         // FileDataID of mapname_xx_yy_obj1.adt
-        uint32 tex0ADT;         // FileDataID of mapname_xx_yy_tex0.adt
-        uint32 lodADT;          // FileDataID of mapname_xx_yy_lod.adt
-        uint32 mapTexture;      // FileDataID of mapname_xx_yy.blp
-        uint32 mapTextureN;     // FileDataID of mapname_xx_yy_n.blp
-        uint32 minimapTexture;  // FileDataID of mapxx_yy.blp
-    } adt_files[64][64];
+    WDT_file();
+    ~WDT_file();
+    void free();
+
+    wdt_MPHD *mphd;
+    wdt_MAIN *main;
 };
 
 #pragma pack(pop)

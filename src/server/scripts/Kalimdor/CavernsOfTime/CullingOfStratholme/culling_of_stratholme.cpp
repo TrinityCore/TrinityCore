@@ -17,8 +17,7 @@
 
 #include "culling_of_stratholme.h"
 #include "AreaBoundary.h"
-#include "EventMap.h"
-#include "DB2Structure.h"
+#include "DBCStructure.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "InstanceScript.h"
@@ -28,11 +27,11 @@
 #include "PassiveAI.h"
 #include "Player.h"
 #include "QuestDef.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "ScriptMgr.h"
 #include "SplineChainMovementGenerator.h"
-#include "StringFormat.h"
 #include "TemporarySummon.h"
 #include <unordered_map>
 
@@ -307,7 +306,7 @@ class npc_chromie_start : public CreatureScript
                 {
                     InitGossipMenuFor(player, GOSSIP_MENU_INITIAL);
                     if (player->CanBeGameMaster()) // GM instance state override menu
-                        AddGossipItemFor(player, GossipOptionNpc::None, "[GM] Access instance control panel", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_OPEN_GM_MENU));
+                        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "[GM] Access instance control panel", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_OPEN_GM_MENU));
 
                     uint32 state = instance->GetData(DATA_INSTANCE_PROGRESS);
                     if (state < PURGE_STARTING)
@@ -322,7 +321,7 @@ class npc_chromie_start : public CreatureScript
                                 {
                                     if (player->IsGameMaster())
                                         continue;
-                                    if (!player->HasAchieved(instance->instance->IsHeroic() ? ACHIEVEMENT_HEROIC : ACHIEVEMENT_NORMAL))
+                                    if (!player->HasAchieved(instance->instance->GetSpawnMode() == DUNGEON_DIFFICULTY_HEROIC ? ACHIEVEMENT_HEROIC : ACHIEVEMENT_NORMAL))
                                     {
                                         shouldAddSkipGossip = false;
                                         break;
@@ -380,16 +379,16 @@ class npc_chromie_start : public CreatureScript
                             me->CastSpell(player, SPELL_SUMMON_ARCANE_DISRUPTOR);
                         break;
                     case GOSSIP_OFFSET_OPEN_GM_MENU:
-                        AddGossipItemFor(player, GossipOptionNpc::None, "Teleport all players to Arthas", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL));
+                        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "Teleport all players to Arthas", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL));
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) == state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Set instance progress to 0x{:05X}", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
+                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Trinity::StringFormat("Set instance progress to 0x{:05X}", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         for (uint32 state = 1; state <= COMPLETE; state = state << 1)
                         {
                             if (GetStableStateFor(COSProgressStates(state)) != state)
-                                AddGossipItemFor(player, GossipOptionNpc::None, Trinity::StringFormat("Force state to 0x{:05X} (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
+                                AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, Trinity::StringFormat("Force state to 0x{:05X} (UNSTABLE)", state), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + AsUnderlyingType(GOSSIP_OFFSET_GM_INITIAL) + state);
                         }
                         SendGossipMenuFor(player, GOSSIP_TEXT_SKIP_1, me->GetGUID());
                         break;

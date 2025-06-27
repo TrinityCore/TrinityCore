@@ -181,7 +181,7 @@ public:
         void Reset() override
         {
             _events.Reset();
-            me->SetDisplayFromModel(1);
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
@@ -201,9 +201,11 @@ public:
 
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
+                Group* group = me->GetLootRecipientGroup();
+
                 if (killer->GetGUID() == legoso->GetGUID() ||
-                    (killer->IsPlayer() && me->isTappedBy(killer->ToPlayer())) ||
-                    killer->GetGUID() == legoso->AI()->GetGUID(DATA_EVENT_STARTER_GUID))
+                    (group && group->IsMember(killer->GetGUID())) ||
+                    killer->GetGUID().GetCounter() == legoso->AI()->GetData(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
         }
@@ -247,10 +249,13 @@ public:
                 {
                     DoCast(me, SPELL_SIRONAS_CHANNELING);
                     std::list<Creature*> BeamList;
+                    _beamGuidList.clear();
                     me->GetCreatureListWithEntryInGrid(BeamList, NPC_BLOODMYST_TESLA_COIL, SIZE_OF_GRIDS);
-                    if (!BeamList.empty())
-                        for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
-                            (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
+                    for (std::list<Creature*>::iterator itr = BeamList.begin(); itr != BeamList.end(); ++itr)
+                    {
+                        _beamGuidList.push_back((*itr)->GetGUID());
+                        (*itr)->CastSpell(*itr, SPELL_BLOODMYST_TESLA);
+                    }
                     break;
                 }
                 case ACTION_SIRONAS_CHANNEL_STOP:
@@ -271,6 +276,7 @@ public:
         }
 
     private:
+        GuidList _beamGuidList;
         EventMap _events;
     };
 
@@ -296,45 +302,50 @@ public:
             Initialize();
         }
 
-        void Initialize()
-        {
-            _phase = PHASE_NONE;
-            _moveTimer = 0;
-        }
-
         void OnQuestAccept(Player* player, Quest const* quest) override
         {
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
-                SetGUID(player->GetGUID(), DATA_EVENT_STARTER_GUID);
+                SetData(DATA_EVENT_STARTER_GUID, player->GetGUID().GetCounter());
                 Start(true, true, player->GetGUID(), quest);
             }
         }
 
-        ObjectGuid GetGUID(int32 type) const override
+        uint32 GetData(uint32 id) const override
         {
-            if (type == DATA_EVENT_STARTER_GUID)
-                return _eventStarterGuid;
-
-            return ObjectGuid::Empty;
-        }
-
-        void SetGUID(ObjectGuid const& guid, int32 type) override
-        {
-            switch (type)
+            switch (id)
             {
                 case DATA_EVENT_STARTER_GUID:
-                    _eventStarterGuid = guid;
+                    return _eventStarterGuidLow;
+                default:
+                    return 0;
+            }
+        }
+
+        void SetData(uint32 data, uint32 value) override
+        {
+            switch (data)
+            {
+                case DATA_EVENT_STARTER_GUID:
+                    _eventStarterGuidLow = value;
                     break;
                 default:
                     break;
             }
         }
 
+        void Initialize()
+        {
+            _phase = PHASE_NONE;
+            _moveTimer = 0;
+            _eventStarterGuidLow = 0;
+        }
+
         void Reset() override
         {
-            me->SetCanDualWield(true);
             Initialize();
+            me->SetCanDualWield(true);
+
             _events.Reset();
             _events.ScheduleEvent(EVENT_FROST_SHOCK, 1s);
             _events.ScheduleEvent(EVENT_HEALING_SURGE, 5s);
@@ -430,7 +441,8 @@ public:
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
-                            Talk(SAY_LEGOSO_4);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_4, player);
                             _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
@@ -438,7 +450,7 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[0][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_1, ExplosivesPos[0][i], QuaternionData(), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
                             me->HandleEmoteCommand(EMOTE_ONESHOT_NONE); // reset anim state
@@ -495,7 +507,8 @@ public:
                             _phase = PHASE_FEEL_SIRONAS_2;
                             break;
                         case PHASE_FEEL_SIRONAS_2: // legoso exclamation before sironas 1.2
-                            Talk(SAY_LEGOSO_11);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_11, player);
                             _moveTimer = 4 * IN_MILLISECONDS;
                             _phase = PHASE_CONTINUE;
                             break;
@@ -534,10 +547,11 @@ public:
                             _explosivesGuids.clear();
                             for (uint8 i = 0; i != MAX_EXPLOSIVES; ++i)
                             {
-                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData::fromEulerAnglesZYX(ExplosivesPos[1][i].GetOrientation(), 0.0f, 0.0f), 0s))
+                                if (GameObject* explosive = me->SummonGameObject(GO_DRAENEI_EXPLOSIVES_2, ExplosivesPos[1][i], QuaternionData(), 0s))
                                     _explosivesGuids.push_back(explosive->GetGUID());
                             }
-                            Talk(SAY_LEGOSO_15);
+                            if (Player* player = GetPlayerForEscort())
+                                Talk(SAY_LEGOSO_15, player);
                             _moveTimer = 1 * IN_MILLISECONDS;
                             _phase = PHASE_PLANT_SECOND_WAIT;
                             break;
@@ -650,7 +664,7 @@ public:
                 case WP_START:
                     SetEscortPaused(true);
                     me->SetFacingToObject(player);
-                    Talk(SAY_LEGOSO_1);
+                    Talk(SAY_LEGOSO_1, player);
                     _moveTimer = 2.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_CONTINUE;
                     break;
@@ -733,7 +747,7 @@ public:
     private:
         int8 _phase;
         uint32 _moveTimer;
-        ObjectGuid _eventStarterGuid;
+        ObjectGuid::LowType _eventStarterGuidLow;
         GuidList _explosivesGuids;
         EventMap _events;
     };

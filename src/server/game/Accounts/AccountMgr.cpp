@@ -42,7 +42,7 @@ AccountMgr* AccountMgr::instance()
     return &instance;
 }
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/, uint32 bnetAccountId /*= 0*/, uint8 bnetIndex /*= 0*/)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password, std::string email /*= ""*/)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AccountOpResult::AOR_NAME_TOO_LONG;                           // username's too long
@@ -60,22 +60,11 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
-    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
-    stmt->setBinary(1, registrationData.first);
-    stmt->setBinary(2, registrationData.second);
+    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(username, password);
+    stmt->setBinary(1, salt);
+    stmt->setBinary(2, verifier);
     stmt->setString(3, email);
     stmt->setString(4, email);
-
-    if (bnetAccountId && bnetIndex)
-    {
-        stmt->setUInt32(5, bnetAccountId);
-        stmt->setUInt8(6, bnetIndex);
-    }
-    else
-    {
-        stmt->setNull(5);
-        stmt->setNull(6);
-    }
 
     LoginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
@@ -106,7 +95,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     {
         do
         {
-            ObjectGuid guid = ObjectGuid::Create<HighGuid::Player>((*result)[0].GetUInt64());
+            ObjectGuid guid(HighGuid::Player, (*result)[0].GetUInt32());
 
             // Kick if player is online
             if (Player* p = ObjectAccessor::FindConnectedPlayer(guid))
@@ -130,6 +119,10 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     CharacterDatabase.Execute(stmt);
 
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHARACTER_BAN);
+    stmt->setUInt32(0, accountId);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES);
     stmt->setUInt32(0, accountId);
     CharacterDatabase.Execute(stmt);
 
@@ -184,10 +177,10 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     stmt->setUInt32(1, accountId);
     LoginDatabase.Execute(stmt);
 
-    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
+    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(newUsername, newPassword);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, registrationData.first);
-    stmt->setBinary(1, registrationData.second);
+    stmt->setBinary(0, salt);
+    stmt->setBinary(1, verifier);
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
@@ -212,12 +205,12 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     Utf8ToUpperOnlyLatin(username);
     Utf8ToUpperOnlyLatin(newPassword);
-    std::pair<Trinity::Crypto::SRP6::Salt, Trinity::Crypto::SRP6::Verifier> registrationData = Trinity::Crypto::SRP6::MakeRegistrationData(username, newPassword);
+    auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData(username, newPassword);
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
-    stmt->setBinary(0, registrationData.first);
-    stmt->setBinary(1, registrationData.second);
-    stmt->setUInt32(2, accountId);
+    stmt->setBinary(0, salt);
+    stmt->setBinary(1, verifier);
+    stmt->setUInt32(2, accountId);;
     LoginDatabase.Execute(stmt);
 
     sScriptMgr->OnPasswordChange(accountId);

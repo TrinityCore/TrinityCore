@@ -26,20 +26,13 @@ EndScriptData */
 #include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "trial_of_the_champion.h"
 
 constexpr uint32 ToCEncounterCount = 4;
-
-DungeonEncounterData const encounters[] =
-{
-    { BOSS_GRAND_CHAMPIONS, {{ 2022 }} },
-    { BOSS_ARGENT_CHALLENGE_E, {{ 2023 }} },
-    { BOSS_ARGENT_CHALLENGE_P, {{ 2023 }} },
-    { BOSS_BLACK_KNIGHT, {{ 2021 }} }
-};
 
 class instance_trial_of_the_champion : public InstanceMapScript
 {
@@ -53,12 +46,12 @@ public:
 
     struct instance_trial_of_the_champion_InstanceMapScript : public InstanceScript
     {
-        instance_trial_of_the_champion_InstanceMapScript(InstanceMap* map) : InstanceScript(map),
-            uiMovementDone(*this, "uiMovementDone"), uiGrandChampionsDeaths(*this, "uiGrandChampionsDeaths")
+        instance_trial_of_the_champion_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
             SetBossNumber(ToCEncounterCount);
-            LoadDungeonEncounterData(encounters);
+            uiMovementDone = 0;
+            uiGrandChampionsDeaths = 0;
             uiArgentSoldierDeaths = 0;
             teamInInstance = 0;
 
@@ -66,8 +59,8 @@ public:
         }
 
         uint32 teamInInstance;
-        PersistentInstanceScriptValue<uint16> uiMovementDone;
-        PersistentInstanceScriptValue<uint16> uiGrandChampionsDeaths;
+        uint16 uiMovementDone;
+        uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
         ObjectGuid uiAnnouncerGUID;
@@ -172,14 +165,14 @@ public:
                     }
                     else if (state == DONE)
                     {
-                        uiGrandChampionsDeaths = uiGrandChampionsDeaths + 1;
+                        ++uiGrandChampionsDeaths;
                         if (uiGrandChampionsDeaths == 3)
                         {
                             if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                             {
                                 pAnnouncer->GetMotionMaster()->MovePoint(0, 748.309f, 619.487f, 411.171f);
                                 pAnnouncer->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                                pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData::fromEulerAnglesZYX(1.42f, 0.0f, 0.0f), 25h);
+                                pAnnouncer->SummonGameObject(instance->IsHeroic() ? GO_CHAMPIONS_LOOT_H : GO_CHAMPIONS_LOOT, 746.59f, 618.49f, 411.09f, 1.42f, QuaternionData(), 25h);
                             }
                         }
                     }
@@ -234,10 +227,10 @@ public:
                         }
                     }
                     break;
-                case BOSS_BLACK_KNIGHT:
-                    SetBossState(BOSS_BLACK_KNIGHT, EncounterState(uiData));
-                    break;
             }
+
+            if (uiData == DONE)
+                SaveToDB();
         }
 
         uint32 GetData(uint32 uiData) const override
@@ -280,6 +273,16 @@ public:
                     uiGrandChampion3GUID = uiData;
                     break;
             }
+        }
+
+        void WriteSaveDataMore(std::ostringstream& stream) override
+        {
+            stream << uiGrandChampionsDeaths << ' ' << uiMovementDone;
+        }
+
+        void ReadSaveDataMore(std::istringstream& stream) override
+        {
+            stream >> uiGrandChampionsDeaths >> uiMovementDone;
         }
     };
 };

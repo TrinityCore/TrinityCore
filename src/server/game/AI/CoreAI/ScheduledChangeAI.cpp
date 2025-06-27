@@ -17,6 +17,5 @@
 
 #include "ScheduledChangeAI.h"
 
-ScheduledChangeAI::ScheduledChangeAI(Creature* creature, uint32 scriptId /*= {}*/): CreatureAI(creature, scriptId)
-{
-}
+ScheduledChangeAI::ScheduledChangeAI(Creature* creature): CreatureAI(creature)
+{ }

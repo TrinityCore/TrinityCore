@@ -26,9 +26,10 @@ EndScriptData */
 #include "halls_of_lightning.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Texts
+enum LokenTexts
 {
     SAY_INTRO_1                                   = 0,
     SAY_INTRO_2                                   = 1,
@@ -42,17 +43,16 @@ enum Texts
     EMOTE_NOVA                                    = 9
 };
 
-enum Spells
+enum LokenSpells
 {
     SPELL_ARC_LIGHTNING                           = 52921,
     SPELL_LIGHTNING_NOVA                          = 52960,
 
+    SPELL_PULSING_SHOCKWAVE                       = 52961,
     SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
 };
 
-#define SPELL_PULSING_SHOCKWAVE DUNGEON_MODE<uint32>(52961,59836)
-
-enum Events
+enum LokenEvents
 {
     EVENT_ARC_LIGHTNING = 1,
     EVENT_LIGHTNING_NOVA,
@@ -60,14 +60,14 @@ enum Events
     EVENT_INTRO_DIALOGUE
 };
 
-enum Phases
+enum LokenPhases
 {
     // Phases are used to allow executing the intro event while UpdateVictim() returns false and convenience.
     PHASE_INTRO = 1,
     PHASE_NORMAL
 };
 
-enum Misc
+enum LokenMisc
 {
     ACHIEV_TIMELY_DEATH_START_EVENT               = 20384
 };
@@ -78,7 +78,7 @@ enum Misc
 
 struct boss_loken : public BossAI
 {
-    boss_loken(Creature* creature) : BossAI(creature, DATA_LOKEN)
+    boss_loken(Creature* creature) : BossAI(creature, BOSS_LOKEN)
     {
         Initialize();
         _isIntroDone = false;
@@ -93,6 +93,7 @@ struct boss_loken : public BossAI
     {
         Initialize();
         _Reset();
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -103,7 +104,7 @@ struct boss_loken : public BossAI
         events.ScheduleEvent(EVENT_ARC_LIGHTNING, 15s);
         events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s);
         events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, 1s);
-        instance->TriggerGameEvent(ACHIEV_TIMELY_DEATH_START_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -150,7 +151,7 @@ struct boss_loken : public BossAI
                     Talk(SAY_NOVA);
                     Talk(EMOTE_NOVA);
                     DoCastAOE(SPELL_LIGHTNING_NOVA);
-                    me->RemoveAurasDueToSpell(SPELL_PULSING_SHOCKWAVE);
+                    me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_PULSING_SHOCKWAVE, me));
                     events.ScheduleEvent(EVENT_RESUME_PULSING_SHOCKWAVE, DUNGEON_MODE(5s, 4s)); // Pause Pulsing Shockwave aura
                     events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 20s, 21s);
                     break;

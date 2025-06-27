@@ -16,11 +16,9 @@
  */
 
 #include "SmartAI.h"
-#include "AreaTrigger.h"
-#include "ConditionMgr.h"
 #include "Creature.h"
 #include "CreatureGroups.h"
-#include "DB2Structure.h"
+#include "DBCStructure.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "Log.h"
@@ -31,9 +29,9 @@
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 
-SmartAI::SmartAI(Creature* creature, uint32 scriptId) : CreatureAI(creature, scriptId), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
+SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
     _escortState(SMART_ESCORT_NONE), _escortNPCFlags(0), _escortInvokerCheckTimer(1000), _currentWaypointNode(0), _waypointReached(false), _waypointPauseTimer(0), _waypointPauseForced(false), _repeatWaypointPath(false),
-    _OOCReached(false), _waypointPathEnded(false), _run(true), _evadeDisabled(false), _canCombatMove(true), _invincibilityHPLevel(0), _despawnTime(0), _despawnState(0), _vehicleConditionsTimer(0),
+    _OOCReached(false), _waypointPathEnded(false), _run(true), _evadeDisabled(false), _canAutoAttack(true), _canCombatMove(true), _invincibilityHPLevel(0), _despawnTime(0), _despawnState(0), _vehicleConditionsTimer(0),
     _gossipReturn(false), _escortQuestId(0)
 {
     _vehicleConditions = sConditionMgr->HasConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, creature->GetEntry());
@@ -309,7 +307,8 @@ void SmartAI::UpdateAI(uint32 diff)
     if (!hasVictim)
         return;
 
-    DoMeleeAttackIfReady();
+    if (_canAutoAttack)
+        DoMeleeAttackIfReady();
 }
 
 bool SmartAI::IsEscortInvokerInRange()
@@ -437,7 +436,7 @@ void SmartAI::EnterEvadeMode(EvadeReason /*why*/)
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
     }
-    else if (Unit* target = !_followGUID.IsEmpty() ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
+    else if (Unit* target = _followGUID ? ObjectAccessor::GetUnit(*me, _followGUID) : nullptr)
     {
         me->GetMotionMaster()->MoveFollow(target, _followDistance, _followAngle);
         // evade is not cleared in MoveFollow, so we can't keep it
@@ -593,11 +592,11 @@ void SmartAI::AttackStart(Unit* who)
     if (!IsAIControlled())
     {
         if (who)
-            me->Attack(who, true);
+            me->Attack(who, _canAutoAttack);
         return;
     }
 
-    if (who && me->Attack(who, true))
+    if (who && me->Attack(who, _canAutoAttack))
     {
         me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
         me->PauseMovement();
@@ -707,7 +706,7 @@ void SmartAI::OnCharmed(bool isNew)
         else
             me->SetWalk(!_run);
 
-        if (!me->LastCharmerGUID.IsEmpty())
+        if (me->LastCharmerGUID)
         {
             if (!me->HasReactState(REACT_PASSIVE))
                 if (Unit* lastCharmer = ObjectAccessor::GetUnit(*me, me->LastCharmerGUID))
@@ -715,7 +714,7 @@ void SmartAI::OnCharmed(bool isNew)
             me->LastCharmerGUID.Clear();
 
             if (!me->IsInCombat())
-                EnterEvadeMode(EvadeReason::NoHostiles);
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
         }
     }
 
@@ -789,7 +788,7 @@ void SmartAI::OnQuestAccept(Player* player, Quest const* quest)
     GetScript()->ProcessEventsFor(SMART_EVENT_ACCEPTED_QUEST, player, quest->GetQuestId());
 }
 
-void SmartAI::OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 opt)
+void SmartAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
 }
@@ -877,9 +876,9 @@ void SmartAI::StopFollow(bool complete)
     GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED, player);
 }
 
-void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker, uint32 startFromEventId)
+void SmartAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
 {
-    GetScript()->SetTimedActionList(e, entry, invoker, startFromEventId);
+    GetScript()->SetTimedActionList(e, entry, invoker);
 }
 
 void SmartAI::OnGameEvent(bool start, uint16 eventId)
@@ -978,7 +977,7 @@ void SmartAI::UpdatePath(uint32 diff)
 
 void SmartAI::UpdateFollow(uint32 diff)
 {
-    if (!_followGUID.IsEmpty())
+    if (_followGUID)
     {
         if (_followArrivedTimer < diff)
         {
@@ -1063,7 +1062,7 @@ void SmartGameObjectAI::OnQuestAccept(Player* player, Quest const* quest)
 }
 
 // Called when a player selects a quest reward.
-void SmartGameObjectAI::OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 opt)
+void SmartGameObjectAI::OnQuestReward(Player* player, Quest const* quest, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt, false, nullptr, me);
 }
@@ -1145,120 +1144,7 @@ class SmartTrigger : public AreaTriggerScript
         }
 };
 
-void SmartAreaTriggerAI::OnInitialize()
-{
-    GetScript()->OnInitialize(at);
-}
-
-void SmartAreaTriggerAI::OnUpdate(uint32 diff)
-{
-    GetScript()->OnUpdate(diff);
-}
-
-void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
-{
-    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, unit);
-}
-
-void SmartAreaTriggerAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)
-{
-    GetScript()->SetTimedActionList(e, entry, invoker);
-}
-
-class SmartAreaTriggerEntityScript : public AreaTriggerEntityScript
-{
-public:
-    SmartAreaTriggerEntityScript() : AreaTriggerEntityScript("SmartAreaTriggerAI")
-    {
-    }
-
-    AreaTriggerAI* GetAI(AreaTrigger* areaTrigger) const override
-    {
-        return new SmartAreaTriggerAI(areaTrigger);
-    }
-};
-
-class SmartScene : public SceneScript
-{
-public:
-    SmartScene() : SceneScript("SmartScene") { }
-
-    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
-    {
-        SmartScript smartScript;
-        smartScript.OnInitialize(player, nullptr, sceneTemplate);
-        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_START, player);
-    }
-
-    void OnSceneTriggerEvent(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate, std::string const& triggerName) override
-    {
-        SmartScript smartScript;
-        smartScript.OnInitialize(player, nullptr, sceneTemplate);
-        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_TRIGGER, player, 0, 0, false, nullptr, nullptr, triggerName);
-    }
-
-    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
-    {
-        SmartScript smartScript;
-        smartScript.OnInitialize(player, nullptr, sceneTemplate);
-        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_CANCEL, player);
-    }
-
-    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* sceneTemplate) override
-    {
-        SmartScript smartScript;
-        smartScript.OnInitialize(player, nullptr, sceneTemplate);
-        smartScript.ProcessEventsFor(SMART_EVENT_SCENE_COMPLETE, player);
-    }
-};
-
-class SmartQuest : public QuestScript
-{
-public:
-    SmartQuest() : QuestScript("SmartQuest") { }
-
-    // Called when a quest status change
-    void OnQuestStatusChange(Player* player, Quest const* quest, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-    {
-        SmartScript smartScript;
-        smartScript.OnInitialize(player, nullptr, nullptr, quest);
-        switch (newStatus)
-        {
-            case QUEST_STATUS_INCOMPLETE:
-                smartScript.ProcessEventsFor(SMART_EVENT_QUEST_ACCEPTED, player);
-                break;
-            case QUEST_STATUS_COMPLETE:
-                smartScript.ProcessEventsFor(SMART_EVENT_QUEST_COMPLETION, player);
-                break;
-            case QUEST_STATUS_FAILED:
-                smartScript.ProcessEventsFor(SMART_EVENT_QUEST_FAIL, player);
-                break;
-            case QUEST_STATUS_REWARDED:
-                smartScript.ProcessEventsFor(SMART_EVENT_QUEST_REWARDED, player);
-                break;
-            case QUEST_STATUS_NONE:
-            default:
-                break;
-        }
-    }
-
-    // Called when a quest objective data change
-    void OnQuestObjectiveChange(Player* player, Quest const* quest, QuestObjective const& objective, int32 /*oldAmount*/, int32 /*newAmount*/) override
-    {
-        uint16 slot = player->FindQuestSlot(quest->GetQuestId());
-        if (slot < MAX_QUEST_LOG_SIZE && player->IsQuestObjectiveComplete(slot, quest, objective))
-        {
-            SmartScript smartScript;
-            smartScript.OnInitialize(player, nullptr, nullptr, quest);
-            smartScript.ProcessEventsFor(SMART_EVENT_QUEST_OBJ_COMPLETION, player, objective.ID);
-        }
-    }
-};
-
 void AddSC_SmartScripts()
 {
     new SmartTrigger();
-    new SmartAreaTriggerEntityScript();
-    new SmartScene();
-    new SmartQuest();
 }

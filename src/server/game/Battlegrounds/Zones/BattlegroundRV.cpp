@@ -20,8 +20,10 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
-BattlegroundRV::BattlegroundRV(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
+BattlegroundRV::BattlegroundRV()
 {
     BgObjects.resize(BG_RV_OBJECT_MAX);
 
@@ -80,7 +82,7 @@ void BattlegroundRV::StartingEventOpenDoors()
     TogglePillarCollision();
 }
 
-void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
+void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -94,9 +96,16 @@ void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 5474:
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+}
+
+void BattlegroundRV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    packet.Worldstates.emplace_back(BG_RV_WORLD_STATE, 1);
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundRV::SetupBattleground()

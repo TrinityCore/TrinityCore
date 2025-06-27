@@ -320,8 +320,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                             creature->GetEntry() == NPC_MORLEN_GOLDGRIP)
                             continue;
 
-                        creature->SetImmuneToPC(false);
-                        creature->SetImmuneToNPC(false);
+                        creature->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                             creature->AI()->AttackStart(thalorien);
                     }
@@ -335,8 +334,7 @@ struct npc_thalorien_dawnseeker : public ScriptedAI
                 case EVENT_MORLEN_ATTACK:
                     if (Creature* morlen = ObjectAccessor::GetCreature(*me, _morlenGUID))
                     {
-                        morlen->SetImmuneToPC(false);
-                        morlen->SetImmuneToNPC(false);
+                        morlen->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                         if (Creature* thalorien = ObjectAccessor::GetCreature(*me, _thalorienGUID))
                             morlen->AI()->AttackStart(thalorien);
                     }

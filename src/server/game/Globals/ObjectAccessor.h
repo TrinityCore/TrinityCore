@@ -22,8 +22,6 @@
 #include <shared_mutex>
 #include <unordered_map>
 
-class AreaTrigger;
-class Conversation;
 class Corpse;
 class Creature;
 class DynamicObject;
@@ -32,7 +30,6 @@ class Map;
 class Object;
 class Pet;
 class Player;
-class SceneObject;
 class Transport;
 class Unit;
 class WorldObject;
@@ -67,9 +64,6 @@ namespace ObjectAccessor
     TC_GAME_API GameObject* GetGameObject(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Transport* GetTransport(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API DynamicObject* GetDynamicObject(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API AreaTrigger* GetAreaTrigger(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API SceneObject* GetSceneObject(WorldObject const& u, ObjectGuid const& guid);
-    TC_GAME_API Conversation* GetConversation(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Unit* GetUnit(WorldObject const&, ObjectGuid const& guid);
     TC_GAME_API Creature* GetCreature(WorldObject const& u, ObjectGuid const& guid);
     TC_GAME_API Pet* GetPet(WorldObject const&, ObjectGuid const& guid);

@@ -17,105 +17,94 @@
 
 #include "WorldSession.h"
 #include "Common.h"
-#include "DB2Stores.h"
-#include "GossipDef.h"
+#include "DBCStores.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
-#include "SpellPackets.h"
 #include "TalentPackets.h"
+#include "WorldPacket.h"
 
-void WorldSession::HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
-    WorldPackets::Talent::LearnTalentFailed learnTalentFailed;
-    bool anythingLearned = false;
-    for (uint32 talentId : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnTalent(talentId, &learnTalentFailed.SpellID))
-        {
-            if (!learnTalentFailed.Reason)
-                learnTalentFailed.Reason = result;
+    uint32 talentId, requestedRank;
+    recvData >> talentId >> requestedRank;
 
-            learnTalentFailed.Talents.push_back(talentId);
-        }
-        else
-            anythingLearned = true;
-    }
-
-    if (learnTalentFailed.Reason)
-        SendPacket(learnTalentFailed.Write());
-
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
+    if (_player->LearnTalent(talentId, requestedRank))
+        _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet)
+void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
-    WorldPackets::Talent::LearnPvpTalentFailed learnPvpTalentFailed;
-    bool anythingLearned = false;
-    for (WorldPackets::Talent::PvPTalent pvpTalent : packet.Talents)
-    {
-        if (TalentLearnResult result = _player->LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, &learnPvpTalentFailed.SpellID))
-        {
-            if (!learnPvpTalentFailed.Reason)
-                learnPvpTalentFailed.Reason = result;
+    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
 
-            learnPvpTalentFailed.Talents.push_back(pvpTalent);
+    uint32 talentsCount;
+    recvPacket >> talentsCount;
+
+    uint32 talentId, talentRank;
+
+    // Client has max 44 talents for tree for 3 trees, rounded up : 150
+    uint32 const MaxTalentsCount = 150;
+
+    for (uint32 i = 0; i < talentsCount && i < MaxTalentsCount; ++i)
+    {
+        recvPacket >> talentId >> talentRank;
+
+        if (!_player->LearnTalent(talentId, talentRank))
+        {
+            recvPacket.rfinish();
+            break;
         }
-        else
-            anythingLearned = true;
     }
 
-    if (learnPvpTalentFailed.Reason)
-        SendPacket(learnPvpTalentFailed.Write());
+    _player->SendTalentsInfoData(false);
 
-    if (anythingLearned)
-        _player->SendTalentsInfoData();
+    recvPacket.rfinish();
 }
 
-void WorldSession::HandleConfirmRespecWipeOpcode(WorldPackets::Talent::ConfirmRespecWipe& confirmRespecWipe)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPackets::Talents::ConfirmRespecWipe& confirmRespecWipe)
 {
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, UNIT_NPC_FLAG_TRAINER, UNIT_NPC_FLAG_2_NONE);
-    if (!unit)
+    TC_LOG_DEBUG("network", "MSG_TALENT_WIPE_CONFIRM");
+
+    Creature* trainer = GetPlayer()->GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, UNIT_NPC_FLAG_TRAINER);
+    if (!trainer)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleConfirmRespecWipeOpcode - {} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
+        TC_LOG_DEBUG("network", "WORLD: HandleTalentWipeConfirmOpcode - {} not found or you can't interact with him.", confirmRespecWipe.RespecMaster);
         return;
     }
 
-    if (confirmRespecWipe.RespecType != SPEC_RESET_TALENTS)
-    {
-        TC_LOG_DEBUG("network", "WORLD: HandleConfirmRespecWipeOpcode - reset type {} is not implemented.", confirmRespecWipe.RespecType);
+    if (!trainer->CanResetTalents(_player, false))
         return;
-    }
 
-    if (!unit->CanResetTalents(_player))
-        return;
+    uint32 cost = _player->ResetTalentsCost();
+    if (!_player->HasEnoughMoney(cost))
+        return; // // silently return, client should display the error by itself
 
     // remove fake death
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     if (!_player->ResetTalents())
+    {
+        _player->SendTalentWipeConfirm(ObjectGuid::Empty);
         return;
+    }
 
-    _player->SendTalentsInfoData();
-    unit->CastSpell(_player, 14867, true);                  //spell: "Untalent Visual Effect"
+    _player->ModifyMoney(-(int32)cost);
+    _player->IncreaseResetTalentsCostAndCounters(cost);
+    _player->SendTalentsInfoData(false);
+
+    trainer->CastSpell(_player, 14867 /*SPELL_UNTALENT_VISUAL_EFFECT*/, true);
 }
 
-void WorldSession::HandleUnlearnSkillOpcode(WorldPackets::Spells::UnlearnSkill& packet)
+void WorldSession::HandleUnlearnSkillOpcode(WorldPacket& recvData)
 {
-    SkillRaceClassInfoEntry const* rcEntry = sDB2Manager.GetSkillRaceClassInfo(packet.SkillLine, GetPlayer()->GetRace(), GetPlayer()->GetClass());
+    uint32 skillId;
+    recvData >> skillId;
+
+    SkillRaceClassInfoEntry const* rcEntry = GetSkillRaceClassInfo(skillId, GetPlayer()->GetRace(), GetPlayer()->GetClass());
     if (!rcEntry || !(rcEntry->Flags & SKILL_FLAG_UNLEARNABLE))
         return;
 
-    GetPlayer()->SetSkill(packet.SkillLine, 0, 0, 0);
-}
-
-void WorldSession::HandleTradeSkillSetFavorite(WorldPackets::Spells::TradeSkillSetFavorite const& tradeSkillSetFavorite)
-{
-    if (!_player->HasSpell(tradeSkillSetFavorite.RecipeID))
-        return;
-
-    _player->SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
+    GetPlayer()->SetSkill(skillId, 0, 0, 0);
 }

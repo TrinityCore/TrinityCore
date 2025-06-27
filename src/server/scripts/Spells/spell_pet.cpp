@@ -28,6 +28,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "Unit.h"
 
 enum HunterPetCalculate
 {
@@ -68,6 +69,7 @@ enum DKPetCalculate
     SPELL_DEATH_KNIGHT_PET_SCALING_03   = 61697,
     SPELL_NIGHT_OF_THE_DEAD             = 55620,
     ENTRY_ARMY_OF_THE_DEAD_GHOUL        = 24207,
+    SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL   = 58686,
 };
 
 enum ShamanPetCalculate
@@ -107,7 +109,9 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
                     // For others recalculate it from:
-                    float CritSpell = 5.0f;
+                    float CritSpell = 0.0f;
+                    // Crit from Intellect
+                    CritSpell += owner->GetSpellCritFromIntellect();
                     // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                     CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -124,7 +128,9 @@ class spell_gen_pet_calculate : public SpellScriptLoader
                 if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
                 {
                     // For others recalculate it from:
-                    float CritMelee = 5.0f;
+                    float CritMelee = 0.0f;
+                    // Crit from Agility
+                    CritMelee += owner->GetMeleeCritFromAgility();
                     // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                     CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -298,10 +304,10 @@ public:
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
 
-                if (Player* owner = pet->ToPet()->GetOwner())
+                if (Unit* owner = pet->ToPet()->GetOwner())
                 {
-                    int32 fire = owner->m_activePlayerData->ModDamageDonePos[SPELL_SCHOOL_FIRE] - owner->m_activePlayerData->ModDamageDoneNeg[SPELL_SCHOOL_FIRE];
-                    int32 shadow = owner->m_activePlayerData->ModDamageDonePos[SPELL_SCHOOL_SHADOW] - owner->m_activePlayerData->ModDamageDoneNeg[SPELL_SCHOOL_SHADOW];
+                    int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_FIRE)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_FIRE));
+                    int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_SHADOW));
                     int32 maximum  = (fire > shadow) ? fire : shadow;
                     if (maximum < 0)
                         maximum = 0;
@@ -325,11 +331,11 @@ public:
         {
             if (Unit* pet = GetUnitOwner())
                 if (pet->IsPet())
-                    if (Player* owner = pet->ToPet()->GetOwner())
+                    if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         //the damage bonus used for pets is either fire or shadow damage, whatever is higher
-                        int32 fire = owner->m_activePlayerData->ModDamageDonePos[SPELL_SCHOOL_FIRE] - owner->m_activePlayerData->ModDamageDoneNeg[SPELL_SCHOOL_FIRE];
-                        int32 shadow = owner->m_activePlayerData->ModDamageDonePos[SPELL_SCHOOL_SHADOW] - owner->m_activePlayerData->ModDamageDoneNeg[SPELL_SCHOOL_SHADOW];
+                        int32 fire  = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_FIRE)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_FIRE));
+                        int32 shadow = owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) - owner->GetInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + AsUnderlyingType(SPELL_SCHOOL_SHADOW));
                         int32 maximum  = (fire > shadow) ? fire : shadow;
                         float bonusDamage = 0.0f;
 
@@ -388,7 +394,9 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetStat(STAT_INTELLECT), 30);
+                        float ownerBonus = 0.0f;
+
+                        ownerBonus = CalculatePct(owner->GetStat(STAT_INTELLECT), 30);
 
                         amount += ownerBonus;
                         _tempBonus = ownerBonus;
@@ -439,7 +447,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetArmor(), 35);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetArmor(), 35);
                         amount += ownerBonus;
                     }
         }
@@ -450,7 +459,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FIRE), 40);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -496,7 +506,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FROST), 40);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
                         amount += ownerBonus;
                     }
         }
@@ -507,7 +518,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_ARCANE), 40);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -518,7 +530,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_NATURE), 40);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
                         amount += ownerBonus;
                     }
         }
@@ -559,7 +572,8 @@ public:
                 if (pet->IsPet())
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
-                        int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_SHADOW), 40);
+                        float ownerBonus = 0.0f;
+                        ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
                         amount += ownerBonus;
                     }
         }
@@ -672,7 +686,9 @@ public:
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritSpell = 5.0f;
+                float CritSpell = 0.0f;
+                // Crit from Intellect
+                CritSpell += owner->GetSpellCritFromIntellect();
                 // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                 CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -692,7 +708,9 @@ public:
             if (Player* owner = GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritMelee = 5.0f;
+                float CritMelee = 0.0f;
+                // Crit from Agility
+                CritMelee += owner->GetMeleeCritFromAgility();
                 // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                 CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -890,6 +908,7 @@ public:
                     if (Unit* owner = pet->ToPet()->GetOwner())
                     {
                         float mod = 0.45f;
+                        float ownerBonus = 0.0f;
 
                         PetSpellMap::const_iterator itr = (pet->ToPet()->m_spells.find(62758)); // Wild Hunt rank 1
                         if (itr == pet->ToPet()->m_spells.end())
@@ -897,11 +916,12 @@ public:
 
                         if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                         {
-                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
+                            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                             AddPct(mod, spellInfo->GetEffect(EFFECT_0).CalcValue());
                         }
 
-                        int32 const ownerBonus = owner->GetStat(STAT_STAMINA) * mod;
+                        ownerBonus = owner->GetStat(STAT_STAMINA)*mod;
+
                         amount += ownerBonus;
                     }
         }
@@ -939,7 +959,7 @@ public:
 
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
@@ -969,7 +989,7 @@ public:
 
                 if (itr != pet->ToPet()->m_spells.end()) // If pet has Wild Hunt
                 {
-                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, GetCastDifficulty()); // Then get the SpellProto and add the dummy effect value
+                    SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, spellInfo->GetEffect(EFFECT_1).CalcValue());
                 }
 
@@ -1025,7 +1045,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FROST), 40);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FROST), 40);
+
                 amount += ownerBonus;
             }
         }
@@ -1041,7 +1064,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_FIRE), 40);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_FIRE), 40);
+
                 amount += ownerBonus;
             }
         }
@@ -1057,7 +1083,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_NATURE), 40);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_NATURE), 40);
+
                 amount += ownerBonus;
             }
         }
@@ -1103,7 +1132,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_SHADOW), 40);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_SHADOW), 40);
+
                 amount += ownerBonus;
             }
         }
@@ -1119,7 +1151,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_MASK_ARCANE), 40);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetResistance(SPELL_SCHOOL_ARCANE), 40);
+
                 amount += ownerBonus;
             }
         }
@@ -1135,7 +1170,10 @@ public:
                 if (!owner)
                     return;
 
-                int32 const ownerBonus = CalculatePct(owner->GetArmor(), 35);
+                float ownerBonus = 0.0f;
+
+                ownerBonus = CalculatePct(owner->GetArmor(), 35);
+
                 amount += ownerBonus;
             }
         }
@@ -1258,7 +1296,9 @@ public:
             if (GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritSpell = 5.0f;
+                float CritSpell = 0.0f;
+                // Crit from Intellect
+                // CritSpell += owner->GetSpellCritFromIntellect();
                 // Increase crit from SPELL_AURA_MOD_SPELL_CRIT_CHANCE
                 // CritSpell += owner->GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -1277,7 +1317,9 @@ public:
             if (GetCaster()->GetOwner()->ToPlayer())
             {
                 // For others recalculate it from:
-                float CritMelee = 5.0f;
+                float CritMelee = 0.0f;
+                // Crit from Agility
+                // CritMelee += owner->GetMeleeCritFromAgility();
                 // Increase crit from SPELL_AURA_MOD_WEAPON_CRIT_PERCENT
                 // CritMelee += owner->GetTotalAuraModifier(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
                 // Increase crit from SPELL_AURA_MOD_CRIT_PCT
@@ -1324,6 +1366,24 @@ public:
                 return;
             if (GetCaster()->GetOwner()->ToPlayer())
             {
+                //  Pet's base damage changes depending on happiness
+                if (GetCaster()->IsPet() && GetCaster()->IsHunterPet())
+                {
+                    switch (GetCaster()->ToPet()->GetHappinessState())
+                    {
+                    case HAPPY:
+                        // 125% of normal damage
+                        amount += 25.0f;
+                        break;
+                    case CONTENT:
+                        // 100% of normal damage, nothing to modify
+                        break;
+                    case UNHAPPY:
+                        // 75% of normal damage
+                        amount += -25.0f;
+                        break;
+                    }
+                }
                 // Cobra Reflexes
                 if (AuraEffect* cobraReflexes = GetCaster()->GetAuraEffectOfRankedSpell(61682, EFFECT_0))
                     amount -= cobraReflexes->GetAmount();
@@ -1451,7 +1511,17 @@ public:
                 {
                     if (Unit* owner = pet->GetOwner())
                     {
-                        float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * 0.3f;
+                        float mod = 0.3f;
+
+                        // Ravenous Dead. Check just if owner has Ravenous Dead since it's effect is not an aura
+                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0))
+                            mod += aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue()/100;                 // Ravenous Dead edits the original scale
+
+                        // Glyph of the Ghoul
+                        if (AuraEffect const* aurEff = owner->GetAuraEffect(SPELL_DEATH_KNIGHT_GLYPH_OF_GHOUL, 0))
+                            mod += aurEff->GetAmount()/100;
+
+                        float ownerBonus = float(owner->GetStat(STAT_STAMINA)) * mod;
                         amount += ownerBonus;
                     }
                 }
@@ -1482,7 +1552,21 @@ public:
                 if (!owner)
                     return;
 
-                float ownerBonus = float(owner->GetStat(STAT_STRENGTH)) * 0.7f;
+                float mod = 0.7f;
+
+                // Ravenous Dead
+                AuraEffect const* aurEff = nullptr;
+                // Check just if owner has Ravenous Dead since it's effect is not an aura
+                aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
+                if (aurEff)
+                {
+                    mod += CalculatePct(mod, aurEff->GetSpellInfo()->GetEffect(EFFECT_1).CalcValue());                 // Ravenous Dead edits the original scale
+                }
+                // Glyph of the Ghoul
+                aurEff = owner->GetAuraEffect(58686, 0);
+                if (aurEff)
+                    mod += CalculatePct(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
+                float ownerBonus = float(owner->GetStat(STAT_STRENGTH)) * mod;
                 amount += ownerBonus;
             }
         }
@@ -1637,7 +1721,8 @@ public:
                 if (pet->IsGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
-                amount += owner->CalculateDamage(BASE_ATTACK, true, true);
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
+                    amount += owner->CalculateDamage(BASE_ATTACK, true, true, i);
             }
         }
 

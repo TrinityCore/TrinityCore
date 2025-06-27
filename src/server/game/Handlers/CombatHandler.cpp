@@ -19,11 +19,12 @@
 #include "CombatPackets.h"
 #include "Common.h"
 #include "CreatureAI.h"
-#include "DB2Structure.h"
+#include "DBCStructure.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Vehicle.h"
+#include "WorldPacket.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPackets::Combat::AttackSwing& packet)
 {
@@ -73,7 +74,7 @@ void WorldSession::HandleSetSheathedOpcode(WorldPackets::Combat::SetSheathed& pa
         return;
     }
 
-    GetPlayer()->SetSheath(SheathState(packet.CurrentSheathState));
+    _player->SetSheath(SheathState(packet.CurrentSheathState));
 }
 
 void WorldSession::SendAttackStop(Unit const* enemy)

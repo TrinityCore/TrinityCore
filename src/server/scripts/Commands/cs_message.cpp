@@ -23,13 +23,11 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
-#include "Chat.h"
-#include "ChatCommand.h"
-#include "ChatPackets.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "Chat.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -66,11 +64,11 @@ public:
         uint32 channelId = 0;
         for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
         {
-            ChatChannelsEntry const* channelEntry = sChatChannelsStore.LookupEntry(i);
-            if (!channelEntry)
+            ChatChannelsEntry const* entry = sChatChannelsStore.LookupEntry(i);
+            if (!entry)
                 continue;
 
-            if (StringContainsStringI(channelEntry->Name[handler->GetSessionDbcLocale()], channelName))
+            if (StringContainsStringI(entry->Name[handler->GetSessionDbcLocale()], channelName))
             {
                 channelId = i;
                 break;
@@ -94,14 +92,13 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Channel* channel = nullptr;
 
-        if (ChannelMgr* cMgr = ChannelMgr::ForTeam(player->GetTeam()))
+        if (ChannelMgr* cMgr = ChannelMgr::forTeam(player->GetTeam()))
             channel = cMgr->GetChannel(channelId, channelName, player, false, zoneEntry);
 
         if (grantOwnership)
         {
             if (channel)
                 channel->SetOwnership(true);
-
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 1);
             stmt->setString(1, channelName);
@@ -112,7 +109,6 @@ public:
         {
             if (channel)
                 channel->SetOwnership(false);
-
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_OWNERSHIP);
             stmt->setUInt8 (0, 0);
             stmt->setString(1, channelName);
@@ -178,7 +174,9 @@ public:
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += message;
 
-        sWorld->SendGlobalMessage(WorldPackets::Chat::PrintNotification(str).Write());
+        WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+        data << str;
+        sWorld->SendGlobalMessage(&data);
 
         return true;
     }
@@ -192,7 +190,9 @@ public:
         std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
         str += message;
 
-        sWorld->SendGlobalGMMessage(WorldPackets::Chat::PrintNotification(str).Write());
+        WorldPacket data(SMSG_NOTIFICATION, (str.size() + 1));
+        data << str;
+        sWorld->SendGlobalGMMessage(&data);
 
         return true;
     }

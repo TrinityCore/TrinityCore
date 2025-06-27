@@ -15,6 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+This placeholder for the instance is needed for dungeon finding to be able
+to give credit after the boss defined in lastEncounterDungeon is killed.
+Without it, the party doing random dungeon won't get satchel of spoils and
+gets instead the deserter debuff.
+*/
+
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
@@ -35,13 +42,6 @@ ObjectData const creatureData[] =
     { 0,                            0,                     }
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_MENNU_THE_BETRAYER, {{ 1939 }} },
-    { DATA_ROKMAR_THE_CRACKLER, {{ 1941 }} },
-    { DATA_QUAGMIRRAN, {{ 1940 }} }
-};
-
 class instance_the_slave_pens : public InstanceMapScript
 {
 public:
@@ -52,9 +52,8 @@ public:
         instance_the_slave_pens_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             counter = DATA_FLAMECALLER_000;
-            SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
-            LoadDungeonEncounterData(encounters);
+            SetBossNumber(EncounterCount);
         }
 
         void OnCreatureCreate(Creature* creature) override

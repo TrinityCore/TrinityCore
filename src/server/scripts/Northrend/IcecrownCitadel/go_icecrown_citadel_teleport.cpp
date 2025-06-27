@@ -59,23 +59,24 @@ class icecrown_citadel_teleport : public GameObjectScript
 
                 ClearGossipMenuFor(player);
                 CloseGossipMenuFor(player);
-                SpellInfo const* spell = sSpellMgr->GetSpellInfo(TeleportSpells[gossipListId], DIFFICULTY_NONE);
+
+                uint32 const teleportSpell = TeleportSpells[gossipListId];
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(teleportSpell);
                 if (!spell)
                     return false;
 
                 if (player->IsInCombat())
                 {
-                    ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), spell->Id, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                    Spell::SendCastResult(player, spell, {}, castId, SPELL_FAILED_AFFECTING_COMBAT);
+                    Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
                     return true;
                 }
 
                 // If the player is on the ship, Unit::NearTeleport() will try to keep the player on the ship, causing issues.
                 // For that we simply always remove the player from the ship.
-                if (TransportBase* transport = player->GetTransport())
+                if (Transport* transport = player->GetTransport())
                     transport->RemovePassenger(player);
 
-                player->CastSpell(player, spell->Id, true);
+                player->CastSpell(player, teleportSpell, true);
                 return true;
             }
         };
@@ -95,11 +96,8 @@ class at_frozen_throne_teleport : public AreaTriggerScript
         {
             if (player->IsInCombat())
             {
-                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(FROZEN_THRONE_TELEPORT, DIFFICULTY_NONE))
-                {
-                    ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), spell->Id, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                    Spell::SendCastResult(player, spell, {}, castId, SPELL_FAILED_AFFECTING_COMBAT);
-                }
+                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(FROZEN_THRONE_TELEPORT))
+                    Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
                 return true;
             }
 

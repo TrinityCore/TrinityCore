@@ -21,7 +21,6 @@
 #include "Player.h"
 #include "GuildMgr.h"
 #include "WorldSession.h"
-#include "Guild.h"
 
 WhoListStorageMgr* WhoListStorageMgr::instance()
 {
@@ -55,14 +54,8 @@ void WhoListStorageMgr::Update()
 
         wstrToLower(wideGuildName);
 
-        Guild* guild = itr->second->GetGuild();
-        ObjectGuid guildGuid;
-
-        if (guild)
-            guildGuid = guild->GetGUID();
-
         _whoListStorage.emplace_back(itr->second->GetGUID(), itr->second->GetTeam(), itr->second->GetSession()->GetSecurity(), itr->second->GetLevel(),
             itr->second->GetClass(), itr->second->GetRace(), itr->second->GetZoneId(), itr->second->GetNativeGender(), itr->second->IsVisible(),
-            itr->second->IsGameMaster(), widePlayerName, wideGuildName, playerName, guildName, guildGuid);
+            widePlayerName, wideGuildName, playerName, guildName);
     }
 }

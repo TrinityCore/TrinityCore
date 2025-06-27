@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ObjectMgr.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"

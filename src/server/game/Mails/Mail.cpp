@@ -17,14 +17,13 @@
 
 #include "Mail.h"
 #include "AuctionHouseMgr.h"
-#include "BlackMarketMgr.h"
+#include "BattlegroundMgr.h"
 #include "CalendarMgr.h"
 #include "CharacterCache.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Item.h"
 #include "Log.h"
-#include "Loot.h"
 #include "LootMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -37,11 +36,11 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
     {
         case TYPEID_UNIT:
             m_messageType = MAIL_CREATURE;
-            m_senderId = uint64(sender->GetEntry());
+            m_senderId = sender->GetEntry();
             break;
         case TYPEID_GAMEOBJECT:
             m_messageType = MAIL_GAMEOBJECT;
-            m_senderId = uint64(sender->GetEntry());
+            m_senderId = sender->GetEntry();
             break;
         /*case TYPEID_ITEM:
             m_messageType = MAIL_ITEM;
@@ -53,7 +52,7 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
             break;
         default:
             m_messageType = MAIL_NORMAL;
-            m_senderId = UI64LIT(0);                        // will show mail from non-existing player
+            m_senderId = 0;                                 // will show mail from non-existing player
             TC_LOG_ERROR("misc", "MailSender::MailSender - Mail message contains unexpected sender typeid ({}).", sender->GetTypeId());
             break;
     }
@@ -64,11 +63,8 @@ MailSender::MailSender(CalendarEvent* sender)
 {
 }
 
-MailSender::MailSender(AuctionHouseObject const* sender)
-    : m_messageType(MAIL_AUCTION), m_senderId(uint64(sender->GetAuctionHouseId())), m_stationery(MAIL_STATIONERY_AUCTION) { }
-
-MailSender::MailSender(BlackMarketEntry* sender)
-    : m_messageType(MAIL_BLACKMARKET), m_senderId(sender->GetTemplate()->SellerNPC), m_stationery(MAIL_STATIONERY_AUCTION) { }
+MailSender::MailSender(AuctionEntry* sender)
+    : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION) { }
 
 MailSender::MailSender(Player* sender)
 {
@@ -91,15 +87,9 @@ MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowgui
     ASSERT(!receiver || receiver->GetGUID().GetCounter() == receiver_lowguid);
 }
 
-MailReceiver::MailReceiver(Player* receiver, ObjectGuid receiverGuid) : m_receiver(receiver), m_receiver_lowguid(receiverGuid.GetCounter())
-{
-    ASSERT(!receiver || receiver->GetGUID() == receiverGuid);
-}
-
 MailDraft& MailDraft::AddItem(Item* item)
 {
-    m_items[item->GetGUID().GetCounter()] = item;
-    return *this;
+    m_items[item->GetGUID().GetCounter()] = item; return *this;
 }
 
 void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction trans)
@@ -113,16 +103,17 @@ void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction tran
     if (m_mailTemplateId == 123)
         m_money = 1000000;
 
-    Loot mailLoot(nullptr, ObjectGuid::Empty, LOOT_NONE, nullptr);
+    Loot mailLoot;
 
     // can be empty
-    mailLoot.FillLoot(m_mailTemplateId, LootTemplates_Mail, receiver, true, true, LOOT_MODE_DEFAULT, ItemContext::NONE);
+    mailLoot.FillLoot(m_mailTemplateId, LootTemplates_Mail, receiver, true, true);
 
-    for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < mailLoot.items.size(); ++i)
+    uint32 max_slot = mailLoot.GetMaxSlotInLootFor(receiver);
+    for (uint32 i = 0; m_items.size() < MAX_MAIL_ITEMS && i < max_slot; ++i)
     {
         if (LootItem* lootitem = mailLoot.LootItemInSlot(i, receiver))
         {
-            if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, lootitem->context, receiver))
+            if (Item* item = Item::CreateItem(lootitem->itemid, lootitem->count, receiver))
             {
                 item->SaveToDB(trans);                           // save for prevent lost at next mail load, if send fail then item will deleted
                 AddItem(item);
@@ -138,7 +129,11 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction trans, bool inD
         Item* item = mailItemIter->second;
 
         if (inDB)
-            item->DeleteFromDB(trans);
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt->setUInt32(0, item->GetGUID().GetCounter());
+            trans->Append(stmt);
+        }
 
         delete item;
     }
@@ -148,7 +143,7 @@ void MailDraft::deleteIncludedItems(CharacterDatabaseTransaction trans, bool inD
 
 void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender_guid, ObjectGuid::LowType receiver_guid, CharacterDatabaseTransaction trans)
 {
-    ObjectGuid receiverGuid = ObjectGuid::Create<HighGuid::Player>(receiver_guid);
+    ObjectGuid receiverGuid(HighGuid::Player, receiver_guid);
     Player* receiver = ObjectAccessor::FindConnectedPlayer(receiverGuid);
 
     uint32 rc_account = 0;
@@ -176,8 +171,8 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
-            stmt->setUInt64(0, receiver_guid);
-            stmt->setUInt64(1, item->GetGUID().GetCounter());
+            stmt->setUInt32(0, receiver_guid);
+            stmt->setUInt32(1, item->GetGUID().GetCounter());
             trans->Append(stmt);
         }
     }
@@ -192,12 +187,12 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, ObjectGuid::LowType sender
 void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
-    Player* pSender = sender.GetMailMessageType() == MAIL_NORMAL ? ObjectAccessor::FindPlayer(ObjectGuid::Create<HighGuid::Player>(sender.GetSenderId())) : nullptr;
+    Player* pSender = ObjectAccessor::FindPlayerByLowGUID(sender.GetSenderId());
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
 
-    uint64 mailId = sObjectMgr->GenerateMailID();
+    uint32 mailId = sObjectMgr->GenerateMailID();
 
     time_t deliver_time = GameTime::GetGameTime() + deliver_delay;
 
@@ -207,6 +202,9 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     // auction mail without any items and money
     if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
         expire_delay = sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY);
+    // mail from battlemaster (rewardmarks) should last only one day
+    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
+        expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
     {
@@ -221,19 +219,19 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     // Add to DB
     uint8 index = 0;
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
-    stmt->setUInt64(  index, mailId);
+    stmt->setUInt32(  index, mailId);
     stmt->setUInt8 (++index, uint8(sender.GetMailMessageType()));
     stmt->setInt8  (++index, int8(sender.GetStationery()));
     stmt->setUInt16(++index, GetMailTemplateId());
-    stmt->setUInt64(++index, sender.GetSenderId());
-    stmt->setUInt64(++index, receiver.GetPlayerGUIDLow());
+    stmt->setUInt32(++index, sender.GetSenderId());
+    stmt->setUInt32(++index, receiver.GetPlayerGUIDLow());
     stmt->setString(++index, GetSubject());
     stmt->setString(++index, GetBody());
     stmt->setBool  (++index, !m_items.empty());
-    stmt->setInt64 (++index, expire_time);
-    stmt->setInt64 (++index, deliver_time);
-    stmt->setUInt64(++index, m_money);
-    stmt->setUInt64(++index, m_COD);
+    stmt->setUInt64(++index, uint64(expire_time));
+    stmt->setUInt64(++index, uint64(deliver_time));
+    stmt->setUInt32(++index, m_money);
+    stmt->setUInt32(++index, m_COD);
     stmt->setUInt8 (++index, uint8(checked));
     trans->Append(stmt);
 
@@ -241,9 +239,9 @@ void MailDraft::SendMailTo(CharacterDatabaseTransaction trans, MailReceiver cons
     {
         Item* pItem = mailItemIter->second;
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
-        stmt->setUInt64(0, mailId);
-        stmt->setUInt64(1, pItem->GetGUID().GetCounter());
-        stmt->setUInt64(2, receiver.GetPlayerGUIDLow());
+        stmt->setUInt32(0, mailId);
+        stmt->setUInt32(1, pItem->GetGUID().GetCounter());
+        stmt->setUInt32(2, receiver.GetPlayerGUIDLow());
         trans->Append(stmt);
     }
 

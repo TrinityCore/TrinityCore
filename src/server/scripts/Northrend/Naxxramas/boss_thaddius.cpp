@@ -181,7 +181,7 @@ public:
 
     void EnterEvadeMode(EvadeReason why) override
     {
-        if (!ballLightningEnabled && why == EvadeReason::NoHostiles)
+        if (!ballLightningEnabled && why == EVADE_REASON_NO_HOSTILES)
         {
             ballLightningEnabled = true;
             return; // try again
@@ -648,7 +648,7 @@ private:
     Creature* myCoil()
     {
         Creature* coil = nullptr;
-        if (!_myCoil.IsEmpty())
+        if (_myCoil)
             coil = ObjectAccessor::GetCreature(*me, _myCoil);
         if (!coil)
         {
@@ -665,7 +665,7 @@ private:
     GameObject* myCoilGO()
     {
         GameObject* coil = nullptr;
-        if (!_myCoilGO.IsEmpty())
+        if (_myCoilGO)
             coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
         if (!coil)
         {
@@ -889,7 +889,7 @@ private:
     Creature* myCoil()
     {
         Creature* coil = nullptr;
-        if (!_myCoil.IsEmpty())
+        if (_myCoil)
             coil = ObjectAccessor::GetCreature(*me, _myCoil);
         if (!coil)
         {
@@ -906,7 +906,7 @@ private:
     GameObject* myCoilGO()
     {
         GameObject* coil = nullptr;
-        if (!_myCoilGO.IsEmpty())
+        if (_myCoilGO)
             coil = ObjectAccessor::GetGameObject(*me, _myCoilGO);
         if (!coil)
         {
@@ -980,12 +980,12 @@ class spell_thaddius_polarity_charge : public SpellScript
 
         uint8 maxStacks = 0;
         if (GetCaster())
-            switch (GetCaster()->GetMap()->GetDifficultyID())
+            switch (GetCaster()->GetMap()->GetDifficulty())
             {
-                case DIFFICULTY_10_N:
+                case RAID_DIFFICULTY_10MAN_NORMAL:
                     maxStacks = MAX_POLARITY_10M;
                     break;
-                case DIFFICULTY_25_N:
+                case RAID_DIFFICULTY_25MAN_NORMAL:
                     maxStacks = MAX_POLARITY_25M;
                     break;
                 default:

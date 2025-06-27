@@ -18,7 +18,7 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "cascfile.h"
+#include "mpq_libmpq.h"
 #include "wmo.h"
 #include "model.h"
 
@@ -50,32 +50,33 @@ namespace ADT
 }
 #pragma pack(pop)
 
-struct ADTOutputCache
-{
-    uint8 Flags;
-    std::vector<uint8> Data;
-};
-
 class ADTFile
 {
 private:
-    CASCFile _file;
-    bool cacheable;
-    std::vector<ADTOutputCache>* dirfileCache;
+    MPQFile _file;
+    std::string Adtfilename;
 public:
-    ADTFile(std::string const& filename, bool cache);
-    ADTFile(uint32 fileDataId, std::string const& description, bool cache);
+    ADTFile(char* filename);
     ~ADTFile();
     std::vector<std::string> WmoInstanceNames;
     std::vector<std::string> ModelInstanceNames;
-    bool init(uint32 map_num, uint32 originalMapId);
-    bool initFromCache(uint32 map_num, uint32 originalMapId);
+    bool init(uint32 map_num, uint32 tileX, uint32 tileY);
+    //void LoadMapChunks();
+
+    //uint32 wmo_count;
+/*
+    mcell const& Getmcell() const
+    {
+        return Mcell;
+    }
+*/
 };
 
-char const* GetPlainName(char const* FileName);
-char* GetPlainName(char* FileName);
-char* GetExtension(char* FileName);
-void NormalizeFileName(char* name, size_t len);
+const char * GetPlainName(const char * FileName);
+char * GetPlainName(char * FileName);
+char * GetExtension(char * FileName);
+void fixnamen(char *name, size_t len);
+void fixname2(char *name, size_t len);
 //void fixMapNamen(char *name, size_t len);
 
 #endif

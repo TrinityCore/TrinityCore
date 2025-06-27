@@ -18,6 +18,7 @@
 #ifndef IteratorPair_h__
 #define IteratorPair_h__
 
+#include "Define.h"
 #include <utility>
 
 namespace Trinity

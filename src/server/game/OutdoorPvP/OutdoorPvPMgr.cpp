@@ -16,12 +16,9 @@
  */
 
 #include "OutdoorPvPMgr.h"
-#include "Containers.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "DisableMgr.h"
 #include "Log.h"
-#include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptMgr.h"
@@ -31,11 +28,12 @@ OutdoorPvPMgr::OutdoorPvPMgr()
     m_UpdateTimer = 0;
 }
 
-OutdoorPvPMgr::~OutdoorPvPMgr() = default;
-
 void OutdoorPvPMgr::Die()
 {
-    m_OutdoorPvPByMap.clear();
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+        delete *itr;
+
+    m_OutdoorPvPSet.clear();
 
     m_OutdoorPvPDatas.fill(0);
 
@@ -78,29 +76,23 @@ void OutdoorPvPMgr::InitOutdoorPvP()
             continue;
         }
 
-        m_OutdoorPvPDatas[typeId] = sObjectMgr->GetScriptId(fields[1].GetString());
+        OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
+        m_OutdoorPvPDatas[realTypeId] = sObjectMgr->GetScriptId(fields[1].GetString());
 
         ++count;
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} outdoor PvP definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void OutdoorPvPMgr::CreateOutdoorPvPForMap(Map* map)
-{
+    OutdoorPvP* pvp;
     for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i)
     {
-        if (map->GetId() != m_OutdoorMapIds[i])
-            continue;
-
         if (!m_OutdoorPvPDatas[i])
         {
             TC_LOG_ERROR("sql.sql", "Could not initialize OutdoorPvP object for type ID {}; no entry in database.", uint32(i));
             continue;
         }
 
-        OutdoorPvP* pvp = sScriptMgr->CreateOutdoorPvP(m_OutdoorPvPDatas[i], map);
+        pvp = sScriptMgr->CreateOutdoorPvP(m_OutdoorPvPDatas[i]);
         if (!pvp)
         {
             TC_LOG_ERROR("outdoorpvp", "Could not initialize OutdoorPvP object for type ID {}; got NULL pointer from script.", uint32(i));
@@ -114,27 +106,20 @@ void OutdoorPvPMgr::CreateOutdoorPvPForMap(Map* map)
             continue;
         }
 
-        m_OutdoorPvPByMap[map].emplace_back(pvp);
+        m_OutdoorPvPSet.push_back(pvp);
     }
-}
 
-void OutdoorPvPMgr::DestroyOutdoorPvPForMap(Map* map)
-{
-    Trinity::Containers::EraseIf(m_OutdoorPvPMap, [map](OutdoorPvPMap::value_type const& pair)
-    {
-        return pair.first.first == map;
-    });
-    m_OutdoorPvPByMap.erase(map);
+    TC_LOG_INFO("server.loading", ">> Loaded {} outdoor PvP definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
 {
-    m_OutdoorPvPMap[{ handle->GetMap(), zoneid }] = handle;
+    m_OutdoorPvPMap[zoneid] = handle;
 }
 
 void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find({ player->GetMap(), zoneid });
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
         return;
 
@@ -147,7 +132,7 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find({ player->GetMap(), zoneid });
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
         return;
 
@@ -159,9 +144,9 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
     TC_LOG_DEBUG("outdoorpvp", "Player {} left outdoorpvp id {}", player->GetGUID().ToString(), itr->second->GetTypeId());
 }
 
-OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(Map* map, uint32 zoneid)
+OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
 {
-    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find({ map, zoneid });
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
     {
         // no handle for this zone, return
@@ -175,49 +160,83 @@ void OutdoorPvPMgr::Update(uint32 diff)
     m_UpdateTimer += diff;
     if (m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL)
     {
-        for (auto mapItr = m_OutdoorPvPByMap.begin(); mapItr != m_OutdoorPvPByMap.end(); ++mapItr)
-            for (auto itr = mapItr->second.begin(); itr != mapItr->second.end(); ++itr)
-                (*itr)->Update(m_UpdateTimer);
+        for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+            (*itr)->Update(m_UpdateTimer);
         m_UpdateTimer = 0;
     }
 }
 
 bool OutdoorPvPMgr::HandleCustomSpell(Player* player, uint32 spellId, GameObject* go)
 {
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            return pvp->HandleCustomSpell(player, spellId, go);
-
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    {
+        if ((*itr)->HandleCustomSpell(player, spellId, go))
+            return true;
+    }
     return false;
+}
+
+ZoneScript* OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
+{
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneId);
+    if (itr != m_OutdoorPvPMap.end())
+        return itr->second;
+    else
+        return nullptr;
 }
 
 bool OutdoorPvPMgr::HandleOpenGo(Player* player, GameObject* go)
 {
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            return pvp->HandleOpenGo(player, go);
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    {
+        if ((*itr)->HandleOpenGo(player, go))
+            return true;
+    }
+    return false;
+}
 
+void OutdoorPvPMgr::HandleGossipOption(Player* player, Creature* creature, uint32 gossipid)
+{
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    {
+        if ((*itr)->HandleGossipOption(player, creature, gossipid))
+            return;
+    }
+}
+
+bool OutdoorPvPMgr::CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso)
+{
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    {
+        if ((*itr)->CanTalkTo(player, creature, gso))
+            return true;
+    }
     return false;
 }
 
 void OutdoorPvPMgr::HandleDropFlag(Player* player, uint32 spellId)
 {
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            pvp->HandleDropFlag(player, spellId);
+    for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
+    {
+        if ((*itr)->HandleDropFlag(player, spellId))
+            return;
+    }
 }
 
 void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
 {
-    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
-        if (pvp->HasPlayer(player))
-            pvp->HandlePlayerResurrects(player, zoneid);
+    OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
+    if (itr == m_OutdoorPvPMap.end())
+        return;
+
+    if (itr->second->HasPlayer(player))
+        itr->second->HandlePlayerResurrects(player, zoneid);
 }
 
 std::string OutdoorPvPMgr::GetDefenseMessage(uint32 zoneId, uint32 id, LocaleConstant locale) const
 {
-    if (BroadcastTextEntry const* bct = sBroadcastTextStore.LookupEntry(id))
-        return DB2Manager::GetBroadcastTextValue(bct, locale);
+    if (BroadcastText const* bct = sObjectMgr->GetBroadcastText(id))
+        return bct->GetText(locale);
 
     TC_LOG_ERROR("outdoorpvp", "Can not find DefenseMessage (Zone: {}, Id: {}). BroadcastText (Id: {}) does not exist.", zoneId, id, id);
     return "";

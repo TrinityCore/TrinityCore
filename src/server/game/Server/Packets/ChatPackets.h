@@ -19,216 +19,21 @@
 #define ChatPackets_h__
 
 #include "Packet.h"
-#include "Common.h"
 #include "ObjectGuid.h"
-#include "Optional.h"
-#include "PacketUtilities.h"
-#include "SharedDefines.h"
-
-class WorldObject;
-enum class ChatWhisperTargetStatus : uint8;
 
 namespace WorldPackets
 {
     namespace Chat
     {
-        // CMSG_CHAT_MESSAGE_GUILD
-        // CMSG_CHAT_MESSAGE_OFFICER
-        // CMSG_CHAT_MESSAGE_YELL
-        // CMSG_CHAT_MESSAGE_SAY
-        // CMSG_CHAT_MESSAGE_PARTY
-        // CMSG_CHAT_MESSAGE_RAID
-        // CMSG_CHAT_MESSAGE_RAID_WARNING
-        // CMSG_CHAT_MESSAGE_INSTANCE_CHAT
-        class ChatMessage final : public ClientPacket
-        {
-        public:
-            ChatMessage(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Text;
-            int32 Language = LANG_UNIVERSAL;
-        };
-
-        // CMSG_CHAT_MESSAGE_WHISPER
-        class ChatMessageWhisper final : public ClientPacket
-        {
-        public:
-            ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_WHISPER, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 Language = LANG_UNIVERSAL;
-            std::string Text;
-            std::string Target;
-        };
-
-        // CMSG_CHAT_MESSAGE_CHANNEL
-        class ChatMessageChannel final : public ClientPacket
-        {
-        public:
-            ChatMessageChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_CHANNEL, std::move(packet)) { }
-
-            void Read() override;
-
-            int32 Language = LANG_UNIVERSAL;
-            ObjectGuid ChannelGUID;
-            std::string Text;
-            std::string Target;
-        };
-
-        struct ChatAddonMessageParams
-        {
-            std::string Prefix;
-            std::string Text;
-            ChatMsg Type = CHAT_MSG_PARTY;
-            bool IsLogged = false;
-        };
-
-        // CMSG_CHAT_ADDON_MESSAGE
-        class ChatAddonMessage final : public ClientPacket
-        {
-        public:
-            ChatAddonMessage(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE, std::move(packet)) { }
-
-            void Read() override;
-
-            ChatAddonMessageParams Params;
-        };
-
-        // CMSG_CHAT_ADDON_MESSAGE_CHANNEL
-        class ChatAddonMessageTargeted final : public ClientPacket
-        {
-        public:
-            ChatAddonMessageTargeted(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_ADDON_MESSAGE_TARGETED, std::move(packet))
-            {
-                ChannelGUID.emplace();
-            }
-
-            void Read() override;
-
-            std::string Target;
-            ChatAddonMessageParams Params;
-            Optional<ObjectGuid> ChannelGUID; // not optional in the packet. Optional for api reasons
-        };
-
-        class ChatMessageDND final : public ClientPacket
-        {
-        public:
-            ChatMessageDND(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_DND, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Text;
-        };
-
-        class ChatMessageAFK final : public ClientPacket
-        {
-        public:
-            ChatMessageAFK(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_AFK, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Text;
-        };
-
-        class ChatMessageEmote final : public ClientPacket
-        {
-        public:
-            ChatMessageEmote(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_EMOTE, std::move(packet)) { }
-
-            void Read() override;
-
-            std::string Text;
-        };
-
-        // SMSG_CHAT
-        class TC_GAME_API Chat final : public ServerPacket
-        {
-        public:
-            Chat() : ServerPacket(SMSG_CHAT, 100) { }
-            Chat(Chat const& chat);
-
-            void Initialize(ChatMsg chatType, Language language, WorldObject const* sender, WorldObject const* receiver, std::string_view message, uint32 achievementId = 0,
-                std::string_view channelName = "", LocaleConstant locale = DEFAULT_LOCALE, std::string_view addonPrefix = "");
-            void SetSender(WorldObject const* sender, LocaleConstant locale);
-            void SetReceiver(WorldObject const* receiver, LocaleConstant locale);
-
-            WorldPacket const* Write() override;
-
-            uint8 SlashCmd = 0;     ///< @see enum ChatMsg
-            uint32 _Language = LANG_UNIVERSAL;
-            ObjectGuid SenderGUID;
-            ObjectGuid SenderGuildGUID;
-            ObjectGuid SenderAccountGUID;
-            ObjectGuid TargetGUID;
-            ObjectGuid PartyGUID;
-            uint32 SenderVirtualAddress = 0;
-            uint32 TargetVirtualAddress = 0;
-            std::string SenderName;
-            std::string TargetName;
-            std::string Prefix;     ///< Addon Prefix
-            std::string _Channel;   ///< Channel Name
-            std::string ChatText;
-            uint32 AchievementID = 0;
-            uint8 _ChatFlags = 0;   ///< @see enum ChatFlags
-            float DisplayTime = 0.0f;
-            Optional<uint32> Unused_801;
-            bool HideChatLog = false;
-            bool FakeSenderName = false;
-            Optional<ObjectGuid> ChannelGUID;
-        };
-
         class Emote final : public ServerPacket
         {
         public:
-            Emote() : ServerPacket(SMSG_EMOTE, 18 + 4) { }
+            Emote() : ServerPacket(SMSG_EMOTE, 4 + 8) { }
 
             WorldPacket const* Write() override;
 
-            ObjectGuid Guid;
             uint32 EmoteID = 0;
-            std::vector<int32> SpellVisualKitIDs;
-            int32 SequenceVariation = 0;
-        };
-
-        class CTextEmote final : public ClientPacket
-        {
-        public:
-            CTextEmote(WorldPacket&& packet) : ClientPacket(CMSG_SEND_TEXT_EMOTE, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid Target;
-            int32 EmoteID = 0;
-            int32 SoundIndex = -1;
-            Array<int32, 2> SpellVisualKitIDs;
-            int32 SequenceVariation = 0;
-        };
-
-        class STextEmote final : public ServerPacket
-        {
-        public:
-            STextEmote() : ServerPacket(SMSG_TEXT_EMOTE, 3 * 18 + 2 * 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid SourceGUID;
-            ObjectGuid SourceAccountGUID;
-            ObjectGuid TargetGUID;
-            int32 SoundIndex = -1;
-            int32 EmoteID = 0;
-        };
-
-        class TC_GAME_API PrintNotification final : public ServerPacket
-        {
-        public:
-            PrintNotification(std::string const& notifyText) : ServerPacket(SMSG_PRINT_NOTIFICATION, 2 + notifyText.size()), NotifyText(notifyText) { }
-
-            WorldPacket const* Write() override;
-
-            std::string NotifyText;
+            ObjectGuid Guid;
         };
 
         class EmoteClient final : public ClientPacket
@@ -236,114 +41,20 @@ namespace WorldPackets
         public:
             EmoteClient(WorldPacket&& packet) : ClientPacket(CMSG_EMOTE, std::move(packet)) { }
 
-            void Read() override { }
-        };
+            void Read() override;
 
-        class ChatPlayerNotfound final : public ServerPacket
-        {
-        public:
-            ChatPlayerNotfound(std::string const& name) : ServerPacket(SMSG_CHAT_PLAYER_NOTFOUND, 2 + name.size()), Name(name) { }
-
-            WorldPacket const* Write() override;
-
-            std::string Name;
+            uint32 EmoteID = 0;
         };
 
         class ChatServerMessage final : public ServerPacket
         {
         public:
-            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 2) { }
+            ChatServerMessage() : ServerPacket(SMSG_CHAT_SERVER_MESSAGE, 4 + 20) { }
 
             WorldPacket const* Write() override;
 
             int32 MessageID = 0;
             std::string StringParam;
-        };
-
-        class ChatRegisterAddonPrefixes final : public ClientPacket
-        {
-        public:
-            enum
-            {
-                MAX_PREFIXES = 64
-            };
-
-            ChatRegisterAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_REGISTER_ADDON_PREFIXES, std::move(packet)) { }
-
-            void Read() override;
-
-            Array<std::string, MAX_PREFIXES> Prefixes;
-        };
-
-        class ChatUnregisterAllAddonPrefixes final : public ClientPacket
-        {
-        public:
-            ChatUnregisterAllAddonPrefixes(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_UNREGISTER_ALL_ADDON_PREFIXES, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class DefenseMessage final : public ServerPacket
-        {
-        public:
-            DefenseMessage() : ServerPacket(SMSG_DEFENSE_MESSAGE) { }
-
-            WorldPacket const* Write() override;
-
-            int32 ZoneID = 0;
-            std::string MessageText;
-        };
-
-        class ChatReportIgnored final : public ClientPacket
-        {
-        public:
-            ChatReportIgnored(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_REPORT_IGNORED, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid IgnoredGUID;
-            uint8 Reason = 0;
-        };
-
-        class ChatPlayerAmbiguous final : public ServerPacket
-        {
-        public:
-            ChatPlayerAmbiguous(std::string const& name) : ServerPacket(SMSG_CHAT_PLAYER_AMBIGUOUS, 2 + name.length()), Name(name) { }
-
-            WorldPacket const* Write() override;
-
-            std::string Name;
-        };
-
-        class ChatRestricted final : public ServerPacket
-        {
-        public:
-            ChatRestricted() : ServerPacket(SMSG_CHAT_RESTRICTED, 1) { }
-
-            WorldPacket const* Write() override;
-
-            uint8 Reason = 0;
-        };
-
-        class CanLocalWhisperTargetRequest final : public ClientPacket
-        {
-        public:
-            CanLocalWhisperTargetRequest(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_REQUEST, std::move(packet)) { }
-
-            void Read() override;
-
-            ObjectGuid WhisperTarget;
-        };
-
-        class CanLocalWhisperTargetResponse final : public ServerPacket
-        {
-        public:
-            CanLocalWhisperTargetResponse() : ServerPacket(SMSG_CHAT_CAN_LOCAL_WHISPER_TARGET_RESPONSE, 16 + 1) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid WhisperTarget;
-            ChatWhisperTargetStatus Status = {};
         };
     }
 }

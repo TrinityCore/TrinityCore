@@ -24,21 +24,17 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
-#include "DB2Stores.h"
 #include "GameTime.h"
 #include "Group.h"
-#include "InstanceLockMgr.h"
+#include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
 #include "Language.h"
-#include "Map.h"
 #include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "Util.h"
-#include "World.h"
 #include "WorldSession.h"
-#include <sstream>
 
 using namespace Trinity::ChatCommands;
 
@@ -54,6 +50,7 @@ public:
             { "listbinds",    HandleInstanceListBindsCommand,    rbac::RBAC_PERM_COMMAND_INSTANCE_LISTBINDS,      Console::No },
             { "unbind",       HandleInstanceUnbindCommand,       rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,         Console::No },
             { "stats",        HandleInstanceStatsCommand,        rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,          Console::Yes },
+            { "savedata",     HandleInstanceSaveDataCommand,     rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,       Console::No },
             { "setbossstate", HandleInstanceSetBossStateCommand, rbac::RBAC_PERM_COMMAND_INSTANCE_SET_BOSS_STATE, Console::Yes },
             { "getbossstate", HandleInstanceGetBossStateCommand, rbac::RBAC_PERM_COMMAND_INSTANCE_GET_BOSS_STATE, Console::Yes },
         };
@@ -72,75 +69,72 @@ public:
         if (!player)
             player = handler->GetSession()->GetPlayer();
 
-        InstanceResetTimePoint now = GameTime::GetTime<InstanceResetTimePoint::clock>();
-        std::vector<InstanceLock const*> instanceLocks = sInstanceLockMgr.GetInstanceLocksForPlayer(player->GetGUID());
-        for (InstanceLock const* instanceLock : instanceLocks)
+        uint32 counter = 0;
+        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         {
-            MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
-            std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
-            handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-                instanceLock->GetInstanceId(),
-                handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
-                handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
-                timeleft.c_str());
+            for (auto const& [mapId, bind] : player->GetBoundInstances(Difficulty(i)))
+            {
+                InstanceSave const* save = bind.save;
+                std::string timeleft = secsToTimeString(save->GetResetTime() - GameTime::GetGameTime(), TimeFormat::ShortText);
+                handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, mapId, save->GetInstanceId(), bind.perm ? "yes" : "no", bind.extendState == EXTEND_STATE_EXPIRED ? "expired" : bind.extendState == EXTEND_STATE_EXTENDED ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                counter++;
+            }
         }
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_PLAYER_BINDS, counter);
 
-        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_PLAYER_BINDS, uint32(instanceLocks.size()));
+        counter = 0;
+        if (Group* group = player->GetGroup())
+        {
+            for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+            {
+                for (auto const& [mapId, bind] : group->GetBoundInstances(Difficulty(i)))
+                {
+                    InstanceSave* save = bind.save;
+                    std::string timeleft = secsToTimeString(save->GetResetTime() - GameTime::GetGameTime(), TimeFormat::ShortText);
+                    handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, mapId, save->GetInstanceId(), bind.perm ? "yes" : "no", "-", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    counter++;
+                }
+            }
+        }
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_GROUP_BINDS, counter);
+
         return true;
     }
 
-    static bool HandleInstanceUnbindCommand(ChatHandler* handler, Variant<uint32, EXACT_SEQUENCE("all")> mapArg, Optional<uint32> difficultyArg)
+    static bool HandleInstanceUnbindCommand(ChatHandler* handler, Variant<uint16, EXACT_SEQUENCE("all")> mapArg, Optional<uint8> difficultyArg)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
             player = handler->GetSession()->GetPlayer();
 
-        Optional<uint32> mapId;
-        Optional<Difficulty> difficulty;
+        uint16 counter = 0;
+        uint16 mapId = 0;
 
-        if (mapArg.holds_alternative<uint32>())
-            mapId = mapArg.get<uint32>();
-
-        if (difficultyArg && sDifficultyStore.LookupEntry(*difficultyArg))
-            difficulty = Difficulty(*difficultyArg);
-
-        std::vector<InstanceLock const*> locksReset;
-        std::vector<InstanceLock const*> locksNotReset;
-
-        sInstanceLockMgr.ResetInstanceLocksForPlayer(player->GetGUID(), mapId, difficulty, &locksReset, &locksNotReset);
-
-        InstanceResetTimePoint now = GameTime::GetTime<InstanceResetTimePoint::clock>();
-        for (InstanceLock const* instanceLock : locksReset)
+        if (mapArg.holds_alternative<uint16>())
         {
-            MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
-            std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
-            handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-                instanceLock->GetInstanceId(),
-                handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
-                handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
-                timeleft.c_str());
+            mapId = mapArg.get<uint16>();
+            if (!mapId)
+                return false;
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBOUND, uint32(locksReset.size()));
-
-        for (InstanceLock const* instanceLock : locksNotReset)
+        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         {
-            MapDb2Entries entries{ instanceLock->GetMapId(), instanceLock->GetDifficultyId() };
-            std::string timeleft = !instanceLock->IsExpired() ? secsToTimeString(std::chrono::duration_cast<Seconds>(instanceLock->GetEffectiveExpiryTime() - now).count()) : "-";
-            handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_FAILED,
-                entries.Map->ID, entries.Map->MapName[sWorld->GetDefaultDbcLocale()],
-                uint32(entries.MapDifficulty->DifficultyID), sDifficultyStore.AssertEntry(entries.MapDifficulty->DifficultyID)->Name[sWorld->GetDefaultDbcLocale()],
-                instanceLock->GetInstanceId(),
-                handler->GetTrinityString(instanceLock->IsExpired() ? LANG_YES : LANG_NO),
-                handler->GetTrinityString(instanceLock->IsExtended() ? LANG_YES : LANG_NO),
-                timeleft.c_str());
+            Player::BoundInstancesMap& binds = player->GetBoundInstances(Difficulty(i));
+            for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+            {
+                InstanceSave const* save = itr->second.save;
+                if (itr->first != player->GetMapId() && (!mapId || mapId == itr->first) && (!difficultyArg || difficultyArg == save->GetDifficulty()))
+                {
+                    std::string timeleft = secsToTimeString(save->GetResetTime() - GameTime::GetGameTime(), TimeFormat::ShortText);
+                    handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    player->UnbindInstance(itr, Difficulty(i));
+                    counter++;
+                }
+                else
+                    ++itr;
+            }
         }
-
-        player->SendRaidInfo();
+        handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBOUND, counter);
 
         return true;
     }
@@ -149,11 +143,32 @@ public:
     {
         handler->PSendSysMessage(LANG_COMMAND_INST_STAT_LOADED_INST, sMapMgr->GetNumInstances());
         handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERS_IN, sMapMgr->GetNumPlayersInInstances());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_SAVES, sInstanceSaveMgr->GetNumInstanceSaves());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERSBOUND, sInstanceSaveMgr->GetNumBoundPlayersTotal());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_GROUPSBOUND, sInstanceSaveMgr->GetNumBoundGroupsTotal());
 
-        InstanceLocksStatistics statistics = sInstanceLockMgr.GetStatistics();
+        return true;
+    }
 
-        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_SAVES, statistics.InstanceCount);
-        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERSBOUND, statistics.PlayerCount);
+    static bool HandleInstanceSaveDataCommand(ChatHandler* handler)
+    {
+        Player* player = handler->GetSession()->GetPlayer();
+        InstanceMap* map = player->GetMap()->ToInstanceMap();
+        if (!map)
+        {
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!map->GetInstanceScript())
+        {
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        map->GetInstanceScript()->SaveToDB();
 
         return true;
     }

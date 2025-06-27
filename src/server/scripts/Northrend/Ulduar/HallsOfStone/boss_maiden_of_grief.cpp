@@ -33,11 +33,10 @@ enum Texts
 enum Spells
 {
     SPELL_PARTING_SORROW                = 59723,
+    SPELL_STORM_OF_GRIEF                = 50752,
+    SPELL_SHOCK_OF_SORROW               = 50760,
+    SPELL_PILLAR_OF_WOE                 = 50761
 };
-
-#define SPELL_STORM_OF_GRIEF DUNGEON_MODE<uint32>(50752,59772)
-#define SPELL_SHOCK_OF_SORROW DUNGEON_MODE<uint32>(50760,59726)
-#define SPELL_PILLAR_OF_WOE DUNGEON_MODE<uint32>(50761,59727)
 
 enum Events
 {
@@ -56,6 +55,13 @@ struct boss_maiden_of_grief : public BossAI
 {
     boss_maiden_of_grief(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_GRIEF) { }
 
+    void Reset() override
+    {
+        _Reset();
+
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
@@ -67,7 +73,7 @@ struct boss_maiden_of_grief : public BossAI
         events.ScheduleEvent(EVENT_SHOCK_OF_SORROW, 15s, 25s);
         events.ScheduleEvent(EVENT_PILLAR_OF_WOE, 5s, 15s);
 
-        instance->TriggerGameEvent(ACHIEV_GOOD_GRIEF_START_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
     }
 
     void KilledUnit(Unit* /*who*/) override
@@ -77,7 +83,7 @@ struct boss_maiden_of_grief : public BossAI
 
     void OnSpellCast(SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_SHOCK_OF_SORROW)
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHOCK_OF_SORROW, me))
             Talk(SAY_STUN);
     }
 

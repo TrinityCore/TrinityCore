@@ -20,6 +20,7 @@
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "Timer.h"
 
@@ -166,6 +167,7 @@ public:
             }
 
             me->InterruptNonMeleeSpells(true);
+            me->ClearComboPointHolders();
             me->RemoveAllAuras();
             me->ClearAllReactives();
             me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_NON_ATTACKABLE);

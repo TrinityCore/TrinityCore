@@ -22,8 +22,6 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
-#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
@@ -51,6 +49,7 @@ enum HodirYells
 enum HodirSpells
 {
     // Hodir
+    SPELL_FROZEN_BLOWS                           = 62478,
     SPELL_FLASH_FREEZE                           = 61968,
     SPELL_FLASH_FREEZE_VISUAL                    = 62148,
     SPELL_BITING_COLD                            = 62038,
@@ -92,8 +91,6 @@ enum HodirSpells
     SPELL_GREATER_HEAL                           = 62809,
     SPELL_DISPEL_MAGIC                           = 63499,
 };
-
-#define SPELL_FROZEN_BLOWS RAID_MODE<uint32>(62478,63512)
 
 enum HodirNPC
 {
@@ -189,7 +186,7 @@ class npc_flash_freeze : public CreatureScript
             {
                 Initialize();
                 instance = me->GetInstanceScript();
-                me->SetDisplayFromModel(1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
@@ -269,7 +266,7 @@ class npc_ice_block : public CreatureScript
             npc_ice_blockAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
-                me->SetDisplayFromModel(1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetUnitFlag(UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
@@ -565,7 +562,7 @@ class npc_icicle : public CreatureScript
             npc_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
                 Initialize();
-                me->SetDisplayFromModel(0);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -618,7 +615,7 @@ class npc_snowpacked_icicle : public CreatureScript
             npc_snowpacked_icicleAI(Creature* creature) : ScriptedAI(creature)
             {
                 Initialize();
-                me->SetDisplayFromModel(1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetReactState(REACT_PASSIVE);
             }
 
@@ -720,10 +717,10 @@ class npc_hodir_priest : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
+            {
                 if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -785,10 +782,10 @@ class npc_hodir_shaman : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
+            {
                 if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -849,10 +846,10 @@ class npc_hodir_druid : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
+            {
                 if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -932,10 +929,10 @@ class npc_hodir_mage : public CreatureScript
             }
 
             void JustDied(Unit* /*killer*/) override
-             {
+            {
                 if (Creature* hodir = instance->GetCreature(DATA_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
-              }
+            }
 
         private:
             InstanceScript* instance;
@@ -958,7 +955,7 @@ class npc_toasty_fire : public CreatureScript
         {
             npc_toasty_fireAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayFromModel(1);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset() override

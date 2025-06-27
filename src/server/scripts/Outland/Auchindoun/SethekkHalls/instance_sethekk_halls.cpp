@@ -33,13 +33,6 @@ ObjectData const gameObjectData[] =
     { 0,                    0                      } // END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_DARKWEAVER_SYTH, {{ 1903 }} },
-    { DATA_TALON_KING_IKISS, {{ 1902 }} },
-    { DATA_ANZU, {{ 1904 }} }
-};
-
 class instance_sethekk_halls : public InstanceMapScript
 {
     public:
@@ -53,7 +46,6 @@ class instance_sethekk_halls : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, gameObjectData);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

@@ -18,22 +18,21 @@
 #ifndef TRINITY_FLIGHTPATHMOVEMENTGENERATOR_H
 #define TRINITY_FLIGHTPATHMOVEMENTGENERATOR_H
 
+#include "DBCStructure.h"
 #include "MovementGenerator.h"
 #include "PathMovementBase.h"
 #include <deque>
-#include <vector>
 
 class Player;
-struct TaxiPathNodeEntry;
 
 /**
  * FlightPathMovementGenerator generates movement of the player for the paths
  * and hence generates ground and activities for the player.
  */
-class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, FlightPathMovementGenerator>, public PathMovementBase<Player, std::vector<TaxiPathNodeEntry const*>>
+class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, FlightPathMovementGenerator>, public PathMovementBase<Player, TaxiPathNodeList>
 {
     public:
-        explicit FlightPathMovementGenerator();
+        explicit FlightPathMovementGenerator(uint32 startNode = 0);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
         bool GetResetPosition(Unit* owner, float& x, float& y, float& z) override;
@@ -44,17 +43,17 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         void DoDeactivate(Player*);
         void DoFinalize(Player*, bool, bool);
 
-        std::vector<TaxiPathNodeEntry const*> const& GetPath() { return _path; }
+        TaxiPathNodeList const& GetPath() { return _path; }
         uint32 GetPathAtMapEnd() const;
         bool HasArrived() const { return _currentNode >= _path.size(); }
         uint32 GetPathId(size_t index) const;
 
-        void LoadPath(Player* owner, uint32 startNode = 0); // called from MotionMaster
+        void LoadPath(Player* owner); // called from MotionMaster
         void SetCurrentNodeAfterTeleport();
         void SkipCurrentNode() { ++_currentNode; }
         void DoEventIfAny(Player* owner, TaxiPathNodeEntry const* node, bool departure);
         void InitEndGridInfo();
-        void PreloadEndGrid(Player* owner);
+        void PreloadEndGrid();
 
         std::string GetDebugInfo() const override;
 
@@ -67,7 +66,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
         struct TaxiNodeChangeInfo
         {
             uint32 PathIndex;
-            int64 Cost;
+            int32 Cost;
         };
         std::deque<TaxiNodeChangeInfo> _pointsForPathSwitch; //! node indexes and costs where TaxiPath changes
 };

@@ -23,7 +23,6 @@
 #include "Random.h"
 #include <algorithm>
 #include <iterator>
-#include <span>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -123,7 +122,7 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C>
-        inline auto SelectRandomWeightedContainerElement(C const& container, std::span<double> const& weights) -> decltype(std::begin(container))
+        inline auto SelectRandomWeightedContainerElement(C const& container, std::vector<double> weights) -> decltype(std::begin(container))
         {
             auto it = std::begin(container);
             std::advance(it, urandweighted(weights.size(), weights.data()));
@@ -139,37 +138,21 @@ namespace Trinity
          * Note: container cannot be empty
          */
         template<class C, class Fn>
-        inline auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
+        auto SelectRandomWeightedContainerElement(C const& container, Fn weightExtractor) -> decltype(std::begin(container))
         {
-            std::size_t size = std::size(container);
-            std::size_t i = 0;
-            double* weights = new double[size];
+            std::vector<double> weights;
+            weights.reserve(std::size(container));
             double weightSum = 0.0;
-            for (auto const& val : container)
+            for (auto& val : container)
             {
                 double weight = weightExtractor(val);
-                weights[i++] = weight;
+                weights.push_back(weight);
                 weightSum += weight;
             }
+            if (weightSum <= 0.0)
+                weights.assign(std::size(container), 1.0);
 
-            auto it = std::begin(container);
-            std::advance(it, weightSum > 0.0 ? urandweighted(size, weights) : urand(0, uint32(std::size(container)) - 1));
-            delete[] weights;
-            return it;
-        }
-
-        /**
-         * @fn void Trinity::Containers::RandomShuffle(Iterator begin, Iterator end)
-         *
-         * @brief Reorder the elements of the iterator range randomly.
-         *
-         * @param begin Beginning of the range to reorder
-         * @param end End of the range to reorder
-         */
-        template<class Iterator>
-        inline void RandomShuffle(Iterator begin, Iterator end)
-        {
-            std::shuffle(begin, end, RandomEngine::Instance());
+            return SelectRandomWeightedContainerElement(container, weights);
         }
 
         /**
@@ -182,7 +165,7 @@ namespace Trinity
         template<class C>
         inline void RandomShuffle(C& container)
         {
-            RandomShuffle(std::begin(container), std::end(container));
+            std::shuffle(std::begin(container), std::end(container), RandomEngine::Instance());
         }
 
         /**
@@ -198,7 +181,7 @@ namespace Trinity
          * @return true if containers have a common element, false otherwise.
         */
         template<class Iterator1, class Iterator2>
-        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
         {
             while (first1 != last1 && first2 != last2)
             {
@@ -206,37 +189,6 @@ namespace Trinity
                     ++first1;
                 else if (*first2 < *first1)
                     ++first2;
-                else
-                    return true;
-            }
-
-            return false;
-        }
-
-        /**
-         * @fn bool Trinity::Containers::Intersects(Iterator first1, Iterator last1, Iterator first2, Iterator last2, Predicate&& equalPred)
-         *
-         * @brief Checks if two SORTED containers have a common element
-         *
-         * @param first1 Iterator pointing to start of the first container
-         * @param last1 Iterator pointing to end of the first container
-         * @param first2 Iterator pointing to start of the second container
-         * @param last2 Iterator pointing to end of the second container
-         * @param equalPred Additional predicate to exclude elements
-         *
-         * @return true if containers have a common element, false otherwise.
-        */
-        template<class Iterator1, class Iterator2, class Predicate>
-        inline bool Intersects(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2, Predicate&& equalPred)
-        {
-            while (first1 != last1 && first2 != last2)
-            {
-                if (*first1 < *first2)
-                    ++first1;
-                else if (*first2 < *first1)
-                    ++first2;
-                else if (!equalPred(*first1, *first2))
-                    ++first1, ++first2;
                 else
                     return true;
             }
@@ -282,37 +234,6 @@ namespace Trinity
                 Impl::EraseIfMoveAssignable(c, std::ref(p));
             else
                 Impl::EraseIfNotMoveAssignable(c, std::ref(p));
-        }
-
-        /**
-         * Returns a mutable reference to element at index i
-         * Will resize vector if neccessary to ensure element at i can be safely written
-         *
-         * This exists as separate overload instead of one function with default argument to allow using
-         * with vectors of non-default-constructible classes
-         */
-        template<typename T>
-        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i)
-        {
-            if (i >= vec.size())
-                vec.resize(i + 1);
-
-            return vec[i];
-        }
-
-        /**
-         * Returns a mutable reference to element at index i
-         * Will resize vector if neccessary to ensure element at i can be safely written
-         *
-         * This overload allows specifying what value to pad vector with during .resize
-         */
-        template<typename T>
-        inline decltype(auto) EnsureWritableVectorIndex(std::vector<T>& vec, typename std::vector<T>::size_type i, T const& resizeDefault)
-        {
-            if (i >= vec.size())
-                vec.resize(i + 1, resizeDefault);
-
-            return vec[i];
         }
     }
     //! namespace Containers

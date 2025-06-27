@@ -21,6 +21,7 @@
 #include "StringFormat.h"
 #include "StringConvert.h"
 #include "Util.h"
+#include <sstream>
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
   #include <Windows.h>

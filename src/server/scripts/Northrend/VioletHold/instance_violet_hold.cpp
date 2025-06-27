@@ -16,16 +16,15 @@
  */
 
 #include "violet_hold.h"
-#include "Creature.h"
-#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
-#include "TaskScheduler.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
+#include "WorldStatePackets.h"
 
 /*
  * TODO:
@@ -135,7 +134,7 @@ Position const ZuramatPath[ZuramatPathSize] = // sniff
     { 1923.226f, 847.3297f, 47.15541f }
 };
 
-enum Yells
+enum VioletHoldTexts
 {
     SAY_CYANIGOSA_SPAWN                         = 3,
     SAY_XEVOZZ_SPAWN                            = 3,
@@ -146,7 +145,7 @@ enum Yells
     SOUND_MORAGG_SPAWN                          = 10112
 };
 
-enum Spells
+enum VioletHoldSpells
 {
     SPELL_CYANIGOSA_TRANSFORM                   = 58668,
     SPELL_CYANIGOSA_ARCANE_POWER_STATE          = 49411,
@@ -186,14 +185,7 @@ ObjectData const gameObjectData[] =
 MinionData const minionData[] =
 {
     { NPC_EREKEM_GUARD, DATA_EREKEM },
-    { 0,                0           } // END
-};
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_1ST_BOSS, {{ 2019 }} },
-    { DATA_2ND_BOSS, {{ 2018 }} },
-    { DATA_CYANIGOSA, {{ 2020 }} }
+    { 0,                0,          } // END
 };
 
 class instance_violet_hold : public InstanceMapScript
@@ -203,15 +195,15 @@ class instance_violet_hold : public InstanceMapScript
 
         struct instance_violet_hold_InstanceMapScript : public InstanceScript
         {
-            instance_violet_hold_InstanceMapScript(InstanceMap* map) : InstanceScript(map),
-                FirstBossId(*this, "FirstBossId", 0),
-                SecondBossId(*this, "SecondBossId", 0)
+            instance_violet_hold_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadMinionData(minionData);
-                LoadDungeonEncounterData(encounters);
+
+                FirstBossId         = 0;
+                SecondBossId        = 0;
 
                 DoorIntegrity       = 100;
                 WaveCount           = 0;
@@ -296,6 +288,13 @@ class instance_violet_hold : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
+            {
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_SHOW, EventState == IN_PROGRESS ? 1 : 0);
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_PRISON_STATE, DoorIntegrity);
+                packet.Worldstates.emplace_back(WORLD_STATE_VH_WAVE_COUNT, WaveCount);
             }
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = nullptr) const override
@@ -412,10 +411,10 @@ class instance_violet_hold : public InstanceMapScript
                                 if (GameObject* crystal = instance->GetGameObject(ActivationCrystalGUIDs[i]))
                                     crystal->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
 
-                            Scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                            Scheduler.Schedule(3s, [this](TaskContext task)
                             {
                                 CheckEventState();
-                                task.Repeat(Seconds(3));
+                                task.Repeat(3s);
                             });
                         }
                         else if (data == NOT_STARTED)
@@ -547,7 +546,7 @@ class instance_violet_hold : public InstanceMapScript
                 switch (bossId)
                 {
                     case DATA_MORAGG:
-                        Scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                        Scheduler.Schedule(2s, [this](TaskContext task)
                         {
                             if (Creature* moragg = GetCreature(DATA_MORAGG))
                             {
@@ -555,12 +554,12 @@ class instance_violet_hold : public InstanceMapScript
                                 moragg->CastSpell(moragg, SPELL_MORAGG_EMOTE_ROAR);
                             }
 
-                            task.Schedule(Seconds(3), [this](TaskContext task)
+                            task.Schedule(3s, [this](TaskContext task)
                             {
                                 if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     moragg->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, MoraggPath, MoraggPathSize, true);
 
-                                task.Schedule(Seconds(8), [this](TaskContext /*task*/)
+                                task.Schedule(8s, [this](TaskContext /*task*/)
                                 {
                                     if (Creature* moragg = GetCreature(DATA_MORAGG))
                                     {
@@ -572,12 +571,12 @@ class instance_violet_hold : public InstanceMapScript
                         });
                         break;
                     case DATA_EREKEM:
-                        Scheduler.Schedule(Seconds(3), [this](TaskContext task)
+                        Scheduler.Schedule(3s, [this](TaskContext task)
                         {
                             if (Creature* erekem = GetCreature(DATA_EREKEM))
                                 erekem->AI()->Talk(SAY_EREKEM_SPAWN);
 
-                            task.Schedule(Seconds(5), [this](TaskContext task)
+                            task.Schedule(5s, [this](TaskContext task)
                             {
                                 if (Creature* erekem = GetCreature(DATA_EREKEM))
                                     erekem->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, ErekemPath, ErekemPathSize, true);
@@ -587,12 +586,12 @@ class instance_violet_hold : public InstanceMapScript
                                 if (Creature* guard = instance->GetCreature(GetGuidData(DATA_EREKEM_GUARD_2)))
                                     guard->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, ErekemGuardRightPath, ErekemGuardRightPathSize, true);
 
-                                task.Schedule(Seconds(6), [this](TaskContext task)
+                                task.Schedule(6s, [this](TaskContext task)
                                 {
                                     if (Creature* erekem = GetCreature(DATA_EREKEM))
                                         erekem->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
 
-                                    task.Schedule(Seconds(1), [this](TaskContext /*task*/)
+                                    task.Schedule(1s, [this](TaskContext /*task*/)
                                     {
                                         for (uint32 i = DATA_EREKEM_GUARD_1; i <= DATA_EREKEM_GUARD_2; ++i)
                                         {
@@ -611,17 +610,17 @@ class instance_violet_hold : public InstanceMapScript
                         });
                         break;
                     case DATA_ICHORON:
-                        Scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                        Scheduler.Schedule(2s, [this](TaskContext task)
                         {
                             if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                 ichoron->AI()->Talk(SAY_ICHORON_SPAWN);
 
-                            task.Schedule(Seconds(3), [this](TaskContext task)
+                            task.Schedule(3s, [this](TaskContext task)
                             {
                                 if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     ichoron->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, IchoronPath, IchoronPathSize, true);
 
-                                task.Schedule(Seconds(14), [this](TaskContext /*task*/)
+                                task.Schedule(14s, [this](TaskContext /*task*/)
                                 {
                                     if (Creature* ichoron = GetCreature(DATA_ICHORON))
                                     {
@@ -633,17 +632,17 @@ class instance_violet_hold : public InstanceMapScript
                         });
                         break;
                     case DATA_LAVANTHOR:
-                        Scheduler.Schedule(Seconds(1), [this](TaskContext task)
+                        Scheduler.Schedule(1s, [this](TaskContext task)
                         {
                             if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                 lavanthor->CastSpell(lavanthor, SPELL_LAVANTHOR_SPECIAL_UNARMED);
 
-                            task.Schedule(Seconds(3), [this](TaskContext task)
+                            task.Schedule(3s, [this](TaskContext task)
                             {
                                 if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     lavanthor->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, LavanthorPath, LavanthorPathSize, true);
 
-                                task.Schedule(Seconds(8), [this](TaskContext /*task*/)
+                                task.Schedule(8s, [this](TaskContext /*task*/)
                                 {
                                     if (Creature* lavanthor = GetCreature(DATA_LAVANTHOR))
                                     {
@@ -655,22 +654,22 @@ class instance_violet_hold : public InstanceMapScript
                         });
                         break;
                     case DATA_XEVOZZ:
-                        Scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                        Scheduler.Schedule(2s, [this](TaskContext task)
                         {
                             if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                 xevozz->AI()->Talk(SAY_XEVOZZ_SPAWN);
 
-                            task.Schedule(Seconds(3), [this](TaskContext task)
+                            task.Schedule(3s, [this](TaskContext task)
                             {
                                 if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                     xevozz->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
 
-                                task.Schedule(Seconds(4), [this](TaskContext task)
+                                task.Schedule(4s, [this](TaskContext task)
                                 {
                                     if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         xevozz->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, XevozzPath, XevozzPathSize, true);
 
-                                    task.Schedule(Seconds(4), [this](TaskContext /*task*/)
+                                    task.Schedule(4s, [this](TaskContext /*task*/)
                                     {
                                         if (Creature* xevozz = GetCreature(DATA_XEVOZZ))
                                         {
@@ -683,7 +682,7 @@ class instance_violet_hold : public InstanceMapScript
                         });
                         break;
                     case DATA_ZURAMAT:
-                        Scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                        Scheduler.Schedule(2s, [this](TaskContext task)
                         {
                             if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                             {
@@ -691,12 +690,12 @@ class instance_violet_hold : public InstanceMapScript
                                 zuramat->AI()->Talk(SAY_ZURAMAT_SPAWN);
                             }
 
-                            task.Schedule(Seconds(6), [this](TaskContext task)
+                            task.Schedule(6s, [this](TaskContext task)
                             {
                                 if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     zuramat->GetMotionMaster()->MoveSmoothPath(POINT_INTRO, ZuramatPath, ZuramatPathSize, true);
 
-                                task.Schedule(Seconds(4), [this](TaskContext /*task*/)
+                                task.Schedule(4s, [this](TaskContext /*task*/)
                                 {
                                     if (Creature* zuramat = GetCreature(DATA_ZURAMAT))
                                     {
@@ -800,6 +799,17 @@ class instance_violet_hold : public InstanceMapScript
                 }
             }
 
+            void WriteSaveDataMore(std::ostringstream& data) override
+            {
+                data << FirstBossId << ' ' << SecondBossId;
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                data >> FirstBossId;
+                data >> SecondBossId;
+            }
+
             bool CheckWipe() const
             {
                 Map::PlayerList const& players = instance->GetPlayers();
@@ -892,17 +902,17 @@ class instance_violet_hold : public InstanceMapScript
 
             void ScheduleCyanigosaIntro()
             {
-                Scheduler.Schedule(Seconds(2), [this](TaskContext task)
+                Scheduler.Schedule(2s, [this](TaskContext task)
                 {
                     if (Creature* cyanigosa = GetCreature(DATA_CYANIGOSA))
                         cyanigosa->AI()->Talk(SAY_CYANIGOSA_SPAWN);
 
-                    task.Schedule(Seconds(6), [this](TaskContext task)
+                    task.Schedule(6s, [this](TaskContext task)
                     {
                         if (Creature* cyanigosa = GetCreature(DATA_CYANIGOSA))
                             cyanigosa->GetMotionMaster()->MoveJump(CyanigosaJumpLocation, 10.0f, 27.44744f);
 
-                        task.Schedule(Seconds(7), [this](TaskContext /*task*/)
+                        task.Schedule(7s, [this](TaskContext /*task*/)
                         {
                             if (Creature* cyanigosa = GetCreature(DATA_CYANIGOSA))
                             {
@@ -915,7 +925,7 @@ class instance_violet_hold : public InstanceMapScript
                 });
             }
 
-            void ProcessEvent(WorldObject* /*go*/, uint32 eventId, WorldObject* /*invoker*/) override
+            void ProcessEvent(WorldObject* /*go*/, uint32 eventId) override
             {
                 if (eventId == EVENT_ACTIVATE_CRYSTAL)
                 {
@@ -938,8 +948,8 @@ class instance_violet_hold : public InstanceMapScript
             static uint8 const ActivationCrystalCount = 5;
             ObjectGuid ActivationCrystalGUIDs[ActivationCrystalCount];
 
-            PersistentInstanceScriptValue<uint32> FirstBossId;
-            PersistentInstanceScriptValue<uint32> SecondBossId;
+            uint32 FirstBossId;
+            uint32 SecondBossId;
 
             uint8 DoorIntegrity;
             uint8 WaveCount;

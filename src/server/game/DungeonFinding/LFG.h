@@ -49,28 +49,20 @@ enum LfgUpdateType
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_QUEUE                    = 6,
-    LFG_UPDATETYPE_ROLECHECK_FAILED              = 7,
-    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 8,
-    LFG_UPDATETYPE_PROPOSAL_FAILED               = 9,
-    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 10,
-    LFG_UPDATETYPE_GROUP_FOUND                   = 11,
-    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 13,
-    LFG_UPDATETYPE_SUSPENDED_QUEUE               = 14,
-    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 15,
-    LFG_UPDATETYPE_UPDATE_STATUS                 = 16,
-    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 17,
-    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 18,     // FIXME: Sometimes at group disband
-    LFG_UPDATETYPE_JOIN_QUEUE_INITIAL            = 25,
-    LFG_UPDATETYPE_DUNGEON_FINISHED              = 26,
-    LFG_UPDATETYPE_PARTY_ROLE_NOT_AVAILABLE      = 46,
-    LFG_UPDATETYPE_JOIN_LFG_OBJECT_FAILED        = 48,
-    LFG_UPDATETYPE_REMOVED_LEVELUP               = 49,
-    LFG_UPDATETYPE_REMOVED_XP_TOGGLE             = 50,
-    LFG_UPDATETYPE_REMOVED_FACTION_CHANGE        = 51
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 5,
+    LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
+    LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
+    LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,
+    LFG_UPDATETYPE_PROPOSAL_DECLINED             = 9,
+    LFG_UPDATETYPE_GROUP_FOUND                   = 10,
+    LFG_UPDATETYPE_ADDED_TO_QUEUE                = 12,
+    LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
+    LFG_UPDATETYPE_UPDATE_STATUS                 = 14,
+    LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
+    LFG_UPDATETYPE_GROUP_DISBAND_UNK16           = 16,     // FIXME: Sometimes at group disband
 };
 
-enum LfgState : uint8
+enum LfgState
 {
     LFG_STATE_NONE,                                        // Not using LFG / LFR
     LFG_STATE_ROLECHECK,                                   // Rolecheck active
@@ -82,16 +74,6 @@ enum LfgState : uint8
     LFG_STATE_RAIDBROWSER                                  // Using Raid finder
 };
 
-enum LfgQueueType
-{
-    LFG_QUEUE_DUNGEON       = 1,
-    LFG_QUEUE_LFR           = 2,
-    LFG_QUEUE_SCENARIO      = 3,
-    LFG_QUEUE_FLEX          = 4,
-    LFG_QUEUE_WORLD_PVP     = 5,
-    LFG_QUEUE_SCHEDULED_PVP = 6,    // pvp brawl
-};
-
 /// Instance lock types
 enum LfgLockStatusType
 {
@@ -101,8 +83,6 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE            = 4,
     LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE           = 5,
     LFG_LOCKSTATUS_RAID_LOCKED                   = 6,
-    LFG_LOCKSTATUS_NO_SPEC                       = 14,
-    LFG_LOCKSTATUS_HAS_RESTRICTION               = 15,
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL      = 1001,
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL     = 1002,
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
@@ -119,18 +99,8 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
-struct TC_GAME_API LfgLockInfoData
-{
-    LfgLockInfoData(uint32 _lockStatus = 0, uint16 _requiredItemLevel = 0, float _currentItemLevel = 0) :
-        lockStatus(_lockStatus), requiredItemLevel(_requiredItemLevel), currentItemLevel(_currentItemLevel) { }
-
-    uint32 lockStatus;
-    uint16 requiredItemLevel;
-    float currentItemLevel;
-};
-
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::map<uint32, LfgLockInfoData> LfgLockMap;
+typedef std::map<uint32, uint32> LfgLockMap;
 typedef std::map<ObjectGuid, LfgLockMap> LfgLockPartyMap;
 typedef std::map<ObjectGuid, uint8> LfgRolesMap;
 typedef std::map<ObjectGuid, ObjectGuid> LfgGroupsMap;

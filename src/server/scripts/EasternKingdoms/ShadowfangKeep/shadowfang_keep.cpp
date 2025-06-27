@@ -1,4 +1,4 @@
- /*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,11 +54,6 @@ enum Spells
 {
     SPELL_UNLOCK            = 6421,
     SPELL_DARK_OFFERING     = 7154
-};
-
-enum Creatures
-{
-    NPC_ASH                 = 3850
 };
 
 class npc_shadowfang_prisoner : public CreatureScript
@@ -130,7 +125,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
-            uint32 gossipMenuId = player->GetGossipMenuForSource(me);
+            uint32 gossipMenuId = Player::GetDefaultGossipMenuForSource(me);
             InitGossipMenuFor(player, gossipMenuId);
             if (instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
                 AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);

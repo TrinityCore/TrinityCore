@@ -24,11 +24,10 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
-#include "LanguageMgr.h"
 #include "ObjectMgr.h"
+#include "Pet.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellInfo.h"
@@ -112,18 +111,24 @@ public:
                 targetPlayer->LearnSpell(spellId, false);
         }
 
+        if (GetTalentSpellCost(spell->GetFirstRankSpell()->Id))
+            targetPlayer->SendTalentsInfoData(false);
+
         return true;
     }
 
     static bool HandleLearnAllGMCommand(ChatHandler* handler)
     {
-        for (std::pair<uint32 const, SkillLineAbilityEntry const*> skillSpell : Trinity::Containers::MakeIteratorPair(sSpellMgr->GetSkillLineAbilityMapBounds(SKILL_INTERNAL)))
+        for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillSpell.second->Spell, DIFFICULTY_NONE);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(i);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            handler->GetSession()->GetPlayer()->LearnSpell(skillSpell.second->Spell, false);
+            if (!spellInfo->IsAbilityOfSkillType(SKILL_INTERNAL))
+                continue;
+
+            handler->GetSession()->GetPlayer()->LearnSpell(i, false);
         }
 
         handler->SendSysMessage(LANG_LEARNING_GM_SKILLS);
@@ -135,8 +140,8 @@ public:
         Player* player = handler->GetPlayer();
         for (auto const& [id, quest] : sObjectMgr->GetQuestTemplates())
         {
-            if (quest.GetAllowableClasses() && player->SatisfyQuestClass(&quest, false))
-                player->LearnQuestRewardedSpells(&quest);
+            if (quest->GetRequiredClasses() && player->SatisfyQuestClass(quest.get(), false))
+                player->LearnQuestRewardedSpells(quest.get());
         }
         return true;
     }
@@ -146,36 +151,32 @@ public:
         ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(handler->GetPlayer()->GetClass());
         if (!classEntry)
             return true;
-        uint32 family = classEntry->SpellClassSet;
 
-        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        Player* player = handler->GetPlayer();
+        std::vector<Trainer::Trainer const*> const& trainers = sObjectMgr->GetClassTrainers(player->GetClass());
+
+        bool hadNew;
+        do
         {
-            SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
-            if (!entry)
-                continue;
+            hadNew = false;
+            for (Trainer::Trainer const* trainer : trainers)
+            {
+                if (!trainer->IsTrainerValidForPlayer(player))
+                    continue;
+                for (Trainer::Spell const& trainerSpell : trainer->GetSpells())
+                {
+                    if (!trainer->CanTeachSpell(player, &trainerSpell))
+                        continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->Spell, DIFFICULTY_NONE);
-            if (!spellInfo)
-                continue;
+                    if (trainerSpell.IsCastable())
+                        player->CastSpell(player, trainerSpell.SpellId, true);
+                    else
+                        player->LearnSpell(trainerSpell.SpellId, false);
 
-            // skip server-side/triggered spells
-            if (spellInfo->SpellLevel == 0)
-                continue;
-
-            // skip wrong class/race skills
-            if (!handler->GetSession()->GetPlayer()->IsSpellFitByClassAndRace(spellInfo->Id))
-                continue;
-
-            // skip other spell families
-            if (spellInfo->SpellFamilyName != family)
-                continue;
-
-            // skip broken spells
-            if (!SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
-                continue;
-
-            handler->GetSession()->GetPlayer()->LearnSpell(spellInfo->Id, false);
-        }
+                    hadNew = true;
+                }
+            }
+        } while (hadNew);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_SPELLS);
         return true;
@@ -184,7 +185,7 @@ public:
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 playerClass = player->GetClass();
+        uint32 classMask = player->GetClassMask();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -192,29 +193,44 @@ public:
             if (!talentInfo)
                 continue;
 
-            if (playerClass != talentInfo->ClassID)
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TabID);
+            if (!talentTabInfo)
                 continue;
 
-            if (talentInfo->SpecID && player->GetPrimarySpecialization() != talentInfo->SpecID)
+            if ((classMask & talentTabInfo->ClassMask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
+            // search highest talent rank
+            uint32 spellId = 0;
+            for (int8 rank = MAX_TALENT_RANK - 1; rank >= 0; --rank)
+            {
+                if (talentInfo->SpellRank[rank] != 0)
+                {
+                    spellId = talentInfo->SpellRank[rank];
+                    break;
+                }
+            }
+
+            if (!spellId)                                        // ??? none spells in talent
+                continue;
+
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, handler->GetSession()->GetPlayer(), false))
                 continue;
 
-            player->AddTalent(talentInfo, player->GetActiveTalentGroup(), true);
-            player->LearnSpell(talentInfo->SpellID, false);
+            player->LearnSpell(spellId, false);
+            player->AddTalent(spellId, player->GetActiveSpec(), true);
         }
 
-        player->SendTalentsInfoData();
+        player->SetFreeTalentPoints(0);
+        player->SendTalentsInfoData(false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
         return true;
     }
 
-    static bool HandleLearnAllPetTalentsCommand(ChatHandler* /*handler*/)
+    static bool HandleLearnAllPetTalentsCommand(ChatHandler* handler)
     {
-        /* TODO: 6.x remove pet talents
         Player* player = handler->GetSession()->GetPlayer();
 
         Pet* pet = player->GetPet();
@@ -287,19 +303,15 @@ public:
 
         pet->SetFreeTalentPoints(0);
 
-        handler->SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);*/
+        handler->SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);
         return true;
     }
 
     static bool HandleLearnAllLangCommand(ChatHandler* handler)
     {
-        sLanguageMgr->ForEachLanguage([handler](uint32 /*lang*/, LanguageDesc const& languageDesc)
-        {
-            if (languageDesc.SpellId)
-                handler->GetSession()->GetPlayer()->LearnSpell(languageDesc.SpellId, false);
-
-            return true;
-        });
+        for (LanguageDesc const& langDesc : lang_description)
+            if (uint32 langSpellId = langDesc.spell_id)
+                handler->GetPlayer()->LearnSpell(langSpellId, false);
 
         handler->SendSysMessage(LANG_COMMAND_LEARN_ALL_LANG);
         return true;
@@ -351,7 +363,7 @@ public:
             if ((skillInfo->CategoryID == SKILL_CATEGORY_PROFESSION || skillInfo->CategoryID == SKILL_CATEGORY_SECONDARY) &&
                 skillInfo->CanLink)                             // only prof. with recipes have
             {
-                HandleLearnSkillRecipesHelper(target, i);
+                HandleLearnSkillRecipesHelper(target, skillInfo->ID);
             }
         }
 
@@ -377,7 +389,7 @@ public:
         // converting string that we try to find to lower case
         wstrToLower(namePart);
 
-        uint32 skillId = 0;
+        SkillLineEntry const* targetSkillInfo = nullptr;
         char const* name = nullptr;
         for (uint32 i = 1; i < sSkillLineStore.GetNumRows(); ++i)
         {
@@ -390,8 +402,8 @@ public:
                 !skillInfo->CanLink)                            // only prof with recipes have set
                 continue;
 
-            LocaleConstant locale = LOCALE_enUS;
-            for (; locale < TOTAL_LOCALES; locale = LocaleConstant(locale + 1))
+            uint8 locale = 0;
+            for (; locale < TOTAL_LOCALES; ++locale)
             {
                 name = skillInfo->DisplayName[locale];
                 if (!name || !*name)
@@ -403,18 +415,18 @@ public:
 
             if (locale < TOTAL_LOCALES)
             {
-                skillId = i;
+                targetSkillInfo = skillInfo;
                 break;
             }
         }
 
-        if (!(name && skillId))
+        if (!(name && targetSkillInfo))
             return false;
 
-        HandleLearnSkillRecipesHelper(target, skillId);
+        HandleLearnSkillRecipesHelper(target, targetSkillInfo->ID);
 
-        uint16 maxLevel = target->GetPureMaxSkillValue(skillId);
-        target->SetSkill(skillId, target->GetSkillStep(skillId), maxLevel, maxLevel);
+        uint16 maxLevel = target->GetPureMaxSkillValue(targetSkillInfo->ID);
+        target->SetSkill(targetSkillInfo->ID, target->GetSkillStep(targetSkillInfo->ID), maxLevel, maxLevel);
         handler->PSendSysMessage(LANG_COMMAND_LEARN_ALL_RECIPES, name);
         return true;
     }
@@ -423,25 +435,25 @@ public:
     {
         uint32 classmask = player->GetClassMask();
 
-        std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(skillId);
+        std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = GetSkillLineAbilitiesBySkill(skillId);
         if (!skillLineAbilities)
             return;
 
         for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
         {
             // not high rank
-            if (skillLine->SupercedesSpell)
+            if (skillLine->SupercededBySpell)
                 continue;
 
             // skip racial skills
-            if (!skillLine->RaceMask.IsEmpty())
+            if (skillLine->RaceMask != 0)
                 continue;
 
             // skip wrong class skills
             if (skillLine->ClassMask && (skillLine->ClassMask & classmask) == 0)
                 continue;
 
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell, DIFFICULTY_NONE);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(skillLine->Spell);
             if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, player, false))
                 continue;
 
@@ -468,6 +480,9 @@ public:
             target->RemoveSpell(spellId, false, !allRanks);
         else
             handler->SendSysMessage(LANG_FORGET_SPELL);
+
+        if (GetTalentSpellCost(spellId))
+            target->SendTalentsInfoData(false);
 
         return true;
     }

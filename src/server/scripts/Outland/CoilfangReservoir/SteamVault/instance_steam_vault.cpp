@@ -21,6 +21,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
+#include "Log.h"
 #include "steam_vault.h"
 
 struct go_main_chambers_access_panel : public GameObjectAI
@@ -58,13 +59,6 @@ ObjectData const creatureData[] =
     { 0,                            0                          } // END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_HYDROMANCER_THESPIA, {{ 1942 }} },
-    { DATA_MEKGINEER_STEAMRIGGER, {{ 1943 }} },
-    { DATA_WARLORD_KALITHRESH, {{ 1944 }} }
-};
-
 class instance_steam_vault : public InstanceMapScript
 {
     public:
@@ -77,8 +71,6 @@ class instance_steam_vault : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
-                LoadDungeonEncounterData(encounters);
-                distillerState = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -98,24 +90,15 @@ class instance_steam_vault : public InstanceMapScript
                     if (GameObject* mainDoor = GetGameObject(DATA_MAIN_DOOR))
                     {
                         HandleGameObject(ObjectGuid::Empty, true, mainDoor);
-                        mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
+                       mainDoor->SetFlag(GO_FLAG_NOT_SELECTABLE);
                     }
                 }
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
-                if (type == DATA_DISTILLER)
-                    distillerState = data;
-                else if (type == ACTION_OPEN_DOOR)
+                if (type == ACTION_OPEN_DOOR)
                     CheckMainDoor();
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_DISTILLER)
-                    return distillerState;
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -141,9 +124,6 @@ class instance_steam_vault : public InstanceMapScript
 
                 return true;
             }
-
-        protected:
-            uint8 distillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

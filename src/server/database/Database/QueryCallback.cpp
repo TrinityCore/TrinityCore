@@ -66,13 +66,13 @@ public:
 
     QueryCallbackData(std::function<void(QueryCallback&, QueryResult)>&& callback) : _string(std::move(callback)), _isPrepared(false) { }
     QueryCallbackData(std::function<void(QueryCallback&, PreparedQueryResult)>&& callback) : _prepared(std::move(callback)), _isPrepared(true) { }
-    QueryCallbackData(QueryCallbackData&& right) noexcept
+    QueryCallbackData(QueryCallbackData&& right)
     {
         _isPrepared = right._isPrepared;
         ConstructActiveMember(this);
         MoveFrom(this, std::move(right));
     }
-    QueryCallbackData& operator=(QueryCallbackData&& right) noexcept
+    QueryCallbackData& operator=(QueryCallbackData&& right)
     {
         if (this != &right)
         {
@@ -117,7 +117,7 @@ QueryCallback::QueryCallback(std::future<PreparedQueryResult>&& result)
     Construct(_prepared, std::move(result));
 }
 
-QueryCallback::QueryCallback(QueryCallback&& right) noexcept
+QueryCallback::QueryCallback(QueryCallback&& right)
 {
     _isPrepared = right._isPrepared;
     ConstructActiveMember(this);
@@ -125,7 +125,7 @@ QueryCallback::QueryCallback(QueryCallback&& right) noexcept
     _callbacks = std::move(right._callbacks);
 }
 
-QueryCallback& QueryCallback::operator=(QueryCallback&& right) noexcept
+QueryCallback& QueryCallback::operator=(QueryCallback&& right)
 {
     if (this != &right)
     {

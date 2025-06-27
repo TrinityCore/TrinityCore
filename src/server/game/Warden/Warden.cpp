@@ -15,19 +15,18 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Warden.h"
-#include "AccountMgr.h"
-#include "ByteBuffer.h"
 #include "Common.h"
-#include "CryptoHash.h"
-#include "GameTime.h"
-#include "Log.h"
-#include "SmartEnum.h"
-#include "Util.h"
-#include "WardenPackets.h"
-#include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "Log.h"
+#include "Opcodes.h"
+#include "ByteBuffer.h"
+#include "CryptoHash.h"
+#include "GameTime.h"
+#include "World.h"
+#include "Util.h"
+#include "Warden.h"
+#include "AccountMgr.h"
 #include <charconv>
 
 Warden::Warden() : _session(nullptr), _checkTimer(10 * IN_MILLISECONDS), _clientResponseTimer(0),
@@ -70,7 +69,7 @@ void Warden::SendModuleToClient()
         EndianConvert(packet.DataSize);
 
         EncryptData(reinterpret_cast<uint8*>(&packet), burstSize + 3);
-        WorldPacket pkt1(SMSG_WARDEN3_DATA, burstSize + 3);
+        WorldPacket pkt1(SMSG_WARDEN_DATA, burstSize + 3);
         pkt1.append(reinterpret_cast<uint8*>(&packet), burstSize + 3);
         _session->SendPacket(&pkt1);
     }
@@ -93,7 +92,7 @@ void Warden::RequestModule()
     // Encrypt with warden RC4 key.
     EncryptData(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
 
-    WorldPacket pkt(SMSG_WARDEN3_DATA, sizeof(WardenModuleUse));
+    WorldPacket pkt(SMSG_WARDEN_DATA, sizeof(WardenModuleUse));
     pkt.append(reinterpret_cast<uint8*>(&request), sizeof(WardenModuleUse));
     _session->SendPacket(&pkt);
 }
@@ -190,12 +189,13 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
         {
             std::string accountName;
             AccountMgr::GetName(_session->GetAccountId(), accountName);
-            std::string banReason = "Warden Anticheat Violation";
+            std::stringstream banReason;
+            banReason << "Warden Anticheat Violation";
             // Check can be NULL, for example if the client sent a wrong signature in the warden packet (CHECKSUM FAIL)
             if (check)
-                banReason += Trinity::StringFormat(": {} (CheckId: {}", check->Comment, check->CheckId);
+                banReason << ": " << check->Comment << " (CheckId: " << check->CheckId << ")";
 
-            sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason, "Server");
+            sWorld->BanAccount(BAN_ACCOUNT, accountName, sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION), banReason.str(),"Server");
 
             break;
         }
@@ -265,10 +265,10 @@ bool Warden::ProcessLuaCheckResponse(std::string const& msg)
     return true;
 }
 
-void WorldSession::HandleWardenData(WorldPackets::Warden::WardenData& packet)
+void WorldSession::HandleWardenDataOpcode(WorldPacket& recvData)
 {
-    if (!_warden || packet.Data.empty())
+    if (!_warden || recvData.empty())
         return;
 
-    _warden->HandleData(packet.Data);
+    _warden->HandleData(recvData);
 }

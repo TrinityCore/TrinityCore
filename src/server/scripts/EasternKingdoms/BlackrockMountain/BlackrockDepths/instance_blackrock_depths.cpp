@@ -17,11 +17,15 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_depths.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
-#include "ScriptedCreature.h"
+#include "MotionMaster.h"
+#include "MapReference.h"
+#include "Player.h"
 
 #define TIMER_TOMBOFTHESEVEN    15000
 #define MAX_ENCOUNTER           6
@@ -40,6 +44,7 @@ enum Creatures
     NPC_DOOMREL              = 9039,
     NPC_MAGMUS               = 9938,
     NPC_MOIRA                = 8929,
+    NPC_PRIESTESS_THAURISSAN = 10076,
     NPC_COREN                = 23872,
 };
 
@@ -68,6 +73,12 @@ enum GameObjects
     GO_CHEST_SEVEN          = 169243
 };
 
+enum Quests
+{
+    QUEST_THE_PRINCESS_SURPRISE = 4363, // Alliance
+    QUEST_THE_PRINCESS_SAVED    = 4004  // Horde
+};
+
 class instance_blackrock_depths : public InstanceMapScript
 {
 public:
@@ -83,13 +94,16 @@ public:
         instance_blackrock_depths_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            SetBossNumber(MAX_ENCOUNTER);
+            memset(&encounter, 0, sizeof(encounter));
 
             BarAleCount = 0;
             GhostKillCount = 0;
             TombTimer = TIMER_TOMBOFTHESEVEN;
             TombEventCounter = 0;
         }
+
+        uint32 encounter[MAX_ENCOUNTER];
+        std::string str_data;
 
         ObjectGuid EmperorGUID;
         ObjectGuid PhalanxGUID;
@@ -126,13 +140,26 @@ public:
         uint32 TombTimer;
         uint32 TombEventCounter;
 
+        void UpdateMoira(Creature* moira)
+        {
+            InstanceMap::PlayerList const& players = instance->GetPlayers();
+
+            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                if (Player * player = i->GetSource())
+                    if ((player->GetTeamId() == TEAM_ALLIANCE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SURPRISE))
+                        || (player->GetTeamId() == TEAM_HORDE && !player->IsActiveQuest(QUEST_THE_PRINCESS_SAVED)))
+                        return;
+
+            moira->UpdateEntry(NPC_PRIESTESS_THAURISSAN);
+        }
+
         void OnCreatureCreate(Creature* creature) override
         {
             switch (creature->GetEntry())
             {
                 case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
                 case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
-                case NPC_MOIRA: MoiraGUID = creature->GetGUID(); break;
+                case NPC_MOIRA: MoiraGUID = creature->GetGUID(); UpdateMoira(creature); break;
                 case NPC_COREN: CorenGUID = creature->GetGUID(); break;
                 case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
                 case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
@@ -206,29 +233,43 @@ public:
             switch (type)
             {
                 case TYPE_RING_OF_LAW:
-                    SetBossState(0, EncounterState(data));
+                    encounter[0] = data;
                     break;
                 case TYPE_VAULT:
-                    SetBossState(1, EncounterState(data));
+                    encounter[1] = data;
                     break;
                 case TYPE_BAR:
                     if (data == SPECIAL)
                         ++BarAleCount;
                     else
-                        SetBossState(2, EncounterState(data));
+                        encounter[2] = data;
                     break;
                 case TYPE_TOMB_OF_SEVEN:
-                    SetBossState(3, EncounterState(data));
+                    encounter[3] = data;
                     break;
                 case TYPE_LYCEUM:
-                    SetBossState(4, EncounterState(data));
+                    encounter[4] = data;
                     break;
                 case TYPE_IRON_HALL:
-                    SetBossState(5, EncounterState(data));
+                    encounter[5] = data;
                     break;
                 case DATA_GHOSTKILL:
                     GhostKillCount += data;
                     break;
+            }
+
+            if (data == DONE || GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << encounter[0] << ' ' << encounter[1] << ' ' << encounter[2] << ' '
+                    << encounter[3] << ' ' << encounter[4] << ' ' << encounter[5] << ' ' << GhostKillCount;
+
+                str_data = saveStream.str();
+
+                SaveToDB();
+                OUT_SAVE_INST_DATA_COMPLETE;
             }
         }
 
@@ -237,20 +278,20 @@ public:
             switch (type)
             {
                 case TYPE_RING_OF_LAW:
-                    return GetBossState(0);
+                    return encounter[0];
                 case TYPE_VAULT:
-                    return GetBossState(1);
+                    return encounter[1];
                 case TYPE_BAR:
-                    if (GetBossState(2) == IN_PROGRESS && BarAleCount == 3)
+                    if (encounter[2] == IN_PROGRESS && BarAleCount == 3)
                         return SPECIAL;
                     else
-                        return GetBossState(2);
+                        return encounter[2];
                 case TYPE_TOMB_OF_SEVEN:
-                    return GetBossState(3);
+                    return encounter[3];
                 case TYPE_LYCEUM:
-                    return GetBossState(4);
+                    return encounter[4];
                 case TYPE_IRON_HALL:
-                    return GetBossState(5);
+                    return encounter[5];
                 case DATA_GHOSTKILL:
                     return GhostKillCount;
             }
@@ -301,9 +342,39 @@ public:
             return ObjectGuid::Empty;
         }
 
+        std::string GetSaveData() override
+        {
+            return str_data;
+        }
+
+        void Load(char const* in) override
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            std::istringstream loadStream(in);
+            loadStream >> encounter[0] >> encounter[1] >> encounter[2] >> encounter[3]
+            >> encounter[4] >> encounter[5] >> GhostKillCount;
+
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                if (encounter[i] == IN_PROGRESS)
+                    encounter[i] = NOT_STARTED;
+            if (GhostKillCount > 0 && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
+                GhostKillCount = 0;//reset tomb of seven event
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM)
+                GhostKillCount = TOMB_OF_SEVEN_BOSS_NUM;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+
         void TombOfSevenEvent()
         {
-            if (GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM && !TombBossGUIDs[TombEventCounter].IsEmpty())
+            if (GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM && TombBossGUIDs[TombEventCounter])
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
@@ -351,9 +422,10 @@ public:
             TombEventStarterGUID.Clear();
             SetData(TYPE_TOMB_OF_SEVEN, DONE);
         }
+
         void Update(uint32 diff) override
         {
-            if (!TombEventStarterGUID.IsEmpty() && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
+            if (TombEventStarterGUID && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
             {
                 if (TombTimer <= diff)
                 {
@@ -377,7 +449,7 @@ public:
                     }
                 } else TombTimer -= diff;
             }
-            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM && !TombEventStarterGUID.IsEmpty())
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM && TombEventStarterGUID)
                 TombOfSevenEnd();
         }
     };

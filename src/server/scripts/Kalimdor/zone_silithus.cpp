@@ -18,6 +18,7 @@
 /* ScriptData
 SDName: Silithus
 SD%Complete: 100
+SDComment: Quest support: 8348,8352,8361,8519
 SDCategory: Silithus
 EndScriptData */
 
@@ -31,7 +32,6 @@ go_crystalline_tear : GameObject that begins the event and hands out quest
 TO DO: get correct spell IDs and timings for spells cast upon dragon transformations
 TO DO: Dragons should use the HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF) after transformation,
        but for some unknown reason it doesn't work.
-go_wind_stone
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -1454,7 +1454,7 @@ class spell_silithus_summon_cultist_periodic : public AuraScript
 
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)

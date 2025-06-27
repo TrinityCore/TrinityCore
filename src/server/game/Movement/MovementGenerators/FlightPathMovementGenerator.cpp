@@ -16,25 +16,23 @@
  */
 
 #include "FlightPathMovementGenerator.h"
-#include "DB2Stores.h"
-#include "GameEventSender.h"
+#include "DBCStores.h"
 #include "Log.h"
-#include "Map.h"
+#include "MapManager.h"
 #include "MovementDefines.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include <sstream>
 
 #define FLIGHT_TRAVEL_UPDATE 100
 #define TIMEDIFF_NEXT_WP 250
 #define SKIP_SPLINE_POINT_DISTANCE_SQ (40.f * 40.f)
 #define PLAYER_FLIGHT_SPEED 32.0f
 
-FlightPathMovementGenerator::FlightPathMovementGenerator()
+FlightPathMovementGenerator::FlightPathMovementGenerator(uint32 startNode)
 {
-    _currentNode = 0;
+    _currentNode = startNode;
     _endGridX = 0.0f;
     _endGridY = 0.0f;
     _endMapId = 0;
@@ -95,9 +93,6 @@ void FlightPathMovementGenerator::DoReset(Player* owner)
     }
     init.SetFirstPointId(GetCurrentNode());
     init.SetFly();
-    init.SetSmooth();
-    init.SetUncompressed();
-    init.SetWalk(true);
     init.SetVelocity(PLAYER_FLIGHT_SPEED);
     init.Launch();
 }
@@ -123,7 +118,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
                 owner->m_taxi.NextTaxiDestination();
                 if (!_pointsForPathSwitch.empty())
                 {
-                    owner->UpdateCriteria(CriteriaType::MoneySpentOnTaxis, _pointsForPathSwitch.front().Cost);
+                    owner->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TRAVELLING, _pointsForPathSwitch.front().Cost);
                     owner->ModifyMoney(-_pointsForPathSwitch.front().Cost);
                 }
             }
@@ -132,7 +127,7 @@ bool FlightPathMovementGenerator::DoUpdate(Player* owner, uint32 /*diff*/)
                 break;
 
             if (_currentNode == _preloadTargetNode)
-                PreloadEndGrid(owner);
+                PreloadEndGrid();
 
             _currentNode += departureEvent ? 1 : 0;
             departureEvent = !departureEvent;
@@ -178,7 +173,7 @@ void FlightPathMovementGenerator::DoFinalize(Player* owner, bool active, bool/* 
         }
     }
 
-    owner->RemovePlayerFlag(PLAYER_FLAGS_TAXI_BENCHMARK);
+    owner->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_TAXI_BENCHMARK);
 }
 
 uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
@@ -201,10 +196,8 @@ bool IsNodeIncludedInShortenedPath(TaxiPathNodeEntry const* p1, TaxiPathNodeEntr
     return p1->ContinentID != p2->ContinentID || std::pow(p1->Loc.X - p2->Loc.X, 2) + std::pow(p1->Loc.Y - p2->Loc.Y, 2) > SKIP_SPLINE_POINT_DISTANCE_SQ;
 }
 
-void FlightPathMovementGenerator::LoadPath(Player* owner, uint32 startNode /*= 0*/)
+void FlightPathMovementGenerator::LoadPath(Player* owner)
 {
-    _path.clear();
-    _currentNode = startNode;
     _pointsForPathSwitch.clear();
     std::deque<uint32> const& taxi = owner->m_taxi.GetPath();
     float discount = owner->GetReputationPriceDiscount(owner->m_taxi.GetFlightMasterFactionTemplate());
@@ -223,7 +216,7 @@ void FlightPathMovementGenerator::LoadPath(Player* owner, uint32 startNode /*= 0
             bool passedPreviousSegmentProximityCheck = false;
             for (uint32 i = 0; i < nodes.size(); ++i)
             {
-                if (passedPreviousSegmentProximityCheck || !src || _path.empty() || IsNodeIncludedInShortenedPath(_path.back(), nodes[i]))
+                if (passedPreviousSegmentProximityCheck || !src || _path.empty() || IsNodeIncludedInShortenedPath(_path[_path.size() - 1], nodes[i]))
                 {
                     if ((!src || (IsNodeIncludedInShortenedPath(start, nodes[i]) && i >= 2)) &&
                         (dst == taxi.size() - 1 || (IsNodeIncludedInShortenedPath(end, nodes[i]) && i < nodes.size() - 1)))
@@ -240,7 +233,7 @@ void FlightPathMovementGenerator::LoadPath(Player* owner, uint32 startNode /*= 0
             }
         }
 
-        _pointsForPathSwitch.push_back({ uint32(_path.size() - 1), int64(ceil(cost * discount)) });
+        _pointsForPathSwitch.push_back({ uint32(_path.size() - 1), int32(ceil(cost * discount)) });
     }
 }
 
@@ -267,7 +260,7 @@ void FlightPathMovementGenerator::DoEventIfAny(Player* owner, TaxiPathNodeEntry 
     if (uint32 eventid = departure ? node->DepartureEventID : node->ArrivalEventID)
     {
         TC_LOG_DEBUG("maps.script", "FlightPathMovementGenerator::DoEventIfAny: taxi {} event {} of node {} of path {} for player {}", departure ? "departure" : "arrival", eventid, node->NodeIndex, node->PathID, owner->GetName());
-        GameEvents::Trigger(eventid, owner, owner);
+        owner->GetMap()->ScriptsStart(sEventScripts, eventid, owner, owner);
     }
 }
 
@@ -284,18 +277,14 @@ void FlightPathMovementGenerator::InitEndGridInfo()
         _preloadTargetNode = 0;
     else
         _preloadTargetNode = nodeCount - 3;
-
-    while (_path[_preloadTargetNode]->ContinentID != _endMapId)
-        ++_preloadTargetNode;
-
     _endGridX = _path[nodeCount - 1]->Loc.X;
     _endGridY = _path[nodeCount - 1]->Loc.Y;
 }
 
-void FlightPathMovementGenerator::PreloadEndGrid(Player* owner)
+void FlightPathMovementGenerator::PreloadEndGrid()
 {
     // Used to preload the final grid where the flightmaster is
-    Map* endMap = owner->GetMap();
+    Map* endMap = sMapMgr->FindBaseNonInstanceMap(_endMapId);
 
     // Load the grid
     if (endMap)

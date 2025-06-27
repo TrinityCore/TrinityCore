@@ -19,41 +19,22 @@
 
 char const* localeNames[TOTAL_LOCALES] =
 {
-    "enUS",
-    "koKR",
-    "frFR",
-    "deDE",
-    "zhCN",
-    "zhTW",
-    "esES",
-    "esMX",
-    "ruRU",
-    "none",
-    "ptBR",
-    "itIT"
+  "enUS",
+  "koKR",
+  "frFR",
+  "deDE",
+  "zhCN",
+  "zhTW",
+  "esES",
+  "esMX",
+  "ruRU"
 };
 
-LocaleConstant GetLocaleByName(std::string_view name)
+LocaleConstant GetLocaleByName(const std::string& name)
 {
     for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         if (name == localeNames[i])
             return LocaleConstant(i);
 
-    return TOTAL_LOCALES;
+    return LOCALE_enUS;                                     // including enGB case
 }
-
-CascLocaleBit WowLocaleToCascLocaleBit[TOTAL_LOCALES] =
-{
-    CascLocaleBit::enUS,
-    CascLocaleBit::koKR,
-    CascLocaleBit::frFR,
-    CascLocaleBit::deDE,
-    CascLocaleBit::zhCN,
-    CascLocaleBit::zhTW,
-    CascLocaleBit::esES,
-    CascLocaleBit::esMX,
-    CascLocaleBit::ruRU,
-    CascLocaleBit::None,
-    CascLocaleBit::ptBR,
-    CascLocaleBit::itIT
-};

@@ -39,14 +39,15 @@ class TC_GAME_API AreaBoundary
             DoublePosition(float x, float y = 0.0f, float z = 0.0f, float o = 0.0f)
                 : Position(x, y, z, o), DoublePosX(x), DoublePosY(y), DoublePosZ(z) { }
 
-            DoublePosition(Position const & pos)
+            DoublePosition(Position const& pos)
                 : Position(pos), DoublePosX(pos.m_positionX), DoublePosY(pos.m_positionY), DoublePosZ(pos.m_positionZ) { }
 
             double GetDoublePositionX() const { return DoublePosX; }
             double GetDoublePositionY() const { return DoublePosY; }
             double GetDoublePositionZ() const { return DoublePosZ; }
 
-            double GetDoubleExactDist2dSq(DoublePosition const& pos) const {
+            double GetDoubleExactDist2dSq(DoublePosition const& pos) const
+            {
                 double const offX = GetDoublePositionX() - pos.GetDoublePositionX();
                 double const offY = GetDoublePositionY() - pos.GetDoublePositionY();
                 return (offX * offX) + (offY * offY);

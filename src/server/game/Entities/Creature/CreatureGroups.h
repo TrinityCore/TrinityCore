@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "ObjectGuid.h"
 #include <unordered_map>
+#include <map>
 
 enum GroupAIFlags
 {
@@ -51,7 +52,7 @@ class TC_GAME_API FormationMgr
         FormationMgr();
         ~FormationMgr();
 
-        std::unordered_map<ObjectGuid::LowType /*spawnID*/, FormationInfo> _creatureGroupMap;
+        std::unordered_map<uint32 /*spawnID*/, FormationInfo> _creatureGroupMap;
 
     public:
         static FormationMgr* instance();

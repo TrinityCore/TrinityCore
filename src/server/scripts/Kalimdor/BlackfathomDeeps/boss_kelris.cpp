@@ -16,8 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "blackfathom_deeps.h"
 #include "ScriptedCreature.h"
+#include "blackfathom_deeps.h"
 
 enum Spells
 {

@@ -20,9 +20,10 @@
 #include "InstanceScript.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
-#include "SpellScript.h"
+#include "ScriptedGossip.h"
 
 enum Spells
 {
@@ -198,40 +199,10 @@ struct npc_morridune : public EscortAI
     }
 };
 
-// 151159 - Darkness Calls
-class spell_subjugator_korul_darkness_calls : public SpellScriptLoader
-{
-public:
-    spell_subjugator_korul_darkness_calls() : SpellScriptLoader("spell_subjugator_korul_darkness_calls") { }
-
-    class spell_subjugator_korul_darkness_calls_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_subjugator_korul_darkness_calls_SpellScript);
-
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* hitUnit = GetHitUnit())
-                GetCaster()->CastSpell(hitUnit, uint32(GetEffectValue()), true);
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            OnEffectHitTarget += SpellEffectFn(spell_subjugator_korul_darkness_calls_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_DUMMY);
-        }
-    };
-
-    SpellScript* GetSpellScript() const override
-    {
-        return new spell_subjugator_korul_darkness_calls_SpellScript();
-    }
-};
-
 void AddSC_blackfathom_deeps()
 {
     RegisterBlackfathomDeepsGameObjectAI(go_blackfathom_altar);
     RegisterBlackfathomDeepsGameObjectAI(go_blackfathom_fire);
     RegisterBlackfathomDeepsCreatureAI(npc_blackfathom_deeps_event);
     RegisterBlackfathomDeepsCreatureAI(npc_morridune);
-    new spell_subjugator_korul_darkness_calls();
 }

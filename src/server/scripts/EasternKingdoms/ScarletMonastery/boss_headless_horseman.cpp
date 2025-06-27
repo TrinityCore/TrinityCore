@@ -26,14 +26,16 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "PassiveAI.h"
 
 enum HeadlessHorsemanSays
 {
@@ -187,7 +189,7 @@ struct npc_headless_horseman_head : public PassiveAI
 {
     npc_headless_horseman_head(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()), _phase(PHASE_1)
     {
-        creature->SetDisplayFromModel(0);
+        creature->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
     }
 
     void JustAppeared() override
@@ -675,7 +677,7 @@ struct npc_flame_bunny : public PassiveAI
 {
     npc_flame_bunny(Creature* creature) : PassiveAI(creature)
     {
-        creature->SetDisplayFromModel(1);
+        creature->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
     }
 
     void Reset() override
@@ -751,7 +753,7 @@ struct go_loosely_turned_soil : public GameObjectAI
         return false;
     }
 
-    void OnQuestReward(Player* player, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) override
+    void OnQuestReward(Player* player, Quest const* /*quest*/, uint32 /*opt*/) override
     {
         player->AreaExploredOrEventHappens(QUEST_CALL_THE_HEADLESS_HORSEMAN);
         _instance->SetData(DATA_START_HORSEMAN_EVENT, 0);
@@ -985,17 +987,17 @@ class spell_headless_horseman_summoning_rhyme_aura : public AuraScript
         switch (aurEff->GetTickNumber())
         {
             case 1:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_RISE, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_RISE, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                 break;
             case 3:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TIME, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_TIME, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                 break;
             case 5:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_DEATH, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_DEATH, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                 player->CastSpell(player, SPELL_HEADLESS_HORSEMAN_C_SUMMONING_RHYME_SHAKE_SMALL, true);
                 break;
             case 8:
-                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_DEMISE, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, SoundKitPlayType::Normal, TEAM_OTHER, false, player);
+                sCreatureTextMgr->SendChat(caster, SAY_PLAYER_DEMISE, nullptr, CHAT_MSG_SAY, LANG_UNIVERSAL, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                 player->CastSpell(player, SPELL_HEADLESS_HORSEMAN_C_SUMMONING_RHYME_SHAKE_MEDIUM, true);
                 Remove();
                 break;

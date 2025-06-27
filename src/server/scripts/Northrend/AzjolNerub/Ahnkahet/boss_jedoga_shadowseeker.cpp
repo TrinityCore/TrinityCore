@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 

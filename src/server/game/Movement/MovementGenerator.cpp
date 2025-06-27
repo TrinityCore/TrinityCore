@@ -23,7 +23,6 @@
 #include "RandomMovementGenerator.h"
 #include "UnitAI.h"
 #include "WaypointMovementGenerator.h"
-#include <sstream>
 
 MovementGenerator::~MovementGenerator() { }
 
@@ -57,5 +56,5 @@ WaypointMovementFactory::WaypointMovementFactory() : MovementGeneratorCreator(WA
 
 MovementGenerator* WaypointMovementFactory::Create(Unit* /*object*/) const
 {
-    return new WaypointMovementGenerator<Creature>(0, true);
+    return new WaypointMovementGenerator<Creature>();
 }

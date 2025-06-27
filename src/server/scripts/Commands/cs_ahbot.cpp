@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "AuctionHouseBot.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "Language.h"
 #include "RBAC.h"
 

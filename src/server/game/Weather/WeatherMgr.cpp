@@ -26,6 +26,7 @@
 #include "ObjectMgr.h"
 #include "Timer.h"
 #include "Weather.h"
+#include "MiscPackets.h"
 
 namespace WeatherMgr
 {

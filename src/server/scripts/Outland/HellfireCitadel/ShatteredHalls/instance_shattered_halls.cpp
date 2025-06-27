@@ -28,7 +28,9 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
+#include "SpellAuraEffects.h"
 #include "SpellAuras.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 DoorData const doorData[] =
@@ -36,14 +38,6 @@ DoorData const doorData[] =
     { GO_GRAND_WARLOCK_CHAMBER_DOOR_1, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
     { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, DOOR_TYPE_PASSAGE },
     { 0,                               0,               DOOR_TYPE_ROOM }
-};
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_NETHEKURSE, {{ 1936 }} },
-    { DATA_PORUNG, {{ 1935 }} },
-    { DATA_OMROGG, {{ 1937 }} },
-    { DATA_KARGATH, {{ 1938 }} },
 };
 
 class instance_shattered_halls : public InstanceMapScript
@@ -63,7 +57,6 @@ class instance_shattered_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
                 executionTimer = 0;
                 executed = 0;
                 _team = 0;
@@ -126,6 +119,7 @@ class instance_shattered_halls : public InstanceMapScript
                         executionTimer = 55 * MINUTE * IN_MILLISECONDS;
                         DoCastSpellOnPlayers(SPELL_KARGATH_EXECUTIONER_1);
                         executionerGUID = creature->GetGUID();
+                        SaveToDB();
                         break;
                     case NPC_CAPTAIN_ALINA:
                     case NPC_CAPTAIN_BONESHATTER:
@@ -160,6 +154,7 @@ class instance_shattered_halls : public InstanceMapScript
                         {
                             DoCastSpellOnPlayers(SPELL_REMOVE_KARGATH_EXECUTIONER);
                             executionTimer = 0;
+                            SaveToDB();
                         }
                         break;
                     case DATA_KARGATH:
@@ -191,11 +186,47 @@ class instance_shattered_halls : public InstanceMapScript
                 }
             }
 
-            void AfterDataLoad() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                // timed events are not resumable after reset/crash
-                executed = VictimCount;
-                executionTimer = 0;
+                if (!instance->IsHeroic())
+                    return;
+
+                data << uint32(executed) << ' '
+                    << executionTimer << ' ';
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                if (!instance->IsHeroic())
+                    return;
+
+                uint32 readbuff;
+                data >> readbuff;
+                executed = uint8(readbuff);
+                data >> readbuff;
+
+                if (executed > VictimCount)
+                {
+                    executed = VictimCount;
+                    executionTimer = 0;
+                    return;
+                }
+
+                if (!readbuff)
+                    return;
+
+                Creature* executioner = nullptr;
+
+                instance->LoadGrid(Executioner.GetPositionX(), Executioner.GetPositionY());
+                if (Creature* kargath = instance->GetCreature(kargathGUID))
+                    if (executionerGUID.IsEmpty())
+                        executioner = kargath->SummonCreature(NPC_SHATTERED_EXECUTIONER, Executioner);
+
+                if (executioner)
+                    for (uint8 i = executed; i < VictimCount; ++i)
+                        executioner->SummonCreature(executionerVictims[i](GetData(DATA_TEAM_IN_INSTANCE)), executionerVictims[i].GetPos());
+
+                executionTimer = readbuff;
             }
 
             uint32 GetData(uint32 type) const override
@@ -236,6 +267,8 @@ class instance_shattered_halls : public InstanceMapScript
 
                     if (Creature* executioner = instance->GetCreature(executionerGUID))
                         executioner->AI()->SetData(DATA_PRISONERS_EXECUTED, executed);
+
+                    SaveToDB();
                 }
                 else
                     executionTimer -= diff;

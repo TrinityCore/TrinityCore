@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
 enum Texts
@@ -34,13 +35,20 @@ enum Texts
 
 enum Spells
 {
+    SPELL_LIGHTNING_RING_1               = 50840,
+    SPELL_LIGHTNING_RING_2               = 51849,
+    SPELL_STATIC_CHARGE                  = 50834,
+    SPELL_CHAIN_LIGHTNING                = 50830,
+    SPELL_LIGHTNING_SHIELD               = 50831,
     SPELL_FRENZY                         = 28747,
 
     SPELL_SUMMON_IRON_DWARF_PERIODIC     = 50789,   // 59860 not used
     SPELL_SUMMON_IRON_DWARF_1            = 50790,
     SPELL_SUMMON_IRON_DWARF_2            = 50791,
+    SPELL_SUMMON_IRON_TROGG_PERIODIC     = 50792,
     SPELL_SUMMON_IRON_TROGG_1            = 50793,
     SPELL_SUMMON_IRON_TROGG_2            = 50794,
+    SPELL_SUMMON_MALFORMED_OOZE_PERIODIC = 50801,
     SPELL_SUMMON_MALFORMED_OOZE_1        = 50802,
     SPELL_SUMMON_MALFORMED_OOZE_2        = 50803,
     SPELL_SUMMON_EARTHEN_DWARF_PERIODIC  = 50824,
@@ -54,16 +62,8 @@ enum Spells
 
     // Iron Sludge
     SPELL_IRON_SLUDGE_SPAWN_VISUAL       = 50777,
+    SPELL_TOXIC_VOLLEY                   = 50838
 };
-
-#define SPELL_LIGHTNING_RING_1 DUNGEON_MODE<uint32>(50840,59848)
-#define SPELL_LIGHTNING_RING_2 DUNGEON_MODE<uint32>(51849,59861)
-#define SPELL_STATIC_CHARGE DUNGEON_MODE<uint32>(50834,59861)
-#define SPELL_CHAIN_LIGHTNING DUNGEON_MODE<uint32>(50830,59844)
-#define SPELL_LIGHTNING_SHIELD DUNGEON_MODE<uint32>(50831,59845)
-#define SPELL_SUMMON_IRON_TROGG_PERIODIC DUNGEON_MODE<uint32>(50792,59859)
-#define SPELL_SUMMON_MALFORMED_OOZE_PERIODIC DUNGEON_MODE<uint32>(50801,59858)
-#define SPELL_TOXIC_VOLLEY DUNGEON_MODE<uint32>(50838,59853)
 
 enum Creatures
 {
@@ -102,7 +102,7 @@ struct boss_sjonnir : public BossAI
     {
         if (!instance->CheckRequiredBosses(DATA_SJONNIR_THE_IRONSHAPER, who->ToPlayer()))
         {
-            EnterEvadeMode(EvadeReason::SequenceBreak);
+            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;
         }
 
@@ -146,14 +146,14 @@ struct boss_sjonnir : public BossAI
         if (me->HealthBelowPctDamaged(50, damage) && !_summonsOozes)
         {
             _summonsOozes = true;
-            me->RemoveAurasDueToSpell(SPELL_SUMMON_IRON_TROGG_PERIODIC);
+            me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_SUMMON_IRON_TROGG_PERIODIC, me));
             DoCastSelf(SPELL_SUMMON_MALFORMED_OOZE_PERIODIC, true);
         }
 
         if (me->HealthBelowPctDamaged(25, damage) && !_summonsDwarfs)
         {
             _summonsDwarfs = true;
-            me->RemoveAurasDueToSpell(SPELL_SUMMON_MALFORMED_OOZE_PERIODIC);
+            me->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_SUMMON_MALFORMED_OOZE_PERIODIC, me));
             DoCastSelf(SPELL_SUMMON_EARTHEN_DWARF_PERIODIC, true);
         }
 
@@ -219,7 +219,7 @@ struct boss_sjonnir : public BossAI
                     events.Repeat(10s, 15s);
                     break;
                 case EVENT_LIGHTNING_SHIELD:
-                    if (!me->HasAura(SPELL_LIGHTNING_SHIELD))
+                    if (!me->HasAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHTNING_SHIELD, me)))
                         DoCastSelf(SPELL_LIGHTNING_SHIELD);
                     events.Repeat(5s, 15s);
                     break;

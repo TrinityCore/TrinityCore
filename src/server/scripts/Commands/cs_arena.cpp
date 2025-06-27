@@ -26,8 +26,10 @@ EndScriptData */
 #include "ArenaTeamMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "Language.h"
+#include "Log.h"
+#include "ObjectMgr.h"
+#include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
 
@@ -60,7 +62,7 @@ public:
     {
         if (sArenaTeamMgr->GetArenaTeamByName(name))
         {
-            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name.c_str());
+            handler->PSendSysMessage(LANG_ARENA_ERROR_NAME_EXISTS, name);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -88,7 +90,7 @@ public:
         }
 
         sArenaTeamMgr->AddArenaTeam(arena);
-        handler->PSendSysMessage(LANG_ARENA_CREATE, arena->GetName().c_str(), arena->GetId(), arena->GetType(), arena->GetCaptain().ToString().c_str());
+        handler->PSendSysMessage(LANG_ARENA_CREATE, arena->GetName().c_str(), arena->GetId(), arena->GetType(), arena->GetCaptain().GetCounter());
 
         return true;
     }
@@ -214,7 +216,7 @@ public:
 
         handler->PSendSysMessage(LANG_ARENA_INFO_HEADER, arena->GetName().c_str(), arena->GetId(), arena->GetRating(), arena->GetType(), arena->GetType());
         for (ArenaTeam::MemberList::iterator itr = arena->m_membersBegin(); itr != arena->m_membersEnd(); ++itr)
-            handler->PSendSysMessage(LANG_ARENA_INFO_MEMBERS, itr->Name.c_str(), itr->Guid.ToString().c_str(), itr->PersonalRating, (arena->GetCaptain() == itr->Guid ? " - Captain" : ""));
+            handler->PSendSysMessage(LANG_ARENA_INFO_MEMBERS, itr->Name.c_str(), itr->Guid.GetCounter(), itr->PersonalRating, (arena->GetCaptain() == itr->Guid ? "- Captain" : ""));
 
         return true;
     }

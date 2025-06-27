@@ -71,13 +71,13 @@ enum OCCreatureActions
     ACTION_CALL_DRAGON_EVENT    = 1
 };
 
-enum OCWorldStates
+enum OCOculusWorldStates
 {
     WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW   = 3524,
     WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT = 3486
 };
 
-enum OCSpells
+enum OCOculusSpells
 {
     SPELL_CENTRIFUGE_SHIELD     = 50053,
     SPELL_DEATH_SPELL           = 50415

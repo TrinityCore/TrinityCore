@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -404,7 +405,7 @@ struct boss_toc_champion_controller : public BossAI
         vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
         uint8 healersSubtracted = 2;
-        if (Is25ManRaid())
+        if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
             healersSubtracted = 1;
         for (uint8 i = 0; i < healersSubtracted; ++i)
         {
@@ -441,7 +442,7 @@ struct boss_toc_champion_controller : public BossAI
             vHealersEntries.erase(vHealersEntries.begin() + pos);
         }
 
-        if (!Is25ManRaid())
+        if (instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
             for (uint8 i = 0; i < 4; ++i)
                 vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
 

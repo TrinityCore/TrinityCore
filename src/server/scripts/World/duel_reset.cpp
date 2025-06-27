@@ -93,33 +93,26 @@ class DuelResetScript : public PlayerScript
             // remove cooldowns on spells that have < 10 min CD > 30 sec and has no onHold
             player->GetSpellHistory()->ResetCooldowns([player, onStartDuel](SpellHistory::CooldownStorageType::iterator itr) -> bool
             {
-                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first, DIFFICULTY_NONE);
-                Milliseconds remainingCooldown = player->GetSpellHistory()->GetRemainingCooldown(spellInfo);
-                Milliseconds totalCooldown = Milliseconds(spellInfo->RecoveryTime);
-                Milliseconds categoryCooldown = Milliseconds(spellInfo->CategoryRecoveryTime);
+                SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itr->first);
+                uint32 remainingCooldown = player->GetSpellHistory()->GetRemainingCooldown(spellInfo);
+                int32 totalCooldown = spellInfo->RecoveryTime;
+                int32 categoryCooldown = spellInfo->CategoryRecoveryTime;
 
-                auto applySpellMod = [&](Milliseconds& value)
-                {
-                    int32 intValue = value.count();
-                    player->ApplySpellMod(spellInfo, SpellModOp::Cooldown, intValue, nullptr);
-                    value = Milliseconds(intValue);
-                };
-
-                applySpellMod(totalCooldown);
+                player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, totalCooldown, nullptr);
 
                 if (int32 cooldownMod = player->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
-                    totalCooldown += Milliseconds(cooldownMod);
+                    totalCooldown += cooldownMod * IN_MILLISECONDS;
 
-                if (!spellInfo->HasAttribute(SPELL_ATTR6_NO_CATEGORY_COOLDOWN_MODS))
-                    applySpellMod(categoryCooldown);
+                if (!spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS))
+                    player->ApplySpellMod(spellInfo->Id, SPELLMOD_COOLDOWN, categoryCooldown, nullptr);
 
-                return remainingCooldown > 0ms
+                return remainingCooldown > 0
                     && !itr->second.OnHold
-                    && Milliseconds(totalCooldown) < 10min
-                    && Milliseconds(categoryCooldown) < 10min
-                    && Milliseconds(remainingCooldown) < 10min
-                    && (onStartDuel ? totalCooldown - remainingCooldown > 30s : true)
-                    && (onStartDuel ? categoryCooldown - remainingCooldown > 30s : true);
+                    && Milliseconds(totalCooldown) < Minutes(10)
+                    && Milliseconds(categoryCooldown) < Minutes(10)
+                    && Milliseconds(remainingCooldown) < Minutes(10)
+                    && (onStartDuel ? Milliseconds(totalCooldown - remainingCooldown) > Seconds(30) : true)
+                    && (onStartDuel ? Milliseconds(categoryCooldown - remainingCooldown) > Seconds(30) : true);
             }, true);
 
             // pet cooldowns

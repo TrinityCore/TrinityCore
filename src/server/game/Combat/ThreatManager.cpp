@@ -17,26 +17,28 @@
 
 #include "ThreatManager.h"
 #include "Creature.h"
-#include "CombatPackets.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
-#include "SpellAuraEffects.h"
-#include "SpellMgr.h"
 #include "TemporarySummon.h"
+#include "Unit.h"
+#include "UnitAI.h"
+#include "UnitDefines.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "ObjectAccessor.h"
+#include "WorldPacket.h"
+#include <algorithm>
 #include <boost/heap/fibonacci_heap.hpp>
-
-#include "Hacks/boost_1_74_fibonacci_heap.h"
 
 const CompareThreatLessThan ThreatManager::CompareThreat;
 
 class ThreatManager::Heap : public boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>>
 {
 };
-
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::Heap::value_type)
 
 void ThreatReference::AddThreat(float amount)
 {
@@ -78,7 +80,7 @@ void ThreatReference::UpdateOffline()
     {
         _online = ShouldBeSuppressed() ? ONLINE_STATE_SUPPRESSED : ONLINE_STATE_ONLINE;
         HeapNotifyIncreased();
-        _mgr.RegisterForAIUpdate(this);
+        _mgr.RegisterForAIUpdate(GetVictim()->GetGUID());
     }
 }
 
@@ -360,7 +362,7 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
     {
         if (spell->HasAttribute(SPELL_ATTR1_NO_THREAT))
             return;
-        if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR2_NO_INITIAL_THREAT))
+        if (!_owner->IsEngaged() && spell->HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO))
             return;
     }
 
@@ -644,11 +646,12 @@ ThreatReference const* ThreatManager::ReselectVictim()
 void ThreatManager::ProcessAIUpdates()
 {
     CreatureAI* ai = ASSERT_NOTNULL(_owner->ToCreature())->AI();
-    std::vector<ThreatReference const*> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
+    std::vector<ObjectGuid> v(std::move(_needsAIUpdate)); // _needsAIUpdate is now empty in case this triggers a recursive call
     if (!ai)
         return;
-    for (ThreatReference const* ref : v)
-        ai->JustStartedThreateningMe(ref->GetVictim());
+    for (ObjectGuid const& guid : v)
+        if (ThreatReference const* ref = Trinity::Containers::MapGetValuePtr(_myThreatListEntries, guid))
+            ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
 // returns true if a is LOWER on the threat list than b
@@ -671,7 +674,7 @@ void ThreatManager::ProcessAIUpdates()
                 threat *= threatEntry->pctMod;
 
         if (Player* modOwner = victim->GetSpellModOwner())
-            modOwner->ApplySpellMod(spell, SpellModOp::Hate, threat);
+            modOwner->ApplySpellMod(spell->Id, SPELLMOD_THREAT, threat);
     }
 
     // modifiers by effect school
@@ -719,7 +722,7 @@ void ThreatManager::ProcessAIUpdates()
 
 void ThreatManager::ForwardThreatForAssistingMe(Unit* assistant, float baseAmount, SpellInfo const* spell, bool ignoreModifiers)
 {
-    if (spell && (spell->HasAttribute(SPELL_ATTR1_NO_THREAT) || spell->HasAttribute(SPELL_ATTR4_NO_HELPFUL_THREAT))) // shortcut, none of the calls would do anything
+    if (spell && spell->HasAttribute(SPELL_ATTR1_NO_THREAT)) // shortcut, none of the calls would do anything
         return;
     if (_threatenedByMe.empty())
         return;
@@ -812,49 +815,38 @@ void ThreatManager::UnregisterRedirectThreat(uint32 spellId, ObjectGuid const& v
 
 void ThreatManager::SendClearAllThreatToClients() const
 {
-    WorldPackets::Combat::ThreatClear threatClear;
-    threatClear.UnitGUID = _owner->GetGUID();
-    _owner->SendMessageToSet(threatClear.Write(), false);
+    WorldPacket data(SMSG_THREAT_CLEAR, 8);
+    data << _owner->GetPackGUID();
+    _owner->SendMessageToSet(&data, false);
 }
 
 void ThreatManager::SendRemoveToClients(Unit const* victim) const
 {
-    WorldPackets::Combat::ThreatRemove threatRemove;
-    threatRemove.UnitGUID = _owner->GetGUID();
-    threatRemove.AboutGUID = victim->GetGUID();
-    _owner->SendMessageToSet(threatRemove.Write(), false);
+    WorldPacket data(SMSG_THREAT_REMOVE, 16);
+    data << _owner->GetPackGUID();
+    data << victim->GetPackGUID();
+    _owner->SendMessageToSet(&data, false);
 }
 
 void ThreatManager::SendThreatListToClients(bool newHighest) const
 {
-    auto fillSharedPacketDataAndSend = [&](auto& packet)
-    {
-        packet.UnitGUID = _owner->GetGUID();
-        packet.ThreatList.reserve(_sortedThreatList->size());
-        for (ThreatReference const* ref : *_sortedThreatList)
-        {
-            if (!ref->IsAvailable())
-                continue;
-
-            WorldPackets::Combat::ThreatInfo threatInfo;
-            threatInfo.UnitGUID = ref->GetVictim()->GetGUID();
-            threatInfo.Threat = int64(ref->GetThreat() * 100);
-            packet.ThreatList.push_back(threatInfo);
-        }
-        _owner->SendMessageToSet(packet.Write(), false);
-    };
-
+    WorldPacket data(newHighest ? SMSG_HIGHEST_THREAT_UPDATE : SMSG_THREAT_UPDATE, (_sortedThreatList->size() + 2) * 8); // guess
+    data << _owner->GetPackGUID();
     if (newHighest)
+        data << _currentVictimRef->GetVictim()->GetPackGUID();
+    size_t countPos = data.wpos();
+    data << uint32(0); // placeholder
+    uint32 count = 0;
+    for (ThreatReference const* ref : *_sortedThreatList)
     {
-        WorldPackets::Combat::HighestThreatUpdate highestThreatUpdate;
-        highestThreatUpdate.HighestThreatGUID = _currentVictimRef->GetVictim()->GetGUID();
-        fillSharedPacketDataAndSend(highestThreatUpdate);
+        if (!ref->IsAvailable())
+            continue;
+        data << ref->GetVictim()->GetPackGUID();
+        data << uint32(ref->GetThreat() * 100);
+        ++count;
     }
-    else
-    {
-        WorldPackets::Combat::ThreatUpdate threatUpdate;
-        fillSharedPacketDataAndSend(threatUpdate);
-    }
+    data.put<uint32>(countPos, count);
+    _owner->SendMessageToSet(&data, false);
 }
 
 void ThreatManager::PutThreatListRef(ObjectGuid const& guid, ThreatReference* ref)

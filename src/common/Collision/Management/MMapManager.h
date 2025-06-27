@@ -61,7 +61,7 @@ namespace MMAP
             MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
             ~MMapManager();
 
-            void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
+            void InitializeThreadUnsafe(const std::vector<uint32>& mapIds);
             bool loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
             bool loadMapInstance(std::string const& basePath, uint32 mapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
@@ -82,8 +82,6 @@ namespace MMAP
             MMapDataSet loadedMMaps;
             uint32 loadedTiles;
             bool thread_safe_environment;
-
-            std::unordered_map<uint32, uint32> parentMapData;
     };
 }
 

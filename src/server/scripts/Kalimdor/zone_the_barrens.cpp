@@ -18,11 +18,16 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 863
+SDComment: Quest support: 863, 898, 1719, 2458, 4921, 6981,
 SDCategory: Barrens
 EndScriptData */
 
 /* ContentData
+npc_beaten_corpse
+npc_gilthares
+npc_sputtervalve
+npc_taskmaster_fizzule
+npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
 
@@ -31,6 +36,7 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 
@@ -330,7 +336,7 @@ public:
             {
                 Player* warrior = nullptr;
 
-                if (!PlayerGUID.IsEmpty())
+                if (PlayerGUID)
                     warrior = ObjectAccessor::GetPlayer(*me, PlayerGUID);
 
                 if (!warrior)
@@ -343,7 +349,7 @@ public:
 
                     for (uint8 i = 0; i < 6; ++i) // unsummon challengers
                     {
-                        if (!AffrayChallenger[i].IsEmpty())
+                        if (AffrayChallenger[i])
                         {
                             Creature* creature = ObjectAccessor::GetCreature((*me), AffrayChallenger[i]);
                             if (creature && creature->IsAlive())
@@ -351,7 +357,7 @@ public:
                         }
                     }
 
-                    if (!BigWill.IsEmpty()) // unsummon bigWill
+                    if (BigWill) // unsummon bigWill
                     {
                         Creature* creature = ObjectAccessor::GetCreature((*me), BigWill);
                         if (creature && creature->IsAlive())
@@ -392,7 +398,7 @@ public:
                     {
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            if (!AffrayChallenger[i].IsEmpty())
+                            if (AffrayChallenger[i])
                             {
                                 Creature* creature = ObjectAccessor::GetCreature((*me), AffrayChallenger[i]);
                                 if ((!creature || (!creature->IsAlive())) && !ChallengerDown[i])
@@ -407,7 +413,7 @@ public:
 
                     if (WaveTimer <= diff)
                     {
-                        if (Wave < 6 && !AffrayChallenger[Wave].IsEmpty() && !EventBigWill)
+                        if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             Talk(SAY_TWIGGY_FLATHEAD_FRAY);
                             Creature* creature = ObjectAccessor::GetCreature(*me, AffrayChallenger[Wave]);
@@ -435,7 +441,7 @@ public:
                                 WaveTimer = 1000;
                             }
                         }
-                        else if (Wave >= 6 && EventBigWill && !BigWill.IsEmpty())
+                        else if (Wave >= 6 && EventBigWill && BigWill)
                         {
                             Creature* creature = ObjectAccessor::GetCreature(*me, BigWill);
                             if (!creature || !creature->IsAlive())
@@ -613,5 +619,8 @@ public:
 
 void AddSC_the_barrens()
 {
+    new npc_gilthares();
+    new npc_taskmaster_fizzule();
+    new npc_twiggy_flathead();
     new npc_wizzlecrank_shredder();
 }

@@ -20,8 +20,6 @@
 
 #include "CreatureAIImpl.h"
 
-class Unit;
-
 #define HoRScriptName "instance_halls_of_reflection"
 #define DataHeader "HOR"
 

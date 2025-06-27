@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "ObjectMgr.h"
 #include "MotionMaster.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
-#include "SpellInfo.h"
+#include "ScriptMgr.h"
+#include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 //

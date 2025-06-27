@@ -1,0 +1,20 @@
+--
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.71428 WHERE `entry` = 18429; -- Arcane Fiend
+UPDATE `creature_template` SET `maxlevel` = 70, `speed_walk` = 1, `speed_run` = 0.71428 WHERE `entry` = 20252; -- Arcane Fiend (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20253; -- Ethereal Apprentice (1)
+UPDATE `creature_template` SET `maxlevel` = 70, `speed_walk` = 4, `speed_run` = 1.42857 WHERE `entry` = 20254; -- Ethereal Beacon (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20255; -- Ethereal Crypt Raider (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20256; -- Ethereal Darkcaster (1)
+UPDATE `creature_template` SET `minlevel` = 70, `speed_walk` = 1 WHERE `entry` = 20257; -- Ethereal Priest (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20258; -- Ethereal Scavenger (1)
+UPDATE `creature_template` SET `minlevel` = 70, `speed_walk` = 1 WHERE `entry` = 20259; -- Ethereal Sorcerer (1)
+UPDATE `creature_template` SET `minlevel` = 71, `speed_walk` = 1 WHERE `entry` = 20260; -- Ethereal Spellbinder (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20261; -- Ethereal Theurgist (1)
+UPDATE `creature_template` SET `minlevel` = 63, `maxlevel` = 63, `speed_walk` = 1, `speed_run` = 0.85714 WHERE `entry` = 18394; -- Ethereal Wraith
+UPDATE `creature_template` SET `minlevel` = 69, `maxlevel` = 69, `speed_walk` = 1, `speed_run` = 0.85714 WHERE `entry` = 20262; -- Ethereal Wraith (1)
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.85714 WHERE `entry` = 20263; -- Mana Leech (1)
+UPDATE `creature_template` SET `minlevel` = 71, `speed_walk` = 1 WHERE `entry` = 20264; -- Nexus Stalker (1)
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.99206 WHERE `entry` = 20265; -- Nexus Terror (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20266; -- Nexus-Prince Shaffar (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20267; -- Pandemonius (1)
+UPDATE `creature_template` SET `speed_walk` = 1 WHERE `entry` = 20268; -- Tavarok (1)

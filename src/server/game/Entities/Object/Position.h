@@ -26,7 +26,10 @@ class ByteBuffer;
 
 struct TC_GAME_API Position
 {
-    Position(float x = 0, float y = 0, float z = 0, float o = 0)
+    Position()
+        : m_positionX(0.0f), m_positionY(0.0f), m_positionZ(0.0f), m_orientation(0.0f) { }
+
+    Position(float x, float y, float z = 0.0f, float o = 0.0f)
         : m_positionX(x), m_positionY(y), m_positionZ(z), m_orientation(NormalizeOrientation(o)) { }
 
     // streamer tags
@@ -59,7 +62,6 @@ private:
 
 public:
     bool operator==(Position const& a) const;
-    bool operator!=(Position const& a) const { return !(operator==(a)); }
 
     void Relocate(float x, float y) { m_positionX = x; m_positionY = y; }
     void Relocate(float x, float y, float z) { Relocate(x, y); m_positionZ = z; }
@@ -138,6 +140,8 @@ public:
     float GetRelativeAngle(Position const& pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
     float GetRelativeAngle(Position const* pos) const { return ToRelativeAngle(GetAbsoluteAngle(pos)); }
 
+    void GetSinCos(float x, float y, float &vsin, float &vcos) const;
+
     bool IsInDist2d(float x, float y, float dist) const { return GetExactDist2dSq(x, y) < dist * dist; }
     bool IsInDist2d(Position const* pos, float dist) const { return GetExactDist2dSq(pos) < dist * dist; }
 
@@ -160,34 +164,37 @@ public:
 
 #define MAPID_INVALID 0xFFFFFFFF
 
-class TC_GAME_API WorldLocation : public Position
+class WorldLocation : public Position
 {
-public:
-    explicit WorldLocation(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-        : Position(x, y, z, o), m_mapId(mapId) { }
+    public:
+        explicit WorldLocation()
+            : m_mapId(MAPID_INVALID) { }
 
-    WorldLocation(uint32 mapId, Position const& position)
-        : Position(position), m_mapId(mapId) { }
+        explicit WorldLocation(uint32 _mapId, float x, float y, float z = 0.0f, float o = 0.0f)
+            : Position(x, y, z, o), m_mapId(_mapId) { }
 
-    void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
-    void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
-    void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
-    void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
-    {
-        m_mapId = mapId;
-        Relocate(x, y, z, o);
-    }
+        WorldLocation(uint32 mapId, Position const& position)
+            : Position(position), m_mapId(mapId) { }
 
-    WorldLocation GetWorldLocation() const
-    {
-        return *this;
-    }
+        void WorldRelocate(WorldLocation const& loc) { m_mapId = loc.GetMapId(); Relocate(loc); }
+        void WorldRelocate(WorldLocation const* loc) { m_mapId = loc->GetMapId(); Relocate(loc); }
+        void WorldRelocate(uint32 mapId, Position const& pos) { m_mapId = mapId; Relocate(pos); }
+        void WorldRelocate(uint32 mapId = MAPID_INVALID, float x = 0.f, float y = 0.f, float z = 0.f, float o = 0.f)
+        {
+            m_mapId = mapId;
+            Relocate(x, y, z, o);
+        }
 
-    uint32 GetMapId() const { return m_mapId; }
+        WorldLocation GetWorldLocation() const
+        {
+            return *this;
+        }
 
-    uint32 m_mapId;
+        uint32 GetMapId() const { return m_mapId; }
 
-    std::string GetDebugInfo() const;
+        uint32 m_mapId;
+
+        std::string GetDebugInfo() const;
 };
 
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer);
@@ -198,10 +205,11 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Posi
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer);
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer);
 
-template<class Tag>
+template <class Tag>
 struct TaggedPosition
 {
-    TaggedPosition(float x = 0.0f, float y = 0.0f, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
+    TaggedPosition() { }
+    TaggedPosition(float x, float y, float z = 0.0f, float o = 0.0f) : Pos(x, y, z, o) { }
     TaggedPosition(Position const& pos) : Pos(pos) { }
 
     TaggedPosition& operator=(Position const& pos)
@@ -211,9 +219,6 @@ struct TaggedPosition
     }
 
     operator Position() const { return Pos; }
-
-    friend bool operator==(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos == right.Pos; }
-    friend bool operator!=(TaggedPosition const& left, TaggedPosition const& right) { return left.Pos != right.Pos; }
 
     friend ByteBuffer& operator<<(ByteBuffer& buf, TaggedPosition const& tagged) { return buf << Position::ConstStreamer<Tag>(tagged.Pos); }
     friend ByteBuffer& operator>>(ByteBuffer& buf, TaggedPosition& tagged) { return buf >> Position::Streamer<Tag>(tagged.Pos); }

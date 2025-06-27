@@ -158,7 +158,7 @@ public:
         {
             if (spellInfo->Id == SPELL_INFERNAL_RELAY)
             {
-                me->SetDisplayId(me->GetNativeDisplayId());
+                me->SetDisplayId(me->GetUInt32Value(UNIT_FIELD_NATIVEDISPLAYID));
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 HellfireTimer = 4000;
                 CleanupTimer = 170000;
@@ -314,7 +314,7 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT, GetDifficulty());
+            SpellInfo const* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 
@@ -428,7 +428,7 @@ public:
                     //models
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
-                    me->SetBaseAttackTime(OFF_ATTACK, (me->GetBaseAttackTime(BASE_ATTACK)*150)/100);
+                    me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
                     me->SetCanDualWield(true);
                 }
             }

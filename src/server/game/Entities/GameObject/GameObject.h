@@ -21,89 +21,50 @@
 #include "Object.h"
 #include "GridObject.h"
 #include "GameObjectData.h"
+#include "Loot.h"
 #include "MapObject.h"
 #include "SharedDefines.h"
 
-class GameObject;
 class GameObjectAI;
 class GameObjectModel;
+class Group;
 class OPvPCapturePoint;
 class Transport;
-class TransportBase;
 class Unit;
-struct Loot;
 struct TransportAnimation;
+enum SpellTargetCheckTypes : uint8;
 enum TriggerCastFlags : uint32;
-
-namespace WorldPackets
-{
-    namespace Battleground
-    {
-        enum class BattlegroundCapturePointState : uint8;
-    }
-}
-
-// Base class for GameObject type specific implementations
-class GameObjectTypeBase
-{
-public:
-    class TC_GAME_API CustomCommand
-    {
-    public:
-        virtual ~CustomCommand();
-        virtual void Execute(GameObjectTypeBase& type) const = 0;
-    };
-
-    explicit GameObjectTypeBase(GameObject& owner) : _owner(owner) { }
-    virtual ~GameObjectTypeBase() = default;
-
-    virtual void Update([[maybe_unused]] uint32 diff) { }
-    virtual void OnStateChanged([[maybe_unused]] GOState oldState, [[maybe_unused]] GOState newState) { }
-    virtual void OnRelocated() { }
-
-protected:
-    GameObject& _owner;
-};
-
-namespace GameObjectType
-{
-class TC_GAME_API SetTransportAutoCycleBetweenStopFrames : public GameObjectTypeBase::CustomCommand
-{
-public:
-    explicit SetTransportAutoCycleBetweenStopFrames(bool on);
-
-    void Execute(GameObjectTypeBase& type) const override;
-
-private:
-    bool _on;
-};
-}
 
 union GameObjectValue
 {
+    //6 GAMEOBJECT_TYPE_TRAP
+    struct
+    {
+        SpellTargetCheckTypes TargetSearcherCheckType;
+    } Trap;
+    //11 GAMEOBJECT_TYPE_TRANSPORT
+    struct
+    {
+        uint32 PathProgress;
+        TransportAnimation const* AnimationInfo;
+        uint32 CurrentSeg;
+    } Transport;
     //25 GAMEOBJECT_TYPE_FISHINGHOLE
     struct
     {
         uint32 MaxOpens;
     } FishingHole;
-    //29 GAMEOBJECT_TYPE_CONTROL_ZONE
+    //29 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
     {
         OPvPCapturePoint *OPvPObj;
-    } ControlZone;
+    } CapturePoint;
     //33 GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING
     struct
     {
         uint32 Health;
         uint32 MaxHealth;
     } Building;
-    //42 GAMEOBJECT_TYPE_CAPTURE_POINT
-    struct
-    {
-        TeamId LastTeamCapture;
-        WorldPackets::Battleground::BattlegroundCapturePointState State;
-        uint32 AssaultTimer;
-    } CapturePoint;
 };
 
 // For containers:  [GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY        -> ...
@@ -127,36 +88,16 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         explicit GameObject();
         ~GameObject();
 
-    protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
-        void ClearUpdateMask(bool remove) override;
-
-    public:
-        void BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
-            UF::GameObjectData::Mask const& requestedGameObjectMask, Player const* target) const;
-
-        struct ValuesUpdateForPlayerWithMaskSender // sender compatible with MessageDistDeliverer
-        {
-            explicit ValuesUpdateForPlayerWithMaskSender(GameObject const* owner) : Owner(owner) { }
-
-            GameObject const* Owner;
-            UF::ObjectData::Base ObjectMask;
-            UF::GameObjectData::Base GameObjectMask;
-
-            void operator()(Player const* player) const;
-        };
+        void BuildValuesUpdate(uint8 updatetype, ByteBuffer* data, Player const* target) const override;
 
         void AddToWorld() override;
         void RemoveFromWorld() override;
         void CleanupsBeforeDelete(bool finalCleanup = true) override;
 
-    private:
-        bool Create(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit, bool dynamic, ObjectGuid::LowType spawnid);
-    public:
-        static GameObject* CreateGameObject(uint32 entry, Map* map, Position const& pos, QuaternionData const& rotation, uint32 animProgress, GOState goState, uint32 artKit = 0);
-        static GameObject* CreateGameObjectFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap = true);
+        uint32 GetDynamicFlags() const override { return GetUInt32Value(GAMEOBJECT_DYNAMIC); }
+        void ReplaceAllDynamicFlags(uint32 flag) override { SetUInt32Value(GAMEOBJECT_DYNAMIC, flag); }
 
+        bool Create(ObjectGuid::LowType guidlow, uint32 name_id, Map* map, uint32 phaseMask, Position const& pos, QuaternionData const& rotation, uint32 animprogress, GOState go_state, uint32 artKit = 0, bool dynamic = false, ObjectGuid::LowType spawnid = 0);
         void Update(uint32 p_time) override;
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
         GameObjectTemplateAddon const* GetTemplateAddon() const { return m_goTemplateAddon; }
@@ -180,10 +121,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         QuaternionData GetWorldRotation() const;
 
         // overwrite WorldObject function for proper name localization
-        std::string GetNameForLocaleIdx(LocaleConstant locale) const override;
+        std::string const& GetNameForLocaleIdx(LocaleConstant locale) const override;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDifficulties);
+        void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         bool LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap, bool = true); // arg4 is unused, only present to match the signature on Creature
         static bool DeleteFromDB(ObjectGuid::LowType spawnId);
 
@@ -195,9 +136,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
                 ABORT();
             }
             m_spawnedByDefault = false;                     // all object with owner is despawned after delay
-            SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::CreatedBy), owner);
+            SetGuidValue(OBJECT_FIELD_CREATED_BY, owner);
         }
-        ObjectGuid GetOwnerGUID() const override { return m_gameObjectData->CreatedBy; }
+        ObjectGuid GetOwnerGUID() const override { return GetGuidValue(OBJECT_FIELD_CREATED_BY); }
 
         void SetSpellId(uint32 id)
         {
@@ -222,32 +163,28 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void DespawnOrUnsummon(Milliseconds delay = 0ms, Seconds forceRespawnTime = 0s);
-        void DespawnForPlayer(Player* seer, Seconds respawnTime);
         void Delete();
-        void SendGameObjectDespawn();
-        Loot* GetFishLoot(Player* lootOwner);
-        Loot* GetFishLootJunk(Player* lootOwner);
+        void getFishLoot(Loot* loot, Player* loot_owner);
+        void getFishLootJunk(Loot* loot, Player* loot_owner);
 
-        bool HasFlag(GameObjectFlags flags) const { return (*m_gameObjectData->Flags & flags) != 0; }
-        void SetFlag(GameObjectFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
-        void RemoveFlag(GameObjectFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
-        void ReplaceAllFlags(GameObjectFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Flags), flags); }
+        bool HasFlag(GameObjectFlags flags) const { return Object::HasFlag(GAMEOBJECT_FLAGS, flags); }
+        void SetFlag(GameObjectFlags flags) { Object::SetFlag(GAMEOBJECT_FLAGS, flags); }
+        void RemoveFlag(GameObjectFlags flags) { Object::RemoveFlag(GAMEOBJECT_FLAGS, flags); }
+        void ReplaceAllFlags(GameObjectFlags flags) { SetUInt32Value(GAMEOBJECT_FLAGS, flags); }
 
-        void SetLevel(uint32 level) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::Level), level); }
-        GameobjectTypes GetGoType() const { return GameobjectTypes(*m_gameObjectData->TypeID); }
-        void SetGoType(GameobjectTypes type) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::TypeID), type); }
-        GOState GetGoState() const { return GOState(*m_gameObjectData->State); }
+        void SetLevel(uint32 level) { SetUInt32Value(GAMEOBJECT_LEVEL, level); }
+        GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
+        void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
+        GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
         void SetGoState(GOState state);
-        GOState GetGoStateFor(ObjectGuid const& viewer) const;
-        void SetGoStateFor(GOState state, Player const* viewer);
-        uint32 GetGoArtKit() const { return m_gameObjectData->ArtKit; }
-        void SetGoArtKit(uint32 artkit);
-        uint8 GetGoAnimProgress() const { return m_gameObjectData->PercentHealth; }
-        void SetGoAnimProgress(uint8 animprogress) { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::PercentHealth), animprogress); }
-        static void SetGoArtKit(uint32 artkit, GameObject* go, ObjectGuid::LowType lowguid = UI64LIT(0));
+        virtual uint32 GetTransportPeriod() const;
+        uint8 GetGoArtKit() const { return GetByteValue(GAMEOBJECT_BYTES_1, 2); }
+        void SetGoArtKit(uint8 artkit);
+        uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
+        void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
+        static void SetGoArtKit(uint8 artkit, GameObject* go, ObjectGuid::LowType lowguid = 0);
 
-        std::vector<uint32> const* GetPauseTimes() const;
-        void SetPathProgressForClient(float progress);
+        void SetPhaseMask(uint32 newPhaseMask, bool update) override;
 
         void EnableCollision(bool enable);
 
@@ -263,9 +200,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
-        void ClearLoot();
-        bool IsFullyLooted() const;
-        void OnLootRelease(Player* looter);
+        void SetLootGenerationTime();
+        uint32 GetLootGenerationTime() const { return m_lootGenerationTime; }
 
         void AddToSkillupList(ObjectGuid const& PlayerGuidLow) { m_SkillupList.insert(PlayerGuidLow); }
         bool IsInSkillupList(ObjectGuid const& playerGuid) const
@@ -282,14 +218,15 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveRespawnTime(uint32 forceDelay = 0);
 
-        std::unique_ptr<Loot> m_loot;
-        std::unordered_map<ObjectGuid, std::unique_ptr<Loot>> m_personalLoot;
+        Loot        loot;
 
-        GuidUnorderedSet const& GetTapList() const { return m_tapList; }
-        void SetTapList(GuidUnorderedSet tapList) { m_tapList = std::move(tapList); }
+        Player* GetLootRecipient() const;
+        Group* GetLootRecipientGroup() const;
+        void SetLootRecipient(Unit* unit, Group* group = nullptr);
         bool IsLootAllowedFor(Player const* player) const;
-        bool HasLootRecipient() const { return !m_tapList.empty(); }
-        Loot* GetLootForPlayer(Player const* /*player*/) const override;
+        bool HasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
+        uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
+        ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting
 
         GameObject* GetLinkedTrap();
         void SetLinkedTrap(GameObject* linkedTrap) { m_linkedTrap = linkedTrap->GetGUID(); }
@@ -300,13 +237,13 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = nullptr);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
-        void ActivateObject(GameObjectActions action, int32 param, WorldObject* spellCaster = nullptr, uint32 spellId = 0, int32 effectIndex = -1);
+        void ActivateObject(GameObjectActions action, WorldObject* spellCaster = nullptr, uint32 spellId = 0, int32 effectIndex = -1);
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
-        bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
+        bool IsNeverVisible(bool allowServersideObjects) const override;
         bool IsAlwaysVisibleFor(WorldObject const* seer) const override;
-        bool IsInvisibleDueToDespawn(WorldObject const* seer) const override;
+        bool IsInvisibleDueToDespawn() const override;
 
         uint8 GetLevelForTarget(WorldObject const* target) const override;
 
@@ -320,45 +257,45 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         void SetDestructibleState(GameObjectDestructibleState state, WorldObject* attackerOrHealer = nullptr, bool setHealth = false);
         GameObjectDestructibleState GetDestructibleState() const
         {
-            if ((*m_gameObjectData->Flags & GO_FLAG_DESTROYED))
+            if (HasFlag(GO_FLAG_DESTROYED))
                 return GO_DESTRUCTIBLE_DESTROYED;
-            if ((*m_gameObjectData->Flags & GO_FLAG_DAMAGED))
+            if (HasFlag(GO_FLAG_DAMAGED))
                 return GO_DESTRUCTIBLE_DAMAGED;
             return GO_DESTRUCTIBLE_INTACT;
         }
+
+        void EventInform(uint32 eventId, WorldObject* invoker = nullptr);
 
         // There's many places not ready for dynamic spawns. This allows them to live on for now.
         void SetRespawnCompatibilityMode(bool mode = true) { m_respawnCompatibilityMode = mode; }
         bool GetRespawnCompatibilityMode() {return m_respawnCompatibilityMode; }
 
+        std::string const& GetAIName() const;
         uint32 GetScriptId() const;
         GameObjectAI* AI() const { return m_AI; }
 
-        std::string const& GetAIName() const;
-        void SetDisplayId(uint32 displayid);
-        uint32 GetDisplayId() const { return m_gameObjectData->DisplayID; }
-        uint8 GetNameSetId() const;
+        void InheritStringIds(GameObject const* parent);
+        bool HasStringId(std::string_view id) const;
+        void SetScriptStringId(std::string id);
+        std::string_view GetStringId(StringIdType type) const { return m_stringIds[size_t(type)] ? std::string_view(*m_stringIds[size_t(type)]) : std::string_view(); }
 
-        uint32 GetFaction() const override { return m_gameObjectData->FactionTemplate; }
-        void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction); }
+        void SetDisplayId(uint32 displayid);
+        uint32 GetDisplayId() const { return GetUInt32Value(GAMEOBJECT_DISPLAYID); }
+
+        uint32 GetFaction() const override { return GetUInt32Value(GAMEOBJECT_FACTION); }
+        void SetFaction(uint32 faction) override { SetUInt32Value(GAMEOBJECT_FACTION, faction); }
 
         GameObjectModel* m_model;
         void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr) const;
 
-        TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
-        TransportBase const* ToTransportBase() const;
+        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
+        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MO_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
 
-        Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
-        Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
-
-        float GetStationaryX() const override { return m_stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
-        Position const& GetStationaryPosition() const { return m_stationaryPosition; }
+        float GetStationaryX() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionX(); return GetPositionX(); }
+        float GetStationaryY() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionY(); return GetPositionY(); }
+        float GetStationaryZ() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
+        float GetStationaryO() const override { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
-
-        void AfterRelocation();
 
         float GetInteractionDistance() const;
 
@@ -372,29 +309,10 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         SpellInfo const* GetSpellForLock(Player const* player) const;
 
-        uint16 GetAIAnimKitId() const override { return _animKitId; }
-        void SetAnimKitId(uint16 animKitId, bool oneshot);
-
-        uint32 GetWorldEffectID() const { return _worldEffectID; }
-        void SetWorldEffectID(uint32 worldEffectID) { _worldEffectID = worldEffectID; }
-
-        void SetSpellVisualId(int32 spellVisualId, ObjectGuid activatorGuid = ObjectGuid::Empty);
-        void AssaultCapturePoint(Player* player);
-        void UpdateCapturePoint();
-        bool CanInteractWithCapturePoint(Player const* target) const;
-
-        bool MeetsInteractCondition(Player const* user) const;
-
         void AIM_Destroy();
         bool AIM_Initialize();
 
         std::string GetDebugInfo() const override;
-
-        void UpdateDynamicFlagsForNearbyPlayers();
-
-        void HandleCustomTypeCommand(GameObjectTypeBase::CustomCommand const& command) const;
-
-        UF::UpdateField<UF::GameObjectData, 0, TYPEID_GAMEOBJECT> m_gameObjectData;
 
     protected:
         void CreateModel();
@@ -425,15 +343,18 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectTemplate const* m_goInfo;
         GameObjectTemplateAddon const* m_goTemplateAddon;
         GameObjectData const* m_goData;
-        std::unique_ptr<GameObjectTypeBase> m_goTypeImpl;
-        GameObjectValue m_goValue; // TODO: replace with m_goTypeImpl
+        GameObjectValue m_goValue;
+        std::array<std::string const*, 3> m_stringIds;
+        Optional<std::string> m_scriptStringId;
 
         int64 m_packedRotation;
         QuaternionData m_localRotation;
         Position m_stationaryPosition;
 
-        GuidUnorderedSet m_tapList;
+        ObjectGuid m_lootRecipient;
+        uint32 m_lootRecipientGroup;
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        uint32 m_lootGenerationTime;
 
         ObjectGuid m_linkedTrap;
 
@@ -451,18 +372,5 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
 
         GameObjectAI* m_AI;
         bool m_respawnCompatibilityMode;
-        uint16 _animKitId;
-        uint32 _worldEffectID;
-
-        struct PerPlayerState
-        {
-            SystemTimePoint ValidUntil = SystemTimePoint::min();
-            Optional<GOState> State;
-            bool Despawned = false;
-        };
-
-        std::unique_ptr<std::unordered_map<ObjectGuid, PerPlayerState>> m_perPlayerState;
-
-        std::unordered_map<ObjectGuid, PerPlayerState>& GetOrCreatePerPlayerStates();
 };
 #endif

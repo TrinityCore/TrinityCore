@@ -16,20 +16,7 @@
  */
 
 #include "BattlegroundPackets.h"
-
-WorldPacket const* WorldPackets::Battleground::SeasonInfo::Write()
-{
-    _worldPacket << int32(MythicPlusDisplaySeasonID);
-    _worldPacket << int32(MythicPlusMilestoneSeasonID);
-    _worldPacket << int32(CurrentArenaSeason);
-    _worldPacket << int32(PreviousArenaSeason);
-    _worldPacket << int32(ConquestWeeklyProgressCurrencyID);
-    _worldPacket << int32(PvpSeasonID);
-    _worldPacket.WriteBit(WeeklyRewardChestsEnabled);
-    _worldPacket.FlushBits();
-
-    return &_worldPacket;
-}
+#include "Battleground.h"
 
 void WorldPackets::Battleground::AreaSpiritHealerQuery::Read()
 {
@@ -49,7 +36,7 @@ WorldPacket const* WorldPackets::Battleground::AreaSpiritHealerTime::Write()
     return &_worldPacket;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::RatingData const& ratingData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData_RatingData const& ratingData)
 {
     for (std::size_t i = 0; i < 2; ++i)
     {
@@ -60,7 +47,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::HonorData const& honorData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData_Arena const& arena)
+{
+    data << arena.Ratings;
+    for (std::string_view const& teamName : arena.TeamName)
+        data << teamName;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData_Honor const& honorData)
 {
     data << uint32(honorData.HonorKills);
     data << uint32(honorData.Deaths);
@@ -68,198 +64,158 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchSta
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerPVPStat const& pvpStat)
-{
-    data << int32(pvpStat.PvpStatID);
-    data << int32(pvpStat.PvpStatValue);
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics const& playerData)
+ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPLogData_Player const& playerData)
 {
     data << playerData.PlayerGUID;
     data << uint32(playerData.Kills);
+    std::visit([&](auto const& v) { return data << v; }, playerData.HonorOrFaction);
     data << uint32(playerData.DamageDone);
     data << uint32(playerData.HealingDone);
     data << uint32(playerData.Stats.size());
-    data << int32(playerData.PrimaryTalentTree);
-    data << int32(playerData.Sex);
-    data << int32(playerData.Race);
-    data << int32(playerData.Class);
-    data << int32(playerData.CreatureID);
-    data << int32(playerData.HonorLevel);
-    data << int32(playerData.Role);
-    for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerPVPStat const& pvpStat : playerData.Stats)
-        data << pvpStat;
-
-    data.WriteBit(playerData.Faction != 0);
-    data.WriteBit(playerData.IsInWorld);
-    data.WriteBit(playerData.Honor.has_value());
-    data.WriteBit(playerData.PreMatchRating.has_value());
-    data.WriteBit(playerData.RatingChange.has_value());
-    data.WriteBit(playerData.PreMatchMMR.has_value());
-    data.WriteBit(playerData.MmrChange.has_value());
-    data.FlushBits();
-
-    if (playerData.Honor)
-        data << *playerData.Honor;
-
-    if (playerData.PreMatchRating)
-        data << uint32(*playerData.PreMatchRating);
-
-    if (playerData.RatingChange)
-        data << int32(*playerData.RatingChange);
-
-    if (playerData.PreMatchMMR)
-        data << uint32(*playerData.PreMatchMMR);
-
-    if (playerData.MmrChange)
-        data << int32(*playerData.MmrChange);
+    for (uint32 pvpStat : playerData.Stats)
+        data << uint32(pvpStat);
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::PVPMatchStatistics const& pvpLogData)
+WorldPacket const* WorldPackets::Battleground::PVPMatchStatistics::Write()
 {
-    data.WriteBit(pvpLogData.Ratings.has_value());
-    data << uint32(pvpLogData.Statistics.size());
-    data.append(pvpLogData.PlayerCount.data(), pvpLogData.PlayerCount.size());
+    _worldPacket.reserve(sizeof(PVPLogData_Arena) + 1 + 1 + 4 + Players.size() * sizeof(PVPLogData_Player));
 
-    if (pvpLogData.Ratings.has_value())
-        data << *pvpLogData.Ratings;
+    _worldPacket << uint8(Arena.has_value());
+    if (Arena)
+        _worldPacket << *Arena;
 
-    for (WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics const& player : pvpLogData.Statistics)
-        data << player;
+    _worldPacket << uint8(Winner.has_value());
+    if (Winner)
+        _worldPacket << uint8(*Winner);
 
-    return data;
-}
-
-WorldPacket const* WorldPackets::Battleground::PVPMatchStatisticsMessage::Write()
-{
-    _worldPacket.reserve(Data.Statistics.size() * sizeof(PVPMatchStatistics::PVPMatchPlayerStatistics) + sizeof(PVPMatchStatistics));
-
-    _worldPacket << Data;
+    _worldPacket << uint32(Players.size());
+    for (PVPLogData_Player const& player : Players)
+        _worldPacket << player;
 
     return &_worldPacket;
 }
 
 void WorldPackets::Battleground::BattlemasterJoin::Read()
 {
-    QueueIDs.resize(_worldPacket.read<uint32>());
-    _worldPacket >> Roles;
-    _worldPacket >> BlacklistMap[0] >> BlacklistMap[1];
-    for (uint64& queueId : QueueIDs)
-        _worldPacket >> queueId;
+    _worldPacket >> BattlemasterGuid;
+    _worldPacket >> BattlemasterListID;
+    _worldPacket >> InstanceID;
+    _worldPacket >> JoinAsGroup;
 }
 
 void WorldPackets::Battleground::BattlemasterJoinArena::Read()
 {
+    _worldPacket >> BattlemasterGuid;
     _worldPacket >> TeamSizeIndex;
-    _worldPacket >> Roles;
+    _worldPacket >> JoinAsGroup;
+    _worldPacket >> IsRated;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlefieldStatusHeader const& header)
 {
-    data << header.Ticket;
-    data << uint32(header.QueueID.size());
+    data << uint32(header.QueueSlot);
+    data << uint64(header.QueueID);
     data << uint8(header.RangeMin);
     data << uint8(header.RangeMax);
-    data << uint8(header.TeamSize);
     data << uint32(header.InstanceID);
-    for (uint64 queueID : header.QueueID)
-        data << uint64(queueID);
-
-    data.WriteBit(header.RegisteredMatch);
-    data.WriteBit(header.TournamentRules);
-    data.FlushBits();
+    data << uint8(header.RegisteredMatch);
     return data;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldStatusNone::Write()
 {
-    _worldPacket << Ticket;
+    _worldPacket << uint32(QueueSlot);
+    _worldPacket << uint64(0);
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldStatusNeedConfirmation::Write()
 {
     _worldPacket << Hdr;
+    _worldPacket << uint32(STATUS_WAIT_JOIN);
     _worldPacket << uint32(Mapid);
+    _worldPacket << uint64(RandomQueueID);
     _worldPacket << uint32(Timeout);
-    _worldPacket << uint8(Role);
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldStatusActive::Write()
 {
     _worldPacket << Hdr;
+    _worldPacket << uint32(STATUS_IN_PROGRESS);
     _worldPacket << uint32(Mapid);
+    _worldPacket << uint64(RandomQueueID);
     _worldPacket << uint32(ShutdownTimer);
     _worldPacket << uint32(StartTimer);
-    _worldPacket.WriteBit(ArenaFaction != 0);
-    _worldPacket.WriteBit(LeftEarly);
-    _worldPacket.FlushBits();
+    _worldPacket << uint8(ArenaFaction);
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldStatusQueued::Write()
 {
     _worldPacket << Hdr;
+    _worldPacket << uint32(STATUS_WAIT_QUEUE);
     _worldPacket << uint32(AverageWaitTime);
     _worldPacket << uint32(WaitTime);
-    _worldPacket << int32(Unused920);
-    _worldPacket.WriteBit(AsGroup);
-    _worldPacket.WriteBit(EligibleForMatchmaking);
-    _worldPacket.WriteBit(SuspendedQueue);
-    _worldPacket.FlushBits();
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Battleground::BattlefieldStatusFailed::Write()
+WorldPacket const* WorldPackets::Battleground::GroupJoinedBattleground::Write()
 {
-    _worldPacket << Ticket;
-    _worldPacket << uint64(QueueID);
     _worldPacket << uint32(Reason);
-    _worldPacket << ClientID;
+    if (Reason == ERR_BATTLEGROUND_JOIN_TIMED_OUT || Reason == ERR_BATTLEGROUND_JOIN_FAILED)
+        _worldPacket << ClientID;
+
     return &_worldPacket;
+}
+
+void WorldPackets::Battleground::BattlefieldLeave::Read()
+{
+    _worldPacket >> QueueID;
 }
 
 void WorldPackets::Battleground::BattlefieldPort::Read()
 {
-    _worldPacket >> Ticket;
-    AcceptedInvite = _worldPacket.ReadBit();
+    _worldPacket >> QueueID;
+    _worldPacket >> AcceptedInvite;
 }
 
 void WorldPackets::Battleground::BattlefieldListRequest::Read()
 {
     _worldPacket >> ListID;
+    _worldPacket >> PvpAnywhere;
+    _worldPacket >> NoXpGain;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlefieldList::Write()
 {
     _worldPacket << BattlemasterGuid;
+    _worldPacket << uint8(PvpAnywhere);
     _worldPacket << int32(BattlemasterListID);
     _worldPacket << uint8(MinLevel);
     _worldPacket << uint8(MaxLevel);
-    _worldPacket << uint32(Battlefields.size());
-    if (!Battlefields.empty())
-        _worldPacket.append(Battlefields.data(), Battlefields.size());
 
-    _worldPacket.WriteBit(PvpAnywhere);
-    _worldPacket.WriteBit(HasRandomWinToday);
-    _worldPacket.FlushBits();
-    return &_worldPacket;
-}
+    _worldPacket << uint8(HasHolidayWinToday);
+    _worldPacket << uint32(HolidayWinHonorCurrencyBonus);
+    _worldPacket << uint32(HolidayFirstWinArenaCurrencyBonus);
+    _worldPacket << uint32(HolidayLossHonorCurrencyBonus);
 
-WorldPacket const* WorldPackets::Battleground::PVPOptionsEnabled::Write()
-{
-    _worldPacket.WriteBit(RatedBattlegrounds);
-    _worldPacket.WriteBit(PugBattlegrounds);
-    _worldPacket.WriteBit(WargameBattlegrounds);
-    _worldPacket.WriteBit(WargameArenas);
-    _worldPacket.WriteBit(RatedArenas);
-    _worldPacket.WriteBit(ArenaSkirmish);
-    _worldPacket.FlushBits();
+    _worldPacket << uint8(BattlemasterListID == BATTLEGROUND_RB);
+    if (BattlemasterListID == BATTLEGROUND_RB)
+    {
+        _worldPacket << uint8(HasRandomWinToday);
+        _worldPacket << uint32(RandomWinHonorCurrencyBonus);
+        _worldPacket << uint32(RandomFirstWinArenaCurrencyBonus);
+        _worldPacket << uint32(RandomLossHonorCurrencyBonus);
+    }
+
+    _worldPacket << uint32(Battlefields ? Battlefields->size() : 0);
+    if (Battlefields)
+        for (uint32 battlefield : *Battlefields)
+            _worldPacket << uint32(battlefield);
+
     return &_worldPacket;
 }
 
@@ -270,10 +226,10 @@ void WorldPackets::Battleground::ReportPvPPlayerAFK::Read()
 
 WorldPacket const* WorldPackets::Battleground::ReportPvPPlayerAFKResult::Write()
 {
-    _worldPacket << Offender;
     _worldPacket << uint8(Result);
     _worldPacket << uint8(NumBlackMarksOnOffender);
     _worldPacket << uint8(NumPlayersIHaveReported);
+    _worldPacket << Offender;
     return &_worldPacket;
 }
 
@@ -281,13 +237,15 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::Battlegroun
 {
     data << playerPosition.Guid;
     data << playerPosition.Pos;
-    data << int8(playerPosition.IconID);
-    data << int8(playerPosition.ArenaSlot);
     return data;
 }
 
 WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerPositions::Write()
 {
+    _worldPacket << uint32(Players.size());
+    for (BattlegroundPlayerPosition const& pos : Players)
+        _worldPacket << pos;
+
     _worldPacket << uint32(FlagCarriers.size());
     for (BattlegroundPlayerPosition const& pos : FlagCarriers)
         _worldPacket << pos;
@@ -310,108 +268,5 @@ WorldPacket const* WorldPackets::Battleground::BattlegroundPlayerLeft::Write()
 WorldPacket const* WorldPackets::Battleground::DestroyArenaUnit::Write()
 {
     _worldPacket << Guid;
-    return &_worldPacket;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedPvpInfo::BracketInfo const& bracketInfo)
-{
-    data << int32(bracketInfo.PersonalRating);
-    data << int32(bracketInfo.Ranking);
-    data << int32(bracketInfo.SeasonPlayed);
-    data << int32(bracketInfo.SeasonWon);
-    data << int32(bracketInfo.Unused1);
-    data << int32(bracketInfo.Unused2);
-    data << int32(bracketInfo.WeeklyPlayed);
-    data << int32(bracketInfo.WeeklyWon);
-    data << int32(bracketInfo.RoundsSeasonPlayed);
-    data << int32(bracketInfo.RoundsSeasonWon);
-    data << int32(bracketInfo.RoundsWeeklyPlayed);
-    data << int32(bracketInfo.RoundsWeeklyWon);
-    data << int32(bracketInfo.BestWeeklyRating);
-    data << int32(bracketInfo.LastWeeksBestRating);
-    data << int32(bracketInfo.BestSeasonRating);
-    data << int32(bracketInfo.PvpTierID);
-    data << int32(bracketInfo.Unused3);
-    data << int32(bracketInfo.Unused4);
-    data << int32(bracketInfo.Rank);
-    data.WriteBit(bracketInfo.Disqualified);
-    data.FlushBits();
-
-    return data;
-}
-
-WorldPacket const* WorldPackets::Battleground::RatedPvpInfo::Write()
-{
-    for (BracketInfo const& bracket : Bracket)
-        _worldPacket << bracket;
-
-    return &_worldPacket;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::RatedMatchDeserterPenalty const& ratedMatchDeserterPenalty)
-{
-    data << int32(ratedMatchDeserterPenalty.PersonalRatingChange);
-    data << int32(ratedMatchDeserterPenalty.QueuePenaltySpellID);
-    data << ratedMatchDeserterPenalty.QueuePenaltyDuration;
-    return data;
-}
-
-WorldPacket const* WorldPackets::Battleground::PVPMatchInitialize::Write()
-{
-    _worldPacket << uint32(MapID);
-    _worldPacket << uint8(State);
-    _worldPacket << StartTime;
-    _worldPacket << Duration;
-    _worldPacket << uint8(ArenaFaction);
-    _worldPacket << uint32(BattlemasterListID);
-    _worldPacket.WriteBit(Registered);
-    _worldPacket.WriteBit(AffectsRating);
-    _worldPacket.WriteBit(DeserterPenalty.has_value());
-    _worldPacket.FlushBits();
-
-    if (DeserterPenalty)
-        _worldPacket << *DeserterPenalty;
-
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Battleground::PVPMatchComplete::Write()
-{
-    _worldPacket << uint8(Winner);
-    _worldPacket << Duration;
-    _worldPacket.WriteBit(LogData.has_value());
-    _worldPacket.WriteBits(SoloShuffleStatus, 2);
-    _worldPacket.FlushBits();
-
-    if (LogData)
-        _worldPacket << *LogData;
-
-    return &_worldPacket;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Battleground::BattlegroundCapturePointInfo const& battlegroundCapturePointInfo)
-{
-    data << battlegroundCapturePointInfo.Guid;
-    data << battlegroundCapturePointInfo.Pos;
-    data << int8(battlegroundCapturePointInfo.State);
-
-    if (battlegroundCapturePointInfo.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedHorde || battlegroundCapturePointInfo.State == WorldPackets::Battleground::BattlegroundCapturePointState::ContestedAlliance)
-    {
-        data << battlegroundCapturePointInfo.CaptureTime;
-        data << battlegroundCapturePointInfo.CaptureTotalDuration;
-    }
-
-    return data;
-}
-
-WorldPacket const* WorldPackets::Battleground::UpdateCapturePoint::Write()
-{
-    _worldPacket << CapturePointInfo;
-    return &_worldPacket;
-}
-
-WorldPacket const* WorldPackets::Battleground::CapturePointRemoved::Write()
-{
-    _worldPacket << CapturePointGUID;
     return &_worldPacket;
 }

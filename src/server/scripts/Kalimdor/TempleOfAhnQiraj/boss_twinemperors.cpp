@@ -24,10 +24,14 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Item.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
+#include "WorldPacket.h"
 
 enum Spells
 {

@@ -1,31 +1,16 @@
-<!--- (**********************************)
-      (** Fill in the following fields **)
-      (**********************************) --->
+**Changes proposed**:
 
-**Changes proposed:**
+- 
+- 
+- 
 
--  
--  
--  
+**Target branch(es)**: 335/6x
 
-**Issues addressed:**
+**Issues addressed**: Fixes #
 
-Closes #  (insert issue tracker number)
+**Tests performed**: (Does it build, tested in-game, etc)
 
-
-**Tests performed:**
-
-(Does it build, tested in-game, etc.)
-
-
-**Known issues and TODO list:** (add/remove lines as needed)
+**Known issues and TODO list**:
 
 - [ ] 
 - [ ] 
-
-
-<!--- Notes
-- Enable the setting "[√] Allow edits from maintainers." when creating your pull request.
-- If this PR only contains SQL files, open a new issue instead and post or link the SQL in the issue.
-- When adding new SQL files, name them 9999_99_99_99_db_name.sql to reduce the chance of possible merge conflicts.
---->

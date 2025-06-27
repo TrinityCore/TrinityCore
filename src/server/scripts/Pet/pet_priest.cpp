@@ -21,7 +21,7 @@
  */
 
 #include "ScriptMgr.h"
-#include "Creature.h"
+#include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
 

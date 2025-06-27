@@ -18,12 +18,12 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "loadlib/loadlib.h"
 #include "vec3d.h"
 #include "modelheaders.h"
 #include <vector>
 
-class CASCFile;
-struct ADTOutputCache;
+class MPQFile;
 struct WMODoodadData;
 namespace ADT { struct MDDF; struct MODF; }
 
@@ -43,8 +43,7 @@ private:
 public:
     ModelHeader header;
     Vec3D* vertices;
-    uint32* indices;
-    AaBox3D bounds;
+    uint16* indices;
 
     bool open();
     bool ConvertToVMAPModel(char const* outfilename);
@@ -55,11 +54,9 @@ public:
 
 namespace Doodad
 {
-    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId,
-        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+    void Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 
-    void ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, bool isGlobalWmo, uint32 mapID, uint32 originalMapId,
-        FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache);
+    void ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile);
 }
 
 #endif

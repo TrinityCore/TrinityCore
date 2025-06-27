@@ -36,13 +36,6 @@ DoorData const Doors[] =
     { 0,                                 0,              DOOR_TYPE_ROOM    } // END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_GARFROST, {{ 1999 }} },
-    { DATA_ICK, {{ 2001 }} },
-    { DATA_TYRANNUS, {{ 2000 }} }
-};
-
 class instance_pit_of_saron : public InstanceMapScript
 {
     public:
@@ -55,7 +48,6 @@ class instance_pit_of_saron : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(Doors);
-                LoadDungeonEncounterData(encounters);
                 _teamInInstance = 0;
                 _cavernActive = 0;
                 _shardsHit = 0;

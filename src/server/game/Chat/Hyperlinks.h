@@ -23,179 +23,71 @@
 #include <array>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 struct AchievementEntry;
-struct ArtifactPowerRankEntry;
-struct AzeriteEssenceEntry;
-struct BattlePetSpeciesEntry;
-struct CurrencyContainerEntry;
-struct CurrencyTypesEntry;
-struct GarrAbilityEntry;
-struct GarrFollowerEntry;
-struct GarrMissionEntry;
 struct GlyphPropertiesEntry;
-struct ItemModifiedAppearanceEntry;
-struct ItemNameDescriptionEntry;
+struct GlyphSlotEntry;
+struct ItemRandomPropertiesEntry;
+struct ItemRandomSuffixEntry;
 struct ItemTemplate;
-struct LocalizedString;
-struct MapEntry;
-struct MapChallengeModeEntry;
-struct MawPowerEntry;
-struct PvpTalentEntry;
-class Quest;
-struct SkillLineEntry;
-struct SoulbindConduitRankEntry;
 class SpellInfo;
-struct SpellItemEnchantmentEntry;
+class Quest;
 struct TalentEntry;
-struct TransmogSetEntry;
-struct UiMapEntry;
 
 namespace Trinity::Hyperlinks
 {
 
     struct AchievementLinkData
     {
-        AchievementEntry const* Achievement = nullptr;
+        AchievementEntry const* Achievement;
         ObjectGuid CharacterId;
-        bool IsFinished = false;
-        int32 Year = 0;
-        int32 Month = 0;
-        int32 Day = 0;
-        std::array<uint32, 4> Criteria = { };
+        bool IsFinished;
+        uint8 Year;
+        uint8 Month;
+        uint8 Day;
+        std::array<uint32, 4> Criteria;
     };
 
-    struct ArtifactPowerLinkData
+    struct GlyphLinkData
     {
-        ArtifactPowerRankEntry const* ArtifactPower = nullptr;
-        uint8 PurchasedRank = 0;
-        uint8 CurrentRankWithBonus = 0;
-    };
-
-    struct AzeriteEssenceLinkData
-    {
-        AzeriteEssenceEntry const* Essence = nullptr;
-        uint8 Rank = 0;
-    };
-
-    struct BattlePetLinkData
-    {
-        BattlePetSpeciesEntry const* Species = nullptr;
-        uint8 Level = 0;
-        uint8 Quality = 0;
-        uint32 MaxHealth = 0;
-        uint32 Power = 0;
-        uint32 Speed = 0;
-        ObjectGuid PetGuid;
-        uint32 DisplayId = 0;
-    };
-
-    struct CurrencyLinkData
-    {
-        CurrencyTypesEntry const* Currency = nullptr;
-        int32 Quantity = 0;
-
-        CurrencyContainerEntry const* Container = nullptr;
-    };
-
-    struct GarrisonFollowerLinkData
-    {
-        GarrFollowerEntry const* Follower = nullptr;
-        uint32 Quality = 0;
-        uint32 Level = 0;
-        uint32 ItemLevel = 0;
-        std::array<uint32, 4> Abilities = { };
-        uint32 Traits[4] = { };
-        uint32 Specialization = 0;
-    };
-
-    struct GarrisonMissionLinkData
-    {
-        GarrMissionEntry const* Mission = nullptr;
-        uint64 DbID = 0;
-    };
-
-    struct InstanceLockLinkData
-    {
-        ObjectGuid Owner;
-        MapEntry const* Map = nullptr;
-        uint32 Difficulty = 0;
-        uint32 CompletedEncountersMask = 0;
+        GlyphPropertiesEntry const* Glyph;
+        GlyphSlotEntry const* Slot;
     };
 
     struct ItemLinkData
     {
-        ItemTemplate const* Item = nullptr;
-        uint32 EnchantId = 0;
-        std::array<uint32, 3> GemItemId = { };
-        uint8 RenderLevel = 0;
-        uint32 RenderSpecialization = 0;
-        uint8 Context = 0;
-        std::vector<int32> ItemBonusListIDs;
-
-        struct Modifier
-        {
-            uint32 Type = 0;
-            int32 Value = 0;
-        };
-
-        std::vector<Modifier> Modifiers;
-        std::vector<int32> GemItemBonusListIDs[3];
-        ObjectGuid Creator;
-        uint32 UseEnchantId = 0;
-
-        uint32 Quality = 0;
-        ItemNameDescriptionEntry const* Suffix = nullptr;
-    };
-
-    struct JournalLinkData
-    {
-        enum class Types : uint8
-        {
-            Instance            = 0,
-            Encounter           = 1,
-            EncounterSection    = 2,
-            Tier                = 3
-        };
-
-        uint8 Type = 0;
-        LocalizedString const* ExpectedText = nullptr;
-        uint32 Difficulty = 0;
-    };
-
-    struct KeystoneLinkData
-    {
-        uint32 ItemId = 0;
-        MapChallengeModeEntry const* Map = nullptr;
-        uint32 Level = 0;
-        std::array<uint32, 4> Affix = { };
+        ItemTemplate const* Item;
+        uint32 EnchantId;
+        std::array<uint32, 3> GemEnchantId;
+        ItemRandomPropertiesEntry const* RandomProperty;
+        ItemRandomSuffixEntry const* RandomSuffix;
+        uint32 RandomSuffixBaseAmount; /* ITEM_FIELD_PROPERTY_SEED - only nonzero for RandomSuffix items, AllocationPct from DBC are multiplied with this, then floored, to get stat value */
+        uint8 RenderLevel;
+        bool IsBuggedInspectLink;
     };
 
     struct QuestLinkData
     {
-        ::Quest const* Quest = nullptr;
-        uint32 ContentTuningId = 0;
+        ::Quest const* Quest;
+        int16 QuestLevel;
     };
 
-    struct SpellLinkData
+    struct TalentLinkData
     {
-        SpellInfo const* Spell = nullptr;
-        GlyphPropertiesEntry const* Glyph = nullptr;
+        TalentEntry const* Talent;
+        uint8 Rank;
+        SpellInfo const* Spell;
     };
 
     struct TradeskillLinkData
     {
+        SpellInfo const* Spell;
+        uint16 CurValue;
+        uint16 MaxValue;
         ObjectGuid Owner;
-        SpellInfo const* Spell = nullptr;
-        SkillLineEntry const* Skill = nullptr;
-    };
-
-    struct WorldMapLinkData
-    {
-        UiMapEntry const* UiMap = nullptr;
-        uint32 X = 0;
-        uint32 Y = 0;
-        Optional<uint32> Z;
+        std::string KnownRecipes;
     };
 
     namespace LinkTags {
@@ -240,10 +132,9 @@ namespace Trinity::Hyperlinks
 
             static bool StoreTo(ObjectGuid& val, std::string_view data)
             {
-                ObjectGuid parsed = ObjectGuid::FromString(std::string(data));
-                if (parsed != ObjectGuid::FromStringFailed)
+                if (Optional<uint64> res = Trinity::StringTo<uint64>(data, 16))
                 {
-                    val = parsed;
+                    val.Set(*res);
                     return true;
                 }
                 else
@@ -252,7 +143,6 @@ namespace Trinity::Hyperlinks
         };
 
     #define make_base_tag(ltag, type) struct ltag : public base_tag { using value_type = type; static constexpr std::string_view tag() { return #ltag; } }
-        // custom formats
         make_base_tag(area, uint32);
         make_base_tag(areatrigger, uint32);
         make_base_tag(creature, ObjectGuid::LowType);
@@ -266,177 +156,62 @@ namespace Trinity::Hyperlinks
         make_base_tag(taxinode, uint32);
         make_base_tag(tele, uint32);
         make_base_tag(title, uint32);
-
-        // client format
-        make_base_tag(outfit, std::string const&); // some sort of weird base91 derived encoding
     #undef make_base_tag
 
         struct TC_GAME_API achievement
         {
             using value_type = AchievementLinkData const&;
             static constexpr std::string_view tag() { return "achievement"; }
-            static bool StoreTo(AchievementLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API apower
-        {
-            using value_type = ArtifactPowerLinkData const&;
-            static constexpr std::string_view tag() { return "apower"; }
-            static bool StoreTo(ArtifactPowerLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API azessence
-        {
-            using value_type = AzeriteEssenceLinkData const&;
-            static constexpr std::string_view tag() { return "azessence"; }
-            static bool StoreTo(AzeriteEssenceLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API battlepet
-        {
-            using value_type = BattlePetLinkData const&;
-            static constexpr std::string_view tag() { return "battlepet"; }
-            static bool StoreTo(BattlePetLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API conduit
-        {
-            using value_type = SoulbindConduitRankEntry const*;
-            static constexpr std::string_view tag() { return "conduit"; }
-            static bool StoreTo(SoulbindConduitRankEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API currency
-        {
-            using value_type = CurrencyLinkData const&;
-            static constexpr std::string_view tag() { return "currency"; }
-            static bool StoreTo(CurrencyLinkData& val, std::string_view text);
+            static bool StoreTo(AchievementLinkData& val, std::string_view data);
         };
 
         struct TC_GAME_API enchant
         {
             using value_type = SpellInfo const*;
             static constexpr std::string_view tag() { return "enchant"; }
-            static bool StoreTo(SpellInfo const*& val, std::string_view text);
+            static bool StoreTo(SpellInfo const*& val, std::string_view data);
         };
 
-        struct TC_GAME_API garrfollower
+        struct TC_GAME_API glyph
         {
-            using value_type = GarrisonFollowerLinkData const&;
-            static constexpr std::string_view tag() { return "garrfollower"; }
-            static bool StoreTo(GarrisonFollowerLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API garrfollowerability
-        {
-            using value_type = GarrAbilityEntry const*;
-            static constexpr std::string_view tag() { return "garrfollowerability"; }
-            static bool StoreTo(GarrAbilityEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API garrmission
-        {
-            using value_type = GarrisonMissionLinkData const&;
-            static constexpr std::string_view tag() { return "garrmission"; }
-            static bool StoreTo(GarrisonMissionLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API instancelock
-        {
-            using value_type = InstanceLockLinkData const&;
-            static constexpr std::string_view tag() { return "instancelock"; }
-            static bool StoreTo(InstanceLockLinkData& val, std::string_view text);
+            using value_type = GlyphLinkData const&;
+            static constexpr std::string_view tag() { return "glyph"; };
+            static bool StoreTo(GlyphLinkData& val, std::string_view data);
         };
 
         struct TC_GAME_API item
         {
             using value_type = ItemLinkData const&;
             static constexpr std::string_view tag() { return "item"; }
-            static bool StoreTo(ItemLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API journal
-        {
-            using value_type = JournalLinkData const&;
-            static constexpr std::string_view tag() { return "journal"; }
-            static bool StoreTo(JournalLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API keystone
-        {
-            using value_type = KeystoneLinkData const&;
-            static constexpr std::string_view tag() { return "keystone"; }
-            static bool StoreTo(KeystoneLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API mawpower
-        {
-            using value_type = MawPowerEntry const*;
-            static constexpr std::string_view tag() { return "mawpower"; }
-            static bool StoreTo(MawPowerEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API pvptal
-        {
-            using value_type = PvpTalentEntry const*;
-            static constexpr std::string_view tag() { return "pvptal"; }
-            static bool StoreTo(PvpTalentEntry const*& val, std::string_view text);
+            static bool StoreTo(ItemLinkData& val, std::string_view data);
         };
 
         struct TC_GAME_API quest
         {
             using value_type = QuestLinkData const&;
             static constexpr std::string_view tag() { return "quest"; }
-            static bool StoreTo(QuestLinkData& val, std::string_view text);
+            static bool StoreTo(QuestLinkData& val, std::string_view data);
         };
 
         struct TC_GAME_API spell
         {
-            using value_type = SpellLinkData const&;
+            using value_type = SpellInfo const*;
             static constexpr std::string_view tag() { return "spell"; }
-            static bool StoreTo(SpellLinkData& val, std::string_view text);
+            static bool StoreTo(SpellInfo const*& val, std::string_view data);
         };
 
         struct TC_GAME_API talent
         {
-            using value_type = TalentEntry const*;
+            using value_type = TalentLinkData const&;
             static constexpr std::string_view tag() { return "talent"; }
-            static bool StoreTo(TalentEntry const*& val, std::string_view text);
+            static bool StoreTo(TalentLinkData& val, std::string_view data);
         };
 
         struct TC_GAME_API trade
         {
             using value_type = TradeskillLinkData const&;
             static constexpr std::string_view tag() { return "trade"; }
-            static bool StoreTo(TradeskillLinkData& val, std::string_view text);
-        };
-
-        struct TC_GAME_API transmogappearance
-        {
-            using value_type = ItemModifiedAppearanceEntry const*;
-            static constexpr std::string_view tag() { return "transmogappearance"; }
-            static bool StoreTo(ItemModifiedAppearanceEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API transmogillusion
-        {
-            using value_type = SpellItemEnchantmentEntry const*;
-            static constexpr std::string_view tag() { return "transmogillusion"; }
-            static bool StoreTo(SpellItemEnchantmentEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API transmogset
-        {
-            using value_type = TransmogSetEntry const*;
-            static constexpr std::string_view tag() { return "transmogset"; }
-            static bool StoreTo(TransmogSetEntry const*& val, std::string_view text);
-        };
-
-        struct TC_GAME_API worldmap
-        {
-            using value_type = WorldMapLinkData const&;
-            static constexpr std::string_view tag() { return "worldmap"; }
-            static bool StoreTo(WorldMapLinkData& val, std::string_view text);
+            static bool StoreTo(TradeskillLinkData& val, std::string_view data);
         };
     }
 

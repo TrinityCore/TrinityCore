@@ -16,16 +16,15 @@
  */
 
 #include "PathGenerator.h"
+#include "Map.h"
 #include "Creature.h"
-#include "DetourCommon.h"
-#include "DetourNavMeshQuery.h"
-#include "DisableMgr.h"
-#include "Log.h"
 #include "MMapFactory.h"
 #include "MMapManager.h"
-#include "Map.h"
+#include "Log.h"
+#include "DisableMgr.h"
+#include "DetourCommon.h"
+#include "DetourNavMeshQuery.h"
 #include "Metric.h"
-#include "PhasingHandler.h"
 
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(WorldObject const* owner) :
@@ -38,12 +37,12 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
 
     TC_LOG_DEBUG("maps.mmaps", "++ PathGenerator::PathGenerator for {}", _source->GetGUID().ToString());
 
-    uint32 mapId = PhasingHandler::GetTerrainMapId(_source->GetPhaseShift(), _source->GetMapId(), _source->GetMap()->GetTerrain(), _source->GetPositionX(), _source->GetPositionY());
-    if (DisableMgr::IsPathfindingEnabled(_source->GetMapId()))
+    uint32 mapId = _source->GetMapId();
+    if (DisableMgr::IsPathfindingEnabled(mapId))
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
-        _navMesh = mmap->GetNavMesh(mapId);
         _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetInstanceId());
+        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId);
     }
 
     CreateFilter();
@@ -185,7 +184,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
             // Check both start and end points, if they're both in water, then we can *safely* let the creature move
             for (uint32 i = 0; i < _pathPoints.size(); ++i)
             {
-                ZLiquidStatus status = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, map_liquidHeaderTypeFlags::AllLiquids, nullptr, _source->GetCollisionHeight());
+                ZLiquidStatus status = _source->GetMap()->GetLiquidStatus(_source->GetPhaseMask(), _pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z, {}, nullptr, _source->GetCollisionHeight());
                 // One of the points is not in the water, cancel movement.
                 if (status == LIQUID_MAP_NO_WATER)
                 {
@@ -219,7 +218,7 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
         bool buildShotrcut = false;
 
         G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
-        if (_source->GetMap()->IsUnderWater(_source->GetPhaseShift(), p.x, p.y, p.z))
+        if (_source->GetMap()->IsUnderWater(_source->GetPhaseMask(), p.x, p.y, p.z))
         {
             TC_LOG_DEBUG("maps.mmaps", "++ BuildPolyPath :: underWater case");
             if (Unit const* _sourceUnit = _source->ToUnit())
@@ -697,18 +696,17 @@ void PathGenerator::UpdateFilter()
 NavTerrainFlag PathGenerator::GetNavTerrain(float x, float y, float z)
 {
     LiquidData data;
-    ZLiquidStatus liquidStatus = _source->GetMap()->GetLiquidStatus(_source->GetPhaseShift(), x, y, z, map_liquidHeaderTypeFlags::AllLiquids, &data, _source->GetCollisionHeight());
+    ZLiquidStatus liquidStatus = _source->GetMap()->GetLiquidStatus(_source->GetPhaseMask(), x, y, z, {}, &data, _source->GetCollisionHeight());
     if (liquidStatus == LIQUID_MAP_NO_WATER)
         return NAV_GROUND;
 
-    data.type_flags &= map_liquidHeaderTypeFlags::DarkWater;
     switch (data.type_flags)
     {
-        case map_liquidHeaderTypeFlags::Water:
-        case map_liquidHeaderTypeFlags::Ocean:
+        case MAP_LIQUID_TYPE_WATER:
+        case MAP_LIQUID_TYPE_OCEAN:
             return NAV_WATER;
-        case map_liquidHeaderTypeFlags::Magma:
-        case map_liquidHeaderTypeFlags::Slime:
+        case MAP_LIQUID_TYPE_MAGMA:
+        case MAP_LIQUID_TYPE_SLIME:
             return NAV_MAGMA_SLIME;
         default:
             return NAV_GROUND;
@@ -993,7 +991,7 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
     //  - _pathPoints[i] is still too close
     //  - _pathPoints[i-1] is too far away
     // => the end point is somewhere on the line between the two
-    while (1)
+    while (true)
     {
         // we know that pathPoints[i] is too close already (from the previous iteration)
         if ((_pathPoints[i-1] - target).squaredLength() >= distSq)
@@ -1001,7 +999,7 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
 
         // check if the shortened path is still in LoS with the target
         _source->GetHitSpherePointFor({ _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight }, x, y, z);
-        if (!_source->GetMap()->isInLineOfSight(_source->GetPhaseShift(), x, y, z, _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing))
+        if (!_source->GetMap()->isInLineOfSight(x, y, z, _pathPoints[i - 1].x, _pathPoints[i - 1].y, _pathPoints[i - 1].z + collisionHeight, _source->GetPhaseMask(), LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing))
         {
             // whenver we find a point that is not in LoS anymore, simply use last valid path
             _pathPoints.resize(i + 1);
@@ -1024,7 +1022,7 @@ void PathGenerator::ShortenPathUntilDist(G3D::Vector3 const& target, float dist)
     _pathPoints.resize(i+1);
 }
 
-bool PathGenerator::IsInvalidDestinationZ(WorldObject const* target) const
+bool PathGenerator::IsInvalidDestinationZ(Unit const* target) const
 {
     return (target->GetPositionZ() - GetActualEndPosition().z) > 5.0f;
 }

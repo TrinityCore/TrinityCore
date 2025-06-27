@@ -16,6 +16,7 @@
  */
 
 #include "Metric.h"
+#include "Common.h"
 #include "Config.h"
 #include "DeadlineTimer.h"
 #include "Log.h"
@@ -152,14 +153,8 @@ void Metric::SendBatch()
         if (!_realmName.empty())
             batchedData << ",realm=" << _realmName;
 
-        if (data->Tags)
-        {
-            auto begin = std::visit([](auto&& value) { return value.data(); }, *data->Tags);
-            auto end = std::visit([](auto&& value) { return value.data() + value.size(); }, *data->Tags);
-            for (auto itr = begin; itr != end; ++itr)
-                if (!itr->first.empty())
-                    batchedData << "," << itr->first << "=" << FormatInfluxDBTagValue(itr->second);
-        }
+        for (MetricTag const& tag : data->Tags)
+            batchedData << "," << tag.first << "=" << FormatInfluxDBTagValue(tag.second);
 
         batchedData << " ";
 
@@ -225,7 +220,7 @@ void Metric::ScheduleSend()
 {
     if (_enabled)
     {
-        _batchTimer->expires_from_now(boost::posix_time::seconds(_updateInterval));
+        _batchTimer->expires_after(std::chrono::seconds(_updateInterval));
         _batchTimer->async_wait(std::bind(&Metric::SendBatch, this));
     }
     else
@@ -255,7 +250,7 @@ void Metric::ScheduleOverallStatusLog()
 {
     if (_enabled)
     {
-        _overallStatusTimer->expires_from_now(boost::posix_time::seconds(_overallStatusTimerInterval));
+        _overallStatusTimer->expires_after(std::chrono::seconds(_overallStatusTimerInterval));
         _overallStatusTimer->async_wait([this](const boost::system::error_code&)
         {
             _overallStatusTimerTriggered = true;

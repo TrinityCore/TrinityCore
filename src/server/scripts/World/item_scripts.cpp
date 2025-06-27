@@ -24,14 +24,12 @@ EndScriptData */
 
 /* ContentData
 item_flying_machine(i34060, i34061)  Engineering crafted flying machines
-item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
 item_only_for_flight                Items which should only useable while flying
 EndContentData */
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
 #include "Item.h"
-#include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
@@ -52,7 +50,7 @@ class item_only_for_flight : public ItemScript
 public:
     item_only_for_flight() : ItemScript("item_only_for_flight") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid castId) override
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
         uint32 itemId = item->GetEntry();
         bool disabled = false;
@@ -69,8 +67,8 @@ public:
                     disabled = true;
                 break;
             case 34475:
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES, player->GetMap()->GetDifficultyID()))
-                    Spell::SendCastResult(player, spellInfo, {}, castId, SPELL_FAILED_NOT_ON_GROUND);
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
+                    Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                 break;
         }
 
@@ -79,26 +77,6 @@ public:
             return false;
 
         // error
-        player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
-        return true;
-    }
-};
-
-/*#####
-# item_gor_dreks_ointment
-#####*/
-
-class item_gor_dreks_ointment : public ItemScript
-{
-public:
-    item_gor_dreks_ointment() : ItemScript("item_gor_dreks_ointment") { }
-
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets, ObjectGuid /*castId*/) override
-    {
-        if (targets.GetUnitTarget() && targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT &&
-            targets.GetUnitTarget()->GetEntry() == 20748 && !targets.GetUnitTarget()->HasAura(32578))
-            return false;
-
         player->SendEquipError(EQUIP_ERR_CLIENT_LOCKED_OUT, item, nullptr);
         return true;
     }
@@ -118,7 +96,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 39883, true, GenerateItemRandomBonusListId(39883));
+            player->StoreNewItem(dest, 39883, true, GenerateItemRandomPropertyId(39883));
 
         return true;
     }
@@ -138,7 +116,7 @@ public:
         ItemPosCountVec dest;
         uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
         if (msg == EQUIP_ERR_OK)
-            player->StoreNewItem(dest, 44718, true, GenerateItemRandomBonusListId(44718));
+            player->StoreNewItem(dest, 44718, true, GenerateItemRandomPropertyId(44718));
 
         return true;
     }
@@ -160,15 +138,17 @@ class item_petrov_cluster_bombs : public ItemScript
 public:
     item_petrov_cluster_bombs() : ItemScript("item_petrov_cluster_bombs") { }
 
-    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/, ObjectGuid castId) override
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
         if (player->GetZoneId() != ZONE_ID_HOWLING)
             return false;
 
         if (!player->GetTransport() || player->GetAreaId() != AREA_ID_SHATTERED_STRAITS)
         {
-            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB, DIFFICULTY_NONE))
-                Spell::SendCastResult(player, spellInfo, {}, castId, SPELL_FAILED_NOT_HERE);
+            player->SendEquipError(EQUIP_ERR_NONE, item, nullptr);
+
+            if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
+                Spell::SendCastResult(player, spellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
         }
@@ -188,7 +168,7 @@ class item_captured_frog : public ItemScript
 public:
     item_captured_frog() : ItemScript("item_captured_frog") { }
 
-    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/, ObjectGuid /*castId*/) override
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
     {
         if (player->GetQuestStatus(QUEST_THE_PERFECT_SPIES) == QUEST_STATUS_INCOMPLETE)
         {
@@ -210,14 +190,14 @@ class item_generic_limit_chance_above_60 : public ItemScript
     public:
         item_generic_limit_chance_above_60() : ItemScript("item_generic_limit_chance_above_60") { }
 
-        bool OnCastItemCombatSpell(Player* player, Unit* victim, SpellInfo const* /*spellInfo*/, Item* /*item*/) override
+        bool OnCastItemCombatSpell(Player* /*player*/, Unit* victim, SpellInfo const* /*spellInfo*/, Item* /*item*/) override
         {
             // spell proc chance gets severely reduced on victims > 60 (formula unknown)
             if (victim->GetLevel() > 60)
             {
                 // gives ~0.1% proc chance at lvl 70
                 float const lvlPenaltyFactor = 9.93f;
-                float const failureChance = (victim->GetLevelForTarget(player) - 60) * lvlPenaltyFactor;
+                float const failureChance = (victim->GetLevel() - 60) * lvlPenaltyFactor;
 
                 // base ppm chance was already rolled, only roll success chance
                 return !roll_chance_f(failureChance);
@@ -230,7 +210,6 @@ class item_generic_limit_chance_above_60 : public ItemScript
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
-    new item_gor_dreks_ointment();
     new item_mysterious_egg();
     new item_disgusting_jar();
     new item_petrov_cluster_bombs();

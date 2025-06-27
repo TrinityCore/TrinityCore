@@ -17,11 +17,13 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "CreatureAIImpl.h"
-#include "CreatureGroups.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "GameEventMgr.h"
+#include "GameTime.h"
+#include "CreatureGroups.h"
 #include "ScriptedCreature.h"
+#include "CreatureAIImpl.h"
 
 enum COG_Paths
 {
@@ -110,10 +112,10 @@ struct npc_cameron : public ScriptedAI
         Trinity::Containers::RandomShuffle(MovePosPositions);
 
         // first we break formation because children will need to move on their own now
-        for (ObjectGuid guid : _childrenGUIDs)
+        for (auto guid : _childrenGUIDs)
             if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
-                if (child->GetFormation())
-                    child->GetFormation()->RemoveMember(child);
+                if (CreatureGroup* creatureGroup = child->GetFormation())
+                    sFormationMgr->RemoveCreatureFromGroup(creatureGroup, child);
 
         // Move each child to an random position
         for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)
@@ -215,13 +217,13 @@ struct npc_cameron : public ScriptedAI
                     me->GetMotionMaster()->MovePath(HOUSE_PATH, false);
                     break;
                 case EVENT_WP_START_LISA:
-                    for (ObjectGuid guid : _childrenGUIDs)
+                    for (uint32 i = 0; i < _childrenGUIDs.size(); ++i)
                     {
-                        if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
+                        if (Creature* lisa = ObjectAccessor::GetCreature(*me, _childrenGUIDs[i]))
                         {
-                            if (child->GetEntry() == NPC_LISA)
+                            if (lisa->GetEntry() == NPC_LISA)
                             {
-                                child->GetMotionMaster()->MovePath(LISA_PATH, false);
+                                lisa->GetMotionMaster()->MovePath(LISA_PATH, false);
                                 break;
                             }
                         }
@@ -252,7 +254,7 @@ struct npc_cameron : public ScriptedAI
 
                     // If Formation was disbanded, remake.
                     if (!me->GetFormation()->IsFormed())
-                        for (ObjectGuid guid : _childrenGUIDs)
+                        for (auto guid : _childrenGUIDs)
                             if (Creature* child = ObjectAccessor::GetCreature(*me, guid))
                                 child->SearchFormation();
 

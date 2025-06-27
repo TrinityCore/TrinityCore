@@ -23,10 +23,13 @@
 #include "Errors.h"
 #include "IoContext.h"
 #include "Log.h"
+#include "Timer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <thread>
 
 using boost::asio::ip::tcp;
@@ -119,7 +122,7 @@ protected:
     {
         TC_LOG_DEBUG("misc", "Network Thread Starting");
 
-        _updateTimer.expires_from_now(boost::posix_time::milliseconds(1));
+        _updateTimer.expires_after(1ms);
         _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
         _ioContext.run();
 
@@ -133,7 +136,7 @@ protected:
         if (_stopped)
             return;
 
-        _updateTimer.expires_from_now(boost::posix_time::milliseconds(1));
+        _updateTimer.expires_after(1ms);
         _updateTimer.async_wait([this](boost::system::error_code const&) { Update(); });
 
         AddNewSockets();

@@ -184,6 +184,7 @@ struct boss_victor_nefarius : public BossAI
                 _Reset();
 
             me->SetVisible(true);
+            me->SetPhaseMask(1, true);
             me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->SetFaction(FACTION_FRIENDLY);
             me->SetStandState(UNIT_STAND_STATE_SIT_HIGH_CHAIR);

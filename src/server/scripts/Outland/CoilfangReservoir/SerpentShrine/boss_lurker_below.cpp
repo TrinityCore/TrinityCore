@@ -31,6 +31,7 @@ EndScriptData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "Spell.h"
 #include "TemporarySummon.h"
 
 enum Spells
@@ -261,11 +262,12 @@ struct boss_the_lurker_below : public BossAI
 
             if (RotTimer)
             {
-                instance->instance->DoOnPlayers([&](Player* player)
+                Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 {
-                    if (player->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, player) && me->IsWithinDist(player, SPOUT_DIST) && !player->IsInWater())
-                        DoCast(player, SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
-                });
+                    if (i->GetSource() && i->GetSource()->IsAlive() && me->HasInArc(diff/20000.f*float(M_PI)*2.f, i->GetSource()) && me->IsWithinDist(i->GetSource(), SPOUT_DIST) && !i->GetSource()->IsInWater())
+                        DoCast(i->GetSource(), SPELL_SPOUT, true); // only knock back players in arc, in 100yards, not in water
+                }
 
                 if (SpoutAnimTimer <= diff)
                 {

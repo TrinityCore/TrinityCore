@@ -21,7 +21,7 @@
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 
 enum BloodyBreakoutTexts
@@ -138,7 +138,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
 
     void Reset() override
     {
-        me->SetImmuneToNPC(true);
+        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
         me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         me->SetStandState(UNIT_STAND_STATE_DEAD);
         me->RemoveAllAuras();
@@ -259,7 +259,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     break;
                 case EVENT_OUTRO_4:
                     me->SetWalk(false);
-                    me->SetImmuneToNPC(false);
+                    me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     DoCastSelf(SPELL_HERO_AGGRO);
                     me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
 
@@ -324,7 +324,7 @@ private:
     SummonList _summons;
     ObjectGuid _playerGUID;
 
-    bool _eventGossip = false;
+    bool _eventGossip;
 };
 
 //Scarlet courier
@@ -531,7 +531,7 @@ public:
         void MoveInLineOfSight(Unit* who) override
 
         {
-            if (!PlayerGUID.IsEmpty() || who->GetTypeId() != TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
+            if (PlayerGUID || who->GetTypeId() != TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
                 return;
 
             if (MeetQuestCondition(who->ToPlayer()))
@@ -540,7 +540,7 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
-            if (!PlayerGUID.IsEmpty() && !me->GetVictim() && me->IsAlive())
+            if (PlayerGUID && !me->GetVictim() && me->IsAlive())
             {
                 if (ExecuteSpeech_Timer <= diff)
                 {

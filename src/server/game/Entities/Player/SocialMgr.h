@@ -47,7 +47,6 @@ enum SocialFlag
 
 struct FriendInfo
 {
-    ObjectGuid WowAccountGuid;
     FriendStatus Status;
     uint8 Flags;
     uint32 Area;
@@ -58,8 +57,7 @@ struct FriendInfo
     FriendInfo() : Status(FRIEND_STATUS_OFFLINE), Flags(0), Area(0), Level(0), Class(0), Note()
     { }
 
-    FriendInfo(ObjectGuid const& accountGuid, uint8 flags, std::string const& note) : WowAccountGuid(accountGuid), Status(FRIEND_STATUS_OFFLINE),
-        Flags(flags), Area(0), Level(0), Class(0), Note(note)
+    FriendInfo(uint8 flags, std::string const& note) : Status(FRIEND_STATUS_OFFLINE), Flags(flags), Area(0), Level(0), Class(0), Note(note)
     { }
 };
 
@@ -105,8 +103,9 @@ class TC_GAME_API PlayerSocial
     friend class SocialMgr;
 
     public:
+        PlayerSocial();
         // adding/removing
-        bool AddToSocialList(ObjectGuid const& guid, ObjectGuid const& accountGuid, SocialFlag flag);
+        bool AddToSocialList(ObjectGuid const& guid, SocialFlag flag);
         void RemoveFromSocialList(ObjectGuid const& guid, SocialFlag flag);
         void SetFriendNote(ObjectGuid const& guid, std::string const& note);
 
@@ -115,7 +114,7 @@ class TC_GAME_API PlayerSocial
 
         // Misc
         bool HasFriend(ObjectGuid const& friendGuid);
-        bool HasIgnore(ObjectGuid const& ignoreGuid, ObjectGuid const& ignoreAccountGuid);
+        bool HasIgnore(ObjectGuid const& ignoreGuid);
 
         ObjectGuid const& GetPlayerGUID() const { return _playerGUID; }
         void SetPlayerGUID(ObjectGuid const& guid) { _playerGUID = guid; }
@@ -127,7 +126,6 @@ class TC_GAME_API PlayerSocial
 
         typedef std::map<ObjectGuid, FriendInfo> PlayerSocialMap;
         PlayerSocialMap _playerSocialMap;
-        GuidUnorderedSet _ignoredAccounts;
 
         ObjectGuid _playerGUID;
 };

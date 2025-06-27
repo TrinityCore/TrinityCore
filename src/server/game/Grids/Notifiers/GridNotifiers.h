@@ -18,14 +18,13 @@
 #ifndef TRINITY_GRIDNOTIFIERS_H
 #define TRINITY_GRIDNOTIFIERS_H
 
-#include "AreaTrigger.h"
 #include "Creature.h"
 #include "Corpse.h"
-#include "Conversation.h"
+#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "Group.h"
 #include "Player.h"
-#include "SceneObject.h"
 #include "Spell.h"
 #include "SpellInfo.h"
 #include "UnitAI.h"
@@ -33,6 +32,15 @@
 
 namespace Trinity
 {
+    template<typename ObjectType>
+    struct GridMapTypeMaskForType : std::integral_constant<GridMapTypeMask, GridMapTypeMask(0)> { };
+
+    template<> struct GridMapTypeMaskForType<Corpse> : std::integral_constant<GridMapTypeMask, GRID_MAP_TYPE_MASK_CORPSE> { };
+    template<> struct GridMapTypeMaskForType<Creature> : std::integral_constant<GridMapTypeMask, GRID_MAP_TYPE_MASK_CREATURE> { };
+    template<> struct GridMapTypeMaskForType<DynamicObject> : std::integral_constant<GridMapTypeMask, GRID_MAP_TYPE_MASK_DYNAMICOBJECT> { };
+    template<> struct GridMapTypeMaskForType<GameObject> : std::integral_constant<GridMapTypeMask, GRID_MAP_TYPE_MASK_GAMEOBJECT> { };
+    template<> struct GridMapTypeMaskForType<Player> : std::integral_constant<GridMapTypeMask, GRID_MAP_TYPE_MASK_PLAYER> { };
+
     struct TC_GAME_API VisibleNotifier
     {
         Player &i_player;
@@ -40,16 +48,16 @@ namespace Trinity
         std::set<Unit*> i_visibleNow;
         GuidUnorderedSet vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) { }
+        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) { }
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
     };
 
     struct VisibleChangesNotifier
     {
-        IteratorPair<WorldObject**> i_objects;
+        WorldObject &i_object;
 
-        explicit VisibleChangesNotifier(IteratorPair<WorldObject**> objects) : i_objects(objects) { }
+        explicit VisibleChangesNotifier(WorldObject &object) : i_object(object) { }
         template<class T> void Visit(GridRefManager<T> &) { }
         void Visit(PlayerMapType &);
         void Visit(CreatureMapType &);
@@ -113,98 +121,70 @@ namespace Trinity
         void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
         void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
         void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
-        void Visit(AreaTriggerMapType &m) { updateObjects<AreaTrigger>(m); }
-        void Visit(SceneObjectMapType &m) { updateObjects<SceneObject>(m); }
-        void Visit(ConversationMapType &m) { updateObjects<Conversation>(m); }
     };
 
-    struct PacketSenderRef
-    {
-        WorldPacket const* Data;
-
-        PacketSenderRef(WorldPacket const* message) : Data(message) { }
-
-        void operator()(Player const* player) const
-        {
-            player->SendDirectMessage(Data);
-        }
-    };
-
-    template<typename Packet>
-    struct PacketSenderOwning
-    {
-        Packet Data;
-
-        void operator()(Player const* player) const
-        {
-            player->SendDirectMessage(Data.GetRawPacket());
-        }
-    };
-
-    template<typename PacketSender>
-    struct MessageDistDeliverer
+    struct TC_GAME_API MessageDistDeliverer
     {
         WorldObject const* i_source;
-        PacketSender& i_packetSender;
-        PhaseShift const* i_phaseShift;
+        WorldPacket const* i_message;
+        uint32 i_phaseMask;
         float i_distSq;
-        Team team;
+        uint32 team;
         Player const* skipped_receiver;
         bool required3dDist;
-        MessageDistDeliverer(WorldObject const* src, PacketSender& packetSender, float dist, bool own_team_only = false, Player const* skipped = nullptr, bool req3dDist = false)
-            : i_source(src), i_packetSender(packetSender), i_phaseShift(&src->GetPhaseShift()), i_distSq(dist * dist)
-            , team(TEAM_OTHER)
+        MessageDistDeliverer(WorldObject const* src, WorldPacket const* msg, float dist, bool own_team_only = false, Player const* skipped = nullptr, bool req3dDist = false)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
+            , team(0)
             , skipped_receiver(skipped)
             , required3dDist(req3dDist)
         {
             if (own_team_only)
                 if (Player const* player = src->ToPlayer())
-                    team = player->GetEffectiveTeam();
+                    team = player->GetTeam();
         }
 
-        void Visit(PlayerMapType &m) const;
-        void Visit(CreatureMapType &m) const;
-        void Visit(DynamicObjectMapType &m) const;
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) const { }
+        void Visit(PlayerMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 
-        void SendPacket(Player const* player) const
+        void SendPacket(Player* player)
         {
             // never send packet to self
-            if (player == i_source || (team && player->GetEffectiveTeam() != team) || skipped_receiver == player)
+            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
                 return;
 
             if (!player->HaveAtClient(i_source))
                 return;
 
-            i_packetSender(player);
+            player->SendDirectMessage(i_message);
         }
     };
 
-    template<typename PacketSender>
-    struct MessageDistDelivererToHostile
+    struct TC_GAME_API MessageDistDelivererToHostile
     {
         Unit* i_source;
-        PacketSender& i_packetSender;
-        PhaseShift const* i_phaseShift;
+        WorldPacket const* i_message;
+        uint32 i_phaseMask;
         float i_distSq;
 
-        MessageDistDelivererToHostile(Unit* src, PacketSender& packetSender, float dist)
-            : i_source(src), i_packetSender(packetSender), i_phaseShift(&src->GetPhaseShift()), i_distSq(dist * dist)
+        MessageDistDelivererToHostile(Unit* src, WorldPacket const* msg, float dist)
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
         {
         }
 
-        void Visit(PlayerMapType &m) const;
-        void Visit(CreatureMapType &m) const;
-        void Visit(DynamicObjectMapType &m) const;
-        template<class SKIP> void Visit(GridRefManager<SKIP> &) const { }
+        void Visit(PlayerMapType &m);
+        void Visit(CreatureMapType &m);
+        void Visit(DynamicObjectMapType &m);
+        template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 
-        void SendPacket(Player const* player) const
+        void SendPacket(Player* player)
         {
             // never send packet to self
             if (player == i_source || !player->HaveAtClient(i_source) || player->IsFriendlyTo(i_source))
                 return;
 
-            i_packetSender(player);
+            player->SendDirectMessage(i_message);
         }
     };
 
@@ -220,10 +200,53 @@ namespace Trinity
     // SEARCHERS & LIST SEARCHERS & WORKERS
 
     // WorldObject searchers & workers
+    enum class WorldObjectSearcherContinuation
+    {
+        Continue,
+        Return
+    };
+
+    template<typename Type>
+    class SearcherFirstObjectResult
+    {
+        Type& result;
+
+    protected:
+        explicit SearcherFirstObjectResult(Type& ref_) : result(ref_) { }
+
+        WorldObjectSearcherContinuation ShouldContinue() const
+        {
+            return result ? WorldObjectSearcherContinuation::Return : WorldObjectSearcherContinuation::Continue;
+        }
+
+        void Insert(Type object)
+        {
+            result = object;
+        }
+    };
+
+    template<typename Type>
+    class SearcherLastObjectResult
+    {
+        Type& result;
+
+    protected:
+        explicit SearcherLastObjectResult(Type& ref_) : result(ref_) { }
+
+        WorldObjectSearcherContinuation ShouldContinue() const
+        {
+            return WorldObjectSearcherContinuation::Continue;
+        }
+
+        void Insert(Type object)
+        {
+            result = object;
+        }
+    };
 
     // Generic base class to insert elements into arbitrary containers using push_back
     template<typename Type>
-    class ContainerInserter
+    class SearcherContainerResult
     {
         using InserterType = void(*)(void*, Type&&);
 
@@ -232,7 +255,7 @@ namespace Trinity
 
     protected:
         template<typename T>
-        ContainerInserter(T& ref_) : ref(&ref_)
+        explicit SearcherContainerResult(T& ref_) : ref(&ref_)
         {
             inserter = [](void* containerRaw, Type&& object)
             {
@@ -241,225 +264,125 @@ namespace Trinity
             };
         }
 
+        WorldObjectSearcherContinuation ShouldContinue() const
+        {
+            return WorldObjectSearcherContinuation::Continue;
+        }
+
         void Insert(Type object)
         {
             inserter(ref, std::move(object));
         }
     };
 
-    template<class Check>
-    struct WorldObjectSearcher
+    template<class Check, class Result>
+    struct WorldObjectSearcherBase : Result
     {
         uint32 i_mapTypeMask;
-        PhaseShift const* i_phaseShift;
-        WorldObject* &i_object;
-        Check &i_check;
-
-        WorldObjectSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(GameObjectMapType &m);
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        void Visit(AreaTriggerMapType &m);
-        void Visit(SceneObjectMapType &m);
-        void Visit(ConversationMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
-    struct WorldObjectLastSearcher
-    {
-        uint32 i_mapTypeMask;
-        PhaseShift const* i_phaseShift;
-        WorldObject* &i_object;
-        Check &i_check;
-
-        WorldObjectLastSearcher(WorldObject const* searcher, WorldObject* & result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            :  i_mapTypeMask(mapTypeMask), i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(GameObjectMapType &m);
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        void Visit(AreaTriggerMapType &m);
-        void Visit(SceneObjectMapType &m);
-        void Visit(ConversationMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
-    struct WorldObjectListSearcher : ContainerInserter<WorldObject*>
-    {
-        uint32 i_mapTypeMask;
-        PhaseShift const* i_phaseShift;
+        uint32 i_phaseMask;
         Check& i_check;
 
         template<typename Container>
-        WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check & check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : ContainerInserter<WorldObject*>(container),
-              i_mapTypeMask(mapTypeMask), i_phaseShift(&searcher->GetPhaseShift()), i_check(check) { }
+        WorldObjectSearcherBase(uint32 phaseMask, Container& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : Result(result), i_mapTypeMask(mapTypeMask), i_phaseMask(phaseMask), i_check(check) { }
 
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &m);
-        void Visit(GameObjectMapType &m);
-        void Visit(DynamicObjectMapType &m);
-        void Visit(AreaTriggerMapType &m);
-        void Visit(SceneObjectMapType &m);
-        void Visit(ConversationMapType &m);
+        template<class T>
+        void Visit(GridRefManager<T>&);
+    };
 
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    template<class Check>
+    struct WorldObjectSearcher : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>
+    {
+        WorldObjectSearcher(WorldObject const* searcher, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>(searcher->GetPhaseMask(), result, check, mapTypeMask) { }
+    };
+
+    template<class Check>
+    struct WorldObjectLastSearcher : WorldObjectSearcherBase<Check, SearcherLastObjectResult<WorldObject*>>
+    {
+        WorldObjectLastSearcher(WorldObject const* searcher, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherLastObjectResult<WorldObject*>>(searcher->GetPhaseMask(), result, check, mapTypeMask) { }
+    };
+
+    template<class Check>
+    struct WorldObjectListSearcher : WorldObjectSearcherBase<Check, SearcherContainerResult<WorldObject*>>
+    {
+        template<typename Container>
+        WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherContainerResult<WorldObject*>>(searcher->GetPhaseMask(), container, check, mapTypeMask) { }
     };
 
     template<class Do>
     struct WorldObjectWorker
     {
         uint32 i_mapTypeMask;
-        PhaseShift const* i_phaseShift;
+        uint32 i_phaseMask;
         Do const& i_do;
 
         WorldObjectWorker(WorldObject const* searcher, Do const& _do, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
+            : i_mapTypeMask(mapTypeMask), i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
 
-        void Visit(GameObjectMapType &m)
+        template<class T>
+        void Visit(GridRefManager<T>& m)
         {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_GAMEOBJECT))
+            if (!(i_mapTypeMask & GridMapTypeMaskForType<T>::value))
                 return;
-            for (GameObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
+            for (auto itr = m.begin(); itr != m.end(); ++itr)
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
-
-        void Visit(PlayerMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_PLAYER))
-                return;
-            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-        void Visit(CreatureMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CREATURE))
-                return;
-            for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        void Visit(CorpseMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CORPSE))
-                return;
-            for (CorpseMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        void Visit(DynamicObjectMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_DYNAMICOBJECT))
-                return;
-            for (DynamicObjectMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        void Visit(AreaTriggerMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_AREATRIGGER))
-                return;
-            for (AreaTriggerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        void Visit(SceneObjectMapType& m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_SCENEOBJECT))
-                return;
-            for (SceneObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        void Visit(ConversationMapType &m)
-        {
-            if (!(i_mapTypeMask & GRID_MAP_TYPE_MASK_CONVERSATION))
-                return;
-            for (ConversationMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
     // Gameobject searchers
 
-    template<class Check>
-    struct GameObjectSearcher
+    template<class Check, class Result>
+    struct GameObjectSearcherBase : Result
     {
-        PhaseShift const* i_phaseShift;
-        GameObject* &i_object;
+        uint32 i_phaseMask;
         Check &i_check;
 
-        GameObjectSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
+        template<typename Container>
+        GameObjectSearcherBase(uint32 phaseMask, Container& result, Check& check)
+            : Result(result), i_phaseMask(phaseMask), i_check(check) { }
 
-        void Visit(GameObjectMapType &m);
+        void Visit(GameObjectMapType& m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct GameObjectSearcher : GameObjectSearcherBase<Check, SearcherFirstObjectResult<GameObject*>>
+    {
+        GameObjectSearcher(WorldObject const* searcher, GameObject*& result, Check& check)
+            : GameObjectSearcherBase<Check, SearcherFirstObjectResult<GameObject*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     // Last accepted by Check GO if any (Check can change requirements at each call)
     template<class Check>
-    struct GameObjectLastSearcher
+    struct GameObjectLastSearcher : GameObjectSearcherBase<Check, SearcherLastObjectResult<GameObject*>>
     {
-        PhaseShift const* i_phaseShift;
-        GameObject* &i_object;
-        Check& i_check;
-
-        GameObjectLastSearcher(WorldObject const* searcher, GameObject* & result, Check& check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(GameObjectMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        GameObjectLastSearcher(WorldObject const* searcher, GameObject*& result, Check& check)
+            : GameObjectSearcherBase<Check, SearcherLastObjectResult<GameObject*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     template<class Check>
-    struct GameObjectListSearcher : ContainerInserter<GameObject*>
+    struct GameObjectListSearcher : GameObjectSearcherBase<Check, SearcherContainerResult<GameObject*>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
-        GameObjectListSearcher(WorldObject const* searcher, Container& container, Check & check)
-            : ContainerInserter<GameObject*>(container),
-            i_phaseShift(&searcher->GetPhaseShift()), i_check(check) { }
-
-        void Visit(GameObjectMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        GameObjectListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : GameObjectSearcherBase<Check, SearcherContainerResult<GameObject*>>(searcher->GetPhaseMask(), container, check) { }
     };
 
     template<class Functor>
     struct GameObjectWorker
     {
         GameObjectWorker(WorldObject const* searcher, Functor& func)
-            : _func(func), _phaseShift(&searcher->GetPhaseShift()) { }
+            : _func(func), _phaseMask(searcher->GetPhaseMask()) { }
 
         void Visit(GameObjectMapType& m)
         {
             for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*_phaseShift))
+                if (itr->GetSource()->InSamePhase(_phaseMask))
                     _func(itr->GetSource());
         }
 
@@ -467,125 +390,108 @@ namespace Trinity
 
     private:
         Functor& _func;
-        PhaseShift const* _phaseShift;
+        uint32 _phaseMask;
     };
 
     // Unit searchers
 
+    template<class Check, class Result>
+    struct UnitSearcherBase : Result
+    {
+        uint32 i_phaseMask;
+        Check& i_check;
+
+        template<typename Container>
+        UnitSearcherBase(uint32 phaseMask, Container& result, Check& check)
+            : Result(result), i_phaseMask(phaseMask), i_check(check) { }
+
+        void Visit(CreatureMapType& m) { VisitImpl(m); }
+        void Visit(PlayerMapType& m) { VisitImpl(m); }
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED>&) { }
+
+    private:
+        template<class T> void VisitImpl(GridRefManager<T>& m);
+    };
+
     // First accepted by Check Unit if any
     template<class Check>
-    struct UnitSearcher
+    struct UnitSearcher : UnitSearcherBase<Check, SearcherFirstObjectResult<Unit*>>
     {
-        PhaseShift const* i_phaseShift;
-        Unit* &i_object;
-        Check & i_check;
-
-        UnitSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(CreatureMapType &m);
-        void Visit(PlayerMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        UnitSearcher(WorldObject const* searcher, Unit*& result, Check& check)
+            : UnitSearcherBase<Check, SearcherFirstObjectResult<Unit*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     // Last accepted by Check Unit if any (Check can change requirements at each call)
     template<class Check>
-    struct UnitLastSearcher
+    struct UnitLastSearcher : UnitSearcherBase<Check, SearcherLastObjectResult<Unit*>>
     {
-        PhaseShift const* i_phaseShift;
-        Unit* &i_object;
-        Check & i_check;
-
-        UnitLastSearcher(WorldObject const* searcher, Unit* & result, Check & check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(CreatureMapType &m);
-        void Visit(PlayerMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        UnitLastSearcher(WorldObject const* searcher, Unit*& result, Check& check)
+            : UnitSearcherBase<Check, SearcherLastObjectResult<Unit*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     // All accepted by Check units if any
     template<class Check>
-    struct UnitListSearcher : ContainerInserter<Unit*>
+    struct UnitListSearcher : UnitSearcherBase<Check, SearcherContainerResult<Unit*>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
         UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
-            : ContainerInserter<Unit*>(container),
-                i_phaseShift(&searcher->GetPhaseShift()), i_check(check) { }
-
-        void Visit(PlayerMapType &m);
-        void Visit(CreatureMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+            : UnitSearcherBase<Check, SearcherContainerResult<Unit*>>(searcher->GetPhaseMask(), container, check) { }
     };
 
     // Creature searchers
 
-    template<class Check>
-    struct CreatureSearcher
+    template<class Check, class Result>
+    struct CreatureSearcherBase : Result
     {
-        PhaseShift const* i_phaseShift;
-        Creature* &i_object;
-        Check & i_check;
+        uint32 i_phaseMask;
+        Check& i_check;
 
-        CreatureSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
+        template<typename Container>
+        CreatureSearcherBase(uint32 phaseMask, Container& result, Check& check)
+            : Result(result), i_phaseMask(phaseMask), i_check(check) { }
 
-        void Visit(CreatureMapType &m);
+        void Visit(CreatureMapType& m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+    };
+
+    template<class Check>
+    struct CreatureSearcher : CreatureSearcherBase<Check, SearcherFirstObjectResult<Creature*>>
+    {
+        CreatureSearcher(WorldObject const* searcher, Creature*& result, Check& check)
+            : CreatureSearcherBase<Check, SearcherFirstObjectResult<Creature*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
     template<class Check>
-    struct CreatureLastSearcher
+    struct CreatureLastSearcher : CreatureSearcherBase<Check, SearcherLastObjectResult<Creature*>>
     {
-        PhaseShift const* i_phaseShift;
-        Creature* &i_object;
-        Check & i_check;
-
-        CreatureLastSearcher(WorldObject const* searcher, Creature* & result, Check & check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(CreatureMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        CreatureLastSearcher(WorldObject const* searcher, Creature*& result, Check& check)
+            : CreatureSearcherBase<Check, SearcherLastObjectResult<Creature*>>(searcher->GetPhaseMask(), result, check) { }
     };
 
     template<class Check>
-    struct CreatureListSearcher : ContainerInserter<Creature*>
+    struct CreatureListSearcher : CreatureSearcherBase<Check, SearcherContainerResult<Creature*>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
         CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
-            : ContainerInserter<Creature*>(container),
-                i_phaseShift(&searcher->GetPhaseShift()), i_check(check) { }
-
-        void Visit(CreatureMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+            : CreatureSearcherBase<Check, SearcherContainerResult<Creature*>>(searcher->GetPhaseMask(), container, check) { }
     };
 
     template<class Do>
     struct CreatureWorker
     {
-        PhaseShift const* i_phaseShift;
+        uint32 i_phaseMask;
         Do& i_do;
 
         CreatureWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
 
         void Visit(CreatureMapType &m)
         {
             for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -594,71 +500,60 @@ namespace Trinity
 
     // Player searchers
 
-    template<class Check>
-    struct PlayerSearcher
+    template<class Check, class Result>
+    struct PlayerSearcherBase : Result
     {
-        PhaseShift const* i_phaseShift;
-        Player* &i_object;
-        Check & i_check;
-
-        PlayerSearcher(WorldObject const* searcher, Player* & result, Check & check)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check) { }
-
-        void Visit(PlayerMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
-    struct PlayerListSearcher : ContainerInserter<Player*>
-    {
-        PhaseShift const* i_phaseShift;
+        uint32 i_phaseMask;
         Check& i_check;
 
         template<typename Container>
-        PlayerListSearcher(WorldObject const* searcher, Container& container, Check & check)
-            : ContainerInserter<Player*>(container),
-                i_phaseShift(&searcher->GetPhaseShift()), i_check(check) { }
-
-        template<typename Container>
-        PlayerListSearcher(PhaseShift const& phaseShift, Container& container, Check & check)
-            : ContainerInserter<Player*>(container),
-                i_phaseShift(&phaseShift), i_check(check) { }
-
-        void Visit(PlayerMapType &m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-    };
-
-    template<class Check>
-    struct PlayerLastSearcher
-    {
-        PhaseShift const* i_phaseShift;
-        Player* &i_object;
-        Check& i_check;
-
-        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check) : i_phaseShift(&searcher->GetPhaseShift()), i_object(result), i_check(check)
-        {
-        }
+        PlayerSearcherBase(uint32 phaseMask, Container& result, Check& check)
+            : Result(result), i_phaseMask(phaseMask), i_check(check) { }
 
         void Visit(PlayerMapType& m);
 
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
     };
 
+    template<class Check>
+    struct PlayerSearcher : PlayerSearcherBase<Check, SearcherFirstObjectResult<Player*>>
+    {
+        PlayerSearcher(WorldObject const* searcher, Player*& result, Check& check)
+            : PlayerSearcherBase<Check, SearcherFirstObjectResult<Player*>>(searcher->GetPhaseMask(), result, check) { }
+    };
+
+    template<class Check>
+    struct PlayerLastSearcher : PlayerSearcherBase<Check, SearcherLastObjectResult<Player*>>
+    {
+        PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check)
+            : PlayerSearcherBase<Check, SearcherLastObjectResult<Player*>>(searcher->GetPhaseMask(), result, check) { }
+    };
+
+    template<class Check>
+    struct PlayerListSearcher : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>
+    {
+        template<typename Container>
+        PlayerListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>(searcher->GetPhaseMask(), container, check) { }
+
+        template<typename Container>
+        PlayerListSearcher(uint32 phaseMask, Container& container, Check& check)
+            : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>(phaseMask, container, check) { }
+    };
+
     template<class Do>
     struct PlayerWorker
     {
-        PhaseShift const* i_phaseShift;
+        uint32 i_phaseMask;
         Do& i_do;
 
         PlayerWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
+            : i_phaseMask(searcher->GetPhaseMask()), i_do(_do) { }
 
         void Visit(PlayerMapType &m)
         {
             for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
+                if (itr->GetSource()->InSamePhase(i_phaseMask))
                     i_do(itr->GetSource());
         }
 
@@ -688,12 +583,21 @@ namespace Trinity
     // CHECKS && DO classes
 
     // CHECK modifiers
-    class NoopCheckCustomizer
+    class InRangeCheckCustomizer
     {
     public:
-        bool Test(WorldObject const* /*o*/) const { return true; }
+        explicit InRangeCheckCustomizer(WorldObject const& obj, float range) : i_obj(obj), i_range(range) { }
+
+        bool Test(WorldObject const* o) const
+        {
+            return i_obj.IsWithinDist(o, i_range);
+        }
 
         void Update(WorldObject const* /*o*/) { }
+
+    private:
+        WorldObject const& i_obj;
+        float i_range;
     };
 
     class NearestCheckCustomizer
@@ -703,7 +607,7 @@ namespace Trinity
 
         bool Test(WorldObject const* o) const
         {
-            return i_obj.IsWithinDist(o, i_range);
+            return i_obj.IsWithinDistInMap(o, i_range);
         }
 
         void Update(WorldObject const* o)
@@ -734,8 +638,8 @@ namespace Trinity
     class TC_GAME_API AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck, public WorldObjectSpellTargetCheck
     {
         public:
-            AnyDeadUnitSpellTargetInRangeCheck(WorldObject* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType)
-                : AnyDeadUnitObjectInRangeCheck(searchObj, range), WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, nullptr, objectType)
+            AnyDeadUnitSpellTargetInRangeCheck(WorldObject* searchObj, float range, SpellInfo const* spellInfo, SpellTargetCheckTypes check)
+                : AnyDeadUnitObjectInRangeCheck(searchObj, range), WorldObjectSpellTargetCheck(searchObj, searchObj, spellInfo, check, nullptr)
             { }
             bool operator()(Player* u);
             bool operator()(Corpse* u);
@@ -764,14 +668,17 @@ namespace Trinity
 
             bool operator()(GameObject* go) const
             {
-                if (go->GetGOInfo()->GetSpellFocusType() != _focusId)
+                if (go->GetGOInfo()->type != GAMEOBJECT_TYPE_SPELL_FOCUS)
+                    return false;
+
+                if (go->GetGOInfo()->spellFocus.focusId != _focusId)
                     return false;
 
                 if (!go->isSpawned())
                     return false;
 
-                float const dist = go->GetGOInfo()->GetSpellFocusRadius();
-                return go->IsWithinDist(_caster, dist);
+                float const dist = go->GetGOInfo()->spellFocus.dist;
+                return go->IsWithinDistInMap(_caster, dist);
             }
 
         private:
@@ -787,7 +694,7 @@ namespace Trinity
 
             bool operator()(GameObject* go)
             {
-                if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_FISHINGHOLE && go->isSpawned() && i_obj.IsWithinDist(go, i_range) && i_obj.IsWithinDist(go, (float)go->GetGOInfo()->fishingHole.radius))
+                if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_FISHINGHOLE && go->isSpawned() && i_obj.IsWithinDistInMap(go, i_range) && i_obj.IsWithinDistInMap(go, (float)go->GetGOInfo()->fishinghole.radius))
                 {
                     i_range = i_obj.GetDistance(go);
                     return true;
@@ -810,7 +717,7 @@ namespace Trinity
 
             bool operator()(GameObject* go)
             {
-                if (i_obj.IsWithinDist(go, i_range))
+                if (i_obj.IsWithinDistInMap(go, i_range))
                 {
                     i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                     return true;
@@ -834,7 +741,7 @@ namespace Trinity
 
             bool operator()(GameObject* go)
             {
-                if ((!i_spawnedOnly || go->isSpawned()) && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(go, i_range))
+                if ((!i_spawnedOnly || go->isSpawned()) && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
                 {
                     i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                     return true;
@@ -860,7 +767,7 @@ namespace Trinity
 
         bool operator()(GameObject* go)
         {
-            if (!go->isSpawned() && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDist(go, i_range))
+            if (!go->isSpawned() && go->GetEntry() == i_entry && go->GetGUID() != i_obj.GetGUID() && i_obj.IsWithinDistInMap(go, i_range))
             {
                 i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                 return true;
@@ -885,7 +792,7 @@ namespace Trinity
 
             bool operator()(GameObject* go)
             {
-                if (go->GetGoType() == i_type && i_obj.IsWithinDist(go, i_range))
+                if (go->GetGoType() == i_type && i_obj.IsWithinDistInMap(go, i_range))
                 {
                     i_range = i_obj.GetDistance(go);        // use found GO range as new range limit for next check
                     return true;
@@ -911,7 +818,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDist(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
                 {
                     i_hp = u->GetMaxHealth() - u->GetHealth();
                     return true;
@@ -922,7 +829,7 @@ namespace Trinity
         private:
             Unit const* i_obj;
             float i_range;
-            uint64 i_hp;
+            uint32 i_hp;
     };
 
     class MostHPPercentMissingInRange
@@ -932,7 +839,7 @@ namespace Trinity
 
         bool operator()(Unit* u)
         {
-            if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDist(u, i_range) && i_minHpPct <= u->GetHealthPct() && u->GetHealthPct() <= i_maxHpPct && u->GetHealthPct() < i_hpPct)
+            if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && i_minHpPct <= u->GetHealthPct() && u->GetHealthPct() <= i_maxHpPct && u->GetHealthPct() < i_hpPct)
             {
                 i_hpPct = u->GetHealthPct();
                 return true;
@@ -955,7 +862,7 @@ namespace Trinity
             {
                 if (i_excludeSelf && i_obj->GetGUID() == u->GetGUID())
                     return false;
-                if (u->GetEntry() == i_entry && u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDist(u, i_range) && u->HealthBelowPct(i_pct))
+                if (u->GetEntry() == i_entry && u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->HealthBelowPct(i_pct))
                     return true;
                 return false;
             }
@@ -968,6 +875,44 @@ namespace Trinity
             bool i_excludeSelf;
     };
 
+    class MostHPMissingGroupInRange
+    {
+        public:
+            MostHPMissingGroupInRange(Unit const* obj, float range, uint32 hp) : i_obj(obj), i_range(range), i_hp(hp) { }
+
+            bool operator()(Unit* u)
+            {
+                if (i_obj == u)
+                    return false;
+
+                Player* player = nullptr;
+                if (u->GetTypeId() == TYPEID_PLAYER)
+                    player = u->ToPlayer();
+                else if (u->IsPet() && u->GetOwner())
+                    player = u->GetOwner()->ToPlayer();
+
+                if (!player)
+                    return false;
+
+                Group* group = player->GetGroup();
+                if (!group || !group->IsMember(i_obj->IsPet() ? i_obj->GetOwnerGUID() : i_obj->GetGUID()))
+                    return false;
+
+                if (u->IsAlive() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && u->GetMaxHealth() - u->GetHealth() > i_hp)
+                {
+                    i_hp = u->GetMaxHealth() - u->GetHealth();
+                    return true;
+                }
+
+                return false;
+            }
+
+        private:
+            Unit const* i_obj;
+            float i_range;
+            uint32 i_hp;
+    };
+
     class FriendlyCCedInRange
     {
         public:
@@ -975,8 +920,8 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDist(u, i_range) &&
-                    (u->IsFeared() || u->IsCharmed() || u->HasRootAura() || u->HasUnitState(UNIT_STATE_STUNNED) || u->HasUnitState(UNIT_STATE_CONFUSED)))
+                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) &&
+                    (u->IsFeared() || u->IsCharmed() || u->IsRooted() || u->HasUnitState(UNIT_STATE_STUNNED) || u->HasUnitState(UNIT_STATE_CONFUSED)))
                 {
                     return true;
                 }
@@ -995,7 +940,7 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDist(u, i_range) && !u->HasAura(i_spell))
+                if (u->IsAlive() && u->IsInCombat() && !i_obj->IsHostileTo(u) && i_obj->IsWithinDistInMap(u, i_range) && !u->HasAura(i_spell))
                     return true;
 
                 return false;
@@ -1014,7 +959,7 @@ namespace Trinity
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDist(u, i_range) && !i_funit->IsFriendlyTo(u))
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range) && !i_funit->IsFriendlyTo(u))
                     return true;
 
                 return false;
@@ -1045,7 +990,7 @@ namespace Trinity
                 if (!u->isTargetableForAttack(false))
                     return false;
 
-                if (!i_obj->IsWithinDist(u, i_range) || !i_obj->IsValidAttackTarget(u))
+                if (!i_obj->IsWithinDistInMap(u, i_range) || !i_obj->IsValidAttackTarget(u))
                     return false;
 
                 i_range = i_obj->GetDistance(*u);
@@ -1139,11 +1084,11 @@ namespace Trinity
     class AnyUnitInObjectRangeCheck
     {
         public:
-            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range, bool check3D = true) : i_obj(obj), i_range(range), i_check3D(check3D) { }
+            AnyUnitInObjectRangeCheck(WorldObject const* obj, float range) : i_obj(obj), i_range(range) { }
 
             bool operator()(Unit* u) const
             {
-                if (u->IsAlive() && i_obj->IsWithinDist(u, i_range, i_check3D))
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -1152,7 +1097,6 @@ namespace Trinity
         private:
             WorldObject const* i_obj;
             float i_range;
-            bool i_check3D;
     };
 
     // Success at unit in range, range update for next check (this can be use with UnitLastSearcher to find nearest unit)
@@ -1163,7 +1107,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (u->isTargetableForAttack() && i_obj->IsWithinDist(u, i_range) &&
+                if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
                     (i_funit->IsInCombatWith(u) || i_funit->IsHostileTo(u)) && i_obj->CanSeeOrDetect(u))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
@@ -1196,19 +1140,8 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && u->IsTotem())
                     return false;
 
-                if (_spellInfo)
-                {
-                    if (!u->IsPlayer())
-                    {
-                        if (_spellInfo->HasAttribute(SPELL_ATTR3_ONLY_ON_PLAYER))
-                            return false;
-
-                        if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER_CONTROLLED_NPC) && u->IsControlledByPlayer())
-                            return false;
-                    }
-                    else if (_spellInfo->HasAttribute(SPELL_ATTR5_NOT_ON_PLAYER))
-                        return false;
-                }
+                if (_spellInfo && _spellInfo->HasAttribute(SPELL_ATTR3_ONLY_TARGET_PLAYERS) && u->GetTypeId() != TYPEID_PLAYER)
+                    return false;
 
                 if (!i_funit->IsValidAttackTarget(u, _spellInfo))
                     return false;
@@ -1248,7 +1181,7 @@ namespace Trinity
 
                 // too far
                 // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-                if (!u->IsWithinDist(i_funit, i_range, true, false, false))
+                if (!u->IsWithinDistInMap(i_funit, i_range, true, false, false))
                     return;
 
                 // only if see assisted creature's enemy
@@ -1263,14 +1196,6 @@ namespace Trinity
             float i_range;
     };
 
-    struct AnyDeadUnitCheck
-    {
-        bool operator()(Unit* u) const
-        {
-            return !u->IsAlive();
-        }
-    };
-
     // Creature checks
 
     class NearestHostileUnitCheck
@@ -1283,7 +1208,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (!me->IsWithinDist(u, m_range))
+                if (!me->IsWithinDistInMap(u, m_range))
                     return false;
 
                 if (!me->IsValidAttackTarget(u))
@@ -1314,7 +1239,7 @@ namespace Trinity
 
             bool operator()(Unit* u)
             {
-                if (!me->IsWithinDist(u, m_range))
+                if (!me->IsWithinDistInMap(u, m_range))
                     return false;
 
                 if (!me->CanSeeOrDetect(u))
@@ -1349,7 +1274,7 @@ namespace Trinity
                 if (!u->IsHostileTo(_me))
                     return false;
 
-                if (!u->IsWithinDist(_me, _me->GetAggroRange(u)))
+                if (!u->IsWithinDistInMap(_me, _me->GetAggroRange(u)))
                     return false;
 
                 if (!_me->IsValidAttackTarget(u))
@@ -1390,7 +1315,7 @@ namespace Trinity
 
                 // too far
                 // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-                if (!i_funit->IsWithinDist(u, i_range, true, false, false))
+                if (!i_funit->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 // only if see assisted creature
@@ -1420,7 +1345,7 @@ namespace Trinity
                     return false;
 
                 // Don't use combat reach distance, range must be an absolute value, otherwise the chain aggro range will be too big
-                if (!i_obj->IsWithinDist(u, i_range, true, false, false))
+                if (!i_obj->IsWithinDistInMap(u, i_range, true, false, false))
                     return false;
 
                 if (!i_obj->IsWithinLOSInMap(u))
@@ -1452,7 +1377,7 @@ namespace Trinity
                     && u->GetEntry() == i_entry
                     && u->IsAlive() == i_alive
                     && u->GetGUID() != i_obj.GetGUID()
-                    && i_obj.IsWithinDist(u, i_range)
+                    && i_obj.IsWithinDistInMap(u, i_range)
                     && u->CheckPrivateObjectOwnerVisibility(&i_obj))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
@@ -1471,14 +1396,14 @@ namespace Trinity
             NearestCreatureEntryWithLiveStateInObjectRangeCheck(NearestCreatureEntryWithLiveStateInObjectRangeCheck const&) = delete;
     };
 
-    template <typename Customizer = NoopCheckCustomizer>
+    template <typename Customizer = InRangeCheckCustomizer>
     class CreatureWithOptionsInObjectRangeCheck
     {
         public:
             CreatureWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindCreatureOptions const& args)
                 : i_obj(obj), i_args(args), i_customizer(customizer) { }
 
-            bool operator()(Creature* u) const
+            bool operator()(Creature const* u) const
             {
                 if (u->getDeathState() == DEAD) // Despawned
                     return false;
@@ -1507,7 +1432,6 @@ namespace Trinity
                 if ((i_args.OwnerGuid && u->GetOwnerGUID() != i_args.OwnerGuid)
                     || (i_args.CharmerGuid && u->GetCharmerGUID() != i_args.CharmerGuid)
                     || (i_args.CreatorGuid && u->GetCreatorGUID() != i_args.CreatorGuid)
-                    || (i_args.DemonCreatorGuid && u->GetDemonCreatorGUID() != i_args.DemonCreatorGuid)
                     || (i_args.PrivateObjectOwnerGuid && u->GetPrivateObjectOwner() != i_args.PrivateObjectOwnerGuid))
                     return false;
 
@@ -1530,6 +1454,56 @@ namespace Trinity
             Customizer& i_customizer;
     };
 
+    template <typename Customizer = InRangeCheckCustomizer>
+    class GameObjectWithOptionsInObjectRangeCheck
+    {
+    public:
+        GameObjectWithOptionsInObjectRangeCheck(WorldObject const& obj, Customizer& customizer, FindGameObjectOptions const& args)
+            : i_obj(obj), i_args(args), i_customizer(customizer) { }
+
+        bool operator()(GameObject const* go) const
+        {
+            if (i_args.IsSpawned.has_value() && i_args.IsSpawned != go->isSpawned()) // Despawned
+                return false;
+
+            if (go->GetGUID() == i_obj.GetGUID())
+                return false;
+
+            if (!i_customizer.Test(go))
+                return false;
+
+            if (i_args.GameObjectId && go->GetEntry() != i_args.GameObjectId)
+                return false;
+
+            if (i_args.StringId && !go->HasStringId(*i_args.StringId))
+                return false;
+
+            if (i_args.IsSummon.has_value() && (go->GetSpawnId() == 0) != i_args.IsSummon)
+                return false;
+
+            if ((i_args.OwnerGuid && go->GetOwnerGUID() != i_args.OwnerGuid)
+                || (i_args.PrivateObjectOwnerGuid && go->GetPrivateObjectOwner() != i_args.PrivateObjectOwnerGuid))
+                return false;
+
+            if (i_args.IgnorePrivateObjects && go->IsPrivateObject())
+                return false;
+
+            if (i_args.IgnoreNotOwnedPrivateObjects && !go->CheckPrivateObjectOwnerVisibility(&i_obj))
+                return false;
+
+            if (i_args.GameObjectType && go->GetGoType() != i_args.GameObjectType)
+                return false;
+
+            i_customizer.Update(go);
+            return true;
+        }
+
+    private:
+        WorldObject const& i_obj;
+        FindGameObjectOptions const& i_args;
+        Customizer& i_customizer;
+    };
+
     class AnyPlayerInObjectRangeCheck
     {
         public:
@@ -1540,7 +1514,7 @@ namespace Trinity
                 if (_reqAlive && !u->IsAlive())
                     return false;
 
-                if (!_obj->IsWithinDist(u, _range))
+                if (!_obj->IsWithinDistInMap(u, _range))
                     return false;
 
                 return true;
@@ -1580,7 +1554,7 @@ namespace Trinity
 
             bool operator()(Player* u)
             {
-                if (u->IsAlive() && i_obj->IsWithinDist(u, i_range))
+                if (u->IsAlive() && i_obj->IsWithinDistInMap(u, i_range))
                 {
                     i_range = i_obj->GetDistance(u);
                     return true;
@@ -1742,25 +1716,6 @@ namespace Trinity
             ObjectGuid _GUID;
     };
 
-    class HeightDifferenceCheck
-    {
-    public:
-        HeightDifferenceCheck(WorldObject* go, float diff, bool reverse)
-            : _baseObject(go), _difference(diff), _reverse(reverse)
-        {
-        }
-
-        bool operator()(WorldObject* unit) const
-        {
-            return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
-        }
-
-    private:
-        WorldObject* _baseObject;
-        float _difference;
-        bool _reverse;
-    };
-
     class UnitAuraCheck
     {
         public:
@@ -1782,37 +1737,48 @@ namespace Trinity
             ObjectGuid _casterGUID;
     };
 
-    class ObjectEntryAndPrivateOwnerIfExistsCheck
-    {
-    public:
-        ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint32 entry) : _ownerGUID(ownerGUID), _entry(entry) { }
-
-        bool operator()(WorldObject* object) const
-        {
-            return object->GetEntry() == _entry && (!object->IsPrivateObject() || object->GetPrivateObjectOwner() == _ownerGUID);
-        }
-
-    private:
-        ObjectGuid _ownerGUID;
-        uint32 _entry;
-    };
-
     // Player checks and do
 
     // Prepare using Builder localized packets with caching and send to player
-    template<typename Localizer>
-    class LocalizedDo
+    template<class Builder>
+    class LocalizedPacketDo
     {
-        using LocalizedAction = std::remove_pointer_t<decltype(std::declval<Localizer>()(LocaleConstant{}))>;
+        public:
+            explicit LocalizedPacketDo(Builder& builder) : i_builder(builder) { }
 
-    public:
-        explicit LocalizedDo(Localizer& localizer) : _localizer(localizer) { }
+            ~LocalizedPacketDo()
+            {
+                for (size_t i = 0; i < i_data_cache.size(); ++i)
+                    delete i_data_cache[i];
+            }
 
-        void operator()(Player const* p);
+            void operator()(Player* p);
 
-    private:
-        Localizer& _localizer;
-        std::vector<std::unique_ptr<LocalizedAction>> _localizedCache;         // 0 = default, i => i-1 locale index
+        private:
+            Builder& i_builder;
+            std::vector<WorldPacket*> i_data_cache;         // 0 = default, i => i-1 locale index
+    };
+
+    // Prepare using Builder localized packets with caching and send to player
+    template<class Builder>
+    class LocalizedPacketListDo
+    {
+        public:
+            typedef std::vector<WorldPacket*> WorldPacketList;
+            explicit LocalizedPacketListDo(Builder& builder) : i_builder(builder) { }
+
+            ~LocalizedPacketListDo()
+            {
+                for (size_t i = 0; i < i_data_cache.size(); ++i)
+                    for (size_t j = 0; j < i_data_cache[i].size(); ++j)
+                        delete i_data_cache[i][j];
+            }
+            void operator()(Player* p);
+
+        private:
+            Builder& i_builder;
+            std::vector<WorldPacketList> i_data_cache;
+                                                            // 0 = default, i => i-1 locale index
     };
 }
 #endif

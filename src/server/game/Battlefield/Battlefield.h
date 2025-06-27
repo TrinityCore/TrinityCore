@@ -25,23 +25,13 @@
 
 enum BattlefieldTypes
 {
-    BATTLEFIELD_WG = 1,                                     // Wintergrasp
-    BATTLEFIELD_TB = 2,                                     // Tol Barad (cataclysm)
+    BATTLEFIELD_WG  = 1, // Wintergrasp
     BATTLEFIELD_MAX
 };
 
 enum BattlefieldIDs
 {
-    BATTLEFIELD_BATTLEID_WG                      = 1,       // Wintergrasp battle
-    BATTLEFIELD_BATTLEID_TB                      = 21,      // Tol Barad
-    BATTLEFIELD_BATTLEID_ASHRAN                  = 24       // Ashran
-};
-
-enum BattlefieldState : int8
-{
-    BATTLEFIELD_INACTIVE = 0,
-    BATTLEFIELD_WARMUP = 1,
-    BATTLEFIELD_IN_PROGRESS = 2
+    BATTLEFIELD_BATTLEID_WG                      = 1        // Wintergrasp battle
 };
 
 enum BattlefieldObjectiveStates
@@ -67,6 +57,14 @@ enum BattlefieldTimers
     BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL        = 1000
 };
 
+namespace WorldPackets
+{
+    namespace WorldState
+    {
+        class InitWorldStates;
+    }
+}
+
 // some class predefs
 class Battlefield;
 class BfGraveyard;
@@ -77,17 +75,9 @@ class Map;
 class Player;
 class Unit;
 class WorldPacket;
-struct Position;
+
 struct QuaternionData;
 struct WorldSafeLocsEntry;
-
-namespace WorldPackets
-{
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
-}
 
 typedef std::vector<BfGraveyard*> GraveyardVect;
 typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
@@ -95,9 +85,15 @@ typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 class TC_GAME_API BfCapturePoint
 {
     public:
-        BfCapturePoint(Battlefield* bf);
+        explicit BfCapturePoint(Battlefield* bf);
+        BfCapturePoint(BfCapturePoint const&) = delete;
+        BfCapturePoint(BfCapturePoint&&) = delete;
+        BfCapturePoint& operator=(BfCapturePoint const&) = delete;
+        BfCapturePoint& operator=(BfCapturePoint&&) = delete;
 
-        virtual ~BfCapturePoint() { }
+        virtual ~BfCapturePoint();
+
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         // Send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
@@ -119,14 +115,14 @@ class TC_GAME_API BfCapturePoint
         virtual void SendChangePhase();
 
         bool SetCapturePointData(GameObject* capturePoint);
-        bool DelCapturePoint();
         GameObject* GetCapturePointGo();
         uint32 GetCapturePointEntry() const { return m_capturePointEntry; }
 
         TeamId GetTeamId() const { return m_team; }
-        BattlefieldObjectiveStates GetObjectiveState() const { return m_State; }
 
     protected:
+        bool DelCapturePoint();
+
         // active Players in the area of the objective, 0 - alliance, 1 - horde
         GuidSet m_activePlayers[PVP_TEAMS_COUNT];
 
@@ -161,8 +157,13 @@ class TC_GAME_API BfCapturePoint
 class TC_GAME_API BfGraveyard
 {
     public:
-        BfGraveyard(Battlefield* Bf);
-        virtual ~BfGraveyard() = default;
+        explicit BfGraveyard(Battlefield* bf);
+        BfGraveyard(BfGraveyard const&) = delete;
+        BfGraveyard(BfGraveyard&&) = delete;
+        BfGraveyard& operator=(BfGraveyard const&) = delete;
+        BfGraveyard& operator=(BfGraveyard&&) = delete;
+
+        virtual ~BfGraveyard();
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
@@ -212,19 +213,25 @@ class TC_GAME_API Battlefield : public ZoneScript
 
     public:
         /// Constructor
-        explicit Battlefield(Map* map);
-        Battlefield(Battlefield const& right) = delete;
-        Battlefield(Battlefield&& right) = delete;
-        Battlefield& operator=(Battlefield const& right) = delete;
-        Battlefield& operator=(Battlefield&& right) = delete;
+        Battlefield();
+        Battlefield(Battlefield const&) = delete;
+        Battlefield(Battlefield&&) = delete;
+        Battlefield& operator=(Battlefield const&) = delete;
+        Battlefield& operator=(Battlefield&&) = delete;
+
         /// Destructor
         virtual ~Battlefield();
 
         /// typedef of map witch store capturepoint and the associate gameobject entry
-        typedef std::map<uint32 /*lowguid */, BfCapturePoint*> BfCapturePointMap;
+        typedef std::map<ObjectGuid::LowType /*lowguid */, BfCapturePoint*> BfCapturePointMap;
 
         /// Call this to init the Battlefield
         virtual bool SetupBattlefield() { return true; }
+
+        void SendInitWorldStatesTo(Player* player);
+
+        /// Update data of a worldstate to all players present in zone
+        void SendUpdateWorldState(uint32 field, uint32 value);
 
         /**
          * \brief Called every time for update bf data and time
@@ -247,16 +254,11 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         uint32 GetTypeId() const { return m_TypeId; }
         uint32 GetZoneId() const { return m_ZoneId; }
-        uint32 GetMapId() const { return m_MapId; }
-        Map* GetMap() const { return m_Map; }
-        uint64 GetQueueId() const;
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
         /// Return true if battle is start, false if battle is not started
         bool IsWarTime() const { return m_isActive; }
-
-        int8 GetState() const { return m_isActive ? BATTLEFIELD_IN_PROGRESS : (m_Timer <= m_StartGroupingTimer ? BATTLEFIELD_WARMUP : BATTLEFIELD_INACTIVE); }
 
         /// Enable or Disable battlefield
         void ToggleBattlefield(bool enable) { m_IsEnabled = enable; }
@@ -343,10 +345,14 @@ class TC_GAME_API Battlefield : public ZoneScript
 
         virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) { }
 
+        /// Send all worldstate data to all player in zone.
+        virtual void SendInitWorldStatesToAll() = 0;
+        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) = 0;
+
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
 
-        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid const& guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, ObjectGuid guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
@@ -359,7 +365,7 @@ class TC_GAME_API Battlefield : public ZoneScript
         uint32 GetTimer() const { return m_Timer; }
         void SetTimer(uint32 timer) { m_Timer = timer; }
 
-        void DoPlaySoundToAll(uint32 SoundID);
+        void DoPlaySoundToAll(uint32 soundID);
 
         void InvitePlayerToQueue(Player* player);
         void InvitePlayerToWar(Player* player);
@@ -424,8 +430,15 @@ class TC_GAME_API Battlefield : public ZoneScript
         void BroadcastPacketToWar(WorldPacket const* data) const;
 
         // CapturePoint system
-        void AddCapturePoint(BfCapturePoint* cp);
-        BfCapturePoint* GetCapturePoint(uint32 entry) const;
+        void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointEntry()] = cp; }
+
+        BfCapturePoint* GetCapturePoint(ObjectGuid::LowType lowguid) const
+        {
+            Battlefield::BfCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
+            if (itr != m_capturePoints.end())
+                return itr->second;
+            return nullptr;
+        }
 
         void RegisterZone(uint32 zoneid);
         bool HasPlayer(Player* player) const;

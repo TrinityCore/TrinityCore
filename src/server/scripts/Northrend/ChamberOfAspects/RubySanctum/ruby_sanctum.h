@@ -117,7 +117,7 @@ enum RSGameObjectsIds
     GO_BURNING_TREE_4                       = 203037
 };
 
-enum RSWorldStates
+enum RSWorldStatesRS
 {
     WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
     WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,
@@ -136,5 +136,6 @@ inline AI* GetRubySanctumAI(T* obj)
 }
 
 #define RegisterRubySanctumCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetRubySanctumAI)
+#define RegisterRubySanctumGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetRubySanctumAI)
 
 #endif // RUBY_SANCTUM_H_

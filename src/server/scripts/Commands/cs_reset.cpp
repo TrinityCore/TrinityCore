@@ -25,9 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
@@ -75,7 +73,7 @@ public:
         if (target)
             target->ResetAchievements();
         else
-            PlayerAchievementMgr::DeleteFromDB(targetGuid);
+            AchievementMgr::DeleteFromDB(targetGuid);
 
         return true;
     }
@@ -86,8 +84,12 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target))
             return false;
 
-        target->ResetHonorStats();
-        target->UpdateCriteria(CriteriaType::HonorableKills);
+        target->SetHonorPoints(0);
+        target->SetUInt32Value(PLAYER_FIELD_KILLS, 0);
+        target->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, 0);
+        target->SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, 0);
+        target->SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, 0);
+        target->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL);
 
         return true;
     }
@@ -108,7 +110,8 @@ public:
             player->SetShapeshiftForm(FORM_NONE);
 
         player->SetFactionForRace(player->GetRace());
-        player->SetPowerType(Powers(powerType));
+
+        player->SetPowerType(Powers(powerType), false);
 
         // reset only if player not in some form;
         if (player->GetShapeshiftForm() == FORM_NONE)
@@ -119,7 +122,7 @@ public:
         player->ReplaceAllUnitFlags(UNIT_FLAG_PLAYER_CONTROLLED);
 
         //-1 is default value
-        player->SetWatchedFactionIndex(-1);
+        player->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
         return true;
     }
 
@@ -135,13 +138,16 @@ public:
         uint8 oldLevel = target->GetLevel();
 
         // set starting level
-        uint8 startLevel = target->GetStartLevel(target->GetRace(), target->GetClass(), {});
+        uint32 startLevel = target->GetClass() != CLASS_DEATH_KNIGHT
+            ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
+            : sWorld->getIntConfig(CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL);
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);
         target->InitRunes();
         target->InitStatsForLevel(true);
         target->InitTaxiNodesForLevel();
+        target->InitGlyphsForLevel();
         target->InitTalentForLevel();
         target->SetXP(0);
 
@@ -176,7 +182,7 @@ public:
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_RESET_SPELLS));
-            stmt->setUInt64(1, targetGuid.GetCounter());
+            stmt->setUInt32(1, targetGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
 
             handler->PSendSysMessage(LANG_RESET_SPELLS_OFFLINE, targetName.c_str());
@@ -197,6 +203,7 @@ public:
         target->InitRunes();
         target->InitStatsForLevel(true);
         target->InitTaxiNodesForLevel();
+        target->InitGlyphsForLevel();
         target->InitTalentForLevel();
 
         return true;
@@ -207,10 +214,8 @@ public:
         Player* target;
         ObjectGuid targetGuid;
         std::string targetName;
-
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
         {
-            /* TODO: 6.x remove/update pet talents
             // Try reset talents as Hunter Pet
             Creature* creature = handler->getSelectedCreature();
             if (!*args && creature && creature->IsPet())
@@ -218,16 +223,14 @@ public:
                 Unit* owner = creature->GetOwner();
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
                 {
-                    creature->ToPet()->resetTalents();
+                    creature->ToPet()->resetTalents(true);
                     owner->ToPlayer()->SendTalentsInfoData(true);
 
-                    ChatHandler(owner->ToPlayer()->GetSession()).SendSysMessage(LANG_RESET_PET_TALENTS);
                     if (!handler->GetSession() || handler->GetSession()->GetPlayer() != owner->ToPlayer())
                         handler->PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE, handler->GetNameLink(owner->ToPlayer()).c_str());
                 }
                 return true;
             }
-            */
 
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
@@ -237,25 +240,21 @@ public:
         if (target)
         {
             target->ResetTalents(true);
-            target->ResetTalentSpecialization();
-            target->SendTalentsInfoData();
-            ChatHandler(target->GetSession()).SendSysMessage(LANG_RESET_TALENTS);
+            target->SendTalentsInfoData(false);
             if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)
                 handler->PSendSysMessage(LANG_RESET_TALENTS_ONLINE, handler->GetNameLink(target).c_str());
 
-            /* TODO: 6.x remove/update pet talents
             Pet* pet = target->GetPet();
-            Pet::resetTalentsForAllPetsOf(target, pet);
+            Pet::resetTalentsForAllPetsOf(target, pet, true);
             if (pet)
                 target->SendTalentsInfoData(true);
-            */
             return true;
         }
-        else if (!targetGuid.IsEmpty())
+        else if (targetGuid)
         {
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_NONE | AT_LOGIN_RESET_PET_TALENTS));
-            stmt->setUInt64(1, targetGuid.GetCounter());
+            stmt->setUInt32(1, targetGuid.GetCounter());
             CharacterDatabase.Execute(stmt);
 
             std::string nameLink = handler->playerLink(targetName);

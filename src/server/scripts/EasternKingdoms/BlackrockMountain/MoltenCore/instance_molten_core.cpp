@@ -40,20 +40,6 @@ Position const SummonPositions[10] =
 Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
 Position const RagnarosSummonPos = {838.510f, -829.840f, -232.000f, 2.00000f};
 
-DungeonEncounterData const encounters[] =
-{
-    { BOSS_LUCIFRON, {{ 663 }} },
-    { BOSS_MAGMADAR, {{ 664 }} },
-    { BOSS_GEHENNAS, {{ 665 }} },
-    { BOSS_GARR, {{ 666 }} },
-    { BOSS_SHAZZRAH, {{ 667 }} },
-    { BOSS_BARON_GEDDON, {{ 668 }} },
-    { BOSS_SULFURON_HARBINGER, {{ 669 }} },
-    { BOSS_GOLEMAGG_THE_INCINERATOR, {{ 670 }} },
-    { BOSS_MAJORDOMO_EXECUTUS, {{ 671 }} },
-    { BOSS_RAGNAROS, {{ 672 }} }
-};
-
 class instance_molten_core : public InstanceMapScript
 {
     public:
@@ -65,7 +51,6 @@ class instance_molten_core : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
-                LoadDungeonEncounterData(encounters);
                 _executusSchedule = false;
                 _ragnarosAddDeaths = 0;
             }
@@ -156,7 +141,7 @@ class instance_molten_core : public InstanceMapScript
             void SummonMajordomoExecutus()
             {
                 _executusSchedule = false;
-                if (!_majordomoExecutusGUID.IsEmpty())
+                if (_majordomoExecutusGUID)
                     return;
 
                 if (GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
@@ -187,7 +172,7 @@ class instance_molten_core : public InstanceMapScript
                 return true;
             }
 
-            void AfterDataLoad() override
+            void ReadSaveDataMore(std::istringstream& /*data*/) override
             {
                 if (CheckMajordomoExecutus())
                     _executusSchedule = true;

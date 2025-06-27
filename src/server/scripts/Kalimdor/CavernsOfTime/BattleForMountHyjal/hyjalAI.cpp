@@ -22,6 +22,7 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
+#include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
 #include "hyjal_trash.h"
@@ -433,7 +434,7 @@ void hyjalAI::EnterEvadeMode(EvadeReason /*why*/)
     if (me->IsAlive())
         me->GetMotionMaster()->MoveTargetedHome();
 
-    me->SetTappedBy(nullptr);
+    me->SetLootRecipient(nullptr);
 }
 
 void hyjalAI::JustEngagedWith(Unit* /*who*/)
@@ -823,7 +824,7 @@ void hyjalAI::UpdateAI(uint32 diff)
     {
         for (uint8 i = 0; i < 2; ++i)
         {
-            if (!BossGUID[i].IsEmpty())
+            if (BossGUID[i])
             {
                 Unit* unit = ObjectAccessor::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->IsAlive()))
@@ -938,7 +939,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
             DoCast(me, SPELL_MASS_TELEPORT, false);
-        if (me->GetEntry() == THRALL && !DummyGuid.IsEmpty())
+        if (me->GetEntry() == THRALL && DummyGuid)
         {
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {

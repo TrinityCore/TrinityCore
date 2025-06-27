@@ -22,12 +22,14 @@
 #include "Map.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
 #include "Weather.h"
+#include "WorldPacket.h"
 
 enum Texts
 {
@@ -205,7 +207,7 @@ class boss_ossirian : public CreatureScript
                 if (Creature* Trigger = me->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
-                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData::fromEulerAnglesZYX(CrystalCoordinates[CrystalIterator].GetOrientation(), 0.0f, 0.0f), Seconds::max(), GO_SUMMON_TIMED_DESPAWN))
+                    if (GameObject* Crystal = Trigger->SummonGameObject(GO_OSSIRIAN_CRYSTAL, CrystalCoordinates[CrystalIterator], QuaternionData(), Seconds::max(), GO_SUMMON_TIMED_DESPAWN))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;

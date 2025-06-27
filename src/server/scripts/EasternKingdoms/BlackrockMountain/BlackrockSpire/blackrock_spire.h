@@ -23,7 +23,7 @@
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
-#define DataHeader    "BRSv1"
+#define DataHeader    "BRS"
 
 enum BRSDataTypes
 {
@@ -76,7 +76,8 @@ enum BRSCreaturesIds
     NPC_BLACKHAND_VETERAN           = 9819,
     NPC_BLACKHAND_INCARCERATOR      = 10316,
     NPC_LORD_VICTOR_NEFARIUS        = 10162,
-    NPC_SCARSHIELD_INFILTRATOR      = 10299
+    NPC_SCARSHIELD_INFILTRATOR      = 10299,
+    NPC_FINKLE_EINHORN              = 10776
 };
 
 enum BRSAdditionalData
@@ -86,7 +87,8 @@ enum BRSAdditionalData
     EVENT_PYROGUARD_EMBERSEER       = 4884,
     AREATRIGGER                     = 1,
     AREATRIGGER_DRAGONSPIRE_HALL    = 2046,
-    AREATRIGGER_BLACKROCK_STADIUM   = 2026
+    AREATRIGGER_BLACKROCK_STADIUM   = 2026,
+    SAY_FINKLE_GANG                 = 0
 };
 
 enum BRSGameObjectsIds

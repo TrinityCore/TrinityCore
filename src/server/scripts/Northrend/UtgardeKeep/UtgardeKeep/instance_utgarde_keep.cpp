@@ -35,13 +35,6 @@ MinionData const minionData[] =
     { 0,                0 }
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_PRINCE_KELESETH, {{ 2026 }} },
-    { DATA_SKARVALD_DALRONN, {{ 2024 }} },
-    { DATA_INGVAR, {{ 2025 }} }
-};
-
 class instance_utgarde_keep : public InstanceMapScript
 {
     public:
@@ -55,7 +48,6 @@ class instance_utgarde_keep : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -173,6 +165,9 @@ class instance_utgarde_keep : public InstanceMapScript
                         HandleGameObject(Forges[i].BellowGUID, data != NOT_STARTED);
                         HandleGameObject(Forges[i].FireGUID, data != NOT_STARTED);
                         Forges[i].Event = data;
+
+                        if (data == DONE)
+                            SaveToDB();
                         break;
                     }
                     default:
@@ -180,11 +175,16 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            void AfterDataLoad() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                if (GetBossState(DATA_PRINCE_KELESETH) == DONE)
-                    for (uint8 i = 0; i < 3; ++i)
-                        Forges[i].Event = DONE;
+                for (uint8 i = 0; i < 3; ++i)
+                    data << Forges[i].Event << ' ';
+            }
+
+            void ReadSaveDataMore(std::istringstream& data) override
+            {
+                for (uint8 i = 0; i < 3; ++i)
+                    data >> Forges[i].Event;
             }
 
         protected:

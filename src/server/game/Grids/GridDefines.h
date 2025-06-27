@@ -19,6 +19,7 @@
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
+#include "ObjectGuid.h"
 #include "NGrid.h"
 #include <cmath>
 
@@ -29,9 +30,6 @@ class DynamicObject;
 class GameObject;
 class Pet;
 class Player;
-class AreaTrigger;
-class SceneObject;
-class Conversation;
 
 #define MAX_NUMBER_OF_CELLS     8
 
@@ -57,24 +55,16 @@ class Conversation;
 #define MAP_SIZE                (SIZE_OF_GRIDS*MAX_NUMBER_OF_GRIDS)
 #define MAP_HALFSIZE            (MAP_SIZE/2)
 
-#define MAX_HEIGHT            100000.0f                     // can be use for find ground height at surface
-#define INVALID_HEIGHT       -100000.0f                     // for check, must be equal to VMAP_INVALID_HEIGHT, real value for unknown height is VMAP_INVALID_HEIGHT_VALUE
-#define MAX_FALL_DISTANCE     250000.0f                     // "unlimited fall" to find VMap ground if it is available, just larger than MAX_HEIGHT - INVALID_HEIGHT
-#define DEFAULT_HEIGHT_SEARCH     50.0f                     // default search distance to find height at nearby locations
-
 // Creature used instead pet to simplify *::Visit templates (not required duplicate code for Creature->Pet case)
 typedef TYPELIST_4(Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/) AllWorldObjectTypes;
-typedef TYPELIST_7(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, SceneObject, Conversation) AllGridObjectTypes;
-typedef TYPELIST_8(Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, SceneObject, Conversation) AllMapStoredObjectTypes;
+typedef TYPELIST_4(GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/) AllGridObjectTypes;
+typedef TYPELIST_5(Creature, GameObject, DynamicObject, Pet, Corpse) AllMapStoredObjectTypes;
 
 typedef GridRefManager<Corpse>          CorpseMapType;
 typedef GridRefManager<Creature>        CreatureMapType;
 typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
-typedef GridRefManager<AreaTrigger>     AreaTriggerMapType;
-typedef GridRefManager<SceneObject>     SceneObjectMapType;
-typedef GridRefManager<Conversation>    ConversationMapType;
 
 enum GridMapTypeMask
 {
@@ -83,10 +73,7 @@ enum GridMapTypeMask
     GRID_MAP_TYPE_MASK_DYNAMICOBJECT    = 0x04,
     GRID_MAP_TYPE_MASK_GAMEOBJECT       = 0x08,
     GRID_MAP_TYPE_MASK_PLAYER           = 0x10,
-    GRID_MAP_TYPE_MASK_AREATRIGGER      = 0x20,
-    GRID_MAP_TYPE_MASK_SCENEOBJECT      = 0x40,
-    GRID_MAP_TYPE_MASK_CONVERSATION     = 0x80,
-    GRID_MAP_TYPE_MASK_ALL              = 0xFF
+    GRID_MAP_TYPE_MASK_ALL              = 0x1F
 };
 
 extern template class Grid<Player, AllWorldObjectTypes, AllGridObjectTypes>;
@@ -168,21 +155,11 @@ struct CoordPair
         return y_coord * LIMIT + x_coord;
     }
 
+    friend bool operator==(CoordPair const& p1, CoordPair const& p2) = default;
+
     uint32 x_coord;
     uint32 y_coord;
 };
-
-template<uint32 LIMIT>
-bool operator==(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
-{
-    return (p1.x_coord == p2.x_coord && p1.y_coord == p2.y_coord);
-}
-
-template<uint32 LIMIT>
-bool operator!=(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
-{
-    return !(p1 == p2);
-}
 
 typedef CoordPair<MAX_NUMBER_OF_GRIDS> GridCoord;
 typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellCoord;

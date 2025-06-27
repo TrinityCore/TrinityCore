@@ -17,6 +17,7 @@
 
 #include "ChatCommandHelpers.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
 
 void Trinity::Impl::ChatCommands::SendErrorMessageToHandler(ChatHandler* handler, std::string_view str)
 {

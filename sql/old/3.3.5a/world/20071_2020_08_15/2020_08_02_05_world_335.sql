@@ -1,0 +1,107 @@
+--
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 4432 WHERE `MenuID` = 1322 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 4644 WHERE `MenuID` = 1662 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 4650 WHERE `MenuID` = 1664 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 9300 WHERE `MenuID` = 5688 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 9385 WHERE `MenuID` = 5727 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 12033 WHERE `MenuID` = 7130 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 14515 WHERE `MenuID` = 7506 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 14517 WHERE `MenuID` = 7507 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 14521 WHERE `MenuID` = 7508 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 14925 WHERE `MenuID` = 7589 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15955 WHERE `MenuID` = 7841 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 18740 WHERE `MenuID` = 8009 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 18744 WHERE `MenuID` = 8010 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 18744 WHERE `MenuID` = 8013 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 17583 WHERE `MenuID` = 8060 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 18217 WHERE `MenuID` = 8126 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19232 WHERE `MenuID` = 8326 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19233 WHERE `MenuID` = 8326 AND `OptionID` = 2;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19234 WHERE `MenuID` = 8326 AND `OptionID` = 3;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19235 WHERE `MenuID` = 8326 AND `OptionID` = 5;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19236 WHERE `MenuID` = 8326 AND `OptionID` = 6;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19237 WHERE `MenuID` = 8326 AND `OptionID` = 7;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19238 WHERE `MenuID` = 8326 AND `OptionID` = 4;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19576 WHERE `MenuID` = 8395 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19232 WHERE `MenuID` = 8424 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19233 WHERE `MenuID` = 8424 AND `OptionID` = 2;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19234 WHERE `MenuID` = 8424 AND `OptionID` = 3;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19235 WHERE `MenuID` = 8424 AND `OptionID` = 5;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19236 WHERE `MenuID` = 8424 AND `OptionID` = 6;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19237 WHERE `MenuID` = 8424 AND `OptionID` = 7;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 19238 WHERE `MenuID` = 8424 AND `OptionID` = 4;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 20225 WHERE `MenuID` = 8530 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 20225 WHERE `MenuID` = 8531 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 20225 WHERE `MenuID` = 8532 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 20994 WHERE `MenuID` = 8648 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 21294 WHERE `MenuID` = 8664 AND `OptionID` = 0;
+-- I guess the script was converted from C++ but the gossip wasn't changed
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 21434, `OptionText` = "I am an ally of the Cenarion Expedition, Mortog. Show me your wares." WHERE `MenuID` = 8692 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8955 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8959 AND `OptionID` = 2;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8960 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8961 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8962 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8963 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 8967 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 8994 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 8996 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 8997 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 8999 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9001 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9002 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9017 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9018 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9026 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9038 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9040 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9042 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9043 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9073 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9074 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23962 WHERE `MenuID` = 9076 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 25092 WHERE `MenuID` = 9199 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 26411 WHERE `MenuID` = 9502 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9558 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23755 WHERE `MenuID` = 9559 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 9560 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 23442 WHERE `MenuID` = 9561 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 29565 WHERE `MenuID` = 9586 AND `OptionID` = 1;
+
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 11044 WHERE `MenuID` = 21281 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 11059 WHERE `MenuID` = 21288 AND `OptionID` = 0;
+-- 7633 from sniffs 11159
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15208 WHERE `MenuID` = 7633 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15214, `OptionText` = "The Bank" WHERE `MenuID` = 7633 AND `OptionID` = 1;
+-- Guild Master & Vendor > Guild Master probably for all texts
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15222 WHERE `MenuID` = 7633 AND `OptionID` = 3;
+-- The inn (current). The Inn (sniffed). Inn - current for 15224
+-- Won't change because it may cause sorting errors in future
+-- UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15224 WHERE `MenuID` = 7633 AND `OptionID` = 4;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15226 WHERE `MenuID` = 7633 AND `OptionID` = 5;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15228, `OptionText` = "Stable Master" WHERE `MenuID` = 7633 AND `OptionID` = 6;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15230 WHERE `MenuID` = 7633 AND `OptionID` = 7;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15232 WHERE `MenuID` = 7633 AND `OptionID` = 8;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15234 WHERE `MenuID` = 7633 AND `OptionID` = 9;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15250 WHERE `MenuID` = 7633 AND `OptionID` = 10;
+
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15252 WHERE `MenuID` = 7667 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15255 WHERE `MenuID` = 7667 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15257 WHERE `MenuID` = 7667 AND `OptionID` = 3;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15259 WHERE `MenuID` = 7667 AND `OptionID` = 4;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15261 WHERE `MenuID` = 7667 AND `OptionID` = 5;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15263 WHERE `MenuID` = 7667 AND `OptionID` = 6;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15265 WHERE `MenuID` = 7667 AND `OptionID` = 7;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15267 WHERE `MenuID` = 7667 AND `OptionID` = 9;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15269 WHERE `MenuID` = 7667 AND `OptionID` = 10;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15271 WHERE `MenuID` = 7667 AND `OptionID` = 11;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15273 WHERE `MenuID` = 7667 AND `OptionID` = 12;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15275 WHERE `MenuID` = 7667 AND `OptionID` = 13;
+
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15236 WHERE `MenuID` = 7649 AND `OptionID` = 0;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15238 WHERE `MenuID` = 7649 AND `OptionID` = 1;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15240 WHERE `MenuID` = 7649 AND `OptionID` = 2;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15242 WHERE `MenuID` = 7649 AND `OptionID` = 3;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15241 WHERE `MenuID` = 7649 AND `OptionID` = 4;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15243 WHERE `MenuID` = 7649 AND `OptionID` = 5;
+UPDATE `gossip_menu_option` SET `OptionBroadcastTextID` = 15244 WHERE `MenuID` = 7649 AND `OptionID` = 6;

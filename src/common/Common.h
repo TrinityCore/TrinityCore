@@ -21,22 +21,6 @@
 #include "Define.h"
 #include <array>
 #include <string>
-#include <cstdlib>
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
-
-#define atoll _atoi64
-#define llabs _abs64
-
-#else
-
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-
-#endif
-
-inline unsigned long atoul(char const* str) { return strtoul(str, nullptr, 10); }
-inline unsigned long long atoull(char const* str) { return strtoull(str, nullptr, 10); }
 
 #define STRINGIZE(a) #a
 
@@ -71,70 +55,18 @@ enum LocaleConstant : uint8
     LOCALE_esES = 6,
     LOCALE_esMX = 7,
     LOCALE_ruRU = 8,
-    LOCALE_none = 9,
-    LOCALE_ptBR = 10,
-    LOCALE_itIT = 11,
 
     TOTAL_LOCALES
 };
 
-const uint8 OLD_TOTAL_LOCALES = 9; /// @todo convert in simple system
 #define DEFAULT_LOCALE LOCALE_enUS
 
-enum class CascLocaleBit : uint8
-{
-    None        = 0,
-    enUS        = 1,
-    koKR        = 2,
-    Reserved    = 3,
-    frFR        = 4,
-    deDE        = 5,
-    zhCN        = 6,
-    esES        = 7,
-    zhTW        = 8,
-    enGB        = 9,
-    enCN        = 10,
-    enTW        = 11,
-    esMX        = 12,
-    ruRU        = 13,
-    ptBR        = 14,
-    itIT        = 15,
-    ptPT        = 16
-};
+#define MAX_LOCALES 8
+#define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
 TC_COMMON_API extern char const* localeNames[TOTAL_LOCALES];
 
-TC_COMMON_API LocaleConstant GetLocaleByName(std::string_view name);
-
-TC_COMMON_API extern CascLocaleBit WowLocaleToCascLocaleBit[TOTAL_LOCALES];
-
-constexpr inline bool IsValidLocale(LocaleConstant locale)
-{
-    return locale < TOTAL_LOCALES && locale != LOCALE_none;
-}
-
-#pragma pack(push, 1)
-
-struct LocalizedString
-{
-    constexpr char const* operator[](LocaleConstant locale) const
-    {
-        return Str[locale];
-    }
-
-    std::array<char const*, TOTAL_LOCALES> Str;
-};
-
-#pragma pack(pop)
-
-// we always use stdlib std::max/std::min, undefine some not C++ standard defines (Win API and some other platforms)
-#ifdef max
-#undef max
-#endif
-
-#ifdef min
-#undef min
-#endif
+TC_COMMON_API LocaleConstant GetLocaleByName(std::string const& name);
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

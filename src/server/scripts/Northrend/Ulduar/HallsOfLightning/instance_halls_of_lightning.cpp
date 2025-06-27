@@ -25,18 +25,18 @@
 
 DoorData const doorData[] =
 {
-    { GO_VOLKHAN_DOOR, DATA_VOLKHAN, DOOR_TYPE_PASSAGE },
-    { GO_IONAR_DOOR,   DATA_IONAR,   DOOR_TYPE_PASSAGE },
-    { GO_LOKEN_DOOR,   DATA_LOKEN,   DOOR_TYPE_PASSAGE },
+    { GO_VOLKHAN_DOOR, BOSS_VOLKHAN, DOOR_TYPE_PASSAGE },
+    { GO_IONAR_DOOR,   BOSS_IONAR,   DOOR_TYPE_PASSAGE },
+    { GO_LOKEN_DOOR,   BOSS_LOKEN,   DOOR_TYPE_PASSAGE },
     { 0,               0,            DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
 {
-    { NPC_GENERAL_BJARNGRIM,    DATA_GENERAL_BJARNGRIM  },
-    { NPC_VOLKHAN,              DATA_VOLKHAN            },
-    { NPC_IONAR,                DATA_IONAR              },
-    { NPC_LOKEN,                DATA_LOKEN              },
+    { NPC_GENERAL_BJARNGRIM,    BOSS_GENERAL_BJARNGRIM  },
+    { NPC_VOLKHAN,              BOSS_VOLKHAN            },
+    { NPC_IONAR,                BOSS_IONAR              },
+    { NPC_LOKEN,                BOSS_LOKEN              },
     { NPC_INVISIBLE_STALKER,    DATA_INVISIBLE_STALKER  },
     { NPC_VOLKHANS_ANVIL,       DATA_VOLKHANS_ANVIL     },
     { 0,                        0                       } // END
@@ -47,14 +47,6 @@ ObjectData const gameObjectData[] =
     { GO_VOLKHAN_TEMPER_VISUAL, DATA_VOLKHAN_TEMPER_VISUAL },
     { GO_LOKEN_THRONE,          DATA_LOKEN_GLOBE           },
     { 0,                        0                          } // END
-};
-
-DungeonEncounterData const encounters[] =
-{
-    { DATA_GENERAL_BJARNGRIM, {{ 1987 }} },
-    { DATA_VOLKHAN, {{ 1985 }} },
-    { DATA_IONAR, {{ 1984 }} },
-    { DATA_LOKEN, {{ 1986 }} }
 };
 
 class instance_halls_of_lightning : public InstanceMapScript
@@ -70,7 +62,6 @@ class instance_halls_of_lightning : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -80,9 +71,9 @@ class instance_halls_of_lightning : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                     case NPC_MOLTEN_GOLEM:
-                        if (GetBossState(DATA_VOLKHAN) == IN_PROGRESS)
+                        if (GetBossState(BOSS_VOLKHAN) == IN_PROGRESS)
                         {
-                            if (Creature* volkhan = GetCreature(DATA_VOLKHAN))
+                            if (Creature* volkhan = GetCreature(BOSS_VOLKHAN))
                                 if (CreatureAI* ai = volkhan->AI())
                                     ai->JustSummoned(creature);
                         }
@@ -101,7 +92,7 @@ class instance_halls_of_lightning : public InstanceMapScript
 
                 switch (type)
                 {
-                    case DATA_LOKEN:
+                    case BOSS_LOKEN:
                         if (state == DONE)
                             if (GameObject* globe = GetGameObject(DATA_LOKEN_GLOBE))
                                 globe->SendCustomAnim(0);

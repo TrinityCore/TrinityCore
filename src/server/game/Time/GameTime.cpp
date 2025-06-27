@@ -17,7 +17,9 @@
 
 #include "GameTime.h"
 #include "Timer.h"
+#include "Timezone.h"
 #include "Util.h"
+#include "WowTime.h"
 
 namespace GameTime
 {
@@ -26,10 +28,11 @@ namespace GameTime
     time_t GameTime = time(nullptr);
     uint32 GameMSTime = 0;
 
-    SystemTimePoint GameTimeSystemPoint = SystemTimePoint::min();
+    SystemTimePoint GameTimeSystemPoint = SystemTimePoint ::min();
     TimePoint GameTimeSteadyPoint = TimePoint::min();
 
-    tm DateTime;
+    WowTime UtcWow;
+    WowTime Wow;
 
     time_t GetStartTime()
     {
@@ -56,32 +59,19 @@ namespace GameTime
         return GameTimeSteadyPoint;
     }
 
-    template<typename Clock>
-    typename Clock::time_point GetTime()
-    {
-        static_assert(!std::is_same<Clock, Clock>::value, "Missing specialization for GetGameTimePoint");
-    }
-
-    template<>
-    TC_GAME_API SystemTimePoint GetTime<std::chrono::system_clock>()
-    {
-        return GetSystemTime();
-    }
-
-    template<>
-    TC_GAME_API TimePoint GetTime<std::chrono::steady_clock>()
-    {
-        return Now();
-    }
-
     uint32 GetUptime()
     {
         return uint32(GameTime - StartTime);
     }
 
-    tm const* GetDateAndTime()
+    WowTime const* GetUtcWowTime()
     {
-        return &DateTime;
+        return &UtcWow;
+    }
+
+    WowTime const* GetWowTime()
+    {
+        return &Wow;
     }
 
     void UpdateGameTimers()
@@ -90,6 +80,7 @@ namespace GameTime
         GameMSTime = getMSTime();
         GameTimeSystemPoint = std::chrono::system_clock::now();
         GameTimeSteadyPoint = std::chrono::steady_clock::now();
-        localtime_r(&GameTime, &DateTime);
+        UtcWow.SetUtcTimeFromUnixTime(GameTime);
+        Wow = UtcWow + Trinity::Timezone::GetSystemZoneOffsetAt(GameTimeSystemPoint);
     }
 }

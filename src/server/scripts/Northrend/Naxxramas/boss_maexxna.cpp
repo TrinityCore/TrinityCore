@@ -22,16 +22,17 @@
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
 
 enum Spells
 {
     SPELL_WEB_WRAP              = 28622,
+    SPELL_WEB_SPRAY             = 29484,
     SPELL_POISON_SHOCK          = 28741,
     SPELL_NECROTIC_POISON       = 28776,
     SPELL_FRENZY                = 54123
 };
-
-#define SPELL_WEB_SPRAY RAID_MODE(29484,54125)
 #define SPELL_FRENZY_HELPER RAID_MODE(54123,54124)
 
 enum Emotes
@@ -140,7 +141,7 @@ struct boss_maexxna : public BossAI
                             else // on subsequent iterations, only allow positions that are not equal to the previous one (this is sufficient since we should only have two targets at most, ever)
                                 wrapPos = (wrapPos + urand(1, MAX_WRAP_POSITION - 1)) % MAX_WRAP_POSITION;
 
-                            target->RemoveAura(SPELL_WEB_SPRAY);
+                            target->RemoveAura(sSpellMgr->GetSpellIdForDifficulty(SPELL_WEB_SPRAY, me));
                             if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
                             {
                                 wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
@@ -198,8 +199,7 @@ struct npc_webwrap : public NullCreatureAI
         if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
         {
             visibleTimer = (me->GetDistance2d(victim) / WEB_WRAP_MOVE_SPEED + 0.5f) * AsUnderlyingType(IN_MILLISECONDS);
-            victim->CastSpell(victim, SPELL_WEB_WRAP, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(me->GetGUID()));
+            victim->CastSpell(victim, SPELL_WEB_WRAP, me->GetGUID());
         }
     }
 
@@ -219,7 +219,7 @@ struct npc_webwrap : public NullCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (!victimGUID.IsEmpty())
+        if (victimGUID)
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                 victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
 

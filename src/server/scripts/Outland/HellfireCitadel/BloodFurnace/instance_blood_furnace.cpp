@@ -45,13 +45,6 @@ ObjectData const gameObjectData[] =
     { 0,                     0                  } //END
 };
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_THE_MAKER, {{ 1922 }} },
-    { DATA_BROGGOK, {{ 1924 }} },
-    { DATA_KELIDAN_THE_BREAKER, {{ 1923 }} }
-};
-
 class instance_blood_furnace : public InstanceMapScript
 {
     public:
@@ -65,7 +58,6 @@ class instance_blood_furnace : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
-                LoadDungeonEncounterData(encounters);
 
                 PrisonerCounter5        = 0;
                 PrisonerCounter6        = 0;
@@ -111,13 +103,6 @@ class instance_blood_furnace : public InstanceMapScript
                 {
                     case GO_PRISON_DOOR_04:
                         PrisonDoor4GUID = go->GetGUID();
-                        [[fallthrough]];
-                    case GO_PRISON_DOOR_01:
-                    case GO_PRISON_DOOR_02:
-                    case GO_PRISON_DOOR_03:
-                    case GO_PRISON_DOOR_05:
-                    case GO_SUMMON_DOOR:
-                        AddDoor(go, true);
                         break;
                     case GO_BROGGOK_LEVER:
                         BroggokLeverGUID = go->GetGUID();

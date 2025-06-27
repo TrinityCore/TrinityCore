@@ -19,16 +19,13 @@
 #include "CharacterCache.h"
 #include "ChatCommandTags.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
-#include "Group.h"
+#include "DBCStores.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
-#include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WorldSession.h"
@@ -251,7 +248,7 @@ public:
             // before GM
             float x, y, z;
             gmPlayer->GetClosePoint(x, y, z, player->GetCombatReach());
-            player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation(), 0, gmPlayer->GetInstanceId());
+            player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation());
         }
 
         return true;
@@ -431,40 +428,22 @@ public:
         return true;
     }
 
-    static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
+    static bool HandleGroupListCommand(ChatHandler* handler, PlayerIdentifier const& target)
     {
-        // Get ALL the variables!
-        Player* playerTarget;
-        ObjectGuid guidTarget;
-        std::string nameTarget;
-        std::string zoneName;
-        char const* onlineState = "";
-
-        // Parse the guid to uint32...
-        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
-
-        // ... and try to extract a player out of it.
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
-        {
-            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
-            guidTarget = parseGUID;
-        }
-        // If not, we return false and end right away.
-        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
-            return false;
+        char const* zoneName = "<ERROR>";
+        char const* onlineState = "Offline";
 
         // Next, we need a group. So we define a group variable.
         Group* groupTarget = nullptr;
 
         // We try to extract a group from an online player.
-        if (playerTarget)
-            groupTarget = playerTarget->GetGroup();
-
-        // If not, we extract it from the SQL.
-        if (!groupTarget)
+        if (target.IsConnected())
+            groupTarget = target.GetConnectedPlayer()->GetGroup();
+        else
         {
+            // If not, we extract it from the SQL.
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt64(0, guidTarget.GetCounter());
+            stmt->setUInt32(0, target.GetGUID().GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
@@ -473,7 +452,7 @@ public:
         // If both fails, players simply has no party. Return false.
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, target.GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -482,7 +461,7 @@ public:
         Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
 
         // To avoid a cluster fuck, namely trying multiple queries to simply get a group member count...
-        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"), std::to_string(members.size()).c_str());
+        handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"), members.size());
         // ... we simply move the group type and member count print after retrieving the slots and simply output it's size.
 
         // While rather dirty codestyle-wise, it saves space (if only a little). For each member, we look several informations up.
@@ -515,13 +494,13 @@ public:
 
             // Check if iterator is online. If is...
             Player* p = ObjectAccessor::FindPlayer((*itr).guid);
-            std::string phases;
+            uint32 phase = 0;
             if (p)
             {
                 // ... than, it prints information like "is online", where he is, etc...
                 onlineState = "online";
-                LocaleConstant locale = handler->GetSessionDbcLocale();
-                phases = PhasingHandler::FormatPhases(p->GetPhaseShift());
+                phase = (!p->IsGameMaster() ? p->GetPhaseMask() : -1);
+                uint32 locale = handler->GetSessionDbcLocale();
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
                 if (area)
@@ -531,16 +510,10 @@ public:
                         zoneName = zone->AreaName[locale];
                 }
             }
-            else
-            {
-                // ... else, everything is set to offline or neutral values.
-                zoneName    = "<ERROR>";
-                onlineState = "Offline";
-            }
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
+                zoneName, phase, slot.guid.GetCounter(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

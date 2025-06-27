@@ -43,7 +43,7 @@ class TC_DATABASE_API TransactionBase
         template<typename... Args>
         void PAppend(Trinity::FormatString<Args...> sql, Args&&... args)
         {
-            Append(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
+            this->Append(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         std::size_t GetSize() const { return m_queries.size(); }
@@ -64,7 +64,7 @@ public:
     using TransactionBase::Append;
     void Append(PreparedStatement<T>* statement)
     {
-        AppendPreparedStatement(statement);
+        this->AppendPreparedStatement(statement);
     }
 };
 

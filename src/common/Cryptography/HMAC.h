@@ -47,7 +47,7 @@ namespace Trinity::Impl
             }
 
             template <typename Container, typename... Ts>
-            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> std::enable_if_t<std::conjunction_v<std::negation<std::is_integral<Ts>>...>, Digest>
+            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> std::enable_if_t<!(std::is_integral_v<std::decay_t<Ts>> || ...), Digest>
             {
                 GenericHMAC hash(seed);
                 (hash.UpdateData(std::forward<Ts>(pack)), ...);

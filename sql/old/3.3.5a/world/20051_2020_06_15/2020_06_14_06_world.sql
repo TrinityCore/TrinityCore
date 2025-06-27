@@ -1,0 +1,5 @@
+--
+UPDATE `gameobject` SET `position_x` = -8337.7236, `position_y` = 519.8452, `position_z` = 122.93923, `orientation` = -1.1272352, `rotation0` = -0.6675715, `rotation1` = -0.2331256, `rotation2` = -0.6675710, `rotation3` = 0.2331298, `animprogress` = 255, `VerifiedBuild` = 12340 WHERE `guid` = 20458 AND `id` = 177200;
+UPDATE `gameobject` SET `position_x` = -8338.4677, `position_y` = 509.1356, `position_z` = 122.93091, `orientation` = 0, `rotation0` = -0.3071990, `rotation1` = -0.6368894, `rotation2` = -0.3071985, `rotation3` = 0.6368905, `animprogress` = 255, `VerifiedBuild` = 12340 WHERE `guid` = 31619 AND `id` = 177201;
+UPDATE `gameobject` SET `position_x` = -8347.6357, `position_y` = 520.9722, `position_z` = 122.93923, `orientation` = 0, `rotation0` = -0.3071990, `rotation1` = -0.6368894, `rotation2` = -0.3071985, `rotation3` = 0.6368905, `animprogress` = 255, `VerifiedBuild` = 12340 WHERE `guid` = 20459 AND `id` = 177202;
+UPDATE `gameobject_addon` SET `parent_rotation0` = 0, `parent_rotation1` = 0, `parent_rotation2` = 0.9440889, `parent_rotation3` = -0.3296907 WHERE `guid` IN (20458,31619,20459);

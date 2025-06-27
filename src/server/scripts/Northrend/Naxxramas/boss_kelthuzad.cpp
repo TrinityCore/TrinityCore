@@ -15,15 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "naxxramas.h"
+#include "CommonHelpers.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "naxxramas.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PlayerAI.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -117,7 +118,7 @@ enum SummonGroups
     SUMMON_GROUP_GUARDIAN_FIRST             = 01 /*..04 */,
     SUMMON_GROUP_MINION_FIRST               = 05 /*..11 */
 };
-static NAXData64 const portalList[] = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
+static const std::initializer_list<NAXData64> portalList = { DATA_KELTHUZAD_PORTAL01, DATA_KELTHUZAD_PORTAL02, DATA_KELTHUZAD_PORTAL03, DATA_KELTHUZAD_PORTAL04 };
 
 enum Phases
 {
@@ -183,7 +184,7 @@ class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
                 if (pTarget->HasBreakableByDamageCrowdControlAura())
                     return false;
                 // We _really_ dislike healers. So we hit them in the face. Repeatedly. Exclusively.
-                return PlayerAI::IsPlayerHealer(pTarget);
+                return Trinity::Helpers::Entity::IsPlayerHealer(pTarget);
             }
         };
 
@@ -338,7 +339,7 @@ struct boss_kelthuzad : public BossAI
                             me->GetCreatureListWithEntryInGrid(skeletons, NPC_SKELETON2, 200.0f);
                             if (skeletons.empty())
                             { // prevent UB
-                                EnterEvadeMode(EvadeReason::Other);
+                                EnterEvadeMode(EVADE_REASON_OTHER);
                                 return;
                             }
                             std::list<Creature*>::iterator it = skeletons.begin();
@@ -594,7 +595,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
         {
             ScriptedAI::EnterEvadeMode(why);
             if (Creature* kelThuzad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KELTHUZAD)))
-                kelThuzad->AI()->EnterEvadeMode(EvadeReason::Other);
+                kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
         }
 
         void JustEngagedWith(Unit* who) override

@@ -21,7 +21,7 @@
 #include "SpellScript.h"
 #include "the_botanica.h"
 
-enum Texts
+enum SarannisTexts
 {
     SAY_AGGRO                      = 0,
     SAY_SLAY                       = 1,
@@ -31,7 +31,7 @@ enum Texts
     SAY_DEATH                      = 5
 };
 
-enum Spells
+enum SarannisSpells
 {
     SPELL_ARCANE_RESONANCE         = 34794,
     SPELL_ARCANE_DEVASTATION       = 34799,
@@ -43,7 +43,7 @@ enum Spells
     SPELL_SUMMON_RESERVIST_3       = 34819
 };
 
-enum Events
+enum SarannisEvents
 {
     EVENT_ARCANE_DEVASTATION       = 1,
     EVENT_SUMMON_REINFORCEMENTS
@@ -54,6 +54,7 @@ uint32 const SummonReinforcementsSpells[] =
     SPELL_SUMMON_MENDER_1, SPELL_SUMMON_RESERVIST_1, SPELL_SUMMON_RESERVIST_2, SPELL_SUMMON_RESERVIST_3
 };
 
+// 17976 - Commander Sarannis
 struct boss_commander_sarannis : public BossAI
 {
     boss_commander_sarannis(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS), _summoned(false) { }

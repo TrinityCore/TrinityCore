@@ -263,7 +263,7 @@ class npc_archaedas_minions : public CreatureScript
             {
                 Initialize();
 
-                me->SetFaction(35);
+                me->SetFaction(FACTION_FRIENDLY);
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
                 me->RemoveAllAuras();
@@ -361,7 +361,7 @@ class npc_stonekeepers : public CreatureScript
 
             void JustEngagedWith(Unit* /*who*/) override
             {
-                me->SetFaction(FACTION_FRIENDLY);
+                me->SetFaction(FACTION_MONSTER);
                 me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetControlled(false, UNIT_STATE_ROOT);
             }

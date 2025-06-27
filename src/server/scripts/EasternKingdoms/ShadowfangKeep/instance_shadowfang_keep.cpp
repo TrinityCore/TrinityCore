@@ -40,24 +40,10 @@ enum Yells
     SAY_ARCHMAGE            = 0
 };
 
-enum Creatures
-{
-    NPC_ASH                 = 3850,
-    NPC_ADA                 = 3849,
-    NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627
-};
-
-enum GameObjects
-{
-    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
-};
-
 enum Spells
 {
-    SPELL_ASHCROMBE_TELEPORT    = 15742
+    SPELL_ASHCROMBE_TELEPORT    = 15742,
+    SPELL_SUMMON_VALENTINE_ADD  = 68610
 };
 
 const Position SpawnLocation[] =
@@ -68,6 +54,7 @@ const Position SpawnLocation[] =
     {-140.794f, 2178.037f, 128.448f, 4.090f},
     {-138.640f, 2170.159f, 136.577f, 2.737f}
 };
+
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
@@ -83,11 +70,14 @@ public:
         instance_shadowfang_keep_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            SetBossNumber(MAX_ENCOUNTER);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
             uiPhase = 0;
             uiTimer = 0;
         }
+
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        std::string str_data;
 
         ObjectGuid uiAshGUID;
         ObjectGuid uiAdaGUID;
@@ -104,9 +94,20 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
-                case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
-                case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
+                case NPC_ASH:
+                    uiAshGUID = creature->GetGUID();
+                    break;
+                case NPC_ADA:
+                    uiAdaGUID = creature->GetGUID();
+                    break;
+                case NPC_ARCHMAGE_ARUGAL:
+                    uiArchmageArugalGUID = creature->GetGUID();
+                    break;
+                case NPC_DND_CRAZED_APOTHECARY_GENERATOR:
+                    _crazedApothecaryGeneratorGUIDs.push_back(creature->GetGUID());
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -116,17 +117,17 @@ public:
             {
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
-                    if (GetBossState(0) == DONE)
+                    if (m_auiEncounter[0] == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SORCERER_DOOR:
                     DoorSorcererGUID = go->GetGUID();
-                    if (GetBossState(2) == DONE)
+                    if (m_auiEncounter[2] == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
                     DoorArugalGUID = go->GetGUID();
-                    if (GetBossState(3) == DONE)
+                    if (m_auiEncounter[3] == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
@@ -151,12 +152,12 @@ public:
                 case TYPE_FREE_NPC:
                     if (data == DONE)
                         DoUseDoorOrButton(DoorCourtyardGUID);
-                    SetBossState(0, EncounterState(data));
+                    m_auiEncounter[0] = data;
                     break;
                 case TYPE_RETHILGORE:
                     if (data == DONE)
                         DoSpeech();
-                    SetBossState(1, EncounterState(data));
+                    m_auiEncounter[1] = data;
                     break;
                 case TYPE_FENRUS:
                     switch (data)
@@ -169,13 +170,39 @@ public:
                             DoUseDoorOrButton(DoorSorcererGUID);
                             break;
                     }
-                    SetBossState(2, EncounterState(data));
+                    m_auiEncounter[2] = data;
                     break;
                 case TYPE_NANDOS:
                     if (data == DONE)
-                        DoUseDoorOrButton(DoorArugalGUID);
-                    SetBossState(3, EncounterState(data));
+                    {
+                        if (GameObject* go = instance->GetGameObject(DoorArugalGUID))
+                            if (go->GetGoState() == GO_STATE_READY)
+                                DoUseDoorOrButton(DoorArugalGUID);
+                    }
+                    m_auiEncounter[3] = data;
                     break;
+                case DATA_SPAWN_VALENTINE_ADDS:
+                    for (ObjectGuid guid : _crazedApothecaryGeneratorGUIDs)
+                    {
+                        if (Creature* generator = instance->GetCreature(guid))
+                            generator->CastSpell(nullptr, SPELL_SUMMON_VALENTINE_ADD);
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (data == DONE)
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
+
+                str_data = saveStream.str();
+
+                SaveToDB();
+                OUT_SAVE_INST_DATA_COMPLETE;
             }
         }
 
@@ -184,15 +211,42 @@ public:
             switch (type)
             {
                 case TYPE_FREE_NPC:
-                    return GetBossState(0);
+                    return m_auiEncounter[0];
                 case TYPE_RETHILGORE:
-                    return GetBossState(1);
+                    return m_auiEncounter[1];
                 case TYPE_FENRUS:
-                    return GetBossState(2);
+                    return m_auiEncounter[2];
                 case TYPE_NANDOS:
-                    return GetBossState(3);
+                    return m_auiEncounter[3];
             }
             return 0;
+        }
+
+        std::string GetSaveData() override
+        {
+            return str_data;
+        }
+
+        void Load(char const* in) override
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            std::istringstream loadStream(in);
+            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
+
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            {
+                if (m_auiEncounter[i] == IN_PROGRESS)
+                    m_auiEncounter[i] = NOT_STARTED;
+            }
+
+            OUT_LOAD_INST_DATA_COMPLETE;
         }
 
         void Update(uint32 uiDiff) override
@@ -236,6 +290,9 @@ public:
                 } else uiTimer -= uiDiff;
             }
         }
+
+    private:
+        GuidVector _crazedApothecaryGeneratorGUIDs;
     };
 
 };

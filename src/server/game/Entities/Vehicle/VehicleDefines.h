@@ -23,8 +23,6 @@
 #include <vector>
 #include <map>
 
-class Map;
-class WorldObject;
 struct VehicleSeatEntry;
 
 enum PowerType
@@ -34,29 +32,7 @@ enum PowerType
     POWER_HEAT                                   = 101,
     POWER_OOZE                                   = 121,
     POWER_BLOOD                                  = 141,
-    POWER_WRATH                                  = 142,
-    POWER_ARCANE_ENERGY                          = 143,
-    POWER_LIFE_ENERGY                            = 144,
-    POWER_SUN_ENERGY                             = 145,
-    POWER_SWING_VELOCITY                         = 146,
-    POWER_SHADOWFLAME_ENERGY                     = 147,
-    POWER_BLUE_POWER                             = 148,
-    POWER_PURPLE_POWER                           = 149,
-    POWER_GREEN_POWER                            = 150,
-    POWER_ORANGE_POWER                           = 151,
-    POWER_ENERGY_2                               = 153,
-    POWER_ARCANEENERGY                           = 161,
-    POWER_WIND_POWER_1                           = 162,
-    POWER_WIND_POWER_2                           = 163,
-    POWER_WIND_POWER_3                           = 164,
-    POWER_FUEL                                   = 165,
-    POWER_SUN_POWER                              = 166,
-    POWER_TWILIGHT_ENERGY                        = 169,
-    POWER_VENOM                                  = 174,
-    POWER_ORANGE_POWER_2                         = 176,
-    POWER_CONSUMING_FLAME                        = 177,
-    POWER_PYROCLASTIC_FRENZY                     = 178,
-    POWER_FLASHFIRE                              = 179,
+    POWER_WRATH                                  = 142
 };
 
 enum VehicleFlags
@@ -90,13 +66,11 @@ struct PassengerInfo
 {
     ObjectGuid Guid;
     bool IsUninteractible;
-    bool IsGravityDisabled;
 
     void Reset()
     {
         Guid.Clear();
         IsUninteractible = false;
-        IsGravityDisabled = false;
     }
 };
 
@@ -146,8 +120,7 @@ struct VehicleTemplate
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
-typedef std::map<ObjectGuid::LowType, VehicleAccessoryList> VehicleAccessoryContainer;
-typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryTemplateContainer;
+typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryContainer;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class TransportBase
@@ -157,22 +130,13 @@ protected:
     virtual ~TransportBase() { }
 
 public:
-    virtual ObjectGuid GetTransportGUID() const = 0;
-
     /// This method transforms supplied transport offsets into global coordinates
     virtual void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const = 0;
 
     /// This method transforms supplied global coordinates into local offsets
     virtual void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const = 0;
 
-    virtual float GetTransportOrientation() const = 0;
-
-    virtual void AddPassenger(WorldObject* passenger) = 0;
-
-    virtual TransportBase* RemovePassenger(WorldObject* passenger) = 0;
-
-    void UpdatePassengerPosition(Map* map, WorldObject* passenger, float x, float y, float z, float o, bool setHomePosition);
-
+protected:
     static void CalculatePassengerPosition(float& x, float& y, float& z, float* o, float transX, float transY, float transZ, float transO)
     {
         float inx = x, iny = y, inz = z;
@@ -196,8 +160,6 @@ public:
         y = (iny - inx * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
         x = (inx + iny * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
     }
-
-    virtual int32 GetMapIdForSpawning() const = 0;
 };
 
 #endif

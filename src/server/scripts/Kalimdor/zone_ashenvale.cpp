@@ -30,6 +30,7 @@ EndContentData */
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"

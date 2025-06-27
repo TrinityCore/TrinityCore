@@ -18,6 +18,7 @@
 #include "Log.h"
 #include "AppenderConsole.h"
 #include "AppenderFile.h"
+#include "Common.h"
 #include "Config.h"
 #include "Duration.h"
 #include "Errors.h"
@@ -56,7 +57,7 @@ Appender* Log::GetAppenderByName(std::string_view name)
     return it == appenders.end() ? nullptr : it->second.get();
 }
 
-void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::string const& options)
+void Log::CreateAppenderFromConfig(std::string const& appenderName)
 {
     if (appenderName.empty())
         return;
@@ -64,6 +65,7 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
     // Format = type, level, flags, optional1, optional2
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
+    std::string options = sConfigMgr->GetStringDefault(appenderName, "");
 
     std::vector<std::string_view> tokens = Trinity::Tokenize(options, ',', true);
 
@@ -115,19 +117,15 @@ void Log::CreateAppenderFromConfigLine(std::string const& appenderName, std::str
     }
 }
 
-void Log::CreateAppenderFromConfig(std::string const& appenderName)
+void Log::CreateLoggerFromConfig(std::string const& appenderName)
 {
-    CreateAppenderFromConfigLine(appenderName, sConfigMgr->GetStringDefault(appenderName, ""));
-}
-
-void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string const& options)
-{
-    if (loggerName.empty())
+    if (appenderName.empty())
         return;
 
     LogLevel level = LOG_LEVEL_DISABLED;
 
-    std::string name = loggerName.substr(7);
+    std::string options = sConfigMgr->GetStringDefault(appenderName, "");
+    std::string name = appenderName.substr(7);
 
     if (options.empty())
     {
@@ -143,7 +141,8 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         return;
     }
 
-    if (loggers.find(name) != loggers.end())
+    std::unique_ptr<Logger>& logger = loggers[name];
+    if (logger)
     {
         fprintf(stderr, "Error while configuring Logger %s. Already defined\n", name.c_str());
         return;
@@ -159,8 +158,7 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
     if (level < lowestLogLevel)
         lowestLogLevel = level;
 
-    Logger* logger = new Logger(name, level);
-    loggers[logger->getName()].reset(logger);
+    logger = std::make_unique<Logger>(name, level);
     //fprintf(stdout, "Log::CreateLoggerFromConfig: Created Logger %s, Level %u\n", name.c_str(), level);
 
     for (std::string_view appenderName : Trinity::Tokenize(tokens[1], ' ', false))
@@ -173,11 +171,6 @@ void Log::CreateLoggerFromConfigLine(std::string const& loggerName, std::string 
         else
             fprintf(stderr, "Error while configuring Appender %s in Logger %s. Appender does not exist\n", std::string(appenderName).c_str(), name.c_str());
     }
-}
-
-void Log::CreateLoggerFromConfig(std::string const& loggerName)
-{
-    CreateLoggerFromConfigLine(loggerName, sConfigMgr->GetStringDefault(loggerName, ""));
 }
 
 void Log::ReadAppendersFromConfig()
@@ -206,11 +199,11 @@ void Log::ReadLoggersFromConfig()
 
         Logger* rootLogger = new Logger(LOGGER_ROOT, LOG_LEVEL_ERROR);
         rootLogger->addAppender(appender->getId(), appender);
-        loggers[rootLogger->getName()].reset(rootLogger);
+        loggers[LOGGER_ROOT].reset(rootLogger);
 
         Logger* serverLogger = new Logger("server", LOG_LEVEL_INFO);
         serverLogger->addAppender(appender->getId(), appender);
-        loggers[serverLogger->getName()].reset(serverLogger);
+        loggers["server"].reset(serverLogger);
     }
 }
 
@@ -221,17 +214,17 @@ void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
     appenderFactory[index] = appenderCreateFn;
 }
 
-void Log::OutMessageImpl(std::string_view filter, LogLevel level, std::string&& message)
+void Log::OutMessageImpl(std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
 {
-    write(std::make_unique<LogMessage>(level, std::string(filter), std::move(message)));
+    write(std::make_unique<LogMessage>(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs)));
 }
 
-void Log::OutCommandImpl(std::string&& message, std::string&& param1)
+void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs)
 {
-    write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", std::move(message), std::move(param1)));
+    write(std::make_unique<LogMessage>(LOG_LEVEL_INFO, "commands.gm", Trinity::StringVFormat(messageFormat, messageFormatArgs), Trinity::ToString(account)));
 }
 
-void Log::write(std::unique_ptr<LogMessage>&& msg) const
+void Log::write(std::unique_ptr<LogMessage> msg) const
 {
     Logger const* logger = GetLoggerByType(msg->type);
 
@@ -244,7 +237,7 @@ void Log::write(std::unique_ptr<LogMessage>&& msg) const
         logger->write(msg.get());
 }
 
-Logger const* Log::GetLoggerByType(std::string_view type) const
+Logger const* Log::GetLoggerByType(std::string const& type) const
 {
     auto it = loggers.find(type);
     if (it != loggers.end())
@@ -253,7 +246,7 @@ Logger const* Log::GetLoggerByType(std::string_view type) const
     if (type == LOGGER_ROOT)
         return nullptr;
 
-    std::string_view parentLogger = LOGGER_ROOT;
+    std::string parentLogger = LOGGER_ROOT;
     size_t found = type.find_last_of('.');
     if (found != std::string::npos)
         parentLogger = type.substr(0, found);
@@ -274,17 +267,8 @@ std::string Log::GetTimestampStr()
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    try
-    {
-        return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}",
-            aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    }
-    catch (std::exception const& ex)
-    {
-        fprintf(stderr, "Failed to initialize timestamp part of log filename! %s", ex.what());
-        fflush(stderr);
-        ABORT();
-    }
+    return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}",
+        aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /* = true */)
@@ -350,7 +334,7 @@ void Log::Close()
     appenders.clear();
 }
 
-bool Log::ShouldLog(std::string_view type, LogLevel level) const
+bool Log::ShouldLog(std::string const& type, LogLevel level) const
 {
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured

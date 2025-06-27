@@ -21,7 +21,6 @@
 #include "IpAddress.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
-#include <boost/core/demangle.hpp>
 #include <utf8.h>
 #include <algorithm>
 #include <iomanip>
@@ -30,12 +29,29 @@
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
+#include <boost/core/demangle.hpp>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-  #include <arpa/inet.h>
+void Trinity::VerifyOsVersion()
+{
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    auto isWindowsBuildGreaterOrEqual = [](DWORD build)
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, build, 0, {0}, 0, 0, 0, 0 };
+        ULONGLONG conditionMask = 0;
+        VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+
+        return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, conditionMask);
+    };
+
+    if (!isWindowsBuildGreaterOrEqual(TRINITY_REQUIRED_WINDOWS_BUILD))
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0, 0, 0 };
+        GetVersionEx((LPOSVERSIONINFO)&osvi);
+        ABORT_MSG("TrinityCore requires Windows 10 19H1 (1903) or Windows Server 2019 (1903) - require build number 10.0.%d but found %d.%d.%d",
+            TRINITY_REQUIRED_WINDOWS_BUILD, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
+    }
 #endif
+}
 
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
@@ -58,8 +74,19 @@ std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 struct tm* localtime_r(time_t const* time, struct tm *result)
 {
-    localtime_s(result, time);
+    if (localtime_s(result, time) != 0)
+        return nullptr;
     return result;
+}
+struct tm* gmtime_r(time_t const* time, struct tm* result)
+{
+    if (gmtime_s(result, time) != 0)
+        return nullptr;
+    return result;
+}
+time_t timegm(struct tm* tm)
+{
+    return _mkgmtime(tm);
 }
 #endif
 
@@ -68,17 +95,6 @@ tm TimeBreakdown(time_t time)
     tm timeLocal;
     localtime_r(&time, &timeLocal);
     return timeLocal;
-}
-
-time_t LocalTimeToUTCTime(time_t time)
-{
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-    return time + _timezone;
-#elif defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-    return timegm(gmtime(&time));
-#else
-    return time + timezone;
-#endif
 }
 
 time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
@@ -197,9 +213,9 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     return ss.str();
 }
 
-Optional<int64> MoneyStringToMoney(std::string const& moneyString)
+Optional<int32> MoneyStringToMoney(std::string const& moneyString)
 {
-    int64 money = 0;
+    int32 money = 0;
 
     bool hadG = false;
     bool hadS = false;
@@ -229,7 +245,7 @@ Optional<int64> MoneyStringToMoney(std::string const& moneyString)
                 return std::nullopt;
         }
 
-        Optional<uint64> amount = Trinity::StringTo<uint32>(token.substr(0, token.length() - 1));
+        Optional<uint32> amount = Trinity::StringTo<uint32>(token.substr(0, token.length() - 1));
         if (amount)
             money += (unit * *amount);
         else
@@ -336,7 +352,7 @@ size_t utf8length(std::string& utf8str)
     {
         return utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return 0;
@@ -358,7 +374,7 @@ void utf8truncate(std::string& utf8str, size_t len)
         char* oend = utf8::utf16to8(wstr.c_str(), wstr.c_str()+wstr.size(), &utf8str[0]);
         utf8str.resize(oend-(&utf8str[0]));                 // remove unused tail
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         utf8str.clear();
     }
@@ -373,7 +389,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
         wsize -= out.remaining(); // remaining unused space
         wstr[wsize] = L'\0';
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         // Replace the converted string with an error message if there is enough space
         // Otherwise just return an empty string
@@ -405,7 +421,7 @@ bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr)
     {
         utf8::utf8to16(utf8str.begin(), utf8str.end(), std::back_inserter(wstr));
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         wstr.clear();
         return false;
@@ -428,7 +444,7 @@ bool WStrToUtf8(wchar_t const* wstr, size_t size, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
@@ -451,7 +467,7 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
         }
         utf8str = utf8str2;
     }
-    catch (std::exception const&)
+    catch(std::exception const&)
     {
         utf8str.clear();
         return false;
@@ -464,191 +480,6 @@ void wstrToUpper(std::wstring& str) { std::transform(std::begin(str), std::end(s
 void wstrToLower(std::wstring& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToLower); }
 void strToUpper(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToUpper); }
 void strToLower(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToLower); }
-
-std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale)
-{
-    std::wstring result;
-    result.reserve(wstr.length() * 2);
-
-    switch (locale)
-    {
-        case LOCALE_frFR:
-            for (wchar_t wchar : wstr)
-            {
-                wchar = wcharToLower(wchar);
-                switch (wchar)
-                {
-                    case 0x00A0:                             // NO-BREAK SPACE
-                        result += L' ';
-                        break;
-                    case 0x00AB:                             // LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
-                    case 0x00BB:                             // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
-                        result += L'"';
-                        break;
-                    case 0x00E7:                             // LATIN SMALL LETTER C WITH CEDILLA
-                        result += L'c';
-                        break;
-                    case 0x00E8:                             // LATIN SMALL LETTER E WITH GRAVE
-                    case 0x00E9:                             // LATIN SMALL LETTER E WITH ACUTE
-                    case 0x00EA:                             // LATIN SMALL LETTER E WITH CIRCUMFLEX
-                    case 0x00EB:                             // LATIN SMALL LETTER E WITH DIAERESIS
-                        result += L'e';
-                        break;
-                    case 0x00EE:                             // LATIN SMALL LETTER I WITH CIRCUMFLEX
-                    case 0x00EF:                             // LATIN SMALL LETTER I WITH DIAERESIS
-                        result += L'i';
-                        break;
-                    case 0x00F2:                             // LATIN SMALL LETTER O WITH GRAVE
-                    case 0x00F3:                             // LATIN SMALL LETTER O WITH ACUTE
-                    case 0x00F4:                             // LATIN SMALL LETTER O WITH CIRCUMFLEX
-                    case 0x00F6:                             // LATIN SMALL LETTER O WITH DIAERESIS
-                        result += L'o';
-                        break;
-                    case 0x00F9:                             // LATIN SMALL LETTER U WITH GRAVE
-                    case 0x00FA:                             // LATIN SMALL LETTER U WITH ACUTE
-                    case 0x00FB:                             // LATIN SMALL LETTER U WITH CIRCUMFLEX
-                    case 0x00FC:                             // LATIN SMALL LETTER U WITH DIAERESIS
-                        result += L'u';
-                        break;
-                    case 0x0153:                             // LATIN SMALL LIGATURE OE
-                        result += L'o';
-                        result += L'e';
-                        break;
-                    case 0x2013:                             // EN DASH
-                        result += L'-';
-                        break;
-                    case 0x2018:                             // LEFT SINGLE QUOTATION MARK
-                    case 0x2019:                             // RIGHT SINGLE QUOTATION MARK
-                        result += L'\'';
-                        break;
-                    default:
-                        result += wchar;
-                        break;
-                }
-            }
-            break;
-        case LOCALE_deDE:
-            for (wchar_t wchar : wstr)
-            {
-                wchar = wcharToLower(wchar);
-                if (wchar == 0x00DF)                         // LATIN SMALL LETTER SHARP S
-                {
-                    result += L's';
-                    result += L's';
-                }
-                else
-                    result += wchar;
-            }
-            break;
-        case LOCALE_esES:
-        case LOCALE_esMX:
-        case LOCALE_itIT:
-            for (wchar_t wchar : wstr)
-            {
-                wchar = wcharToLower(wchar);
-                switch (wchar)
-                {
-                    case 0x00E1:                             // LATIN SMALL LETTER A WITH ACUTE
-                        result += L'a';
-                        break;
-                    case 0x00E9:                             // LATIN SMALL LETTER E WITH ACUTE
-                        result += L'e';
-                        break;
-                    case 0x00ED:                             // LATIN SMALL LETTER I WITH ACUTE
-                        result += L'i';
-                        break;
-                    case 0x00F1:                             // LATIN SMALL LETTER N WITH TILDE
-                        result += L'n';
-                        break;
-                    case 0x00F3:                             // LATIN SMALL LETTER O WITH ACUTE
-                        result += L'o';
-                        break;
-                    case 0x00FA:                             // LATIN SMALL LETTER U WITH ACUTE
-                    case 0x00FC:                             // LATIN SMALL LETTER U WITH DIAERESIS
-                        result += L'u';
-                        break;
-                    default:
-                        result += wchar;
-                        break;
-                }
-            }
-            break;
-        case LOCALE_ruRU:
-            for (wchar_t wchar : wstr)
-            {
-                wchar = wcharToLower(wchar);
-                switch (wchar)
-                {
-                    case 0x451:                              // CYRILLIC SMALL LETTER IO
-                        result += wchar_t(0x435);
-                        break;
-                    case 0x2013:                             // EN DASH
-                        result += L'-';
-                        break;
-                    default:
-                        result += wchar;
-                        break;
-                }
-            }
-            break;
-        case LOCALE_ptBR:
-            for (wchar_t wchar : wstr)
-            {
-                wchar = wcharToLower(wchar);
-                switch (wchar)
-                {
-                    case 0x00E0:                             // LATIN SMALL LETTER A WITH GRAVE
-                    case 0x00E1:                             // LATIN SMALL LETTER A WITH ACUTE
-                    case 0x00E2:                             // LATIN SMALL LETTER A WITH CIRCUMFLEX
-                    case 0x00E3:                             // LATIN SMALL LETTER A WITH TILDE
-                    case 0x00E4:                             // LATIN SMALL LETTER A WITH DIAERESIS
-                        result += L'a';
-                        break;
-                    case 0x00E7:                             // LATIN SMALL LETTER C WITH CEDILLA
-                        result += L'c';
-                        break;
-                    case 0x00E8:                             // LATIN SMALL LETTER E WITH GRAVE
-                    case 0x00E9:                             // LATIN SMALL LETTER E WITH ACUTE
-                    case 0x00EA:                             // LATIN SMALL LETTER E WITH CIRCUMFLEX
-                    case 0x00EB:                             // LATIN SMALL LETTER E WITH DIAERESIS
-                        result += L'e';
-                        break;
-                    case 0x00EC:                             // LATIN SMALL LETTER I WITH GRAVE
-                    case 0x00ED:                             // LATIN SMALL LETTER I WITH ACUTE
-                    case 0x00EE:                             // LATIN SMALL LETTER I WITH CIRCUMFLEX
-                    case 0x00EF:                             // LATIN SMALL LETTER I WITH DIAERESIS
-                        result += L'i';
-                        break;
-                    case 0x00F1:                             // LATIN SMALL LETTER N WITH TILDE
-                        result += L'n';
-                        break;
-                    case 0x00F2:                             // LATIN SMALL LETTER O WITH GRAVE
-                    case 0x00F3:                             // LATIN SMALL LETTER O WITH ACUTE
-                    case 0x00F4:                             // LATIN SMALL LETTER O WITH CIRCUMFLEX
-                    case 0x00F5:                             // LATIN SMALL LETTER O WITH TILDE
-                    case 0x00F6:                             // LATIN SMALL LETTER O WITH DIAERESIS
-                        result += L'o';
-                        break;
-                    case 0x00F9:                             // LATIN SMALL LETTER U WITH GRAVE
-                    case 0x00FA:                             // LATIN SMALL LETTER U WITH ACUTE
-                    case 0x00FB:                             // LATIN SMALL LETTER U WITH CIRCUMFLEX
-                    case 0x00FC:                             // LATIN SMALL LETTER U WITH DIAERESIS
-                        result += L'u';
-                        break;
-                    default:
-                        result += wchar;
-                        break;
-                }
-            }
-            break;
-        default:
-            result = wstr;
-            wstrToLower(result);
-            break;
-    }
-
-    return result;
-}
 
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
@@ -843,15 +674,13 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
         op = -1;
     }
 
-    std::ostringstream ss;
+    std::string result;
+    result.reserve(arrayLen * 2);
+    auto inserter = std::back_inserter(result);
     for (int32 i = init; i != end; i += op)
-    {
-        char buffer[4];
-        sprintf(buffer, "%02X", bytes[i]);
-        ss << buffer;
-    }
+        Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
 
-    return ss.str();
+    return result;
 }
 
 void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
@@ -871,10 +700,7 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
 
     uint32 j = 0;
     for (int32 i = init; i != end; i += 2 * op)
-    {
-        char buffer[3] = { str[i], str[i + 1], '\0' };
-        out[j++] = uint8(strtoul(buffer, nullptr, 16));
-    }
+        out[j++] = Trinity::StringTo<uint8>(str.substr(i, 2), 16).value_or(0);
 }
 
 bool StringEqualI(std::string_view a, std::string_view b)
@@ -896,9 +722,4 @@ bool StringCompareLessI(std::string_view a, std::string_view b)
 std::string Trinity::Impl::GetTypeName(std::type_info const& info)
 {
     return boost::core::demangle(info.name());
-}
-
-float DegToRad(float degrees)
-{
-    return degrees * (2.f * float(M_PI) / 360.f);
 }

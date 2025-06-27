@@ -17,24 +17,13 @@
 
 #include "GameObjectAI.h"
 #include "CreatureAI.h"
-#include "GameObject.h"
-#include "QuestDef.h"
-#include "Errors.h"
 
 int32 GameObjectAI::Permissible(GameObject const* /*go*/)
 {
     return PERMIT_BASE_NO;
 }
 
-GameObjectAI::GameObjectAI(GameObject* go, uint32 scriptId) : _scriptId(scriptId ? scriptId : go->GetScriptId()), me(go)
-{
-    ASSERT(_scriptId, "A GameObjectAI was initialized with an invalid scriptId!");
-}
-
-Optional<QuestGiverStatus> GameObjectAI::GetDialogStatus(Player* /*player*/)
-{
-    return {};
-}
+NullGameObjectAI::NullGameObjectAI(GameObject* go) : GameObjectAI(go) { }
 
 int32 NullGameObjectAI::Permissible(GameObject const* /*go*/)
 {

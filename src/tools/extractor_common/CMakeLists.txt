@@ -18,7 +18,7 @@ target_link_libraries(extractor_common
   PRIVATE
     trinity-core-interface
   PUBLIC
-    casc
+    mpq
     common)
 
 target_include_directories(extractor_common
@@ -26,6 +26,5 @@ target_include_directories(extractor_common
     ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(extractor_common
-    PROPERTIES
-      FOLDER
-        "tools")
+  PROPERTIES
+    FOLDER "tools")

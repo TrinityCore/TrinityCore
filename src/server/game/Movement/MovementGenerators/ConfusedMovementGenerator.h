@@ -19,7 +19,6 @@
 #define TRINITY_CONFUSEDGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "Position.h"
 #include "Timer.h"
 
 class PathGenerator;
@@ -43,7 +42,7 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium<T, ConfusedMove
     private:
         std::unique_ptr<PathGenerator> _path;
         TimeTracker _timer;
-        Position _reference;
+        float _x, _y, _z;
 };
 
 #endif

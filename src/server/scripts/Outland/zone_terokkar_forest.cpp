@@ -17,11 +17,14 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "GameObject.h"
 #include "Group.h"
 #include "Map.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
+#include "Spell.h"
 #include "SpellScript.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_unkor_the_ruthless
@@ -155,7 +158,7 @@ class spell_skyguard_flare : public SpellScript
 
     void ModDestHeight(SpellDestination& dest)
     {
-        dest._position.m_positionZ = GetCaster()->GetMap()->GetHeight(GetCaster()->GetPhaseShift(), dest._position.GetPositionX(), dest._position.GetPositionY(), MAX_HEIGHT);
+        dest._position.m_positionZ = GetCaster()->GetMap()->GetHeight(dest._position.GetPositionX(), dest._position.GetPositionY(), MAX_HEIGHT);
     }
 
     void Register() override
@@ -314,6 +317,43 @@ class spell_terokkar_cancel_shadowy_disguise : public SpellScript
     }
 };
 
+enum Translocation
+{
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN     = 32572,
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP       = 32568,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN        = 32569,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP          = 32571
+};
+
+// 25143 - Translocate
+// 29128 - Translocate
+// 29129 - Translocate
+// 25140 - Translocate
+class spell_terokkar_translocation_firewing_point : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_terokkar_translocation_firewing_point(Translocation triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
@@ -323,4 +363,8 @@ void AddSC_terokkar_forest()
     RegisterSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
     RegisterSpellScript(spell_terokkar_shadowy_disguise);
     RegisterSpellScript(spell_terokkar_cancel_shadowy_disguise);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_down", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_up", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_down", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_up", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP);
 }

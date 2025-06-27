@@ -20,6 +20,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -35,6 +36,8 @@ EndScriptData */
 
 enum Spells
 {
+    SPELL_ARM_DEAD_DAMAGE               = 63629,
+    SPELL_TWO_ARM_SMASH                 = 63356,
     SPELL_ONE_ARM_SMASH                 = 63573,
     SPELL_ARM_SWEEP                     = 63766,
     SPELL_STONE_SHOUT                   = 63716,
@@ -42,6 +45,7 @@ enum Spells
     SPELL_STONE_GRIP                    = 62166,
     SPELL_STONE_GRIP_CANCEL             = 65594,
     SPELL_SUMMON_RUBBLE                 = 63633,
+    SPELL_FALLING_RUBBLE                = 63821,
     SPELL_ARM_ENTER_VEHICLE             = 65343,
     SPELL_ARM_ENTER_VISUAL              = 64753,
 
@@ -58,10 +62,6 @@ enum Spells
 
     SPELL_BERSERK                       = 47008  // guess
 };
-
-#define SPELL_TWO_ARM_SMASH RAID_MODE<uint32>(63356,64003)
-#define SPELL_FALLING_RUBBLE RAID_MODE<uint32>(63821,64001)
-#define SPELL_ARM_DEAD_DAMAGE RAID_MODE<uint32>(63629,63979)
 
 enum NPCs
 {
@@ -199,7 +199,7 @@ class boss_kologarn : public CreatureScript
                     if (!right && !left)
                         events.ScheduleEvent(EVENT_STONE_SHOUT, 5s);
 
-                    instance->TriggerGameEvent(CRITERIA_DISARMED);
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, CRITERIA_DISARMED);
                 }
                 else
                 {
@@ -231,7 +231,7 @@ class boss_kologarn : public CreatureScript
                 summon->SetReactState(REACT_PASSIVE);
 
                 // Victim gets 67351
-                if (!eyebeamTarget.IsEmpty())
+                if (eyebeamTarget)
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*summon, eyebeamTarget))
                     {
@@ -345,8 +345,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(DATA_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
-                    caster->CastSpell(caster, spellId, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                        .SetOriginalCaster(originalCaster));
+                    caster->CastSpell(caster, spellId, originalCaster);
             }
 
             void Register() override
@@ -453,11 +452,6 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ulduar_cancel_stone_gripSpellScript);
 
-            bool Validate(SpellInfo const* spellInfo) override
-            {
-                return spellInfo->GetEffects().size() > EFFECT_1;
-            }
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
@@ -495,7 +489,7 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
 
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
-                if (GetHitUnit()->GetTypeId() != TYPEID_PLAYER || !GetHitUnit()->GetVehicle())
+                if (!GetHitPlayer() || !GetHitPlayer()->GetVehicle())
                     return;
 
                 //! Proper exit position does not work currently,
@@ -505,9 +499,9 @@ class spell_ulduar_squeezed_lifeless : public SpellScriptLoader
                 pos.m_positionY = -8.3f + irand(-3, 3);
                 pos.m_positionZ = 448.8f;
                 pos.SetOrientation(float(M_PI));
-                GetHitUnit()->DestroyForNearbyPlayers();
-                GetHitUnit()->ExitVehicle(&pos);
-                GetHitUnit()->UpdateObjectVisibility(false);
+                GetHitPlayer()->DestroyForNearbyPlayers();
+                GetHitPlayer()->ExitVehicle(&pos);
+                GetHitPlayer()->UpdateObjectVisibility(false);
             }
 
             void Register() override
@@ -539,10 +533,10 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
                     return;
 
-                if (GetOwner()->GetTypeId() != TYPEID_UNIT)
+                if (!GetOwner()->ToCreature())
                     return;
 
-                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficultyID() == DIFFICULTY_NORMAL ? 33809 : 33942);
+                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_NORMAL ? 33809 : 33942);
                 Creature* rubbleStalker = GetOwner()->FindNearestCreature(rubbleStalkerEntry, 200.0f, true);
                 if (rubbleStalker)
                     rubbleStalker->CastSpell(rubbleStalker, SPELL_STONE_GRIP_CANCEL, true);
@@ -572,7 +566,8 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
 
             void OnRemoveStun(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                GetUnitOwner()->RemoveAurasDueToSpell(aurEff->GetAmount());
+                if (Player* owner = GetOwner()->ToPlayer())
+                    owner->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
             void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

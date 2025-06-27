@@ -24,7 +24,6 @@
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "Vehicle.h"
-#include "World.h"
 
 enum Yells
 {
@@ -138,6 +137,8 @@ class boss_ignis : public CreatureScript
                 _Reset();
                 if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
+
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
             void JustEngagedWith(Unit* who) override
@@ -151,7 +152,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_END_POT, 40s);
                 events.ScheduleEvent(EVENT_BERSERK, 480s);
                 Initialize();
-                instance->TriggerGameEvent(ACHIEVEMENT_IGNIS_START_EVENT);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
             void JustDied(Unit* /*killer*/) override

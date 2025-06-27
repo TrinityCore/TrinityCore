@@ -1,0 +1,35 @@
+libmpq (0.4.2-svn288-1) unstable; urgency=low
+
+  [ babyface ]
+  * Due to the nature of MPQ archives which can have valid block entries
+  * removed function libmpq__init() and libmpq__shutdown(), because they
+    are no longer required and libmpq__file_name(), because it is up to
+    the application to provide listfile support
+  * updated documentation to latest API changes
+  * removed API documentation for removed function prototypes
+  * removed no longer required files from target
+
+  [ forrestv ]
+  * mpq.py fix
+  * spelling - huffmann to huffman
+  * changed pkware/pkzip to pkzip and used constants instead of numbers
+    in extract.c
+  * sanified huffman decoder a bit
+  * cleanup + update of mpq.py
+  * Added support for library finding on platforms besides Linux.
+  * python bindings - sequence methods on Archive, example code
+
+  [ georg ]
+  * libmpq: file number search now continued over hashtable end
+  * debian debug package
+
+ -- Georg Lukas <georg@op-co.de>  Fri, 22 May 2009 22:38:26 +0200
+
+libmpq (0.4.2-svn270-1) unstable; urgency=low
+
+  * First debian package
+  * compatible to new libmpq API (post 0.4.2)
+  * contains preliminary python-mpq package
+
+ -- Georg Lukas <georg@op-co.de>  Tue, 07 Oct 2008 14:38:58 +0200
+

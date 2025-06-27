@@ -18,18 +18,21 @@
 #include "culling_of_stratholme.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "PassiveAI.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellMgr.h"
 
 enum Spells
 {
+    SPELL_CARRION_SWARM = 52720,
+    SPELL_MIND_BLAST = 52722,
+    SPELL_SLEEP = 52721,
     SPELL_VAMPIRIC_TOUCH = 52723
 };
-
-#define SPELL_CARRION_SWARM DUNGEON_MODE(52720,58852)
-#define SPELL_MIND_BLAST DUNGEON_MODE(52722,58850)
-#define SPELL_SLEEP DUNGEON_MODE(52721,58849)
 
 enum Yells
 {
@@ -82,6 +85,11 @@ class boss_mal_ganis : public CreatureScript
                     if (_defeated)
                         return;
                     _defeated = true;
+
+                    // @todo hack most likely
+                    if (instance->instance->IsHeroic())
+                        if (InstanceMap* map = instance->instance->ToInstanceMap())
+                            map->PermBindAllPlayers();
                 }
             }
 
@@ -143,7 +151,7 @@ class boss_mal_ganis : public CreatureScript
                             events.Repeat(Seconds(6));
                             break;
                         case EVENT_MIND_BLAST:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, -int32(SPELL_SLEEP)))
+                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true, -int32(sSpellMgr->GetSpellIdForDifficulty(SPELL_SLEEP, me))))
                                 DoCast(target, SPELL_MIND_BLAST);
                             else
                                 DoCastVictim(SPELL_MIND_BLAST);

@@ -186,7 +186,7 @@ enum gameobjectsIC
     GO_ALLIANCE_GUNSHIP                         = 195121
 };
 
-#define MAX_REINFORCEMENTS 400
+#define MAX_REINFORCEMENTS 300
 
 enum Times
 {
@@ -466,12 +466,6 @@ enum BG_IC_MaxSpawns
     MAX_CAPTAIN_SPAWNS_PER_FACTION                      = 2,
 };
 
-enum BG_IC_ExploitTeleportLocations
-{
-    IC_EXPLOIT_TELEPORT_LOCATION_ALLIANCE = 3986,
-    IC_EXPLOIT_TELEPORT_LOCATION_HORDE = 3983
-};
-
 const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS] =
 {
     {BG_IC_NPC_OVERLORD_AGMAR, NPC_OVERLORD_AGMAR, TEAM_HORDE, 1295.44f, -765.733f, 70.0541f, 0.0f}, //Overlord Agmar 1
@@ -734,12 +728,10 @@ enum BG_IC_Objectives
 
 enum ICWorldStates
 {
-    BG_IC_ALLIANCE_REINFORCEMENTS_SET   = 4221,
-    BG_IC_HORDE_REINFORCEMENTS_SET      = 4222,
-    BG_IC_ALLIANCE_REINFORCEMENTS       = 4226,
-    BG_IC_HORDE_REINFORCEMENTS          = 4227,
-    BG_IC_MAX_REINFORCEMENTS            = 17377,
-
+    BG_IC_ALLIANCE_RENFORT_SET          = 4221,
+    BG_IC_HORDE_RENFORT_SET             = 4222,
+    BG_IC_ALLIANCE_RENFORT              = 4226,
+    BG_IC_HORDE_RENFORT                 = 4227,
     BG_IC_GATE_FRONT_H_WS_CLOSED        = 4317,
     BG_IC_GATE_WEST_H_WS_CLOSED         = 4318,
     BG_IC_GATE_EAST_H_WS_CLOSED         = 4319,
@@ -753,35 +745,30 @@ enum ICWorldStates
     BG_IC_GATE_WEST_A_WS_OPEN           = 4324,
     BG_IC_GATE_EAST_A_WS_OPEN           = 4325,
 
-    BG_IC_DOCKS_OWNER                   = 4235,
     BG_IC_DOCKS_UNCONTROLLED            = 4301,
     BG_IC_DOCKS_CONFLICT_A              = 4305,
     BG_IC_DOCKS_CONFLICT_H              = 4302,
     BG_IC_DOCKS_CONTROLLED_A            = 4304,
     BG_IC_DOCKS_CONTROLLED_H            = 4303,
 
-    BG_IC_HANGAR_OWNER                  = 4234,
     BG_IC_HANGAR_UNCONTROLLED           = 4296,
     BG_IC_HANGAR_CONFLICT_A             = 4300,
     BG_IC_HANGAR_CONFLICT_H             = 4297,
     BG_IC_HANGAR_CONTROLLED_A           = 4299,
     BG_IC_HANGAR_CONTROLLED_H           = 4298,
 
-    BG_IC_QUARRY_OWNER                  = 4289,
     BG_IC_QUARRY_UNCONTROLLED           = 4306,
     BG_IC_QUARRY_CONFLICT_A             = 4310,
     BG_IC_QUARRY_CONFLICT_H             = 4307,
     BG_IC_QUARRY_CONTROLLED_A           = 4309,
     BG_IC_QUARRY_CONTROLLED_H           = 4308,
 
-    BG_IC_REFINERY_OWNER                = 4287,
     BG_IC_REFINERY_UNCONTROLLED         = 4311,
     BG_IC_REFINERY_CONFLICT_A           = 4315,
     BG_IC_REFINERY_CONFLICT_H           = 4312,
     BG_IC_REFINERY_CONTROLLED_A         = 4314,
     BG_IC_REFINERY_CONTROLLED_H         = 4313,
 
-    BG_IC_WORKSHOP_OWNER                = 4232,
     BG_IC_WORKSHOP_UNCONTROLLED         = 4294,
     BG_IC_WORKSHOP_CONFLICT_A           = 4228,
     BG_IC_WORKSHOP_CONFLICT_H           = 4293,
@@ -899,19 +886,19 @@ struct ICNodePoint
     bool needChange; // this is used for the 1 minute time period after the point is captured
     uint32 timer; // the same use for needChange
     uint32 last_entry; // the last gameobject_entry
-    int32 worldStates[6]; // the worldstates that represent the node in the map
+    uint32 worldStates[5]; // the worldstates that represent the node in the map
     ICNodeState nodeState;
 };
 
 const ICNodePoint nodePointInitial[MAX_NODE_TYPES] =
 {
-    {BG_IC_GO_REFINERY_BANNER, GO_REFINERY_BANNER, TEAM_NEUTRAL, NODE_TYPE_REFINERY, {GO_ALLIANCE_BANNER_REFINERY, GO_ALLIANCE_BANNER_REFINERY_CONT, GO_HORDE_BANNER_REFINERY, GO_HORDE_BANNER_REFINERY_CONT}, false, 0, 0, {BG_IC_REFINERY_UNCONTROLLED, BG_IC_REFINERY_CONFLICT_A, BG_IC_REFINERY_CONFLICT_H, BG_IC_REFINERY_CONTROLLED_A, BG_IC_REFINERY_CONTROLLED_H, BG_IC_REFINERY_OWNER}, NODE_STATE_UNCONTROLLED},
-    {BG_IC_GO_QUARRY_BANNER, GO_QUARRY_BANNER, TEAM_NEUTRAL, NODE_TYPE_QUARRY, {GO_ALLIANCE_BANNER_QUARRY, GO_ALLIANCE_BANNER_QUARRY_CONT, GO_HORDE_BANNER_QUARRY, GO_HORDE_BANNER_QUARRY_CONT}, false, 0, 0, {BG_IC_QUARRY_UNCONTROLLED, BG_IC_QUARRY_CONFLICT_A, BG_IC_QUARRY_CONFLICT_H, BG_IC_QUARRY_CONTROLLED_A, BG_IC_QUARRY_CONTROLLED_H, BG_IC_QUARRY_OWNER}, NODE_STATE_UNCONTROLLED},
-    {BG_IC_GO_DOCKS_BANNER, GO_DOCKS_BANNER, TEAM_NEUTRAL, NODE_TYPE_DOCKS, {GO_ALLIANCE_BANNER_DOCK, GO_ALLIANCE_BANNER_DOCK_CONT, GO_HORDE_BANNER_DOCK, GO_HORDE_BANNER_DOCK_CONT}, false, 0, 0, {BG_IC_DOCKS_UNCONTROLLED, BG_IC_DOCKS_CONFLICT_A, BG_IC_DOCKS_CONFLICT_H, BG_IC_DOCKS_CONTROLLED_A, BG_IC_DOCKS_CONTROLLED_H, BG_IC_DOCKS_OWNER}, NODE_STATE_UNCONTROLLED},
-    {BG_IC_GO_HANGAR_BANNER, GO_HANGAR_BANNER, TEAM_NEUTRAL, NODE_TYPE_HANGAR, {GO_ALLIANCE_BANNER_HANGAR, GO_ALLIANCE_BANNER_HANGAR_CONT, GO_HORDE_BANNER_HANGAR, GO_HORDE_BANNER_HANGAR_CONT}, false, 0, 0, {BG_IC_HANGAR_UNCONTROLLED, BG_IC_HANGAR_CONFLICT_A, BG_IC_HANGAR_CONFLICT_H, BG_IC_HANGAR_CONTROLLED_A, BG_IC_HANGAR_CONTROLLED_H, BG_IC_HANGAR_OWNER}, NODE_STATE_UNCONTROLLED},
-    {BG_IC_GO_WORKSHOP_BANNER, GO_WORKSHOP_BANNER, TEAM_NEUTRAL, NODE_TYPE_WORKSHOP, {GO_ALLIANCE_BANNER_WORKSHOP, GO_ALLIANCE_BANNER_WORKSHOP_CONT, GO_HORDE_BANNER_WORKSHOP, GO_HORDE_BANNER_WORKSHOP_CONT}, false, 0, 0, {BG_IC_WORKSHOP_UNCONTROLLED, BG_IC_WORKSHOP_CONFLICT_A, BG_IC_WORKSHOP_CONFLICT_H, BG_IC_WORKSHOP_CONTROLLED_A, BG_IC_WORKSHOP_CONTROLLED_H, BG_IC_WORKSHOP_OWNER}, NODE_STATE_UNCONTROLLED},
-    {BG_IC_GO_ALLIANCE_BANNER, GO_ALLIANCE_BANNER, TEAM_ALLIANCE, NODE_TYPE_GRAVEYARD_A, {GO_ALLIANCE_BANNER_GRAVEYARD_A, GO_ALLIANCE_BANNER_GRAVEYARD_A_CONT, GO_HORDE_BANNER_GRAVEYARD_A, GO_HORDE_BANNER_GRAVEYARD_A_CONT}, false, 0, 0, {BG_IC_ALLIANCE_KEEP_UNCONTROLLED, BG_IC_ALLIANCE_KEEP_CONFLICT_A, BG_IC_ALLIANCE_KEEP_CONFLICT_H, BG_IC_ALLIANCE_KEEP_CONTROLLED_A, BG_IC_ALLIANCE_KEEP_CONTROLLED_H, 0}, NODE_STATE_CONTROLLED_A},
-    {BG_IC_GO_HORDE_BANNER, GO_HORDE_BANNER, TEAM_HORDE, NODE_TYPE_GRAVEYARD_H, {GO_ALLIANCE_BANNER_GRAVEYARD_H, GO_ALLIANCE_BANNER_GRAVEYARD_H_CONT, GO_HORDE_BANNER_GRAVEYARD_H, GO_HORDE_BANNER_GRAVEYARD_H_CONT}, false, 0, 0, {BG_IC_HORDE_KEEP_UNCONTROLLED, BG_IC_HORDE_KEEP_CONFLICT_A, BG_IC_HORDE_KEEP_CONFLICT_H, BG_IC_HORDE_KEEP_CONTROLLED_A, BG_IC_HORDE_KEEP_CONTROLLED_H, 0}, NODE_STATE_CONTROLLED_H}
+    {BG_IC_GO_REFINERY_BANNER, GO_REFINERY_BANNER, TEAM_NEUTRAL, NODE_TYPE_REFINERY, {GO_ALLIANCE_BANNER_REFINERY, GO_ALLIANCE_BANNER_REFINERY_CONT, GO_HORDE_BANNER_REFINERY, GO_HORDE_BANNER_REFINERY_CONT}, false, 0, 0, {BG_IC_REFINERY_UNCONTROLLED, BG_IC_REFINERY_CONFLICT_A, BG_IC_REFINERY_CONFLICT_H, BG_IC_REFINERY_CONTROLLED_A, BG_IC_REFINERY_CONTROLLED_H}, NODE_STATE_UNCONTROLLED},
+    {BG_IC_GO_QUARRY_BANNER, GO_QUARRY_BANNER, TEAM_NEUTRAL, NODE_TYPE_QUARRY, {GO_ALLIANCE_BANNER_QUARRY, GO_ALLIANCE_BANNER_QUARRY_CONT, GO_HORDE_BANNER_QUARRY, GO_HORDE_BANNER_QUARRY_CONT}, false, 0, 0, {BG_IC_QUARRY_UNCONTROLLED, BG_IC_QUARRY_CONFLICT_A, BG_IC_QUARRY_CONFLICT_H, BG_IC_QUARRY_CONTROLLED_A, BG_IC_QUARRY_CONTROLLED_H}, NODE_STATE_UNCONTROLLED},
+    {BG_IC_GO_DOCKS_BANNER, GO_DOCKS_BANNER, TEAM_NEUTRAL, NODE_TYPE_DOCKS, {GO_ALLIANCE_BANNER_DOCK, GO_ALLIANCE_BANNER_DOCK_CONT, GO_HORDE_BANNER_DOCK, GO_HORDE_BANNER_DOCK_CONT}, false, 0, 0, {BG_IC_DOCKS_UNCONTROLLED, BG_IC_DOCKS_CONFLICT_A, BG_IC_DOCKS_CONFLICT_H, BG_IC_DOCKS_CONTROLLED_A, BG_IC_DOCKS_CONTROLLED_H}, NODE_STATE_UNCONTROLLED},
+    {BG_IC_GO_HANGAR_BANNER, GO_HANGAR_BANNER, TEAM_NEUTRAL, NODE_TYPE_HANGAR, {GO_ALLIANCE_BANNER_HANGAR, GO_ALLIANCE_BANNER_HANGAR_CONT, GO_HORDE_BANNER_HANGAR, GO_HORDE_BANNER_HANGAR_CONT}, false, 0, 0, {BG_IC_HANGAR_UNCONTROLLED, BG_IC_HANGAR_CONFLICT_A, BG_IC_HANGAR_CONFLICT_H, BG_IC_HANGAR_CONTROLLED_A, BG_IC_HANGAR_CONTROLLED_H}, NODE_STATE_UNCONTROLLED},
+    {BG_IC_GO_WORKSHOP_BANNER, GO_WORKSHOP_BANNER, TEAM_NEUTRAL, NODE_TYPE_WORKSHOP, {GO_ALLIANCE_BANNER_WORKSHOP, GO_ALLIANCE_BANNER_WORKSHOP_CONT, GO_HORDE_BANNER_WORKSHOP, GO_HORDE_BANNER_WORKSHOP_CONT}, false, 0, 0, {BG_IC_WORKSHOP_UNCONTROLLED, BG_IC_WORKSHOP_CONFLICT_A, BG_IC_WORKSHOP_CONFLICT_H, BG_IC_WORKSHOP_CONTROLLED_A, BG_IC_WORKSHOP_CONTROLLED_H}, NODE_STATE_UNCONTROLLED},
+    {BG_IC_GO_ALLIANCE_BANNER, GO_ALLIANCE_BANNER, TEAM_ALLIANCE, NODE_TYPE_GRAVEYARD_A, {GO_ALLIANCE_BANNER_GRAVEYARD_A, GO_ALLIANCE_BANNER_GRAVEYARD_A_CONT, GO_HORDE_BANNER_GRAVEYARD_A, GO_HORDE_BANNER_GRAVEYARD_A_CONT}, false, 0, 0, {BG_IC_ALLIANCE_KEEP_UNCONTROLLED, BG_IC_ALLIANCE_KEEP_CONFLICT_A, BG_IC_ALLIANCE_KEEP_CONFLICT_H, BG_IC_ALLIANCE_KEEP_CONTROLLED_A, BG_IC_ALLIANCE_KEEP_CONTROLLED_H}, NODE_STATE_CONTROLLED_A},
+    {BG_IC_GO_HORDE_BANNER, GO_HORDE_BANNER, TEAM_HORDE, NODE_TYPE_GRAVEYARD_H, {GO_ALLIANCE_BANNER_GRAVEYARD_H, GO_ALLIANCE_BANNER_GRAVEYARD_H_CONT, GO_HORDE_BANNER_GRAVEYARD_H, GO_HORDE_BANNER_GRAVEYARD_H_CONT}, false, 0, 0, {BG_IC_HORDE_KEEP_UNCONTROLLED, BG_IC_HORDE_KEEP_CONFLICT_A, BG_IC_HORDE_KEEP_CONFLICT_H, BG_IC_HORDE_KEEP_CONTROLLED_A, BG_IC_HORDE_KEEP_CONTROLLED_H}, NODE_STATE_CONTROLLED_H}
 };
 
 enum HonorRewards
@@ -925,7 +912,7 @@ struct BattlegroundICScore final : public BattlegroundScore
     friend class BattlegroundIC;
 
     protected:
-        BattlegroundICScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid, team), BasesAssaulted(0), BasesDefended(0) { }
+        BattlegroundICScore(ObjectGuid playerGuid) : BattlegroundScore(playerGuid), BasesAssaulted(0), BasesDefended(0) { }
 
         void UpdateScore(uint32 type, uint32 value) override
         {
@@ -943,16 +930,10 @@ struct BattlegroundICScore final : public BattlegroundScore
             }
         }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override
-        {
-            BattlegroundScore::BuildPvPLogPlayerDataPacket(playerData);
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-            playerData.Stats.emplace_back(IC_OBJECTIVE_ASSAULT_BASE, BasesAssaulted);
-            playerData.Stats.emplace_back(IC_OBJECTIVE_DEFEND_BASE, BasesDefended);
-        }
-
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
+        uint32 GetAttr1() const override { return BasesAssaulted; }
+        uint32 GetAttr2() const override { return BasesDefended; }
 
         uint32 BasesAssaulted;
         uint32 BasesDefended;
@@ -961,7 +942,7 @@ struct BattlegroundICScore final : public BattlegroundScore
 class BattlegroundIC : public Battleground
 {
     public:
-        BattlegroundIC(BattlegroundTemplate const* battlegroundTemplate);
+        BattlegroundIC();
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */
@@ -971,7 +952,7 @@ class BattlegroundIC : public Battleground
         void PostUpdateImpl(uint32 diff) override;
 
         void RemovePlayer(Player* player, ObjectGuid guid, uint32 team) override;
-        void HandleAreaTrigger(Player* player, uint32 trigger, bool entered) override;
+        void HandleAreaTrigger(Player* player, uint32 trigger) override;
         bool SetupBattleground() override;
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature* unit, Player* killer) override;
@@ -981,12 +962,15 @@ class BattlegroundIC : public Battleground
         void DestroyGate(Player* player, GameObject* go) override;
 
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
-        WorldSafeLocsEntry const* GetExploitTeleportLocation(Team team) override;
 
         /* Scorekeeping */
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+
         void HandlePlayerResurrect(Player* player) override;
 
         uint32 GetNodeState(uint8 nodeType) const { return (uint8)nodePoint[nodeType].nodeState; }
+
+        bool IsAllNodesControlledByTeam(uint32 team) const override;
 
         bool IsSpellAllowed(uint32 spellId, Player const* player) const override;
 
@@ -1020,9 +1004,9 @@ class BattlegroundIC : public Battleground
             return i;
         }
 
-        int32 GetWorldStateFromGateEntry(uint32 id, bool open)
+        uint32 GetWorldStateFromGateEntry(uint32 id, bool open)
         {
-            int32 uws = 0;
+            uint32 uws = 0;
 
             switch (id)
             {

@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <UseMultiToolTask>false</UseMultiToolTask>
-    <UseMSBuildResourceManager>false</UseMSBuildResourceManager>
-  </PropertyGroup>
-</Project>

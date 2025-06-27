@@ -18,11 +18,8 @@
 #ifndef TRINITY_SPAWNDATA_H
 #define TRINITY_SPAWNDATA_H
 
-#include "DBCEnums.h"
 #include "Position.h"
-#include <vector>
 
-class AreaTrigger;
 class Creature;
 class GameObject;
 class Pool;
@@ -33,7 +30,6 @@ enum SpawnObjectType
 {
     SPAWN_TYPE_CREATURE = 0,   // TITLE Creature
     SPAWN_TYPE_GAMEOBJECT = 1, // TITLE Gameobject
-    SPAWN_TYPE_AREATRIGGER = 2,// TITLE AreaTrigger
     NUM_SPAWN_TYPES_WITH_DATA, // SKIP
     NUM_SPAWN_TYPES = NUM_SPAWN_TYPES_WITH_DATA // SKIP
 };
@@ -42,7 +38,6 @@ enum SpawnObjectTypeMask
 {
     SPAWN_TYPEMASK_CREATURE = (1 << SPAWN_TYPE_CREATURE),
     SPAWN_TYPEMASK_GAMEOBJECT = (1 << SPAWN_TYPE_GAMEOBJECT),
-    SPAWN_TYPEMASK_AREATRIGGER = (1 << SPAWN_TYPE_AREATRIGGER),
 
     SPAWN_TYPEMASK_WITH_DATA = (1 << NUM_SPAWN_TYPES_WITH_DATA)-1,
     SPAWN_TYPEMASK_ALL = (1 << NUM_SPAWN_TYPES)-1
@@ -50,16 +45,14 @@ enum SpawnObjectTypeMask
 
 enum SpawnGroupFlags
 {
-    SPAWNGROUP_FLAG_NONE                            = 0x00,
-    SPAWNGROUP_FLAG_SYSTEM                          = 0x01,
-    SPAWNGROUP_FLAG_COMPATIBILITY_MODE              = 0x02,
-    SPAWNGROUP_FLAG_MANUAL_SPAWN                    = 0x04,
-    SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE              = 0x08,
-    SPAWNGROUP_FLAG_ESCORTQUESTNPC                  = 0x10,
-    SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE    = 0x20,
+    SPAWNGROUP_FLAG_NONE                = 0x00,
+    SPAWNGROUP_FLAG_SYSTEM              = 0x01,
+    SPAWNGROUP_FLAG_COMPATIBILITY_MODE  = 0x02,
+    SPAWNGROUP_FLAG_MANUAL_SPAWN        = 0x04,
+    SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE  = 0x08,
+    SPAWNGROUP_FLAG_ESCORTQUESTNPC      = 0x10,
 
-    SPAWNGROUP_FLAGS_ALL = (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_COMPATIBILITY_MODE | SPAWNGROUP_FLAG_MANUAL_SPAWN
-                            | SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE | SPAWNGROUP_FLAG_ESCORTQUESTNPC | SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
+    SPAWNGROUP_FLAGS_ALL = (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_COMPATIBILITY_MODE | SPAWNGROUP_FLAG_MANUAL_SPAWN | SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE | SPAWNGROUP_FLAG_ESCORTQUESTNPC)
 };
 
 struct SpawnGroupTemplateData
@@ -75,7 +68,6 @@ namespace Trinity { namespace Impl {
     struct SpawnObjectTypeForImpl { static_assert(!std::is_same<T,T>::value, "This type does not have an associated spawn type!"); };
     template <> struct SpawnObjectTypeForImpl<Creature> { static constexpr SpawnObjectType value = SPAWN_TYPE_CREATURE; };
     template <> struct SpawnObjectTypeForImpl<GameObject> { static constexpr SpawnObjectType value = SPAWN_TYPE_GAMEOBJECT; };
-    template <> struct SpawnObjectTypeForImpl<AreaTrigger> { static constexpr SpawnObjectType value = SPAWN_TYPE_AREATRIGGER; };
 }}
 
 struct SpawnData;
@@ -90,7 +82,7 @@ struct SpawnMetadata
     SpawnData const* ToSpawnData() const { return TypeHasData(type) ? reinterpret_cast<SpawnData const*>(this) : nullptr; }
 
     SpawnObjectType const type;
-    uint64 spawnId = 0;
+    uint32 spawnId = 0;
     uint32 mapId = MAPID_INVALID;
     bool dbData = true;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
@@ -103,13 +95,9 @@ struct SpawnData : public SpawnMetadata
 {
     uint32 id = 0; // entry in respective _template table
     Position spawnPoint;
-    uint8 phaseUseFlags = 0;
-    uint32 phaseId = 0;
-    uint32 phaseGroup = 0;
-    int32 terrainSwapMap = -1;
-    uint32 poolId = 0;
+    uint32 phaseMask = 0;
     int32 spawntimesecs = 0;
-    std::vector<Difficulty> spawnDifficulties;
+    uint8 spawnMask = 0;
     uint32 scriptId = 0;
     std::string StringId;
 

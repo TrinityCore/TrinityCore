@@ -25,6 +25,7 @@ EndScriptData */
 /* ContentData
 npc_lady_sylvanas_windrunner
 npc_highborne_lamenter
+npc_parqual_fintallas
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -32,6 +33,7 @@ EndContentData */
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "SpellScript.h"
 
 /*######
@@ -153,14 +155,15 @@ public:
         {
             if (summoned->GetEntry() == NPC_HIGHBORNE_BUNNY)
             {
+                summoned->SetDisableGravity(true);
+
                 if (Creature* target = ObjectAccessor::GetCreature(*summoned, targetGUID))
                 {
-                    target->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, me->GetOrientation(), 0);
+                    target->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), me->GetPositionZ() + 15.0f, false);
                     target->UpdatePosition(target->GetPositionX(), target->GetPositionY(), me->GetPositionZ()+15.0f, 0.0f);
                     summoned->CastSpell(target, SPELL_RIBBON_OF_SOULS, false);
                 }
 
-                summoned->SetDisableGravity(true);
                 targetGUID = summoned->GetGUID();
             }
         }
@@ -236,7 +239,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+        void OnQuestReward(Player* player, Quest const* quest, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
                 SetGUID(player->GetGUID(), GUID_EVENT_INVOKER);
@@ -342,7 +345,7 @@ class spell_undercity_bending_shinbone : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetCaster(), roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2, GetSpell());
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(20) ? SPELL_BENDING_SHINBONE1 : SPELL_BENDING_SHINBONE2);
     }
 
     void Register() override

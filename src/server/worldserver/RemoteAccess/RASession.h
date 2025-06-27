@@ -21,6 +21,7 @@
 #include <memory>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
+#include "Common.h"
 
 #include <future>
 

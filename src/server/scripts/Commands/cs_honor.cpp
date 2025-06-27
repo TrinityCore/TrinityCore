@@ -24,7 +24,6 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -58,7 +57,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleHonorAddCommand(ChatHandler* handler, int32 amount)
+    static bool HandleHonorAddCommand(ChatHandler* handler, uint32 amount)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

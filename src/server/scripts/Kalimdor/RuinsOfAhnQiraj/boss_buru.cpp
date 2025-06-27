@@ -36,8 +36,8 @@ enum Spells
     SPELL_THORNS                = 25640,
     SPELL_BURU_TRANSFORM        = 24721,
     SPELL_SUMMON_HATCHLING      = 1881,
-    SPELL_EGG_EXPLOSION         = 19593,
-    SPELL_EXPLOSION_DAMAGE      = 5255,
+    SPELL_EXPLODE               = 19593,
+    SPELL_EXPLODE_2             = 5255,
     SPELL_BURU_EGG_TRIGGER      = 26646
 };
 
@@ -224,8 +224,9 @@ class npc_buru_egg : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                DoCastAOE(SPELL_EGG_EXPLOSION, true);
-                DoCastAOE(SPELL_SUMMON_HATCHLING, true);
+                DoCastAOE(SPELL_EXPLODE, true);
+                DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
+                DoCast(me, SPELL_SUMMON_HATCHLING, true);
 
                 if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
                     if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
@@ -260,11 +261,7 @@ class spell_egg_explosion : public SpellScriptLoader
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                {
-                    CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
-                    args.AddSpellBP0(std::max<int32>(0, -16 * GetCaster()->GetDistance(target) + 500));
-                    GetCaster()->CastSpell(target, SPELL_EXPLOSION_DAMAGE, args);
-                }
+                    Unit::DealDamage(GetCaster(), target, -16 * GetCaster()->GetDistance(target) + 500);
             }
 
             void Register() override

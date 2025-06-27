@@ -24,8 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
-#include "ChatCommand.h"
-#include "DB2Stores.h"
+#include "DBCStores.h"
 #include "Language.h"
 #include "Player.h"
 #include "RBAC.h"
@@ -57,7 +56,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleTitlesCurrentCommand(ChatHandler* handler, Variant<Hyperlink<title>, uint32> titleId)
+    static bool HandleTitlesCurrentCommand(ChatHandler* handler, Variant<Hyperlink<title>, uint16> titleId)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -83,14 +82,14 @@ public:
         std::string titleNameStr = fmt::sprintf(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
-        target->SetChosenTitle(titleInfo->MaskID);
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE, titleInfo->MaskID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, titleId, titleNameStr, tNameLink);
 
         return true;
     }
 
-    static bool HandleTitlesAddCommand(ChatHandler* handler, Variant<Hyperlink<title>, uint32> titleId)
+    static bool HandleTitlesAddCommand(ChatHandler* handler, Variant<Hyperlink<title>, uint16> titleId)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)
@@ -116,7 +115,7 @@ public:
         std::string titleNameStr = fmt::sprintf(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, titleId, titleNameStr, tNameLink);
 
         return true;
     }
@@ -148,12 +147,12 @@ public:
         std::string tNameLink = handler->GetNameLink(target);
         std::string titleNameStr = fmt::sprintf(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
-        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, titleId, titleNameStr, tNameLink);
 
-        if (!target->HasTitle(target->m_playerData->PlayerTitle))
+        if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
-            target->SetChosenTitle(0);
-            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink.c_str());
+            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink);
         }
 
         return true;
@@ -176,19 +175,19 @@ public:
 
         uint64 titles2 = mask;
 
-        for (uint32 i = 1; i < sCharTitlesStore.GetNumRows() && i < 64; ++i)
+        for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
             if (CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
                 titles2 &= ~(uint64(1) << tEntry->MaskID);
 
         mask &= ~titles2;                                     // remove non-existing titles
 
-        target->SetKnownTitles(0, mask);
+        target->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, mask);
         handler->SendSysMessage(LANG_DONE);
 
-        if (!target->HasTitle(target->m_playerData->PlayerTitle))
+        if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
         {
-            target->SetChosenTitle(0);
-            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target).c_str());
+            target->SetUInt32Value(PLAYER_CHOSEN_TITLE, 0);
+            handler->PSendSysMessage(LANG_CURRENT_TITLE_RESET, handler->GetNameLink(target));
         }
 
         return true;

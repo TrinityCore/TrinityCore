@@ -26,7 +26,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #include "serpent_shrine.h"
 #include "TemporarySummon.h"
@@ -132,7 +132,7 @@ struct boss_fathomlord_karathress : public BossAI
         RAdvisors[2] = instance->GetGuidData(DATA_CARIBDIS);
         // Respawn of the 3 Advisors
         for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-            if (!RAdvisors[i].IsEmpty())
+            if (RAdvisors[i])
             {
                 Creature* advisor = ObjectAccessor::GetCreature(*me, RAdvisors[i]);
                 if (advisor && !advisor->IsAlive())
@@ -259,7 +259,7 @@ struct boss_fathomlord_karathress : public BossAI
             BlessingOfTides = true;
             bool continueTriggering = false;
             for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-                if (!Advisors[i].IsEmpty())
+                if (Advisors[i])
                 {
                     Creature* advisor = ObjectAccessor::GetCreature(*me, Advisors[i]);
                     if (advisor && advisor->IsAlive())

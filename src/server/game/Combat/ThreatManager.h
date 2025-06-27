@@ -204,8 +204,8 @@ class TC_GAME_API ThreatManager
         // AI notifies are delayed to ensure we are in a consistent state before we call out to arbitrary logic
         // threat references might register themselves here when ::UpdateOffline() is called - MAKE SURE THIS IS PROCESSED JUST BEFORE YOU EXIT THREATMANAGER LOGIC
         void ProcessAIUpdates();
-        void RegisterForAIUpdate(ThreatReference const* ref) { _needsAIUpdate.push_back(ref); }
-        std::vector<ThreatReference const*> _needsAIUpdate;
+        void RegisterForAIUpdate(ObjectGuid const& guid) { _needsAIUpdate.push_back(guid); }
+        std::vector<ObjectGuid> _needsAIUpdate;
 
         // picks a new victim - called from ::Update periodically
         void UpdateVictim();

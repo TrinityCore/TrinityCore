@@ -78,7 +78,7 @@ class DatabaseWorkerPool
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            Execute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
+            this->Execute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
@@ -101,7 +101,7 @@ class DatabaseWorkerPool
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return;
 
-            DirectExecute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
+            this->DirectExecute(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
@@ -124,7 +124,7 @@ class DatabaseWorkerPool
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str(), conn);
+            return this->Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str(), conn);
         }
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
@@ -135,7 +135,7 @@ class DatabaseWorkerPool
             if (Trinity::IsFormatEmptyOrNull(sql))
                 return QueryResult(nullptr);
 
-            return Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
+            return this->Query(Trinity::StringFormat(sql, std::forward<Args>(args)...).c_str());
         }
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.

@@ -26,7 +26,6 @@ EndScriptData */
 #include "AES.h"
 #include "Base32.h"
 #include "Chat.h"
-#include "ChatCommand.h"
 #include "CryptoGenerics.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
@@ -150,7 +149,7 @@ public:
         }
 
         // new suggestion, or no token specified, output TOTP parameters
-        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Trinity::Encoding::Base32::Encode(pair.first->second).c_str());
+        handler->PSendSysMessage(LANG_2FA_SECRET_SUGGESTION, Trinity::Encoding::Base32::Encode(pair.first->second));
         handler->SetSentErrorMessage(true);
         return false;
     }
@@ -256,7 +255,7 @@ public:
         switch (sAccountMgr->CreateAccount(accountName, password, email.value_or("")))
         {
             case AccountOpResult::AOR_OK:
-                handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName.c_str());
+                handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
                     TC_LOG_INFO("entities.player.character", "Account: {} (IP: {}) Character:[{}] {}) created Account {} (Email: '{}')",
@@ -278,11 +277,11 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             case AccountOpResult::AOR_DB_INTERNAL_ERROR:
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName.c_str());
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED_SQL_ERROR, accountName);
                 handler->SetSentErrorMessage(true);
                 return false;
             default:
-                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED, accountName.c_str());
+                handler->PSendSysMessage(LANG_ACCOUNT_NOT_CREATED, accountName);
                 handler->SetSentErrorMessage(true);
                 return false;
         }
@@ -407,7 +406,7 @@ public:
                 session->GetRemoteAddress().c_str(),
                 playerMapId,
                 playerZoneId,
-                session->GetAccountExpansion(),
+                session->Expansion(),
                 int32(session->GetSecurity()));
 
             ++sessionsMatchCount;
@@ -673,6 +672,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
+
         }
         else
         {
@@ -788,7 +788,8 @@ public:
             return false;
         }
 
-        sAccountMgr->UpdateAccountAccess(nullptr, accountId, securityLevel, realmID);
+        WorldSession const* session = sWorld->FindSession(accountId);
+        sAccountMgr->UpdateAccountAccess(session ? session->GetRBACData() : nullptr, accountId, securityLevel, realmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, accountName->c_str(), securityLevel);
         return true;

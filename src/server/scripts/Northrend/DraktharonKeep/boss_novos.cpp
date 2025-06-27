@@ -24,7 +24,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 
-enum Yells
+enum NovosTexts
 {
     SAY_AGGRO                       = 0,
     SAY_KILL                        = 1,
@@ -34,7 +34,7 @@ enum Yells
     EMOTE_SUMMONING_ADDS            = 5  // unused
 };
 
-enum Spells
+enum NovosSpells
 {
     SPELL_BEAM_CHANNEL              = 52106,
     SPELL_ARCANE_FIELD              = 47346,
@@ -52,7 +52,7 @@ enum Spells
     SPELL_SUMMON_MINIONS            = 59910
 };
 
-enum Misc
+enum NovosMisc
 {
     ACTION_RESET_CRYSTALS,
     ACTION_ACTIVATE_CRYSTAL,
@@ -77,6 +77,7 @@ const SummonerInfo summoners[] =
 
 #define MAX_Y_COORD_OH_NOVOS        -771.95f
 
+// 26631 - Novos the Summoner
 struct boss_novos : public BossAI
 {
     boss_novos(Creature* creature) : BossAI(creature, DATA_NOVOS)
@@ -148,12 +149,12 @@ struct boss_novos : public BossAI
             {
                 case EVENT_SUMMON_MINIONS:
                     DoCast(SPELL_SUMMON_MINIONS);
-                    events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
+                    events.Repeat(15s);
                     break;
                 case EVENT_ATTACK:
                     if (Unit* victim = SelectTarget(SelectTargetMethod::Random))
                         DoCast(victim, RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY));
-                    events.ScheduleEvent(EVENT_ATTACK, 3s);
+                    events.Repeat(3s);
                     break;
                 default:
                     break;
@@ -198,13 +199,15 @@ private:
         _bubbled = state;
         if (!state)
         {
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            if (me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
+                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 me->CastStop();
         }
         else
         {
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            if (!me->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE))
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             DoCast(SPELL_ARCANE_FIELD);
         }
     }
@@ -212,10 +215,7 @@ private:
     void SetSummonerStatus(bool active)
     {
         for (uint8 i = 0; i < 4; i++)
-        {
-            ObjectGuid guid = instance->GetGuidData(summoners[i].data);
-            if (!guid.IsEmpty())
-            {
+            if (ObjectGuid guid = instance->GetGuidData(summoners[i].data))
                 if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
                 {
                     if (active)
@@ -223,19 +223,14 @@ private:
                     else
                         crystalChannelTarget->AI()->Reset();
                 }
-            }
-        }
     }
 
     void SetCrystalsStatus(bool active)
     {
         for (uint8 i = 0; i < 4; i++)
-        {
-            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
-            if (!guid.IsEmpty())
+            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                 if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
                     SetCrystalStatus(crystal, active);
-        }
     }
 
     void SetCrystalStatus(GameObject* crystal, bool active)
@@ -253,20 +248,13 @@ private:
     void CrystalHandlerDied()
     {
         for (uint8 i = 0; i < 4; i++)
-        {
-            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i);
-            if (!guid.IsEmpty())
-            {
+            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_CRYSTAL_1 + i))
                 if (GameObject* crystal = ObjectAccessor::GetGameObject(*me, guid))
-                {
                     if (crystal->GetGoState() == GO_STATE_ACTIVE)
                     {
                         SetCrystalStatus(crystal, false);
                         break;
                     }
-                }
-            }
-        }
 
         if (++_crystalHandlerCount >= 4)
         {
@@ -277,13 +265,9 @@ private:
             if (IsHeroic())
                 events.ScheduleEvent(EVENT_SUMMON_MINIONS, 15s);
         }
-        else
-        {
-            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4);
-            if (!guid.IsEmpty())
-                if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
-                    crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
-        }
+        else if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS_SUMMONER_4))
+            if (Creature* crystalChannelTarget = ObjectAccessor::GetCreature(*me, guid))
+                crystalChannelTarget->AI()->SetData(SPELL_SUMMON_CRYSTAL_HANDLER, 15000);
     }
 
     uint8 _crystalHandlerCount;
@@ -291,6 +275,7 @@ private:
     bool _bubbled;
 };
 
+// 26712 - Crystal Channel Target
 struct npc_crystal_channel_target : public ScriptedAI
 {
     npc_crystal_channel_target(Creature* creature) : ScriptedAI(creature)
@@ -334,12 +319,9 @@ struct npc_crystal_channel_target : public ScriptedAI
     void JustSummoned(Creature* summon) override
     {
         if (InstanceScript* instance = me->GetInstanceScript())
-        {
-            ObjectGuid guid = instance->GetGuidData(DATA_NOVOS);
-            if (!guid.IsEmpty())
+            if (ObjectGuid guid = instance->GetGuidData(DATA_NOVOS))
                 if (Creature* novos = ObjectAccessor::GetCreature(*me, guid))
                     novos->AI()->JustSummoned(summon);
-        }
 
         if (summon)
             summon->GetMotionMaster()->MovePath(summon->GetEntry() * 100, false);
@@ -352,17 +334,6 @@ private:
     uint32 _spell;
     uint32 _timer;
     uint32 _temp;
-};
-
-class achievement_oh_novos : public AchievementCriteriaScript
-{
-public:
-    achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos") { }
-
-    bool OnCheck(Player* /*player*/, Unit* target) override
-    {
-        return target && target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->AI()->GetData(DATA_NOVOS_ACHIEV);
-    }
 };
 
 // 59910 - Summon Minions
@@ -384,6 +355,17 @@ class spell_novos_summon_minions : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_novos_summon_minions::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+class achievement_oh_novos : public AchievementCriteriaScript
+{
+public:
+    achievement_oh_novos() : AchievementCriteriaScript("achievement_oh_novos") { }
+
+    bool OnCheck(Player* /*player*/, Unit* target) override
+    {
+        return target && target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->AI()->GetData(DATA_NOVOS_ACHIEV);
     }
 };
 

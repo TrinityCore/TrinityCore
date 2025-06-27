@@ -17,15 +17,14 @@
 
 #include "SkillDiscovery.h"
 #include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
 #include "Random.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Util.h"
 #include "World.h"
 #include <map>
-#include <sstream>
 
 struct SkillDiscoveryEntry
 {
@@ -84,7 +83,7 @@ void LoadSkillDiscoveryTable()
         if (reqSkillOrSpell > 0)                            // spell case
         {
             uint32 absReqSkillOrSpell = uint32(reqSkillOrSpell);
-            SpellInfo const* reqSpellInfo = sSpellMgr->GetSpellInfo(absReqSkillOrSpell, DIFFICULTY_NONE);
+            SpellInfo const* reqSpellInfo = sSpellMgr->GetSpellInfo(absReqSkillOrSpell);
             if (!reqSpellInfo)
             {
                 if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
@@ -139,9 +138,9 @@ void LoadSkillDiscoveryTable()
         TC_LOG_ERROR("sql.sql", "Some items can't be successfully discovered, their chance field value is < 0.000001 in the `skill_discovery_template` DB table. List:\n{}", ssNonDiscoverableEntries.str());
 
     // report about empty data for explicit discovery spells
-    for (SpellNameEntry const* spellNameEntry : sSpellNameStore)
+    for (uint32 spell_id = 1; spell_id < sSpellMgr->GetSpellInfoStoreSize(); ++spell_id)
     {
-        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spellNameEntry->ID, DIFFICULTY_NONE);
+        SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(spell_id);
         if (!spellEntry)
             continue;
 
@@ -149,8 +148,8 @@ void LoadSkillDiscoveryTable()
         if (!spellEntry->IsExplicitDiscovery())
             continue;
 
-        if (SkillDiscoveryStore.find(int32(spellEntry->Id)) == SkillDiscoveryStore.end())
-            TC_LOG_ERROR("sql.sql", "Spell (ID: {}) has got 100% chance random discovery ability, but does not have data in the `skill_discovery_template` table.", spellEntry->Id);
+        if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
+            TC_LOG_ERROR("sql.sql", "Spell (ID: {}) has got 100% chance random discovery ability, but does not have data in the `skill_discovery_template` table.", spell_id);
     }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} skill discovery definitions in {} ms.", count, GetMSTimeDiffToNow(oldMSTime));

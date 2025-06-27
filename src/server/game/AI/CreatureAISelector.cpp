@@ -16,18 +16,16 @@
  */
 
 #include "AIException.h"
-#include "AreaTrigger.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "CreatureAIFactory.h"
-#include "Log.h"
+
 #include "MovementGenerator.h"
 
 #include "GameObject.h"
 #include "GameObjectAIFactory.h"
 
-#include "AreaTriggerAI.h"
-
+#include "Log.h"
 #include "ScriptMgr.h"
 
 namespace FactorySelector
@@ -42,21 +40,21 @@ namespace FactorySelector
     template <class T>
     struct PermissibleOrderPred
     {
-    public:
-        PermissibleOrderPred(T const* obj) : _obj(obj) { }
+        public:
+            PermissibleOrderPred(T const* obj) : _obj(obj) { }
 
-        template <class Value>
-        bool operator()(Value const& left, Value const& right) const
-        {
-            return GetPermitFor(_obj, left) < GetPermitFor(_obj, right);
-        }
+            template <class Value>
+            bool operator()(Value const& left, Value const& right) const
+            {
+                return GetPermitFor(_obj, left) < GetPermitFor(_obj, right);
+            }
 
-    private:
-        T const* const _obj;
+        private:
+            T const* const _obj;
     };
 
     template <class AI, class T>
-    inline FactoryHolder<AI, T> const* SelectFactory(T const* obj)
+    inline FactoryHolder<AI, T> const* SelectFactory(T* obj)
     {
         static_assert(std::is_same<AI, CreatureAI>::value || std::is_same<AI, GameObjectAI>::value, "Invalid template parameter");
         static_assert(std::is_same<AI, CreatureAI>::value == std::is_same<T, Creature>::value, "Incompatible AI for type");
@@ -101,36 +99,11 @@ namespace FactorySelector
         return SelectFactory<CreatureAI>(creature)->Create(creature);
     }
 
-    uint32 GetSelectedAIId(Creature const* creature)
-    {
-        if (creature->IsPet())
-        {
-            auto const* registry = ASSERT_NOTNULL(sCreatureAIRegistry->GetRegistryItem("PetAI"));
-            auto const* factory = dynamic_cast<SelectableAI<Creature, CreatureAI> const*>(registry);
-            ASSERT(factory);
-
-            return factory->GetScriptId();
-        }
-
-        if (uint32 id = creature->GetScriptId())
-        {
-            if (sScriptMgr->CanCreateCreatureAI(id))
-            {
-                return id;
-            }
-        }
-
-        auto const* factory = dynamic_cast<SelectableAI<Creature, CreatureAI> const*>(SelectFactory<CreatureAI>(creature));
-        ASSERT(factory);
-
-        return factory->GetScriptId();
-    }
-
     MovementGenerator* SelectMovementGenerator(Unit* unit)
     {
         MovementGeneratorType type = unit->GetDefaultMovementType();
         if (Creature* creature = unit->ToCreature())
-            if (!creature->GetPlayerMovingMe())
+            if (!creature->GetCharmerOrSelfPlayer())
                 type = creature->GetDefaultMovementType();
 
         MovementGeneratorCreator const* mv_factory = sMovementGeneratorRegistry->GetRegistryItem(type);
@@ -144,47 +117,5 @@ namespace FactorySelector
             return scriptedAI;
 
         return SelectFactory<GameObjectAI>(go)->Create(go);
-    }
-
-    uint32 GetSelectedAIId(GameObject const* go)
-    {
-        if (uint32 id = go->GetScriptId())
-        {
-            if (sScriptMgr->CanCreateGameObjectAI(id))
-            {
-                return id;
-            }
-        }
-
-        auto const* factory = dynamic_cast<SelectableAI<GameObject, GameObjectAI> const*>(SelectFactory<GameObjectAI>(go));
-        ASSERT(factory);
-
-        return factory->GetScriptId();
-    }
-
-    static uint32 GetNullAreaTriggerAIScriptId()
-    {
-        return sObjectMgr->GetScriptId("NullAreaTriggerAI", false);
-    }
-
-    AreaTriggerAI* SelectAreaTriggerAI(AreaTrigger* at)
-    {
-        if (AreaTriggerAI* ai = sScriptMgr->GetAreaTriggerAI(at))
-            return ai;
-        else
-            return new NullAreaTriggerAI(at, GetNullAreaTriggerAIScriptId());
-    }
-
-    uint32 GetSelectedAIId(AreaTrigger const* at)
-    {
-        if (uint32 id = at->GetScriptId())
-        {
-            if (sScriptMgr->CanCreateAreaTriggerAI(id))
-            {
-                return id;
-            }
-        }
-
-        return GetNullAreaTriggerAIScriptId();
     }
 }

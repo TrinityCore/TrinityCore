@@ -20,9 +20,7 @@
 
 #include "Define.h"
 
-namespace Trinity
-{
-namespace Crypto
+namespace Trinity::Crypto
 {
     struct Constants
     {
@@ -30,7 +28,6 @@ namespace Crypto
         static constexpr size_t SHA1_DIGEST_LENGTH_BYTES = 20;
         static constexpr size_t SHA256_DIGEST_LENGTH_BYTES = 32;
     };
-}
 }
 
 #endif

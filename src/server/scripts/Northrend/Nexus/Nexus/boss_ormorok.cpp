@@ -17,7 +17,6 @@
 
 #include "ScriptMgr.h"
 #include "GameObject.h"
-#include "Map.h"
 #include "nexus.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -33,14 +32,8 @@ enum Spells
     SPELL_SUMMON_CRYSTAL_SPIKE_1                = 47954,
     SPELL_SUMMON_CRYSTAL_SPIKE_2                = 47955,
     SPELL_SUMMON_CRYSTAL_SPIKE_3                = 47956,
-    SPELL_SUMMON_CRYSTAL_SPIKE_4                = 47957,
-
-    SPELL_SUMMON_CRYSTAL_SPIKE_1_H              = 57077,
-    SPELL_SUMMON_CRYSTAL_SPIKE_2_H              = 57078,
-    SPELL_SUMMON_CRYSTAL_SPIKE_3_H              = 57080,
-    SPELL_SUMMON_CRYSTAL_SPIKE_4_H              = 57081
+    SPELL_SUMMON_CRYSTAL_SPIKE_4                = 47957
 };
-
 enum Yells
 {
     SAY_AGGRO                                   = 1,
@@ -260,11 +253,6 @@ std::array<uint32, 4> const SummonSpells =
     SPELL_SUMMON_CRYSTAL_SPIKE_1, SPELL_SUMMON_CRYSTAL_SPIKE_2, SPELL_SUMMON_CRYSTAL_SPIKE_3, SPELL_SUMMON_CRYSTAL_SPIKE_4
 };
 
-std::array<uint32, 4> const SummonSpellsHeroic =
-{
-    SPELL_SUMMON_CRYSTAL_SPIKE_1_H, SPELL_SUMMON_CRYSTAL_SPIKE_2_H, SPELL_SUMMON_CRYSTAL_SPIKE_3_H, SPELL_SUMMON_CRYSTAL_SPIKE_4_H
-};
-
 // 47958, 57082 - Crystal Spikes
 class spell_ormorok_summon_crystal_spikes : public SpellScript
 {
@@ -272,13 +260,13 @@ class spell_ormorok_summon_crystal_spikes : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(SummonSpells) && ValidateSpellInfo(SummonSpellsHeroic);
+        return ValidateSpellInfo(SummonSpells);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        for (uint32 spells : (caster->GetMap()->IsHeroic() ? SummonSpellsHeroic : SummonSpells))
+        for (uint32 spells : SummonSpells)
             caster->CastSpell(caster, spells);
     }
 

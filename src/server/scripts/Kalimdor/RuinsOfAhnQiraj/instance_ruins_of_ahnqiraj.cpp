@@ -20,16 +20,6 @@
 #include "InstanceScript.h"
 #include "ruins_of_ahnqiraj.h"
 
-DungeonEncounterData const encounters[] =
-{
-    { DATA_KURINNAXX, {{ 718 }} },
-    { DATA_RAJAXX, {{ 719 }} },
-    { DATA_MOAM, {{ 720 }} },
-    { DATA_BURU, {{ 721 }} },
-    { DATA_AYAMISS, {{ 722 }} },
-    { DATA_OSSIRIAN, {{ 723 }} }
-};
-
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
     public:
@@ -41,7 +31,6 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(NUM_ENCOUNTER);
-                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

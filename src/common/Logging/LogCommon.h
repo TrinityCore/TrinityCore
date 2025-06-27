@@ -52,8 +52,8 @@ enum AppenderFlags : uint8
     APPENDER_FLAGS_PREFIX_TIMESTAMP              = 0x01,
     APPENDER_FLAGS_PREFIX_LOGLEVEL               = 0x02,
     APPENDER_FLAGS_PREFIX_LOGFILTERTYPE          = 0x04,
-    APPENDER_FLAGS_USE_TIMESTAMP                 = 0x08, // only used by FileAppender
-    APPENDER_FLAGS_MAKE_FILE_BACKUP              = 0x10  // only used by FileAppender
+    APPENDER_FLAGS_USE_TIMESTAMP                 = 0x08,
+    APPENDER_FLAGS_MAKE_FILE_BACKUP              = 0x10
 };
 
 #endif // LogCommon_h__

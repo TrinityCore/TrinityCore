@@ -19,7 +19,6 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "Define.h"
-#include "ObjectGuid.h"
 #include "SharedDefines.h"
 #include <string>
 #include <unordered_map>
@@ -235,18 +234,17 @@ public:
 
     uint32 GetItemPerCycleBoost() const { return _itemsPerCycleBoost; }
     uint32 GetItemPerCycleNormal() const { return _itemsPerCycleNormal; }
-    ObjectGuid GetRandChar() const;
-    ObjectGuid GetRandCharExclude(ObjectGuid exclude) const;
-    bool IsBotChar(ObjectGuid characterID) const;
+    uint32 GetRandChar() const;
+    uint32 GetRandCharExclude(uint32 exclude) const;
+    bool IsBotChar(uint32 characterID) const;
     void Reload() { GetConfigFromFile(); }
 
-    uint32 GetAuctionHouseId(AuctionHouseType houseType) const;
     static char const* GetHouseTypeName(AuctionHouseType houseType);
 
 private:
     std::string _AHBotIncludes;
     std::string _AHBotExcludes;
-    std::vector<ObjectGuid> _AHBotCharacters;
+    std::vector<uint32> _AHBotCharacters;
     uint32 _itemsPerCycleBoost;
     uint32 _itemsPerCycleNormal;
 

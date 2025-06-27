@@ -30,20 +30,20 @@ For Pull Requests or branches other than 3.3.5 or master, follow the steps below
     docker load -i docker.tar.gz
     ```
 
-## Start bnetserver/worldserver from Docker
+## Start authserver/worldserver from Docker
 1. Copy the .conf files from the TrinityCore GitHub repository to a local folder which will be passed on as a mapped volume to Docker.
 1. Set the MySQL host in the .conf files to use the UNIX socket of MySQL, i.e.: `".;/var/run/mysqld/mysqld.sock;username;password;database"`
 1. Set the "DataDir" config in worldserver.conf to `"/trinity/data"`
-1. Start bnetserver or worldserver as desired, mapping the required volumes:
+1. Start authserver or worldserver as desired, mapping the required volumes:
 
-- bnetserver
+- authserver
     ```
-    docker run --entrypoint=bnetserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=1119:1119 -p 8081:8081 "image name"
+    docker run --entrypoint=authserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock -p=3724:3724 "image name"
     ```
 
 - worldserver
     ```
-    docker run --entrypoint=worldserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock --volume=/path/to/data/directory:/trinity/data -p=8085:8085 -p 8086:8086 "image name"
+    docker run --entrypoint=worldserver -it --volume=/host/path/to/configs:/home/circleci/project/bin/check_install/etc --volume=/var/run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock --volume=/path/to/data/directory:/trinity/data -p=8085:8085 "image name"
     ```
 
 Change the ports and other parameters as needed. Consult Docker documentation for additional details about possible configuration settings.
@@ -51,7 +51,7 @@ Change the ports and other parameters as needed. Consult Docker documentation fo
 ## Content
 
 The image contains:
-- bnetserver
+- authserver
 - mapextractor
 - mmaps_generator
 - vmap4asembler

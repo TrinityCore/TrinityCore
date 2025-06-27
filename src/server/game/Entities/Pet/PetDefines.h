@@ -33,30 +33,24 @@ enum PetType : uint8
     MAX_PET_TYPE            = 4
 };
 
-#define MAX_ACTIVE_PETS         5
-#define MAX_PET_STABLES         200
+#define MAX_PET_STABLES         4
 
 // stored in character_pet.slot
-enum PetSaveMode : int16
+enum PetSaveMode : int8
 {
-    PET_SAVE_AS_DELETED        = -2,                        // not saved in fact
-    PET_SAVE_AS_CURRENT        = -3,                        // in current slot (with player)
-    PET_SAVE_FIRST_ACTIVE_SLOT =  0,
-    PET_SAVE_LAST_ACTIVE_SLOT  = PET_SAVE_FIRST_ACTIVE_SLOT + MAX_ACTIVE_PETS,
-    PET_SAVE_FIRST_STABLE_SLOT =  5,
-    PET_SAVE_LAST_STABLE_SLOT  = PET_SAVE_FIRST_STABLE_SLOT + MAX_PET_STABLES, // last in DB stable slot index
-    PET_SAVE_NOT_IN_SLOT       = -1                         // for avoid conflict with stable size grow will use negative value
+    PET_SAVE_AS_DELETED        = -1,                        // not saved in fact
+    PET_SAVE_AS_CURRENT        =  0,                        // in current slot (with player)
+    PET_SAVE_FIRST_STABLE_SLOT =  1,
+    PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT
+    PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
 };
 
-constexpr bool IsActivePetSlot(PetSaveMode slot)
+enum HappinessState
 {
-    return slot >= PET_SAVE_FIRST_ACTIVE_SLOT && slot < PET_SAVE_LAST_ACTIVE_SLOT;
-}
-
-constexpr bool IsStabledPetSlot(PetSaveMode slot)
-{
-    return slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT;
-}
+    UNHAPPY = 1,
+    CONTENT = 2,
+    HAPPY   = 3
+};
 
 enum PetSpellState
 {
@@ -82,35 +76,14 @@ enum class PetActionFeedback : uint8
     NoPath          = 4
 };
 
-enum PetTalk
+enum PetAction : int32
 {
-    PET_TALK_SPECIAL_SPELL  = 0,
-    PET_TALK_ATTACK         = 1
+    PET_ACTION_SPECIAL_SPELL    = 0,
+    PET_ACTION_ATTACK           = 1
 };
 
 #define PET_FOLLOW_DIST  1.0f
-#define PET_FOLLOW_ANGLE float(M_PI)
-
-enum class PetTameResult : uint8
-{
-    Ok                      = 0,
-    InvalidCreature         = 1,
-    TooMany                 = 2,
-    CreatureAlreadyOwned    = 3,
-    NotTameable             = 4,
-    AnotherSummonActive     = 5,
-    UnitsCantTame           = 6,
-    NoPetAvailable          = 7,
-    InternalError           = 8,
-    TooHighLevel            = 9,
-    Dead                    = 10,
-    NotDead                 = 11,
-    CantControlExotic       = 12,
-    InvalidSlot             = 13,
-    EliteTooHighLevel       = 14
-};
-
-constexpr uint32 CALL_PET_SPELL_ID = 883;
+#define PET_FOLLOW_ANGLE float(M_PI/2)
 
 class PetStable
 {
@@ -127,42 +100,24 @@ public:
         uint32 Experience = 0;
         uint32 Health = 0;
         uint32 Mana = 0;
+        uint32 Happiness = 0;
         uint32 LastSaveTime = 0;
         uint32 CreatedBySpellId = 0;
-        uint16 SpecializationId = 0;
         uint8 Level = 0;
         ReactStates ReactState = ReactStates(0);
         PetType Type = MAX_PET_TYPE;
         bool WasRenamed = false;
     };
 
-    Optional<uint32> CurrentPetIndex;                               // index into ActivePets or UnslottedPets if highest bit is set
-    std::array<Optional<PetInfo>, MAX_ACTIVE_PETS> ActivePets;      // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
+    Optional<PetInfo> CurrentPet;                                   // PET_SAVE_AS_CURRENT
     std::array<Optional<PetInfo>, MAX_PET_STABLES> StabledPets;     // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
+    uint32 MaxStabledPets = 0;
     std::vector<PetInfo> UnslottedPets;                             // PET_SAVE_NOT_IN_SLOT
 
-    PetInfo* GetCurrentPet() { return const_cast<PetInfo*>(const_cast<PetStable const*>(this)->GetCurrentPet()); }
-    PetInfo const* GetCurrentPet() const
+    PetInfo const* GetUnslottedHunterPet() const
     {
-        if (!CurrentPetIndex)
-            return nullptr;
-
-        if (Optional<uint32> activePetIndex = GetCurrentActivePetIndex())
-            return ActivePets[*activePetIndex] ? &ActivePets[*activePetIndex].value() : nullptr;
-
-        if (Optional<uint32> unslottedPetIndex = GetCurrentUnslottedPetIndex())
-            return *unslottedPetIndex < UnslottedPets.size() ? &UnslottedPets[*unslottedPetIndex] : nullptr;
-
-        return nullptr;
+        return UnslottedPets.size() == 1 && UnslottedPets[0].Type == HUNTER_PET ? &UnslottedPets[0] : nullptr;
     }
-
-    Optional<uint32> GetCurrentActivePetIndex() const { return CurrentPetIndex && ((*CurrentPetIndex & UnslottedPetIndexMask) == 0) ? CurrentPetIndex : std::nullopt; }
-    void SetCurrentActivePetIndex(uint32 index) { CurrentPetIndex = index; }
-    Optional<uint32> GetCurrentUnslottedPetIndex() const { return CurrentPetIndex && ((*CurrentPetIndex & UnslottedPetIndexMask) != 0) ? Optional<uint32>(*CurrentPetIndex & ~UnslottedPetIndexMask) : std::nullopt; }
-    void SetCurrentUnslottedPetIndex(uint32 index) { CurrentPetIndex = index | UnslottedPetIndexMask; }
-
-private:
-    static constexpr uint32 UnslottedPetIndexMask = 0x80000000;
 };
 
 #endif

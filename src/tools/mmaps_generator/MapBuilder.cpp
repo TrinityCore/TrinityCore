@@ -16,13 +16,15 @@
  */
 
 #include "MapBuilder.h"
-#include "Containers.h"
 #include "IntermediateValues.h"
+#include "MapDefines.h"
 #include "MapTree.h"
-#include "MMapDefines.h"
 #include "ModelInstance.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
+#include "VMapFactory.h"
+#include "VMapManager2.h"
+#include <DetourCommon.h>
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
 #include <climits>
@@ -112,12 +114,13 @@ namespace MMAP
     {
         std::vector<std::string> files;
         uint32 mapID, tileX, tileY, tileID, count = 0;
+        char filter[12];
 
         printf("Discovering maps... ");
         getDirContents(files, "maps");
         for (uint32 i = 0; i < files.size(); ++i)
         {
-            mapID = uint32(atoi(files[i].substr(0, 4).c_str()));
+            mapID = uint32(atoi(files[i].substr(0,3).c_str()));
             if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
             {
                 m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
@@ -129,7 +132,7 @@ namespace MMAP
         getDirContents(files, "vmaps", "*.vmtree");
         for (uint32 i = 0; i < files.size(); ++i)
         {
-            mapID = uint32(atoi(files[i].substr(0, 4).c_str()));
+            mapID = uint32(atoi(files[i].substr(0,3).c_str()));
             if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
             {
                 m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
@@ -145,24 +148,26 @@ namespace MMAP
             std::set<uint32>* tiles = (*itr).m_tiles;
             mapID = (*itr).m_mapId;
 
+            sprintf(filter, "%03u*.vmtile", mapID);
             files.clear();
-            getDirContents(files, "vmaps", Trinity::StringFormat("{:04}_*.vmtile", mapID));
+            getDirContents(files, "vmaps", filter);
             for (uint32 i = 0; i < files.size(); ++i)
             {
-                tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
-                tileY = uint32(atoi(files[i].substr(5, 2).c_str()));
+                tileX = uint32(atoi(files[i].substr(7,2).c_str()));
+                tileY = uint32(atoi(files[i].substr(4,2).c_str()));
                 tileID = StaticMapTree::packTileID(tileY, tileX);
 
                 tiles->insert(tileID);
                 count++;
             }
 
+            sprintf(filter, "%03u*", mapID);
             files.clear();
-            getDirContents(files, "maps", Trinity::StringFormat("{:04}*", mapID));
+            getDirContents(files, "maps", filter);
             for (uint32 i = 0; i < files.size(); ++i)
             {
-                tileY = uint32(atoi(files[i].substr(5, 2).c_str()));
-                tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
+                tileY = uint32(atoi(files[i].substr(3,2).c_str()));
+                tileX = uint32(atoi(files[i].substr(5,2).c_str()));
                 tileID = StaticMapTree::packTileID(tileX, tileY);
 
                 if (tiles->insert(tileID).second)
@@ -221,7 +226,7 @@ namespace MMAP
             dtNavMesh* navMesh = dtAllocNavMesh();
             if (!navMesh->init(&tileInfo.m_navMeshParams))
             {
-                printf("[Map %04i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
+                printf("[Map %03i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
                 dtFreeNavMesh(navMesh);
                 return;
             }
@@ -271,12 +276,14 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY)
+    void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY) const
     {
-        maxX = INT_MAX;
-        maxY = INT_MAX;
-        minX = INT_MIN;
-        minY = INT_MIN;
+        // min and max are initialized to invalid values so the caller iterating the [min, max] range
+        // will never enter the loop unless valid min/max values are found
+        maxX = 0;
+        maxY = 0;
+        minX = std::numeric_limits<uint32>::max();
+        minY = std::numeric_limits<uint32>::max();
 
         float bmin[3] = { 0, 0, 0 };
         float bmax[3] = { 0, 0, 0 };
@@ -433,13 +440,13 @@ namespace MMAP
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
-                printf("[Map %04i] Failed creating navmesh!\n", mapID);
+                printf("[Map %03i] Failed creating navmesh!\n", mapID);
                 m_totalTilesProcessed += tiles->size();
                 return;
             }
 
             // now start building mmtiles for each tile
-            printf("[Map %04i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
+            printf("[Map %03i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
             for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
             {
                 uint32 tileX, tileY;
@@ -468,7 +475,7 @@ namespace MMAP
             return;
         }
 
-        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
+        printf("%u%% [Map %03i] Building tile [%02u,%02u]\n", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -515,16 +522,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildNavMesh(uint32 mapID, dtNavMesh* &navMesh)
     {
-        // if map has a parent we use that to generate dtNavMeshParams - worldserver will load all missing tiles from that map
-        int32 navMeshParamsMapId = mapID;
-        int32 parentMapId = sMapStore[mapID].ParentMapID;
-        while (parentMapId != -1)
-        {
-            navMeshParamsMapId = parentMapId;
-            parentMapId = sMapStore[parentMapId].ParentMapID;
-        }
-
-        std::set<uint32>* tiles = getTileList(navMeshParamsMapId);
+        std::set<uint32>* tiles = getTileList(mapID);
 
         // old code for non-statically assigned bitmask sizes:
         ///*** calculate number of bits needed to store tiles & polys ***/
@@ -571,23 +569,22 @@ namespace MMAP
         navMeshParams.maxPolys = maxPolysPerTile;
 
         navMesh = dtAllocNavMesh();
-        printf("[Map %04u] Creating navMesh...\n", mapID);
+        printf("[Map %03i] Creating navMesh...\n", mapID);
         if (!navMesh->init(&navMeshParams))
         {
-            printf("[Map %04u] Failed creating navmesh!                \n", mapID);
+            printf("[Map %03i] Failed creating navmesh!                \n", mapID);
             return;
         }
 
         char fileName[25];
-        sprintf(fileName, "mmaps/%04u.mmap", mapID);
+        sprintf(fileName, "mmaps/%03u.mmap", mapID);
 
         FILE* file = fopen(fileName, "wb");
         if (!file)
         {
             dtFreeNavMesh(navMesh);
-            navMesh = nullptr;
             char message[1024];
-            sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
+            sprintf(message, "[Map %03i] Failed to open %s for writing!\n", mapID, fileName);
             perror(message);
             return;
         }
@@ -603,8 +600,9 @@ namespace MMAP
         dtNavMesh* navMesh)
     {
         // console output
-        std::string tileString = Trinity::StringFormat("[Map {:04}] [{:02},{:02}]: ", mapID, tileX, tileY);
-        printf("%s Building movemap tiles...\n", tileString.c_str());
+        char tileString[20];
+        sprintf(tileString, "[Map %03i] [%02i,%02i]: ", mapID, tileX, tileY);
+        printf("%s Building movemap tiles...\n", tileString);
 
         IntermediateValues iv;
 
@@ -661,7 +659,7 @@ namespace MMAP
                 tile.solid = rcAllocHeightfield();
                 if (!tile.solid || !rcCreateHeightfield(m_rcContext, *tile.solid, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch))
                 {
-                    printf("%s Failed building heightfield!            \n", tileString.c_str());
+                    printf("%s Failed building heightfield!            \n", tileString);
                     continue;
                 }
 
@@ -691,39 +689,39 @@ namespace MMAP
                 tile.chf = rcAllocCompactHeightfield();
                 if (!tile.chf || !rcBuildCompactHeightfield(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid, *tile.chf))
                 {
-                    printf("%s Failed compacting heightfield!            \n", tileString.c_str());
+                    printf("%s Failed compacting heightfield!            \n", tileString);
                     continue;
                 }
 
                 // build polymesh intermediates
                 if (!rcErodeWalkableArea(m_rcContext, config.walkableRadius, *tile.chf))
                 {
-                    printf("%s Failed eroding area!                    \n", tileString.c_str());
+                    printf("%s Failed eroding area!                    \n", tileString);
                     continue;
                 }
 
                 if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
                 {
-                    printf("%s Failed filtering area!                  \n", tileString.c_str());
+                    printf("%s Failed filtering area!                  \n", tileString);
                     continue;
                 }
 
                 if (!rcBuildDistanceField(m_rcContext, *tile.chf))
                 {
-                    printf("%s Failed building distance field!         \n", tileString.c_str());
+                    printf("%s Failed building distance field!         \n", tileString);
                     continue;
                 }
 
                 if (!rcBuildRegions(m_rcContext, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
                 {
-                    printf("%s Failed building regions!                \n", tileString.c_str());
+                    printf("%s Failed building regions!                \n", tileString);
                     continue;
                 }
 
                 tile.cset = rcAllocContourSet();
                 if (!tile.cset || !rcBuildContours(m_rcContext, *tile.chf, tileCfg.maxSimplificationError, tileCfg.maxEdgeLen, *tile.cset))
                 {
-                    printf("%s Failed building contours!               \n", tileString.c_str());
+                    printf("%s Failed building contours!               \n", tileString);
                     continue;
                 }
 
@@ -731,14 +729,14 @@ namespace MMAP
                 tile.pmesh = rcAllocPolyMesh();
                 if (!tile.pmesh || !rcBuildPolyMesh(m_rcContext, *tile.cset, tileCfg.maxVertsPerPoly, *tile.pmesh))
                 {
-                    printf("%s Failed building polymesh!               \n", tileString.c_str());
+                    printf("%s Failed building polymesh!               \n", tileString);
                     continue;
                 }
 
                 tile.dmesh = rcAllocPolyMeshDetail();
                 if (!tile.dmesh || !rcBuildPolyMeshDetail(m_rcContext, *tile.pmesh, *tile.chf, tileCfg.detailSampleDist, tileCfg.detailSampleMaxError, *tile.dmesh))
                 {
-                    printf("%s Failed building polymesh detail!        \n", tileString.c_str());
+                    printf("%s Failed building polymesh detail!        \n", tileString);
                     continue;
                 }
 
@@ -761,7 +759,7 @@ namespace MMAP
         iv.polyMesh = rcAllocPolyMesh();
         if (!iv.polyMesh)
         {
-            printf("%s alloc iv.polyMesh FAILED!\n", tileString.c_str());
+            printf("%s alloc iv.polyMesh FAILED!\n", tileString);
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;
@@ -772,7 +770,7 @@ namespace MMAP
         iv.polyMeshDetail = rcAllocPolyMeshDetail();
         if (!iv.polyMeshDetail)
         {
-            printf("%s alloc m_dmesh FAILED!\n", tileString.c_str());
+            printf("%s alloc m_dmesh FAILED!\n", tileString);
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;
@@ -843,12 +841,12 @@ namespace MMAP
             // so we have a clear error message
             if (params.nvp > DT_VERTS_PER_POLYGON)
             {
-                printf("%s Invalid verts-per-polygon value!        \n", tileString.c_str());
+                printf("%s Invalid verts-per-polygon value!        \n", tileString);
                 break;
             }
             if (params.vertCount >= 0xffff)
             {
-                printf("%s Too many vertices!                      \n", tileString.c_str());
+                printf("%s Too many vertices!                      \n", tileString);
                 break;
             }
             if (!params.vertCount || !params.verts)
@@ -857,54 +855,54 @@ namespace MMAP
                 // loaded but those models don't span into this tile
 
                 // message is an annoyance
-                //printf("%sNo vertices to build tile!              \n", tileString.c_str());
+                //printf("%sNo vertices to build tile!              \n", tileString);
                 break;
             }
             if (!params.polyCount || !params.polys)
             {
                 // we have flat tiles with no actual geometry - don't build those, its useless
                 // keep in mind that we do output those into debug info
-                printf("%s No polygons to build on tile!              \n", tileString.c_str());
+                printf("%s No polygons to build on tile!              \n", tileString);
                 break;
             }
             if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
             {
-                printf("%s No detail mesh to build tile!           \n", tileString.c_str());
+                printf("%s No detail mesh to build tile!           \n", tileString);
                 break;
             }
 
-            printf("%s Building navmesh tile...\n", tileString.c_str());
+            printf("%s Building navmesh tile...\n", tileString);
             if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
             {
-                printf("%s Failed building navmesh tile!           \n", tileString.c_str());
+                printf("%s Failed building navmesh tile!           \n", tileString);
                 break;
             }
 
             dtTileRef tileRef = 0;
-            printf("%s Adding tile to navmesh...\n", tileString.c_str());
+            printf("%s Adding tile to navmesh...\n", tileString);
             // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
             // is removed via removeTile()
             dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
             if (!tileRef || dtResult != DT_SUCCESS)
             {
-                printf("%s Failed adding tile to navmesh!           \n", tileString.c_str());
+                printf("%s Failed adding tile to navmesh!           \n", tileString);
                 break;
             }
 
             // file output
             char fileName[255];
-            sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
+            sprintf(fileName, "mmaps/%03u%02i%02i.mmtile", mapID, tileY, tileX);
             FILE* file = fopen(fileName, "wb");
             if (!file)
             {
                 char message[1024];
-                sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
+                sprintf(message, "[Map %03i] Failed to open %s for writing!\n", mapID, fileName);
                 perror(message);
                 navMesh->removeTile(tileRef, nullptr, nullptr);
                 break;
             }
 
-            printf("%s Writing to file...\n", tileString.c_str());
+            printf("%s Writing to file...\n", tileString);
 
             // write header
             MmapTileHeader header;
@@ -971,19 +969,39 @@ namespace MMAP
                 return true;
 
         if (m_skipJunkMaps)
-        {
-            if (isDevMap(mapID))
-                return true;
-
-            if (isTransportMap(mapID))
-                return true;
-        }
+            switch (mapID)
+            {
+                case 13:    // test.wdt
+                case 25:    // ScottTest.wdt
+                case 29:    // Test.wdt
+                case 42:    // Colin.wdt
+                case 169:   // EmeraldDream.wdt (unused, and very large)
+                case 451:   // development.wdt
+                case 573:   // ExteriorTest.wdt
+                case 597:   // CraigTest.wdt
+                case 605:   // development_nonweighted.wdt
+                case 606:   // QA_DVD.wdt
+                    return true;
+                default:
+                    if (isTransportMap(mapID))
+                        return true;
+                    break;
+            }
 
         if (m_skipBattlegrounds)
-        {
-            if (isBattlegroundMap(mapID))
-                return true;
-        }
+            switch (mapID)
+            {
+                case 30:    // AV
+                case 37:    // ?
+                case 489:   // WSG
+                case 529:   // AB
+                case 566:   // EotS
+                case 607:   // SotA
+                case 628:   // IoC
+                    return true;
+                default:
+                    break;
+            }
 
         return false;
     }
@@ -991,26 +1009,41 @@ namespace MMAP
     /**************************************************************************/
     bool MapBuilder::isTransportMap(uint32 mapID) const
     {
-        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
-            return map->MapType == 3;
-
-        return false;
-    }
-
-    bool MapBuilder::isDevMap(uint32 mapID) const
-    {
-        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
-            return (map->Flags & 0x2) != 0;
-
-        return false;
-    }
-
-    bool MapBuilder::isBattlegroundMap(uint32 mapID) const
-    {
-        if (MapEntry const* map = Trinity::Containers::MapGetValuePtr(sMapStore, mapID))
-            return map->InstanceType == 3;
-
-        return false;
+        switch (mapID)
+        {
+            // transport maps
+            case 582:
+            case 584:
+            case 586:
+            case 587:
+            case 588:
+            case 589:
+            case 590:
+            case 591:
+            case 592:
+            case 593:
+            case 594:
+            case 596:
+            case 610:
+            case 612:
+            case 613:
+            case 614:
+            case 620:
+            case 621:
+            case 622:
+            case 623:
+            case 641:
+            case 642:
+            case 647:
+            case 672:
+            case 673:
+            case 712:
+            case 713:
+            case 718:
+                return true;
+            default:
+                return false;
+        }
     }
 
     bool MapBuilder::isContinentMap(uint32 mapID) const
@@ -1021,12 +1054,6 @@ namespace MMAP
             case 1:
             case 530:
             case 571:
-            case 870:
-            case 1116:
-            case 1220:
-            case 1642:
-            case 1643:
-            case 2222:
                 return true;
             default:
                 return false;
@@ -1037,7 +1064,7 @@ namespace MMAP
     bool TileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
         char fileName[255];
-        sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
+        sprintf(fileName, "mmaps/%03u%02i%02i.mmtile", mapID, tileY, tileX);
         FILE* file = fopen(fileName, "rb");
         if (!file)
             return false;

@@ -18,21 +18,19 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "LootItemType.h"
+#include "Common.h"
 #include "ObjectDefines.h"
 #include "Optional.h"
 #include "QuestDef.h"
 #include "UnitAI.h"
 
 class AreaBoundary;
-class AreaTrigger;
 class Creature;
 class DynamicObject;
 class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
-enum class QuestGiverStatus : uint32;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
@@ -47,6 +45,28 @@ enum Permitions : int32
     PERMIT_BASE_PROACTIVE        = 200,
     PERMIT_BASE_FACTION_SPECIFIC = 400,
     PERMIT_BASE_SPECIAL          = 800
+};
+
+// Spell targets used by SelectSpell
+enum SelectTargetType
+{
+    SELECT_TARGET_DONTCARE = 0,  // All target types allowed
+    SELECT_TARGET_SELF,          // Only Self casting
+    SELECT_TARGET_SINGLE_ENEMY,  // Only Single Enemy
+    SELECT_TARGET_AOE_ENEMY,     // Only AoE Enemy
+    SELECT_TARGET_ANY_ENEMY,     // AoE or Single Enemy
+    SELECT_TARGET_SINGLE_FRIEND, // Only Single Friend
+    SELECT_TARGET_AOE_FRIEND,    // Only AoE Friend
+    SELECT_TARGET_ANY_FRIEND     // AoE or Single Friend
+};
+
+// Spell Effects used by SelectSpell
+enum SelectEffect
+{
+    SELECT_EFFECT_DONTCARE = 0, // All spell effects allowed
+    SELECT_EFFECT_DAMAGE,       // Spell does damage
+    SELECT_EFFECT_HEALING,      // Spell does healing
+    SELECT_EFFECT_AURA          // Spell applies an aura
 };
 
 enum SCEquip
@@ -67,12 +87,19 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        explicit CreatureAI(Creature* creature, uint32 scriptId = {});
+        // EnumUtils: DESCRIBE THIS (in CreatureAI::)
+        enum EvadeReason
+        {
+            EVADE_REASON_NO_HOSTILES,       // the creature's threat list is empty
+            EVADE_REASON_BOUNDARY,          // the creature has moved outside its evade boundary
+            EVADE_REASON_NO_PATH,           // the creature was unable to reach its target for over 5 seconds
+            EVADE_REASON_SEQUENCE_BREAK,    // this is a boss and the pre-requisite encounters for engaging it are not defeated yet
+            EVADE_REASON_OTHER,             // anything else
+        };
+
+        explicit CreatureAI(Creature* creature);
 
         virtual ~CreatureAI();
-
-        // Gets the id of the AI (script id)
-        uint32 GetId() const { return _scriptId; }
 
         bool IsEngaged() const { return _isEngaged; }
 
@@ -87,7 +114,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void TriggerAlert(Unit const* who) const;
 
         // Called for reaction at stopping attack at no attackers or targets
-        virtual void EnterEvadeMode(EvadeReason why = EvadeReason::Other);
+        virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         // Called for reaction whenever we start being in combat (overridden from base UnitAI)
         void JustEnteredCombat(Unit* /*who*/) override;
@@ -110,18 +137,6 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         virtual void SummonedCreatureDespawn(Creature* /*summon*/) { }
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) { }
-
-        // Called when the creature successfully summons a gameobject
-        virtual void JustSummonedGameobject(GameObject* /*gameobject*/) { }
-        virtual void SummonedGameobjectDespawn(GameObject* /*gameobject*/) { }
-
-        // Called when the creature successfully registers a dynamicobject
-        virtual void JustRegisteredDynObject(DynamicObject* /*dynObject*/) { }
-        virtual void JustUnregisteredDynObject(DynamicObject* /*dynObject*/) { }
-
-        // Called when the creature successfully registers an areatrigger
-        virtual void JustRegisteredAreaTrigger(AreaTrigger* /*areaTrigger*/) { }
-        virtual void JustUnregisteredAreaTrigger(AreaTrigger* /*areaTrigger*/) { }
 
         // Called when hit by a spell
         virtual void SpellHit(WorldObject* /*caster*/, SpellInfo const* /*spellInfo*/) { }
@@ -155,8 +170,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 
-        void DoZoneInCombat() { DoZoneInCombat(me); }
-        static void DoZoneInCombat(Creature* creature);
+        void DoZoneInCombat(Creature* creature = nullptr);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
@@ -189,7 +203,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         /// == Gossip system ================================
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* /*player*/) { return {}; }
 
         // Called when a player opens a gossip dialog with the creature.
         virtual bool OnGossipHello(Player* /*player*/) { return false; }
@@ -204,7 +218,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         virtual void OnQuestAccept(Player* /*player*/, Quest const* /*quest*/) { }
 
         // Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/, LootItemType /*type*/, uint32 /*opt*/) { }
+        virtual void OnQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
 
         /// == Waypoints system =============================
 
@@ -241,7 +255,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void EngagementOver();
         virtual void MoveInLineOfSight(Unit* /*who*/);
 
-        bool _EnterEvadeMode(EvadeReason why = EvadeReason::Other);
+        bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
 
         CreatureBoundary const* _boundary;
         bool _negateBoundary;
@@ -249,7 +263,6 @@ class TC_GAME_API CreatureAI : public UnitAI
     private:
         void OnOwnerCombatInteraction(Unit* target);
 
-        uint32 const _scriptId;
         bool _isEngaged;
         bool _moveInLOSLocked;
 };

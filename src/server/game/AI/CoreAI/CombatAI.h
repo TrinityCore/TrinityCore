@@ -19,14 +19,13 @@
 #define TRINITY_COMBATAI_H
 
 #include "CreatureAI.h"
-#include "EventMap.h"
 
 class Creature;
 
 class TC_GAME_API AggressorAI : public CreatureAI
 {
     public:
-        using CreatureAI::CreatureAI;
+        explicit AggressorAI(Creature* creature) : CreatureAI(creature) { }
 
         void UpdateAI(uint32) override;
         static int32 Permissible(Creature const* creature);
@@ -37,7 +36,7 @@ typedef std::vector<uint32> SpellVector;
 class TC_GAME_API CombatAI : public CreatureAI
 {
     public:
-        using CreatureAI::CreatureAI;
+        explicit CombatAI(Creature* creature) : CreatureAI(creature) { }
 
         void InitializeAI() override;
         void Reset() override;
@@ -46,7 +45,7 @@ class TC_GAME_API CombatAI : public CreatureAI
         void UpdateAI(uint32 diff) override;
         void SpellInterrupted(uint32 spellId, uint32 unTimeMs) override;
 
-        static int32 Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
+        static int Permissible(Creature const* /*creature*/) { return PERMIT_BASE_NO; }
 
     protected:
         EventMap _events;
@@ -56,7 +55,7 @@ class TC_GAME_API CombatAI : public CreatureAI
 class TC_GAME_API CasterAI : public CombatAI
 {
     public:
-        explicit CasterAI(Creature* creature, uint32 scriptId = {}) : CombatAI(creature, scriptId) { _attackDistance = MELEE_RANGE; }
+        explicit CasterAI(Creature* creature) : CombatAI(creature) { _attackDistance = MELEE_RANGE; }
         void InitializeAI() override;
         void AttackStart(Unit* victim) override { AttackStartCaster(victim, _attackDistance); }
         void UpdateAI(uint32 diff) override;
@@ -68,7 +67,7 @@ class TC_GAME_API CasterAI : public CombatAI
 struct TC_GAME_API ArcherAI : public CreatureAI
 {
     public:
-        explicit ArcherAI(Creature* creature, uint32 scriptId = {});
+        explicit ArcherAI(Creature* creature);
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
 
@@ -81,7 +80,7 @@ struct TC_GAME_API ArcherAI : public CreatureAI
 struct TC_GAME_API TurretAI : public CreatureAI
 {
     public:
-        explicit TurretAI(Creature* creature, uint32 scriptId = {});
+        explicit TurretAI(Creature* creature);
         bool CanAIAttack(Unit const* who) const override;
         void AttackStart(Unit* who) override;
         void UpdateAI(uint32 diff) override;
@@ -98,7 +97,7 @@ struct TC_GAME_API TurretAI : public CreatureAI
 struct TC_GAME_API VehicleAI : public CreatureAI
 {
     public:
-        explicit VehicleAI(Creature* creature, uint32 scriptId = {});
+        explicit VehicleAI(Creature* creature);
 
         void UpdateAI(uint32 diff) override;
         void MoveInLineOfSight(Unit*) override { }

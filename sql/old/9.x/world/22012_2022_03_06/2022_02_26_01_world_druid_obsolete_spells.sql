@@ -1,1 +1,0 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dru_stampede', 'spell_dru_living_seed', 'spell_dru_flight_form', 'spell_dru_predatory_strikes', 'spell_dru_mark_of_the_wild', 'spell_dru_idol_lifebloom', 'spell_dru_living_seed_proc');

@@ -51,14 +51,15 @@ enum BattlegroundNAEvents
 class BattlegroundNA : public Arena
 {
     public:
-        BattlegroundNA(BattlegroundTemplate const* battlegroundTemplate);
+        BattlegroundNA();
 
         /* inherited from BattlegroundClass */
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     private:
         void PostUpdateImpl(uint32 diff) override;

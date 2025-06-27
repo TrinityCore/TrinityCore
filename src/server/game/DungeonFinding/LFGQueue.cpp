@@ -15,13 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGQueue.h"
+#include "ObjectDefines.h"
 #include "Containers.h"
+#include "DBCStructure.h"
+#include "DBCStores.h"
 #include "GameTime.h"
 #include "Group.h"
+#include "LFGQueue.h"
 #include "LFGMgr.h"
 #include "Log.h"
-#include <sstream>
 
 namespace lfg
 {
@@ -43,9 +45,9 @@ std::string ConcatenateGuids(GuidList const& check)
     std::ostringstream o;
 
     GuidSet::const_iterator it = guids.begin();
-    o << it->ToHexString();
+    o << it->GetRawValue();
     for (++it; it != guids.end(); ++it)
-        o << '|' << it->ToHexString();
+        o << '|' << it->GetRawValue();
 
     return o.str();
 }
@@ -94,7 +96,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
     std::ostringstream o;
 
     GuidSet::const_iterator it = guids.begin();
-    o << it->ToString();
+    o << it->GetRawValue();
     LfgQueueDataContainer::const_iterator itQueue = QueueDataStore.find(*it);
     if (itQueue != QueueDataStore.end())
     {
@@ -106,7 +108,7 @@ std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 
     for (++it; it != guids.end(); ++it)
     {
-        o << '|' << it->ToString();
+        o << '|' << it->GetRawValue();
         itQueue = QueueDataStore.find(*it);
         if (itQueue != QueueDataStore.end())
         {
@@ -141,7 +143,9 @@ void LFGQueue::RemoveFromQueue(ObjectGuid guid)
     RemoveFromCurrentQueue(guid);
     RemoveFromCompatibles(guid);
 
-    std::string sguid = guid.ToHexString();
+    std::ostringstream o;
+    o << guid.GetRawValue();
+    std::string sguid = o.str();
 
     LfgQueueDataContainer::iterator itDelete = QueueDataStore.end();
     for (LfgQueueDataContainer::iterator itr = QueueDataStore.begin(); itr != QueueDataStore.end(); ++itr)
@@ -233,7 +237,9 @@ void LFGQueue::UpdateWaitTimeDps(int32 waitTime, uint32 dungeonId)
 */
 void LFGQueue::RemoveFromCompatibles(ObjectGuid guid)
 {
-    std::string strGuid = guid.ToHexString();
+    std::stringstream out;
+    out << guid.GetRawValue();
+    std::string strGuid = out.str();
 
     TC_LOG_DEBUG("lfg.queue.data.compatibles.remove", "Removing {}", guid.ToString());
     for (LfgCompatibleContainer::iterator itNext = CompatibleMapStore.begin(); itNext != CompatibleMapStore.end();)
@@ -403,7 +409,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
 
         // Store group so we don't need to call Mgr to get it later (if it's player group will be 0 otherwise would have joined as group)
         for (LfgRolesMap::const_iterator it2 = itQueue->second.roles.begin(); it2 != itQueue->second.roles.end(); ++it2)
-            proposalGroups[it2->first] = itQueue->first.IsParty() ? itQueue->first : ObjectGuid::Empty;
+            proposalGroups[it2->first] = itQueue->first.IsGroup() ? itQueue->first : ObjectGuid::Empty;
 
         numPlayers += itQueue->second.roles.size();
 
@@ -477,7 +483,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         {
             std::ostringstream o;
             for (LfgRolesMap::const_iterator it = debugRoles.begin(); it != debugRoles.end(); ++it)
-                o << ", " << it->first.ToHexString() << ": " << GetRolesString(it->second);
+                o << ", " << it->first.GetRawValue() << ": " << GetRolesString(it->second);
 
             TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: ({}) Roles not compatible{}", GetDetailedMatchRoles(check), o.str());
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_NO_ROLES);
@@ -487,12 +493,12 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         GuidList::iterator itguid = check.begin();
         proposalDungeons = QueueDataStore[*itguid].dungeons;
         std::ostringstream o;
-        o << ", " << itguid->ToHexString() << ": (" << ConcatenateDungeons(proposalDungeons) << ")";
+        o << ", " << itguid->GetRawValue() << ": (" << ConcatenateDungeons(proposalDungeons) << ")";
         for (++itguid; itguid != check.end(); ++itguid)
         {
             LfgDungeonSet temporal;
             LfgDungeonSet& dungeons = QueueDataStore[*itguid].dungeons;
-            o << ", " << itguid->ToHexString() << ": (" << ConcatenateDungeons(dungeons) << ")";
+            o << ", " << itguid->GetRawValue() << ": (" << ConcatenateDungeons(dungeons) << ")";
             std::set_intersection(proposalDungeons.begin(), proposalDungeons.end(), dungeons.begin(), dungeons.end(), std::inserter(temporal, temporal.begin()));
             proposalDungeons = temporal;
         }
@@ -561,7 +567,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         LfgProposalPlayer &data = proposal.players[itRoles->first];
         data.role = itRoles->second;
         data.group = proposalGroups.find(itRoles->first)->second;
-        if (!proposal.isNew && !data.group.IsEmpty() && data.group == proposal.group) // Player from existing group, autoaccept
+        if (!proposal.isNew && data.group && data.group == proposal.group) // Player from existing group, autoaccept
             data.accept = LFG_ANSWER_AGREE;
     }
 
@@ -580,7 +586,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     return LFG_COMPATIBLES_MATCH;
 }
 
-void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime)
+void LFGQueue::UpdateQueueTimers(time_t currTime)
 {
     TC_LOG_TRACE("lfg.queue.timers.update", "Updating queue timers...");
     for (LfgQueueDataContainer::iterator itQueue = QueueDataStore.begin(); itQueue != QueueDataStore.end(); ++itQueue)
@@ -621,7 +627,7 @@ void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime)
         if (queueinfo.bestCompatible.empty())
             FindBestCompatibleInQueue(itQueue);
 
-        LfgQueueStatusData queueData(queueId, dungeonId, waitTime, wtAvg, wtTank, wtHealer, wtDps, queuedTime, queueinfo.tanks, queueinfo.healers, queueinfo.dps);
+        LfgQueueStatusData queueData(dungeonId, waitTime, wtAvg, wtTank, wtHealer, wtDps, queuedTime, queueinfo.tanks, queueinfo.healers, queueinfo.dps);
         for (LfgRolesMap::const_iterator itPlayer = queueinfo.roles.begin(); itPlayer != queueinfo.roles.end(); ++itPlayer)
         {
             ObjectGuid pguid = itPlayer->first;
@@ -630,13 +636,9 @@ void LFGQueue::UpdateQueueTimers(uint8 queueId, time_t currTime)
     }
 }
 
-time_t LFGQueue::GetJoinTime(ObjectGuid guid) const
+time_t LFGQueue::GetJoinTime(ObjectGuid guid)
 {
-    LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
-    if (itr != QueueDataStore.end())
-        return itr->second.joinTime;
-
-    return 0;
+    return QueueDataStore[guid].joinTime;
 }
 
 std::string LFGQueue::DumpQueueInfo() const
@@ -651,7 +653,7 @@ std::string LFGQueue::DumpQueueInfo() const
         for (GuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
         {
             ObjectGuid guid = *it;
-            if (guid.IsParty())
+            if (guid.IsGroup())
             {
                 groups++;
                 playersInGroup += sLFGMgr->GetPlayerCount(guid);
@@ -681,7 +683,7 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
                 {
                     if (!first)
                         o << "|";
-                    o << role.first.ToString() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
+                    o << role.first.GetRawValue() << " " << GetRolesString(role.second & uint8(~PLAYER_ROLE_LEADER));
                     first = false;
                 }
                 o << ")";
@@ -695,7 +697,9 @@ std::string LFGQueue::DumpCompatibleInfo(bool full /* = false */) const
 void LFGQueue::FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueue)
 {
     TC_LOG_DEBUG("lfg.queue.compatibles.find", "{}", itrQueue->first.ToString());
-    std::string sguid = itrQueue->first.ToHexString();
+    std::ostringstream o;
+    o << itrQueue->first.GetRawValue();
+    std::string sguid = o.str();
 
     for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
         if (itr->second.compatibility == LFG_COMPATIBLES_WITH_LESS_PLAYERS &&

@@ -18,8 +18,10 @@
 #include "BattlegroundBE.h"
 #include "Log.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "WorldStatePackets.h"
 
-BattlegroundBE::BattlegroundBE(BattlegroundTemplate const* battlegroundTemplate) : Arena(battlegroundTemplate)
+BattlegroundBE::BattlegroundBE()
 {
     BgObjects.resize(BG_BE_OBJECT_MAX);
 }
@@ -64,7 +66,7 @@ void BattlegroundBE::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool entered)
+void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -75,9 +77,16 @@ void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger, bool ente
         case 4539:                                          // buff trigger?
             break;
         default:
-            Battleground::HandleAreaTrigger(player, trigger, entered);
+            Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
+}
+
+void BattlegroundBE::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
+{
+    packet.Worldstates.emplace_back(2547, 1); // BATTLEGROUND_BLADES_EDGE_ARENA_SHOW
+
+    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundBE::SetupBattleground()

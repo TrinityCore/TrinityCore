@@ -19,14 +19,20 @@
 /// @{
 /// \file
 
-#include "CliRunnable.h"
-#include "Config.h"
-#include "Util.h"
+#include "Common.h"
+#include "Errors.h"
+#include "ObjectMgr.h"
 #include "World.h"
+#include "Configuration/Config.h"
+
+#include "CliRunnable.h"
+#include "Log.h"
+#include "Util.h"
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
 #include "Chat.h"
 #include "ChatCommand.h"
+#include <cstring>
 #include <readline/readline.h>
 #include <readline/history.h>
 #else
@@ -64,9 +70,9 @@ namespace Trinity::Impl::Readline
 
     int cli_hook_func()
     {
-        if (World::IsStopped())
-            ::rl_done = 1;
-        return 0;
+           if (World::IsStopped())
+               ::rl_done = 1;
+           return 0;
     }
 }
 #endif

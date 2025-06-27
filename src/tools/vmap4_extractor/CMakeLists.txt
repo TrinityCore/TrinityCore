@@ -22,16 +22,6 @@ target_link_libraries(vmap4extractor
   PUBLIC
     extractor_common)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
-
-target_include_directories(vmap4extractor
-  PUBLIC
-    ${PUBLIC_INCLUDES}
-  PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
-
 set_target_properties(vmap4extractor
     PROPERTIES
       FOLDER

@@ -15,215 +15,375 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* ScriptData
+SDName: Zulaman
+SD%Complete: 90
+SDComment: Forest Frog will turn into different NPC's. Workaround to prevent new entry from running this script
+SDCategory: Zul'Aman
+EndScriptData */
+
+/* ContentData
+EndContentData */
+
 #include "ScriptMgr.h"
-#include "CreatureTextMgr.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 #include "zulaman.h"
+
+/*######
+## npc_zulaman_hostage
+######*/
+
+static uint32 const HostageEntry[] = {23790, 23999, 24024, 24001};
+static uint32 const ChestEntry[] = {186648, 187021, 186672, 186667};
+
+enum Npcs
+{
+    NPC_TANZAR                = 23790,
+    NPC_HARKOR                = 23999,
+    NPC_ASHLI                 = 24001,
+    NPC_KRAZ                  = 24024
+};
+
+enum Gossips
+{
+    GOSSIP_MENU_TANZAR        = 8799,
+    GOSSIP_MENU_HARKOR        = 8874,
+    GOSSIP_MENU_ASHLI         = 8927,
+    GOSSIP_MENU_KRAZ          = 8881,
+    GOSSIP_OPTION_HOSTAGE     = 0
+};
+
+class npc_zulaman_hostage : public CreatureScript
+{
+    public:
+        npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
+
+        struct npc_zulaman_hostageAI : public ScriptedAI
+        {
+            npc_zulaman_hostageAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
+
+            InstanceScript* instance;
+
+            bool OnGossipHello(Player* player) override
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_TANZAR:
+                        InitGossipMenuFor(player, GOSSIP_MENU_TANZAR);
+                        AddGossipItemFor(player, GOSSIP_MENU_TANZAR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_HARKOR:
+                        InitGossipMenuFor(player, GOSSIP_MENU_HARKOR);
+                        AddGossipItemFor(player, GOSSIP_MENU_HARKOR, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_ASHLI:
+                        InitGossipMenuFor(player, GOSSIP_MENU_ASHLI);
+                        AddGossipItemFor(player, GOSSIP_MENU_ASHLI, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                    case NPC_KRAZ:
+                        InitGossipMenuFor(player, GOSSIP_MENU_KRAZ);
+                        AddGossipItemFor(player, GOSSIP_MENU_KRAZ, GOSSIP_OPTION_HOSTAGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        break;
+                }
+                SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
+                return true;
+            }
+
+            bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+            {
+                uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+                ClearGossipMenuFor(player);
+
+                if (action == GOSSIP_ACTION_INFO_DEF + 1)
+                    CloseGossipMenuFor(player);
+
+                if (!me->HasNpcFlag(UNIT_NPC_FLAG_GOSSIP))
+                    return true;
+
+                me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+
+                //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
+                instance->SetData(DATA_CHESTLOOTED, 0);
+                float x, y, z;
+                me->GetPosition(x, y, z);
+                uint32 entry = me->GetEntry();
+                for (uint8 i = 0; i < 4; ++i)
+                {
+                    if (HostageEntry[i] == entry)
+                    {
+                        me->SummonGameObject(ChestEntry[i], Position(x - 2, y, z, 0.f), QuaternionData(), 0s);
+                        break;
+                    }
+                }
+                return true;
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return GetZulAmanAI<npc_zulaman_hostageAI>(creature);
+        }
+};
+
+/*######
+## npc_harrison_jones
+######*/
 
 enum Says
 {
-    // Vol'jin
-    SAY_INTRO_1                 = 0,
-    SAY_INTRO_2                 = 1,
-    SAY_INTRO_3                 = 2,
-    SAY_INTRO_4                 = 3,
-    SAY_INTRO_FAIL              = 4,
-
-    // Hex Lord Malacrass
-    SAY_HEXLOR_INTRO            = 0
+    SAY_HARRISON_0                    = 0,
+    SAY_HARRISON_1                    = 1,
+    SAY_HARRISON_2                    = 0,
+    SAY_HARRISON_3                    = 1
 };
 
 enum Spells
 {
-    // Vol'jin
-    SPELL_BANGING_THE_GONG      = 45225
+    SPELL_BANGING_THE_GONG            = 45225,
+    SPELL_STEALTH                     = 34189,
+    SPELL_COSMETIC_SPEAR_THROW        = 43647
 };
 
 enum Events
 {
-    EVENT_INTRO_MOVEPOINT_1     = 1,
-    EVENT_INTRO_MOVEPOINT_2     = 2,
-    EVENT_INTRO_MOVEPOINT_3     = 3,
-    EVENT_BANGING_THE_GONG      = 4,
-    EVENT_START_DOOR_OPENING_1  = 5,
-    EVENT_START_DOOR_OPENING_2  = 6,
-    EVENT_START_DOOR_OPENING_3  = 7,
-    EVENT_START_DOOR_OPENING_4  = 8,
-    EVENT_START_DOOR_OPENING_5  = 9,
-    EVENT_START_DOOR_OPENING_6  = 10,
-    EVENT_START_DOOR_OPENING_7  = 11
+    GONG_EVENT_1                      = 1,
+    GONG_EVENT_2                      = 2,
+    GONG_EVENT_3                      = 3,
+    GONG_EVENT_4                      = 4,
+    GONG_EVENT_5                      = 5,
+    GONG_EVENT_6                      = 6,
+    GONG_EVENT_7                      = 7,
+    GONG_EVENT_8                      = 8,
+    GONG_EVENT_9                      = 9,
+    GONG_EVENT_10                     = 10,
+    GONG_EVENT_11                     = 11
 };
 
-enum Points
+enum Waypoints
 {
-    POINT_INTRO                 = 1,
-    POINT_STRANGE_GONG          = 2,
-    POINT_START_DOOR_OPENING_1  = 3,
-    POINT_START_DOOR_OPENING_2  = 4
+    HARRISON_MOVE_1                   = 860440,
+    HARRISON_MOVE_2                   = 860441,
+    HARRISON_MOVE_3                   = 860442
 };
 
-enum Misc
+enum DisplayIds
 {
-    ITEM_VIRTUAL_ITEM           = 5301,
-
-    GOSSIP_MENU_START_INTRO     = 12797,
+    MODEL_HARRISON_JONES_0              = 22340,
+    MODEL_HARRISON_JONES_1              = 22354,
+    MODEL_HARRISON_JONES_2              = 22347
 };
 
-Position const VoljinIntroWaypoint[4] =
+enum EntryIds
 {
-    { 117.7349f, 1662.77f, 42.02156f, 0.0f },
-    { 132.14f, 1645.143f, 42.02158f, 0.0f },
-    { 121.8901f, 1639.118f, 42.23253f, 0.0f },
-    { 122.618f, 1639.546f, 42.11659f, 0.0f },
+    NPC_HARRISON_JONES_1                = 24375,
+    NPC_HARRISON_JONES_2                = 24365,
+    NPC_AMANISHI_GUARDIAN               = 23597,
 };
 
-class npc_voljin_zulaman : public CreatureScript
+enum Weapons
+{
+    WEAPON_MACE                         = 5301,
+    WEAPON_SPEAR                        = 13631
+};
+
+class npc_harrison_jones : public CreatureScript
 {
     public:
-        npc_voljin_zulaman() : CreatureScript("npc_voljin_zulaman") { }
 
-        struct npc_voljin_zulamanAI : public ScriptedAI
+        npc_harrison_jones() : CreatureScript("npc_harrison_jones") { }
+
+        struct npc_harrison_jonesAI : public ScriptedAI
         {
-            npc_voljin_zulamanAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            npc_harrison_jonesAI(Creature* creature) : ScriptedAI(creature)
             {
-                me->SetDisplayFromModel(0);
-                if (_instance->GetData(DATA_ZULAMAN_STATE) == NOT_STARTED)
-                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                Initialize();
+                instance = creature->GetInstanceScript();
             }
+
+            void Initialize()
+            {
+                _gongEvent = 0;
+                _gongTimer = 0;
+            }
+
+            InstanceScript* instance;
+
+            uint8 _gongEvent;
+            uint32 _gongTimer;
 
             void Reset() override
             {
-                _gongCount = 0;
+                Initialize();
             }
+
+            void JustEngagedWith(Unit* /*who*/) override { }
 
             bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
-                if (_instance->GetData(DATA_ZULAMAN_STATE) != NOT_STARTED)
-                    return true;
-
-                if (menuId == GOSSIP_MENU_START_INTRO && !gossipListId)
-                {
-                    _events.Reset();
-                    me->SetMountDisplayId(0);
+               if (me->GetCreatureTemplate()->GossipMenuId == menuId && !gossipListId)
+               {
+                    CloseGossipMenuFor(player);
+                    me->SetFacingToObject(player);
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    me->ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
-                    _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_1, 1s);
-                    Talk(SAY_INTRO_1, player);
-                    me->SetWalk(true);
-                }
-                return false;
+                    Talk(SAY_HARRISON_0);
+                    _gongEvent = GONG_EVENT_1;
+                    _gongTimer = 4000;
+               }
+               return false;
             }
 
-            void DoAction(int32 action) override
+            void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
             {
-                if (action == ACTION_START_ZULAMAN)
+                if (spellInfo->Id == SPELL_COSMETIC_SPEAR_THROW)
                 {
-                    if (++_gongCount == 10)
-                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_1, 500ms);
+                    me->RemoveAllAuras();
+                    me->SetEntry(NPC_HARRISON_JONES_2);
+                    me->SetDisplayId(MODEL_HARRISON_JONES_2);
+                    me->SetTarget(ObjectGuid::Empty);
+                    me->SetStandState(UNIT_STAND_STATE_DEAD);
+                    me->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+                    instance->SetData(DATA_GONGEVENT, DONE);
                 }
             }
 
             void UpdateAI(uint32 diff) override
             {
-                _events.Update(diff);
-                while (uint32 eventId = _events.ExecuteEvent())
+                if (_gongEvent)
                 {
-                    switch (eventId)
+                    if (_gongTimer <= diff)
                     {
-                        case EVENT_INTRO_MOVEPOINT_1:
-                            me->GetMotionMaster()->MovePoint(POINT_INTRO, VoljinIntroWaypoint[0]);
-                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_2, 1s);
-                            break;
-                        case EVENT_INTRO_MOVEPOINT_2:
-                            me->GetMotionMaster()->MovePoint(POINT_STRANGE_GONG, VoljinIntroWaypoint[1]);
-                            _events.ScheduleEvent(EVENT_INTRO_MOVEPOINT_3, 4s);
-                            break;
-                        case EVENT_INTRO_MOVEPOINT_3:
-                            Talk(SAY_INTRO_2);
-                            _events.ScheduleEvent(EVENT_BANGING_THE_GONG, 3s);
-                            break;
-                        case EVENT_BANGING_THE_GONG:
-                            DoCast(me, SPELL_BANGING_THE_GONG);
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
-                            me->SetVirtualItem(0, uint32(ITEM_VIRTUAL_ITEM));
-                            break;
-                        case EVENT_START_DOOR_OPENING_1:
-                            me->RemoveAura(SPELL_BANGING_THE_GONG);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_2, 500ms);
-                            break;
-                        case EVENT_START_DOOR_OPENING_2:
-                            me->SetVirtualItem(0, uint32(0));
-                            if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                                strangeGong->SetFlag(GO_FLAG_NOT_SELECTABLE);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_3, 500ms);
-                            break;
-                        case EVENT_START_DOOR_OPENING_3:
-                            me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_1, VoljinIntroWaypoint[2]);
-                            break;
-                        case EVENT_START_DOOR_OPENING_4:
-                            _instance->SetData(DATA_ZULAMAN_STATE, IN_PROGRESS);
-                            if (GameObject* masiveGate = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_MASSIVE_GATE)))
-                                masiveGate->SetGoState(GO_STATE_ACTIVE);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_5, 3s);
-                            break;
-                        case EVENT_START_DOOR_OPENING_5:
-                            Talk(SAY_INTRO_4);
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_6, 6s);
-                            break;
-                        case EVENT_START_DOOR_OPENING_6:
-                            _events.ScheduleEvent(EVENT_START_DOOR_OPENING_7, 6s);
-                            break;
-                        case EVENT_START_DOOR_OPENING_7:
-                            if (Creature* hexLordTrigger = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_HEXLORD_TRIGGER)))
-                                sCreatureTextMgr->SendChat(hexLordTrigger, SAY_HEXLOR_INTRO, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                            break;
-                        default:
-                            break;
+                        switch (_gongEvent)
+                        {
+                            case GONG_EVENT_1:
+                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_1, false);
+                                _gongEvent = GONG_EVENT_2;
+                                _gongTimer = 12000;
+                                break;
+                            case GONG_EVENT_2:
+                                me->SetFacingTo(6.235659f);
+                                Talk(SAY_HARRISON_1);
+                                DoCast(me, SPELL_BANGING_THE_GONG);
+                                me->SetVirtualItem(0, uint32(WEAPON_MACE));
+                                me->SetSheath(SHEATH_STATE_MELEE);
+                                _gongEvent = GONG_EVENT_3;
+                                _gongTimer = 4000;
+                                break;
+                            case GONG_EVENT_3:
+                                if (GameObject* gong = instance->GetGameObject(GO_STRANGE_GONG))
+                                    gong->RemoveFlag(GO_FLAG_NOT_SELECTABLE);
+                                _gongEvent = GONG_EVENT_4;
+                                _gongTimer = 105000;
+                                break;
+                            case GONG_EVENT_4:
+                                me->RemoveAura(SPELL_BANGING_THE_GONG);
+                                if (GameObject* gong = instance->GetGameObject(GO_STRANGE_GONG))
+                                    gong->SetFlag(GO_FLAG_NOT_SELECTABLE);
+
+                                // trigger or gong will need to be scripted to set IN_PROGRESS after enough hits.
+                                // This is temp workaround.
+                                instance->SetData(DATA_GONGEVENT, IN_PROGRESS); // to be removed.
+
+                                if (instance->GetData(DATA_GONGEVENT) == IN_PROGRESS)
+                                {
+                                    // Players are Now Saved to instance at SPECIAL (Player should be notified?)
+                                    me->GetMotionMaster()->MovePath(HARRISON_MOVE_2, false);
+                                    _gongEvent = GONG_EVENT_5;
+                                    _gongTimer = 5000;
+                                }
+                                else
+                                {
+                                    _gongTimer = 1000;
+                                    _gongEvent = GONG_EVENT_9;
+                                }
+                                break;
+                            case GONG_EVENT_5:
+                                me->SetEntry(NPC_HARRISON_JONES_1);
+                                me->SetDisplayId(MODEL_HARRISON_JONES_1);
+                                Talk(SAY_HARRISON_2);
+                                _gongTimer = 12000;
+                                _gongEvent = GONG_EVENT_6;
+                                break;
+                            case GONG_EVENT_6:
+                                me->SetEmoteState(EMOTE_STATE_USE_STANDING);
+                                Talk(SAY_HARRISON_3);
+                                _gongTimer = 7000;
+                                _gongEvent = GONG_EVENT_7;
+                                break;
+                            case GONG_EVENT_7:
+                            {
+                                std::vector<Creature*> targetList;
+                                GetCreatureListWithEntryInGrid(targetList, me, NPC_AMANISHI_GUARDIAN, 26.0f);
+                                for (Creature* target : targetList)
+                                {
+                                    if (target->GetPositionX() > 120)
+                                    {
+                                        target->SetVirtualItem(0, uint32(WEAPON_SPEAR));
+                                        target->SetImmuneToPC(true);
+                                        target->SetReactState(REACT_PASSIVE);
+                                        target->AI()->SetData(0, 1);
+                                    }
+                                    else
+                                    {
+                                        target->SetImmuneToPC(true);
+                                        target->SetReactState(REACT_PASSIVE);
+                                        target->AI()->SetData(0, 2);
+                                    }
+                                }
+
+                                if (GameObject* gate = instance->GetGameObject(GO_MASSIVE_GATE))
+                                    gate->SetGoState(GO_STATE_ACTIVE);
+                                _gongTimer = 2000;
+                                _gongEvent = GONG_EVENT_8;
+                                break;
+                            }
+                            case GONG_EVENT_8:
+                                DoCast(me, SPELL_STEALTH);
+                                me->SetVirtualItem(0, uint32(0));
+                                me->SetEmoteState(EMOTE_ONESHOT_NONE);
+                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_3, false);
+                                _gongTimer = 1000;
+                                _gongEvent = 0;
+                                break;
+                            case GONG_EVENT_9:
+                                me->GetMotionMaster()->MovePoint(0, 120.687f, 1674.0f, 42.0217f);
+                                _gongTimer = 12000;
+                                _gongEvent = GONG_EVENT_10;
+                                break;
+                            case GONG_EVENT_10:
+                                me->SetFacingTo(1.59044f);
+                                _gongEvent = 11;
+                                _gongTimer = 6000;
+                                break;
+                            case GONG_EVENT_11:
+                                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+
+                                instance->SetData(DATA_GONGEVENT, NOT_STARTED);
+                                _gongEvent = 0;
+                                _gongTimer = 1000;
+                                break;
+                        }
                     }
+                    else
+                        _gongTimer -= diff;
                 }
             }
-
-            void MovementInform(uint32 movementType, uint32 pointId) override
-            {
-                if (movementType != POINT_MOTION_TYPE)
-                    return;
-
-                switch (pointId)
-                {
-                    case POINT_STRANGE_GONG:
-                        if (GameObject* strangeGong = ObjectAccessor::GetGameObject(*me, _instance->GetGuidData(DATA_STRANGE_GONG)))
-                            me->SetFacingToObject(strangeGong); // setInFront
-                        break;
-                    case POINT_START_DOOR_OPENING_1:
-                        me->SetFacingTo(4.747295f);
-                        me->GetMotionMaster()->MovePoint(POINT_START_DOOR_OPENING_2, VoljinIntroWaypoint[3]);
-                        Talk(SAY_INTRO_3);
-                        _events.ScheduleEvent(EVENT_START_DOOR_OPENING_4, 4500ms);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-        private:
-            InstanceScript* _instance;
-            EventMap _events;
-            uint8 _gongCount = 0;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
         {
-            return GetZulAmanAI<npc_voljin_zulamanAI>(creature);
+            return GetZulAmanAI<npc_harrison_jonesAI>(creature);
         }
 };
 
 void AddSC_zulaman()
 {
-    new npc_voljin_zulaman();
+    new npc_zulaman_hostage();
+    new npc_harrison_jones();
 }

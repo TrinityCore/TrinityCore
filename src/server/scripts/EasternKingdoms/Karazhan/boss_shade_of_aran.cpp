@@ -25,10 +25,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "karazhan.h"
 #include "InstanceScript.h"
-#include "Item.h"
-#include "MotionMaster.h"
+#include "GameObject.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "TemporarySummon.h"
@@ -44,7 +42,7 @@ enum ShadeOfAran
     SAY_KILL                    = 6,
     SAY_TIMEOVER                = 7,
     SAY_DEATH                   = 8,
-    SAY_ATIESH                  = 9,
+//  SAY_ATIESH                  = 9, Unused
 
     //Spells
     SPELL_FROSTBOLT             = 29954,
@@ -83,22 +81,6 @@ enum SuperSpell
     SUPER_AE,
 };
 
-enum Items
-{
-    ITEM_ATIESH_MAGE            = 22589,
-    ITEM_ATIESH_WARLOCK         = 22630,
-    ITEM_ATIESH_PRIEST          = 22631,
-    ITEM_ATIESH_DRUID           = 22632,
-};
-
-uint32 const AtieshStaves[4] =
-{
-    ITEM_ATIESH_MAGE,
-    ITEM_ATIESH_WARLOCK,
-    ITEM_ATIESH_PRIEST,
-    ITEM_ATIESH_DRUID,
-};
-
 class boss_shade_of_aran : public CreatureScript
 {
 public:
@@ -111,7 +93,7 @@ public:
 
     struct boss_aranAI : public ScriptedAI
     {
-        boss_aranAI(Creature* creature) : ScriptedAI(creature), SeenAtiesh(false)
+        boss_aranAI(Creature* creature) : ScriptedAI(creature)
         {
             Initialize();
             instance = creature->GetInstanceScript();
@@ -168,7 +150,6 @@ public:
         bool ElementalsSpawned;
         bool Drinking;
         bool DrinkInturrupted;
-        bool SeenAtiesh;
 
         void Reset() override
         {
@@ -208,7 +189,7 @@ public:
             {
                 Unit* target = ref->GetVictim();
                 if (ref->GetVictim()->GetTypeId() == TYPEID_PLAYER && ref->GetVictim()->IsAlive())
-                        targets.push_back(target);
+                    targets.push_back(target);
             }
 
             //cut down to size if we have more than 3 targets
@@ -478,8 +459,7 @@ public:
                         Unit* unit = ObjectAccessor::GetUnit(*me, FlameWreathTarget[i]);
                         if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            unit->CastSpell(unit, 20476, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                                .SetOriginalCaster(me->GetGUID()));
+                            unit->CastSpell(unit, 20476, me->GetGUID());
                             unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i].Clear();
                         }
@@ -517,41 +497,6 @@ public:
                 case SPELL_FROSTBOLT: FrostCooldown = 5000; break;
             }
         }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            ScriptedAI::MoveInLineOfSight(who);
-
-            if (SeenAtiesh || me->IsInCombat() || me->GetDistance2d(who) > me->GetAttackDistance(who) + 10.0f)
-                return;
-
-            Player* player = who->ToPlayer();
-            if (!player)
-                return;
-
-            for (uint32 id : AtieshStaves)
-            {
-                if (!PlayerHasWeaponEquipped(player, id))
-                    continue;
-
-                SeenAtiesh = true;
-                Talk(SAY_ATIESH);
-                me->SetFacingTo(me->GetAbsoluteAngle(player));
-                me->ClearUnitState(UNIT_STATE_MOVING);
-                me->GetMotionMaster()->MoveDistract(7 * IN_MILLISECONDS, me->GetAbsoluteAngle(who));
-                break;
-            }
-        }
-
-        private:
-            bool PlayerHasWeaponEquipped(Player* player, uint32 itemEntry)
-            {
-                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                if (item && item->GetEntry() == itemEntry)
-                    return true;
-
-                return false;
-            }
     };
 };
 

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "temple_of_ahnqiraj.h"
@@ -278,7 +279,8 @@ class npc_glob_of_viscidus : public CreatureScript
 
                 if (Creature* Viscidus = instance->GetCreature(DATA_VISCIDUS))
                 {
-                    Viscidus->AI()->SummonedCreatureDespawn(me);
+                    if (BossAI* ViscidusAI = dynamic_cast<BossAI*>(Viscidus->GetAI()))
+                        ViscidusAI->SummonedCreatureDespawn(me);
 
                     if (Viscidus->IsAlive() && Viscidus->GetHealthPct() < 5.0f)
                     {

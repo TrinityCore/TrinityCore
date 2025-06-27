@@ -22,7 +22,6 @@
 #include <functional>
 
 class WorldObject;
-enum Difficulty : uint8;
 
 template<typename First, typename Second, typename... Rest>
 inline First const& RAND(First const& first, Second const& second, Rest const&... rest)
@@ -50,43 +49,18 @@ enum AICondition
 
 #define AI_DEFAULT_COOLDOWN 5000
 
-// Spell targets used by SelectSpell
-enum SelectTargetType : uint8
-{
-    SELECT_TARGET_DONTCARE = 0,  // All target types allowed
-    SELECT_TARGET_SELF,          // Only Self casting
-    SELECT_TARGET_SINGLE_ENEMY,  // Only Single Enemy
-    SELECT_TARGET_AOE_ENEMY,     // Only AoE Enemy
-    SELECT_TARGET_ANY_ENEMY,     // AoE or Single Enemy
-    SELECT_TARGET_SINGLE_FRIEND, // Only Single Friend
-    SELECT_TARGET_AOE_FRIEND,    // Only AoE Friend
-    SELECT_TARGET_ANY_FRIEND     // AoE or Single Friend
-};
-
-// Spell Effects used by SelectSpell
-enum SelectEffect : uint8
-{
-    SELECT_EFFECT_DONTCARE = 0, // All spell effects allowed
-    SELECT_EFFECT_DAMAGE,       // Spell does damage
-    SELECT_EFFECT_HEALING,      // Spell does healing
-    SELECT_EFFECT_AURA          // Spell applies an aura
-};
-
 struct AISpellInfoType
 {
     AISpellInfoType() : target(AITARGET_SELF), condition(AICOND_COMBAT)
         , cooldown(AI_DEFAULT_COOLDOWN), realCooldown(0), maxRange(0.0f){ }
     AITarget target;
     AICondition condition;
-    Milliseconds cooldown;
-    Milliseconds realCooldown;
+    uint32 cooldown;
+    uint32 realCooldown;
     float maxRange;
-
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
 };
 
-AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty);
+AISpellInfoType* GetAISpellInfo(uint32 i);
 
 TC_GAME_API bool InstanceHasScript(WorldObject const* obj, char const* scriptName);
 

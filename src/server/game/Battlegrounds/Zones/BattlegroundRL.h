@@ -47,13 +47,14 @@ enum BattlegroundRLEvents
 class BattlegroundRL : public Arena
 {
     public:
-        BattlegroundRL(BattlegroundTemplate const* battlegroundTemplate);
+        BattlegroundRL();
 
         /* inherited from BattlegroundClass */
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void StartingEventCloseDoors() override;
         void StartingEventOpenDoors() override;
 
-        void HandleAreaTrigger(Player* source, uint32 trigger, bool entered) override;
+        void HandleAreaTrigger(Player* Source, uint32 Trigger) override;
         bool SetupBattleground() override;
 
     private:

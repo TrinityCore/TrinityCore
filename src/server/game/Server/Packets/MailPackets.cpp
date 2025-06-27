@@ -20,60 +20,48 @@
 #include "Item.h"
 #include "Mail.h"
 #include "Player.h"
+#include "World.h"
 
 WorldPackets::Mail::MailAttachedItem::MailAttachedItem(::Item const* item, uint8 pos)
 {
     Position = pos;
     AttachID = item->GetGUID().GetCounter();
-    Item.Initialize(item);
+    ItemID = item->GetEntry();
+    RandomPropertiesID = item->GetItemRandomPropertyId();
+    RandomPropertiesSeed = item->GetItemSuffixFactor();
     Count = item->GetCount();
     Charges = item->GetSpellCharges();
-    MaxDurability = item->m_itemData->MaxDurability;
-    Durability = item->m_itemData->Durability;
+    MaxDurability = item->GetUInt32Value(ITEM_FIELD_MAXDURABILITY);
+    Durability = item->GetInt32Value(ITEM_FIELD_DURABILITY);
     Unlocked = !item->IsLocked();
 
     for (uint8 j = 0; j < MAX_INSPECTED_ENCHANTMENT_SLOT; j++)
     {
         EnchantmentSlot slot = EnchantmentSlot(j);
-        if (!item->GetEnchantmentId(slot))
-            continue;
-
-        Enchants.emplace_back(item->GetEnchantmentId(slot), item->GetEnchantmentDuration(slot), item->GetEnchantmentCharges(slot), j);
-    }
-
-    uint8 i = 0;
-    for (UF::SocketedGem const& gemData : item->m_itemData->Gems)
-    {
-        if (gemData.ItemID)
-        {
-            WorldPackets::Item::ItemGemData gem;
-            gem.Slot = i;
-            gem.Item.Initialize(&gemData);
-            Gems.push_back(gem);
-        }
-        ++i;
+        EnchantmentID[slot] = item->GetEnchantmentId(slot);
+        EnchantmentDuration[slot] = item->GetEnchantmentDuration(slot);
+        EnchantmentCharges[slot] = item->GetEnchantmentCharges(slot);
     }
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailAttachedItem const& att)
 {
     data << uint8(att.Position);
-    data << uint64(att.AttachID);
+    data << int32(att.AttachID);
+    data << int32(att.ItemID);
+    for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; i++)
+    {
+        data << int32(att.EnchantmentID[i]);
+        data << int32(att.EnchantmentDuration[i]);
+        data << int32(att.EnchantmentCharges[i]);
+    }
+    data << int32(att.RandomPropertiesID);
+    data << int32(att.RandomPropertiesSeed);
     data << int32(att.Count);
     data << int32(att.Charges);
     data << uint32(att.MaxDurability);
     data << int32(att.Durability);
-    data << att.Item;
-    data.WriteBits(att.Enchants.size(), 4);
-    data.WriteBits(att.Gems.size(), 2);
-    data.WriteBit(att.Unlocked);
-    data.FlushBits();
-
-    for (WorldPackets::Item::ItemGemData const& gem : att.Gems)
-        data << gem;
-
-    for (WorldPackets::Item::ItemEnchantData const& en : att.Enchants)
-        data << en;
+    data << bool(att.Unlocked);
 
     return data;
 }
@@ -106,40 +94,40 @@ WorldPackets::Mail::MailListEntry::MailListEntry(::Mail const* mail, ::Player* p
     Body = mail->body;
 
     for (uint8 i = 0; i < mail->items.size(); i++)
-    {
         if (::Item* item = player->GetMItem(mail->items[i].item_guid))
             Attachments.emplace_back(item, i);
-    }
+}
+
+std::size_t WorldPackets::Mail::MailListEntry::GetPacketSize() const
+{
+    return sizeof(uint16) + sizeof(int32) + sizeof(uint8) + (SenderCharacter ? sizeof(uint64) : 0) + (AltSenderID ? sizeof(int32) : 0)
+        + sizeof(uint32) + sizeof(int32) + sizeof(int32) + sizeof(uint32) + sizeof(int32) + sizeof(float) + sizeof(int32)
+        + Subject.length() + 1 + Body.length() + 1 + sizeof(uint8) + Attachments.size() * MailAttachedItem::GetPacketSize();
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const& entry)
 {
-    data << uint64(entry.MailID);
+    data << uint16(entry.GetPacketSize());
+    data << int32(entry.MailID);
     data << uint8(entry.SenderType);
-    data << uint64(entry.Cod);
+    if (entry.SenderCharacter)
+        data << *entry.SenderCharacter;
+    else if (entry.AltSenderID)
+        data << int32(*entry.AltSenderID);
+
+    data << uint32(entry.Cod);
+    data << int32(entry.PackageID);
     data << int32(entry.StationeryID);
-    data << uint64(entry.SentMoney);
+    data << uint32(entry.SentMoney);
     data << int32(entry.Flags);
     data << float(entry.DaysLeft);
     data << int32(entry.MailTemplateID);
-    data << uint32(entry.Attachments.size());
-    data.WriteBit(entry.SenderCharacter.has_value());
-    data.WriteBit(entry.AltSenderID.has_value());
-    data.WriteBits(entry.Subject.size(), 8);
-    data.WriteBits(entry.Body.size(), 13);
-    data.FlushBits();
+    data << entry.Subject;
+    data << entry.Body;
+    data << uint8(entry.Attachments.size());
 
     for (WorldPackets::Mail::MailAttachedItem const& att : entry.Attachments)
         data << att;
-
-    if (entry.SenderCharacter)
-        data << *entry.SenderCharacter;
-
-    if (entry.AltSenderID)
-        data << int32(*entry.AltSenderID);
-
-    data.WriteString(entry.Subject);
-    data.WriteString(entry.Body);
 
     return data;
 }
@@ -149,15 +137,34 @@ void WorldPackets::Mail::MailGetList::Read()
     _worldPacket >> Mailbox;
 }
 
+WorldPackets::Mail::MailListResult::MailListResult() : ServerPacket(SMSG_MAIL_LIST_RESULT, 8)
+{
+    _worldPacket << int32(0); // TotalNumRecords
+    _worldPacket << uint8(0); // Mails.size()
+}
+
 WorldPacket const* WorldPackets::Mail::MailListResult::Write()
 {
-    _worldPacket << uint32(Mails.size());
-    _worldPacket << int32(TotalNumRecords);
-
-    for (MailListEntry const& mail : Mails)
-        _worldPacket << mail;
+    _worldPacket.put<int32>(0, TotalNumRecords);
+    _worldPacket.put<uint8>(4, Mails.size());
 
     return &_worldPacket;
+}
+
+void WorldPackets::Mail::MailListResult::AddMail(::Mail const* mail, Player* player)
+{
+    ++TotalNumRecords;
+    if (Mails.size() >= 50 || _maxPacketSizeReached)
+        return;
+
+    MailListEntry packetEntry(mail, player);
+    if (_worldPacket.size() + packetEntry.GetPacketSize() >= std::size_t(std::numeric_limits<int16>::max()))
+    {
+        _maxPacketSizeReached = true;
+        return;
+    }
+
+    _worldPacket << Mails.emplace_back(std::move(packetEntry));
 }
 
 void WorldPackets::Mail::MailCreateTextItem::Read()
@@ -166,48 +173,52 @@ void WorldPackets::Mail::MailCreateTextItem::Read()
     _worldPacket >> MailID;
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Mail::SendMail::StructSendMail::MailAttachment& attachment)
-{
-    data >> attachment.AttachPosition;
-    data >> attachment.ItemGUID;
-    return data;
-}
-
 void WorldPackets::Mail::SendMail::Read()
 {
     _worldPacket >> Info.Mailbox;
+    _worldPacket >> Info.Target;
+    _worldPacket >> Info.Subject;
+    _worldPacket >> Info.Body;
     _worldPacket >> Info.StationeryID;
+    _worldPacket >> Info.PackageID;
+    Info.Attachments.resize(_worldPacket.read<uint8>());
+
+    for (auto& att : Info.Attachments)
+    {
+        _worldPacket >> att.AttachPosition;
+        _worldPacket >> att.ItemGUID;
+    }
+
     _worldPacket >> Info.SendMoney;
     _worldPacket >> Info.Cod;
-
-    uint32 targetLength = _worldPacket.ReadBits(9);
-    uint32 subjectLength = _worldPacket.ReadBits(9);
-    uint32 bodyLength = _worldPacket.ReadBits(11);
-
-    Info.Attachments.resize(_worldPacket.ReadBits(5));
-
-    Info.Target = _worldPacket.ReadString(targetLength);
-    Info.Subject = _worldPacket.ReadString(subjectLength);
-    Info.Body = _worldPacket.ReadString(bodyLength);
-
-    for (StructSendMail::MailAttachment& att : Info.Attachments)
-        _worldPacket >> att;
+    _worldPacket.read_skip<uint64>();
+    _worldPacket.read_skip<uint8>();
 }
 
 void WorldPackets::Mail::MailReturnToSender::Read()
 {
+    _worldPacket >> Mailbox;
     _worldPacket >> MailID;
     _worldPacket >> SenderGUID;
 }
 
 WorldPacket const* WorldPackets::Mail::MailCommandResult::Write()
 {
-    _worldPacket << uint64(MailID);
-    _worldPacket << int32(Command);
-    _worldPacket << int32(ErrorCode);
-    _worldPacket << int32(BagResult);
-    _worldPacket << uint64(AttachID);
-    _worldPacket << int32(QtyInInventory);
+    _worldPacket << uint32(MailID);
+    _worldPacket << uint32(Command);
+    _worldPacket << uint32(ErrorCode);
+
+    if (ErrorCode == MAIL_ERR_EQUIP_ERROR)
+        _worldPacket << uint32(BagResult);
+
+    if (Command == MAIL_ITEM_TAKEN)
+    {
+        if (ErrorCode == MAIL_OK || ErrorCode == MAIL_ERR_ITEM_HAS_EXPIRED)
+        {
+            _worldPacket << uint32(AttachID);
+            _worldPacket << uint32(QtyInInventory);
+        }
+    }
 
     return &_worldPacket;
 }
@@ -220,6 +231,7 @@ void WorldPackets::Mail::MailMarkAsRead::Read()
 
 void WorldPackets::Mail::MailDelete::Read()
 {
+    _worldPacket >> Mailbox;
     _worldPacket >> MailID;
     _worldPacket >> DeleteReason;
 }
@@ -235,7 +247,6 @@ void WorldPackets::Mail::MailTakeMoney::Read()
 {
     _worldPacket >> Mailbox;
     _worldPacket >> MailID;
-    _worldPacket >> Money;
 }
 
 WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntry(::Mail const* mail)
@@ -253,7 +264,7 @@ WorldPackets::Mail::MailQueryNextTimeResult::MailNextTimeEntry::MailNextTimeEntr
             break;
     }
 
-    TimeLeft = mail->deliver_time - GameTime::GetGameTime();
+    TimeLeft = mail->deliver_time - time(nullptr);
     AltSenderType = mail->messageType;
     StationeryID = mail->stationery;
 }
@@ -266,10 +277,10 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
     for (auto const& entry : Next)
     {
         _worldPacket << entry.SenderGuid;
-        _worldPacket << float(entry.TimeLeft);
         _worldPacket << int32(entry.AltSenderID);
-        _worldPacket << int8(entry.AltSenderType);
+        _worldPacket << int32(entry.AltSenderType);
         _worldPacket << int32(entry.StationeryID);
+        _worldPacket << float(entry.TimeLeft);
     }
 
     return &_worldPacket;
@@ -278,6 +289,13 @@ WorldPacket const* WorldPackets::Mail::MailQueryNextTimeResult::Write()
 WorldPacket const* WorldPackets::Mail::NotifyReceivedMail::Write()
 {
     _worldPacket << float(Delay);
+
+    return &_worldPacket;
+}
+
+WorldPacket const* WorldPackets::Mail::ShowMailbox::Write()
+{
+    _worldPacket << PostmasterGUID;
 
     return &_worldPacket;
 }

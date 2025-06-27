@@ -18,9 +18,11 @@
 #ifndef __TRINITY_VEHICLE_H
 #define __TRINITY_VEHICLE_H
 
+#include "ObjectDefines.h"
 #include "Object.h"
-#include "VehicleDefines.h"
+#include "UniqueTrackablePtr.h"
 #include "Unit.h"
+#include "VehicleDefines.h"
 #include <list>
 
 struct VehicleEntry;
@@ -29,18 +31,9 @@ class VehicleJoinEvent;
 
 class TC_GAME_API Vehicle : public TransportBase
 {
-    protected:
-        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry, bool);
-        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
-
-        friend void Unit::RemoveVehicleKit(bool);
-        ~Vehicle();
-
     public:
-        Vehicle(Vehicle const& right) = delete;
-        Vehicle(Vehicle&& right) = delete;
-        Vehicle& operator=(Vehicle const& right) = delete;
-        Vehicle& operator=(Vehicle&& right) = delete;
+        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
+        ~Vehicle();
 
         void Install();
         void Uninstall();
@@ -59,14 +52,14 @@ class TC_GAME_API Vehicle : public TransportBase
         VehicleSeatAddon const* GetSeatAddonForSeatOfPassenger(Unit const* passenger) const;
         uint8 GetAvailableSeatCount() const;
 
-        bool AddVehiclePassenger(Unit* unit, int8 seatId = -1);
-        Vehicle* RemovePassenger(WorldObject* passenger) override;
+        bool AddPassenger(Unit* passenger, int8 seatId = -1);
+        void EjectPassenger(Unit* passenger, Unit* controller);
+        Vehicle* RemovePassenger(Unit* passenger);
         void RelocatePassengers();
         void RemoveAllPassengers();
         bool IsVehicleInUse() const;
         bool IsControllableVehicle() const;
 
-        SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         SeatMap Seats;                                      ///< The collection of all seats on the vehicle. Including vacant ones.
 
         VehicleSeatEntry const* GetSeatForPassenger(Unit const* passenger) const;
@@ -76,6 +69,8 @@ class TC_GAME_API Vehicle : public TransportBase
         Milliseconds GetDespawnDelay();
 
         std::string GetDebugInfo() const;
+
+        Trinity::unique_weak_ptr<Vehicle> GetWeakPtr() const;
 
     protected:
         friend class VehicleJoinEvent;
@@ -89,13 +84,8 @@ class TC_GAME_API Vehicle : public TransportBase
             STATUS_UNINSTALLING,
         };
 
+        SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
-
-        ObjectGuid GetTransportGUID() const override { return GetBase()->GetGUID(); }
-
-        float GetTransportOrientation() const override { return GetBase()->GetOrientation(); }
-
-        void AddPassenger(WorldObject* /*passenger*/) override { ABORT_MSG("Vehicle cannot directly gain passengers without auras"); }
 
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= nullptr*/) const override
@@ -112,8 +102,6 @@ class TC_GAME_API Vehicle : public TransportBase
                 GetBase()->GetPositionX(), GetBase()->GetPositionY(),
                 GetBase()->GetPositionZ(), GetBase()->GetOrientation());
         }
-
-        int32 GetMapIdForSpawning() const override { return GetBase()->GetMapId(); }
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);

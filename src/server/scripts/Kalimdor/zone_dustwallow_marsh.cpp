@@ -22,20 +22,13 @@
 
 enum OozeZap
 {
-    SPELL_OOZE_ZAP              = 42489,
-    SPELL_OOZE_CHANNEL_CREDIT   = 42486,
-    SPELL_ENERGIZED             = 42492,
+    SPELL_OOZE_CHANNEL_CREDIT   = 42486
 };
 
 // 42489 - Cast Ooze Zap When Energized
 class spell_ooze_zap : public SpellScript
 {
     PrepareSpellScript(spell_ooze_zap);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_OOZE_ZAP });
-    }
 
     SpellCastResult CheckRequirement()
     {
@@ -90,11 +83,6 @@ class spell_ooze_zap_channel_end : public SpellScript
 class spell_energize_aoe : public SpellScript
 {
     PrepareSpellScript(spell_energize_aoe);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_ENERGIZED });
-    }
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {

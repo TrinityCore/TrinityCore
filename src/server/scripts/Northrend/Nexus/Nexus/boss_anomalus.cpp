@@ -142,7 +142,7 @@ struct boss_anomalus : public ScriptedAI
 
         if (me->HasAura(SPELL_RIFT_SHIELD))
         {
-            if (!uiChaoticRiftGUID.IsEmpty())
+            if (uiChaoticRiftGUID)
             {
                 Creature* Rift = ObjectAccessor::GetCreature(*me, uiChaoticRiftGUID);
                 if (Rift && Rift->isDead())
@@ -207,7 +207,7 @@ struct npc_chaotic_rift : public ScriptedAI
     void Reset() override
     {
         Initialize();
-        me->SetDisplayFromModel(1);
+        me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
         DoCast(me, SPELL_ARCANEFORM, false);
     }
 

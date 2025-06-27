@@ -158,8 +158,8 @@ struct boss_alar : public BossAI
 
         me->SetDisplayId(me->GetNativeDisplayId());
         me->SetSpeedRate(MOVE_RUN, DefaultMoveSpeedRate);
-        //me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-        //me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+        //me->SetBoundingRadius(10);
+        //me->SetCombatReach(10);
         me->SetDisableGravity(true);
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
         me->setActive(false);

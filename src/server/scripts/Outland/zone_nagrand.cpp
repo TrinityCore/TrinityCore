@@ -27,11 +27,12 @@ npc_maghar_captive
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "ConditionMgr.h"
+#include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ScriptedEscortAI.h"
+#include "ScriptedGossip.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -693,8 +694,8 @@ public:
 
     bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
     {
-        WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
-        if (Creature const* creature = target->ToCreature())
+        WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+        if (Creature* creature = target->ToCreature())
         {
             if (npc_nagrand_banner::npc_nagrand_bannerAI *ai = CAST_AI(npc_nagrand_banner::npc_nagrand_bannerAI, creature->AI()))
                 return !ai->IsBannered();

@@ -29,6 +29,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TypeContainerVisitor.h"
 #include "ulduar.h"
 #include <G3D/Vector3.h>
 
@@ -83,9 +84,8 @@ enum Spells
     // Ancient Rune Giant
     SPELL_RUNIC_FORTIFICATION                   = 62942,
     SPELL_RUNE_DETONATION                       = 62526,
+    SPELL_STOMP                                 = 62411
 };
-
-#define SPELL_STOMP RAID_MODE<uint32>(62411,62413)
 
 enum Phases
 {
@@ -313,6 +313,9 @@ Position const SifSpawnPosition = { 2148.301f, -297.8453f, 438.3308f, 2.687807f 
 
 enum Data
 {
+    ACHIEVEMENT_DONT_STAND_IN_THE_LIGHTNING = 29712972,
+    ACHIEVEMENT_SIFFED                      = 29772978,
+    ACHIEVEMENT_LOSE_YOUR_ILLUSION          = 31763183,
     DATA_CHARGED_PILLAR                     = 1
 };
 
@@ -517,6 +520,22 @@ class boss_thorim : public CreatureScript
                         events.ScheduleEvent(EVENT_LIGHTNING_CHARGE, 8s, 0, PHASE_2);
                     }
                 }
+            }
+
+            uint32 GetData(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case ACHIEVEMENT_DONT_STAND_IN_THE_LIGHTNING:
+                        return _dontStandInTheLightning ? 1 : 0;
+                    case ACHIEVEMENT_LOSE_YOUR_ILLUSION:
+                    case DATA_THORIM_HARDMODE:
+                        return _hardMode ? 1 : 0;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
             void KilledUnit(Unit* who) override
@@ -993,7 +1012,7 @@ struct npc_thorim_trashAI : public ScriptedAI
                     if (_exclSelf && u == _referer)
                         return false;
 
-                    if (_exclAura && u->HasAura(_exclAura))
+                    if (_exclAura && u->HasAura(sSpellMgr->GetSpellIdForDifficulty(_exclAura, _referer)))
                         return false;
 
                     if ((u->GetHealth() + GetRemainingHealOn(u) + _hp) > u->GetMaxHealth())
@@ -1024,9 +1043,9 @@ struct npc_thorim_trashAI : public ScriptedAI
             uint32 const heal = GetTotalHeal(spellInfo, caster);
 
             Unit* target = nullptr;
-            Trinity::MostHPMissingInRange checker(caster, range, heal);
-            Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(caster, target, checker);
-            Cell::VisitGridObjects(caster, searcher, 60.0f);
+            MostHPMissingInRange checker(caster, range, heal);
+            Trinity::UnitLastSearcher<MostHPMissingInRange> searcher(caster, target, checker);
+            Cell::VisitGridObjects(caster, searcher, range);
 
             return target;
         }
@@ -1034,7 +1053,7 @@ struct npc_thorim_trashAI : public ScriptedAI
         static Unit* GetHealTarget(SpellInfo const* spellInfo, Unit* caster)
         {
             Unit* healTarget = nullptr;
-            if (!spellInfo->HasAttribute(SPELL_ATTR1_EXCLUDE_CASTER) && !roll_chance_f(caster->GetHealthPct()) && ((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) <= caster->GetMaxHealth()))
+            if (!spellInfo->HasAttribute(SPELL_ATTR1_CANT_TARGET_SELF) && !roll_chance_f(caster->GetHealthPct()) && ((caster->GetHealth() + GetRemainingHealOn(caster) + GetTotalHeal(spellInfo, caster)) <= caster->GetMaxHealth()))
                 healTarget = caster;
             else
                 healTarget = GetUnitWithMostMissingHp(spellInfo, caster);
@@ -1045,7 +1064,7 @@ struct npc_thorim_trashAI : public ScriptedAI
 
     bool UseAbility(uint32 spellId)
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, GetDifficulty());
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
             return false;
 
@@ -1149,6 +1168,11 @@ class npc_thorim_pre_phase : public CreatureScript
             {
                 if (Creature* thorim = _instance->GetCreature(DATA_THORIM))
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
+            }
+
+            bool ShouldSparWith(Unit const* target) const override
+            {
+                return !target->GetAffectingPlayer();
             }
 
             void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -1260,7 +1284,7 @@ class npc_thorim_arena_phase : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                if (why != EvadeReason::NoHostiles && why != EvadeReason::Boundary)
+                if (why != EVADE_REASON_NO_HOSTILES && why != EVADE_REASON_BOUNDARY)
                     return;
 
                 // this should only happen if theres no alive player in the arena -> summon orb
@@ -2105,6 +2129,42 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
         }
 };
 
+class achievement_dont_stand_in_the_lightning : public AchievementCriteriaScript
+{
+    public:
+        achievement_dont_stand_in_the_lightning() : AchievementCriteriaScript("achievement_dont_stand_in_the_lightning") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            return target && target->GetAI()->GetData(ACHIEVEMENT_DONT_STAND_IN_THE_LIGHTNING);
+        }
+};
+
+class achievement_lose_your_illusion : public AchievementCriteriaScript
+{
+    public:
+        achievement_lose_your_illusion() : AchievementCriteriaScript("achievement_lose_your_illusion") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target) override
+        {
+            return target && target->GetAI()->GetData(ACHIEVEMENT_LOSE_YOUR_ILLUSION);
+        }
+};
+
+class achievement_i_ll_take_you_all_on : public AchievementCriteriaScript
+{
+    public:
+        achievement_i_ll_take_you_all_on() : AchievementCriteriaScript("achievement_i_ll_take_you_all_on"), _check() { }
+
+        bool OnCheck(Player* source, Unit* /*target*/) override
+        {
+            return _check(source);
+        }
+
+    private:
+        OutOfArenaCheck _check;
+};
+
 class condition_thorim_arena_leap : public ConditionScript
 {
     public:
@@ -2112,7 +2172,7 @@ class condition_thorim_arena_leap : public ConditionScript
 
         bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
         {
-            WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+            WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
             InstanceScript* instance = target->GetInstanceScript();
 
             if (!instance)
@@ -2143,5 +2203,8 @@ void AddSC_boss_thorim()
     new spell_thorim_arena_leap();
     new spell_thorim_runic_smash();
     new spell_thorim_activate_lightning_orb_periodic();
+    new achievement_dont_stand_in_the_lightning();
+    new achievement_lose_your_illusion();
+    new achievement_i_ll_take_you_all_on();
     new condition_thorim_arena_leap();
 }

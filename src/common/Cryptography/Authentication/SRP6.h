@@ -21,13 +21,12 @@
 #include "AuthDefines.h"
 #include "BigNumber.h"
 #include "Define.h"
+#include "Common.h"
 #include "CryptoHash.h"
-#include "Optional.h"
 #include <array>
+#include <optional>
 
-namespace Trinity
-{
-namespace Crypto
+namespace Trinity::Crypto
 {
     class TC_COMMON_API SRP6
     {
@@ -56,7 +55,7 @@ namespace Crypto
             }
 
             SRP6(std::string const& username, Salt const& salt, Verifier const& verifier);
-            Optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
+            std::optional<SessionKey> VerifyChallengeResponse(EphemeralKey const& A, SHA1::Digest const& clientM);
 
         private:
             bool _used = false; // a single instance can only be used to verify once
@@ -79,7 +78,6 @@ namespace Crypto
             Salt const s; // s - the user's password salt, random, used to calculate v on registration
             EphemeralKey const B; // B = 3v + g^b
     };
-}
 }
 
 #endif

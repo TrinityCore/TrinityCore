@@ -24,8 +24,10 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "Vehicle.h"
 
 enum GossipNPCs
 {
@@ -422,7 +424,7 @@ class spell_oculus_evasive_maneuvers : public AuraScript
         return ValidateSpellInfo({ SPELL_RUBY_EVASIVE_CHARGES });
     }
 
-    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         PreventDefaultAction();
         GetTarget()->RemoveAuraFromStack(SPELL_RUBY_EVASIVE_CHARGES);
@@ -504,7 +506,7 @@ class spell_oculus_temporal_rift : public AuraScript
         return ValidateSpellInfo({ SPELL_AMBER_SHOCK_CHARGE });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();

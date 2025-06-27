@@ -15,9 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef IPLOCATION_H
-#define IPLOCATION_H
-
 #include "Define.h"
 #include <string>
 #include <vector>
@@ -49,5 +46,3 @@ class TC_COMMON_API IpLocationStore
 };
 
 #define sIPLocation IpLocationStore::Instance()
-
-#endif

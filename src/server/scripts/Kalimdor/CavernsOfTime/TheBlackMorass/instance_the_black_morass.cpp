@@ -28,8 +28,9 @@ Category: Caverns of Time, The Black Morass
 #include "Log.h"
 #include "Map.h"
 #include "Player.h"
-#include "the_black_morass.h"
+#include "SpellInfo.h"
 #include "TemporarySummon.h"
+#include "the_black_morass.h"
 
 enum Misc
 {
@@ -108,12 +109,27 @@ public:
             _currentRiftId      = 0;
         }
 
+        void InitWorldState(bool Enable = true)
+        {
+            DoUpdateWorldState(WORLD_STATE_BM, Enable ? 1 : 0);
+            DoUpdateWorldState(WORLD_STATE_BM_SHIELD, 100);
+            DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
+        }
+
         bool IsEncounterInProgress() const override
         {
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;
+        }
+
+        void OnPlayerEnter(Player* player) override
+        {
+            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
+                return;
+
+            player->SendUpdateWorldState(WORLD_STATE_BM, 0);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -177,7 +193,7 @@ public:
                     if (data == IN_PROGRESS)
                     {
                         TC_LOG_DEBUG("scripts", "Instance The Black Morass: Starting event.");
-                        DoUpdateWorldState(WORLD_STATE_BM, 1);
+                        InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
                         ScheduleEventNextPortal(15s);
                     }
@@ -255,7 +271,7 @@ public:
             Position pos = me->GetRandomNearPosition(10.0f);
 
             //normalize Z-level if we can, if rift is not at ground level.
-            pos.m_positionZ = std::max(me->GetMap()->GetHeight(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(me->GetPhaseShift(), pos.m_positionX, pos.m_positionY));
+            pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
             if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 10min))
                 return summon;

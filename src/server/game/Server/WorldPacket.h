@@ -18,80 +18,72 @@
 #ifndef TRINITYCORE_WORLDPACKET_H
 #define TRINITYCORE_WORLDPACKET_H
 
-#include "ByteBuffer.h"
+#include "Common.h"
 #include "Opcodes.h"
+#include "ByteBuffer.h"
 #include "Duration.h"
 
 class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket() : ByteBuffer(0, Reserve{}), m_opcode(UNKNOWN_OPCODE), _connection(CONNECTION_TYPE_DEFAULT)
+        WorldPacket() : ByteBuffer(0), m_opcode(NULL_OPCODE)
         {
         }
 
-        WorldPacket(uint32 opcode, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(0, Reserve{}),
-            m_opcode(opcode), _connection(connection) { }
+        WorldPacket(uint16 opcode, size_t res = 200) : ByteBuffer(res),
+            m_opcode(opcode) { }
 
-        WorldPacket(uint32 opcode, size_t res, Reserve, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res, Reserve{}),
-            m_opcode(opcode), _connection(connection) { }
-
-        WorldPacket(uint32 opcode, size_t res, Resize, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : ByteBuffer(res, Resize{}),
-            m_opcode(opcode), _connection(connection) { }
-
-        WorldPacket(uint32 opcode, size_t res, ConnectionType connection = CONNECTION_TYPE_DEFAULT) : WorldPacket(opcode, res, Reserve{}, connection) { }
-
-        WorldPacket(WorldPacket&& packet) noexcept : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), _connection(packet._connection), m_receivedTime(packet.m_receivedTime)
+        WorldPacket(WorldPacket&& packet) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode)
         {
         }
 
-        WorldPacket(WorldPacket const& right) = default;
+        WorldPacket(WorldPacket&& packet, TimePoint receivedTime) : ByteBuffer(std::move(packet)), m_opcode(packet.m_opcode), m_receivedTime(receivedTime)
+        {
+        }
+
+        WorldPacket(WorldPacket const& right) : ByteBuffer(right), m_opcode(right.m_opcode)
+        {
+        }
 
         WorldPacket& operator=(WorldPacket const& right)
         {
             if (this != &right)
             {
                 m_opcode = right.m_opcode;
-                _connection = right._connection;
-                ByteBuffer::operator =(right);
+                ByteBuffer::operator=(right);
             }
 
             return *this;
         }
 
-        WorldPacket& operator=(WorldPacket&& right) noexcept
+        WorldPacket& operator=(WorldPacket&& right)
         {
             if (this != &right)
             {
                 m_opcode = right.m_opcode;
-                _connection = right._connection;
                 ByteBuffer::operator=(std::move(right));
             }
 
             return *this;
         }
 
-        WorldPacket(MessageBuffer&& buffer, ConnectionType connection) : ByteBuffer(std::move(buffer)), m_opcode(UNKNOWN_OPCODE), _connection(connection) { }
+        WorldPacket(uint16 opcode, MessageBuffer&& buffer) : ByteBuffer(std::move(buffer)), m_opcode(opcode) { }
 
-        void Initialize(uint32 opcode, size_t newres = 200, ConnectionType connection = CONNECTION_TYPE_DEFAULT)
+        void Initialize(uint16 opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
-            _connection = connection;
         }
 
-        uint32 GetOpcode() const { return m_opcode; }
-        void SetOpcode(uint32 opcode) { m_opcode = opcode; }
-
-        ConnectionType GetConnection() const { return _connection; }
+        uint16 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 
         TimePoint GetReceivedTime() const { return m_receivedTime; }
-        void SetReceiveTime(TimePoint receivedTime) { m_receivedTime = receivedTime; }
 
     protected:
-        uint32 m_opcode;
-        ConnectionType _connection;
+        uint16 m_opcode;
         TimePoint m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 };
 

@@ -119,6 +119,7 @@ struct boss_anub_arak : public BossAI
     {
         BossAI::Reset();
         me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
         _nextSubmerge = 75;
         _petCount = 0;
     }
@@ -135,7 +136,7 @@ struct boss_anub_arak : public BossAI
             door2->SetGoState(GO_STATE_ACTIVE);
 
         Talk(SAY_AGGRO);
-        instance->TriggerGameEvent(ACHIEV_GOTTA_GO_START_EVENT);
+        instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOTTA_GO_START_EVENT);
 
         events.SetPhase(PHASE_EMERGE);
         events.ScheduleEvent(EVENT_CLOSE_DOOR, 5s);
@@ -148,7 +149,7 @@ struct boss_anub_arak : public BossAI
         me->SummonCreatureGroup(SUMMON_GROUP_WORLD_TRIGGER_GUARDIAN, &summoned);
         if (summoned.empty()) // something went wrong
         {
-            EnterEvadeMode(EvadeReason::Other);
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return;
         }
         _guardianTrigger = (*summoned.begin())->GetGUID();
@@ -157,7 +158,7 @@ struct boss_anub_arak : public BossAI
             _assassinTrigger = trigger->GetGUID();
         else
         {
-            EnterEvadeMode(EvadeReason::Other);
+            EnterEvadeMode(EVADE_REASON_OTHER);
             return;
         }
     }
@@ -221,7 +222,7 @@ struct boss_anub_arak : public BossAI
                         events.Repeat(11s);
                     }
                     else
-                        EnterEvadeMode(EvadeReason::Other);
+                        EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 }
                 case EVENT_ASSASSIN:
@@ -238,7 +239,7 @@ struct boss_anub_arak : public BossAI
                             _assassinCount = 0;
                     }
                     else // something went wrong
-                        EnterEvadeMode(EvadeReason::Other);
+                        EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 case EVENT_GUARDIAN:
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _guardianTrigger))
@@ -254,7 +255,7 @@ struct boss_anub_arak : public BossAI
                             _guardianCount = 0;
                     }
                     else
-                        EnterEvadeMode(EvadeReason::Other);
+                        EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 case EVENT_VENOMANCER:
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _guardianTrigger))
@@ -270,7 +271,7 @@ struct boss_anub_arak : public BossAI
                             _venomancerCount = 0;
                     }
                     else
-                        EnterEvadeMode(EvadeReason::Other);
+                        EnterEvadeMode(EVADE_REASON_OTHER);
                     break;
                 default:
                     break;
@@ -304,7 +305,7 @@ struct boss_anub_arak : public BossAI
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, guid))
                     JustSummoned(creature);
                 else // something has gone horribly wrong
-                    EnterEvadeMode(EvadeReason::Other);
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                 break;
             }
             case GUID_TYPE_IMPALE:
@@ -321,7 +322,7 @@ struct boss_anub_arak : public BossAI
             case ACTION_PET_DIED:
                 if (!_petCount) // underflow check - something has gone horribly wrong
                 {
-                    EnterEvadeMode(EvadeReason::Other);
+                    EnterEvadeMode(EVADE_REASON_OTHER);
                     return;
                 }
                 if (!--_petCount) // last pet died, emerge
@@ -337,7 +338,7 @@ struct boss_anub_arak : public BossAI
                 }
                 break;
             case ACTION_PET_EVADE:
-                EnterEvadeMode(EvadeReason::Other);
+                EnterEvadeMode(EVADE_REASON_OTHER);
                 break;
         }
     }

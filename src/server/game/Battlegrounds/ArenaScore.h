@@ -19,23 +19,27 @@
 #define TRINITY_ARENA_SCORE_H
 
 #include "BattlegroundScore.h"
+#include <sstream>
 
-struct TC_GAME_API ArenaScore : public BattlegroundScore
+struct TC_GAME_API ArenaScore final : public BattlegroundScore
 {
     friend class Arena;
 
     protected:
-        ArenaScore(ObjectGuid playerGuid, uint32 team);
+        ArenaScore(ObjectGuid playerGuid, uint32 team) : BattlegroundScore(playerGuid), TeamId(team == ALLIANCE ? PVP_TEAM_ALLIANCE : PVP_TEAM_HORDE) { }
 
-        void BuildPvPLogPlayerDataPacket(WorldPackets::Battleground::PVPMatchStatistics::PVPMatchPlayerStatistics& playerData) const override;
+        void AppendToPacket(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
         // For Logging purpose
-        std::string ToString() const override;
+        std::string ToString() const override
+        {
+            std::ostringstream stream;
+            stream << "Damage done: " << DamageDone << ", Healing done: " << HealingDone << ", Killing blows: " << KillingBlows;
+            return stream.str();
+        }
 
-        uint32 PreMatchRating = 0;
-        uint32 PreMatchMMR = 0;
-        uint32 PostMatchRating = 0;
-        uint32 PostMatchMMR = 0;
+        uint8 TeamId; // PvPTeamId
 };
 
 struct TC_GAME_API ArenaTeamScore
@@ -44,15 +48,25 @@ struct TC_GAME_API ArenaTeamScore
     friend class Battleground;
 
     protected:
-        ArenaTeamScore();
-        virtual ~ArenaTeamScore();
+        ArenaTeamScore() : RatingChange(0), MatchmakerRating(0) { }
 
-        void Assign(uint32 preMatchRating, uint32 postMatchRating, uint32 preMatchMMR, uint32 postMatchMMR);
+        void Reset()
+        {
+            RatingChange = 0;
+            MatchmakerRating = 0;
+            TeamName.clear();
+        }
 
-        uint32 PreMatchRating = 0;
-        uint32 PostMatchRating = 0;
-        uint32 PreMatchMMR = 0;
-        uint32 PostMatchMMR = 0;
+        void Assign(int32 ratingChange, uint32 matchMakerRating, std::string const& teamName)
+        {
+            RatingChange = ratingChange;
+            MatchmakerRating = matchMakerRating;
+            TeamName = teamName;
+        }
+
+        int32 RatingChange;
+        uint32 MatchmakerRating;
+        std::string TeamName;
 };
 
 #endif // TRINITY_ARENA_SCORE_H

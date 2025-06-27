@@ -24,14 +24,8 @@
 #include <iosfwd>
 #include <string>
 
+class ByteBuffer;
 struct FactionTemplateEntry;
-namespace WorldPackets
-{
-    namespace Taxi
-    {
-        class ShowTaxiNodes;
-    }
-}
 
 class TC_GAME_API PlayerTaxi
 {
@@ -44,15 +38,15 @@ class TC_GAME_API PlayerTaxi
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
-            uint32 field   = uint32((nodeidx - 1) / 8);
-            uint32 submask = 1 << ((nodeidx-1) % 8);
-            return (m_taximask[field] & submask) == submask;
+            uint32 field = uint32((nodeidx - 1) / (sizeof(TaxiMask::value_type) * 8));
+            TaxiMask::value_type submask = TaxiMask::value_type(1 << ((nodeidx - 1) % (sizeof(TaxiMask::value_type) * 8)));
+            return (m_taximask[field] & submask) != 0;
         }
         bool SetTaximaskNode(uint32 nodeidx)
         {
-            uint32 field   = uint32((nodeidx - 1) / 8);
-            uint32 submask = 1 << ((nodeidx-  1) % 8);
-            if ((m_taximask[field] & submask) != submask)
+            uint32 field = uint32((nodeidx - 1) / (sizeof(TaxiMask::value_type) * 8));
+            TaxiMask::value_type submask = TaxiMask::value_type(1 << ((nodeidx - 1) % (sizeof(TaxiMask::value_type) * 8)));
+            if ((m_taximask[field] & submask) == 0)
             {
                 m_taximask[field] |= submask;
                 return true;
@@ -60,8 +54,7 @@ class TC_GAME_API PlayerTaxi
             else
                 return false;
         }
-        void AppendTaximaskTo(WorldPackets::Taxi::ShowTaxiNodes& data, bool all);
-        TaxiMask const& GetTaxiMask() const { return m_taximask; }
+        void AppendTaximaskTo(ByteBuffer& data, bool all);
 
         // Destinations
         [[nodiscard]] bool LoadTaxiDestinationsFromString(std::string const& values, uint32 team);
@@ -77,7 +70,7 @@ class TC_GAME_API PlayerTaxi
             m_TaxiDestinations.pop_front();
             return GetTaxiDestination();
         }
-        bool RequestEarlyLanding();
+
         std::deque<uint32> const& GetPath() const { return m_TaxiDestinations; }
         bool empty() const { return m_TaxiDestinations.empty(); }
         FactionTemplateEntry const* GetFlightMasterFactionTemplate() const;
@@ -90,6 +83,6 @@ class TC_GAME_API PlayerTaxi
         uint32 m_flightMasterFactionId;
 };
 
-std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
+std::ostringstream& operator<<(std::ostringstream& ss, PlayerTaxi const& taxi);
 
 #endif // PlayerTaxi_h__

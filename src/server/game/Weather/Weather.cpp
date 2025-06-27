@@ -19,9 +19,10 @@
     \ingroup world
 */
 
-#include "GameTime.h"
 #include "Weather.h"
+#include "GameTime.h"
 #include "Log.h"
+#include "Map.h"
 #include "MiscPackets.h"
 #include "Player.h"
 #include "Random.h"
@@ -30,8 +31,8 @@
 #include "World.h"
 
 /// Create the Weather object
-Weather::Weather(uint32 zoneId, WeatherData const* weatherChances)
-    : m_zone(zoneId), m_weatherChances(weatherChances)
+Weather::Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances)
+    : m_map(map), m_zone(zoneId), m_weatherChances(weatherChances)
 {
     m_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_CHANGEWEATHER));
     m_type = WEATHER_TYPE_FINE;
@@ -94,7 +95,7 @@ bool Weather::ReGenerate()
     time_t gtime = GameTime::GetGameTime();
     struct tm ltime;
     localtime_r(&gtime, &ltime);
-    uint32 season = ((ltime.tm_yday - 78 + 365) / 91) % 4;
+    uint32 season = ((ltime.tm_yday - 78 + 365)/91)%4;
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
@@ -149,8 +150,8 @@ bool Weather::ReGenerate()
 
     // At this point, only weather that isn't doing anything remains but that have weather data
     uint32 chance1 = m_weatherChances->data[season].rainChance;
-    uint32 chance2 = chance1 + m_weatherChances->data[season].snowChance;
-    uint32 chance3 = chance2 + m_weatherChances->data[season].stormChance;
+    uint32 chance2 = chance1+ m_weatherChances->data[season].snowChance;
+    uint32 chance3 = chance2+ m_weatherChances->data[season].stormChance;
 
     uint32 rnd = urand(1, 100);
     if (rnd <= chance1)
@@ -216,7 +217,7 @@ bool Weather::UpdateWeather()
     WorldPackets::Misc::Weather weather(state, m_intensity);
 
     //- Returns false if there were no players found to update
-    if (!sWorld->SendZoneMessage(m_zone, weather.Write()))
+    if (!m_map->SendZoneMessage(m_zone, weather.Write()))
         return false;
 
     ///- Log the event

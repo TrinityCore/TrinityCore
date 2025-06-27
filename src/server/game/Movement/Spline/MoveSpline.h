@@ -24,15 +24,6 @@
 
 enum class AnimTier : uint8;
 
-namespace WorldPackets
-{
-    namespace Movement
-    {
-        class CommonMovement;
-        class MonsterMove;
-    }
-}
-
 namespace Movement
 {
     struct Location : public Vector3
@@ -47,15 +38,11 @@ namespace Movement
 
     // MoveSpline represents smooth catmullrom or linear curve and point that moves belong it
     // curve can be cyclic - in this case movement will be cyclic
-    // point can have vertical acceleration motion component (used in fall, parabolic movement)
+    // point can have vertical acceleration motion componemt(used in fall, parabolic movement)
     class TC_GAME_API MoveSpline
     {
-        friend class WorldPackets::Movement::CommonMovement;
-        friend class WorldPackets::Movement::MonsterMove;
-
     public:
         typedef Spline<int32> MySpline;
-
         enum UpdateResult
         {
             Result_None         = 0x01,
@@ -63,6 +50,7 @@ namespace Movement
             Result_NextCycle    = 0x04,
             Result_NextSegment  = 0x08
         };
+        friend class PacketBuilder;
 
     protected:
         MySpline        spline;
@@ -83,24 +71,21 @@ namespace Movement
         int32           point_Idx;
         int32           point_Idx_offset;
         float           velocity;
-        Optional<SpellEffectExtraData> spell_effect_extra;
-        Optional<AnimTierTransition> anim_tier;
 
         void init_spline(MoveSplineInitArgs const& args);
 
     protected:
         MySpline::ControlArray const& getPath() const { return spline.getPoints(); }
-        Location computePosition(int32 time_point, int32 point_index) const;
-        void computeParabolicElevation(int32 time_point, float& el) const;
-        void computeFallElevation(int32 time_point, float& el) const;
+        void computeParabolicElevation(float& el) const;
+        void computeFallElevation(float& el) const;
 
         UpdateResult _updateState(int32& ms_time_diff);
         int32 next_timestamp() const { return spline.length(point_Idx + 1); }
         int32 segment_time_elapsed() const { return next_timestamp() - time_passed; }
         int32 timeElapsed() const { return Duration() - time_passed; }
+        int32 timePassed() const { return time_passed; }
 
     public:
-        int32 timePassed() const { return time_passed; }
         int32 Duration() const { return spline.length(); }
         MySpline const& _Spline() const { return spline; }
         int32 _currentSplineIdx() const { return point_Idx; }
@@ -131,20 +116,19 @@ namespace Movement
         }
 
         Location ComputePosition() const;
-        Location ComputePosition(int32 time_offset) const;
 
         uint32 GetId() const { return m_Id; }
         bool Finalized() const { return splineflags.done; }
         bool isCyclic() const { return splineflags.cyclic; }
         bool isFalling() const { return splineflags.falling; }
-        Vector3 const& FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3::zero(); }
-        Vector3 const& CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3::zero(); }
+        Vector3 FinalDestination() const { return Initialized() ? spline.getPoint(spline.last()) : Vector3(); }
+        Vector3 CurrentDestination() const { return Initialized() ? spline.getPoint(point_Idx + 1) : Vector3(); }
         int32 currentPathIdx() const;
 
-        Optional<AnimTier> GetAnimation() const { return anim_tier ? anim_tier->AnimTier : Optional<AnimTier>{}; }
+        bool HasAnimation() const { return splineflags.animation; }
+        AnimTier GetAnimTier() const { return static_cast<AnimTier>(splineflags.animTier); }
 
         bool onTransport;
-        bool splineIsFacingOnly;
         std::string ToString() const;
         bool HasStarted() const
         {

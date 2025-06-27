@@ -13,8 +13,7 @@ Development of this project dates back to 2004, and was developed under various 
 * WoW Daemon Team, 2004
 * MaNGOS project, 2005-2008, located at http://www.mangosproject.org
 * MaNGOS project, 2008-2011, located at http://getmangos.com
-* UDB project, 2007-2009, located at http://udbforums.org
-* SD2 project, 2008-2009, located at http://www.scriptdev2.com
+* SD2 project, 2008-2009, located at http://getmangos.com
 * TrinityCore, 2008-2023, located at https://www.trinitycore.org/
 
 ## Authorship of the code
@@ -116,6 +115,7 @@ were extracted from old commits):
 - Aristoo
 - arks
 - Armano
+- armano2
 - arrai
 - Arthas
 - Arthorius
@@ -129,7 +129,7 @@ were extracted from old commits):
 - Authorius
 - aven_coda
 - Aviram
-- Azazel
+- azazel
 - Azrael
 - Azuritus
 - b4nan1
@@ -176,7 +176,6 @@ were extracted from old commits):
 - Brats
 - breakerfly
 - Brecky
-- Brian
 - BroodWyrm
 - Brueggus
 - BudIcePenguin
@@ -329,6 +328,7 @@ were extracted from old commits):
 - Elron103
 - elseif
 - Emo
+- Emo Norfik
 - emsy
 - EnderGT
 - enjoi
@@ -363,6 +363,7 @@ were extracted from old commits):
 - fgenesis
 - FH3095
 - Filip
+- filip.havlicek
 - FireEmerald
 - fisherman
 - Fmut
@@ -480,6 +481,7 @@ were extracted from old commits):
 - Jesper Meyer
 - Jildor
 - Joeri Thissen
+- John Holiver
 - johnholiver
 - jojo
 - Jolan
@@ -747,6 +749,7 @@ were extracted from old commits):
 - PKX
 - Polkic
 - Portgas
+- Portgas D. Ace
 - Praetonus
 - Prince
 - PrinceCreed
@@ -789,7 +792,6 @@ were extracted from old commits):
 - Ricko92
 - riddick
 - rilex
-- Riztazz
 - rj686
 - robinsch
 - Roc13x
@@ -815,6 +817,7 @@ were extracted from old commits):
 - Schmoozerd
 - Sean Rhone
 - seaofgreen
+- Sebastián Orellana
 - secharles
 - seirge
 - Seizerkiller
@@ -952,7 +955,6 @@ were extracted from old commits):
 - Typhoon
 - tyraela
 - Ukulutl
-- Ulduar
 - unholy
 - Unholychick
 - unknown

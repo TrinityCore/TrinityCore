@@ -22,7 +22,6 @@
 #include "Implementation/LoginDatabase.h"
 #include "Implementation/WorldDatabase.h"
 #include "Implementation/CharacterDatabase.h"
-#include "Implementation/HotfixDatabase.h"
 #include "Log.h"
 #include "MySQLPreparedStatement.h"
 #include "PreparedStatement.h"
@@ -166,7 +165,7 @@ bool DatabaseWorkerPool<T>::PrepareStatements()
                 if (_preparedStatementSize[i] > 0)
                     continue;
 
-                if (MySQLPreparedStatement * stmt = connection->m_stmts[i].get())
+                if (MySQLPreparedStatement* stmt = connection->m_stmts[i].get())
                 {
                     uint32 const paramCount = stmt->GetParameterCount();
 
@@ -459,7 +458,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
     //! Block forever until a connection is free
     for (;;)
     {
-        connection = _connections[IDX_SYNCH][i++ % num_cons].get();
+        connection = _connections[IDX_SYNCH][++i % num_cons].get();
         //! Must be matched with t->Unlock() or you will get deadlocks
         if (connection->LockIfReady())
             break;
@@ -477,7 +476,7 @@ char const* DatabaseWorkerPool<T>::GetDatabaseName() const
 template <class T>
 void DatabaseWorkerPool<T>::Execute(char const* sql)
 {
-    if (!sql)
+    if (Trinity::IsFormatEmptyOrNull(sql))
         return;
 
     BasicStatementTask* task = new BasicStatementTask(sql);
@@ -494,7 +493,7 @@ void DatabaseWorkerPool<T>::Execute(PreparedStatement<T>* stmt)
 template <class T>
 void DatabaseWorkerPool<T>::DirectExecute(char const* sql)
 {
-    if (!sql)
+    if (Trinity::IsFormatEmptyOrNull(sql))
         return;
 
     T* connection = GetFreeConnection();
@@ -534,4 +533,3 @@ void DatabaseWorkerPool<T>::ExecuteOrAppend(SQLTransaction<T>& trans, PreparedSt
 template class TC_DATABASE_API DatabaseWorkerPool<LoginDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<WorldDatabaseConnection>;
 template class TC_DATABASE_API DatabaseWorkerPool<CharacterDatabaseConnection>;
-template class TC_DATABASE_API DatabaseWorkerPool<HotfixDatabaseConnection>;

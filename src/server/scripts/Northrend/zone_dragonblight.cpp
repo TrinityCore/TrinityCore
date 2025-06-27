@@ -18,11 +18,11 @@
 #include "ScriptMgr.h"
 #include "CombatAI.h"
 #include "CreatureAIImpl.h"
-#include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
@@ -350,16 +350,6 @@ struct npc_commander_eligor_dawnbringer : public ScriptedAI
         uint8    talkWing;
 };
 
-enum AlexstraszaWrGate
-{
-    // Quest
-    QUEST_RETURN_TO_AG_A    = 12499,
-    QUEST_RETURN_TO_AG_H    = 12500,
-
-    // Movie
-    MOVIE_ID_GATES          = 14
-};
-
 /*######
 ## Quest Strengthen the Ancients (12096|12092)
 ######*/
@@ -568,13 +558,13 @@ class spell_dragonblight_warsong_battle_standard : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sBroadcastTextStore.HasRecord(TEXT_TAUNT_1) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_2) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_3) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_4) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_5) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_6) &&
-            sBroadcastTextStore.HasRecord(TEXT_TAUNT_7);
+        return sObjectMgr->GetBroadcastText(TEXT_TAUNT_1) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_2) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_3) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_4) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_5) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_6) &&
+            sObjectMgr->GetBroadcastText(TEXT_TAUNT_7);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -660,7 +650,7 @@ class spell_dragonblight_call_out_injured_soldier : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return sBroadcastTextStore.HasRecord(TEXT_CALL_OUT_1) && sBroadcastTextStore.HasRecord(TEXT_CALL_OUT_2);
+        return sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_1) && sObjectMgr->GetBroadcastText(TEXT_CALL_OUT_2);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
@@ -962,15 +952,15 @@ class spell_dragonblight_corrosive_spit : public AuraScript
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(aurEff->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue()))
             GetAura()->Remove();
     }
 
-    void PeriodicTick(AuraEffect const* /*aurEff*/)
+    void PeriodicTick(AuraEffect const* aurEff)
     {
-        if (GetTarget()->HasAura(GetEffectInfo(EFFECT_0).CalcValue()))
+        if (GetTarget()->HasAura(aurEff->GetSpellInfo()->GetEffect(EFFECT_0).CalcValue()))
         {
             PreventDefaultAction();
             GetAura()->Remove();
@@ -981,6 +971,96 @@ class spell_dragonblight_corrosive_spit : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dragonblight_corrosive_spit::AfterApply, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dragonblight_corrosive_spit::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
+/*######
+## Quest 12065, 12066: The Focus on the Beach
+######*/
+
+enum TheFocusOnTheBeach
+{
+    SPELL_LEY_LINE_INFORMATION_01     = 47391
+};
+
+// 47393 - The Focus on the Beach: Quest Completion Script
+class spell_dragonblight_focus_on_the_beach_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_01 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_01);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_focus_on_the_beach_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12083, 12084: Atop the Woodlands
+######*/
+
+enum AtopTheWoodlands
+{
+    SPELL_LEY_LINE_INFORMATION_02     = 47473
+};
+
+// 47615 - Atop the Woodlands: Quest Completion Script
+class spell_dragonblight_atop_the_woodlands_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_02 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_02);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_atop_the_woodlands_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12107, 12110: The End of the Line
+######*/
+
+enum TheEndOfTheLine
+{
+    SPELL_LEY_LINE_INFORMATION_03     = 47636
+};
+
+// 47638 - The End of the Line: Quest Completion Script
+class spell_dragonblight_end_of_the_line_quest_completion_script : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LEY_LINE_INFORMATION_03 });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_LEY_LINE_INFORMATION_03);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dragonblight_end_of_the_line_quest_completion_script::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1002,4 +1082,7 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_surge_needle_teleporter);
     RegisterSpellScript(spell_dragonblight_fill_blood_unholy_frost_gem);
     RegisterSpellScript(spell_dragonblight_corrosive_spit);
+    RegisterSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
 }

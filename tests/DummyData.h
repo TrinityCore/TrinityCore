@@ -20,52 +20,61 @@
 
 #include "Common.h"
 #include "Define.h"
-#include "DB2Store.h"
+#include "DBCStore.h"
 
+#include <list>
 #include <string_view>
 
 struct ItemTemplate;
+
+class SpellInfo;
 
 class UnitTestDataLoader
 {
     public:
         template <typename T, uint32 T::*ID>
-        class DB2
+        class DBC
         {
             class LoaderGuard
             {
                 public:
-                    LoaderGuard(DB2& d) : _d(d) {}
+                    LoaderGuard(DBC& d) : _d(d) {}
                     ~LoaderGuard() { _d.Dump(); }
 
                     T& Add() { return _d._storage.emplace_back(); }
                 private:
-                    DB2& _d;
+                    DBC& _d;
             };
 
             public:
-                DB2(DB2Storage<T>& store) : _store(store) {}
+                DBC(DBCStorage<T>& store) : _store(store) {}
                 LoaderGuard Loader() { return {*this}; }
                 void Dump()
                 {
-                    delete[] _store._indexTable;
+                    delete[] _store._indexTable.AsT;
                     for (T const& entry : _storage)
                         if (entry.*ID >= _store._indexTableSize)
                             _store._indexTableSize = entry.*ID + 1;
-                    _store._indexTable = new char*[_store._indexTableSize];
+                    _store._indexTable.AsT = new T*[_store._indexTableSize];
                     for (size_t i = 0; i < _store._indexTableSize; ++i)
-                        _store._indexTable[i] = nullptr;
+                        _store._indexTable.AsT[i] = nullptr;
                     for (T& entry : _storage)
-                        _store._indexTable[entry.*ID] = reinterpret_cast<char*>(&entry);
+                        _store._indexTable.AsT[entry.*ID] = &entry;
+                }
+
+                bool Empty() const
+                {
+                    return !_store._indexTable.AsT;
                 }
 
             private:
-                std::vector<T> _storage;
-                DB2Storage<T>& _store;
+                std::list<T> _storage;
+                DBCStorage<T>& _store;
         };
 
         static void LoadAchievementTemplates();
         static void LoadItemTemplates();
+        static void LoadSpellInfo();
 
     private:
         static ItemTemplate& GetItemTemplate(uint32 id, std::string_view name);

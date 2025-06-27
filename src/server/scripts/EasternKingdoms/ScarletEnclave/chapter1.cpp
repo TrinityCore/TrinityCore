@@ -29,10 +29,10 @@
 #include "ObjectMgr.h"
 #include "PassiveAI.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
+#include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
-#include "SpellScript.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 
@@ -335,12 +335,9 @@ class go_acherus_soul_prison : public GameObjectScript
             bool OnGossipHello(Player* player) override
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
-                {
-                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
-                    if (!prisonerGUID.IsEmpty())
+                    if (ObjectGuid prisonerGUID = anchor->AI()->GetGUID())
                         if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                             ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
-                }
 
                 return false;
             }
@@ -389,7 +386,7 @@ class spell_death_knight_initiate_visual : public SpellScript
             default: return;
         }
 
-        target->CastSpell(target, spellId, GetSpell());
+        target->CastSpell(target, spellId, true);
         target->LoadEquipment();
     }
 
@@ -435,10 +432,8 @@ struct npc_eye_of_acherus : public ScriptedAI
 {
     npc_eye_of_acherus(Creature* creature) : ScriptedAI(creature)
     {
-        creature->SetDisplayFromModel(0);
+        creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid1);
         creature->SetReactState(REACT_PASSIVE);
-        if (creature->GetCharmInfo())
-            creature->GetCharmInfo()->InitPossessCreateSpells();
     }
 
     void InitializeAI() override
@@ -542,7 +537,7 @@ enum Says_VBM
 
 enum Misc_VBN
 {
-    QUEST_DEATH_CHALLENGE = 12733
+    QUEST_DEATH_CHALLENGE       = 12733
 };
 
 class npc_death_knight_initiate : public CreatureScript
@@ -678,7 +673,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
-            uint32 gossipMenuId = player->GetGossipMenuForSource(me);
+            uint32 gossipMenuId = Player::GetDefaultGossipMenuForSource(me);
             InitGossipMenuFor(player, gossipMenuId);
             if (player->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && me->IsFullHealth())
             {
@@ -688,7 +683,7 @@ public:
                 if (player->IsInCombat() || me->IsInCombat())
                     return true;
 
-                AddGossipItemFor(player, player->GetGossipMenuForSource(me), 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, gossipMenuId, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             }
             return true;
@@ -1015,7 +1010,7 @@ struct npc_scarlet_ghoul : public ScriptedAI
 
     void FindMinions(Unit* owner)
     {
-        std::list<TempSummon*> MinionList;
+        std::list<Creature*> MinionList;
         owner->GetAllMinionsByEntry(MinionList, NPC_GHOULS);
 
         if (!MinionList.empty())
@@ -1115,14 +1110,16 @@ enum Runeforging
     QUEST_RUNEFORGING            = 12842
 };
 
-/* 53343 - Rune of Razorice
+/* 53323 - Rune of Swordshattering
+   53331 - Rune of Lichbane
+   53341 - Rune of Cinderglacier
+   53342 - Rune of Spellshattering
+   53343 - Rune of Razorice
    53344 - Rune of the Fallen Crusader
+   54446 - Rune of Swordbreaking
+   54447 - Rune of Spellbreaking
    62158 - Rune of the Stoneskin Gargoyle
-   326805 - Rune of Sanguination
-   326855 - Rune of Spellwarding
-   326911 - Rune of Hysteria
-   326977 - Rune of Unending Thirst
-   327082 - Rune of the Apocalypse */
+   70164 - Rune of the Nerubian Carapace */
 class spell_chapter1_runeforging_credit : public SpellScript
 {
     PrepareSpellScript(spell_chapter1_runeforging_credit);
@@ -1146,6 +1143,32 @@ class spell_chapter1_runeforging_credit : public SpellScript
     }
 };
 
+enum SkyDarkenerAssault
+{
+    SPELL_SKY_DARKENER_ASSAULT     = 52125
+};
+
+// 52124 - Sky Darkener Assault
+class spell_chapter1_sky_darkener_assault : public SpellScript
+{
+    PrepareSpellScript(spell_chapter1_sky_darkener_assault);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SKY_DARKENER_ASSAULT });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_SKY_DARKENER_ASSAULT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_chapter1_sky_darkener_assault::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_the_scarlet_enclave_c1()
 {
     new npc_unworthy_initiate();
@@ -1163,4 +1186,5 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterCreatureAI(npc_scarlet_ghoul);
     RegisterSpellScript(spell_gift_of_the_harvester);
     RegisterSpellScript(spell_chapter1_runeforging_credit);
+    RegisterSpellScript(spell_chapter1_sky_darkener_assault);
 }

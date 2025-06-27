@@ -17,6 +17,7 @@
 
 #include "ScriptReloadMgr.h"
 #include "Errors.h"
+#include "Optional.h"
 
 #ifndef TRINITY_API_USE_DYNAMIC_LINKING
 
@@ -40,10 +41,8 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Config.h"
 #include "GitRevision.h"
 #include "CryptoHash.h"
-#include "Duration.h"
 #include "Log.h"
 #include "MPSCQueue.h"
-#include "Optional.h"
 #include "Regex.h"
 #include "ScriptMgr.h"
 #include "StartProcess.h"
@@ -51,7 +50,6 @@ ScriptReloadMgr* ScriptReloadMgr::instance()
 #include "Util.h"
 #include "World.h"
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/dll/runtime_symbol_info.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/system/system_error.hpp>
 #include <efsw/efsw.hpp>
@@ -109,7 +107,14 @@ typedef void* HandleType;
 
 static fs::path GetDirectoryOfExecutable()
 {
-    return boost::dll::program_location().parent_path();
+    ASSERT((!sConfigMgr->GetArguments().empty()),
+           "Expected the arguments to contain at least 1 element!");
+
+    fs::path path(sConfigMgr->GetArguments()[0]);
+    if (path.is_absolute())
+        return path.parent_path();
+    else
+        return fs::canonical(fs::absolute(path)).parent_path();
 }
 
 class SharedLibraryUnloader
@@ -352,7 +357,7 @@ namespace std
     {
         hash<string> hasher;
 
-        std::size_t operator()(fs::path const& key) const noexcept
+        std::size_t operator()(fs::path const& key) const
         {
             return hasher(key.generic_string());
         }
@@ -384,8 +389,7 @@ static std::shared_ptr<Trinity::AsyncProcessResult> InvokeAsyncCMakeCommand(T&&.
 static std::string CalculateScriptModuleProjectName(std::string const& module)
 {
     std::string module_project = "scripts_" + module;
-    std::transform(module_project.begin(), module_project.end(),
-                   module_project.begin(), ::tolower);
+    strToLower(module_project);
 
     return module_project;
 }
@@ -858,7 +862,7 @@ private:
 
         {
             boost::system::error_code code;
-            fs::copy_file(path, cache_path, fs::copy_option::fail_if_exists, code);
+            fs::copy_file(path, cache_path, code);
             if (code)
             {
                 TC_LOG_FATAL("scripts.hotswap", ">> Failed to create cache entry for module "
@@ -1029,7 +1033,7 @@ private:
             // Wait for the current build job to finish, if the job finishes in time
             // evaluate it and continue with the next one.
             if (_build_job->GetProcess()->GetFutureResult().
-                    wait_for(0s) == std::future_status::ready)
+                    wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 ProcessReadyBuildJob();
             else
                 return; // Return when the job didn't finish in time
@@ -1506,7 +1510,7 @@ void LibraryUpdateListener::handleFileAction(efsw::WatchID watchid, std::string 
                 reloader->QueueSharedLibraryChanged(path);
                 break;
             default:
-                WPAbort();
+                ABORT();
                 break;
         }
     });
@@ -1596,7 +1600,7 @@ void SourceUpdateListener::handleFileAction(efsw::WatchID watchid, std::string c
                 reloader->QueueModifySourceFile(script_module_name_, path);
                 break;
             default:
-                WPAbort();
+                ABORT();
                 break;
         }
     });

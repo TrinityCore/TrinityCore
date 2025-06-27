@@ -19,11 +19,10 @@
 #define MailPackets_h__
 
 #include "Packet.h"
-#include "ItemPacketsCommon.h"
-#include "ObjectGuid.h"
-
-class Player;
-struct Mail;
+#include "ItemDefines.h"
+#include "Mail.h"
+#include "Optional.h"
+#include "PacketUtilities.h"
 
 namespace WorldPackets
 {
@@ -33,41 +32,53 @@ namespace WorldPackets
         {
             MailAttachedItem(::Item const* item, uint8 pos);
 
+            static constexpr std::size_t GetPacketSize()
+            {
+                return sizeof(uint8) + sizeof(int32) + sizeof(int32) + MAX_INSPECTED_ENCHANTMENT_SLOT * (sizeof(int32) + sizeof(int32) + sizeof(int32))
+                    + sizeof(int32) + sizeof(int32) + sizeof(int32) + sizeof(int32) + sizeof(uint32) + sizeof(int32) + sizeof(bool);
+            }
+
             uint8 Position = 0;
-            uint64 AttachID = 0;
-            Item::ItemInstance Item;
+            int32 AttachID = 0;
+            int32 ItemID = 0;
+            int32 RandomPropertiesSeed = 0;
+            int32 RandomPropertiesID = 0;
             int32 Count = 0;
             int32 Charges = 0;
             uint32 MaxDurability = 0;
             int32 Durability = 0;
             bool Unlocked = false;
-            std::vector<Item::ItemEnchantData> Enchants;
-            std::vector<Item::ItemGemData> Gems;
+            std::array<uint32, MAX_INSPECTED_ENCHANTMENT_SLOT> EnchantmentID = { };
+            std::array<uint32, MAX_INSPECTED_ENCHANTMENT_SLOT> EnchantmentDuration = { };
+            std::array<uint32, MAX_INSPECTED_ENCHANTMENT_SLOT> EnchantmentCharges = { };
         };
 
         struct MailListEntry
         {
             MailListEntry(::Mail const* mail, ::Player* player);
 
-            uint64 MailID = 0;
+            std::size_t GetPacketSize() const;
+
+            int32 MailID = 0;
             uint8 SenderType = 0;
             Optional<ObjectGuid> SenderCharacter;
             Optional<uint32> AltSenderID;
-            uint64 Cod = 0;
+            uint32 Cod = 0;
+            int32 PackageID = 0;
             int32 StationeryID = 0;
-            uint64 SentMoney = 0;
+            uint32 SentMoney = 0;
             int32 Flags = 0;
             float DaysLeft = 0.0f;
             int32 MailTemplateID = 0;
-            std::string Subject;
-            std::string Body;
+            std::string_view Subject;
+            std::string_view Body;
             std::vector<MailAttachedItem> Attachments;
         };
 
         class MailGetList final : public ClientPacket
         {
         public:
-            MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_MAIL_GET_LIST, std::move(packet)) { }
+            MailGetList(WorldPacket&& packet) : ClientPacket(CMSG_GET_MAIL_LIST, std::move(packet)) { }
 
             void Read() override;
 
@@ -77,12 +88,17 @@ namespace WorldPackets
         class MailListResult final : public ServerPacket
         {
         public:
-            MailListResult() : ServerPacket(SMSG_MAIL_LIST_RESULT, 8) { }
+            MailListResult();
 
             WorldPacket const* Write() override;
 
+            void AddMail(::Mail const* mail, Player* player);
+
             int32 TotalNumRecords = 0;
             std::vector<MailListEntry> Mails;
+
+        private:
+            bool _maxPacketSizeReached = false;
         };
 
         class MailCreateTextItem final : public ClientPacket
@@ -93,7 +109,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            uint64 MailID = 0;
+            uint32 MailID = 0;
         };
 
         class SendMail final : public ClientPacket
@@ -109,12 +125,13 @@ namespace WorldPackets
 
                 ObjectGuid Mailbox;
                 int32 StationeryID = 0;
-                int64 SendMoney = 0;
-                int64 Cod = 0;
+                int32 PackageID = 0;
+                int32 SendMoney = 0;
+                int32 Cod = 0;
                 std::string Target;
-                std::string Subject;
-                std::string Body;
-                std::vector<MailAttachment> Attachments;
+                String<255, Strings::NoHyperlinks> Subject;
+                String<7999, Strings::NoHyperlinks> Body;
+                Array<MailAttachment, MAX_MAIL_ITEMS> Attachments;
             };
 
             SendMail(WorldPacket&& packet) : ClientPacket(CMSG_SEND_MAIL, std::move(packet)) { }
@@ -127,16 +144,16 @@ namespace WorldPackets
         class MailCommandResult final : public ServerPacket
         {
         public:
-            MailCommandResult() : ServerPacket(SMSG_MAIL_COMMAND_RESULT) { }
+            MailCommandResult() : ServerPacket(SMSG_SEND_MAIL_RESULT) { }
 
             WorldPacket const* Write() override;
 
-            uint64 MailID = 0;
-            int32 Command = 0;
-            int32 ErrorCode = 0;
-            int32 BagResult = 0;
-            uint64 AttachID = 0;
-            int32 QtyInInventory = 0;
+            uint32 MailID = 0;
+            uint32 Command = 0;
+            uint32 ErrorCode = 0;
+            uint32 BagResult = 0;
+            uint32 AttachID = 0;
+            uint32 QtyInInventory = 0;
         };
 
         class MailReturnToSender final : public ClientPacket
@@ -146,7 +163,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 MailID = 0;
+            ObjectGuid Mailbox;
+            int32 MailID = 0;
             ObjectGuid SenderGUID;
         };
 
@@ -158,7 +176,7 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            uint64 MailID = 0;
+            int32 MailID = 0;
         };
 
         class MailDelete final : public ClientPacket
@@ -168,7 +186,8 @@ namespace WorldPackets
 
             void Read() override;
 
-            uint64 MailID = 0;
+            ObjectGuid Mailbox;
+            int32 MailID = 0;
             int32 DeleteReason = 0;
         };
 
@@ -180,8 +199,8 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            uint64 MailID = 0;
-            uint64 AttachID = 0;
+            int32 MailID = 0;
+            int32 AttachID = 0;
         };
 
         class MailTakeMoney final : public ClientPacket
@@ -192,14 +211,13 @@ namespace WorldPackets
             void Read() override;
 
             ObjectGuid Mailbox;
-            uint64 MailID = 0;
-            uint64 Money = 0;
+            int32 MailID = 0;
         };
 
         class MailQueryNextMailTime final : public ClientPacket
         {
         public:
-            MailQueryNextMailTime(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_NEXT_MAIL_TIME, std::move(packet)) { }
+            MailQueryNextMailTime(WorldPacket&& packet) : ClientPacket(MSG_QUERY_NEXT_MAIL_TIME, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -214,11 +232,11 @@ namespace WorldPackets
                 ObjectGuid SenderGuid;
                 float TimeLeft = 0.0f;
                 int32 AltSenderID = 0;
-                int8 AltSenderType = 0;
+                int32 AltSenderType = 0;
                 int32 StationeryID = 0;
             };
 
-            MailQueryNextTimeResult() : ServerPacket(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8) { }
+            MailQueryNextTimeResult() : ServerPacket(MSG_QUERY_NEXT_MAIL_TIME, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -229,16 +247,23 @@ namespace WorldPackets
         class NotifyReceivedMail : ServerPacket
         {
         public:
-            NotifyReceivedMail() : ServerPacket(SMSG_NOTIFY_RECEIVED_MAIL, 4) { }
+            NotifyReceivedMail() : ServerPacket(SMSG_RECEIVED_MAIL, 4) { }
 
             WorldPacket const* Write() override;
 
             float Delay = 0.0f;
         };
+
+        class ShowMailbox final : public ServerPacket
+        {
+        public:
+            ShowMailbox() : ServerPacket(SMSG_SHOW_MAILBOX, 16) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid PostmasterGUID;
+        };
     }
 }
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailAttachedItem const& att);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Mail::MailListEntry const& entry);
 
 #endif // MailPackets_h__

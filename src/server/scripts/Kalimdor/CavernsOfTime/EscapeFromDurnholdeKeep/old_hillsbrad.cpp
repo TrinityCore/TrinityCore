@@ -1,4 +1,4 @@
- /*
+/*
  * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -92,7 +92,7 @@ struct npc_erozion : public ScriptedAI
             AddGossipItemFor(player, GOSSIP_MENU_EROZION, GOSSIP_OPTION_BOMB, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         if (player->GetQuestStatus(QUEST_ENTRY_RETURN) == QUEST_STATUS_COMPLETE)
-            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_HELLO_EROZION2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
 
         SendGossipMenuFor(player, 9778, me->GetGUID());
 
@@ -440,11 +440,10 @@ struct npc_thrall_old_hillsbrad : public EscortAI
             DoUnmount();
     }
 
-    void JustReachedHome() override
+    void EnterEvadeMode(EvadeReason why) override
     {
-        EscortAI::JustReachedHome();
-        if (HadMount)
-            DoMount();
+        EscortAI::EnterEvadeMode(why);
+        Reset();
     }
 
     void JustSummoned(Creature* summoned) override
@@ -540,7 +539,7 @@ struct npc_thrall_old_hillsbrad : public EscortAI
         if (me->IsQuestGiver())
         {
             player->PrepareQuestMenu(me->GetGUID());
-            player->SendPreparedQuest(me);
+            player->SendPreparedQuest(me->GetGUID());
         }
 
         if (instance->GetBossState(DATA_LIEUTENANT_DRAKE) == DONE && instance->GetData(TYPE_THRALL_EVENT) == OH_ESCORT_PRISON_TO_SKARLOC)

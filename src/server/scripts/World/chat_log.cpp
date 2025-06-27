@@ -22,10 +22,10 @@
 #include "Log.h"
 #include "Player.h"
 
-#define TC_LOG_CHAT(TYPE, ...)                           \
-    if (lang != LANG_ADDON && lang != LANG_ADDON_LOGGED) \
-        TC_LOG_DEBUG("chat.log." TYPE, __VA_ARGS__);     \
-    else                                                 \
+#define TC_LOG_CHAT(TYPE, ...)                       \
+    if (lang != LANG_ADDON)                          \
+        TC_LOG_DEBUG("chat.log." TYPE, __VA_ARGS__); \
+    else                                             \
         TC_LOG_DEBUG("chat.log.addon." TYPE, __VA_ARGS__);
 
 class ChatLogScript : public PlayerScript
@@ -57,7 +57,7 @@ class ChatLogScript : public PlayerScript
         void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Player* receiver) override
         {
             TC_LOG_CHAT("whisper", "Player {} tells {}: {}",
-               player->GetName(), receiver ? receiver->GetName().c_str() : "<unknown>", msg);
+               player->GetName(), receiver ? receiver->GetName() : "<unknown>", msg);
         }
 
         void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) override
@@ -91,13 +91,13 @@ class ChatLogScript : public PlayerScript
                         player->GetName(), msg);
                     break;
 
-                case CHAT_MSG_INSTANCE_CHAT:
-                    TC_LOG_CHAT("bg", "Player {} tells instance with leader {}: {}",
+                case CHAT_MSG_BATTLEGROUND:
+                    TC_LOG_CHAT("bg", "Player {} tells battleground with leader {}: {}",
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg);
                     break;
 
-                case CHAT_MSG_INSTANCE_CHAT_LEADER:
-                    TC_LOG_CHAT("bg", "Leader player {} tells instance: {}",
+                case CHAT_MSG_BATTLEGROUND_LEADER:
+                    TC_LOG_CHAT("bg", "Leader player {} tells battleground: {}",
                         player->GetName(), msg);
                     break;
             }
@@ -109,12 +109,12 @@ class ChatLogScript : public PlayerScript
             {
                 case CHAT_MSG_GUILD:
                     TC_LOG_CHAT("guild", "Player {} tells guild {}: {}",
-                        player->GetName(), guild ? guild->GetName().c_str() : "<unknown>", msg);
+                        player->GetName(), guild ? guild->GetName() : "<unknown>", msg);
                     break;
 
                 case CHAT_MSG_OFFICER:
                     TC_LOG_CHAT("guild.officer", "Player {} tells guild {} officers: {}",
-                        player->GetName(), guild ? guild->GetName().c_str() : "<unknown>", msg);
+                        player->GetName(), guild ? guild->GetName() : "<unknown>", msg);
                     break;
             }
         }

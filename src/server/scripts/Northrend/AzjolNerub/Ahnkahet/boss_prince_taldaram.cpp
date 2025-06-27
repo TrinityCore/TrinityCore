@@ -25,6 +25,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellScript.h"
 
 enum PrinceTaldaramSpells
@@ -150,7 +151,7 @@ struct boss_prince_taldaram : public BossAI
         {
             if (me->GetThreatManager().IsThreatListEmpty(true))
             {
-                EnterEvadeMode(EvadeReason::NoHostiles);
+                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
                 return;
             }
         }
@@ -264,7 +265,7 @@ struct boss_prince_taldaram : public BossAI
 
     Unit* GetEmbraceTarget()
     {
-        if (!_embraceTargetGUID.IsEmpty())
+        if (_embraceTargetGUID)
             return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
         return nullptr;

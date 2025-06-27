@@ -102,7 +102,7 @@ enum POSGameObjectIds
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
-enum SpellsIcicle
+enum POSSpellsIcicle
 {
     SPELL_ICICLE_SUMMON                 = 69424,
     SPELL_ICICLE_FALL_TRIGGER           = 69426,

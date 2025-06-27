@@ -20,9 +20,8 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_SHARED)
-
 add_library(shared
+  ${PRIVATE_PCH_SOURCE}
   ${PRIVATE_SOURCES}
 )
 
@@ -38,15 +37,15 @@ target_include_directories(shared
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
+set_target_properties(shared
+  PROPERTIES
+    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED)
+
 target_link_libraries(shared
   PRIVATE
     trinity-core-interface
   PUBLIC
-    database
-    rapidjson
-    proto
-    zlib
-    gsoap)
+    database)
 
 set_target_properties(shared
     PROPERTIES

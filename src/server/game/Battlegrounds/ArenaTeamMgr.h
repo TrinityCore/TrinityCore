@@ -42,6 +42,8 @@ public:
 
     ArenaTeamContainer const& GetArenaTeams() const { return ArenaTeamStore; }
 
+    void DistributeArenaPoints();
+
     uint32 GenerateArenaTeamId();
     void SetNextArenaTeamId(uint32 Id) { NextArenaTeamId = Id; }
 
