@@ -1902,6 +1902,61 @@ class spell_quest_uther_grom_tribute : public SpellScript
     }
 };
 
+enum Q10720
+{
+    SPELL_GREEN_EYE_GROG_CREDIT        = 38996,
+    SPELL_RIPE_MOONSHINE_CREDIT        = 38997,
+    SPELL_FERMENTED_SEED_BEER_CREDIT   = 38998,
+
+    NPC_GREEN_SPOT_GROG_KEG_CREDIT     = 22356,
+    NPC_RIPE_MOONSHINE_KEG_CREDIT      = 22367,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT = 22368
+};
+
+class spell_q10720_the_smallest_creature : public SpellScript
+{
+    PrepareSpellScript(spell_q10720_the_smallest_creature);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            uint32 spellId = 0;
+            switch (GetHitCreature()->GetEntry())
+            {
+                case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
+                    spellId = SPELL_GREEN_EYE_GROG_CREDIT;
+                    break;
+                case NPC_RIPE_MOONSHINE_KEG_CREDIT:
+                    spellId = SPELL_RIPE_MOONSHINE_CREDIT;
+                    break;
+                case NPC_FERMENTED_SEED_BEER_KEG_CREDIT:
+                    spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
+                    break;
+                default:
+                    break;
+            }
+
+            player->CastSpell(nullptr, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q10720_the_smallest_creature::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1962,4 +2017,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
+    RegisterSpellScript(spell_q10720_the_smallest_creature);
 }
