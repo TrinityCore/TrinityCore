@@ -132,15 +132,13 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) { DungeonEncounters.fill(nullptr); }
-
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
-    EncounterState state;
+    EncounterState state = TO_BE_DECIDED;
     std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
-    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
+    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters = { };
 };
 
 struct DoorInfo
