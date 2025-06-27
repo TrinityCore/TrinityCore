@@ -1,4 +1,4 @@
-UPDATE `creature_template` SET `ScriptName`='boss_rtk_maiden_of_virtue' WHERE `entry`=113971;
+UPDATE `creature_template` SET `ScriptName`='boss_maiden_of_virtue_rtk' WHERE `entry`=113971;
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_maiden_of_virtue_rtk_sacred_ground', 'spell_maiden_of_virtue_rtk_holy_bulwark');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES

@@ -69,9 +69,9 @@ enum MaidenOfVirtueRTKTexts
 };
 
 // 113971 - Maiden of Virtue
-struct boss_rtk_maiden_of_virtue : public BossAI
+struct boss_maiden_of_virtue_rtk : public BossAI
 {
-    boss_rtk_maiden_of_virtue(Creature* creature) : BossAI(creature, DATA_RTK_MAIDEN_OF_VIRTUE) { }
+    boss_maiden_of_virtue_rtk(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_VIRTUE_RTK) { }
 
     void JustDied(Unit* /*killer*/) override
     {
@@ -234,7 +234,7 @@ class spell_maiden_of_virtue_rtk_holy_bulwark : public AuraScript
         if (!instance)
             return;
 
-        if (Creature* maiden = instance->GetCreature(DATA_RTK_MAIDEN_OF_VIRTUE))
+        if (Creature* maiden = instance->GetCreature(DATA_MAIDEN_OF_VIRTUE_RTK))
             maiden->AI()->DoAction(ACTION_INTERRUPT_HOLY_WRATH);
     }
 
@@ -262,9 +262,9 @@ struct at_maiden_of_virtue_rtk_sacred_ground : AreaTriggerAI
     }
 };
 
-void AddSC_boss_rtk_maiden_of_virtue()
+void AddSC_boss_maiden_of_virtue_rtk()
 {
-    RegisterReturnToKarazhanCreatureAI(boss_rtk_maiden_of_virtue);
+    RegisterReturnToKarazhanCreatureAI(boss_maiden_of_virtue_rtk);
 
     RegisterSpellScript(spell_maiden_of_virtue_rtk_sacred_ground);
     RegisterSpellScript(spell_maiden_of_virtue_rtk_holy_bulwark);

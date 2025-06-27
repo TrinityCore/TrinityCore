@@ -22,19 +22,19 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_RTK_MAIDEN_OF_VIRTUE, new CircleBoundary(Position(-10945.900391f, -2103.530029f, 92.794197f), 55.0f) }
+    { DATA_MAIDEN_OF_VIRTUE_RTK, new CircleBoundary(Position(-10945.900391f, -2103.530029f, 92.794197f), 55.0f) }
 };
 
 ObjectData const creatureData[] =
 {
-    { BOSS_RTK_MAIDEN_OF_VIRTUE, DATA_RTK_MAIDEN_OF_VIRTUE },
+    { BOSS_MAIDEN_OF_VIRTUE_RTK, DATA_MAIDEN_OF_VIRTUE_RTK },
     { 0,                     0                     }  // END
 };
 
 DungeonEncounterData const encounters[] =
 {
     { DATA_OPERA_HALL,           {{ 1957 }} },
-    { DATA_RTK_MAIDEN_OF_VIRTUE, {{ 1954 }} },
+    { DATA_MAIDEN_OF_VIRTUE_RTK, {{ 1954 }} },
     { DATA_MOROES,               {{ 1961 }} },
     { DATA_ATTUMEN_THE_HUNTSMAN, {{ 1960 }} },
     { DATA_THE_CURATOR,          {{ 1964 }} },

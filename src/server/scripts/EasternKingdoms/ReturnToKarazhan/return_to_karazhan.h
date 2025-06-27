@@ -29,7 +29,7 @@ enum RTKDataTypes : uint8
 {
     // Encounters
     DATA_OPERA_HALL = 0,
-    DATA_RTK_MAIDEN_OF_VIRTUE,
+    DATA_MAIDEN_OF_VIRTUE_RTK,
     DATA_MOROES,
     DATA_ATTUMEN_THE_HUNTSMAN,
     DATA_THE_CURATOR,
@@ -42,7 +42,7 @@ enum RTKDataTypes : uint8
 enum RTKCreatureIds
 {
     // Bosses
-    BOSS_RTK_MAIDEN_OF_VIRTUE = 113971
+    BOSS_MAIDEN_OF_VIRTUE_RTK = 113971
 };
 
 template <class AI, class T>
