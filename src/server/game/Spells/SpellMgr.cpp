@@ -4042,6 +4042,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Summon Faol in Tirisfal
+    ApplySpellFix({ 202112 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
