@@ -15,8 +15,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScheduledChangeAI.h"
+#ifndef TRINITYCORE_STRING_FORMAT_FWD_H
+#define TRINITYCORE_STRING_FORMAT_FWD_H
 
-ScheduledChangeAI::ScheduledChangeAI(Creature* creature, uint32 scriptId /*= {}*/): CreatureAI(creature, scriptId)
+#include <stdexcept>
+
+namespace fmt
 {
+inline namespace v10
+{
+template <typename T, typename Char, typename Enable>
+struct formatter;
 }
+}
+
+namespace Trinity
+{
+struct NoArgFormatterBase
+{
+    template <typename ParseContext>
+    constexpr typename ParseContext::iterator parse(ParseContext& ctx)
+    {
+        auto begin = ctx.begin(), end = ctx.end();
+        if (begin == end)
+            return begin;
+
+        if (*begin != '}')
+            throw std::invalid_argument("invalid type specifier");
+
+        return begin;
+    }
+};
+}
+
+#endif // TRINITYCORE_STRING_FORMAT_FWD_H

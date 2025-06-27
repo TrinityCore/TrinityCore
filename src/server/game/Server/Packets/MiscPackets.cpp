@@ -235,8 +235,8 @@ void SetDungeonDifficulty::Read()
 
 void SetRaidDifficulty::Read()
 {
-    _worldPacket >> DifficultyID;
     _worldPacket >> Legacy;
+    _worldPacket >> DifficultyID;
 }
 
 WorldPacket const* DungeonDifficultySet::Write()
@@ -248,8 +248,8 @@ WorldPacket const* DungeonDifficultySet::Write()
 
 WorldPacket const* RaidDifficultySet::Write()
 {
+    _worldPacket << int32(Legacy);
     _worldPacket << int32(DifficultyID);
-    _worldPacket << uint8(Legacy);
 
     return &_worldPacket;
 }
@@ -801,6 +801,7 @@ WorldPacket const* DisplayToast::Write()
     {
         case DisplayToastType::NewItem:
             _worldPacket << Bits<1>(BonusRoll);
+            _worldPacket << Bits<1>(ForceToast);
             _worldPacket << Item;
             _worldPacket << int32(LootSpec);
             _worldPacket << int8(Gender);

@@ -107,6 +107,7 @@ void WorldSession::HandleMoveWorldportAck()
 
     player->ResetMap();
     player->SetMap(newMap);
+    player->UpdatePositionData();
 
     WorldPackets::Movement::ResumeToken resumeToken;
     resumeToken.SequenceIndex = player->m_movementCounter;

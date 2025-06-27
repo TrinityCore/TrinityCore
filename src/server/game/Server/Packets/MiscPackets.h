@@ -284,8 +284,8 @@ namespace WorldPackets
 
             void Read() override;
 
+            int32 Legacy = 0;
             int32 DifficultyID = 0;
-            uint8 Legacy = 0;
         };
 
         class DungeonDifficultySet final : public ServerPacket
@@ -305,8 +305,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
+            int32 Legacy = 0;
             int32 DifficultyID = 0;
-            uint8 Legacy = 0;
         };
 
         class CorpseReclaimDelay : public ServerPacket
@@ -1005,15 +1005,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Quantity = 0;
+            uint32 QuestID = 0;
             ::DisplayToastMethod DisplayToastMethod = { };
             bool Mailed = false;
             DisplayToastType Type = { };
-            uint32 QuestID = 0;
             bool IsSecondaryResult = false;
             Item::ItemInstance Item;
-            bool BonusRoll = false;
             int32 LootSpec = 0;
             ::Gender Gender = GENDER_NONE;
+            bool BonusRoll = false;
+            bool ForceToast = false;    ///< Ignores ITEM_FLAG3_DO_NOT_TOAST
             uint32 CurrencyID = 0;
         };
 

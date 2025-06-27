@@ -72,6 +72,7 @@ enum RogueSpells
     SPELL_ROGUE_KILLING_SPREE_DMG_BUFF              = 61851,
     SPELL_ROGUE_MARKED_FOR_DEATH                    = 137619,
     SPELL_ROGUE_MAIN_GAUCHE                         = 86392,
+    SPELL_ROGUE_NIGHT_TERRORS                       = 277953,
     SPELL_ROGUE_NUMBING_POISON                      = 5761,
     SPELL_ROGUE_NUMBING_POISON_DEBUFF               = 5760,
     SPELL_ROGUE_PREMEDITATION_PASSIVE               = 343160,
@@ -85,6 +86,7 @@ enum RogueSpells
     SPELL_ROGUE_SHADOW_DANCE                        = 185313,
     SPELL_ROGUE_SHADOW_FOCUS                        = 108209,
     SPELL_ROGUE_SHADOW_FOCUS_EFFECT                 = 112942,
+    SPELL_ROGUE_SHADOWS_GRASP                       = 206760,
     SPELL_ROGUE_SHIV_NATURE_DAMAGE                  = 319504,
     SPELL_ROGUE_SHOT_IN_THE_DARK_TALENT             = 257505,
     SPELL_ROGUE_SHOT_IN_THE_DARK_BUFF               = 257506,
@@ -740,6 +742,33 @@ class spell_rog_mastery_main_gauche : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_rog_mastery_main_gauche::HandleCheckProc);
         OnEffectProc += AuraEffectProcFn(spell_rog_mastery_main_gauche::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 277953 - Night Terrors (attached to 197835 - Shuriken Storm)
+class spell_rog_night_terrors : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_ROGUE_NIGHT_TERRORS, SPELL_ROGUE_SHADOWS_GRASP });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_ROGUE_NIGHT_TERRORS);
+    }
+
+    void HandleEnergize(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_ROGUE_SHADOWS_GRASP, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_rog_night_terrors::HandleEnergize, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1497,6 +1526,7 @@ void AddSC_rogue_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_rog_killing_spree, spell_rog_killing_spree_aura);
     RegisterSpellScript(spell_rog_kingsbane);
     RegisterSpellScript(spell_rog_mastery_main_gauche);
+    RegisterSpellScript(spell_rog_night_terrors);
     RegisterSpellScript(spell_rog_pickpocket);
     RegisterSpellScript(spell_rog_poisoned_knife);
     RegisterSpellScript(spell_rog_premeditation);
