@@ -1967,15 +1967,9 @@ bool GameObject::LoadFromDB(ObjectGuid::LowType spawnId, Map* map, bool addToMap
     PhasingHandler::InitDbPhaseShift(GetPhaseShift(), data->phaseUseFlags, data->phaseId, data->phaseGroup);
     PhasingHandler::InitDbVisibleMapId(GetPhaseShift(), data->terrainSwapMap);
 
-    uint32 spawnTrackingQuestObjectiveId = [&]() -> uint32
-    {
-        // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this gameobject
-        if (data && data->spawnTrackingQuestObjectives.size() == 1)
-            return data->spawnTrackingQuestObjectives.front();
-
-        return 0;
-    }();
-    SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::StateWorldEffectsQuestObjectiveID), spawnTrackingQuestObjectiveId);
+    // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this gameobject
+    if (data && data->spawnTrackingQuestObjectives.size() == 1)
+        SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::StateWorldEffectsQuestObjectiveID), data->spawnTrackingQuestObjectives.front());
 
     if (data->spawntimesecs >= 0)
     {

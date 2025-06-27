@@ -11811,7 +11811,7 @@ void ObjectMgr::LoadSpawnTrackings()
     _spawnTrackingMapStore.clear();
 
     //                                               0                1          2        3
-    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectives FROM spawn_tracking");
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveIds FROM spawn_tracking");
 
     if (!result)
     {
@@ -11877,9 +11877,9 @@ void ObjectMgr::LoadSpawnTrackings()
         }
 
         std::vector<uint32> objectiveList;
-        if (!fields[3].IsNull())
+        if (Optional<std::string_view> objectivesStr = fields[3].GetStringViewOrNull())
         {
-            for (std::string_view objectiveStr : Trinity::Tokenize(fields[3].GetStringView(), ',', false))
+            for (std::string_view objectiveStr : Trinity::Tokenize(*objectivesStr, ',', false))
             {
                 Optional<uint32> objectiveId = Trinity::StringTo<uint32>(objectiveStr);
                 if (!objectiveId)

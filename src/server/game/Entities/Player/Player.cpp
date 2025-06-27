@@ -16871,7 +16871,7 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
 
                         WorldPackets::Quest::QuestPOIUpdateResponse response;
 
-                        WorldPackets::Quest::SpawnTrackingResponseInfo responseInfo;
+                        WorldPackets::Quest::SpawnTrackingResponseInfo& responseInfo = response.SpawnTrackingResponses.emplace_back();
                         responseInfo.SpawnTrackingID = data->spawnTrackingData->SpawnTrackingId;
                         responseInfo.ObjectID = spawnData->id;
                         responseInfo.PhaseID = spawnData->phaseId;
@@ -16881,7 +16881,6 @@ void Player::UpdateQuestObjectiveProgress(QuestObjectiveType objectiveType, int3
                         SpawnTrackingState state = GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives);
                         responseInfo.Visible = data->spawnTrackingStates[AsUnderlyingType(state)].Visible;
 
-                        response.SpawnTrackingResponses.push_back(std::move(responseInfo));
                         SendDirectMessage(response.Write());
                     }
 
@@ -17545,27 +17544,24 @@ SpawnTrackingState Player::GetSpawnTrackingStateByObjectives(uint32 spawnTrackin
 
 SpawnTrackingState Player::GetSpawnTrackingStateByObjective(uint32 spawnTrackingId, uint32 questObjectiveId) const
 {
-    if (spawnTrackingId && questObjectiveId)
+    if (spawnTrackingId && questObjectiveId && sObjectMgr->IsQuestObjectiveForSpawnTracking(spawnTrackingId, questObjectiveId))
     {
-        if (sObjectMgr->IsQuestObjectiveForSpawnTracking(spawnTrackingId, questObjectiveId))
+        if (QuestObjective const* questObjective = sObjectMgr->GetQuestObjective(questObjectiveId))
         {
-            if (QuestObjective const* questObjective = sObjectMgr->GetQuestObjective(questObjectiveId))
+            if (IsQuestRewarded(questObjective->QuestID) || IsQuestObjectiveComplete(questObjective->QuestID, questObjective->ID))
+                return SpawnTrackingState::Complete;
+
+            if (GetQuestStatus(questObjective->QuestID) != QUEST_STATUS_NONE && IsQuestObjectiveCompletable(questObjective->QuestID, questObjective->ID))
             {
-                if (IsQuestRewarded(questObjective->QuestID) || IsQuestObjectiveComplete(questObjective->QuestID, questObjective->ID))
-                    return SpawnTrackingState::Complete;
-
-                if (GetQuestStatus(questObjective->QuestID) != QUEST_STATUS_NONE && IsQuestObjectiveCompletable(questObjective->QuestID, questObjective->ID))
+                auto itr = m_QuestStatus.find(questObjective->QuestID);
+                if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
                 {
-                    auto itr = m_QuestStatus.find(questObjective->QuestID);
-                    if (itr != m_QuestStatus.end() && itr->second.Slot < MAX_QUEST_LOG_SIZE)
-                    {
-                        auto itr2 = itr->second.SpawnTrackingList.find(std::make_pair(questObjective->StorageIndex, spawnTrackingId));
-                        if (itr2 != itr->second.SpawnTrackingList.end())
-                            return SpawnTrackingState::Complete;
-                    }
-
-                    return SpawnTrackingState::Active;
+                    auto itr2 = itr->second.SpawnTrackingList.find(std::make_pair(questObjective->StorageIndex, spawnTrackingId));
+                    if (itr2 != itr->second.SpawnTrackingList.end())
+                        return SpawnTrackingState::Complete;
                 }
+
+                return SpawnTrackingState::Active;
             }
         }
     }

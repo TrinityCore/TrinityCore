@@ -629,15 +629,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    uint32 spawnTrackingQuestObjectiveId = [&]() -> uint32
-    {
-        // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
-        if (data && data->spawnTrackingQuestObjectives.size() == 1)
-            return data->spawnTrackingQuestObjectives.front();
-
-        return 0;
-    }();
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), spawnTrackingQuestObjectiveId);
+    // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
+    if (data && data->spawnTrackingQuestObjectives.size() == 1)
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data->spawnTrackingQuestObjectives.front());
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
