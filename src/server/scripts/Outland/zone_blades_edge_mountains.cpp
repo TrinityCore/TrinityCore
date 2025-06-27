@@ -41,6 +41,7 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include <DBCStores.h>
 
 /*######
 ## npc_nether_drake
@@ -1069,6 +1070,171 @@ class spell_bem_wicked_strong_fetish : public SpellScript
     }
 };
 
+enum Marmot
+{
+    SPELL_CHARM_REXXARS_RODENT     = 38586,
+    SPELL_COAX_MARMOT              = 38544,
+    SPELL_STEALTH_MARMOT           = 42347,
+    SPELL_STEALTH_DETECTION        = 8279,
+
+    NPC_MARMOT                     = 22189
+};
+
+struct npc_q10720_key_credit : public ScriptedAI
+{
+    npc_q10720_key_credit(Creature * creature) : ScriptedAI(creature)
+    {
+        creature->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK4);
+    }
+};
+
+#define CoaxMarmotScriptName "spell_coax_marmot"
+class spell_coax_marmot : public SpellScriptLoader
+{
+public:
+    spell_coax_marmot() : SpellScriptLoader(CoaxMarmotScriptName) { }
+
+    class spell_coax_marmot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_coax_marmot_SpellScript);
+
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            uint32 entry = uint32(GetEffectInfo().MiscValue);
+            Unit* caster = GetCaster();
+            Position pos = caster->GetPosition();
+            SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
+            uint32 duration = uint32(GetSpellInfo()->GetDuration());
+
+            if (Creature* marmot = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
+            {
+                caster->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
+                _marmotGuid = marmot->GetGUID();
+            }
+        }
+
+        void SetMarmot(SpellEffIndex /*effIndex*/)
+        {
+            if (Aura* aura = GetHitAura())
+                if (spell_coax_marmot_AuraScript* script = aura->GetScript<spell_coax_marmot_AuraScript>(CoaxMarmotScriptName))
+                    script->SetMarmotGuid(_marmotGuid);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_coax_marmot_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHitTarget += SpellEffectFn(spell_coax_marmot_SpellScript::SetMarmot, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
+
+    private:
+        ObjectGuid _marmotGuid;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_coax_marmot_SpellScript();
+    }
+
+    class spell_coax_marmot_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_coax_marmot_AuraScript);
+    public:
+        void SetMarmotGuid(ObjectGuid guid)
+        {
+            marmotGuid = guid;
+        }
+
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // if you take DC during the charm it will be removed
+            Unit* caster = GetCaster();
+            if (!caster || caster->GetCharmedGUID())
+                return;
+
+            caster->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* charm = GetUnitOwner()->GetCharmed())
+                if (GetSpellInfo()->GetEffect(EFFECT_0).MiscValue >= 0 && charm->GetEntry() == uint32(GetSpellInfo()->GetEffect(EFFECT_0).MiscValue))
+                    if (Creature* marmot = charm->ToCreature())
+                        marmot->DespawnOrUnsummon();
+
+            // Dismiss Marmot
+            if (Creature * marmot = ObjectAccessor::GetCreature(*GetCaster(), marmotGuid))
+                marmot->DespawnOrUnsummon();
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_coax_marmot_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+        ObjectGuid marmotGuid;
+    };
+
+    AuraScript* GetAuraScript() const override
+    {
+        return new spell_coax_marmot_AuraScript();
+    }
+};
+
+class spell_charm_rexxars_rodent : public AuraScript
+{
+    PrepareAuraScript(spell_charm_rexxars_rodent);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+struct npc_bloodmaul_battle_worg : public ScriptedAI
+{
+    npc_bloodmaul_battle_worg(Creature* creature) : ScriptedAI(creature) { }
+
+    bool foundStealth = false;
+
+    void Reset() override
+    {
+        foundStealth = false;
+        me->AddAura(SPELL_STEALTH_DETECTION, me);
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        std::list<Creature*> marmots;
+        me->GetCreatureListWithEntryInGrid(marmots, NPC_MARMOT, 30.0f);
+        for (Creature* marmot : marmots)
+        {
+            if (marmot->HasAura(SPELL_STEALTH_MARMOT))
+            {
+                foundStealth = true;
+                break;
+            }
+        }
+
+        if (!foundStealth)
+        {
+            if (me->HasAura(SPELL_STEALTH_DETECTION))
+                me->RemoveAura(SPELL_STEALTH_DETECTION);
+        }
+
+        DoMeleeAttackIfReady();
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1080,4 +1246,8 @@ void AddSC_blades_edge_mountains()
     new spell_oscillating_field();
     RegisterSpellScript(spell_bem_dispelling_analysis);
     RegisterSpellScript(spell_bem_wicked_strong_fetish);
+    RegisterCreatureAI(npc_q10720_key_credit);
+    new spell_coax_marmot();
+    RegisterSpellScript(spell_charm_rexxars_rodent);
+    RegisterCreatureAI(npc_bloodmaul_battle_worg);
 }
