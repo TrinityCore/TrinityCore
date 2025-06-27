@@ -279,6 +279,7 @@ struct UnitData : public IsUpdateFieldStructureTag, public HasChangesMask<222>
     UpdateField<uint32, 0, 11> StateAnimKitID;
     struct StateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 12> StateWorldEffectsQuestObjectiveID;
+    struct StateWorldEffectsQuestObjectiveIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<int32, 0, 13> SpellOverrideNameID;
     UpdateField<ObjectGuid, 0, 14> Charm;
     UpdateField<ObjectGuid, 0, 15> Summon;
@@ -1213,6 +1214,7 @@ struct GameObjectData : public IsUpdateFieldStructureTag, public HasChangesMask<
     UpdateField<uint32, 0, 8> SpawnTrackingStateAnimKitID;
     struct SpawnTrackingStateAnimKitIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<uint32, 0, 9> StateWorldEffectsQuestObjectiveID;
+    struct StateWorldEffectsQuestObjectiveIDTag : ViewerDependentValueTag<uint32> {};
     UpdateField<ObjectGuid, 0, 10> CreatedBy;
     UpdateField<ObjectGuid, 0, 11> GuildGUID;
     UpdateField<uint32, 0, 12> Flags;
