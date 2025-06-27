@@ -361,6 +361,55 @@ LOCK TABLES `battlenet_account_mounts` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_player_data_element`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_player_data_element`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_player_data_element` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `playerDataElementCharacterId` int unsigned NOT NULL,
+  `floatValue` float DEFAULT NULL,
+  `int64Value` bigint DEFAULT NULL,
+  PRIMARY KEY (`battlenetAccountId`,`playerDataElementCharacterId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_player_data_element`
+--
+
+LOCK TABLES `battlenet_account_player_data_element` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_player_data_element` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_player_data_element` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `battlenet_account_player_data_flag`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_player_data_flag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_player_data_flag` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `storageIndex` int unsigned NOT NULL,
+  `mask` bigint unsigned NOT NULL,
+  PRIMARY KEY (`battlenetAccountId`,`storageIndex`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_player_data_flag`
+--
+
+LOCK TABLES `battlenet_account_player_data_flag` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_player_data_flag` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_player_data_flag` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_account_toys`
 --
 
@@ -3658,7 +3707,8 @@ INSERT INTO `updates` VALUES
 ('2025_06_05_02_auth.sql','C2B67F688AC54CF6994F4709D0ECE692C968F346','RELEASED','2025-06-05 16:22:53',0),
 ('2025_06_18_00_auth.sql','AB5F6069BD37C93050022700F1C4B814D9D139C1','RELEASED','2025-06-17 23:13:05',0),
 ('2025_06_19_00_auth.sql','1C0ACAEEFC934F91F44C113E6CD9D7A40ED1C979','RELEASED','2025-06-18 22:51:15',0),
-('2025_06_25_00_auth.sql','27DC7FB423FFB3788082CCFC18D5432650B09FB3','RELEASED','2025-06-25 01:15:04',0);
+('2025_06_25_00_auth.sql','27DC7FB423FFB3788082CCFC18D5432650B09FB3','RELEASED','2025-06-25 01:15:04',0),
+('2025_06_27_00_auth.sql','243C89DFED0058323EF9690D124C1F20036D461B','RELEASED','2025-06-27 14:22:49',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
