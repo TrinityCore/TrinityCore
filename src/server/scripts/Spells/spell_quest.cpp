@@ -1902,7 +1902,7 @@ class spell_quest_uther_grom_tribute : public SpellScript
     }
 };
 
-enum Q10720
+enum QuestCredit
 {
     SPELL_GREEN_EYE_GROG_CREDIT        = 38996,
     SPELL_RIPE_MOONSHINE_CREDIT        = 38997,
