@@ -360,8 +360,8 @@ WorldPacket const* EnterEncryptedMode::Write()
 
     ed25519.SignWithContext(toSign, { EnableEncryptionContext.begin(), EnableEncryptionContext.end() }, signature);
 
-    _worldPacket.append(signature.data(), signature.size());
     _worldPacket << int32(RegionGroup);
+    _worldPacket.append(signature.data(), signature.size());
     _worldPacket << Bits<1>(Enabled);
     _worldPacket.FlushBits();
 

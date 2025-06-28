@@ -911,10 +911,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         MovementInfo m_movementInfo;
 
-        virtual float GetStationaryX() const { return GetPositionX(); }
-        virtual float GetStationaryY() const { return GetPositionY(); }
-        virtual float GetStationaryZ() const { return GetPositionZ(); }
-        virtual float GetStationaryO() const { return GetOrientation(); }
+        virtual Position const& GetStationaryPosition() const { return *this; }
 
         float GetFloorZ() const;
         virtual float GetCollisionHeight() const { return 0.0f; }

@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "Log.h"
 #include "StringConvert.h"
+#include "Util.h"
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/property_tree/ini_parser.hpp>

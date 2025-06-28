@@ -1206,8 +1206,8 @@ void SpellMgr::LoadSpellTargetPositions()
         }
 
         SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
-        if (!fields[7].IsNull())
-            st.SetOrientation(fields[7].GetFloat());
+        if (Optional<float> orientiation = fields[7].GetFloatOrNull())
+            st.SetOrientation(*orientiation);
         else
         {
             // target facing is in degrees for 6484 & 9268...
@@ -4042,6 +4042,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Summon Faol in Tirisfal
+    ApplySpellFix({ 202112 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -5001,6 +5010,13 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Flame Spout
+    ApplySpellFix({ 114685 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx |= SPELL_ATTR1_NO_THREAT;
+        spellInfo->AttributesEx8 |= SPELL_ATTR8_CAN_ATTACK_IMMUNE_PC;
+    });
+
     // ENDOF THE WANDERING ISLE SPELLS
     //
 
@@ -5366,6 +5382,18 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 388615 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_4, {}, {});
+    });
+
+    // Keg Smash
+    ApplySpellFix({ 121253 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, {}, EFFECT_6, {}, {});
+    });
+
+    // Odyn's Fury
+    ApplySpellFix({ 385060, 385061, 385062 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 385059, EFFECT_5, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));

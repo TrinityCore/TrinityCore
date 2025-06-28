@@ -45,13 +45,17 @@ enum SecretOwner
 class TC_SHARED_API SecretMgr
 {
     private:
-        SecretMgr() {}
-        ~SecretMgr() {}
+        SecretMgr();
+        ~SecretMgr();
 
     public:
         static SecretOwner OWNER;
 
         SecretMgr(SecretMgr const&) = delete;
+        SecretMgr(SecretMgr&&) = delete;
+        SecretMgr& operator=(SecretMgr const&) = delete;
+        SecretMgr& operator=(SecretMgr&&) = delete;
+
         static SecretMgr* instance();
 
         struct Secret

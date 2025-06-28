@@ -85,6 +85,12 @@ typedef std::map<ObjectGuid, LfgQueueData> LfgQueueDataContainer;
 class TC_GAME_API LFGQueue
 {
     public:
+        LFGQueue();
+        LFGQueue(LFGQueue const&) = delete;
+        LFGQueue(LFGQueue&& other) noexcept;
+        LFGQueue& operator=(LFGQueue const&) = delete;
+        LFGQueue& operator=(LFGQueue&& right) noexcept;
+        ~LFGQueue();
 
         // Add/Remove from queue
         std::string GetDetailedMatchRoles(GuidList const& check) const;
@@ -111,8 +117,6 @@ class TC_GAME_API LFGQueue
         std::string DumpCompatibleInfo(bool full = false) const;
 
     private:
-        void SetQueueUpdateData(std::string const& strGuids, LfgRolesMap const& proposalRoles);
-
         void AddToNewQueue(ObjectGuid guid);
         void AddToCurrentQueue(ObjectGuid guid);
         void AddToFrontCurrentQueue(ObjectGuid guid);

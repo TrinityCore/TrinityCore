@@ -793,6 +793,8 @@ bool PlayerDumpWriter::AppendTable(StringTransaction& trans, ObjectGuid::LowType
     return true;
 }
 
+PlayerDumpWriter::PlayerDumpWriter() = default;
+
 bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string& dump)
 {
     dump =  "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
