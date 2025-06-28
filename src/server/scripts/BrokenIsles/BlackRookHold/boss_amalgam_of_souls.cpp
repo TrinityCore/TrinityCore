@@ -120,9 +120,9 @@ constexpr Position StaellisOutroPosition =  { 3233.22f, 7548.13f, 15.162442f };
 // 98542 - Amalgam of Souls
 struct boss_amalgam_of_souls : public BossAI
 {
-    boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS), _callSoulsActive(false) { }
+    boss_amalgam_of_souls(Creature* creature) : BossAI(creature, DATA_AMALGAM_OF_SOULS), _callSoulsTriggered(false) { }
 
-    void DespawnSoulEchoes()
+    void DespawnSoulEchoes() const
     {
         std::list<Creature*> soulEchoes;
         GetCreatureListWithEntryInGrid(soulEchoes, me, NPC_SOUL_ECHO, 100.0f);
@@ -134,7 +134,7 @@ struct boss_amalgam_of_souls : public BossAI
     void Reset() override
     {
         _Reset();
-        _callSoulsActive = false;
+        _callSoulsTriggered = false;
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -182,10 +182,10 @@ struct boss_amalgam_of_souls : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!IsHeroicOrHigher() || _callSoulsActive || !me->HealthBelowPctDamaged(50, damage))
+        if (!IsHeroicOrHigher() || _callSoulsTriggered || !me->HealthBelowPctDamaged(50, damage))
             return;
 
-        _callSoulsActive = true;
+        _callSoulsTriggered = true;
 
         DoStopAttack();
         me->SetReactState(REACT_PASSIVE);
@@ -242,8 +242,8 @@ struct boss_amalgam_of_souls : public BossAI
                 }
                 case EVENT_SOUL_BURST:
                 {
-                    me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_AREATRIGGER);
                     Talk(SAY_SOUL_BURST);
+                    me->RemoveAurasDueToSpell(SPELL_CALL_SOULS_AREATRIGGER);
                     DoCastSelf(SPELL_SOUL_BURST);
                     events.ScheduleEvent(EVENT_SWIRLING_SCYTE, 14200ms);
                     events.ScheduleEvent(EVENT_SOUL_ECHOES, 23s);
@@ -260,7 +260,7 @@ struct boss_amalgam_of_souls : public BossAI
     }
 
 private:
-    bool _callSoulsActive;
+    bool _callSoulsTriggered;
 };
 
 // 99090 - Soul Echoes Stalker
@@ -432,119 +432,7 @@ class spell_amalgam_of_souls_soul_burst : public SpellScript
 
 // 195254 - Swirling Scythe
 // ID - 5167
-/* THIS AREATRIGGER SHOULD ROTATE, BUT IT DOESNT, MAYBE BECAUSE ROLLPITCHYAW IS NYI */
-/*
-[1] UpdateType: CreateObject2
-[1] Object Guid: Full: 0x344278BBA009AAC0004AE40000069ECB AreaTrigger/0 R4254/S19172 Map: 1501 (Black Rook Hold) Entry: 9899 Low: 433867
-[1] Object Type: 11 (AreaTrigger)
-[1] NoBirthAnim: False
-[1] EnablePortals: False
-[1] PlayHoverAnim: False
-[1] HasMovementUpdate: False
-[1] HasMovementTransport: False
-[1] Stationary: True
-[1] HasCombatVictim: False
-[1] HasServerTime: False
-[1] HasVehicleCreate: False
-[1] HasAnimKitCreate: False
-[1] HasRotation: False
-[1] HasAreaTrigger: True
-[1] HasGameObject: False
-[1] HasSmoothPhasing: False
-[1] ThisIsYou: False
-[1] SceneObjCreate: False
-[1] HasPlayerCreateData: False
-[1] HasConversation: False
-[1] PauseTimesCount: 0
-[1] Stationary Position: X: 3256.5698 Y: 7584.2847 Z: 12.884896
-[1] Stationary Orientation: 5.879039
-[1] ElapsedMs: 10
-[1] RollPitchYaw1: X: 0 Y: 0 Z: 0
-[1] HasAbsoluteOrientation: False
-[1] HasDynamicShape: True
-[1] HasAttached: False
-[1] HasFaceMovementDir: False
-[1] HasFollowsTerrain: True
-[1] Unk bit WoD62x: False
-[1] HasTargetRollPitchYaw: True
-[1] HasScaleCurveID: False
-[1] HasMorphCurveID: False
-[1] HasFacingCurveID: False
-[1] HasMoveCurveID: False
-[1] HasAreaTriggerSphere: True
-[1] HasAreaTriggerBox: False
-[1] HasAreaTriggerPolygon: False
-[1] HasAreaTriggerCylinder: False
-[1] HasAreaTriggerDisk: False
-[1] HasAreaTriggerBoundedPlane: False
-[1] HasAreaTriggerSpline: True
-[1] HasAreaTriggerOrbit: False
-[1] HasAreaTriggerMovementScript: False
-[1] (AreaTriggerSpline) TimeToTarget: 1401
-[1] (AreaTriggerSpline) ElapsedTimeForMovement: 0
-[1] (AreaTriggerSpline) PointsCount: 4
-[1] (AreaTriggerSpline) [0] Points: X: 3256.5698 Y: 7584.2847 Z: 12.884896
-[1] (AreaTriggerSpline) [1] Points: X: 3256.5698 Y: 7584.2847 Z: 12.884896
-[1] (AreaTriggerSpline) [2] Points: X: 3266.8752 Y: 7579.8774 Z: 12.884896
-[1] (AreaTriggerSpline) [3] Points: X: 3266.8752 Y: 7579.8774 Z: 12.884896
-[1] (AreaTriggerSpline) Computed Distance: 11.208270416945858
-[1] (AreaTriggerSpline) Computed Speed: 8.000193017091977
-[1] TargetRollPitchYaw: X: 0 Y: 0 Z: 370.0098
-[1] Radius: 3.5
-[1] RadiusTarget: 3.5
-[1] FieldFlags: 0 (None)
-[1] EntryID: 9899
-[1] DynamicFlags: 0
-[1] Scale: 1
-[1] (OverrideScaleCurve) StartTimeOffset: 0
-[1] (OverrideScaleCurve) [0] Points: X: 0 Y: 0
-[1] (OverrideScaleCurve) [1] Points: X: 0 Y: 0
-[1] (OverrideScaleCurve) ParameterCurve: 0
-[1] (OverrideScaleCurve) OverrideActive: False
-[1] Caster: Full: 0x204278BBA0603B80004AE40000069E4B Creature/0 R4254/S19172 Map: 1501 (Black Rook Hold) Entry: 98542 (Amalgam of Souls) Low: 433739
-[1] Duration: 30000
-[1] TimeToTarget: 1401
-[1] TimeToTargetScale: 30000
-[1] TimeToTargetExtraScale: 0
-[1] TimeToTargetPos: 30000
-[1] SpellID: 195254
-[1] SpellForVisuals: 195254
-[1] (SpellVisual) SpellXSpellVisualID: 90198
-[1] (SpellVisual) ScriptVisualID: 0
-[1] BoundsRadius2D: 3.5
-[1] DecalPropertiesID: 39
-[1] CreatingEffectGUID: Full: 0xBC4278BBA0BEAD83004AE40005069ECA Cast/3 R4254/S19172 Map: 1501 (Black Rook Hold) Entry: 195254 (Swirling Scythe) Low: 84319946
-[1] NumUnitsInside: 0
-[1] NumPlayersInside: 0
-[1] OrbitPathTarget: Full: 0x0
-[1] RollPitchYaw: X: 0 Y: 0 Z: 0
-[1] PositionalSoundKitID: 0
-[1] (ExtraScaleCurve) StartTimeOffset: 0
-[1] (ExtraScaleCurve) [0] Points: X: 0 Y: 0
-[1] (ExtraScaleCurve) [1] Points: X: 0 Y: 0
-[1] (ExtraScaleCurve) ParameterCurve: 1065353217
-[1] (ExtraScaleCurve) OverrideActive: True
-[1] HeightIgnoresScale: False
-[1] Field_261: False
-[1] (OverrideMoveCurveX) StartTimeOffset: 0
-[1] (OverrideMoveCurveX) [0] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveX) [1] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveX) ParameterCurve: 0
-[1] (OverrideMoveCurveX) OverrideActive: False
-[1] (OverrideMoveCurveY) StartTimeOffset: 0
-[1] (OverrideMoveCurveY) [0] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveY) [1] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveY) ParameterCurve: 0
-[1] (OverrideMoveCurveY) OverrideActive: False
-[1] (OverrideMoveCurveZ) StartTimeOffset: 0
-[1] (OverrideMoveCurveZ) [0] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveZ) [1] Points: X: 0 Y: 0
-[1] (OverrideMoveCurveZ) ParameterCurve: 0
-[1] (OverrideMoveCurveZ) OverrideActive: False
-[1] (VisualAnim) AnimationDataID: 4294967295
-[1] (VisualAnim) AnimKitID: 0
-[1] (VisualAnim) AnimProgress: 0
-[1] (VisualAnim) IsDecay: False*/
+/* THIS AREATRIGGER SHOULD ROTATE, BUT IT DOESNT, BECAUSE ROLLPITCHYAW IS NYI */
 struct at_amalgam_of_souls_swirling_scythe : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;

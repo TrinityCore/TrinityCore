@@ -1,11 +1,11 @@
-SET @CGUID := 9999999999;
+SET @CGUID := 6005163;
 
 -- Creatures
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+2;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `StringId`, `VerifiedBuild`) VALUES
-(@CGUID+0, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3221.896728515625, 7534.16845703125, 22.26258468627929687, 0.978301584720611572, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'npc_secret_door_stalker_left', 60822), -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
-(@CGUID+1, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3219.341064453125, 7535.9443359375, 24.50200271606445312, 0.885492563247680664, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'npc_secret_door_stalker_mid', 60822), -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
-(@CGUID+2, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3217.076416015625, 7537.67041015625, 22.50607109069824218, 0.794547736644744873, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'npc_secret_door_stalker_right', 60822); -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
+(@CGUID+0, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3221.896728515625, 7534.16845703125, 22.26258468627929687, 0.978301584720611572, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'amalgam_door_stalker_left', 60822), -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
+(@CGUID+1, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3219.341064453125, 7535.9443359375, 24.50200271606445312, 0.885492563247680664, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'amalgam_door_stalker_mid', 60822), -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
+(@CGUID+2, 103662, 1501, 7805, 7805, '1,2,8,23,24', '0', 0, 0, 0, 3217.076416015625, 7537.67041015625, 22.50607109069824218, 0.794547736644744873, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 'amalgam_door_stalker_right', 60822); -- Secret Door Stalker (Area: Black Rook Hold - Difficulty: 0) CreateObject1 (Auras: )
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (99090);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
@@ -75,9 +75,9 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (196930, 205210, 205211, 205212);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13, 1, 196930, 0, 0, 51, 0, 5, 98542, 0, '', 0, 0, 0, '', 'Spell \'Soulgorge\' can only hit \'Amalgam of Souls\''),
-(13, 1, 205210, 0, 0, 58, 0, 0, 0, 0, 'npc_secret_door_stalker_left', 0, 0, 0, '', 'Spell \'Secret Door Channel - Staellis Left\' can only hit \'Secret Door Stalker\''),
-(13, 1, 205211, 0, 0, 58, 0, 0, 0, 0, 'npc_secret_door_stalker_mid', 0, 0, 0, '', 'Spell \'Secret Door Channel - Lady V Mid\' can only hit \'Secret Door Stalker\''),
-(13, 1, 205212, 0, 0, 58, 0, 0, 0, 0, 'npc_secret_door_stalker_right', 0, 0, 0, '', 'Spell \'Secret Door Channel - Lord E Right\' can only hit \'Secret Door Stalker\'');
+(13, 1, 205210, 0, 0, 58, 0, 0, 0, 0, 'amalgam_door_stalker_left', 0, 0, 0, '', 'Spell \'Secret Door Channel - Staellis Left\' can only hit \'Secret Door Stalker\''),
+(13, 1, 205211, 0, 0, 58, 0, 0, 0, 0, 'amalgam_door_stalker_mid', 0, 0, 0, '', 'Spell \'Secret Door Channel - Lady V Mid\' can only hit \'Secret Door Stalker\''),
+(13, 1, 205212, 0, 0, 58, 0, 0, 0, 0, 'amalgam_door_stalker_right', 0, 0, 0, '', 'Spell \'Secret Door Channel - Lord E Right\' can only hit \'Secret Door Stalker\'');
 
 -- Conversation
 DELETE FROM `conversation_actors` WHERE (`ConversationId`=754 AND `Idx` IN (2,1,0));
