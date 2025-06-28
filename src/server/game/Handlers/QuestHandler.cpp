@@ -80,8 +80,8 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPackets::Quest::QuestGiverHe
     if (creature->AI()->OnGossipHello(_player))
         return;
 
-    _player->PrepareGossipMenu(creature, _player->GetGossipMenuForSource(creature), true);
-    _player->SendPreparedGossip(creature);
+    _player->PrepareQuestMenu(creature->GetGUID());
+    _player->SendPreparedQuest(creature);
 }
 
 void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestGiverAcceptQuest& packet)
@@ -892,7 +892,7 @@ void WorldSession::HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingU
         responseInfo.ObjectID = requestInfo.ObjectID;
 
         SpawnTrackingTemplateData const* spawnTrackingTemplateData = sObjectMgr->GetSpawnTrackingData(requestInfo.SpawnTrackingID);
-        QuestObjective const* activeQuestObjective = _player->GetActiveQuestObjectiveForForSpawnTracking(requestInfo.SpawnTrackingID);
+        QuestObjective const* activeQuestObjective = _player->GetActiveQuestObjectiveForSpawnTracking(requestInfo.SpawnTrackingID);
 
         // Send phase info if map is the same or spawn tracking related quests are taken or completed
         if (spawnTrackingTemplateData && (_player->GetMapId() == spawnTrackingTemplateData->MapId || activeQuestObjective))
@@ -920,7 +920,7 @@ void WorldSession::HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingU
 
                     if (activeQuestObjective)
                     {
-                        SpawnTrackingState state = _player->GetSpawnTrackingStateByObjective(spawnTrackingId, activeQuestObjective->ID);
+                        SpawnTrackingState state = _player->GetSpawnTrackingStateByObjectives(spawnTrackingId, data->spawnTrackingQuestObjectives);
                         responseInfo.Visible = data->spawnTrackingStates[AsUnderlyingType(state)].Visible;
                         break;
                     }
