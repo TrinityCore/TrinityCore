@@ -704,7 +704,6 @@ namespace Trinity
             : AreaTriggerSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
-    // Last accepted by Check GO if any (Check can change requirements at each call)
     template<class Check>
     struct AreaTriggerLastSearcher : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>
     {
@@ -725,6 +724,88 @@ namespace Trinity
         template<typename Container>
         AreaTriggerListSearcher(WorldObject const* searcher, Container& container, Check& check)
             : AreaTriggerListSearcher(searcher->GetPhaseShift(), container, check) { }
+    };
+
+    // SceneObject searchers
+    template<class Check, class Result>
+    struct SceneObjectSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>
+    {
+        template<typename Container>
+        SceneObjectSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>(phaseShift, result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectSearcher : SceneObjectSearcherBase<Check, SearcherFirstObjectResult<SceneObject*>>
+    {
+        SceneObjectSearcher(PhaseShift const& phaseShift, SceneObject*& result, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherFirstObjectResult<SceneObject*>>(phaseShift, result, check) { }
+
+        SceneObjectSearcher(WorldObject const* searcher, SceneObject*& result, Check& check)
+            : SceneObjectSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectLastSearcher : SceneObjectSearcherBase<Check, SearcherLastObjectResult<SceneObject*>>
+    {
+        SceneObjectLastSearcher(PhaseShift const& phaseShift, SceneObject*& result, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherLastObjectResult<SceneObject*>>(phaseShift, result, check) { }
+
+        SceneObjectLastSearcher(WorldObject const* searcher, SceneObject*& result, Check& check)
+            : SceneObjectLastSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectListSearcher : SceneObjectSearcherBase<Check, SearcherContainerResult<SceneObject*>>
+    {
+        template<typename Container>
+        SceneObjectListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherContainerResult<SceneObject*>>(phaseShift, container, check) { }
+
+        template<typename Container>
+        SceneObjectListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : SceneObjectListSearcher(searcher->GetPhaseShift(), container, check) { }
+    };
+
+    // Conversation searchers
+    template<class Check, class Result>
+    struct ConversationSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>
+    {
+        template<typename Container>
+        ConversationSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>(phaseShift, result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationSearcher : ConversationSearcherBase<Check, SearcherFirstObjectResult<Conversation*>>
+    {
+        ConversationSearcher(PhaseShift const& phaseShift, Conversation*& result, Check& check)
+            : ConversationSearcherBase<Check, SearcherFirstObjectResult<Conversation*>>(phaseShift, result, check) { }
+
+        ConversationSearcher(WorldObject const* searcher, Conversation*& result, Check& check)
+            : ConversationSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationLastSearcher : ConversationSearcherBase<Check, SearcherLastObjectResult<Conversation*>>
+    {
+        ConversationLastSearcher(PhaseShift const& phaseShift, Conversation*& result, Check& check)
+            : ConversationSearcherBase<Check, SearcherLastObjectResult<Conversation*>>(phaseShift, result, check) { }
+
+        ConversationLastSearcher(WorldObject const* searcher, Conversation*& result, Check& check)
+            : ConversationLastSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationListSearcher : ConversationSearcherBase<Check, SearcherContainerResult<Conversation*>>
+    {
+        template<typename Container>
+        ConversationListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : ConversationSearcherBase<Check, SearcherContainerResult<Conversation*>>(phaseShift, container, check) { }
+
+        template<typename Container>
+        ConversationListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : ConversationListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     // CHECKS && DO classes

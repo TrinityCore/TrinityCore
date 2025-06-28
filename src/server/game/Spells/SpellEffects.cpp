@@ -5467,7 +5467,7 @@ void Spell::EffectCancelConversation()
 
     std::vector<WorldObject*> objs;
     Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
+    Trinity::ConversationListSearcher checker(unitTarget, objs, check);
     Cell::VisitGridObjects(unitTarget, checker, 100.0f);
 
     for (WorldObject* obj : objs)
