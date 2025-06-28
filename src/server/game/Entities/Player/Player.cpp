@@ -13927,9 +13927,6 @@ void Player::SendNewItem(Item* item, uint32 quantity, bool pushed, bool created,
 
 void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQuests /*= false*/)
 {
-    if (!source)
-        return;
-
     PlayerTalkClass->ClearMenus();
     PlayerTalkClass->GetGossipMenu().SetMenuId(menuId);
 
@@ -14372,9 +14369,6 @@ int32 Player::GetQuestLevel(uint32 contentTuningId) const
 
 void Player::PrepareQuestMenu(ObjectGuid guid)
 {
-    if (guid.IsEmpty())
-        return;
-
     QuestRelationResult objectQR;
     QuestRelationResult objectQIR;
 
