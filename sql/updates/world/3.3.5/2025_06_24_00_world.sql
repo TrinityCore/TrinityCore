@@ -151,3 +151,38 @@ UPDATE `spell_script_names` SET `ScriptName` = 'spell_borean_tundra_ultrasonic_s
 --
 UPDATE `spell_script_names` SET `ScriptName` = 'spell_zuldrak_gymers_grab' WHERE `ScriptName` = 'spell_q12919_gymers_grab';
 UPDATE `spell_script_names` SET `ScriptName` = 'spell_zuldrak_gymers_throw' WHERE `ScriptName` = 'spell_q12919_gymers_throw';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_bem_aggro_check_aura' WHERE `ScriptName` = 'spell_q11010_q11102_q11023_aggro_check_aura';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_bem_aggro_check' WHERE `ScriptName` = 'spell_q11010_q11102_q11023_aggro_check';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_bem_aggro_burst' WHERE `ScriptName` = 'spell_q11010_q11102_q11023_aggro_burst';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_bem_choose_loc' WHERE `ScriptName` = 'spell_q11010_q11102_q11023_choose_loc';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_bem_check_fly_mount' WHERE `ScriptName` = 'spell_q11010_q11102_q11023_q11008_check_fly_mount';
+
+--
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_burst_at_the_seams_59576' WHERE `ScriptName` = 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_burst_at_the_seams_59579' WHERE `ScriptName` = 'spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59579';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_bloated_abom_feign_death' WHERE `ScriptName` = 'spell_q13264_q13276_q13288_q13289_bloated_abom_feign_death';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_area_restrict_abom' WHERE `ScriptName` = 'spell_q13264_q13276_q13288_q13289_area_restrict_abom';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_assign_credit_to_master' WHERE `ScriptName` = 'spell_q13264_q13276_q13288_q13289_assign_credit_to_master';
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_icecrown_burst_at_the_seams_52510' WHERE `ScriptName` = 'spell_q12690_burst_at_the_seams_52510';
+
+--
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_q6124_6129_apply_salve';
+
+UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` IN (12296,12298);
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (12296,12298) AND `source_type` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (1229600,1229800) AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(12296,0,0,0,8,0,100,0,19512,0,0,0,0,80,1229600,2,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Spellhit 'Apply Salve' - Run Action List"),
+(12298,0,0,0,8,0,100,0,19512,0,0,0,0,80,1229800,2,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Spellhit 'Apply Salve' - Run Action List"),
+
+(1229600,9,0,0,0,0,100,0,0,0,0,0,0,36,12297,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Update Template To 'Cured Gazelle'"),
+(1229600,9,1,0,0,0,100,0,0,0,0,0,0,33,12297,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Quest Credit 'Curing the Sick'"),
+(1229600,9,2,0,0,0,100,0,1500,1500,0,0,0,114,0,0,0,0,0,0,1,0,0,0,0,30,30,0,0,"Sickly Gazelle - On Script - Move Offset"),
+(1229600,9,3,0,0,0,100,0,5000,5000,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Despawn"),
+
+(1229800,9,0,0,0,0,100,0,0,0,0,0,0,36,12299,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Update Template To 'Cured Deer'"),
+(1229800,9,1,0,0,0,100,0,0,0,0,0,0,33,12299,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Quest Credit 'Curing the Sick'"),
+(1229800,9,2,0,0,0,100,0,1500,1500,0,0,0,114,0,0,0,0,0,0,1,0,0,0,0,30,30,0,0,"Sickly Deer - On Script - Move Offset"),
+(1229800,9,3,0,0,0,100,0,5000,5000,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Despawn");
