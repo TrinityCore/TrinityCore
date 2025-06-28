@@ -1268,6 +1268,59 @@ class spell_storm_peaks_call_of_earth : public SpellScript
     }
 };
 
+/*######
+## Quest 12851: Bearly Hanging On
+######*/
+
+enum BearlyHangingOn
+{
+    NPC_FROSTGIANT             = 29351,
+    NPC_FROSTWORG              = 29358,
+    SPELL_FROSTGIANT_CREDIT    = 58184,
+    SPELL_FROSTWORG_CREDIT     = 58183,
+    SPELL_IMMOLATION           = 54690,
+    SPELL_ABLAZE               = 54683
+};
+
+// 54798 - FLAMING Arrow Triggered Effect
+class spell_storm_peaks_flaming_arrow_triggered_effect : public AuraScript
+{
+    PrepareAuraScript(spell_storm_peaks_flaming_arrow_triggered_effect);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+        {
+            Unit* target = GetTarget();
+            // Already in fire
+            if (target->HasAura(SPELL_ABLAZE))
+                return;
+
+            if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                switch (target->GetEntry())
+                {
+                    case NPC_FROSTWORG:
+                        target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
+                        target->CastSpell(target, SPELL_IMMOLATION, true);
+                        target->CastSpell(target, SPELL_ABLAZE, true);
+                        break;
+                    case NPC_FROSTGIANT:
+                        target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
+                        target->CastSpell(target, SPELL_IMMOLATION, true);
+                        target->CastSpell(target, SPELL_ABLAZE, true);
+                        break;
+                }
+            }
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_storm_peaks_flaming_arrow_triggered_effect::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
@@ -1296,4 +1349,5 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
     RegisterSpellScript(spell_storm_peaks_call_of_earth);
+    RegisterSpellScript(spell_storm_peaks_flaming_arrow_triggered_effect);
 }

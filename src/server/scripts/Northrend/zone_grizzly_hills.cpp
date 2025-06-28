@@ -992,6 +992,80 @@ public:
     explicit spell_grizzly_hills_script_cast_summon_image_of_drakuru(uint32 triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
+/*######
+## Quest 12308: Escape from Silverbrook
+######*/
+
+enum EscapeFromSilverbrook
+{
+    SPELL_SUMMON_WORGEN = 48681
+};
+
+// 48682 - Escape from Silverbrook - Periodic Dummy
+class spell_grizzly_hills_escape_from_silverbrook : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_escape_from_silverbrook);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_WORGEN });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_WORGEN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_grizzly_hills_escape_from_silverbrook::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 48681 - Summon Silverbrook Worgen
+class spell_grizzly_hills_escape_from_silverbrook_summon_worgen : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
+
+    void ModDest(SpellDestination& dest)
+    {
+        float dist = GetEffectInfo(EFFECT_0).CalcRadius(GetCaster());
+        float angle = frand(0.75f, 1.25f) * float(M_PI);
+
+        Position pos = GetCaster()->GetNearPosition(dist, angle);
+        dest.Relocate(pos);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_grizzly_hills_escape_from_silverbrook_summon_worgen::ModDest, EFFECT_0, TARGET_DEST_CASTER_SUMMON);
+    }
+};
+
+/*######
+## Quest 12414: Mounting Up
+######*/
+
+// 49285 - Hand Over Reins
+class spell_grizzly_hills_hand_over_reins : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_hand_over_reins);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        GetHitUnit()->ExitVehicle();
+
+        if (caster)
+            caster->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_hand_over_reins::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1014,4 +1088,7 @@ void AddSC_grizzly_hills()
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_03", SPELL_ENVISION_DRAKURU_03);
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_04", SPELL_ENVISION_DRAKURU_04);
     RegisterSpellScriptWithArgs(spell_grizzly_hills_script_cast_summon_image_of_drakuru, "spell_grizzly_hills_script_cast_summon_image_of_drakuru_05", SPELL_ENVISION_DRAKURU_05);
+    RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook);
+    RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
+    RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
 }
