@@ -939,7 +939,7 @@ void UnitData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisi
     data << uint32(ViewerDependentValue<StateAnimKitIDTag>::GetValue(this, owner, receiver));
     stateWorldEffectIDs = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
     data << uint32(stateWorldEffectIDs->size());
-    data << uint32(StateWorldEffectsQuestObjectiveID);
+    data << uint32(ViewerDependentValue<StateWorldEffectsQuestObjectiveIDTag>::GetValue(this, owner, receiver));
     data << int32(SpellOverrideNameID);
     for (uint32 i = 0; i < stateWorldEffectIDs->size(); ++i)
     {
@@ -1275,7 +1275,7 @@ void UnitData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignor
         }
         if (changesMask[12])
         {
-            data << uint32(StateWorldEffectsQuestObjectiveID);
+            data << uint32(ViewerDependentValue<StateWorldEffectsQuestObjectiveIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[13])
         {
@@ -6496,7 +6496,7 @@ void GameObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     data << uint32(ViewerDependentValue<SpawnTrackingStateAnimKitIDTag>::GetValue(this, owner, receiver));
     stateWorldEffectIDs = ViewerDependentValue<StateWorldEffectIDsTag>::GetValue(this, owner, receiver);
     data << uint32(stateWorldEffectIDs->size());
-    data << uint32(StateWorldEffectsQuestObjectiveID);
+    data << uint32(ViewerDependentValue<StateWorldEffectsQuestObjectiveIDTag>::GetValue(this, owner, receiver));
     for (uint32 i = 0; i < stateWorldEffectIDs->size(); ++i)
     {
         data << uint32((*stateWorldEffectIDs)[i]);
@@ -6617,7 +6617,7 @@ void GameObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         }
         if (changesMask[9])
         {
-            data << uint32(StateWorldEffectsQuestObjectiveID);
+            data << uint32(ViewerDependentValue<StateWorldEffectsQuestObjectiveIDTag>::GetValue(this, owner, receiver));
         }
         if (changesMask[10])
         {
