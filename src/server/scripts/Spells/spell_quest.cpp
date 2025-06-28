@@ -33,37 +33,6 @@
 #include "SpellScript.h"
 #include "Vehicle.h"
 
-enum Fumping
-{
-    SPELL_SUMMON_SAND_GNOME  = 39240,
-    SPELL_SUMMON_BONE_SLICER = 39241
-};
-
-// 39238 - Fumping
-class spell_q10929_fumping : public AuraScript
-{
-    PrepareAuraScript(spell_q10929_fumping);
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER });
-    }
-
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
-            return;
-
-        if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, urand(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
-    }
-
-    void Register() override
-    {
-        OnEffectRemove += AuraEffectRemoveFn(spell_q10929_fumping::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-    }
-};
-
 enum TamingTheBeast
 {
     SPELL_TAME_ICE_CLAW_BEAR           = 19548,
@@ -298,7 +267,6 @@ class spell_quest_make_player_destroy_totems : public SpellScript
 
 void AddSC_quest_spell_scripts()
 {
-    RegisterSpellScript(spell_q10929_fumping);
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
