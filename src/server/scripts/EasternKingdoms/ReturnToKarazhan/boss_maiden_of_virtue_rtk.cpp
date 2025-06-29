@@ -73,10 +73,17 @@ struct boss_maiden_of_virtue_rtk : public BossAI
 {
     boss_maiden_of_virtue_rtk(Creature* creature) : BossAI(creature, DATA_MAIDEN_OF_VIRTUE_RTK) { }
 
+    void RemoveAreaTriggers()
+    {
+        for (AreaTrigger* sacredGround : me->GetAreaTriggers(SPELL_SACRED_GROUND))
+            sacredGround->Remove();
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         _JustDied();
+        RemoveAreaTriggers();
         Talk(SAY_DEAD);
     }
 
@@ -86,6 +93,7 @@ struct boss_maiden_of_virtue_rtk : public BossAI
 
         Talk(SAY_WIPE);
         summons.DespawnAll();
+        RemoveAreaTriggers();
         _EnterEvadeMode();
         _DespawnAtEvade();
     }
