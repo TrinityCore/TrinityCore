@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
+#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
@@ -41,7 +42,6 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "DBCStores.h"
 
 /*######
 ## npc_nether_drake
@@ -1075,7 +1075,6 @@ enum TheSmallestCreature
     SPELL_CHARM_REXXARS_RODENT          = 38586,
     SPELL_COAX_MARMOT                   = 38544,
     SPELL_STEALTH_MARMOT                = 42347,
-    SPELL_STEALTH_DETECTION             = 8279,
     SPELL_GREEN_EYE_GROG_CREDIT         = 38996,
     SPELL_RIPE_MOONSHINE_CREDIT         = 38997,
     SPELL_FERMENTED_SEED_BEER_CREDIT    = 38998,
@@ -1086,147 +1085,75 @@ enum TheSmallestCreature
     NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368
 };
 
-struct npc_q10720_key_credit : public ScriptedAI
+struct npc_q10720_keg_credit : public ScriptedAI
 {
-    npc_q10720_key_credit(Creature * creature) : ScriptedAI(creature)
+    npc_q10720_keg_credit(Creature * creature) : ScriptedAI(creature)
     {
+        // Neccessary hack to allow spell 38629 to hit the keg credit (visibility is checked against the summoner, not the caster)
         creature->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK4);
     }
 };
 
-class spell_coax_marmot_aura : public AuraScript
+struct npc_q10720_marmot : public ScriptedAI
 {
-    PrepareAuraScript(spell_coax_marmot_aura);
-public:
-    void SetMarmotGuid(ObjectGuid guid)
+    using ScriptedAI::ScriptedAI;
+
+    void IsSummonedBy(WorldObject* summoner) override
     {
-        marmotGuid = guid;
+        summoner->CastSpell(me, SPELL_CHARM_REXXARS_RODENT, true);
     }
+};
+
+// 38544 - Coax Marmot
+class spell_bem_coax_marmot : public AuraScript
+{
+    PrepareAuraScript(spell_bem_coax_marmot);
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        // if you take DC during the charm it will be removed
-        Unit* caster = GetCaster();
-        if (!caster || caster->GetCharmedGUID())
-            return;
-
-        caster->RemoveAurasByType(SPELL_AURA_MOD_INVISIBILITY);
+        // prevent loading the aura from db
+        if (GetTarget()->GetCharmedGUID().IsEmpty())
+            Remove();
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        if (Unit* charm = GetUnitOwner()->GetCharmed())
-            if (GetSpellInfo()->GetEffect(EFFECT_0).MiscValue >= 0 && charm->GetEntry() == uint32(GetSpellInfo()->GetEffect(EFFECT_0).MiscValue))
-                if (Creature* marmot = charm->ToCreature())
-                    marmot->DespawnOrUnsummon();
-
-        // Dismiss Marmot
-        if (Creature* marmot = ObjectAccessor::GetCreature(*GetCaster(), marmotGuid))
-            marmot->DespawnOrUnsummon();
+        if (Creature* marmot = Object::ToCreature(GetTarget()->GetCharmed()))
+            if (marmot->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_COAX_MARMOT)
+                marmot->DespawnOrUnsummon();
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_coax_marmot_aura::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot_aura::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
     }
-
-    ObjectGuid marmotGuid;
 };
 
-class spell_coax_marmot : public SpellScript
+// 38586 - [DND]Charm Rexxar's Rodent
+class spell_bem_charm_rexxars_rodent : public AuraScript
 {
-    PrepareSpellScript(spell_coax_marmot);
-
-    void HandleSummon(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-        uint32 entry = uint32(GetEffectInfo().MiscValue);
-        Unit* caster = GetCaster();
-        Position pos = caster->GetPosition();
-        SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
-        uint32 duration = uint32(GetSpellInfo()->GetDuration());
-
-        if (Creature* marmot = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-        {
-            caster->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
-            _marmotGuid = marmot->GetGUID();
-        }
-    }
-
-    void SetMarmot(SpellEffIndex /*effIndex*/)
-    {
-        if (Aura* aura = GetHitAura())
-            if (auto* script = aura->GetScript<spell_coax_marmot_aura>("spell_coax_marmot"))
-                script->SetMarmotGuid(_marmotGuid);
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_coax_marmot::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-        OnEffectHitTarget += SpellEffectFn(spell_coax_marmot::SetMarmot, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
-    }
-
-    private:
-        ObjectGuid _marmotGuid;
-};
-
-class spell_charm_rexxars_rodent : public AuraScript
-{
-    PrepareAuraScript(spell_charm_rexxars_rodent);
+    PrepareAuraScript(spell_bem_charm_rexxars_rodent);
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetCaster()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+        if (Unit* caster = GetCaster())
+            caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+
+        if (Creature* creature = GetTarget()->ToCreature())
+            creature->DespawnOrUnsummon(1ms);
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bem_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
-struct npc_bloodmaul_battle_worg : public ScriptedAI
+// 38629 - Poison Keg
+class spell_bem_q10720_poison_keg : public SpellScript
 {
-    npc_bloodmaul_battle_worg(Creature* creature) : ScriptedAI(creature) { }
-
-    bool foundStealth = false;
-
-    void Reset() override
-    {
-        foundStealth = false;
-        me->AddAura(SPELL_STEALTH_DETECTION, me);
-    }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        std::list<Creature*> marmots;
-        me->GetCreatureListWithEntryInGrid(marmots, NPC_MARMOT, 30.0f);
-        for (Creature* marmot : marmots)
-        {
-            if (marmot->HasAura(SPELL_STEALTH_MARMOT))
-            {
-                foundStealth = true;
-                break;
-            }
-        }
-
-        if (!foundStealth)
-        {
-            if (me->HasAura(SPELL_STEALTH_DETECTION))
-                me->RemoveAura(SPELL_STEALTH_DETECTION);
-        }
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-class spell_q10720_the_smallest_creature : public SpellScript
-{
-    PrepareSpellScript(spell_q10720_the_smallest_creature);
+    PrepareSpellScript(spell_bem_q10720_poison_keg);
 
     bool Validate(SpellInfo const* /*spellEntry*/) override
     {
@@ -1243,7 +1170,7 @@ class spell_q10720_the_smallest_creature : public SpellScript
         if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
             uint32 spellId = 0;
-            switch (GetHitCreature()->GetEntry())
+            switch (GetHitUnit()->GetEntry())
             {
                 case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
                     spellId = SPELL_GREEN_EYE_GROG_CREDIT;
@@ -1255,7 +1182,7 @@ class spell_q10720_the_smallest_creature : public SpellScript
                     spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
                     break;
                 default:
-                    break;
+                    return;
             }
 
             player->CastSpell(nullptr, spellId, true);
@@ -1264,7 +1191,7 @@ class spell_q10720_the_smallest_creature : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q10720_the_smallest_creature::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_bem_q10720_poison_keg::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1279,9 +1206,9 @@ void AddSC_blades_edge_mountains()
     new spell_oscillating_field();
     RegisterSpellScript(spell_bem_dispelling_analysis);
     RegisterSpellScript(spell_bem_wicked_strong_fetish);
-    RegisterCreatureAI(npc_q10720_key_credit);
-    RegisterSpellAndAuraScriptPair(spell_coax_marmot, spell_coax_marmot_aura);
-    RegisterSpellScript(spell_charm_rexxars_rodent);
-    RegisterCreatureAI(npc_bloodmaul_battle_worg);
-    RegisterSpellScript(spell_q10720_the_smallest_creature);
+    RegisterCreatureAI(npc_q10720_keg_credit);
+    RegisterCreatureAI(npc_q10720_marmot);
+    RegisterSpellScript(spell_bem_coax_marmot);
+    RegisterSpellScript(spell_bem_charm_rexxars_rodent);
+    RegisterSpellScript(spell_bem_q10720_poison_keg);
 }
