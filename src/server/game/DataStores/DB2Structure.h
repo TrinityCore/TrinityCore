@@ -3242,6 +3242,38 @@ struct PlayerConditionEntry
     std::array<uint16, 4> TraitNodeEntryMaxRank;
 };
 
+struct PlayerDataElementAccountEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Type;
+
+    PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
+};
+
+struct PlayerDataElementCharacterEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Type;
+
+    PlayerDataElementType GetType() const { return static_cast<PlayerDataElementType>(Type); }
+};
+
+struct PlayerDataFlagAccountEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Unknown1107;
+};
+
+struct PlayerDataFlagCharacterEntry
+{
+    uint32 ID;
+    int32 StorageIndex;
+    int32 Unknown1107;
+};
+
 struct PowerDisplayEntry
 {
     uint32 ID;

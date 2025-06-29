@@ -222,10 +222,10 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties.AnimKitId             = fields[10].GetInt32();
 
             createProperties.DecalPropertiesId     = fields[11].GetUInt32();
+            createProperties.SpellForVisuals       = fields[12].GetInt32OrNull();
 
-            if (!fields[12].IsNull())
+            if (createProperties.SpellForVisuals)
             {
-                createProperties.SpellForVisuals = fields[12].GetInt32();
                 if (!sSpellMgr->GetSpellInfo(*createProperties.SpellForVisuals, DIFFICULTY_NONE))
                 {
                     TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid SpellForVisual {}, set to none.", createPropertiesId.Id, uint32(createPropertiesId.IsCustom), *createProperties.SpellForVisuals);
