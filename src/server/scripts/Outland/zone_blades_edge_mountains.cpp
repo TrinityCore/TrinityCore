@@ -1070,14 +1070,20 @@ class spell_bem_wicked_strong_fetish : public SpellScript
     }
 };
 
-enum Marmot
+enum TheSmallestCreature
 {
-    SPELL_CHARM_REXXARS_RODENT     = 38586,
-    SPELL_COAX_MARMOT              = 38544,
-    SPELL_STEALTH_MARMOT           = 42347,
-    SPELL_STEALTH_DETECTION        = 8279,
+    SPELL_CHARM_REXXARS_RODENT          = 38586,
+    SPELL_COAX_MARMOT                   = 38544,
+    SPELL_STEALTH_MARMOT                = 42347,
+    SPELL_STEALTH_DETECTION             = 8279,
+    SPELL_GREEN_EYE_GROG_CREDIT         = 38996,
+    SPELL_RIPE_MOONSHINE_CREDIT         = 38997,
+    SPELL_FERMENTED_SEED_BEER_CREDIT    = 38998,
 
-    NPC_MARMOT                     = 22189
+    NPC_MARMOT                          = 22189,
+    NPC_GREEN_SPOT_GROG_KEG_CREDIT      = 22356,
+    NPC_RIPE_MOONSHINE_KEG_CREDIT       = 22367,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368,
 };
 
 struct npc_q10720_key_credit : public ScriptedAI
@@ -1218,6 +1224,50 @@ struct npc_bloodmaul_battle_worg : public ScriptedAI
     }
 };
 
+class spell_q10720_the_smallest_creature : public SpellScript
+{
+    PrepareSpellScript(spell_q10720_the_smallest_creature);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            uint32 spellId = 0;
+            switch (GetHitCreature()->GetEntry())
+            {
+                case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
+                    spellId = SPELL_GREEN_EYE_GROG_CREDIT;
+                    break;
+                case NPC_RIPE_MOONSHINE_KEG_CREDIT:
+                    spellId = SPELL_RIPE_MOONSHINE_CREDIT;
+                    break;
+                case NPC_FERMENTED_SEED_BEER_KEG_CREDIT:
+                    spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
+                    break;
+                default:
+                    break;
+            }
+
+            player->CastSpell(nullptr, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q10720_the_smallest_creature::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1233,4 +1283,5 @@ void AddSC_blades_edge_mountains()
     RegisterSpellAndAuraScriptPair(spell_coax_marmot, spell_coax_marmot_aura);
     RegisterSpellScript(spell_charm_rexxars_rodent);
     RegisterCreatureAI(npc_bloodmaul_battle_worg);
+    RegisterSpellScript(spell_q10720_the_smallest_creature);
 }
