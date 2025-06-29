@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 #include "PlayerChoice.h"
 
 enum ALegendYouCanHoldPriest
