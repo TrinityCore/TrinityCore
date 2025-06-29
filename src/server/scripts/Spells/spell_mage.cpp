@@ -1201,7 +1201,7 @@ class spell_mage_meteor : public SpellScript
 
     void EffectHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitDest()->GetPosition(), SPELL_MAGE_METEOR_AREATRIGGER, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_METEOR_AREATRIGGER, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -1235,10 +1235,8 @@ struct at_mage_meteor_burn : public AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
-        {
             if (caster->IsValidAttackTarget(unit))
                 caster->CastSpell(unit, SPELL_MAGE_METEOR_BURN_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        }
     }
 
     void OnUnitExit(Unit* unit) override
