@@ -1083,7 +1083,7 @@ enum TheSmallestCreature
     NPC_MARMOT                          = 22189,
     NPC_GREEN_SPOT_GROG_KEG_CREDIT      = 22356,
     NPC_RIPE_MOONSHINE_KEG_CREDIT       = 22367,
-    NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368
 };
 
 struct npc_q10720_key_credit : public ScriptedAI
