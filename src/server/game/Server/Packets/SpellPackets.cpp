@@ -89,6 +89,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << uint16(auraData.CastLevel);
     data << uint8(auraData.Applications);
     data << int32(auraData.ContentTuningID);
+    data << auraData.DstLocation;
     data << OptionalInit(auraData.CastUnit);
     data << OptionalInit(auraData.Duration);
     data << OptionalInit(auraData.Remaining);

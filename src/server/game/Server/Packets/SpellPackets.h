@@ -162,6 +162,7 @@ namespace WorldPackets
             Optional<float> TimeMod;
             std::vector<float> Points;
             std::vector<float> EstimatedPoints;
+            TaggedPosition<Position::XYZ> DstLocation;
         };
 
         struct AuraInfo
