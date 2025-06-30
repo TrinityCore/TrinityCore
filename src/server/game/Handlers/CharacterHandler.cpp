@@ -1362,7 +1362,7 @@ void WorldSession::SendFeatureSystemStatus()
     features.WarModeEnabled = true;
     features.QuestSessionEnabled = true;
     features.WarGamesEnabled = true;
-    features.Unk441_0 = 1; // set to true according to sniffs
+    features.IsPlayerContentTrackingEnabled = 1; // set to true according to sniffs
 
     features.GuildEventsEditsEnabled = true;
     features.GuildTradeSkillsEnabled = false; // currently disabled on 4.4.1

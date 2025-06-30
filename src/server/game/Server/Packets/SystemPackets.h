@@ -168,8 +168,8 @@ namespace WorldPackets
             bool ScriptsDisallowedForBeta            = false;
             bool TimerunningEnabled                  = false;
             bool WarGamesEnabled                     = false;
-            bool Unk441_0                            = false;
-            bool Unk441_1                            = false;
+            bool IsPlayerContentTrackingEnabled      = false;
+            bool IsSellAllJunkEnabled                = false;
             bool GroupFinderEnabled                  = false;
             bool PremadeGroupEnabled                 = false;
             bool LFDEnabled                          = false;
@@ -183,6 +183,7 @@ namespace WorldPackets
             bool IsAccountCurrencyTransferEnabled    = false;
             bool LobbyMatchmakerQueueFromMainlineEnabled = false;
             bool CanSendLobbyMatchmakerPartyCustomizations = false;
+            bool AddonProfilerEnabled                = false;
 
             Optional<std::vector<uint8>> RaceClassExpansionLevels;
             SocialQueueConfig QuickJoinConfig;
@@ -193,6 +194,9 @@ namespace WorldPackets
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
             AddonChatThrottleParams AddonChatThrottle;
+            float AddonPerformanceMsgWarning         = 0.0f;
+            float AddonPerformanceMsgError           = 0.0f;
+            float AddonPerformanceMsgOverall         = 0.0f;
         };
 
         struct DebugTimeEventInfo

@@ -96,6 +96,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
     _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
 
+    _worldPacket << float(AddonPerformanceMsgWarning);
+    _worldPacket << float(AddonPerformanceMsgError);
+    _worldPacket << float(AddonPerformanceMsgOverall);
+
     for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
 
@@ -141,8 +145,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(ScriptsDisallowedForBeta);
     _worldPacket << Bits<1>(WarGamesEnabled);
     _worldPacket << OptionalInit(RaceClassExpansionLevels);
-    _worldPacket << Bits<1>(Unk441_0);
-    _worldPacket << Bits<1>(Unk441_1);
+    _worldPacket << Bits<1>(IsPlayerContentTrackingEnabled);
+    _worldPacket << Bits<1>(IsSellAllJunkEnabled);
 
     _worldPacket << Bits<1>(GroupFinderEnabled);
     _worldPacket << Bits<1>(PremadeGroupEnabled);
@@ -157,9 +161,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(IsAccountCurrencyTransferEnabled);
-    _worldPacket << Bits<1>(false); // unused 11.0.7
+    _worldPacket << Bits<1>(false); // NetEase related
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
+    _worldPacket << Bits<1>(AddonProfilerEnabled);
 
     _worldPacket.FlushBits();
 
