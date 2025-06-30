@@ -166,7 +166,7 @@ namespace WorldPackets
 
         struct AuraInfo
         {
-            uint8 Slot = 0;
+            uint16 Slot = 0;
             Optional<AuraDataInfo> AuraData;
         };
 

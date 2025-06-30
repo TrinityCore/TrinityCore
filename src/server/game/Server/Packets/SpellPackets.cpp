@@ -123,7 +123,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
 
 ByteBuffer& operator<<(ByteBuffer& data, AuraInfo const& aura)
 {
-    data << aura.Slot;
+    data << uint16(aura.Slot);
     data << OptionalInit(aura.AuraData);
     data.FlushBits();
 
