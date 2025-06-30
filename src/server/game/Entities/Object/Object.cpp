@@ -335,6 +335,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasSpline = unit->IsSplineEnabled();
         bool HasInertia = unit->m_movementInfo.inertia.has_value();
         bool HasAdvFlying = unit->m_movementInfo.advFlying.has_value();
+        bool HasDriveStatus = unit->m_movementInfo.driveStatus.has_value();
         bool HasStandingOnGameObjectGUID = unit->m_movementInfo.standingOnGameObjectGUID.has_value();
 
         *data << GetGUID();                                             // MoverGUID
@@ -366,6 +367,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(false);                                          // RemoteTimeValid
         data->WriteBit(HasInertia);                                     // HasInertia
         data->WriteBit(HasAdvFlying);                                   // HasAdvFlying
+        data->WriteBit(HasDriveStatus);                                 // HasDriveStatus
+        data->FlushBits();
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
@@ -397,6 +400,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
                 *data << float(unit->m_movementInfo.jump.cosAngle);
                 *data << float(unit->m_movementInfo.jump.xyspeed);      // Speed
             }
+        }
+
+        if (HasDriveStatus)
+        {
+            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
+            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
+            *data << float(unit->m_movementInfo.driveStatus->speed);
+            *data << float(unit->m_movementInfo.driveStatus->movementAngle);
         }
 
         *data << float(unit->GetSpeed(MOVE_WALK));
