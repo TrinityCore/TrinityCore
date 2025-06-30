@@ -64,9 +64,9 @@ namespace WorldPackets
             std::string Title;
             std::string TitleAlt;
             std::string CursorName;
-            int32 CreatureType = 0;
+            uint8 CreatureType = 0;
             int32 CreatureFamily = 0;
-            int32 Classification = 0;
+            int8 Classification = 0;
             uint32 PetSpellDataID = 0;
             CreatureDisplayStats Display;
             float HpMulti = 0.0f;
