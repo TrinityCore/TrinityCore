@@ -31,6 +31,12 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (36, 240, 505, 0, 0, 47, 0, 40619, 64, 0, '', 1, 'Show Playerchoice (240), ResponseId (505) if Quest 40619 is not in state rewarded'),
 (36, 240, 504, 0, 0, 47, 0, 40621, 64, 0, '', 1, 'Show Playerchoice (240), ResponseId (504) if Quest 40621 is not in state rewarded');
 
+-- update Phase
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 6084 AND `SourceEntry` = 0);
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
+(26, 6084, 0, 0, 0, 47, 0, 44184, 2|8|64, 0, 0, 'Apply Phase 6084 if Quest 44184 is rewarded'),
+(26, 6084, 0, 0, 0, 15, 0, 4, 0, 0, 0, 'Apply Phase 6084 if player is class Hunter');
+
 -- Gossip
 UPDATE `creature_template_gossip` SET `VerifiedBuild`=61491 WHERE (`CreatureID`=102478 AND `MenuID`=19115);
 
