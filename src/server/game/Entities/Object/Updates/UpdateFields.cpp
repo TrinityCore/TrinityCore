@@ -3966,7 +3966,7 @@ void CraftingOrderData::WriteCreate(ByteBuffer& data, Player const* owner, Playe
     data << int32(Field_0);
     data << uint64(OrderID);
     data << int32(SkillLineAbilityID);
-    data << uint8(OrderState);
+    data << int32(OrderState);
     data << uint8(OrderType);
     data << uint8(MinQuality);
     data << int64(ExpirationTime);
@@ -4054,7 +4054,7 @@ void CraftingOrderData::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pl
         }
         if (changesMask[5])
         {
-            data << uint8(OrderState);
+            data << int32(OrderState);
         }
     }
     if (changesMask[6])
@@ -5726,6 +5726,10 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 }
             }
         }
+    }
+    data.FlushBits();
+    if (changesMask[32])
+    {
         if (changesMask[41])
         {
             if (!ignoreNestedChangesMask)
@@ -5734,6 +5738,7 @@ void ActivePlayerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
                 WriteCompleteDynamicFieldUpdateMask(AccountBankTabSettings.size(), data, 3);
         }
     }
+    data.FlushBits();
     if (changesMask[0])
     {
         if (changesMask[10])
