@@ -3081,6 +3081,20 @@ std::string const& InstanceMap::GetScriptName() const
     return sObjectMgr->GetScriptName(i_script_id);
 }
 
+void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
+{
+    ASSERT(i_scenario == nullptr, "Cannot set instance scenario to %u when scenario %u is already active", scenario->GetEntry()->ID, i_scenario->GetEntry()->ID);
+    i_scenario = scenario;
+
+    if (scenario)
+    {
+        DoOnPlayers([scenario](Player* player)
+        {
+            scenario->OnPlayerEnter(player);
+        });
+    }
+}
+
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
 {
     if (i_instanceLock)
