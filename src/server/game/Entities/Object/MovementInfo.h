@@ -92,11 +92,25 @@ struct MovementInfo
     // advflying
     struct AdvFlying
     {
+        AdvFlying() : forwardVelocity(0.0f), upVelocity(0.0f) {}
+
         float forwardVelocity;
         float upVelocity;
     };
 
+    struct Drive
+    {
+        Drive() : speed(0.0f), movementAngle(0.0f), accelerating(false), drifting(false) {}
+
+        float speed;
+        float movementAngle;
+        bool accelerating;
+        bool drifting;
+    };
+
     Optional<AdvFlying> advFlying;
+
+    Optional<Drive> driveStatus;
 
     Optional<ObjectGuid> standingOnGameObjectGUID;
 
