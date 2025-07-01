@@ -436,9 +436,10 @@ class spell_brewfest_mount_transformation : public SpellScript
  September [Binary Brew]
     spell_brewfest_botm_teach_language
  October   [Autumnal Acorn Ale]
-    NYI
+    Nothing to script here
  November  [Bartlett's Bitter Brew]
-    NYI
+    spell_brewfest_botm_nauseous
+    Incomplete
  December  [Lord of Frost's Private Label]
     Nothing to script here
 */
@@ -629,6 +630,32 @@ class spell_brewfest_botm_teach_language : public SpellScript
     }
 };
 
+enum BartlettsBitterBrew
+{
+    SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL    = 49867
+};
+
+// 49869 - Nauseous
+class spell_brewfest_botm_nauseous : public AuraScript
+{
+    PrepareAuraScript(spell_brewfest_botm_nauseous);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_BOTM_VOMIT_BREW_VOMIT_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_brewfest_botm_nauseous::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum CreateEmptyBrewBottle
 {
     SPELL_BOTM_CREATE_EMPTY_BREW_BOTTLE    = 51655
@@ -736,6 +763,7 @@ void AddSC_event_brewfest()
     RegisterSpellScript(spell_brewfest_botm_jungle_madness);
     RegisterSpellScript(spell_brewfest_botm_pink_elekk);
     RegisterSpellScript(spell_brewfest_botm_teach_language);
+    RegisterSpellScript(spell_brewfest_botm_nauseous);
     RegisterSpellScript(spell_brewfest_botm_weak_alcohol);
     RegisterSpellScript(spell_brewfest_botm_empty_bottle_throw_resolve);
     RegisterSpellScript(spell_brewfest_mole_machine_portal_schedule);
