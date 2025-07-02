@@ -235,16 +235,19 @@ namespace WorldPackets
             bool NameReservationOnly                              = false;
             bool TimerunningEnabled                               = false;
             bool Unk441_0                                         = false;
-            bool Unk441_1                                         = false;
+            bool Unk441_1                                         = true;
             bool SoMNotificationEnabled                           = false;
-            bool Unk441_2                                         = false;
+            bool Unk441_2                                         = true;
             bool AddonsDisabled                                   = false;
-            bool Unused1000                                       = false;
+            bool PlayerIdentityOptionsEnabled                     = false;
             bool AccountSaveDataExportEnabled                     = false;
             bool AccountLockedByExport                            = false;
             bool BNSendWhisperUseV2Services                       = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services                      = true;  ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool CharacterSelectListModeRealmless                 = false;
+            bool WowTokenLimitedMode                              = false;
+            bool NetEaseRelated                                   = false;
+            bool Unk344                                           = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 TokenPollTimeSeconds                           = 0;

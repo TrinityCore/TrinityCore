@@ -256,7 +256,7 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(SoMNotificationEnabled);
     _worldPacket << Bits<1>(Unk441_2);
     _worldPacket << Bits<1>(AddonsDisabled);
-    _worldPacket << Bits<1>(Unused1000);
+    _worldPacket << Bits<1>(PlayerIdentityOptionsEnabled);
     _worldPacket << Bits<1>(AccountSaveDataExportEnabled);
     _worldPacket << Bits<1>(AccountLockedByExport);
 
@@ -265,6 +265,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Bits<1>(BNSendWhisperUseV2Services);
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(CharacterSelectListModeRealmless);
+    _worldPacket << Bits<1>(WowTokenLimitedMode);
+    _worldPacket << Bits<1>(NetEaseRelated);
+    _worldPacket << Bits<1>(Unk344);
 
     _worldPacket.FlushBits();
 
