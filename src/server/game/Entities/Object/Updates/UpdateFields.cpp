@@ -2258,7 +2258,6 @@ void DeclinedNames::WriteCreate(ByteBuffer& data, Player const* owner, Player co
     {
         data.WriteBits(Name[i].size(), 10);
     }
-    data.FlushBits();
     for (uint32 i = 0; i < 5; ++i)
     {
         data.WriteString(Name[i]);
@@ -2276,7 +2275,6 @@ void DeclinedNames::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Player
     if (changesMask.GetBlock(0))
         data.WriteBits(changesMask.GetBlock(0), 32);
 
-    data.FlushBits();
     if (changesMask[0])
     {
         for (uint32 i = 0; i < 5; ++i)
@@ -4581,7 +4579,6 @@ void BankTabSettings::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Play
 
     data.WriteBits(changesMask.GetBlock(0), 4);
 
-    data.FlushBits();
     if (changesMask[0])
     {
         data.WriteBits(Name->size(), 7);
@@ -4594,6 +4591,7 @@ void BankTabSettings::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Play
     {
         data.WriteBits(Description->size(), 14);
     }
+    data.FlushBits();
     if (changesMask[3])
     {
         data << int32(DepositFlags);
