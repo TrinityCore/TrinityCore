@@ -381,6 +381,42 @@ namespace Trinity
         void VisitImpl(GridRefManager<T>&);
     };
 
+    template<class Work, class MapTypeMaskCheck = DynamicGridMapTypeMaskCheck>
+    struct WorldObjectWorkerBase
+    {
+        MapTypeMaskCheck i_mapTypeMask;
+        PhaseShift const* i_phaseShift;
+        Work& i_work;
+
+        template<class T>
+        void Visit(GridRefManager<T> const& m)
+        {
+            if constexpr (MapTypeMaskCheck::IsStatic)
+            {
+                if constexpr (MapTypeMaskCheck::Includes(GridMapTypeMaskForType<T>::value))
+                    VisitImpl(m);
+            }
+            else
+            {
+                if (i_mapTypeMask.Includes(GridMapTypeMaskForType<T>::value))
+                    VisitImpl(m);
+            }
+        }
+
+    protected:
+        WorldObjectWorkerBase(PhaseShift const& phaseShift, Work& work, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : i_mapTypeMask(mapTypeMask), i_phaseShift(&phaseShift), i_work(work) { }
+
+    private:
+        template<class T>
+        inline void VisitImpl(GridRefManager<T> const& m)
+        {
+            for (GridReference<T> const& ref : m)
+                if (ref.GetSource()->InSamePhase(*i_phaseShift))
+                    this->i_work(ref.GetSource());
+        }
+    };
+
     template<class Check>
     struct WorldObjectSearcher : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>
     {
@@ -413,25 +449,20 @@ namespace Trinity
             : WorldObjectListSearcher(searcher->GetPhaseShift(), container, check, mapTypeMask) { }
     };
 
-    template<class Do>
-    struct WorldObjectWorker
+    template<class Check, typename Container>
+    WorldObjectListSearcher(PhaseShift const&, Container&, Check const&) -> WorldObjectListSearcher<Check const>;
+
+    template<class Check, typename Container>
+    WorldObjectListSearcher(WorldObject const*, Container&, Check const&) -> WorldObjectListSearcher<Check const>;
+
+    template<class Work>
+    struct WorldObjectWorker : WorldObjectWorkerBase<Work>
     {
-        uint32 i_mapTypeMask;
-        PhaseShift const* i_phaseShift;
-        Do const& i_do;
+        WorldObjectWorker(PhaseShift const& phaseShift, Work& work, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectWorkerBase<Work>(phaseShift, work, mapTypeMask) { }
 
-        WorldObjectWorker(WorldObject const* searcher, Do const& _do, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : i_mapTypeMask(mapTypeMask), i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
-
-        template<class T>
-        void Visit(GridRefManager<T>& m)
-        {
-            if (!(i_mapTypeMask & GridMapTypeMaskForType<T>::value))
-                return;
-            for (auto itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
+        WorldObjectWorker(WorldObject const* searcher, Work& work, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectWorker(searcher->GetPhaseShift(), work, mapTypeMask) { }
     };
 
     // Gameobject searchers
@@ -477,24 +508,20 @@ namespace Trinity
             : GameObjectListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
-    template<class Functor>
-    struct GameObjectWorker
+    template<class Check, typename Container>
+    GameObjectListSearcher(PhaseShift const&, Container&, Check const&) -> GameObjectListSearcher<Check const>;
+
+    template<class Check, typename Container>
+    GameObjectListSearcher(WorldObject const*, Container&, Check const&) -> GameObjectListSearcher<Check const>;
+
+    template<class Work>
+    struct GameObjectWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_GAMEOBJECT>>
     {
-        GameObjectWorker(WorldObject const* searcher, Functor& func)
-            : _func(func), _phaseShift(&searcher->GetPhaseShift()) { }
+        GameObjectWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_GAMEOBJECT>>(phaseShift, work) { }
 
-        void Visit(GameObjectMapType& m)
-        {
-            for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*_phaseShift))
-                    _func(itr->GetSource());
-        }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
-
-    private:
-        Functor& _func;
-        PhaseShift const* _phaseShift;
+        GameObjectWorker(WorldObject const* searcher, Work& work)
+            : GameObjectWorker(searcher->GetPhaseShift(), work) { }
     };
 
     // Unit searchers
@@ -542,6 +569,16 @@ namespace Trinity
             : UnitListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
+    template<class Work>
+    struct UnitWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER>>
+    {
+        UnitWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER>>(phaseShift, work) { }
+
+        UnitWorker(WorldObject const* searcher, Work& work)
+            : UnitWorker(searcher->GetPhaseShift(), work) { }
+    };
+
     // Creature searchers
 
     template<class Check, class Result>
@@ -585,23 +622,14 @@ namespace Trinity
             : CreatureListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
-    template<class Do>
-    struct CreatureWorker
+    template<class Work>
+    struct CreatureWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE>>
     {
-        PhaseShift const* i_phaseShift;
-        Do& i_do;
+        CreatureWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE>>(phaseShift, work) { }
 
-        CreatureWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
-
-        void Visit(CreatureMapType &m)
-        {
-            for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        CreatureWorker(WorldObject const* searcher, Work& work)
+            : CreatureWorker(searcher->GetPhaseShift(), work) { }
     };
 
     // Player searchers
@@ -646,43 +674,34 @@ namespace Trinity
             : PlayerListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
-    template<class Do>
-    struct PlayerWorker
+    template<class Work>
+    struct PlayerWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_PLAYER>>
     {
-        PhaseShift const* i_phaseShift;
-        Do& i_do;
+        PlayerWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_PLAYER>>(phaseShift, work) { }
 
-        PlayerWorker(WorldObject const* searcher, Do& _do)
-            : i_phaseShift(&searcher->GetPhaseShift()), i_do(_do) { }
-
-        void Visit(PlayerMapType &m)
-        {
-            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(*i_phaseShift))
-                    i_do(itr->GetSource());
-        }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        PlayerWorker(WorldObject const* searcher, Work& work)
+            : PlayerWorker(searcher->GetPhaseShift(), work) { }
     };
 
-    template<class Do>
+    template<class Work>
     struct PlayerDistWorker
     {
         WorldObject const* i_searcher;
         float i_dist;
-        Do& i_do;
+        Work& i_work;
 
-        PlayerDistWorker(WorldObject const* searcher, float _dist, Do& _do)
-            : i_searcher(searcher), i_dist(_dist), i_do(_do) { }
+        PlayerDistWorker(WorldObject const* searcher, float _dist, Work& _do)
+            : i_searcher(searcher), i_dist(_dist), i_work(_do) { }
 
-        void Visit(PlayerMapType &m)
+        void Visit(PlayerMapType const& m) const
         {
-            for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
-                if (itr->GetSource()->InSamePhase(i_searcher) && itr->GetSource()->IsWithinDist(i_searcher, i_dist))
-                    i_do(itr->GetSource());
+            for (GridReference<Player> const& ref : m)
+                if (ref.GetSource()->InSamePhase(i_searcher) && ref.GetSource()->IsWithinDist(i_searcher, i_dist))
+                    i_work(ref.GetSource());
         }
 
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> const&) const { }
     };
 
     // AreaTrigger searchers
@@ -726,6 +745,16 @@ namespace Trinity
             : AreaTriggerListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
+    template<class Work>
+    struct AreaTriggerWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_AREATRIGGER>>
+    {
+        AreaTriggerWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_AREATRIGGER>>(phaseShift, work) { }
+
+        AreaTriggerWorker(WorldObject const* searcher, Work& work)
+            : AreaTriggerWorker(searcher->GetPhaseShift(), work) { }
+    };
+
     // SceneObject searchers
     template<class Check, class Result>
     struct SceneObjectSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>
@@ -767,6 +796,16 @@ namespace Trinity
             : SceneObjectListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
+    template<class Work>
+    struct SceneObjectWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>
+    {
+        SceneObjectWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>(phaseShift, work) { }
+
+        SceneObjectWorker(WorldObject const* searcher, Work& work)
+            : SceneObjectWorker(searcher->GetPhaseShift(), work) { }
+    };
+
     // Conversation searchers
     template<class Check, class Result>
     struct ConversationSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>
@@ -806,6 +845,16 @@ namespace Trinity
         template<typename Container>
         ConversationListSearcher(WorldObject const* searcher, Container& container, Check& check)
             : ConversationListSearcher(searcher->GetPhaseShift(), container, check) { }
+    };
+
+    template<class Work>
+    struct ConversationWorker : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>
+    {
+        ConversationWorker(PhaseShift const& phaseShift, Work& work)
+            : WorldObjectWorkerBase<Work, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>(phaseShift, work) { }
+
+        ConversationWorker(WorldObject const* searcher, Work& work)
+            : ConversationWorker(searcher->GetPhaseShift(), work) { }
     };
 
     // CHECKS && DO classes
@@ -883,8 +932,7 @@ namespace Trinity
             RespawnDo() { }
             void operator()(Creature* u) const { u->Respawn(); }
             void operator()(GameObject* u) const { u->Respawn(); }
-            void operator()(WorldObject*) const { }
-            void operator()(Corpse*) const { }
+            void operator()(WorldObject const*) const { }
     };
 
     // GameObject checks
