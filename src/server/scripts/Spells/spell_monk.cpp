@@ -474,7 +474,7 @@ class spell_monk_renewing_mist_jump : public SpellScript
     {
         Unit* previousTarget = GetExplTargetUnit();
 
-        targets.remove_if([this](WorldObject* object)
+        targets.remove_if([](WorldObject* object)
         {
             Unit* ally = object->ToUnit();
             if (!ally || ally->IsFullHealth())
