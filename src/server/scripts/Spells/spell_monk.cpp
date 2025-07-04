@@ -25,6 +25,7 @@
 #include "AreaTriggerAI.h"
 #include "CommonPredicates.h"
 #include "DB2Stores.h"
+#include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "Player.h"
 #include "Spell.h"
