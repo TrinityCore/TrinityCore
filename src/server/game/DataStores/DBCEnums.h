@@ -1829,8 +1829,8 @@ enum class ModifierTreeType : int32
     PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
     PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
     PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
-    PlayerDataFlagAccountIsSet                                          = 378, /*NYI*/ // Player {PlayerDataFlagAccount} is set
-    PlayerDataFlagCharacterIsSet                                        = 379, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
+    PlayerDataFlagAccountIsSet                                          = 378, // Player {PlayerDataFlagAccount} is set
+    PlayerDataFlagCharacterIsSet                                        = 379, // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 
     PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
@@ -1841,12 +1841,16 @@ enum class ModifierTreeType : int32
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
     PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
-    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
-    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
+    PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
     PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
     PlayerTitle                                                         = 393, // Player is currently using "{ChrTitles}" title
 
+    PlayerWeeklyCurrencyIsRelOpFromMax                                  = 397, /*NYI*/ // Player weekly {CurrencyTypes} is {RelOp} {#Amount} from currency weekly limit
+
     PlayerIsInGuild                                                     = 404, // Player is in a guild
+
+    PlayerAvgItemLevelRelOp                                             = 415, /*NYI*/ // Player average item level {AvgItemLevelCategory} is {RelOp} {#Amount}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1940,6 +1944,12 @@ enum class PlayerConditionLfgStatus : uint8
     VoteKickCount           = 6,
     BootCount               = 7,
     GearDiff                = 8
+};
+
+enum class PlayerDataElementType : int32
+{
+    Int64   = 0,
+    Float   = 1
 };
 
 enum class PlayerInteractionType : int32

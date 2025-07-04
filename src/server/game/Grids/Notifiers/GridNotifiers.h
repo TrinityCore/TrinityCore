@@ -322,41 +322,95 @@ namespace Trinity
         }
     };
 
-    template<class Check, class Result>
+    struct DynamicGridMapTypeMaskCheck
+    {
+        DynamicGridMapTypeMaskCheck(uint32 mask) : MaskValue(mask) { }
+
+        static constexpr bool IsStatic = false;
+
+        uint32 MaskValue;
+
+        constexpr bool Includes(uint32 mapTypeMask) const
+        {
+            return (MaskValue & mapTypeMask) != 0;
+        }
+    };
+
+    template <uint32 MapTypeMask>
+    struct StaticGridMapTypeMaskCheck
+    {
+        StaticGridMapTypeMaskCheck(uint32) { }
+
+        static constexpr bool IsStatic = true;
+
+        static constexpr bool Includes(uint32 mapTypeMask)
+        {
+            return (MapTypeMask & mapTypeMask) != 0;
+        }
+    };
+
+    template<class Check, class Result, class MapTypeMaskCheck = DynamicGridMapTypeMaskCheck>
     struct WorldObjectSearcherBase : Result
     {
-        uint32 i_mapTypeMask;
+        MapTypeMaskCheck i_mapTypeMask;
         PhaseShift const* i_phaseShift;
         Check& i_check;
 
-        template<typename Container>
-        WorldObjectSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : Result(result), i_mapTypeMask(mapTypeMask), i_phaseShift(phaseShift), i_check(check) { }
-
         template<class T>
-        void Visit(GridRefManager<T>&);
+        void Visit(GridRefManager<T>& m)
+        {
+            if constexpr (MapTypeMaskCheck::IsStatic)
+            {
+                if constexpr (MapTypeMaskCheck::Includes(GridMapTypeMaskForType<T>::value))
+                    VisitImpl(m);
+            }
+            else
+            {
+                if (i_mapTypeMask.Includes(GridMapTypeMaskForType<T>::value))
+                    VisitImpl(m);
+            }
+        }
+
+    protected:
+        template<typename Container>
+        WorldObjectSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : Result(result), i_mapTypeMask(mapTypeMask), i_phaseShift(&phaseShift), i_check(check) { }
+
+    private:
+        template<class T>
+        void VisitImpl(GridRefManager<T>&);
     };
 
     template<class Check>
     struct WorldObjectSearcher : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>
     {
+        WorldObjectSearcher(PhaseShift const& phaseShift, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>(phaseShift, result, check, mapTypeMask) { }
+
         WorldObjectSearcher(WorldObject const* searcher, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : WorldObjectSearcherBase<Check, SearcherFirstObjectResult<WorldObject*>>(&searcher->GetPhaseShift(), result, check, mapTypeMask) { }
+            : WorldObjectSearcher(searcher->GetPhaseShift(), result, check, mapTypeMask) { }
     };
 
     template<class Check>
     struct WorldObjectLastSearcher : WorldObjectSearcherBase<Check, SearcherLastObjectResult<WorldObject*>>
     {
+        WorldObjectLastSearcher(PhaseShift const& phaseShift, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherLastObjectResult<WorldObject*>>(phaseShift, result, check, mapTypeMask) { }
+
         WorldObjectLastSearcher(WorldObject const* searcher, WorldObject*& result, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : WorldObjectSearcherBase<Check, SearcherLastObjectResult<WorldObject*>>(&searcher->GetPhaseShift(), result, check, mapTypeMask) { }
+            : WorldObjectLastSearcher(searcher->GetPhaseShift(), result, check, mapTypeMask) { }
     };
 
     template<class Check>
     struct WorldObjectListSearcher : WorldObjectSearcherBase<Check, SearcherContainerResult<WorldObject*>>
     {
         template<typename Container>
+        WorldObjectListSearcher(PhaseShift const& phaseShift, Container& container, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
+            : WorldObjectSearcherBase<Check, SearcherContainerResult<WorldObject*>>(phaseShift, container, check, mapTypeMask) { }
+
+        template<typename Container>
         WorldObjectListSearcher(WorldObject const* searcher, Container& container, Check& check, uint32 mapTypeMask = GRID_MAP_TYPE_MASK_ALL)
-            : WorldObjectSearcherBase<Check, SearcherContainerResult<WorldObject*>>(&searcher->GetPhaseShift(), container, check, mapTypeMask) { }
+            : WorldObjectListSearcher(searcher->GetPhaseShift(), container, check, mapTypeMask) { }
     };
 
     template<class Do>
@@ -383,41 +437,44 @@ namespace Trinity
     // Gameobject searchers
 
     template<class Check, class Result>
-    struct GameObjectSearcherBase : Result
+    struct GameObjectSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_GAMEOBJECT>>
     {
-        PhaseShift const* i_phaseShift;
-        Check &i_check;
-
         template<typename Container>
-        GameObjectSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
-            : Result(result), i_phaseShift(phaseShift), i_check(check) { }
-
-        void Visit(GameObjectMapType& m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        GameObjectSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_GAMEOBJECT>>(phaseShift, result, check) { }
     };
 
     template<class Check>
     struct GameObjectSearcher : GameObjectSearcherBase<Check, SearcherFirstObjectResult<GameObject*>>
     {
+        GameObjectSearcher(PhaseShift const& phaseShift, GameObject*& result, Check& check)
+            : GameObjectSearcherBase<Check, SearcherFirstObjectResult<GameObject*>>(phaseShift, result, check) { }
+
         GameObjectSearcher(WorldObject const* searcher, GameObject*& result, Check& check)
-            : GameObjectSearcherBase<Check, SearcherFirstObjectResult<GameObject*>>(&searcher->GetPhaseShift(), result, check) { }
+            : GameObjectSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     // Last accepted by Check GO if any (Check can change requirements at each call)
     template<class Check>
     struct GameObjectLastSearcher : GameObjectSearcherBase<Check, SearcherLastObjectResult<GameObject*>>
     {
+        GameObjectLastSearcher(PhaseShift const& phaseShift, GameObject*& result, Check& check)
+            : GameObjectSearcherBase<Check, SearcherLastObjectResult<GameObject*>>(phaseShift, result, check) { }
+
         GameObjectLastSearcher(WorldObject const* searcher, GameObject*& result, Check& check)
-            : GameObjectSearcherBase<Check, SearcherLastObjectResult<GameObject*>>(&searcher->GetPhaseShift(), result, check) { }
+            : GameObjectLastSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     template<class Check>
     struct GameObjectListSearcher : GameObjectSearcherBase<Check, SearcherContainerResult<GameObject*>>
     {
         template<typename Container>
+        GameObjectListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : GameObjectSearcherBase<Check, SearcherContainerResult<GameObject*>>(phaseShift, container, check) { }
+
+        template<typename Container>
         GameObjectListSearcher(WorldObject const* searcher, Container& container, Check& check)
-            : GameObjectSearcherBase<Check, SearcherContainerResult<GameObject*>>(&searcher->GetPhaseShift(), container, check) { }
+            : GameObjectListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     template<class Functor>
@@ -443,38 +500,33 @@ namespace Trinity
     // Unit searchers
 
     template<class Check, class Result>
-    struct UnitSearcherBase : Result
+    struct UnitSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
-        UnitSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
-            : Result(result), i_phaseShift(phaseShift), i_check(check) { }
-
-        void Visit(CreatureMapType& m) { VisitImpl(m); }
-        void Visit(PlayerMapType& m) { VisitImpl(m); }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED>&) { }
-
-    private:
-        template<class T> void VisitImpl(GridRefManager<T>& m);
+        UnitSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER>>(phaseShift, result, check) { }
     };
 
     // First accepted by Check Unit if any
     template<class Check>
     struct UnitSearcher : UnitSearcherBase<Check, SearcherFirstObjectResult<Unit*>>
     {
+        UnitSearcher(PhaseShift const& phaseShift, Unit*& result, Check& check)
+            : UnitSearcherBase<Check, SearcherFirstObjectResult<Unit*>>(phaseShift, result, check) { }
+
         UnitSearcher(WorldObject const* searcher, Unit*& result, Check& check)
-            : UnitSearcherBase<Check, SearcherFirstObjectResult<Unit*>>(&searcher->GetPhaseShift(), result, check) { }
+            : UnitSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     // Last accepted by Check Unit if any (Check can change requirements at each call)
     template<class Check>
     struct UnitLastSearcher : UnitSearcherBase<Check, SearcherLastObjectResult<Unit*>>
     {
+        UnitLastSearcher(PhaseShift const& phaseShift, Unit*& result, Check& check)
+            : UnitSearcherBase<Check, SearcherLastObjectResult<Unit*>>(phaseShift, result, check) { }
+
         UnitLastSearcher(WorldObject const* searcher, Unit*& result, Check& check)
-            : UnitSearcherBase<Check, SearcherLastObjectResult<Unit*>>(&searcher->GetPhaseShift(), result, check) { }
+            : UnitLastSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     // All accepted by Check units if any
@@ -482,48 +534,55 @@ namespace Trinity
     struct UnitListSearcher : UnitSearcherBase<Check, SearcherContainerResult<Unit*>>
     {
         template<typename Container>
+        UnitListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : UnitSearcherBase<Check, SearcherContainerResult<Unit*>>(phaseShift, container, check) { }
+
+        template<typename Container>
         UnitListSearcher(WorldObject const* searcher, Container& container, Check& check)
-            : UnitSearcherBase<Check, SearcherContainerResult<Unit*>>(&searcher->GetPhaseShift(), container, check) { }
+            : UnitListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     // Creature searchers
 
     template<class Check, class Result>
-    struct CreatureSearcherBase : Result
+    struct CreatureSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
-        CreatureSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
-            : Result(result), i_phaseShift(phaseShift), i_check(check) { }
-
-        void Visit(CreatureMapType& m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        CreatureSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CREATURE>>(phaseShift, result, check) { }
     };
 
     template<class Check>
     struct CreatureSearcher : CreatureSearcherBase<Check, SearcherFirstObjectResult<Creature*>>
     {
+        CreatureSearcher(PhaseShift const& phaseShift, Creature*& result, Check& check)
+            : CreatureSearcherBase<Check, SearcherFirstObjectResult<Creature*>>(phaseShift, result, check) { }
+
         CreatureSearcher(WorldObject const* searcher, Creature*& result, Check& check)
-            : CreatureSearcherBase<Check, SearcherFirstObjectResult<Creature*>>(&searcher->GetPhaseShift(), result, check) { }
+            : CreatureSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     // Last accepted by Check Creature if any (Check can change requirements at each call)
     template<class Check>
     struct CreatureLastSearcher : CreatureSearcherBase<Check, SearcherLastObjectResult<Creature*>>
     {
+        CreatureLastSearcher(PhaseShift const& phaseShift, Creature*& result, Check& check)
+            : CreatureSearcherBase<Check, SearcherLastObjectResult<Creature*>>(phaseShift, result, check) { }
+
         CreatureLastSearcher(WorldObject const* searcher, Creature*& result, Check& check)
-            : CreatureSearcherBase<Check, SearcherLastObjectResult<Creature*>>(&searcher->GetPhaseShift(), result, check) { }
+            : CreatureLastSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     template<class Check>
     struct CreatureListSearcher : CreatureSearcherBase<Check, SearcherContainerResult<Creature*>>
     {
         template<typename Container>
+        CreatureListSearcher(PhaseShift const& phaseShift, Container& container, Check & check)
+            : CreatureSearcherBase<Check, SearcherContainerResult<Creature*>>(phaseShift, container, check) { }
+
+        template<typename Container>
         CreatureListSearcher(WorldObject const* searcher, Container& container, Check & check)
-            : CreatureSearcherBase<Check, SearcherContainerResult<Creature*>>(&searcher->GetPhaseShift(), container, check) { }
+            : CreatureListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     template<class Do>
@@ -548,44 +607,43 @@ namespace Trinity
     // Player searchers
 
     template<class Check, class Result>
-    struct PlayerSearcherBase : Result
+    struct PlayerSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_PLAYER>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
-        PlayerSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
-            : Result(result), i_phaseShift(phaseShift), i_check(check) { }
-
-        void Visit(PlayerMapType& m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) { }
+        PlayerSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_PLAYER>>(phaseShift, result, check) { }
     };
 
     template<class Check>
     struct PlayerSearcher : PlayerSearcherBase<Check, SearcherFirstObjectResult<Player*>>
     {
+        PlayerSearcher(PhaseShift const& phaseShift, Player*& result, Check& check)
+            : PlayerSearcherBase<Check, SearcherFirstObjectResult<Player*>>(phaseShift, result, check) { }
+
         PlayerSearcher(WorldObject const* searcher, Player*& result, Check& check)
-            : PlayerSearcherBase<Check, SearcherFirstObjectResult<Player*>>(&searcher->GetPhaseShift(), result, check) { }
+            : PlayerSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     template<class Check>
     struct PlayerLastSearcher : PlayerSearcherBase<Check, SearcherLastObjectResult<Player*>>
     {
+        PlayerLastSearcher(PhaseShift const& phaseShift, Player*& result, Check& check)
+            : PlayerSearcherBase<Check, SearcherLastObjectResult<Player*>>(phaseShift, result, check) { }
+
         PlayerLastSearcher(WorldObject const* searcher, Player*& result, Check& check)
-            : PlayerSearcherBase<Check, SearcherLastObjectResult<Player*>>(&searcher->GetPhaseShift(), result, check) { }
+            : PlayerLastSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     template<class Check>
     struct PlayerListSearcher : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>
     {
         template<typename Container>
-        PlayerListSearcher(WorldObject const* searcher, Container& container, Check& check)
-            : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>(&searcher->GetPhaseShift(), container, check) { }
-
-        template<typename Container>
         PlayerListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
             : PlayerSearcherBase<Check, SearcherContainerResult<Player*>>(phaseShift, container, check) { }
+
+        template<typename Container>
+        PlayerListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : PlayerListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     template<class Do>
@@ -629,42 +687,125 @@ namespace Trinity
 
     // AreaTrigger searchers
     template<class Check, class Result>
-    struct AreaTriggerSearcherBase : Result
+    struct AreaTriggerSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_AREATRIGGER>>
     {
-        PhaseShift const* i_phaseShift;
-        Check& i_check;
-
         template<typename Container>
-        AreaTriggerSearcherBase(PhaseShift const* phaseShift, Container& result, Check& check)
-            : Result(result), i_phaseShift(phaseShift), i_check(check) {
-        }
-
-        void Visit(AreaTriggerMapType& m);
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED>&) {}
+        AreaTriggerSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_AREATRIGGER>>(phaseShift, result, check) { }
     };
 
     template<class Check>
     struct AreaTriggerSearcher : AreaTriggerSearcherBase<Check, SearcherFirstObjectResult<AreaTrigger*>>
     {
+        AreaTriggerSearcher(PhaseShift const& phaseShift, AreaTrigger*& result, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherFirstObjectResult<AreaTrigger*>>(phaseShift, result, check) { }
+
         AreaTriggerSearcher(WorldObject const* searcher, AreaTrigger*& result, Check& check)
-            : AreaTriggerSearcherBase<Check, SearcherFirstObjectResult<AreaTrigger*>>(&searcher->GetPhaseShift(), result, check) {}
+            : AreaTriggerSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
-    // Last accepted by Check GO if any (Check can change requirements at each call)
     template<class Check>
     struct AreaTriggerLastSearcher : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>
     {
+        AreaTriggerLastSearcher(PhaseShift const& phaseShift, AreaTrigger*& result, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>(phaseShift, result, check) { }
+
         AreaTriggerLastSearcher(WorldObject const* searcher, AreaTrigger*& result, Check& check)
-            : AreaTriggerSearcherBase<Check, SearcherLastObjectResult<AreaTrigger*>>(&searcher->GetPhaseShift(), result, check) {}
+            : AreaTriggerLastSearcher(searcher->GetPhaseShift(), result, check) { }
     };
 
     template<class Check>
     struct AreaTriggerListSearcher : AreaTriggerSearcherBase<Check, SearcherContainerResult<AreaTrigger*>>
     {
         template<typename Container>
+        AreaTriggerListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : AreaTriggerSearcherBase<Check, SearcherContainerResult<AreaTrigger*>>(phaseShift, container, check) { }
+
+        template<typename Container>
         AreaTriggerListSearcher(WorldObject const* searcher, Container& container, Check& check)
-            : AreaTriggerSearcherBase<Check, SearcherContainerResult<AreaTrigger*>>(&searcher->GetPhaseShift(), container, check) {}
+            : AreaTriggerListSearcher(searcher->GetPhaseShift(), container, check) { }
+    };
+
+    // SceneObject searchers
+    template<class Check, class Result>
+    struct SceneObjectSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>
+    {
+        template<typename Container>
+        SceneObjectSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_SCENEOBJECT>>(phaseShift, result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectSearcher : SceneObjectSearcherBase<Check, SearcherFirstObjectResult<SceneObject*>>
+    {
+        SceneObjectSearcher(PhaseShift const& phaseShift, SceneObject*& result, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherFirstObjectResult<SceneObject*>>(phaseShift, result, check) { }
+
+        SceneObjectSearcher(WorldObject const* searcher, SceneObject*& result, Check& check)
+            : SceneObjectSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectLastSearcher : SceneObjectSearcherBase<Check, SearcherLastObjectResult<SceneObject*>>
+    {
+        SceneObjectLastSearcher(PhaseShift const& phaseShift, SceneObject*& result, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherLastObjectResult<SceneObject*>>(phaseShift, result, check) { }
+
+        SceneObjectLastSearcher(WorldObject const* searcher, SceneObject*& result, Check& check)
+            : SceneObjectLastSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct SceneObjectListSearcher : SceneObjectSearcherBase<Check, SearcherContainerResult<SceneObject*>>
+    {
+        template<typename Container>
+        SceneObjectListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : SceneObjectSearcherBase<Check, SearcherContainerResult<SceneObject*>>(phaseShift, container, check) { }
+
+        template<typename Container>
+        SceneObjectListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : SceneObjectListSearcher(searcher->GetPhaseShift(), container, check) { }
+    };
+
+    // Conversation searchers
+    template<class Check, class Result>
+    struct ConversationSearcherBase : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>
+    {
+        template<typename Container>
+        ConversationSearcherBase(PhaseShift const& phaseShift, Container& result, Check& check)
+            : WorldObjectSearcherBase<Check, Result, StaticGridMapTypeMaskCheck<GRID_MAP_TYPE_MASK_CONVERSATION>>(phaseShift, result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationSearcher : ConversationSearcherBase<Check, SearcherFirstObjectResult<Conversation*>>
+    {
+        ConversationSearcher(PhaseShift const& phaseShift, Conversation*& result, Check& check)
+            : ConversationSearcherBase<Check, SearcherFirstObjectResult<Conversation*>>(phaseShift, result, check) { }
+
+        ConversationSearcher(WorldObject const* searcher, Conversation*& result, Check& check)
+            : ConversationSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationLastSearcher : ConversationSearcherBase<Check, SearcherLastObjectResult<Conversation*>>
+    {
+        ConversationLastSearcher(PhaseShift const& phaseShift, Conversation*& result, Check& check)
+            : ConversationSearcherBase<Check, SearcherLastObjectResult<Conversation*>>(phaseShift, result, check) { }
+
+        ConversationLastSearcher(WorldObject const* searcher, Conversation*& result, Check& check)
+            : ConversationLastSearcher(searcher->GetPhaseShift(), result, check) { }
+    };
+
+    template<class Check>
+    struct ConversationListSearcher : ConversationSearcherBase<Check, SearcherContainerResult<Conversation*>>
+    {
+        template<typename Container>
+        ConversationListSearcher(PhaseShift const& phaseShift, Container& container, Check& check)
+            : ConversationSearcherBase<Check, SearcherContainerResult<Conversation*>>(phaseShift, container, check) { }
+
+        template<typename Container>
+        ConversationListSearcher(WorldObject const* searcher, Container& container, Check& check)
+            : ConversationListSearcher(searcher->GetPhaseShift(), container, check) { }
     };
 
     // CHECKS && DO classes
