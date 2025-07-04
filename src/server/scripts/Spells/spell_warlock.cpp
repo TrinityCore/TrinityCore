@@ -335,7 +335,7 @@ class spell_warl_cataclysm : public SpellScript
     }
 };
 
-// 228312 - Immolate (attached by 157736 - Immolate and 445474 - Wither)
+// 228312 - Immolate (attached to 157736 - Immolate and 445474 - Wither)
 class spell_warl_channel_demonfire_activator : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -343,25 +343,28 @@ class spell_warl_channel_demonfire_activator : public AuraScript
         return ValidateSpellInfo({ SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR });
     }
 
-    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(caster, SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = { { SPELLVALUE_DURATION, GetDuration() } }
+            });
     }
 
-    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (Unit* caster = GetCaster())
-        {
-            std::list<Unit*> affectedUnits;
-            Trinity::AnyUnfriendlyUnitInObjectRangeCheck check(caster, caster, 100.0f);
-            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, affectedUnits, check);
-            Cell::VisitAllObjects(caster, searcher, 100.f);
-            affectedUnits.remove_if(Trinity::UnitAuraCheck(false, GetAura()->GetId(), caster->GetGUID()));
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-            if (affectedUnits.empty())
-                caster->RemoveAurasDueToSpell(SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR);
-        }
+        Unit* validTarget = nullptr;
+        Trinity::UnitAuraCheck check(true, GetId(), caster->GetGUID());
+        Trinity::UnitSearcher searcher(caster, validTarget, check);
+        Cell::VisitAllObjects(caster, searcher, 100.f);
+
+        if (!validTarget)
+            caster->RemoveAurasDueToSpell(SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR);
     }
 
     void Register() override
@@ -402,21 +405,12 @@ class spell_warl_channel_demonfire_selector : public SpellScript
         return ValidateSpellInfo ({ SPELL_WARLOCK_CHANNEL_DEMONFIRE_DAMAGE, SPELL_WARLOCK_IMMOLATE_PERIODIC, SPELL_WARLOCK_WITHER_TALENT, SPELL_WARLOCK_IMMOLATE_PERIODIC });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
         uint32 auraFilter = GetCaster()->HasAura(SPELL_WARLOCK_WITHER_TALENT)
             ? SPELL_WARLOCK_WITHER_PERIODIC
             : SPELL_WARLOCK_IMMOLATE_PERIODIC;
         targets.remove_if(Trinity::UnitAuraCheck(false, auraFilter, GetCaster()->GetGUID()));
-
-        if (targets.empty())
-            return;
-
-        if (WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets))
-        {
-            targets.clear();
-            targets.push_back(target);
-        }
     }
 
     void HandleDamage(SpellEffIndex /*effIndex*/) const
@@ -430,7 +424,7 @@ class spell_warl_channel_demonfire_selector : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_channel_demonfire_selector::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
-        OnEffectHitTarget += SpellEffectFn(spell_warl_channel_demonfire_selector::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_channel_demonfire_selector::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
