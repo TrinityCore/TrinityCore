@@ -23,6 +23,7 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CommonPredicates.h"
 #include "DB2Stores.h"
 #include "PathGenerator.h"
 #include "Player.h"
@@ -54,6 +55,7 @@ enum MonkSpells
     SPELL_MONK_NO_FEATHER_FALL                          = 79636,
     SPELL_MONK_OPEN_PALM_STRIKES_TALENT                 = 392970,
     SPELL_MONK_RENEWING_MIST                            = 119611,
+    SPELL_MONK_RENEWING_MIST_JUMP                       = 119607,
     SPELL_MONK_ROLL_BACKWARD                            = 109131,
     SPELL_MONK_ROLL_FORWARD                             = 107427,
     SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS                 = 390105,
@@ -65,6 +67,11 @@ enum MonkSpells
     SPELL_MONK_STAGGER_LIGHT                            = 124275,
     SPELL_MONK_STAGGER_MODERATE                         = 124274,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+};
+
+enum MonkVisuals
+{
+    SPELL_MONK_VISUAL_RENEWING_MIST                     = 24599
 };
 
 // 399226 - Burst of Life (attached to 116849 - Life Cocoon)
@@ -402,6 +409,114 @@ class spell_monk_provoke : public SpellScript
     {
         OnCheckCast += SpellCheckCastFn(spell_monk_provoke::CheckExplicitTarget);
         OnEffectHitTarget += SpellEffectFn(spell_monk_provoke::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 115151 - Renewing Mist
+class spell_monk_renewing_mist : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_RENEWING_MIST });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_MONK_RENEWING_MIST, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 119611 - Renewing Mist (Heal)
+class spell_monk_renewing_mist_heal : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_RENEWING_MIST_JUMP });
+    }
+
+    void HandlePeriodicHeal(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
+        if (!caster)
+            return;
+
+        if (target->IsFullHealth())
+            caster->CastSpell(target, SPELL_MONK_RENEWING_MIST_JUMP, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_renewing_mist_heal::HandlePeriodicHeal, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+// 119607 - Renewing Mist Jump
+class spell_monk_renewing_mist_jump : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_RENEWING_MIST });
+    }
+
+    void HandleTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* previousTarget = GetExplTargetUnit();
+
+        targets.remove_if([this](WorldObject* object)
+        {
+            Unit* ally = object->ToUnit();
+            if (!ally || ally->IsFullHealth())
+                return true;
+
+            return false;
+        });
+
+        if (targets.size() > 1)
+        {
+            targets.sort(Trinity::Predicates::HealthPctOrderPred());
+            targets.resize(1);
+        }
+
+        _previousTargetGuid = previousTarget->GetGUID();
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        Unit* previousTarget = ObjectAccessor::GetUnit(*caster, _previousTargetGuid);
+
+        if (previousTarget)
+        {
+            if (Aura* oldRenewingMist = previousTarget->GetAura(SPELL_MONK_RENEWING_MIST, caster->GetGUID()))
+                if (Aura* newRenewingMist = caster->AddAura(SPELL_MONK_RENEWING_MIST, target))
+                {
+                    newRenewingMist->SetDuration(oldRenewingMist->GetDuration());
+                    previousTarget->SendPlaySpellVisual(target, SPELL_MONK_VISUAL_RENEWING_MIST, 0, 0, 50.0f);
+                    oldRenewingMist->Remove();
+                }
+        }
+    }
+
+private:
+    ObjectGuid _previousTargetGuid;
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_renewing_mist_jump::HandleTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_monk_renewing_mist_jump::HandleHit, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -804,6 +919,9 @@ void AddSC_monk_spell_scripts()
     RegisterSpellScript(spell_monk_power_strike_proc);
     RegisterSpellScript(spell_monk_pressure_points);
     RegisterSpellScript(spell_monk_provoke);
+    RegisterSpellScript(spell_monk_renewing_mist);
+    RegisterSpellScript(spell_monk_renewing_mist_heal);
+    RegisterSpellScript(spell_monk_renewing_mist_jump);
     RegisterSpellScript(spell_monk_rising_sun_kick);
     RegisterSpellScript(spell_monk_roll);
     RegisterSpellScript(spell_monk_roll_aura);
