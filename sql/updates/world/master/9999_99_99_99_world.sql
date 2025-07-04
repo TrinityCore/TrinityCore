@@ -1,7 +1,7 @@
 -- Shadowlands Dungeons
 SET @WORLDSAFELOCID := 100076;
 SET @TELEID := 2291;
-SET @OGUID := 6002747;
+SET @OGUID := 8000027;
 SET @ATID := 138;
 SET @ATCREATEID := 133;
 SET @ATSPAWNID := 232;
@@ -31,30 +31,22 @@ INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, 
 (@WORLDSAFELOCID+20, 2236, 911.1528, -1765.6423, 181.19034, 3.6743245/(2 * PI() / 360), '9.x Dungeon - Darkmaul Citadel - Entrance'),
 (@WORLDSAFELOCID+21, 2175, 721.7, -1838.4, 186.5, 4.326671/(2 * PI() / 360), '9.x Dungeon - Darkmaul Citadel - Exit');
 
-DELETE FROM `game_tele` WHERE `id` BETWEEN @TELEID+0 AND @TELEID+21;
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TELEID+0 AND @TELEID+13;
 INSERT INTO `game_tele` (`id`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `name`) VALUES
-(@TELEID+0, 2571.7778, -2736.1702, 3286.5872, 0.651748, 2222, 'TheaterOfPain'),
-(@TELEID+1, 2676.6624, -2545.9949, 3292.856, 6.2178426, 2293, 'TheaterOfPainDungeon'),
-(@TELEID+2, 2093.29, -3108.78, 3273.81, 3.8937, 2222, 'Plaguefall'),
-(@TELEID+3, 1984.64, -3206.59, 3261.41, 3.9776053, 2289, 'PlaguefallDungeon'),
-(@TELEID+4, -2138.42, -5320.01, 6543.06, 5.4818, 2222, 'SpiresOfAscension'),
-(@TELEID+5, -1318.37, -6134.11, 7067.01, 5.5086603, 2285, 'SpiresOfAscensionDungeon'),
-(@TELEID+6, -3316.94, -4125.14, 6599.55, 1.5727, 2222, 'TheNecroticWake'),
-(@TELEID+7, -3317.21, -3819.34, 6604.09, 1.6026242, 2286, 'TheNecroticWakeDungeon'),
-(@TELEID+8, -6939.007, 1768.9757, 5552.2764, 1.3684, 2222, 'MistsOfTirnaScithe'),
-(@TELEID+9, -6887.047, 1835.7743, 5545.674, 2.092174, 2290, 'MistsOfTirnaScitheDungeon'),
-(@TELEID+10, -7512.3716, -583.25696, 5446.857, 3.1376, 2222, 'DeOtherSide'),
-(@TELEID+11, 3014.16, -2221.66, 5.33118, 3.1534958, 2291, 'DeOtherSideDungeon'),
-(@TELEID+12, -2172.94, 5012.84, 4074.79, 3.9425, 2222, 'HallsOfAtonement'),
-(@TELEID+13, -2209.5, 5027.13, 4140.50, 1.5676478, 2287, 'HallsOfAtonementDungeon'),
-(@TELEID+14, -1454.7535, 6542.76, 4183.935, 3.1324, 2222, 'SanguineDepths'),
-(@TELEID+15, -1401.37, 6559.17, 4114.8, 4.1332536, 2284, 'SanguineDepthsDungeon'),
-(@TELEID+16, 4640.97, 6673.89, 4840.12, 2.6253242, 2222, 'Torghast'),
-(@TELEID+17, 1646.35, 2310.9, 380.96, 4.707502, 2453, 'TorghastDungeon'),
-(@TELEID+18, -5918.4756, 4853.355, 4789.934, 0.5849, 2222, 'TazaveshTheVeiledMarket'),
-(@TELEID+19, 3638.65, -1816.79, 92.4729, 2.1244671, 2441, 'TazaveshTheVeiledMarketDungeon'),
-(@TELEID+20, 721.7, -1838.4, 186.5, 1.1437, 2175, 'DarkmaulCitadel'),
-(@TELEID+21, 911.1528, -1765.6423, 181.19034, 3.6743245, 2236, 'DarkmaulCitadelDungeon');
+(@TELEID+0, -2138.42, -5320.01, 6543.06, 5.4818, 2222, 'SpiresOfAscension'),
+(@TELEID+1, -1318.37, -6134.11, 7067.01, 5.5086603, 2285, 'SpiresOfAscensionDungeon'),
+(@TELEID+2, -3316.94, -4125.14, 6599.55, 1.5727, 2222, 'TheNecroticWake'),
+(@TELEID+3, -3317.21, -3819.34, 6604.09, 1.6026242, 2286, 'TheNecroticWakeDungeon'),
+(@TELEID+4, -2172.94, 5012.84, 4074.79, 3.9425, 2222, 'HallsOfAtonement'),
+(@TELEID+5, -2209.5, 5027.13, 4140.50, 1.5676478, 2287, 'HallsOfAtonementDungeon'),
+(@TELEID+6, -1454.7535, 6542.76, 4183.935, 3.1324, 2222, 'SanguineDepths'),
+(@TELEID+7, -1401.37, 6559.17, 4114.8, 4.1332536, 2284, 'SanguineDepthsDungeon'),
+(@TELEID+8, 4640.97, 6673.89, 4840.12, 2.6253242, 2222, 'Torghast'),
+(@TELEID+9, 1646.35, 2310.9, 380.96, 4.707502, 2453, 'TorghastDungeon'),
+(@TELEID+10, -5918.4756, 4853.355, 4789.934, 0.5849, 2222, 'TazaveshTheVeiledMarket'),
+(@TELEID+11, 3638.65, -1816.79, 92.4729, 2.1244671, 2441, 'TazaveshTheVeiledMarketDungeon'),
+(@TELEID+12, 721.7, -1838.4, 186.5, 1.1437, 2175, 'DarkmaulCitadel'),
+(@TELEID+13, 911.1528, -1765.6423, 181.19034, 3.6743245, 2236, 'DarkmaulCitadelDungeon');
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+19;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
