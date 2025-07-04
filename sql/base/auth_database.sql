@@ -369,10 +369,10 @@ DROP TABLE IF EXISTS `battlenet_account_player_data_element`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `battlenet_account_player_data_element` (
   `battlenetAccountId` int unsigned NOT NULL,
-  `playerDataElementCharacterId` int unsigned NOT NULL,
+  `playerDataElementAccountId` int unsigned NOT NULL,
   `floatValue` float DEFAULT NULL,
   `int64Value` bigint DEFAULT NULL,
-  PRIMARY KEY (`battlenetAccountId`,`playerDataElementCharacterId`)
+  PRIMARY KEY (`battlenetAccountId`,`playerDataElementAccountId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
