@@ -1584,7 +1584,7 @@ enum SpellEffectName
     SPELL_EFFECT_CRAFT_ITEM                         = 288, // MiscValue[0] = CraftingDataID
     SPELL_EFFECT_MODIFY_AURA_STACKS                 = 289, // MiscValue[0] = 0 means add, = 1 means set
     SPELL_EFFECT_MODIFY_COOLDOWN                    = 290,
-    SPELL_EFFECT_MODIFY_COOLDOWNS                   = 291, // MiscValue[0] = SpellFamily, MiscValue[1] = maybe bit index for family flags? off by 1 for the only spell using this effect
+    SPELL_EFFECT_MODIFY_COOLDOWNS                   = 291, // MiscValue[0] = SpellFamily, MiscValue[1] = bit index for family flags
     SPELL_EFFECT_MODIFY_COOLDOWNS_BY_CATEGORY       = 292, // MiscValue[0] = category
     SPELL_EFFECT_MODIFY_CHARGES                     = 293, // MiscValue[0] = charge category
     SPELL_EFFECT_CRAFT_LOOT                         = 294, // MiscValue[0] = CraftingDataID
@@ -1628,10 +1628,10 @@ enum SpellEffectName
     SPELL_EFFECT_332                                = 332,
     SPELL_EFFECT_333                                = 333,
     SPELL_EFFECT_334                                = 334,
-    SPELL_EFFECT_335                                = 335,
-    SPELL_EFFECT_336                                = 336,
-    SPELL_EFFECT_337                                = 337,
-    SPELL_EFFECT_338                                = 338,
+    SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_ACCOUNT    = 335, // MiscValue[0] = PlayerDataElementAccount
+    SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_CHARACTER  = 336, // MiscValue[0] = PlayerDataElementCharacter
+    SPELL_EFFECT_SET_PLAYER_DATA_FLAG_ACCOUNT       = 337, // MiscValue[0] = PlayerDataFlagAccount
+    SPELL_EFFECT_SET_PLAYER_DATA_FLAG_CHARACTER     = 338, // MiscValue[0] = PlayerDataFlagCharacter
     SPELL_EFFECT_UI_ACTION                          = 339,
     SPELL_EFFECT_340                                = 340,
     SPELL_EFFECT_LEARN_WARBAND_SCENE                = 341,

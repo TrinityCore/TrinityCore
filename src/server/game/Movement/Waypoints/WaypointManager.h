@@ -30,6 +30,9 @@ class Unit;
 
 class TC_GAME_API WaypointMgr
 {
+        struct PathQueryResult;
+        struct PathNodeQueryResult;
+
     public:
         WaypointMgr(WaypointMgr const&) = delete;
         WaypointMgr(WaypointMgr&&) = delete;
@@ -43,8 +46,8 @@ class TC_GAME_API WaypointMgr
 
         // Loads all paths from database, should only run on startup
         void LoadPaths();
-        void LoadPathFromDB(Field* fields);
-        void LoadPathNodesFromDB(Field* fields);
+        void LoadPathFromDB(PathQueryResult const& fields);
+        void LoadPathNodesFromDB(PathNodeQueryResult const& fields);
         void DoPostLoadingChecks();
 
         void VisualizePath(Unit* owner, WaypointPath const* path, Optional<uint32> displayId);

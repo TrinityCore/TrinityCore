@@ -549,16 +549,16 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickCurrency const& treasurePic
 
 ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePickerBonus)
 {
-    data << Size<uint32>(treasurePickerBonus.Items);
-    data << Size<uint32>(treasurePickerBonus.Currencies);
-    data << uint64(treasurePickerBonus.Money);
+    data << Size<uint32>(treasurePickerBonus.ItemPicks);
+    data << Size<uint32>(treasurePickerBonus.CurrencyPicks);
+    data << uint64(treasurePickerBonus.Gold);
     data << Bits<1>(treasurePickerBonus.Context);
     data.FlushBits();
 
-    for (TreasurePickItem const& treasurePickerItem : treasurePickerBonus.Items)
+    for (TreasurePickItem const& treasurePickerItem : treasurePickerBonus.ItemPicks)
         data << treasurePickerItem;
 
-    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerBonus.Currencies)
+    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerBonus.CurrencyPicks)
         data << treasurePickCurrency;
 
     return data;
@@ -566,18 +566,18 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerBonus const& treasurePick
 
 ByteBuffer& operator<<(ByteBuffer& data, TreasurePickerPick const& treasurePickerPick)
 {
-    data << Size<uint32>(treasurePickerPick.Items);
-    data << Size<uint32>(treasurePickerPick.Currencies);
-    data << uint64(treasurePickerPick.Money);
+    data << Size<uint32>(treasurePickerPick.ItemPicks);
+    data << Size<uint32>(treasurePickerPick.CurrencyPicks);
+    data << uint64(treasurePickerPick.Gold);
     data << Size<uint32>(treasurePickerPick.Bonuses);
     data << int32(treasurePickerPick.Flags);
     data << Bits<1>(treasurePickerPick.IsChoice);
     data.FlushBits();
 
-    for (TreasurePickItem const& treasurePickItem : treasurePickerPick.Items)
+    for (TreasurePickItem const& treasurePickItem : treasurePickerPick.ItemPicks)
         data << treasurePickItem;
 
-    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerPick.Currencies)
+    for (TreasurePickCurrency const& treasurePickCurrency : treasurePickerPick.CurrencyPicks)
         data << treasurePickCurrency;
 
     for (TreasurePickerBonus const& treasurePickerBonus : treasurePickerPick.Bonuses)
@@ -590,7 +590,7 @@ WorldPacket const* TreasurePickerResponse::Write()
 {
     _worldPacket << uint32(QuestID);
     _worldPacket << uint32(TreasurePickerID);
-    _worldPacket << Pick;
+    _worldPacket << Treasure;
 
     return &_worldPacket;
 }
