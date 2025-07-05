@@ -1,4 +1,4 @@
-SET @NPCTEXTID := 11500000;
+SET @NPCTEXTID := 560019;
 
 -- Playerchoice
 DELETE FROM `playerchoice` WHERE `ChoiceId`=240;
