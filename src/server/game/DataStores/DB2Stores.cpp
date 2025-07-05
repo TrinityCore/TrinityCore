@@ -258,6 +258,10 @@ DB2Storage<PerksActivityEntry>                  sPerksActivityStore("PerksActivi
 DB2Storage<PhaseEntry>                          sPhaseStore("Phase.db2", &PhaseLoadInfo::Instance);
 DB2Storage<PhaseXPhaseGroupEntry>               sPhaseXPhaseGroupStore("PhaseXPhaseGroup.db2", &PhaseXPhaseGroupLoadInfo::Instance);
 DB2Storage<PlayerConditionEntry>                sPlayerConditionStore("PlayerCondition.db2", &PlayerConditionLoadInfo::Instance);
+DB2Storage<PlayerDataElementAccountEntry>       sPlayerDataElementAccountStore("PlayerDataElementAccount.db2", &PlayerDataElementAccountLoadInfo::Instance);
+DB2Storage<PlayerDataElementCharacterEntry>     sPlayerDataElementCharacterStore("PlayerDataElementCharacter.db2", &PlayerDataElementCharacterLoadInfo::Instance);
+DB2Storage<PlayerDataFlagAccountEntry>          sPlayerDataFlagAccountStore("PlayerDataFlagAccount.db2", &PlayerDataFlagAccountLoadInfo::Instance);
+DB2Storage<PlayerDataFlagCharacterEntry>        sPlayerDataFlagCharacterStore("PlayerDataFlagCharacter.db2", &PlayerDataFlagCharacterLoadInfo::Instance);
 DB2Storage<PowerDisplayEntry>                   sPowerDisplayStore("PowerDisplay.db2", &PowerDisplayLoadInfo::Instance);
 DB2Storage<PowerTypeEntry>                      sPowerTypeStore("PowerType.db2", &PowerTypeLoadInfo::Instance);
 DB2Storage<PrestigeLevelInfoEntry>              sPrestigeLevelInfoStore("PrestigeLevelInfo.db2", &PrestigeLevelInfoLoadInfo::Instance);
@@ -880,6 +884,10 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sPhaseStore);
     LOAD_DB2(sPhaseXPhaseGroupStore);
     LOAD_DB2(sPlayerConditionStore);
+    LOAD_DB2(sPlayerDataElementAccountStore);
+    LOAD_DB2(sPlayerDataElementCharacterStore);
+    LOAD_DB2(sPlayerDataFlagAccountStore);
+    LOAD_DB2(sPlayerDataFlagCharacterStore);
     LOAD_DB2(sPowerDisplayStore);
     LOAD_DB2(sPowerTypeStore);
     LOAD_DB2(sPrestigeLevelInfoStore);
@@ -1317,7 +1325,7 @@ void DB2Manager::IndexLoadedStores()
     }
 
     for (GameObjectLabelEntry const* gameobjectLabel : sGameObjectLabelStore)
-        _creatureLabels[gameobjectLabel->GameObjectID].push_back(gameobjectLabel->LabelID);
+        _gameobjectLabels[gameobjectLabel->GameObjectID].push_back(gameobjectLabel->LabelID);
 
     for (HeirloomEntry const* heirloom : sHeirloomStore)
         _heirlooms[heirloom->ItemID] = heirloom;

@@ -11128,11 +11128,11 @@ void ObjectMgr::LoadPlayerChoices()
     uint32 mawPowersCount = 0;
 
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(UiTextureKitId)(SoundKitId)(CloseSoundKitId)(Duration)(Question)(PendingChoiceText)
-            (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(MaxResponses)(ScriptName)) fields { .Result = *choices };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(UiTextureKitId)(SoundKitId)(CloseSoundKitId)(Duration)(Question)(PendingChoiceText)
+                (InfiniteRange)(HideWarboardHeader)(KeepOpenAfterChoice)(ShowChoicesAsList)(ForceDontShowChoicesAsList)(MaxResponses)(ScriptName)) fields { *choices };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
 
             PlayerChoice& choice = _playerChoices[choiceId];
@@ -11159,11 +11159,11 @@ void ObjectMgr::LoadPlayerChoices()
         "UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation, RewardQuestID "
         "FROM playerchoice_response ORDER BY `Index` ASC"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ChoiceArtFileId)(Flags)(WidgetSetID)(UiTextureAtlasElementID)(SoundKitID)
-            (GroupID)(UiTextureKitID)(Answer)(Header)(SubHeader)(ButtonTooltip)(Description)(Confirmation)(RewardQuestID)) fields{ .Result = *responses };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ChoiceArtFileId)(Flags)(WidgetSetID)(UiTextureAtlasElementID)(SoundKitID)
+                (GroupID)(UiTextureKitID)(Answer)(Header)(SubHeader)(ButtonTooltip)(Description)(Confirmation)(RewardQuestID)) fields{ *responses };
+
             int32 choiceId      = fields.ChoiceId().GetInt32();
             int32 responseId    = fields.ResponseId().GetInt32();
 
@@ -11200,11 +11200,11 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(TitleId)(PackageId)(SkillLineId)
-            (SkillPointCount)(ArenaPointCount)(HonorPointCount)(Money)(Xp)) fields{ .Result = *rewards };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(TitleId)(PackageId)(SkillLineId)
+                (SkillPointCount)(ArenaPointCount)(HonorPointCount)(Money)(Xp)) fields{ *rewards };
+
             int32 choiceId      = fields.ChoiceId().GetInt32();
             int32 responseId    = fields.ResponseId().GetInt32();
 
@@ -11260,10 +11260,10 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ItemId)(BonusListIDs)(Quantity)) fields { .Result = *rewards };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ItemId)(BonusListIDs)(Quantity)) fields { *rewards };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
             int32 responseId = fields.ResponseId().GetInt32();
             uint32 itemId = fields.ItemId().GetUInt32();
@@ -11309,10 +11309,10 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(CurrencyId)(Quantity)) fields { .Result = *rewards };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(CurrencyId)(Quantity)) fields { *rewards };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
             int32 responseId = fields.ResponseId().GetInt32();
             uint32 currencyId = fields.CurrencyId().GetUInt32();
@@ -11354,10 +11354,10 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(FactionId)(Quantity)) fields { .Result = *rewards };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(FactionId)(Quantity)) fields { *rewards };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
             int32 responseId = fields.ResponseId().GetInt32();
             uint32 factionId = fields.FactionId().GetUInt32();
@@ -11399,10 +11399,10 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult rewards = WorldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ItemId)(BonusListIDs)(Quantity)) fields { .Result = *rewards };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(ItemId)(BonusListIDs)(Quantity)) fields { *rewards };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
             int32 responseId = fields.ResponseId().GetInt32();
             uint32 itemId = fields.ItemId().GetUInt32();
@@ -11448,10 +11448,10 @@ void ObjectMgr::LoadPlayerChoices()
 
     if (QueryResult mawPowersResult = WorldDatabase.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, SpellID, MaxStacks FROM playerchoice_response_maw_power"))
     {
-        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(TypeArtFileID)(Rarity)(SpellID)(MaxStacks)) fields { .Result = *mawPowersResult };
-
         do
         {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (ChoiceId)(ResponseId)(TypeArtFileID)(Rarity)(SpellID)(MaxStacks)) fields { *mawPowersResult };
+
             int32 choiceId = fields.ChoiceId().GetInt32();
             int32 responseId = fields.ResponseId().GetInt32();
 
@@ -11811,7 +11811,7 @@ void ObjectMgr::LoadSpawnTrackings()
     _spawnTrackingMapStore.clear();
 
     //                                               0                1          2        3
-    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveId FROM spawn_tracking");
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveIds FROM spawn_tracking");
 
     if (!result)
     {
@@ -11827,7 +11827,6 @@ void ObjectMgr::LoadSpawnTrackings()
         uint32 spawnTrackingId = fields[0].GetUInt32();
         SpawnObjectType spawnType = SpawnObjectType(fields[1].GetUInt8());
         ObjectGuid::LowType spawnId = fields[2].GetUInt64();
-        uint32 objectiveId = fields[3].GetUInt32();
 
         if (!SpawnData::TypeIsValid(spawnType))
         {
@@ -11860,12 +11859,6 @@ void ObjectMgr::LoadSpawnTrackings()
             continue;
         }
 
-        if (!IsQuestObjectiveForSpawnTracking(spawnTrackingId, objectiveId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to quest objective {}. Skipped.", spawnTrackingId, uint32(spawnType), spawnId, objectiveId);
-            continue;
-        }
-
         if (spawnTrackingTemplateData->MapId != data->mapId)
         {
             TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} (map {}) assigned to spawn ({},{}), but spawn has map {} - spawn NOT added to spawn tracking!",
@@ -11883,8 +11876,33 @@ void ObjectMgr::LoadSpawnTrackings()
             continue;
         }
 
+        std::vector<uint32> objectiveList;
+        if (Optional<std::string_view> objectivesStr = fields[3].GetStringViewOrNull())
+        {
+            for (std::string_view objectiveStr : Trinity::Tokenize(*objectivesStr, ',', false))
+            {
+                Optional<uint32> objectiveId = Trinity::StringTo<uint32>(objectiveStr);
+                if (!objectiveId)
+                    continue;
+
+                if (!IsQuestObjectiveForSpawnTracking(spawnTrackingId, *objectiveId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to quest objective {}. Skipped.", spawnTrackingId, uint32(spawnType), spawnId, objectiveId);
+                    continue;
+                }
+
+                objectiveList.push_back(*objectiveId);
+            }
+
+            if (objectiveList.empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to any quest objective - spawn NOT added to spawn tracking!", spawnTrackingId, uint32(spawnType), spawnId);
+                continue;
+            }
+        }
+
         const_cast<SpawnMetadata*>(data)->spawnTrackingData = spawnTrackingTemplateData;
-        const_cast<SpawnMetadata*>(data)->spawnTrackingQuestObjectiveId = objectiveId;
+        const_cast<SpawnMetadata*>(data)->spawnTrackingQuestObjectives = std::move(objectiveList);
         _spawnTrackingMapStore.emplace(spawnTrackingId, data);
 
         ++count;
@@ -11981,7 +11999,7 @@ void ObjectMgr::LoadSpawnTrackingStates()
 
                 if (!sWorldEffectStore.HasRecord(*worldEffectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}). Skipped.",
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid WorldEffectId {} for spawn ({},{}). Skipped.",
                         *worldEffectId, uint32(spawnType), spawnId);
                     continue;
                 }
