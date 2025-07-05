@@ -23,6 +23,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "GossipDef.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -1006,6 +1007,8 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
     AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntry(unit->GetFaction(), nullptr);
     if (!ahEntry)
         return;
+
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(guid, PlayerInteractionType::Auctioneer);
 
     WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
     auctionHelloResponse.Auctioneer = guid;

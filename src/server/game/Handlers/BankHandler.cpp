@@ -176,8 +176,8 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPackets::Bank::BuyBankSlot& pack
 
 void WorldSession::SendShowBank(ObjectGuid guid, PlayerInteractionType interactionType)
 {
-    _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
+    _player->PlayerTalkClass->GetInteractionData().StartInteraction(guid, interactionType);
+
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
     npcInteraction.InteractionType = interactionType;

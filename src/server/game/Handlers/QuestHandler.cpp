@@ -27,6 +27,7 @@
 #include "GossipDef.h"
 #include "Group.h"
 #include "Log.h"
+#include "Memory.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -92,125 +93,106 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     else
         object = ObjectAccessor::FindPlayer(packet.QuestGiverGUID);
 
-    auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = ([this]()
+    auto CLOSE_GOSSIP_CLEAR_SHARING_INFO = Trinity::make_unique_ptr_with_deleter(_player, [](Player* player)
     {
-        _player->PlayerTalkClass->SendCloseGossip();
-        _player->ClearQuestSharingInfo();
+        player->PlayerTalkClass->SendCloseGossip();
+        player->ClearQuestSharingInfo();
     });
 
     // no or incorrect quest giver
     if (!object)
-    {
-        CLOSE_GOSSIP_CLEAR_SHARING_INFO();
         return;
-    }
 
     if (Player* playerQuestObject = object->ToPlayer())
     {
         if ((_player->GetPlayerSharingQuest().IsEmpty() && _player->GetPlayerSharingQuest() != packet.QuestGiverGUID) || !playerQuestObject->CanShareQuest(packet.QuestID))
-        {
-            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
-        }
         if (!_player->IsInSameRaidWith(playerQuestObject))
-        {
-            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
-        }
     }
     else
     {
         if (!object->hasQuest(packet.QuestID))
-        {
-            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
             return;
-        }
     }
 
     // some kind of WPE protection
     if (!_player->CanInteractWithQuestGiver(object))
-    {
-        CLOSE_GOSSIP_CLEAR_SHARING_INFO();
         return;
+
+    Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+    if (!quest)
+        return;
+
+    // Quests with QUEST_FLAGS_AUTO_ACCEPT still send this opcode despite being added already. No need to further check anything and just skip further code execution
+    if (quest->IsAutoAccept() && _player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_NONE)
+        return;
+
+    // prevent cheating
+    if (!GetPlayer()->CanTakeQuest(quest, true))
+        return;
+
+    if (!_player->GetPlayerSharingQuest().IsEmpty())
+    {
+        Player* player = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
+        if (player)
+        {
+            player->SendPushToPartyResponse(_player, QuestPushReason::Accepted);
+            _player->ClearQuestSharingInfo();
+        }
     }
 
-    if (Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID))
+    if (!_player->CanAddQuest(quest, true))
+        return;
+
+    (void)CLOSE_GOSSIP_CLEAR_SHARING_INFO.release();
+
+    _player->AddQuestAndCheckCompletion(quest, object);
+
+    if (quest->IsPushedToPartyOnAccept())
     {
-        // Quests with QUEST_FLAGS_AUTO_ACCEPT still send this opcode despite being added already. No need to further check anything and just skip further code execution
-        if (quest->IsAutoAccept() && _player->GetQuestStatus(packet.QuestID) != QUEST_STATUS_NONE)
+        if (Group* group = _player->GetGroup())
         {
-            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
-            return;
-        }
-
-        // prevent cheating
-        if (!GetPlayer()->CanTakeQuest(quest, true))
-        {
-            CLOSE_GOSSIP_CLEAR_SHARING_INFO();
-            return;
-        }
-
-        if (!_player->GetPlayerSharingQuest().IsEmpty())
-        {
-            Player* player = ObjectAccessor::FindPlayer(_player->GetPlayerSharingQuest());
-            if (player)
+            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
             {
-                player->SendPushToPartyResponse(_player, QuestPushReason::Accepted);
-                _player->ClearQuestSharingInfo();
-            }
-        }
+                Player* player = itr->GetSource();
 
-        if (_player->CanAddQuest(quest, true))
-        {
-            _player->AddQuestAndCheckCompletion(quest, object);
+                if (!player || player == _player || !player->IsInMap(_player))     // not self and in same map
+                    continue;
 
-            if (quest->IsPushedToPartyOnAccept())
-            {
-                if (Group* group = _player->GetGroup())
+                if (player->CanTakeQuest(quest, true))
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    {
-                        Player* player = itr->GetSource();
+                    player->SetQuestSharingInfo(_player->GetGUID(), quest->GetQuestId());
 
-                        if (!player || player == _player || !player->IsInMap(_player))     // not self and in same map
-                            continue;
+                    // need confirmation that any gossip window will close
+                    player->PlayerTalkClass->SendCloseGossip();
 
-                        if (player->CanTakeQuest(quest, true))
-                        {
-                            player->SetQuestSharingInfo(_player->GetGUID(), quest->GetQuestId());
-
-                            // need confirmation that any gossip window will close
-                            player->PlayerTalkClass->SendCloseGossip();
-
-                            _player->SendQuestConfirmAccept(quest, player);
-                        }
-                    }
+                    _player->SendQuestConfirmAccept(quest, player);
                 }
             }
-
-            if (quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT) && !quest->HasFlagEx(QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT))
-            {
-                auto launchGossip = [&](WorldObject* worldObject)
-                {
-                    _player->PlayerTalkClass->ClearMenus();
-                    _player->PrepareGossipMenu(worldObject, _player->GetGossipMenuForSource(worldObject), true);
-                    _player->SendPreparedGossip(worldObject);
-                    _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = true;
-                };
-
-                if (Creature* creature = object->ToCreature())
-                    launchGossip(creature);
-                else if (GameObject* go = object->ToGameObject())
-                    launchGossip(go);
-            }
-            else
-                _player->PlayerTalkClass->SendCloseGossip();
-
-            return;
         }
     }
 
-    CLOSE_GOSSIP_CLEAR_SHARING_INFO();
+    if (quest->HasFlag(QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT) && !quest->HasFlagEx(QUEST_FLAGS_EX_SUPPRESS_GOSSIP_ACCEPT))
+    {
+        auto launchGossip = [&](WorldObject* worldObject)
+        {
+            _player->PlayerTalkClass->ClearMenus();
+            _player->PrepareGossipMenu(worldObject, _player->GetGossipMenuForSource(worldObject), true);
+            _player->SendPreparedGossip(worldObject);
+            _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = true;
+        };
+
+        if (Creature* creature = object->ToCreature())
+            launchGossip(creature);
+        else if (GameObject* go = object->ToGameObject())
+            launchGossip(go);
+    }
+    // do not close gossip if quest accept script started a new interaction
+    else if (!_player->PlayerTalkClass->GetInteractionData().IsInteractingWith(object->GetGUID(), PlayerInteractionType::QuestGiver))
+        _player->PlayerTalkClass->GetInteractionData().IsLaunchedByQuest = true;
+    else
+        _player->PlayerTalkClass->SendCloseGossip();
 }
 
 void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPackets::Quest::QuestGiverQueryQuest& packet)
