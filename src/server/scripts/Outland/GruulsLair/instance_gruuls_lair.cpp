@@ -35,6 +35,11 @@ static constexpr MinionData minionData[] =
     { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR },
 };
 
+static constexpr ObjectData creatureData[] =
+{
+    { NPC_MAULGAR,              DATA_MAULGAR },
+};
+
 static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_MAULGAR, {{ 649 }} },
@@ -54,43 +59,9 @@ class instance_gruuls_lair : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadObjectData(creatureData, {});
                 LoadDungeonEncounterData(encounters);
             }
-
-            void OnCreatureCreate(Creature* creature) override
-            {
-                InstanceScript::OnCreatureCreate(creature);
-
-                switch (creature->GetEntry())
-                {
-                    case NPC_MAULGAR:
-                        MaulgarGUID = creature->GetGUID();
-                        [[fallthrough]];
-                    case NPC_KROSH_FIREHAND:
-                    case NPC_OLM_THE_SUMMONER:
-                    case NPC_KIGGLER_THE_CRAZED:
-                    case NPC_BLINDEYE_THE_SEER:
-                        AddMinion(creature, true);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ObjectGuid GetGuidData(uint32 type) const override
-            {
-                switch (type)
-                {
-                    case DATA_MAULGAR:
-                        return MaulgarGUID;
-                    default:
-                        break;
-                }
-                return ObjectGuid::Empty;
-            }
-
-        protected:
-            ObjectGuid MaulgarGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
