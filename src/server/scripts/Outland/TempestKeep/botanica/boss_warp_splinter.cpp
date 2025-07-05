@@ -30,6 +30,7 @@ enum WarpSplinterTexts
 
 enum WarpSplinterSpells
 {
+    SPELL_SUMMON_SAPLINGS     = 34741,
     SPELL_STOMP               = 34716,
     SPELL_ARCANE_VOLLEY       = 36705,
 
@@ -39,7 +40,7 @@ enum WarpSplinterSpells
     SPELL_SUMMON_SAPLING_4    = 34734,
     SPELL_SUMMON_SAPLING_5    = 34736,
     SPELL_SUMMON_SAPLING_6    = 34739,
-    SPELL_SUMMON_SAPLINGS     = 34741,
+
     SPELL_ANCESTRAL_LIFE      = 34742,
     SPELL_MOONFIRE_VISUAL     = 36704
 };
@@ -71,17 +72,6 @@ struct boss_warp_splinter : public BossAI
         events.ScheduleEvent(EVENT_ARCANE_VOLLEY, 15s, 20s);
     }
 
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
-    }
-
     void OnSpellCast(SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_SUMMON_SAPLINGS)
@@ -100,6 +90,17 @@ struct boss_warp_splinter : public BossAI
 
         if (me->GetVictim())
             summon->AI()->AttackStart(me->GetVictim());
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override

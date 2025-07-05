@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "the_botanica.h"
 
 enum ThorngrinTexts
@@ -37,7 +38,6 @@ enum ThorngrinSpells
 {
     SPELL_SACRIFICE             = 34661,
     SPELL_HELLFIRE              = 34659,
-    SPELL_HELLFIRE_H            = 39131,
     SPELL_ENRAGE                = 34670
 };
 
@@ -64,9 +64,9 @@ struct boss_thorngrin_the_tender : public BossAI
     {
         _Reset();
         _phase = PHASE_NONE;
-        _introDone = false;
     }
 
+    /// @todo: Handle this with GameObject 183772 (Tempest Keep Atrium - Thorngrin Event - Trigger 000)
     void MoveInLineOfSight(Unit* who) override
     {
         if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 75.0f))
@@ -95,18 +95,11 @@ struct boss_thorngrin_the_tender : public BossAI
 
     void OnSpellCast(SpellInfo const* spell) override
     {
-        switch (spell->Id)
-        {
-            case SPELL_HELLFIRE:
-            case SPELL_HELLFIRE_H:
-                Talk(SAY_CAST_HELLFIRE);
-                break;
-            case SPELL_ENRAGE:
-                Talk(EMOTE_ENRAGE);
-                break;
-            default:
-                break;
-        }
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_HELLFIRE, me))
+            Talk(SAY_CAST_HELLFIRE);
+
+        if (spell->Id == SPELL_ENRAGE)
+            Talk(EMOTE_ENRAGE);
     }
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
