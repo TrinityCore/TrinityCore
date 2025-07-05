@@ -11811,7 +11811,7 @@ void ObjectMgr::LoadSpawnTrackings()
     _spawnTrackingMapStore.clear();
 
     //                                               0                1          2        3
-    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveId FROM spawn_tracking");
+    QueryResult result = WorldDatabase.Query("SELECT SpawnTrackingId, SpawnType, SpawnId, QuestObjectiveIds FROM spawn_tracking");
 
     if (!result)
     {
@@ -11827,7 +11827,6 @@ void ObjectMgr::LoadSpawnTrackings()
         uint32 spawnTrackingId = fields[0].GetUInt32();
         SpawnObjectType spawnType = SpawnObjectType(fields[1].GetUInt8());
         ObjectGuid::LowType spawnId = fields[2].GetUInt64();
-        uint32 objectiveId = fields[3].GetUInt32();
 
         if (!SpawnData::TypeIsValid(spawnType))
         {
@@ -11860,12 +11859,6 @@ void ObjectMgr::LoadSpawnTrackings()
             continue;
         }
 
-        if (!IsQuestObjectiveForSpawnTracking(spawnTrackingId, objectiveId))
-        {
-            TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to quest objective {}. Skipped.", spawnTrackingId, uint32(spawnType), spawnId, objectiveId);
-            continue;
-        }
-
         if (spawnTrackingTemplateData->MapId != data->mapId)
         {
             TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} (map {}) assigned to spawn ({},{}), but spawn has map {} - spawn NOT added to spawn tracking!",
@@ -11883,8 +11876,33 @@ void ObjectMgr::LoadSpawnTrackings()
             continue;
         }
 
+        std::vector<uint32> objectiveList;
+        if (Optional<std::string_view> objectivesStr = fields[3].GetStringViewOrNull())
+        {
+            for (std::string_view objectiveStr : Trinity::Tokenize(*objectivesStr, ',', false))
+            {
+                Optional<uint32> objectiveId = Trinity::StringTo<uint32>(objectiveStr);
+                if (!objectiveId)
+                    continue;
+
+                if (!IsQuestObjectiveForSpawnTracking(spawnTrackingId, *objectiveId))
+                {
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to quest objective {}. Skipped.", spawnTrackingId, uint32(spawnType), spawnId, objectiveId);
+                    continue;
+                }
+
+                objectiveList.push_back(*objectiveId);
+            }
+
+            if (objectiveList.empty())
+            {
+                TC_LOG_ERROR("sql.sql", "Table `spawn_tracking` has spawn tracking {} assigned to spawn ({},{}), but spawn tracking is not linked to any quest objective - spawn NOT added to spawn tracking!", spawnTrackingId, uint32(spawnType), spawnId);
+                continue;
+            }
+        }
+
         const_cast<SpawnMetadata*>(data)->spawnTrackingData = spawnTrackingTemplateData;
-        const_cast<SpawnMetadata*>(data)->spawnTrackingQuestObjectiveId = objectiveId;
+        const_cast<SpawnMetadata*>(data)->spawnTrackingQuestObjectives = std::move(objectiveList);
         _spawnTrackingMapStore.emplace(spawnTrackingId, data);
 
         ++count;
@@ -11981,7 +11999,7 @@ void ObjectMgr::LoadSpawnTrackingStates()
 
                 if (!sWorldEffectStore.HasRecord(*worldEffectId))
                 {
-                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid StateAnimKitId {} for spawn ({},{}). Skipped.",
+                    TC_LOG_ERROR("sql.sql", "Table `spawn_tracking_state` references invalid WorldEffectId {} for spawn ({},{}). Skipped.",
                         *worldEffectId, uint32(spawnType), spawnId);
                     continue;
                 }
