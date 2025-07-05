@@ -28,6 +28,7 @@
 #include "SpellAuras.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_argent_valiant
@@ -1015,6 +1016,485 @@ class spell_icecrown_ebon_blade_banner : public SpellScript
     }
 };
 
+/*######
+## Quest 13400: The Hunter and the Prince
+######*/
+
+enum TheHunterAndThePrince
+{
+    SPELL_ILLIDAN_KILL_CREDIT      = 61748
+};
+
+// 61752 - Illidan Kill Credit Master
+class spell_icecrown_illidan_kill_credit_master : public SpellScript
+{
+   PrepareSpellScript(spell_icecrown_illidan_kill_credit_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ILLIDAN_KILL_CREDIT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(0))
+                passenger->CastSpell(passenger, SPELL_ILLIDAN_KILL_CREDIT, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_illidan_kill_credit_master::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 13280, 13283: King of the Mountain
+######*/
+
+enum KingOfTheMountain
+{
+    NPC_KING_OF_THE_MOUNTAINT_KC         = 31766,
+    SPELL_PLANT_HORDE_BATTLE_STANDARD    = 59643,
+    SPELL_HORDE_BATTLE_STANDARD_STATE    = 59642,
+    SPELL_ALLIANCE_BATTLE_STANDARD_STATE = 4339,
+    SPELL_JUMP_ROCKET_BLAST              = 4340
+};
+
+// 4338 - Plant Alliance Battle Standard
+// 59643 - Plant Horde Battle Standard
+class spell_icecrown_plant_battle_standard : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_plant_battle_standard);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        uint32 triggeredSpellID = SPELL_ALLIANCE_BATTLE_STANDARD_STATE;
+
+        caster->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+        if (caster->IsVehicle())
+            if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
+                player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC);
+
+        if (GetSpellInfo()->Id == SPELL_PLANT_HORDE_BATTLE_STANDARD)
+            triggeredSpellID = SPELL_HORDE_BATTLE_STANDARD_STATE;
+
+        target->RemoveAllAuras();
+        target->CastSpell(target, triggeredSpellID, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_plant_battle_standard::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 4336 - Jump Jets
+class spell_icecrown_jump_jets : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_jump_jets);
+
+    void HandleCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* rocketBunny = caster->GetVehicleKit()->GetPassenger(1))
+                rocketBunny->CastSpell(rocketBunny, SPELL_JUMP_ROCKET_BLAST, true);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_icecrown_jump_jets::HandleCast);
+    }
+};
+
+/*######
+## Quest 13291: Borrowed Technology / 13292: The Solution Solution (Daily) / 13239: Volatility / 13261: Volatiliy (Daily)
+######*/
+
+enum BorrowedTechnology
+{
+    SPELL_RIDE_FROST_WYRM         = 59319
+};
+
+// 59318 - Grab Fake Soldier
+class spell_icecrown_grab_fake_soldier : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_grab_fake_soldier);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RIDE_FROST_WYRM });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitCreature())
+            return;
+        // TO DO: Being triggered is hack, but in checkcast it doesn't pass aurastate requirements.
+        // Beside that the decoy won't keep it's freeze animation state when enter.
+        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_FROST_WYRM, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_grab_fake_soldier::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 59303 - Summon Frost Wyrm
+class spell_icecrown_summon_frost_wyrm : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_summon_frost_wyrm);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        Position const offset = { 0.0f, 0.0f, 20.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_frost_wyrm::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
+    }
+};
+
+/*######
+## Quest 12847: Second Chances
+######*/
+
+// 12601 - Second Chances: Summon Landgren's Soul Moveto Target Bunny
+class spell_icecrown_summon_soul_moveto_bunny : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_summon_soul_moveto_bunny);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position
+        Position const offset = { 0.0f, 0.0f, 2.5f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_icecrown_summon_soul_moveto_bunny::SetDest, EFFECT_0, TARGET_DEST_CASTER);
+    }
+};
+
+/*######
+## Quest 13086: The Last Line Of Defense
+######*/
+
+// 57385 - Argent Cannon
+// 57412 - Reckoning Bomb
+class spell_icecrown_cannons_target : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_cannons_target);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (WorldLocation const* pos = GetExplTargetDest())
+            GetCaster()->CastSpell(pos->GetPosition(), GetEffectValue(), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_icecrown_cannons_target::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 13790, 13793, 13811, 13814: Among the Champions / 13665, 13745, 13750, 13756, 13761, 13767, 13772, 13777, 13782, 13787: The Grand Melee
+######*/
+
+class spell_icecrown_bested_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_bested_trigger);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit()->GetCharmerOrOwnerOrSelf();
+        target->CastSpell(target, uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_bested_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 13264, 13276, 13288, 13289: That's Abominable!
+######*/
+
+enum ThatsAbominable
+{
+    AREA_THE_BROKEN_FRONT                       =  4507,
+    AREA_MORD_RETHAR_THE_DEATH_GATE             =  4508,
+
+    NPC_DRAKKARI_CHIEFTAINK                     = 29099,
+    NPC_ICY_GHOUL                               = 31142,
+    NPC_VICIOUS_GEIST                           = 31147,
+    NPC_RISEN_ALLIANCE_SOLDIERS                 = 31205,
+    NPC_RENIMATED_ABOMINATION                   = 31692,
+
+    QUEST_FUEL_FOR_THE_FIRE                     = 12690,
+
+    SPELL_BLOATED_ABOMINATION_FEIGN_DEATH       = 52593,
+    SPELL_BURST_AT_THE_SEAMS_BONE               = 52516,
+    SPELL_EXPLODE_ABOMINATION_MEAT              = 52520,
+    SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT       = 52523,
+    SPELL_TROLL_EXPLOSION                       = 52565,
+    SPELL_EXPLODE_TROLL_MEAT                    = 52578,
+    SPELL_EXPLODE_TROLL_BLOODY_MEAT             = 52580,
+
+    SPELL_BURST_AT_THE_SEAMS_59576              = 59576, //script/knockback, That's Abominable
+    SPELL_BURST_AT_THE_SEAMS_59579              = 59579, //dummy
+    SPELL_BURST_AT_THE_SEAMS_52510              = 52510, //script/knockback, Fuel for the Fire
+    SPELL_BURST_AT_THE_SEAMS_52508              = 52508, //damage 20000
+    SPELL_BURST_AT_THE_SEAMS_59580              = 59580, //damage 50000
+
+    SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER    = 59590,
+    SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER    = 60041,
+    SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER = 60039,
+
+    SPELL_DRAKKARI_SKULLCRUSHER_CREDIT          = 52590,
+    SPELL_SUMMON_DRAKKARI_CHIEFTAIN             = 52616,
+    SPELL_DRAKKARI_CHIEFTAINK_KILL_CREDIT       = 52620
+};
+
+// 59576 - Burst at the Seams
+class spell_icecrown_burst_at_the_seams_59576 : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_burst_at_the_seams_59576);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BURST_AT_THE_SEAMS_59576,
+            SPELL_BLOATED_ABOMINATION_FEIGN_DEATH,
+            SPELL_BURST_AT_THE_SEAMS_59579,
+            SPELL_BURST_AT_THE_SEAMS_BONE,
+            SPELL_EXPLODE_ABOMINATION_MEAT,
+            SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetCaster()->ToCreature())
+        {
+            creature->CastSpell(creature, SPELL_BLOATED_ABOMINATION_FEIGN_DEATH, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59579, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+            creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_burst_at_the_seams_59576::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 59579 - Burst at the Seams
+class spell_icecrown_burst_at_the_seams_59579 : public AuraScript
+{
+    PrepareAuraScript(spell_icecrown_burst_at_the_seams_59579);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_TROLL_EXPLOSION, true);
+        target->CastSpell(target, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_MEAT, true);
+        target->CastSpell(target, SPELL_EXPLODE_TROLL_BLOODY_MEAT, true);
+        target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Unit* caster = GetCaster())
+        {
+            switch (target->GetEntry())
+            {
+                case NPC_ICY_GHOUL:
+                    target->CastSpell(caster, SPELL_ASSIGN_GHOUL_KILL_CREDIT_TO_MASTER, true);
+                    break;
+                case NPC_VICIOUS_GEIST:
+                    target->CastSpell(caster, SPELL_ASSIGN_GEIST_KILL_CREDIT_TO_MASTER, true);
+                    break;
+                case NPC_RISEN_ALLIANCE_SOLDIERS:
+                    target->CastSpell(caster, SPELL_ASSIGN_SKELETON_KILL_CREDIT_TO_MASTER, true);
+                    break;
+            }
+        }
+        target->CastSpell(target, SPELL_BURST_AT_THE_SEAMS_59580, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply  += AuraEffectApplyFn(spell_icecrown_burst_at_the_seams_59579::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_icecrown_burst_at_the_seams_59579::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 52593 - Bloated Abomination Feign Death
+class spell_icecrown_bloated_abom_feign_death : public AuraScript
+{
+    PrepareAuraScript(spell_icecrown_bloated_abom_feign_death);
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->SetDynamicFlag(UNIT_DYNFLAG_DEAD);
+        target->SetUnitFlag2(UNIT_FLAG2_FEIGN_DEATH);
+
+        if (Creature* creature = target->ToCreature())
+            creature->SetReactState(REACT_PASSIVE);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        if (Creature* creature = target->ToCreature())
+            creature->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply  += AuraEffectApplyFn(spell_icecrown_bloated_abom_feign_death::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_icecrown_bloated_abom_feign_death::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 76245 - Area Restrict Abom
+class spell_icecrown_area_restrict_abom : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_area_restrict_abom);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* creature = GetHitCreature()) {
+            uint32 area = creature->GetAreaId();
+            if (area != AREA_THE_BROKEN_FRONT && area != AREA_MORD_RETHAR_THE_DEATH_GATE)
+                creature->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_area_restrict_abom::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 59590 - Assign Ghoul Kill Credit to Master
+// 60039 - Assign Skeleton Kill Credit to Master
+// 60041 - Assign Geist Kill Credit to Master
+class spell_icecrown_assign_credit_to_master : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_assign_credit_to_master);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            if (Unit* owner = target->GetOwner())
+            {
+                owner->CastSpell(owner, GetEffectValue(), true);
+            }
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_assign_credit_to_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 52510 - Burst at the Seams
+class spell_icecrown_burst_at_the_seams_52510 : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_burst_at_the_seams_52510);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BURST_AT_THE_SEAMS_52510,
+            SPELL_BURST_AT_THE_SEAMS_52508,
+            SPELL_BURST_AT_THE_SEAMS_59580,
+            SPELL_BURST_AT_THE_SEAMS_BONE,
+            SPELL_EXPLODE_ABOMINATION_MEAT,
+            SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT
+        });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+    }
+
+    void HandleKnockBack(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* creature = GetHitCreature())
+        {
+            if (Unit* charmer = GetCaster()->GetCharmerOrOwner())
+            {
+                if (Player* player = charmer->ToPlayer())
+                {
+                    if (player->GetQuestStatus(QUEST_FUEL_FOR_THE_FIRE) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_BONE, true);
+                        creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_MEAT, true);
+                        creature->CastSpell(creature, SPELL_EXPLODE_ABOMINATION_BLOODY_MEAT, true);
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_52508, true);
+                        creature->CastSpell(creature, SPELL_BURST_AT_THE_SEAMS_59580, true);
+
+                        player->CastSpell(player, SPELL_DRAKKARI_SKULLCRUSHER_CREDIT, true);
+                        uint16 count = player->GetReqKillOrCastCurrentCount(QUEST_FUEL_FOR_THE_FIRE, NPC_DRAKKARI_CHIEFTAINK);
+                        if ((count % 20) == 0)
+                            player->CastSpell(player, SPELL_SUMMON_DRAKKARI_CHIEFTAIN, true);
+                    }
+                }
+            }
+        }
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->ToCreature()->DespawnOrUnsummon(2s);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_burst_at_the_seams_52510::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_burst_at_the_seams_52510::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1032,4 +1512,18 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_gift_of_the_lich_king);
     RegisterSpellScript(spell_icecrown_consume_minions);
     RegisterSpellScript(spell_icecrown_ebon_blade_banner);
+    RegisterSpellScript(spell_icecrown_illidan_kill_credit_master);
+    RegisterSpellScript(spell_icecrown_plant_battle_standard);
+    RegisterSpellScript(spell_icecrown_jump_jets);
+    RegisterSpellScript(spell_icecrown_grab_fake_soldier);
+    RegisterSpellScript(spell_icecrown_summon_frost_wyrm);
+    RegisterSpellScript(spell_icecrown_summon_soul_moveto_bunny);
+    RegisterSpellScript(spell_icecrown_cannons_target);
+    RegisterSpellScript(spell_icecrown_bested_trigger);
+    RegisterSpellScript(spell_icecrown_burst_at_the_seams_59576);
+    RegisterSpellScript(spell_icecrown_burst_at_the_seams_59579);
+    RegisterSpellScript(spell_icecrown_bloated_abom_feign_death);
+    RegisterSpellScript(spell_icecrown_area_restrict_abom);
+    RegisterSpellScript(spell_icecrown_assign_credit_to_master);
+    RegisterSpellScript(spell_icecrown_burst_at_the_seams_52510);
 }
