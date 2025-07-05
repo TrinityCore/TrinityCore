@@ -19,44 +19,41 @@
 #include "halls_of_stone.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 
-enum Spells
+enum KrystallusTexts
 {
-    SPELL_BOULDER_TOSS                          = 50843,
-    SPELL_GROUND_SPIKE                          = 59750,
-    SPELL_GROUND_SLAM                           = 50827,
-    SPELL_SHATTER                               = 50810,
-    SPELL_SHATTER_EFFECT                        = 50811,
-    SPELL_STONED                                = 50812,
-    SPELL_STOMP                                 = 48131
+    SAY_AGGRO                = 0,
+    SAY_SLAY                 = 1,
+    SAY_DEATH                = 2,
+    SAY_SHATTER              = 3
 };
 
-enum Yells
+enum KrystallusSpells
 {
-    SAY_AGGRO                                   = 0,
-    SAY_KILL                                    = 1,
-    SAY_DEATH                                   = 2,
-    SAY_SHATTER                                 = 3
+    SPELL_BOULDER_TOSS       = 50843,
+    SPELL_GROUND_SPIKE       = 59750,
+    SPELL_GROUND_SLAM        = 50827,
+    SPELL_SHATTER            = 50810,
+    SPELL_SHATTER_EFFECT     = 50811,
+    SPELL_STONED             = 50812,
+    SPELL_STOMP              = 48131
 };
 
-enum Events
+enum KrystallusEvents
 {
-    EVENT_BOULDER_TOSS                          = 1,
+    EVENT_BOULDER_TOSS       = 1,
     EVENT_GROUND_SPIKE,
     EVENT_GROUND_SLAM,
     EVENT_STOMP,
     EVENT_SHATTER
 };
 
+// 27977 - Krystallus
 struct boss_krystallus : public BossAI
 {
     boss_krystallus(Creature* creature) : BossAI(creature, DATA_KRYSTALLUS) { }
-
-    void Reset() override
-    {
-        _Reset();
-    }
 
     void JustEngagedWith(Unit* who) override
     {
@@ -70,9 +67,26 @@ struct boss_krystallus : public BossAI
             events.ScheduleEvent(EVENT_GROUND_SPIKE, 9s, 14s);
     }
 
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHATTER, me))
+            Talk(SAY_SHATTER);
+    }
+
+    void KilledUnit(Unit* victim) override
+    {
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+            Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
     void UpdateAI(uint32 diff) override
     {
-        // Return since we have no target
         if (!UpdateVictim())
             return;
 
@@ -88,24 +102,24 @@ struct boss_krystallus : public BossAI
                 case EVENT_BOULDER_TOSS:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 50.0f, true))
                         DoCast(target, SPELL_BOULDER_TOSS);
-                    events.ScheduleEvent(EVENT_BOULDER_TOSS, 9s, 15s);
+                    events.Repeat(9s, 15s);
                     break;
                 case EVENT_GROUND_SPIKE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                         DoCast(target, SPELL_GROUND_SPIKE);
-                    events.ScheduleEvent(EVENT_GROUND_SPIKE, 12s, 17s);
+                    events.Repeat(12s, 17s);
                     break;
                 case EVENT_GROUND_SLAM:
-                    DoCast(me, SPELL_GROUND_SLAM);
+                    DoCastSelf(SPELL_GROUND_SLAM);
                     events.ScheduleEvent(EVENT_SHATTER, 10s);
-                    events.ScheduleEvent(EVENT_GROUND_SLAM, 15s, 18s);
+                    events.Repeat(15s, 18s);
                     break;
                 case EVENT_STOMP:
-                    DoCast(me, SPELL_STOMP);
-                    events.ScheduleEvent(EVENT_STOMP, 20s, 29s);
+                    DoCastSelf(SPELL_STOMP);
+                    events.Repeat(20s, 29s);
                     break;
                 case EVENT_SHATTER:
-                    DoCast(me, SPELL_SHATTER);
+                    DoCastSelf(SPELL_SHATTER);
                     break;
                 default:
                     break;
@@ -116,18 +130,6 @@ struct boss_krystallus : public BossAI
         }
 
         DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        Talk(SAY_DEATH);
-        _JustDied();
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            Talk(SAY_KILL);
     }
 };
 
