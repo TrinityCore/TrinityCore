@@ -31,7 +31,6 @@
 
 namespace Scripts::Pandaria::TheJadeForest
 {
-
 namespace Points
 {
     static constexpr uint32 RappellingRopeDestination = 1;
