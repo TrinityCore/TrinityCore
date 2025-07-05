@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
+#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
@@ -1069,6 +1070,131 @@ class spell_bem_wicked_strong_fetish : public SpellScript
     }
 };
 
+enum TheSmallestCreature
+{
+    SPELL_CHARM_REXXARS_RODENT          = 38586,
+    SPELL_COAX_MARMOT                   = 38544,
+    SPELL_STEALTH_MARMOT                = 42347,
+    SPELL_GREEN_EYE_GROG_CREDIT         = 38996,
+    SPELL_RIPE_MOONSHINE_CREDIT         = 38997,
+    SPELL_FERMENTED_SEED_BEER_CREDIT    = 38998,
+
+    NPC_MARMOT                          = 22189,
+    NPC_GREEN_SPOT_GROG_KEG_CREDIT      = 22356,
+    NPC_RIPE_MOONSHINE_KEG_CREDIT       = 22367,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368
+};
+
+struct npc_q10720_keg_credit : public ScriptedAI
+{
+    npc_q10720_keg_credit(Creature * creature) : ScriptedAI(creature)
+    {
+        // Neccessary hack to allow spell 38629 to hit the keg credit (visibility is checked against the summoner, not the caster)
+        creature->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK4);
+    }
+};
+
+struct npc_q10720_marmot : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        summoner->CastSpell(me, SPELL_CHARM_REXXARS_RODENT, true);
+    }
+};
+
+// 38544 - Coax Marmot
+class spell_bem_coax_marmot : public AuraScript
+{
+    PrepareAuraScript(spell_bem_coax_marmot);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // prevent loading the aura from db
+        if (GetTarget()->GetCharmedGUID().IsEmpty())
+            Remove();
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* marmot = Object::ToCreature(GetTarget()->GetCharmed()))
+            if (marmot->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_COAX_MARMOT)
+                marmot->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 38586 - [DND]Charm Rexxar's Rodent
+class spell_bem_charm_rexxars_rodent : public AuraScript
+{
+    PrepareAuraScript(spell_bem_charm_rexxars_rodent);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+
+        if (Creature* creature = GetTarget()->ToCreature())
+            creature->DespawnOrUnsummon(1ms);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bem_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 38629 - Poison Keg
+class spell_bem_q10720_poison_keg : public SpellScript
+{
+    PrepareSpellScript(spell_bem_q10720_poison_keg);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            uint32 spellId = 0;
+            switch (GetHitUnit()->GetEntry())
+            {
+                case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
+                    spellId = SPELL_GREEN_EYE_GROG_CREDIT;
+                    break;
+                case NPC_RIPE_MOONSHINE_KEG_CREDIT:
+                    spellId = SPELL_RIPE_MOONSHINE_CREDIT;
+                    break;
+                case NPC_FERMENTED_SEED_BEER_KEG_CREDIT:
+                    spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
+                    break;
+                default:
+                    return;
+            }
+
+            player->CastSpell(nullptr, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_q10720_poison_keg::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1080,4 +1206,9 @@ void AddSC_blades_edge_mountains()
     new spell_oscillating_field();
     RegisterSpellScript(spell_bem_dispelling_analysis);
     RegisterSpellScript(spell_bem_wicked_strong_fetish);
+    RegisterCreatureAI(npc_q10720_keg_credit);
+    RegisterCreatureAI(npc_q10720_marmot);
+    RegisterSpellScript(spell_bem_coax_marmot);
+    RegisterSpellScript(spell_bem_charm_rexxars_rodent);
+    RegisterSpellScript(spell_bem_q10720_poison_keg);
 }
