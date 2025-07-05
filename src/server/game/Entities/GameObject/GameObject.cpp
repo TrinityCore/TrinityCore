@@ -1627,9 +1627,7 @@ void GameObject::Update(uint32 diff)
                     m_usetimes = 0;
                 }
 
-                // Only goobers with a lock id or a reset time may reset their go state
-                if (GetGOInfo()->GetLockId() || GetGOInfo()->GetAutoCloseTime())
-                    SetGoState(GO_STATE_READY);
+                SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
