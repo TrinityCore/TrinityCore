@@ -533,7 +533,9 @@ Vehicle* Vehicle::RemovePassenger(WorldObject* passenger)
 
     // only for flyable vehicles
     if (unit->IsFlying())
-        _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
+        if (VehicleTemplate const* vehicleTemplate = sObjectMgr->GetVehicleTemplate(this))
+            if (!vehicleTemplate->CustomFlags.HasFlag(VehicleCustomFlags::DontForceParachuteOnExit))
+                _me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
     if (_me->GetTypeId() == TYPEID_UNIT && _me->ToCreature()->IsAIEnabled())
         _me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
