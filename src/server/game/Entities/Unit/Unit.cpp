@@ -5486,7 +5486,8 @@ std::vector<AreaTrigger*> Unit::GetInsideAreaTriggers() const
 
 void Unit::ExitAllAreaTriggers()
 {
-    for (AreaTrigger* at : m_insideAreaTriggers)
+    AreaTriggerList atList = m_insideAreaTriggers;
+    for (AreaTrigger* at : atList)
     {
         at->HandleUnitExit(this, true);
     }
