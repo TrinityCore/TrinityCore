@@ -14,7 +14,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <stack>
-#include <mutex>
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
 #define WER_MAX_NESTING_LEVEL 4
@@ -307,8 +306,6 @@ struct SymbolDetail
 {
     SymbolDetail() : Prefix(), Type(), Suffix(), Name(), Value(), Logged(false), HasChildren(false) {}
 
-    std::string ToString();
-
     bool empty() const
     {
         return Value.empty() && !HasChildren;
@@ -338,7 +335,7 @@ class TC_COMMON_API WheatyExceptionReport
         static LONG WINAPI WheatyUnhandledExceptionFilter(
             PEXCEPTION_POINTERS pExceptionInfo);
 
-        LONG UnhandledExceptionFilterImpl(PEXCEPTION_POINTERS pExceptionInfo);
+        LONG UnhandledExceptionFilterImpl(PEXCEPTION_POINTERS pExceptionInfo) noexcept;
 
         static void __cdecl WheatyCrtHandler(wchar_t const* expression, wchar_t const* function, wchar_t const* file, unsigned int line, uintptr_t pReserved);
 
@@ -348,7 +345,7 @@ class TC_COMMON_API WheatyExceptionReport
         void GenerateExceptionReport(PEXCEPTION_POINTERS pExceptionInfo);
         void PrintSystemInfo();
         BOOL _GetWindowsVersion(TCHAR* szVersion, DWORD cntMax);
-        static BOOL _GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax);
+        static BOOL _GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cntMax) noexcept;
         static BOOL _GetProcessorName(TCHAR* sProcessorName, DWORD maxcount);
 
         // Helper functions
@@ -387,8 +384,8 @@ class TC_COMMON_API WheatyExceptionReport
         static Optional<DWORD_PTR> GetIntegerRegisterValue(PCONTEXT context, ULONG registerId);
 
         // Variables used by the class
-        TCHAR m_logFileName[MAX_PATH];
-        TCHAR m_dumpFileName[MAX_PATH];
+        TCHAR* m_tempPathBuffer;
+        static constexpr SIZE_T m_tempPathBufferChars = 0x8000;
         LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
         _invalid_parameter_handler m_previousCrtHandler;
         FILE* m_reportFile;
@@ -397,11 +394,11 @@ class TC_COMMON_API WheatyExceptionReport
         SymbolPairs m_symbols;
         std::stack<SymbolDetail> m_symbolDetails;
         bool m_alreadyCrashed;
-        std::mutex m_alreadyCrashedLock;
+        SRWLOCK m_alreadyCrashedLock;
         typedef NTSTATUS(NTAPI* pRtlGetVersion)(PRTL_OSVERSIONINFOW lpVersionInformation);
         pRtlGetVersion RtlGetVersion;
 
-        void PushSymbolDetail();
+        SymbolDetail& PushSymbolDetail();
         void PopSymbolDetail();
         void PrintSymbolDetail();
 };
