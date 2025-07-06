@@ -216,8 +216,7 @@ class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
         if (!GetCaster())
             return;
 
-        if (aurEff->GetTickNumber() == 1 /* @TODO: || is standing in areatrigger */)
-            GetCaster()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -264,6 +263,11 @@ struct at_maiden_of_virtue_rtk_sacred_ground : AreaTriggerAI
             return;
 
         caster->CastSpell(unit, SPELL_SACRED_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAura(SPELL_SACRED_GROUND_PERIODIC);
     }
 };
 
