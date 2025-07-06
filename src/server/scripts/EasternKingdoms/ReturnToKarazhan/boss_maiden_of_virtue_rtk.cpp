@@ -27,14 +27,15 @@
 
 enum MaidenOfVirtueRTKSpells
 {
-    SPELL_HOLY_BOLT              = 227809,
-    SPELL_HOLY_SHOCK             = 227800,
-    SPELL_SACRED_GROUND          = 227789,
-    SPELL_SACRED_GROUND_DAMAGE   = 227848,
-    SPELL_SACRED_GROUND_PERIODIC = 227793,
-    SPELL_MASS_REPENTANCE        = 227508,
-    SPELL_HOLY_BULWARK           = 227817,
-    SPELL_HOLY_WRATH             = 227823
+    SPELL_HOLY_BOLT                 = 227809,
+    SPELL_HOLY_SHOCK                = 227800,
+    SPELL_SACRED_GROUND             = 227789,
+    SPELL_SACRED_GROUND_DAMAGE      = 227848,
+    SPELL_SACRED_GROUND_PERIODIC    = 227793,
+    SPELL_MASS_REPENTANCE           = 227508,
+    SPELL_HOLY_BULWARK              = 227817,
+    SPELL_HOLY_WRATH                = 227823,
+    SPELL_PLAY_SCENE                = 232516,
 };
 
 enum MaidenOfVirtueRTKEvents
@@ -54,7 +55,7 @@ enum MaidenOfVirtueRTKActions
 
 enum MaidenOfVirtueRTKTexts
 {
-    SAY_AGGRO                   = 0,
+    SAY_AGGRO               = 0,
     SAY_WIPE                    = 1,
     SAY_SLAY                    = 2,
     SAY_HOLY_BOLT               = 3,
@@ -79,6 +80,8 @@ struct boss_maiden_of_virtue_rtk : public BossAI
         _JustDied();
         me->RemoveAllAreaTriggers();
         Talk(SAY_DEAD);
+
+        DoCastSelf(SPELL_PLAY_SCENE);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -213,7 +216,7 @@ class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
         if (!GetCaster())
             return;
 
-        if (aurEff->GetTickNumber() == 1)
+        if (aurEff->GetTickNumber() == 1 /* @TODO: || is standing in areatrigger */)
             GetCaster()->CastSpell(GetTarget(), GetEffectInfo(EFFECT_0).CalcValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 

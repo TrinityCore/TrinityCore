@@ -36,3 +36,11 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `instance_template` WHERE `map`=1651;
 INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (1651, 0, 'instance_return_to_karazhan');
+
+DELETE FROM `scene_template` WHERE `SceneId`=1538;
+INSERT INTO `scene_template` (`SceneId`, `Flags`, `ScriptPackageID`) VALUES
+(1538, 27, 1778);
+
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 13) AND (`SourceEntry` IN (232516));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(13, 1, 232516, 0, 0, 8, 0, 45394, 0, 0, '', 1, 'Potential target of the spell has not quest Tracking Quest (45394) rewarded');
