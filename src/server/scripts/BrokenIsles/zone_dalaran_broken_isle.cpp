@@ -16,6 +16,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "Conversation.h"
+#include "ConversationAI.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "PlayerChoice.h"
@@ -188,11 +190,62 @@ public:
     }
 };
 
+enum CallOfTheUncrownedData
+{
+    NPC_SUMMON_RAVENHOLD_CURIER     = 102018,
+
+    CONVO_ACTOR_SUMMON_CURIER       = 51066,
+
+    SPELL_SEALED_LETTER_CREDIT      = 201264
+};
+
+// 1100 - Conversation
+class conversation_on_summon_call_of_the_uncrowned : public ConversationAI
+{
+public:
+    using ConversationAI::ConversationAI;
+
+    void OnCreate(Unit* creator) override
+    {
+        Creature* ravenholdCurier = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_SUMMON_RAVENHOLD_CURIER, .IgnorePhases = true, .OwnerGuid = creator->GetGUID() });
+        if (!ravenholdCurier)
+            return;
+
+        conversation->AddActor(CONVO_ACTOR_SUMMON_CURIER, 0, ravenholdCurier->GetGUID());
+        conversation->Start();
+    }
+};
+
+// 201253 - Sealed Letter
+class spell_dalaran_sealed_letter : public AuraScript
+{
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        player->CastSpell(player, SPELL_SEALED_LETTER_CREDIT, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dalaran_sealed_letter::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_dalaran_broken_isle()
 {
+    // Conversation
+    RegisterConversationAI(conversation_on_summon_call_of_the_uncrowned);
+
     // Playerchoice
     new playerchoice_weapons_of_legend_hunter();
 
     // Spellscripts
     RegisterSpellScript(spell_dalaran_order_campaign_intro_aura);
+    RegisterSpellScript(spell_dalaran_sealed_letter);
 }
