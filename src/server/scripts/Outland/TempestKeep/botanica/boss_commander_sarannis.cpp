@@ -33,10 +33,11 @@ enum SarannisTexts
 
 enum SarannisSpells
 {
-    SPELL_ARCANE_RESONANCE         = 34794,
     SPELL_ARCANE_DEVASTATION       = 34799,
-
     SPELL_SUMMON_REINFORCEMENTS    = 34803,
+
+    SPELL_ARCANE_RESONANCE         = 34794,
+
     SPELL_SUMMON_MENDER_1          = 34810,
     SPELL_SUMMON_RESERVIST_1       = 34817,
     SPELL_SUMMON_RESERVIST_2       = 34818,
@@ -77,17 +78,6 @@ struct boss_commander_sarannis : public BossAI
             events.ScheduleEvent(EVENT_SUMMON_REINFORCEMENTS, 1min);
     }
 
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
-    }
-
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (!_summoned && me->HealthBelowPctDamaged(55, damage) && !IsHeroic())
@@ -97,8 +87,18 @@ struct boss_commander_sarannis : public BossAI
         }
     }
 
+    void OnSpellStart(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_SUMMON_REINFORCEMENTS)
+            Talk(EMOTE_SUMMON);
+    }
+
     void OnSpellCast(SpellInfo const* spell) override
     {
+        // Not always?
+        if (spell->Id == SPELL_ARCANE_DEVASTATION)
+            Talk(SAY_ARCANE_DEVASTATION);
+
         if (spell->Id == SPELL_SUMMON_REINFORCEMENTS)
             Talk(SAY_SUMMON);
     }
@@ -108,6 +108,17 @@ struct boss_commander_sarannis : public BossAI
     {
         if (me->IsEngaged())
             DoZoneInCombat(summon);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -125,14 +136,11 @@ struct boss_commander_sarannis : public BossAI
             switch (eventId)
             {
                 case EVENT_ARCANE_DEVASTATION:
-                    // Not always?
-                    Talk(SAY_ARCANE_DEVASTATION);
                     // She can cast it if victim has only one stack of Arcane Resonance but can she cast it if victim has no stacks?
                     DoCastVictim(SPELL_ARCANE_DEVASTATION);
                     events.Repeat(RAND(10s, 15s, 20s, 25s, 30s, 35s));
                     break;
                 case EVENT_SUMMON_REINFORCEMENTS:
-                    Talk(EMOTE_SUMMON);
                     DoCastSelf(SPELL_SUMMON_REINFORCEMENTS);
                     if (IsHeroic())
                         events.Repeat(1min);
