@@ -211,6 +211,11 @@ struct boss_maiden_of_virtue_rtk : public BossAI
 // 227793 - Sacred Ground
 class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
 {
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).CalcValue() });
+    }
+
     void HandlePeriodic(AuraEffect const* aurEff) const
     {
         if (!GetCaster())
