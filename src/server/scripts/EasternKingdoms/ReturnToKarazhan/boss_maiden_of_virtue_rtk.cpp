@@ -216,7 +216,7 @@ class spell_maiden_of_virtue_rtk_sacred_ground : public AuraScript
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff) const
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         if (!GetCaster())
             return;
