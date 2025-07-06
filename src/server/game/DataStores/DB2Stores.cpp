@@ -1325,7 +1325,7 @@ void DB2Manager::IndexLoadedStores()
     }
 
     for (GameObjectLabelEntry const* gameobjectLabel : sGameObjectLabelStore)
-        _creatureLabels[gameobjectLabel->GameObjectID].push_back(gameobjectLabel->LabelID);
+        _gameobjectLabels[gameobjectLabel->GameObjectID].push_back(gameobjectLabel->LabelID);
 
     for (HeirloomEntry const* heirloom : sHeirloomStore)
         _heirlooms[heirloom->ItemID] = heirloom;

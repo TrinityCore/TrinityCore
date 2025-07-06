@@ -869,7 +869,7 @@ struct CraftingOrderData : public IsUpdateFieldStructureTag, public HasChangesMa
     UpdateField<int32, 0, 2> Field_0;
     UpdateField<uint64, 0, 3> OrderID;
     UpdateField<int32, 0, 4> SkillLineAbilityID;
-    UpdateField<uint8, 0, 5> OrderState;
+    UpdateField<int32, 0, 5> OrderState;
     UpdateField<uint8, 6, 7> OrderType;
     UpdateField<uint8, 6, 8> MinQuality;
     UpdateField<int64, 6, 9> ExpirationTime;
