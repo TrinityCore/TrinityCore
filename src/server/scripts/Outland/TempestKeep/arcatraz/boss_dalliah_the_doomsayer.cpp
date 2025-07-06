@@ -227,9 +227,9 @@ class spell_dalliah_the_doomsayer_whirlwind : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-	    // When Whirlwind ends, creature casts Dummy spell. When Dummy spell hits,
+        // When Whirlwind ends, creature casts Dummy spell. When Dummy spell hits,
         // creature casts Heal spell and this is how Heal after Whirlwind is handled
-		GetTarget()->CastSpell(GetTarget(), SPELL_DUMMY, true);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DUMMY, true);
     }
 
     void Register() override
