@@ -1574,7 +1574,7 @@ TC_API_EXPORT EnumText EnumUtils<SpellAttr10>::ToString(SpellAttr10 value)
         case SPELL_ATTR10_TELEPORT_PLAYER: return { "SPELL_ATTR10_TELEPORT_PLAYER", "Ignore instance lock and farm limit on teleport", "" };
         case SPELL_ATTR10_UNK8: return { "SPELL_ATTR10_UNK8", "Unknown attribute 8@Attr10", "" };
         case SPELL_ATTR10_UNK9: return { "SPELL_ATTR10_UNK9", "Unknown attribute 9@Attr10", "" };
-        case SPELL_ATTR10_UNK10: return { "SPELL_ATTR10_UNK10", "Unknown attribute 10@Attr10", "" };
+        case SPELL_ATTR10_PROC_COOLDOWN_PER_TARGET: return { "SPELL_ATTR10_PROC_COOLDOWN_PER_TARGET", "Proc cooldown on a per-target basis", "" };
         case SPELL_ATTR10_HERB_GATHERING_MINING: return { "SPELL_ATTR10_HERB_GATHERING_MINING", "Lock chest at precast", "" };
         case SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING: return { "SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING", "Use Spell Base Level For Scaling", "" };
         case SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END: return { "SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END", "Reset cooldown upon ending an encounter", "" };
@@ -1618,7 +1618,7 @@ TC_API_EXPORT SpellAttr10 EnumUtils<SpellAttr10>::FromIndex(size_t index)
         case 7: return SPELL_ATTR10_TELEPORT_PLAYER;
         case 8: return SPELL_ATTR10_UNK8;
         case 9: return SPELL_ATTR10_UNK9;
-        case 10: return SPELL_ATTR10_UNK10;
+        case 10: return SPELL_ATTR10_PROC_COOLDOWN_PER_TARGET;
         case 11: return SPELL_ATTR10_HERB_GATHERING_MINING;
         case 12: return SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING;
         case 13: return SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END;
@@ -1659,7 +1659,7 @@ TC_API_EXPORT size_t EnumUtils<SpellAttr10>::ToIndex(SpellAttr10 value)
         case SPELL_ATTR10_TELEPORT_PLAYER: return 7;
         case SPELL_ATTR10_UNK8: return 8;
         case SPELL_ATTR10_UNK9: return 9;
-        case SPELL_ATTR10_UNK10: return 10;
+        case SPELL_ATTR10_PROC_COOLDOWN_PER_TARGET: return 10;
         case SPELL_ATTR10_HERB_GATHERING_MINING: return 11;
         case SPELL_ATTR10_USE_SPELL_BASE_LEVEL_FOR_SCALING: return 12;
         case SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END: return 13;
