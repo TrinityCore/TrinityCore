@@ -124,7 +124,7 @@ void WorldSession::SendTrainerList(Creature* npc, uint32 trainerId)
 
     _player->PlayerTalkClass->GetInteractionData().Reset();
     _player->PlayerTalkClass->GetInteractionData().SourceGuid = npc->GetGUID();
-    _player->PlayerTalkClass->GetInteractionData().TrainerId = trainerId;
+    _player->PlayerTalkClass->GetInteractionData().SetTrainerId(trainerId);
     trainer->SendSpells(npc, _player, GetSessionDbLocaleIndex());
 }
 
@@ -146,7 +146,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.TrainerGUID)
         return;
 
-    if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
+    if (_player->PlayerTalkClass->GetInteractionData().GetTrainerId() != uint32(packet.TrainerID))
         return;
 
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);

@@ -87,6 +87,18 @@ namespace WorldPackets
             std::span<uint8 const> CompressedData;
         };
 
+        class UpdateAccountDataComplete final : public ServerPacket
+        {
+        public:
+            explicit UpdateAccountDataComplete() : ServerPacket(SMSG_UPDATE_ACCOUNT_DATA_COMPLETE, 16 + 4 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid Player;
+            int32 DataType = 0; ///< @see enum AccountDataType
+            int32 Result = 0;
+        };
+
         class SetAdvancedCombatLogging final : public ClientPacket
         {
         public:

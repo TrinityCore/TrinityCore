@@ -361,6 +361,55 @@ LOCK TABLES `battlenet_account_mounts` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `battlenet_account_player_data_element`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_player_data_element`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_player_data_element` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `playerDataElementAccountId` int unsigned NOT NULL,
+  `floatValue` float DEFAULT NULL,
+  `int64Value` bigint DEFAULT NULL,
+  PRIMARY KEY (`battlenetAccountId`,`playerDataElementAccountId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_player_data_element`
+--
+
+LOCK TABLES `battlenet_account_player_data_element` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_player_data_element` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_player_data_element` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `battlenet_account_player_data_flag`
+--
+
+DROP TABLE IF EXISTS `battlenet_account_player_data_flag`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `battlenet_account_player_data_flag` (
+  `battlenetAccountId` int unsigned NOT NULL,
+  `storageIndex` int unsigned NOT NULL,
+  `mask` bigint unsigned NOT NULL,
+  PRIMARY KEY (`battlenetAccountId`,`storageIndex`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `battlenet_account_player_data_flag`
+--
+
+LOCK TABLES `battlenet_account_player_data_flag` WRITE;
+/*!40000 ALTER TABLE `battlenet_account_player_data_flag` DISABLE KEYS */;
+/*!40000 ALTER TABLE `battlenet_account_player_data_flag` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `battlenet_account_toys`
 --
 
@@ -1111,7 +1160,28 @@ INSERT INTO `build_auth_key` VALUES
 (61265,'Mac','x64','WoWC',0xA601E42069510E0D5EB08FE1155E21DF),
 (61265,'Win','A64','WoW',0x87D07F5340DEC51CB965935E13A035A7),
 (61265,'Win','x64','WoW',0xDAC655ECD4795C36E2A7DF63AB7E3915),
-(61265,'Win','x64','WoWC',0xC06106A58586E5B0A13411BC53B8CFA5);
+(61265,'Win','x64','WoWC',0xC06106A58586E5B0A13411BC53B8CFA5),
+(61491,'Mac','A64','WoW',0x6A63F9B14228B85AF4EE9F6AAD2DC108),
+(61491,'Mac','A64','WoWC',0x0F263AA0C47B7F9AF2DECC62CFBC87B8),
+(61491,'Mac','x64','WoW',0x42754222FBEF4B872AB34F5A53166707),
+(61491,'Mac','x64','WoWC',0x9513DE4CAB9E345FE327A216B9C4CAF3),
+(61491,'Win','A64','WoW',0xA42E81E60866C0114F59CE5F5F6458D4),
+(61491,'Win','x64','WoW',0xECE38E2B4833BA220C3C33EED4C004D1),
+(61491,'Win','x64','WoWC',0x4E106C27490D03932C7985F192AC35E6),
+(61559,'Mac','A64','WoW',0x3C0726C9D66742F43C8D105C015364CF),
+(61559,'Mac','A64','WoWC',0x32F6AB87E9E9776BEAACE8B6683A39BA),
+(61559,'Mac','x64','WoW',0xD2039CB1EEE0B59595E145B8A9626001),
+(61559,'Mac','x64','WoWC',0xE73978C9576833F36694293036E55409),
+(61559,'Win','A64','WoW',0xAA7AD5624979EB36A6963A9F7DE019B9),
+(61559,'Win','x64','WoW',0x17928A7329F53E273891D85A973248C0),
+(61559,'Win','x64','WoWC',0xD9E57238DD0742B44E68F05D59A6234B),
+(61609,'Mac','A64','WoW',0x9D3B5F3D2DDEB29ABB6DB48EF29D38C9),
+(61609,'Mac','A64','WoWC',0x5949F3AE2B51A3B03155A13952E82F77),
+(61609,'Mac','x64','WoW',0x7C8665EED3E4C902E8B2FC4972F4636C),
+(61609,'Mac','x64','WoWC',0x36FBCBD0CC7A8E88AAAF9BD3CF14FC81),
+(61609,'Win','A64','WoW',0x21493F8D8C078FDA669E42AEA8724351),
+(61609,'Win','x64','WoW',0x9F18C02CC5868A925CDD4201A8D7F9DA),
+(61609,'Win','x64','WoWC',0x15F4CA6C215113B4B47EC3AB65C65419);
 /*!40000 ALTER TABLE `build_auth_key` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1500,7 +1570,10 @@ INSERT INTO `build_info` VALUES
 (60822,11,1,5,NULL),
 (61122,11,1,5,NULL),
 (61188,11,1,5,NULL),
-(61265,11,1,5,NULL);
+(61265,11,1,5,NULL),
+(61491,11,1,7,NULL),
+(61559,11,1,7,NULL),
+(61609,11,1,7,NULL);
 /*!40000 ALTER TABLE `build_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3113,7 +3186,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint unsigned NOT NULL DEFAULT '0',
   `allowedSecurityLevel` tinyint unsigned NOT NULL DEFAULT '0',
   `population` float NOT NULL DEFAULT '0',
-  `gamebuild` int unsigned NOT NULL DEFAULT '61265',
+  `gamebuild` int unsigned NOT NULL DEFAULT '61609',
   `Region` tinyint unsigned NOT NULL DEFAULT '1',
   `Battlegroup` tinyint unsigned NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
@@ -3128,7 +3201,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` VALUES
-(1,'Trinity','127.0.0.1','127.0.0.1',NULL,NULL,'255.255.255.0',8085,0,0,1,0,0,61265,1,1);
+(1,'Trinity','127.0.0.1','127.0.0.1',NULL,NULL,'255.255.255.0',8085,0,0,1,0,0,61609,1,1);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3631,7 +3704,11 @@ INSERT INTO `updates` VALUES
 ('2025_05_31_00_auth.sql','5EF8B1EBE4CF99E5D1C02BD6141FB35EA19FED6C','ARCHIVED','2025-05-31 19:45:56',0),
 ('2025_06_03_00_auth.sql','2ADB0D37ED7223C2EA94497B0F7B7C0BF91A72B8','RELEASED','2025-06-03 01:11:51',0),
 ('2025_06_05_00_auth.sql','E40328A6899D04BCDB6A36337BD243837AF92205','RELEASED','2025-06-05 00:26:43',0),
-('2025_06_05_02_auth.sql','C2B67F688AC54CF6994F4709D0ECE692C968F346','RELEASED','2025-06-05 16:22:53',0);
+('2025_06_05_02_auth.sql','C2B67F688AC54CF6994F4709D0ECE692C968F346','RELEASED','2025-06-05 16:22:53',0),
+('2025_06_18_00_auth.sql','AB5F6069BD37C93050022700F1C4B814D9D139C1','RELEASED','2025-06-17 23:13:05',0),
+('2025_06_19_00_auth.sql','1C0ACAEEFC934F91F44C113E6CD9D7A40ED1C979','RELEASED','2025-06-18 22:51:15',0),
+('2025_06_25_00_auth.sql','27DC7FB423FFB3788082CCFC18D5432650B09FB3','RELEASED','2025-06-25 01:15:04',0),
+('2025_06_27_00_auth.sql','243C89DFED0058323EF9690D124C1F20036D461B','RELEASED','2025-06-27 14:22:49',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
