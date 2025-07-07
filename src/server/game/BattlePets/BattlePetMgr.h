@@ -167,7 +167,7 @@ public:
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
     void ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName);
-    bool IsPetInSlot(ObjectGuid guid);
+    bool IsPetInSlot(ObjectGuid guid) const;
 
     uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;

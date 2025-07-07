@@ -42,7 +42,7 @@ namespace Movement
         Catmullrom          = 0x00000800,           // Used Catmullrom interpolation mode
         Cyclic              = 0x00001000,           // Movement by cycled spline
         Enter_Cycle         = 0x00002000,           // Everytimes appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done
-        Frozen              = 0x00004000,           // Will never arrive
+        Turning             = 0x00004000,           // Turns in place
         TransportEnter      = 0x00008000,
         TransportExit       = 0x00010000,
         Unknown_0x20000     = 0x00020000,           // NOT VERIFIED
@@ -65,7 +65,7 @@ namespace Movement
         // flags that shouldn't be appended into SMSG_MONSTER_MOVE\SMSG_MONSTER_MOVE_TRANSPORT packet, should be more probably
         Mask_No_Monster_Move = Done, // SKIP
         // Unused, not suported flags
-        Mask_Unused         = No_Spline | Frozen | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
+        Mask_Unused         = No_Spline | Unknown_0x100 | Unknown_0x20000 | Unknown_0x40000
                             | Unknown_0x800000 | FadeObject | UnlimitedSpeed | Unknown_0x40000000 | Unknown_0x80000000 // SKIP
     };
 
@@ -142,7 +142,7 @@ namespace Movement
         MAKE_FLAG_ACCESSOR_FIELD(Catmullrom);
         MAKE_FLAG_ACCESSOR_FIELD(Cyclic);
         MAKE_FLAG_ACCESSOR_FIELD(Enter_Cycle);
-        MAKE_FLAG_ACCESSOR_FIELD(Frozen);
+        MAKE_FLAG_ACCESSOR_FIELD(Turning);
         MAKE_FLAG_ACCESSOR_FIELD(TransportEnter);
         MAKE_FLAG_ACCESSOR_FIELD(TransportExit);
         MAKE_FLAG_ACCESSOR_FIELD(Unknown_0x20000);

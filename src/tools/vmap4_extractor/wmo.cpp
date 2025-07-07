@@ -262,7 +262,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             else
                 groupLiquid = GetLiquidTypeId(groupLiquid + 1);
 
-            if (groupLiquid)
+            if (groupLiquid && !IsLiquidIgnored(groupLiquid))
                 liquflags |= 2;
         }
         else if (!strcmp(fourcc,"MOPY"))
@@ -329,7 +329,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             // Determine legacy liquid type
             if (!groupLiquid)
             {
-                for (int i = 0; i < hlq->xtiles * hlq->ytiles; ++i)
+                for (int i = 0; i < nLiquBytes; ++i)
                 {
                     if ((LiquBytes[i] & 0xF) != 15)
                     {
@@ -338,6 +338,9 @@ bool WMOGroup::open(WMORoot* rootWMO)
                     }
                 }
             }
+
+            if (IsLiquidIgnored(groupLiquid))
+                liquflags = 0;
 
             /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
             llog << filename;

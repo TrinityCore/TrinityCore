@@ -24,7 +24,6 @@
 #include "ItemDefines.h"
 #include "ItemEnchantmentMgr.h"
 #include "ItemTemplate.h"
-#include "IteratorPair.h"
 
 class SpellInfo;
 class Bag;
@@ -37,13 +36,6 @@ namespace WorldPackets
         struct ItemInstance;
     }
 }
-
-struct ItemSetEffect
-{
-    uint32 ItemSetID;
-    std::unordered_set<Item const*> EquippedItems;
-    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
-};
 
 #define MAX_GEM_SOCKETS               MAX_ITEM_PROTO_SOCKETS// (BONUS_ENCHANTMENT_SLOT-SOCK_ENCHANTMENT_SLOT) and item proto size, equal value expected
 
@@ -211,10 +203,10 @@ class TC_GAME_API Item : public Object
         void RemoveItemFlag(ItemFieldFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
         void ReplaceAllItemFlags(ItemFieldFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags), flags); }
 
-        bool HasItemFlag2(ItemFieldFlags2 flag) const { return (*m_itemData->DynamicFlags2 & flag) != 0; }
-        void SetItemFlag2(ItemFieldFlags2 flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void RemoveItemFlag2(ItemFieldFlags2 flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
-        void ReplaceAllItemFlags2(ItemFieldFlags2 flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::DynamicFlags2), flags); }
+        bool HasItemZoneFlag(ItemZoneFlags flag) const { return (*m_itemData->ZoneFlags & flag) != 0; }
+        void SetItemZoneFlag(ItemZoneFlags flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void RemoveItemZoneFlag(ItemZoneFlags flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
+        void ReplaceAllItemZoneFlags(ItemZoneFlags flags) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ZoneFlags), flags); }
 
         bool IsSoulBound() const { return HasItemFlag(ITEM_FIELD_FLAG_SOULBOUND); }
         bool IsBoundAccountWide() const { return GetTemplate()->HasFlag(ITEM_FLAG_IS_BOUND_TO_ACCOUNT); }
@@ -223,6 +215,7 @@ class TC_GAME_API Item : public Object
         bool IsBoundByEnchant() const;
         virtual void SaveToDB(CharacterDatabaseTransaction trans);
         virtual bool LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fields, uint32 entry);
+        void LoadAdditionalDataFromDB(Player const* owner, ItemAdditionalLoadInfo* addionalData);
         void LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers);  // must be called after LoadFromDB to have gems (relics) initialized
         void CheckArtifactRelicSlotUnlock(Player const* owner);
 
@@ -313,8 +306,8 @@ class TC_GAME_API Item : public Object
         void SetCreateTime(int64 createTime) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::CreateTime), createTime); }
 
         // spell charges (signed but stored as unsigned)
-        int32 GetSpellCharges(uint8 index/*0..5*/ = 0) const { return m_itemData->SpellCharges[index]; }
-        void SetSpellCharges(uint8 index/*0..5*/, int32 value) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, index), value); }
+        int32 GetSpellCharges(ItemEffectEntry const* effect = nullptr) const;
+        void SetSpellCharges(ItemEffectEntry const* effect, int32 value);
 
         std::unique_ptr<Loot> m_loot;
         bool m_lootGenerated;
@@ -335,7 +328,6 @@ class TC_GAME_API Item : public Object
         bool IsPotion() const { return GetTemplate()->IsPotion(); }
         bool IsVellum() const { return GetTemplate()->IsVellum(); }
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
-        bool IsRangedWeapon() const { return GetTemplate()->IsRangedWeapon(); }
         uint32 GetQuality() const { return _bonusData.Quality; }
         uint32 GetItemLevel(Player const* owner) const;
         static uint32 GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bonusData, uint32 level, uint32 fixedLevel,
@@ -343,7 +335,7 @@ class TC_GAME_API Item : public Object
         int32 GetRequiredLevel() const;
         int32 GetItemStatType(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return _bonusData.ItemStatType[index]; }
         float GetItemStatValue(uint32 index, Player const* owner) const;
-        SocketColor GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return SocketColor(_bonusData.SocketColor[index]); }
+        uint32 GetSocketColor(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_SOCKETS); return _bonusData.SocketColor[index]; }
         uint32 GetAppearanceModId() const { return m_itemData->ItemAppearanceModID; }
         void SetAppearanceModId(uint32 appearanceModId) { SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ItemAppearanceModID), appearanceModId); }
         uint32 GetDisplayId(Player const* owner) const;
@@ -354,7 +346,7 @@ class TC_GAME_API Item : public Object
         Optional<uint16> GetDisenchantSkillRequired() const;
         static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
-        Trinity::IteratorPair<ItemEffectEntry const* const*> GetEffects() const { return { std::make_pair(_bonusData.Effects.data(), _bonusData.Effects.data() + _bonusData.EffectCount) }; }
+        std::span<ItemEffectEntry const* const> GetEffects() const { return { _bonusData.Effects.data(), _bonusData.EffectCount }; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
@@ -466,7 +458,8 @@ class TC_GAME_API Item : public Object
         GuidSet allowedGUIDs;
         ItemRandomBonusListId m_randomBonusListId;          // store separately to easily find which bonus list is the one randomly given for stat rerolling
         ObjectGuid m_childItem;
-        std::unordered_map<uint32, uint16> m_artifactPowerIdToIndex;
         std::array<uint32, MAX_ITEM_PROTO_SOCKETS> m_gemScalingLevels;
+
+        int32 GetArtifactPowerIndex(uint32 artifactPowerId) const;
 };
 #endif

@@ -260,7 +260,7 @@ int main(int argc, char** argv)
     // Enabled a timed callback for handling the database keep alive ping
     int32 dbPingInterval = sConfigMgr->GetIntDefault("MaxPingTime", 30);
     std::shared_ptr<Trinity::Asio::DeadlineTimer> dbPingTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
-    dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
+    dbPingTimer->expires_after(std::chrono::minutes(dbPingInterval));
     dbPingTimer->async_wait([timerRef = std::weak_ptr(dbPingTimer), dbPingInterval](boost::system::error_code const& error) mutable
     {
         KeepDatabaseAliveHandler(std::move(timerRef), dbPingInterval, error);
@@ -268,7 +268,7 @@ int main(int argc, char** argv)
 
     int32 banExpiryCheckInterval = sConfigMgr->GetIntDefault("BanExpiryCheckInterval", 60);
     std::shared_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheckTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
-    banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
+    banExpiryCheckTimer->expires_after(std::chrono::seconds(banExpiryCheckInterval));
     banExpiryCheckTimer->async_wait([timerRef = std::weak_ptr(banExpiryCheckTimer), banExpiryCheckInterval](boost::system::error_code const& error) mutable
     {
         BanExpiryHandler(std::move(timerRef), banExpiryCheckInterval, error);
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
     if (m_ServiceStatus != -1)
     {
         serviceStatusWatchTimer = std::make_shared<Trinity::Asio::DeadlineTimer>(*ioContext);
-        serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+        serviceStatusWatchTimer->expires_after(1s);
         serviceStatusWatchTimer->async_wait([timerRef = std::weak_ptr(serviceStatusWatchTimer), ioContextRef = std::weak_ptr(ioContext)](boost::system::error_code const& error) mutable
         {
             ServiceStatusWatcher(std::move(timerRef), std::move(ioContextRef), error);
@@ -341,7 +341,7 @@ void KeepDatabaseAliveHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> dbPing
             TC_LOG_INFO("server.bnetserver", "Ping MySQL to keep connection alive");
             LoginDatabase.KeepAlive();
 
-            dbPingTimer->expires_from_now(boost::posix_time::minutes(dbPingInterval));
+            dbPingTimer->expires_after(std::chrono::minutes(dbPingInterval));
             dbPingTimer->async_wait([timerRef = std::move(dbPingTimerRef), dbPingInterval](boost::system::error_code const& error) mutable
             {
                 KeepDatabaseAliveHandler(std::move(timerRef), dbPingInterval, error);
@@ -360,7 +360,7 @@ void BanExpiryHandler(std::weak_ptr<Trinity::Asio::DeadlineTimer> banExpiryCheck
             LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
             LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_EXPIRED_ACCOUNT_BANNED));
 
-            banExpiryCheckTimer->expires_from_now(boost::posix_time::seconds(banExpiryCheckInterval));
+            banExpiryCheckTimer->expires_after(std::chrono::seconds(banExpiryCheckInterval));
             banExpiryCheckTimer->async_wait([timerRef = std::move(banExpiryCheckTimerRef), banExpiryCheckInterval](boost::system::error_code const& error) mutable
             {
                 BanExpiryHandler(std::move(timerRef), banExpiryCheckInterval, error);
@@ -382,7 +382,7 @@ void ServiceStatusWatcher(std::weak_ptr<Trinity::Asio::DeadlineTimer> serviceSta
             }
             else if (std::shared_ptr<Trinity::Asio::DeadlineTimer> serviceStatusWatchTimer = serviceStatusWatchTimerRef.lock())
             {
-                serviceStatusWatchTimer->expires_from_now(boost::posix_time::seconds(1));
+                serviceStatusWatchTimer->expires_after(1s);
                 serviceStatusWatchTimer->async_wait([timerRef = std::move(serviceStatusWatchTimerRef), ioContextRef = std::move(ioContextRef)](boost::system::error_code const& error) mutable
                 {
                     ServiceStatusWatcher(std::move(timerRef), std::move(ioContextRef), error);

@@ -712,7 +712,7 @@ struct TRootHandler_TVFS : public TFileTreeRoot
         FileTree.SetKeyLength(RootHeader.EKeySize);
 
         // Initialize the array of span entries
-        dwErrCode = SpanArray.Create(sizeof(CASC_CKEY_ENTRY), 0x100);
+        dwErrCode = SpanArray.Create(sizeof(CASC_CKEY_ENTRY), 0x10000);
         if(dwErrCode != ERROR_SUCCESS)
             return dwErrCode;
 

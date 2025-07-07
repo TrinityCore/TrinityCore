@@ -23,9 +23,11 @@
 class TC_COMMON_API WorldPacketCrypt
 {
 public:
+    using Key = std::array<uint8, 32>;
+
     WorldPacketCrypt();
 
-    void Init(Trinity::Crypto::AES::Key const& key);
+    void Init(Key const& key);
     bool PeekDecryptRecv(uint8* data, size_t length);
     bool DecryptRecv(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag);
     bool EncryptSend(uint8* data, size_t length, Trinity::Crypto::AES::Tag& tag);

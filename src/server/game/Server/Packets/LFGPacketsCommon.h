@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LFGPacketsCommon_h__
-#define LFGPacketsCommon_h__
+#ifndef TRINITYCORE_LFG_PACKETS_COMMON_H
+#define TRINITYCORE_LFG_PACKETS_COMMON_H
 
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
@@ -40,10 +40,10 @@ namespace WorldPackets
             Timestamp<> Time;
             bool IsCrossFaction = false;
         };
+
+        ByteBuffer& operator>>(ByteBuffer& data, RideTicket& ticket);
+        ByteBuffer& operator<<(ByteBuffer& data, RideTicket const& ticket);
     }
 }
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::LFG::RideTicket& ticket);
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::LFG::RideTicket const& ticket);
-
-#endif // LFGPacketsCommon_h__
+#endif // TRINITYCORE_LFG_PACKETS_COMMON_H

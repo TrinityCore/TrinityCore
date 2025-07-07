@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LOCKEDQUEUE_H
-#define LOCKEDQUEUE_H
+#ifndef TRINITYCORE_LOCKED_QUEUE_H
+#define TRINITYCORE_LOCKED_QUEUE_H
 
+#include "Concepts.h"
 #include <deque>
 #include <mutex>
 
-template <class T, typename StorageType = std::deque<T> >
+template <class T, typename StorageType = std::deque<T>>
 class LockedQueue
 {
     //! Lock access to the queue.
@@ -31,33 +32,26 @@ class LockedQueue
     StorageType _queue;
 
     //! Cancellation flag.
-    volatile bool _canceled;
+    bool _canceled = false;
 
 public:
 
-    //! Create a LockedQueue.
-    LockedQueue()
-        : _canceled(false)
+    //! Adds an item to the queue.
+    void add(T const& item)
     {
-    }
-
-    //! Destroy a LockedQueue.
-    virtual ~LockedQueue()
-    {
+        std::lock_guard<std::mutex> lock(_lock);
+        _queue.push_back(item);
     }
 
     //! Adds an item to the queue.
-    void add(const T& item)
+    void add(T&& item)
     {
-        lock();
-
-        _queue.push_back(item);
-
-        unlock();
+        std::lock_guard<std::mutex> lock(_lock);
+        _queue.push_back(std::move(item));
     }
 
     //! Adds items back to front of the queue
-    template<class Iterator>
+    template<std::input_iterator Iterator>
     void readd(Iterator begin, Iterator end)
     {
         std::lock_guard<std::mutex> lock(_lock);
@@ -68,13 +62,11 @@ public:
     bool next(T& result)
     {
         std::lock_guard<std::mutex> lock(_lock);
-
         if (_queue.empty())
             return false;
 
-        result = _queue.front();
+        result = std::move(_queue.front());
         _queue.pop_front();
-
         return true;
     }
 
@@ -82,36 +74,21 @@ public:
     bool next(T& result, Checker& check)
     {
         std::lock_guard<std::mutex> lock(_lock);
-
         if (_queue.empty())
             return false;
 
-        result = _queue.front();
-        if (!check.Process(result))
+        if (!check.Process(_queue.front()))
             return false;
 
+        result = std::move(_queue.front());
         _queue.pop_front();
         return true;
-    }
-
-    //! Peeks at the top of the queue. Check if the queue is empty before calling! Remember to unlock after use if autoUnlock == false.
-    T& peek(bool autoUnlock = false)
-    {
-        lock();
-
-        T& result = _queue.front();
-
-        if (autoUnlock)
-            unlock();
-
-        return result;
     }
 
     //! Cancels the queue.
     void cancel()
     {
         std::lock_guard<std::mutex> lock(_lock);
-
         _canceled = true;
     }
 
@@ -120,18 +97,6 @@ public:
     {
         std::lock_guard<std::mutex> lock(_lock);
         return _canceled;
-    }
-
-    //! Locks the queue for access.
-    void lock()
-    {
-        this->_lock.lock();
-    }
-
-    //! Unlocks the queue.
-    void unlock()
-    {
-        this->_lock.unlock();
     }
 
     ///! Calls pop_front of the queue

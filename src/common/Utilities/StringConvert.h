@@ -22,11 +22,12 @@
 #include "Errors.h"
 #include "Optional.h"
 #include "Types.h"
-#include "Util.h"
 #include <charconv>
 #include <string>
 #include <string_view>
 #include <type_traits>
+
+TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 
 namespace Trinity::Impl::StringConvertImpl
 {

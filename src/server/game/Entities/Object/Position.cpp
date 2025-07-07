@@ -19,9 +19,9 @@
 #include "ByteBuffer.h"
 #include "DB2Stores.h"
 #include "GridDefines.h"
+#include "StringFormat.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
-#include <sstream>
 
 bool Position::operator==(Position const& a) const
 {
@@ -198,9 +198,7 @@ bool Position::HasInLine(Position const* pos, float objSize, float width) const
 
 std::string Position::ToString() const
 {
-    std::stringstream sstr;
-    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
-    return sstr.str();
+    return Trinity::StringFormat("X: {} Y: {} Z: {} O: {}", m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
 float Position::NormalizeOrientation(float o)
@@ -208,73 +206,72 @@ float Position::NormalizeOrientation(float o)
     // fmod only supports positive numbers. Thus we have
     // to emulate negative numbers
     if (o < 0)
-    {
-        float mod = o *-1;
-        mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
-        mod = -mod + 2.0f * static_cast<float>(M_PI);
-        return mod;
-    }
+        return -std::fmod(-o, 2.0f * static_cast<float>(M_PI)) + 2.0f * static_cast<float>(M_PI);
+
     return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XY> const& streamer)
 {
-    float x, y;
-    buf >> x >> y;
-    streamer.Pos->Relocate(x, y);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZ> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZ> const& streamer)
 {
-    float x, y, z;
-    buf >> x >> y >> z;
-    streamer.Pos->Relocate(x, y, z);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
-    buf << streamer.Pos->GetOrientation();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
+    buf << float(streamer.Pos->GetOrientation());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer)
 {
-    float x, y, z, o;
-    buf >> x >> y >> z >> o;
-    streamer.Pos->Relocate(x, y, z, o);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
+    streamer.Pos->SetOrientation(buf.read<float>());
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer)
 {
-    buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
+    int32 packed = 0;
+    packed |= (int32(streamer.Pos->GetPositionX() / 0.25f) & 0x7FF);
+    packed |= (int32(streamer.Pos->GetPositionY() / 0.25f) & 0x7FF) << 11;
+    packed |= (int32(streamer.Pos->GetPositionZ() / 0.25f) & 0x3FF) << 22;
+    buf << int32(packed);
     return buf;
 }
 
 std::string WorldLocation::GetDebugInfo() const
 {
-    std::stringstream sstr;
     MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
-    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
-    return sstr.str();
+    return Trinity::StringFormat("MapID: {} Map name: '{}' {}",
+        m_mapId, mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>", Position::ToString());
 }

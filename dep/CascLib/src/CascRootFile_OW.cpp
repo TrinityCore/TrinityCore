@@ -34,7 +34,7 @@ typedef struct _APM_HEADER_V3
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V3, * PAPM_HEADER_V3;
+} APM_HEADER_V3, *PAPM_HEADER_V3;
 
 typedef struct _APM_HEADER_V2
 {
@@ -48,7 +48,7 @@ typedef struct _APM_HEADER_V2
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V2, * PAPM_HEADER_V2;
+} APM_HEADER_V2, *PAPM_HEADER_V2;
 
 typedef struct _APM_HEADER_V1
 {
@@ -61,7 +61,7 @@ typedef struct _APM_HEADER_V1
     // Followed by the array of APM_ENTRY (count is in "EntryCount")
     // Followed by the array of APM_PACKAGE (count is in "PackageCount")
 
-} APM_HEADER_V1, * PAPM_HEADER_V1;
+} APM_HEADER_V1, *PAPM_HEADER_V1;
 
 // On-disk format, size = 0x0C
 typedef struct _APM_ENTRY_V1
@@ -69,7 +69,7 @@ typedef struct _APM_ENTRY_V1
     DWORD     Index;
     DWORD     HashA_Lo;                     // Must split the hashes in order to make this structure properly aligned
     DWORD     HashA_Hi;
-} APM_ENTRY_V1, * PAPM_ENTRY_V1;
+} APM_ENTRY_V1, *PAPM_ENTRY_V1;
 
 // On-disk format, size = 0x14
 typedef struct _APM_ENTRY_V2
@@ -91,7 +91,7 @@ typedef struct _APM_PACKAGE_ENTRY_V1
     ULONGLONG PackageGUID;                  // 077 file
     ULONGLONG Unknown1;
     DWORD Unknown2;
-} APM_PACKAGE_ENTRY_V1, * PAPM_PACKAGE_ENTRY_V1;
+} APM_PACKAGE_ENTRY_V1, *PAPM_PACKAGE_ENTRY_V1;
 
 // On-disk format
 typedef struct _APM_PACKAGE_ENTRY_V2

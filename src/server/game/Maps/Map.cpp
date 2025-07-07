@@ -21,7 +21,6 @@
 #include "BattlegroundScript.h"
 #include "CellImpl.h"
 #include "CharacterPackets.h"
-#include "Containers.h"
 #include "Conversation.h"
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
@@ -38,6 +37,7 @@
 #include "InstanceScript.h"
 #include "Log.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
@@ -171,8 +171,8 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
 void Map::InitVisibilityDistance()
 {
     //init visibility for continents
-    m_VisibleDistance = World::GetMaxVisibleDistanceOnContinents();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_CONTINENT);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_CONTINENT);
 }
 
 // Template specialization of utility methods
@@ -180,52 +180,21 @@ template<class T>
 void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
-}
+    if constexpr (WorldTypeMapContainer::TypeExists<T> && GridTypeMapContainer::TypeExists<T>)
+    {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
+        if (obj->IsStoredInWorldObjectGridContainer())
+            cellType.AddWorldObject<T>(obj);
+        else
+            cellType.AddGridObject<T>(obj);
+    }
+    else if constexpr (WorldTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject<T>(obj);
+    else if constexpr (GridTypeMapContainer::TypeExists<T>)
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject<T>(obj);
 
-template<>
-void Map::AddToGrid(Creature* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(GameObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(DynamicObject* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->IsStoredInWorldObjectGridContainer())
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
-}
-
-template<>
-void Map::AddToGrid(AreaTrigger* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
-
-    obj->SetCurrentCell(cell);
+    if constexpr (std::is_base_of_v<MapObject, T>)
+        obj->SetCurrentCell(cell);
 }
 
 template<>
@@ -240,10 +209,11 @@ void Map::AddToGrid(Corpse* obj, Cell const& cell)
     // to avoid failing an assertion in GridObject::AddToGrid
     if (grid->isGridObjectDataLoaded())
     {
+        NGridType::GridType& cellType = grid->GetGridType(cell.CellX(), cell.CellY());
         if (obj->IsStoredInWorldObjectGridContainer())
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
+            cellType.AddWorldObject(obj);
         else
-            grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
+            cellType.AddGridObject(obj);
     }
 }
 
@@ -1607,7 +1577,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
         if (!unloadAll)
         {
             //pets, possessed creatures (must be active), transport passengers
-            if (ngrid.GetWorldObjectCountInNGrid<Creature>())
+            if (ngrid.HasWorldObjectsInNGrid<Creature>())
                 return false;
 
             if (ActiveObjectsNearGrid(ngrid))
@@ -1883,6 +1853,9 @@ void Map::SendInitSelf(Player* player)
     WorldPacket packet;
     data.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
+
+    // client will respond to SMSG_UPDATE_OBJECT that contains ThisIsYou = true with CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE
+    player->GetSession()->RegisterTimeSync(WorldSession::SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER);
 }
 
 void Map::SendInitTransports(Player* player)
@@ -2548,11 +2521,7 @@ void Map::UpdateSpawnGroupConditions()
 
 ObjectGuidGenerator& Map::GetGuidSequenceGenerator(HighGuid high)
 {
-    auto itr = _guidGenerators.find(high);
-    if (itr == _guidGenerators.end())
-        itr = _guidGenerators.insert(std::make_pair(high, std::make_unique<ObjectGuidGenerator>(high))).first;
-
-    return *itr->second;
+    return _guidGenerators.try_emplace(high, high).first->second;
 }
 
 void Map::AddFarSpellCallback(FarSpellCallback&& callback)
@@ -2871,8 +2840,8 @@ InstanceMap::~InstanceMap()
 void InstanceMap::InitVisibilityDistance()
 {
     //init visibility distance for instances
-    m_VisibleDistance = World::GetMaxVisibleDistanceInInstances();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInInstances();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE);
 }
 
 /*
@@ -3416,8 +3385,8 @@ BattlegroundMap::~BattlegroundMap()
 void BattlegroundMap::InitVisibilityDistance()
 {
     //init visibility distance for BG/Arenas
-    m_VisibleDistance        = IsBattleArena() ? World::GetMaxVisibleDistanceInArenas() : World::GetMaxVisibleDistanceInBG();
-    m_VisibilityNotifyPeriod = IsBattleArena() ? World::GetVisibilityNotifyPeriodInArenas() : World::GetVisibilityNotifyPeriodInBG();
+    m_VisibleDistance        = sWorld->getFloatConfig(IsBattleArena() ? CONFIG_MAX_VISIBILITY_DISTANCE_ARENA : CONFIG_MAX_VISIBILITY_DISTANCE_BATTLEGROUND);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(IsBattleArena() ? CONFIG_VISIBILITY_NOTIFY_PERIOD_ARENA : CONFIG_VISIBILITY_NOTIFY_PERIOD_BATTLEGROUND);
 }
 
 std::string const& BattlegroundMap::GetScriptName() const
@@ -3446,8 +3415,6 @@ void BattlegroundMap::InitScriptData()
         else
             _battlegroundScript = std::make_unique<BattlegroundScript>(this);
     }
-
-    _battlegroundScript->OnInit();
 }
 
 TransferAbortParams BattlegroundMap::CannotEnter(Player* player)
@@ -4094,4 +4061,4 @@ std::string InstanceMap::GetDebugInfo() const
     return sstr.str();
 }
 
-template class TC_GAME_API TypeUnorderedMapContainer<AllMapStoredObjectTypes, ObjectGuid>;
+template struct TC_GAME_API TypeListContainer<MapStoredObjectsUnorderedMap, Creature, GameObject, DynamicObject, Pet, Corpse, AreaTrigger, SceneObject, Conversation>;

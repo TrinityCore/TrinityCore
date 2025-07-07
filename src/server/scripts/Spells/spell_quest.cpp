@@ -22,9 +22,7 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
 #include "CreatureAIImpl.h"
-#include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -724,15 +722,13 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScript
     {
         Unit* caster = GetCaster();
         // Check for player that is in 65 y range
-        std::list<Player*> playerList;
-        Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
-        Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
-        Cell::VisitWorldObjects(caster, searcher, 65.0f);
-        for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
+        std::vector<Player*> playerList;
+        caster->GetPlayerListInGrid(playerList, 65.0f);
+        for (Player* player : playerList)
             // Check if found player target is on fly mount or using flying form
-            if ((*itr)->HasAuraType(SPELL_AURA_FLY) || (*itr)->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+            if (player->HasAuraType(SPELL_AURA_FLY) || player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
                 // Summom Fel Cannon (bunny version) at found player
-                caster->SummonCreature(NPC_FEL_CANNON2, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ());
+                caster->SummonCreature(NPC_FEL_CANNON2, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
     }
 
     void Register() override

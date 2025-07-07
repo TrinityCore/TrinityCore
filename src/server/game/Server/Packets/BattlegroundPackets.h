@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BattlegroundPackets_h__
-#define BattlegroundPackets_h__
+#ifndef TRINITYCORE_BATTLEGROUND_PACKETS_H
+#define TRINITYCORE_BATTLEGROUND_PACKETS_H
 
 #include "Packet.h"
 #include "LFGPacketsCommon.h"
@@ -33,7 +33,7 @@ namespace WorldPackets
         class SeasonInfo final : public ServerPacket
         {
         public:
-            SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 4 + 1) { }
+            explicit SeasonInfo() : ServerPacket(SMSG_SEASON_INFO, 4 + 4 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -52,7 +52,7 @@ namespace WorldPackets
         class AreaSpiritHealerQuery final : public ClientPacket
         {
         public:
-            AreaSpiritHealerQuery(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUERY, std::move(packet)) { }
+            explicit AreaSpiritHealerQuery(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUERY, std::move(packet)) { }
 
             void Read() override;
 
@@ -62,7 +62,7 @@ namespace WorldPackets
         class AreaSpiritHealerQueue final : public ClientPacket
         {
         public:
-            AreaSpiritHealerQueue(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUEUE, std::move(packet)) { }
+            explicit AreaSpiritHealerQueue(WorldPacket&& packet) : ClientPacket(CMSG_AREA_SPIRIT_HEALER_QUEUE, std::move(packet)) { }
 
             void Read() override;
 
@@ -72,7 +72,7 @@ namespace WorldPackets
         class AreaSpiritHealerTime final : public ServerPacket
         {
         public:
-            AreaSpiritHealerTime() : ServerPacket(SMSG_AREA_SPIRIT_HEALER_TIME, 14 + 4) { }
+            explicit AreaSpiritHealerTime() : ServerPacket(SMSG_AREA_SPIRIT_HEALER_TIME, 14 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -83,7 +83,7 @@ namespace WorldPackets
         class HearthAndResurrect final : public ClientPacket
         {
         public:
-            HearthAndResurrect(WorldPacket&& packet) : ClientPacket(CMSG_HEARTH_AND_RESURRECT, std::move(packet)) { }
+            explicit HearthAndResurrect(WorldPacket&& packet) : ClientPacket(CMSG_HEARTH_AND_RESURRECT, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -91,7 +91,7 @@ namespace WorldPackets
         class PVPLogDataRequest final : public ClientPacket
         {
         public:
-            PVPLogDataRequest(WorldPacket&& packet) : ClientPacket(CMSG_PVP_LOG_DATA, std::move(packet)) { }
+            explicit PVPLogDataRequest(WorldPacket&& packet) : ClientPacket(CMSG_PVP_LOG_DATA, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -129,7 +129,7 @@ namespace WorldPackets
             {
                 ObjectGuid PlayerGUID;
                 uint32 Kills = 0;
-                uint8 Faction = 0;
+                int32 Faction = 0;
                 bool IsInWorld = false;
                 Optional<HonorData> Honor;
                 uint32 DamageDone = 0;
@@ -142,8 +142,8 @@ namespace WorldPackets
                 std::vector<PVPMatchPlayerPVPStat> Stats;
                 int32 PrimaryTalentTree = 0;
                 int8 Sex = 0;
-                int32 Race = 0;
-                int32 Class = 0;
+                int8 Race = 0;
+                int8 Class = 0;
                 int32 CreatureID = 0;
                 int32 HonorLevel = 0;
                 int32 Role = 0;
@@ -157,7 +157,7 @@ namespace WorldPackets
         class PVPMatchStatisticsMessage final : public ServerPacket
         {
         public:
-            PVPMatchStatisticsMessage() : ServerPacket(SMSG_PVP_MATCH_STATISTICS, 0) { }
+            explicit PVPMatchStatisticsMessage() : ServerPacket(SMSG_PVP_MATCH_STATISTICS, 0) { }
 
             WorldPacket const* Write() override;
 
@@ -179,7 +179,7 @@ namespace WorldPackets
         class BattlefieldStatusNone final : public ServerPacket
         {
         public:
-            BattlefieldStatusNone() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NONE, 16 + 4 + 4 + 4) { }
+            explicit BattlefieldStatusNone() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NONE, 16 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -189,7 +189,7 @@ namespace WorldPackets
         class BattlefieldStatusNeedConfirmation final : public ServerPacket
         {
         public:
-            BattlefieldStatusNeedConfirmation() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 4 + 4 + sizeof(BattlefieldStatusHeader) + 1) { }
+            explicit BattlefieldStatusNeedConfirmation() : ServerPacket(SMSG_BATTLEFIELD_STATUS_NEED_CONFIRMATION, 4 + 4 + sizeof(BattlefieldStatusHeader) + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -202,14 +202,15 @@ namespace WorldPackets
         class BattlefieldStatusActive final : public ServerPacket
         {
         public:
-            BattlefieldStatusActive() : ServerPacket(SMSG_BATTLEFIELD_STATUS_ACTIVE, sizeof(BattlefieldStatusHeader) + 4 + 1 + 1 + 4 + 4) { }
+            explicit BattlefieldStatusActive() : ServerPacket(SMSG_BATTLEFIELD_STATUS_ACTIVE, sizeof(BattlefieldStatusHeader) + 4 + 1 + 1 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
             BattlefieldStatusHeader Hdr;
             uint32 ShutdownTimer = 0;
-            uint8 ArenaFaction = 0;
+            int8 ArenaFaction = 0;
             bool LeftEarly = false;
+            bool Brawl = false;
             uint32 StartTimer = 0;
             uint32 Mapid = 0;
         };
@@ -217,7 +218,7 @@ namespace WorldPackets
         class BattlefieldStatusQueued final : public ServerPacket
         {
         public:
-            BattlefieldStatusQueued() : ServerPacket(SMSG_BATTLEFIELD_STATUS_QUEUED, 4 + sizeof(BattlefieldStatusHeader) + 1 + 1 + 1 + 4) { }
+            explicit BattlefieldStatusQueued() : ServerPacket(SMSG_BATTLEFIELD_STATUS_QUEUED, 4 + sizeof(BattlefieldStatusHeader) + 1 + 1 + 1 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -233,7 +234,7 @@ namespace WorldPackets
         class BattlefieldStatusFailed final : public ServerPacket
         {
         public:
-            BattlefieldStatusFailed() : ServerPacket(SMSG_BATTLEFIELD_STATUS_FAILED, 8 + 16 + 4 + 16 + 4 + 4 + 4) { }
+            explicit BattlefieldStatusFailed() : ServerPacket(SMSG_BATTLEFIELD_STATUS_FAILED, 8 + 16 + 4 + 16 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -246,19 +247,19 @@ namespace WorldPackets
         class BattlemasterJoin final : public ClientPacket
         {
         public:
-            BattlemasterJoin(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN, std::move(packet)) { }
+            explicit BattlemasterJoin(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN, std::move(packet)) { }
 
             void Read() override;
 
             Array<uint64, 1> QueueIDs;
             uint8 Roles = 0;
-            int32 BlacklistMap[2] = { };
+            std::array<int32, 2> BlacklistMap = { };
         };
 
         class BattlemasterJoinArena final : public ClientPacket
         {
         public:
-            BattlemasterJoinArena(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_ARENA, std::move(packet)) { }
+            explicit BattlemasterJoinArena(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEMASTER_JOIN_ARENA, std::move(packet)) { }
 
             void Read() override;
 
@@ -269,7 +270,7 @@ namespace WorldPackets
         class BattlefieldLeave final : public ClientPacket
         {
         public:
-            BattlefieldLeave(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LEAVE, std::move(packet)) { }
+            explicit BattlefieldLeave(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LEAVE, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -277,7 +278,7 @@ namespace WorldPackets
         class BattlefieldPort final : public ClientPacket
         {
         public:
-            BattlefieldPort(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_PORT, std::move(packet)) { }
+            explicit BattlefieldPort(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_PORT, std::move(packet)) { }
 
             void Read() override;
 
@@ -288,7 +289,7 @@ namespace WorldPackets
         class BattlefieldListRequest final : public ClientPacket
         {
         public:
-            BattlefieldListRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LIST, std::move(packet)) { }
+            explicit BattlefieldListRequest(WorldPacket&& packet) : ClientPacket(CMSG_BATTLEFIELD_LIST, std::move(packet)) { }
 
             void Read() override;
 
@@ -298,7 +299,7 @@ namespace WorldPackets
         class BattlefieldList final : public ServerPacket
         {
         public:
-            BattlefieldList() : ServerPacket(SMSG_BATTLEFIELD_LIST, 1 + 1 + 16 + 1 + 1 + 1 + 4 + 1 + 4) { }
+            explicit BattlefieldList() : ServerPacket(SMSG_BATTLEFIELD_LIST, 1 + 1 + 16 + 1 + 1 + 1 + 4 + 1 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -314,7 +315,7 @@ namespace WorldPackets
         class GetPVPOptionsEnabled final : public ClientPacket
         {
         public:
-            GetPVPOptionsEnabled(WorldPacket&& packet) : ClientPacket(CMSG_GET_PVP_OPTIONS_ENABLED, std::move(packet)) { }
+            explicit GetPVPOptionsEnabled(WorldPacket&& packet) : ClientPacket(CMSG_GET_PVP_OPTIONS_ENABLED, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -322,7 +323,7 @@ namespace WorldPackets
         class PVPOptionsEnabled final : public ServerPacket
         {
         public:
-            PVPOptionsEnabled() : ServerPacket(SMSG_PVP_OPTIONS_ENABLED, 1) { }
+            explicit PVPOptionsEnabled() : ServerPacket(SMSG_PVP_OPTIONS_ENABLED, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -341,7 +342,7 @@ namespace WorldPackets
         class RequestBattlefieldStatus final : public ClientPacket
         {
         public:
-            RequestBattlefieldStatus(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_BATTLEFIELD_STATUS, std::move(packet)) { }
+            explicit RequestBattlefieldStatus(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_BATTLEFIELD_STATUS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -349,7 +350,7 @@ namespace WorldPackets
         class ReportPvPPlayerAFK final : public ClientPacket
         {
         public:
-            ReportPvPPlayerAFK(WorldPacket&& packet) : ClientPacket(CMSG_REPORT_PVP_PLAYER_AFK, std::move(packet)) { }
+            explicit ReportPvPPlayerAFK(WorldPacket&& packet) : ClientPacket(CMSG_REPORT_PVP_PLAYER_AFK, std::move(packet)) { }
 
             void Read() override;
 
@@ -359,7 +360,7 @@ namespace WorldPackets
         class ReportPvPPlayerAFKResult final : public ServerPacket
         {
         public:
-            ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 16 + 1 + 1 + 1) { }
+            explicit ReportPvPPlayerAFKResult() : ServerPacket(SMSG_REPORT_PVP_PLAYER_AFK_RESULT, 16 + 1 + 1 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -388,7 +389,7 @@ namespace WorldPackets
         class BattlegroundPlayerPositions final : public ServerPacket
         {
         public:
-            BattlegroundPlayerPositions() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_POSITIONS, 4) { }
+            explicit BattlegroundPlayerPositions() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_POSITIONS, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -398,7 +399,7 @@ namespace WorldPackets
         class BattlegroundPlayerJoined final : public ServerPacket
         {
         public:
-            BattlegroundPlayerJoined() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_JOINED, 16) { }
+            explicit BattlegroundPlayerJoined() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_JOINED, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -408,7 +409,7 @@ namespace WorldPackets
         class BattlegroundPlayerLeft final : public ServerPacket
         {
         public:
-            BattlegroundPlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 16) { }
+            explicit BattlegroundPlayerLeft() : ServerPacket(SMSG_BATTLEGROUND_PLAYER_LEFT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -418,7 +419,7 @@ namespace WorldPackets
         class DestroyArenaUnit final : public ServerPacket
         {
         public:
-            DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
+            explicit DestroyArenaUnit() : ServerPacket(SMSG_DESTROY_ARENA_UNIT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -428,7 +429,7 @@ namespace WorldPackets
         class RequestPVPRewards final : public ClientPacket
         {
         public:
-            RequestPVPRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PVP_REWARDS, std::move(packet)) { }
+            explicit RequestPVPRewards(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PVP_REWARDS, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -436,7 +437,7 @@ namespace WorldPackets
         class RequestRatedPvpInfo final : public ClientPacket
         {
         public:
-            RequestRatedPvpInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_PVP_INFO, std::move(packet)) { }
+            explicit RequestRatedPvpInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_RATED_PVP_INFO, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -444,7 +445,7 @@ namespace WorldPackets
         class RatedPvpInfo final : public ServerPacket
         {
         public:
-            RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 9 * sizeof(BracketInfo)) { }
+            explicit RatedPvpInfo() : ServerPacket(SMSG_RATED_PVP_INFO, 9 * sizeof(BracketInfo)) { }
 
             WorldPacket const* Write() override;
 
@@ -468,7 +469,7 @@ namespace WorldPackets
                 int32 PvpTierID = 0;
                 int32 SeasonPvpTier = 0;
                 int32 BestWeeklyPvpTier = 0;
-                int32 BestSeasonPvpTierEnum = 0;
+                uint8 BestSeasonPvpTierEnum = 0;
                 bool Disqualified = false;
             } Bracket[9];
         };
@@ -493,7 +494,7 @@ namespace WorldPackets
         class PVPMatchInitialize final : public ServerPacket
         {
         public:
-            PVPMatchInitialize() : ServerPacket(SMSG_PVP_MATCH_INITIALIZE, 4 + 1 + 4 + 4 + 1 + 4 + 1) { }
+            explicit PVPMatchInitialize() : ServerPacket(SMSG_PVP_MATCH_INITIALIZE, 4 + 1 + 4 + 4 + 1 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -521,7 +522,7 @@ namespace WorldPackets
         class PVPMatchComplete final : public ServerPacket
         {
         public:
-            PVPMatchComplete() : ServerPacket(SMSG_PVP_MATCH_COMPLETE) { }
+            explicit PVPMatchComplete() : ServerPacket(SMSG_PVP_MATCH_COMPLETE) { }
 
             WorldPacket const* Write() override;
 
@@ -552,7 +553,7 @@ namespace WorldPackets
         class UpdateCapturePoint final : public ServerPacket
         {
         public:
-            UpdateCapturePoint() : ServerPacket(SMSG_UPDATE_CAPTURE_POINT) { }
+            explicit UpdateCapturePoint() : ServerPacket(SMSG_UPDATE_CAPTURE_POINT) { }
 
             WorldPacket const* Write() override;
 
@@ -562,8 +563,8 @@ namespace WorldPackets
         class CapturePointRemoved final : public ServerPacket
         {
         public:
-            CapturePointRemoved() : ServerPacket(SMSG_CAPTURE_POINT_REMOVED) { }
-            CapturePointRemoved(ObjectGuid capturePointGUID) : ServerPacket(SMSG_CAPTURE_POINT_REMOVED), CapturePointGUID(capturePointGUID) { }
+            explicit CapturePointRemoved() : ServerPacket(SMSG_CAPTURE_POINT_REMOVED) { }
+            explicit CapturePointRemoved(ObjectGuid capturePointGUID) : ServerPacket(SMSG_CAPTURE_POINT_REMOVED), CapturePointGUID(capturePointGUID) { }
 
             WorldPacket const* Write() override;
 
@@ -572,4 +573,4 @@ namespace WorldPackets
     }
 }
 
-#endif // BattlegroundPackets_h__
+#endif // TRINITYCORE_BATTLEGROUND_PACKETS_H

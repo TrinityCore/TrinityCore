@@ -18,7 +18,9 @@
 #ifndef TRINITYCORE_STRING_FORMAT_H
 #define TRINITYCORE_STRING_FORMAT_H
 
+#include "Define.h"
 #include "Optional.h"
+#include "StringFormatFwd.h"
 #include <fmt/core.h>
 
 namespace Trinity
@@ -33,56 +35,34 @@ namespace Trinity
     template<typename... Args>
     constexpr auto MakeFormatArgs(Args&&... args) { return fmt::make_format_args(args...); }
 
+    namespace Impl
+    {
+        TC_COMMON_API std::string StringVFormat(FormatStringView fmt, FormatArgs args) noexcept;
+
+        TC_COMMON_API void StringVFormatToImpl(fmt::detail::buffer<char>& buffer, FormatStringView fmt, FormatArgs args) noexcept;
+    }
+
+    using Impl::StringVFormat;
+
+    template<typename OutputIt>
+    inline OutputIt StringVFormatTo(OutputIt out, FormatStringView fmt, FormatArgs args) noexcept
+    {
+        auto&& buf = fmt::detail::get_buffer<char>(out);
+        Trinity::Impl::StringVFormatToImpl(buf, fmt, args);
+        return fmt::detail::get_iterator(buf, out);
+    }
+
     /// Default TC string format function.
     template<typename... Args>
-    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args)
+    inline std::string StringFormat(FormatString<Args...> fmt, Args&&... args) noexcept
     {
-        try
-        {
-            return fmt::format(fmt, std::forward<Args>(args)...);
-        }
-        catch (std::exception const& formatError)
-        {
-            return fmt::format("An error occurred formatting string \"{}\" : {}", FormatStringView(fmt), formatError.what());
-        }
+        return Trinity::StringVFormat(fmt, Trinity::MakeFormatArgs(std::forward<Args>(args)...));
     }
 
     template<typename OutputIt, typename... Args>
-    inline OutputIt StringFormatTo(OutputIt out, FormatString<Args...> fmt, Args&&... args)
+    inline OutputIt StringFormatTo(OutputIt out, FormatString<Args...> fmt, Args&&... args) noexcept
     {
-        try
-        {
-            return fmt::format_to(out, fmt, std::forward<Args>(args)...);
-        }
-        catch (std::exception const& formatError)
-        {
-            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", FormatStringView(fmt), formatError.what());
-        }
-    }
-
-    inline std::string StringVFormat(FormatStringView fmt, FormatArgs args)
-    {
-        try
-        {
-            return fmt::vformat(fmt, args);
-        }
-        catch (std::exception const& formatError)
-        {
-            return fmt::format("An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
-        }
-    }
-
-    template<typename OutputIt>
-    inline OutputIt StringVFormatTo(OutputIt out, FormatStringView fmt, FormatArgs args)
-    {
-        try
-        {
-            return fmt::vformat_to(out, fmt, args);
-        }
-        catch (std::exception const& formatError)
-        {
-            return fmt::format_to(out, "An error occurred formatting string \"{}\" : {}", fmt, formatError.what());
-        }
+        return Trinity::StringVFormatTo(out, fmt, Trinity::MakeFormatArgs(std::forward<Args>(args)...));
     }
 
     /// Returns true if the given char pointer is null.
@@ -124,6 +104,6 @@ struct fmt::formatter<Optional<T>, Char> : formatter<T, Char>
 
 // allow implicit enum to int conversions for formatting
 template <typename E, std::enable_if_t<std::is_enum_v<E>, std::nullptr_t> = nullptr>
-auto format_as(E e) { return std::underlying_type_t<E>(e); }
+inline constexpr auto format_as(E e) { return static_cast<std::underlying_type_t<E>>(e); }
 
 #endif

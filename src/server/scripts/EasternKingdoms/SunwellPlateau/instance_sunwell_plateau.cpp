@@ -63,7 +63,7 @@ ObjectData const creatureData[] =
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
+    { DATA_KALECGOS, new BoundaryUnionBoundary(new CircleBoundary(Position(1704.9f, 928.4f), 34.0f), new RectangleBoundary(1689.2f, 1713.3f, 762.2f, 1074.8f)) }
 };
 
 DungeonEncounterData const encounters[] =

@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SessionManager_h__
-#define SessionManager_h__
+#ifndef TRINITYCORE_SESSION_MANAGER_H
+#define TRINITYCORE_SESSION_MANAGER_H
 
 #include "SocketMgr.h"
 #include "Session.h"
 
 namespace Battlenet
 {
-    class SessionManager : public SocketMgr<Session>
+    class SessionManager : public Trinity::Net::SocketMgr<Session>
     {
         typedef SocketMgr<Session> BaseSocketMgr;
 
@@ -33,13 +33,10 @@ namespace Battlenet
         bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount = 1) override;
 
     protected:
-        NetworkThread<Session>* CreateThreads() const override;
-
-    private:
-        static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex);
+        Trinity::Net::NetworkThread<Session>* CreateThreads() const override;
     };
 }
 
 #define sSessionMgr Battlenet::SessionManager::Instance()
 
-#endif // SessionManager_h__
+#endif // TRINITYCORE_SESSION_MANAGER_H

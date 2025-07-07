@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TokenPackets_h__
-#define TokenPackets_h__
+#ifndef TRINITYCORE_TOKEN_PACKETS_H
+#define TRINITYCORE_TOKEN_PACKETS_H
 
 #include "Packet.h"
 #include "PacketUtilities.h"
@@ -28,7 +28,7 @@ namespace WorldPackets
         class CommerceTokenGetLog final : public ClientPacket
         {
         public:
-            CommerceTokenGetLog(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_LOG, std::move(packet)) { }
+            explicit CommerceTokenGetLog(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_LOG, std::move(packet)) { }
 
             void Read() override;
 
@@ -38,7 +38,7 @@ namespace WorldPackets
         class CommerceTokenGetLogResponse final : public ServerPacket
         {
         public:
-            CommerceTokenGetLogResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_LOG_RESPONSE, 12) { }
+            explicit CommerceTokenGetLogResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_LOG_RESPONSE, 12) { }
 
             WorldPacket const* Write() override;
 
@@ -59,7 +59,7 @@ namespace WorldPackets
         class CommerceTokenGetMarketPrice final : public ClientPacket
         {
         public:
-            CommerceTokenGetMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_MARKET_PRICE, std::move(packet)) { }
+            explicit CommerceTokenGetMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_MARKET_PRICE, std::move(packet)) { }
 
             void Read() override;
 
@@ -69,7 +69,7 @@ namespace WorldPackets
         class CommerceTokenGetMarketPriceResponse final : public ServerPacket
         {
         public:
-            CommerceTokenGetMarketPriceResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_MARKET_PRICE_RESPONSE, 20) { }
+            explicit CommerceTokenGetMarketPriceResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_MARKET_PRICE_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -81,4 +81,4 @@ namespace WorldPackets
     }
 }
 
-#endif // TokenPackets_h__
+#endif // TRINITYCORE_TOKEN_PACKETS_H

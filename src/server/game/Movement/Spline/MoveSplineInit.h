@@ -29,20 +29,6 @@ enum class AnimTier : uint8;
 
 namespace Movement
 {
-
-    // Transforms coordinates from global to transport offsets
-    class TC_GAME_API TransportPathTransform
-    {
-    public:
-        TransportPathTransform(Unit* owner, bool transformForTransport)
-            : _owner(owner), _transformForTransport(transformForTransport) { }
-        Vector3 operator()(Vector3 input);
-
-    private:
-        Unit* _owner;
-        bool _transformForTransport;
-    };
-
     /*  Initializes and launches spline movement
      */
     class TC_GAME_API MoveSplineInit
@@ -77,7 +63,7 @@ namespace Movement
          * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
          * can't be combined with final animation
          */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift);
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
@@ -88,7 +74,7 @@ namespace Movement
          * you can have only one final facing: previous will be overriden
          */
         void SetFacing(float angle);
-        void SetFacing(Vector3 const& point);
+        void SetFacing(Vector3 const& spot);
         void SetFacing(float x, float y, float z);
         void SetFacing(Unit const* target);
 
@@ -171,6 +157,8 @@ namespace Movement
 
         void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
+        void SetTurning(float startFacing, float totalTurnRads, float radsPerSec);
+
         PointsArray& Path() { return args.path; }
 
         /* Disables transport coordinate transformations for cases where raw offsets are available
@@ -196,17 +184,17 @@ namespace Movement
     inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
-    inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
+    inline void MoveSplineInit::SetParabolic(float amplitude, float start_time)
     {
-        args.effect_start_time_percent = time_shift;
+        args.effect_start_time_percent = start_time;
         args.parabolic_amplitude = amplitude;
         args.vertical_acceleration = 0.0f;
         args.flags.Parabolic = true;
     }
 
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time)
     {
-        args.effect_start_time_percent = time_shift;
+        args.effect_start_time_percent = start_time;
         args.parabolic_amplitude = 0.0f;
         args.vertical_acceleration = vertical_acceleration;
         args.flags.Parabolic = true;
@@ -230,7 +218,17 @@ namespace Movement
         args.spellEffectExtra = spellEffectExtraData;
     }
 
-    struct TC_GAME_API MoveSplineInitFacingVisitor
+    inline void MoveSplineInit::SetTurning(float startFacing, float totalTurnRads, float radsPerSec)
+    {
+        args.flags.Turning = true;
+
+        TurnData& turn = args.turnData.emplace();
+        turn.StartFacing = startFacing;
+        turn.TotalTurnRads = totalTurnRads;
+        turn.RadsPerSec = radsPerSec;
+    }
+
+    struct MoveSplineInitFacingVisitor
     {
         explicit MoveSplineInitFacingVisitor(MoveSplineInit& init) : _init(init) { }
 
@@ -242,4 +240,5 @@ namespace Movement
         MoveSplineInit& _init;
     };
 }
+
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

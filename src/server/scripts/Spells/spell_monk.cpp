@@ -21,7 +21,10 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "DB2Stores.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
@@ -31,21 +34,30 @@
 
 enum MonkSpells
 {
+    SPELL_MONK_BURST_OF_LIFE_TALENT                     = 399226,
+    SPELL_MONK_BURST_OF_LIFE_HEAL                       = 399230,
     SPELL_MONK_CALMING_COALESCENCE                      = 388220,
     SPELL_MONK_COMBAT_CONDITIONING                      = 128595,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHANNEL         = 117952,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_CHI_PROC        = 123333,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK       = 117962,
     SPELL_MONK_CRACKLING_JADE_LIGHTNING_KNOCKBACK_CD    = 117953,
+    SPELL_MONK_ENVELOPING_MIST                          = 124682,
+    SPELL_MONK_JADE_WALK                                = 450552,
+    SPELL_MONK_MISTS_OF_LIFE                            = 388548,
     SPELL_MONK_MORTAL_WOUNDS                            = 115804,
     SPELL_MONK_POWER_STRIKE_PROC                        = 129914,
     SPELL_MONK_POWER_STRIKE_ENERGIZE                    = 121283,
+    SPELL_MONK_PRESSURE_POINTS                          = 450432,
     SPELL_MONK_PROVOKE_SINGLE_TARGET                    = 116189,
     SPELL_MONK_PROVOKE_AOE                              = 118635,
     SPELL_MONK_NO_FEATHER_FALL                          = 79636,
     SPELL_MONK_OPEN_PALM_STRIKES_TALENT                 = 392970,
+    SPELL_MONK_RENEWING_MIST                            = 119611,
     SPELL_MONK_ROLL_BACKWARD                            = 109131,
     SPELL_MONK_ROLL_FORWARD                             = 107427,
+    SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS                 = 390105,
+    SPELL_MONK_SONG_OF_CHI_JI_STUN                      = 198909,
     SPELL_MONK_SOOTHING_MIST                            = 115175,
     SPELL_MONK_STANCE_OF_THE_SPIRITED_CRANE             = 154436,
     SPELL_MONK_STAGGER_DAMAGE_AURA                      = 124255,
@@ -53,6 +65,61 @@ enum MonkSpells
     SPELL_MONK_STAGGER_LIGHT                            = 124275,
     SPELL_MONK_STAGGER_MODERATE                         = 124274,
     SPELL_MONK_SURGING_MIST_HEAL                        = 116995,
+};
+
+// 399226 - Burst of Life (attached to 116849 - Life Cocoon)
+class spell_monk_burst_of_life : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_BURST_OF_LIFE_HEAL })
+            && ValidateSpellEffect({ { SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        Unit* caster = GetCaster();
+        return caster && caster->HasAuraEffect(SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0);
+    }
+
+    void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+        if (removeMode != AURA_REMOVE_BY_EXPIRE && (removeMode != AURA_REMOVE_BY_ENEMY_SPELL || aurEff->GetAmount()))
+            return;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* burstOfLife = caster->GetAuraEffect(SPELL_MONK_BURST_OF_LIFE_TALENT, EFFECT_0);
+        if (!burstOfLife)
+            return;
+
+        caster->CastSpell(GetTarget(), SPELL_MONK_BURST_OF_LIFE_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_MAX_TARGETS, burstOfLife->GetAmount() } }
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_monk_burst_of_life::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 399230 - Burst of Life
+class spell_monk_burst_of_life_heal : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        Trinity::SelectRandomInjuredTargets(targets, GetSpellValue()->MaxAffectedTargets, true, GetExplTargetUnit());
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_monk_burst_of_life_heal::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
+    }
 };
 
 // 117952 - Crackling Jade Lightning
@@ -120,6 +187,32 @@ class spell_monk_crackling_jade_lightning_knockback_proc_aura : public AuraScrip
     }
 };
 
+// 450553 - Jade Walk
+class spell_monk_jade_walk : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_JADE_WALK });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+        if (!target->IsInCombat())
+            target->CastSpell(target, SPELL_MONK_JADE_WALK, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        else
+            target->RemoveAurasDueToSpell(SPELL_MONK_JADE_WALK);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_monk_jade_walk::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 // 116849 - Life Cocoon
 class spell_monk_life_cocoon : public SpellScript
 {
@@ -140,12 +233,44 @@ class spell_monk_life_cocoon : public SpellScript
             calmingCoalescence->GetBase()->Remove();
         }
 
-        GetSpell()->SetSpellValue(SPELLVALUE_BASE_POINT0, absorb);
+        GetSpell()->SetSpellValue({ SPELLVALUE_BASE_POINT0, absorb });
     }
 
     void Register() override
     {
         OnEffectLaunch += SpellEffectFn(spell_monk_life_cocoon::CalculateAbsorb, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 388548 - Mists of Life (attached to 116849 - Life Cocoon)
+class spell_monk_mists_of_life : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_MISTS_OF_LIFE, SPELL_MONK_RENEWING_MIST, SPELL_MONK_ENVELOPING_MIST });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_MONK_MISTS_OF_LIFE, EFFECT_0);
+    }
+
+    void HandleEffectApply(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetTriggeringSpell(GetSpell());
+
+        caster->CastSpell(target, SPELL_MONK_RENEWING_MIST, args);
+        caster->CastSpell(target, SPELL_MONK_ENVELOPING_MIST, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_monk_mists_of_life::HandleEffectApply, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
     }
 };
 
@@ -204,6 +329,32 @@ class spell_monk_power_strike_proc : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_monk_power_strike_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 115078 - Paralysis
+class spell_monk_pressure_points : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_PRESSURE_POINTS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spellInfo->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DISPEL);
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_MONK_PRESSURE_POINTS);
+    }
+
+    static void PreventDispel(WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_monk_pressure_points::PreventDispel, EFFECT_2, TARGET_UNIT_TARGET_ENEMY);
     }
 };
 
@@ -345,6 +496,66 @@ class spell_monk_roll_aura : public AuraScript
         // This is a special aura that sets backward run speed equal to forward speed
         AfterEffectApply += AuraEffectApplyFn(spell_monk_roll_aura::ChangeRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectApplyFn(spell_monk_roll_aura::RestoreRunBackSpeed, EFFECT_4, SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 389579 - Save Them All
+class spell_monk_save_them_all : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool CheckProc(ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetActionTarget()->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(eventInfo.GetActor()));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_MONK_SAVE_THEM_ALL_HEAL_BONUS, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_monk_save_them_all::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_monk_save_them_all::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 198898 - Song of Chi-Ji
+struct at_monk_song_of_chi_ji : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetMaxRange(false, caster), 0.0f);
+        PathGenerator path(at);
+
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+
+        at->InitSplines(path.GetPath());
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_MONK_SONG_OF_CHI_JI_STUN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
@@ -581,16 +792,23 @@ class spell_monk_tigers_lust : public SpellScript
 
 void AddSC_monk_spell_scripts()
 {
+    RegisterSpellScript(spell_monk_burst_of_life);
+    RegisterSpellScript(spell_monk_burst_of_life_heal);
     RegisterSpellScript(spell_monk_crackling_jade_lightning);
     RegisterSpellScript(spell_monk_crackling_jade_lightning_knockback_proc_aura);
+    RegisterSpellScript(spell_monk_jade_walk);
     RegisterSpellScript(spell_monk_life_cocoon);
+    RegisterSpellScript(spell_monk_mists_of_life);
     RegisterSpellScript(spell_monk_open_palm_strikes);
     RegisterSpellScript(spell_monk_power_strike_periodic);
     RegisterSpellScript(spell_monk_power_strike_proc);
+    RegisterSpellScript(spell_monk_pressure_points);
     RegisterSpellScript(spell_monk_provoke);
     RegisterSpellScript(spell_monk_rising_sun_kick);
     RegisterSpellScript(spell_monk_roll);
     RegisterSpellScript(spell_monk_roll_aura);
+    RegisterSpellScript(spell_monk_save_them_all);
+    RegisterAreaTriggerAI(at_monk_song_of_chi_ji);
     RegisterSpellScript(spell_monk_stagger);
     RegisterSpellScript(spell_monk_stagger_damage_aura);
     RegisterSpellScript(spell_monk_stagger_debuff_aura);

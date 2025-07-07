@@ -391,7 +391,7 @@ struct npc_lockmaw_augh_boss : public ScriptedAI
         if (_instance->GetData(DATA_HEROIC_AUGH_DESPAWNED))
             me->Relocate(AughRespawnPosition);
         else
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
 
         me->SetReactState(REACT_PASSIVE);
     }
@@ -457,7 +457,7 @@ struct npc_lockmaw_augh_boss : public ScriptedAI
                     _events.ScheduleEvent(EVENT_TURN_ATTACKABLE, 3s + 500ms, 0, PHASE_INTRO);
                     break;
                 case EVENT_TURN_ATTACKABLE:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     _events.ScheduleEvent(EVENT_SAY_INTRO_3, 11s, 0, PHASE_INTRO);
                     break;
                 case EVENT_SAY_INTRO_3:

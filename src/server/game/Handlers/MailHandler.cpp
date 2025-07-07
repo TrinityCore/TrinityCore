@@ -576,8 +576,7 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& getList)
         ++response.TotalNumRecords;
     }
 
-    player->PlayerTalkClass->GetInteractionData().Reset();
-    player->PlayerTalkClass->GetInteractionData().SourceGuid = getList.Mailbox;
+    player->PlayerTalkClass->GetInteractionData().StartInteraction(getList.Mailbox, PlayerInteractionType::MailInfo);
     SendPacket(response.Write());
 
     // recalculate m_nextMailDelivereTime and unReadMails

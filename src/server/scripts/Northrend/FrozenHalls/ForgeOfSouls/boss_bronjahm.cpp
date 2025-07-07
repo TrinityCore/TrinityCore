@@ -240,7 +240,7 @@ private:
 // 68793, 69050 - Magic's Bane
 class spell_bronjahm_magic_bane : public SpellScript
 {
-    void CalculateDamage(Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
         if (victim->GetPowerType() != POWER_MANA)
             return;

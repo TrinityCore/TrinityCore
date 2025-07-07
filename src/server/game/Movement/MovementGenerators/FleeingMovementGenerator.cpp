@@ -36,6 +36,8 @@ FleeingMovementGenerator::FleeingMovementGenerator(ObjectGuid fleeTargetGUID,
     ScriptResult = std::move(scriptResult);
 }
 
+FleeingMovementGenerator::~FleeingMovementGenerator() = default;
+
 MovementGeneratorType FleeingMovementGenerator::GetMovementGeneratorType() const
 {
     return FLEEING_MOTION_TYPE;

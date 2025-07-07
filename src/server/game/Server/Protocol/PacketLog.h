@@ -50,6 +50,11 @@ class TC_GAME_API PacketLog
         std::once_flag _initializeFlag;
 
     public:
+        PacketLog(PacketLog const&) = delete;
+        PacketLog(PacketLog&&) = delete;
+        PacketLog& operator=(PacketLog const&) = delete;
+        PacketLog& operator=(PacketLog&&) = delete;
+
         static PacketLog* instance();
 
         void Initialize();

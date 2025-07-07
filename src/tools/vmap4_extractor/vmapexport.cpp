@@ -15,23 +15,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "vmapexport.h"
 #include "adtfile.h"
 #include "Banner.h"
 #include "Common.h"
-#include "cascfile.h"
 #include "DB2CascFileSource.h"
 #include "ExtractorDB2LoadInfo.h"
-#include "StringFormat.h"
-#include "VMapDefinitions.h"
-#include "vmapexport.h"
 #include "Locales.h"
+#include "MapDefines.h"
+#include "MapUtils.h"
+#include "StringFormat.h"
 #include "Util.h"
+#include "VMapDefinitions.h"
 #include "wdtfile.h"
 #include "wmo.h"
-#include <algorithm>
 #include <CascLib.h>
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <algorithm>
 #include <fstream>
 #include <list>
 #include <map>
@@ -39,11 +40,20 @@
 #include <unordered_set>
 #include <vector>
 #include <cstdio>
-#include <cerrno>
 
 //-----------------------------------------------------------------------------
 
 std::shared_ptr<CASC::Storage> CascStorage;
+
+struct LiquidMaterialEntry
+{
+    EnumFlag<LiquidMaterialFlags> Flags = { { } };
+};
+
+struct LiquidTypeEntry
+{
+    uint8 MaterialID = 0;
+};
 
 struct MapEntry
 {
@@ -54,6 +64,8 @@ struct MapEntry
     std::string Directory;
 };
 
+std::unordered_map<uint32, LiquidMaterialEntry> LiquidMaterials;
+std::unordered_map<uint32, LiquidTypeEntry> LiquidTypes;
 std::vector<MapEntry> map_ids; // partitioned by parent maps first
 std::unordered_set<uint32> maps_that_are_parents;
 boost::filesystem::path input_path;
@@ -273,6 +285,16 @@ bool ExtractSingleWmo(std::string& fname)
     return true;
 }
 
+bool IsLiquidIgnored(uint32 liquidTypeId)
+{
+    if (LiquidTypeEntry const* liquidType = Trinity::Containers::MapGetValuePtr(LiquidTypes, liquidTypeId))
+        if (LiquidMaterialEntry const* liquidMaterial = Trinity::Containers::MapGetValuePtr(LiquidMaterials, liquidType->MaterialID))
+            if (liquidMaterial->Flags.HasFlag(LiquidMaterialFlags::VisualOnly))
+                return true;
+
+    return false;
+}
+
 void ParsMapFiles()
 {
     std::unordered_map<uint32, WDTFile> wdts;
@@ -281,7 +303,7 @@ void ParsMapFiles()
         auto itr = wdts.find(mapId);
         if (itr == wdts.end())
         {
-            auto mapEntryItr = std::find_if(map_ids.begin(), map_ids.end(), [mapId](MapEntry const& mapEntry) { return mapEntry.Id == mapId; });
+            auto mapEntryItr = std::ranges::find(map_ids, mapId, &MapEntry::Id);
             if (mapEntryItr == map_ids.end())
                 return nullptr;
 
@@ -333,6 +355,118 @@ void ParsMapFiles()
             printf("]\n");
         }
     }
+}
+
+void TryLoadDB2(char const* name, DB2CascFileSource* source, DB2FileLoader* db2, DB2FileLoadInfo const* loadInfo)
+{
+    try
+    {
+        db2->Load(source, loadInfo);
+    }
+    catch (std::exception const& e)
+    {
+        printf("Fatal error: Invalid %s file format! %s\n%s\n", name, CASC::HumanReadableCASCError(GetCascError()), e.what());
+        exit(1);
+    }
+}
+
+void ReadMapTable()
+{
+    printf("Read Map.dbc file... ");
+
+    DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
+    DB2FileLoader db2;
+    TryLoadDB2("Map.db2", &source, &db2, &MapLoadInfo::Instance);
+
+    map_ids.reserve(db2.GetRecordCount() + db2.GetRecordCopyCount());
+    std::unordered_map<uint32, std::size_t> idToIndex;
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    {
+        DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
+        MapEntry& map = map_ids.emplace_back();
+        map.Id = record.GetId();
+        map.WdtFileDataId = record.GetInt32("WdtFileDataID");
+        map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
+        map.Name = record.GetString("MapName");
+        map.Directory = record.GetString("Directory");
+
+        if (map.ParentMapID < 0)
+            map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
+
+        if (map.ParentMapID >= 0)
+            maps_that_are_parents.insert(map.ParentMapID);
+
+        idToIndex[map.Id] = map_ids.size() - 1;
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+    {
+        DB2RecordCopy copy = db2.GetRecordCopy(x);
+        auto itr = idToIndex.find(copy.SourceRowId);
+        if (itr != idToIndex.end())
+        {
+            MapEntry& map = map_ids.emplace_back(map_ids[itr->second]);
+            map.Id = copy.NewRowId;
+        }
+    }
+
+    std::erase_if(map_ids, [](MapEntry const& map) { return !map.WdtFileDataId; });
+
+    // force parent maps to be extracted first
+    std::stable_partition(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return maps_that_are_parents.contains(map.Id); });
+
+    printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
+}
+
+void ReadLiquidMaterialTable()
+{
+    printf("Read LiquidMaterial.db2 file...\n");
+
+    DB2CascFileSource source(CascStorage, LiquidMaterialLoadInfo::Instance.Meta->FileDataId);
+    DB2FileLoader db2;
+    TryLoadDB2("LiquidMaterial.db2", &source, &db2, &LiquidMaterialLoadInfo::Instance);
+
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    {
+        DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
+        LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
+        liquidType.Flags = static_cast<LiquidMaterialFlags>(record.GetUInt32("Flags"));
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+        LiquidMaterials[db2.GetRecordCopy(x).NewRowId] = LiquidMaterials[db2.GetRecordCopy(x).SourceRowId];
+
+    printf("Done! (" SZFMTD " LiquidMaterials loaded)\n", LiquidMaterials.size());
+}
+
+void ReadLiquidTypeTable()
+{
+    printf("Read LiquidType.db2 file...\n");
+
+    DB2CascFileSource source(CascStorage, LiquidTypeLoadInfo::Instance.Meta->FileDataId);
+    DB2FileLoader db2;
+    TryLoadDB2("LiquidType.db2", &source, &db2, &LiquidTypeLoadInfo::Instance);
+
+    for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
+    {
+        DB2Record record = db2.GetRecord(x);
+        if (!record)
+            continue;
+
+        LiquidTypeEntry& liquidType = LiquidTypes[record.GetId()];
+        liquidType.MaterialID = record.GetUInt8("MaterialID");
+    }
+
+    for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
+        LiquidTypes[db2.GetRecordCopy(x).NewRowId] = LiquidTypes[db2.GetRecordCopy(x).SourceRowId];
+
+    printf("Done! (" SZFMTD " LiquidTypes loaded)\n", LiquidTypes.size());
 }
 
 bool processArgv(int argc, char ** argv, const char *versionString)
@@ -528,67 +662,9 @@ int main(int argc, char ** argv)
     //map.dbc
     if (success)
     {
-        printf("Read Map.dbc file... ");
-
-        DB2CascFileSource source(CascStorage, MapLoadInfo::Instance.Meta->FileDataId);
-        DB2FileLoader db2;
-        try
-        {
-            db2.Load(&source, &MapLoadInfo::Instance);
-        }
-        catch (std::exception const& e)
-        {
-            printf("Fatal error: Invalid Map.db2 file format! %s\n%s\n", CASC::HumanReadableCASCError(GetCascError()), e.what());
-            exit(1);
-        }
-
-        map_ids.reserve(db2.GetRecordCount());
-        std::unordered_map<uint32, std::size_t> idToIndex;
-        for (uint32 x = 0; x < db2.GetRecordCount(); ++x)
-        {
-            DB2Record record = db2.GetRecord(x);
-            if (!record)
-                continue;
-
-            MapEntry map;
-            map.Id = record.GetId();
-            map.WdtFileDataId = record.GetInt32("WdtFileDataID");
-            map.ParentMapID = int16(record.GetUInt16("ParentMapID"));
-            map.Name = record.GetString("MapName");
-            map.Directory = record.GetString("Directory");
-
-            if (map.ParentMapID < 0)
-                map.ParentMapID = int16(record.GetUInt16("CosmeticParentMapID"));
-
-            if (map.ParentMapID >= 0)
-                maps_that_are_parents.insert(map.ParentMapID);
-
-            idToIndex[map.Id] = map_ids.size();
-            map_ids.push_back(map);
-        }
-
-        for (uint32 x = 0; x < db2.GetRecordCopyCount(); ++x)
-        {
-            DB2RecordCopy copy = db2.GetRecordCopy(x);
-            auto itr = idToIndex.find(copy.SourceRowId);
-            if (itr != idToIndex.end())
-            {
-                MapEntry map;
-                map.Id = copy.NewRowId;
-                map.WdtFileDataId = map_ids[itr->second].WdtFileDataId;
-                map.ParentMapID = map_ids[itr->second].ParentMapID;
-                map.Name = map_ids[itr->second].Name;
-                map.Directory = map_ids[itr->second].Directory;
-                map_ids.push_back(map);
-            }
-        }
-
-        map_ids.erase(std::remove_if(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return !map.WdtFileDataId; }), map_ids.end());
-
-        // force parent maps to be extracted first
-        std::stable_partition(map_ids.begin(), map_ids.end(), [](MapEntry const& map) { return maps_that_are_parents.count(map.Id) > 0; });
-
-        printf("Done! (" SZFMTD " maps loaded)\n", map_ids.size());
+        ReadMapTable();
+        ReadLiquidMaterialTable();
+        ReadLiquidTypeTable();
         ParsMapFiles();
     }
 

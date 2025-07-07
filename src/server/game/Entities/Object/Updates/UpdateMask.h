@@ -139,7 +139,7 @@ private:
 };
 
 template<uint32 Bits>
-UpdateMask<Bits> operator&(UpdateMask<Bits> const& left, UpdateMask<Bits> const& right)
+constexpr UpdateMask<Bits> operator&(UpdateMask<Bits> const& left, UpdateMask<Bits> const& right)
 {
     UpdateMask<Bits> result = left;
     result &= right;
@@ -147,7 +147,7 @@ UpdateMask<Bits> operator&(UpdateMask<Bits> const& left, UpdateMask<Bits> const&
 }
 
 template<uint32 Bits>
-UpdateMask<Bits> operator|(UpdateMask<Bits> const& left, UpdateMask<Bits> const& right)
+constexpr UpdateMask<Bits> operator|(UpdateMask<Bits> const& left, UpdateMask<Bits> const& right)
 {
     UpdateMask<Bits> result = left;
     result |= right;

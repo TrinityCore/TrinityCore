@@ -2465,7 +2465,7 @@ class spell_yogg_saron_diminsh_power : public SpellScriptLoader     // 64148
             {
                 PreventDefaultAction();
                 if (Spell* spell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                    if (spell->getState() == SPELL_STATE_CASTING)
+                    if (spell->getState() == SPELL_STATE_CHANNELING)
                         GetTarget()->InterruptSpell(CURRENT_CHANNELED_SPELL);
             }
 
@@ -2808,7 +2808,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
 
             void ModSanityStacks()
             {
-                GetSpell()->SetSpellValue(SPELLVALUE_AURA_STACK, 100);
+                GetSpell()->SetSpellValue({ SPELLVALUE_AURA_STACK, 100 });
             }
 
             void Register() override

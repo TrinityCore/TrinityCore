@@ -35,6 +35,10 @@ class TC_GAME_API LfgGroupData
 {
     public:
         LfgGroupData();
+        LfgGroupData(LfgGroupData const&) = delete;
+        LfgGroupData(LfgGroupData&& other) noexcept;
+        LfgGroupData& operator=(LfgGroupData const&) = delete;
+        LfgGroupData& operator=(LfgGroupData&& right) noexcept;
         ~LfgGroupData();
 
         bool IsLfgGroup();

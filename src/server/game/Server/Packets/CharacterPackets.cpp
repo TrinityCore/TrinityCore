@@ -20,6 +20,7 @@
 #include "DB2Stores.h"
 #include "Field.h"
 #include "ObjectMgr.h"
+#include "PacketOperators.h"
 #include "Player.h"
 #include "StringConvert.h"
 #include "World.h"
@@ -43,9 +44,7 @@ ByteBuffer& operator>>(ByteBuffer& data, ChrCustomizationChoice& customizationCh
 }
 }
 
-namespace WorldPackets
-{
-namespace Character
+namespace WorldPackets::Character
 {
 void SortCustomizations(Array<ChrCustomizationChoice, 250>& customizations)
 {
@@ -97,7 +96,7 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
     VirtualRealmAddress = GetVirtualRealmAddress();
     GuildClubMemberID = ::Battlenet::Services::Clubs::CreateClubMemberId(Guid);
-    Name              = fields[1].GetString();
+    Name              = fields[1].GetStringView();
     RaceID            = fields[2].GetUInt8();
     ClassID           = fields[3].GetUInt8();
     SexID             = fields[4].GetUInt8();
@@ -115,6 +114,9 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (playerFlags & PLAYER_FLAGS_RESTING)
         Flags |= CHARACTER_FLAG_RESTING;
 
+    if (atLoginFlags & AT_LOGIN_RESET_TALENTS)
+        Flags |= CHARACTER_FLAG_RESET_TALENTS_ON_LOGIN;
+
     if (atLoginFlags & AT_LOGIN_RESURRECT)
         playerFlags &= ~PLAYER_FLAGS_GHOST;
 
@@ -127,17 +129,31 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (fields[18].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[28].GetString().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[28].GetStringView().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_CUSTOMIZE;
+        Flags2 = CHARACTER_FLAG_2_CUSTOMIZE;
     else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_FACTION;
+        Flags2 = CHARACTER_FLAG_2_FACTION_CHANGE;
     else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        Flags2 = CHAR_CUSTOMIZE_FLAG_RACE;
+        Flags2 = CHARACTER_FLAG_2_RACE_CHANGE;
 
-    Flags3 = 0;
+    if (playerFlags & PLAYER_FLAGS_NO_XP_GAIN)
+        Flags2 |= CHARACTER_FLAG_2_NO_XP_GAIN;
+
+    if (playerFlags & PLAYER_FLAGS_LOW_LEVEL_RAID_ENABLED)
+        Flags2 |= CHARACTER_FLAG_2_LOW_LEVEL_RAID_ENABLED;
+
+    if (playerFlags & PLAYER_FLAGS_AUTO_DECLINE_GUILD)
+        Flags2 |= CHARACTER_FLAG_2_AUTO_DECLINE_GUILD;
+
+    if (playerFlags & PLAYER_FLAGS_HIDE_ACCOUNT_ACHIEVEMENTS)
+        Flags3 |= CHARACTER_FLAG_3_HIDE_ACCOUNT_ACHIEVEMENTS;
+
+    if (playerFlags & PLAYER_FLAGS_WAR_MODE_DESIRED)
+        Flags3 |= CHARACTER_FLAG_3_WAR_MODE_DESIRED;
+
     FirstLogin = (atLoginFlags & AT_LOGIN_FIRST) != 0;
 
     // show pet at selection character in character list only for non-ghost character
@@ -198,12 +214,12 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 {
     data << charInfo.Guid;
     data << uint32(charInfo.VirtualRealmAddress);
-    data << uint8(charInfo.ListPosition);
+    data << uint16(charInfo.ListPosition);
     data << uint8(charInfo.RaceID);
     data << uint8(charInfo.SexID);
     data << uint8(charInfo.ClassID);
     data << int16(charInfo.SpecID);
-    data << uint32(charInfo.Customizations.size());
+    data << Size<uint32>(charInfo.Customizations);
     data << uint8(charInfo.ExperienceLevel);
     data << int32(charInfo.MapID);
     data << int32(charInfo.ZoneID);
@@ -213,6 +229,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
     data << uint32(charInfo.Flags);
     data << uint32(charInfo.Flags2);
     data << uint32(charInfo.Flags3);
+    data << uint32(charInfo.Flags4);
     data << uint8(charInfo.CantLoginReason);
 
     data << uint32(charInfo.PetCreatureDisplayID);
@@ -232,16 +249,19 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
 
     data << int32(charInfo.TimerunningSeasonID);
     data << uint32(charInfo.OverrideSelectScreenFileDataID);
+    data << uint32(charInfo.Unused1110_1);
 
     for (ChrCustomizationChoice const& customization : charInfo.Customizations)
         data << customization;
 
-    data << BitsSize<6>(charInfo.Name);
+    data << SizedString::BitsSize<6>(charInfo.Name);
     data << Bits<1>(charInfo.FirstLogin);
+    data << Bits<1>(charInfo.Unused1110_2);
+    data << Bits<1>(charInfo.Unused1110_3);
 
     data.FlushBits();
 
-    data.WriteString(charInfo.Name);
+    data << SizedString::Data(charInfo.Name);
 
     return data;
 }
@@ -256,20 +276,19 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
     data.FlushBits();
 
     data << uint32(restrictionsAndMails.RestrictionFlags);
-    data << uint32(restrictionsAndMails.MailSenders.size());
-    data << uint32(restrictionsAndMails.MailSenderTypes.size());
+    data << Size<uint32>(restrictionsAndMails.MailSenders);
+    data << Size<uint32>(restrictionsAndMails.MailSenderTypes);
 
     if (!restrictionsAndMails.MailSenderTypes.empty())
         data.append(restrictionsAndMails.MailSenderTypes.data(), restrictionsAndMails.MailSenderTypes.size());
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        data << Bits<6>(str.length() + 1);
+        data << SizedCString::BitsSize<6>(str);
 
     data.FlushBits();
 
     for (std::string const& str : restrictionsAndMails.MailSenders)
-        if (!str.empty())
-            data << str;
+        data << SizedCString::Data(str);
 
     return data;
 }
@@ -286,6 +305,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 {
     data << charInfo.Basic;
     data << uint64(charInfo.Money);
+    data << float(charInfo.AvgEquippedItemLevel);
     data << float(charInfo.CurrentSeasonMythicPlusOverallScore);
     data << int32(charInfo.CurrentSeasonBestPvpRating);
     data << int8(charInfo.PvpRatingBracket);
@@ -296,7 +316,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RegionwideCharact
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceUnlock const& raceUnlock)
 {
-    data << int32(raceUnlock.RaceID);
+    data << int8(raceUnlock.RaceID);
     data << Bits<1>(raceUnlock.HasUnlockedLicense);
     data << Bits<1>(raceUnlock.HasUnlockedAchievement);
     data << Bits<1>(raceUnlock.HasHeritageArmorUnlockAchievement);
@@ -317,7 +337,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
 
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
 {
-    data << int32(raceLimitDisableInfo.RaceID);
+    data << int8(raceLimitDisableInfo.RaceID);
     data << int32(raceLimitDisableInfo.Reason);
 
     return data;
@@ -325,7 +345,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableI
 
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupMember)
 {
-    data << int32(warbandGroupMember.WarbandScenePlacementID);
+    data << uint32(warbandGroupMember.WarbandScenePlacementID);
     data << int32(warbandGroupMember.Type);
     if (warbandGroupMember.Type == 0)
         data << warbandGroupMember.Guid;
@@ -336,12 +356,18 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupM
 ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
 {
     data << uint64(warbandGroup.GroupID);
-    data << uint8(warbandGroup.Unknown_1100);
-    data << int32(warbandGroup.Flags);
-    data << uint32(warbandGroup.Members.size());
+    data << uint8(warbandGroup.OrderIndex);
+    data << uint32(warbandGroup.WarbandSceneID);
+    data << uint32(warbandGroup.Flags);
+    data << Size<uint32>(warbandGroup.Members);
 
     for (WarbandGroupMember const& member : warbandGroup.Members)
         data << member;
+
+    data << SizedString::BitsSize<9>(warbandGroup.Name);
+    data.FlushBits();
+
+    data << SizedString::Data(warbandGroup.Name);
 
     return data;
 }
@@ -367,13 +393,13 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket << Bits<1>(IsRestrictedTrial);
     _worldPacket << OptionalInit(ClassDisableMask);
     _worldPacket << Bits<1>(DontCreateCharacterDisplays);
-    _worldPacket << uint32(Characters.size());
-    _worldPacket << uint32(RegionwideCharacters.size());
+    _worldPacket << Size<uint32>(Characters);
+    _worldPacket << Size<uint32>(RegionwideCharacters);
     _worldPacket << int32(MaxCharacterLevel);
-    _worldPacket << uint32(RaceUnlockData.size());
-    _worldPacket << uint32(UnlockedConditionalAppearances.size());
-    _worldPacket << uint32(RaceLimitDisables.size());
-    _worldPacket << uint32(WarbandGroups.size());
+    _worldPacket << Size<uint32>(RaceUnlockData);
+    _worldPacket << Size<uint32>(UnlockedConditionalAppearances);
+    _worldPacket << Size<uint32>(RaceLimitDisables);
+    _worldPacket << Size<uint32>(WarbandGroups);
 
     if (ClassDisableMask)
         _worldPacket << uint32(*ClassDisableMask);
@@ -384,9 +410,6 @@ WorldPacket const* EnumCharactersResult::Write()
     for (RaceLimitDisableInfo const& raceLimitDisableInfo : RaceLimitDisables)
         _worldPacket << raceLimitDisableInfo;
 
-    for (WarbandGroup const& warbandGroup : WarbandGroups)
-        _worldPacket << warbandGroup;
-
     for (CharacterInfo const& charInfo : Characters)
         _worldPacket << charInfo;
 
@@ -396,13 +419,18 @@ WorldPacket const* EnumCharactersResult::Write()
     for (RaceUnlock const& raceUnlock : RaceUnlockData)
         _worldPacket << raceUnlock;
 
+    for (WarbandGroup const& warbandGroup : WarbandGroups)
+        _worldPacket << warbandGroup;
+
     return &_worldPacket;
 }
 
 void CheckCharacterNameAvailability::Read()
 {
     _worldPacket >> SequenceIndex;
-    Name = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+    _worldPacket >> SizedString::BitsSize<6>(Name);
+
+    _worldPacket >> SizedString::Data(Name);
 }
 
 WorldPacket const* CheckCharacterNameAvailabilityResult::Write()
@@ -416,20 +444,20 @@ WorldPacket const* CheckCharacterNameAvailabilityResult::Write()
 void CreateCharacter::Read()
 {
     CreateInfo = std::make_shared<CharacterCreateInfo>();
-    uint32 nameLength = _worldPacket.ReadBits(6);
-    bool const hasTemplateSet = _worldPacket.ReadBit();
-    CreateInfo->IsTrialBoost = _worldPacket.ReadBit();
-    CreateInfo->UseNPE = _worldPacket.ReadBit();
-    CreateInfo->HardcoreSelfFound = _worldPacket.ReadBit();
 
+    _worldPacket >> SizedString::BitsSize<6>(CreateInfo->Name);
+    _worldPacket >> OptionalInit(CreateInfo->TemplateSet);
+    _worldPacket >> Bits<1>(CreateInfo->IsTrialBoost);
+    _worldPacket >> Bits<1>(CreateInfo->UseNPE);
+    _worldPacket >> Bits<1>(CreateInfo->HardcoreSelfFound);
     _worldPacket >> CreateInfo->Race;
     _worldPacket >> CreateInfo->Class;
     _worldPacket >> CreateInfo->Sex;
-    CreateInfo->Customizations.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(CreateInfo->Customizations);
     _worldPacket >> CreateInfo->TimerunningSeasonID;
-    CreateInfo->Name = _worldPacket.ReadString(nameLength);
-    if (hasTemplateSet)
-        CreateInfo->TemplateSet = _worldPacket.read<int32>();
+    _worldPacket >> SizedString::Data(CreateInfo->Name);
+    if (CreateInfo->TemplateSet)
+        _worldPacket >> *CreateInfo->TemplateSet;
 
     for (ChrCustomizationChoice& customization : CreateInfo->Customizations)
         _worldPacket >> customization;
@@ -441,6 +469,7 @@ WorldPacket const* CreateChar::Write()
 {
     _worldPacket << uint8(Code);
     _worldPacket << Guid;
+
     return &_worldPacket;
 }
 
@@ -452,27 +481,31 @@ void CharDelete::Read()
 WorldPacket const* DeleteChar::Write()
 {
     _worldPacket << uint8(Code);
+
     return &_worldPacket;
 }
 
 void CharacterRenameRequest::Read()
 {
     RenameInfo = std::make_shared<CharacterRenameInfo>();
+
     _worldPacket >> RenameInfo->Guid;
-    RenameInfo->NewName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+    _worldPacket >> SizedString::BitsSize<6>(RenameInfo->NewName);
+
+    _worldPacket >> SizedString::Data(RenameInfo->NewName);
 }
 
 WorldPacket const* CharacterRenameResult::Write()
 {
     _worldPacket << uint8(Result);
-    _worldPacket.WriteBit(Guid.has_value());
-    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket << OptionalInit(Guid);
+    _worldPacket << SizedString::BitsSize<6>(Name);
     _worldPacket.FlushBits();
 
     if (Guid)
         _worldPacket << *Guid;
 
-    _worldPacket.WriteString(Name);
+    _worldPacket << SizedString::Data(Name);
 
     return &_worldPacket;
 }
@@ -480,31 +513,31 @@ WorldPacket const* CharacterRenameResult::Write()
 void CharCustomize::Read()
 {
     CustomizeInfo = std::make_shared<CharCustomizeInfo>();
+
     _worldPacket >> CustomizeInfo->CharGUID;
     _worldPacket >> CustomizeInfo->SexID;
-    CustomizeInfo->Customizations.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(CustomizeInfo->Customizations);
     for (ChrCustomizationChoice& customization : CustomizeInfo->Customizations)
         _worldPacket >> customization;
 
-    SortCustomizations(CustomizeInfo->Customizations);
+    _worldPacket >> SizedString::BitsSize<6>(CustomizeInfo->CharName);
+    _worldPacket >> SizedString::Data(CustomizeInfo->CharName);
 
-    CustomizeInfo->CharName = _worldPacket.ReadString(_worldPacket.ReadBits(6));
+    SortCustomizations(CustomizeInfo->Customizations);
 }
 
 void CharRaceOrFactionChange::Read()
 {
     RaceOrFactionChangeInfo = std::make_shared<CharRaceOrFactionChangeInfo>();
 
-    RaceOrFactionChangeInfo->FactionChange = _worldPacket.ReadBit();
-
-    uint32 nameLength = _worldPacket.ReadBits(6);
-
+    _worldPacket >> Bits<1>(RaceOrFactionChangeInfo->FactionChange);
+    _worldPacket >> SizedString::BitsSize<6>(RaceOrFactionChangeInfo->Name);
     _worldPacket >> RaceOrFactionChangeInfo->Guid;
     _worldPacket >> RaceOrFactionChangeInfo->SexID;
     _worldPacket >> RaceOrFactionChangeInfo->RaceID;
     _worldPacket >> RaceOrFactionChangeInfo->InitialRaceID;
-    RaceOrFactionChangeInfo->Customizations.resize(_worldPacket.read<uint32>());
-    RaceOrFactionChangeInfo->Name = _worldPacket.ReadString(nameLength);
+    _worldPacket >> Size<uint32>(RaceOrFactionChangeInfo->Customizations);
+    _worldPacket >> SizedString::Data(RaceOrFactionChangeInfo->Name);
     for (ChrCustomizationChoice& customization : RaceOrFactionChangeInfo->Customizations)
         _worldPacket >> customization;
 
@@ -515,16 +548,16 @@ WorldPacket const* CharFactionChangeResult::Write()
 {
     _worldPacket << uint8(Result);
     _worldPacket << Guid;
-    _worldPacket.WriteBit(Display.has_value());
+    _worldPacket << OptionalInit(Display);
     _worldPacket.FlushBits();
 
     if (Display)
     {
-        _worldPacket.WriteBits(Display->Name.length(), 6);
+        _worldPacket << SizedString::BitsSize<6>(Display->Name);
         _worldPacket << uint8(Display->SexID);
         _worldPacket << uint8(Display->RaceID);
-        _worldPacket << uint32(Display->Customizations->size());
-        _worldPacket.WriteString(Display->Name);
+        _worldPacket << Size<uint32>(*Display->Customizations);
+        _worldPacket << SizedString::Data(Display->Name);
         for (ChrCustomizationChoice customization : *Display->Customizations)
             _worldPacket << customization;
     }
@@ -540,11 +573,11 @@ void GenerateRandomCharacterName::Read()
 
 WorldPacket const* GenerateRandomCharacterNameResult::Write()
 {
-    _worldPacket.WriteBit(Success);
-    _worldPacket.WriteBits(Name.length(), 6);
+    _worldPacket << Bits<1>(Success);
+    _worldPacket << SizedString::BitsSize<6>(Name);
     _worldPacket.FlushBits();
 
-    _worldPacket.WriteString(Name);
+    _worldPacket << SizedString::Data(Name);
 
     return &_worldPacket;
 }
@@ -555,7 +588,7 @@ ReorderCharacters::ReorderCharacters(WorldPacket&& packet) : ClientPacket(CMSG_R
 
 void ReorderCharacters::Read()
 {
-    Entries.resize(_worldPacket.ReadBits(9));
+    _worldPacket >> BitsSize<9>(Entries);
     for (ReorderInfo& reorderInfo : Entries)
     {
         _worldPacket >> reorderInfo.PlayerGUID;
@@ -566,6 +599,7 @@ void ReorderCharacters::Read()
 void UndeleteCharacter::Read()
 {
     UndeleteInfo = std::make_shared<CharacterUndeleteInfo>();
+
     _worldPacket >> UndeleteInfo->ClientToken;
     _worldPacket >> UndeleteInfo->CharacterGuid;
 }
@@ -573,17 +607,21 @@ void UndeleteCharacter::Read()
 WorldPacket const* UndeleteCharacterResponse::Write()
 {
     ASSERT(UndeleteInfo);
+
     _worldPacket << int32(UndeleteInfo->ClientToken);
     _worldPacket << uint32(Result);
     _worldPacket << UndeleteInfo->CharacterGuid;
+
     return &_worldPacket;
 }
 
 WorldPacket const* UndeleteCooldownStatusResponse::Write()
 {
-    _worldPacket.WriteBit(OnCooldown);
     _worldPacket << uint32(MaxCooldown);
     _worldPacket << uint32(CurrentCooldown);
+    _worldPacket << Bits<1>(OnCooldown);
+    _worldPacket.FlushBits();
+
     return &_worldPacket;
 }
 
@@ -598,32 +636,76 @@ WorldPacket const* LoginVerifyWorld::Write()
     _worldPacket << int32(MapID);
     _worldPacket << Pos;
     _worldPacket << uint32(Reason);
+
     return &_worldPacket;
 }
 
 WorldPacket const* CharacterLoginFailed::Write()
 {
     _worldPacket << uint8(Code);
+
     return &_worldPacket;
 }
 
 void LogoutRequest::Read()
 {
-    IdleLogout = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(IdleLogout);
 }
 
 WorldPacket const* LogoutResponse::Write()
 {
     _worldPacket << int32(LogoutResult);
-    _worldPacket.WriteBit(Instant);
+    _worldPacket << Bits<1>(Instant);
     _worldPacket.FlushBits();
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, GameModeData const& gameModeData)
+{
+    data << int32(gameModeData.Unknown_1107_0);
+    data << gameModeData.Guid;
+    data << uint8(gameModeData.GameMode);
+    data << int32(gameModeData.MapID);
+    data << uint8(gameModeData.Unknown_1107_1);
+    data << uint8(gameModeData.Unknown_1107_2);
+    data << uint8(gameModeData.Unknown_1107_3);
+    data << Size<uint32>(gameModeData.Customizations);
+    data << Size<uint32>(gameModeData.Unknown_1107_4);
+
+    for (ChrCustomizationChoice const& customization : gameModeData.Customizations)
+        data << customization;
+
+    for (ChrCustomizationChoice const& customization : gameModeData.Unknown_1107_4)
+        data << customization;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, SwitchGameModeData const& switchGameModeData)
+{
+    data << Bits<1>(switchGameModeData.IsFastLogin);
+    data << switchGameModeData.Current;
+    data << switchGameModeData.New;
+
+    return data;
+}
+
+WorldPacket const* LogoutComplete::Write()
+{
+    _worldPacket << OptionalInit(SwitchGameMode);
+    _worldPacket.FlushBits();
+
+    if (SwitchGameMode)
+        _worldPacket << *SwitchGameMode;
+
     return &_worldPacket;
 }
 
 void LoadingScreenNotify::Read()
 {
     _worldPacket >> MapID;
-    Showing = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(Showing);
 }
 
 WorldPacket const* InitialSetup::Write()
@@ -641,14 +723,14 @@ void SetActionBarToggles::Read()
 
 void RequestPlayedTime::Read()
 {
-    TriggerScriptEvent = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(TriggerScriptEvent);
 }
 
 WorldPacket const* PlayedTime::Write()
 {
     _worldPacket << int32(TotalTime);
     _worldPacket << int32(LevelTime);
-    _worldPacket.WriteBit(TriggerEvent);
+    _worldPacket << Bits<1>(TriggerEvent);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -661,7 +743,7 @@ void SetTitle::Read()
 
 void AlterApperance::Read()
 {
-    Customizations.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(Customizations);
     _worldPacket >> NewSex;
     _worldPacket >> CustomizedRace;
     _worldPacket >> CustomizedChrModelID;
@@ -675,6 +757,7 @@ void AlterApperance::Read()
 WorldPacket const* BarberShopResult::Write()
 {
     _worldPacket << int32(Result);
+
     return &_worldPacket;
 }
 
@@ -709,7 +792,7 @@ void SetFactionNotAtWar::Read()
 void SetFactionInactive::Read()
 {
     _worldPacket >> Index;
-    State = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(State);
 }
 
 void SetWatchedFaction::Read()
@@ -720,6 +803,7 @@ void SetWatchedFaction::Read()
 WorldPacket const* SetFactionVisible::Write()
 {
     _worldPacket << FactionIndex;
+
     return &_worldPacket;
 }
 
@@ -735,13 +819,14 @@ WorldPacket const* CharCustomizeSuccess::Write()
 {
     _worldPacket << CharGUID;
     _worldPacket << uint8(SexID);
-    _worldPacket << uint32(Customizations.size());
+    _worldPacket << Size<uint32>(Customizations);
     for (ChrCustomizationChoice customization : Customizations)
         _worldPacket << customization;
 
-    _worldPacket.WriteBits(CharName.length(), 6);
+    _worldPacket << SizedString::BitsSize<6>(CharName);
     _worldPacket.FlushBits();
-    _worldPacket.WriteString(CharName);
+
+    _worldPacket << SizedString::Data(CharName);
 
     return &_worldPacket;
 }
@@ -758,13 +843,11 @@ void SetPlayerDeclinedNames::Read()
 {
     _worldPacket >> Player;
 
-    uint8 stringLengths[MAX_DECLINED_NAME_CASES];
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        _worldPacket >> SizedString::BitsSize<7>(DeclinedNames.name[i]);
 
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        stringLengths[i] = _worldPacket.ReadBits(7);
-
-    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        DeclinedNames.name[i] = _worldPacket.ReadString(stringLengths[i]);
+        _worldPacket >> SizedString::Data(DeclinedNames.name[i]);
 }
 
 WorldPacket const * SetPlayerDeclinedNamesResult::Write()
@@ -786,6 +869,5 @@ WorldPacket const* PlayerSavePersonalEmblem::Write()
     _worldPacket << int32(Error);
 
     return &_worldPacket;
-}
 }
 }

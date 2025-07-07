@@ -73,6 +73,11 @@ enum UnworthyInitiatePhase
     PHASE_ATTACKING,
 };
 
+enum UnworthyInitiateData
+{
+    DATA_PRISONER_GUID = 0
+};
+
 uint32 acherus_soul_prison[12] =
 {
     191577,
@@ -191,7 +196,7 @@ public:
                 {
                     if (Creature* anchor = me->FindNearestCreature(29521, 30))
                     {
-                        anchor->AI()->SetGUID(me->GetGUID());
+                        anchor->AI()->SetGUID(me->GetGUID(), DATA_PRISONER_GUID);
                         anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
                         anchorGUID = anchor->GetGUID();
                     }
@@ -312,8 +317,11 @@ public:
 
         ObjectGuid prisonerGUID;
 
-        void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+        void SetGUID(ObjectGuid const& guid, int32 id) override
         {
+            if (id != DATA_PRISONER_GUID)
+                return;
+
             prisonerGUID = guid;
         }
 
@@ -337,7 +345,7 @@ class go_acherus_soul_prison : public GameObjectScript
             {
                 if (Creature* anchor = me->FindNearestCreature(29521, 15))
                 {
-                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID();
+                    ObjectGuid prisonerGUID = anchor->AI()->GetGUID(DATA_PRISONER_GUID);
                     if (!prisonerGUID.IsEmpty())
                         if (Creature* prisoner = ObjectAccessor::GetCreature(*player, prisonerGUID))
                             ENSURE_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);

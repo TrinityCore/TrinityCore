@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WardenPackets_h__
-#define WardenPackets_h__
+#ifndef TRINITYCORE_WARDEN_PACKETS_H
+#define TRINITYCORE_WARDEN_PACKETS_H
 
 #include "Packet.h"
 
@@ -27,7 +27,7 @@ namespace WorldPackets
         class WardenData final : public ClientPacket
         {
         public:
-            WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN3_DATA, std::move(packet)) { }
+            explicit WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN3_DATA, std::move(packet)) { }
 
             void Read() override;
 
@@ -36,4 +36,4 @@ namespace WorldPackets
     }
 }
 
-#endif // WardenPackets_h__
+#endif // TRINITYCORE_WARDEN_PACKETS_H

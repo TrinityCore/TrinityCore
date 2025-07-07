@@ -132,15 +132,13 @@ typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
 struct BossInfo
 {
-    BossInfo() : state(TO_BE_DECIDED) { DungeonEncounters.fill(nullptr); }
-
     DungeonEncounterEntry const* GetDungeonEncounterForDifficulty(Difficulty difficulty) const;
 
-    EncounterState state;
+    EncounterState state = TO_BE_DECIDED;
     std::array<GuidSet, static_cast<uint8>(EncounterDoorBehavior::Max)> door;
     GuidSet minion;
     CreatureBoundary boundary;
-    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters;
+    std::array<DungeonEncounterEntry const*, MAX_DUNGEON_ENCOUNTERS_PER_BOSS> DungeonEncounters = { };
 };
 
 struct DoorInfo
@@ -182,7 +180,7 @@ typedef std::map<uint32 /*entry*/, uint32 /*type*/> ObjectInfoMap;
 class TC_GAME_API InstanceScript : public ZoneScript
 {
     public:
-        explicit InstanceScript(InstanceMap* map);
+        explicit InstanceScript(InstanceMap* map) noexcept;
         InstanceScript(InstanceScript const& right) = delete;
         InstanceScript(InstanceScript&& right) = delete;
         InstanceScript& operator=(InstanceScript const& right) = delete;
@@ -322,7 +320,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
 
     protected:
         void SetHeaders(std::string const& dataHeaders);
-        void SetBossNumber(uint32 number) { bosses.resize(number); }
+        void SetBossNumber(uint32 number);
         void LoadBossBoundaries(BossBoundaryData const& data);
         void LoadDoorData(DoorData const* data);
         void LoadMinionData(MinionData const* data);

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemPacketsCommon_h__
-#define ItemPacketsCommon_h__
+#ifndef TRINITYCORE_ITEM_PACKETS_COMMON_H
+#define TRINITYCORE_ITEM_PACKETS_COMMON_H
 
 #include "ItemDefines.h"
 #include "PacketUtilities.h"
@@ -48,13 +48,10 @@ namespace WorldPackets
 
         struct ItemMod
         {
-            ItemMod() = default;
-            ItemMod(int32 value, ItemModifier type) : Value(value), Type(type) { }
-
             int32 Value = 0;
             ItemModifier Type = MAX_ITEM_MODIFIERS;
 
-            bool operator==(ItemMod const& r) const;
+            friend bool operator==(ItemMod const& left, ItemMod const& right) = default;
         };
 
         struct ItemModList
@@ -135,4 +132,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ItemPacketsCommon_h__
+#endif // TRINITYCORE_ITEM_PACKETS_COMMON_H

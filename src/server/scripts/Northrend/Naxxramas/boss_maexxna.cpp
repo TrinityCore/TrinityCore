@@ -69,6 +69,11 @@ enum Events
     EVENT_SUMMON,
 };
 
+enum MaexxnaData
+{
+    DATA_WEBWRAP_VICTIM_GUID = 0
+};
+
 const float WEB_WRAP_MOVE_SPEED = 20.0f;
 
 struct WebTargetSelector
@@ -143,7 +148,7 @@ struct boss_maexxna : public BossAI
                             target->RemoveAura(SPELL_WEB_SPRAY);
                             if (Creature* wrap = DoSummon(NPC_WEB_WRAP, WrapPositions[wrapPos], 70s, TEMPSUMMON_TIMED_DESPAWN))
                             {
-                                wrap->AI()->SetGUID(target->GetGUID()); // handles application of debuff
+                                wrap->AI()->SetGUID(target->GetGUID(), DATA_WEBWRAP_VICTIM_GUID); // handles application of debuff
                                 target->GetMotionMaster()->MoveJump(WrapPositions[wrapPos], WEB_WRAP_MOVE_SPEED, WEB_WRAP_MOVE_SPEED); // move after stun to avoid stun cancelling move
                             }
                         }
@@ -188,10 +193,14 @@ struct npc_webwrap : public NullCreatureAI
         me->SetVisible(false);
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_WEBWRAP_VICTIM_GUID)
+            return;
+
         if (!guid)
             return;
+
         victimGUID = guid;
         if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
         {

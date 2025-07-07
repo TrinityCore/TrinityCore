@@ -36,6 +36,7 @@
 #include "Util.h"
 #include "WaypointDefines.h"
 #include "WaypointManager.h"
+#include "advstd.h"
 #include <algorithm>
 
 #define TC_SAI_IS_BOOLEAN_VALID(e, value) \
@@ -47,6 +48,9 @@
         return false; \
     } \
 }
+
+SmartAIMgr::SmartAIMgr() = default;
+SmartAIMgr::~SmartAIMgr() = default;
 
 SmartAIMgr* SmartAIMgr::instance()
 {
@@ -594,8 +598,14 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.farthest.isInLos);
             break;
         case SMART_TARGET_CLOSEST_CREATURE:
-            TC_SAI_IS_BOOLEAN_VALID(e, e.target.unitClosest.dead);
+        {
+            if (e.target.unitClosest.findCreatureAliveState < (uint32)FindCreatureAliveState::Alive || e.target.unitClosest.findCreatureAliveState >= (uint32)FindCreatureAliveState::Max)
+            {
+                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} has invalid alive state {}", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType(), e.target.unitClosest.findCreatureAliveState);
+                return false;
+            }
             break;
+        }
         case SMART_TARGET_CLOSEST_ENEMY:
             TC_SAI_IS_BOOLEAN_VALID(e, e.target.closestAttackable.playerOnly);
             break;
@@ -2030,7 +2040,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     }
 
-                    if (std::ranges::none_of(InventoryTypesEquipable, [dbcItem](InventoryType inventoryType) { return inventoryType == dbcItem->InventoryType; }))
+                    if (!advstd::ranges::contains(InventoryTypesEquipable, dbcItem->InventoryType))
                     {
                         TC_LOG_ERROR("sql.sql", "SmartScript: SMART_ACTION_EQUIP uses item {} (slot {}) not equipable in a hand for creature {}, skipped.", itemEntry, slot, e.entryOrGuid);
                         return false;

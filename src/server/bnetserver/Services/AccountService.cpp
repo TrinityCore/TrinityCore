@@ -16,6 +16,7 @@
  */
 
 #include "AccountService.h"
+#include "Session.h"
 
 Battlenet::Services::Account::Account(Session* session) : AccountService(session)
 {

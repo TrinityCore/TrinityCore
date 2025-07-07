@@ -99,10 +99,15 @@ typedef std::unordered_map<uint32, ScenarioPOIVector> ScenarioPOIContainer;
 class TC_GAME_API ScenarioMgr
 {
 private:
-    ScenarioMgr() { }
-    ~ScenarioMgr() { }
+    ScenarioMgr();
+    ~ScenarioMgr();
 
 public:
+    ScenarioMgr(ScenarioMgr const&) = delete;
+    ScenarioMgr(ScenarioMgr&&) = delete;
+    ScenarioMgr& operator=(ScenarioMgr const&) = delete;
+    ScenarioMgr& operator=(ScenarioMgr&&) = delete;
+
     static ScenarioMgr* Instance();
 
     InstanceScenario* CreateInstanceScenario(InstanceMap* map, TeamId team) const;
@@ -117,9 +122,6 @@ private:
     ScenarioDataContainer _scenarioData;
     ScenarioPOIContainer _scenarioPOIStore;
     ScenarioDBDataContainer _scenarioDBData;
-
-    ScenarioMgr(ScenarioMgr const&) = delete;
-    ScenarioMgr& operator=(ScenarioMgr const&) = delete;
 };
 
 #define sScenarioMgr ScenarioMgr::Instance()

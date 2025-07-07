@@ -65,7 +65,7 @@ namespace
         sslContext.set_options(boost::asio::ssl::context::no_tlsv1_1, error);
         sslContext.set_default_verify_paths(error);
 
-        Trinity::Asio::Resolver resolver(ioContext);
+        Trinity::Net::Resolver resolver(ioContext);
 
         Optional<boost::asio::ip::tcp::endpoint> endpoint = resolver.Resolve(boost::asio::ip::tcp::v4(), serverName, std::to_string(port));
         if (!endpoint)

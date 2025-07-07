@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DuelPackets_h__
-#define DuelPackets_h__
+#ifndef TRINITYCORE_DUEL_PACKETS_H
+#define TRINITYCORE_DUEL_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -28,7 +28,7 @@ namespace WorldPackets
         class CanDuel final : public ClientPacket
         {
         public:
-            CanDuel(WorldPacket&& packet) : ClientPacket(CMSG_CAN_DUEL, std::move(packet)) { }
+            explicit CanDuel(WorldPacket&& packet) : ClientPacket(CMSG_CAN_DUEL, std::move(packet)) { }
 
             void Read() override;
 
@@ -39,7 +39,7 @@ namespace WorldPackets
         class CanDuelResult final : public ServerPacket
         {
         public:
-            CanDuelResult() : ServerPacket(SMSG_CAN_DUEL_RESULT, 16 + 1) { }
+            explicit CanDuelResult() : ServerPacket(SMSG_CAN_DUEL_RESULT, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -50,7 +50,7 @@ namespace WorldPackets
         class DuelComplete final : public ServerPacket
         {
         public:
-            DuelComplete() : ServerPacket(SMSG_DUEL_COMPLETE, 1) { }
+            explicit DuelComplete() : ServerPacket(SMSG_DUEL_COMPLETE, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -60,7 +60,7 @@ namespace WorldPackets
         class DuelCountdown final : public ServerPacket
         {
         public:
-            DuelCountdown(uint32 countdown) : ServerPacket(SMSG_DUEL_COUNTDOWN, 4), Countdown(countdown) { }
+            explicit DuelCountdown(uint32 countdown) : ServerPacket(SMSG_DUEL_COUNTDOWN, 4), Countdown(countdown) { }
 
             WorldPacket const* Write() override;
 
@@ -70,7 +70,7 @@ namespace WorldPackets
         class DuelInBounds final : public ServerPacket
         {
         public:
-            DuelInBounds() : ServerPacket(SMSG_DUEL_IN_BOUNDS, 0) { }
+            explicit DuelInBounds() : ServerPacket(SMSG_DUEL_IN_BOUNDS, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -78,7 +78,7 @@ namespace WorldPackets
         class DuelOutOfBounds final : public ServerPacket
         {
         public:
-            DuelOutOfBounds() : ServerPacket(SMSG_DUEL_OUT_OF_BOUNDS, 0) { }
+            explicit DuelOutOfBounds() : ServerPacket(SMSG_DUEL_OUT_OF_BOUNDS, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -86,7 +86,7 @@ namespace WorldPackets
         class DuelRequested final : public ServerPacket
         {
         public:
-            DuelRequested() : ServerPacket(SMSG_DUEL_REQUESTED, 16 * 3 + 1) { }
+            explicit DuelRequested() : ServerPacket(SMSG_DUEL_REQUESTED, 16 * 3 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -99,7 +99,7 @@ namespace WorldPackets
         class DuelResponse : public ClientPacket
         {
         public:
-            DuelResponse(WorldPacket&& packet) : ClientPacket(CMSG_DUEL_RESPONSE, std::move(packet)) { }
+            explicit DuelResponse(WorldPacket&& packet) : ClientPacket(CMSG_DUEL_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -111,7 +111,7 @@ namespace WorldPackets
         class DuelWinner final : public ServerPacket
         {
         public:
-            DuelWinner() : ServerPacket(SMSG_DUEL_WINNER, 4 * 4 + 1) { }
+            explicit DuelWinner() : ServerPacket(SMSG_DUEL_WINNER, 4 * 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -124,4 +124,4 @@ namespace WorldPackets
     }
 }
 
-#endif // DuelPackets_h__
+#endif // TRINITYCORE_DUEL_PACKETS_H

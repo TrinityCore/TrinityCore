@@ -22,8 +22,8 @@
 #include <G3D/Vector3.h>
 #include "Errors.h"
 
-inline G3D::Vector3 PositionToVector3(Position p) { return { p.m_positionX, p.m_positionY, p.m_positionZ }; }
-inline G3D::Vector3 PositionToVector3(Position const* p) { return { ASSERT_NOTNULL(p)->m_positionX, p->m_positionY, p->m_positionZ }; }
-inline Position Vector3ToPosition(G3D::Vector3 v) { return { v.x, v.y, v.z }; }
+inline G3D::Vector3 PositionToVector3(Position const& p) { return { p.m_positionX, p.m_positionY, p.m_positionZ }; }
+inline G3D::Vector3 PositionToVector3(Position const* p) { ASSERT(p); return { p->m_positionX, p->m_positionY, p->m_positionZ }; }
+inline Position Vector3ToPosition(G3D::Vector3 const& v) { return { v.x, v.y, v.z }; }
 
 #endif

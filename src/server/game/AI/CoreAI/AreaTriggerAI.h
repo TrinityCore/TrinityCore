@@ -32,7 +32,11 @@ class TC_GAME_API AreaTriggerAI
     protected:
         AreaTrigger* const at;
     public:
-        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {});
+        explicit AreaTriggerAI(AreaTrigger* a, uint32 scriptId = {}) noexcept;
+        AreaTriggerAI(AreaTriggerAI const&) = delete;
+        AreaTriggerAI(AreaTriggerAI&&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI const&) = delete;
+        AreaTriggerAI& operator=(AreaTriggerAI&&) = delete;
         virtual ~AreaTriggerAI();
 
         // Called when the AreaTrigger has just been initialized, just before added to map
@@ -61,10 +65,10 @@ class TC_GAME_API AreaTriggerAI
 
         // Pass parameters between AI
         virtual void DoAction([[maybe_unused]] int32 param) { }
-        virtual uint32 GetData([[maybe_unused]] uint32 id = 0) const { return 0; }
+        virtual uint32 GetData([[maybe_unused]] uint32 id) const { return 0; }
         virtual void SetData([[maybe_unused]] uint32 id, [[maybe_unused]] uint32 value) { }
-        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id = 0) { }
-        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id = 0) const { return ObjectGuid::Empty; }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id) const { return ObjectGuid::Empty; }
 
         // Gets the id of the AI (script id)
         uint32 GetId() const { return _scriptId; }

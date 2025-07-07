@@ -15,22 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AuctionHouseBot.h"
 #include "AuctionHouseMgr.h"
-#include "AuctionHousePackets.h"
 #include "AccountMgr.h"
+#include "AuctionHouseBot.h"
+#include "AuctionHousePackets.h"
 #include "Bag.h"
 #include "BattlePetMgr.h"
-#include "DB2Stores.h"
 #include "CharacterCache.h"
 #include "CollectionMgr.h"
 #include "Common.h"
-#include "Containers.h"
+#include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Log.h"
 #include "Mail.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -39,8 +39,8 @@
 #include "WorldSession.h"
 #include "WowTime.h"
 #include <boost/dynamic_bitset.hpp>
+#include <fmt/ranges.h>
 #include <numeric>
-#include <sstream>
 #include <vector>
 
 enum eAuctionHouse
@@ -171,7 +171,7 @@ void AuctionPosting::BuildAuctionItem(WorldPackets::AuctionHouse::AuctionItem* a
     {
         auctionItem->Item.emplace();
         auctionItem->Item->Initialize(Items[0]);
-        auctionItem->Charges = std::max({ Items[0]->GetSpellCharges(0), Items[0]->GetSpellCharges(1), Items[0]->GetSpellCharges(2), Items[0]->GetSpellCharges(3), Items[0]->GetSpellCharges(4) });
+        auctionItem->Charges = Items[0]->GetSpellCharges();
         for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; i++)
         {
             uint32 enchantId = Items[0]->GetEnchantmentId(EnchantmentSlot(i));
@@ -464,25 +464,8 @@ std::string AuctionHouseMgr::BuildCommodityAuctionMailSubject(AuctionMailType ty
 std::string AuctionHouseMgr::BuildAuctionMailSubject(uint32 itemId, AuctionMailType type, uint32 auctionId, uint32 itemCount, uint32 battlePetSpeciesId,
     ItemContext context, std::vector<int32> const& bonusListIds)
 {
-    std::ostringstream strm;
-    strm
-        << itemId << ':'
-        << "0:" // OLD: itemRandomPropertiesId
-        << AsUnderlyingType(type) << ':'
-        << auctionId << ':'
-        << itemCount << ':'
-        << battlePetSpeciesId << ':'
-        << "0:"
-        << "0:"
-        << "0:"
-        << "0:"
-        << uint32(context) << ':'
-        << bonusListIds.size();
-
-    for (int32 bonusListId : bonusListIds)
-        strm << ':' << bonusListId;
-
-    return strm.str();
+    return Trinity::StringFormat("{}:0:{}:{}:{}:{}:0:0:0:0:{}:{}:{}",
+        itemId, AsUnderlyingType(type), auctionId, itemCount, battlePetSpeciesId, context, bonusListIds.size(), fmt::join(bonusListIds, ":"));
 }
 
 std::string AuctionHouseMgr::BuildAuctionWonMailBody(ObjectGuid guid, uint64 bid, uint64 buyout)
@@ -927,10 +910,10 @@ void AuctionHouseObject::AddAuction(CharacterDatabaseTransaction trans, AuctionP
 
     if (ItemModifiedAppearanceEntry const* itemModifiedAppearance = auction.Items[0]->GetItemModifiedAppearance())
     {
-        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, &std::pair<uint32, uint32>::first);
+        auto itr = std::ranges::find(bucket->ItemModifiedAppearanceId, itemModifiedAppearance->ID, Trinity::TupleElement<0>);
 
         if (itr == bucket->ItemModifiedAppearanceId.end())
-            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, &std::pair<uint32, uint32>::first);
+            itr = std::ranges::find(bucket->ItemModifiedAppearanceId, 0u, Trinity::TupleElement<0>);
 
         if (itr != bucket->ItemModifiedAppearanceId.end())
         {
@@ -1720,7 +1703,7 @@ bool AuctionHouseObject::BuyCommodity(CharacterDatabaseTransaction trans, Player
     }
 
     WorldPackets::AuctionHouse::AuctionWonNotification packet;
-    packet.Info.Initialize(auctions[0], items[0].Items[0]);
+    packet.Info.Initialize(_auctionHouse->ID, auctions[0], items[0].Items[0]);
     player->SendDirectMessage(packet.Write());
 
     for (std::size_t i = 0; i < auctions.size(); ++i)
@@ -1822,7 +1805,7 @@ void AuctionHouseObject::SendAuctionWon(AuctionPosting const* auction, Player* b
         if (bidder)
         {
             WorldPackets::AuctionHouse::AuctionWonNotification packet;
-            packet.Info.Initialize(auction, auction->Items[0]);
+            packet.Info.Initialize(_auctionHouse->ID, auction, auction->Items[0]);
             bidder->SendDirectMessage(packet.Write());
 
             // FIXME: for offline player need also

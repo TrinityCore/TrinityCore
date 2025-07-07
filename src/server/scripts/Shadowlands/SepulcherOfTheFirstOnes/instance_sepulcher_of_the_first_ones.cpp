@@ -42,7 +42,7 @@ ObjectData const creatureData[] =
 
 BossBoundaryData const boundaries =
 {
-    { DATA_ANDUIN_WRYNN,                        new CircleBoundary({ -3825.0601f, -2715.4600f }, 45.0)},
+    { DATA_ANDUIN_WRYNN,                        new CircleBoundary({ -3825.0601f, -2715.4600f }, 45.0f)},
 };
 
 DoorData const doorData[] =

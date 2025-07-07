@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
@@ -262,12 +263,12 @@ struct at_sylvanas_windrunner_introduction : AreaTriggerAI
 };
 
 // 17368 - Sylvanas Windrunner's Introduction (Conversation)
-class conversation_sylvanas_windrunner_introduction : public ConversationScript
+class conversation_sylvanas_windrunner_introduction : public ConversationAI
 {
 public:
-    conversation_sylvanas_windrunner_introduction() : ConversationScript("conversation_sylvanas_windrunner_introduction") { }
+    conversation_sylvanas_windrunner_introduction(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         InstanceScript* instance = creator->GetInstanceScript();
         if (!instance)
@@ -283,7 +284,7 @@ public:
         _events.ScheduleEvent(EVENT_INTRODUCTION, 5s + 500ms);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -485,5 +486,5 @@ void AddSC_boss_sylvanas_windrunner()
     RegisterAreaTriggerAI(at_sylvanas_windrunner_z_check);
     RegisterAreaTriggerAI(at_sylvanas_windrunner_introduction);
 
-    new conversation_sylvanas_windrunner_introduction();
+    RegisterConversationAI(conversation_sylvanas_windrunner_introduction);
 }

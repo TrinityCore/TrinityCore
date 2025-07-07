@@ -27,7 +27,6 @@
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "IpAddress.h"
 #include "IPLocation.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
@@ -49,11 +48,6 @@
 #include "Weather.h"
 #include "World.h"
 #include "WorldSession.h"
-
-// temporary hack until includes are sorted out (don't want to pull in Windows.h)
-#ifdef GetClassName
-#undef GetClassName
-#endif
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -311,15 +305,10 @@ public:
             return false;
         }
 
-        if(!spell)
+        if (!spell)
             return false;
 
-        ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, target->GetMapId(), spell->Id, target->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-        AuraCreateInfo createInfo(castId, spell, target->GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, target);
-        createInfo.SetCaster(target);
-
-        Aura::TryRefreshStackOrCreate(createInfo);
-
+        target->AddAura(spell, MAX_EFFECT_MASK, target);
         return true;
     }
 
@@ -962,10 +951,7 @@ public:
                 return false;
 
             if (Player* caster = handler->GetSession()->GetPlayer())
-            {
-                ObjectGuid castId = ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, player->GetMapId(), SPELL_UNSTUCK_ID, player->GetMap()->GenerateLowGuid<HighGuid::Cast>());
-                Spell::SendCastResult(caster, spellInfo, { SPELL_UNSTUCK_VISUAL, 0 }, castId, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-            }
+                caster->SendDirectMessage(WorldPackets::Misc::DisplayGameError(GameError::ERR_CLIENT_LOCKED_OUT).Write());
 
             return false;
         }
@@ -1158,8 +1144,14 @@ public:
         Optional<std::string_view> const& bonusListIdString, Optional<uint8> itemContextArg)
     {
         uint32 itemId = 0;
+        std::vector<int32> bonusListIDs;
+        ItemContext itemContext = ItemContext::NONE;
         if (Hyperlink<::item> const* itemLinkData = std::get_if<Hyperlink<::item>>(&itemArg))
+        {
             itemId = (*itemLinkData)->Item->GetId();
+            bonusListIDs = (*itemLinkData)->ItemBonusListIDs;
+            itemContext = static_cast<ItemContext>((*itemLinkData)->Context);
+        }
         else if (uint32 const* itemIdPtr = std::get_if<uint32>(&itemArg))
             itemId = *itemIdPtr;
         else if (std::string_view const* itemNameText = std::get_if<std::string_view>(&itemArg))
@@ -1192,15 +1184,12 @@ public:
         if (count == 0)
             count = 1;
 
-        std::vector<int32> bonusListIDs;
-
         // semicolon separated bonuslist ids (parse them after all arguments are extracted by strtok!)
         if (bonusListIdString)
             for (std::string_view token : Trinity::Tokenize(*bonusListIdString, ';', false))
                 if (Optional<int32> bonusListId = Trinity::StringTo<int32>(token); bonusListId && *bonusListId)
                     bonusListIDs.push_back(*bonusListId);
 
-        ItemContext itemContext = ItemContext::NONE;
         if (itemContextArg)
         {
             itemContext = ItemContext(*itemContextArg);
@@ -1208,6 +1197,8 @@ public:
             {
                 std::vector<int32> contextBonuses = ItemBonusMgr::GetBonusListsForItem(itemId, itemContext);
                 bonusListIDs.insert(bonusListIDs.begin(), contextBonuses.begin(), contextBonuses.end());
+                std::ranges::sort(bonusListIDs);
+                bonusListIDs.erase(std::unique(bonusListIDs.begin(), bonusListIDs.end()), bonusListIDs.end());
             }
         }
 
@@ -1761,7 +1752,7 @@ public:
 
         // Output XI. LANG_PINFO_CHR_RACE
         raceStr  = DB2Manager::GetChrRaceName(raceid, locale);
-        classStr = DB2Manager::GetClassName(classid, locale);
+        classStr = DB2Manager::GetChrClassName(classid, locale);
         handler->PSendSysMessage(LANG_PINFO_CHR_RACE, (gender == 0 ? handler->GetTrinityString(LANG_CHARACTER_GENDER_MALE) : handler->GetTrinityString(LANG_CHARACTER_GENDER_FEMALE)), raceStr.c_str(), classStr.c_str());
 
         // Output XII. LANG_PINFO_CHR_ALIVE
@@ -1984,8 +1975,8 @@ public:
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setString(1, "");
-        stmt->setString(2, "");
+        stmt->setString(1, ""sv);
+        stmt->setString(2, ""sv);
         stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
@@ -2173,7 +2164,7 @@ public:
         {
             Unit::DealDamage(handler->GetSession()->GetPlayer(), target, damage, nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             if (target != handler->GetSession()->GetPlayer())
-                handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0);
+                handler->GetSession()->GetPlayer()->SendAttackStateUpdate (HITINFO_AFFECTS_VICTIM, target, 1, SPELL_SCHOOL_MASK_NORMAL, damage, 0, 0, VICTIMSTATE_HIT, 0, 0);
             return true;
         }
 
@@ -2199,7 +2190,7 @@ public:
             uint32 resist = dmgInfo.GetResist();
             Unit::DealDamageMods(attacker, target, damage, &absorb);
             Unit::DealDamage(attacker, target, damage, nullptr, DIRECT_DAMAGE, schoolmask, nullptr, false);
-            attacker->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 0, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0);
+            attacker->SendAttackStateUpdate(HITINFO_AFFECTS_VICTIM, target, 0, schoolmask, damage, absorb, resist, VICTIMSTATE_HIT, 0, 0);
             return true;
         }
 

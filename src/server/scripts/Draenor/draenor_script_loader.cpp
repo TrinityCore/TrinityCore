@@ -20,6 +20,10 @@ void AddSC_assault_on_the_dark_portal();
 void AddSC_draenor_shadowmoon_valley();
 void AddSC_garrison_generic();
 
+// Auchindoun
+void AddSC_instance_auchindoun();
+void AddSC_auchindoun();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddDraenorScripts()
@@ -27,4 +31,8 @@ void AddDraenorScripts()
     AddSC_assault_on_the_dark_portal();
     AddSC_draenor_shadowmoon_valley();
     AddSC_garrison_generic();
+
+    // Auchindoun
+    AddSC_instance_auchindoun();
+    AddSC_auchindoun();
 }

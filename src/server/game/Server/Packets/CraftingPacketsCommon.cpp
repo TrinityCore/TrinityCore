@@ -16,6 +16,7 @@
  */
 
 #include "CraftingPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Crafting
 {
@@ -39,7 +40,7 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
     data << int32(craftingData.CritBonusSkill);
     data << float(craftingData.field_1C);
     data << uint64(craftingData.field_20);
-    data << uint32(craftingData.ResourcesReturned.size());
+    data << Size<uint32>(craftingData.ResourcesReturned);
     data << uint32(craftingData.OperationID);
     data << craftingData.ItemGUID;
     data << int32(craftingData.Quantity);

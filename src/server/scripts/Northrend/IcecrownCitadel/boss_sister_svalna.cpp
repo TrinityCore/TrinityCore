@@ -685,8 +685,8 @@ struct npc_crok_scourgebane : public EscortAI
         {
             _wipeCheckTimer = 1000;
             Player* player = nullptr;
-            Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
-            Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+            Trinity::AnyUnitInObjectRangeCheck check(me, 60.0f);
+            Trinity::PlayerSearcher searcher(me, player, check);
             Cell::VisitWorldObjects(me, searcher, 60.0f);
             // wipe
             if (!player)

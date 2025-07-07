@@ -19,7 +19,8 @@ target_link_libraries(extractor_common
     trinity-core-interface
   PUBLIC
     casc
-    common)
+    common
+    network)
 
 target_include_directories(extractor_common
   PUBLIC

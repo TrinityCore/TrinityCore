@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PetPackets_h__
-#define PetPackets_h__
+#ifndef TRINITYCORE_PET_PACKETS_H
+#define TRINITYCORE_PET_PACKETS_H
 
 #include "Packet.h"
 #include "PetDefines.h"
@@ -33,7 +33,7 @@ namespace WorldPackets
         class DismissCritter final : public ClientPacket
         {
         public:
-            DismissCritter(WorldPacket&& packet) : ClientPacket(CMSG_DISMISS_CRITTER, std::move(packet)) { }
+            explicit DismissCritter(WorldPacket&& packet) : ClientPacket(CMSG_DISMISS_CRITTER, std::move(packet)) { }
 
             void Read() override;
 
@@ -43,7 +43,7 @@ namespace WorldPackets
         class RequestPetInfo final : public ClientPacket
         {
         public:
-            RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
+            explicit RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -51,7 +51,7 @@ namespace WorldPackets
         class PetAbandon final : public ClientPacket
         {
         public:
-            PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
+            explicit PetAbandon(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON, std::move(packet)) { }
 
             void Read() override;
 
@@ -61,7 +61,7 @@ namespace WorldPackets
         class PetAbandonByNumber final : public ClientPacket
         {
         public:
-            PetAbandonByNumber(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON_BY_NUMBER, std::move(packet)) { }
+            explicit PetAbandonByNumber(WorldPacket&& packet) : ClientPacket(CMSG_PET_ABANDON_BY_NUMBER, std::move(packet)) { }
 
             void Read() override;
 
@@ -71,7 +71,7 @@ namespace WorldPackets
         class PetStopAttack final : public ClientPacket
         {
         public:
-            PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
+            explicit PetStopAttack(WorldPacket&& packet) : ClientPacket(CMSG_PET_STOP_ATTACK, std::move(packet)) { }
 
             void Read() override;
 
@@ -81,7 +81,7 @@ namespace WorldPackets
         class PetSpellAutocast final : public ClientPacket
         {
         public:
-            PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
+            explicit PetSpellAutocast(WorldPacket&& packet) : ClientPacket(CMSG_PET_SPELL_AUTOCAST, std::move(packet)) { }
 
             void Read() override;
 
@@ -110,7 +110,7 @@ namespace WorldPackets
         class PetSpells final : public ServerPacket
         {
         public:
-            PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 100) { }
+            explicit PetSpells() : ServerPacket(SMSG_PET_SPELLS_MESSAGE, 100) { }
 
             WorldPacket const* Write() override;
 
@@ -132,17 +132,17 @@ namespace WorldPackets
         class PetStableResult final : public ServerPacket
         {
         public:
-            PetStableResult() : ServerPacket(SMSG_PET_STABLE_RESULT, 1) { }
+            explicit PetStableResult() : ServerPacket(SMSG_PET_STABLE_RESULT, 1) { }
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            int32 Result = 0;
         };
 
         class PetLearnedSpells final : public ServerPacket
         {
         public:
-            PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELLS, 4) { }
+            explicit PetLearnedSpells() : ServerPacket(SMSG_PET_LEARNED_SPELLS, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -152,7 +152,7 @@ namespace WorldPackets
         class PetUnlearnedSpells final : public ServerPacket
         {
         public:
-            PetUnlearnedSpells() : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 4) { }
+            explicit PetUnlearnedSpells() : ServerPacket(SMSG_PET_UNLEARNED_SPELLS, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -170,7 +170,7 @@ namespace WorldPackets
         class PetNameInvalid final : public ServerPacket
         {
         public:
-            PetNameInvalid() : ServerPacket(SMSG_PET_NAME_INVALID, 18 + 4 + 2 + 1 + 5 * 2 + 2) { }
+            explicit PetNameInvalid() : ServerPacket(SMSG_PET_NAME_INVALID, 18 + 4 + 2 + 1 + 5 * 2 + 2) { }
 
             WorldPacket const* Write() override;
 
@@ -182,7 +182,7 @@ namespace WorldPackets
         class PetRename final : public ClientPacket
         {
         public:
-            PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
+            explicit PetRename(WorldPacket&& packet) : ClientPacket(CMSG_PET_RENAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -192,7 +192,7 @@ namespace WorldPackets
         class PetAction final : public ClientPacket
         {
         public:
-            PetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
+            explicit PetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_ACTION, std::move(packet)) { }
 
             void Read() override;
 
@@ -205,7 +205,7 @@ namespace WorldPackets
         class PetSetAction final : public ClientPacket
         {
         public:
-            PetSetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
+            explicit PetSetAction(WorldPacket&& packet) : ClientPacket(CMSG_PET_SET_ACTION, std::move(packet)) { }
 
             void Read() override;
 
@@ -218,7 +218,7 @@ namespace WorldPackets
         class PetCancelAura final : public ClientPacket
         {
         public:
-            PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
+            explicit PetCancelAura(WorldPacket&& packet) : ClientPacket(CMSG_PET_CANCEL_AURA, std::move(packet)) { }
 
             void Read() override;
 
@@ -229,7 +229,7 @@ namespace WorldPackets
         class SetPetSpecialization final : public ServerPacket
         {
         public:
-            SetPetSpecialization() : ServerPacket(SMSG_SET_PET_SPECIALIZATION, 2) { }
+            explicit SetPetSpecialization() : ServerPacket(SMSG_SET_PET_SPECIALIZATION, 2) { }
 
             WorldPacket const* Write() override;
 
@@ -239,7 +239,7 @@ namespace WorldPackets
         class PetActionFeedback final : public ServerPacket
         {
         public:
-            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
+            explicit PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -250,7 +250,7 @@ namespace WorldPackets
         class PetActionSound final : public ServerPacket
         {
         public:
-            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 18 + 4) { }
+            explicit PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 18 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -261,7 +261,7 @@ namespace WorldPackets
         class PetTameFailure final : public ServerPacket
         {
         public:
-            PetTameFailure() : ServerPacket(SMSG_PET_TAME_FAILURE, 1) { }
+            explicit PetTameFailure() : ServerPacket(SMSG_PET_TAME_FAILURE, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -271,7 +271,7 @@ namespace WorldPackets
         class PetMode final : public ServerPacket
         {
         public:
-            PetMode() : ServerPacket(SMSG_PET_MODE, 16 + 2 + 1) { }
+            explicit PetMode() : ServerPacket(SMSG_PET_MODE, 16 + 2 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -283,4 +283,4 @@ namespace WorldPackets
     }
 }
 
-#endif // PetPackets_h__
+#endif // TRINITYCORE_PET_PACKETS_H

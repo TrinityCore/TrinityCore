@@ -181,6 +181,7 @@ void AddSC_boss_venoxis();
 void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
+void AddSC_abyssal_depths();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
@@ -191,7 +192,7 @@ void AddSC_duskwood();
 void AddSC_eastern_plaguelands();
 void AddSC_elwynn_forest();
 void AddSC_eversong_woods();
-//void AddSC_ghostlands();
+void AddSC_ghostlands();
 void AddSC_hinterlands();
 void AddSC_isle_of_queldanas();
 void AddSC_redridge_mountains();
@@ -373,6 +374,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_zanzil();
     AddSC_instance_zulgurub();
 
+    AddSC_abyssal_depths();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -383,7 +385,7 @@ void AddEasternKingdomsScripts()
     AddSC_eastern_plaguelands();
     AddSC_elwynn_forest();
     AddSC_eversong_woods();
-    //AddSC_ghostlands();
+    AddSC_ghostlands();
     AddSC_hinterlands();
     AddSC_isle_of_queldanas();
     AddSC_redridge_mountains();

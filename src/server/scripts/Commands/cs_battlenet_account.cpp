@@ -21,7 +21,6 @@
 #include "ChatCommand.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
-#include "IpAddress.h"
 #include "IPLocation.h"
 #include "Language.h"
 #include "Log.h"
@@ -137,7 +136,7 @@ public:
         else
         {
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
-            stmt->setString(0, "00");
+            stmt->setString(0, "00"sv);
             stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
             LoginDatabase.Execute(stmt);
             handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
@@ -356,7 +355,7 @@ public:
     static bool HandleListGameAccountsCommand(ChatHandler* handler, std::string const& battlenetAccountName)
     {
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_GAME_ACCOUNT_LIST_SMALL);
-        stmt->setStringView(0, battlenetAccountName);
+        stmt->setString(0, battlenetAccountName);
         if (PreparedQueryResult accountList = LoginDatabase.Query(stmt))
         {
             auto formatDisplayName = [](char const* name) -> std::string

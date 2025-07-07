@@ -114,8 +114,10 @@ namespace Trinity::Impl::ChatCommands
     }
 
     template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
-    template <typename... Ts> struct HandlerToTuple<bool(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, std::remove_cvref_t<Ts>...>; };
-    template <typename T> using TupleType = typename HandlerToTuple<T>::type;
+    template <typename... Ts> struct HandlerToTuple<bool(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, Ts...>; };
+
+    template <typename> struct ValueTupleType { };
+    template <typename... Ts> struct ValueTupleType<std::tuple<Ts...>> { using type = std::tuple<std::remove_cvref_t<Ts>...>; };
 
     struct CommandInvoker
     {
@@ -125,13 +127,14 @@ namespace Trinity::Impl::ChatCommands
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
             {
-                using Tuple = TupleType<TypedHandler>;
+                using RefTuple = typename HandlerToTuple<TypedHandler>::type;
+                using ValueTuple = typename ValueTupleType<RefTuple>::type;
 
-                Tuple arguments;
+                ValueTuple arguments;
                 std::get<0>(arguments) = chatHandler;
-                ChatCommandResult result = ConsumeFromOffset<Tuple, 1>(arguments, chatHandler, argsStr);
+                ChatCommandResult result = ConsumeFromOffset<ValueTuple, 1>(arguments, chatHandler, argsStr);
                 if (result)
-                    return std::apply(reinterpret_cast<TypedHandler*>(handler), std::move(arguments));
+                    return Invoke<RefTuple>(reinterpret_cast<TypedHandler*>(handler), arguments, std::make_index_sequence<std::tuple_size_v<RefTuple>>{});
                 else
                 {
                     if (result.HasErrorMessage())
@@ -161,6 +164,13 @@ namespace Trinity::Impl::ChatCommands
         }
 
     private:
+        template <typename ReferenceTuple, typename TypedHandler, typename ValueTuple, std::size_t... I>
+        static constexpr bool Invoke(TypedHandler* handler, ValueTuple& arguments, std::index_sequence<I...>)
+        {
+            // Invoke command handler preserving original reference category of each argument
+            return std::invoke(handler, std::get<I>(advstd::forward_like<std::tuple_element_t<I, ReferenceTuple>>(arguments))...);
+        }
+
         using wrapper_func = bool(void*, ChatHandler*, std::string_view);
         wrapper_func* _wrapper;
         void* _handler;

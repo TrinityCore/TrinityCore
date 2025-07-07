@@ -15,11 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DB2HotfixGenerator_h__
-#define DB2HotfixGenerator_h__
+#ifndef TRINITYCORE_DB2_HOTFIX_GENERATOR_H
+#define TRINITYCORE_DB2_HOTFIX_GENERATOR_H
 
 #include "DB2Store.h"
 #include <initializer_list>
+#include <span>
 
 class TC_GAME_API DB2HotfixGeneratorBase
 {
@@ -34,24 +35,19 @@ class DB2HotfixGenerator : private DB2HotfixGeneratorBase
 public:
     explicit DB2HotfixGenerator(DB2Storage<T>& storage) : _storage(storage), _count(0) { }
 
-    void ApplyHotfix(uint32 id, void(*fixer)(T*), bool notifyClient = false) { ApplyHotfix({ id }, fixer, notifyClient); }
-    void ApplyHotfix(std::initializer_list<uint32> ids, void(*fixer)(T*), bool notifyClient = false) { ApplyHotfix(ids.begin(), ids.end(), fixer, notifyClient); }
-
-    template<class I, class = typename std::enable_if<!std::is_void<decltype(*std::begin(std::declval<I>()))>::value>::type>
-    void ApplyHotfix(I const& ids, void(*fixer)(T*), bool notifyClient = false) { ApplyHotfix(std::begin(ids), std::end(ids), fixer, notifyClient); }
+    void ApplyHotfix(uint32 id, void(*fixer)(T*), bool notifyClient = false) { ApplyHotfix({ &id, 1 }, fixer, notifyClient); }
+    void ApplyHotfix(std::initializer_list<uint32> ids, void(*fixer)(T*), bool notifyClient = false) { ApplyHotfix({ ids.begin(), ids.end() }, fixer, notifyClient); }
 
     uint32 GetAppliedHotfixesCount() const { return _count; }
 
-private:
-    void ApplyHotfix(uint32 const* begin, uint32 const* end, void(*fixer)(T*), bool notifyClient)
+    void ApplyHotfix(std::span<uint32 const> ids, void(*fixer)(T*), bool notifyClient)
     {
-        while (begin != end)
+        for (uint32 id : ids)
         {
-            uint32 id = *begin++;
             T const* entry = _storage.LookupEntry(id);
             if (!entry)
             {
-                DB2HotfixGeneratorBase::LogMissingRecord(_storage.GetFileName().c_str(), id);
+                DB2HotfixGeneratorBase::LogMissingRecord(_storage.GetFileName(), id);
                 continue;
             }
 
@@ -63,8 +59,9 @@ private:
         }
     }
 
+private:
     DB2Storage<T>& _storage;
     uint32 _count;
 };
 
-#endif // DB2HotfixGenerator_h__
+#endif // TRINITYCORE_DB2_HOTFIX_GENERATOR_H

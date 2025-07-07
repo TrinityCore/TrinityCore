@@ -25,6 +25,7 @@
 #include "IteratorPair.h"
 #include "Locales.h"
 #include "MapDefines.h"
+#include "MapUtils.h"
 #include "StringFormat.h"
 #include "Util.h"
 #include "adt.h"
@@ -59,6 +60,7 @@ struct MapEntry
 
 struct LiquidMaterialEntry
 {
+    EnumFlag<LiquidMaterialFlags> Flags = { { } };
     int8 LVF = 0;
 };
 
@@ -330,6 +332,7 @@ void ReadLiquidMaterialTable()
             continue;
 
         LiquidMaterialEntry& liquidType = LiquidMaterials[record.GetId()];
+        liquidType.Flags = static_cast<LiquidMaterialFlags>(record.GetUInt32("Flags"));
         liquidType.LVF = record.GetUInt8("LVF");
     }
 
@@ -653,6 +656,13 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                 if (!h)
                     continue;
 
+                liquid_entry[i][j] = h2o->GetLiquidType(h);
+                LiquidTypeEntry const& liquidTypeEntry = LiquidTypes.at(liquid_entry[i][j]);
+
+                if (LiquidMaterialEntry const* liquidMaterial = Trinity::Containers::MapGetValuePtr(LiquidMaterials, liquidTypeEntry.MaterialID))
+                    if (liquidMaterial->Flags.HasFlag(LiquidMaterialFlags::VisualOnly))
+                        continue;
+
                 adt_liquid_attributes attrs = h2o->GetLiquidAttributes(i, j);
 
                 int32 count = 0;
@@ -672,8 +682,7 @@ bool ConvertADT(ChunkedFile& adt, std::string const& mapName, std::string const&
                     }
                 }
 
-                liquid_entry[i][j] = h2o->GetLiquidType(h);
-                switch (LiquidTypes.at(liquid_entry[i][j]).SoundBank)
+                switch (liquidTypeEntry.SoundBank)
                 {
                     case LIQUID_TYPE_WATER: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Water; break;
                     case LIQUID_TYPE_OCEAN: liquid_flags[i][j] |= map_liquidHeaderTypeFlags::Ocean; if (!ignoreDeepWater && attrs.Deep) liquid_flags[i][j] |= map_liquidHeaderTypeFlags::DarkWater; break;
@@ -1335,28 +1344,28 @@ void ExtractGameTables()
 
     printf("output path %s\n", outputPath.string().c_str());
 
-    DB2FileInfo GameTables[] =
+    static constexpr DB2FileInfo GameTables[] =
     {
-        { 1582086, "ArtifactKnowledgeMultiplier.txt" },
-        { 1391662, "ArtifactLevelXP.txt" },
-        { 1391663, "BarberShopCostBase.txt" },
-        { 1391664, "BaseMp.txt" },
-        { 4494528, "BaseProfessionRatings.txt" },
-        { 1391665, "BattlePetTypeDamageMod.txt" },
-        { 1391666, "BattlePetXP.txt" },
-        { 1391669, "CombatRatings.txt" },
-        { 1391670, "CombatRatingsMultByILvl.txt" },
-        { 1391671, "HonorLevel.txt" },
-        { 1391642, "HpPerSta.txt" },
-        { 2012881, "ItemLevelByLevel.txt" },
-        { 1726830, "ItemLevelSquish.txt" },
-        { 1391643, "ItemSocketCostPerLevel.txt" },
-        { 1391651, "NPCManaCostScaler.txt" },
-        { 4492239, "ProfessionRatings.txt" },
-        { 1391659, "SandboxScaling.txt" },
-        { 1391660, "SpellScaling.txt" },
-        { 1980632, "StaminaMultByILvl.txt" },
-        { 1391661, "xp.txt" }
+        { .FileDataId = 1582086, .Name = "ArtifactKnowledgeMultiplier.txt" },
+        { .FileDataId = 1391662, .Name = "ArtifactLevelXP.txt" },
+        { .FileDataId = 1391663, .Name = "BarberShopCostBase.txt" },
+        { .FileDataId = 1391664, .Name = "BaseMp.txt" },
+        { .FileDataId = 4494528, .Name = "BaseProfessionRatings.txt" },
+        { .FileDataId = 1391665, .Name = "BattlePetTypeDamageMod.txt" },
+        { .FileDataId = 1391666, .Name = "BattlePetXP.txt" },
+        { .FileDataId = 1391669, .Name = "CombatRatings.txt" },
+        { .FileDataId = 1391670, .Name = "CombatRatingsMultByILvl.txt" },
+        { .FileDataId = 1391671, .Name = "HonorLevel.txt" },
+        { .FileDataId = 1391642, .Name = "HpPerSta.txt" },
+        { .FileDataId = 2012881, .Name = "ItemLevelByLevel.txt" },
+        { .FileDataId = 1726830, .Name = "ItemLevelSquish.txt" },
+        { .FileDataId = 1391643, .Name = "ItemSocketCostPerLevel.txt" },
+        { .FileDataId = 1391651, .Name = "NPCManaCostScaler.txt" },
+        { .FileDataId = 4492239, .Name = "ProfessionRatings.txt" },
+        { .FileDataId = 1391659, .Name = "SandboxScaling.txt" },
+        { .FileDataId = 1391660, .Name = "SpellScaling.txt" },
+        { .FileDataId = 1980632, .Name = "StaminaMultByILvl.txt" },
+        { .FileDataId = 1391661, .Name = "xp.txt" }
     };
 
     uint32 count = 0;

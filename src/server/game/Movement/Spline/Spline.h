@@ -150,7 +150,7 @@ protected:
 
     LengthArray lengths;
 
-    index_type computeIndexInBounds(length_type length) const;
+    index_type computeIndexInBoundsAtLength(length_type length) const;
 public:
 
     explicit Spline(){ }

@@ -209,12 +209,15 @@ enum AuctionBotConfigFloatValues
 class TC_GAME_API AuctionBotConfig
 {
 private:
-    AuctionBotConfig(): _itemsPerCycleBoost(1000), _itemsPerCycleNormal(20), _configUint32Values(), _configBoolValues(), _configFloatValues() { }
-    ~AuctionBotConfig() {}
-    AuctionBotConfig(AuctionBotConfig const&) = delete;
-    AuctionBotConfig& operator=(AuctionBotConfig const&) = delete;
+    AuctionBotConfig();
+    ~AuctionBotConfig();
 
 public:
+    AuctionBotConfig(AuctionBotConfig const&) = delete;
+    AuctionBotConfig(AuctionBotConfig&&) = delete;
+    AuctionBotConfig& operator=(AuctionBotConfig const&) = delete;
+    AuctionBotConfig& operator=(AuctionBotConfig&&) = delete;
+
     static AuctionBotConfig* instance();
 
     bool Initialize();
@@ -270,8 +273,12 @@ private:
 class AuctionBotAgent
 {
 public:
-    AuctionBotAgent() {}
-    virtual ~AuctionBotAgent() {}
+    AuctionBotAgent() = default;
+    AuctionBotAgent(AuctionBotAgent const&) = delete;
+    AuctionBotAgent(AuctionBotAgent&&) = delete;
+    AuctionBotAgent& operator=(AuctionBotAgent const&) = delete;
+    AuctionBotAgent& operator=(AuctionBotAgent&&) = delete;
+    virtual ~AuctionBotAgent() = default;
     virtual bool Initialize() = 0;
     virtual bool Update(AuctionHouseType houseType) = 0;
 };
@@ -289,10 +296,13 @@ class TC_GAME_API AuctionHouseBot
 private:
     AuctionHouseBot();
     ~AuctionHouseBot();
-    AuctionHouseBot(AuctionHouseBot const&) = delete;
-    AuctionHouseBot& operator=(AuctionHouseBot const&) = delete;
 
 public:
+    AuctionHouseBot(AuctionHouseBot const&) = delete;
+    AuctionHouseBot(AuctionHouseBot&&) = delete;
+    AuctionHouseBot& operator=(AuctionHouseBot const&) = delete;
+    AuctionHouseBot& operator=(AuctionHouseBot&&) = delete;
+
     static AuctionHouseBot* instance();
 
     void Update();

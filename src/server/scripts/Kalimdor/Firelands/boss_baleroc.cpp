@@ -218,7 +218,7 @@ struct boss_baleroc : public firelands_bossAI
         firelands_bossAI::UpdateAI(diff);
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 type = 0) override
+    void SetGUID(ObjectGuid const& guid, int32 type) override
     {
         switch (type)
         {

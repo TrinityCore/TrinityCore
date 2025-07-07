@@ -35,6 +35,11 @@ struct TransactionData
 
     template<typename... Args>
     TransactionData(Args&&... args) : query(std::forward<Args>(args)...) { }
+    TransactionData(TransactionData const&) = delete;
+    TransactionData(TransactionData&&) noexcept = default;
+    TransactionData& operator=(TransactionData const&) = delete;
+    TransactionData& operator=(TransactionData&&) noexcept = default;
+    ~TransactionData();
 
     static PreparedStatementBase* ToExecutable(std::unique_ptr<PreparedStatementBase> const& stmt) { return stmt.get(); }
     static char const* ToExecutable(std::string const& sql) { return sql.c_str(); }

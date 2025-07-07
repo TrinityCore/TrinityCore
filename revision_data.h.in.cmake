@@ -40,15 +40,15 @@
 
 // Database updater base information
 #define DATABASE_MYSQL_EXECUTABLE   R"(@MYSQL_EXECUTABLE@)"
-#define DATABASE_FULL_DATABASE      "TDB_full_world_1105.24111_2024_11_16.sql"
-#define DATABASE_HOTFIXES_DATABASE  "TDB_full_hotfixes_1105.24111_2024_11_16.sql"
+#define DATABASE_FULL_DATABASE      "TDB_full_world_1115.25051_2025_05_31.sql"
+#define DATABASE_HOTFIXES_DATABASE  "TDB_full_hotfixes_1115.25051_2025_05_31.sql"
 
 // Windows resource defines
-#define VER_COMPANYNAME_STR         "TrinityCore Developers"
-#define VER_LEGALCOPYRIGHT_STR      "(c)2008-@rev_year@ TrinityCore"
-#define VER_FILEVERSION             0,0,0
-#define VER_FILEVERSION_STR         "@rev_hash@ @rev_date@ (@rev_branch@ branch)"
-#define VER_PRODUCTVERSION          VER_FILEVERSION
-#define VER_PRODUCTVERSION_STR      VER_FILEVERSION_STR
+#define TRINITY_COMPANYNAME_STR         "TrinityCore Developers"
+#define TRINITY_LEGALCOPYRIGHT_STR      "(c)2008-@rev_year@ TrinityCore"
+#define TRINITY_FILEVERSION             0,0,0
+#define TRINITY_FILEVERSION_STR         "@rev_hash@ @rev_date@ (@rev_branch@ branch)"
+#define TRINITY_PRODUCTVERSION          TRINITY_FILEVERSION
+#define TRINITY_PRODUCTVERSION_STR      TRINITY_FILEVERSION_STR
 
 #endif // TRINITYCORE_REVISION_DATA_H

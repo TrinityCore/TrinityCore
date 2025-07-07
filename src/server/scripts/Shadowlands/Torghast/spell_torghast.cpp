@@ -102,7 +102,7 @@ class spell_torghast_touch_of_the_unseen : public AuraScript
 // 305060 - Yel'Shir's Powerglove
 class spell_torghast_yelshirs_powerglove : public SpellScript
 {
-    void CalculateDamage(Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
         if (SpellInfo const* triggeringSpell = GetTriggeringSpell())
             if (Aura const* triggerAura = GetCaster()->GetAura(triggeringSpell->Id))

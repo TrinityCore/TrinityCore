@@ -16,6 +16,18 @@
  */
 
 // This is where scripts' loading functions should be declared:
+
+// Dornogal
+void AddSC_zone_dornogal();
+
+// Zone Isle Of Dorn
+void AddSC_zone_isle_of_dorn();
+
+// The Stonevault
+void AddSC_instance_the_stonevault();
+void AddSC_boss_edna();
+void AddSC_boss_skarmorak();
+
 // Nerub'ar Palace
 void AddSC_instance_nerubar_palace();
 void AddSC_boss_ulgrax_the_devourer();
@@ -24,6 +36,17 @@ void AddSC_boss_ulgrax_the_devourer();
 // void Add${NameOfDirectory}Scripts()
 void AddKhazAlgarScripts()
 {
+    // Dornogal
+    AddSC_zone_dornogal();
+
+    // Zone Isle of Dorn
+    AddSC_zone_isle_of_dorn();
+
+    // The Stonevault
+    AddSC_instance_the_stonevault();
+    AddSC_boss_edna();
+    AddSC_boss_skarmorak();
+
     // Nerub'ar Palace
     AddSC_instance_nerubar_palace();
     AddSC_boss_ulgrax_the_devourer();

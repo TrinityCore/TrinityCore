@@ -51,21 +51,17 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_SYS_DEFAULT
 // Version
 //
 
-VS_VERSION_INFO VERSIONINFO
-FILEVERSION     VER_FILEVERSION
-PRODUCTVERSION  VER_PRODUCTVERSION
-
-FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
-
-#ifndef _DEBUG
- FILEFLAGS      0
+#if TRINITY_BUILD_HAS_DEBUG_INFO == 1
+#define TRINITY_DEBUG VS_FF_DEBUG
 #else
- #define VER_PRERELEASE VS_FF_PRERELEASE
- #define VER_PRIVATEBUILD VS_FF_PRIVATEBUILD
- #define VER_DEBUG 0
- FILEFLAGS      (VER_PRIVATEBUILD|VER_PRERELEASE|VER_DEBUG)
+#define TRINITY_DEBUG 0
 #endif
 
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     TRINITY_FILEVERSION
+PRODUCTVERSION  TRINITY_PRODUCTVERSION
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       (VS_FF_PRERELEASE | TRINITY_DEBUG)
 FILEOS          VOS_NT_WINDOWS32
 FILETYPE        VFT_APP
 
@@ -74,14 +70,14 @@ BEGIN
     BEGIN
         BLOCK "080004b0"
         BEGIN
-            VALUE "CompanyName",        VER_COMPANYNAME_STR
+            VALUE "CompanyName",        TRINITY_COMPANYNAME_STR
             VALUE "FileDescription",    "TrinityCore World Server Daemon"
-            VALUE "FileVersion",        VER_FILEVERSION_STR
+            VALUE "FileVersion",        TRINITY_FILEVERSION_STR
             VALUE "InternalName",       "worldserver"
-            VALUE "LegalCopyright",     VER_LEGALCOPYRIGHT_STR
+            VALUE "LegalCopyright",     TRINITY_LEGALCOPYRIGHT_STR
             VALUE "OriginalFilename",   "worldserver.exe"
             VALUE "ProductName",        "TrinityCore World Server"
-            VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
+            VALUE "ProductVersion",     TRINITY_PRODUCTVERSION_STR
         END
     END
 

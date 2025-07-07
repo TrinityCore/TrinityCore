@@ -20,11 +20,16 @@
 
 #include "Define.h"
 #include <array>
+#include <concepts>
 #include <memory>
 #include <string>
 #include <vector>
 
 struct bignum_st;
+
+template <typename Container>
+concept BigNumberBinaryInput = std::ranges::contiguous_range<Container>
+    && std::same_as<std::ranges::range_value_t<Container>, uint8>;
 
 class TC_COMMON_API BigNumber
 {
@@ -34,9 +39,8 @@ class TC_COMMON_API BigNumber
         BigNumber(uint32 v) : BigNumber() { SetDword(v); }
         BigNumber(int32 v) : BigNumber() { SetDword(v); }
         BigNumber(std::string const& v) : BigNumber() { SetHexStr(v); }
-        BigNumber(std::vector<uint8> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), v.size(), littleEndian); }
-        template <size_t Size>
-        BigNumber(std::array<uint8, Size> const& v, bool littleEndian = true) : BigNumber() { SetBinary(v.data(), Size, littleEndian); }
+        template <BigNumberBinaryInput Container>
+        BigNumber(Container const& binary, bool littleEndian = true) : BigNumber() { SetBinary(std::ranges::data(binary), std::ranges::size(binary), littleEndian); }
 
         ~BigNumber();
 
@@ -44,8 +48,8 @@ class TC_COMMON_API BigNumber
         void SetDword(uint32);
         void SetQword(uint64);
         void SetBinary(uint8 const* bytes, int32 len, bool littleEndian = true);
-        template <typename Container>
-        auto SetBinary(Container const& c, bool littleEndian = true) -> std::enable_if_t<!std::is_pointer_v<std::decay_t<Container>>> { SetBinary(std::data(c), std::size(c), littleEndian); }
+        template <BigNumberBinaryInput Container>
+        void SetBinary(Container const& binary, bool littleEndian = true) { SetBinary(std::ranges::data(binary), std::ranges::size(binary), littleEndian); }
         bool SetDecStr(char const* str);
         bool SetDecStr(std::string const& str) { return SetDecStr(str.c_str()); }
         bool SetHexStr(char const* str);

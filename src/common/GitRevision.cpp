@@ -90,26 +90,26 @@ char const* GitRevision::GetHotfixesDatabase()
 
 char const* GitRevision::GetFullVersion()
 {
-  return "TrinityCore rev. " VER_PRODUCTVERSION_STR
-    " (" TRINITY_BUILD_HOST_SYSTEM ", " TRINITY_BUILD_PROCESSOR  ", " _BUILD_DIRECTIVE ", " TRINITY_LINKAGE_TYPE_STR ")";
+    return "TrinityCore rev. " TRINITY_PRODUCTVERSION_STR
+        " (" TRINITY_BUILD_HOST_SYSTEM ", " TRINITY_BUILD_PROCESSOR  ", " TRINITY_BUILD_TYPE ", " TRINITY_LINKAGE_TYPE_STR ")";
 }
 
 char const* GitRevision::GetCompanyNameStr()
 {
-    return VER_COMPANYNAME_STR;
+    return TRINITY_COMPANYNAME_STR;
 }
 
 char const* GitRevision::GetLegalCopyrightStr()
 {
-    return VER_LEGALCOPYRIGHT_STR;
+    return TRINITY_LEGALCOPYRIGHT_STR;
 }
 
 char const* GitRevision::GetFileVersionStr()
 {
-    return VER_FILEVERSION_STR;
+    return TRINITY_FILEVERSION_STR;
 }
 
 char const* GitRevision::GetProductVersionStr()
 {
-    return VER_PRODUCTVERSION_STR;
+    return TRINITY_PRODUCTVERSION_STR;
 }

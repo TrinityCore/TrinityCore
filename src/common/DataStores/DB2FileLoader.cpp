@@ -746,7 +746,20 @@ unsigned char const* DB2FileLoaderRegularImpl::GetRawRecordData(uint32 recordNum
 uint32 DB2FileLoaderRegularImpl::RecordGetId(uint8 const* record, uint32 recordIndex) const
 {
     if (_loadInfo->Meta->HasIndexFieldInData())
-        return RecordGetVarInt<uint32>(record, _loadInfo->Meta->GetIndexField(), 0);
+    {
+        uint32 indexField = _loadInfo->Meta->GetIndexField();
+        switch (_loadInfo->Meta->Fields[indexField].Type)
+        {
+            case FT_INT:
+                return RecordGetVarInt<uint32>(record, indexField, 0);
+            case FT_BYTE:
+                return RecordGetVarInt<uint8>(record, indexField, 0);
+            case FT_SHORT:
+                return RecordGetVarInt<uint16>(record, indexField, 0);
+            default:
+                ABORT_MSG("Unhandled ID type %u in %s", uint32(_loadInfo->Meta->Fields[indexField].Type), _fileName);
+        }
+    }
 
     return _idTable[recordIndex];
 }

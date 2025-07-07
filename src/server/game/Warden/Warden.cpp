@@ -208,7 +208,7 @@ char const* Warden::ApplyPenalty(WardenCheck const* check)
 
 void Warden::HandleData(ByteBuffer& buff)
 {
-    DecryptData(buff.contents(), buff.size());
+    DecryptData(buff.data(), buff.size());
     uint8 opcode;
     buff >> opcode;
     TC_LOG_DEBUG("warden", "Got packet, opcode {:02X}, size {}", opcode, uint32(buff.size() - 1));

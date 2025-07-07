@@ -89,7 +89,7 @@ class TC_GAME_API Transport final : public GameObject, public TransportBase
         uint32 GetTransportPeriod() const { return m_gameObjectData->Level; }
         void SetPeriod(uint32 period) { SetLevel(period); }
         uint32 GetTimer() const { return _pathProgress; }
-        bool IsStopRequested() const { return _requestStopTimestamp.has_value(); }
+        Optional<uint32> GetNextStopTimestamp() const { return _requestStopTimestamp; }
         bool IsStopped() const { return HasDynamicFlag(GO_DYNFLAG_LO_STOPPED); }
 
         void UpdatePosition(float x, float y, float z, float o);

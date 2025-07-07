@@ -16,6 +16,7 @@
  */
 
 #include "PerksProgramPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::PerksProgram
 {
@@ -26,12 +27,14 @@ ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem)
     data << int32(perksVendorItem.BattlePetSpeciesID);
     data << int32(perksVendorItem.TransmogSetID);
     data << int32(perksVendorItem.ItemModifiedAppearanceID);
-    data << int32(perksVendorItem.Field_14);
-    data << int32(perksVendorItem.Field_18);
+    data << int32(perksVendorItem.TransmogIllusionID);
+    data << int32(perksVendorItem.ToyID);
     data << int32(perksVendorItem.Price);
+    data << int32(perksVendorItem.OriginalPrice);
     data << perksVendorItem.AvailableUntil;
+    data << int32(perksVendorItem.WarbandSceneID);
     data << Bits<1>(perksVendorItem.Disabled);
-    data << Bits<1>(perksVendorItem.Field_41);
+    data << Bits<1>(perksVendorItem.DoesNotExpire);
     data.FlushBits();
 
     return data;

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BattlePetPackets_h__
-#define BattlePetPackets_h__
+#ifndef TRINITYCORE_BATTLE_PET_PACKETS_H
+#define TRINITYCORE_BATTLE_PET_PACKETS_H
 
 #include "Packet.h"
 #include "PacketUtilities.h"
@@ -53,6 +53,7 @@ namespace WorldPackets
             uint8 Quality = 0;
             Optional<BattlePetOwnerInfo> OwnerInfo;
             std::string Name;
+            bool NoRename = false;
         };
 
         struct BattlePetSlot
@@ -95,7 +96,7 @@ namespace WorldPackets
         class BattlePetRequestJournal final : public ClientPacket
         {
         public:
-            BattlePetRequestJournal(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL, std::move(packet)) { }
+            explicit BattlePetRequestJournal(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -103,7 +104,7 @@ namespace WorldPackets
         class BattlePetRequestJournalLock final : public ClientPacket
         {
         public:
-            BattlePetRequestJournalLock(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK, std::move(packet)) { }
+            explicit BattlePetRequestJournalLock(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_REQUEST_JOURNAL_LOCK, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -134,7 +135,7 @@ namespace WorldPackets
         class BattlePetSetBattleSlot final : public ClientPacket
         {
         public:
-            BattlePetSetBattleSlot(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_BATTLE_SLOT, std::move(packet)) { }
+            explicit BattlePetSetBattleSlot(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_BATTLE_SLOT, std::move(packet)) { }
 
             void Read() override;
 
@@ -145,7 +146,7 @@ namespace WorldPackets
         class BattlePetModifyName final : public ClientPacket
         {
         public:
-            BattlePetModifyName(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_MODIFY_NAME, std::move(packet)) { }
+            explicit BattlePetModifyName(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_MODIFY_NAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -157,7 +158,7 @@ namespace WorldPackets
         class QueryBattlePetName final : public ClientPacket
         {
         public:
-            QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
+            explicit QueryBattlePetName(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_BATTLE_PET_NAME, std::move(packet)) { }
 
             void Read() override;
 
@@ -185,7 +186,7 @@ namespace WorldPackets
         class BattlePetDeletePet final : public ClientPacket
         {
         public:
-            BattlePetDeletePet(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_DELETE_PET, std::move(packet)) { }
+            explicit BattlePetDeletePet(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_DELETE_PET, std::move(packet)) { }
 
             void Read() override;
 
@@ -195,7 +196,7 @@ namespace WorldPackets
         class BattlePetSetFlags final : public ClientPacket
         {
         public:
-            BattlePetSetFlags(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_FLAGS, std::move(packet)) { }
+            explicit BattlePetSetFlags(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SET_FLAGS, std::move(packet)) { }
 
             void Read() override;
 
@@ -207,7 +208,7 @@ namespace WorldPackets
         class BattlePetClearFanfare final : public ClientPacket
         {
         public:
-            BattlePetClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_CLEAR_FANFARE, std::move(packet)) { }
+            explicit BattlePetClearFanfare(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_CLEAR_FANFARE, std::move(packet)) { }
 
             void Read() override;
 
@@ -217,7 +218,7 @@ namespace WorldPackets
         class CageBattlePet final : public ClientPacket
         {
         public:
-            CageBattlePet(WorldPacket&& packet) : ClientPacket(CMSG_CAGE_BATTLE_PET, std::move(packet)) { }
+            explicit CageBattlePet(WorldPacket&& packet) : ClientPacket(CMSG_CAGE_BATTLE_PET, std::move(packet)) { }
 
             void Read() override;
 
@@ -248,7 +249,7 @@ namespace WorldPackets
         class BattlePetSummon final : public ClientPacket
         {
         public:
-            BattlePetSummon(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SUMMON, std::move(packet)) { }
+            explicit BattlePetSummon(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_SUMMON, std::move(packet)) { }
 
             void Read() override;
 
@@ -258,7 +259,7 @@ namespace WorldPackets
         class BattlePetUpdateNotify final : public ClientPacket
         {
         public:
-            BattlePetUpdateNotify(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_UPDATE_NOTIFY, std::move(packet)) { }
+            explicit BattlePetUpdateNotify(WorldPacket&& packet) : ClientPacket(CMSG_BATTLE_PET_UPDATE_NOTIFY, std::move(packet)) { }
 
             void Read() override;
 
@@ -267,4 +268,4 @@ namespace WorldPackets
     }
 }
 
-#endif // BattlePetPackets_h__
+#endif // TRINITYCORE_BATTLE_PET_PACKETS_H

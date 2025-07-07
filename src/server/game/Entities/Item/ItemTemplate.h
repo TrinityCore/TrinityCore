@@ -170,12 +170,12 @@ enum ItemFieldFlags : uint32
 
 DEFINE_ENUM_FLAG(ItemFieldFlags);
 
-enum ItemFieldFlags2 : uint32
+enum ItemZoneFlags : uint32
 {
     ITEM_FIELD_FLAG2_EQUIPPED   = 0x1
 };
 
-DEFINE_ENUM_FLAG(ItemFieldFlags2);
+DEFINE_ENUM_FLAG(ItemZoneFlags);
 
 enum ItemFlags : uint32
 {
@@ -349,34 +349,39 @@ enum BAG_FAMILY_MASK
 
 enum SocketColor
 {
-    SOCKET_COLOR_META                           = 0x000001,
-    SOCKET_COLOR_RED                            = 0x000002,
-    SOCKET_COLOR_YELLOW                         = 0x000004,
-    SOCKET_COLOR_BLUE                           = 0x000008,
-    SOCKET_COLOR_HYDRAULIC                      = 0x000010, // not used
-    SOCKET_COLOR_COGWHEEL                       = 0x000020,
-    SOCKET_COLOR_PRISMATIC                      = 0x00000E,
-    SOCKET_COLOR_RELIC_IRON                     = 0x000040,
-    SOCKET_COLOR_RELIC_BLOOD                    = 0x000080,
-    SOCKET_COLOR_RELIC_SHADOW                   = 0x000100,
-    SOCKET_COLOR_RELIC_FEL                      = 0x000200,
-    SOCKET_COLOR_RELIC_ARCANE                   = 0x000400,
-    SOCKET_COLOR_RELIC_FROST                    = 0x000800,
-    SOCKET_COLOR_RELIC_FIRE                     = 0x001000,
-    SOCKET_COLOR_RELIC_WATER                    = 0x002000,
-    SOCKET_COLOR_RELIC_LIFE                     = 0x004000,
-    SOCKET_COLOR_RELIC_WIND                     = 0x008000,
-    SOCKET_COLOR_RELIC_HOLY                     = 0x010000,
-    SOCKET_COLOR_PUNCHCARD_RED                  = 0x020000,
-    SOCKET_COLOR_PUNCHCARD_YELLOW               = 0x040000,
-    SOCKET_COLOR_PUNCHCARD_BLUE                 = 0x080000,
-    SOCKET_COLOR_DOMINATION                     = 0x100000,
-    SOCKET_COLOR_CYPHER                         = 0x200000,
-    SOCKET_COLOR_TINKER                         = 0x400000,
-    SOCKET_COLOR_PRIMORDIAL                     = 0x800000,
+    SOCKET_COLOR_META                           = 0x00000001,
+    SOCKET_COLOR_RED                            = 0x00000002,
+    SOCKET_COLOR_YELLOW                         = 0x00000004,
+    SOCKET_COLOR_BLUE                           = 0x00000008,
+    SOCKET_COLOR_HYDRAULIC                      = 0x00000010,
+    SOCKET_COLOR_COGWHEEL                       = 0x00000020,
+    SOCKET_COLOR_RELIC_IRON                     = 0x00000040,
+    SOCKET_COLOR_RELIC_BLOOD                    = 0x00000080,
+    SOCKET_COLOR_RELIC_SHADOW                   = 0x00000100,
+    SOCKET_COLOR_RELIC_FEL                      = 0x00000200,
+    SOCKET_COLOR_RELIC_ARCANE                   = 0x00000400,
+    SOCKET_COLOR_RELIC_FROST                    = 0x00000800,
+    SOCKET_COLOR_RELIC_FIRE                     = 0x00001000,
+    SOCKET_COLOR_RELIC_WATER                    = 0x00002000,
+    SOCKET_COLOR_RELIC_LIFE                     = 0x00004000,
+    SOCKET_COLOR_RELIC_WIND                     = 0x00008000,
+    SOCKET_COLOR_RELIC_HOLY                     = 0x00010000,
+    SOCKET_COLOR_PUNCHCARD_RED                  = 0x00020000,
+    SOCKET_COLOR_PUNCHCARD_YELLOW               = 0x00040000,
+    SOCKET_COLOR_PUNCHCARD_BLUE                 = 0x00080000,
+    SOCKET_COLOR_DOMINATION_BLOOD               = 0x00100000,
+    SOCKET_COLOR_DOMINATION_FROST               = 0x00200000,
+    SOCKET_COLOR_DOMINATION_UNHOLY              = 0x00400000,
+    SOCKET_COLOR_CYPHER                         = 0x00800000,
+    SOCKET_COLOR_TINKER                         = 0x01000000,
+    SOCKET_COLOR_PRIMORDIAL                     = 0x02000000,
+    SOCKET_COLOR_FRAGRANCE                      = 0x04000000,
+    SOCKET_COLOR_SINGING_THUNDER                = 0x08000000,
+    SOCKET_COLOR_SINGING_SEA                    = 0x10000000,
+    SOCKET_COLOR_SINGING_WIND                   = 0x20000000,
 };
 
-extern int32 const SocketColorToGemTypeMask[26];
+extern int32 const SocketColorToGemTypeMask[30];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
@@ -472,10 +477,12 @@ enum ItemSubclassConsumable
     ITEM_SUBCLASS_ITEM_ENHANCEMENT              = 6,
     ITEM_SUBCLASS_BANDAGE                       = 7,
     ITEM_SUBCLASS_CONSUMABLE_OTHER              = 8,
-    ITEM_SUBCLASS_VANTUS_RUNE                   = 9
+    ITEM_SUBCLASS_VANTUS_RUNE                   = 9,
+    ITEM_SUBCLASS_UTILITY_CURIO                 = 10,
+    ITEM_SUBCLASS_COMBAT_CURIO                  = 11,
 };
 
-#define MAX_ITEM_SUBCLASS_CONSUMABLE              10
+#define MAX_ITEM_SUBCLASS_CONSUMABLE              12
 
 enum ItemSubclassContainer
 {
@@ -903,10 +910,20 @@ struct TC_GAME_API ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return IsWeapon() &&
-               (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
+        if (!IsWeapon())
+            return false;
+
+        switch (ItemSubclassWeapon(GetSubClass()))
+        {
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 
     inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }

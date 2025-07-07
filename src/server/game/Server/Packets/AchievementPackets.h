@@ -15,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef game_AchievementPackets_h__
-#define game_AchievementPackets_h__
+#ifndef TRINITYCORE_ACHIEVEMENT_PACKETS_H
+#define TRINITYCORE_ACHIEVEMENT_PACKETS_H
 
-#include "Packet.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Packet.h"
 #include "PacketUtilities.h"
 #include "WowTime.h"
 
@@ -59,7 +59,7 @@ namespace WorldPackets
         class AllAchievementData final : public ServerPacket
         {
         public:
-            AllAchievementData() : ServerPacket(SMSG_ALL_ACHIEVEMENT_DATA) { }
+            explicit AllAchievementData() : ServerPacket(SMSG_ALL_ACHIEVEMENT_DATA) { }
 
             WorldPacket const* Write() override;
 
@@ -69,7 +69,7 @@ namespace WorldPackets
         class AllAccountCriteria final : public ServerPacket
         {
         public:
-            AllAccountCriteria() : ServerPacket(SMSG_ALL_ACCOUNT_CRITERIA) { }
+            explicit AllAccountCriteria() : ServerPacket(SMSG_ALL_ACCOUNT_CRITERIA) { }
 
             WorldPacket const* Write() override;
 
@@ -79,7 +79,7 @@ namespace WorldPackets
         class RespondInspectAchievements final : public ServerPacket
         {
         public:
-            RespondInspectAchievements() : ServerPacket(SMSG_RESPOND_INSPECT_ACHIEVEMENTS) { }
+            explicit RespondInspectAchievements() : ServerPacket(SMSG_RESPOND_INSPECT_ACHIEVEMENTS) { }
 
             WorldPacket const* Write() override;
 
@@ -90,7 +90,7 @@ namespace WorldPackets
         class CriteriaUpdate final : public ServerPacket
         {
         public:
-            CriteriaUpdate() : ServerPacket(SMSG_CRITERIA_UPDATE, 4 + 8 + 16 + 4 + 4 + 4 + 4) { }
+            explicit CriteriaUpdate() : ServerPacket(SMSG_CRITERIA_UPDATE, 4 + 8 + 16 + 4 + 4 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -108,7 +108,7 @@ namespace WorldPackets
         class AccountCriteriaUpdate final : public ServerPacket
         {
         public:
-            AccountCriteriaUpdate() : ServerPacket(SMSG_ACCOUNT_CRITERIA_UPDATE) { }
+            explicit AccountCriteriaUpdate() : ServerPacket(SMSG_ACCOUNT_CRITERIA_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -118,7 +118,7 @@ namespace WorldPackets
         class CriteriaDeleted final : public ServerPacket
         {
         public:
-            CriteriaDeleted() : ServerPacket(SMSG_CRITERIA_DELETED, 4) { }
+            explicit CriteriaDeleted() : ServerPacket(SMSG_CRITERIA_DELETED, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -128,7 +128,7 @@ namespace WorldPackets
         class AchievementDeleted final : public ServerPacket
         {
         public:
-            AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 8) { }
+            explicit AchievementDeleted() : ServerPacket(SMSG_ACHIEVEMENT_DELETED, 8) { }
 
             WorldPacket const* Write() override;
 
@@ -139,7 +139,7 @@ namespace WorldPackets
         class AchievementEarned final : public ServerPacket
         {
         public:
-            AchievementEarned() : ServerPacket(SMSG_ACHIEVEMENT_EARNED, 16 + 4 + 4 + 4 + 4 + 1 + 16) { }
+            explicit AchievementEarned() : ServerPacket(SMSG_ACHIEVEMENT_EARNED, 16 + 4 + 4 + 4 + 4 + 1 + 16) { }
 
             WorldPacket const* Write() override;
 
@@ -155,7 +155,7 @@ namespace WorldPackets
         class BroadcastAchievement final : public ServerPacket
         {
         public:
-            BroadcastAchievement() : ServerPacket(SMSG_BROADCAST_ACHIEVEMENT) { }
+            explicit BroadcastAchievement() : ServerPacket(SMSG_BROADCAST_ACHIEVEMENT) { }
 
             WorldPacket const* Write() override;
 
@@ -180,7 +180,7 @@ namespace WorldPackets
         class GuildCriteriaUpdate final : public ServerPacket
         {
         public:
-            GuildCriteriaUpdate() : ServerPacket(SMSG_GUILD_CRITERIA_UPDATE) { }
+            explicit GuildCriteriaUpdate() : ServerPacket(SMSG_GUILD_CRITERIA_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -190,7 +190,7 @@ namespace WorldPackets
         class GuildCriteriaDeleted final : public ServerPacket
         {
         public:
-            GuildCriteriaDeleted() : ServerPacket(SMSG_GUILD_CRITERIA_DELETED, 16 + 4) { }
+            explicit GuildCriteriaDeleted() : ServerPacket(SMSG_GUILD_CRITERIA_DELETED, 16 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -201,7 +201,7 @@ namespace WorldPackets
         class GuildSetFocusedAchievement final : public ClientPacket
         {
         public:
-            GuildSetFocusedAchievement(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT, std::move(packet)) { }
+            explicit GuildSetFocusedAchievement(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_SET_FOCUSED_ACHIEVEMENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -211,7 +211,7 @@ namespace WorldPackets
         class GuildAchievementDeleted final : public ServerPacket
         {
         public:
-            GuildAchievementDeleted() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_DELETED, 16 + 4 + 4) { }
+            explicit GuildAchievementDeleted() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_DELETED, 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -223,7 +223,7 @@ namespace WorldPackets
         class GuildAchievementEarned final : public ServerPacket
         {
         public:
-            GuildAchievementEarned() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_EARNED, 16 + 4 + 4) { }
+            explicit GuildAchievementEarned() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_EARNED, 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -235,7 +235,7 @@ namespace WorldPackets
         class AllGuildAchievements final : public ServerPacket
         {
         public:
-            AllGuildAchievements() : ServerPacket(SMSG_ALL_GUILD_ACHIEVEMENTS) { }
+            explicit AllGuildAchievements() : ServerPacket(SMSG_ALL_GUILD_ACHIEVEMENTS) { }
 
             WorldPacket const* Write() override;
 
@@ -245,7 +245,7 @@ namespace WorldPackets
         class GuildGetAchievementMembers final : public ClientPacket
         {
         public:
-            GuildGetAchievementMembers(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS, std::move(packet)) { }
+            explicit GuildGetAchievementMembers(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_GET_ACHIEVEMENT_MEMBERS, std::move(packet)) { }
 
             void Read() override;
 
@@ -265,7 +265,7 @@ namespace WorldPackets
         class GuildAchievementMembers final : public ServerPacket
         {
         public:
-            GuildAchievementMembers() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_MEMBERS) { }
+            explicit GuildAchievementMembers() : ServerPacket(SMSG_GUILD_ACHIEVEMENT_MEMBERS) { }
 
             WorldPacket const* Write() override;
 
@@ -278,4 +278,4 @@ namespace WorldPackets
     }
 }
 
-#endif // game_AchievementPackets_h__
+#endif // TRINITYCORE_ACHIEVEMENT_PACKETS_H

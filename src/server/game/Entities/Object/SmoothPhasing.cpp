@@ -16,7 +16,7 @@
  */
 
 #include "SmoothPhasing.h"
-#include "Containers.h"
+#include "MapUtils.h"
 
 void SmoothPhasing::SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo const& info)
 {

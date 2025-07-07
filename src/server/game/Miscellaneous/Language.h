@@ -343,7 +343,7 @@ enum TrinityStrings
     LANG_COMMAND_NPC_SHOWLOOT_MONEY       = 292,
     LANG_COMMAND_NPC_SHOWLOOT_LABEL_2     = 293,
     LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL    = 294,
-    LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2     = 295,
+    LANG_COMMAND_NPC_SHOWLOOT_TRACKING_QUEST = 295,
     LANG_COMMAND_NPC_SHOWLOOT_CURRENCY    = 296,
 
       // END
@@ -1211,7 +1211,11 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE          = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE             = 10055,
 
-    // 10056-10066 - free
+    // Deephaul Ravine
+    LANG_BG_DR_CRYSTAL_TAKEN              = 10056,
+    LANG_BG_DR_CRYSTAL_TAKEN_TUTORIAL     = 10057,
+
+    // 10058-10066 - free
 
     // Use for custom patches               11000-11999
     LANG_AUTO_BROADCAST                   = 11000,

@@ -22,6 +22,7 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GameTime.h"
+#include "MapUtils.h"
 #include "Util.h"
 
 enum FireworksShowTypeObjects

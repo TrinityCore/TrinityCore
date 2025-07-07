@@ -21,7 +21,7 @@
 #include "Define.h"
 #include "Duration.h"
 #include <map>
-#include <queue>
+#include <vector>
 
 class TC_COMMON_API EventMap
 {
@@ -37,10 +37,15 @@ class TC_COMMON_API EventMap
     * - Pattern: 0xPPGGEEEE
     */
     typedef std::multimap<TimePoint, uint32> EventStore;
-    typedef std::map<uint32 /*event data*/, std::queue<Milliseconds>> EventSeriesStore;
+    typedef std::map<uint32 /*event data*/, std::vector<Milliseconds>> EventSeriesStore;
 
 public:
     EventMap() : _time(TimePoint::min()), _phase(0), _lastEvent(0) { }
+    EventMap(EventMap const& other);
+    EventMap(EventMap&& other) noexcept = default;
+    EventMap& operator=(EventMap const& other);
+    EventMap& operator=(EventMap&& other) noexcept = default;
+    ~EventMap();
 
     /**
     * @name Reset
@@ -242,7 +247,7 @@ public:
     * @param phase of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> const& timeSeries);
+    void ScheduleEventSeries(uint32 eventId, uint8 group, uint8 phase, std::initializer_list<Milliseconds> timeSeries);
 
     /**
     * @name ScheduleEventSeries
@@ -250,7 +255,7 @@ public:
     * @param eventId of the event.
     * @param timeSeries specifying the times the event should be automatically scheduled after each trigger (first value is initial schedule)
     */
-    void ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> const& series);
+    void ScheduleEventSeries(uint32 eventId, std::initializer_list<Milliseconds> series);
 
 private:
     /**

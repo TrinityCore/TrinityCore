@@ -203,7 +203,7 @@ public:
         stmt->setUInt32(0, entry);
         stmt->setUInt8(1, disableType);
         stmt->setUInt16(2, flags.value_or<uint16>(0));
-        stmt->setStringView(3, disableComment);
+        stmt->setString(3, disableComment);
         WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage("Add Disabled %s (Id: %u) for reason " STRING_VIEW_FMT, disableTypeStr, entry, STRING_VIEW_FMT_ARG(disableComment));

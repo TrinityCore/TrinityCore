@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef Session_h__
-#define Session_h__
+#ifndef TRINITYCORE_SESSION_H
+#define TRINITYCORE_SESSION_H
 
 #include "AsyncCallbackProcessor.h"
 #include "ClientBuildInfo.h"
@@ -24,7 +24,7 @@
 #include "QueryResult.h"
 #include "Realm.h"
 #include "Socket.h"
-#include "SslSocket.h"
+#include "SslStream.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <google/protobuf/message.h>
 #include <memory>
@@ -65,9 +65,9 @@ using namespace bgs::protocol;
 
 namespace Battlenet
 {
-    class Session : public Socket<Session, SslSocket<>>
+    class Session final : public Trinity::Net::Socket<Trinity::Net::SslStream<>>
     {
-        typedef Socket<Session, SslSocket<>> BattlenetSocket;
+        using BaseSocket = Socket<Trinity::Net::SslStream<>>;
 
     public:
         struct LastPlayedCharacterInfo
@@ -110,7 +110,7 @@ namespace Battlenet
             std::unordered_map<uint32, GameAccountInfo> GameAccounts;
         };
 
-        explicit Session(boost::asio::ip::tcp::socket&& socket);
+        explicit Session(Trinity::Net::IoContextTcpSocket&& socket);
         ~Session();
 
         void Start() override;
@@ -130,6 +130,8 @@ namespace Battlenet
 
         void SendRequest(uint32 serviceHash, uint32 methodId, pb::Message const* request);
 
+        void QueueQuery(QueryCallback&& queryCallback);
+
         uint32 HandleLogon(authentication::v1::LogonRequest const* logonRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
         uint32 HandleVerifyWebCredentials(authentication::v1::VerifyWebCredentialsRequest const* verifyWebCredentialsRequest, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
         uint32 HandleGenerateWebCredentials(authentication::v1::GenerateWebCredentialsRequest const* request, std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& continuation);
@@ -140,19 +142,15 @@ namespace Battlenet
 
         std::string GetClientInfo() const;
 
+        Trinity::Net::SocketReadCallbackResult ReadHandler() override;
+
     protected:
-        void HandshakeHandler(boost::system::error_code const& error);
-        void ReadHandler() override;
         bool ReadHeaderLengthHandler();
         bool ReadHeaderHandler();
         bool ReadDataHandler();
 
     private:
         void AsyncWrite(MessageBuffer* packet);
-
-        void AsyncHandshake();
-
-        void CheckIpCallback(PreparedQueryResult result);
 
         uint32 VerifyWebCredentials(std::string const& webCredentials, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
@@ -190,4 +188,4 @@ namespace Battlenet
     };
 }
 
-#endif // Session_h__
+#endif // TRINITYCORE_SESSION_H

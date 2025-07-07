@@ -19,6 +19,7 @@
 #define TRINITYCORE_WOWCS_ENTITY_DEFINITIONS_H
 
 #include "Define.h"
+#include <array>
 #include <span>
 
 namespace WowCS
@@ -50,7 +51,7 @@ enum class EntityFragment : uint8
     FEntityLocalMatrix          = 113,
     FEntityWorldMatrix          = 114,
     CActor                      = 115, //  INDIRECT,
-    FVendor_C                   = 117, //  UPDATEABLE,
+    FVendor_C                   = 117, //  UPDATEABLE, INDIRECT,
     FMirroredObject_C           = 119,
     End                         = 255,
 };
@@ -62,7 +63,7 @@ inline constexpr bool IsUpdateableFragment(EntityFragment frag)
 
 inline constexpr bool IsIndirectFragment(EntityFragment frag)
 {
-    return frag == EntityFragment::CGObject || frag == EntityFragment::CActor;
+    return frag == EntityFragment::CGObject || frag == EntityFragment::CActor || frag == EntityFragment::FVendor_C;
 }
 
 // common case optimization, make use of the fact that fragment arrays are sorted

@@ -57,7 +57,7 @@ enum class PlayerConditionLfgStatus : uint8;
     Step 7: Define condition name and expected condition values in ConditionMgr::StaticConditionTypeData.
 */
 enum ConditionTypes
-{                                                           // value1                 value2         value3
+{                                                              // value1                 value2         value3
     CONDITION_NONE                     = 0,                    // 0                      0              0                  always true
     CONDITION_AURA                     = 1,                    // spell_id               effindex       0                  true if target has aura of spell_id with effect effindex
     CONDITION_ITEM                     = 2,                    // item_id                count          bank               true if has #count of item_ids (if 'bank' is set it searches in bank slots too)
@@ -117,6 +117,7 @@ enum ConditionTypes
     CONDITION_PLAYER_CONDITION         = 56,                   // PlayerConditionId      0              0                  true if player satisfies PlayerCondition
     CONDITION_PRIVATE_OBJECT           = 57,                   // 0                      0              0                  true if entity is private object
     CONDITION_STRING_ID                = 58,
+    CONDITION_LABEL                    = 59,                   // Label                  0              0                  true if creature/gameobject has specified Label in CreatureLabel.db2/GameObjectLabel.db2
     CONDITION_MAX
 };
 
@@ -186,6 +187,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY           = 32,
     CONDITION_SOURCE_TYPE_SPAWN_GROUP                    = 33,
     CONDITION_SOURCE_TYPE_PLAYER_CONDITION               = 34,
+    CONDITION_SOURCE_TYPE_SKILL_LINE_ABILITY             = 35,
+    CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE         = 36,
 
     CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED,
     CONDITION_SOURCE_TYPE_REFERENCE_CONDITION            = CONDITION_SOURCE_TYPE_MAX_DB_ALLOWED, // internal, not set in db
@@ -218,7 +221,7 @@ enum MaxConditionTargets
 
 struct TC_GAME_API ConditionSourceInfo
 {
-    WorldObject const* mConditionTargets[MAX_CONDITION_TARGETS]; // an array of targets available for conditions
+    std::array<WorldObject const*, MAX_CONDITION_TARGETS> mConditionTargets; // an array of targets available for conditions
     Map const* mConditionMap;
     Condition const* mLastFailedCondition;
     ConditionSourceInfo(WorldObject const* target0, WorldObject const* target1 = nullptr, WorldObject const* target2 = nullptr);
@@ -299,6 +302,11 @@ class TC_GAME_API ConditionMgr
         ~ConditionMgr();
 
     public:
+        ConditionMgr(ConditionMgr const&) = delete;
+        ConditionMgr(ConditionMgr&&) = delete;
+        ConditionMgr& operator=(ConditionMgr const&) = delete;
+        ConditionMgr& operator=(ConditionMgr&&) = delete;
+
         static ConditionMgr* instance();
 
         void LoadConditions(bool isReload = false);
@@ -320,12 +328,13 @@ class TC_GAME_API ConditionMgr
         bool IsObjectMeetingVehicleSpellConditions(uint32 creatureId, uint32 spellId, Player const* player, Unit const* vehicle) const;
         bool IsObjectMeetingSmartEventConditions(int64 entryOrGuid, uint32 eventId, uint32 sourceType, Unit const* unit, WorldObject const* baseObject) const;
         bool IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32 itemId, Player const* player, Creature const* vendor) const;
+        bool IsObjectMeetingPlayerChoiceResponseConditions(uint32 playerChoiceId, int32 playerChoiceResponseId, Player const* player) const;
 
         bool IsSpellUsedInSpellClickConditions(uint32 spellId) const;
 
         ConditionContainer const* GetConditionsForAreaTrigger(uint32 areaTriggerId, bool isServerSide) const;
         bool IsObjectMeetingTrainerSpellConditions(uint32 trainerId, uint32 spellId, Player* player) const;
-        bool IsObjectMeetingVisibilityByObjectIdConditions(uint32 objectType, uint32 entry, WorldObject const* seer) const;
+        bool IsObjectMeetingVisibilityByObjectIdConditions(WorldObject const* obj, WorldObject const* seer) const;
 
         static uint32 GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status);
         static bool IsPlayerMeetingCondition(Player const* player, uint32 conditionId);

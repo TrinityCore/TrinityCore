@@ -80,10 +80,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 
-        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+        Position const& GetStationaryPosition() const override { return _stationaryPosition; }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
         void PlaySpellVisual(uint32 spellVisualId) const;
 
@@ -129,6 +126,8 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         uint32 GetTimeToTargetPos() const { return m_areaTriggerData->TimeToTargetPos; }
         void SetTimeToTargetPos(uint32 timeToTargetPos) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), timeToTargetPos); }
 
+        void SetSpellVisual(SpellCastVisual const& visual);
+
         int32 GetDuration() const { return _duration; }
         int32 GetTotalDuration() const { return _totalDuration; }
         void SetDuration(int32 newDuration);
@@ -137,7 +136,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         GuidUnorderedSet const& GetInsideUnits() const { return _insideUnits; }
 
         AreaTriggerCreateProperties const* GetCreateProperties() const { return _areaTriggerCreateProperties; }
-        AreaTriggerTemplate const* GetTemplate() const;
+        AreaTriggerTemplate const* GetTemplate() const { return _areaTriggerTemplate; }
         uint32 GetScriptId() const;
 
         ObjectGuid GetCreatorGUID() const override { return GetCasterGuid(); }
@@ -152,15 +151,15 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         float GetMaxSearchRadius() const;
         Position const& GetRollPitchYaw() const { return _rollPitchYaw; }
         Position const& GetTargetRollPitchYaw() const { return _targetRollPitchYaw; }
-        void InitSplineOffsets(std::vector<Position> const& offsets, uint32 timeToTarget);
-        void InitSplines(std::vector<G3D::Vector3> splinePoints, uint32 timeToTarget);
-        bool HasSplines() const;
-        ::Movement::Spline<int32> const& GetSpline() const { return *_spline; }
+        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {});
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {});
+        bool HasSplines() const { return std::holds_alternative<std::unique_ptr<::Movement::Spline<float>>>(_movement); }
+        ::Movement::Spline<float> const& GetSpline() const { return *std::get<std::unique_ptr<::Movement::Spline<float>>>(_movement); }
         uint32 GetElapsedTimeForMovement() const { return GetTimeSinceCreated(); } /// @todo: research the right value, in sniffs both timers are nearly identical
 
-        void InitOrbit(AreaTriggerOrbitInfo const& orbit, uint32 timeToTarget);
-        bool HasOrbit() const;
-        Optional<AreaTriggerOrbitInfo> const& GetOrbit() const { return _orbitInfo; }
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {});
+        bool HasOrbit() const { return std::holds_alternative<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement); }
+        AreaTriggerOrbitInfo const& GetOrbit() const { return *std::get<std::unique_ptr<AreaTriggerOrbitInfo>>(_movement); }
 
         bool HasOverridePosition() const;
 
@@ -197,8 +196,8 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void UndoActions(Unit* unit);
 
         void UpdatePolygonVertices();
-        void UpdateOrbitPosition(uint32 diff);
-        void UpdateSplinePosition(uint32 diff);
+        void UpdateOrbitPosition(AreaTriggerOrbitInfo& orbit, uint32 diff);
+        void UpdateSplinePosition(Movement::Spline<float>& spline, uint32 diff);
         void UpdateOverridePosition();
 
         Position const* GetOrbitCenterPosition() const;
@@ -223,13 +222,11 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         Position _rollPitchYaw;
         Position _targetRollPitchYaw;
         std::vector<Position> _polygonVertices;
-        std::unique_ptr<::Movement::Spline<int32>> _spline;
+        std::variant<std::monostate, std::unique_ptr<::Movement::Spline<float>>, std::unique_ptr<AreaTriggerOrbitInfo>> _movement;
 
         bool _reachedDestination;
         int32 _lastSplineIndex;
         uint32 _movementTime;
-
-        Optional<AreaTriggerOrbitInfo> _orbitInfo;
 
         AreaTriggerCreateProperties const* _areaTriggerCreateProperties;
         AreaTriggerTemplate const* _areaTriggerTemplate;

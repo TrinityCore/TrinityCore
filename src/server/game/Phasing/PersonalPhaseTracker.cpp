@@ -16,9 +16,9 @@
  */
 
 #include "PersonalPhaseTracker.h"
-#include "Containers.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectGridLoader.h"
 #include "ObjectMgr.h"

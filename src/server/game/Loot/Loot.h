@@ -212,6 +212,7 @@ struct TC_GAME_API LootItem
     static bool ItemAllowedForPlayer(Player const* player, Loot const* loot, uint32 itemid, bool needs_quest, bool follow_loot_rules, bool strictUsabilityCheck,
         ConditionsReference const& conditions);
     static bool CurrencyAllowedForPlayer(Player const* player, uint32 currencyId, bool needs_quest, ConditionsReference const& conditions);
+    static bool TrackingQuestAllowedForPlayer(Player const* player, uint32 questId, ConditionsReference const& conditions);
     void AddAllowedLooter(Player const* player);
     GuidSet const& GetAllowedLooters() const { return allowedGUIDs; }
     bool HasAllowedLooter(ObjectGuid const& looter) const;
@@ -314,7 +315,7 @@ struct TC_GAME_API Loot
     void NotifyLootList(Map const* map) const;
     void NotifyItemRemoved(uint8 lootListId, Map const* map);
     void NotifyMoneyRemoved(Map const* map);
-    void OnLootOpened(Map* map, ObjectGuid looter);
+    void OnLootOpened(Map* map, Player* looter);
     void AddLooter(ObjectGuid GUID) { PlayersLooting.insert(GUID); }
     void RemoveLooter(ObjectGuid GUID) { PlayersLooting.erase(GUID); }
 
@@ -322,12 +323,13 @@ struct TC_GAME_API Loot
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
     bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT, ItemContext context = ItemContext::NONE);
-    void FillNotNormalLootFor(Player const* player);        // count unlooted items
+    void FillNotNormalLootFor(Player* player);        // count unlooted items
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const& item);
 
     bool AutoStore(Player* player, uint8 bag, uint8 slot, bool broadcast = false, bool createdByPlayer = false);
+    void AutoStoreTrackingQuests(Player* player, NotNormalLootItemList& ffaItems);
 
     void LootMoney();
     LootItem const* GetItemInSlot(uint32 lootListId) const;

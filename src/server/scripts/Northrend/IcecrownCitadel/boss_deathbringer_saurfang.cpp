@@ -637,12 +637,12 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
         return false;
     }
 
-    void GuardBroadcast(std::function<void(Creature*)>&& action) const
+    void GuardBroadcast(int32 action) const
     {
         std::vector<Creature*> guardList;
         GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 100.0f);
         for (Creature* guard : guardList)
-            action(guard);
+            guard->AI()->DoAction(action);
     }
 
     void DoAction(int32 action) override
@@ -681,19 +681,13 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                 _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30s);   // move
                 me->SetDisableGravity(false);
                 me->GetMotionMaster()->MoveFall();
-                GuardBroadcast([](Creature* guard)
-                {
-                    guard->AI()->DoAction(ACTION_DESPAWN);
-                });
+                GuardBroadcast(ACTION_DESPAWN);
                 break;
             }
             case ACTION_INTERRUPT_INTRO:
             {
                 _events.Reset();
-                GuardBroadcast([](Creature* guard)
-                {
-                    guard->AI()->DoAction(ACTION_DESPAWN);
-                });
+                GuardBroadcast(ACTION_DESPAWN);
                 break;
             }
             default:
@@ -774,10 +768,7 @@ struct npc_high_overlord_saurfang_icc : public ScriptedAI
                     break;
                 case EVENT_INTRO_HORDE_8:
                     Talk(SAY_INTRO_HORDE_8);
-                    GuardBroadcast([](Creature* guard)
-                    {
-                        guard->AI()->DoAction(ACTION_CHARGE);
-                    });
+                    GuardBroadcast(ACTION_CHARGE);
                     me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                     break;
                 case EVENT_OUTRO_HORDE_2:   // say
@@ -834,12 +825,12 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
         return false;
     }
 
-    void GuardBroadcast(std::function<void(Creature*)>&& action) const
+    void GuardBroadcast(int32 action) const
     {
         std::vector<Creature*> guardList;
         GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 100.0f);
         for (Creature* guard : guardList)
-            action(guard);
+            guard->AI()->DoAction(action);
     }
 
     void DoAction(int32 action) override
@@ -874,10 +865,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
                 Talk(SAY_OUTRO_ALLIANCE_1);
                 me->SetDisableGravity(false);
                 me->GetMotionMaster()->MoveFall();
-                GuardBroadcast([](Creature* guard)
-                {
-                    guard->AI()->DoAction(ACTION_DESPAWN);
-                });
+                GuardBroadcast(ACTION_DESPAWN);
 
                 // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                 if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_DEATHBRINGER_SAURFANG)))
@@ -886,10 +874,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
             }
             case ACTION_INTERRUPT_INTRO:
                 _events.Reset();
-                GuardBroadcast([](Creature* guard)
-                {
-                    guard->AI()->DoAction(ACTION_DESPAWN);
-                });
+                GuardBroadcast(ACTION_DESPAWN);
                 break;
         }
     }
@@ -932,10 +917,7 @@ struct npc_muradin_bronzebeard_icc : public ScriptedAI
                     break;
                 case EVENT_INTRO_ALLIANCE_5:
                     Talk(SAY_INTRO_ALLIANCE_5);
-                    GuardBroadcast([](Creature* guard)
-                    {
-                        guard->AI()->DoAction(ACTION_CHARGE);
-                    });
+                    GuardBroadcast(ACTION_CHARGE);
                     me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
                     break;
             }

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SystemPackets_h__
-#define SystemPackets_h__
+#ifndef TRINITYCORE_SYSTEM_PACKETS_H
+#define TRINITYCORE_SYSTEM_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -27,6 +27,40 @@ namespace WorldPackets
 {
     namespace System
     {
+        struct SocialQueueConfig
+        {
+            bool ToastsDisabled = false;
+            float ToastDuration = 0.0f;
+            float DelayDuration = 0.0f;
+            float QueueMultiplier = 0.0f;
+            float PlayerMultiplier = 0.0f;
+            float PlayerFriendValue = 0.0f;
+            float PlayerGuildValue = 0.0f;
+            float ThrottleInitialThreshold = 0.0f;
+            float ThrottleDecayTime = 0.0f;
+            float ThrottlePrioritySpike = 0.0f;
+            float ThrottleMinThreshold = 0.0f;
+            float ThrottlePvPPriorityNormal = 0.0f;
+            float ThrottlePvPPriorityLow = 0.0f;
+            float ThrottlePvPHonorThreshold = 0.0f;
+            float ThrottleLfgListPriorityDefault = 0.0f;
+            float ThrottleLfgListPriorityAbove = 0.0f;
+            float ThrottleLfgListPriorityBelow = 0.0f;
+            float ThrottleLfgListIlvlScalingAbove = 0.0f;
+            float ThrottleLfgListIlvlScalingBelow = 0.0f;
+            float ThrottleRfPriorityAbove = 0.0f;
+            float ThrottleRfIlvlScalingAbove = 0.0f;
+            float ThrottleDfMaxItemLevel = 0.0f;
+            float ThrottleDfBestPriority = 0.0f;
+        };
+
+        struct SessionAlertConfig
+        {
+            int32 Delay       = 0;
+            int32 Period      = 0;
+            int32 DisplayTime = 0;
+        };
+
         struct SavedThrottleObjectState
         {
             uint32 MaxTries               = 0;
@@ -45,56 +79,23 @@ namespace WorldPackets
             SavedThrottleObjectState ThrottleState;
         };
 
+        struct SquelchInfo
+        {
+            bool IsSquelched = false;
+            ObjectGuid BnetAccountGuid;
+            ObjectGuid GuildGuid;
+        };
+
         struct GameRuleValuePair
         {
             int32 Rule = 0;
             int32 Value = 0;
+            float ValueF = 0.0f;
         };
 
         class FeatureSystemStatus final : public ServerPacket
         {
         public:
-            struct SessionAlertConfig
-            {
-                int32 Delay       = 0;
-                int32 Period      = 0;
-                int32 DisplayTime = 0;
-            };
-
-            struct SocialQueueConfig
-            {
-                bool ToastsDisabled = false;
-                float ToastDuration = 0.0f;
-                float DelayDuration = 0.0f;
-                float QueueMultiplier = 0.0f;
-                float PlayerMultiplier = 0.0f;
-                float PlayerFriendValue = 0.0f;
-                float PlayerGuildValue = 0.0f;
-                float ThrottleInitialThreshold = 0.0f;
-                float ThrottleDecayTime = 0.0f;
-                float ThrottlePrioritySpike = 0.0f;
-                float ThrottleMinThreshold = 0.0f;
-                float ThrottlePvPPriorityNormal = 0.0f;
-                float ThrottlePvPPriorityLow = 0.0f;
-                float ThrottlePvPHonorThreshold = 0.0f;
-                float ThrottleLfgListPriorityDefault = 0.0f;
-                float ThrottleLfgListPriorityAbove = 0.0f;
-                float ThrottleLfgListPriorityBelow = 0.0f;
-                float ThrottleLfgListIlvlScalingAbove = 0.0f;
-                float ThrottleLfgListIlvlScalingBelow = 0.0f;
-                float ThrottleRfPriorityAbove = 0.0f;
-                float ThrottleRfIlvlScalingAbove = 0.0f;
-                float ThrottleDfMaxItemLevel = 0.0f;
-                float ThrottleDfBestPriority = 0.0f;
-            };
-
-            struct SquelchInfo
-            {
-                bool IsSquelched = false;
-                ObjectGuid BnetAccountGuid;
-                ObjectGuid GuildGuid;
-            };
-
             struct RafSystemFeatureInfo
             {
                 bool Enabled = false;
@@ -113,7 +114,7 @@ namespace WorldPackets
                 int32 UsedTriesPerMessage = 0;
             };
 
-            FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
+            explicit FeatureSystemStatus() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS, 200) { }
 
             WorldPacket const* Write() override;
 
@@ -170,15 +171,15 @@ namespace WorldPackets
             bool IsPlayerContentTrackingEnabled      = false;
             bool SellAllJunkEnabled                  = false;
             bool GroupFinderEnabled                  = true;  // classic only
-            bool LfdEnabled                          = true;  // classic only
-            bool LfrEnabled                          = true;  // classic only
             bool IsPremadeGroupEnabled               = true;  // classic only
-            bool PremadeGroupsEnabled                = true;
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
-            bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
-            bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
+            bool BNSendWhisperUseV2Services          = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
+            bool BNSendGameDataUseV2Services         = true;  ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool IsAccountCurrencyTransferEnabled    = false;
+            bool LobbyMatchmakerQueueFromMainlineEnabled = false;
+            bool CanSendLobbyMatchmakerPartyCustomizations = false;
+            bool AddonProfilerEnabled                = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -188,6 +189,10 @@ namespace WorldPackets
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
             AddonChatThrottleParams AddonChatThrottle;
+            uint32 RealmPvpTypeOverride              = 0;       ///< Use Cfg_Configs value = 0, ForceEnabled = 1, ForceDisabled = 2
+            float AddonPerformanceMsgWarning         = 0.0f;
+            float AddonPerformanceMsgError           = 0.0f;
+            float AddonPerformanceMsgOverall         = 0.0f;
         };
 
         struct DebugTimeEventInfo
@@ -199,14 +204,14 @@ namespace WorldPackets
         class FeatureSystemStatusGlueScreen final : public ServerPacket
         {
         public:
-            FeatureSystemStatusGlueScreen() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 64) { }
+            explicit FeatureSystemStatusGlueScreen() : ServerPacket(SMSG_FEATURE_SYSTEM_STATUS_GLUE_SCREEN, 64) { }
 
             WorldPacket const* Write() override;
 
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false; // NYI
+            bool BpayStoreEnabled                    = false;
             bool CommerceServerEnabled               = false; // NYI
             bool VeteranTokenRedeemWillKick          = false; // NYI
             bool WorldTokenRedeemWillKick            = false; // NYI
@@ -232,6 +237,8 @@ namespace WorldPackets
             bool BNSendWhisperUseV2Services          = true; ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool CharacterSelectListModeRealmless    = false;
+            bool WowTokenLimitedMode                 = false; // classic only
+            bool PandarenLevelBoostAllowed           = false; // classic only
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 CommercePricePollTimeSeconds      = 0;     // NYI
@@ -260,7 +267,7 @@ namespace WorldPackets
         class SetTimeZoneInformation final : public ServerPacket
         {
         public:
-            SetTimeZoneInformation() : ServerPacket(SMSG_SET_TIME_ZONE_INFORMATION) { }
+            explicit SetTimeZoneInformation() : ServerPacket(SMSG_SET_TIME_ZONE_INFORMATION) { }
 
             WorldPacket const* Write() override;
 
@@ -271,4 +278,4 @@ namespace WorldPackets
     }
 }
 
-#endif // SystemPackets_h__
+#endif // TRINITYCORE_SYSTEM_PACKETS_H

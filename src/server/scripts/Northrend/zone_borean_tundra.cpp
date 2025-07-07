@@ -1260,7 +1260,9 @@ enum BloodsporeRuination
     NPC_BLOODMAGE_LAURITH   = 25381,
     SAY_BLOODMAGE_LAURITH   = 0,
     EVENT_TALK              = 1,
-    EVENT_RESET_ORIENTATION
+    EVENT_RESET_ORIENTATION,
+
+    DATA_FACING_PLAYER_GUID = 0
 };
 
 // 45997 - Bloodspore Ruination
@@ -1270,7 +1272,7 @@ class spell_q11719_bloodspore_ruination_45997 : public SpellScript
     {
         if (Unit* caster = GetCaster())
             if (Creature* laurith = caster->FindNearestCreature(NPC_BLOODMAGE_LAURITH, 100.0f))
-                laurith->AI()->SetGUID(caster->GetGUID());
+                laurith->AI()->SetGUID(caster->GetGUID(), DATA_FACING_PLAYER_GUID);
     }
 
     void Register() override
@@ -1289,8 +1291,11 @@ struct npc_bloodmage_laurith : public ScriptedAI
         _playerGUID.Clear();
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_FACING_PLAYER_GUID)
+            return;
+
         if (!_playerGUID.IsEmpty())
             return;
 

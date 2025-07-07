@@ -83,6 +83,11 @@ LfgQueueData::LfgQueueData() : joinTime(GameTime::GetGameTime()), tanks(LFG_TANK
 healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED)
 { }
 
+LFGQueue::LFGQueue() = default;
+LFGQueue::LFGQueue(LFGQueue&& other) noexcept = default;
+LFGQueue& LFGQueue::operator=(LFGQueue&& right) noexcept = default;
+LFGQueue::~LFGQueue() = default;
+
 std::string LFGQueue::GetDetailedMatchRoles(GuidList const& check) const
 {
     if (check.empty())

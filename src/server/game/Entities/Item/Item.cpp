@@ -23,9 +23,8 @@
 #include "CollectionMgr.h"
 #include "Common.h"
 #include "ConditionMgr.h"
-#include "Containers.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameTables.h"
 #include "GameTime.h"
 #include "ItemBonusMgr.h"
@@ -36,6 +35,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -62,6 +62,13 @@ Item* NewItemOrBag(ItemTemplate const* proto)
 
     return new Item();
 }
+
+struct ItemSetEffect
+{
+    uint32 ItemSetID;
+    std::unordered_set<Item const*> EquippedItems;
+    std::unordered_set<ItemSetSpellEntry const*> SetBonuses;
+};
 
 void AddItemsSetItem(Player* player, Item const* item)
 {
@@ -203,6 +210,34 @@ void RemoveItemsSetItem(Player* player, Item const* item)
         delete eff;
         player->ItemSetEff[setindex] = nullptr;
     }
+}
+
+void UpdateItemSetAuras(Player* player, bool formChange)
+{
+    // item set bonuses not dependent from item broken state
+    for (ItemSetEffect* eff : player->ItemSetEff)
+    {
+        if (!eff)
+            continue;
+
+        for (ItemSetSpellEntry const* itemSetSpell : eff->SetBonuses)
+        {
+            SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
+
+            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                player->ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
+            else
+            {
+                player->ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
+                player->ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+            }
+        }
+    }
+}
+
+void DeleteItemSetEffects(ItemSetEffect* itemSetEffect)
+{
+    delete itemSetEffect;
 }
 
 bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
@@ -488,9 +523,8 @@ bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext contex
     SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::MaxDurability), itemProto->MaxDurability);
     SetDurability(itemProto->MaxDurability);
 
-    for (std::size_t i = 0; i < itemProto->Effects.size(); ++i)
-        if (itemProto->Effects[i]->LegacySlotIndex < 5)
-            SetSpellCharges(itemProto->Effects[i]->LegacySlotIndex, itemProto->Effects[i]->Charges);
+    for (ItemEffectEntry const* effect : GetEffects())
+        SetSpellCharges(effect, effect->Charges);
 
     SetExpiration(itemProto->GetDuration());
     SetCreatePlayedTime(0);
@@ -559,6 +593,43 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
+static uint32 FindSpellChargesSlot(BonusData const& bonusData, ItemEffectEntry const* effect)
+{
+    static constexpr uint32 MaxSpellChargesSlot = UF::size<decltype(UF::ItemData::SpellCharges)>();
+
+    if (!effect)
+    {
+        // return fist effect that has charges
+        for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+            if (bonusData.Effects[i] && bonusData.Effects[i]->Charges != 0)
+                return i;
+
+        return MaxSpellChargesSlot;
+    }
+
+    for (uint32 i = 0; i < bonusData.EffectCount && i < MaxSpellChargesSlot; ++i)
+        if (bonusData.Effects[i] == effect)
+            return i;
+
+    return MaxSpellChargesSlot;
+}
+
+int32 Item::GetSpellCharges(ItemEffectEntry const* effect /*= nullptr*/) const
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        return m_itemData->SpellCharges[slot];
+
+    return 0;
+}
+
+void Item::SetSpellCharges(ItemEffectEntry const* effect, int32 value)
+{
+    uint32 slot = FindSpellChargesSlot(_bonusData, effect);
+    if (slot < m_itemData->SpellCharges.size())
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, slot), value);
+}
+
 void Item::SaveToDB(CharacterDatabaseTransaction trans)
 {
     bool isInTransaction = bool(trans);
@@ -581,7 +652,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
 
             std::ostringstream ssSpells;
             for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount; ++i)
-                ssSpells << GetSpellCharges(i) << ' ';
+                ssSpells << m_itemData->SpellCharges[i] << ' ';
             stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, m_itemData->DynamicFlags);
@@ -657,7 +728,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                     else
                     {
                         stmt->setUInt32(1 + i * gemFields, 0);
-                        stmt->setString(2 + i * gemFields, "");
+                        stmt->setString(2 + i * gemFields, ""sv);
                         stmt->setUInt8(3 + i * gemFields, 0);
                         stmt->setUInt32(4 + i * gemFields, 0);
                     }
@@ -666,7 +737,7 @@ void Item::SaveToDB(CharacterDatabaseTransaction trans)
                 for (; i < MAX_GEM_SOCKETS; ++i)
                 {
                     stmt->setUInt32(1 + i * gemFields, 0);
-                    stmt->setString(2 + i * gemFields, "");
+                    stmt->setString(2 + i * gemFields, ""sv);
                     stmt->setUInt8(3 + i * gemFields, 0);
                     stmt->setUInt32(4 + i * gemFields, 0);
                 }
@@ -925,7 +996,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     // load charges after bonuses, they can add more item effects
     std::vector<std::string_view> tokens = Trinity::Tokenize(fields[6].GetStringView(), ' ', false);
     for (uint8 i = 0; i < m_itemData->SpellCharges.size() && i < _bonusData.EffectCount && i < tokens.size(); ++i)
-        SetSpellCharges(i, Trinity::StringTo<int32>(tokens[i]).value_or(0));
+        SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::SpellCharges, i), Trinity::StringTo<int32>(tokens[i]).value_or(0));
 
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_ALL_SPECS, fields[20].GetUInt32());
     SetModifier(ITEM_MODIFIER_TRANSMOG_APPEARANCE_SPEC_1, fields[21].GetUInt32());
@@ -1001,6 +1072,21 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
     }
 
     return true;
+}
+
+void Item::LoadAdditionalDataFromDB(Player const* owner, ItemAdditionalLoadInfo* addionalData)
+{
+    if (GetTemplate()->GetArtifactID() && addionalData->Artifact)
+        LoadArtifactData(owner, addionalData->Artifact->Xp, addionalData->Artifact->ArtifactAppearanceId,
+            addionalData->Artifact->ArtifactTierId, addionalData->Artifact->ArtifactPowers);
+
+    if (addionalData->AzeriteItem)
+        if (AzeriteItem* azeriteItem = ToAzeriteItem())
+            azeriteItem->LoadAzeriteItemData(owner, *addionalData->AzeriteItem);
+
+    if (addionalData->AzeriteEmpoweredItem)
+        if (AzeriteEmpoweredItem* azeriteEmpoweredItem = ToAzeriteEmpoweredItem())
+            azeriteEmpoweredItem->LoadAzeriteEmpoweredItemData(owner, *addionalData->AzeriteEmpoweredItem);
 }
 
 void Item::LoadArtifactData(Player const* owner, uint64 xp, uint32 artifactAppearanceId, uint32 artifactTier, std::vector<ArtifactPowerData>& powers)
@@ -2559,20 +2645,25 @@ bool Item::IsArtifactDisabled() const
     return true;
 }
 
+int32 Item::GetArtifactPowerIndex(uint32 artifactPowerId) const
+{
+    return m_itemData->ArtifactPowers.FindIndexIf([artifactPowerId](UF::ArtifactPower const& artifactPower)
+    {
+        return uint32(artifactPower.ArtifactPowerID) == artifactPowerId;
+    });
+}
+
 UF::ArtifactPower const* Item::GetArtifactPower(uint32 artifactPowerId) const
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
-        return &m_itemData->ArtifactPowers[indexItr->second];
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
+        return &m_itemData->ArtifactPowers[index];
 
     return nullptr;
 }
 
 void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 {
-    uint16 index = uint16(m_artifactPowerIdToIndex.size());
-    m_artifactPowerIdToIndex[artifactPower->ArtifactPowerId] = index;
-
     UF::ArtifactPower& powerField = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData).ModifyValue(&UF::ItemData::ArtifactPowers));
     powerField.ArtifactPowerID = artifactPower->ArtifactPowerId;
     powerField.PurchasedRank = artifactPower->PurchasedRank;
@@ -2581,27 +2672,31 @@ void Item::AddArtifactPower(ArtifactPowerData const* artifactPower)
 
 void Item::SetArtifactPower(uint16 artifactPowerId, uint8 purchasedRank, uint8 currentRankWithBonus)
 {
-    auto indexItr = m_artifactPowerIdToIndex.find(artifactPowerId);
-    if (indexItr != m_artifactPowerIdToIndex.end())
+    int32 index = GetArtifactPowerIndex(artifactPowerId);
+    if (index >= 0)
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::PurchasedRank), purchasedRank);
 
         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-            .ModifyValue(&UF::ItemData::ArtifactPowers, indexItr->second)
+            .ModifyValue(&UF::ItemData::ArtifactPowers, index)
             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), currentRankWithBonus);
     }
 }
 
 void Item::InitArtifactPowers(uint8 artifactId, uint8 artifactTier)
 {
+    std::unordered_set<uint32> knownPowers;
+    for (UF::ArtifactPower const& power : m_itemData->ArtifactPowers)
+        knownPowers.insert(power.ArtifactPowerID);
+
     for (ArtifactPowerEntry const* artifactPower : sDB2Manager.GetArtifactPowers(artifactId))
     {
         if (artifactPower->Tier != artifactTier)
             continue;
 
-        if (m_artifactPowerIdToIndex.find(artifactPower->ID) != m_artifactPowerIdToIndex.end())
+        if (knownPowers.contains(artifactPower->ID))
             continue;
 
         ArtifactPowerData powerData;
@@ -2676,20 +2771,20 @@ void Item::ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint32 enc
                     break;
                 case ITEM_ENCHANTMENT_TYPE_ARTIFACT_POWER_BONUS_RANK_BY_ID:
                 {
-                    if (uint16 const* artifactPowerIndex = Trinity::Containers::MapGetValuePtr(m_artifactPowerIdToIndex, enchant->EffectArg[i]))
+                    if (int32 artifactPowerIndex = GetArtifactPowerIndex(enchant->EffectArg[i]); artifactPowerIndex >= 0)
                     {
-                        uint8 newRank = m_itemData->ArtifactPowers[*artifactPowerIndex].CurrentRankWithBonus;
+                        uint8 newRank = m_itemData->ArtifactPowers[artifactPowerIndex].CurrentRankWithBonus;
                         if (apply)
                             newRank += enchant->EffectPointsMin[i];
                         else
                             newRank -= enchant->EffectPointsMin[i];
 
                         SetUpdateFieldValue(m_values.ModifyValue(&Item::m_itemData)
-                            .ModifyValue(&UF::ItemData::ArtifactPowers, *artifactPowerIndex)
+                            .ModifyValue(&UF::ItemData::ArtifactPowers, artifactPowerIndex)
                             .ModifyValue(&UF::ArtifactPower::CurrentRankWithBonus), newRank);
 
                         if (IsEquipped())
-                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[*artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
+                            if (ArtifactPowerRankEntry const* artifactPowerRank = sDB2Manager.GetArtifactPowerRank(m_itemData->ArtifactPowers[artifactPowerIndex].ArtifactPowerID, newRank ? newRank - 1 : 0))
                                 owner->ApplyArtifactPowerRank(this, artifactPowerRank, newRank != 0);
                     }
                     break;

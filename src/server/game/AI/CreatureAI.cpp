@@ -17,7 +17,6 @@
 
 #include "CreatureAI.h"
 #include "AreaBoundary.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAIImpl.h"
 #include "CreatureTextMgr.h"
@@ -27,6 +26,7 @@
 #include "Log.h"
 #include "Map.h"
 #include "MapReference.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -42,7 +42,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId) noexcept
     : UnitAI(creature), me(creature), _boundary(nullptr),
       _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _isEngaged(false), _moveInLOSLocked(false)
 {
@@ -124,7 +124,7 @@ void CreatureAI::MoveInLineOfSight(Unit* who)
     if (me->IsEngaged())
         return;
 
-    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false))
+    if (me->HasReactState(REACT_AGGRESSIVE) && me->CanStartAttack(who, false) && (me->IsAggroGracePeriodExpired() || me->GetMap()->Instanceable()))
         me->EngageWithTarget(who);
 }
 

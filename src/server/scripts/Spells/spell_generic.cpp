@@ -23,6 +23,8 @@
  */
 
 #include "ScriptMgr.h"
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Battleground.h"
 #include "BattlePetMgr.h"
 #include "CellImpl.h"
@@ -34,11 +36,14 @@
 #include "GridNotifiersImpl.h"
 #include "Item.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "NPCPackets.h"
 #include "ObjectMgr.h"
 #include "Pet.h"
+#include "PhasingHandler.h"
 #include "ReputationMgr.h"
+#include "PathGenerator.h"
 #include "SkillDiscovery.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
@@ -1013,7 +1018,7 @@ private:
 // 64208 - Consumption
 class spell_gen_consumption : public SpellScript
 {
-    void CalculateDamage(Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& damage, int32& /*flatMod*/, float& /*pctMod*/) const
     {
         if (SpellInfo const* createdBySpell = sSpellMgr->GetSpellInfo(GetCaster()->m_unitData->CreatedBySpell, GetCastDifficulty()))
             damage = createdBySpell->GetEffect(EFFECT_1).CalcValue();
@@ -4917,6 +4922,7 @@ class spell_gen_eject_passengers_3_8 : public SpellScript
 };
 
 // 83781 - Reverse Cast Ride Vehicle
+// 85299 - Reverse Cast Ride Seat 1
 // 258344 - Reverse Cast Ride Vehicle
 class spell_gen_reverse_cast_target_to_caster_triggered: public SpellScript
 {
@@ -5287,7 +5293,7 @@ class spell_gen_major_healing_cooldown_modifier : public SpellScript
         });
     }
 
-    void CalculateHealingBonus(Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         AddPct(pctMod, MajorPlayerHealingCooldownHelpers::GetBonusMultiplier(GetCaster(), GetSpellInfo()->Id));
     }
@@ -5495,6 +5501,129 @@ class spell_gen_saddlechute : public AuraScript
     }
 };
 
+enum SpatialRiftSpells
+{
+    SPELL_SPATIAL_RIFT_TELEPORT     = 257034,
+    SPELL_SPATIAL_RIFT_AREATRIGGER  = 256948
+};
+
+// 257040 - Spatial Rift
+class spell_gen_spatial_rift : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPATIAL_RIFT_TELEPORT, SPELL_SPATIAL_RIFT_AREATRIGGER });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        AreaTrigger* at = caster->GetAreaTrigger(SPELL_SPATIAL_RIFT_AREATRIGGER);
+        if (!at)
+            return;
+
+        caster->CastSpell(at->GetPosition(), SPELL_SPATIAL_RIFT_TELEPORT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        at->SetDuration(0);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_spatial_rift::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+struct at_gen_spatial_rift : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(at->GetSpellId(), DIFFICULTY_NONE);
+        if (!spellInfo)
+            return;
+
+        Position destPos = at->GetPosition();
+        at->MovePositionToFirstCollision(destPos, spellInfo->GetMaxRange(), 0.0f);
+
+        PathGenerator path(at);
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
+
+        at->InitSplines(path.GetPath());
+    }
+};
+
+class spell_gen_force_phase_update : public AuraScript
+{
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        PhasingHandler::OnConditionChange(GetTarget());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_gen_force_phase_update::AfterApply, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_force_phase_update::AfterRemove, EFFECT_FIRST_FOUND, SPELL_AURA_ANY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+class spell_gen_no_npc_damage_below_override : public AuraScript
+{
+public:
+    spell_gen_no_npc_damage_below_override(float healthPct) : _healthPct(healthPct) {}
+
+    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    {
+        amount = -1;
+    }
+
+    void HandleAbsorb(AuraEffect const* /*aurEff*/, DamageInfo const& dmgInfo, uint32& absorbAmount)
+    {
+        if (!dmgInfo.GetAttacker() || !dmgInfo.GetAttacker()->IsCreature())
+        {
+            PreventDefaultAction();
+            return;
+        }
+
+        if (GetTarget()->GetHealthPct() <= _healthPct)
+            absorbAmount = dmgInfo.GetDamage();
+        else
+            PreventDefaultAction();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_no_npc_damage_below_override::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        OnEffectAbsorb += AuraEffectAbsorbFn(spell_gen_no_npc_damage_below_override::HandleAbsorb, EFFECT_0);
+    }
+
+private:
+    float _healthPct;
+};
+
+// 92678 - Abandon Vehicle
+class spell_gen_abandon_vehicle : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_abandon_vehicle::HandleHitTarget, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -5678,4 +5807,9 @@ void AddSC_generic_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_bg_defending_cart_aura, spell_bg_defending_cart_aura_AuraScript);
     RegisterSpellScript(spell_gen_comfortable_riders_barding);
     RegisterSpellScript(spell_gen_saddlechute);
+    RegisterSpellScript(spell_gen_spatial_rift);
+    RegisterAreaTriggerAI(at_gen_spatial_rift);
+    RegisterSpellScript(spell_gen_force_phase_update);
+    RegisterSpellScriptWithArgs(spell_gen_no_npc_damage_below_override, "spell_gen_no_npc_damage_below_override_70", 70.0f);
+    RegisterSpellScript(spell_gen_abandon_vehicle);
 }

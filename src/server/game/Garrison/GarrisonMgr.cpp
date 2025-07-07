@@ -26,6 +26,9 @@
 #include "Timer.h"
 #include "World.h"
 
+GarrisonMgr::GarrisonMgr() = default;
+GarrisonMgr::~GarrisonMgr() = default;
+
 GarrisonMgr& GarrisonMgr::Instance()
 {
     static GarrisonMgr instance;

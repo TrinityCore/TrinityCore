@@ -5,6 +5,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
   # apple doesnt like to do the sane thing which would be to use the same version numbering as regular clang
   # version number pulled from https://en.wikipedia.org/wiki/Xcode#Toolchain_versions for row matching LLVM 11
   set(CLANG_EXPECTED_VERSION 12.0.5)
+  # enable -fpch-instantiate-templates for AppleClang (by default it is active only for regular clang)
+  set(CMAKE_C_COMPILE_OPTIONS_INSTANTIATE_TEMPLATES_PCH -fpch-instantiate-templates)
+  set(CMAKE_CXX_COMPILE_OPTIONS_INSTANTIATE_TEMPLATES_PCH -fpch-instantiate-templates)
 endif()
 
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS CLANG_EXPECTED_VERSION)
@@ -48,7 +51,8 @@ if(WITH_WARNINGS)
       -Winit-self
       -Wfatal-errors
       -Wno-mismatched-tags
-      -Woverloaded-virtual)
+      -Woverloaded-virtual
+      -Wno-missing-field-initializers) # this warning is useless when combined with structure members that have default initializers
 
   message(STATUS "Clang: All warnings enabled")
 endif()
@@ -158,14 +162,4 @@ if(BUILD_SHARED_LIBS)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --no-undefined")
 
   message(STATUS "Clang: Disallow undefined symbols")
-endif()
-
-# speedup PCH builds by forcing template instantiations during PCH generation
-set(CMAKE_REQUIRED_FLAGS "-fpch-instantiate-templates")
-check_cxx_source_compiles("int main() { return 0; }" CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
-unset(CMAKE_REQUIRED_FLAGS)
-if(CLANG_HAS_PCH_INSTANTIATE_TEMPLATES)
-  target_compile_options(trinity-compile-option-interface
-    INTERFACE
-      -fpch-instantiate-templates)
 endif()

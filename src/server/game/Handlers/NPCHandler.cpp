@@ -122,9 +122,8 @@ void WorldSession::SendTrainerList(Creature* npc, uint32 trainerId)
         return;
     }
 
-    _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = npc->GetGUID();
-    _player->PlayerTalkClass->GetInteractionData().TrainerId = trainerId;
+    _player->PlayerTalkClass->GetInteractionData().StartInteraction(npc->GetGUID(), PlayerInteractionType::Trainer);
+    _player->PlayerTalkClass->GetInteractionData().GetTrainer()->Id = trainerId;
     trainer->SendSpells(npc, _player, GetSessionDbLocaleIndex());
 }
 
@@ -143,10 +142,10 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPackets::NPC::TrainerBuySpel
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.TrainerGUID)
+    if (!_player->PlayerTalkClass->GetInteractionData().IsInteractingWith(packet.TrainerGUID, PlayerInteractionType::Trainer))
         return;
 
-    if (_player->PlayerTalkClass->GetInteractionData().TrainerId != uint32(packet.TrainerID))
+    if (_player->PlayerTalkClass->GetInteractionData().GetTrainer()->Id != uint32(packet.TrainerID))
         return;
 
     Trainer::Trainer const* trainer = sObjectMgr->GetTrainer(packet.TrainerID);
@@ -198,7 +197,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPackets::NPC::GossipSelec
         return;
 
     // Prevent cheating on C++ scripted menus
-    if (_player->PlayerTalkClass->GetInteractionData().SourceGuid != packet.GossipUnit)
+    if (!_player->PlayerTalkClass->GetInteractionData().IsInteractingWith(packet.GossipUnit, PlayerInteractionType::Gossip))
         return;
 
     Creature* unit = nullptr;
@@ -372,9 +371,15 @@ void WorldSession::SendPetStableResult(StableResult result)
 
 void WorldSession::HandleSetPetSlot(WorldPackets::NPC::SetPetSlot& setPetSlot)
 {
-    if (!CheckStableMaster(setPetSlot.StableMaster) || setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    if (!CheckStableMaster(setPetSlot.StableMaster))
     {
-        SendPetStableResult(StableResult::InternalError);
+        SendPetStableResult(StableResult::NotStableMaster);
+        return;
+    }
+
+    if (setPetSlot.DestSlot >= PET_SAVE_LAST_STABLE_SLOT)
+    {
+        SendPetStableResult(StableResult::InvalidSlot);
         return;
     }
 

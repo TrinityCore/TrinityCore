@@ -118,6 +118,11 @@ class TC_GAME_API WardenCheckMgr
         WardenCheckMgr();
 
     public:
+        WardenCheckMgr(WardenCheckMgr const&) = delete;
+        WardenCheckMgr(WardenCheckMgr&&) = delete;
+        WardenCheckMgr& operator=(WardenCheckMgr const&) = delete;
+        WardenCheckMgr& operator=(WardenCheckMgr&&) = delete;
+
         static WardenCheckMgr* instance();
 
         uint16 GetMaxValidCheckId() const { return static_cast<uint16>(_checks.size()); }

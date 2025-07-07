@@ -689,6 +689,9 @@ struct transport_seething_shore : TransportScript
 
     void OnRemovePassenger(Transport* /*transport*/, Player* player) override
     {
+        if (!player->IsInWorld())
+            return;
+
         if (Battleground const* bg = player->GetBattleground())
         {
             if (bg->GetStatus() != STATUS_IN_PROGRESS)

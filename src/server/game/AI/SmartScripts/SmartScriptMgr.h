@@ -1289,7 +1289,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
-    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?, StringId
+    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, findCreatureAliveState, StringId
     SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist, StringId
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // maxDist
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
@@ -1399,7 +1399,7 @@ struct SmartTarget
         {
             uint32 entry;
             uint32 dist;
-            SAIBool dead;
+            uint32 findCreatureAliveState;
         } unitClosest;
 
         struct
@@ -1711,10 +1711,15 @@ typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::cons
 class TC_GAME_API SmartAIMgr
 {
     private:
-        SmartAIMgr() { }
-        ~SmartAIMgr() { }
+        SmartAIMgr();
+        ~SmartAIMgr();
 
     public:
+        SmartAIMgr(SmartAIMgr const&) = delete;
+        SmartAIMgr(SmartAIMgr&&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr const&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr&&) = delete;
+
         static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();

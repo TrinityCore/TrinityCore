@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PerksPorgramPacketsCommon_h__
-#define PerksPorgramPacketsCommon_h__
+#ifndef TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H
+#define TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H
 
 #include "PacketUtilities.h"
 
@@ -29,15 +29,17 @@ struct PerksVendorItem
     int32 BattlePetSpeciesID = 0;
     int32 TransmogSetID = 0;
     int32 ItemModifiedAppearanceID = 0;
-    int32 Field_14 = 0;
-    int32 Field_18 = 0;
+    int32 TransmogIllusionID = 0;
+    int32 ToyID = 0;
+    int32 WarbandSceneID = 0;
     int32 Price = 0;
+    int32 OriginalPrice = 0;
     Timestamp<> AvailableUntil;
     bool Disabled = false;
-    bool Field_41 = false;
+    bool DoesNotExpire = false;
 };
 
 ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem);
 }
 
-#endif // PerksPorgramPacketsCommon_h__
+#endif // TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H

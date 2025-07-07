@@ -35,31 +35,28 @@ EndScriptData */
 #include "Player.h"
 #include "RBAC.h"
 #include "WaypointManager.h"
-#include "WorldSession.h"
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+using namespace Trinity::ChatCommands;
 
 class wp_commandscript : public CommandScript
 {
 public:
     wp_commandscript() : CommandScript("wp_commandscript") { }
 
-    std::vector<ChatCommand> GetCommands() const override
+    ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> wpCommandTable =
+        static ChatCommandTable wpCommandTable =
         {
-            { "add",    rbac::RBAC_PERM_COMMAND_WP_ADD,    false, &HandleWpAddCommand,    "" },
-            { "load",   rbac::RBAC_PERM_COMMAND_WP_LOAD,   false, &HandleWpLoadCommand,   "" },
-            { "modify", rbac::RBAC_PERM_COMMAND_WP_MODIFY, false, &HandleWpModifyCommand, "" },
-            { "unload", rbac::RBAC_PERM_COMMAND_WP_UNLOAD, false, &HandleWpUnLoadCommand, "" },
-            { "reload", rbac::RBAC_PERM_COMMAND_WP_RELOAD, false, &HandleWpReloadCommand, "" },
-            { "show",   rbac::RBAC_PERM_COMMAND_WP_SHOW,   false, &HandleWpShowCommand,   "" },
+            { "add",    HandleWpAddCommand,    rbac::RBAC_PERM_COMMAND_WP_ADD,    Console::No },
+            { "load",   HandleWpLoadCommand,   rbac::RBAC_PERM_COMMAND_WP_LOAD,   Console::No },
+            { "modify", HandleWpModifyCommand, rbac::RBAC_PERM_COMMAND_WP_MODIFY, Console::No },
+            { "unload", HandleWpUnLoadCommand, rbac::RBAC_PERM_COMMAND_WP_UNLOAD, Console::No },
+            { "reload", HandleWpReloadCommand, rbac::RBAC_PERM_COMMAND_WP_RELOAD, Console::No },
+            { "show",   HandleWpShowCommand,   rbac::RBAC_PERM_COMMAND_WP_SHOW,   Console::No },
         };
-        static std::vector<ChatCommand> commandTable =
+        static ChatCommandTable commandTable =
         {
-            { "wp", rbac::RBAC_PERM_COMMAND_WP, false, nullptr, "", wpCommandTable },
+            { "wp", wpCommandTable },
         };
         return commandTable;
     }
@@ -80,22 +77,15 @@ public:
     * -> adds a waypoint to the currently selected creature
     *
     *
-    * @param args if the user did not provide a GUID, it is NULL
+    * @param pathid (optional)
     *
     * @return true - command did succeed, false - something went wrong
     */
-    static bool HandleWpAddCommand(ChatHandler* handler, char const* args)
+    static bool HandleWpAddCommand(ChatHandler* handler, Optional<uint32> pathid)
     {
-        // optional
-        char* path_number = nullptr;
-        uint32 pathid = 0;
-
-        if (*args)
-            path_number = strtok((char*)args, " ");
-
         Creature* target = handler->getSelectedCreature();
 
-        if (!path_number)
+        if (!pathid)
         {
             if (target)
                 pathid = target->GetWaypointPathId();
@@ -108,22 +98,27 @@ public:
                 uint32 maxpathid = result->Fetch()->GetInt32();
                 pathid = maxpathid+1;
                 handler->PSendSysMessage("%s%s|r", "|cff00ff00", "New path started.");
+
+                stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_WAYPOINT_PATH);
+                stmt->setUInt32(0, *pathid);                                    // PathId
+                stmt->setUInt8(1, AsUnderlyingType(WaypointMoveType::Walk));    // MoveType
+                stmt->setUInt8(2, AsUnderlyingType(WaypointPathFlags::None));   // Flags
+                stmt->setNull(3);                                               // Velocity
+                stmt->setString(4, "Created by .wp add"sv);                     // Comment
+                WorldDatabase.Execute(stmt);
             }
         }
-        else
-            pathid = atoi(path_number);
 
         // PathId -> ID of the Path
         // point   -> number of the waypoint (if not 0)
-
-        if (!pathid)
+        if (!pathid || pathid == 0u)
         {
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Current creature haven't loaded path.");
             return true;
         }
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_PATH_NODE_MAX_NODEID);
-        stmt->setUInt32(0, pathid);
+        stmt->setUInt32(0, *pathid);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         uint32 nodeId = 0;
@@ -131,10 +126,9 @@ public:
             nodeId = (*result)[0].GetUInt32() + 1;
 
         Player* player = handler->GetPlayer();
-        //Map* map = player->GetMap();
 
         stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_WAYPOINT_PATH_NODE);
-        stmt->setUInt32(0, pathid);
+        stmt->setUInt32(0, *pathid);
         stmt->setUInt32(1, nodeId);
         stmt->setFloat(2, player->GetPositionX());
         stmt->setFloat(3, player->GetPositionY());
@@ -146,37 +140,22 @@ public:
         {
             uint32 displayId = target->GetDisplayId();
 
-            WaypointPath const* path = sWaypointMgr->GetPath(pathid);
+            WaypointPath const* path = sWaypointMgr->GetPath(*pathid);
             if (!path)
                 return true;
 
             sWaypointMgr->DevisualizePath(handler->GetPlayer(), path);
-            sWaypointMgr->ReloadPath(pathid);
+            sWaypointMgr->ReloadPath(*pathid);
             sWaypointMgr->VisualizePath(handler->GetPlayer(), path, displayId);
         }
 
-        handler->PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", nodeId, "|r|cff00ff00 created. ");
+        handler->PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", *pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", nodeId, "|r|cff00ff00 created. ");
         return true;
     }                                                           // HandleWpAddCommand
 
-    static bool HandleWpLoadCommand(ChatHandler* handler, char const* args)
+    static bool HandleWpLoadCommand(ChatHandler* handler, uint32 pathid)
     {
-        if (!*args)
-            return false;
-
-        // optional
-        char* path_number = nullptr;
-
-        if (*args)
-            path_number = strtok((char*)args, " ");
-
-        uint32 pathid = 0;
-        ObjectGuid::LowType guidLow = UI64LIT(0);
         Creature* target = handler->getSelectedCreature();
-
-        // Did player provide a PathId?
-        if (!path_number)
-            return false;
 
         if (!target)
         {
@@ -192,15 +171,13 @@ public:
             return false;
         }
 
-        pathid = atoi(path_number);
-
         if (!pathid)
         {
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "No valid path number provided.");
             return true;
         }
 
-        guidLow = target->GetSpawnId();
+        ObjectGuid::LowType guidLow = target->GetSpawnId();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_ADDON_BY_GUID);
 
@@ -238,13 +215,8 @@ public:
         return true;
     }
 
-    static bool HandleWpReloadCommand(ChatHandler* handler, char const* args)
+    static bool HandleWpReloadCommand(ChatHandler* handler, uint32 id)
     {
-        if (!*args)
-            return false;
-
-        uint32 id = atoi(args);
-
         if (!id)
             return false;
 
@@ -253,7 +225,7 @@ public:
         return true;
     }
 
-    static bool HandleWpUnLoadCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleWpUnLoadCommand(ChatHandler* handler)
     {
         Creature* target = handler->getSelectedCreature();
         WorldDatabasePreparedStatement* stmt = nullptr;
@@ -297,20 +269,8 @@ public:
         return true;
     }
 
-    static bool HandleWpModifyCommand(ChatHandler* handler, char const* args)
+    static bool HandleWpModifyCommand(ChatHandler* handler, Variant<EXACT_SEQUENCE("del"), EXACT_SEQUENCE("move")> show)
     {
-        if (!*args)
-            return false;
-
-        // first arg: add del text emote spell waittime move
-        char* show_str = strtok((char*)args, " ");
-        if (!show_str)
-        {
-            return false;
-        }
-
-        std::string show = show_str;
-
         // Did user provide a GUID
         // or did the user select a creature?
         // -> variable lowguid is filled with the GUID of the NPC
@@ -339,7 +299,7 @@ public:
             return false;
         }
 
-        if (show == "del")
+        if (show.holds_alternative<EXACT_SEQUENCE("del")>())
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: .wp modify del, PathId: |r|cff00ffff%u|r, NodeId: |r|cff00ffff%u|r", path->Id, node->Id);
 
@@ -353,9 +313,9 @@ public:
             handler->SendSysMessage(LANG_WAYPOINT_REMOVED);
             return true;
         }
-        else if (show == "move")
+        else if (show.holds_alternative<EXACT_SEQUENCE("move")>())
         {
-            handler->PSendSysMessage("|cff00ff00DEBUG: .wp move, PathId: |r|cff00ffff%u|r, NodeId: |r|cff00ffff%u|r", path->Id, node->Id);
+            handler->PSendSysMessage("|cff00ff00DEBUG: .wp modify move, PathId: |r|cff00ffff%u|r, NodeId: |r|cff00ffff%u|r", path->Id, node->Id);
 
             uint32 displayId = target->GetDisplayId();
 
@@ -370,24 +330,12 @@ public:
         return false;
     }
 
-    static bool HandleWpShowCommand(ChatHandler* handler, char const* args)
+    static bool HandleWpShowCommand(ChatHandler* handler, Variant<EXACT_SEQUENCE("off"), EXACT_SEQUENCE("on"), EXACT_SEQUENCE("info")> show, Optional<uint32> pathid)
     {
-        if (!*args)
-            return false;
-
-        // first arg: on, off, first, last
-        char* show_str = strtok((char*)args, " ");
-        if (!show_str)
-            return false;
-
-        // second arg: GUID (optional, if a creature is selected)
-        char* guid_str = strtok((char*)nullptr, " ");
-
-        uint32 pathid = 0;
         Creature* target = handler->getSelectedCreature();
 
         // Did player provide a PathID?
-        if (!guid_str)
+        if (!pathid)
         {
             // No PathID provided
             // -> Player must have selected a creature
@@ -408,16 +356,10 @@ public:
             // -> Creature selection is ignored <-
             if (target)
                 handler->SendSysMessage(LANG_WAYPOINT_CREATSELECTED);
-
-            pathid = Trinity::StringTo<uint32>(guid_str).value_or(0);
         }
 
-        std::string show = show_str;
-
-        //handler->PSendSysMessage("wpshow - show: %s", show);
-
         // Show info for the selected waypoint
-        if (show == "info")
+        if (show.holds_alternative<EXACT_SEQUENCE("info")>())
         {
             if (!target || target->GetEntry() != VISUAL_WAYPOINT)
             {
@@ -451,18 +393,18 @@ public:
 
             return true;
         }
-        else if (show == "on")
+        else if (show.holds_alternative<EXACT_SEQUENCE("on")>())
         {
-            WaypointPath const* path = sWaypointMgr->GetPath(pathid);
+            WaypointPath const* path = sWaypointMgr->GetPath(*pathid);
             if (!path)
             {
-                handler->PSendSysMessage("|cff00ff00Path does not exist: id %u|r", pathid);
+                handler->PSendSysMessage("|cff00ff00Path does not exist: id %u|r", *pathid);
                 return true;
             }
 
             if (path->Nodes.empty())
             {
-                handler->PSendSysMessage("|cff00ff00Path does not have any nodes: id %u|r", pathid);
+                handler->PSendSysMessage("|cff00ff00Path does not have any nodes: id %u|r", *pathid);
                 return true;
             }
 
@@ -475,19 +417,19 @@ public:
             ObjectGuid const& guid = sWaypointMgr->GetVisualGUIDByNode(path->Id, path->Nodes.front().Id);
             if (!guid.IsEmpty())
             {
-                handler->SendSysMessage("|cff00ff00Path with id %u is already showing.|r", pathid);
+                handler->SendSysMessage("|cff00ff00Path with id %u is already showing.|r", *pathid);
                 return true;
             }
 
-            handler->SendSysMessage("|cff00ff00Showing path with id %u.|r", pathid);
+            handler->SendSysMessage("|cff00ff00Showing path with id %u.|r", *pathid);
             return true;
         }
-        else if (show == "off")
+        else if (show.holds_alternative<EXACT_SEQUENCE("off")>())
         {
-            WaypointPath const* path = sWaypointMgr->GetPath(pathid);
+            WaypointPath const* path = sWaypointMgr->GetPath(*pathid);
             if (!path)
             {
-                handler->PSendSysMessage("|cff00ff00Path does not exist: id %u|r", pathid);
+                handler->PSendSysMessage("|cff00ff00Path does not exist: id %u|r", *pathid);
                 return true;
             }
 

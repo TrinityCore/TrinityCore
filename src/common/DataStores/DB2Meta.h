@@ -29,12 +29,6 @@ struct DB2MetaField
 
 struct TC_COMMON_API DB2Meta
 {
-    constexpr explicit DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 fileFieldCount, uint32 layoutHash,
-        DB2MetaField const* fields, int32 parentIndexField) : FileDataId(fileDataId), IndexField(indexField), ParentIndexField(parentIndexField),
-        FieldCount(fieldCount), FileFieldCount(fileFieldCount), LayoutHash(layoutHash), Fields(fields)
-    {
-    }
-
     bool HasIndexFieldInData() const;
 
     // Returns field index for data loaded in our structures (ID field is appended in the front if not present in db2 file data section)

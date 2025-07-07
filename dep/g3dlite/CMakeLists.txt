@@ -77,3 +77,14 @@ set_target_properties(g3dlib
     PROPERTIES
       FOLDER
         "dep")
+
+# Generate precompiled header
+if(USE_COREPCH)
+  list(APPEND g3dlib_PCH_HEADERS
+    [["G3D/Any.h"]]
+    [["G3D/Array.h"]]
+    [["G3D/BinaryOutput.h"]]
+    [["G3D/Vector3.h"]])
+
+  add_cxx_pch(g3dlib "${g3dlib_PCH_HEADERS}")
+endif()

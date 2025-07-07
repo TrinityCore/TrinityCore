@@ -46,8 +46,8 @@ namespace Trinity::Impl
                 return hash.GetDigest();
             }
 
-            template <typename Container, typename... Ts>
-            static auto GetDigestOf(Container const& seed, Ts&&... pack) -> std::enable_if_t<std::conjunction_v<std::negation<std::is_integral<Ts>>...>, Digest>
+            template <typename Container, typename... Ts, std::enable_if_t<std::conjunction_v<std::negation<std::is_integral<Ts>>...>, int32> = 0>
+            static Digest GetDigestOf(Container const& seed, Ts&&... pack)
             {
                 GenericHMAC hash(seed);
                 (hash.UpdateData(std::forward<Ts>(pack)), ...);
@@ -136,5 +136,6 @@ namespace Trinity::Crypto
 {
     using HMAC_SHA1 = Trinity::Impl::GenericHMAC<EVP_sha1, Constants::SHA1_DIGEST_LENGTH_BYTES>;
     using HMAC_SHA256 = Trinity::Impl::GenericHMAC<EVP_sha256, Constants::SHA256_DIGEST_LENGTH_BYTES>;
+    using HMAC_SHA512 = Trinity::Impl::GenericHMAC<EVP_sha512, Constants::SHA512_DIGEST_LENGTH_BYTES>;
 }
 #endif

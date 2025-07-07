@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LoginRESTService_h__
-#define LoginRESTService_h__
+#ifndef TRINITYCORE_LOGIN_REST_SERVICE_H
+#define TRINITYCORE_LOGIN_REST_SERVICE_H
 
 #include "HttpService.h"
 #include "Login.pb.h"
@@ -42,7 +42,7 @@ enum class BanMode
     BAN_ACCOUNT = 1
 };
 
-class LoginRESTService : public Trinity::Net::Http::HttpService<LoginHttpSessionWrapper>
+class LoginRESTService : public Trinity::Net::Http::HttpService<LoginHttpSession>
 {
 public:
     using RequestHandlerResult = Trinity::Net::Http::RequestHandlerResult;
@@ -51,7 +51,7 @@ public:
     using HttpRequestContext = Trinity::Net::Http::RequestContext;
     using HttpSessionState = Trinity::Net::Http::SessionState;
 
-    LoginRESTService() : HttpService("login"), _port(0), _loginTicketDuration(0) { }
+    LoginRESTService() : HttpService("login"), _port(0), _firstLocalAddressIndex(0), _loginTicketDuration(0) { }
 
     static LoginRESTService& Instance();
 
@@ -63,17 +63,15 @@ public:
     std::shared_ptr<Trinity::Net::Http::SessionState> CreateNewSessionState(boost::asio::ip::address const& address) override;
 
 private:
-    static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex);
-
     static std::string ExtractAuthorization(HttpRequest const& request);
 
-    RequestHandlerResult HandleGetForm(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const;
-    static RequestHandlerResult HandleGetGameAccounts(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context);
-    RequestHandlerResult HandleGetPortal(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const;
+    RequestHandlerResult HandleGetForm(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
+    static RequestHandlerResult HandleGetGameAccounts(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandleGetPortal(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
 
-    RequestHandlerResult HandlePostLogin(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const;
-    static RequestHandlerResult HandlePostLoginSrpChallenge(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context);
-    RequestHandlerResult HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSessionWrapper> session, HttpRequestContext& context) const;
+    RequestHandlerResult HandlePostLogin(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
+    static RequestHandlerResult HandlePostLoginSrpChallenge(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context);
+    RequestHandlerResult HandlePostRefreshLoginTicket(std::shared_ptr<LoginHttpSession> session, HttpRequestContext& context) const;
 
     static std::unique_ptr<Trinity::Crypto::SRP::BnetSRP6Base> CreateSrpImplementation(SrpVersion version, SrpHashFunction hashFunction,
         std::string const& username, Trinity::Crypto::SRP::Salt const& salt, Trinity::Crypto::SRP::Verifier const& verifier);
@@ -83,11 +81,14 @@ private:
     JSON::Login::FormInputs _formInputs;
     std::string _bindIP;
     uint16 _port;
-    std::array<std::pair<std::string, std::vector<boost::asio::ip::address>>, 2> _hostnames;
+    std::string _externalHostname;
+    std::string _localHostname;
+    std::vector<boost::asio::ip::address> _addresses;
+    std::size_t _firstLocalAddressIndex; // index inside _addresses where the first local address can be found
     uint32 _loginTicketDuration;
 };
 }
 
 #define sLoginService Battlenet::LoginRESTService::Instance()
 
-#endif // LoginRESTService_h__
+#endif // TRINITYCORE_LOGIN_REST_SERVICE_H

@@ -106,3 +106,17 @@ if (BUILD_SHARED_LIBS)
         DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()
+
+# Generate precompiled header
+if(USE_COREPCH)
+  list(APPEND protobuf_PCH_HEADERS
+    <google/protobuf/descriptor.pb.h>
+    <google/protobuf/io/coded_stream.h>
+    <google/protobuf/wire_format.h>
+    <google/protobuf/stubs/hash.h>
+    <google/protobuf/stubs/strutil.h>
+    <algorithm>
+    <memory>)
+
+  add_cxx_pch(protobuf "${protobuf_PCH_HEADERS}")
+endif()

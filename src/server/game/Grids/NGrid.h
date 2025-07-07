@@ -22,6 +22,7 @@
  */
 
 #include "Grid.h"
+#include "GridRefManager.h"
 #include "GridReference.h"
 #include "Timer.h"
 
@@ -62,14 +63,13 @@ typedef enum
 template
 <
 uint32 N,
-class ACTIVE_OBJECT,
-class WORLD_OBJECT_TYPES,
-class GRID_OBJECT_TYPES
+class WORLD_OBJECT_CONTAINER,
+class GRID_OBJECT_CONTAINER
 >
 class NGrid
 {
     public:
-        typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> GridType;
+        typedef Grid<WORLD_OBJECT_CONTAINER, GRID_OBJECT_CONTAINER> GridType;
         NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) :
             i_gridId(id), i_GridInfo(GridInfo(expiry, unload)), i_x(x), i_y(y),
             i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
@@ -93,7 +93,7 @@ class NGrid
         int32 getX() const { return i_x; }
         int32 getY() const { return i_y; }
 
-        void link(GridRefManager<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> >* pTo)
+        void link(GridRefManager<NGrid>* pTo)
         {
             i_Reference.link(pTo, this);
         }
@@ -132,8 +132,16 @@ class NGrid
         */
 
         // Visit all Grids (cells) in NGrid (grid)
-        template<class T, class TT>
-        void VisitAllGrids(TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class VISITOR>
+        void VisitAllGrids(TypeContainerVisitor<VISITOR, WORLD_OBJECT_CONTAINER>& visitor)
+        {
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    GetGridType(x, y).Visit(visitor);
+        }
+
+        template<class VISITOR>
+        void VisitAllGrids(TypeContainerVisitor<VISITOR, GRID_OBJECT_CONTAINER>& visitor)
         {
             for (uint32 x = 0; x < N; ++x)
                 for (uint32 y = 0; y < N; ++y)
@@ -141,27 +149,20 @@ class NGrid
         }
 
         // Visit a single Grid (cell) in NGrid (grid)
-        template<class T, class TT>
-        void VisitGrid(const uint32 x, const uint32 y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class VISITOR>
+        void VisitGrid(uint32 x, uint32 y, TypeContainerVisitor<VISITOR, WORLD_OBJECT_CONTAINER>& visitor)
         {
             GetGridType(x, y).Visit(visitor);
         }
 
-        //This gets the player count in grid
-        //I disable this to avoid confusion (active object usually means something else)
-        /*
-        uint32 GetActiveObjectCountInGrid() const
+        template<class VISITOR>
+        void VisitGrid(uint32 x, uint32 y, TypeContainerVisitor<VISITOR, GRID_OBJECT_CONTAINER>& visitor)
         {
-            uint32 count = 0;
-            for (uint32 x = 0; x < N; ++x)
-                for (uint32 y = 0; y < N; ++y)
-                    count += i_cells[x][y].ActiveObjectsInGrid();
-            return count;
+            GetGridType(x, y).Visit(visitor);
         }
-        */
 
         template<class T>
-        uint32 GetWorldObjectCountInNGrid() const
+        std::size_t GetWorldObjectCountInNGrid() const
         {
             uint32 count = 0;
             for (uint32 x = 0; x < N; ++x)
@@ -170,10 +171,40 @@ class NGrid
             return count;
         }
 
+        template<class T>
+        std::size_t GetGridObjectCountInNGrid() const
+        {
+            uint32 count = 0;
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    count += i_cells[x][y].template GetGridObjectCountInGrid<T>();
+            return count;
+        }
+
+        template<class T>
+        bool HasWorldObjectsInNGrid() const
+        {
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    if (i_cells[x][y].template GetWorldObjectCountInGrid<T>() != 0)
+                        return true;
+            return false;
+        }
+
+        template<class T>
+        bool HasGridObjectsInNGrid() const
+        {
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    if (i_cells[x][y].template GetGridObjectCountInGrid<T>() != 0)
+                        return true;
+            return false;
+        }
+
     private:
         uint32 i_gridId;
         GridInfo i_GridInfo;
-        GridReference<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> > i_Reference;
+        GridReference<NGrid> i_Reference;
         int32 i_x;
         int32 i_y;
         grid_state_t i_cellstate;
