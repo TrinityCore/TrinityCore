@@ -9704,7 +9704,6 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
         Containers::RandomShuffle(prioritizedTargets.begin() + tieStart, prioritizedTargets.begin() + tieEnd);
     }
 
-
     targets.clear();
 
     for (size_t i = 0; i < cutOff; ++i)
