@@ -713,8 +713,7 @@ class spell_dru_efflorescence_heal : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        // Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
-        GetCaster()->SortTargetsWithPriorityRules(targets, 3);
+        Trinity::SelectRandomInjuredTargets(targets, 3, true, GetCaster());
     }
 
     void Register() override
@@ -2294,7 +2293,7 @@ class spell_dru_wild_growth : public SpellScript
             maxTargets += treeOfLife->GetAmount();
 
         // Note: Wild Growth became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
-        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets);
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
     }
 
     void Register() override
@@ -2366,14 +2365,14 @@ class spell_dru_yseras_gift : public AuraScript
 // 145110 - Ysera's Gift (heal)
 class spell_dru_yseras_gift_group_heal : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    static void SelectTargets(std::list<WorldObject*>& targets)
     {
-        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_group_heal::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_yseras_gift_group_heal::SelectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 

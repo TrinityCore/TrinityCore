@@ -1052,6 +1052,26 @@ namespace Trinity
 
         bool operator()(WorldObject* target) const;
     };
+
+    TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf = nullptr);
+
+    struct PriorityRules
+    {
+        int32 weight;
+        std::function<bool(Unit*)> condition;
+    };
+
+    enum class PriorityRulesType
+    {
+        // priority is a) injured b) player c) grouped with invoker.
+        SmartHealing = 0
+    };
+
+    inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
+
+    std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type, Unit const* invoker);
+
+    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, std::optional<std::vector<PriorityRules>> const& priorityRules = std::nullopt);
 }
 
 extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);

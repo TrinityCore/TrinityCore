@@ -709,7 +709,7 @@ class spell_pri_circle_of_healing : public SpellScript
         // Note: we must remove one since target is always chosen.
         uint32 const maxTargets = uint32(GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster()) - 1);
 
-        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets);
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
 
         if (Unit* explicitTarget = GetExplTargetUnit())
             targets.push_front(explicitTarget);
@@ -1209,9 +1209,9 @@ class spell_pri_epiphany : public AuraScript
 // 415676 - Essence Devourer (Heal)
 class spell_pri_essence_devourer_heal : public SpellScript
 {
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
-        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
     void Register() override
@@ -2115,23 +2115,15 @@ class spell_pri_power_word_radiance : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        Unit* caster = GetCaster();
         Unit* explTarget = GetExplTargetUnit();
 
         // we must add one since explicit target is always chosen.
         uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
 
-        std::vector<PriorityRules> rules = CreatePriorityRules
-        ({
-            { 1,  [this](Unit* target) { return target->IsInRaidWith(GetCaster()); }},
-            { 2,  [](Unit* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
-            { 4,  [](Unit* target) { return !target->IsFullHealth(); }},
-            { 8,  [this](Unit* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID()); }},
-            { 16, [explTarget](Unit* target) { return target == explTarget; }}
-        });
+        SortTargetsWithPriorityRules(targets, maxTargets, caster, GetRadianceRules(caster, explTarget));
 
-        GetCaster()->SortTargetsWithPriorityRules(targets, maxTargets, rules);
-
-        for (WorldObject* target : targets)
+        for (WorldObject const* target : targets)
         {
             if (target == explTarget)
                 continue;
@@ -2147,13 +2139,24 @@ class spell_pri_power_word_radiance : public SpellScript
                 GetHitUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
     }
 
+    static std::vector<Trinity::PriorityRules> GetRadianceRules(Unit const* caster, Unit const* explTarget)
+    {
+        return Trinity::CreatePriorityRules
+        ({
+            { .weight = 1,  .condition = [caster](Unit const* target) { return target->IsInRaidWith(caster); }},
+            { .weight = 2,  .condition = [](Unit const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
+            { .weight = 4,  .condition = [](Unit const* target) { return !target->IsFullHealth(); }},
+            { .weight = 8,  .condition = [caster](Unit const* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()); }},
+            { .weight = 16, .condition = [explTarget](Unit const* target) { return target == explTarget; }}
+        });
+    }
+
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_radiance::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_radiance::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 
-private:
     std::vector<ObjectGuid> _visualTargets;
 };
 
@@ -2473,9 +2476,9 @@ class spell_pri_prayer_of_mending : public SpellScript
 // 155793 - Prayer of Mending (Jump)
 class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_SpellScriptBase
 {
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
-        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
     void HandleJump(SpellEffIndex /*effIndex*/) const
@@ -2549,9 +2552,9 @@ class spell_pri_holy_10_1_class_set_2pc_chooser : public spell_pri_prayer_of_men
         return ValidateSpellInfo({ SPELL_PRIEST_PRAYER_OF_MENDING_AURA });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets) const
+    static void FilterTargets(std::list<WorldObject*>& targets)
     {
-        GetCaster()->SortTargetsWithPriorityRules(targets, 1);
+        Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
 
     void HandleEffectDummy(SpellEffIndex /*effIndex*/) const

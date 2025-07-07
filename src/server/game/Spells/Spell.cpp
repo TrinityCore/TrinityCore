@@ -9562,6 +9562,156 @@ bool WorldObjectSpellLineTargetCheck::operator()(WorldObject* target) const
     return WorldObjectSpellTargetCheck::operator ()(target);
 }
 
+void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf /*= nullptr*/)
+{
+    if (targets.size() <= maxTargets)
+        return;
+
+    // Target priority states (bit indices)
+    // higher value means lower selection priority
+    // current list:
+    // * injured player group members
+    // * injured other players
+    // * injured pets of group members
+    // * injured other pets
+    // * full health player group members
+    // * full health other players
+    // * full health pets of group members
+    // * full health other pets
+    enum PriorityStates : uint8
+    {
+        NOT_GROUPED,
+        NOT_PLAYER,
+        NOT_INJURED,
+        END
+    };
+
+    std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
+    std::vector<std::pair<WorldObject*, int32>> tempTargets;
+    tempTargets.resize(targets.size());
+
+    // categorize each target
+    std::ranges::transform(targets, tempTargets.begin(), [&](WorldObject* target)
+    {
+        int32 negativePoints = 0;
+        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
+            negativePoints |= 1 << NOT_GROUPED;
+
+        if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()))
+            negativePoints |= 1 << NOT_PLAYER;
+
+        if (!target->IsUnit() || target->ToUnit()->IsFullHealth())
+            negativePoints |= 1 << NOT_INJURED;
+
+        ++countsByPriority[negativePoints];
+        return std::make_pair(target, negativePoints);
+    });
+
+    std::ranges::sort(tempTargets, {}, Trinity::TupleElement<1>);
+
+    std::size_t foundTargets = 0;
+    for (std::ptrdiff_t countForPriority : countsByPriority)
+    {
+        if (foundTargets + countForPriority >= maxTargets)
+        {
+            // shuffle only the lower priority extras
+            // example: our initial target list had 5 injured and 5 full health units and we want to select 7 targets
+            //          we always want to select 5 injured and 2 random full health ones
+            Containers::RandomShuffle(tempTargets.begin() + foundTargets, tempTargets.begin() + foundTargets + countForPriority);
+            break;
+        }
+
+        foundTargets += countForPriority;
+    }
+
+    targets.resize(maxTargets);
+    std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
+}
+
+std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type, Unit const* invoker)
+{
+    switch (type)
+    {
+        case PriorityRulesType::SmartHealing:
+        {
+            return CreatePriorityRules({
+               { .weight = 1, .condition = [invoker](Unit const* target) { return invoker && target->IsInRaidWith(invoker); }},
+               { .weight = 2, .condition = [](Unit const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
+               { .weight = 4, .condition = [](Unit const* target) { return !target->IsFullHealth(); }}
+            });
+        }
+
+        default:
+            return {};
+    }
+}
+
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, std::optional<std::vector<PriorityRules>> const& priorityRules)
+{
+    if (targets.size() <= maxTargets)
+        return;
+
+    // use provided rules or fallback to default SmartHealing rules.
+    std::vector<PriorityRules> rules;
+    if (priorityRules.has_value())
+        rules = *priorityRules;
+    else
+        rules = GetPriorityRules(PriorityRulesType::SmartHealing, invoker);
+
+    std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
+
+    // score each target based on how many rules they satisfy.
+    for (WorldObject* object : targets)
+    {
+        Unit* unit = object ? object->ToUnit() : nullptr;
+        if (!unit)
+            continue;
+
+        int32 score = 0;
+
+        for (PriorityRules const& rule : rules)
+        {
+            if (rule.condition(unit))
+                score += rule.weight;
+        }
+
+        prioritizedTargets.emplace_back(object, score);
+    }
+
+    // the higher the value, the higher the priority is.
+    std::ranges::sort(prioritizedTargets, [](const std::pair<WorldObject*, int32>& left, const std::pair<WorldObject*, int32>& right)
+    {
+        return left.second > right.second;
+    });
+
+    // shuffle ties around the cutoff to avoid picking same units every time.
+    size_t cutOff = std::min(maxTargets, prioritizedTargets.size());
+
+    if (cutOff < prioritizedTargets.size())
+    {
+        int32 tieScore = prioritizedTargets[cutOff - 1].second;
+
+        size_t tieStart = cutOff - 1;
+
+        while (tieStart > 0 && prioritizedTargets[tieStart - 1].second == tieScore)
+            --tieStart;
+
+        size_t tieEnd = cutOff + 1;
+
+        while (tieEnd < prioritizedTargets.size() && prioritizedTargets[tieEnd].second == tieScore)
+            ++tieEnd;
+
+        Containers::RandomShuffle(prioritizedTargets.begin() + tieStart, prioritizedTargets.begin() + tieEnd);
+    }
+
+
+    targets.clear();
+
+    for (size_t i = 0; i < cutOff; ++i)
+        targets.push_back(prioritizedTargets[i].first);
+}
+} //namespace Trinity
+
 CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
 {
     if (target)
