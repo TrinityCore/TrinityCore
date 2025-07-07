@@ -46,7 +46,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    auto model_list_file = Trinity::make_unique_ptr_with_deleter(fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb"), &::fclose);
+    auto model_list_file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb"));
     if (!model_list_file)
     {
         TC_LOG_ERROR("misc", "Unable to open '{}' file.", VMAP::GAMEOBJECT_MODELS);
@@ -122,7 +122,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
-    AABox rotated_bounds;
+    AABox rotated_bounds = G3D::AABox::empty();
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 
@@ -252,7 +252,7 @@ bool GameObjectModel::UpdatePosition()
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
-    AABox rotated_bounds;
+    AABox rotated_bounds = G3D::AABox::empty();
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 

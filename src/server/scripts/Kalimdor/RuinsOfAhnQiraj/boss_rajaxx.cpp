@@ -124,7 +124,7 @@ class boss_rajaxx : public CreatureScript
 // 25599 - Thundercrash
 class spell_rajaxx_thundercrash : public SpellScript
 {
-    static void HandleDamageCalc(Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
+    static void HandleDamageCalc(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& damage, int32& /*flatMod*/, float& /*pctMod*/)
     {
         damage = victim->CountPctFromCurHealth(50);
     }

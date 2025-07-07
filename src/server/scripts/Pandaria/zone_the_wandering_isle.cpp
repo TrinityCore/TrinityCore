@@ -106,7 +106,7 @@ struct npc_tushui_huojin_trainee : public ScriptedAI
             }
 
             me->SetEmoteState(EMOTE_ONESHOT_NONE);
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(true);
             me->CombatStop();
 
             _scheduler.Schedule(1s, [this](TaskContext /*task*/)
@@ -1207,29 +1207,27 @@ class spell_meditation_timer_bar : public AuraScript
     }
 };
 
-std::array<Position, 9> AmberleafTroublemakerPositions = { {
-    { 1181.6615f, 3451.1711f, 102.85520f },
-    { 1187.9219f, 3448.9497f, 102.44913f },
-    { 1182.2552f, 3441.4202f, 102.43922f },
-    { 1181.6615f, 3451.1711f, 102.85520f },
-    { 1180.1442f, 3448.6729f, 102.65444f },
-    { 1187.4080f, 3440.7612f, 102.53220f },
-    { 1186.5817f, 3443.6372f, 102.41002f },
-    { 1188.3351f, 3443.0390f, 102.41056f },
-    { 1181.8802f, 3446.1953f, 102.41484f }
-} };
-
-// 114698 - Summon Amberleaf Troublemaker
-class spell_summon_amberleaf_troublemaker : public SpellScript
+enum FlameSpoutSpell
 {
-    void SetDest(SpellDestination& dest)
+    SPELL_FLAME_SPOUT_VISUAL = 114686
+};
+
+// 114684 - Flame Spout
+class spell_flame_spout : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        dest.Relocate(Trinity::Containers::SelectRandomContainerElement(AmberleafTroublemakerPositions));
+        return ValidateSpellInfo({ SPELL_FLAME_SPOUT_VISUAL });
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLAME_SPOUT_VISUAL);
     }
 
     void Register() override
     {
-        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_amberleaf_troublemaker::SetDest, EFFECT_0, TARGET_DEST_DEST);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_flame_spout::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1251,7 +1249,7 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_force_summoner_to_ride_vehicle);
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
-    RegisterSpellScript(spell_summon_amberleaf_troublemaker);
+    RegisterSpellScript(spell_flame_spout);
 
     new at_min_dimwind_captured();
     new at_cave_of_meditation();

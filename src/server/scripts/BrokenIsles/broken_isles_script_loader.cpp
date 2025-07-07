@@ -17,6 +17,9 @@
 
 // This is where scripts' loading functions should be declared:
 
+void AddSC_zone_dalaran_broken_isle();
+void AddSC_zone_mardum();
+
 // Maw of Souls
 void AddSC_boss_ymiron_the_fallen_king();
 void AddSC_instance_maw_of_souls();
@@ -25,14 +28,20 @@ void AddSC_instance_maw_of_souls();
 void AddSC_boss_guarm();
 void AddSC_instance_trial_of_valor();
 
+// Black Rook Hold
+void AddSC_boss_amalgam_of_souls();
+void AddSC_instance_black_rook_hold();
+
 // Orderhalls
 void AddSC_orderhall_warrior();
-void AddSC_zone_mardum();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBrokenIslesScripts()
 {
+    AddSC_zone_dalaran_broken_isle();
+    AddSC_zone_mardum();
+
     // Maw of Souls
     AddSC_boss_ymiron_the_fallen_king();
     AddSC_instance_maw_of_souls();
@@ -41,6 +50,10 @@ void AddBrokenIslesScripts()
     AddSC_boss_guarm();
     AddSC_instance_trial_of_valor();
 
+    // Black Rook Hold
+    AddSC_boss_amalgam_of_souls();
+    AddSC_instance_black_rook_hold();
+
+    // Orderhalls
     AddSC_orderhall_warrior();
-    AddSC_zone_mardum();
 }

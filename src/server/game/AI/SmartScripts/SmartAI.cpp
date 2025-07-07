@@ -735,11 +735,6 @@ void SmartAI::SetRun(bool run)
     _run = run;
 }
 
-void SmartAI::SetDisableGravity(bool fly)
-{
-    me->SetDisableGravity(fly);
-}
-
 void SmartAI::SetEvadeDisabled(bool disable)
 {
     _evadeDisabled = disable;
@@ -1114,13 +1109,19 @@ class SmartTrigger : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) override
         {
-            if (!player->IsAlive())
-                return false;
-
-            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} is using SmartTrigger script", trigger->ID);
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} enter is using SmartTrigger script", trigger->ID);
             SmartScript script;
             script.OnInitialize(player, trigger);
-            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->ID);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ENTER, player);
+            return true;
+        }
+
+        bool OnExit(Player* player, AreaTriggerEntry const* trigger) override
+        {
+            TC_LOG_DEBUG("scripts.ai", "AreaTrigger {} exit is using SmartTrigger script", trigger->ID);
+            SmartScript script;
+            script.OnInitialize(player, trigger);
+            script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_EXIT, player);
             return true;
         }
 };
@@ -1137,7 +1138,12 @@ void SmartAreaTriggerAI::OnUpdate(uint32 diff)
 
 void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, unit);
+    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ENTER, unit);
+}
+
+void SmartAreaTriggerAI::OnUnitExit(Unit* unit)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_EXIT, unit);
 }
 
 void SmartAreaTriggerAI::SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker)

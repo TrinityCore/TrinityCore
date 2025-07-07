@@ -191,7 +191,7 @@ enum class AreaTriggerActionSetFlag : uint32
     CreatorsPartyOnly               = 0x0100,
     DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
     CanAffectUninteractible         = 0x0400,
-    DontDespawnWithCreator          = 0x0800, /*NYI*/
+    DontDespawnWithCreator          = 0x0800,
     CanAffectBeastmaster            = 0x1000, // Can affect GMs
     RequiresLineOfSight             = 0x2000  /*NYI*/
 };
@@ -269,6 +269,12 @@ enum class BattlePetSpeciesFlags : int32
 };
 
 DEFINE_ENUM_FLAG(BattlePetSpeciesFlags);
+
+enum class BattlemasterType : int32
+{
+    Battleground    = 0,
+    Arena           = 1,
+};
 
 enum class BattlemasterListFlags : uint32
 {
@@ -441,7 +447,7 @@ enum class ContentTuningCalcType : int32
 enum class ContentTuningFlag : int32
 {
     DisabledForItem = 0x04,
-    Horde           = 0x8,
+    Horde           = 0x08,
     Alliance        = 0x10
 };
 
@@ -627,7 +633,7 @@ enum class CriteriaType : int16
     TotalFactionsEncountered                       = 89,  // Total factions encountered
     LootAnyItem                                    = 90,  // Loot any item
     ObtainAnyItem                                  = 91,  // Obtain any item
-    AnyoneTriggerGameEventScenario                 = 92,  /*NYI*/ // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
+    AnyoneTriggerGameEventScenario                 = 92,  // Anyone will Trigger game event "{GameEvents}" (Scenario Only)
     RollAnyNeed                                    = 93,  // Roll any number on need
     RollAnyGreed                                   = 94,  // Roll any number on greed
     ReleasedSpirit                                 = 95,  /*NYI*/ // Released Spirit
@@ -756,7 +762,7 @@ enum class CriteriaType : int16
     CompleteAnyReplayQuest                         = 218, // Complete Any Replay Quest
     BuyItemsFromVendors                            = 219, // Buy items from vendors
     SellItemsToVendors                             = 220, // Sell items to vendors
-    ReachMaxLevel                                  = 221, /*NYI*/ // Reach Max Level
+    ReachMaxLevel                                  = 221, // Reach Max Level
     MemorizeSpell                                  = 222, /*NYI*/ // Memorize Spell "{Spell}"
     LearnTransmogIllusion                          = 223, /*NYI*/ // Learn Transmog Illusion
     LearnAnyTransmogIllusion                       = 224, /*NYI*/ // Learn Any Transmog Illusion
@@ -885,14 +891,15 @@ DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
 enum class CurrencyTypesFlagsB : uint32
 {
-    UseTotalEarnedForEarned             = 0x01,
-    ShowQuestXPGainInTooltip            = 0x02, // NYI
-    NoNotificationMailOnOfflineProgress = 0x04, // NYI
-    BattlenetVirtualCurrency            = 0x08, // NYI
-    FutureCurrencyFlag                  = 0x10, // NYI
-    DontDisplayIfZero                   = 0x20, // NYI
-    ScaleMaxQuantityBySeasonWeeks       = 0x40, // NYI
-    ScaleMaxQuantityByWeeksSinceStart   = 0x80, // NYI
+    UseTotalEarnedForEarned             = 0x0001,
+    ShowQuestXPGainInTooltip            = 0x0002, // NYI
+    NoNotificationMailOnOfflineProgress = 0x0004, // NYI
+    BattlenetVirtualCurrency            = 0x0008, // NYI
+    FutureCurrencyFlag                  = 0x0010, // NYI
+    DontDisplayIfZero                   = 0x0020, // NYI
+    ScaleMaxQuantityBySeasonWeeks       = 0x0040, // NYI
+    ScaleMaxQuantityByWeeksSinceStart   = 0x0080, // NYI
+    ForceMaxQuantityOnConversion        = 0x0100, // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
@@ -1027,6 +1034,14 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelHealthScaling = 13,
     ContentTuningPvpLevelDamageScaling = 14,
     ContentTuningPvpItemLevelDamageScaling = 15,
+
+    ArmorItemLevelDiminishing = 18,
+
+    ChallengeModeHealth = 21,
+    ChallengeModeDamage = 22,
+    MythicPlusEndOfRunGearSequenceLevel = 23,
+
+    SpellAreaEffectWarningRadius = 26,  // ground spell effect warning circle radius (based on spell radius)
 };
 
 #define MAX_ITEM_PROTO_FLAGS 5
@@ -1104,117 +1119,185 @@ enum ItemBonusType
     ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
 };
 
+enum class ItemCollectionType : uint8
+{
+    None                        = 0,
+    Toy                         = 1,
+    Heirloom                    = 2,
+    Transmog                    = 3,
+    TransmogSetFavorite         = 4,
+    RuneforgeLegendaryAbility   = 5,
+    TransmogIllusion            = 6,
+    WarbandScene                = 7,
+};
+
 enum class ItemContext : uint8
 {
-    NONE                                = 0,
-    Dungeon_Normal                      = 1,
-    Dungeon_Heroic                      = 2,
-    Raid_Normal                         = 3,
-    Raid_Raid_Finder                    = 4,
-    Raid_Heroic                         = 5,
-    Raid_Mythic                         = 6,
-    PVP_Unranked_1                      = 7,
-    PVP_Ranked_1_Unrated                = 8,
-    Scenario_Normal                     = 9,
-    Scenario_Heroic                     = 10,
-    Quest_Reward                        = 11,
-    In_Game_Store                       = 12,
-    Trade_Skill                         = 13,
-    Vendor                              = 14,
-    Black_Market                        = 15,
-    MythicPlus_End_of_Run               = 16,
-    Dungeon_Lvl_Up_1                    = 17,
-    Dungeon_Lvl_Up_2                    = 18,
-    Dungeon_Lvl_Up_3                    = 19,
-    Dungeon_Lvl_Up_4                    = 20,
-    Force_to_NONE                       = 21,
-    Timewalking                         = 22,
-    Dungeon_Mythic                      = 23,
-    Pvp_Honor_Reward                    = 24,
-    World_Quest_1                       = 25,
-    World_Quest_2                       = 26,
-    World_Quest_3                       = 27,
-    World_Quest_4                       = 28,
-    World_Quest_5                       = 29,
-    World_Quest_6                       = 30,
-    Mission_Reward_1                    = 31,
-    Mission_Reward_2                    = 32,
-    MythicPlus_End_of_Run_Time_Chest    = 33,
-    zzChallenge_Mode_3                  = 34,
-    MythicPlus_Jackpot                  = 35,
-    World_Quest_7                       = 36,
-    World_Quest_8                       = 37,
-    PVP_Ranked_2_Combatant              = 38,
-    PVP_Ranked_3_Challenger             = 39,
-    PVP_Ranked_4_Rival                  = 40,
-    PVP_Unranked_2                      = 41,
-    World_Quest_9                       = 42,
-    World_Quest_10                      = 43,
-    PVP_Ranked_5_Duelist                = 44,
-    PVP_Ranked_6_Elite                  = 45,
-    PVP_Ranked_7                        = 46,
-    PVP_Unranked_3                      = 47,
-    PVP_Unranked_4                      = 48,
-    PVP_Unranked_5                      = 49,
-    PVP_Unranked_6                      = 50,
-    PVP_Unranked_7                      = 51,
-    PVP_Ranked_8                        = 52,
-    World_Quest_11                      = 53,
-    World_Quest_12                      = 54,
-    World_Quest_13                      = 55,
-    PVP_Ranked_Jackpot                  = 56,
-    Tournament_Realm                    = 57,
-    Relinquished                        = 58,
-    Legendary_Forge                     = 59,
-    Quest_Bonus_Loot                    = 60,
-    Character_Boost_BFA                 = 61,
-    Character_Boost_Shadowlands         = 62,
-    Legendary_Crafting_1                = 63,
-    Legendary_Crafting_2                = 64,
-    Legendary_Crafting_3                = 65,
-    Legendary_Crafting_4                = 66,
-    Legendary_Crafting_5                = 67,
-    Legendary_Crafting_6                = 68,
-    Legendary_Crafting_7                = 69,
-    Legendary_Crafting_8                = 70,
-    Legendary_Crafting_9                = 71,
-    Weekly_Rewards_Additional           = 72,
-    Weekly_Rewards_Concession           = 73,
-    World_Quest_Jackpot                 = 74,
-    New_Character                       = 75,
-    War_Mode                            = 76,
-    PvP_Brawl_1                         = 77,
-    PvP_Brawl_2                         = 78,
-    Torghast                            = 79,
-    Corpse_Recovery                     = 80,
-    World_Boss                          = 81,
-    Raid_Normal_Extended                = 82,
-    Raid_Raid_Finder_Extended           = 83,
-    Raid_Heroic_Extended                = 84,
-    Raid_Mythic_Extended                = 85,
-    Character_Template_9_1              = 86,
-    Challenge_Mode_4                    = 87,
-    Pvp_Ranked_9                        = 88,
-    Raid_Normal_Extended_2              = 89,
-    Raid_Finder_Extended_2              = 90,
-    Raid_Heroic_Extended_2              = 91,
-    Raid_Mythic_Extended_2              = 92,
-    Raid_Normal_Extended_3              = 93,
-    Raid_Finder_Extended_3              = 94,
-    Raid_Heroic_Extended_3              = 95,
-    Raid_Mythic_Extended_3              = 96,
-    Template_Character_1                = 97,
-    Template_Character_2                = 98,
-    Template_Character_3                = 99,
-    Template_Character_4                = 100,
-    Dungeon_Normal_Jackpot              = 101,
-    Dungeon_Heroic_Jackpot              = 102,
-    Dungeon_Mythic_Jackpot              = 103,
-    Delves_1                            = 104,
-    Timerunning                         = 105,
-    Delves_2                            = 106,
-    Delves_3                            = 107,
-    Delves_Jackpot                      = 108,
+    NONE                                            = 0,
+    Dungeon_Normal                                  = 1,
+    Dungeon_Heroic                                  = 2,
+    Raid_Normal                                     = 3,
+    Raid_Raid_Finder                                = 4,
+    Raid_Heroic                                     = 5,
+    Raid_Mythic                                     = 6,
+    PVP_Unranked_1                                  = 7,
+    PVP_Ranked_1_Unrated                            = 8,
+    Scenario_Normal                                 = 9,
+    Scenario_Heroic                                 = 10,
+    Quest_Reward                                    = 11,
+    In_Game_Store                                   = 12,
+    Trade_Skill                                     = 13,
+    Vendor                                          = 14,
+    Black_Market                                    = 15,
+    MythicPlus_End_of_Run                           = 16,
+    Dungeon_Lvl_Up_1                                = 17,
+    Dungeon_Lvl_Up_2                                = 18,
+    Dungeon_Lvl_Up_3                                = 19,
+    Dungeon_Lvl_Up_4                                = 20,
+    Force_to_NONE                                   = 21,
+    Timewalking                                     = 22,
+    Dungeon_Mythic                                  = 23,
+    Pvp_Honor_Reward                                = 24,
+    World_Quest_1                                   = 25,
+    World_Quest_2                                   = 26,
+    World_Quest_3                                   = 27,
+    World_Quest_4                                   = 28,
+    World_Quest_5                                   = 29,
+    World_Quest_6                                   = 30,
+    Mission_Reward_1                                = 31,
+    Mission_Reward_2                                = 32,
+    MythicPlus_End_of_Run_Time_Chest                = 33,
+    MythicPlus_Timewalking_End_of_Run               = 34,
+    MythicPlus_Jackpot                              = 35,
+    World_Quest_7                                   = 36,
+    World_Quest_8                                   = 37,
+    PVP_Ranked_2_Combatant                          = 38,
+    PVP_Ranked_4_Challenger                         = 39,
+    PVP_Ranked_6_Rival                              = 40,
+    PVP_Unranked_2                                  = 41,
+    World_Quest_9                                   = 42,
+    World_Quest_10                                  = 43,
+    PVP_Ranked_8_Duelist                            = 44,
+    PVP_Ranked_9_Elite                              = 45,
+    PVP_Ranked_3_Combatant                          = 46,
+    PVP_Unranked_3                                  = 47,
+    PVP_Unranked_4                                  = 48,
+    PVP_Unranked_5                                  = 49,
+    PVP_Unranked_6                                  = 50,
+    PVP_Unranked_7                                  = 51,
+    PVP_Ranked_5_Challenger                         = 52,
+    World_Quest_11                                  = 53,
+    World_Quest_12                                  = 54,
+    World_Quest_13                                  = 55,
+    PVP_Ranked_Jackpot                              = 56,
+    Tournament_Realm_1                              = 57,
+    Relinquished                                    = 58,
+    Legendary_Forge                                 = 59,
+    Quest_Bonus_Loot                                = 60,
+    Character_Boost_Dragonflight_70                 = 61,
+    Character_Boost_Shadowlands_50                  = 62,
+    Legendary_Crafting_1                            = 63,
+    Legendary_Crafting_2                            = 64,
+    Legendary_Crafting_3                            = 65,
+    Legendary_Crafting_4                            = 66,
+    Legendary_Crafting_5                            = 67,
+    Legendary_Crafting_6                            = 68,
+    Legendary_Crafting_7                            = 69,
+    Legendary_Crafting_8                            = 70,
+    Legendary_Crafting_9                            = 71,
+    Weekly_Rewards_Additional                       = 72,
+    Weekly_Rewards_Concession                       = 73,
+    World_Quest_Jackpot                             = 74,
+    New_Character                                   = 75,
+    War_Mode                                        = 76,
+    PvP_Brawl_1                                     = 77,
+    PvP_Brawl_2                                     = 78,
+    Torghast                                        = 79,
+    Corpse_Recovery                                 = 80,
+    World_Boss                                      = 81,
+    Raid_Normal_Extended                            = 82,
+    Raid_Raid_Finder_Extended                       = 83,
+    Raid_Heroic_Extended                            = 84,
+    Raid_Mythic_Extended                            = 85,
+    Character_Boost_Shadowlands_60                  = 86,
+    MythicPlus_Timewalking_End_of_Run_Time_Chest    = 87,
+    Pvp_Ranked_7_Rival                              = 88,
+    Raid_Normal_Extended_2                          = 89,
+    Raid_Finder_Extended_2                          = 90,
+    Raid_Heroic_Extended_2                          = 91,
+    Raid_Mythic_Extended_2                          = 92,
+    Raid_Normal_Extended_3                          = 93,
+    Raid_Finder_Extended_3                          = 94,
+    Raid_Heroic_Extended_3                          = 95,
+    Raid_Mythic_Extended_3                          = 96,
+    Template_Character_1                            = 97,
+    Template_Character_2                            = 98,
+    Template_Character_3                            = 99,
+    Template_Character_4                            = 100,
+    Dungeon_Normal_Jackpot                          = 101,
+    Dungeon_Heroic_Jackpot                          = 102,
+    Dungeon_Mythic_Jackpot                          = 103,
+    Delves_1                                        = 104,
+    Timerunning                                     = 105,
+    Delves_2                                        = 106,
+    Delves_3                                        = 107,
+    Delves_Jackpot                                  = 108,
+    Delves_Key_1                                    = 109,
+    Delves_Key_2                                    = 110,
+    Delves_Key_3                                    = 111,
+    Delves_Key_4                                    = 112,
+    Delves_Key_5                                    = 113,
+    Delves_Key_6                                    = 114,
+    Delves_Key_7                                    = 115,
+    Delves_Key_8                                    = 116,
+    Delves_Bounty_1                                 = 117,
+    Delves_Bounty_2                                 = 118,
+    Delves_Bounty_3                                 = 119,
+    Delves_Bounty_4                                 = 120,
+    Delves_Bounty_5                                 = 121,
+    Delves_Bounty_6                                 = 122,
+    Delves_Bounty_7                                 = 123,
+    Delves_Bounty_8                                 = 124,
+    Delves_Level_Up_1                               = 125,
+    Delves_Level_Up_2                               = 126,
+    Delves_Level_Up_3                               = 127,
+    Delves_Level_Up_4                               = 128,
+    Delves_Bonus_1                                  = 129,
+    Delves_Bonus_2                                  = 130,
+    Delves_Bonus_3                                  = 131,
+    Delves_Bonus_4                                  = 132,
+    Delves_Bonus_5                                  = 133,
+    Delves_Bonus_6                                  = 134,
+    Delves_Bonus_7                                  = 135,
+    Delves_Bonus_8                                  = 136,
+    Delves_Bonus_9                                  = 137,
+    Delves_Bonus_10                                 = 138,
+    Dungeon_Bonus_1                                 = 139,
+    Dungeon_Bonus_2                                 = 140,
+    Dungeon_Bonus_3                                 = 141,
+    Dungeon_Bonus_4                                 = 142,
+    Dungeon_Bonus_5                                 = 143,
+    Dungeon_Bonus_6                                 = 144,
+    Dungeon_Bonus_7                                 = 145,
+    Dungeon_Bonus_8                                 = 146,
+    Dungeon_Bonus_9                                 = 147,
+    Dungeon_Bonus_10                                = 148,
+    Raid_Bonus_1                                    = 149,
+    Raid_Bonus_2                                    = 150,
+    Raid_Bonus_3                                    = 151,
+    Raid_Bonus_4                                    = 152,
+    Raid_Bonus_5                                    = 153,
+    Raid_Bonus_6                                    = 154,
+    Raid_Bonus_7                                    = 155,
+    Raid_Bonus_8                                    = 156,
+    Raid_Bonus_9                                    = 157,
+    Raid_Bonus_10                                   = 158,
+    Dungeon_Hard_Mode_1                             = 159,
+    Dungeon_Hard_Mode_2                             = 160,
+    Dungeon_Hard_Mode_3                             = 161,
+    Tournament_Realm_2                              = 162,
+    Tournament_Realm_3                              = 163,
+    Tournament_Realm_4                              = 164,
 
     Max
 };
@@ -1746,8 +1829,8 @@ enum class ModifierTreeType : int32
     PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
     PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
     PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
-    PlayerDataFlagAccountIsSet                                          = 378, /*NYI*/ // Player {PlayerDataFlagAccount} is set
-    PlayerDataFlagCharacterIsSet                                        = 379, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
+    PlayerDataFlagAccountIsSet                                          = 378, // Player {PlayerDataFlagAccount} is set
+    PlayerDataFlagCharacterIsSet                                        = 379, // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 
     PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
@@ -1758,9 +1841,16 @@ enum class ModifierTreeType : int32
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
     PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
-    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
-    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
+    PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
     PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
+    PlayerTitle                                                         = 393, // Player is currently using "{ChrTitles}" title
+
+    PlayerWeeklyCurrencyIsRelOpFromMax                                  = 397, /*NYI*/ // Player weekly {CurrencyTypes} is {RelOp} {#Amount} from currency weekly limit
+
+    PlayerIsInGuild                                                     = 404, // Player is in a guild
+
+    PlayerAvgItemLevelRelOp                                             = 415, /*NYI*/ // Player average item level {AvgItemLevelCategory} is {RelOp} {#Amount}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1780,14 +1870,24 @@ enum MountCapabilityFlags
     MOUNT_CAPABIILTY_FLAG_IGNORE_RESTRICTIONS   = 0x20,
 };
 
-enum MountFlags
+enum class MountFlags : int32
 {
-    MOUNT_FLAG_SELF_MOUNT               = 0x02,                   // Player becomes the mount himself
-    MOUNT_FLAG_FACTION_SPECIFIC         = 0x04,
-    MOUNT_FLAG_PREFERRED_SWIMMING       = 0x10,
-    MOUNT_FLAG_PREFERRED_WATER_WALKING  = 0x20,
-    MOUNT_FLAG_HIDE_IF_UNKNOWN          = 0x40
+    ServerOnly                              = 0x00000001,
+    IsSelfMount                             = 0x00000002,
+    ExcludeFromJournalIfFactionDoesntMatch  = 0x00000004,
+    AllowMountedCombat                      = 0x00000008,
+    SummonRandomFavorWhileUnderwater        = 0x00000010,
+    SummonRandomFavorWhileAtWaterSurface    = 0x00000020,
+    ExcludeFromJournalIfNotLearned          = 0x00000040,
+    SummonRandomDoNotFavorWhenGrounded      = 0x00000080,
+    ShowInSpellbook                         = 0x00000100,
+    AddToActionBarOnLearn                   = 0x00000200,
+    NotForUseAsATaxi                        = 0x00000400,
+    MountEquipmentEffectsSuppressed         = 0x00000800,
+    DisablePlayerMountPreview               = 0x00001000,
 };
+
+DEFINE_ENUM_FLAG(MountFlags);
 
 enum class PathPropertyIndex : uint8
 {
@@ -1846,6 +1946,12 @@ enum class PlayerConditionLfgStatus : uint8
     GearDiff                = 8
 };
 
+enum class PlayerDataElementType : int32
+{
+    Int64   = 0,
+    Float   = 1
+};
+
 enum class PlayerInteractionType : int32
 {
     None                        = 0,
@@ -1862,7 +1968,7 @@ enum class PlayerInteractionType : int32
     Registrar                   = 11,
     Vendor                      = 12,
     PetitionVendor              = 13,
-    GuildTabardVendor                = 14,
+    GuildTabardVendor           = 14,
     TalentMaster                = 15,
     SpecializationMaster        = 16,
     MailInfo                    = 17,
@@ -1917,6 +2023,15 @@ enum class PlayerInteractionType : int32
     ForgeMaster                 = 66,
     CharacterBanker             = 67,
     AccountBanker               = 68,
+    ProfessionRespec            = 69,
+    PlaceholderType71           = 70,
+    PlaceholderType72           = 71,
+    PlaceholderType73           = 72,
+    PlaceholderType74           = 73,
+    PlaceholderType75           = 74,
+    PlaceholderType76           = 75,
+    GuildRename                 = 76,
+    PlaceholderType77           = 77,
 };
 
 enum class PowerTypeFlags : int16
@@ -1978,11 +2093,13 @@ enum class SkillLineFlags : uint16
 
 DEFINE_ENUM_FLAG(SkillLineFlags);
 
-enum AbilytyLearnType
+enum class SkillLineAbilityAcquireMethod : int32
 {
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+    Learned                     = 0,
+    AutomaticSkillRank          = 1, // Spell state will update depending on skill value
+    AutomaticCharLevel          = 2, // Spell will be learned/removed together with entire skill
+    NeverLearned                = 3,
+    LearnedOrAutomaticCharLevel = 4,
 };
 
 enum class SkillLineAbilityFlags
@@ -2006,34 +2123,36 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08,
+    SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE            = 0x40
 };
 
 enum class SpellEffectAttributes
 {
     None                                    = 0,
-    NoImmunity                              = 0x000001, // not cancelled by immunities
-    PositionIsFacingRelative                = 0x000002, /*NYI*/
-    JumpChargeUnitMeleeRange                = 0x000004, /*NYI*/
-    JumpChargeUnitStrictPathCheck           = 0x000008, /*NYI*/
-    ExcludeOwnParty                         = 0x000010, /*NYI*/
-    AlwaysAoeLineOfSight                    = 0x000020,
-    SuppressPointsStacking                  = 0x000040,
-    ChainFromInitialTarget                  = 0x000080,
-    UncontrolledNoBackwards                 = 0x000100, /*NYI*/
-    AuraPointsStack                         = 0x000200, // refreshing auras with this attribute will add remaining amount to new aura
-    NoCopyDamageInterruptsOrProcs           = 0x000400, /*NYI*/
-    AddTargetCombatReachToAOE               = 0x000800, /*NYI*/
-    IsHarmful                               = 0x001000,
-    ForceScaleToOverrideCameraMinHeight     = 0x002000, /*NYI*/
-    PlayersOnly                             = 0x004000,
-    ComputePointsOnlyAtCastTime             = 0x008000, /*NYI*/
-    EnforceLineOfSightToChainTargets        = 0x010000,
-    AreaEffectsUseTargetRadius              = 0x020000, /*NYI*/
-    TeleportWithVehicle                     = 0x040000, /*NYI*/
-    ScalePointsByChallengeModeDamageScaler  = 0x080000, /*NYI*/
-    DontFailSpellOnTargetingFailure         = 0x100000, /*NYI*/
-    IgnoreDuringCooldownTimeRateCalculation = 0x800000, /*NYI*/
+    NoImmunity                              = 0x00000001, // not cancelled by immunities
+    PositionIsFacingRelative                = 0x00000002, /*NYI*/
+    JumpChargeUnitMeleeRange                = 0x00000004, /*NYI*/
+    JumpChargeUnitStrictPathCheck           = 0x00000008, /*NYI*/
+    ExcludeOwnParty                         = 0x00000010, /*NYI*/
+    AlwaysAoeLineOfSight                    = 0x00000020,
+    SuppressPointsStacking                  = 0x00000040,
+    ChainFromInitialTarget                  = 0x00000080,
+    UncontrolledNoBackwards                 = 0x00000100, /*NYI*/
+    AuraPointsStack                         = 0x00000200, // refreshing auras with this attribute will add remaining amount to new aura
+    NoCopyDamageInterruptsOrProcs           = 0x00000400, /*NYI*/
+    AddTargetCombatReachToAOE               = 0x00000800, /*NYI*/
+    IsHarmful                               = 0x00001000,
+    ForceScaleToOverrideCameraMinHeight     = 0x00002000, /*NYI*/
+    PlayersOnly                             = 0x00004000,
+    ComputePointsOnlyAtCastTime             = 0x00008000, /*NYI*/
+    EnforceLineOfSightToChainTargets        = 0x00010000,
+    AreaEffectsUseTargetRadius              = 0x00020000, /*NYI*/
+    TeleportWithVehicle                     = 0x00040000, /*NYI*/
+    ScalePointsByChallengeModeDamageScaler  = 0x00080000, /*NYI*/
+    DontFailSpellOnTargetingFailure         = 0x00100000,
+    IgnoreDuringCooldownTimeRateCalculation = 0x00800000,
+    DamageOnlyAbsorbShields                 = 0x04000000, /*NYI*/ // Effects with this attribute only reduce absorbs on targets hit without actually dealing damage
 };
 
 DEFINE_ENUM_FLAG(SpellEffectAttributes);
@@ -2218,19 +2337,22 @@ enum class SummonPropertiesFlags : uint32
 DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
+#define MAX_TALENT_COLUMNS 4
 #define MAX_PVP_TALENT_SLOTS 4
 
 enum class TaxiNodeFlags : int32
 {
-    ShowOnAllianceMap           = 0x00000001,
-    ShowOnHordeMap              = 0x00000002,
-    ShowOnMapBorder             = 0x00000004,
-    ShowIfClientPassesCondition = 0x00000008,
-    UsePlayerFavoriteMount      = 0x00000010,
-    EndPointPnly                = 0x00000020,
-    IgnoreForFindNearest        = 0x00000040,
-    DoNotShowInWorldMapUI       = 0x00000080,
+    ShowOnAllianceMap                           = 0x00000001,
+    ShowOnHordeMap                              = 0x00000002,
+    ShowOnMapBorder                             = 0x00000004,
+    ShowIfClientPassesCondition                 = 0x00000008,
+    UsePlayerFavoriteMount                      = 0x00000010,
+    EndPointOnly                                = 0x00000020,
+    IgnoreForFindNearest                        = 0x00000040,
+    DoNotShowInWorldMapUI                       = 0x00000080,
+    ShowNpcMinimapAtlasIfClientPassesCondition  = 0x00000100,
+    MapLayerTransition                          = 0x00000200,
+    NotAccountWide                              = 0x00000400
 };
 
 DEFINE_ENUM_FLAG(TaxiNodeFlags);
@@ -2573,6 +2695,17 @@ enum class VignetteFlags
 };
 
 DEFINE_ENUM_FLAG(VignetteFlags);
+
+enum class WarbandSceneFlags : uint8
+{
+    DoNotInclude            = 0x01,
+    HiddenUntilCollected    = 0x02,
+    CannotBeSaved           = 0x04,
+    AwardedAutomatically    = 0x08,
+    IsDefault               = 0x10
+};
+
+DEFINE_ENUM_FLAG(WarbandSceneFlags);
 
 enum WorldMapTransformsFlags
 {

@@ -166,6 +166,11 @@ enum Actions
     ACTION_START_INTRO
 };
 
+enum LadyDeathwhisperData
+{
+    DATA_VENGEFUL_SHADE_TARGET_GUID = 0
+};
+
 #define NPC_DARNAVAN        RAID_MODE<uint32>(NPC_DARNAVAN_10, NPC_DARNAVAN_25, NPC_DARNAVAN_10, NPC_DARNAVAN_25)
 #define NPC_DARNAVAN_CREDIT RAID_MODE<uint32>(NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25, NPC_DARNAVAN_CREDIT_10, NPC_DARNAVAN_CREDIT_25)
 #define QUEST_DEPROGRAMMING RAID_MODE<uint32>(QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25, QUEST_DEPROGRAMMING_10, QUEST_DEPROGRAMMING_25)
@@ -477,7 +482,7 @@ struct boss_lady_deathwhisper : public BossAI
             case NPC_VENGEFUL_SHADE:
                 if (_nextVengefulShadeTargetGUID.empty())
                     break;
-                summon->AI()->SetGUID(_nextVengefulShadeTargetGUID.front());
+                summon->AI()->SetGUID(_nextVengefulShadeTargetGUID.front(), DATA_VENGEFUL_SHADE_TARGET_GUID);
                 _nextVengefulShadeTargetGUID.pop_front();
                 break;
             case NPC_CULT_ADHERENT:
@@ -782,8 +787,11 @@ struct npc_vengeful_shade : public ScriptedAI
             });
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_VENGEFUL_SHADE_TARGET_GUID)
+            return;
+
         _targetGUID = guid;
     }
 

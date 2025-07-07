@@ -1658,12 +1658,8 @@ class spell_item_pendant_of_the_violet_eye : public AuraScript
     bool CheckProc(ProcEventInfo& eventInfo)
     {
         if (Spell const* spell = eventInfo.GetProcSpell())
-        {
-            std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
-            auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA && cost.Amount > 0; });
-            if (m != costs.end())
+            if (spell->GetPowerTypeCostAmount(POWER_MANA) > 0)
                 return true;
-        }
 
         return false;
     }

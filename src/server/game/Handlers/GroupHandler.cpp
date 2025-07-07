@@ -716,6 +716,8 @@ void WorldSession::HandleSendPingUnit(WorldPackets::Party::SendPingUnit const& p
     broadcastPingUnit.Type = pingUnit.Type;
     broadcastPingUnit.PinFrameID = pingUnit.PinFrameID;
     broadcastPingUnit.PingDuration = pingUnit.PingDuration;
+    broadcastPingUnit.CreatureID = pingUnit.CreatureID;
+    broadcastPingUnit.SpellOverrideNameID = pingUnit.SpellOverrideNameID;
     broadcastPingUnit.Write();
 
     for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())

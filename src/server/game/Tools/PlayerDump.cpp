@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "StringConvert.h"
 #include "World.h"
-#include <boost/algorithm/string/find.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -303,7 +302,7 @@ void PlayerDump::InitializeTables()
 
             TableField f;
             f.FieldName = columnName;
-            f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
+            f.IsBinaryField = StringContainsStringI(typeName, "binary"sv) || StringContainsStringI(typeName, "blob"sv);
 
             bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
             ASSERT(toUpperResult);
@@ -640,7 +639,7 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
                 }
                 else
                 {
-                    std::vector<uint8> b(fields[i].GetBinary());
+                    std::span<uint8 const> b = fields[i].GetBinaryView();
 
                     if (!b.empty())
                         ss << "0x" << ByteArrayToHexStr(b);
@@ -793,6 +792,8 @@ bool PlayerDumpWriter::AppendTable(StringTransaction& trans, ObjectGuid::LowType
     AppendTableDump(trans, tableStruct, result);
     return true;
 }
+
+PlayerDumpWriter::PlayerDumpWriter() = default;
 
 bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string& dump)
 {

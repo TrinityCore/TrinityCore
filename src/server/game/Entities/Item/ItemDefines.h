@@ -153,6 +153,7 @@ enum InventoryResult : uint8
     EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK                  = 127,// Items must be moved out of the Warband Bank to be deleted.
     EQUIP_ERR_BANK_NOT_ACCESSIBLE                          = 128,// This character does not have access to this bank.
     EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM                      = 129,// You can't trade an item from the Warband bank.
+    EQUIP_ERR_ACCOUNT_MONEY_LOCKED                         = 130,// You cannot withdraw or deposit gold from the warband bank currently; please try again later.
 };
 
 // EnumUtils: DESCRIBE THIS
@@ -278,6 +279,8 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_13                  = 56,
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_14                  = 57,
     ITEM_MODIFIER_REFORGE                                   = 58,
+    ITEM_MODIFIER_DBID_HIGH                                 = 59,
+    ITEM_MODIFIER_DBID_LOW                                  = 60,
 
     MAX_ITEM_MODIFIERS
 };

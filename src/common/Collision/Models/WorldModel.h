@@ -80,7 +80,7 @@ namespace VMAP
     class TC_COMMON_API GroupModel
     {
         public:
-            GroupModel() : iBound(), iMogpFlags(0), iGroupWMOID(0), iLiquid(nullptr) { }
+            GroupModel() : iBound(G3D::AABox::empty()), iMogpFlags(0), iGroupWMOID(0), iLiquid(nullptr) { }
             GroupModel(GroupModel const& other);
             GroupModel(uint32 mogpFlags, uint32 groupWMOID, G3D::AABox const& bound):
                         iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID), iLiquid(nullptr) { }

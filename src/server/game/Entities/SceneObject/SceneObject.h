@@ -36,8 +36,8 @@ public:
     ~SceneObject();
 
 protected:
-    void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-    void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+    void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+    void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
     void ClearUpdateMask(bool remove) override;
 
 public:
@@ -69,15 +69,12 @@ public:
     ObjectGuid GetOwnerGUID() const override { return *m_sceneObjectData->CreatedBy; }
     uint32 GetFaction() const override { return 0; }
 
-    float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-    float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-    float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-    float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+    Position const& GetStationaryPosition() const override { return _stationaryPosition; }
     void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
     void SetCreatedBySpellCast(ObjectGuid castId) { _createdBySpellCast = castId; }
 
-    UF::UpdateField<UF::SceneObjectData, 0, TYPEID_SCENEOBJECT> m_sceneObjectData;
+    UF::UpdateField<UF::SceneObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_SCENEOBJECT> m_sceneObjectData;
 
 private:
     bool ShouldBeRemoved() const;

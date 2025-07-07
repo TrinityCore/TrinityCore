@@ -45,6 +45,8 @@ PointMovementGenerator::PointMovementGenerator(uint32 id, float x, float y, floa
         this->i_spellEffectExtra = std::make_unique<Movement::SpellEffectExtraData>(*spellEffectExtraData);
 }
 
+PointMovementGenerator::~PointMovementGenerator() = default;
+
 MovementGeneratorType PointMovementGenerator::GetMovementGeneratorType() const
 {
     return POINT_MOTION_TYPE;

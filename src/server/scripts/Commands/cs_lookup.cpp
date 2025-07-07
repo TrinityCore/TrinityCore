@@ -685,7 +685,7 @@ public:
                         {
                             int32 maxLevel = 0;
                             if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
-                                handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                                handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                                 maxLevel = questLevels->MaxLevel;
 
                             int32 scalingFactionGroup = 0;
@@ -745,7 +745,7 @@ public:
                 {
                     int32 maxLevel = 0;
                     if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(questTemplatePair.second->GetContentTuningId(),
-                        handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                        handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                         maxLevel = questLevels->MaxLevel;
 
                     int32 scalingFactionGroup = 0;
@@ -815,7 +815,7 @@ public:
             {
                 int32 maxLevel = 0;
                 if (Optional<ContentTuningLevels> questLevels = sDB2Manager.GetContentTuningData(quest->GetContentTuningId(),
-                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ContentTuningConditionMask))
+                    handler->GetSession()->GetPlayer()->m_playerData->CtrOptions->ConditionalFlags))
                     maxLevel = questLevels->MaxLevel;
 
                 int32 scalingFactionGroup = 0;
@@ -1252,7 +1252,7 @@ public:
                         continue;
 
                     LocaleConstant locale = handler->GetSessionDbcLocale();
-                    std::string name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
+                    std::string_view name = (gender == GENDER_MALE ? titleInfo->Name : titleInfo->Name1)[locale];
 
                     if (name.empty())
                         continue;
@@ -1288,7 +1288,7 @@ public:
                             ? handler->GetTrinityString(LANG_ACTIVE)
                             : "";
 
-                        std::string titleNameStr = fmt::sprintf(name, targetName);
+                        std::string titleNameStr = ChatHandler::PGetParseString(name, targetName);
 
                         // send title in "id (idx:idx) - [namedlink locale]" format
                         if (handler->GetSession())

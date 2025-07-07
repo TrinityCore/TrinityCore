@@ -30,11 +30,11 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_NORTHREND_BEASTS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_JARAXXUS,          new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_FACTION_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_TWIN_VALKIRIES,    new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_ANUBARAK,          new EllipseBoundary(Position(746.0f, 135.0f), 100.0, 75.0) }
+    { DATA_NORTHREND_BEASTS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_JARAXXUS,          new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_FACTION_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_TWIN_VALKIRIES,    new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_ANUBARAK,          new EllipseBoundary(Position(746.0f, 135.0f), 100.0f, 75.0f) }
 };
 
 ObjectData const creatureData[] =

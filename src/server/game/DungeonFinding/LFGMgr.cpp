@@ -467,7 +467,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
                     else if (plrg->HasAura(9454)) // check Freeze debuff
                     {
                         joinData.result = LFG_JOIN_NO_SLOTS;
-                        joinData.playersMissingRequirement.push_back(&plrg->GetName());
+                        joinData.playersMissingRequirement.push_back(plrg->GetName());
                     }
                     ++memberCount;
                     players.insert(plrg->GetGUID());
@@ -817,7 +817,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
    @param[in]     players Set of players to check their dungeon restrictions
    @param[out]    lockMap Map of players Lock status info of given dungeons (Empty if dungeons is not empty)
 */
-void LFGMgr::GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue)
+void LFGMgr::GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string_view>* playersMissingRequirement, bool isContinue)
 {
     lockMap->clear();
 
@@ -859,7 +859,7 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& playe
                     dungeonsToRemove.insert(dungeonId);
 
                 (*lockMap)[guid][dungeonId] = it2->second;
-                playersMissingRequirement->push_back(&player->GetName());
+                playersMissingRequirement->push_back(player->GetName());
             }
         }
     }
@@ -1427,7 +1427,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
 
         player->FinishTaxiFlight();
 
-        if (!player->TeleportTo(mapid, x, y, z, orientation))
+        if (!player->TeleportTo({ .Location = WorldLocation(mapid, x, y, z, orientation), .LfgDungeonsId = dungeon->id }))
             error = LFG_TELEPORT_RESULT_NO_RETURN_LOCATION;
     }
     else
@@ -1445,10 +1445,10 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
    Check if dungeon can be rewarded, if any.
 
    @param[in]     gguid Group guid
-   @param[in]     dungeonEncounterIds DungeonEncounter that was just completed
+   @param[in]     dungeonEncounters DungeonEncounter that was just completed
    @param[in]     currMap Map of the instance where encounter was completed
 */
-void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> const& dungeonEncounterIds, Map const* currMap)
+void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap)
 {
     if (GetState(gguid) == LFG_STATE_FINISHED_DUNGEON) // Shouldn't happen. Do not reward multiple times
     {
@@ -1459,7 +1459,7 @@ void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> cons
     uint32 gDungeonId = GetDungeon(gguid);
     LFGDungeonData const* dungeonDone = GetLFGDungeon(gDungeonId);
     // LFGDungeons can point to a DungeonEncounter from any difficulty so we need this kind of lenient check
-    if (std::find(dungeonEncounterIds.begin(), dungeonEncounterIds.end(), dungeonDone->finalDungeonEncounterId) == dungeonEncounterIds.end())
+    if (!advstd::ranges::contains(dungeonEncounters, dungeonDone->finalDungeonEncounterId))
         return;
 
     FinishDungeon(gguid, gDungeonId, currMap);
@@ -1761,7 +1761,7 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
                 return LFG_LOCKSTATUS_RAID_LOCKED;
             if (sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
                 return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ContentTuningConditionMask))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
             {
                 if (levels->MinLevel > level)
                     return LFG_LOCKSTATUS_TOO_LOW_LEVEL;

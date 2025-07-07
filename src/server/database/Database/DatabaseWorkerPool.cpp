@@ -37,7 +37,6 @@
 #include <mysqld_error.h>
 #include <utility>
 #ifdef TRINITY_DEBUG
-#include <sstream>
 #include <boost/stacktrace.hpp>
 #endif
 
@@ -503,9 +502,7 @@ T* DatabaseWorkerPool<T>::GetFreeConnection()
 #ifdef TRINITY_DEBUG
     if (WarnSyncQueries<T>)
     {
-        std::ostringstream ss;
-        ss << boost::stacktrace::stacktrace();
-        TC_LOG_WARN("sql.performances", "Sync query at:\n{}", ss.str());
+        TC_LOG_WARN("sql.performances", "Sync query at:\n{}", boost::stacktrace::to_string(boost::stacktrace::stacktrace()));
     }
 #endif
 

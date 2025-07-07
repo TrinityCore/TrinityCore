@@ -358,13 +358,11 @@ enum MiscData
     SOUND_PAIN                  = 17360,    // separate sound, not attached to any text
 
     EQUIP_ASHBRINGER_GLOWING    = 50442,
-    EQUIP_BROKEN_FROSTMOURNE    = 50840
-};
+    EQUIP_BROKEN_FROSTMOURNE    = 50840,
 
-enum Misc
-{
     DATA_PLAGUE_STACK           = 70337,
     DATA_VILE                   = 45814622,
+    DATA_GRABBED_PLAYER_GUID    = 0,
 
     GOSSIP_MENU_START_INTRO     = 10993
 };
@@ -1106,7 +1104,7 @@ struct boss_the_lich_king : public BossAI
                     break;
                 case EVENT_OUTRO_SOUL_BARRAGE:
                     me->CastSpell(nullptr, SPELL_SOUL_BARRAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-                    CreatureTextMgr::SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
+                    me->PlayDirectSound(SOUND_PAIN);
                     // set flight
                     me->SetDisableGravity(true);
                     me->GetMotionMaster()->MovePoint(POINT_LK_OUTRO_2, OutroFlying);
@@ -1500,8 +1498,11 @@ struct npc_valkyr_shadowguard : public ScriptedAI
         }
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_GRABBED_PLAYER_GUID)
+            return;
+
         _grabbedPlayer = guid;
     }
 
@@ -2304,7 +2305,7 @@ class spell_the_lich_king_valkyr_target_search : public SpellScript
         _target = Trinity::Containers::SelectRandomContainerElement(targets);
         targets.clear();
         targets.push_back(_target);
-        GetCaster()->GetAI()->SetGUID(_target->GetGUID());
+        GetCaster()->GetAI()->SetGUID(_target->GetGUID(), DATA_GRABBED_PLAYER_GUID);
     }
 
     void ReplaceTarget(std::list<WorldObject*>& targets)

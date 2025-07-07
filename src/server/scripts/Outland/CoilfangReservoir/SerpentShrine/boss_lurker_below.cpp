@@ -339,7 +339,7 @@ struct boss_the_lurker_below : public BossAI
 
             if (!Spawned)
             {
-                me->ReplaceAllUnitFlags(UNIT_FLAG_IMMUNE_TO_PC);
+                me->SetImmuneToPC(true, true);
                 // spawn adds
                 for (uint8 i = 0; i < 9; ++i)
                     me->SummonCreature(i < 6 ? NPC_COILFANG_AMBUSHER : NPC_COILFANG_GUARDIAN, AddPos[i][0], AddPos[i][1], AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN);

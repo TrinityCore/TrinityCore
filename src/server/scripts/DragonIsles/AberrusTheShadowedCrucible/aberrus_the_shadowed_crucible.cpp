@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptMgr.h"
@@ -107,12 +108,12 @@ struct at_aberrus_sarkareth_conversation_intro : AreaTriggerAI
 };
 
 // 20800 - Conversation
-class conversation_aberrus_sabellian_intro : public ConversationScript
+class conversation_aberrus_sabellian_intro : public ConversationAI
 {
 public:
-    conversation_aberrus_sabellian_intro() : ConversationScript("conversation_aberrus_sabellian_intro") { }
+    conversation_aberrus_sabellian_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         if (Milliseconds const* sabellianMoveStartTime = conversation->GetLineStartTime(DEFAULT_LOCALE, CONVO_SABELLIAN_INTRO_LINE_01))
             _events.ScheduleEvent(EVENT_SABELLIAN_MOVE, *sabellianMoveStartTime);
@@ -121,7 +122,7 @@ public:
             _events.ScheduleEvent(EVENT_SABELLIAN_MOVE_HOME_POS, *sabellianHomeMoveStartTime + Seconds(2));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -157,17 +158,17 @@ private:
 };
 
 // 20985 - Conversation
-class conversation_aberrus_kazzara_intro : public ConversationScript
+class conversation_aberrus_kazzara_intro : public ConversationAI
 {
 public:
-    conversation_aberrus_kazzara_intro() : ConversationScript("conversation_aberrus_kazzara_intro") { }
+    conversation_aberrus_kazzara_intro(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         _events.ScheduleEvent(EVENT_KAZZARA_INTRO, conversation->GetLineEndTime(DEFAULT_LOCALE, CONVO_SARKARETH_LAST_LINE));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -213,6 +214,6 @@ void AddSC_aberrus_the_shadowed_crucible()
     RegisterAreaTriggerAI(at_aberrus_sabellian_conversation_intro);
     RegisterAreaTriggerAI(at_aberrus_sarkareth_conversation_intro);
 
-    new conversation_aberrus_sabellian_intro();
-    new conversation_aberrus_kazzara_intro();
+    RegisterConversationAI(conversation_aberrus_sabellian_intro);
+    RegisterConversationAI(conversation_aberrus_kazzara_intro);
 }

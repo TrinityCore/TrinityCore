@@ -95,7 +95,7 @@ struct boss_the_golden_serpent : public BossAI
             me->SetAnimTier(AnimTier::Fly, true);
             me->SetPlayHoverAnim(true);
             me->SetFaction(FACTION_FRIENDLY);
-            me->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+            me->SetUninteractible(true);
             DoCast(SPELL_GOLDEN_SERPENT_EMERGE_STATE);
             me->GetMotionMaster()->MovePath(PATH_GOLDEN_SERPENT_SUBMERGE, false);
         }
@@ -151,7 +151,7 @@ struct boss_the_golden_serpent : public BossAI
             me->SetAnimTier(AnimTier::Ground, true);
             me->SetPlayHoverAnim(false);
             me->SetFaction(FACTION_MONSTER_2);
-            me->RemoveUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+            me->SetUninteractible(false);
             me->SetDisableGravity(false);
         }
     }
@@ -279,7 +279,7 @@ struct npc_animated_gold : public ScriptedAI
             me->CastSpell(nullptr, SPELL_LUSTER, true);
             goldenSerpent->AI()->DoAction(ACTION_ANNOUNCE_ABSORB_ANIMATED_GOLD);
             me->SetDisplayId(DISPLAY_INVISIBLE);
-            me->SetUnitFlag(UnitFlags(UNIT_FLAG_UNINTERACTIBLE));
+            me->SetUninteractible(true);
         }
     }
 
@@ -303,7 +303,7 @@ struct at_kings_rest_molten_gold : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(nullptr, SPELL_MOLTEN_GOLD_DAMAGE , false);
+        unit->CastSpell(nullptr, SPELL_MOLTEN_GOLD_DAMAGE, false);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -335,12 +335,14 @@ class spell_kings_rest_molten_gold : public AuraScript
 {
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE));
+        GetTarget()->SetImmuneToPC(true);
+        GetTarget()->SetUninteractible(true);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_UNINTERACTIBLE));
+        GetTarget()->SetImmuneToPC(false);
+        GetTarget()->SetUninteractible(false);
     }
 
     void Register() override

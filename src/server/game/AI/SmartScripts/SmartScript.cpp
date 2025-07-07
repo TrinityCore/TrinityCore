@@ -71,9 +71,11 @@ SmartScript::SmartScript()
     mAllEventFlags = 0;
 }
 
-SmartScript::~SmartScript()
-{
-}
+SmartScript::SmartScript(SmartScript const& other) = default;
+SmartScript::SmartScript(SmartScript&& other) noexcept = default;
+SmartScript& SmartScript::operator=(SmartScript const& other) = default;
+SmartScript& SmartScript::operator=(SmartScript&& other) noexcept = default;
+SmartScript::~SmartScript() = default;
 
 bool SmartScript::IsSmart(Creature* c, bool silent) const
 {
@@ -1242,6 +1244,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!me)
                 break;
 
+            std::erase_if(targets, [](WorldObject const* target)
+            {
+                return !target->IsUnit();
+            });
+
             if (targets.empty())
                 break;
 
@@ -1361,10 +1368,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_DISABLE_GRAVITY:
         {
-            if (!IsSmart())
-                break;
-
-            ENSURE_AI(SmartAI, me->AI())->SetDisableGravity(e.action.setDisableGravity.disable != 0);
+            for (WorldObject* target : targets)
+                if (IsCreature(target))
+                    target->ToCreature()->SetFloating(e.action.setDisableGravity.disable != 0);
             break;
         }
         case SMART_ACTION_SET_RUN:
@@ -1853,21 +1859,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
+                            unitTarget->SetStandState(UnitStandStateType(e.action.setunitByte.byte1));
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->SetVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
+                            unitTarget->SetAnimTier(AnimTier(e.action.setunitByte.byte1));
                             break;
                     }
                 }
@@ -1876,21 +1882,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
         {
             for (WorldObject* target : targets)
-                if (IsUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     switch (e.action.setunitByte.type)
                     {
                         case 0:
-                            target->ToUnit()->SetStandState(UNIT_STAND_STATE_STAND);
+                            unitTarget->SetStandState(UNIT_STAND_STATE_STAND);
                             break;
                         case 1:
                             // pet talent points
                             break;
                         case 2:
-                            target->ToUnit()->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
+                            unitTarget->RemoveVisFlag(UnitVisFlags(e.action.setunitByte.byte1));
                             break;
                         case 3:
-                            target->ToUnit()->SetAnimTier(AnimTier::Ground);
+                            unitTarget->SetAnimTier(AnimTier::Ground);
                             break;
                     }
                 }
@@ -2055,7 +2061,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
                 if (IsCreature(target))
-                    target->ToCreature()->SetControlled(e.action.setRoot.root != 0, UNIT_STATE_ROOT);
+                    target->ToCreature()->SetSessile(e.action.setRoot.root != 0);
             break;
         }
         case SMART_ACTION_SUMMON_CREATURE_GROUP:
@@ -2623,6 +2629,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             break;
         }
+        case SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO:
+        {
+            if (!me)
+                break;
+
+            for (WorldObject* target : targets)
+            {
+                Player* player = Object::ToPlayer(target);
+                if (!player)
+                    continue;
+
+                player->TalkedToCreature(me->GetEntry(), me->GetGUID());
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -2952,7 +2973,7 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
             Creature* target = ref->FindNearestCreatureWithOptions(float(e.target.unitClosest.dist ? e.target.unitClosest.dist : 100), {
                 .CreatureId = e.target.unitClosest.entry,
                 .StringId = !e.target.param_string.empty() ? Optional<std::string_view>(e.target.param_string) : Optional<std::string_view>(),
-                .IsAlive = !e.target.unitClosest.dead
+                .IsAlive = (FindCreatureAliveState)e.target.unitClosest.findCreatureAliveState
             });
 
             if (target)
@@ -3117,7 +3138,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             break;
         case SMART_EVENT_HEALTH_PCT:
         {
-            if (!me || !me->IsEngaged() || !me->GetMaxHealth())
+            if (!me || me->IsInEvadeMode() || !me->GetMaxHealth())
                 return;
             uint32 perc = (uint32)me->GetHealthPct();
             if (perc > e.event.minMaxRepeat.max || perc < e.event.minMaxRepeat.min)
@@ -3235,17 +3256,19 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_DEATH:
         case SMART_EVENT_EVADE:
         case SMART_EVENT_REACHED_HOME:
+        case SMART_EVENT_RESET:
         case SMART_EVENT_CORPSE_REMOVED:
         case SMART_EVENT_AI_INIT:
         case SMART_EVENT_TRANSPORT_ADDPLAYER:
         case SMART_EVENT_TRANSPORT_REMOVE_PLAYER:
+        case SMART_EVENT_AREATRIGGER_ENTER:
         case SMART_EVENT_JUST_SUMMONED:
-        case SMART_EVENT_RESET:
         case SMART_EVENT_JUST_CREATED:
         case SMART_EVENT_FOLLOW_COMPLETED:
         case SMART_EVENT_ON_SPELLCLICK:
         case SMART_EVENT_ON_DESPAWN:
         case SMART_EVENT_SEND_EVENT_TRIGGER:
+        case SMART_EVENT_AREATRIGGER_EXIT:
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
         case SMART_EVENT_GOSSIP_HELLO:
@@ -3454,13 +3477,6 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             ProcessAction(e, unit, var0);
             break;
         }
-        case SMART_EVENT_AREATRIGGER_ONTRIGGER:
-        {
-            if (e.event.areatrigger.id && var0 != e.event.areatrigger.id)
-                return;
-            ProcessAction(e, unit, var0);
-            break;
-        }
         case SMART_EVENT_TEXT_OVER:
         {
             if (var0 != e.event.textOver.textGroupID || (e.event.textOver.creatureEntry && e.event.textOver.creatureEntry != var1))
@@ -3530,7 +3546,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_FRIENDLY_HEALTH_PCT:
         {
-            if (!me || !me->IsEngaged())
+            if (!me || me->IsInEvadeMode())
                 return;
 
             Unit* unitTarget = nullptr;

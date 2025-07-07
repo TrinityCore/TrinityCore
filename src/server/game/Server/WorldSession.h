@@ -121,6 +121,7 @@ namespace WorldPackets
     namespace AreaTrigger
     {
         class AreaTrigger;
+        class UpdateAreaTriggerVisual;
     }
 
     namespace Artifact
@@ -145,7 +146,6 @@ namespace WorldPackets
         class AuctionPlaceBid;
         class AuctionRemoveItem;
         class AuctionReplicateItems;
-        class AuctionRequestFavoriteList;
         class AuctionSellCommodity;
         class AuctionSellItem;
         class AuctionSetFavoriteItem;
@@ -154,6 +154,7 @@ namespace WorldPackets
     namespace Auth
     {
         enum class ConnectToSerial : uint32;
+        class QueuedMessagesEnd;
     }
 
     namespace Azerite
@@ -543,6 +544,7 @@ namespace WorldPackets
         class MoveTeleportAck;
         class MovementAckMessage;
         class MovementSpeedAck;
+        class MovementSpeedRangeAck;
         class MoveKnockBackAck;
         class SetActiveMover;
         class MoveSetCollisionHeightAck;
@@ -654,6 +656,7 @@ namespace WorldPackets
         class QueryQuestCompletionNPCs;
         class QueryRealmName;
         class ItemTextQuery;
+        class QueryTreasurePicker;
     }
 
     namespace Quest
@@ -675,6 +678,7 @@ namespace WorldPackets
         class RequestWorldQuestUpdate;
         class ChoiceResponse;
         class UiMapQuestLinesRequest;
+        class SpawnTrackingUpdate;
     }
 
     namespace RaF
@@ -736,6 +740,7 @@ namespace WorldPackets
         class SpellClick;
         class MissileTrajectoryCollision;
         class UpdateMissileTrajectory;
+        class UpdateAuraVisual;
         class TradeSkillSetFavorite;
         class KeyboundOverride;
         class SetEmpowerMinHoldStagePercent;
@@ -986,7 +991,6 @@ class TC_GAME_API WorldSession
         bool IsAddonRegistered(std::string_view prefix) const;
 
         void SendPacket(WorldPacket const* packet, bool forced = false);
-        void AddInstanceConnection(std::shared_ptr<WorldSocket> sock) { m_Socket[CONNECTION_TYPE_INSTANCE] = sock; }
 
         void SendNotification(char const* format, ...) ATTR_PRINTF(2, 3);
         void SendNotification(uint32 stringId, ...);
@@ -1112,6 +1116,39 @@ class TC_GAME_API WorldSession
                 _tutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
+
+        struct PlayerDataAccount
+        {
+            struct Element
+            {
+                uint32 Id;
+                bool NeedSave;
+                union
+                {
+                    float FloatValue;
+                    int64 Int64Value;
+                };
+            };
+
+            struct Flag
+            {
+                uint64 Value;
+                bool NeedSave;
+            };
+
+            std::vector<Element> Elements;
+            std::vector<Flag> Flags;
+        };
+
+        void LoadPlayerDataAccount(PreparedQueryResult const& elementsResult, PreparedQueryResult const& flagsResult);
+        void SavePlayerDataAccount(LoginDatabaseTransaction const& transaction);
+
+        void SetPlayerDataElementAccount(uint32 dataElementId, float value);
+        void SetPlayerDataElementAccount(uint32 dataElementId, int64 value);
+        void SetPlayerDataFlagAccount(uint32 dataFlagId, bool on);
+
+        PlayerDataAccount const& GetPlayerDataAccount() const { return _playerDataAccount; }
+
         // Auction
         void SendAuctionHello(ObjectGuid guid, Unit const* unit);
 
@@ -1123,9 +1160,9 @@ class TC_GAME_API WorldSession
          * @param   auctionId       The relevant auction id
          * @param   command         The action that was performed.
          * @param   errorCode       The resulting error code.
-         * @param   bagError        (Optional) InventoryResult.
+         * @param   bagResult       (Optional) InventoryResult.
          */
-        void SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagError = InventoryResult(0));
+        void SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagResult = InventoryResult(0));
         void SendAuctionClosedNotification(AuctionPosting const* auction, float mailDelay, bool sold);
         void SendAuctionOwnerBidNotification(AuctionPosting const* auction);
 
@@ -1179,7 +1216,11 @@ class TC_GAME_API WorldSession
         // Time Synchronisation
         void ResetTimeSync();
         void SendTimeSync();
+        void RegisterTimeSync(uint32 counter);
         uint32 AdjustClientMovementTime(uint32 time) const;
+
+        static constexpr uint32 SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER = 0xFFFFFFFF;
+        static constexpr uint32 SPECIAL_RESUME_COMMS_TIME_SYNC_COUNTER      = 0xFFFFFFFE;
 
         // Packets cooldown
         time_t GetCalendarEventCreationCooldown() const { return _calendarEventCreationCooldown; }
@@ -1259,6 +1300,8 @@ class TC_GAME_API WorldSession
 
         void HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck& packet);
         void HandleForceSpeedChangeAck(WorldPackets::Movement::MovementSpeedAck& packet);
+        void HandleSetAdvFlyingSpeedAck(WorldPackets::Movement::MovementSpeedAck& speedAck);
+        void HandleSetAdvFlyingSpeedRangeAck(WorldPackets::Movement::MovementSpeedRangeAck& speedRangeAck);
         void HandleSetCollisionHeightAck(WorldPackets::Movement::MoveSetCollisionHeightAck& setCollisionHeightAck);
 
         // Movement forces
@@ -1303,6 +1346,7 @@ class TC_GAME_API WorldSession
         void HandleSetContactNotesOpcode(WorldPackets::Social::SetContactNotes& packet);
 
         void HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigger& packet);
+        void HandleUpdateAreaTriggerVisual(WorldPackets::AreaTrigger::UpdateAreaTriggerVisual const& updateAreaTriggerVisual);
 
         void HandleSetFactionAtWar(WorldPackets::Character::SetFactionAtWar& packet);
         void HandleSetFactionNotAtWar(WorldPackets::Character::SetFactionNotAtWar& packet);
@@ -1343,7 +1387,7 @@ class TC_GAME_API WorldSession
         void HandleMoveSetVehicleRecAck(WorldPackets::Vehicle::MoveSetVehicleRecIdAck& setVehicleRecIdAck);
         void HandleMoveTimeSkippedOpcode(WorldPackets::Movement::MoveTimeSkipped& moveTimeSkipped);
         void HandleMovementAckMessage(WorldPackets::Movement::MovementAckMessage& movementAck);
-        void HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete& moveInitActiveMoverComplete);
+        void HandleMoveInitActiveMoverComplete(WorldPackets::Movement::MoveInitActiveMoverComplete const& moveInitActiveMoverComplete);
 
         void HandleRequestRaidInfoOpcode(WorldPackets::Party::RequestRaidInfo& packet);
 
@@ -1466,7 +1510,7 @@ class TC_GAME_API WorldSession
         void HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlaceBid& placeBid);
         void HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRemoveItem& removeItem);
         void HandleAuctionReplicateItems(WorldPackets::AuctionHouse::AuctionReplicateItems& replicateItems);
-        void HandleAuctionRequestFavoriteList(WorldPackets::AuctionHouse::AuctionRequestFavoriteList& requestFavoriteList);
+        void SendAuctionFavoriteList();
         void HandleAuctionSellCommodity(WorldPackets::AuctionHouse::AuctionSellCommodity& sellCommodity);
         void HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSellItem& sellItem);
         void HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::AuctionSetFavoriteItem& setFavoriteItem);
@@ -1537,6 +1581,7 @@ class TC_GAME_API WorldSession
         void HandleSpellEmpowerRestart(WorldPackets::Spells::SpellEmpowerRestart const& spellEmpowerRestart);
         void HandleMissileTrajectoryCollision(WorldPackets::Spells::MissileTrajectoryCollision& packet);
         void HandleUpdateMissileTrajectory(WorldPackets::Spells::UpdateMissileTrajectory& packet);
+        void HandleUpdateAuraVisual(WorldPackets::Spells::UpdateAuraVisual const& updateAuraVisual);
 
         void HandleLearnPvpTalentsOpcode(WorldPackets::Talent::LearnPvpTalents& packet);
         void HandleLearnTalentsOpcode(WorldPackets::Talent::LearnTalents& packet);
@@ -1566,8 +1611,10 @@ class TC_GAME_API WorldSession
         void HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty& packet);
         void HandleQuestPushResult(WorldPackets::Quest::QuestPushResult& packet);
         void HandleRequestWorldQuestUpdate(WorldPackets::Quest::RequestWorldQuestUpdate& packet);
-        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse& choiceResponse);
+        void HandlePlayerChoiceResponse(WorldPackets::Quest::ChoiceResponse const& choiceResponse);
         void HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestLinesRequest& uiMapQuestLinesRequest);
+        void HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker);
+        void HandleSpawnTrackingUpdate(WorldPackets::Quest::SpawnTrackingUpdate& spawnTrackingUpdate);
 
         void HandleChatMessageOpcode(WorldPackets::Chat::ChatMessage& chatMessage);
         void HandleChatMessageWhisperOpcode(WorldPackets::Chat::ChatMessageWhisper& chatMessageWhisper);
@@ -1651,7 +1698,9 @@ class TC_GAME_API WorldSession
         void HandleSetDungeonDifficultyOpcode(WorldPackets::Misc::SetDungeonDifficulty& setDungeonDifficulty);
         void HandleSetRaidDifficultyOpcode(WorldPackets::Misc::SetRaidDifficulty& setRaidDifficulty);
         void HandleSetTitleOpcode(WorldPackets::Character::SetTitle& packet);
-        void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse& timeSyncResponse);
+        void HandleTimeSync(uint32 counter, int64 clientTime, TimePoint responseReceiveTime);
+        void HandleTimeSyncResponse(WorldPackets::Misc::TimeSyncResponse const& timeSyncResponse);
+        void HandleQueuedMessagesEnd(WorldPackets::Auth::QueuedMessagesEnd const& queuedMessagesEnd);
         void HandleWhoIsOpcode(WorldPackets::Who::WhoIsRequest& packet);
         void HandleResetInstancesOpcode(WorldPackets::Instance::ResetInstances& packet);
         void HandleInstanceLockResponse(WorldPackets::Instance::InstanceLockResponse& packet);
@@ -1875,6 +1924,7 @@ class TC_GAME_API WorldSession
         };
 
         uint64 GetConnectToInstanceKey() const { return _instanceConnectKey.Raw; }
+        static void AddInstanceConnection(WorldSession* session, std::weak_ptr<WorldSocket> sockRef, ConnectToKey key);
 
     public:
         QueryCallbackProcessor& GetQueryProcessor() { return _queryProcessor; }
@@ -1904,13 +1954,13 @@ class TC_GAME_API WorldSession
                     POLICY_BAN,
                 };
 
-                uint32 GetMaxPacketCounterAllowed(uint16 opcode) const;
+                uint32 GetMaxPacketCounterAllowed(uint32 opcode) const;
 
                 WorldSession* Session;
 
             private:
                 Policy _policy;
-                typedef std::unordered_map<uint16, PacketCounter> PacketThrottlingMap;
+                typedef std::unordered_map<uint32, PacketCounter> PacketThrottlingMap;
                 // mark this member as "mutable" so it can be modified even in const functions
                 mutable PacketThrottlingMap _PacketThrottlingMap;
 
@@ -1972,8 +2022,9 @@ class TC_GAME_API WorldSession
         Minutes _timezoneOffset;
         std::atomic<uint32> m_latency;
         AccountData _accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 _tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
+        std::array<uint32, MAX_ACCOUNT_TUTORIAL_VALUES> _tutorials;
         uint8 _tutorialsChanged;
+        PlayerDataAccount _playerDataAccount;
         std::vector<std::string> _registeredAddonPrefixes;
         bool _filterAddonMessages;
         uint32 recruiterId;
@@ -1987,7 +2038,7 @@ class TC_GAME_API WorldSession
         int64 _timeSyncClockDelta;
         void ComputeNewClockDelta();
 
-        std::map<uint32, uint32> _pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
+        std::map<uint32, int64> _pendingTimeSyncRequests; // key: counter. value: server time when packet with that counter was sent.
         uint32 _timeSyncNextCounter;
         uint32 _timeSyncTimer;
 

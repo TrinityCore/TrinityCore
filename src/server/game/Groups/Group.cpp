@@ -185,14 +185,8 @@ bool Group::Create(Player* leader)
         stmt->setUInt8(index++, uint8(m_lootMethod));
         stmt->setUInt64(index++, m_looterGuid.GetCounter());
         stmt->setUInt8(index++, uint8(m_lootThreshold));
-        stmt->setBinary(index++, m_targetIcons[0].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[1].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[2].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[3].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[4].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[5].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[6].GetRawValue());
-        stmt->setBinary(index++, m_targetIcons[7].GetRawValue());
+        for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
+            stmt->setBinary(index++, m_targetIcons[i].GetRawValue());
         stmt->setUInt16(index++, m_groupFlags);
         stmt->setUInt32(index++, uint8(m_dungeonDifficulty));
         stmt->setUInt32(index++, uint8(m_raidDifficulty));
@@ -232,7 +226,8 @@ void Group::LoadGroupFromDB(Field* fields)
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
-        m_targetIcons[i].SetRawValue(fields[4 + i].GetBinary());
+        if (std::span<uint8 const> rawGuidBytes = fields[4 + i].GetBinaryView(); rawGuidBytes.size() == ObjectGuid::BytesSize)
+            m_targetIcons[i].SetRawValue(rawGuidBytes);
 
     m_groupFlags  = GroupFlags(fields[12].GetUInt16());
     if (m_groupFlags & GROUP_FLAG_RAID)
@@ -829,7 +824,7 @@ void Group::SendTargetIconList(WorldSession* session) const
     WorldPackets::Party::SendRaidTargetUpdateAll updateAll;
     updateAll.PartyIndex = GetGroupCategory();
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; i++)
-        updateAll.TargetIcons.try_emplace(i, m_targetIcons[i]);
+        updateAll.TargetIcons.emplace_back(i, m_targetIcons[i]);
 
     session->SendPacket(updateAll.Write());
 }
@@ -1199,6 +1194,8 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 
 GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const
 {
+    errorGuid = ObjectGuid::Empty;
+
     // check if this group is LFG group
     if (isLFGGroup())
         return ERR_LFG_CANT_USE_BATTLEGROUND;
@@ -1235,15 +1232,13 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         // offline member? don't let join
         if (!member)
             return ERR_BATTLEGROUND_JOIN_FAILED;
+        errorGuid = member->GetGUID();
         // rbac permissions
         if (!member->CanJoinToBattleground(bgOrTemplate))
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
-        {
-            errorGuid = member->GetGUID();
             return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
-        }
         // not in the same battleground level braket, don't let join
         PVPDifficultyEntry const* memberBracketEntry = DB2Manager::GetBattlegroundBracketByLevel(bracketEntry->MapID, member->GetLevel());
         if (memberBracketEntry != bracketEntry)
@@ -1277,6 +1272,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
         if (isMercenary != (member->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || member->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE)))
             return ERR_BATTLEGROUND_JOIN_MERCENARY;
     }
+
+    errorGuid = ObjectGuid::Empty;
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
     if (bgOrTemplate->IsArena() && memberscount != MinPlayerCount)

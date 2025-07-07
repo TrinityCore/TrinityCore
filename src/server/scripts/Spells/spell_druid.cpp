@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Containers.h"
@@ -33,6 +35,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 
 enum DruidSpells
 {
@@ -58,6 +61,7 @@ enum DruidSpells
     SPELL_DRUID_CULTIVATION                    = 200390,
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
+    SPELL_DRUID_DREAMSTATE                     = 450346,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -103,10 +107,14 @@ enum DruidSpells
     SPELL_DRUID_INFUSION                       = 37238,
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
+    SPELL_DRUID_LUNAR_BEAM_HEAL                = 204069,
+    SPELL_DRUID_LUNAR_BEAM_DAMAGE              = 414613,
     SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
     SPELL_DRUID_MANGLE                         = 33917,
+    SPELL_DRUID_MANGLE_TALENT                  = 231064,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
     SPELL_DRUID_NEW_MOON                       = 274281,
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
@@ -1259,6 +1267,33 @@ class spell_dru_lifebloom : public AuraScript
     }
 };
 
+// 204066 - Lunar Beam
+struct at_dru_lunar_beam : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(500ms, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(caster, SPELL_DRUID_LUNAR_BEAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DRUID_LUNAR_BEAM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 155580 - Lunar Inspiration
 class spell_dru_lunar_inspiration : public AuraScript
 {
@@ -1312,13 +1347,39 @@ class spell_dru_luxuriant_soil : public AuraScript
         if (targetList.empty())
             return;
 
-        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_luxuriant_soil::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_luxuriant_soil::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 33917 - Mangle
+class spell_dru_mangle : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MANGLE_TALENT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_MANGLE_TALENT);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (victim->HasAuraState(AURA_STATE_BLEED))
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dru_mangle::CalculateDamage);
     }
 };
 
@@ -1338,6 +1399,61 @@ class spell_dru_moonfire : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_dru_moonfire::HandleOnHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 450347 - Nature's Grace
+class spell_dru_natures_grace : public AuraScript
+{
+public:
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_NATURES_GRACE_TALENT, SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    static void Trigger(Unit* caster, AuraEffect const* naturesGraceEffect)
+    {
+        caster->CastSpell(caster, SPELL_DRUID_DREAMSTATE, CastSpellExtraArgsInit{
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, naturesGraceEffect->GetAmount() } }
+        });
+
+    }
+
+    void OnOwnerInCombat(bool isNowInCombat) const
+    {
+        if (isNowInCombat)
+            Trigger(GetTarget(), GetEffect(EFFECT_2));
+    }
+
+    void Register() override
+    {
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_dru_natures_grace::OnOwnerInCombat);
+    }
+};
+
+// 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
+class spell_dru_natures_grace_eclipse : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2);
+    }
+
+    void HandleRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        spell_dru_natures_grace::Trigger(GetTarget(), GetTarget()->GetAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_natures_grace_eclipse::HandleRemoved, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1789,12 +1905,11 @@ class spell_dru_t3_8p_bonus : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
-        if (m == costs.end())
+        Optional<int32> manaCost = spell->GetPowerTypeCostAmount(POWER_MANA);
+        if (!manaCost)
             return;
 
-        int32 amount = CalculatePct(m->Amount, aurEff->GetAmount());
+        int32 amount = CalculatePct(*manaCost, aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, SPELL_DRUID_EXHILARATE, args);
@@ -2298,9 +2413,13 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
+    RegisterAreaTriggerAI(at_dru_lunar_beam);
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
+    RegisterSpellScript(spell_dru_mangle);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_natures_grace);
+    RegisterSpellScript(spell_dru_natures_grace_eclipse);
     RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE));
     RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE));
     RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());

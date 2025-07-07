@@ -7,13 +7,11 @@ environment:
   BOOST_ROOT: C:\Libraries\boost_1_83_0
   MYSQL_ROOT_DIR: C:\Program Files\MySQL\MySQL Server 8.0
   OPENSSL_ROOT_DIR: C:\OpenSSL-v32-Win64
-  CFLAGS: /WX
-  CXXFLAGS: /WX
 build_script:
 - cmd: >-
     git config user.email "appveyor@build.bot" && git config user.name "AppVeyor"
 
-    cmake -S . -B .\build -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=dynamic -DTOOLS=ON
+    cmake -S . -B .\build -G"Visual Studio 17 2022" -A x64 -DSCRIPTS=dynamic -DWITH_WARNINGS_AS_ERRORS=ON -DTOOLS=ON
 
     cd build
 

@@ -61,6 +61,12 @@ void BigNumber::SetBinary(uint8 const* bytes, int32 len, bool littleEndian)
         BN_bin2bn(bytes, len, _bn);
 }
 
+bool BigNumber::SetDecStr(char const* str)
+{
+    int n = BN_dec2bn(&_bn, str);
+    return n > 0;
+}
+
 bool BigNumber::SetHexStr(char const* str)
 {
     int n = BN_hex2bn(&_bn, str);

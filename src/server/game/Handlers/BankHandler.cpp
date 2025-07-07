@@ -63,7 +63,7 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPackets::Bank::AutoBankItem& pa
 
 void WorldSession::HandleBankerActivateOpcode(WorldPackets::Bank::BankerActivate const& bankerActivate)
 {
-    if (bankerActivate.InteractionType != PlayerInteractionType::Banker)
+    if (bankerActivate.InteractionType != PlayerInteractionType::Banker && bankerActivate.InteractionType != PlayerInteractionType::CharacterBanker)
         return;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(bankerActivate.Banker, UNIT_NPC_FLAG_ACCOUNT_BANKER | UNIT_NPC_FLAG_BANKER, UNIT_NPC_FLAG_2_NONE);
@@ -324,8 +324,8 @@ void WorldSession::HandleAutoStoreBankReagentOpcode(WorldPackets::Bank::AutoStor
 
 void WorldSession::SendShowBank(ObjectGuid guid, PlayerInteractionType interactionType)
 {
-    _player->PlayerTalkClass->GetInteractionData().Reset();
-    _player->PlayerTalkClass->GetInteractionData().SourceGuid = guid;
+    _player->PlayerTalkClass->GetInteractionData().StartInteraction(guid, interactionType);
+
     WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
     npcInteraction.Npc = guid;
     npcInteraction.InteractionType = interactionType;

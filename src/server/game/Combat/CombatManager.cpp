@@ -16,9 +16,9 @@
  */
 
 #include "CombatManager.h"
-#include "Containers.h"
 #include "Creature.h"
 #include "CreatureAI.h"
+#include "MapUtils.h"
 #include "Player.h"
 
 /*static*/ bool CombatManager::CanBeginCombat(Unit const* a, Unit const* b)

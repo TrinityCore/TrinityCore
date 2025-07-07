@@ -20,12 +20,10 @@ jobs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11
     - name: Setup
       env:
-        CFLAGS: -Werror
-        CXXFLAGS: -Werror
         CMAKE_BUILD_TYPE: Debug
       run: >
         cmake -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
-        -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0
+        -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0
         -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG"
         -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
     - name: Build

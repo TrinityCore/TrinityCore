@@ -998,7 +998,7 @@ class boss_yogg_saron : public CreatureScript
                             break;
                         case EVENT_LUNATIC_GAZE:
                             DoCast(me, SPELL_LUNATIC_GAZE);
-                            CreatureTextMgr::SendSound(me, SOUND_LUNATIC_GAZE, CHAT_MSG_MONSTER_YELL);
+                            me->PlayDirectSound(SOUND_LUNATIC_GAZE);
                             _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12s, 0, PHASE_THREE);
                             break;
                         case EVENT_DEAFENING_ROAR:
@@ -2465,7 +2465,7 @@ class spell_yogg_saron_diminsh_power : public SpellScriptLoader     // 64148
             {
                 PreventDefaultAction();
                 if (Spell* spell = GetTarget()->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                    if (spell->getState() == SPELL_STATE_CASTING)
+                    if (spell->getState() == SPELL_STATE_CHANNELING)
                         GetTarget()->InterruptSpell(CURRENT_CHANNELED_SPELL);
             }
 
@@ -2808,7 +2808,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
 
             void ModSanityStacks()
             {
-                GetSpell()->SetSpellValue(SPELLVALUE_AURA_STACK, 100);
+                GetSpell()->SetSpellValue({ SPELLVALUE_AURA_STACK, 100 });
             }
 
             void Register() override

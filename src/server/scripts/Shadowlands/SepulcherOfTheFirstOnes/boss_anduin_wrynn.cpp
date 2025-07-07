@@ -28,6 +28,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
@@ -776,14 +777,14 @@ struct boss_anduin_wrynn : public BossAI
                     if (!jaina)
                         return;
 
-                    Conversation* convo = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                    if (!convo)
+                    Conversation* conversation = Conversation::CreateConversation(CONVERSATION_INTRO, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                    if (!conversation)
                         return;
 
-                    convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
-                    convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
-                    convo->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 3, jaina->GetGUID());
-                    convo->Start();
+                    conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
+                    conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
+                    conversation->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 3, jaina->GetGUID());
+                    conversation->Start();
                 });
 
                 scheduler.Schedule(35s, [this](TaskContext /*task*/)
@@ -827,15 +828,15 @@ struct boss_anduin_wrynn : public BossAI
 
                 firim->GetMotionMaster()->MovePath(PATH_OUTRODUCTION_FIRIM, false);
 
-                Conversation* convo = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
-                if (!convo)
+                Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ANDUIN_OUTRODUCTION, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false);
+                if (!conversation)
                     break;
 
-                convo->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 1, jaina->GetGUID());
-                convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
-                convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 3, uther->GetGUID());
-                convo->AddActor(NPC_FIRIM_ANDUIN, 4, firim->GetGUID());
-                convo->Start();
+                conversation->AddActor(NPC_LADY_JAINA_PROUDMOORE_ANDUIN, 1, jaina->GetGUID());
+                conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 2, sylvanas->GetGUID());
+                conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 3, uther->GetGUID());
+                conversation->AddActor(NPC_FIRIM_ANDUIN, 4, firim->GetGUID());
+                conversation->Start();
                 break;
             }
             case ACTION_ARTHAS_INTERMISSION_UTHER:
@@ -843,10 +844,10 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 1);
                 if (Creature* uther = instance->GetCreature(DATA_UTHER_THE_LIGHTBRINGER_ANDUIN))
                 {
-                    if (Conversation* convo = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
+                    if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ARTHAS_UTHER, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
                     {
-                        convo->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
-                        convo->Start();
+                        conversation->AddActor(NPC_UTHER_THE_LIGHTBRINGER_ANDUIN, 1, uther->GetGUID());
+                        conversation->Start();
                     }
                 }
                 break;
@@ -856,10 +857,10 @@ struct boss_anduin_wrynn : public BossAI
                 instance->DoUpdateWorldState(WORLD_STATE_ANDUIN_INTERMISSION, 2);
                 if (Creature* sylvanas = instance->GetCreature(DATA_SYLVANAS_WINDRUNNER_ANDUIN))
                 {
-                    if (Conversation* convo = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
+                    if (Conversation* conversation = Conversation::CreateConversation(CONVERSATION_ARTHAS_SYLVANAS, me, me->GetPosition(), ObjectGuid::Empty, nullptr, false))
                     {
-                        convo->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 1, sylvanas->GetGUID());
-                        convo->Start();
+                        conversation->AddActor(NPC_SYLVANAS_WINDRUNNER_ANDUIN, 1, sylvanas->GetGUID());
+                        conversation->Start();
                     }
                 }
                 break;
@@ -2921,23 +2922,12 @@ class spell_anduin_wrynn_wicked_star_selector_AuraScript : public AuraScript
     }
 };
 
+// 365017 - Wicked Star CreatePropertiesId: 24322
+// 365017 - Wicked Star CreatePropertiesId: 24740
 // 365017 - Wicked Star CreatePropertiesId: 24741
 struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 {
     at_anduin_wrynn_wicked_star(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
-
-    static constexpr float GetWickedStarSpeed(Difficulty difficulty)
-    {
-        // in yards per second
-        switch (difficulty)
-        {
-            case DIFFICULTY_HEROIC_RAID:
-            case DIFFICULTY_MYTHIC_RAID:
-                return 18.0f;
-            default: // LFR + Normal
-                return 15.0f;
-        }
-    }
 
     void OnInitialize() override
     {
@@ -2950,13 +2940,10 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
 
             std::vector<G3D::Vector3> splinePoints;
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
             splinePoints.push_back(PositionToVector3(destPos));
             splinePoints.push_back(PositionToVector3(at->GetPosition()));
-            splinePoints.push_back(PositionToVector3(at->GetPosition()));
 
-            float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) * 2 / GetWickedStarSpeed(at->GetMap()->GetDifficultyID()) * 1000;
-            at->InitSplines(std::move(splinePoints), timeToTarget);
+            at->InitSplines(splinePoints);
         }
     }
 
@@ -2971,9 +2958,9 @@ struct at_anduin_wrynn_wicked_star : AreaTriggerAI
             return;
 
         if (caster->IsValidAttackTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_DAMAGE_SILENCE, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
         else if (caster->IsValidAssistTarget(unit))
-            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS)));
+            caster->CastSpell(unit, SPELL_WICKED_STAR_EMPOWERMENT, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void OnDestinationReached() override
@@ -3001,8 +2988,6 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 {
     at_anduin_wrynn_empowered_wicked_star(AreaTrigger* areatrigger) : at_anduin_wrynn_wicked_star(areatrigger) { }
 
-    static float constexpr EMPOWERED_WICKED_STAR_SPEED = 14.0f; // in yards per second
-
     void HandleMovement(float angle) const
     {
         Unit* caster = at->GetCaster();
@@ -3015,12 +3000,9 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
 
         std::vector<G3D::Vector3> splinePoints;
         splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(at));
-        splinePoints.push_back(PositionToVector3(destPos));
         splinePoints.push_back(PositionToVector3(destPos));
 
-        float timeToTarget = at->GetDistance(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ()) / EMPOWERED_WICKED_STAR_SPEED * 1000;
-        at->InitSplines(std::move(splinePoints), timeToTarget);
+        at->InitSplines(splinePoints);
     }
 
     void OnInitialize() override

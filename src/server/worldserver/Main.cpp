@@ -15,10 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd Trinity Daemon
-/// @{
-/// \file
-
 #include "Common.h"
 #include "AppenderDB.h"
 #include "AsyncAcceptor.h"
@@ -79,7 +75,7 @@ namespace fs = boost::filesystem;
     #define _TRINITY_CORE_CONFIG_DIR "worldserver.conf.d"
 #endif
 
-#ifdef _WIN32
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
 #include <tchar.h>
 TCHAR serviceName[] = _T("worldserver");
@@ -105,7 +101,7 @@ public:
 
     static void Start(std::shared_ptr<FreezeDetector> const& freezeDetector)
     {
-        freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(5));
+        freezeDetector->_timer.expires_after(5s);
         freezeDetector->_timer.async_wait([freezeDetectorRef = std::weak_ptr(freezeDetector)](boost::system::error_code const& error) mutable
         {
             Handler(std::move(freezeDetectorRef), error);
@@ -122,7 +118,7 @@ private:
 };
 
 void SignalHandler(boost::system::error_code const& error, int signalNumber);
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
@@ -132,7 +128,7 @@ struct ShutdownCLIThread { void operator()(std::thread* cliThread) const; };
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, std::string& winServiceAction);
 
 /// Launch the Trinity server
-extern int main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     signal(SIGABRT, &Trinity::AbortHandler);
 
@@ -153,15 +149,16 @@ extern int main(int argc, char** argv)
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    auto protobufHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { google::protobuf::ShutdownProtobufLibrary(); });
+    auto protobufHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { google::protobuf::ShutdownProtobufLibrary(); }>(&dummy);
 
 #ifdef _WIN32
+    Trinity::Service::Init(serviceLongName, serviceName, serviceDescription, &main, &m_ServiceStatus);
     if (winServiceAction == "install")
-        return WinServiceInstall() ? 0 : 1;
+        return Trinity::Service::Install();
     if (winServiceAction == "uninstall")
-        return WinServiceUninstall() ? 0 : 1;
+        return Trinity::Service::Uninstall();
     if (winServiceAction == "run")
-        return WinServiceRun() ? 0 : 1;
+        return Trinity::Service::Run();
 
     Optional<UINT> newTimerResolution;
     boost::system::error_code dllError;
@@ -251,7 +248,7 @@ extern int main(int argc, char** argv)
 
     OpenSSLCrypto::threadsSetup(boost::dll::program_location().remove_filename());
 
-    auto opensslHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { OpenSSLCrypto::threadsCleanup(); });
+    auto opensslHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { OpenSSLCrypto::threadsCleanup(); }>(&dummy);
 
     // Seed the OpenSSL's PRNG here.
     // That way it won't auto-seed when calling BigNumber::SetRand and slow down the first world login
@@ -288,7 +285,7 @@ extern int main(int argc, char** argv)
     for (int i = 0; i < numThreads; ++i)
         threadPool->PostWork([ioContext]() { ioContext->run(); });
 
-    auto ioContextStopHandle = Trinity::make_unique_ptr_with_deleter(ioContext.get(), [](Trinity::Asio::IoContext* ctx) { ctx->stop(); });
+    auto ioContextStopHandle = Trinity::make_unique_ptr_with_deleter<&Trinity::Asio::IoContext::stop>(ioContext.get());
 
     // Set process priority according to configuration settings
     SetProcessPriority("server.worldserver", sConfigMgr->GetIntDefault(CONFIG_PROCESSOR_AFFINITY, 0), sConfigMgr->GetBoolDefault(CONFIG_HIGH_PRIORITY, false));
@@ -297,7 +294,7 @@ extern int main(int argc, char** argv)
     if (!StartDB())
         return 1;
 
-    auto dbHandle = Trinity::make_unique_ptr_with_deleter(&dummy, [](void*) { StopDB(); });
+    auto dbHandle = Trinity::make_unique_ptr_with_deleter<[](void*) { StopDB(); }>(&dummy);
 
     if (vm.count("update-databases-only"))
         return 0;
@@ -306,7 +303,7 @@ extern int main(int argc, char** argv)
 
     sRealmList->Initialize(*ioContext, sConfigMgr->GetIntDefault("RealmsStateUpdateDelay", 10));
 
-    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter(sRealmList, [](RealmList* realmList) { realmList->Close(); });
+    auto sRealmListHandle = Trinity::make_unique_ptr_with_deleter<&RealmList::Close>(sRealmList);
 
     ///- Get the realm Id from the configuration file
     uint32 realmId = sConfigMgr->GetIntDefault("RealmID", 0);
@@ -348,32 +345,32 @@ extern int main(int argc, char** argv)
         metric->Unload();
     });
 
-    auto scriptReloadMgrHandle = Trinity::make_unique_ptr_with_deleter(sScriptReloadMgr, [](ScriptReloadMgr* mgr) { mgr->Unload(); });
+    auto scriptReloadMgrHandle = Trinity::make_unique_ptr_with_deleter<&ScriptReloadMgr::Unload>(sScriptReloadMgr);
 
     sScriptMgr->SetScriptLoader(AddScripts);
-    auto sScriptMgrHandle = Trinity::make_unique_ptr_with_deleter(sScriptMgr, [](ScriptMgr* mgr) { mgr->Unload(); });
+    auto sScriptMgrHandle = Trinity::make_unique_ptr_with_deleter<&ScriptMgr::Unload>(sScriptMgr);
 
     // Initialize the World
     sSecretMgr->Initialize(SECRET_OWNER_WORLDSERVER);
     if (!sWorld->SetInitialWorldSettings())
         return 1;
 
-    auto instanceLockMgrHandle = Trinity::make_unique_ptr_with_deleter(&sInstanceLockMgr, [](InstanceLockMgr* mgr) { mgr->Unload(); });
+    auto instanceLockMgrHandle = Trinity::make_unique_ptr_with_deleter<&InstanceLockMgr::Unload>(&sInstanceLockMgr);
 
-    auto terrainMgrHandle = Trinity::make_unique_ptr_with_deleter(&sTerrainMgr, [](TerrainMgr* mgr) { mgr->UnloadAll(); });
+    auto terrainMgrHandle = Trinity::make_unique_ptr_with_deleter<&TerrainMgr::UnloadAll>(&sTerrainMgr);
 
-    auto outdoorPvpMgrHandle = Trinity::make_unique_ptr_with_deleter(sOutdoorPvPMgr, [](OutdoorPvPMgr* mgr) { mgr->Die(); });
+    auto outdoorPvpMgrHandle = Trinity::make_unique_ptr_with_deleter<&OutdoorPvPMgr::Die>(sOutdoorPvPMgr);
 
     // unload all grids (including locked in memory)
-    auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter(sMapMgr, [](MapManager* mgr) { mgr->UnloadAll(); });
+    auto mapManagementHandle = Trinity::make_unique_ptr_with_deleter<&MapManager::UnloadAll>(sMapMgr);
 
     // unload battleground templates before different singletons destroyed
-    auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter(sBattlegroundMgr, [](BattlegroundMgr* mgr) { mgr->DeleteAllBattlegrounds(); });
+    auto battlegroundMgrHandle = Trinity::make_unique_ptr_with_deleter<&BattlegroundMgr::DeleteAllBattlegrounds>(sBattlegroundMgr);
 
     // Start the Remote Access port (acceptor) if enabled
-    std::unique_ptr<AsyncAcceptor> raAcceptor;
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> raAcceptor;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
-        raAcceptor.reset(StartRaSocketAcceptor(*ioContext));
+        raAcceptor = StartRaSocketAcceptor(*ioContext);
 
     // Start soap serving thread if enabled
     std::unique_ptr<std::thread, ShutdownTCSoapThread> soapThread;
@@ -387,7 +384,6 @@ extern int main(int argc, char** argv)
 
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
-    uint16 instancePort = uint16(sWorld->getIntConfig(CONFIG_PORT_INSTANCE));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
 
     int networkThreads = sConfigMgr->GetIntDefault("Network.Threads", 1);
@@ -399,7 +395,7 @@ extern int main(int argc, char** argv)
         return 1;
     }
 
-    if (!sWorldSocketMgr.StartWorldNetwork(*ioContext, worldListener, worldPort, instancePort, networkThreads))
+    if (!sWorldSocketMgr.StartNetwork(*ioContext, worldListener, worldPort, networkThreads))
     {
         TC_LOG_ERROR("server.worldserver", "Failed to initialize network");
         World::StopNow(ERROR_EXIT_CODE);
@@ -623,7 +619,7 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
                 }
             }
 
-            freezeDetector->_timer.expires_from_now(boost::posix_time::seconds(1));
+            freezeDetector->_timer.expires_after(1s);
             freezeDetector->_timer.async_wait([freezeDetectorRef = std::move(freezeDetectorRef)](boost::system::error_code const& error) mutable
             {
                 Handler(std::move(freezeDetectorRef), error);
@@ -632,20 +628,23 @@ void FreezeDetector::Handler(std::weak_ptr<FreezeDetector> freezeDetectorRef, bo
     }
 }
 
-AsyncAcceptor* StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
+std::unique_ptr<Trinity::Net::AsyncAcceptor> StartRaSocketAcceptor(Trinity::Asio::IoContext& ioContext)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    AsyncAcceptor* acceptor = new AsyncAcceptor(ioContext, raListener, raPort);
+    std::unique_ptr<Trinity::Net::AsyncAcceptor> acceptor = std::make_unique<Trinity::Net::AsyncAcceptor>(ioContext, raListener, raPort);
     if (!acceptor->Bind())
     {
         TC_LOG_ERROR("server.worldserver", "Failed to bind RA socket acceptor");
-        delete acceptor;
         return nullptr;
     }
 
-    acceptor->AsyncAccept<RASession>();
+    acceptor->AsyncAccept([](Trinity::Net::IoContextTcpSocket&& sock, uint32 /*threadIndex*/)
+    {
+        std::make_shared<RASession>(std::move(sock))->Start();
+
+    });
     return acceptor;
 }
 
@@ -696,7 +695,6 @@ void ClearOnlineAccounts(uint32 realmId)
     // Battleground instance ids reset at server restart
     CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
 }
-/// @}
 
 variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, fs::path& configDir, [[maybe_unused]] std::string& winServiceAction)
 {
@@ -740,3 +738,9 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 
     return vm;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif
