@@ -365,7 +365,7 @@ enum UnitTypeMask
 
 struct PriorityRules
 {
-    int32_t weight;
+    int32 weight;
     std::function<bool(Unit*)> condition;
 };
 
