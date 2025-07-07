@@ -294,11 +294,6 @@ class spell_sha_ancestral_guidance : public AuraScript
 // 114911 - Ancestral Guidance Heal
 class spell_sha_ancestral_guidance_heal : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE });
-    }
-
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
         GetCaster()->SortTargetsWithPriorityRules(targets, 3);
@@ -306,7 +301,7 @@ class spell_sha_ancestral_guidance_heal : public SpellScript
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sha_ancestral_guidance_heal::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_RAID);
     }
 };
 
