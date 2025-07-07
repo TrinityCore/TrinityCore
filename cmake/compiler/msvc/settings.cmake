@@ -65,14 +65,12 @@ if((PLATFORM EQUAL 64) OR (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.0.2302
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # /Zc:throwingNew.
-  # When you specify Zc:throwingNew on the command line, it instructs the compiler to assume
-  # that the program will eventually be linked with a conforming operator new implementation,
-  # and can omit all of these extra null checks from your program.
-  # http://blogs.msdn.com/b/vcblog/archive/2015/08/06/new-in-vs-2015-zc-throwingnew.aspx
   target_compile_options(trinity-compile-option-interface
     INTERFACE
-      /Zc:throwingNew)
+      /Zc:__cplusplus   # Enable updated __cplusplus macro value
+      /Zc:preprocessor  # Enable preprocessor conformance mode
+      /Zc:templateScope # Check template parameter shadowing
+      /Zc:throwingNew)  # Assume operator new throws
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
