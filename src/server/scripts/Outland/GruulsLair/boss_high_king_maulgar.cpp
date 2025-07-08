@@ -171,44 +171,32 @@ private:
     bool _enraged;
 };
 
-// 18834 - Olm the Summoner
-struct boss_olm_the_summoner : public ScriptedAI
+struct OgreBaseAI : public ScriptedAI
 {
-    boss_olm_the_summoner(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    OgreBaseAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
     void Reset() override
     {
-        _scheduler.CancelAll();
+        scheduler.CancelAll();
+        scheduler.SetValidator([this]
+        {
+            return !me->HasUnitState(UNIT_STATE_CASTING);
+        });
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(10s, [this](TaskContext task)
-        {
-            DoCastVictim(SPELL_DARK_DECAY);
-            task.Repeat(20s);
-        });
-
-        _scheduler.Schedule(0s, 10s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_SUMMON_WILD_FELHUNTER);
-            task.Repeat(50s, 60s);
-        });
-
-        _scheduler.Schedule(20s, [this](TaskContext task)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                DoCast(target, SPELL_DEATH_COIL);
-            task.Repeat(20s);
-        });
+        ScheduleEvents();
     }
+
+    virtual void ScheduleEvents() = 0;
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* maulgar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MAULGAR)))
+        if (Creature* maulgar = instance->GetCreature(DATA_MAULGAR))
             maulgar->AI()->DoAction(ACTION_ADD_DEATH);
 
-        _instance->SetBossState(DATA_MAULGAR, DONE);
+        instance->SetBossState(DATA_MAULGAR, DONE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -216,200 +204,130 @@ struct boss_olm_the_summoner : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        _scheduler.Update(diff);
+        scheduler.Update(diff);
 
         DoMeleeAttackIfReady();
     }
 
-private:
-    TaskScheduler _scheduler;
-    InstanceScript* _instance;
+protected:
+    InstanceScript* instance;
+    TaskScheduler scheduler;
+};
+
+// 18834 - Olm the Summoner
+struct boss_olm_the_summoner : public OgreBaseAI
+{
+    boss_olm_the_summoner(Creature* creature) : OgreBaseAI(creature) { }
+
+    void ScheduleEvents() override
+    {
+        scheduler
+            .Schedule(10s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_DARK_DECAY);
+                task.Repeat(20s);
+            })
+            .Schedule(0s, 10s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_SUMMON_WILD_FELHUNTER);
+                task.Repeat(50s, 60s);
+            })
+            .Schedule(20s, [this](TaskContext task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_DEATH_COIL);
+                task.Repeat(20s);
+            });
+    }
 };
 
 // 18835 - Kiggler the Crazed
-struct boss_kiggler_the_crazed : public ScriptedAI
+struct boss_kiggler_the_crazed : public OgreBaseAI
 {
-    boss_kiggler_the_crazed(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
-
-    void Reset() override
-    {
-        _scheduler.CancelAll();
-    }
+    boss_kiggler_the_crazed(Creature* creature) : OgreBaseAI(creature) { }
 
     void AttackStart(Unit* who) override
     {
         ScriptedAI::AttackStartCaster(who, 40.0f);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void ScheduleEvents() override
     {
-        _scheduler.Schedule(5s, [this](TaskContext task)
-        {
-            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                DoCast(target, SPELL_GREATER_POLYMORPH);
-            task.Repeat(15s, 20s);
-        });
-
-        _scheduler.Schedule(0s, [this](TaskContext task)
-        {
-            DoCastVictim(SPELL_LIGHTNING_BOLT);
-            task.Repeat(2s);
-        });
-
-        _scheduler.Schedule(20s, [this](TaskContext task)
-        {
-            DoCastVictim(SPELL_ARCANE_SHOCK);
-            task.Repeat(20s);
-        });
-
-        _scheduler.Schedule(30s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_ARCANE_EXPLOSION);
-            task.Repeat(30s);
-        });
+        scheduler
+            .Schedule(5s, [this](TaskContext task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_GREATER_POLYMORPH);
+                task.Repeat(15s, 20s);
+            })
+            .Schedule(0s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_LIGHTNING_BOLT);
+                task.Repeat(2s);
+            })
+            .Schedule(20s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_ARCANE_SHOCK);
+                task.Repeat(20s);
+            })
+            .Schedule(30s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_ARCANE_EXPLOSION);
+                task.Repeat(30s);
+            });
     }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* maulgar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MAULGAR)))
-            maulgar->AI()->DoAction(ACTION_ADD_DEATH);
-
-        _instance->SetBossState(DATA_MAULGAR, DONE);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 18836 - Blindeye the Seer
-struct boss_blindeye_the_seer : public ScriptedAI
+struct boss_blindeye_the_seer : public OgreBaseAI
 {
-    boss_blindeye_the_seer(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    boss_blindeye_the_seer(Creature* creature) : OgreBaseAI(creature) { }
 
-    void Reset() override
+    void ScheduleEvents() override
     {
-        _scheduler.CancelAll();
+        scheduler
+            .Schedule(5s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_GREATER_PW_SHIELD);
+                task.Repeat(40s);
+            })
+            .Schedule(25s, 40s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_HEAL);
+                task.Repeat(25s, 40s);
+            })
+            .Schedule(45s, 55s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_PRAYER_OH);
+                task.Repeat(35s, 50s);
+            });
     }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _scheduler.Schedule(5s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_GREATER_PW_SHIELD);
-            task.Repeat(40s);
-        });
-
-        _scheduler.Schedule(25s, 40s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_HEAL);
-            task.Repeat(25s, 40s);
-        });
-
-        _scheduler.Schedule(45s, 55s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_PRAYER_OH);
-            task.Repeat(35s, 50s);
-        });
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* maulgar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MAULGAR)))
-            maulgar->AI()->DoAction(ACTION_ADD_DEATH);
-
-        _instance->SetBossState(DATA_MAULGAR, DONE);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 18832 - Krosh Firehand
-struct boss_krosh_firehand : public ScriptedAI
+struct boss_krosh_firehand : public OgreBaseAI
 {
-    boss_krosh_firehand(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    boss_krosh_firehand(Creature* creature) : OgreBaseAI(creature) { }
 
-    void Reset() override
+    void ScheduleEvents() override
     {
-        _scheduler.CancelAll();
+        scheduler
+            .Schedule(0s, 5s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_GREATER_FIREBALL);
+                task.Repeat(2s, 5s);
+            })
+            .Schedule(0s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_SPELLSHIELD);
+                task.Repeat(30s);
+            })
+            .Schedule(10s, 20s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_BLAST_WAVE);
+                task.Repeat(5s, 15s);
+            });
     }
-
-    void JustEngagedWith(Unit* /*who*/) override
-    {
-        _scheduler.Schedule(0s, 5s, [this](TaskContext task)
-        {
-            DoCastVictim(SPELL_GREATER_FIREBALL);
-            task.Repeat(2s, 5s);
-        });
-
-        _scheduler.Schedule(0s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_SPELLSHIELD);
-            task.Repeat(30s);
-        });
-
-        _scheduler.Schedule(10s, 20s, [this](TaskContext task)
-        {
-            DoCastSelf(SPELL_BLAST_WAVE);
-            task.Repeat(5s, 15s);
-        });
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (Creature* maulgar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MAULGAR)))
-            maulgar->AI()->DoAction(ACTION_ADD_DEATH);
-
-        _instance->SetBossState(DATA_MAULGAR, DONE);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
-    }
-
-private:
-    TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 void AddSC_boss_high_king_maulgar()
