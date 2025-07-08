@@ -9646,7 +9646,7 @@ std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type, Unit const* 
     }
 }
 
-void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, std::optional<std::vector<PriorityRules>> const& priorityRules)
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, Optional<std::vector<PriorityRules>> const& priorityRules)
 {
     if (targets.size() <= maxTargets)
         return;
