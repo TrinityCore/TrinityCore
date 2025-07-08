@@ -2809,7 +2809,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock,
     Optional<uint32> lfgDungeonsId)
   : Map(id, expiry, InstanceId, SpawnMode),
-    i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
+    i_data(nullptr), i_script_id(0), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -2834,7 +2834,6 @@ InstanceMap::~InstanceMap()
         i_instanceLock->SetInUse(false);
 
     delete i_data;
-    delete i_scenario;
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -3079,6 +3078,23 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
 std::string const& InstanceMap::GetScriptName() const
 {
     return sObjectMgr->GetScriptName(i_script_id);
+}
+
+void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
+{
+    i_scenario.reset(); // sends exit packets to all players
+
+    if (scenario)
+    {
+        i_scenario.reset(scenario);
+
+        scenario->LoadInstanceData();
+
+        DoOnPlayers([scenario](Player* player)
+        {
+            scenario->OnPlayerEnter(player);
+        });
+    }
 }
 
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)

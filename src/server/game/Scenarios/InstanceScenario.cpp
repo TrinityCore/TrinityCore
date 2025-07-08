@@ -28,13 +28,6 @@
 
 InstanceScenario::InstanceScenario(InstanceMap* map, ScenarioData const* scenarioData) : Scenario(map, scenarioData)
 {
-    ASSERT(_map);
-    LoadInstanceData();
-
-    Map::PlayerList const& players = map->GetPlayers();
-    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-        if (Player* player = itr->GetSource()->ToPlayer())
-            SendScenarioState(player);
 }
 
 void InstanceScenario::LoadInstanceData()
@@ -60,7 +53,7 @@ void InstanceScenario::LoadInstanceData()
                 if (isDespawned)
                     for (auto const& [spawnGroupId, spawn] : sObjectMgr->GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId))
                         if (SpawnData const* spawnData = spawn->ToSpawnData())
-                        ++despawnedCreatureCountsById[spawnData->id];
+                            ++despawnedCreatureCountsById[spawnData->id];
             }
 
             for (Criteria const* criteria : killCreatureCriteria)
