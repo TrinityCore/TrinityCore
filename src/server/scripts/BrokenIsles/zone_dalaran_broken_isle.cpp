@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "PlayerChoice.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
 
@@ -66,7 +67,7 @@ enum OrderCampaignDalaranIntro
 // 224240 - 7.0 Order Campaign - Dalaran Aura
 class spell_dalaran_order_campaign_intro_aura : public AuraScript
 {
-    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
         Player* player = Object::ToPlayer(GetCaster());
         if (!player)
@@ -157,8 +158,41 @@ class spell_dalaran_order_campaign_intro_aura : public AuraScript
     }
 };
 
+enum WeaponsOfLegendHunter
+{
+    // Spells
+    SPELL_FORCE_BEAST_MASTERY_SPEC                      = 198433,
+    SPELL_FORCE_SURVIVAL_SPEC                           = 198435,
+    SPELL_FORCE_MARKSMANSHIP_SPEC                       = 198436,
+
+    // Playerchoice
+    PLAYERCHOICE_RESPONSE_CHOOSE_BEAST_MASTERY_WEAPON   = 504,
+    PLAYERCHOICE_RESPONSE_CHOOSE_SURVIVAL_WEAPON        = 505,
+    PLAYERCHOICE_RESPONSE_CHOOSE_MARKSMANSHIP_WEAPON    = 506,
+};
+
+// 240 - Playerchoice
+class playerchoice_weapons_of_legend_hunter : public PlayerChoiceScript
+{
+public:
+    playerchoice_weapons_of_legend_hunter() : PlayerChoiceScript("playerchoice_weapons_of_legend_hunter") {}
+
+    void OnResponse(WorldObject* /*object*/, Player* player, PlayerChoice const* /*choice*/, PlayerChoiceResponse const* response, uint16 /*clientIdentifier*/) override
+    {
+        if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_BEAST_MASTERY_WEAPON)
+            player->CastSpell(player, SPELL_FORCE_BEAST_MASTERY_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
+        else if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_SURVIVAL_WEAPON)
+            player->CastSpell(player, SPELL_FORCE_SURVIVAL_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
+        else if (response->ResponseId == PLAYERCHOICE_RESPONSE_CHOOSE_MARKSMANSHIP_WEAPON)
+            player->CastSpell(player, SPELL_FORCE_MARKSMANSHIP_SPEC, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
+    }
+};
+
 void AddSC_zone_dalaran_broken_isle()
 {
+    // Playerchoice
+    new playerchoice_weapons_of_legend_hunter();
+
     // Spellscripts
     RegisterSpellScript(spell_dalaran_order_campaign_intro_aura);
 }

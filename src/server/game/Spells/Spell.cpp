@@ -2178,9 +2178,8 @@ WorldObject* Spell::SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, f
         return nullptr;
 
     Trinity::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList, objectType);
-    Trinity::WorldObjectLastSearcher<Trinity::WorldObjectSpellNearbyTargetCheck> searcher(m_caster, target, check, containerTypeMask);
-    searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
-    SearchTargets<Trinity::WorldObjectLastSearcher<Trinity::WorldObjectSpellNearbyTargetCheck>>(searcher, containerTypeMask, m_caster, m_caster, range);
+    Trinity::WorldObjectLastSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), target, check, containerTypeMask);
+    SearchTargets(searcher, containerTypeMask, m_caster, m_caster, range);
     return target;
 }
 
@@ -2194,9 +2193,8 @@ void Spell::SearchAreaTargets(std::list<WorldObject*>& targets, SpellEffectInfo 
 
     float extraSearchRadius = range > 0.0f ? EXTRA_CELL_SEARCH_RADIUS : 0.0f;
     Trinity::WorldObjectSpellAreaTargetCheck check(range, position, m_caster, referer, m_spellInfo, selectionType, condList, objectType, searchReason);
-    Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(m_caster, targets, check, containerTypeMask);
-    searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
-    SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(searcher, containerTypeMask, m_caster, position, range + extraSearchRadius);
+    Trinity::WorldObjectListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), targets, check, containerTypeMask);
+    SearchTargets(searcher, containerTypeMask, m_caster, position, range + extraSearchRadius);
 }
 
 void Spell::SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType,
@@ -9589,14 +9587,13 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     };
 
     std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
-    std::vector<std::pair<WorldObject*, int32>> tempTargets;
-    tempTargets.resize(targets.size());
+    std::vector<std::pair<WorldObject*, int32>> tempTargets(targets.size());
 
     // categorize each target
     std::ranges::transform(targets, tempTargets.begin(), [&](WorldObject* target)
     {
         int32 negativePoints = 0;
-        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
+        if (prioritizeGroupMembersOf && (!target->IsUnit() || !target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
             negativePoints |= 1 << NOT_GROUPED;
 
         if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()))

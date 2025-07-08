@@ -28,6 +28,10 @@ void AddSC_instance_maw_of_souls();
 void AddSC_boss_guarm();
 void AddSC_instance_trial_of_valor();
 
+// Black Rook Hold
+void AddSC_boss_amalgam_of_souls();
+void AddSC_instance_black_rook_hold();
+
 // Orderhalls
 void AddSC_orderhall_warrior();
 
@@ -45,6 +49,10 @@ void AddBrokenIslesScripts()
     // Trial of Valor
     AddSC_boss_guarm();
     AddSC_instance_trial_of_valor();
+
+    // Black Rook Hold
+    AddSC_boss_amalgam_of_souls();
+    AddSC_instance_black_rook_hold();
 
     // Orderhalls
     AddSC_orderhall_warrior();

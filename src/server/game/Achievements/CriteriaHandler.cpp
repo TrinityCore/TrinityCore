@@ -607,8 +607,10 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::HighestHealReceived:
         case CriteriaType::AnyArtifactPowerRankPurchased:
         case CriteriaType::AzeriteLevelReached:
-        case CriteriaType::ReachRenownLevel:
             SetCriteriaProgress(criteria, miscValue1, referencePlayer, PROGRESS_HIGHEST);
+            break;
+        case CriteriaType::ReachRenownLevel:
+            SetCriteriaProgress(criteria, miscValue2, referencePlayer, PROGRESS_HIGHEST);
             break;
         case CriteriaType::ReachLevel:
             SetCriteriaProgress(criteria, referencePlayer->GetLevel(), referencePlayer);
@@ -3988,6 +3990,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (referencePlayer->GetPositionZ() >= reqValue)
                 return false;
             break;
+        case ModifierTreeType::PlayerDataFlagAccountIsSet: // 378
+            if (!referencePlayer->HasDataFlagAccount(reqValue))
+                return false;
+            break;
+        case ModifierTreeType::PlayerDataFlagCharacterIsSet: // 379
+            if (!referencePlayer->HasDataFlagCharacter(reqValue))
+                return false;
+            break;
         case ModifierTreeType::PlayerIsOnMapWithExpansion: // 380
         {
             MapEntry const* mapEntry = referencePlayer->GetMap()->GetEntry();
@@ -4022,6 +4032,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return false;
             break;
         }
+        case ModifierTreeType::PlayerDataElementCharacterBetween: // 390
+            return std::visit([&]<typename T>(T value) { return value >= T(secondaryAsset) && value <= T(tertiaryAsset); },
+                referencePlayer->GetDataElementCharacter(reqValue));
+        case ModifierTreeType::PlayerDataElementAccountBetween: // 391
+            return std::visit([&]<typename T>(T value) { return value >= T(secondaryAsset) && value <= T(tertiaryAsset); },
+                referencePlayer->GetDataElementAccount(reqValue));
         case ModifierTreeType::PlayerHasCompletedQuestOrIsReadyToTurnIn: // 392
         {
             QuestStatus status = referencePlayer->GetQuestStatus(reqValue);
