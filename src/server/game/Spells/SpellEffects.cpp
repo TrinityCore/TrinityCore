@@ -4244,7 +4244,7 @@ void Spell::EffectResurrectPet()
     if (!player->GetPet())
     {
         PetStable const* petStable = player->GetPetStable();
-        auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+        auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
         {
             return petInfo && !petInfo->Health;
         });
