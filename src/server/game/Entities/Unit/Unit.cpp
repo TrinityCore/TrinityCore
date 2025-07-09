@@ -94,8 +94,6 @@
 #include <sstream>
 #include <cmath>
 
-#include "AreaTriggerAI.h"
-
 float baseMoveSpeed[MAX_MOVE_TYPE] =
 {
     2.5f,                  // MOVE_WALK
@@ -5479,18 +5477,11 @@ void Unit::ExitAreaTrigger(AreaTrigger* areaTrigger)
     std::erase(m_insideAreaTriggers, areaTrigger);
 }
 
-std::vector<AreaTrigger*> Unit::GetInsideAreaTriggers() const
-{
-    return m_insideAreaTriggers;
-}
-
 void Unit::ExitAllAreaTriggers()
 {
-    AreaTriggerList atList = m_insideAreaTriggers;
+    AreaTriggerList atList = std::move(m_insideAreaTriggers);
     for (AreaTrigger* at : atList)
-    {
-        at->HandleUnitExit(this, true);
-    }
+        at->HandleUnitExit(this);
 }
 
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)

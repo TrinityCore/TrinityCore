@@ -847,15 +847,11 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     // Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
     for (Unit* unit : enteringUnits)
-    {
         HandleUnitEnter(unit);
-    }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
-    {
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
-            HandleUnitExit(leavingUnit);
-    }
+            HandleUnitExitInternal(leavingUnit);
 
     UpdateInsideEntityCounters();
 
@@ -882,11 +878,8 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     unit->EnterAreaTrigger(this);
 }
 
-void AreaTrigger::HandleUnitExit(Unit* unit, bool const withErase /*= false*/)
+void AreaTrigger::HandleUnitExitInternal(Unit* unit)
 {
-    if (withErase)
-        _insideUnits.erase(unit->GetGUID());
-
     if (Player* player = unit->ToPlayer())
     {
         if (player->isDebugAreaTriggers)
@@ -902,9 +895,15 @@ void AreaTrigger::HandleUnitExit(Unit* unit, bool const withErase /*= false*/)
 
     _ai->OnUnitExit(unit);
     unit->ExitAreaTrigger(this);
+}
 
-    if (withErase)
-        UpdateInsideEntityCounters();
+void AreaTrigger::HandleUnitExit(Unit* unit)
+{
+    _insideUnits.erase(unit->GetGUID());
+
+    HandleUnitExitInternal(unit);
+
+    UpdateInsideEntityCounters();
 }
 
 uint32 AreaTrigger::GetScriptId() const

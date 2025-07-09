@@ -1641,7 +1641,7 @@ class TC_GAME_API Unit : public WorldObject
         void EnterAreaTrigger(AreaTrigger* areaTrigger);
         void ExitAreaTrigger(AreaTrigger* areaTrigger);
 
-        std::vector<AreaTrigger*> GetInsideAreaTriggers() const;
+        std::vector<AreaTrigger*> const& GetInsideAreaTriggers() const { return m_insideAreaTriggers; }
         void ExitAllAreaTriggers();
 
         void ModifyAuraState(AuraStateType flag, bool apply);
