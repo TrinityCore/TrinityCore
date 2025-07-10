@@ -9652,11 +9652,7 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
         return;
 
     // use provided rules or fallback to default SmartHealing rules.
-    std::vector<PriorityRules> rules;
-    if (priorityRules.has_value())
-        rules = *priorityRules;
-    else
-        rules = GetPriorityRules(PriorityRulesType::SmartHealing, invoker);
+    std::vector<PriorityRules> const rules = priorityRules.value_or(GetPriorityRules(PriorityRulesType::SmartHealing, invoker));
 
     std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
 
@@ -9684,24 +9680,30 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
         return left.second > right.second;
     });
 
-    // shuffle ties around the cutoff to avoid picking same units every time.
     size_t cutOff = std::min(maxTargets, prioritizedTargets.size());
 
+    // if there are ties at the cutoff, shuffle them to avoid selection bias.
     if (cutOff < prioritizedTargets.size())
     {
         int32 tieScore = prioritizedTargets[cutOff - 1].second;
 
-        size_t tieStart = cutOff - 1;
+        auto const isTieScore = [tieScore](const std::pair<WorldObject*, int32>& entry)
+            { return entry.second == tieScore; };
 
-        while (tieStart > 0 && prioritizedTargets[tieStart - 1].second == tieScore)
+        // scan backwards to include tied entries before the cutoff.
+        std::ptrdiff_t tieStart = static_cast<std::ptrdiff_t>(cutOff - 1);
+        while (tieStart > 0 && isTieScore(prioritizedTargets[tieStart - 1]))
             --tieStart;
 
-        size_t tieEnd = cutOff + 1;
-
-        while (tieEnd < prioritizedTargets.size() && prioritizedTargets[tieEnd].second == tieScore)
+        // scan forward to include tied entries after the cutoff.
+        std::ptrdiff_t tieEnd = static_cast<std::ptrdiff_t>(cutOff);
+        while (tieEnd < static_cast<std::ptrdiff_t>(prioritizedTargets.size()) && isTieScore(prioritizedTargets[tieEnd]))
             ++tieEnd;
 
-        Containers::RandomShuffle(prioritizedTargets.begin() + tieStart, prioritizedTargets.begin() + tieEnd);
+        // shuffle only the tied range to randomize final selection.
+        Containers::RandomShuffle(
+            std::ranges::next(prioritizedTargets.begin(), tieStart),
+            std::ranges::next(prioritizedTargets.begin(), tieEnd));
     }
 
     targets.clear();
