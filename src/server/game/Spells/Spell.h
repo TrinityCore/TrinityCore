@@ -1061,17 +1061,9 @@ namespace Trinity
         std::function<bool(Unit*)> condition;
     };
 
-    enum class PriorityRulesType
-    {
-        // priority is a) injured b) player c) grouped with invoker.
-        SmartHealing = 0
-    };
-
     inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
 
-    std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type, Unit const* invoker);
-
-    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, Optional<std::vector<PriorityRules>> const& priorityRules = std::nullopt);
+    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& priorityRules);
 }
 
 extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);

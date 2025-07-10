@@ -2121,7 +2121,7 @@ class spell_pri_power_word_radiance : public SpellScript
         // we must add one since explicit target is always chosen.
         uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
 
-        SortTargetsWithPriorityRules(targets, maxTargets, caster, GetRadianceRules(caster, explTarget));
+        SortTargetsWithPriorityRules(targets, maxTargets, GetRadianceRules(caster, explTarget));
 
         for (WorldObject const* target : targets)
         {

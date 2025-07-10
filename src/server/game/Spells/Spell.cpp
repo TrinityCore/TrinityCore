@@ -9628,31 +9628,12 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
 
-std::vector<PriorityRules> GetPriorityRules(PriorityRulesType type, Unit const* invoker)
-{
-    switch (type)
-    {
-        case PriorityRulesType::SmartHealing:
-        {
-            return CreatePriorityRules({
-               { .weight = 1, .condition = [invoker](Unit const* target) { return invoker && target->IsInRaidWith(invoker); }},
-               { .weight = 2, .condition = [](Unit const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
-               { .weight = 4, .condition = [](Unit const* target) { return !target->IsFullHealth(); }}
-            });
-        }
-
-        default:
-            return {};
-    }
-}
-
-void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, Unit const* invoker, Optional<std::vector<PriorityRules>> const& priorityRules)
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& priorityRules)
 {
     if (targets.size() <= maxTargets)
         return;
 
-    // use provided rules or fallback to default SmartHealing rules.
-    std::vector<PriorityRules> const rules = priorityRules.value_or(GetPriorityRules(PriorityRulesType::SmartHealing, invoker));
+    std::vector<PriorityRules> const& rules = priorityRules;
 
     std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
 
