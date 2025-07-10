@@ -9633,8 +9633,6 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
     if (targets.size() <= maxTargets)
         return;
 
-    std::vector<PriorityRules> const& rules = priorityRules;
-
     std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
 
     // score each target based on how many rules they satisfy.
@@ -9646,7 +9644,7 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
 
         int32 score = 0;
 
-        for (PriorityRules const& rule : rules)
+        for (PriorityRules const& rule : priorityRules)
         {
             if (rule.condition(unit))
                 score += rule.weight;
