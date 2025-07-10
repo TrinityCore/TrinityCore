@@ -1063,7 +1063,7 @@ namespace Trinity
 
     inline std::vector<PriorityRules> CreatePriorityRules(std::initializer_list<PriorityRules> rules) { return { rules }; }
 
-    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& priorityRules);
+    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& rules);
 }
 
 extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);

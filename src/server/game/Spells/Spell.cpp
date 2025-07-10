@@ -9628,7 +9628,7 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
 
-void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& priorityRules)
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& rules)
 {
     if (targets.size() <= maxTargets)
         return;
@@ -9644,7 +9644,7 @@ void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTa
 
         int32 score = 0;
 
-        for (PriorityRules const& rule : priorityRules)
+        for (PriorityRules const& rule : rules)
         {
             if (rule.condition(unit))
                 score += rule.weight;
