@@ -661,7 +661,7 @@ bool Group::RemoveMember(ObjectGuid guid, RemoveMethod method /*= GROUP_REMOVEME
             }
         }
 
-        if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+        if (m_memberMgr.size() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
             Disband();
         else if (player)
         {
