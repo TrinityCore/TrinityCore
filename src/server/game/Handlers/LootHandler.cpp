@@ -234,8 +234,10 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::vector<Creature*> corpses;
     if (aeLootEnabled)
     {
-        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Trinity::CreatureListSearcher searcher(_player, corpses, check);
         Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+        if (corpses.size() > 49)
+            corpses.resize(49); // lootTarget is 50th, not in corpses vector
     }
 
     if (!corpses.empty())
