@@ -83,7 +83,7 @@ class LinkedListElement
         LinkedListElement& operator=(LinkedListElement&&) = delete;
 
     protected:
-        virtual ~LinkedListElement()
+        ~LinkedListElement()
         {
             delink();
         }
@@ -107,13 +107,13 @@ class LinkedListHead
             iLast.iPrev = &iFirst;
         }
 
-        bool isEmpty() const { return(!iFirst.iNext->isInList()); }
+        bool empty() const { return iFirst.iNext == &iLast; }
 
-        LinkedListElement      * getFirst()       { return (isEmpty() ? nullptr : iFirst.iNext); }
-        LinkedListElement const* getFirst() const { return (isEmpty() ? nullptr : iFirst.iNext); }
+        LinkedListElement      * getFirst()       { return (empty() ? nullptr : iFirst.iNext); }
+        LinkedListElement const* getFirst() const { return (empty() ? nullptr : iFirst.iNext); }
 
-        LinkedListElement      * getLast()       { return(isEmpty() ? nullptr : iLast.iPrev); }
-        LinkedListElement const* getLast() const { return(isEmpty() ? nullptr : iLast.iPrev); }
+        LinkedListElement      * getLast()       { return (empty() ? nullptr : iLast.iPrev); }
+        LinkedListElement const* getLast() const { return (empty() ? nullptr : iLast.iPrev); }
 
         void insertFirst(LinkedListElement* pElem)
         {
@@ -166,18 +166,18 @@ class LinkedListHead
                 {                                           // construct with node pointer _Pnode
                 }
 
-                Iterator& operator=(const_pointer const& _Right)
+                Iterator& operator=(const_pointer _Right)
                 {
-                    _Ptr = pointer(_Right);
+                    _Ptr = const_cast<pointer>(_Right);
                     return *this;
                 }
 
-                reference operator*()
+                reference operator*() const
                 {                                           // return designated value
                     return *_Ptr;
                 }
 
-                pointer operator->()
+                pointer operator->() const
                 {                                           // return pointer to class object
                     return _Ptr;
                 }
