@@ -115,12 +115,12 @@ class LinkedListHead
         LinkedListElement      * getLast()       { return (empty() ? nullptr : iLast.iPrev); }
         LinkedListElement const* getLast() const { return (empty() ? nullptr : iLast.iPrev); }
 
-        void insertFirst(LinkedListElement* pElem)
+        void push_front(LinkedListElement* pElem)
         {
             iFirst.insertAfter(pElem);
         }
 
-        void insertLast(LinkedListElement* pElem)
+        void push_back(LinkedListElement* pElem)
         {
             iLast.insertBefore(pElem);
         }

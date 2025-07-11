@@ -1387,7 +1387,7 @@ void Group::ResetInstances(InstanceResetMethod method, Player* notifyPlayer)
 
 void Group::LinkOwnedInstance(GroupInstanceReference* ref)
 {
-    m_ownedInstancesMgr.insertLast(ref);
+    m_ownedInstancesMgr.push_back(ref);
 }
 
 void Group::_homebindIfInstance(Player* player)
@@ -1789,7 +1789,7 @@ void Group::SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags fla
 
 void Group::LinkMember(GroupReference* pRef)
 {
-    m_memberMgr.insertFirst(pRef);
+    m_memberMgr.push_front(pRef);
 }
 
 void Group::DelinkMember(ObjectGuid guid)
