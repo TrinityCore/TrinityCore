@@ -81,16 +81,6 @@ template <class TO, class FROM, class Derived> class Reference : public LinkedLi
             return iRefTo != nullptr;
         }
 
-        Derived      * next()       { return static_cast<Derived*>(LinkedListElement::next()); }
-        Derived const* next() const { return static_cast<Derived const*>(LinkedListElement::next()); }
-        Derived      * prev()       { return static_cast<Derived*>(LinkedListElement::prev()); }
-        Derived const* prev() const { return static_cast<Derived const*>(LinkedListElement::prev()); }
-
-        Derived      * nocheck_next()       { return static_cast<Derived*>(LinkedListElement::nocheck_next()); }
-        Derived const* nocheck_next() const { return static_cast<Derived const*>(LinkedListElement::nocheck_next()); }
-        Derived      * nocheck_prev()       { return static_cast<Derived*>(LinkedListElement::nocheck_prev()); }
-        Derived const* nocheck_prev() const { return static_cast<Derived const*>(LinkedListElement::nocheck_prev()); }
-
         TO* operator->() const { return iRefTo; }
         TO* getTarget() const { return iRefTo; }
 
