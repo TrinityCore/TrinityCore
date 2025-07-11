@@ -3576,7 +3576,7 @@ AreaTrigger* Map::GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const
 void Map::UpdateIteratorBack(Player* player)
 {
     if (&*m_mapRefIter == &player->GetMapRef())
-        m_mapRefIter = m_mapRefIter->nocheck_prev();
+        --m_mapRefIter;
 }
 
 void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans, bool startup)
