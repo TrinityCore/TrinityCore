@@ -2483,7 +2483,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonTierEqual: // 170
             return false;
         case ModifierTreeType::InstancePlayerCountEqual: // 171
-            if (referencePlayer->GetMap()->GetPlayers().getSize() != reqValue)
+            if (referencePlayer->GetMap()->GetPlayers().size() != reqValue)
                 return false;
             break;
         case ModifierTreeType::CurrencyId: // 172

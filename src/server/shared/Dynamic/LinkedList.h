@@ -125,7 +125,7 @@ class LinkedListHead
             iLast.insertBefore(pElem);
         }
 
-        uint32 getSize() const
+        uint32 size() const
         {
             if (!iSize)
             {
