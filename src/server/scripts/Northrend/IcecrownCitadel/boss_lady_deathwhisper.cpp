@@ -379,10 +379,9 @@ struct boss_lady_deathwhisper : public BossAI
                 {
                     if (Group* group = owner->GetGroup())
                     {
-                        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                            if (Player* member = itr->GetSource())
-                                if (member->IsInMap(owner))
-                                    member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
+                        for (GroupReference const& itr : group->GetMembers())
+                            if (itr.GetSource()->IsInMap(owner))
+                                itr.GetSource()->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
                     }
                     else
                         owner->KilledMonsterCredit(NPC_DARNAVAN_CREDIT);
@@ -854,10 +853,9 @@ struct npc_darnavan : public ScriptedAI
         {
             if (Group* group = owner->GetGroup())
             {
-                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    if (Player* member = itr->GetSource())
-                        if (member->IsInMap(owner))
-                            member->FailQuest(QUEST_DEPROGRAMMING);
+                for (GroupReference const& itr : group->GetMembers())
+                    if (itr.GetSource()->IsInMap(owner))
+                        itr.GetSource()->FailQuest(QUEST_DEPROGRAMMING);
             }
             else
                 owner->FailQuest(QUEST_DEPROGRAMMING);

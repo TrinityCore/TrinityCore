@@ -155,12 +155,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* member = itr->GetSource();
-                if (!member)
-                    continue;
-
+                Player* member = itr.GetSource();
                 if (!loot->HasAllowedLooter(member->GetGUID()))
                     continue;
 

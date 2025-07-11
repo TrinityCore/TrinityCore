@@ -44,10 +44,12 @@ class spell_razelikh_teleport_group : public SpellScript
         {
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    if (Player* member = itr->GetSource())
-                        if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
-                            member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
+                for (GroupReference const& itr : group->GetMembers())
+                {
+                    Player* member = itr.GetSource();
+                    if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
+                        member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
+                }
             }
             else
                 player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);

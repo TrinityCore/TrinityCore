@@ -202,9 +202,9 @@ void SmartAI::EndPath(bool fail)
 
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference const& groupRef : group->GetMembers())
                 {
-                    Player* groupGuy = groupRef->GetSource();
+                    Player* groupGuy = groupRef.GetSource();
                     if (!groupGuy->IsInMap(player))
                         continue;
 
@@ -306,9 +306,9 @@ bool SmartAI::IsEscortInvokerInRange()
 
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
+                for (GroupReference const& groupRef : group->GetMembers())
                 {
-                    Player* groupGuy = groupRef->GetSource();
+                    Player* groupGuy = groupRef.GetSource();
                     if (groupGuy->IsInMap(player) && me->GetDistance(groupGuy) <= checkDist)
                         return true;
                 }
