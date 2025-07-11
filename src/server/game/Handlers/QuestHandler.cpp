@@ -152,11 +152,11 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPackets::Quest::QuestG
     {
         if (Group* group = _player->GetGroup())
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* player = itr->GetSource();
+                Player* player = itr.GetSource();
 
-                if (!player || player == _player || !player->IsInMap(_player))     // not self and in same map
+                if (player == _player || !player->IsInMap(_player))     // not self and in same map
                     continue;
 
                 if (player->CanTakeQuest(quest, true))
@@ -595,11 +595,11 @@ void WorldSession::HandlePushQuestToParty(WorldPackets::Quest::PushQuestToParty&
         return;
     }
 
-    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const& itr : group->GetMembers())
     {
-        Player* receiver = itr->GetSource();
+        Player* receiver = itr.GetSource();
 
-        if (!receiver || receiver == sender)
+        if (receiver == sender)
             continue;
 
         if (!receiver->GetPlayerSharingQuest().IsEmpty())

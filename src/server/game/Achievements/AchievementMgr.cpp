@@ -958,10 +958,9 @@ void GuildAchievementMgr::CompletedAchievement(AchievementEntry const* achieveme
             ca.CompletingPlayers.insert(referencePlayer->GetGUID());
 
         if (Group const* group = referencePlayer->GetGroup())
-            for (GroupReference const* ref = group->GetFirstMember(); ref != nullptr; ref = ref->next())
-                if (Player const* groupMember = ref->GetSource())
-                    if (groupMember->GetGuildId() == _owner->GetId())
-                        ca.CompletingPlayers.insert(groupMember->GetGUID());
+            for (GroupReference const& ref : group->GetMembers())
+                if (ref.GetSource()->GetGuildId() == _owner->GetId())
+                    ca.CompletingPlayers.insert(ref.GetSource()->GetGUID());
     }
 
     if (achievement->Flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
