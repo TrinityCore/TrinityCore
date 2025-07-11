@@ -97,7 +97,7 @@ class instance_sunwell_plateau : public InstanceMapScript
             {
                 Map::PlayerList const& players = instance->GetPlayers();
 
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {

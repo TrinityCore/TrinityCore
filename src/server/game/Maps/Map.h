@@ -388,7 +388,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
         void markCell(uint32 pCellId) { marked_cells.set(pCellId); }
 
-        bool HavePlayers() const { return !m_mapRefManager.isEmpty(); }
+        bool HavePlayers() const { return !m_mapRefManager.empty(); }
         uint32 GetPlayersCountExceptGMs() const;
         bool ActiveObjectsNearGrid(NGridType const& ngrid) const;
 

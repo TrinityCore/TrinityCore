@@ -310,7 +310,7 @@ public:
                     if (WipeTimer <= diff)
                     {
                         Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                        if (PlayerList.isEmpty())
+                        if (PlayerList.empty())
                             return;
 
                         RaidWiped = true;

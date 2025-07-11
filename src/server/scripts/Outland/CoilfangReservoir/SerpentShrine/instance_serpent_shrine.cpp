@@ -133,7 +133,7 @@ class instance_serpent_shrine : public InstanceMapScript
                         Water = WATERSTATE_FRENZY;
 
                     Map::PlayerList const& PlayerList = instance->GetPlayers();
-                    if (PlayerList.isEmpty())
+                    if (PlayerList.empty())
                         return;
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {

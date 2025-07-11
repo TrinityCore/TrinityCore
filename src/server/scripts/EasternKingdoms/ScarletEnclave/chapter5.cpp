@@ -1263,7 +1263,7 @@ public:
                             {
                                 // search players with in 50 yards for quest credit
                                 Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                                if (!PlayerList.isEmpty())
+                                if (!PlayerList.empty())
                                 {
                                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                                         if (me->IsWithinDistInMap(i->GetSource(), 500))
