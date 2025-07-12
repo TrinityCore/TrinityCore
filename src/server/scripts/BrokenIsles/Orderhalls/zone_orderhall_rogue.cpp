@@ -19,6 +19,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "Player.h"
 
 enum CallOfTheUncrownedATData
