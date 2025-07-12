@@ -40,26 +40,6 @@ class instance_mechanar : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
             }
-
-            bool SetBossState(uint32 type, EncounterState state) override
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_GATEWATCHER_GYROKILL:
-                    case DATA_GATEWATCHER_IRON_HAND:
-                    case DATA_MECHANOLORD_CAPACITUS:
-                    case DATA_NETHERMANCER_SEPRETHREA:
-                    case DATA_PATHALEON_THE_CALCULATOR:
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

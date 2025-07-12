@@ -429,7 +429,7 @@ class spell_q12096_q12092_bark : public SpellScript
 ## Quest: Defending Wyrmrest Temple ID: 12372
 ######*/
 
-enum WyrmDefenderEnum
+enum DefendingWyrmrestTemple
 {
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
@@ -442,9 +442,13 @@ enum WyrmDefenderEnum
     SPELL_RENEW                              = 49263, // cast to heal drakes
     SPELL_WYRMREST_DEFENDER_MOUNT            = 49256,
 
+    SPELL_SUMMON_WYRMREST_DEFENDER           = 49207,
+
     // Texts data
-    WHISPER_MOUNTED                        = 0,
-    BOSS_EMOTE_ON_LOW_HEALTH               = 2
+    WHISPER_MOUNTED                          = 0,
+    BOSS_EMOTE_ON_LOW_HEALTH                 = 2,
+
+    NPC_WYRMREST_TEMPLE_CREDIT               = 27698
 };
 
 struct npc_wyrmrest_defender : public VehicleAI
@@ -533,6 +537,48 @@ struct npc_wyrmrest_defender : public VehicleAI
     void OnCharmed(bool /*apply*/) override
     {
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+    }
+};
+
+// 49213 - Defending Wyrmrest Temple: Character Script Cast From Gossip
+class spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_WYRMREST_DEFENDER });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+       GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_WYRMREST_DEFENDER, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
+class spell_dragonblight_defending_wyrmrest_temple_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_defending_wyrmrest_temple_dummy);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitCreature())
+            if (Unit* caster = GetOriginalCaster())
+                if (Vehicle* vehicle = caster->GetVehicleKit())
+                    if (Unit* passenger = vehicle->GetPassenger(0))
+                        if (Player* player = passenger->ToPlayer())
+                            player->KilledMonsterCredit(NPC_WYRMREST_TEMPLE_CREDIT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_defending_wyrmrest_temple_dummy::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1070,6 +1116,8 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_q12096_q12092_dummy);
     RegisterSpellScript(spell_q12096_q12092_bark);
     RegisterCreatureAI(npc_wyrmrest_defender);
+    RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_cast_from_gossip);
+    RegisterSpellScript(spell_dragonblight_defending_wyrmrest_temple_dummy);
     RegisterSpellScript(spell_dragonblight_warsong_battle_standard);
     RegisterSpellScript(spell_dragonblight_moti_mirror_image_script_effect);
     RegisterSpellScript(spell_dragonblight_moti_hourglass_cast_see_invis_on_master);

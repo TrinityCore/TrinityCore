@@ -32,6 +32,7 @@ using boost::asio::ip::tcp;
 
 class ByteBuffer;
 struct AuthHandler;
+enum eAuthCmd : uint8;
 
 enum AuthStatus
 {
@@ -63,7 +64,7 @@ class AuthSession : public Socket<AuthSession>
     typedef Socket<AuthSession> AuthSocket;
 
 public:
-    static std::unordered_map<uint8, AuthHandler> InitHandlers();
+    static consteval std::array<AuthHandler, 10> InitHandlers();
 
     AuthSession(tcp::socket&& socket);
 
@@ -106,15 +107,12 @@ private:
     QueryCallbackProcessor _queryProcessor;
 };
 
-#pragma pack(push, 1)
-
 struct AuthHandler
 {
+    eAuthCmd cmd;
     AuthStatus status;
     size_t packetSize;
     bool (AuthSession::*handler)();
 };
-
-#pragma pack(pop)
 
 #endif

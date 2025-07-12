@@ -15,31 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_THE_BOTANICA_H
-#define DEF_THE_BOTANICA_H
+#ifndef TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
+#define TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
 
-#include "CreatureAIImpl.h"
+#include <concepts>
 
-#define BotanicaScriptName "instance_the_botanica"
-#define DataHeader "BC"
+template <typename T>
+concept AsyncCallback = requires(T& t) { { InvokeAsyncCallbackIfReady(t) } -> std::convertible_to<bool>; };
 
-uint32 const EncounterCount = 5;
+template<AsyncCallback T>
+class AsyncCallbackProcessor;
 
-enum BCDataTypes
-{
-    DATA_COMMANDER_SARANNIS             = 0,
-    DATA_HIGH_BOTANIST_FREYWINN         = 1,
-    DATA_THORNGRIN_THE_TENDER           = 2,
-    DATA_LAJ                            = 3,
-    DATA_WARP_SPLINTER                  = 4
-};
-
-template <class AI, class T>
-inline AI* GetBotanicaAI(T* obj)
-{
-    return GetInstanceAI<AI>(obj, BotanicaScriptName);
-}
-
-#define RegisterBotanicaCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetBotanicaAI)
-
-#endif
+#endif // TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
