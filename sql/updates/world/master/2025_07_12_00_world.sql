@@ -1,4 +1,4 @@
-SET @GROUP_ID := 10000; -- TODO change me
+SET @GROUP_ID := 1502; 
 
 DELETE FROM  `spell_group_stack_rules` WHERE `group_id`= @GROUP_ID;
 INSERT INTO `spell_group_stack_rules` (`group_id`, `stack_rule`) VALUES
