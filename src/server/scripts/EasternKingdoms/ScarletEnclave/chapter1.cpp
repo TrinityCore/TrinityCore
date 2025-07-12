@@ -590,7 +590,7 @@ class spell_chapter1_recall_eye_of_acherus : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (Player* player = GetCaster()->GetCharmerOrOwner()->ToPlayer())
+        if (Player* player = Object::ToPlayer(GetCaster()->GetCharmerOrOwner()))
         {
             player->StopCastingCharm();
             player->StopCastingBindSight();
