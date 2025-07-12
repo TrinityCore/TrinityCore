@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "SpellInfo.h"
@@ -525,6 +526,88 @@ struct npc_eye_of_acherus : public ScriptedAI
 
 private:
     EventMap _events;
+};
+
+enum DeathComesFromOnHigh
+{
+    SPELL_FORGE_CREDIT                  = 51974,
+    SPELL_TOWN_HALL_CREDIT              = 51977,
+    SPELL_SCARLET_HOLD_CREDIT           = 51980,
+    SPELL_CHAPEL_CREDIT                 = 51982,
+
+    NPC_NEW_AVALON_FORGE                = 28525,
+    NPC_NEW_AVALON_TOWN_HALL            = 28543,
+    NPC_SCARLET_HOLD                    = 28542,
+    NPC_CHAPEL_OF_THE_CRIMSON_FLAME     = 28544
+};
+
+// 51858 - Siphon of Acherus
+class spell_chapter1_siphon_of_acherus : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_FORGE_CREDIT,
+            SPELL_TOWN_HALL_CREDIT,
+            SPELL_SCARLET_HOLD_CREDIT,
+            SPELL_CHAPEL_CREDIT
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = 0;
+
+        switch (GetHitCreature()->GetEntry())
+        {
+            case NPC_NEW_AVALON_FORGE:
+                spellId = SPELL_FORGE_CREDIT;
+                break;
+            case NPC_NEW_AVALON_TOWN_HALL:
+                spellId = SPELL_TOWN_HALL_CREDIT;
+                break;
+            case NPC_SCARLET_HOLD:
+                spellId = SPELL_SCARLET_HOLD_CREDIT;
+                break;
+            case NPC_CHAPEL_OF_THE_CRIMSON_FLAME:
+                spellId = SPELL_CHAPEL_CREDIT;
+                break;
+            default:
+                return;
+        }
+
+        GetCaster()->CastSpell(nullptr, spellId, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_chapter1_siphon_of_acherus::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 52694 - Recall Eye of Acherus
+class spell_chapter1_recall_eye_of_acherus : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_THE_EYE_OF_ACHERUS });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = Object::ToPlayer(GetCaster()->GetCharmerOrOwner()))
+        {
+            player->StopCastingCharm();
+            player->StopCastingBindSight();
+            player->RemoveAura(SPELL_THE_EYE_OF_ACHERUS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_chapter1_recall_eye_of_acherus::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 /*######
@@ -1189,6 +1272,45 @@ class spell_chapter1_sky_darkener_assault : public SpellScript
     }
 };
 
+/*######
+## Quest 12619: The Emblazoned Runeblade
+######*/
+
+// 51769 - Emblazon Runeblade
+class spell_chapter1_emblazon_runeblade : public AuraScript
+{
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, aurEff->GetSpellEffectInfo().TriggerSpell, aurEff);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_chapter1_emblazon_runeblade::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 51770 - Emblazon Runeblade
+class spell_chapter1_emblazon_runeblade_effect : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValueAsInt()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValueAsInt()), false);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_chapter1_emblazon_runeblade_effect::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 enum HearthglenCrusaderPaths : uint32
 {
     PATH_HEARTHGLEN_CRUSADER_DESPAWN    = 10445360,
@@ -1345,6 +1467,8 @@ void AddSC_the_scarlet_enclave_c1()
     new go_acherus_soul_prison();
     RegisterSpellScript(spell_death_knight_initiate_visual);
     RegisterCreatureAI(npc_eye_of_acherus);
+    RegisterSpellScript(spell_chapter1_siphon_of_acherus);
+    RegisterSpellScript(spell_chapter1_recall_eye_of_acherus);
     new npc_death_knight_initiate();
     RegisterCreatureAI(npc_dark_rider_of_acherus);
     new npc_salanar_the_horseman();
@@ -1356,5 +1480,7 @@ void AddSC_the_scarlet_enclave_c1()
     RegisterSpellScript(spell_gift_of_the_harvester);
     RegisterSpellScript(spell_chapter1_runeforging_credit);
     RegisterSpellScript(spell_chapter1_sky_darkener_assault);
+    RegisterSpellScript(spell_chapter1_emblazon_runeblade);
+    RegisterSpellScript(spell_chapter1_emblazon_runeblade_effect);
     RegisterCreatureAI(npc_hearthglen_crusader);
 }
