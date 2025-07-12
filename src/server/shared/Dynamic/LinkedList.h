@@ -35,27 +35,19 @@ class LinkedListElement
     public:
         LinkedListElement() : iNext(nullptr), iPrev(nullptr) { }
 
-        bool hasNext() const  { return (iNext && iNext->iNext != nullptr); }
-        bool hasPrev() const  { return (iPrev && iPrev->iPrev != nullptr); }
-        bool isInList() const { return (iNext != nullptr && iPrev != nullptr); }
-
-        LinkedListElement      * next()       { return hasNext() ? iNext : nullptr; }
-        LinkedListElement const* next() const { return hasNext() ? iNext : nullptr; }
-        LinkedListElement      * prev()       { return hasPrev() ? iPrev : nullptr; }
-        LinkedListElement const* prev() const { return hasPrev() ? iPrev : nullptr; }
-
-        LinkedListElement      * nocheck_next()       { return iNext; }
-        LinkedListElement const* nocheck_next() const { return iNext; }
-        LinkedListElement      * nocheck_prev()       { return iPrev; }
-        LinkedListElement const* nocheck_prev() const { return iPrev; }
+        LinkedListElement      * next()       { return iNext; }
+        LinkedListElement const* next() const { return iNext; }
+        LinkedListElement      * prev()       { return iPrev; }
+        LinkedListElement const* prev() const { return iPrev; }
 
         void delink()
         {
-            if (!isInList())
-                return;
+            if (iNext)
+                iNext->iPrev = iPrev;
 
-            iNext->iPrev = iPrev;
-            iPrev->iNext = iNext;
+            if (iPrev)
+                iPrev->iNext = iNext;
+
             iNext = nullptr;
             iPrev = nullptr;
         }
@@ -83,7 +75,7 @@ class LinkedListElement
         LinkedListElement& operator=(LinkedListElement&&) = delete;
 
     protected:
-        virtual ~LinkedListElement()
+        ~LinkedListElement()
         {
             delink();
         }
@@ -107,35 +99,26 @@ class LinkedListHead
             iLast.iPrev = &iFirst;
         }
 
-        bool isEmpty() const { return(!iFirst.iNext->isInList()); }
+        bool empty() const { return iFirst.iNext == &iLast; }
 
-        LinkedListElement      * getFirst()       { return (isEmpty() ? nullptr : iFirst.iNext); }
-        LinkedListElement const* getFirst() const { return (isEmpty() ? nullptr : iFirst.iNext); }
-
-        LinkedListElement      * getLast()       { return(isEmpty() ? nullptr : iLast.iPrev); }
-        LinkedListElement const* getLast() const { return(isEmpty() ? nullptr : iLast.iPrev); }
-
-        void insertFirst(LinkedListElement* pElem)
+        void push_front(LinkedListElement* pElem)
         {
             iFirst.insertAfter(pElem);
         }
 
-        void insertLast(LinkedListElement* pElem)
+        void push_back(LinkedListElement* pElem)
         {
             iLast.insertBefore(pElem);
         }
 
-        uint32 getSize() const
+        uint32 size() const
         {
             if (!iSize)
             {
                 uint32 result = 0;
-                LinkedListElement const* e = getFirst();
-                while (e)
-                {
+                for (auto itr = begin_impl<LinkedListElement>(); itr != end_impl<LinkedListElement>(); ++itr)
                     ++result;
-                    e = e->next();
-                }
+
                 return result;
             }
             else
@@ -145,41 +128,33 @@ class LinkedListHead
         void incSize() { ++iSize; }
         void decSize() { --iSize; }
 
-        template<class _Ty>
-            class Iterator
+        template <typename _Ty>
+        class Iterator
         {
             public:
-                typedef std::bidirectional_iterator_tag     iterator_category;
-                typedef _Ty                                 value_type;
-                typedef ptrdiff_t                           difference_type;
-                typedef ptrdiff_t                           distance_type;
-                typedef _Ty*                                pointer;
-                typedef _Ty const*                          const_pointer;
-                typedef _Ty&                                reference;
-                typedef _Ty const &                         const_reference;
+                using iterator_category = std::bidirectional_iterator_tag;
+                using value_type = _Ty;
+                using difference_type = ptrdiff_t;
+                using base_pointer = std::conditional_t<std::is_const_v<_Ty>, LinkedListElement const, LinkedListElement>*;
+                using pointer = _Ty*;
+                using reference = _Ty&;
 
                 Iterator() : _Ptr(nullptr)
                 {                                           // construct with null node pointer
                 }
 
-                explicit Iterator(pointer _Pnode) : _Ptr(_Pnode)
+                explicit Iterator(base_pointer _Pnode) : _Ptr(_Pnode)
                 {                                           // construct with node pointer _Pnode
                 }
 
-                Iterator& operator=(const_pointer const& _Right)
-                {
-                    _Ptr = pointer(_Right);
-                    return *this;
-                }
-
-                reference operator*()
+                reference operator*() const
                 {                                           // return designated value
-                    return *_Ptr;
+                    return static_cast<reference>(*_Ptr);
                 }
 
-                pointer operator->()
+                pointer operator->() const
                 {                                           // return pointer to class object
-                    return _Ptr;
+                    return static_cast<pointer>(_Ptr);
                 }
 
                 Iterator& operator++()
@@ -190,7 +165,7 @@ class LinkedListHead
 
                 Iterator operator++(int)
                 {                                           // postincrement
-                    iterator _Tmp = *this;
+                    Iterator _Tmp = *this;
                     ++*this;
                     return (_Tmp);
                 }
@@ -203,7 +178,7 @@ class LinkedListHead
 
                 Iterator operator--(int)
                 {                                           // postdecrement
-                    iterator _Tmp = *this;
+                    Iterator _Tmp = *this;
                     --*this;
                     return (_Tmp);
                 }
@@ -212,10 +187,33 @@ class LinkedListHead
                                                             // test for iterator equality
 
             protected:
-                pointer _Ptr;                               // pointer to node
+                base_pointer _Ptr;                          // pointer to node
         };
 
-        typedef Iterator<LinkedListElement> iterator;
+    protected:
+        template <typename T>
+        T* front_impl() { return static_cast<T*>(iFirst.iNext); }
+
+        template <typename T>
+        T const* front_impl() const { return static_cast<T const*>(iFirst.iNext); }
+
+        template <typename T>
+        T* back_impl() { return static_cast<T*>(iLast.iPrev); }
+
+        template <typename T>
+        T const* back_impl() const { return static_cast<T const*>(iLast.iPrev); }
+
+        template <typename T>
+        Iterator<T> begin_impl() { return Iterator<T>(iFirst.iNext); }
+
+        template <typename T>
+        Iterator<T const> begin_impl() const { return Iterator<T const>(iFirst.iNext); }
+
+        template <typename T>
+        Iterator<T> end_impl() { return Iterator<T>(&iLast); }
+
+        template <typename T>
+        Iterator<T const> end_impl() const { return Iterator<T const>(&iLast); }
 
     private:
         LinkedListHead(LinkedListHead const&) = delete;
