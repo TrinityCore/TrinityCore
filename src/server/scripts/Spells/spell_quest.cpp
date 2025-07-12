@@ -22,16 +22,10 @@
  */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "CreatureAIImpl.h"
-#include "CreatureTextMgr.h"
-#include "GridNotifiersImpl.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ScriptedCreature.h"
-#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
-#include "Vehicle.h"
 
 enum TamingTheBeast
 {
