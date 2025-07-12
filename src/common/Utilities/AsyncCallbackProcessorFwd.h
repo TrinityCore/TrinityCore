@@ -15,25 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapReference.h"
-#include "Map.h"
+#ifndef TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
+#define TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
 
-void MapReference::targetObjectBuildLink()
-{
-    // called from link()
-    getTarget()->m_mapRefManager.push_front(this);
-    getTarget()->m_mapRefManager.incSize();
-}
+#include <concepts>
 
-void MapReference::targetObjectDestroyLink()
-{
-    // called from unlink()
-    if (isValid())
-        getTarget()->m_mapRefManager.decSize();
-}
+template <typename T>
+concept AsyncCallback = requires(T& t) { { InvokeAsyncCallbackIfReady(t) } -> std::convertible_to<bool>; };
 
-void MapReference::sourceObjectDestroyLink()
-{
-    // called from invalidate()
-    getTarget()->m_mapRefManager.decSize();
-}
+template<AsyncCallback T>
+class AsyncCallbackProcessor;
+
+#endif // TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H

@@ -27,16 +27,12 @@
  */
 class SFMTRand {
 public:
-    SFMTRand();
-    uint32 RandomUInt32(); // Output random bits
-    void* operator new(size_t size, std::nothrow_t const&);
-    void operator delete(void* ptr, std::nothrow_t const&);
-    void* operator new(size_t size);
-    void operator delete(void* ptr);
-    void* operator new[](size_t size, std::nothrow_t const&);
-    void operator delete[](void* ptr, std::nothrow_t const&);
-    void* operator new[](size_t size);
-    void operator delete[](void* ptr);
+    SFMTRand() noexcept;
+    uint32 RandomUInt32() noexcept; // Output random bits
+    void* operator new(size_t size) noexcept { return ::operator new (size, std::align_val_t(alignof(SFMTRand)), std::nothrow); }
+    void operator delete(void* ptr) noexcept { ::operator delete (ptr, std::align_val_t(alignof(SFMTRand)), std::nothrow); }
+    void* operator new[](size_t size) noexcept { return ::operator new[](size, std::align_val_t(alignof(SFMTRand)), std::nothrow); }
+    void operator delete[](void* ptr) noexcept { ::operator delete[](ptr, std::align_val_t(alignof(SFMTRand)), std::nothrow); }
 private:
     sfmt_t _state;
 };
