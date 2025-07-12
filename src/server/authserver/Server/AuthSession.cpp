@@ -35,7 +35,7 @@
 
 using boost::asio::ip::tcp;
 
-enum eAuthCmd
+enum eAuthCmd : uint8
 {
     AUTH_LOGON_CHALLENGE = 0x00,
     AUTH_LOGON_PROOF = 0x01,
@@ -48,6 +48,12 @@ enum eAuthCmd
     XFER_RESUME = 0x33,
     XFER_CANCEL = 0x34
 };
+
+// perfect hash function for all valid values of eAuthCmd
+inline constexpr std::size_t GetOpcodeArrayIndex(eAuthCmd c)
+{
+    return (c & 0x7) + ((c & 0x10) >> 2) + ((c & 0x20) >> 5);
+}
 
 #pragma pack(push, 1)
 
@@ -120,20 +126,50 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
 
-std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
+consteval std::array<AuthHandler, 10> AuthSession::InitHandlers()
 {
-    std::unordered_map<uint8, AuthHandler> handlers;
+    std::array<AuthHandler, 10> handlers = { };
 
-    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleLogonChallenge };
-    handlers[AUTH_LOGON_PROOF]         = { STATUS_LOGON_PROOF, sizeof(AUTH_LOGON_PROOF_C),        &AuthSession::HandleLogonProof };
-    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
-    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_RECONNECT_PROOF, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
-    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,            &AuthSession::HandleRealmList };
+    handlers[GetOpcodeArrayIndex(AUTH_LOGON_CHALLENGE)] =
+    {
+        .cmd = AUTH_LOGON_CHALLENGE,
+        .status = STATUS_CHALLENGE,
+        .packetSize = AUTH_LOGON_CHALLENGE_INITIAL_SIZE,
+        .handler = &AuthSession::HandleLogonChallenge
+    };
+    handlers[GetOpcodeArrayIndex(AUTH_LOGON_PROOF)] =
+    {
+        .cmd = AUTH_LOGON_PROOF,
+        .status = STATUS_LOGON_PROOF,
+        .packetSize = sizeof(AUTH_LOGON_PROOF_C),
+        .handler = &AuthSession::HandleLogonProof
+    };
+    handlers[GetOpcodeArrayIndex(AUTH_RECONNECT_CHALLENGE)] =
+    {
+        .cmd = AUTH_RECONNECT_CHALLENGE,
+        .status = STATUS_CHALLENGE,
+        .packetSize = AUTH_LOGON_CHALLENGE_INITIAL_SIZE,
+        .handler = &AuthSession::HandleReconnectChallenge
+    };
+    handlers[GetOpcodeArrayIndex(AUTH_RECONNECT_PROOF)] =
+    {
+        .cmd = AUTH_RECONNECT_PROOF,
+        .status = STATUS_RECONNECT_PROOF,
+        .packetSize = sizeof(AUTH_RECONNECT_PROOF_C),
+        .handler = &AuthSession::HandleReconnectProof
+    };
+    handlers[GetOpcodeArrayIndex(REALM_LIST)] =
+    {
+        .cmd = REALM_LIST,
+        .status = STATUS_AUTHED,
+        .packetSize = REALM_LIST_PACKET_SIZE,
+        .handler = &AuthSession::HandleRealmList
+    };
 
     return handlers;
 }
 
-std::unordered_map<uint8, AuthHandler> const Handlers = AuthSession::InitHandlers();
+constexpr std::array<AuthHandler, 10> Handlers = AuthSession::InitHandlers();
 
 void AccountInfo::LoadResult(Field* fields)
 {
@@ -216,22 +252,23 @@ void AuthSession::ReadHandler()
     MessageBuffer& packet = GetReadBuffer();
     while (packet.GetActiveSize())
     {
-        uint8 cmd = packet.GetReadPointer()[0];
-        auto itr = Handlers.find(cmd);
-        if (itr == Handlers.end())
+        eAuthCmd cmd = eAuthCmd(packet.GetReadPointer()[0]);
+        std::size_t index = GetOpcodeArrayIndex(cmd);
+        if (index >= Handlers.size() || Handlers[index].cmd != cmd)
         {
             // well we dont handle this, lets just ignore it
             packet.Reset();
             break;
         }
 
-        if (_status != itr->second.status)
+        AuthHandler const* itr = &Handlers[index];
+        if (_status != itr->status)
         {
             CloseSocket();
             return;
         }
 
-        uint16 size = uint16(itr->second.packetSize);
+        std::size_t size = itr->packetSize;
         if (packet.GetActiveSize() < size)
             break;
 
@@ -249,7 +286,7 @@ void AuthSession::ReadHandler()
         if (packet.GetActiveSize() < size)
             break;
 
-        if (!(*this.*itr->second.handler)())
+        if (!(this->*itr->handler)())
         {
             CloseSocket();
             return;
