@@ -202,14 +202,14 @@ bool LootStore::HaveQuestLootFor(uint32 loot_id) const
         return false;
 
     // scan loot for quest items
-    return itr->second->HasQuestDrop(m_LootTemplates);
+    return itr->second->HasQuestDrop();
 }
 
 bool LootStore::HaveQuestLootForPlayer(uint32 loot_id, Player const* player) const
 {
     LootTemplateMap::const_iterator tab = m_LootTemplates.find(loot_id);
     if (tab != m_LootTemplates.end())
-        if (tab->second->HasQuestDropForPlayer(m_LootTemplates, player))
+        if (tab->second->HasQuestDropForPlayer(player))
             return true;
 
     return false;
@@ -604,7 +604,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
 }
 
 // True if template includes at least 1 quest drop entry
-bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) const
+bool LootTemplate::HasQuestDrop(uint8 groupId) const
 {
     if (groupId)                                            // Group reference
     {
@@ -620,12 +620,12 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
     for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
     {
         LootStoreItem* item = *i;
-        if (item->reference > 0)                        // References
+        if (item->reference > 0)                            // References
         {
-            LootTemplateMap::const_iterator Referenced = store.find(item->reference);
-            if (Referenced == store.end())
+            LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(item->reference);
+            if (!Referenced)
                 continue;                                   // Error message [should be] already printed at loading stage
-            if (Referenced->second->HasQuestDrop(store, item->groupid))
+            if (Referenced->HasQuestDrop(item->groupid))
                 return true;
         }
         else if (item->needs_quest)
@@ -642,7 +642,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
 }
 
 // True if template includes at least 1 quest drop for an active quest of the player
-bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player const* player, uint8 groupId) const
+bool LootTemplate::HasQuestDropForPlayer(Player const* player, uint8 groupId) const
 {
     if (groupId)                                            // Group reference
     {
@@ -659,12 +659,12 @@ bool LootTemplate::HasQuestDropForPlayer(LootTemplateMap const& store, Player co
     for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
     {
         LootStoreItem* item = *i;
-        if (item->reference > 0)                        // References processing
+        if (item->reference > 0)                            // References processing
         {
-            LootTemplateMap::const_iterator Referenced = store.find(item->reference);
-            if (Referenced == store.end())
+            LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(item->reference);
+            if (!Referenced)
                 continue;                                   // Error message already printed at loading stage
-            if (Referenced->second->HasQuestDropForPlayer(store, player, item->groupid))
+            if (Referenced->HasQuestDropForPlayer(player, item->groupid))
                 return true;
         }
         else if (player->HasQuestForItem(item->itemid))
