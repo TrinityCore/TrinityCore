@@ -5418,7 +5418,7 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 205472 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_1, {}, {});
-    }
+    });
 
     // Flamestrike
     ApplySpellFix({ 2120 }, [](SpellInfo* spellInfo)
