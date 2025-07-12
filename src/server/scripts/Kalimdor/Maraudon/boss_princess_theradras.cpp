@@ -15,111 +15,84 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Princess_Theradras
-SD%Complete: 100
-SDComment:
-SDCategory: Maraudon
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "maraudon.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum TheradrasSpells
 {
-    SPELL_DUSTFIELD             = 21909,
+    SPELL_DUST_FIELD            = 21909,
     SPELL_BOULDER               = 21832,
     SPELL_THRASH                = 3391,
-    SPELL_REPULSIVEGAZE         = 21869
+    SPELL_REPULSIVE_GAZE        = 21869
 };
 
-class boss_princess_theradras : public CreatureScript
+enum TheradrasMisc
 {
-public:
-    boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }
+    NPC_ZAETARS_SPIRIT          = 12238
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+// 12201 - Princess Theradras
+struct boss_princess_theradras : public ScriptedAI
+{
+    boss_princess_theradras(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
     {
-        return GetMaraudonAI<boss_ptheradrasAI>(creature);
+        _scheduler.CancelAll();
     }
 
-    struct boss_ptheradrasAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            DustfieldTimer = 8000;
-            BoulderTimer = 2000;
-            ThrashTimer = 5000;
-            RepulsiveGazeTimer = 23000;
-        }
-
-        uint32 DustfieldTimer;
-        uint32 BoulderTimer;
-        uint32 ThrashTimer;
-        uint32 RepulsiveGazeTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            me->SummonCreature(12238, 28.1887f, 62.3964f, -123.161f, 4.31096f, TEMPSUMMON_TIMED_DESPAWN, 10min);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //DustfieldTimer
-            if (DustfieldTimer <= diff)
+        _scheduler
+            .SetValidator([this]
             {
-                DoCast(me, SPELL_DUSTFIELD);
-                DustfieldTimer = 14000;
-            }
-            else DustfieldTimer -= diff;
-
-            //BoulderTimer
-            if (BoulderTimer <= diff)
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(20s, 25s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_DUST_FIELD);
+                task.Repeat(20s, 25s);
+            })
+            .Schedule(20s, 30s, [this](TaskContext task)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                     DoCast(target, SPELL_BOULDER);
-                BoulderTimer = 10000;
-            }
-            else BoulderTimer -= diff;
-
-            //RepulsiveGazeTimer
-            if (RepulsiveGazeTimer <= diff)
+                task.Repeat(15s, 25s);
+            })
+            .Schedule(10s, 20s, [this](TaskContext task)
             {
-                DoCastVictim(SPELL_REPULSIVEGAZE);
-                RepulsiveGazeTimer = 20000;
-            }
-            else RepulsiveGazeTimer -= diff;
-
-            //ThrashTimer
-            if (ThrashTimer <= diff)
+                DoCastSelf(SPELL_THRASH);
+                task.Repeat(10s, 20s);
+            })
+            .Schedule(25s, 35s, [this](TaskContext task)
             {
-                DoCast(me, SPELL_THRASH);
-                ThrashTimer = 18000;
-            }
-            else ThrashTimer -= diff;
+                DoCastSelf(SPELL_REPULSIVE_GAZE);
+                task.Repeat(30s, 40s);
+            });
+    }
 
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->SummonCreature(NPC_ZAETARS_SPIRIT, 28.1887f, 62.3964f, -123.161f, 4.31096f, TEMPSUMMON_MANUAL_DESPAWN);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
             DoMeleeAttackIfReady();
-        }
-    };
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_boss_ptheradras()
 {
-    new boss_princess_theradras();
+    RegisterMaraudonCreatureAI(boss_princess_theradras);
 }
