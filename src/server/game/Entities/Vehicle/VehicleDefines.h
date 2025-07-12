@@ -18,6 +18,7 @@
 #ifndef __TRINITY_VEHICLEDEFINES_H
 #define __TRINITY_VEHICLEDEFINES_H
 
+#include "EnumFlag.h"
 #include "Define.h"
 #include "Duration.h"
 #include <vector>
@@ -86,6 +87,14 @@ enum class VehicleExitParameters
     VehicleExitParamMax
 };
 
+enum class VehicleCustomFlags : uint32
+{
+    None                        = 0x0,
+    DontForceParachuteOnExit    = 0x1
+};
+
+DEFINE_ENUM_FLAG(VehicleCustomFlags);
+
 struct PassengerInfo
 {
     ObjectGuid Guid;
@@ -145,6 +154,7 @@ struct VehicleTemplate
 {
     Milliseconds DespawnDelay = Milliseconds::zero();
     Optional<float> Pitch;
+    EnumFlag<VehicleCustomFlags> CustomFlags = VehicleCustomFlags::None;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
