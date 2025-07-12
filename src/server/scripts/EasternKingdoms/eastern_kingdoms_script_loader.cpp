@@ -204,6 +204,10 @@ void AddSC_tol_barad();
 void AddSC_undercity();
 //void AddSC_western_plaguelands();
 
+// Return to Karazhan
+void AddSC_instance_return_to_karazhan();
+void AddSC_boss_maiden_of_virtue_rtk();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddEasternKingdomsScripts()
@@ -396,4 +400,8 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+
+    // Return to Karazhan
+    AddSC_instance_return_to_karazhan();
+    AddSC_boss_maiden_of_virtue_rtk();
 }
