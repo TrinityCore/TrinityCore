@@ -233,7 +233,6 @@ class instance_blood_furnace : public InstanceMapScript
             {
                 if (!prisoner->IsAlive())
                     prisoner->Respawn(true);
-                prisoner->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 prisoner->SetImmuneToAll(true);
                 if (prisoner->IsAIEnabled())
                     prisoner->AI()->EnterEvadeMode();
@@ -325,7 +324,6 @@ class instance_blood_furnace : public InstanceMapScript
                 for (GuidSet::const_iterator i = prisoners.begin(); i != prisoners.end(); ++i)
                     if (Creature* prisoner = instance->GetCreature(*i))
                     {
-                        prisoner->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         prisoner->SetImmuneToAll(false);
                         prisoner->AI()->DoZoneInCombat();
                     }

@@ -51,9 +51,7 @@ enum BFCreatureIds
     NPC_BROGGOK                 = 17380,
     NPC_KELIDAN_THE_BREAKER     = 17377,
     NPC_PRISONER1               = 17398,
-    NPC_PRISONER2               = 17429,
-    NPC_BROGGOK_POISON_CLOUD    = 17662,
-    NPC_INCOMBAT_TRIGGER        = 16006
+    NPC_PRISONER2               = 17429
 };
 
 enum BFGameObjectIds
