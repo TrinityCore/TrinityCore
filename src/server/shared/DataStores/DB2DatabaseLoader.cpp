@@ -65,7 +65,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
     if (stringFields)
         stringPool.reserve(std::max<uint64>(stringPool.capacity(), stringPool.size() + stringFields * result->GetRowCount() + 1));
 
-    uint32 newRecords = 0;
+    std::size_t newRecords = 0;
 
     do
     {
@@ -126,7 +126,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
                                 localeStr = nullStr;
 
                         // Value in database in main table field must be for enUS locale
-                        if (char* str = AddString(&slot->Str[LOCALE_enUS], fields[f].GetString()))
+                        if (char* str = AddString(&slot->Str[LOCALE_enUS], fields[f].GetStringView()))
                             stringPool.push_back(str);
 
                         offset += sizeof(LocalizedString);
@@ -137,7 +137,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
                         char const** slot = (char const**)(&dataValue[offset]);
 
                         // Value in database in main table field must be for enUS locale
-                        if (char* str = AddString(slot, fields[f].GetString()))
+                        if (char* str = AddString(slot, fields[f].GetStringView()))
                             stringPool.push_back(str);
                         else
                             *slot = nullStr;
@@ -146,8 +146,8 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
                         break;
                     }
                     default:
-                        ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
-                            _loadInfo->Fields[f].Type, _storageName.c_str(), _loadInfo->Fields[f].Name);
+                        ABORT_MSG("Unknown format character '%c' found in " STRING_VIEW_FMT " meta for field %s",
+                            _loadInfo->Fields[f].Type, STRING_VIEW_FMT_ARG(_storageName), _loadInfo->Fields[f].Name);
                         break;
                 }
                 ++f;
@@ -169,7 +169,7 @@ char* DB2DatabaseLoader::Load(bool custom, uint32& records, char**& indexTable, 
     memcpy(dataTable, tempDataTable, newRecords * recordSize);
 
     // insert new records to index table
-    for (uint32 i = 0; i < newRecords; ++i)
+    for (std::size_t i = 0; i < newRecords; ++i)
     {
         uint32 newId = newIndexes[i];
         indexTable[newId] = &dataTable[i * recordSize];
@@ -245,7 +245,7 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
                         {
                             // fill only not filled entries
                             LocalizedString* db2str = (LocalizedString*)(&dataValue[offset]);
-                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetString()))
+                            if (char* str = AddString(&db2str->Str[locale], fields[1 + stringFieldNumInRecord].GetStringView()))
                                 stringPool.push_back(str);
 
                             ++stringFieldNumInRecord;
@@ -256,8 +256,8 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
                             offset += sizeof(char*);
                             break;
                         default:
-                            ABORT_MSG("Unknown format character '%c' found in %s meta for field %s",
-                                _loadInfo->Fields[fieldIndex].Type, _storageName.c_str(), _loadInfo->Fields[fieldIndex].Name);
+                            ABORT_MSG("Unknown format character '%c' found in " STRING_VIEW_FMT " meta for field %s",
+                                _loadInfo->Fields[fieldIndex].Type, STRING_VIEW_FMT_ARG(_storageName), _loadInfo->Fields[fieldIndex].Name);
                             break;
                     }
                     ++fieldIndex;
@@ -272,12 +272,12 @@ void DB2DatabaseLoader::LoadStrings(bool custom, LocaleConstant locale, uint32 r
     } while (result->NextRow());
 }
 
-char* DB2DatabaseLoader::AddString(char const** holder, std::string const& value)
+char* DB2DatabaseLoader::AddString(char const** holder, std::string_view value)
 {
     if (!value.empty())
     {
         char* str = new char[value.length() + 1];
-        memcpy(str, value.c_str(), value.length());
+        memcpy(str, value.data(), value.length());
         str[value.length()] = '\0';
         *holder = str;
         return str;
