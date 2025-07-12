@@ -2644,6 +2644,36 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_DESTROY_CONVERSATION:
+        {
+            if (e.action.destroyConversation.isPrivate)
+            {
+                for (WorldObject* const target : targets)
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                    {
+                        std::vector<Conversation*> conversations;
+                        Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(playerTarget->GetGUID(), e.action.destroyConversation.id);
+                        Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), conversations, check);
+                        Cell::VisitGridObjects(GetBaseObject(), searcher, float(e.action.destroyConversation.range));
+
+                        for (Conversation* conversation : conversations)
+                            conversation->Remove();
+                    }
+                }
+            }
+            else
+            {
+                std::vector<Conversation*> conversations;
+                Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(ObjectGuid::Empty, e.action.destroyConversation.id);
+                Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), conversations, check);
+                Cell::VisitGridObjects(GetBaseObject(), searcher, float(e.action.destroyConversation.range));
+
+                for (Conversation* conversation : conversations)
+                    conversation->Remove();
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
