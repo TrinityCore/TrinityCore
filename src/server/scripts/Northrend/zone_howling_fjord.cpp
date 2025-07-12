@@ -206,6 +206,44 @@ private:
 };
 
 /*######
+## Quest 11232: Guide Our Sights
+######*/
+
+enum GuideOurSights
+{
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_01    = 43081,
+    SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_02    = 43082
+};
+
+// 43080 - Quest - Howling Fjord - Guide Our Sights - FX Master
+class spell_fjord_guide_our_sights_fx_master : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_guide_our_sights_fx_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_01,
+            SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_02
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_01);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_02);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_CANNON_PART_02);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_fjord_guide_our_sights_fx_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
 ## Quest 11310: Warning: Some Assembly Required
 ######*/
 
@@ -256,15 +294,27 @@ class spell_fjord_mindless_abomination_explosion_fx_master : public SpellScript
     void HandleScript(SpellEffIndex /*eff*/)
     {
         Unit* caster = GetCaster();
-
-        for (uint8 i = 0; i < 11; ++i)
-            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
-
-        for (uint8 i = 0; i < 6; ++i)
-            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
-
-        for (uint8 i = 0; i < 4; ++i)
-            caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE_2);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_BONE);
+        caster->CastSpell(caster, SPELL_RANDOM_CIRCUMFERENCE_POINT_POISON);
     }
 
     void Register() override
@@ -702,6 +752,7 @@ class spell_fjord_failed_mix_concoction_2 : public SpellScript
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
+    RegisterSpellScript(spell_fjord_guide_our_sights_fx_master);
     RegisterSpellScript(spell_fjord_mindless_abomination_ping_master);
     RegisterSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
     RegisterSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
