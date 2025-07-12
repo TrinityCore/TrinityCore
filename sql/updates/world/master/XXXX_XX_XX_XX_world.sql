@@ -6,18 +6,20 @@ SET @ATCP := 1000000;
 SET @ATIDSPAWN := 1000000;
 
 -- Creature
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+4;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 101513, 1220, 7502, 8011, '0', 0, 0, 0, 1, -957.11981201171875, 4548.75244140625, 698.2386474609375, 6.16636514663696289, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Lord Jorach Ravenholdt (Area: The Hall of Shadows - Difficulty: 0) CreateObject1 (Auras: 49414 - Generic Quest Invisibility 1)
 (@CGUID+1, 94159, 1220, 7502, 8011, '0', 0, 0, 0, 1, -949.3836669921875, 4549.3203125, 698.2386474609375, 4.57002115249633789, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Fleet Admiral Tethys (Area: The Hall of Shadows - Difficulty: 0) CreateObject1 (Auras: )
 (@CGUID+2, 98102, 1220, 7502, 8011, '0', 0, 0, 0, 1, -951.607666015625, 4550.24853515625, 698.09344482421875, 4.440804481506347656, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Valeera Sanguinar (Area: The Hall of Shadows - Difficulty: 0) CreateObject1
-(@CGUID+3, 98100, 1220, 7502, 8011, '0', 0, 0, 0, 1, -954.5069580078125, 4551.02783203125, 697.77392578125, 4.549866199493408203, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609); -- Taoshi (Area: The Hall of Shadows - Difficulty: 0) CreateObject1
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+(@CGUID+3, 98100, 1220, 7502, 8011, '0', 0, 0, 0, 1, -954.5069580078125, 4551.02783203125, 697.77392578125, 4.549866199493408203, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Taoshi (Area: The Hall of Shadows - Difficulty: 0) CreateObject1
+(@CGUID+4, 105908, 1220, 7502, 8011, '0', 0, 0, 0, 1, -934.28472900390625, 4427.54541015625, 706.442138671875, 3.948340892791748046, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61609); -- Milton Beats (Area: The Hall of Shadows - Difficulty: 0) CreateObject1 (Auras: 30831 - Stealth)
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+4;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 3, ''), -- Lord Jorach Ravenholdt - 49414 - Generic Quest Invisibility 1
 (@CGUID+1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Fleet Admiral Tethys
 (@CGUID+2, 0, 0, 0, 0, 0, 0, 0, 0, 7664, 0, 0, 0, ''), -- Valeera Sanguinar
-(@CGUID+3, 0, 0, 0, 0, 0, 0, 0, 0, 10059, 0, 0, 0, ''); -- Taoshi
+(@CGUID+3, 0, 0, 0, 0, 0, 0, 0, 0, 10059, 0, 0, 0, ''), -- Taoshi
+(@CGUID+4, 0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, '30831'); -- Milton Beats - 30831 - Stealth
 
 -- GameObject
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+15;
@@ -62,7 +64,7 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @ATIDSPAWN+0 AND @ATIDSPAWN+2;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES 
 (@ATIDSPAWN+0, @ATCP+0, 1, 1220, '0', -965.3556, 4431.0634, 735.739, 5.068916, 0, 0, 0, 'SmartAreaTriggerAI', 'The Hall of Shadowa - Enter Hall of Shadows Credit (Quest: "Call of the Uncrowned")', 0),
-(@ATIDSPAWN+1, @ATCP+1, 1, 1220, '0', -940.9575, 4421.9287, 706.360, 0.881968, 0, 0, 0, 'SmartAreaTriggerAI', 'The Hall of Shadowa - Spawn Milton Beats (Quest: "Call of the Uncrowned")', 0),
+(@ATIDSPAWN+1, @ATCP+1, 1, 1220, '0', -940.9575, 4421.9287, 706.360, 0.881968, 0, 0, 0, 'at_hall_of_shadows_call_of_the_uncrowned_clone_milton', 'The Hall of Shadowa - Create Clone: Milton Beats (Quest: "Call of the Uncrowned")', 0),
 (@ATIDSPAWN+2, @ATCP+2, 1, 1220, '0', -951.5925, 4547.7856, 699.119, 2.959997, 0, 0, 0, 'SmartAreaTriggerAI', 'The Hall of Shadowa - Find "The Uncrowned" (Quest: "Call of the Uncrowned")', 0);
 
 DELETE FROM `areatrigger_create_properties` WHERE (`Id`= @ATCP+0 AND `IsCustom`=1) OR (`Id`= @ATCP+1 AND `IsCustom`=1) OR (`Id`= @ATCP+2 AND `IsCustom`=1);
@@ -186,7 +188,21 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 1, 209893, 0, 0, 51, 0, 8, 251033, 0, '', 0, 'Potential target of the spell is TYPEID_GAMEOBJECT, entry is 251033'),
 (13, 1, 201324, 0, 0, 51, 0, 8, 246386, 0, '', 0, 'Potential target of the spell is TYPEID_GAMEOBJECT, entry is 246386');
 
+-- Gossip
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 15) AND (`SourceGroup` IN (19540));
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(15, 19540, 0, 0, 0, 47, 0, 40832, 74, 0, '', 0, 'Player for which gossip text is shown has Call of The Uncrowned (40832) in state complete, incomplete, rewarded'),
+(15, 19540, 0, 0, 0, 48, 0, 281276, 0, 1, '', 0, 'Player for which gossip text is shown has quest objective 281276 == 1 (but hasn\'t rewarded quest yet)');
+
 -- Quest
+DELETE FROM `quest_template` WHERE `ID` = 50804;
+INSERT INTO `quest_template` (`ID`, `QuestType`, `QuestPackageID`, `ContentTuningID`, `QuestSortID`, `QuestInfoID`, `SuggestedGroupNum`, `RewardNextQuest`, `RewardXPDifficulty`, `RewardXPMultiplier`, `RewardMoneyDifficulty`, `RewardMoneyMultiplier`, `RewardBonusMoney`, `RewardDisplaySpell1`, `RewardDisplaySpell2`, `RewardDisplaySpell3`, `RewardSpell`, `RewardHonor`, `RewardKillHonor`, `StartItem`, `RewardArtifactXPDifficulty`, `RewardArtifactXPMultiplier`, `RewardArtifactCategoryID`, `Flags`, `FlagsEx`, `FlagsEx2`, `FlagsEx3`, `RewardItem1`, `RewardAmount1`, `RewardItem2`, `RewardAmount2`, `RewardItem3`, `RewardAmount3`, `RewardItem4`, `RewardAmount4`, `ItemDrop1`, `ItemDropQuantity1`, `ItemDrop2`, `ItemDropQuantity2`, `ItemDrop3`, `ItemDropQuantity3`, `ItemDrop4`, `ItemDropQuantity4`, `RewardChoiceItemID1`, `RewardChoiceItemQuantity1`, `RewardChoiceItemDisplayID1`, `RewardChoiceItemID2`, `RewardChoiceItemQuantity2`, `RewardChoiceItemDisplayID2`, `RewardChoiceItemID3`, `RewardChoiceItemQuantity3`, `RewardChoiceItemDisplayID3`, `RewardChoiceItemID4`, `RewardChoiceItemQuantity4`, `RewardChoiceItemDisplayID4`, `RewardChoiceItemID5`, `RewardChoiceItemQuantity5`, `RewardChoiceItemDisplayID5`, `RewardChoiceItemID6`, `RewardChoiceItemQuantity6`, `RewardChoiceItemDisplayID6`, `POIContinent`, `POIx`, `POIy`, `POIPriority`, `RewardTitle`, `RewardArenaPoints`, `RewardSkillLineID`, `RewardNumSkillUps`, `PortraitGiver`, `PortraitGiverMount`, `PortraitGiverModelSceneID`, `PortraitTurnIn`, `RewardFactionID1`, `RewardFactionValue1`, `RewardFactionOverride1`, `RewardFactionCapIn1`, `RewardFactionID2`, `RewardFactionValue2`, `RewardFactionOverride2`, `RewardFactionCapIn2`, `RewardFactionID3`, `RewardFactionValue3`, `RewardFactionOverride3`, `RewardFactionCapIn3`, `RewardFactionID4`, `RewardFactionValue4`, `RewardFactionOverride4`, `RewardFactionCapIn4`, `RewardFactionID5`, `RewardFactionValue5`, `RewardFactionOverride5`, `RewardFactionCapIn5`, `RewardFactionFlags`, `RewardCurrencyID1`, `RewardCurrencyQty1`, `RewardCurrencyID2`, `RewardCurrencyQty2`, `RewardCurrencyID3`, `RewardCurrencyQty3`, `RewardCurrencyID4`, `RewardCurrencyQty4`, `AcceptedSoundKitID`, `CompleteSoundKitID`, `AreaGroupID`, `TimeAllowed`, `AllowableRaces`, `Expansion`, `ManagedWorldStateID`, `QuestSessionBonus`, `LogTitle`, `LogDescription`, `QuestDescription`, `AreaDescription`, `PortraitGiverText`, `PortraitGiverName`, `PortraitTurnInText`, `PortraitTurnInName`, `QuestCompletionLog`, `ResetByScheduler`, `VerifiedBuild`) VALUES
+(50804, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1024, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rogue Orderhall: Entered Hall of Shadows for the first time', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0);
+
+DELETE FROM `quest_request_items` WHERE `ID`=40832;
+INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`, `EmoteOnCompleteDelay`, `EmoteOnIncompleteDelay`, `CompletionText`, `VerifiedBuild`) VALUES
+(40832, 0, 0, 0, 0, 'Welcome.', 61609); -- Call of The Uncrowned
+
 DELETE FROM `creature_queststarter` WHERE (`id`=102018 AND `quest`=40832);
 INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
 (102018, 40832, 61609); -- Call of The Uncrowned offered by Ravenholdt Courier
@@ -198,19 +214,12 @@ INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, 
 -- Serverside ATs smart ai
 DELETE FROM `smart_scripts` WHERE `entryorguid` = @ATID+0 AND `source_type` = 12;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ATID+0, 12, 0, 0, '', 46, 0, 100, 0, 0, 0, 0, 0, 0, '', 33, 102086, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On areatrigger enter - reward Credit 102086 to Invoker');
-
-DELETE FROM `smart_scripts` WHERE `entryorguid` = @ATID+1 AND `source_type` = 12;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ATID+1, 12, 0, 0, '', 46, 0, 100, 0, 0, 0, 0, 0, 0, '', 12, 105908, 8, 0, 0, 3, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, -934.284, 4427.545, 706.5254, 3.9483408, 'On areatrigger enter - spawn creature 105908 (personal) to Invoker');
+(@ATID+0, 12, 0, 0, '', 46, 0, 100, 0, 0, 0, 0, 0, 0, '', 33, 102086, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On areatrigger enter - reward Credit 102086 to Invoker'),
+(@ATID+0, 12, 0, 1, '', 46, 0, 100, 0, 0, 0, 0, 0, 0, '', 152, 50804, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On areatrigger enter - reward tracking Quest 50804 to Invoker');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid` = @ATID+2 AND `source_type` = 12;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (@ATID+2, 12, 0, 0, '', 46, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 201328, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On areatrigger enter - invoker: selfcast 201328');
-
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 28 AND `SourceGroup` = (@ATID+1) AND `SourceEntry` = 1);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(28, @ATID+1, 1, 0, 0, 47, 0, 40832, 8, 0, '', 0, 0, 0, '', 'Only trigger areatrigger when quest 34423 is in progress');
 
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 28 AND `SourceGroup` = (@ATID+2) AND `SourceEntry` = 1);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
