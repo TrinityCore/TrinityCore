@@ -22,7 +22,6 @@
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
-#include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
@@ -148,33 +147,7 @@ struct boss_broggok : public BossAI
     {
         if (!UpdateVictim())
         {
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_INTRO_1:
-                        DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
-                        events.ScheduleEvent(EVENT_INTRO_2, 2s);
-                        break;
-                    case EVENT_INTRO_2:
-                        Talk(SAY_INTRO);
-                        break;
-
-                    case EVENT_ACTIVATE_1:
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                        events.ScheduleEvent(EVENT_ACTIVATE_2, 4s);
-                        break;
-                    case EVENT_ACTIVATE_2:
-                        Talk(SAY_AGGRO);
-                        me->GetMotionMaster()->MovePath(PATH_ROOM, false);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            UpdateOutOfCombatEvents(diff);
             return;
         }
 
@@ -208,6 +181,36 @@ struct boss_broggok : public BossAI
         }
 
         DoMeleeAttackIfReady();
+    }
+
+    void UpdateOutOfCombatEvents(uint32 diff)
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRO_1:
+                    DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
+                    events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                    break;
+                case EVENT_INTRO_2:
+                    Talk(SAY_INTRO);
+                    break;
+                case EVENT_ACTIVATE_1:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    events.ScheduleEvent(EVENT_ACTIVATE_2, 4s);
+                    break;
+                case EVENT_ACTIVATE_2:
+                    Talk(SAY_AGGRO);
+                    me->GetMotionMaster()->MovePath(PATH_ROOM, false);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 };
 
