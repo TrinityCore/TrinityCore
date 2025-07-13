@@ -126,6 +126,10 @@ void PvPCombatReference::RefreshTimer()
     _combatTimer = PVP_COMBAT_TIMEOUT;
 }
 
+CombatManager::CombatManager(Unit* owner) : _owner(owner)
+{
+}
+
 CombatManager::~CombatManager()
 {
     ASSERT(_pveRefs.empty(), "CombatManager::~CombatManager - %s: we still have %zu PvE combat references, one of them is with %s", _owner->GetGUID().ToString().c_str(), _pveRefs.size(), _pveRefs.begin()->first.ToString().c_str());

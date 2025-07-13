@@ -110,12 +110,7 @@ class TC_GAME_API ReputationMgr
         std::string GetReputationRankName(FactionEntry const* factionEntry) const;;
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
-
-        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
-        {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionId);
-            return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
-        }
+        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const;
 
         bool IsParagonReputation(FactionEntry const* factionEntry) const;
         int32 GetParagonLevel(uint32 paragonFactionId) const;

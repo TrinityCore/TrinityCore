@@ -2710,9 +2710,19 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
     return false;
 }
 
+void Map::AddWorldObject(WorldObject* obj)
+{
+    i_worldObjects.insert(obj);
+}
+
+void Map::RemoveWorldObject(WorldObject* obj)
+{
+    i_worldObjects.erase(obj);
+}
+
 void Map::AddToActive(WorldObject* obj)
 {
-    AddToActiveHelper(obj);
+    m_activeNonPlayers.insert(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())
@@ -2751,7 +2761,19 @@ void Map::AddToActive(WorldObject* obj)
 
 void Map::RemoveFromActive(WorldObject* obj)
 {
-    RemoveFromActiveHelper(obj);
+    // Map::Update for active object in proccess
+    if (m_activeNonPlayersIter != m_activeNonPlayers.end())
+    {
+        ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+        if (itr != m_activeNonPlayers.end())
+        {
+            if (itr == m_activeNonPlayersIter)
+                ++m_activeNonPlayersIter;
+            m_activeNonPlayers.erase(itr);
+        }
+    }
+    else
+        m_activeNonPlayers.erase(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())

@@ -1423,15 +1423,10 @@ class TC_GAME_API Unit : public WorldObject
                 .ModifyValue(&UF::UnitData::ChannelData)
                 .ModifyValue(&UF::UnitChannel::SpellXSpellVisualID), channelVisual.SpellXSpellVisualID);
         }
-        void AddChannelObject(ObjectGuid guid) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid; }
-        void SetChannelObject(uint32 slot, ObjectGuid guid) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid); }
-        void RemoveChannelObject(ObjectGuid guid)
-        {
-            int32 index = m_unitData->ChannelObjects.FindIndex(guid);
-            if (index >= 0)
-                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects), index);
-        }
-        void ClearChannelObjects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)); }
+        void AddChannelObject(ObjectGuid guid);
+        void SetChannelObject(uint32 slot, ObjectGuid guid);
+        void RemoveChannelObject(ObjectGuid guid);
+        void ClearChannelObjects();
 
         void SetCurrentCastSpell(Spell* pSpell);
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true);
@@ -1571,8 +1566,8 @@ class TC_GAME_API Unit : public WorldObject
         bool HasVisibleAura(AuraApplication* aurApp) const { return m_visibleAuras.contains(aurApp); }
         void SetVisibleAura(AuraApplication* aurApp);
         void RemoveVisibleAura(AuraApplication* aurApp);
-        void SetVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.insert(aurApp); }
-        void RemoveVisibleAuraUpdate(AuraApplication* aurApp) { m_visibleAurasToUpdate.erase(aurApp); }
+        void SetVisibleAuraUpdate(AuraApplication* aurApp);
+        void RemoveVisibleAuraUpdate(AuraApplication* aurApp);
 
         bool HasInterruptFlag(SpellAuraInterruptFlags flags) const { return m_interruptMask.HasFlag(flags); }
         bool HasInterruptFlag(SpellAuraInterruptFlags2 flags) const { return m_interruptMask2.HasFlag(flags); }
@@ -1675,8 +1670,8 @@ class TC_GAME_API Unit : public WorldObject
         void SetSpeed(UnitMoveType mtype, float newValue);
         void SetSpeedRate(UnitMoveType mtype, float rate);
 
-        void FollowerAdded(AbstractFollower* f) { m_followingMe.insert(f); }
-        void FollowerRemoved(AbstractFollower* f) { m_followingMe.erase(f); }
+        void FollowerAdded(AbstractFollower* f);
+        void FollowerRemoved(AbstractFollower* f);
         void RemoveAllFollowers();
 
         MotionMaster* GetMotionMaster() { return i_motionMaster.get(); }
@@ -1828,14 +1823,9 @@ class TC_GAME_API Unit : public WorldObject
         // enables / disables combat interaction of this unit
         void SetIsCombatDisallowed(bool apply) { _isCombatDisallowed = apply; }
 
-        void AddWorldEffect(int32 worldEffectId) { AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)) = worldEffectId; }
-        void RemoveWorldEffect(int32 worldEffectId)
-        {
-            int32 index = m_unitData->WorldEffects.FindIndex(worldEffectId);
-            if (index >= 0)
-                RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects), index);
-        }
-        void ClearWorldEffects() { ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)); }
+        void AddWorldEffect(int32 worldEffectId);
+        void RemoveWorldEffect(int32 worldEffectId);
+        void ClearWorldEffects();
 
         Vignettes::VignetteData const* GetVignette() const { return m_vignette.get(); }
         void SetVignette(uint32 vignetteId);

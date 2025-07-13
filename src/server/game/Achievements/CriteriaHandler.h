@@ -345,11 +345,7 @@ public:
         return _questObjectiveCriteriasByType[size_t(type)];
     }
 
-    CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
-    {
-        auto itr = _criteriaTreeByCriteria.find(criteriaId);
-        return itr != _criteriaTreeByCriteria.end() ? &itr->second : nullptr;
-    }
+    CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const;
 
     std::unordered_map<int32, CriteriaList> const& GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const;
     CriteriaList const* GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const;
@@ -357,11 +353,7 @@ public:
     std::unordered_map<int32, CriteriaList> const& GetCriteriaByFailEvent(CriteriaFailEvent failEvent) const;
     CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const;
 
-    CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
-    {
-        auto iter = _criteriaDataMap.find(Criteria->ID);
-        return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
-    }
+    CriteriaDataSet const* GetCriteriaDataSet(Criteria const* criteria) const;
 
     static bool IsGroupCriteriaType(CriteriaType type)
     {

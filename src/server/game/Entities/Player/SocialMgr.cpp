@@ -24,6 +24,13 @@
 #include "World.h"
 #include "WorldSession.h"
 
+PlayerSocial::PlayerSocial() = default;
+PlayerSocial::PlayerSocial(PlayerSocial const&) = default;
+PlayerSocial::PlayerSocial(PlayerSocial&&) noexcept = default;
+PlayerSocial& PlayerSocial::operator=(PlayerSocial const&) = default;
+PlayerSocial& PlayerSocial::operator=(PlayerSocial&&) noexcept = default;
+PlayerSocial::~PlayerSocial() = default;
+
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {
     uint32 counter = 0;

@@ -36,8 +36,13 @@ namespace WorldPackets
 class TC_GAME_API PlayerTaxi
 {
     public:
-        PlayerTaxi() : m_flightMasterFactionId(0) { }
-        ~PlayerTaxi() { }
+        PlayerTaxi();
+        PlayerTaxi(PlayerTaxi const& other);
+        PlayerTaxi(PlayerTaxi&& other) noexcept;
+        PlayerTaxi& operator=(PlayerTaxi const& other);
+        PlayerTaxi& operator=(PlayerTaxi&& other) noexcept;
+        ~PlayerTaxi();
+
         // Nodes
         void InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level);
         bool LoadTaxiMask(std::string const& data);
@@ -68,7 +73,7 @@ class TC_GAME_API PlayerTaxi
         std::string SaveTaxiDestinationsToString();
 
         void ClearTaxiDestinations() { m_TaxiDestinations.clear(); }
-        void AddTaxiDestination(uint32 dest) { m_TaxiDestinations.push_back(dest); }
+        void AddTaxiDestination(uint32 dest);
         uint32 GetTaxiSource() const { return m_TaxiDestinations.empty() ? 0 : m_TaxiDestinations.front(); }
         uint32 GetTaxiDestination() const { return m_TaxiDestinations.size() < 2 ? 0 : m_TaxiDestinations[1]; }
         uint32 GetCurrentTaxiPath() const;
@@ -87,7 +92,7 @@ class TC_GAME_API PlayerTaxi
     private:
         TaxiMask m_taximask;
         std::deque<uint32> m_TaxiDestinations;
-        uint32 m_flightMasterFactionId;
+        uint32 m_flightMasterFactionId = 0;
 };
 
 std::ostringstream& operator <<(std::ostringstream& ss, PlayerTaxi const& taxi);
