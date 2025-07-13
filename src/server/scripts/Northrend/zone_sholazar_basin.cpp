@@ -24,165 +24,10 @@
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SpellAuras.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
 #include "GameObject.h"
-
-/*######
-## npc_engineer_helice
-######*/
-
-enum EngineerHelice
-{
-    // Spells
-    SPELL_DETONATE_1            = 52369,
-    SPELL_DETONATE_2            = 52371,
-    SPELL_EXPLOSION             = 46419,
-
-    // Yells
-    SAY_WP_1                    = 0,
-    SAY_WP_2                    = 1,
-    SAY_WP_3                    = 2,
-    SAY_WP_4                    = 3,
-    SAY_WP_5                    = 4,
-    SAY_WP_6                    = 5,
-    SAY_WP_7                    = 6,
-
-    // Quests
-    QUEST_DISASTER              = 12688
-};
-
-struct npc_engineer_helice : public EscortAI
-{
-    npc_engineer_helice(Creature* creature) : EscortAI(creature) {  }
-
-    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
-    {
-        switch (waypointId)
-        {
-            case 0:
-                Talk(SAY_WP_2);
-                break;
-            case 1:
-                Talk(SAY_WP_3);
-                DoCast(SPELL_DETONATE_1);
-                break;
-            case 7:
-                Talk(SAY_WP_5);
-                break;
-            case 8:
-                DoCast(SPELL_DETONATE_2);
-                break;
-            case 9:
-                Talk(SAY_WP_6);
-                break;
-            case 13:
-                if (Player* player = GetPlayerForEscort())
-                {
-                    player->GroupEventHappens(QUEST_DISASTER, me);
-                    Talk(SAY_WP_7);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        if (HasEscortState(STATE_ESCORT_ESCORTING))
-        {
-            if (Player* player = GetPlayerForEscort())
-                player->FailQuest(QUEST_DISASTER);
-        }
-    }
-
-    void OnQuestAccept(Player* player, Quest const* quest) override
-    {
-        if (quest->GetQuestId() == QUEST_DISASTER)
-        {
-            me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-
-            Start(false, false, player->GetGUID());
-            Talk(SAY_WP_1);
-        }
-    }
-};
-
-class spell_q12688_detonate_1 : public SpellScript
-{
-    PrepareSpellScript(spell_q12688_detonate_1);
-
-    static constexpr uint32 SPAWN_GROUP_FLAMES = 67;
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_EXPLOSION });
-    }
-
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-        {
-            target->CastSpell(target, SPELL_EXPLOSION);
-
-            std::vector<WorldObject*> flames;
-            target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
-            target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
-            for (WorldObject* flame : flames)
-            {
-                if (GameObject* flame_go = flame->ToGameObject())
-                    flame_go->DespawnOrUnsummon(20s);
-            }
-        }
-    }
-
-    void HandleAfterHit()
-    {
-        if (Creature* caster = GetCaster()->ToCreature())
-            caster->AI()->Talk(EngineerHelice::SAY_WP_4);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12688_detonate_1::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-        AfterHit += SpellHitFn(spell_q12688_detonate_1::HandleAfterHit);
-    }
-};
-
-class spell_q12688_detonate_2 : public SpellScript
-{
-    PrepareSpellScript(spell_q12688_detonate_2);
-
-    static constexpr uint32 SPAWN_GROUP_FLAMES = 68;
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_EXPLOSION });
-    }
-
-    void HandleDummyEffect(SpellEffIndex /*effIndex*/)
-    {
-        if (Unit* target = GetHitUnit())
-        {
-            target->CastSpell(target, SPELL_EXPLOSION);
-
-            std::vector<WorldObject*> flames;
-            target->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_FLAMES, false, false, &flames);
-            target->GetMap()->SetSpawnGroupInactive(SPAWN_GROUP_FLAMES);
-            for (WorldObject* flame : flames)
-            {
-                if (GameObject* flame_go = flame->ToGameObject())
-                    flame_go->DespawnOrUnsummon(20s);
-            }
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_q12688_detonate_2::HandleDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
 
 /*#####
 ## npc_jungle_punch_target
@@ -366,77 +211,42 @@ private:
 };
 
 /*######
-## Quest The Lifewarden's Wrath
+## Quest: Song of Wind and Water ID: 12726
 ######*/
-
-enum MiscLifewarden
+/*This quest precisly needs core script since battle vehicles are not well integrated with SAI,
+may be easily converted to SAI when they get.*/
+enum SongOfWindAndWater
 {
-    NPC_PRESENCE                 = 28563, // Freya's Presence
-    NPC_SABOTEUR                 = 28538, // Cultist Saboteur
-    NPC_SERVANT                  = 28320, // Servant of Freya
-
-    WHISPER_ACTIVATE             = 0,
-
-    SPELL_FREYA_DUMMY            = 51318,
-    SPELL_LIFEFORCE              = 51395,
-    SPELL_FREYA_DUMMY_TRIGGER    = 51335,
-    SPELL_LASHER_EMERGE          = 48195,
-    SPELL_WILD_GROWTH            = 52948,
+    // Spells
+    SPELL_DEVOUR_WIND     = 52862,
+    SPELL_DEVOUR_WATER    = 52864,
+    // NPCs
+    NPC_HAIPHOON_WATER    = 28999,
+    NPC_HAIPHOON_AIR      = 28985
 };
 
-// 51957 - Call of the Lifewarden
-class spell_q12620_the_lifewarden_wrath : public SpellScript
+struct npc_haiphoon : public VehicleAI
 {
-    PrepareSpellScript(spell_q12620_the_lifewarden_wrath);
+    npc_haiphoon(Creature* creature) : VehicleAI(creature) { }
 
-    void HandleSendEvent(SpellEffIndex effIndex)
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
-        PreventHitDefaultEffect(effIndex);
+        if (target == me)
+            return;
 
-        if (Unit* caster = GetCaster())
+        if (spellInfo->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
-            if (Creature* presence = caster->FindNearestCreature(NPC_PRESENCE, 50.0f))
-            {
-                presence->AI()->Talk(WHISPER_ACTIVATE, caster);
-                presence->CastSpell(presence, SPELL_FREYA_DUMMY, true); // will target plants
-                // Freya Dummy could be scripted with the following code
-
-                // Revive plants
-                std::list<Creature*> servants;
-                GetCaster()->GetCreatureListWithEntryInGrid(servants, NPC_SERVANT, 200.0f);
-                for (std::list<Creature*>::iterator itr = servants.begin(); itr != servants.end(); ++itr)
-                {
-                    // Couldn't find a spell that does this
-                    if ((*itr)->isDead())
-                        (*itr)->Respawn(true);
-
-                    (*itr)->CastSpell(*itr, SPELL_FREYA_DUMMY_TRIGGER, true);
-                    (*itr)->CastSpell(*itr, SPELL_LASHER_EMERGE, false);
-                    (*itr)->CastSpell(*itr, SPELL_WILD_GROWTH, false);
-
-                    if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
-                        (*itr)->AI()->AttackStart(target);
-                }
-
-                // Kill nearby enemies
-                std::list<Creature*> saboteurs;
-                caster->GetCreatureListWithEntryInGrid(saboteurs, NPC_SABOTEUR, 200.0f);
-                for (std::list<Creature*>::iterator itr = saboteurs.begin(); itr != saboteurs.end(); ++itr)
-                    if ((*itr)->IsAlive())
-                        // Lifeforce has a cast duration, it should be cast at all saboteurs one by one
-                        presence->CastSpell((*itr), SPELL_LIFEFORCE, false);
-            }
+            me->UpdateEntry(NPC_HAIPHOON_AIR);
         }
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_q12620_the_lifewarden_wrath::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+        else if (spellInfo->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            me->UpdateEntry(NPC_HAIPHOON_WATER);
+        }
     }
 };
 
 /*######
-## Quest Kick, What Kick? (12589)
+## Quest 12589: Kick, What Kick?
 ######*/
 
 enum KickWhatKick
@@ -463,9 +273,9 @@ enum KickWhatKick
 };
 
 // 51330 - Shoot RJR
-class spell_q12589_shoot_rjr : public SpellScript
+class spell_sholazar_shoot_rjr : public SpellScript
 {
-    PrepareSpellScript(spell_q12589_shoot_rjr);
+    PrepareSpellScript(spell_sholazar_shoot_rjr);
 
     SpellCastResult CheckCast()
     {
@@ -540,45 +350,85 @@ class spell_q12589_shoot_rjr : public SpellScript
 
     void Register() override
     {
-        OnCheckCast += SpellCheckCastFn(spell_q12589_shoot_rjr::CheckCast);
-        OnEffectHitTarget += SpellEffectFn(spell_q12589_shoot_rjr::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnCheckCast += SpellCheckCastFn(spell_sholazar_shoot_rjr::CheckCast);
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_shoot_rjr::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
 /*######
-## Quest: Song of Wind and Water ID: 12726
+## Quest 12620: The Lifewarden's Wrath
 ######*/
-/*This quest precisly needs core script since battle vehicles are not well integrated with SAI,
-may be easily converted to SAI when they get.*/
-enum SongOfWindAndWater
+
+enum TheLifewardensWrath
 {
-    // Spells
-    SPELL_DEVOUR_WIND     = 52862,
-    SPELL_DEVOUR_WATER    = 52864,
-    // NPCs
-    NPC_HAIPHOON_WATER    = 28999,
-    NPC_HAIPHOON_AIR      = 28985
+    NPC_FREYAS_PRESENCE          = 28563,
+
+    WHISPER_ACTIVATE             = 0,
+
+    SPELL_FREYA_DUMMY_TRIGGER    = 51335,
+    SPELL_LASHER_EMERGE          = 48195,
+    SPELL_WILD_GROWTH            = 52948
 };
 
-struct npc_haiphoon : public VehicleAI
+// 51957 - Call of the Lifewarden
+class spell_sholazar_call_of_the_lifewarden : public SpellScript
 {
-    npc_haiphoon(Creature* creature) : VehicleAI(creature) { }
+    PrepareSpellScript(spell_sholazar_call_of_the_lifewarden);
 
-    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    void HandleSendEvent(SpellEffIndex effIndex)
     {
-        if (target == me)
-            return;
+        PreventHitDefaultEffect(effIndex);
 
-        if (spellInfo->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+        if (Creature* presence = GetCaster()->FindNearestCreature(NPC_FREYAS_PRESENCE, 50.0f))
         {
-            me->UpdateEntry(NPC_HAIPHOON_AIR);
-        }
-        else if (spellInfo->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
-        {
-            me->UpdateEntry(NPC_HAIPHOON_WATER);
+            presence->AI()->Talk(WHISPER_ACTIVATE, GetCaster());
+            presence->AI()->SetData(1, 1);
         }
     }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sholazar_call_of_the_lifewarden::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+    }
 };
+
+// 51318 - Freya Dummy
+class spell_sholazar_freya_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_freya_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_FREYA_DUMMY_TRIGGER,
+            SPELL_LASHER_EMERGE,
+            SPELL_WILD_GROWTH
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+
+        target->CastSpell(target, SPELL_FREYA_DUMMY_TRIGGER, true);
+        target->CastSpell(target, SPELL_LASHER_EMERGE, false);
+        target->CastSpell(target, SPELL_WILD_GROWTH, false);
+        // This probably is scripted by the Emerge spell from above
+        target->SetEmoteState(EMOTE_ONESHOT_NONE);
+        target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        target->SetImmuneToNPC(false);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_freya_dummy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12611: Returned Sevenfold
+######*/
 
 enum ReturnedSevenfold
 {
@@ -588,21 +438,21 @@ enum ReturnedSevenfold
 };
 
 // 51854 - Deathbolt
-class spell_q12611_deathbolt : public SpellScript
+class spell_sholazar_deathbolt : public SpellScript
 {
-    PrepareSpellScript(spell_q12611_deathbolt);
+    PrepareSpellScript(spell_sholazar_deathbolt);
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
-            {
-                SPELL_FREYAS_WARD,
-                SPELL_SEVENFOLD_RETRIBUTION,
-                SPELL_DEATHBOLT
-            });
+        {
+            SPELL_FREYAS_WARD,
+            SPELL_SEVENFOLD_RETRIBUTION,
+            SPELL_DEATHBOLT
+        });
     }
 
-    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    void HandleScript(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
@@ -615,7 +465,7 @@ class spell_q12611_deathbolt : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_q12611_deathbolt::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_deathbolt::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -796,19 +646,106 @@ class spell_sholazar_flight_to_sholazar : public SpellScript
     }
 };
 
+/*######
+## Quest 12634: Some Make Lemonade, Some Make Liquor
+######*/
+
+enum SomeMakeLemonadeSomeMakeLiquor
+{
+    SPELL_BANANAS_FALL_TO_GROUND    = 51836,
+    SPELL_ORANGE_FALLS_TO_GROUND    = 51837,
+    SPELL_PAPAYA_FALLS_TO_GROUND    = 51839,
+    SPELL_TRIGGER_SPAWN_DWARF       = 52078
+};
+
+// This should be scripted in DB but our action lists aren't good enough to properly support chance
+// 51840 - Despawn Fruit Tosser
+class spell_sholazar_despawn_fruit_tosser : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_despawn_fruit_tosser);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BANANAS_FALL_TO_GROUND,
+            SPELL_ORANGE_FALLS_TO_GROUND,
+            SPELL_PAPAYA_FALLS_TO_GROUND,
+            SPELL_TRIGGER_SPAWN_DWARF
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spellId = SPELL_BANANAS_FALL_TO_GROUND;
+        switch (urand(0, 3))
+        {
+            case 1: spellId = SPELL_ORANGE_FALLS_TO_GROUND; break;
+            case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
+        }
+        // sometimes, if you're lucky, you get a dwarf
+        if (roll_chance_i(5))
+            spellId = SPELL_TRIGGER_SPAWN_DWARF;
+
+        GetHitUnit()->CastSpell(GetCaster(), spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_despawn_fruit_tosser::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 12805: Salvaging Life's Strength
+######*/
+
+enum SalvagingLifesStength
+{
+    NPC_SHARD_KILL_CREDIT       = 29303
+};
+
+// 54190 - Lifeblood Dummy
+class spell_sholazar_lifeblood_dummy : public SpellScript
+{
+    PrepareSpellScript(spell_sholazar_lifeblood_dummy);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) }) &&
+            sObjectMgr->GetCreatureTemplate(NPC_SHARD_KILL_CREDIT);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (GetHitUnit()->HasAura(uint32(GetEffectValue())))
+        {
+            if (Player* caster = GetCaster()->ToPlayer())
+                caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT);
+
+            GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_lifeblood_dummy::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
-    RegisterCreatureAI(npc_engineer_helice);
-    RegisterSpellScript(spell_q12688_detonate_1);
-    RegisterSpellScript(spell_q12688_detonate_2);
     RegisterCreatureAI(npc_jungle_punch_target);
-    RegisterSpellScript(spell_q12620_the_lifewarden_wrath);
-    RegisterSpellScript(spell_q12589_shoot_rjr);
     RegisterCreatureAI(npc_haiphoon);
-    RegisterSpellScript(spell_q12611_deathbolt);
+    RegisterSpellScript(spell_sholazar_shoot_rjr);
+    RegisterSpellScript(spell_sholazar_call_of_the_lifewarden);
+    RegisterSpellScript(spell_sholazar_freya_dummy);
+    RegisterSpellScript(spell_sholazar_deathbolt);
     RegisterSpellScript(spell_sholazar_take_sputum_sample);
     RegisterSpellScript(spell_sholazar_sputum_collected);
     RegisterSpellScript(spell_sholazar_song_of_cleansing);
     RegisterSpellScript(spell_sholazar_lightning_strike);
     RegisterSpellScript(spell_sholazar_flight_to_sholazar);
+    RegisterSpellScript(spell_sholazar_despawn_fruit_tosser);
+    RegisterSpellScript(spell_sholazar_lifeblood_dummy);
 }
