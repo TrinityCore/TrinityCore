@@ -31,6 +31,7 @@
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "serpent_shrine.h"
