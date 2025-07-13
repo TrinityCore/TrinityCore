@@ -17,8 +17,10 @@
 
 #include "Opcodes.h"
 #include "Log.h"
+#include "Util.h"
 #include "WorldSession.h"
 #include "Packets/AllPackets.h"
+#include <charconv>
 
 namespace
 {
@@ -2284,8 +2286,8 @@ void OpcodeTable::InitializeServerOpcodes()
 #undef DEFINE_SERVER_OPCODE_HANDLER
 }
 
-template<typename OpcodeDefinition, std::size_t N, typename T>
-static inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id)
+template<typename OpcodeDefinition, std::size_t N, typename T, typename FormatContext>
+static inline typename FormatContext::iterator GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinition, N> const& definitions, T id, FormatContext& ctx)
 {
     uint32 opcode = uint32(id);
     char const* name = nullptr;
@@ -2301,15 +2303,34 @@ static inline std::string GetOpcodeNameForLoggingImpl(std::array<OpcodeDefinitio
     else
         name = "INVALID OPCODE";
 
-    return Trinity::StringFormat("[{0} 0x{1:06X} ({1})]", name, opcode);
+    std::array<char, 10> value;
+
+    std::ranges::copy_n("[", 1, ctx.out());
+    std::ranges::copy(name, CStringSentinel, ctx.out());
+    std::ranges::copy_n(" 0x", 3, ctx.out());
+    char const* hexEnd = std::to_chars(value.data(), value.data() + value.size(), opcode, 16).ptr;
+    if (std::ptrdiff_t written = std::ranges::distance(value.data(), hexEnd); written < 6)
+        std::ranges::fill_n(ctx.out(), 6 - written, '0');
+
+    std::ranges::transform(value.data(), hexEnd, ctx.out(), charToUpper);
+    std::ranges::copy_n(" (", 2, ctx.out());
+    std::ranges::copy(value.data(), std::to_chars(value.data(), value.data() + value.size(), opcode, 10).ptr, ctx.out());
+    std::ranges::copy_n(")]", 2, ctx.out());
+
+    return ctx.out();
 }
 
-std::string GetOpcodeNameForLogging(OpcodeClient opcode)
+template <typename FormatContext>
+typename FormatContext::iterator fmt::formatter<FormattedOpcodeName<OpcodeClient>>::format(FormattedOpcodeName<OpcodeClient> const& opcode, FormatContext& ctx) const
 {
-    return GetOpcodeNameForLoggingImpl(opcodeTable._internalTableClient, opcode);
+    return ::GetOpcodeNameForLoggingImpl(opcodeTable._internalTableClient, opcode.Opcode, ctx);
 }
 
-std::string GetOpcodeNameForLogging(OpcodeServer opcode)
+template <typename FormatContext>
+typename FormatContext::iterator fmt::formatter<FormattedOpcodeName<OpcodeServer>>::format(FormattedOpcodeName<OpcodeServer> const& opcode, FormatContext& ctx) const
 {
-    return GetOpcodeNameForLoggingImpl(opcodeTable._internalTableServer, opcode);
+    return ::GetOpcodeNameForLoggingImpl(opcodeTable._internalTableServer, opcode.Opcode, ctx);
 }
+
+template TC_GAME_API fmt::appender fmt::formatter<FormattedOpcodeName<OpcodeClient>>::format<fmt::format_context>(FormattedOpcodeName<OpcodeClient> const&, format_context&) const;
+template TC_GAME_API fmt::appender fmt::formatter<FormattedOpcodeName<OpcodeServer>>::format<fmt::format_context>(FormattedOpcodeName<OpcodeServer> const&, format_context&) const;

@@ -16,8 +16,8 @@
  */
 
 #include "Appender.h"
+#include "Common.h"
 #include "LogMessage.h"
-#include "StringFormat.h"
 
 Appender::Appender(uint8 _id, std::string _name, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
 id(_id), name(std::move(_name)), level(_level), flags(_flags) { }
@@ -66,7 +66,12 @@ void Appender::write(LogMessage* message)
         }
 
         if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
-            Trinity::StringFormatTo(std::back_inserter(message->prefix), "{:<5} ", getLogLevelString(message->level));
+        {
+            std::string_view levelStr = getLogLevelString(message->level);
+            message->prefix.append(levelStr);
+            if (levelStr.length() < 5)
+                message->prefix.append(5 - levelStr.length(), ' ');
+        }
 
         if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
         {
@@ -79,23 +84,23 @@ void Appender::write(LogMessage* message)
     _write(message);
 }
 
-char const* Appender::getLogLevelString(LogLevel level)
+std::string_view Appender::getLogLevelString(LogLevel level)
 {
     switch (level)
     {
         case LOG_LEVEL_FATAL:
-            return "FATAL";
+            return "FATAL"sv;
         case LOG_LEVEL_ERROR:
-            return "ERROR";
+            return "ERROR"sv;
         case LOG_LEVEL_WARN:
-            return "WARN";
+            return "WARN"sv;
         case LOG_LEVEL_INFO:
-            return "INFO";
+            return "INFO"sv;
         case LOG_LEVEL_DEBUG:
-            return "DEBUG";
+            return "DEBUG"sv;
         case LOG_LEVEL_TRACE:
-            return "TRACE";
+            return "TRACE"sv;
         default:
-            return "DISABLED";
+            return "DISABLED"sv;
     }
 }
