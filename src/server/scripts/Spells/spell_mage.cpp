@@ -1312,7 +1312,7 @@ class spell_mage_molten_fury : public AuraScript
 
     static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        if (eventInfo.GetActionTarget()->GetHealthPct() < aurEff->GetAmount())
+        if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
             eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringAura = aurEff
