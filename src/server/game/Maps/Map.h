@@ -392,8 +392,8 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         uint32 GetPlayersCountExceptGMs() const;
         bool ActiveObjectsNearGrid(NGridType const& ngrid) const;
 
-        void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
-        void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
+        void AddWorldObject(WorldObject* obj);
+        void RemoveWorldObject(WorldObject* obj);
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -762,27 +762,6 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
 
         template<class T>
         void DeleteFromWorld(T*);
-
-        void AddToActiveHelper(WorldObject* obj)
-        {
-            m_activeNonPlayers.insert(obj);
-        }
-
-        void RemoveFromActiveHelper(WorldObject* obj)
-        {
-            // Map::Update for active object in proccess
-            if (m_activeNonPlayersIter != m_activeNonPlayers.end())
-            {
-                ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
-                if (itr == m_activeNonPlayers.end())
-                    return;
-                if (itr == m_activeNonPlayersIter)
-                    ++m_activeNonPlayersIter;
-                m_activeNonPlayers.erase(itr);
-            }
-            else
-                m_activeNonPlayers.erase(obj);
-        }
 
         std::unique_ptr<RespawnListContainer> _respawnTimes;
         RespawnInfoMap       _creatureRespawnTimesBySpawnId;

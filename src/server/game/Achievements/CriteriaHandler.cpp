@@ -4634,6 +4634,11 @@ CriteriaList const& CriteriaMgr::GetScenarioCriteriaByTypeAndScenario(CriteriaTy
     return EmptyCriteriaList;
 }
 
+CriteriaTreeList const* CriteriaMgr::GetCriteriaTreesByCriteria(uint32 criteriaId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_criteriaTreeByCriteria, criteriaId);
+}
+
 std::unordered_map<int32, CriteriaList> const& CriteriaMgr::GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const
 {
     return _criteriasByStartEvent[size_t(startEvent)];
@@ -4652,6 +4657,11 @@ std::unordered_map<int32, CriteriaList> const& CriteriaMgr::GetCriteriaByFailEve
 CriteriaList const* CriteriaMgr::GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const
 {
     return Trinity::Containers::MapGetValuePtr(_criteriasByFailEvent[size_t(failEvent)], asset);
+}
+
+CriteriaDataSet const* CriteriaMgr::GetCriteriaDataSet(Criteria const* criteria) const
+{
+    return Trinity::Containers::MapGetValuePtr(_criteriaDataMap, criteria->ID);
 }
 
 CriteriaMgr::CriteriaMgr() = default;

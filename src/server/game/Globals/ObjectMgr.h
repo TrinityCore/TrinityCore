@@ -1438,7 +1438,7 @@ class TC_GAME_API ObjectMgr
             if (itr == _creatureDataStore.end()) return nullptr;
             return &itr->second;
         }
-        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId) { return _creatureDataStore[spawnId]; }
+        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId);
         void DeleteCreatureData(ObjectGuid::LowType spawnId);
         ObjectGuid GetLinkedRespawnGuid(ObjectGuid spawnId) const
         {
@@ -1459,7 +1459,7 @@ class TC_GAME_API ObjectMgr
             if (itr == _gameObjectDataStore.end()) return nullptr;
             return &itr->second;
         }
-        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType spawnId) { return _gameObjectDataStore[spawnId]; }
+        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType spawnId);
         void DeleteGameObjectData(ObjectGuid::LowType spawnId);
         GameObjectLocale const* GetGameObjectLocale(uint32 entry) const
         {
