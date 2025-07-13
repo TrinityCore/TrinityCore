@@ -2646,32 +2646,28 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_DESTROY_CONVERSATION:
         {
-            if (e.action.destroyConversation.isPrivate)
-            {
-                for (WorldObject* const target : targets)
-                {
-                    if (Player* playerTarget = target->ToPlayer())
-                    {
-                        std::vector<Conversation*> conversations;
-                        Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(playerTarget->GetGUID(), e.action.destroyConversation.id);
-                        Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), conversations, check);
-                        Cell::VisitGridObjects(GetBaseObject(), searcher, float(e.action.destroyConversation.range));
-
-                        for (Conversation* conversation : conversations)
-                            conversation->Remove();
-                    }
-                }
-            }
-            else
+            auto destroyConversations = [&](ObjectGuid ownerGUID)
             {
                 std::vector<Conversation*> conversations;
-                Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(ObjectGuid::Empty, e.action.destroyConversation.id);
+                Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(ownerGUID, e.action.destroyConversation.id);
                 Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), conversations, check);
                 Cell::VisitGridObjects(GetBaseObject(), searcher, float(e.action.destroyConversation.range));
 
                 for (Conversation* conversation : conversations)
                     conversation->Remove();
+            };
+
+            if (e.action.destroyConversation.isPrivate)
+            {
+                for (WorldObject* const target : targets)
+                {
+                    if (Player* playerTarget = target->ToPlayer())
+                        destroyConversations(playerTarget->GetGUID());
+                }
             }
+            else
+                destroyConversations(ObjectGuid::Empty);
+
             break;
         }
         default:
