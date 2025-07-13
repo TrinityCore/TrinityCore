@@ -6,14 +6,15 @@
 #include "Define.h"
 #include "Optional.h"
 #include <Windows.h>
+#include <dbghelp.h>
 #include <winnt.h>
 #include <winternl.h>
-#include <dbghelp.h>
 #include <compare>
 #include <set>
-#include <cstdlib>
-#include <cstdio>
 #include <stack>
+#include <string>
+#include <cstdio>
+#include <cstdlib>
 
 #define WER_MAX_ARRAY_ELEMENTS_COUNT 10
 #define WER_MAX_NESTING_LEVEL 4
