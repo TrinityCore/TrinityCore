@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
