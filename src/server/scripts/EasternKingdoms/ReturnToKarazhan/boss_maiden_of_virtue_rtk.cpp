@@ -35,7 +35,7 @@ enum MaidenOfVirtueRTKSpells
     SPELL_MASS_REPENTANCE           = 227508,
     SPELL_HOLY_BULWARK              = 227817,
     SPELL_HOLY_WRATH                = 227823,
-    SPELL_PLAY_SCENE                = 232516,
+    SPELL_PLAY_SCENE                = 232516
 };
 
 enum MaidenOfVirtueRTKEvents
@@ -55,7 +55,7 @@ enum MaidenOfVirtueRTKActions
 
 enum MaidenOfVirtueRTKTexts
 {
-    SAY_AGGRO               = 0,
+    SAY_AGGRO                   = 0,
     SAY_WIPE                    = 1,
     SAY_SLAY                    = 2,
     SAY_HOLY_BOLT               = 3,
@@ -67,6 +67,11 @@ enum MaidenOfVirtueRTKTexts
     SAY_HOLY_BULWARK            = 9,
     SAY_HOLY_WRATH              = 10,
     SAY_DEAD                    = 11
+};
+
+enum MaidenOfVirtueGroup
+{
+    SPAWNGROUP_MAIDEN_OF_VIRTUE_OUTRO = 1267
 };
 
 // 113971 - Maiden of Virtue
@@ -82,6 +87,8 @@ struct boss_maiden_of_virtue_rtk : public BossAI
         Talk(SAY_DEAD);
 
         DoCastSelf(SPELL_PLAY_SCENE);
+
+        instance->instance->SpawnGroupSpawn(SPAWNGROUP_MAIDEN_OF_VIRTUE_OUTRO);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -276,6 +283,34 @@ struct at_maiden_of_virtue_rtk_sacred_ground : AreaTriggerAI
     }
 };
 
+// 232515 - Play Scene 2
+// Id - 1538
+class scene_maiden_of_virtue_outro : public SceneScript
+{
+public:
+    scene_maiden_of_virtue_outro() : SceneScript("scene_maiden_of_virtue_outro") { }
+
+    static void HandleScene(Player* player)
+    {
+        player->ClearUnitState(UNIT_STATE_ROOT);
+    }
+
+    void OnSceneStart(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->AddUnitState(UNIT_STATE_ROOT);
+    }
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        HandleScene(player);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        HandleScene(player);
+    }
+};
+
 void AddSC_boss_maiden_of_virtue_rtk()
 {
     RegisterReturnToKarazhanCreatureAI(boss_maiden_of_virtue_rtk);
@@ -284,4 +319,6 @@ void AddSC_boss_maiden_of_virtue_rtk()
     RegisterSpellScript(spell_maiden_of_virtue_rtk_holy_bulwark);
 
     RegisterAreaTriggerAI(at_maiden_of_virtue_rtk_sacred_ground);
+
+    new scene_maiden_of_virtue_outro();
 }
