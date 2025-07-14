@@ -1633,7 +1633,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StoreRaidMapDifficulty();
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
-        bool UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step);
+        bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
 
         bool UpdateCraftSkill(uint32 spellid);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
@@ -1818,7 +1818,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
         void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
-        bool isHonorOrXPTarget(Unit* victim) const;
+        bool isHonorOrXPTarget(Unit const* victim) const;
 
         bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() const { return m_grantableLevels; }
