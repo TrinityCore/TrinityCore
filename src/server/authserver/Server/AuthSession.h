@@ -30,8 +30,8 @@
 
 using boost::asio::ip::tcp;
 
+class AuthHandlerTable;
 class ByteBuffer;
-struct AuthHandler;
 enum eAuthCmd : uint8;
 
 enum AuthStatus
@@ -41,6 +41,7 @@ enum AuthStatus
     STATUS_RECONNECT_PROOF,
     STATUS_AUTHED,
     STATUS_WAITING_FOR_REALM_LIST,
+    STATUS_XFER,
     STATUS_CLOSED
 };
 
@@ -64,8 +65,6 @@ class AuthSession : public Socket<AuthSession>
     typedef Socket<AuthSession> AuthSocket;
 
 public:
-    static consteval std::array<AuthHandler, 10> InitHandlers();
-
     AuthSession(tcp::socket&& socket);
 
     void Start() override;
@@ -77,11 +76,15 @@ protected:
     void ReadHandler() override;
 
 private:
+    friend AuthHandlerTable;
     bool HandleLogonChallenge();
     bool HandleLogonProof();
     bool HandleReconnectChallenge();
     bool HandleReconnectProof();
     bool HandleRealmList();
+    bool HandleXferAccept();
+    bool HandleXferResume();
+    bool HandleXferCancel();
 
     void CheckIpCallback(PreparedQueryResult result);
     void LogonChallengeCallback(PreparedQueryResult result);
@@ -105,14 +108,6 @@ private:
     uint8 _expversion;
 
     QueryCallbackProcessor _queryProcessor;
-};
-
-struct AuthHandler
-{
-    eAuthCmd cmd;
-    AuthStatus status;
-    size_t packetSize;
-    bool (AuthSession::*handler)();
 };
 
 #endif

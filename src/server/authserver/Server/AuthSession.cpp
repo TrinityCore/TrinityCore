@@ -49,12 +49,6 @@ enum eAuthCmd : uint8
     XFER_CANCEL = 0x34
 };
 
-// perfect hash function for all valid values of eAuthCmd
-inline constexpr std::size_t GetOpcodeArrayIndex(eAuthCmd c)
-{
-    return (c & 0x7) + ((c & 0x10) >> 2) + ((c & 0x20) >> 5);
-}
-
 #pragma pack(push, 1)
 
 typedef struct AUTH_LOGON_CHALLENGE_C
@@ -126,50 +120,56 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
 
-consteval std::array<AuthHandler, 10> AuthSession::InitHandlers()
+struct AuthHandler
 {
-    std::array<AuthHandler, 10> handlers = { };
+    eAuthCmd cmd = { };
+    AuthStatus status = STATUS_CLOSED;
+    size_t packetSize = 0;
+    bool (*handler)(AuthSession*) = nullptr;
+};
 
-    handlers[GetOpcodeArrayIndex(AUTH_LOGON_CHALLENGE)] =
+class AuthHandlerTable
+{
+public:
+    consteval AuthHandlerTable()
     {
-        .cmd = AUTH_LOGON_CHALLENGE,
-        .status = STATUS_CHALLENGE,
-        .packetSize = AUTH_LOGON_CHALLENGE_INITIAL_SIZE,
-        .handler = &AuthSession::HandleLogonChallenge
-    };
-    handlers[GetOpcodeArrayIndex(AUTH_LOGON_PROOF)] =
-    {
-        .cmd = AUTH_LOGON_PROOF,
-        .status = STATUS_LOGON_PROOF,
-        .packetSize = sizeof(AUTH_LOGON_PROOF_C),
-        .handler = &AuthSession::HandleLogonProof
-    };
-    handlers[GetOpcodeArrayIndex(AUTH_RECONNECT_CHALLENGE)] =
-    {
-        .cmd = AUTH_RECONNECT_CHALLENGE,
-        .status = STATUS_CHALLENGE,
-        .packetSize = AUTH_LOGON_CHALLENGE_INITIAL_SIZE,
-        .handler = &AuthSession::HandleReconnectChallenge
-    };
-    handlers[GetOpcodeArrayIndex(AUTH_RECONNECT_PROOF)] =
-    {
-        .cmd = AUTH_RECONNECT_PROOF,
-        .status = STATUS_RECONNECT_PROOF,
-        .packetSize = sizeof(AUTH_RECONNECT_PROOF_C),
-        .handler = &AuthSession::HandleReconnectProof
-    };
-    handlers[GetOpcodeArrayIndex(REALM_LIST)] =
-    {
-        .cmd = REALM_LIST,
-        .status = STATUS_AUTHED,
-        .packetSize = REALM_LIST_PACKET_SIZE,
-        .handler = &AuthSession::HandleRealmList
-    };
+        InitializeHandler(AUTH_LOGON_CHALLENGE, STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, [](AuthSession* session) { return session->HandleLogonChallenge(); });
+        InitializeHandler(AUTH_LOGON_PROOF, STATUS_LOGON_PROOF, sizeof(AUTH_LOGON_PROOF_C), [](AuthSession* session) { return session->HandleLogonProof(); });
+        InitializeHandler(AUTH_RECONNECT_CHALLENGE, STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, [](AuthSession* session) { return session->HandleReconnectChallenge(); });
+        InitializeHandler(AUTH_RECONNECT_PROOF, STATUS_RECONNECT_PROOF, sizeof(AUTH_RECONNECT_PROOF_C), [](AuthSession* session) { return session->HandleReconnectProof(); });
+        InitializeHandler(REALM_LIST, STATUS_AUTHED, REALM_LIST_PACKET_SIZE, [](AuthSession* session) { return session->HandleRealmList(); });
+        InitializeHandler(XFER_ACCEPT, STATUS_XFER, 1, [](AuthSession* session) { return session->HandleXferAccept(); });
+        InitializeHandler(XFER_RESUME, STATUS_XFER, 9, [](AuthSession* session) { return session->HandleXferResume(); });
+        InitializeHandler(XFER_CANCEL, STATUS_XFER, 1, [](AuthSession* session) { return session->HandleXferCancel(); });
+    }
 
-    return handlers;
-}
+    constexpr AuthHandler const* operator[](eAuthCmd cmd) const
+    {
+        std::size_t index = GetOpcodeArrayIndex(cmd);
+        if (index >= _handlers.size())
+            return nullptr;
 
-constexpr std::array<AuthHandler, 10> Handlers = AuthSession::InitHandlers();
+        AuthHandler const& handler = _handlers[index];
+        if (handler.cmd != cmd)
+            return nullptr;
+
+        return &handler;
+    }
+
+private:
+    // perfect hash function for all valid values of eAuthCmd
+    inline static constexpr std::size_t GetOpcodeArrayIndex(eAuthCmd c)
+    {
+        return (c & 0x7) + ((c & 0x10) >> 2) + ((c & 0x20) >> 5);
+    }
+
+    constexpr void InitializeHandler(eAuthCmd cmd, AuthStatus status, std::size_t packetSize, bool (*handler)(AuthSession*))
+    {
+        _handlers[GetOpcodeArrayIndex(cmd)] = { .cmd = cmd, .status = status, .packetSize = packetSize, .handler = handler, };
+    }
+
+    std::array<AuthHandler, 10> _handlers;
+} inline constexpr Handlers;
 
 void AccountInfo::LoadResult(Field* fields)
 {
@@ -253,16 +253,8 @@ void AuthSession::ReadHandler()
     while (packet.GetActiveSize())
     {
         eAuthCmd cmd = eAuthCmd(packet.GetReadPointer()[0]);
-        std::size_t index = GetOpcodeArrayIndex(cmd);
-        if (index >= Handlers.size() || Handlers[index].cmd != cmd)
-        {
-            // well we dont handle this, lets just ignore it
-            packet.Reset();
-            break;
-        }
-
-        AuthHandler const* itr = &Handlers[index];
-        if (_status != itr->status)
+        AuthHandler const* itr = Handlers[cmd];
+        if (!itr || _status != itr->status)
         {
             CloseSocket();
             return;
@@ -286,7 +278,7 @@ void AuthSession::ReadHandler()
         if (packet.GetActiveSize() < size)
             break;
 
-        if (!(this->*itr->handler)())
+        if (!itr->handler(this))
         {
             CloseSocket();
             return;
@@ -868,6 +860,30 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     SendPacket(hdr);
 
     _status = STATUS_AUTHED;
+}
+
+bool AuthSession::HandleXferAccept()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferAccept");
+
+    // empty handler meant to close the connection if received
+    return false;
+}
+
+bool AuthSession::HandleXferResume()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferResume");
+
+    // empty handler meant to close the connection if received
+    return false;
+}
+
+bool AuthSession::HandleXferCancel()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferCancel");
+
+    // empty handler meant to close the connection if received
+    return false;
 }
 
 bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
