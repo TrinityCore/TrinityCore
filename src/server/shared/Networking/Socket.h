@@ -120,14 +120,21 @@ public:
         boost::system::error_code shutdownError;
         _socket.shutdown(boost::asio::socket_base::shutdown_send, shutdownError);
         if (shutdownError)
-            TC_LOG_DEBUG("network", "Socket::CloseSocket: %s errored when shutting down socket: %i (%s)", GetRemoteIpAddress().to_string().c_str(),
-                shutdownError.value(), shutdownError.message().c_str());
+            TC_LOG_DEBUG("network", "Socket::CloseSocket: {} errored when shutting down socket: {} ({})", GetRemoteIpAddress().to_string(),
+                shutdownError.value(), shutdownError.message());
 
         OnClose();
     }
 
     /// Marks the socket for closing after write buffer becomes empty
-    void DelayedCloseSocket() { _closing = true; }
+    void DelayedCloseSocket()
+    {
+        if (_closing.exchange(true))
+            return;
+
+        if (_writeQueue.empty())
+            CloseSocket();
+    }
 
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
@@ -160,8 +167,8 @@ protected:
         boost::system::error_code err;
         _socket.set_option(tcp::no_delay(enable), err);
         if (err)
-            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for %s - %d (%s)",
-                GetRemoteIpAddress().to_string().c_str(), err.value(), err.message().c_str());
+            TC_LOG_DEBUG("network", "Socket::SetNoDelay: failed to set_option(boost::asio::ip::tcp::no_delay) for {} - {} ({})",
+                GetRemoteIpAddress().to_string(), err.value(), err.message());
     }
 
 private:

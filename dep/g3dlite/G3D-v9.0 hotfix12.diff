@@ -1,0 +1,192 @@
+diff --git a/dep/g3dlite/include/G3D/AtomicInt32.h b/dep/g3dlite/include/G3D/AtomicInt32.h
+index 7b56e001ae29..9824d426d741 100644
+--- a/dep/g3dlite/include/G3D/AtomicInt32.h
++++ b/dep/g3dlite/include/G3D/AtomicInt32.h
+@@ -76,12 +76,16 @@ class AtomicInt32 {
+ 
+ #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD)
+ 
+-            int32 old;
+-            asm volatile ("lock; xaddl %0,%1"
+-                  : "=r"(old), "=m"(m_value) /* outputs */
+-                  : "0"(x), "m"(m_value)   /* inputs */
+-                  : "memory", "cc");
+-            return old;
++#           if defined(__aarch64__)
++                return __sync_fetch_and_add(&m_value, x);
++#           else
++                int32 old;
++                asm volatile ("lock; xaddl %0,%1"
++                    : "=r"(old), "=m"(m_value) /* outputs */
++                    : "0"(x), "m"(m_value)   /* inputs */
++                    : "memory", "cc");
++                return old;
++#           endif
+             
+ #       elif defined(G3D_OSX)
+ 
+@@ -115,14 +119,18 @@ class AtomicInt32 {
+             // Note: returns the newly decremented value
+             return InterlockedDecrement(&m_value);
+ #       elif defined(G3D_LINUX)  || defined(G3D_FREEBSD)
+-            unsigned char nz;
+-
+-            asm volatile ("lock; decl %1;\n\t"
+-                          "setnz %%al"
+-                          : "=a" (nz)
+-                          : "m" (m_value)
+-                          : "memory", "cc");
+-            return nz;
++#           if defined(__aarch64__)
++                return __sync_sub_and_fetch(&m_value, 1);
++#           else
++                unsigned char nz;
++
++                asm volatile ("lock; decl %1;\n\t"
++                            "setnz %%al"
++                            : "=a" (nz)
++                            : "m" (m_value)
++                            : "memory", "cc");
++                return nz;
++#           endif
+ #       elif defined(G3D_OSX)
+             // Note: returns the newly decremented value
+             return OSAtomicDecrement32(&m_value);
+@@ -143,17 +151,21 @@ class AtomicInt32 {
+ #       if defined(G3D_WINDOWS)
+             return InterlockedCompareExchange(&m_value, exchange, comperand);
+ #       elif defined(G3D_LINUX) || defined(G3D_FREEBSD) || defined(G3D_OSX)
+-            // Based on Apache Portable Runtime
+-            // http://koders.com/c/fid3B6631EE94542CDBAA03E822CA780CBA1B024822.aspx
+-            int32 ret;
+-            asm volatile ("lock; cmpxchgl %1, %2"
+-                          : "=a" (ret)
+-                          : "r" (exchange), "m" (m_value), "0"(comperand)
+-                          : "memory", "cc");
+-            return ret;
+-
+-            // Note that OSAtomicCompareAndSwap32 does not return a useful value for us
+-            // so it can't satisfy the cmpxchgl contract.
++#           if defined(__aarch64__)
++                return __sync_val_compare_and_swap(&m_value, comperand, exchange);
++#           else
++                // Based on Apache Portable Runtime
++                // http://koders.com/c/fid3B6631EE94542CDBAA03E822CA780CBA1B024822.aspx
++                int32 ret;
++                asm volatile ("lock; cmpxchgl %1, %2"
++                            : "=a" (ret)
++                            : "r" (exchange), "m" (m_value), "0"(comperand)
++                            : "memory", "cc");
++                return ret;
++
++                // Note that OSAtomicCompareAndSwap32 does not return a useful value for us
++                // so it can't satisfy the cmpxchgl contract.
++#           endif
+ #       endif
+     }
+ 
+diff --git a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+index 4624dd916474..9ed88957d755 100644
+--- a/dep/g3dlite/include/G3D/System.h
++++ b/dep/g3dlite/include/G3D/System.h
+@@ -21,6 +21,10 @@
+ #include "G3D/FileNotFound.h"
+ #include <string>
+ 
++#if defined(__aarch64__)
++#include <sys/time.h>
++#endif
++
+ #ifdef G3D_OSX
+ #define Zone OSX_Zone
+ #   include <CoreServices/CoreServices.h>
+@@ -497,15 +501,37 @@ class System {
+ #elif defined(G3D_LINUX)
+ 
+     inline uint64 System::getCycleCount() {
+-        uint32 timehi, timelo;
++#       if defined(__aarch64__)
++#           if (__ARM_ARCH >= 6)  // V6 is the earliest arch that has a standard cyclecount
++                uint32_t pmccntr;
++                uint32_t pmuseren;
++                uint32_t pmcntenset;
++                // Read the user mode perf monitor counter access permissions.
++                __asm__ __volatile__("mrc p15, 0, %w0, c9, c14, 0" : "=r"(pmuseren));
++                if (pmuseren & 1) {  // Allows reading perfmon counters for user mode code.
++                    __asm__ __volatile__("mrc p15, 0, %w0, c9, c12, 1" : "=r"(pmcntenset));
++                    if (pmcntenset & 0x80000000ul) {  // Is it counting?
++                        __asm__ __volatile__("mrc p15, 0, %w0, c9, c13, 0" : "=r"(pmccntr));
++                        // The counter is set up to count every 64th cycle
++                        return static_cast<uint64>(pmccntr) * 64;  // Should optimize to << 6
++                    }
++                }
++#           endif
+ 
+-        __asm__ __volatile__ (
+-            "rdtsc            "
+-            : "=a" (timelo),
+-              "=d" (timehi)
+-            : );
++            struct timeval tv;
++            gettimeofday(&tv, nullptr);
++            return static_cast<uint64>(tv.tv_sec) * 1000000 + tv.tv_usec;
++#       else
++            uint32 timehi, timelo;
++
++            __asm__ __volatile__ (
++                "rdtsc            "
++                : "=a" (timelo),
++                "=d" (timehi)
++                : );
+ 
+-        return ((uint64)timehi << 32) + (uint64)timelo;
++            return ((uint64)timehi << 32) + (uint64)timelo;
++#       endif
+     }
+ 
+ #elif defined(G3D_OSX)
+diff --git a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+index 439495ab1315..d043f21491ad 100644
+--- a/dep/g3dlite/include/G3D/platform.h
++++ b/dep/g3dlite/include/G3D/platform.h
+@@ -273,7 +273,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR szCmdLine, int sw) {\
+ #           define __stdcall __attribute__((stdcall))
+ #       endif
+ 
+-#   elif defined(__x86_64__)
++#   elif defined(__x86_64__) || defined(__arm) || defined(__aarch64__)
+ 
+ #       ifndef __cdecl
+ #           define __cdecl
+diff --git a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+index b841e23c497e..4a75d320b8d3 100644
+--- a/dep/g3dlite/source/System.cpp
++++ b/dep/g3dlite/source/System.cpp
+@@ -79,8 +79,9 @@
+ #endif
+ 
+ // SIMM include
++#if !defined(__aarch64__)
+ #include <xmmintrin.h>
+-
++#endif
+ 
+ namespace G3D {
+     
+@@ -1697,6 +1698,16 @@ void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, ui
+ 	edx = regs[3];
+ }
+ 
++#elif defined(__aarch64__) || defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)
++
++// non-x86 CPU; no CPUID
++void System::cpuid(CPUIDFunction func, uint32& eax, uint32& ebx, uint32& ecx, uint32& edx) {
++    eax = 0;
++    ebx = 0;
++    ecx = 0;
++    edx = 0;
++}
++
+ #else
+ 
+ // See http://sam.zoy.org/blog/2007-04-13-shlib-with-non-pic-code-have-inline-assembly-and-pic-mix-well

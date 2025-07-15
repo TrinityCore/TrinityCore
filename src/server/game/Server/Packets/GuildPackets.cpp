@@ -50,7 +50,7 @@ void WorldPackets::Guild::GuildCreate::Read()
 WorldPacket const* WorldPackets::Guild::GuildInfoResponse::Write()
 {
     _worldPacket << GuildName;
-    _worldPacket.AppendPackedTime(CreateDate);
+    _worldPacket << CreateDate;
     _worldPacket << int32(NumMembers);
     _worldPacket << int32(NumAccounts);
 

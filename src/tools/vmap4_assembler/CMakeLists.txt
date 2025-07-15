@@ -14,10 +14,6 @@ list(APPEND PRIVATE_SOURCES ${sources_windows})
 
 add_executable(vmap4assembler ${PRIVATE_SOURCES})
 
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  set_target_properties(vmap4assembler PROPERTIES LINK_FLAGS "-framework Carbon")
-endif()
-
 target_link_libraries(vmap4assembler
   PRIVATE
     trinity-core-interface

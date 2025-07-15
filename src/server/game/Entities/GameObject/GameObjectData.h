@@ -420,6 +420,7 @@ struct GameObjectTemplate
 
     std::string AIName;
     uint32 ScriptId;
+    std::string StringId;
     WorldPacket QueryData[TOTAL_LOCALES];
 
     // helpers
@@ -664,6 +665,8 @@ struct TC_GAME_API QuaternionData
     bool isUnit() const;
     void toEulerAnglesZYX(float& Z, float& Y, float& X) const;
     static QuaternionData fromEulerAnglesZYX(float Z, float Y, float X);
+
+    friend bool operator==(QuaternionData const& left, QuaternionData const& right) = default;
 };
 
 // `gameobject_addon` table

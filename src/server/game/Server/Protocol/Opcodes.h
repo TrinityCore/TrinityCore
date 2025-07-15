@@ -1300,7 +1300,7 @@ enum Opcodes : uint16
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                = 0x4F7,
     CMSG_CHAR_RACE_CHANGE                           = 0x4F8,
     MSG_VIEW_PHASE_SHIFT                            = 0x4F9,
-    SMSG_TALENTS_INVOLUNTARILY_RESET                = 0x4FA, // uint8
+    SMSG_TALENTS_INVOLUNTARILY_RESET                = 0x4FA, // uint8 (0 - player talents, 1 - player pet talents)
     CMSG_DEBUG_SERVER_GEO                           = 0x4FB,
     SMSG_DEBUG_SERVER_GEO                           = 0x4FC,
     SMSG_LOOT_SLOT_CHANGED                          = 0x4FD,

@@ -17,10 +17,7 @@
 
 #include "PacketUtilities.h"
 #include "Hyperlinks.h"
-#include "Errors.h"
 #include <utf8.h>
-#include <sstream>
-#include <array>
 
 WorldPackets::InvalidStringValueException::InvalidStringValueException(std::string const& value) : ByteBufferInvalidValueException("string", value.c_str())
 {
@@ -61,12 +58,5 @@ bool WorldPackets::Strings::NoHyperlinks::Validate(std::string const& value)
 
 WorldPackets::PacketArrayMaxCapacityException::PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit)
 {
-    std::ostringstream builder;
-    builder << "Attempted to read more array elements from packet " << requestedSize << " than allowed " << sizeLimit;
-    message().assign(builder.str());
-}
-
-void WorldPackets::CheckCompactArrayMaskOverflow(std::size_t index, std::size_t limit)
-{
-    ASSERT(index < limit, "Attempted to insert " SZFMTD " values into CompactArray but it can only hold " SZFMTD, index, limit);
+    message().assign("Attempted to read more array elements from packet " + Trinity::ToString(requestedSize) + " than allowed " + Trinity::ToString(sizeLimit));
 }

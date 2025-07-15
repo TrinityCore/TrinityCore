@@ -129,6 +129,7 @@ class TC_GAME_API ArenaTeam
         uint32 GetType() const { return Type; }
         uint8 GetSlot() const { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
+        static uint8 GetTypeBySlot(uint8 slot);
         ObjectGuid GetCaptain() const  { return CaptainGuid; }
         std::string const& GetName() const { return TeamName; }
         ArenaTeamStats const& GetStats() const { return Stats; }

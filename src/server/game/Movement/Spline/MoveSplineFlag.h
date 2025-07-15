@@ -102,7 +102,7 @@ namespace Movement
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
 
-        uint8 animTier           : 8;
+        uint8 animTier;
         bool done                : 1;
         bool falling             : 1;
         bool no_spline           : 1;

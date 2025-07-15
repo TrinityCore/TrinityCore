@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "GridNotifiersImpl.h"
 #include "Player.h"
@@ -155,27 +156,6 @@ class spell_love_is_in_the_air_create_heart_candy : public SpellScript
 enum SomethingStinks
 {
     SPELL_HEAVILY_PERFUMED     = 71507
-};
-
-// 70192 - Fragrant Air Analysis
-class spell_love_is_in_the_air_fragrant_air_analysis : public SpellScript
-{
-    PrepareSpellScript(spell_love_is_in_the_air_fragrant_air_analysis);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
-    }
-
-    void HandleScript(SpellEffIndex /*effIndex*/)
-    {
-        GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_love_is_in_the_air_fragrant_air_analysis::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
 };
 
 // 71507 - Heavily Perfumed
@@ -345,7 +325,6 @@ void AddSC_event_love_is_in_the_air()
 {
     RegisterSpellScript(spell_love_is_in_the_air_romantic_picnic);
     RegisterSpellScript(spell_love_is_in_the_air_create_heart_candy);
-    RegisterSpellScript(spell_love_is_in_the_air_fragrant_air_analysis);
     RegisterSpellScript(spell_love_is_in_the_air_heavily_perfumed);
     RegisterSpellScript(spell_love_is_in_the_air_recently_analyzed);
     RegisterSpellScript(spell_love_is_in_the_air_sample_satisfaction);

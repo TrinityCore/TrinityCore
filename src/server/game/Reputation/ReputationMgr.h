@@ -153,10 +153,10 @@ class TC_GAME_API ReputationMgr
         Player* _player;
         FactionStateList _factions;
         ForcedReactions _forcedReactions;
-        uint8 _visibleFactionCount :8;
-        uint8 _honoredFactionCount :8;
-        uint8 _reveredFactionCount :8;
-        uint8 _exaltedFactionCount :8;
+        uint8 _visibleFactionCount;
+        uint8 _honoredFactionCount;
+        uint8 _reveredFactionCount;
+        uint8 _exaltedFactionCount;
         bool _sendFactionIncreased; //! Play visual effect on next SMSG_SET_FACTION_STANDING sent
 };
 

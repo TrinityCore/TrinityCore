@@ -22,6 +22,7 @@
 #include "Weather.h"
 #include "GameTime.h"
 #include "Log.h"
+#include "Map.h"
 #include "MiscPackets.h"
 #include "Player.h"
 #include "Random.h"
@@ -30,14 +31,14 @@
 #include "World.h"
 
 /// Create the Weather object
-Weather::Weather(uint32 zoneId, WeatherData const* weatherChances)
-    : m_zone(zoneId), m_weatherChances(weatherChances)
+Weather::Weather(Map* map, uint32 zoneId, WeatherData const* weatherChances)
+    : m_map(map), m_zone(zoneId), m_weatherChances(weatherChances)
 {
     m_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_CHANGEWEATHER));
     m_type = WEATHER_TYPE_FINE;
     m_intensity = 0;
 
-    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone {} (change every {} minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -98,7 +99,7 @@ bool Weather::ReGenerate()
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    TC_LOG_INFO("misc", "Generating a change in {} weather for zone {}.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_intensity < 0.33333334f))                // Get fair
     {
@@ -216,7 +217,7 @@ bool Weather::UpdateWeather()
     WorldPackets::Misc::Weather weather(state, m_intensity);
 
     //- Returns false if there were no players found to update
-    if (!sWorld->SendZoneMessage(m_zone, weather.Write()))
+    if (!m_map->SendZoneMessage(m_zone, weather.Write()))
         return false;
 
     ///- Log the event
@@ -265,7 +266,7 @@ bool Weather::UpdateWeather()
             break;
     }
 
-    TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
+    TC_LOG_INFO("misc", "Change the weather of zone {} to {}.", m_zone, wthstr);
     sScriptMgr->OnWeatherChange(this, state, m_intensity);
     return true;
 }

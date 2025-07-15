@@ -85,9 +85,13 @@ typedef std::map<ObjectGuid, time_t> PlayerTimerMap;
 class TC_GAME_API BfCapturePoint
 {
     public:
-        BfCapturePoint(Battlefield* bf);
+        explicit BfCapturePoint(Battlefield* bf);
+        BfCapturePoint(BfCapturePoint const&) = delete;
+        BfCapturePoint(BfCapturePoint&&) = delete;
+        BfCapturePoint& operator=(BfCapturePoint const&) = delete;
+        BfCapturePoint& operator=(BfCapturePoint&&) = delete;
 
-        virtual ~BfCapturePoint() { }
+        virtual ~BfCapturePoint();
 
         virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
@@ -153,7 +157,13 @@ class TC_GAME_API BfCapturePoint
 class TC_GAME_API BfGraveyard
 {
     public:
-        BfGraveyard(Battlefield* Bf);
+        explicit BfGraveyard(Battlefield* bf);
+        BfGraveyard(BfGraveyard const&) = delete;
+        BfGraveyard(BfGraveyard&&) = delete;
+        BfGraveyard& operator=(BfGraveyard const&) = delete;
+        BfGraveyard& operator=(BfGraveyard&&) = delete;
+
+        virtual ~BfGraveyard();
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
@@ -204,6 +214,11 @@ class TC_GAME_API Battlefield : public ZoneScript
     public:
         /// Constructor
         Battlefield();
+        Battlefield(Battlefield const&) = delete;
+        Battlefield(Battlefield&&) = delete;
+        Battlefield& operator=(Battlefield const&) = delete;
+        Battlefield& operator=(Battlefield&&) = delete;
+
         /// Destructor
         virtual ~Battlefield();
 

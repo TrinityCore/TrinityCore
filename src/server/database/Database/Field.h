@@ -15,27 +15,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _FIELD_H
-#define _FIELD_H
+#ifndef TRINITY_DATABASE_FIELD_H
+#define TRINITY_DATABASE_FIELD_H
 
 #include "Define.h"
-#include "DatabaseEnvFwd.h"
+#include "Duration.h"
 #include <array>
 #include <string>
 #include <string_view>
 #include <vector>
 
+class BaseDatabaseResultValueConverter;
+
 enum class DatabaseFieldTypes : uint8
 {
     Null,
+    UInt8,
     Int8,
+    UInt16,
     Int16,
+    UInt32,
     Int32,
+    UInt64,
     Int64,
     Float,
     Double,
     Decimal,
     Date,
+    Time,
     Binary
 };
 
@@ -48,6 +55,7 @@ struct QueryResultFieldMetadata
     char const* TypeName = nullptr;
     uint32 Index = 0;
     DatabaseFieldTypes Type = DatabaseFieldTypes::Null;
+    BaseDatabaseResultValueConverter const* Converter = nullptr;
 };
 
 /**
@@ -104,6 +112,7 @@ class TC_DATABASE_API Field
         int64 GetInt64() const;
         float GetFloat() const;
         double GetDouble() const;
+        SystemTimePoint GetDate() const;
         char const* GetCString() const;
         std::string GetString() const;
         std::string_view GetStringView() const;
@@ -118,28 +127,17 @@ class TC_DATABASE_API Field
 
         bool IsNull() const
         {
-            return data.value == nullptr;
+            return _value == nullptr;
         }
 
-    protected:
-        struct
-        {
-            char const* value;          // Actual data in memory
-            uint32 length;              // Length
-            bool raw;                   // Raw bytes? (Prepared statement or ad hoc)
-         } data;
-
-        void SetByteValue(char const* newValue, uint32 length);
-        void SetStructuredValue(char const* newValue, uint32 length);
-
-        bool IsType(DatabaseFieldTypes type) const;
-
-        bool IsNumeric() const;
-
     private:
-        QueryResultFieldMetadata const* meta;
-        void LogWrongType(char const* getter) const;
-        void SetMetadata(QueryResultFieldMetadata const* fieldMeta);
+        char const* _value;             // Actual data in memory
+        uint32 _length;                 // Length
+
+        void SetValue(char const* newValue, uint32 length);
+
+        QueryResultFieldMetadata const* _meta;
+        void SetMetadata(QueryResultFieldMetadata const* meta);
 
         void GetBinarySizeChecked(uint8* buf, size_t size) const;
 };

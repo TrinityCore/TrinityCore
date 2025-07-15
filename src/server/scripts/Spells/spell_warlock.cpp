@@ -213,7 +213,7 @@ class spell_warl_create_healthstone : public SpellScriptLoader
                                 rank = 2;
                                 break;
                             default:
-                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                TC_LOG_ERROR("spells", "Unknown rank of Improved Healthstone id: {}", aurEff->GetId());
                                 break;
                         }
                     }
@@ -449,13 +449,9 @@ class spell_warl_drain_soul : public AuraScript
         // Drain Soul's proc tries to happen each time the warlock lands a killing blow on a unit while channeling.
         // Make sure that dying unit is afflicted by the caster's Drain Soul debuff in order to avoid a false positive.
 
-        Unit* caster = GetCaster();
-        Unit* victim = eventInfo.GetProcTarget();
-
-        if (caster && victim)
-            return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL_R1, caster->GetGUID()) != 0;
-
-        return false;
+        Unit* caster = eventInfo.GetActor();
+        Unit* victim = eventInfo.GetActionTarget();
+        return victim->GetAuraApplicationOfRankedSpell(SPELL_WARLOCK_DRAIN_SOUL_R1, caster->GetGUID()) != 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
@@ -621,7 +617,7 @@ class spell_warl_glyph_of_shadowflame : public AuraScript
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         PreventDefaultAction();
-        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, aurEff);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_WARLOCK_GLYPH_OF_SHADOWFLAME, aurEff);
     }
 
     void Register() override
@@ -727,7 +723,7 @@ class spell_warl_life_tap : public SpellScript
         int32 base = GetEffectInfo(effIndex).CalcValue();
 
         float penalty = caster->CalculateSpellpowerCoefficientLevelPenalty(GetSpellInfo());
-        float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.5f * penalty;
+        float fmana = (float)base + caster->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + AsUnderlyingType(SPELL_SCHOOL_SHADOW)) * 0.5f * penalty;
 
         // Improved Life Tap mod
         if (AuraEffect const* aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, WARLOCK_ICON_ID_IMPROVED_LIFE_TAP, 0))

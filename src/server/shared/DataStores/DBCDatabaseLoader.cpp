@@ -57,7 +57,7 @@ static char const* nullStr = "";
 
 char* DBCDatabaseLoader::Load(uint32& records, char**& indexTable)
 {
-    std::string query = Trinity::StringFormat("SELECT * FROM %s ORDER BY %s DESC;", _sqlTableName, _indexName);
+    std::string query = Trinity::StringFormat("SELECT * FROM {} ORDER BY {} DESC;", _sqlTableName, _indexName);
 
     // no error if empty set
     QueryResult result = WorldDatabase.Query(query.c_str());

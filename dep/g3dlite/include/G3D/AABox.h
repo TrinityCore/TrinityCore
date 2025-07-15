@@ -17,14 +17,14 @@
 
 #include "G3D/platform.h"
 #include "G3D/debug.h"
-#include "G3D/Array.h"
-#include "G3D/Plane.h"
-#include "G3D/Sphere.h"
 #include "G3D/Vector3.h"
 
 namespace G3D {
 
 class Any;
+template <class T, size_t MIN_ELEMENTS> class Array;
+class Plane;
+class Sphere;
 
 /**
  An axis-aligned box.
@@ -221,7 +221,7 @@ public:
        
      */
     bool culledBy
-    (const Array<Plane>&    plane,
+    (const Array<Plane, 10>&    plane,
      int32&            cullingPlaneIndex,
      const uint32          testMask,
      uint32&                    childMask) const;
@@ -230,7 +230,7 @@ public:
      Conservative culling test that does not produce a mask for children.
      */
     bool culledBy
-    (const Array<Plane>&        plane,
+    (const Array<Plane, 10>&        plane,
      int32&                        cullingPlaneIndex = dummy,
      const uint32               testMask  = 0xFFFFFFFF) const;
 

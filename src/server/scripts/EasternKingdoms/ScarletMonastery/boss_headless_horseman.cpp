@@ -16,6 +16,7 @@
  */
 
 #include "scarlet_monastery.h"
+#include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"

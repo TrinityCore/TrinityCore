@@ -22,6 +22,7 @@
 #include "EnumFlag.h"
 #include "ObjectGuid.h"
 #include "WaypointDefines.h"
+#include "advstd.h"
 #include <limits>
 #include <map>
 #include <string>
@@ -1578,9 +1579,19 @@ struct SmartScriptHolder
 
     operator bool() const { return entryOrGuid != 0; }
     // Default comparision operator using priority field as first ordering field
-    bool operator<(SmartScriptHolder const& other) const
+    std::strong_ordering operator<=>(SmartScriptHolder const& right) const
     {
-        return std::tie(priority, entryOrGuid, source_type, event_id, link) < std::tie(other.priority, other.entryOrGuid, other.source_type, other.event_id, other.link);
+        if (std::strong_ordering cmp = priority <=> right.priority; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = entryOrGuid <=> right.entryOrGuid; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = source_type <=> right.source_type; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = event_id <=> right.event_id; advstd::is_neq(cmp))
+            return cmp;
+        if (std::strong_ordering cmp = link <=> right.link; advstd::is_neq(cmp))
+            return cmp;
+        return std::strong_ordering::equal;
     }
 
     static constexpr uint32 DEFAULT_PRIORITY = std::numeric_limits<uint32>::max();

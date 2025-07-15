@@ -45,12 +45,20 @@ Hints
 Set ``READLINE_ROOT_DIR`` to the root directory of Readline installation.
 #]=======================================================================]
 
+set(_READLINE_ROOT_HINTS
+  ${READLINE_ROOT_DIR}
+  ENV READLINE_ROOT_DIR
+)
+
+if(HOMEBREW_PREFIX)
+  list(APPEND _READLINE_ROOT_HINTS "${HOMEBREW_PREFIX}/opt/readline")
+endif()
+
 find_path(READLINE_INCLUDE_DIR
   NAMES
     readline/readline.h
   HINTS
-    ${READLINE_ROOT_DIR}
-    ENV READLINE_ROOT_DIR
+    ${_READLINE_ROOT_HINTS}
   PATH_SUFFIXES
     include)
 
@@ -58,8 +66,7 @@ find_library(READLINE_LIBRARY
   NAMES
     readline
   HINTS
-    ${READLINE_ROOT_DIR}
-    ENV READLINE_ROOT_DIR
+    ${_READLINE_ROOT_HINTS}
   PATH_SUFFIXES
     lib)
 

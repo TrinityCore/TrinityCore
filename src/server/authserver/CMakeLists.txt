@@ -35,8 +35,9 @@ add_executable(authserver
 )
 
 if(NOT WIN32)
-  set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+  target_compile_definitions(authserver PRIVATE
+    _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+    _TRINITY_REALM_CONFIG_DIR="${CONF_DIR}/authserver.conf.d"
   )
 endif()
 
@@ -63,28 +64,22 @@ set_target_properties(authserver
       FOLDER
         "server")
 
-if(COPY_CONF AND WIN32)
-  if("${CMAKE_MAKE_PROGRAM}" MATCHES "MSBuild")
-    add_custom_command(TARGET authserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-    )
-  elseif(MINGW)
-    add_custom_command(TARGET authserver
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
-    )
-  endif()
-endif()
-
 if(UNIX)
   install(TARGETS authserver DESTINATION bin)
   if(COPY_CONF)
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/../etc/authserver.conf.dist
+    )
     install(FILES  authserver.conf.dist DESTINATION ${CONF_DIR})
   endif()
 elseif(WIN32)
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   if(COPY_CONF)
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/authserver.conf.dist
+    )
     install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()

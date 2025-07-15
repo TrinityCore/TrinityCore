@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PCQ_H
-#define _PCQ_H
+#ifndef TRINITY_PRODUCER_CONSUMER_QUEUE_H
+#define TRINITY_PRODUCER_CONSUMER_QUEUE_H
 
 #include <condition_variable>
 #include <mutex>
@@ -28,16 +28,24 @@ template <typename T>
 class ProducerConsumerQueue
 {
 private:
-    std::mutex _queueLock;
+    mutable std::mutex _queueLock;
     std::queue<T> _queue;
     std::condition_variable _condition;
     std::atomic<bool> _shutdown;
 
 public:
 
-    ProducerConsumerQueue<T>() : _shutdown(false) { }
+    ProducerConsumerQueue() : _shutdown(false) { }
 
-    void Push(const T& value)
+    void Push(T const& value)
+    {
+        std::lock_guard<std::mutex> lock(_queueLock);
+        _queue.push(value);
+
+        _condition.notify_one();
+    }
+
+    void Push(T&& value)
     {
         std::lock_guard<std::mutex> lock(_queueLock);
         _queue.push(std::move(value));
@@ -45,7 +53,7 @@ public:
         _condition.notify_one();
     }
 
-    bool Empty()
+    bool Empty() const
     {
         std::lock_guard<std::mutex> lock(_queueLock);
 
@@ -54,6 +62,8 @@ public:
 
     size_t Size() const
     {
+        std::lock_guard<std::mutex> lock(_queueLock);
+
         return _queue.size();
     }
 
@@ -64,7 +74,7 @@ public:
         if (_queue.empty() || _shutdown)
             return false;
 
-        value = _queue.front();
+        value = std::move(_queue.front());
 
         _queue.pop();
 
@@ -96,7 +106,8 @@ public:
         {
             T& value = _queue.front();
 
-            DeleteQueuedObject(value);
+            if constexpr (std::is_pointer_v<T>)
+                delete value;
 
             _queue.pop();
         }
@@ -105,13 +116,6 @@ public:
 
         _condition.notify_all();
     }
-
-private:
-    template<typename E = T>
-    typename std::enable_if<std::is_pointer<E>::value>::type DeleteQueuedObject(E& obj) { delete obj; }
-
-    template<typename E = T>
-    typename std::enable_if<!std::is_pointer<E>::value>::type DeleteQueuedObject(E const& /*packet*/) { }
 };
 
-#endif
+#endif // TRINITY_PRODUCER_CONSUMER_QUEUE_H

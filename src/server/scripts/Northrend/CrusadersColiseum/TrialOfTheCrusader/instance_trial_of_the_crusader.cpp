@@ -298,7 +298,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < EncounterCount)
                 {
-                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type {}) {} = state {};", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
                         if (instance->IsHeroic())
@@ -573,57 +573,28 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void Save()
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                    saveStream << GetBossState(i) << ' ';
-
-                saveStream << TrialCounter << ' '
-                    << uint32(TributeToImmortalityEligible ? 1 : 0) << ' '
-                    << uint32(TributeToDedicatedInsanity ? 1 : 0);
-                SaveDataBuffer = saveStream.str();
-
                 SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
                 NeedSave = false;
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                return SaveDataBuffer;
+                data << TrialCounter << ' '
+                    << uint32(TributeToImmortalityEligible ? 1 : 0) << ' '
+                    << uint32(TributeToDedicatedInsanity ? 1 : 0);
             }
 
-            void Load(char const* strIn) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
+                uint32 temp = 0;
 
-                OUT_LOAD_INST_DATA(strIn);
+                data >> TrialCounter;
 
-                std::istringstream loadStream(strIn);
+                data >> temp;
+                TributeToImmortalityEligible = temp != 0;
 
-                uint32 tmpState;
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
-                }
-
-                loadStream >> TrialCounter;
-                loadStream >> tmpState;
-                TributeToImmortalityEligible = tmpState != 0;
-                loadStream >> tmpState;
-                TributeToDedicatedInsanity = tmpState != 0;
-                EventStage = 0;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> temp;
+                TributeToDedicatedInsanity = temp != 0;
             }
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/) override
@@ -671,7 +642,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 Team;
                 bool NeedSave;
                 bool CrusadersSpecialState;
-                std::string SaveDataBuffer;
                 GuidVector snoboldGUIDS;
 
                 // Achievement stuff

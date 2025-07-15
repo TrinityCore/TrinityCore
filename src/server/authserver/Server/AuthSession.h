@@ -19,21 +19,20 @@
 #define __AUTHSESSION_H__
 
 #include "AsyncCallbackProcessor.h"
-#include "BigNumber.h"
-#include "ByteBuffer.h"
 #include "Common.h"
 #include "CryptoHash.h"
+#include "DatabaseEnvFwd.h"
+#include "Duration.h"
 #include "Optional.h"
 #include "Socket.h"
 #include "SRP6.h"
-#include "QueryResult.h"
-#include <memory>
 #include <boost/asio/ip/tcp.hpp>
 
 using boost::asio::ip::tcp;
 
-class Field;
-struct AuthHandler;
+class AuthHandlerTable;
+class ByteBuffer;
+enum eAuthCmd : uint8;
 
 enum AuthStatus
 {
@@ -42,6 +41,7 @@ enum AuthStatus
     STATUS_RECONNECT_PROOF,
     STATUS_AUTHED,
     STATUS_WAITING_FOR_REALM_LIST,
+    STATUS_XFER,
     STATUS_CLOSED
 };
 
@@ -65,8 +65,6 @@ class AuthSession : public Socket<AuthSession>
     typedef Socket<AuthSession> AuthSocket;
 
 public:
-    static std::unordered_map<uint8, AuthHandler> InitHandlers();
-
     AuthSession(tcp::socket&& socket);
 
     void Start() override;
@@ -78,11 +76,15 @@ protected:
     void ReadHandler() override;
 
 private:
+    friend AuthHandlerTable;
     bool HandleLogonChallenge();
     bool HandleLogonProof();
     bool HandleReconnectChallenge();
     bool HandleReconnectProof();
     bool HandleRealmList();
+    bool HandleXferAccept();
+    bool HandleXferResume();
+    bool HandleXferCancel();
 
     void CheckIpCallback(PreparedQueryResult result);
     void LogonChallengeCallback(PreparedQueryResult result);
@@ -102,20 +104,10 @@ private:
     std::string _os;
     std::string _ipCountry;
     uint16 _build;
+    Minutes _timezoneOffset;
     uint8 _expversion;
 
     QueryCallbackProcessor _queryProcessor;
 };
-
-#pragma pack(push, 1)
-
-struct AuthHandler
-{
-    AuthStatus status;
-    size_t packetSize;
-    bool (AuthSession::*handler)();
-};
-
-#pragma pack(pop)
 
 #endif

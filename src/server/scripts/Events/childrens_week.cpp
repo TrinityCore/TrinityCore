@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -516,7 +517,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
                             break;
                         case 2:
                             orphan->SetFacingToObject(me);
-                            Talk(TEXT_SOO_ROO_1);
+                            Talk(TEXT_SOO_ROO_1, player);
                             timer = 6000;
                             break;
                         case 3:
@@ -864,7 +865,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                             timer = 5000;
                             break;
                         case 4:
-                            Talk(TEXT_ALEXSTRASZA_2);
+                            Talk(TEXT_ALEXSTRASZA_2, orphan);
                             me->SetStandState(UNIT_STAND_STATE_KNEEL);
                             me->SetFacingToObject(orphan);
                             timer = 5000;
@@ -899,7 +900,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                             break;
                         case 10:
                             orphan->SetFacingToObject(me);
-                            Talk(TEXT_ALEXSTRASZA_2);
+                            Talk(TEXT_ALEXSTRASZA_2, orphan);
                             timer = 5000;
                             break;
                         case 11:

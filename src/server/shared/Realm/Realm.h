@@ -20,6 +20,8 @@
 
 #include "Common.h"
 #include "AsioHacksFwd.h"
+#include <compare>
+#include <memory>
 
 enum RealmFlags
 {
@@ -41,10 +43,7 @@ struct TC_SHARED_API RealmHandle
 
     uint32 Realm;   // primary key in `realmlist` table
 
-    bool operator<(RealmHandle const& r) const
-    {
-        return Realm < r.Realm;
-    }
+    std::strong_ordering operator<=>(RealmHandle const& r) const { return Realm <=> r.Realm; }
 };
 
 /// Type of server, this is values from second column of Cfg_Configs.dbc

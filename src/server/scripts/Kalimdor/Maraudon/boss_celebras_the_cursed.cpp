@@ -15,101 +15,77 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Celebras_the_Cursed
-SD%Complete: 100
-SDComment:
-SDCategory: Maraudon
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "maraudon.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum CelebrasSpells
 {
     SPELL_WRATH                 = 21807,
-    SPELL_ENTANGLINGROOTS       = 12747,
+    SPELL_ENTANGLING_ROOTS      = 12747,
     SPELL_CORRUPT_FORCES        = 21968
 };
 
-class celebras_the_cursed : public CreatureScript
+enum CelebrasMisc
 {
-public:
-    celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }
+    NPC_CELEBRAS_THE_REDEEMED   = 13716
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+// 12225 - Celebras the Cursed
+struct boss_celebras_the_cursed : public ScriptedAI
+{
+    boss_celebras_the_cursed(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
     {
-        return GetMaraudonAI<celebras_the_cursedAI>(creature);
+        _scheduler.CancelAll();
     }
 
-    struct celebras_the_cursedAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        celebras_the_cursedAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            WrathTimer = 8000;
-            EntanglingRootsTimer = 2000;
-            CorruptForcesTimer = 30000;
-        }
-
-        uint32 WrathTimer;
-        uint32 EntanglingRootsTimer;
-        uint32 CorruptForcesTimer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10min);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            //Wrath
-            if (WrathTimer <= diff)
+        _scheduler
+            .SetValidator([this]
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                    DoCast(target, SPELL_WRATH);
-                WrathTimer = 8000;
-            }
-            else WrathTimer -= diff;
-
-            //EntanglingRoots
-            if (EntanglingRootsTimer <= diff)
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(0s, 6s, [this](TaskContext task)
             {
-                DoCastVictim(SPELL_ENTANGLINGROOTS);
-                EntanglingRootsTimer = 20000;
-            }
-            else EntanglingRootsTimer -= diff;
-
-            //CorruptForces
-            if (CorruptForcesTimer <= diff)
+                DoCastVictim(SPELL_WRATH);
+                task.Repeat(4s, 8s);
+            })
+            .Schedule(0s, 5s, [this](TaskContext task)
             {
-                me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_CORRUPT_FORCES);
-                CorruptForcesTimer = 20000;
-            }
-            else CorruptForcesTimer -= diff;
+                DoCastVictim(SPELL_ENTANGLING_ROOTS);
+                task.Repeat(20s);
+            })
+            .Schedule(30s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_CORRUPT_FORCES);
+                task.Repeat(20s);
+            });
+    }
 
+    void JustDied(Unit* /*killer*/) override
+    {
+        me->SummonCreature(NPC_CELEBRAS_THE_REDEEMED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _scheduler.Update(diff, [this]
+        {
             DoMeleeAttackIfReady();
-        }
-    };
+        });
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 void AddSC_boss_celebras_the_cursed()
 {
-    new celebras_the_cursed();
+    RegisterMaraudonCreatureAI(boss_celebras_the_cursed);
 }

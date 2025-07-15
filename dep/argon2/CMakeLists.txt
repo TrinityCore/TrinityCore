@@ -10,12 +10,12 @@
 
 file(GLOB_RECURSE sources *.c)
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
-  list(REMOVE_ITEM sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
-else()
+if(TRINITY_SYSTEM_PROCESSOR MATCHES "x86|amd64")
   list(REMOVE_ITEM sources
     ${CMAKE_CURRENT_SOURCE_DIR}/argon2/ref.c)
+else()
+  list(REMOVE_ITEM sources
+    ${CMAKE_CURRENT_SOURCE_DIR}/argon2/opt.c)
 endif()
 
 add_library(argon2 STATIC
@@ -23,7 +23,7 @@ add_library(argon2 STATIC
 
 target_compile_definitions(argon2
   PRIVATE
-    -DARGON2_NO_THREADS)
+    ARGON2_NO_THREADS)
 
 set_target_properties(argon2 PROPERTIES LINKER_LANGUAGE CXX)
 

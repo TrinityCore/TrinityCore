@@ -95,7 +95,7 @@ void LootItemStorage::LoadStorageFromDB()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item loots in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item loots in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item loots");
@@ -125,7 +125,7 @@ void LootItemStorage::LoadStorageFromDB()
             ++count;
         } while (result->NextRow());
 
-        TC_LOG_INFO("server.loading", ">> Loaded %u stored item money in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        TC_LOG_INFO("server.loading", ">> Loaded {} stored item money in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
     }
     else
         TC_LOG_INFO("server.loading", ">> Loaded 0 stored item money");
@@ -244,7 +244,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         auto itr = _lootItemStore.find(loot->containerID);
         if (itr != _lootItemStore.end())
         {
-            TC_LOG_ERROR("misc", "Trying to store item loot by player: %s for container id: %u that is already in storage!", player->GetGUID().ToString().c_str(), loot->containerID);
+            TC_LOG_ERROR("misc", "Trying to store item loot by player: {} for container id: {} that is already in storage!", player->GetGUID().ToString(), loot->containerID);
             return;
         }
     }
@@ -266,7 +266,7 @@ void LootItemStorage::AddNewStoredLoot(Loot* loot, Player* player)
         // saved to the DB that the player never should have gotten. This check prevents that, so that only
         // items that the player should get in loot are in the DB.
         // IE: Horde items are not saved to the DB for Ally players.
-        if (!li.AllowedForPlayer(player))
+        if (!li.AllowedForPlayer(player, loot->lootOwnerGUID))
             continue;
 
         // Don't save currency tokens

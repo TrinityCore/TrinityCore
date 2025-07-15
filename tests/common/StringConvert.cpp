@@ -21,24 +21,24 @@
 
 TEST_CASE("String to uint32", "[StringConvert]")
 {
-    REQUIRE(Trinity::StringTo<uint32>("42") == 42);
-    REQUIRE(Trinity::StringTo<uint32>("42", 10) == 42);
+    REQUIRE(Trinity::StringTo<uint32>("42") == 42u);
+    REQUIRE(Trinity::StringTo<uint32>("42", 10) == 42u);
     REQUIRE(Trinity::StringTo<uint32>(" 42") == std::nullopt);
     REQUIRE(Trinity::StringTo<uint32>("tail42") == std::nullopt);
     REQUIRE(Trinity::StringTo<uint32>("42tail") == std::nullopt);
 
-    REQUIRE(Trinity::StringTo<uint32>("ff", 16) == 0xff);
+    REQUIRE(Trinity::StringTo<uint32>("ff", 16) == 0xFFu);
     REQUIRE(Trinity::StringTo<uint32>("0xff") == std::nullopt);
-    REQUIRE(Trinity::StringTo<uint32>("0xff", 0) == 0xff);
+    REQUIRE(Trinity::StringTo<uint32>("0xff", 0) == 0xFFu);
 
-    REQUIRE(Trinity::StringTo<uint32>("101010", 2) == 0b101010);
+    REQUIRE(Trinity::StringTo<uint32>("101010", 2) == 0b101010u);
     REQUIRE(Trinity::StringTo<uint32>("0b101010") == std::nullopt);
-    REQUIRE(Trinity::StringTo<uint32>("0b101010", 0) == 0b101010);
+    REQUIRE(Trinity::StringTo<uint32>("0b101010", 0) == 0b101010u);
 
     REQUIRE(Trinity::StringTo<uint32>("5000000000") == std::nullopt);
     REQUIRE(Trinity::StringTo<uint32>("100000000", 16) == std::nullopt);
     REQUIRE(Trinity::StringTo<uint32>("0x100000000", 0) == std::nullopt);
-    REQUIRE(Trinity::StringTo<uint32>("0xffffffff", 0) == 0xffffffff);
+    REQUIRE(Trinity::StringTo<uint32>("0xffffffff", 0) == 0xFFFFFFFF);
 }
 
 TEST_CASE("String to uint64", "[StringConvert]")
