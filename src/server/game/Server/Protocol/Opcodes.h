@@ -2229,16 +2229,17 @@ constexpr bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
     {
-        case SMSG_QUEST_GIVER_STATUS: // ClientQuest
-        case SMSG_DUEL_REQUESTED: // Client
-        case SMSG_DUEL_IN_BOUNDS: // Client
         case SMSG_QUERY_TIME_RESPONSE: // Client
-        case SMSG_DUEL_WINNER: // Client
-        case SMSG_DUEL_COMPLETE: // Client
-        case SMSG_DUEL_OUT_OF_BOUNDS: // Client
-        case SMSG_ATTACK_STOP: // Client
-        case SMSG_ATTACK_START: // Client
         case SMSG_MOUNT_RESULT: // Client
+        case SMSG_ATTACK_START: // ClientCombat
+        case SMSG_ATTACK_STOP: // ClientCombat
+        case SMSG_DUEL_REQUESTED: // ClientCombat
+        case SMSG_DUEL_ARRANGED: // ClientCombat
+        case SMSG_DUEL_OUT_OF_BOUNDS: // ClientCombat
+        case SMSG_DUEL_IN_BOUNDS: // ClientCombat
+        case SMSG_DUEL_COMPLETE: // ClientCombat
+        case SMSG_DUEL_WINNER: // ClientCombat
+        case SMSG_QUEST_GIVER_STATUS: // ClientQuest
             return true;
         default:
             return false;
