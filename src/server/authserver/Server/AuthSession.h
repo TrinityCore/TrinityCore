@@ -27,12 +27,12 @@
 #include "Socket.h"
 #include "SRP6.h"
 #include <boost/asio/ip/tcp.hpp>
+#include <span>
 
 using boost::asio::ip::tcp;
 
 class AuthHandlerTable;
 class ByteBuffer;
-enum eAuthCmd : uint8;
 
 enum AuthStatus
 {
@@ -91,7 +91,7 @@ private:
     void ReconnectChallengeCallback(PreparedQueryResult result);
     void RealmListCallback(PreparedQueryResult result);
 
-    bool VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
+    bool VerifyVersion(std::span<uint8 const> a, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
 
     Optional<Trinity::Crypto::SRP6> _srp6;
     SessionKey _sessionKey = {};
@@ -100,12 +100,12 @@ private:
     AuthStatus _status;
     AccountInfo _accountInfo;
     Optional<std::vector<uint8>> _totpSecret;
-    std::string _localizationName;
-    std::string _os;
-    std::string _ipCountry;
+    LocaleConstant _locale;
+    uint32 _os;
+    std::string_view _ipCountry;
     uint16 _build;
-    Minutes _timezoneOffset;
     uint8 _expversion;
+    Minutes _timezoneOffset;
 
     QueryCallbackProcessor _queryProcessor;
 };
