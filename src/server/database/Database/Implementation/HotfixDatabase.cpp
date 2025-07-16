@@ -1320,6 +1320,26 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription_lang FROM player_condition_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
 
+    // PlayerDataElementAccount.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT ID, StorageIndex, Type FROM player_data_element_account"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT MAX(ID) + 1 FROM player_data_element_account", CONNECTION_SYNCH);
+
+    // PlayerDataElementCharacter.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT ID, StorageIndex, Type FROM player_data_element_character"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT MAX(ID) + 1 FROM player_data_element_character", CONNECTION_SYNCH);
+
+    // PlayerDataFlagAccount.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_FLAG_ACCOUNT, "SELECT ID, StorageIndex, Unknown1107 FROM player_data_flag_account"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_FLAG_ACCOUNT, "SELECT MAX(ID) + 1 FROM player_data_flag_account", CONNECTION_SYNCH);
+
+    // PlayerDataFlagCharacter.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_FLAG_CHARACTER, "SELECT ID, StorageIndex, Unknown1107 FROM player_data_flag_character"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_FLAG_CHARACTER, "SELECT MAX(ID) + 1 FROM player_data_flag_character", CONNECTION_SYNCH);
+
     // PowerDisplay.db2
     PrepareStatement(HOTFIX_SEL_POWER_DISPLAY, "SELECT ID, GlobalStringBaseTag, ActualType, Red, Green, Blue FROM power_display"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

@@ -15,17 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup u2w
-/// @{
-/// \file
-
-#ifndef _OPCODES_H
-#define _OPCODES_H
+#ifndef TRINITYCORE_OPCODES_H
+#define TRINITYCORE_OPCODES_H
 
 #include "Define.h"
+#include "StringFormatFwd.h"
 #include <array>
 #include <memory>
-#include <string>
 
 enum ConnectionType : int8
 {
@@ -36,7 +32,7 @@ enum ConnectionType : int8
     CONNECTION_TYPE_DEFAULT     = -1
 };
 
-constexpr uint16 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets
+constexpr uint32 UNKNOWN_OPCODE = 0xBADD;   // special marker value for uninitialized WorldPackets
 
 enum OpcodeClient : uint32
 {
@@ -2233,16 +2229,17 @@ constexpr bool IsInstanceOnlyOpcode(uint32 opcode)
 {
     switch (opcode)
     {
-        case SMSG_QUEST_GIVER_STATUS: // ClientQuest
-        case SMSG_DUEL_REQUESTED: // Client
-        case SMSG_DUEL_IN_BOUNDS: // Client
         case SMSG_QUERY_TIME_RESPONSE: // Client
-        case SMSG_DUEL_WINNER: // Client
-        case SMSG_DUEL_COMPLETE: // Client
-        case SMSG_DUEL_OUT_OF_BOUNDS: // Client
-        case SMSG_ATTACK_STOP: // Client
-        case SMSG_ATTACK_START: // Client
         case SMSG_MOUNT_RESULT: // Client
+        case SMSG_ATTACK_START: // ClientCombat
+        case SMSG_ATTACK_STOP: // ClientCombat
+        case SMSG_DUEL_REQUESTED: // ClientCombat
+        case SMSG_DUEL_ARRANGED: // ClientCombat
+        case SMSG_DUEL_OUT_OF_BOUNDS: // ClientCombat
+        case SMSG_DUEL_IN_BOUNDS: // ClientCombat
+        case SMSG_DUEL_COMPLETE: // ClientCombat
+        case SMSG_DUEL_WINNER: // ClientCombat
+        case SMSG_QUEST_GIVER_STATUS: // ClientQuest
             return true;
         default:
             return false;
@@ -2287,9 +2284,29 @@ struct ServerOpcodeHandler
     ConnectionType ConnectionIndex;
 };
 
+template <typename OpcodeEnum>
+struct FormattedOpcodeName
+{
+    OpcodeEnum Opcode;
+};
+
+template <>
+struct fmt::formatter<FormattedOpcodeName<OpcodeClient>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    typename FormatContext::iterator format(FormattedOpcodeName<OpcodeClient> const& opcode, FormatContext& ctx) const;
+};
+
+template <>
+struct fmt::formatter<FormattedOpcodeName<OpcodeServer>, char, void> : Trinity::NoArgFormatterBase
+{
+    template <typename FormatContext>
+    typename FormatContext::iterator format(FormattedOpcodeName<OpcodeServer> const& opcode, FormatContext& ctx) const;
+};
+
 /// Lookup opcode name for human understandable logging
-std::string GetOpcodeNameForLogging(OpcodeClient opcode);
-std::string GetOpcodeNameForLogging(OpcodeServer opcode);
+inline constexpr FormattedOpcodeName<OpcodeClient> GetOpcodeNameForLogging(OpcodeClient opcode) { return { .Opcode = opcode }; }
+inline constexpr FormattedOpcodeName<OpcodeServer> GetOpcodeNameForLogging(OpcodeServer opcode) { return { .Opcode = opcode }; }
 
 class OpcodeTable
 {
@@ -2334,11 +2351,10 @@ private:
     std::array<std::unique_ptr<ClientOpcodeHandler>, NUM_CMSG_OPCODES> _internalTableClient;
     std::array<std::unique_ptr<ServerOpcodeHandler>, NUM_SMSG_OPCODES> _internalTableServer;
 
-    friend std::string GetOpcodeNameForLogging(OpcodeClient opcode);
-    friend std::string GetOpcodeNameForLogging(OpcodeServer opcode);
+    friend fmt::formatter<FormattedOpcodeName<OpcodeClient>, char, void>;
+    friend fmt::formatter<FormattedOpcodeName<OpcodeServer>, char, void>;
 };
 
 extern OpcodeTable opcodeTable;
 
 #endif
-/// @}
