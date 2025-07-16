@@ -138,6 +138,11 @@ public:
 
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
 
+    tcp::socket& underlying_stream()
+    {
+        return _socket;
+    }
+
 protected:
     virtual void OnClose() { }
 

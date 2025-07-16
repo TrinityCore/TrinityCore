@@ -26,6 +26,7 @@
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IPLocation.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
@@ -199,6 +200,7 @@ void AccountInfo::LoadResult(Field* fields)
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
+    _timeout(*underlying_stream().get_executor().target<boost::asio::io_context::executor_type>()),
     _status(STATUS_CHALLENGE), _locale(LOCALE_enUS), _os(0), _build(0), _expversion(0), _timezoneOffset(0min)
 {
 }
@@ -250,6 +252,7 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
     }
 
     AsyncRead();
+    SetTimeout();
 }
 
 void AuthSession::ReadHandler()
@@ -290,6 +293,7 @@ void AuthSession::ReadHandler()
         }
 
         packet.ReadCompleted(size);
+        SetTimeout();
     }
 
     AsyncRead();
@@ -897,4 +901,35 @@ bool AuthSession::VerifyVersion(std::span<uint8 const> a, Trinity::Crypto::SHA1:
     version.Finalize();
 
     return versionProof == version.GetDigest();
+}
+
+void AuthSession::SetTimeout()
+{
+    _timeout.cancel();
+
+    switch (_status)
+    {
+        case STATUS_AUTHED:
+        case STATUS_WAITING_FOR_REALM_LIST:
+            _timeout.expires_after(1min);
+            break;
+        case STATUS_XFER:
+            return;
+        default:
+            _timeout.expires_after(10s);
+            break;
+    }
+
+    _timeout.async_wait([selfRef = weak_from_this()](boost::system::error_code const& error)
+    {
+        std::shared_ptr<AuthSession> self = selfRef.lock();
+        if (!self)
+            return;
+
+        if (error == boost::asio::error::operation_aborted)
+            return;
+
+        TC_LOG_DEBUG("server.authserver", "{}:{} session timed out.", self->GetRemoteIpAddress().to_string(), self->GetRemotePort());
+        self->CloseSocket();
+    });
 }

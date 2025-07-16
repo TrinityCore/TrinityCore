@@ -22,6 +22,7 @@
 #include "Common.h"
 #include "CryptoHash.h"
 #include "DatabaseEnvFwd.h"
+#include "DeadlineTimer.h"
 #include "Duration.h"
 #include "Optional.h"
 #include "Socket.h"
@@ -92,11 +93,13 @@ private:
     void RealmListCallback(PreparedQueryResult result);
 
     bool VerifyVersion(std::span<uint8 const> a, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect);
+    void SetTimeout();
 
     Optional<Trinity::Crypto::SRP6> _srp6;
     SessionKey _sessionKey = {};
     std::array<uint8, 16> _reconnectProof = {};
 
+    Trinity::Asio::DeadlineTimer _timeout;
     AuthStatus _status;
     AccountInfo _accountInfo;
     Optional<std::vector<uint8>> _totpSecret;
