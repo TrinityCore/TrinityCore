@@ -761,6 +761,20 @@ class spell_mage_firestarter_dots : public AuraScript
     }
 };
 
+// 108853 - Fire Blast
+class spell_mage_fire_blast : public SpellScript
+{
+    void CalcCritChance(Unit const* /*victim*/, float& critChance) const
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_fire_blast::CalcCritChance);
+    }
+};
+
 // 205029 - Flame On
 class spell_mage_flame_on : public AuraScript
 {
@@ -1702,6 +1716,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
+    RegisterSpellScript(spell_mage_fire_blast);
     RegisterSpellScript(spell_mage_flame_on);
     RegisterSpellScript(spell_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_flame_patch);
