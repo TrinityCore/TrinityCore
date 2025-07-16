@@ -31,9 +31,12 @@
 #include "SecretMgr.h"
 #include "TOTP.h"
 #include "Util.h"
+#include <boost/endian/arithmetic.hpp>
 #include <boost/lexical_cast.hpp>
 
 using boost::asio::ip::tcp;
+using boost::endian::little_uint16_t;
+using boost::endian::little_uint32_t;
 
 enum eAuthCmd : uint8
 {
@@ -55,17 +58,17 @@ typedef struct AUTH_LOGON_CHALLENGE_C
 {
     uint8   cmd;
     uint8   error;
-    uint16  size;
-    uint32  gamename;
+    little_uint16_t size;
+    little_uint32_t gamename;
     uint8   version1;
     uint8   version2;
     uint8   version3;
-    uint16  build;
-    uint32  platform;
-    uint32  os;
-    uint32  country;
-    uint32  timezone_bias;
-    uint32  ip;
+    little_uint16_t build;
+    little_uint32_t platform;
+    little_uint32_t os;
+    little_uint32_t country;
+    little_uint32_t timezone_bias;
+    little_uint32_t ip;
     uint8   I_len;
     char    I[1];
 } sAuthLogonChallenge_C;
@@ -87,9 +90,9 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   cmd;
     uint8   error;
     Trinity::Crypto::SHA1::Digest M2;
-    uint32  AccountFlags;
-    uint32  SurveyId;
-    uint16  LoginFlags;
+    little_uint32_t AccountFlags;
+    little_uint32_t SurveyId;
+    little_uint16_t LoginFlags;
 } sAuthLogonProof_S;
 static_assert(sizeof(sAuthLogonProof_S) == (1 + 1 + 20 + 4 + 4 + 2));
 
@@ -98,7 +101,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
     uint8   cmd;
     uint8   error;
     Trinity::Crypto::SHA1::Digest M2;
-    uint32  unk2;
+    little_uint32_t unk2;
 } sAuthLogonProof_S_Old;
 static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
 
