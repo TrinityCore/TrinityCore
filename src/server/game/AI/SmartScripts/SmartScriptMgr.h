@@ -607,7 +607,8 @@ enum SMART_ACTION
     SMART_ACTION_DO_ACTION                          = 151,    // actionId
     SMART_ACTION_COMPLETE_QUEST                     = 152,    // QuestId. Regular quests with objectives can't be completed with this action (only quests with QUEST_FLAGS_COMPLETION_EVENT, QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT)
     SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO     = 153,
-    SMART_ACTION_END                                = 154
+    SMART_ACTION_DESTROY_CONVERSATION               = 154,    // conversation_template.id, isPrivate, range
+    SMART_ACTION_END                                = 155
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1241,6 +1242,13 @@ struct SmartAction
         {
             uint32 actionId;
         } doAction;
+
+        struct
+        {
+            uint32 id;
+            SAIBool isPrivate;
+            uint32 range;
+        } destroyConversation;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
