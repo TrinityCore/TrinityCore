@@ -82,6 +82,7 @@ enum MageSpells
     SPELL_MAGE_METEOR_BURN_DAMAGE                = 155158,
     SPELL_MAGE_METEOR_MISSILE                    = 153564,
     SPELL_MAGE_MOLTEN_FURY                       = 458910,
+    SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -93,6 +94,7 @@ enum MageSpells
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_SHIMMER                           = 212653,
     SPELL_MAGE_SLOW                              = 31589,
+    SPELL_MAGE_SPONTANEOUS_COMBUSTION            = 451875,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_SUPERNOVA                         = 157980,
     SPELL_MAGE_TEMPEST_BARRIER_ABSORB            = 382290,
@@ -1586,6 +1588,31 @@ class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
     }
 };
 
+// 451875 - Spontaneous Combustion (attached to 190319 - Combustion)
+class spell_mage_spontaneous_combustion : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SPONTANEOUS_COMBUSTION, SPELL_MAGE_FIRE_BLAST, SPELL_MAGE_PHOENIX_FLAMES });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_SPONTANEOUS_COMBUSTION);
+    }
+
+    void HandleCharges() const
+    {
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId);
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_PHOENIX_FLAMES, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_spontaneous_combustion::HandleCharges);
+    }
+};
+
 // 157980 - Supernova
 class spell_mage_supernova : public SpellScript
 {
@@ -1744,6 +1771,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
+    RegisterSpellScript(spell_mage_spontaneous_combustion);
     RegisterSpellScript(spell_mage_supernova);
     RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
