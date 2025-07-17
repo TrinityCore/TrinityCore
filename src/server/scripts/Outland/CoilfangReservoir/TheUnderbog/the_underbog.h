@@ -35,8 +35,7 @@ enum TheUnderbogDataId
 
 enum TheUnderbogCreatureId
 {
-    NPC_GHAZAN              = 18105,
-    NPC_SWAMPLORD_MUSELEK   = 17826
+    NPC_GHAZAN              = 18105
 };
 
 template <class AI, class T>
