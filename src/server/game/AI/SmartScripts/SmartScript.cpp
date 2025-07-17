@@ -528,15 +528,14 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_RANDOM_EMOTE:
         {
-            std::vector<uint32> emotes;
-            std::copy_if(std::begin(e.action.randomEmote.emotes), std::end(e.action.randomEmote.emotes),
-                std::back_inserter(emotes), [](uint32 emote) { return emote != 0; });
+            std::array<uint32, std::extent_v<decltype(e.action.randomEmote.emotes)>> emotes;
+            auto emotesEnd = std::ranges::remove_copy(e.action.randomEmote.emotes, emotes.begin(), 0u).out;
 
             for (WorldObject* target : targets)
             {
                 if (IsUnit(target))
                 {
-                    Emote emote = static_cast<Emote>(Trinity::Containers::SelectRandomContainerElement(emotes));
+                    Emote emote = static_cast<Emote>(Trinity::Containers::SelectRandomContainerElement(Trinity::IteratorPair(emotes.begin(), emotesEnd)));
                     target->ToUnit()->HandleEmoteCommand(emote);
                     TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_RANDOM_EMOTE: Creature {} handle random emote {}",
                         target->GetGUID(), emote);
@@ -917,11 +916,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!GetBaseObject())
                 break;
 
-            std::vector<uint32> phases;
-            std::copy_if(std::begin(e.action.randomPhase.phases), std::end(e.action.randomPhase.phases),
-                std::back_inserter(phases), [](uint32 phase) { return phase != 0; });
+            std::array<uint32, std::extent_v<decltype(e.action.randomPhase.phases)>> phases;
+            auto phasesEnd = std::ranges::remove_copy(e.action.randomPhase.phases, phases.begin(), 0u).out;
 
-            uint32 phase = Trinity::Containers::SelectRandomContainerElement(phases);
+            uint32 phase = Trinity::Containers::SelectRandomContainerElement(Trinity::IteratorPair(phases.begin(), phasesEnd));
             SetPhase(phase);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_RANDOM_PHASE: Creature {} sets event phase to {}",
                 GetBaseObject()->GetGUID(), phase);
@@ -1745,11 +1743,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         {
-            std::vector<uint32> actionLists;
-            std::copy_if(std::begin(e.action.randTimedActionList.actionLists), std::end(e.action.randTimedActionList.actionLists),
-                std::back_inserter(actionLists), [](uint32 actionList) { return actionList != 0; });
+            std::array<uint32, std::extent_v<decltype(e.action.randTimedActionList.actionLists)>> actionLists;
+            auto actionListsEnd = std::ranges::remove_copy(e.action.randTimedActionList.actionLists, actionLists.begin(), 0u).out;
 
-            uint32 id = Trinity::Containers::SelectRandomContainerElement(actionLists);
+            uint32 id = Trinity::Containers::SelectRandomContainerElement(Trinity::IteratorPair(actionLists.begin(), actionListsEnd));
             if (e.GetTargetType() == SMART_TARGET_NONE)
             {
                 TC_LOG_ERROR("sql.sql", "SmartScript: Entry {} SourceType {} Event {} Action {} is using TARGET_NONE(0) for Script9 target. Please correct target_type in database.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
@@ -2158,16 +2155,15 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_RANDOM_SOUND:
         {
-            std::vector<uint32> sounds;
-            std::copy_if(std::begin(e.action.randomSound.sounds), std::end(e.action.randomSound.sounds),
-                std::back_inserter(sounds), [](uint32 sound) { return sound != 0; });
+            std::array<uint32, std::extent_v<decltype(e.action.randomSound.sounds)>> sounds;
+            auto soundsEnd = std::ranges::remove_copy(e.action.randomSound.sounds, sounds.begin(), 0u).out;
 
             bool onlySelf = e.action.randomSound.onlySelf != 0;
             for (WorldObject* const target : targets)
             {
                 if (IsUnit(target))
                 {
-                    uint32 sound = Trinity::Containers::SelectRandomContainerElement(sounds);
+                    uint32 sound = Trinity::Containers::SelectRandomContainerElement(Trinity::IteratorPair(sounds.begin(), soundsEnd));
 
                     if (e.action.randomSound.distance == 1)
                         target->PlayDistanceSound(sound, onlySelf ? target->ToPlayer() : nullptr);
@@ -2551,7 +2547,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
 
             // action list will continue on personal clones
-            Trinity::Containers::EraseIf(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
+            std::erase_if(mTimedActionList, [e](SmartScriptHolder const& script) { return script.event_id > e.event_id; });
             break;
         }
         case SMART_ACTION_TRIGGER_GAME_EVENT:
