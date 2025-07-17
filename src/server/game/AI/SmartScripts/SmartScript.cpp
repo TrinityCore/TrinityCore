@@ -1586,31 +1586,27 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CREATE_TIMED_EVENT:
         {
-            SmartEvent ne = SmartEvent();
-            ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
-            ne.event_chance = e.action.timeEvent.chance;
-            if (!ne.event_chance) ne.event_chance = 100;
-
-            ne.minMaxRepeat.min = e.action.timeEvent.min;
-            ne.minMaxRepeat.max = e.action.timeEvent.max;
-            ne.minMaxRepeat.repeatMin = e.action.timeEvent.repeatMin;
-            ne.minMaxRepeat.repeatMax = e.action.timeEvent.repeatMax;
-
-            ne.event_flags = 0;
-            if (!ne.minMaxRepeat.repeatMin && !ne.minMaxRepeat.repeatMax)
-                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-
-            SmartAction ac = SmartAction();
-            ac.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
-            ac.timeEvent.id = e.action.timeEvent.id;
-
-            SmartScriptHolder ev = SmartScriptHolder();
-            ev.event = ne;
+            SmartScriptHolder& ev = mStoredEvents.emplace_back();
             ev.event_id = e.action.timeEvent.id;
+            ev.event.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+            ev.event.event_chance = e.action.timeEvent.chance;
+            if (!ev.event.event_chance) ev.event.event_chance = 100;
+
+            ev.event.minMaxRepeat.min = e.action.timeEvent.min;
+            ev.event.minMaxRepeat.max = e.action.timeEvent.max;
+            ev.event.minMaxRepeat.repeatMin = e.action.timeEvent.repeatMin;
+            ev.event.minMaxRepeat.repeatMax = e.action.timeEvent.repeatMax;
+
+            ev.event.event_flags = 0;
+            if (!ev.event.minMaxRepeat.repeatMin && !ev.event.minMaxRepeat.repeatMax)
+                ev.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+            ev.action.type = (SMART_ACTION)SMART_ACTION_TRIGGER_TIMED_EVENT;
+            ev.action.timeEvent.id = e.action.timeEvent.id;
+
             ev.target = e.target;
-            ev.action = ac;
+
             InitTimer(ev);
-            mStoredEvents.push_back(ev);
             break;
         }
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
@@ -2207,33 +2203,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             else
             {
                 // Delayed spawn (use values from parameter to schedule event to call us back
-                SmartEvent ne = SmartEvent();
-                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
-                ne.event_chance = 100;
-
-                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
-                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
-                ne.minMaxRepeat.repeatMin = 0;
-                ne.minMaxRepeat.repeatMax = 0;
-
-                ne.event_flags = 0;
-                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-
-                SmartAction ac = SmartAction();
-                ac.type = (SMART_ACTION)SMART_ACTION_SPAWN_SPAWNGROUP;
-                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
-                ac.groupSpawn.minDelay = 0;
-                ac.groupSpawn.maxDelay = 0;
-                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
-                ac.timeEvent.id = e.action.timeEvent.id;
-
-                SmartScriptHolder ev = SmartScriptHolder();
-                ev.event = ne;
+                SmartScriptHolder& ev = mStoredEvents.emplace_back();
                 ev.event_id = e.event_id;
+                ev.event.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ev.event.event_chance = 100;
+
+                ev.event.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ev.event.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ev.event.minMaxRepeat.repeatMin = 0;
+                ev.event.minMaxRepeat.repeatMax = 0;
+
+                ev.event.event_flags = 0;
+                ev.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                ev.action.type = (SMART_ACTION)SMART_ACTION_SPAWN_SPAWNGROUP;
+                ev.action.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ev.action.groupSpawn.minDelay = 0;
+                ev.action.groupSpawn.maxDelay = 0;
+                ev.action.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ev.action.timeEvent.id = e.action.timeEvent.id;
+
                 ev.target = e.target;
-                ev.action = ac;
+
                 InitTimer(ev);
-                mStoredEvents.push_back(ev);
             }
             break;
         }
@@ -2249,33 +2241,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             else
             {
                 // Delayed spawn (use values from parameter to schedule event to call us back
-                SmartEvent ne = SmartEvent();
-                ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
-                ne.event_chance = 100;
-
-                ne.minMaxRepeat.min = e.action.groupSpawn.minDelay;
-                ne.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
-                ne.minMaxRepeat.repeatMin = 0;
-                ne.minMaxRepeat.repeatMax = 0;
-
-                ne.event_flags = 0;
-                ne.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
-
-                SmartAction ac = SmartAction();
-                ac.type = (SMART_ACTION)SMART_ACTION_DESPAWN_SPAWNGROUP;
-                ac.groupSpawn.groupId = e.action.groupSpawn.groupId;
-                ac.groupSpawn.minDelay = 0;
-                ac.groupSpawn.maxDelay = 0;
-                ac.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
-                ac.timeEvent.id = e.action.timeEvent.id;
-
-                SmartScriptHolder ev = SmartScriptHolder();
-                ev.event = ne;
+                SmartScriptHolder& ev = mStoredEvents.emplace_back();
                 ev.event_id = e.event_id;
+                ev.event.type = (SMART_EVENT)SMART_EVENT_UPDATE;
+                ev.event.event_chance = 100;
+
+                ev.event.minMaxRepeat.min = e.action.groupSpawn.minDelay;
+                ev.event.minMaxRepeat.max = e.action.groupSpawn.maxDelay;
+                ev.event.minMaxRepeat.repeatMin = 0;
+                ev.event.minMaxRepeat.repeatMax = 0;
+
+                ev.event.event_flags = 0;
+                ev.event.event_flags |= SMART_EVENT_FLAG_NOT_REPEATABLE;
+
+                ev.action.type = (SMART_ACTION)SMART_ACTION_DESPAWN_SPAWNGROUP;
+                ev.action.groupSpawn.groupId = e.action.groupSpawn.groupId;
+                ev.action.groupSpawn.minDelay = 0;
+                ev.action.groupSpawn.maxDelay = 0;
+                ev.action.groupSpawn.spawnflags = e.action.groupSpawn.spawnflags;
+                ev.action.timeEvent.id = e.action.timeEvent.id;
+
                 ev.target = e.target;
-                ev.action = ac;
+
                 InitTimer(ev);
-                mStoredEvents.push_back(ev);
             }
             break;
         }
@@ -3830,9 +3818,7 @@ void SmartScript::InstallEvents()
 {
     if (!mInstallEvents.empty())
     {
-        for (SmartScriptHolder& installevent : mInstallEvents)
-            mEvents.push_back(installevent);//must be before UpdateTimers
-
+        mEvents.insert(mEvents.end(), std::move_iterator(mInstallEvents.begin()), std::move_iterator(mInstallEvents.end()));
         mInstallEvents.clear();
     }
 }
@@ -4024,7 +4010,7 @@ void SmartScript::RetryLater(SmartScriptHolder& e, bool ignoreChanceRoll)
     e.runOnce = false;
 }
 
-void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest, uint32 event)
+void SmartScript::FillScript(SmartAIEventList&& e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest, uint32 event)
 {
     if (e.empty())
     {
@@ -4040,14 +4026,14 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
             TC_LOG_DEBUG("scripts.ai", "SmartScript: EventMap for Event {} is empty but is using SmartScript.", event);
         return;
     }
-    for (SmartScriptHolder& scriptholder : e)
+    for (SmartScriptHolder& scriptholder : std::move(e))
     {
         #ifndef TRINITY_DEBUG
             if (scriptholder.event.event_flags & SMART_EVENT_FLAG_DEBUG_ONLY)
                 continue;
         #endif
 
-        if (obj && scriptholder.Difficulties.size())
+        if (obj && !scriptholder.Difficulties.empty())
         {
             bool foundValidDifficulty = false;
             for (Difficulty difficulty : scriptholder.Difficulties)
@@ -4064,7 +4050,7 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
         }
 
         mAllEventFlags |= scriptholder.event.event_flags;
-        mEvents.push_back(scriptholder);
+        mEvents.push_back(std::move(scriptholder));
     }
 }
 

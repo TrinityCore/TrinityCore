@@ -50,7 +50,7 @@ class TC_GAME_API SmartScript
 
         void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = nullptr, SceneTemplate const* scene = nullptr, Quest const* qst = nullptr, uint32 evnt = 0);
         void GetScript();
-        void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest, uint32 event = 0);
+        void FillScript(SmartAIEventList&& e, WorldObject* obj, AreaTriggerEntry const* at, SceneTemplate const* scene, Quest const* quest, uint32 event = 0);
 
         void ProcessEventsFor(SMART_EVENT e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr, std::string const& varString = "");
         void ProcessEvent(SmartScriptHolder& e, Unit* unit = nullptr, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, SpellInfo const* spell = nullptr, GameObject* gob = nullptr, std::string const& varString = "");
