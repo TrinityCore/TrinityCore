@@ -219,8 +219,7 @@ void PlayerMenu::ClearMenus()
 
 void PlayerMenu::SendGossipMenu(uint32 titleTextId, ObjectGuid objectGUID)
 {
-    _interactionData.Reset();
-    _interactionData.SourceGuid = objectGUID;
+    _interactionData.StartInteraction(objectGUID, PlayerInteractionType::Gossip);
 
     WorldPackets::NPC::GossipMessage packet;
     packet.GossipGUID = objectGUID;
@@ -353,6 +352,50 @@ bool QuestMenu::HasItem(uint32 questId) const
     return advstd::ranges::contains(_questMenuItems, questId, &QuestMenuItem::QuestId);
 }
 
+Optional<uint32> PlayerChoiceData::FindIdByClientIdentifier(uint16 clientIdentifier) const
+{
+    auto itr = std::ranges::find(_responses, clientIdentifier, &Response::ClientIdentifier);
+    return itr != _responses.end() ? itr->Id : Optional<uint32>();
+}
+
+void PlayerChoiceData::AddResponse(uint32 id, uint16 clientIdentifier)
+{
+    _responses.push_back({ .Id = id, .ClientIdentifier = clientIdentifier });
+}
+
+InteractionData::InteractionData() = default;
+InteractionData::InteractionData(InteractionData const& other) = default;
+InteractionData::InteractionData(InteractionData&& other) noexcept = default;
+InteractionData& InteractionData::operator=(InteractionData const& other) = default;
+InteractionData& InteractionData::operator=(InteractionData&& other) noexcept = default;
+InteractionData::~InteractionData() = default;
+
+void InteractionData::StartInteraction(ObjectGuid target, PlayerInteractionType type)
+{
+    SourceGuid = target;
+    Type = type;
+    IsLaunchedByQuest = false;
+    switch (type)
+    {
+        case PlayerInteractionType::Trainer:
+            _data.emplace<TrainerData>();
+            break;
+        case PlayerInteractionType::PlayerChoice:
+            _data.emplace<PlayerChoiceData>();
+            break;
+        default:
+            break;
+    }
+}
+
+void InteractionData::Reset()
+{
+    SourceGuid.Clear();
+    Type = PlayerInteractionType::None;
+    IsLaunchedByQuest = false;
+    _data.emplace<std::monostate>();
+}
+
 void QuestMenu::ClearMenu()
 {
     _questMenuItems.clear();
@@ -361,6 +404,9 @@ void QuestMenu::ClearMenu()
 void PlayerMenu::SendQuestGiverQuestListMessage(Object* questgiver)
 {
     ObjectGuid guid = questgiver->GetGUID();
+
+    GetInteractionData().StartInteraction(guid, PlayerInteractionType::QuestGiver);
+
     LocaleConstant localeConstant = _session->GetSessionDbLocaleIndex();
 
     WorldPackets::Quest::QuestGiverQuestListMessage questList;
@@ -421,8 +467,10 @@ void PlayerMenu::SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid n
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC={}, status={}", npcGUID.ToString(), AsUnderlyingType(questStatus));
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
 {
+    GetInteractionData().StartInteraction(npcGUID, PlayerInteractionType::QuestGiver);
+
     WorldPackets::Quest::QuestGiverQuestDetails packet;
 
     packet.QuestTitle = quest->GetLogTitle();
@@ -521,8 +569,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid={}", quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const
+void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched)
 {
+    GetInteractionData().StartInteraction(npcGUID, PlayerInteractionType::QuestGiver);
+
     WorldPackets::Quest::QuestGiverOfferRewardMessage packet;
 
     packet.QuestTitle = quest->GetLogTitle();
@@ -591,7 +641,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUI
     TC_LOG_DEBUG("network", "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPC={}, questid={}", npcGUID.ToString(), quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const
+void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched)
 {
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward
@@ -601,6 +651,8 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGU
         SendQuestGiverOfferReward(quest, npcGUID, true);
         return;
     }
+
+    GetInteractionData().StartInteraction(npcGUID, PlayerInteractionType::QuestGiver);
 
     WorldPackets::Quest::QuestGiverRequestItems packet;
 

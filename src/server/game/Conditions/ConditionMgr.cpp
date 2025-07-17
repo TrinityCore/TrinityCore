@@ -43,6 +43,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "PlayerChoice.h"
 #include "RaceMask.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -1101,7 +1102,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
             sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
             sourceType == CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY ||
-            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_CONDITION);
+            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_CONDITION ||
+            sourceType == CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
