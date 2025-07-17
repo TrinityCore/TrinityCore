@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationPackets.h"
@@ -223,6 +224,11 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
 {
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
+}
+
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(uint32 factionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_forcedReactions, factionId);
 }
 
 bool ReputationMgr::IsParagonReputation(FactionEntry const* factionEntry) const

@@ -2612,6 +2612,11 @@ void Player::RemoveMail(uint64 id)
     }
 }
 
+void Player::AddMail(Mail* mail)
+{
+    m_mail.push_front(mail);
+}
+
 void Player::SendMailResult(uint64 mailId, MailResponseType mailAction, MailResponseResult mailError, uint32 equipError, ObjectGuid::LowType itemGuid, uint32 itemCount) const
 {
     WorldPackets::Mail::MailCommandResult result;
@@ -9078,6 +9083,11 @@ LootRoll* Player::GetLootRoll(ObjectGuid const& lootObjectGuid, uint8 lootListId
         return roll->IsLootItem(lootObjectGuid, lootListId);
     });
     return itr != m_lootRolls.end() ? *itr : nullptr;
+}
+
+void Player::AddLootRoll(LootRoll* roll)
+{
+    m_lootRolls.push_back(roll);
 }
 
 void Player::RemoveLootRoll(LootRoll* roll)
@@ -17513,6 +17523,16 @@ void Player::SendQuestGiverStatusMultiple()
     }
 
     SendDirectMessage(response.Write());
+}
+
+void Player::AddTimedQuest(uint32 questId)
+{
+    m_timedquests.insert(questId);
+}
+
+void Player::RemoveTimedQuest(uint32 questId)
+{
+    m_timedquests.erase(questId);
 }
 
 bool Player::HasPvPForcingQuest() const
