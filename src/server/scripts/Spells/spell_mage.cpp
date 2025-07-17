@@ -1168,8 +1168,8 @@ class spell_mage_improved_combustion : public AuraScript
     {
         if (AuraEffect const* amountHolder = GetEffect(EFFECT_2))
         {
-            float critChance = GetUnitOwner()->ToPlayer()->m_activePlayerData->SpellCritPercentage;
-            amount = CalculatePct(critChance, amountHolder->GetAmount());
+            int32 critRating = GetUnitOwner()->ToPlayer()->m_activePlayerData->CombatRatings[CR_CRIT_SPELL];
+            amount = CalculatePct(critRating, amountHolder->GetAmount());
         }
     }
 
