@@ -2644,6 +2644,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_DESTROY_CONVERSATION:
+        {
+            auto work = [&](Conversation* conversation)
+            {
+                if (conversation->GetEntry() != e.action.destroyConversation.id)
+                    return;
+
+                if (conversation->IsPrivateObject())
+                {
+                    if (!e.action.destroyConversation.isPrivate
+                        || !advstd::ranges::contains(targets, conversation->GetPrivateObjectOwner(), [](WorldObject const* target) { return target->GetGUID(); }))
+                        return;
+                }
+                else if (e.action.destroyConversation.isPrivate)
+                    return;
+
+                conversation->Remove();
+            };
+
+            Trinity::ConversationWorker worker(PhasingHandler::GetAlwaysVisiblePhaseShift(), work);
+            Cell::VisitGridObjects(GetBaseObject(), worker, float(e.action.destroyConversation.range));
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
