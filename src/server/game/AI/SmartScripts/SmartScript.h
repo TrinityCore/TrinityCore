@@ -67,11 +67,6 @@ class TC_GAME_API SmartScript
         WorldObject* GetBaseObject() const;
         WorldObject* GetBaseObjectOrUnitInvoker(Unit* invoker);
         bool HasAnyEventWithFlag(uint32 flag) const { return mAllEventFlags & flag; }
-        static bool IsUnit(WorldObject* obj);
-        static bool IsPlayer(WorldObject* obj);
-        static bool IsCreature(WorldObject* obj);
-        static bool IsCharmedCreature(WorldObject* obj);
-        static bool IsGameObject(WorldObject* obj);
 
         void OnUpdate(const uint32 diff);
         void OnMoveInLineOfSight(Unit* who);

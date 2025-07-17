@@ -191,7 +191,7 @@ void SmartAI::EndPath(bool fail)
     ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me);
     if (targets && _escortQuestId)
     {
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
+        if (targets->size() == 1 && targets->front()->IsPlayer())
         {
             Player* player = targets->front()->ToPlayer();
             if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
@@ -219,9 +219,8 @@ void SmartAI::EndPath(bool fail)
         {
             for (WorldObject* target : *targets)
             {
-                if (GetScript()->IsPlayer(target))
+                if (Player* player = target->ToPlayer())
                 {
-                    Player* player = target->ToPlayer();
                     if (!fail && player->IsAtGroupRewardDistance(me) && !player->HasCorpse())
                         player->AreaExploredOrEventHappens(_escortQuestId);
                     else if (fail)
@@ -298,9 +297,9 @@ bool SmartAI::IsEscortInvokerInRange()
     if (ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me))
     {
         float checkDist = me->GetInstanceScript() ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
-        if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
+        if (targets->size() == 1 && targets->front()->IsPlayer())
         {
-            Player* player = (*targets->begin())->ToPlayer();
+            Player* player = targets->front()->ToPlayer();
             if (me->GetDistance(player) <= checkDist)
                 return true;
 
@@ -317,13 +316,8 @@ bool SmartAI::IsEscortInvokerInRange()
         else
         {
             for (WorldObject* target : *targets)
-            {
-                if (GetScript()->IsPlayer(target))
-                {
-                    if (me->GetDistance(target->ToPlayer()) <= checkDist)
-                        return true;
-                }
-            }
+                if (target->IsPlayer() && me->GetDistance(target) <= checkDist)
+                    return true;
         }
 
         // no valid target found
