@@ -199,6 +199,10 @@ TC_GAME_API extern DB2Storage<ParagonReputationEntry>               sParagonRepu
 TC_GAME_API extern DB2Storage<PerksActivityEntry>                   sPerksActivityStore;
 TC_GAME_API extern DB2Storage<PhaseEntry>                           sPhaseStore;
 TC_GAME_API extern DB2Storage<PlayerConditionEntry>                 sPlayerConditionStore;
+TC_GAME_API extern DB2Storage<PlayerDataElementAccountEntry>        sPlayerDataElementAccountStore;
+TC_GAME_API extern DB2Storage<PlayerDataElementCharacterEntry>      sPlayerDataElementCharacterStore;
+TC_GAME_API extern DB2Storage<PlayerDataFlagAccountEntry>           sPlayerDataFlagAccountStore;
+TC_GAME_API extern DB2Storage<PlayerDataFlagCharacterEntry>         sPlayerDataFlagCharacterStore;
 TC_GAME_API extern DB2Storage<PowerDisplayEntry>                    sPowerDisplayStore;
 TC_GAME_API extern DB2Storage<PowerTypeEntry>                       sPowerTypeStore;
 TC_GAME_API extern DB2Storage<PVPStatEntry>                         sPVPStatStore;

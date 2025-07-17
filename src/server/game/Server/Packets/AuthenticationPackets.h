@@ -23,7 +23,6 @@
 #include "Optional.h"
 #include "PacketUtilities.h"
 #include <array>
-#include <unordered_map>
 
 struct CharacterTemplate;
 struct RaceClassAvailability;

@@ -91,26 +91,24 @@ inline void KillRewarder::_InitGroupData(Player const* killer)
     if (Group const* group = killer->GetGroup())
     {
         // 2. In case when player is in group, initialize variables necessary for group calculations:
-        for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            if (Player* member = itr->GetSource())
+            Player* member = itr.GetSource();
+            if (killer == member || (member->IsAtGroupRewardDistance(_victim) && member->IsAlive()))
             {
-                if (killer == member || (member->IsAtGroupRewardDistance(_victim) && member->IsAlive()))
-                {
-                    const uint8 lvl = member->GetLevel();
-                    // 2.1. _count - number of alive group members within reward distance;
-                    ++_count;
-                    // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
-                    _sumLevel += lvl;
-                    // 2.3. _maxLevel - maximum level of alive group member within reward distance;
-                    if (_maxLevel < lvl)
-                        _maxLevel = lvl;
-                    // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
-                    //      for whom victim is not gray;
-                    uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
-                    if (_victim->GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->GetLevel() < lvl))
-                        _maxNotGrayMember = member;
-                }
+                const uint8 lvl = member->GetLevel();
+                // 2.1. _count - number of alive group members within reward distance;
+                ++_count;
+                // 2.2. _sumLevel - sum of levels of alive group members within reward distance;
+                _sumLevel += lvl;
+                // 2.3. _maxLevel - maximum level of alive group member within reward distance;
+                if (_maxLevel < lvl)
+                    _maxLevel = lvl;
+                // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
+                //      for whom victim is not gray;
+                uint32 grayLevel = Trinity::XP::GetGrayLevel(lvl);
+                if (_victim->GetLevelForTarget(member) > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->GetLevel() < lvl))
+                    _maxNotGrayMember = member;
             }
         }
         // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
@@ -241,16 +239,12 @@ void KillRewarder::_RewardGroup(Group const* group, Player const* killer)
             }
 
             // 3.1.3. Reward each group member (even dead or corpse) within reward distance.
-            for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                if (Player* member = itr->GetSource())
-                {
-                    // Killer may not be at reward distance, check directly
-                    if (killer == member || member->IsAtGroupRewardDistance(_victim))
-                    {
-                        _RewardPlayer(member, isDungeon);
-                    }
-                }
+                Player* member = itr.GetSource();
+                // Killer may not be at reward distance, check directly
+                if (killer == member || member->IsAtGroupRewardDistance(_victim))
+                    _RewardPlayer(member, isDungeon);
             }
         }
     }

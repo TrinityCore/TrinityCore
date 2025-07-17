@@ -4363,6 +4363,54 @@ struct PlayerConditionLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 162, &PlayerConditionMeta::Instance, HOTFIX_SEL_PLAYER_CONDITION };
 };
 
+struct PlayerDataElementAccountLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "StorageIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Type" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PlayerDataElementAccountMeta::Instance, HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT };
+};
+
+struct PlayerDataElementCharacterLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "StorageIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Type" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PlayerDataElementCharacterMeta::Instance, HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER };
+};
+
+struct PlayerDataFlagAccountLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "StorageIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1107" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PlayerDataFlagAccountMeta::Instance, HOTFIX_SEL_PLAYER_DATA_FLAG_ACCOUNT };
+};
+
+struct PlayerDataFlagCharacterLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "StorageIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1107" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &PlayerDataFlagCharacterMeta::Instance, HOTFIX_SEL_PLAYER_DATA_FLAG_CHARACTER };
+};
+
 struct PowerDisplayLoadInfo
 {
     static constexpr DB2FieldMeta Fields[6] =
