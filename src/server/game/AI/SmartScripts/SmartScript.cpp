@@ -2646,28 +2646,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_DESTROY_CONVERSATION:
         {
-            auto destroyConversations = [&](ObjectGuid ownerGUID)
+            auto work = [&](Conversation* conversation)
             {
-                std::vector<Conversation*> conversations;
-                Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(ownerGUID, e.action.destroyConversation.id);
-                Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), conversations, check);
-                Cell::VisitGridObjects(GetBaseObject(), searcher, float(e.action.destroyConversation.range));
+                if (conversation->GetEntry() != e.action.destroyConversation.id)
+                    return;
 
-                for (Conversation* conversation : conversations)
-                    conversation->Remove();
+                if (conversation->IsPrivateObject())
+                {
+                    if (!e.action.destroyConversation.isPrivate
+                        || !advstd::ranges::contains(targets, conversation->GetPrivateObjectOwner(), [](WorldObject const* target) { return target->GetGUID(); }))
+                        return;
+                }
+                else if (e.action.destroyConversation.isPrivate)
+                    return;
+
+                conversation->Remove();
             };
 
-            if (e.action.destroyConversation.isPrivate)
-            {
-                for (WorldObject* const target : targets)
-                {
-                    if (Player* playerTarget = target->ToPlayer())
-                        destroyConversations(playerTarget->GetGUID());
-                }
-            }
-            else
-                destroyConversations(ObjectGuid::Empty);
-
+            Trinity::ConversationWorker worker(PhasingHandler::GetAlwaysVisiblePhaseShift(), work);
+            Cell::VisitGridObjects(GetBaseObject(), worker, float(e.action.destroyConversation.range));
             break;
         }
         default:
