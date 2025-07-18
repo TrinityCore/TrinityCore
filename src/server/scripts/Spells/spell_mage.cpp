@@ -1624,9 +1624,10 @@ class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
 // 450746 - Scald (attached to 2948 - Scorch)
 class spell_mage_scald : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_SCALD, SPELL_MAGE_SCORCH });
+        return ValidateSpellInfo({ SPELL_MAGE_SCALD })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool Load() override
