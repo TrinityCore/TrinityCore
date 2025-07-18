@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _LINKEDLIST
-#define _LINKEDLIST
+#ifndef TRINITYCORE_LINKED_LIST_H
+#define TRINITYCORE_LINKED_LIST_H
 
 #include "Define.h"
 #include <iterator>
@@ -34,6 +34,12 @@ class LinkedListElement
 
     public:
         LinkedListElement() : iNext(nullptr), iPrev(nullptr) { }
+
+        bool isInList() const
+        {
+            return iNext != nullptr /*unlinked element*/
+                && iNext != this    /*list head*/;
+        }
 
         LinkedListElement      * next()       { return iNext; }
         LinkedListElement const* next() const { return iNext; }
@@ -110,6 +116,16 @@ class LinkedListHead
             iHeader.insertBefore(pElem);
         }
 
+        void pop_front()
+        {
+            front_impl<LinkedListElement>()->delink();
+        }
+
+        void pop_back()
+        {
+            back_impl<LinkedListElement>()->delink();
+        }
+
         uint32 size() const
         {
             if (!iSize)
@@ -154,6 +170,11 @@ class LinkedListHead
                 pointer operator->() const
                 {                                           // return pointer to class object
                     return static_cast<pointer>(_Ptr);
+                }
+
+                base_pointer node() const
+                {
+                    return _Ptr;
                 }
 
                 Iterator& operator++()
@@ -213,6 +234,25 @@ class LinkedListHead
 
         template <typename T>
         Iterator<T const> end_impl() const { return Iterator<T const>(&iHeader); }
+
+        void splice_impl(LinkedListElement* where, LinkedListElement* first, LinkedListElement* last)
+        {
+            LinkedListElement* wherePrev = where->iPrev;
+            LinkedListElement* firstPrev = first->iPrev;
+            LinkedListElement* lastPrev = last->iPrev;
+            lastPrev->iNext = where;
+            where->iPrev = lastPrev;
+            firstPrev->iNext = last;
+            last->iPrev = firstPrev;
+            wherePrev->iNext = first;
+            first->iPrev = wherePrev;
+        }
+
+        template <typename T>
+        void splice_impl(Iterator<T> where, Iterator<T> first, Iterator<T> last)
+        {
+            splice_impl(where.node(), first.node(), last.node());
+        }
 
     private:
         LinkedListHead(LinkedListHead const&) = delete;
