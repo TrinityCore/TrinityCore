@@ -92,7 +92,6 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
     SPELL_MAGE_SCALD                             = 450746,
-    SPELL_MAGE_SCORCH                            = 2948,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_SHIMMER                           = 212653,
