@@ -86,8 +86,7 @@ class LinkedListElement
 class LinkedListHead
 {
     private:
-        LinkedListElement iFirst;
-        LinkedListElement iLast;
+        LinkedListElement iHeader;
         uint32 iSize;
 
     public:
@@ -95,20 +94,20 @@ class LinkedListHead
         {
             // create empty list
 
-            iFirst.iNext = &iLast;
-            iLast.iPrev = &iFirst;
+            iHeader.iNext = &iHeader;
+            iHeader.iPrev = &iHeader;
         }
 
-        bool empty() const { return iFirst.iNext == &iLast; }
+        bool empty() const { return iHeader.iNext == &iHeader; }
 
         void push_front(LinkedListElement* pElem)
         {
-            iFirst.insertAfter(pElem);
+            iHeader.iNext->insertBefore(pElem);
         }
 
         void push_back(LinkedListElement* pElem)
         {
-            iLast.insertBefore(pElem);
+            iHeader.insertBefore(pElem);
         }
 
         uint32 size() const
@@ -192,28 +191,28 @@ class LinkedListHead
 
     protected:
         template <typename T>
-        T* front_impl() { return static_cast<T*>(iFirst.iNext); }
+        T* front_impl() { return static_cast<T*>(iHeader.iNext); }
 
         template <typename T>
-        T const* front_impl() const { return static_cast<T const*>(iFirst.iNext); }
+        T const* front_impl() const { return static_cast<T const*>(iHeader.iNext); }
 
         template <typename T>
-        T* back_impl() { return static_cast<T*>(iLast.iPrev); }
+        T* back_impl() { return static_cast<T*>(iHeader.iPrev); }
 
         template <typename T>
-        T const* back_impl() const { return static_cast<T const*>(iLast.iPrev); }
+        T const* back_impl() const { return static_cast<T const*>(iHeader.iPrev); }
 
         template <typename T>
-        Iterator<T> begin_impl() { return Iterator<T>(iFirst.iNext); }
+        Iterator<T> begin_impl() { return Iterator<T>(iHeader.iNext); }
 
         template <typename T>
-        Iterator<T const> begin_impl() const { return Iterator<T const>(iFirst.iNext); }
+        Iterator<T const> begin_impl() const { return Iterator<T const>(iHeader.iNext); }
 
         template <typename T>
-        Iterator<T> end_impl() { return Iterator<T>(&iLast); }
+        Iterator<T> end_impl() { return Iterator<T>(&iHeader); }
 
         template <typename T>
-        Iterator<T const> end_impl() const { return Iterator<T const>(&iLast); }
+        Iterator<T const> end_impl() const { return Iterator<T const>(&iHeader); }
 
     private:
         LinkedListHead(LinkedListHead const&) = delete;
