@@ -29,7 +29,7 @@
 #include "PoolMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldStatePackets.h"
+#include "WorldStateMgr.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -142,8 +142,6 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
                 data.end = data.start + data.length * MINUTE;
         }
 
-        // When event is started, set its worldstate to current time
-        sWorld->setWorldState(event_id, GameTime::GetGameTime());
         return false;
     }
     else
@@ -178,9 +176,6 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
-
-    // When event is stopped, clean up its worldstate
-    sWorld->setWorldState(event_id, 0);
 
     if (overwrite && !serverwide_evt)
     {
@@ -1106,8 +1101,6 @@ uint32 GameEventMgr::Update()                               // return the next e
         }
         else
         {
-            // If event is inactive, periodically clean up its worldstate
-            sWorld->setWorldState(itr, 0);
             //TC_LOG_DEBUG("misc", "GameEvent {} is not active", itr->first);
             if (IsActiveEvent(itr))
                 deactivate.insert(itr);
@@ -1191,10 +1184,8 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     //! Run SAI scripts with SMART_EVENT_GAME_EVENT_START
     RunSmartAIScripts(event_id, true);
 
-    // If event's worldstate is 0, it means the event hasn't been started yet. In that case, reset seasonal quests.
-    // When event ends (if it expires or if it's stopped via commands) worldstate will be set to 0 again, ready for another seasonal quest reset.
-    if (sWorld->getWorldState(event_id) == 0)
-        sWorld->ResetEventSeasonalQuests(event_id);
+    // check for seasonal quest reset.
+    sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1580,20 +1571,9 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
     GameEventData const& event = mGameEvent[event_id];
     if (event.holiday_id != HOLIDAY_NONE)
-    {
-        BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
-        if (bgTypeId != BATTLEGROUND_TYPE_NONE)
-        {
-            BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(bgTypeId);
-            if (bl && bl->HolidayWorldState)
-            {
-                WorldPackets::WorldState::UpdateWorldState worldstate;
-                worldstate.VariableID = bl->HolidayWorldState;
-                worldstate.Value = Activate ? 1 : 0;
-                sWorld->SendGlobalMessage(worldstate.Write());
-            }
-        }
-    }
+        if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id)))
+            if (bl->HolidayWorldState)
+                sWorldStateMgr->SetValue(bl->HolidayWorldState, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false) { }

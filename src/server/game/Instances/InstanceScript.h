@@ -34,13 +34,6 @@
 #define OUT_LOAD_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Instance Data Load for Instance {} (Map {}, Instance Id: {}) is complete.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_LOAD_INST_DATA_FAIL        TC_LOG_ERROR("scripts", "Unable to load Instance Data for Instance {} (Map {}, Instance Id: {}).", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
-namespace WorldPackets
-{
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
-}
 
 class AreaBoundary;
 class Creature;
@@ -213,7 +206,7 @@ class TC_GAME_API InstanceScript : public ZoneScript
         void DoRespawnGameObject(ObjectGuid guid, Seconds timeToDespawn = 1min);
 
         // Sends world state update to all players in instance
-        void DoUpdateWorldState(uint32 worldstateId, uint32 worldstateValue);
+        void DoUpdateWorldState(int32 worldStateId, int32 value);
 
         // Send Notify to all players in instance
         void DoSendNotifyToInstance(char const* format, ...);
@@ -259,8 +252,6 @@ class TC_GAME_API InstanceScript : public ZoneScript
         uint32 GetCompletedEncounterMask() const { return completedEncounters; }
 
         void SendEncounterUnit(EncounterFrameType type, Unit const* unit = nullptr, uint8 param1 = 0, uint8 param2 = 0);
-
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
 
         uint32 GetEncounterCount() const { return bosses.size(); }
 
