@@ -24,7 +24,7 @@ namespace WorldPackets
 {
     namespace WorldState
     {
-        class InitWorldStates final : public ServerPacket
+        class TC_GAME_API InitWorldStates final : public ServerPacket
         {
         public:
             struct WorldStateInfo
@@ -54,6 +54,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 VariableID = 0;
+            bool Hidden = false; ///< @todo: research
             int32 Value = 0;
         };
     }

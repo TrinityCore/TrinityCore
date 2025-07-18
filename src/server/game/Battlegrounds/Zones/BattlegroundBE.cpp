@@ -19,7 +19,6 @@
 #include "Log.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "WorldStatePackets.h"
 
 BattlegroundBE::BattlegroundBE()
 {
@@ -80,13 +79,6 @@ void BattlegroundBE::HandleAreaTrigger(Player* player, uint32 trigger)
             Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-}
-
-void BattlegroundBE::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(2547, 1); // BATTLEGROUND_BLADES_EDGE_ARENA_SHOW
-
-    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundBE::SetupBattleground()
