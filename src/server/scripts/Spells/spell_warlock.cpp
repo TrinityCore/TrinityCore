@@ -24,10 +24,11 @@
 #include "ScriptMgr.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "CellImpl.h"
 #include "Containers.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "ObjectAccessor.h"
 #include "Pet.h"
 #include "Player.h"
@@ -47,6 +48,9 @@ enum WarlockSpells
     SPELL_WARLOCK_BILESCOURGE_BOMBERS               = 267211,
     SPELL_WARLOCK_BILESCOURGE_BOMBERS_MISSILE       = 267212,
     SPELL_WARLOCK_BILESCOURGE_BOMBERS_AREATRIGGER   = 282248,
+    SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR       = 228312,
+    SPELL_WARLOCK_CHANNEL_DEMONFIRE_DAMAGE          = 281362,
+    SPELL_WARLOCK_CHANNEL_DEMONFIRE_SELECTOR        = 196449,
     SPELL_WARLOCK_CONFLAGRATE_DEBUFF                = 265931,
     SPELL_WARLOCK_CONFLAGRATE_ENERGIZE              = 245330,
     SPELL_WARLOCK_CORRUPTION_DAMAGE                 = 146739,
@@ -329,6 +333,99 @@ class spell_warl_cataclysm : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warl_cataclysm::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 228312 - Immolate (attached to 157736 - Immolate and 445474 - Wither)
+class spell_warl_channel_demonfire_activator : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR });
+    }
+
+    void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = { { SPELLVALUE_DURATION, GetDuration() } }
+            });
+    }
+
+    void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* validTarget = nullptr;
+        Trinity::UnitAuraCheck check(true, GetId(), caster->GetGUID());
+        Trinity::UnitSearcher searcher(caster, validTarget, check);
+        Cell::VisitAllObjects(caster, searcher, 100.f);
+
+        if (!validTarget)
+            caster->RemoveAurasDueToSpell(SPELL_WARLOCK_CHANNEL_DEMONFIRE_ACTIVATOR);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_warl_channel_demonfire_activator::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        OnEffectRemove += AuraEffectRemoveFn(spell_warl_channel_demonfire_activator::RemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 196447 - Channel Demonfire
+class spell_warl_channel_demonfire_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARLOCK_CHANNEL_DEMONFIRE_SELECTOR });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff) const
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WARLOCK_CHANNEL_DEMONFIRE_SELECTOR, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warl_channel_demonfire_periodic::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 196449 - Channel Demonfire
+class spell_warl_channel_demonfire_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo ({ SPELL_WARLOCK_CHANNEL_DEMONFIRE_DAMAGE, SPELL_WARLOCK_IMMOLATE_PERIODIC, SPELL_WARLOCK_WITHER_TALENT, SPELL_WARLOCK_IMMOLATE_PERIODIC });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        uint32 auraFilter = GetCaster()->HasAura(SPELL_WARLOCK_WITHER_TALENT)
+            ? SPELL_WARLOCK_WITHER_PERIODIC
+            : SPELL_WARLOCK_IMMOLATE_PERIODIC;
+        targets.remove_if(Trinity::UnitAuraCheck(false, auraFilter, GetCaster()->GetGUID()));
+    }
+
+    void HandleDamage(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARLOCK_CHANNEL_DEMONFIRE_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warl_channel_demonfire_selector::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_warl_channel_demonfire_selector::HandleDamage, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1701,6 +1798,9 @@ void AddSC_warlock_spell_scripts()
     RegisterAreaTriggerAI(at_warl_bilescourge_bombers);
     RegisterSpellAndAuraScriptPair(spell_warl_burning_rush, spell_warl_burning_rush_aura);
     RegisterSpellScript(spell_warl_cataclysm);
+    RegisterSpellScript(spell_warl_channel_demonfire_activator);
+    RegisterSpellScript(spell_warl_channel_demonfire_periodic);
+    RegisterSpellScript(spell_warl_channel_demonfire_selector);
     RegisterSpellScript(spell_warl_chaos_bolt);
     RegisterSpellScript(spell_warl_chaotic_energies);
     RegisterSpellScript(spell_warl_conflagrate);

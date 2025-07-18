@@ -423,10 +423,10 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //332 SPELL_EFFECT_332
     &Spell::EffectNULL,                                     //333 SPELL_EFFECT_333
     &Spell::EffectNULL,                                     //334 SPELL_EFFECT_334
-    &Spell::EffectNULL,                                     //335 SPELL_EFFECT_335
-    &Spell::EffectNULL,                                     //336 SPELL_EFFECT_336
-    &Spell::EffectNULL,                                     //337 SPELL_EFFECT_337
-    &Spell::EffectNULL,                                     //338 SPELL_EFFECT_338
+    &Spell::EffectSetPlayerDataElementAccount,              //335 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_ACCOUNT
+    &Spell::EffectSetPlayerDataElementCharacter,            //336 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_CHARACTER
+    &Spell::EffectSetPlayerDataFlagAccount,                 //337 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_ACCOUNT
+    &Spell::EffectSetPlayerDataFlagCharacter,               //338 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_CHARACTER
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
     &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
@@ -4244,7 +4244,7 @@ void Spell::EffectResurrectPet()
     if (!player->GetPet())
     {
         PetStable const* petStable = player->GetPetStable();
-        auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+        auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
         {
             return petInfo && !petInfo->Health;
         });
@@ -5465,16 +5465,13 @@ void Spell::EffectCancelConversation()
     if (!unitTarget)
         return;
 
-    std::vector<WorldObject*> objs;
-    Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-    Cell::VisitGridObjects(unitTarget, checker, 100.0f);
-
-    for (WorldObject* obj : objs)
+    auto work = [check = Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck(unitTarget->GetGUID(), effectInfo->MiscValue)](Conversation* conversation)
     {
-        if (Conversation* convo = obj->ToConversation())
-            convo->Remove();
-    }
+        if (check(conversation))
+            conversation->Remove();
+    };
+    Trinity::ConversationWorker worker(unitTarget, work);
+    Cell::VisitGridObjects(unitTarget, worker, 100.0f);
 }
 
 void Spell::EffectAddGarrisonFollower()
@@ -6111,9 +6108,7 @@ void Spell::EffectModifyCooldowns()
         if (bitIndex < 0 || uint32(bitIndex) >= sizeof(flag128) * 8)
             return false;
 
-        flag128 reqFlag;
-        reqFlag[bitIndex / 32] = 1u << (bitIndex % 32);
-        return bool(spellOnCooldown->SpellFamilyFlags & reqFlag);
+        return (spellOnCooldown->SpellFamilyFlags[bitIndex / 32] & 1u << (bitIndex % 32)) != 0;
     }, Milliseconds(damage));
 }
 
@@ -6215,4 +6210,52 @@ void Spell::EffectLearnWarbandScene()
         return;
 
     target->GetSession()->GetCollectionMgr()->AddWarbandScene(effectInfo->MiscValue);
+}
+
+void Spell::EffectSetPlayerDataElementAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementAccount(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataElementCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementCharacter(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataFlagAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagAccount(effectInfo->MiscValue, damage != 0);
+}
+
+void Spell::EffectSetPlayerDataFlagCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagCharacter(effectInfo->MiscValue, damage != 0);
 }
