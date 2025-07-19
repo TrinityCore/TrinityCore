@@ -6464,18 +6464,22 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (!playerCaster || !playerCaster->GetPetStable())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Pet* pet = playerCaster->GetPet();
-                if (pet && pet->IsAlive())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                PetStable const* petStable = playerCaster->GetPetStable();
-                auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+                if (Pet* pet = playerCaster->GetPet())
                 {
-                    return petInfo && !petInfo->Health;
-                });
+                    if (pet->IsAlive())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                }
+                else
+                {
+                    PetStable const* petStable = playerCaster->GetPetStable();
+                    auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
+                    {
+                        return petInfo && !petInfo->Health;
+                    });
 
-                if (deadPetItr == petStable->ActivePets.end())
-                    return SPELL_FAILED_BAD_TARGETS;
+                    if (deadPetItr == petStable->ActivePets.end())
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
 
                 break;
             }
@@ -9587,14 +9591,13 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     };
 
     std::array<std::ptrdiff_t, 1 << END> countsByPriority = {};
-    std::vector<std::pair<WorldObject*, int32>> tempTargets;
-    tempTargets.resize(targets.size());
+    std::vector<std::pair<WorldObject*, int32>> tempTargets(targets.size());
 
     // categorize each target
     std::ranges::transform(targets, tempTargets.begin(), [&](WorldObject* target)
     {
         int32 negativePoints = 0;
-        if (prioritizeGroupMembersOf && (!target->IsUnit() || target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
+        if (prioritizeGroupMembersOf && (!target->IsUnit() || !target->ToUnit()->IsInRaidWith(prioritizeGroupMembersOf)))
             negativePoints |= 1 << NOT_GROUPED;
 
         if (prioritizePlayers && !target->IsPlayer() && (!target->IsCreature() || !target->ToCreature()->IsTreatedAsRaidUnit()))

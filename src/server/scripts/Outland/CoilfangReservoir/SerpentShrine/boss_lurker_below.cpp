@@ -249,7 +249,7 @@ struct boss_the_lurker_below : public BossAI
             {
                 InRange = false;
                 Map::PlayerList const& PlayerList = me->GetMap()->GetPlayers();
-                if (!PlayerList.isEmpty())
+                if (!PlayerList.empty())
                 {
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
