@@ -1193,7 +1193,7 @@ class spell_warr_unbridled_ferocity : public AuraScript
 
     void HandleProc(ProcEventInfo& /*eventInfo*/) const
     {
-        int32 durationMs = GetAura()->GetEffect(EFFECT_1)->GetAmount();
+        int32 durationMs = GetEffect(EFFECT_1)->GetAmount();
 
         GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_RECKLESSNESS, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD,
@@ -1203,7 +1203,7 @@ class spell_warr_unbridled_ferocity : public AuraScript
 
     bool CheckProc(ProcEventInfo& /*eventInfo*/) const
     {
-        return roll_chance_i(GetAura()->GetEffect(EFFECT_0)->GetAmount());
+        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
     }
 
     void Register() override
