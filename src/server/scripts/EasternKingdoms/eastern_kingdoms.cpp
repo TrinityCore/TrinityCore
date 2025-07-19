@@ -20,7 +20,7 @@
 #include "SpellScript.h"
 #include "Unit.h"
 
-enum Translocation
+enum EasternKingdomsTranslocation
 {
     SPELL_TRANSLOCATION_DUSKWITHER_SPIRE_UP       = 26566,
     SPELL_TRANSLOCATION_DUSKWITHER_SPIRE_DOWN     = 26572,
@@ -112,6 +112,10 @@ class spell_eastern_kingdoms_undercity_to_silvermoon : public SpellScript
     }
 };
 
+/*######
+## Quest 11532: Distraction at the Dead Scar / 11533: The Air Strikes Must Continue
+######*/
+
 enum DeadScarBombingRun
 {
     SOUND_ID_BOMBING_RUN       = 12318
@@ -164,6 +168,38 @@ class spell_eastern_kingdoms_dawnblade_attack : public SpellScript
     }
 };
 
+/*######
+## Quest 2203: Badlands Reagent Run II
+######*/
+
+enum BadlandsReagentRun
+{
+    SPELL_THAUMATURGY_CHANNEL    = 21029
+};
+
+// 9712 - Thaumaturgy Channel
+class spell_eastern_kingdoms_thaumaturgy_channel : public AuraScript
+{
+    PrepareAuraScript(spell_eastern_kingdoms_thaumaturgy_channel);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_THAUMATURGY_CHANNEL });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        PreventDefaultAction();
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_THAUMATURGY_CHANNEL, false);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_eastern_kingdoms_thaumaturgy_channel::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_eastern_kingdoms()
 {
     RegisterSpellScript(spell_eastern_kingdoms_duskwither_spire_up);
@@ -172,4 +208,5 @@ void AddSC_eastern_kingdoms()
     RegisterSpellScript(spell_eastern_kingdoms_undercity_to_silvermoon);
     RegisterSpellScript(spell_eastern_kingdoms_dead_scar_bombing_run);
     RegisterSpellScript(spell_eastern_kingdoms_dawnblade_attack);
+    RegisterSpellScript(spell_eastern_kingdoms_thaumaturgy_channel);
 }

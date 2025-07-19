@@ -1195,6 +1195,119 @@ class spell_bem_q10720_poison_keg : public SpellScript
     }
 };
 
+/*######
+## Quest 11010: Bombing Run / 11102: Bombing Run / 11023: Bomb Them Again!
+######*/
+
+enum BombingRun
+{
+    SPELL_FLAK_CANNON_TRIGGER = 40110,
+    SPELL_CHOOSE_LOC          = 40056,
+    SPELL_AGGRO_CHECK         = 40112,
+
+    NPC_FEL_CANNON2           = 23082
+};
+
+// 40113 - Knockdown Fel Cannon: The Aggro Check Aura
+class spell_bem_aggro_check_aura : public AuraScript
+{
+    PrepareAuraScript(spell_bem_aggro_check_aura);
+
+    void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* target = GetTarget())
+            // On trigger proccing
+            target->CastSpell(target, SPELL_AGGRO_CHECK);
+    }
+
+    void Register() override
+    {
+       OnEffectPeriodic += AuraEffectPeriodicFn(spell_bem_aggro_check_aura::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 40112 - Knockdown Fel Cannon: The Aggro Check
+class spell_bem_aggro_check : public SpellScript
+{
+    PrepareSpellScript(spell_bem_aggro_check);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* playerTarget = GetHitPlayer())
+            // Check if found player target is on fly mount or using flying form
+            if (playerTarget->HasAuraType(SPELL_AURA_FLY) || playerTarget->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_aggro_check::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 40119 - Knockdown Fel Cannon: The Aggro Burst
+class spell_bem_aggro_burst : public AuraScript
+{
+    PrepareAuraScript(spell_bem_aggro_burst);
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* target = GetTarget())
+            // On each tick cast Choose Loc to trigger summon
+            target->CastSpell(target, SPELL_CHOOSE_LOC);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bem_aggro_burst::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 40056 - Knockdown Fel Cannon: Choose Loc
+class spell_bem_choose_loc : public SpellScript
+{
+    PrepareSpellScript(spell_bem_choose_loc);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        // Check for player that is in 65 y range
+        std::vector<Player*> playerList;
+        caster->GetPlayerListInGrid(playerList, 65.0f);
+        for (Player* player : playerList)
+            // Check if found player target is on fly mount or using flying form
+            if (player->HasAuraType(SPELL_AURA_FLY) || player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                // Summom Fel Cannon (bunny version) at found player
+                caster->SummonCreature(NPC_FEL_CANNON2, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_bem_choose_loc::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 39844 - Skyguard Blasting Charge
+// 40160 - Throw Bomb
+class spell_bem_check_fly_mount : public SpellScript
+{
+    PrepareSpellScript(spell_bem_check_fly_mount);
+
+    SpellCastResult CheckRequirement()
+    {
+        Unit* caster = GetCaster();
+        // This spell will be cast only if caster has one of these auras
+        if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_bem_check_fly_mount::CheckRequirement);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1211,4 +1324,9 @@ void AddSC_blades_edge_mountains()
     RegisterSpellScript(spell_bem_coax_marmot);
     RegisterSpellScript(spell_bem_charm_rexxars_rodent);
     RegisterSpellScript(spell_bem_q10720_poison_keg);
+    RegisterSpellScript(spell_bem_aggro_check_aura);
+    RegisterSpellScript(spell_bem_aggro_check);
+    RegisterSpellScript(spell_bem_aggro_burst);
+    RegisterSpellScript(spell_bem_choose_loc);
+    RegisterSpellScript(spell_bem_check_fly_mount);
 }
