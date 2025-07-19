@@ -115,6 +115,21 @@ static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spel
     });
 }
 
+// 392536 - Ashen Juggernaut
+class spell_warr_ashen_juggernaut : public AuraScript
+{
+    static bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        // should only proc on primary target
+        return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_ashen_juggernaut::CheckProc);
+    }
+};
+
 // 107574 - Avatar
 class spell_warr_avatar : public SpellScript
 {
@@ -1117,6 +1132,21 @@ class spell_warr_strategist : public AuraScript
     }
 };
 
+// 280776 - Sudden Death
+class spell_warr_sudden_death : public AuraScript
+{
+    static bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        // should only proc on primary target
+        return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_sudden_death::CheckProc);
+    }
+};
+
 // 280721 - Sudden Death
 class spell_warr_sudden_death_proc : public AuraScript
 {
@@ -1366,6 +1396,7 @@ class spell_warr_victory_rush : public SpellScript
 
 void AddSC_warrior_spell_scripts()
 {
+    RegisterSpellScript(spell_warr_ashen_juggernaut);
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
@@ -1401,6 +1432,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolt);
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
+    RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_titanic_rage);
