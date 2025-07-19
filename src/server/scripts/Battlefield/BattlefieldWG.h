@@ -95,10 +95,6 @@ enum WintergraspData
     BATTLEFIELD_WG_DATA_MAX_VEHICLE_H,
     BATTLEFIELD_WG_DATA_VEHICLE_A,
     BATTLEFIELD_WG_DATA_VEHICLE_H,
-    BATTLEFIELD_WG_DATA_WON_A,
-    BATTLEFIELD_WG_DATA_DEF_A,
-    BATTLEFIELD_WG_DATA_WON_H,
-    BATTLEFIELD_WG_DATA_DEF_H,
     BATTLEFIELD_WG_DATA_MAX,
 
     BATTLEFIELD_WG_MAPID                         = 571               // Northrend
@@ -244,7 +240,7 @@ class BattlefieldWG : public Battlefield
          * - Teleport if it needed
          * - Update worldstate
          * - Update tenacity
-         * \param player: Player who accepted invite
+         * \param player : Player who accepted invite
          */
         void OnPlayerJoinWar(Player* player) override;
 
@@ -337,8 +333,10 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        void SendInitWorldStatesToAll() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        // TODO: delete
+        void SendInitWorldStatesToAll() override { }
+        // TODO: delete
+        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) override { }
 
         void HandleKill(Player* killer, Unit* victim) override;
         void OnUnitDeath(Unit* unit) override;
@@ -547,8 +545,6 @@ public:
 
     void UpdateTurretAttack(bool disable);
 
-    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
-
     void Save();
 };
 
@@ -573,8 +569,6 @@ public:
     void GiveControlTo(TeamId teamId, bool init = false);
 
     void UpdateGraveyardAndWorkshop();
-
-    void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet);
 
     void Save();
 };
