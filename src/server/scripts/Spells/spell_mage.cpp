@@ -1198,10 +1198,10 @@ class spell_mage_improved_scorch : public AuraScript
 
     static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetProcTarget()->GetHealthPct() < aurEff->GetAmount();
+        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo) const
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IMPROVED_SCORCH, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
