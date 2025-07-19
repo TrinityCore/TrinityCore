@@ -2607,7 +2607,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (!me)
                 break;
-            
+
             for (WorldObject* target : targets)
             {
                 if (Unit* unitTarget = Object::ToUnit(target))
@@ -2622,7 +2622,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             if (!me)
                 break;
-            
+
             for (WorldObject* target : targets)
             {
                 if (Unit* unitTarget = Object::ToUnit(target))

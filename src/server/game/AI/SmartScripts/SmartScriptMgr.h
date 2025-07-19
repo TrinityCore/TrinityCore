@@ -1245,7 +1245,7 @@ struct SmartAction
         {
             uint32 actionId;
         } doAction;
-        
+
         struct
         {
             uint32 seatId;
