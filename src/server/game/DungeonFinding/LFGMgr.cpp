@@ -452,26 +452,27 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
         else
         {
             uint8 memberCount = 0;
-            for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr && joinData.result == LFG_JOIN_OK; itr = itr->next())
+            for (GroupReference const& itr : grp->GetMembers())
             {
-                if (Player* plrg = itr->GetSource())
+                Player* plrg = itr.GetSource();
+                if (!plrg->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
+                    joinData.result = LFG_JOIN_NO_LFG_OBJECT;
+                if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
+                    joinData.result = LFG_JOIN_DESERTER_PARTY;
+                else if (!isContinue && plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
+                    joinData.result = LFG_JOIN_RANDOM_COOLDOWN_PARTY;
+                else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
+                    joinData.result = LFG_JOIN_CANT_USE_DUNGEONS;
+                else if (plrg->HasAura(9454)) // check Freeze debuff
                 {
-                    if (!plrg->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER))
-                        joinData.result = LFG_JOIN_NO_LFG_OBJECT;
-                    if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
-                        joinData.result = LFG_JOIN_DESERTER_PARTY;
-                    else if (!isContinue && plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
-                        joinData.result = LFG_JOIN_RANDOM_COOLDOWN_PARTY;
-                    else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
-                        joinData.result = LFG_JOIN_CANT_USE_DUNGEONS;
-                    else if (plrg->HasAura(9454)) // check Freeze debuff
-                    {
-                        joinData.result = LFG_JOIN_NO_SLOTS;
-                        joinData.playersMissingRequirement.push_back(plrg->GetName());
-                    }
-                    ++memberCount;
-                    players.insert(plrg->GetGUID());
+                    joinData.result = LFG_JOIN_NO_SLOTS;
+                    joinData.playersMissingRequirement.push_back(plrg->GetName());
                 }
+                ++memberCount;
+                players.insert(plrg->GetGUID());
+
+                if (joinData.result != LFG_JOIN_OK)
+                    break;
             }
 
             if (joinData.result == LFG_JOIN_OK && memberCount != grp->GetMembersCount())
@@ -571,21 +572,19 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons)
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons);
-        for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : grp->GetMembers())
         {
-            if (Player* plrg = itr->GetSource())
-            {
-                ObjectGuid pguid = plrg->GetGUID();
-                plrg->GetSession()->SendLfgUpdateStatus(updateData, true);
-                SetState(pguid, LFG_STATE_ROLECHECK);
-                SetTicket(pguid, ticket);
-                if (!isContinue)
-                    SetSelectedDungeons(pguid, dungeons);
-                roleCheck.roles[pguid] = 0;
-                if (!debugNames.empty())
-                    debugNames.append(", ");
-                debugNames.append(plrg->GetName());
-            }
+            Player* plrg = itr.GetSource();
+            ObjectGuid pguid = plrg->GetGUID();
+            plrg->GetSession()->SendLfgUpdateStatus(updateData, true);
+            SetState(pguid, LFG_STATE_ROLECHECK);
+            SetTicket(pguid, ticket);
+            if (!isContinue)
+                SetSelectedDungeons(pguid, dungeons);
+            roleCheck.roles[pguid] = 0;
+            if (!debugNames.empty())
+                debugNames.append(", ");
+            debugNames.append(plrg->GetName());
         }
         // Update leader role
         UpdateRoleCheck(gguid, guid, roles);
@@ -1407,10 +1406,10 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         if (!fromOpcode)
         {
             // Select a player inside to be teleported to
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* plrg = itr->GetSource();
-                if (plrg && plrg != player && plrg->GetMapId() == uint32(dungeon->map))
+                Player* plrg = itr.GetSource();
+                if (plrg != player && plrg->GetMapId() == uint32(dungeon->map))
                 {
                     mapid = plrg->GetMapId();
                     x = plrg->GetPositionX();
@@ -1445,10 +1444,10 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
    Check if dungeon can be rewarded, if any.
 
    @param[in]     gguid Group guid
-   @param[in]     dungeonEncounterIds DungeonEncounter that was just completed
+   @param[in]     dungeonEncounters DungeonEncounter that was just completed
    @param[in]     currMap Map of the instance where encounter was completed
 */
-void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> const& dungeonEncounterIds, Map const* currMap)
+void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap)
 {
     if (GetState(gguid) == LFG_STATE_FINISHED_DUNGEON) // Shouldn't happen. Do not reward multiple times
     {
@@ -1459,7 +1458,7 @@ void LFGMgr::OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> cons
     uint32 gDungeonId = GetDungeon(gguid);
     LFGDungeonData const* dungeonDone = GetLFGDungeon(gDungeonId);
     // LFGDungeons can point to a DungeonEncounter from any difficulty so we need this kind of lenient check
-    if (std::find(dungeonEncounterIds.begin(), dungeonEncounterIds.end(), dungeonDone->finalDungeonEncounterId) == dungeonEncounterIds.end())
+    if (!advstd::ranges::contains(dungeonEncounters, dungeonDone->finalDungeonEncounterId))
         return;
 
     FinishDungeon(gguid, gDungeonId, currMap);

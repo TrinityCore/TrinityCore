@@ -463,20 +463,26 @@ namespace WorldPackets
             Optional<QuestRewardContextFlags> ContextFlags;
         };
 
+        enum class TreasurePickerBonusContext : uint8
+        {
+            None    = 0,
+            WarMode = 1
+        };
+
         struct TreasurePickerBonus
         {
-            std::vector<TreasurePickItem> Items;
-            std::vector<TreasurePickCurrency> Currencies;
-            uint64 Money = 0;
-            uint8 Context = 0;
+            std::vector<TreasurePickItem> ItemPicks;
+            std::vector<TreasurePickCurrency> CurrencyPicks;
+            uint64 Gold = 0;
+            TreasurePickerBonusContext Context = TreasurePickerBonusContext::None;
         };
 
         struct TreasurePickerPick
         {
-            std::vector<TreasurePickItem> Items;
-            std::vector<TreasurePickCurrency> Currencies;
+            std::vector<TreasurePickItem> ItemPicks;
+            std::vector<TreasurePickCurrency> CurrencyPicks;
             std::vector<TreasurePickerBonus> Bonuses;
-            uint64 Money = 0;
+            uint64 Gold = 0;
             int32 Flags = 0;
             bool IsChoice = false;
         };
@@ -490,7 +496,7 @@ namespace WorldPackets
 
             uint32 QuestID = 0;
             uint32 TreasurePickerID = 0;
-            TreasurePickerPick Pick;
+            TreasurePickerPick Treasure;
         };
 
         ByteBuffer& operator<<(ByteBuffer& data, PlayerGuidLookupData const& lookupData);

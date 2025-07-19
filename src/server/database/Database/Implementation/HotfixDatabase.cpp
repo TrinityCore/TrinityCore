@@ -272,7 +272,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLE_PET_SPECIES_STATE, "SELECT MAX(ID) + 1 FROM battle_pet_species_state", CONNECTION_SYNCH);
 
     // BattlemasterList.db2
-    PrepareStatement(HOTFIX_SEL_BATTLEMASTER_LIST, "SELECT ID, Name, GameType, ShortDescription, LongDescription, InstanceType, MinLevel, MaxLevel, "
+    PrepareStatement(HOTFIX_SEL_BATTLEMASTER_LIST, "SELECT ID, Name, GameType, ShortDescription, LongDescription, PvpType, MinLevel, MaxLevel, "
         "RatedPlayers, MinPlayers, MaxPlayers, GroupsAllowed, MaxGroupSize, HolidayWorldState, Flags, IconFileDataID, RequiredPlayerConditionID"
         " FROM battlemaster_list WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_BATTLEMASTER_LIST, "SELECT MAX(ID) + 1 FROM battlemaster_list", CONNECTION_SYNCH);
@@ -463,9 +463,9 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT MAX(ID) + 1 FROM conditional_content_tuning", CONNECTION_SYNCH);
 
     // ContentTuning.db2
-    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, Flags, ExpansionID, HealthItemLevelCurveID, DamageItemLevelCurveID, MinLevel, MaxLevel, "
-        "MinLevelType, MaxLevelType, TargetLevelDelta, TargetLevelMaxDelta, TargetLevelMin, TargetLevelMax, MinItemLevel, QuestXpMultiplier"
-        " FROM content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CONTENT_TUNING, "SELECT ID, Flags, ExpansionID, HealthItemLevelCurveID, DamageItemLevelCurveID, "
+        "HealthPrimaryStatCurveID, DamagePrimaryStatCurveID, MinLevel, MaxLevel, MinLevelType, MaxLevelType, TargetLevelDelta, TargetLevelMaxDelta, "
+        "TargetLevelMin, TargetLevelMax, MinItemLevel, QuestXpMultiplier FROM content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONTENT_TUNING, "SELECT MAX(ID) + 1 FROM content_tuning", CONNECTION_SYNCH);
 
     // ContentTuningXExpected.db2
@@ -1319,6 +1319,26 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT MAX(ID) + 1 FROM player_condition", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_PLAYER_CONDITION, "SELECT ID, FailureDescription_lang FROM player_condition_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
+
+    // PlayerDataElementAccount.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT ID, StorageIndex, Type FROM player_data_element_account"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_ACCOUNT, "SELECT MAX(ID) + 1 FROM player_data_element_account", CONNECTION_SYNCH);
+
+    // PlayerDataElementCharacter.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT ID, StorageIndex, Type FROM player_data_element_character"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_ELEMENT_CHARACTER, "SELECT MAX(ID) + 1 FROM player_data_element_character", CONNECTION_SYNCH);
+
+    // PlayerDataFlagAccount.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_FLAG_ACCOUNT, "SELECT ID, StorageIndex, Unknown1107 FROM player_data_flag_account"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_FLAG_ACCOUNT, "SELECT MAX(ID) + 1 FROM player_data_flag_account", CONNECTION_SYNCH);
+
+    // PlayerDataFlagCharacter.db2
+    PrepareStatement(HOTFIX_SEL_PLAYER_DATA_FLAG_CHARACTER, "SELECT ID, StorageIndex, Unknown1107 FROM player_data_flag_character"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_PLAYER_DATA_FLAG_CHARACTER, "SELECT MAX(ID) + 1 FROM player_data_flag_character", CONNECTION_SYNCH);
 
     // PowerDisplay.db2
     PrepareStatement(HOTFIX_SEL_POWER_DISPLAY, "SELECT ID, GlobalStringBaseTag, ActualType, Red, Green, Blue FROM power_display"

@@ -19,13 +19,16 @@
 #define TRINITYCORE_GOSSIP_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include <variant>
 
 class Object;
 class Quest;
 class WorldSession;
 struct GossipMenuItems;
+enum class PlayerInteractionType : int32;
 enum class QuestGiverStatus : uint64;
 
 #define GOSSIP_MAX_MENU_ITEMS               32
@@ -231,21 +234,77 @@ class TC_GAME_API QuestMenu
         QuestMenuItemList _questMenuItems;
 };
 
-class InteractionData
+class PlayerChoiceData
 {
-    public:
-        void Reset()
-        {
-            SourceGuid.Clear();
-            TrainerId = 0;
-            PlayerChoiceId = 0;
-            IsLaunchedByQuest = false;
-        }
+public:
+    PlayerChoiceData() = default;
+    explicit PlayerChoiceData(uint32 choiceId) : _choiceId(choiceId) { }
 
-        ObjectGuid SourceGuid;
-        uint32 TrainerId = 0;
-        uint32 PlayerChoiceId = 0;
-        bool IsLaunchedByQuest = false;
+    uint32 GetChoiceId() const { return _choiceId; }
+    void SetChoiceId(uint32 choiceId) { _choiceId = choiceId; }
+
+    Optional<uint32> FindIdByClientIdentifier(uint16 clientIdentifier) const;
+    void AddResponse(uint32 id, uint16 clientIdentifier);
+
+    Optional<SystemTimePoint> GetExpireTime() const { return _expireTime; }
+    void SetExpireTime(Optional<SystemTimePoint> expireTime) { _expireTime = expireTime; }
+
+private:
+    struct Response
+    {
+        uint32 Id = 0;
+        uint16 ClientIdentifier = 0;
+    };
+
+    uint32 _choiceId = 0;
+    std::vector<Response> _responses;
+    Optional<SystemTimePoint> _expireTime;
+};
+
+class TC_GAME_API InteractionData
+{
+    template <typename>
+    struct TaggedId
+    {
+        TaggedId() = default;
+        explicit TaggedId(uint32 id) : Id(id) { }
+
+        uint32 Id = 0;
+    };
+
+    struct TrainerTag;
+    using TrainerData = TaggedId<TrainerTag>;
+
+public:
+    InteractionData();
+    InteractionData(InteractionData const& other);
+    InteractionData(InteractionData&& other) noexcept;
+    InteractionData& operator=(InteractionData const& other);
+    InteractionData& operator=(InteractionData&& other) noexcept;
+    ~InteractionData();
+
+    void StartInteraction(ObjectGuid target, PlayerInteractionType type);
+    bool IsInteractingWith(ObjectGuid target, PlayerInteractionType type) const { return SourceGuid == target && Type == type; }
+    void Reset();
+
+    ObjectGuid SourceGuid;
+    PlayerInteractionType Type = { };
+
+    TrainerData* GetTrainer() { return std::holds_alternative<TrainerData>(_data) ? &std::get<TrainerData>(_data) : nullptr; }
+
+    PlayerChoiceData* GetPlayerChoice() { return std::holds_alternative<PlayerChoiceData>(_data) ? &std::get<PlayerChoiceData>(_data) : nullptr; }
+
+    uint16 AddPlayerChoiceResponse(uint32 responseId)
+    {
+        std::get<PlayerChoiceData>(_data).AddResponse(responseId, ++_playerChoiceResponseIdentifierGenerator);
+        return _playerChoiceResponseIdentifierGenerator;
+    }
+
+    bool IsLaunchedByQuest = false;
+
+private:
+    uint16 _playerChoiceResponseIdentifierGenerator = 0; // not reset between interactions
+    std::variant<std::monostate, TrainerData, PlayerChoiceData> _data;
 };
 
 class TC_GAME_API PlayerMenu
@@ -281,10 +340,10 @@ class TC_GAME_API PlayerMenu
         void SendQuestGiverQuestListMessage(Object* questgiver);
 
         void SendQuestQueryResponse(Quest const* quest) const;
-        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup) const;
+        void SendQuestGiverQuestDetails(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup);
 
-        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched) const;
-        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched) const;
+        void SendQuestGiverOfferReward(Quest const* quest, ObjectGuid npcGUID, bool autoLaunched);
+        void SendQuestGiverRequestItems(Quest const* quest, ObjectGuid npcGUID, bool canComplete, bool autoLaunched);
 
     private:
         GossipMenu _gossipMenu;

@@ -405,12 +405,9 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         Transport* ToTransport() { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport*>(this); else return nullptr; }
         Transport const* ToTransport() const { if (GetGOInfo()->type == GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT) return reinterpret_cast<Transport const*>(this); else return nullptr; }
 
-        float GetStationaryX() const override { return m_stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return m_stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return m_stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return m_stationaryPosition.GetOrientation(); }
-        Position const& GetStationaryPosition() const { return m_stationaryPosition; }
+        Position const& GetStationaryPosition() const override { return m_stationaryPosition; }
         void RelocateStationaryPosition(float x, float y, float z, float o) { m_stationaryPosition.Relocate(x, y, z, o); }
+        void RelocateStationaryPosition(Position const& pos) { m_stationaryPosition.Relocate(pos); }
 
         void AfterRelocation();
 
