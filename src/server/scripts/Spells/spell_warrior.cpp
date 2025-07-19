@@ -82,6 +82,8 @@ enum WarriorSpells
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_STORM_BOLTS                       = 436162,
     SPELL_WARRIOR_STRATEGIST                        = 384041,
+    SPELL_WARRIOR_SUDDEN_DEATH                      = 280721,
+    SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 280776,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -112,6 +114,21 @@ static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spel
         .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
     });
 }
+
+// 392536 - Ashen Juggernaut
+class spell_warr_ashen_juggernaut : public AuraScript
+{
+    static bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        // should only proc on primary target
+        return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_ashen_juggernaut::CheckProc);
+    }
+};
 
 // 107574 - Avatar
 class spell_warr_avatar : public SpellScript
@@ -1115,6 +1132,42 @@ class spell_warr_strategist : public AuraScript
     }
 };
 
+// 280776 - Sudden Death
+class spell_warr_sudden_death : public AuraScript
+{
+    static bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        // should only proc on primary target
+        return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_sudden_death::CheckProc);
+    }
+};
+
+// 280721 - Sudden Death
+class spell_warr_sudden_death_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SUDDEN_DEATH_BUFF });
+    }
+
+    void HandleProc(AuraEffect* /*aurEff*/, ProcEventInfo& /*eventInfo*/) const
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_SUDDEN_DEATH_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_warr_sudden_death_proc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 12328, 18765, 35429 - Sweeping Strikes
 class spell_warr_sweeping_strikes : public AuraScript
 {
@@ -1343,6 +1396,7 @@ class spell_warr_victory_rush : public SpellScript
 
 void AddSC_warrior_spell_scripts()
 {
+    RegisterSpellScript(spell_warr_ashen_juggernaut);
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
@@ -1378,6 +1432,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_storm_bolt);
     RegisterSpellScript(spell_warr_storm_bolts);
     RegisterSpellScript(spell_warr_strategist);
+    RegisterSpellScript(spell_warr_sudden_death);
+    RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
