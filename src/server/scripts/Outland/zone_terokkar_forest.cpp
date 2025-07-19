@@ -91,12 +91,12 @@ public:
 
             if (Player* player = done_by->ToPlayer())
             {
-                if (Group* group = player->GetGroup())
+                if (Group const* group = player->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    for (GroupReference const& itr : group->GetMembers())
                     {
-                        Player* groupie = itr->GetSource();
-                        if (groupie && groupie->IsInMap(player) &&
+                        Player* groupie = itr.GetSource();
+                        if (groupie->IsInMap(player) &&
                             groupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
                             groupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, NPC_BOULDERFIST_INVADER) == REQUIRED_KILL_COUNT)
                         {

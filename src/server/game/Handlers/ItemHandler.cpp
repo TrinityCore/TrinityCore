@@ -606,6 +606,8 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(vendorGuid, PlayerInteractionType::Vendor);
+
     // Stop the npc if moving
     if (uint32 pause = vendor->GetMovementTemplate().GetInteractionPauseTimer())
         vendor->PauseMovement(pause);

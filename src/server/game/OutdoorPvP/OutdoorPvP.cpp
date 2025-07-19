@@ -97,12 +97,9 @@ void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
 {
     if (Group* group = killer->GetGroup())
     {
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            Player* groupGuy = itr->GetSource();
-
-            if (!groupGuy)
-                continue;
+            Player* groupGuy = itr.GetSource();
 
             // skip if too far away
             if (!groupGuy->IsAtGroupRewardDistance(killed))

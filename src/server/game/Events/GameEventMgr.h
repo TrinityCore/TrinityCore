@@ -112,7 +112,7 @@ class TC_GAME_API GameEventMgr
         uint32 NextCheck(uint16 entry) const;
         void LoadFromDB();
         uint32 Update();
-        bool IsActiveEvent(uint16 event_id) { return (m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
+        bool IsActiveEvent(uint16 event_id) const { return (m_ActiveEvents.contains(event_id)); }
         uint32 StartSystem();
         void Initialize();
         void StartArenaSeason();
@@ -124,8 +124,8 @@ class TC_GAME_API GameEventMgr
 
     private:
         void SendWorldStateUpdate(Player* player, uint16 event_id);
-        void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
-        void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
+        void AddActiveEvent(uint16 event_id);
+        void RemoveActiveEvent(uint16 event_id);
         void ApplyNewEvent(uint16 event_id);
         void UnApplyEvent(uint16 event_id);
         void GameEventSpawn(int16 event_id);

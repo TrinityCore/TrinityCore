@@ -2625,8 +2625,7 @@ void UnitAura::FillTargetMap(std::unordered_map<Unit*, uint32>& targets, Unit* c
             if (uint32 containerTypeMask = Spell::GetSearcherTypeMask(m_spellInfo, spellEffectInfo, TARGET_OBJECT_TYPE_UNIT, condList))
             {
                 Trinity::WorldObjectSpellAreaTargetCheck check(radius, unitOwner, ref, unitOwner, m_spellInfo, selectionType, condList, TARGET_OBJECT_TYPE_UNIT);
-                Trinity::UnitListSearcher searcher(unitOwner, units, check);
-                searcher.i_phaseShift = &PhasingHandler::GetAlwaysVisiblePhaseShift();
+                Trinity::UnitListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), units, check);
                 Spell::SearchTargets(searcher, containerTypeMask, unitOwner, unitOwner, radius + extraSearchRadius);
 
                 // by design WorldObjectSpellAreaTargetCheck allows not-in-world units (for spells) but for auras it is not acceptable
