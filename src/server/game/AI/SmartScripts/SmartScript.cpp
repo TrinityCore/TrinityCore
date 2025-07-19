@@ -41,6 +41,7 @@
 #include "Random.h"
 #include "ScriptActions.h"
 #include "SmartAI.h"
+#include "SpellMgr.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
