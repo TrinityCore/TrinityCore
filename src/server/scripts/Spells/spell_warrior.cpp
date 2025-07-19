@@ -1329,7 +1329,8 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
-    RegisterSpellScript(spell_warr_unbridled_ferocity);    RegisterSpellScript(spell_warr_vicious_contempt);
+    RegisterSpellScript(spell_warr_unbridled_ferocity);
+    RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
 }
