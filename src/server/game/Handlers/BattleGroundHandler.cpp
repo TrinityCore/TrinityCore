@@ -224,12 +224,9 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         }
 
-        for (GroupReference const* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : grp->GetMembers())
         {
-            Player* member = itr->GetSource();
-            if (!member)
-                continue;   // this should never happen
-
+            Player* member = itr.GetSource();
             if (err)
             {
                 WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;
@@ -578,12 +575,9 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
         avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
     }
 
-    for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+    for (GroupReference const& itr : grp->GetMembers())
     {
-        Player* member = itr->GetSource();
-        if (!member)
-            continue;
-
+        Player* member = itr.GetSource();
         if (err)
         {
             WorldPackets::Battleground::BattlefieldStatusFailed battlefieldStatus;

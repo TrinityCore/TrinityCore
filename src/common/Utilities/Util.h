@@ -99,9 +99,6 @@ inline T RoundToInterval(T& num, T floor, T ceil)
     return num = std::min(std::max(num, floor), ceil);
 }
 
-template <class T>
-inline T square(T x) { return x*x; }
-
 // UTF8 handling
 TC_COMMON_API bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr);
 
@@ -482,7 +479,7 @@ TC_COMMON_API void StringReplaceAll(std::string* str, std::string_view text, std
 
 // simple class for not-modifyable list
 template <typename T>
-class HookList final
+class HookList
 {
     private:
         typedef std::vector<T> ContainerType;
@@ -495,7 +492,7 @@ class HookList final
 
         HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(std::move(t));
+            _container.emplace_back(std::move(t));
             return *this;
         }
 
