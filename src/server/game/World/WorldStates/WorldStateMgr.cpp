@@ -167,8 +167,11 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, bool hidden, Map* 
     WorldStateTemplate const* worldStateTemplate = GetWorldStateTemplate(worldStateId);
     if (!worldStateTemplate || worldStateTemplate->MapIds.empty())
     {
-        auto itr = _realmWorldStateValues.try_emplace(worldStateId, 0).first;
+        auto [itr, inserted] = _realmWorldStateValues.try_emplace(worldStateId, 0);
         int32 oldValue = itr->second;
+        if (oldValue == value && !inserted)
+            return;
+
         itr->second = value;
 
         if (worldStateTemplate)
