@@ -249,12 +249,9 @@ public:
             return false;
         }
 
-        for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : grp->GetMembers())
         {
-            Player* player = itr->GetSource();
-
-            if (!player || !player->GetSession())
-                continue;
+            Player* player = itr.GetSource();
 
             // check online security
             if (handler->HasLowerSecurity(player, ObjectGuid::Empty))

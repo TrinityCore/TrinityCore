@@ -22,7 +22,6 @@ namespace WorldPackets::System
 {
 ByteBuffer& operator<<(ByteBuffer& data, SocialQueueConfig const& socialQueueConfig)
 {
-    data << Bits<1>(socialQueueConfig.ToastsDisabled);
     data << float(socialQueueConfig.ToastDuration);
     data << float(socialQueueConfig.DelayDuration);
     data << float(socialQueueConfig.QueueMultiplier);
@@ -45,6 +44,8 @@ ByteBuffer& operator<<(ByteBuffer& data, SocialQueueConfig const& socialQueueCon
     data << float(socialQueueConfig.ThrottleRfIlvlScalingAbove);
     data << float(socialQueueConfig.ThrottleDfMaxItemLevel);
     data << float(socialQueueConfig.ThrottleDfBestPriority);
+    data << Bits<1>(socialQueueConfig.ToastsDisabled);
+    data.FlushBits();
 
     return data;
 }
@@ -212,6 +213,8 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << Bits<1>(LobbyMatchmakerQueueFromMainlineEnabled);
     _worldPacket << Bits<1>(CanSendLobbyMatchmakerPartyCustomizations);
     _worldPacket << Bits<1>(AddonProfilerEnabled);
+    _worldPacket << Bits<1>(false); // unused 11.1.7
+    _worldPacket << Bits<1>(false); // unused 11.1.7
 
     _worldPacket.FlushBits();
 
@@ -270,6 +273,10 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     _worldPacket << Bits<1>(BNSendGameDataUseV2Services);
     _worldPacket << Bits<1>(CharacterSelectListModeRealmless);
+    _worldPacket << Bits<1>(WowTokenLimitedMode);
+    _worldPacket << Bits<1>(false); // unused 11.1.7
+    _worldPacket << Bits<1>(false); // unused 11.1.7
+    _worldPacket << Bits<1>(PandarenLevelBoostAllowed);
 
     _worldPacket.FlushBits();
 

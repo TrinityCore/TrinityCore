@@ -404,10 +404,11 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         if (HasDriveStatus)
         {
-            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
-            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
             *data << float(unit->m_movementInfo.driveStatus->speed);
             *data << float(unit->m_movementInfo.driveStatus->movementAngle);
+            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
+            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
+            data->FlushBits();
         }
 
         *data << float(unit->GetSpeed(MOVE_WALK));
@@ -465,10 +466,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     if (flags.Stationary)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << float(self->GetStationaryX());
-        *data << float(self->GetStationaryY());
-        *data << float(self->GetStationaryZ());
-        *data << float(self->GetStationaryO());
+        *data << self->GetStationaryPosition().PositionXYZOStream();
     }
 
     if (flags.CombatVictim)

@@ -196,6 +196,13 @@ void LoginDatabaseConnection::DoPrepareStatements()
         "ON DUPLICATE KEY UPDATE isFavorite = VALUES(isFavorite)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_WARBAND_SCENE, "UPDATE battlenet_account_warband_scenes SET isFavorite = ?, hasFanfare = ? WHERE battlenetAccountId = ? AND warbandSceneId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_BNET_WARBAND_SCENE, "DELETE FROM battlenet_account_warband_scenes WHERE battlenetAccountId = ? AND warbandSceneId = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(LOGIN_SEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT, "SELECT playerDataElementAccountId, floatValue, int64Value FROM battlenet_account_player_data_element WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT, "DELETE FROM battlenet_account_player_data_element WHERE battlenetAccountId = ? AND playerDataElementAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT, "INSERT INTO battlenet_account_player_data_element (battlenetAccountId, playerDataElementAccountId, floatValue, int64Value) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_BNET_PLAYER_DATA_FLAGS_ACCOUNT, "SELECT storageIndex, mask FROM battlenet_account_player_data_flag WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_BNET_PLAYER_DATA_FLAGS_ACCOUNT, "DELETE FROM battlenet_account_player_data_flag WHERE battlenetAccountId = ? AND storageIndex = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_INS_BNET_PLAYER_DATA_FLAGS_ACCOUNT, "INSERT INTO battlenet_account_player_data_flag (battlenetAccountId, storageIndex, mask) VALUES (?, ?, ?)", CONNECTION_ASYNC);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo, ConnectionFlags connectionFlags) : MySQLConnection(connInfo, connectionFlags)

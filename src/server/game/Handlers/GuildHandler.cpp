@@ -19,6 +19,7 @@
 #include "AchievementPackets.h"
 #include "Common.h"
 #include "GameTime.h"
+#include "GossipDef.h"
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "GuildPackets.h"
@@ -248,6 +249,8 @@ void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivat
         Guild::SendCommandResult(this, GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);
         return;
     }
+
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(packet.Banker, PlayerInteractionType::GuildBanker);
 
     guild->SendBankList(this, 0, packet.FullUpdate);
 }

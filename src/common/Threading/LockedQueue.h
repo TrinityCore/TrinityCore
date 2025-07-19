@@ -77,10 +77,11 @@ public:
         if (_queue.empty())
             return false;
 
-        if (!check.Process(_queue.front()))
+        decltype(auto) front = _queue.front();
+        if (!check.Process(front))
             return false;
 
-        result = std::move(_queue.front());
+        result = std::move(front);
         _queue.pop_front();
         return true;
     }

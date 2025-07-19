@@ -1114,7 +1114,7 @@ private:
             if (itr != _known_modules_build_directives.end())
                 return itr->second;
             else // If no build directive of the module was found use the one from the game library
-                return _BUILD_DIRECTIVE;
+                return TRINITY_BUILD_TYPE;
         }();
 
         // Initiate the new build job
