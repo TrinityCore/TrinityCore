@@ -32,6 +32,7 @@
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
@@ -49,6 +50,8 @@
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
+#include "WorldStatePackets.h"
 #include <boost/heap/fibonacci_heap.hpp>
 #include <unordered_set>
 #include <vector>
@@ -297,6 +300,8 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), GetInstanceId());
+
+    _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -609,6 +614,30 @@ bool Map::AddPlayerToMap(Player* player)
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
+}
+
+int32 Map::GetWorldStateValue(int32 worldStateId) const
+{
+    if (int32 const* value = Trinity::Containers::MapGetValuePtr(_worldStateValues, worldStateId))
+        return *value;
+
+    return 0;
+}
+
+void Map::SetWorldStateValue(int32 worldStateId, int32 value)
+{
+    auto itr = _worldStateValues.try_emplace(worldStateId, 0).first;
+    int32 oldValue = itr->second;
+    itr->second = value;
+
+    if (WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId))
+        sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
+
+    // Broadcast update to all players on the map
+    WorldPackets::WorldState::UpdateWorldState updateWorldState;
+    updateWorldState.VariableID = worldStateId;
+    updateWorldState.Value = value;
+    SendToPlayers(updateWorldState.Write());
 }
 
 template<class T>

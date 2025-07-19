@@ -32,6 +32,7 @@
 #include "SharedDefines.h"
 #include "SpawnData.h"
 #include "Timer.h"
+#include "WorldStateDefines.h"
 #include "Transaction.h"
 #include "UniqueTrackablePtr.h"
 #include <bitset>
@@ -860,6 +861,17 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         std::unordered_set<Object*> _updateObjects;
 
         MPSCQueue<FarSpellCallback> _farSpellCallbacks;
+
+        /*********************************************************/
+        /***                   WorldStates                     ***/
+        /*********************************************************/
+    public:
+        int32 GetWorldStateValue(int32 worldStateId) const;
+        void SetWorldStateValue(int32 worldStateId, int32 value);
+        WorldStateValueContainer const& GetWorldStateValues() const { return _worldStateValues; }
+
+    private:
+        WorldStateValueContainer _worldStateValues;
 };
 
 enum InstanceResetMethod

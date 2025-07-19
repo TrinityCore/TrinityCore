@@ -105,6 +105,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldStateMgr.h"
 #include "WorldStatePackets.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -8654,6 +8655,8 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     packet.MapID = mapId;
     packet.ZoneID = zoneId;
     packet.AreaID = areaId;
+
+    sWorldStateMgr->FillInitialWorldStates(packet, GetMap());
 
     packet.Worldstates.emplace_back(2264, 0); // SCOURGE_EVENT_WORLDSTATE_EASTERN_PLAGUELANDS
     packet.Worldstates.emplace_back(2263, 0); // SCOURGE_EVENT_WORLDSTATE_TANARIS
