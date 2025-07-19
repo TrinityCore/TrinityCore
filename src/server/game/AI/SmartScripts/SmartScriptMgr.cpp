@@ -1854,8 +1854,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses incorrect TempSummonType {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
                 return false;
             }
-
-            TC_SAI_IS_BOOLEAN_VALID(e, e.action.summonCreature.attackInvoker);
             break;
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
