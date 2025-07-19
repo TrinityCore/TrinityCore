@@ -22,6 +22,7 @@
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
+#include "DB2Stores.h"
 #include "GameEventMgr.h"
 #include "GameEventSender.h"
 #include "GameObject.h"
