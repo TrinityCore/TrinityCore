@@ -1,4 +1,4 @@
-SET @CGUID := 4444444444;
+SET @CGUID := 6005771;
 SET @SPAWNGROUP := 1267;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+2;
@@ -101,7 +101,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (115489, 0, 0, 1, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 231195, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - On Just Summoned - Cast self spell 231195'),
 (115489, 0, 1, 2, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 59, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - On Just Summoned - Set Run 0'),
 (115489, 0, 2, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 53, 0, (115489 * 100), 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - On Just Summoned - Start Waypoint'),
-(115489, 0, 3, 0, '', 34, 0, 100, 0, 2, 24, 0, 0, 0, '', 80, (115489 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - OnMovementInform PathID 24  - Set Action List'),
+(115489, 0, 3, 0, '', 34, 0, 100, 0, 2, 24, 0, 0, 0, '', 80, (115489 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - OnMovementInform PointID 24  - Set Action List'),
 ((115489 * 100), 9, 0, 0, '', 0, 0, 100, 0, 1500, 1500, 1500, 1500, 0, '', 90, 8, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Anduin Lothar - On Action List - Set StandState 8');
 
 DELETE FROM `smart_scripts` WHERE `entryorguid`=115490 AND `source_type`=0 OR `entryorguid` = (115490 * 100) AND `source_type`= 9;
