@@ -13235,7 +13235,6 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
             SetPlayHoverAnim(false, false);
     }
 
-
     if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
     {
         if (IsGravityDisabled())
