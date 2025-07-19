@@ -15,96 +15,82 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires update
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "razorfen_downs.h"
 
-enum Spells
+enum TutenkashSpells
 {
-    SPELL_THRASH             = 8876,
-    SPELL_WEB_SPRAY          = 12252,
-    SPELL_VIRULENT_POISON    = 12254,
-    SPELL_CURSE_OF_TUTENKASH = 12255
+    SPELL_VIRULENT_POISON        = 12254,
+    SPELL_THRASH                 = 8876,
+    SPELL_WEB_SPRAY              = 12252,
+    SPELL_CURSE_OF_TUTENKASH     = 12255
 };
 
-enum Events
+enum TutenkashEvents
 {
-    EVENT_WEB_SPRAY          = 1,
-    EVENT_CURSE_OF_TUTENKASH = 2
+    EVENT_WEB_SPRAY              = 1,
+    EVENT_CURSE_OF_TUTENKASH
 };
 
-class boss_tuten_kash : public CreatureScript
+// 7355 - Tuten'kash
+struct boss_tuten_kash : public BossAI
 {
-public:
-    boss_tuten_kash() : CreatureScript("boss_tuten_kash") { }
+    boss_tuten_kash(Creature* creature) : BossAI(creature, DATA_TUTEN_KASH) { }
 
-    struct boss_tuten_kashAI : public BossAI
+    void Reset() override
     {
-        boss_tuten_kashAI(Creature* creature) : BossAI(creature, DATA_TUTEN_KASH) { }
+        _Reset();
+        DoCastSelf(SPELL_VIRULENT_POISON);
+        DoCastSelf(SPELL_THRASH);
+    }
 
-        void Reset() override
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_WEB_SPRAY, 10s, 20s);
+        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 10s, 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            _Reset();
-            if (!me->HasAura(SPELL_THRASH))
-                DoCast(me, SPELL_THRASH);
-            if (!me->HasAura(SPELL_VIRULENT_POISON))
-                DoCast(me, SPELL_VIRULENT_POISON);
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            events.ScheduleEvent(EVENT_WEB_SPRAY, 3s, 5s);
-            events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 9s, 14s);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
+            switch (eventId)
+            {
+                case EVENT_WEB_SPRAY:
+                    DoCastSelf(SPELL_WEB_SPRAY);
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_CURSE_OF_TUTENKASH:
+                    DoCastSelf(SPELL_CURSE_OF_TUTENKASH);
+                    events.Repeat(15s, 25s);
+                    break;
+                default:
+                    break;
+            }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_WEB_SPRAY:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100, false))
-                        {
-                            if (!target->HasAura(SPELL_WEB_SPRAY))
-                                DoCast(target, SPELL_WEB_SPRAY);
-                        }
-                        events.ScheduleEvent(EVENT_WEB_SPRAY, 6s, 8s);
-                        break;
-                    case EVENT_CURSE_OF_TUTENKASH:
-                        DoCast(me, SPELL_CURSE_OF_TUTENKASH);
-                        events.ScheduleEvent(EVENT_CURSE_OF_TUTENKASH, 15s, 25s);
-                        break;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-            }
-            DoMeleeAttackIfReady();
         }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetRazorfenDownsAI<boss_tuten_kashAI>(creature);
+        DoMeleeAttackIfReady();
     }
 };
 
 void AddSC_boss_tuten_kash()
 {
-    new boss_tuten_kash();
+    RegisterRazorfenDownsCreatureAI(boss_tuten_kash);
 }
