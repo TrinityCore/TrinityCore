@@ -13222,15 +13222,18 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         SendMessageToSet(packet.Write(), true);
     }
 
-    if (IsAlive())
+    if (!GetVehicle())
     {
-        if (IsGravityDisabled() || IsHovering())
-            SetPlayHoverAnim(true);
-        else
-            SetPlayHoverAnim(false);
+        if (IsAlive())
+        {
+            if (IsGravityDisabled() || IsHovering())
+                SetPlayHoverAnim(true);
+            else
+                SetPlayHoverAnim(false);
+        }
+        else if (IsPlayer()) // To update player who dies while flying/hovering
+            SetPlayHoverAnim(false, false);
     }
-    else if (IsPlayer()) // To update player who dies while flying/hovering
-        SetPlayHoverAnim(false, false);
 
     if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
     {
