@@ -2603,6 +2603,47 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             Cell::VisitGridObjects(GetBaseObject(), worker, float(e.action.destroyConversation.range));
             break;
         }
+        case SMART_ACTION_ENTER_VEHICLE:
+        {
+            if (!me)
+                break;
+            
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = Object::ToUnit(target))
+                {
+                    me->EnterVehicle(unitTarget, (uint8)e.action.enterVehicle.seatId);
+                    break;
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_BOARD_PASSENGER:
+        {
+            if (!me)
+                break;
+            
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = Object::ToUnit(target))
+                {
+                    unitTarget->EnterVehicle(me, (uint8)e.action.enterVehicle.seatId);
+                    break;
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_EXIT_VEHICLE:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = Object::ToUnit(target))
+                {
+                    unitTarget->ExitVehicle();
+                }
+            }
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
