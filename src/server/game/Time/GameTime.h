@@ -54,6 +54,9 @@ namespace GameTime
     TC_GAME_API WowTime const* GetWowTime();
 
     void UpdateGameTimers();
+
+    template<> TC_GAME_API SystemTimePoint GetTime<std::chrono::system_clock>();
+    template<> TC_GAME_API TimePoint GetTime<std::chrono::steady_clock>();
 }
 
 #endif

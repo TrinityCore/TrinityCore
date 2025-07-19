@@ -18,12 +18,42 @@
 #ifndef Realm_h__
 #define Realm_h__
 
-#include "Common.h"
 #include "AsioHacksFwd.h"
+#include "Common.h"
+#include "EnumFlag.h"
 #include <compare>
 #include <vector>
 
-enum RealmFlags
+enum class RealmFlags : uint8
+{
+    None                    = 0x00,
+    VersionMismatch         = 0x01,
+    Hidden                  = 0x02,
+    Tournament              = 0x04,
+    VersionBelow            = 0x08,
+    VersionAbove            = 0x10,
+    MobileVersionMismatch   = 0x20,
+    MobileVersionBelow      = 0x40,
+    MobileVersionAbove      = 0x80
+};
+
+DEFINE_ENUM_FLAG(RealmFlags);
+
+enum class RealmPopulationState : uint8
+{
+    Offline     = 0,
+    Low         = 1,
+    Medium      = 2,
+    High        = 3,
+    New         = 4,
+    Recommended = 5,
+    Full        = 6,
+    Locked      = 7
+};
+
+namespace Trinity::Legacy
+{
+enum RealmFlags : uint8
 {
     REALM_FLAG_NONE             = 0x00,
     REALM_FLAG_VERSION_MISMATCH = 0x01,
@@ -35,6 +65,34 @@ enum RealmFlags
     REALM_FLAG_NEW              = 0x40,
     REALM_FLAG_FULL             = 0x80
 };
+
+inline constexpr uint8 format_as(RealmFlags e) { return uint8(e); }
+
+inline constexpr ::RealmFlags ConvertLegacyRealmFlags(RealmFlags legacyRealmFlags)
+{
+    ::RealmFlags realmFlags = ::RealmFlags::None;
+    if (legacyRealmFlags & REALM_FLAG_VERSION_MISMATCH)
+        realmFlags |= ::RealmFlags::VersionMismatch;
+    return realmFlags;
+}
+
+inline constexpr RealmPopulationState ConvertLegacyPopulationState(RealmFlags legacyRealmFlags, float population)
+{
+    if (legacyRealmFlags & REALM_FLAG_OFFLINE)
+        return RealmPopulationState::Offline;
+    if (legacyRealmFlags & REALM_FLAG_RECOMMENDED)
+        return RealmPopulationState::Recommended;
+    if (legacyRealmFlags & REALM_FLAG_NEW)
+        return RealmPopulationState::New;
+    if (legacyRealmFlags & REALM_FLAG_FULL || population > 0.95f)
+        return RealmPopulationState::Full;
+    if (population > 0.66f)
+        return RealmPopulationState::High;
+    if (population > 0.33f)
+        return RealmPopulationState::Medium;
+    return RealmPopulationState::Low;
+}
+}
 
 namespace Battlenet
 {
@@ -89,7 +147,7 @@ struct TC_SHARED_API Realm
     RealmFlags Flags;
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
-    float PopulationLevel;
+    RealmPopulationState PopulationLevel;
 
     void SetName(std::string name);
 

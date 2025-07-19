@@ -34,6 +34,7 @@
 #include "SpellDefines.h"
 #include "UniqueTrackablePtr.h"
 #include "UpdateFields.h"
+#include "WowCSEntityDefinitions.h"
 #include <list>
 #include <unordered_map>
 
@@ -66,6 +67,7 @@ class ZoneScript;
 struct FactionTemplateEntry;
 struct Loot;
 struct QuaternionData;
+struct SpawnTrackingStateData;
 struct SpellPowerCost;
 
 namespace WorldPackets
@@ -107,8 +109,41 @@ struct CreateObjectBits
 
 namespace UF
 {
+    class UpdateFieldHolder
+    {
+    public:
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline OptionalUpdateFieldSetter<T> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 /*dummy*/);
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
+        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
+
+        uint32 GetChangedObjectTypeMask() const { return _changesMask; }
+
+        bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
+
+        inline Object* GetOwner();
+
+    private:
+        friend Object;
+
+        // This class is tightly tied to Object::m_values member, do not construct elsewhere
+        UpdateFieldHolder() : _changesMask(0) { }
+
+        uint32 _changesMask;
+    };
+
     template<typename T>
-    inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
+    inline bool SetUpdateFieldValue(UpdateFieldPrivateSetter<T>& setter, typename UpdateFieldPrivateSetter<T>::value_type&& value)
     {
         return setter.SetValue(std::move(value));
     }
@@ -264,11 +299,12 @@ class TC_GAME_API Object
         Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
+        friend UF::UpdateFieldHolder;
         UF::UpdateFieldHolder m_values;
-        UF::UpdateField<UF::ObjectData, 0, TYPEID_OBJECT> m_objectData;
+        UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
         template<typename T>
-        void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
+        void ForceUpdateFieldChange(UF::UpdateFieldPrivateSetter<T> const& /*setter*/)
         {
             AddToObjectUpdateIfNeeded();
         }
@@ -279,27 +315,29 @@ class TC_GAME_API Object
 
         virtual Loot* GetLootForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
 
+        virtual SpawnTrackingStateData const* GetSpawnTrackingStateDataForPlayer([[maybe_unused]] Player const* player) const { return nullptr; }
+
     protected:
         Object();
 
         void _Create(ObjectGuid const& guid);
 
         template<typename T>
-        void SetUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
+        void SetUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
         {
             if (UF::SetUpdateFieldValue(setter, std::move(value)))
                 AddToObjectUpdateIfNeeded();
         }
 
         template<typename T>
-        void SetUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
+        void SetUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
         {
             static_assert(std::is_integral<T>::value, "SetUpdateFieldFlagValue must be used with integral types");
             SetUpdateFieldValue(setter, setter.GetValue() | flag);
         }
 
         template<typename T>
-        void RemoveUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
+        void RemoveUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
         {
             static_assert(std::is_integral<T>::value, "RemoveUpdateFieldFlagValue must be used with integral types");
             SetUpdateFieldValue(setter, setter.GetValue() & ~flag);
@@ -342,14 +380,14 @@ class TC_GAME_API Object
 
         // stat system helpers
         template<typename T>
-        void SetUpdateFieldStatValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
+        void SetUpdateFieldStatValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
             SetUpdateFieldValue(setter, std::max(value, T(0)));
         }
 
         template<typename T>
-        void ApplyModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type mod, bool apply)
+        void ApplyModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type mod, bool apply)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
 
@@ -363,7 +401,7 @@ class TC_GAME_API Object
         }
 
         template<typename T>
-        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, float percent, bool apply)
+        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, float percent, bool apply)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
 
@@ -390,10 +428,12 @@ class TC_GAME_API Object
             }
         }
 
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const;
+        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, Player const* target) const = 0;
+        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
+        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
@@ -403,6 +443,7 @@ class TC_GAME_API Object
 
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
+        WowCS::EntityFragmentsHolder m_entityFragments;
 
         virtual bool AddToObjectUpdate() = 0;
         virtual void RemoveFromObjectUpdate() = 0;
@@ -424,6 +465,92 @@ class TC_GAME_API Object
         Object& operator=(Object const& right) = delete;
         Object& operator=(Object&& right) = delete;
 };
+
+inline Object* UF::UpdateFieldHolder::GetOwner()
+{
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
+
+    return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
+
+#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
+#pragma GCC diagnostic pop
+#endif
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { (static_cast<Derived*>(owner)->*field)._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::OptionalUpdateFieldSetter<T> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    return { static_cast<Derived*>(owner)->*field };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field, uint32 /*dummy*/)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
+
+    auto& uf = (static_cast<Derived*>(owner)->*field);
+    if (!uf.has_value())
+        uf.ConstructValue();
+
+    return { *uf._value };
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+    {
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+        if (!_changesMask)
+            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    }
+    else
+        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+
+    (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
+}
+
+template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
+inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
+{
+    Object* owner = GetOwner();
+    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
+    {
+        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
+        if (!_changesMask)
+            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+    }
+    else
+        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
+
+    auto& uf = (static_cast<Derived*>(owner)->*field);
+    if (uf.has_value())
+        uf._value->ClearChangesMask();
+}
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
@@ -452,12 +579,22 @@ class FlaggedValuesArray32
         T_FLAGS m_flags;
 };
 
+enum class FindCreatureAliveState : uint8
+{
+    Alive               = 0, // includes feign death
+    Dead                = 1, // excludes feign death
+    EffectivelyAlive    = 2, // excludes feign death
+    EffectivelyDead     = 3, // includes feign death
+
+    Max
+};
+
 struct FindCreatureOptions
 {
     Optional<uint32> CreatureId;
     Optional<std::string_view> StringId;
 
-    Optional<bool> IsAlive;
+    Optional<FindCreatureAliveState> IsAlive;
     Optional<bool> IsInCombat;
     Optional<bool> IsSummon;
 
@@ -490,6 +627,17 @@ struct FindGameObjectOptions
     Optional<GameobjectTypes> GameObjectType;
 };
 
+struct CanSeeOrDetectExtraArgs
+{
+    bool ImplicitDetection = false;
+    bool IgnorePhaseShift = false;
+    bool IncludeHiddenBySpawnTracking = false;
+    bool IncludeAnyPrivateObject = false;
+
+    bool DistanceCheck = false;
+    bool AlertCheck = false;
+};
+
 class TC_GAME_API WorldObject : public Object, public WorldLocation
 {
     protected:
@@ -505,9 +653,9 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void GetNearPoint2D(WorldObject const* searcher, float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float distance2d, float absAngle) const;
         void GetClosePoint(float& x, float& y, float& z, float size, float distance2d = 0, float relAngle = 0) const;
-        void MovePosition(Position &pos, float dist, float angle);
+        void MovePosition(Position &pos, float dist, float angle, float maxHeightChange = 6.0f) const;
         Position GetNearPosition(float dist, float angle);
-        void MovePositionToFirstCollision(Position &pos, float dist, float angle);
+        void MovePositionToFirstCollision(Position &pos, float dist, float angle) const;
         Position GetFirstCollisionPosition(float dist, float angle);
         Position GetRandomNearPosition(float radius);
         void GetContactPoint(WorldObject const* obj, float& x, float& y, float& z, float distance2d = CONTACT_DISTANCE) const;
@@ -609,7 +757,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
         float GetSightRange(WorldObject const* target = nullptr) const;
-        bool CanSeeOrDetect(WorldObject const* obj, bool implicitDetect = false, bool distanceCheck = false, bool checkAlert = false) const;
+        bool CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs const& args = { }) const;
 
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealth;
         FlaggedValuesArray32<int32, uint32, StealthType, TOTAL_STEALTH_TYPES> m_stealthDetect;
@@ -693,6 +841,8 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         // CastSpell's third arg can be a variety of things - check out CastSpellExtraArgs' constructors!
         SpellCastResult CastSpell(CastSpellTargetArg const& targets, uint32 spellId, CastSpellExtraArgs const& args = { });
 
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
+        void SendPlayOrphanSpellVisual(Position const& sourceLocation, Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false);
         void SendCancelOrphanSpellVisual(uint32 id);
@@ -761,10 +911,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
 
         MovementInfo m_movementInfo;
 
-        virtual float GetStationaryX() const { return GetPositionX(); }
-        virtual float GetStationaryY() const { return GetPositionY(); }
-        virtual float GetStationaryZ() const { return GetPositionZ(); }
-        virtual float GetStationaryO() const { return GetOrientation(); }
+        virtual Position const& GetStationaryPosition() const { return *this; }
 
         float GetFloorZ() const;
         virtual float GetCollisionHeight() const { return 0.0f; }
@@ -817,7 +964,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
-        virtual bool CanNeverSee(WorldObject const* obj) const;
+        virtual bool CanNeverSee(WorldObject const* obj, bool ignorePhaseShift = false) const;
         virtual bool CanAlwaysSee([[maybe_unused]] WorldObject const* /*obj*/) const { return false; }
         virtual bool IsNeverVisibleFor([[maybe_unused]] WorldObject const* seer, [[maybe_unused]] bool allowServersideObjects = false) const { return !IsInWorld() || IsDestroyedObject(); }
         virtual bool IsAlwaysVisibleFor([[maybe_unused]] WorldObject const* seer) const { return false; }

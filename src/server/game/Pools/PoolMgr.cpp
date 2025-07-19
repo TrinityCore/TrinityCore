@@ -22,8 +22,9 @@
 #include "GameObject.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
-#include <sstream>
+#include <fmt/ranges.h>
 
 PoolObject::PoolObject(uint64 _guid, float _chance) : guid(_guid), chance(std::fabs(_chance))
 {
@@ -693,13 +694,8 @@ void PoolMgr::LoadFromDB()
                     checkedPools.insert(poolItr->first);
                     if (checkedPools.find(poolItr->second) != checkedPools.end())
                     {
-                        std::ostringstream ss;
-                        ss << "The pool(s) ";
-                        for (std::set<uint32>::const_iterator itr = checkedPools.begin(); itr != checkedPools.end(); ++itr)
-                            ss << *itr << ' ';
-                        ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
-                            << poolItr->first << " and child pool " << poolItr->second;
-                        TC_LOG_ERROR("sql.sql", "{}", ss.str());
+                        TC_LOG_ERROR("sql.sql", "The pool(s) {} create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool {} and child pool {}",
+                            fmt::join(checkedPools, " "), poolItr->first, poolItr->second);
                         mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
                         mPoolSearchMap.erase(poolItr);
                         --count;

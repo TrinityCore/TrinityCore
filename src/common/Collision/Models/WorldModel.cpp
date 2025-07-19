@@ -20,12 +20,14 @@
 #include "MapTree.h"
 #include "ModelIgnoreFlags.h"
 #include <array>
+#include <cstring>
 
 using G3D::Vector3;
 
 template<> struct BoundsTrait<VMAP::GroupModel>
 {
-    static void getBounds(const VMAP::GroupModel& obj, G3D::AABox& out) { out = obj.GetBound(); }
+    static void getBounds(VMAP::GroupModel const& obj, G3D::AABox& out) { out = obj.GetBound(); }
+    void operator()(VMAP::GroupModel const& obj, G3D::AABox& out) const { getBounds(obj, out); }
 };
 
 namespace VMAP
@@ -294,10 +296,10 @@ namespace VMAP
             iLiquid = new WmoLiquid(*other.iLiquid);
     }
 
-    void GroupModel::setMeshData(std::vector<Vector3>& vert, std::vector<MeshTriangle>& tri)
+    void GroupModel::setMeshData(std::vector<Vector3>&& vert, std::vector<MeshTriangle>&& tri)
     {
-        vertices.swap(vert);
-        triangles.swap(tri);
+        vertices = std::move(vert);
+        triangles = std::move(tri);
         TriBoundFunc bFunc(vertices);
         meshTree.build(triangles, bFunc);
     }
@@ -476,7 +478,7 @@ namespace VMAP
     void WorldModel::setGroupModels(std::vector<GroupModel>& models)
     {
         groupModels.swap(models);
-        groupTree.build(groupModels, BoundsTrait<GroupModel>::getBounds, 1);
+        groupTree.build(groupModels, BoundsTrait<GroupModel>(), 1);
     }
 
     struct WModelRayCallBack

@@ -210,15 +210,11 @@ class spell_ioc_gunship_portal : public SpellScript
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         Player* caster = GetCaster()->ToPlayer();
-        /*
-         * HACK: GetWorldLocation() returns real position and not transportposition.
-         * ServertoClient: SMSG_MOVE_TELEPORT (0x0B39)
-         * counter: 45
-         * Tranpsort Guid: Full: xxxx Type: MOTransport Low: xxx
-         * Transport Position X: 0 Y: 0 Z: 0 O: 0
-         * Position: X: 7.305609 Y: -0.095246 Z: 34.51022 O: 0
-         */
-        caster->TeleportTo(GetHitCreature()->GetWorldLocation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+        Optional<ObjectGuid> transportGuid;
+        if (TransportBase const* transport = GetHitCreature()->GetTransport())
+            transportGuid = transport->GetTransportGUID();
+
+        caster->TeleportTo({ .Location = WorldLocation(GetHitCreature()->GetMapId(), GetHitCreature()->GetTransOffset()), .TransportGuid = transportGuid });
     }
 
     void Register() override
@@ -247,13 +243,13 @@ class spell_ioc_parachute_ic : public AuraScript
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(Position const& pos, ObjectGuid const& guid) : _pos(pos), _guid(guid)
+        StartLaunchEvent(Map const* map, Position const& pos, ObjectGuid const& guid) : _map(map), _pos(pos), _guid(guid)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = ObjectAccessor::FindPlayer(_guid);
+            Player* player = ObjectAccessor::GetPlayer(_map, _guid);
             if (!player || !player->GetVehicle())
                 return true;
 
@@ -262,11 +258,12 @@ class StartLaunchEvent : public BasicEvent
             float dist = player->GetExactDist2d(&_pos);
 
             player->ExitVehicle();
-            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, true);
+            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, _pos.GetOrientation());
             return true;
         }
 
     private:
+        Map const* _map;
         Position _pos;
         ObjectGuid _guid;
 };
@@ -276,10 +273,10 @@ class spell_ioc_launch : public SpellScript
 {
     void Launch()
     {
-        if (!GetCaster()->ToCreature() || !GetExplTargetDest())
+        if (!GetCaster()->IsCreature() || !GetExplTargetDest())
             return;
 
-        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+        GetCaster()->m_Events.AddEventAtOffset(new StartLaunchEvent(GetCaster()->GetMap(), *GetExplTargetDest(), GetHitUnit()->GetGUID()), 2500ms);
     }
 
     void Register() override

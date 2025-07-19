@@ -16,10 +16,9 @@
  */
 
 #include "ClubUtils.h"
-#include "Realm.h"
-#include "World.h"
+#include "RealmList.h"
 
 uint64 Battlenet::Services::Clubs::CreateClubMemberId(ObjectGuid guid)
 {
-    return guid.GetCounter() | (uint64(realm.Id.Realm & 0xFFF) << 48);
+    return guid.GetCounter() | (uint64(sRealmList->GetCurrentRealmId().Realm & 0xFFF) << 48);
 }

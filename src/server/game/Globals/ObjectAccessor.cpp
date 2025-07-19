@@ -27,6 +27,7 @@
 #include "Pet.h"
 #include "Player.h"
 #include "Transport.h"
+#include <mutex>
 
 template<class T>
 void HashMapHolder<T>::Insert(T* o)
@@ -123,7 +124,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
     {
         case HighGuid::Item:
             if (typemask & TYPEMASK_ITEM && p.GetTypeId() == TYPEID_PLAYER)
-                return ((Player const&)p).GetItemByGuid(guid);
+                return static_cast<Player const&>(p).GetItemByGuid(guid);
             break;
         case HighGuid::Player:
             if (typemask & TYPEMASK_PLAYER)
@@ -160,6 +161,8 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, ObjectGuid con
                 return GetConversation(p, guid);
             break;
         case HighGuid::Corpse:
+            if (typemask & TYPEMASK_CORPSE)
+                return GetCorpse(p, guid);
             break;
         default:
             break;

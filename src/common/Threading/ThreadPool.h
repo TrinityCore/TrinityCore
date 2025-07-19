@@ -40,6 +40,11 @@ public:
         _impl.join();
     }
 
+    void Stop()
+    {
+        _impl.stop();
+    }
+
 private:
     boost::asio::thread_pool _impl;
 };

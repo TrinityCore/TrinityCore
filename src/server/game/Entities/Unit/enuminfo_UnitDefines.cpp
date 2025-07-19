@@ -421,7 +421,7 @@ TC_API_EXPORT EnumText EnumUtils<NPCFlags>::ToString(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return { "UNIT_NPC_FLAG_NONE", "UNIT_NPC_FLAG_NONE", "" };
         case UNIT_NPC_FLAG_GOSSIP: return { "UNIT_NPC_FLAG_GOSSIP", "has gossip menu", "100%" };
         case UNIT_NPC_FLAG_QUESTGIVER: return { "UNIT_NPC_FLAG_QUESTGIVER", "is quest giver", "100%" };
-        case UNIT_NPC_FLAG_UNK1: return { "UNIT_NPC_FLAG_UNK1", "UNIT_NPC_FLAG_UNK1", "" };
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return { "UNIT_NPC_FLAG_ACCOUNT_BANKER", "is account banker", "" };
         case UNIT_NPC_FLAG_UNK2: return { "UNIT_NPC_FLAG_UNK2", "UNIT_NPC_FLAG_UNK2", "" };
         case UNIT_NPC_FLAG_TRAINER: return { "UNIT_NPC_FLAG_TRAINER", "is trainer", "100%" };
         case UNIT_NPC_FLAG_TRAINER_CLASS: return { "UNIT_NPC_FLAG_TRAINER_CLASS", "is class trainer", "100%" };
@@ -466,7 +466,7 @@ TC_API_EXPORT NPCFlags EnumUtils<NPCFlags>::FromIndex(size_t index)
         case 0: return UNIT_NPC_FLAG_NONE;
         case 1: return UNIT_NPC_FLAG_GOSSIP;
         case 2: return UNIT_NPC_FLAG_QUESTGIVER;
-        case 3: return UNIT_NPC_FLAG_UNK1;
+        case 3: return UNIT_NPC_FLAG_ACCOUNT_BANKER;
         case 4: return UNIT_NPC_FLAG_UNK2;
         case 5: return UNIT_NPC_FLAG_TRAINER;
         case 6: return UNIT_NPC_FLAG_TRAINER_CLASS;
@@ -508,7 +508,7 @@ TC_API_EXPORT size_t EnumUtils<NPCFlags>::ToIndex(NPCFlags value)
         case UNIT_NPC_FLAG_NONE: return 0;
         case UNIT_NPC_FLAG_GOSSIP: return 1;
         case UNIT_NPC_FLAG_QUESTGIVER: return 2;
-        case UNIT_NPC_FLAG_UNK1: return 3;
+        case UNIT_NPC_FLAG_ACCOUNT_BANKER: return 3;
         case UNIT_NPC_FLAG_UNK2: return 4;
         case UNIT_NPC_FLAG_TRAINER: return 5;
         case UNIT_NPC_FLAG_TRAINER_CLASS: return 6;
@@ -851,12 +851,16 @@ TC_API_EXPORT EnumText EnumUtils<MovementFlags3>::ToString(MovementFlags3 value)
         case MOVEMENTFLAG3_DISABLE_INERTIA: return { "MOVEMENTFLAG3_DISABLE_INERTIA", "MOVEMENTFLAG3_DISABLE_INERTIA", "" };
         case MOVEMENTFLAG3_CAN_ADV_FLY: return { "MOVEMENTFLAG3_CAN_ADV_FLY", "MOVEMENTFLAG3_CAN_ADV_FLY", "" };
         case MOVEMENTFLAG3_ADV_FLYING: return { "MOVEMENTFLAG3_ADV_FLYING", "MOVEMENTFLAG3_ADV_FLYING", "" };
+        case MOVEMENTFLAG3_CANT_SWIM: return { "MOVEMENTFLAG3_CANT_SWIM", "MOVEMENTFLAG3_CANT_SWIM", "" };
+        case MOVEMENTFLAG3_CAN_DRIVE: return { "MOVEMENTFLAG3_CAN_DRIVE", "MOVEMENTFLAG3_CAN_DRIVE", "" };
+        case MOVEMENTFLAG3_DRIVING_FORWARD: return { "MOVEMENTFLAG3_DRIVING_FORWARD", "MOVEMENTFLAG3_DRIVING_FORWARD", "" };
+        case MOVEMENTFLAG3_DRIVING_BACKWARD: return { "MOVEMENTFLAG3_DRIVING_BACKWARD", "MOVEMENTFLAG3_DRIVING_BACKWARD", "" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<MovementFlags3>::Count() { return 4; }
+TC_API_EXPORT size_t EnumUtils<MovementFlags3>::Count() { return 8; }
 
 template <>
 TC_API_EXPORT MovementFlags3 EnumUtils<MovementFlags3>::FromIndex(size_t index)
@@ -867,6 +871,10 @@ TC_API_EXPORT MovementFlags3 EnumUtils<MovementFlags3>::FromIndex(size_t index)
         case 1: return MOVEMENTFLAG3_DISABLE_INERTIA;
         case 2: return MOVEMENTFLAG3_CAN_ADV_FLY;
         case 3: return MOVEMENTFLAG3_ADV_FLYING;
+        case 4: return MOVEMENTFLAG3_CANT_SWIM;
+        case 5: return MOVEMENTFLAG3_CAN_DRIVE;
+        case 6: return MOVEMENTFLAG3_DRIVING_FORWARD;
+        case 7: return MOVEMENTFLAG3_DRIVING_BACKWARD;
         default: throw std::out_of_range("index");
     }
 }
@@ -880,6 +888,10 @@ TC_API_EXPORT size_t EnumUtils<MovementFlags3>::ToIndex(MovementFlags3 value)
         case MOVEMENTFLAG3_DISABLE_INERTIA: return 1;
         case MOVEMENTFLAG3_CAN_ADV_FLY: return 2;
         case MOVEMENTFLAG3_ADV_FLYING: return 3;
+        case MOVEMENTFLAG3_CANT_SWIM: return 4;
+        case MOVEMENTFLAG3_CAN_DRIVE: return 5;
+        case MOVEMENTFLAG3_DRIVING_FORWARD: return 6;
+        case MOVEMENTFLAG3_DRIVING_BACKWARD: return 7;
         default: throw std::out_of_range("value");
     }
 }

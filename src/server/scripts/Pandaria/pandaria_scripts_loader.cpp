@@ -21,6 +21,7 @@
 void AddSC_boss_protectors_of_the_endless();
 void AddSC_instance_terrace_of_endless_spring();
 
+void AddSC_zone_the_jade_forest();
 void AddSC_zone_the_wandering_isle();
 
 // The name of this function should match:
@@ -31,5 +32,6 @@ void AddPandariaScripts()
     AddSC_boss_protectors_of_the_endless();
     AddSC_instance_terrace_of_endless_spring();
 
+    AddSC_zone_the_jade_forest();
     AddSC_zone_the_wandering_isle();
 }

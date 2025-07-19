@@ -30,7 +30,7 @@ namespace Trinity
         seed ^= std::hash<T>()(val) + 0x9E3779B9 + (seed << 6) + (seed >> 2);
     }
 
-    inline std::uint32_t HashFnv1a(std::string_view data)
+    inline constexpr std::uint32_t HashFnv1a(std::string_view data)
     {
         std::uint32_t hash = 0x811C9DC5u;
         for (char c : data)

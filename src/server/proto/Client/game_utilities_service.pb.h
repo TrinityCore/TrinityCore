@@ -930,28 +930,28 @@ class TC_PROTO_API RegisterUtilitiesResponse : public ::google::protobuf::Messag
 
   // accessors -------------------------------------------------------
 
-  // optional string client_id = 1;
-  inline bool has_client_id() const;
-  inline void clear_client_id();
-  static const int kClientIdFieldNumber = 1;
-  inline const ::std::string& client_id() const;
-  inline void set_client_id(const ::std::string& value);
-  inline void set_client_id(const char* value);
-  inline void set_client_id(const char* value, size_t size);
-  inline ::std::string* mutable_client_id();
-  inline ::std::string* release_client_id();
-  inline void set_allocated_client_id(::std::string* client_id);
+  // optional string ciid = 1;
+  inline bool has_ciid() const;
+  inline void clear_ciid();
+  static const int kCiidFieldNumber = 1;
+  inline const ::std::string& ciid() const;
+  inline void set_ciid(const ::std::string& value);
+  inline void set_ciid(const char* value);
+  inline void set_ciid(const char* value, size_t size);
+  inline ::std::string* mutable_ciid();
+  inline ::std::string* release_ciid();
+  inline void set_allocated_ciid(::std::string* ciid);
 
   // @@protoc_insertion_point(class_scope:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse)
  private:
-  inline void set_has_client_id();
-  inline void clear_has_client_id();
+  inline void set_has_ciid();
+  inline void clear_has_ciid();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::std::string* client_id_;
+  ::std::string* ciid_;
   friend void TC_PROTO_API protobuf_AddDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_AssignDesc_game_5futilities_5fservice_2eproto();
   friend void protobuf_ShutdownFile_game_5futilities_5fservice_2eproto();
@@ -1986,80 +1986,80 @@ inline void RegisterUtilitiesRequest::set_program(::google::protobuf::uint32 val
 
 // RegisterUtilitiesResponse
 
-// optional string client_id = 1;
-inline bool RegisterUtilitiesResponse::has_client_id() const {
+// optional string ciid = 1;
+inline bool RegisterUtilitiesResponse::has_ciid() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void RegisterUtilitiesResponse::set_has_client_id() {
+inline void RegisterUtilitiesResponse::set_has_ciid() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void RegisterUtilitiesResponse::clear_has_client_id() {
+inline void RegisterUtilitiesResponse::clear_has_ciid() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void RegisterUtilitiesResponse::clear_client_id() {
-  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_id_->clear();
+inline void RegisterUtilitiesResponse::clear_ciid() {
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_->clear();
   }
-  clear_has_client_id();
+  clear_has_ciid();
 }
-inline const ::std::string& RegisterUtilitiesResponse::client_id() const {
-  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
-  return *client_id_;
+inline const ::std::string& RegisterUtilitiesResponse::ciid() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
+  return *ciid_;
 }
-inline void RegisterUtilitiesResponse::set_client_id(const ::std::string& value) {
-  set_has_client_id();
-  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_id_ = new ::std::string;
+inline void RegisterUtilitiesResponse::set_ciid(const ::std::string& value) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
   }
-  client_id_->assign(value);
-  // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  ciid_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
 }
-inline void RegisterUtilitiesResponse::set_client_id(const char* value) {
-  set_has_client_id();
-  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_id_ = new ::std::string;
+inline void RegisterUtilitiesResponse::set_ciid(const char* value) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
   }
-  client_id_->assign(value);
-  // @@protoc_insertion_point(field_set_char:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  ciid_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
 }
-inline void RegisterUtilitiesResponse::set_client_id(const char* value, size_t size) {
-  set_has_client_id();
-  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_id_ = new ::std::string;
+inline void RegisterUtilitiesResponse::set_ciid(const char* value, size_t size) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
   }
-  client_id_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  ciid_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
 }
-inline ::std::string* RegisterUtilitiesResponse::mutable_client_id() {
-  set_has_client_id();
-  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    client_id_ = new ::std::string;
+inline ::std::string* RegisterUtilitiesResponse::mutable_ciid() {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
-  return client_id_;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
+  return ciid_;
 }
-inline ::std::string* RegisterUtilitiesResponse::release_client_id() {
-  clear_has_client_id();
-  if (client_id_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* RegisterUtilitiesResponse::release_ciid() {
+  clear_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = client_id_;
-    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = ciid_;
+    ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void RegisterUtilitiesResponse::set_allocated_client_id(::std::string* client_id) {
-  if (client_id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete client_id_;
+inline void RegisterUtilitiesResponse::set_allocated_ciid(::std::string* ciid) {
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ciid_;
   }
-  if (client_id) {
-    set_has_client_id();
-    client_id_ = client_id;
+  if (ciid) {
+    set_has_ciid();
+    ciid_ = ciid;
   } else {
-    clear_has_client_id();
-    client_id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_ciid();
+    ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.client_id)
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.game_utilities.v1.RegisterUtilitiesResponse.ciid)
 }
 
 // -------------------------------------------------------------------

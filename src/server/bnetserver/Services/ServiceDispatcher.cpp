@@ -16,21 +16,42 @@
  */
 
 #include "ServiceDispatcher.h"
+#include "AccountService.h"
+#include "AuthenticationService.h"
+#include "ConnectionService.h"
+#include "GameUtilitiesService.h"
+#include "Log.h"
+#include "Session.h"
+#include "api/client/v1/block_list_listener.pb.h"
+#include "api/client/v1/block_list_service.pb.h"
+#include "api/client/v1/club_membership_service.pb.h"
+#include "api/client/v1/club_service.pb.h"
+#include "api/client/v2/notification_service.pb.h"
+#include "api/client/v2/report_service.pb.h"
+#include "api/client/v2/whisper_service.pb.h"
+#include "friends_service.pb.h"
+#include "notification_service.pb.h"
+#include "presence_service.pb.h"
+#include "report_service.pb.h"
+#include "resource_service.pb.h"
 
 Battlenet::ServiceDispatcher::ServiceDispatcher()
 {
     AddService<Services::Account>();
     AddService<Services::Authentication>();
-    AddService<Service<club::v1::membership::ClubMembershipService>>();
-    AddService<Service<club::v1::ClubService>>();
+    AddService<Service<block_list::v1::client::BlockListService>>();
+    AddService<Service<club_membership::v1::client::ClubMembershipService>>();
+    AddService<Service<club::v1::client::ClubService>>();
     AddService<Services::Connection>();
     AddService<Service<friends::v1::FriendsService>>();
     AddService<Services::GameUtilities>();
+    AddService<Service<notification::v1::NotificationService>>();
+    AddService<Service<notification::v2::client::NotificationService>>();
     AddService<Service<presence::v1::PresenceService>>();
     AddService<Service<report::v1::ReportService>>();
     AddService<Service<report::v2::ReportService>>();
     AddService<Service<resources::v1::ResourcesService>>();
-    AddService<Service<user_manager::v1::UserManagerService>>();
+    AddService<Service<whisper::v2::client::WhisperService>>();
 }
 
 void Battlenet::ServiceDispatcher::Dispatch(Session* session, uint32 serviceHash, uint32 token, uint32 methodId, MessageBuffer buffer)

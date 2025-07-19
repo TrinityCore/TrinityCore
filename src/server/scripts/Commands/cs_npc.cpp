@@ -23,17 +23,19 @@ Category: commandscripts
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CharacterCache.h"
 #include "Chat.h"
 #include "ChatCommand.h"
 #include "CreatureAI.h"
 #include "CreatureGroups.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "FollowMovementGenerator.h"
 #include "GameTime.h"
 #include "Language.h"
 #include "Loot.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -480,8 +482,7 @@ public:
         CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         uint32 faction = target->GetFaction();
-        uint64 npcflags;
-        memcpy(&npcflags, target->m_unitData->NpcFlags.begin(), sizeof(npcflags));
+        uint64 npcflags = (uint64(target->GetNpcFlags2()) << 32) | target->GetNpcFlags();
         uint64 mechanicImmuneMask = 0;
         if (CreatureImmunities const* immunities = SpellMgr::GetCreatureImmunities(cInfo->CreatureImmunitiesId))
             mechanicImmuneMask = immunities->Mechanic.to_ullong();
@@ -550,7 +551,7 @@ public:
             if (cInfo->flags_extra & flag)
                 handler->PSendSysMessage("%s (0x%X)", EnumUtils::ToTitle(flag), flag);
 
-        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, target->m_unitData->NpcFlags[0]);
+        handler->PSendSysMessage(LANG_NPCINFO_NPC_FLAGS, uint32(target->GetNpcFlags()));
         for (NPCFlags flag : EnumUtils::Iterate<NPCFlags>())
             if (target->HasNpcFlag(flag))
                 handler->PSendSysMessage("* %s (0x%X)", EnumUtils::ToTitle(flag), flag);
@@ -1166,7 +1167,7 @@ public:
         return true;
     }
 
-    static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint8 itemCount, bool alternateString = false)
+    static void _ShowLootEntry(ChatHandler* handler, uint32 itemId, uint32 itemCount, bool alternateString = false)
     {
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         char const* name = nullptr;
@@ -1174,8 +1175,37 @@ public:
             name = itemTemplate->GetName(handler->GetSessionDbcLocale());
         if (!name)
             name = "Unknown item";
-        handler->PSendSysMessage(alternateString ? LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2 : LANG_COMMAND_NPC_SHOWLOOT_ENTRY,
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_ENTRY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
             itemCount, ItemQualityColors[itemTemplate ? static_cast<ItemQualities>(itemTemplate->GetQuality()) : ITEM_QUALITY_POOR], itemId, name, itemId);
+    }
+
+    static void _ShowLootCurrencyEntry(ChatHandler* handler, uint32 currencyId, uint32 count, bool alternateString = false)
+    {
+        CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(currencyId);
+        char const* name = nullptr;
+        if (currency)
+            name = currency->Name[handler->GetSessionDbcLocale()];
+        if (!name)
+            name = "Unknown currency";
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_CURRENCY, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
+            count, ItemQualityColors[currency ? static_cast<ItemQualities>(currency->Quality) : ITEM_QUALITY_POOR], currencyId, count, name, currencyId);
+    }
+
+    static void _ShowLootTrackingQuestCurrencyEntry(ChatHandler* handler, uint32 questId, bool alternateString = false)
+    {
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        std::string_view name;
+        if (quest)
+        {
+            name = quest->GetLogTitle();
+            if (handler->GetSessionDbLocaleIndex() != LOCALE_enUS)
+                if (QuestTemplateLocale const* localeData = sObjectMgr->GetQuestLocale(questId))
+                    ObjectMgr::GetLocaleString(localeData->LogTitle, handler->GetSessionDbLocaleIndex(), name);
+        }
+        if (name.empty())
+            name = "Unknown quest";
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_TRACKING_QUEST, alternateString ? 6 : 3 /*number of bytes from following string*/, "\xE2\x94\x80\xE2\x94\x80",
+            questId, STRING_VIEW_FMT_ARG(name), questId);
     }
 
     static void _IterateNotNormalLootMap(ChatHandler* handler, NotNormalLootItemMap const& map, std::vector<LootItem> const& items)
@@ -1190,11 +1220,81 @@ public:
             for (auto it = pair.second->cbegin(); it != pair.second->cend(); ++it)
             {
                 LootItem const& item = items[it->LootListId];
-                if (!(it->is_looted) && !item.is_looted)
-                    _ShowLootEntry(handler, item.itemid, item.count, true);
+                if (!it->is_looted && !item.is_looted)
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count, true);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count, true);
+                            break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid, true);
+                            break;
+                    }
+                }
             }
         }
     }
+
+    static void _ShowLootContents(ChatHandler* handler, bool all, Loot const* loot)
+    {
+        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_MONEY, loot->gold / GOLD, (loot->gold % GOLD) / SILVER, loot->gold % SILVER);
+
+        if (!all)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
+            for (LootItem const& item : loot->items)
+            {
+                if (!item.is_looted)
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid);
+                            break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
+            for (LootItem const& item : loot->items)
+            {
+                if (!item.is_looted && !item.freeforall && item.conditions.IsEmpty())
+                {
+                    switch (item.type)
+                    {
+                        case LootItemType::Item:
+                            _ShowLootEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::Currency:
+                            _ShowLootCurrencyEntry(handler, item.itemid, item.count);
+                            break;
+                        case LootItemType::TrackingQuest:
+                            _ShowLootTrackingQuestCurrencyEntry(handler, item.itemid);
+                            break;
+                    }
+                }
+            }
+
+            if (!loot->GetPlayerFFAItems().empty())
+            {
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
+                _IterateNotNormalLootMap(handler, loot->GetPlayerFFAItems(), loot->items);
+            }
+        }
+    }
+
     static bool HandleNpcShowLootCommand(ChatHandler* handler, Optional<EXACT_SEQUENCE("all")> all)
     {
         Creature* creatureTarget = handler->getSelectedCreature();
@@ -1205,8 +1305,16 @@ public:
             return false;
         }
 
+        if (!creatureTarget->isDead())
+        {
+            handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
         Loot const* loot = creatureTarget->m_loot.get();
-        if (!creatureTarget->isDead() || !loot || loot->isLooted())
+        if ((!loot || loot->isLooted())
+            && !std::ranges::count_if(creatureTarget->m_personalLoot, std::not_fn(&Loot::isLooted), Trinity::Containers::MapValue))
         {
             handler->PSendSysMessage(LANG_COMMAND_NOT_DEAD_OR_NO_LOOT, creatureTarget->GetName().c_str());
             handler->SetSentErrorMessage(true);
@@ -1214,33 +1322,23 @@ public:
         }
 
         handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_HEADER, creatureTarget->GetName().c_str(), creatureTarget->GetEntry());
-        handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_MONEY, loot->gold / GOLD, (loot->gold % GOLD) / SILVER, loot->gold % SILVER);
 
-        if (!all)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
-            for (LootItem const& item : loot->items)
-                if (!item.is_looted)
-                    _ShowLootEntry(handler, item.itemid, item.count);
-        }
+        if (loot)
+            _ShowLootContents(handler, all.has_value(), loot);
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL, "Standard items", loot->items.size());
-            for (LootItem const& item : loot->items)
-                if (!item.is_looted && !item.freeforall && item.conditions.IsEmpty())
-                    _ShowLootEntry(handler, item.itemid, item.count);
-
-            if (!loot->GetPlayerFFAItems().empty())
+            for (auto const& [lootOwner, personalLoot] : creatureTarget->m_personalLoot)
             {
-                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, "FFA items per allowed player");
-                _IterateNotNormalLootMap(handler, loot->GetPlayerFFAItems(), loot->items);
+                CharacterCacheEntry const* character = sCharacterCache->GetCharacterCacheByGuid(lootOwner);
+                handler->PSendSysMessage(LANG_COMMAND_NPC_SHOWLOOT_LABEL_2, Trinity::StringFormat("Personal loot for {}", character ? character->Name : ""sv));
+                _ShowLootContents(handler, all.has_value(), personalLoot.get());
             }
         }
 
         return true;
     }
 
-    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID)
+    static bool HandleNpcAddFormationCommand(ChatHandler* handler, ObjectGuid::LowType leaderGUID, Optional<bool> linkedAggro, Optional<bool> formationMovement)
     {
         Creature* creature = handler->getSelectedCreature();
 
@@ -1263,17 +1361,22 @@ public:
 
         Player* chr = handler->GetSession()->GetPlayer();
 
-        float  followAngle = (creature->GetAbsoluteAngle(chr) - chr->GetOrientation()) * 180.0f / float(M_PI);
-        float  followDist  = std::sqrt(std::pow(chr->GetPositionX() - creature->GetPositionX(), 2.f) + std::pow(chr->GetPositionY() - creature->GetPositionY(), 2.f));
+        float  followAngle = creature->GetRelativeAngle(chr) * 180.0f / float(M_PI);
+        float  followDist  = chr->GetExactDist2d(creature);
         uint32 groupAI     = 0;
+        if (linkedAggro == true)
+            groupAI |= FLAG_MEMBERS_ASSIST_MEMBER;
+        if (formationMovement == true)
+            groupAI |= FLAG_IDLE_IN_FORMATION;
+
         sFormationMgr->AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
         creature->SearchFormation();
 
         WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
         stmt->setUInt64(0, leaderGUID);
         stmt->setUInt64(1, lowguid);
-        stmt->setFloat (2, followAngle);
-        stmt->setFloat (3, followDist);
+        stmt->setFloat (2, followDist);
+        stmt->setFloat (3, followAngle);
         stmt->setUInt32(4, groupAI);
 
         WorldDatabase.Execute(stmt);

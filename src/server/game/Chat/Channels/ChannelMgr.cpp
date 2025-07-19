@@ -22,11 +22,15 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
 AreaTableEntry const* ChannelMgr::SpecialLinkedArea;
+
+ChannelMgr::ChannelMgr(Team team) : _team(team), _guidGenerator(HighGuid::ChatChannel)
+{
+}
 
 ChannelMgr::~ChannelMgr()
 {
@@ -286,9 +290,10 @@ ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry
         zoneId = zoneEntry->ID;
 
     if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::GlobalForTournament))
-        if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(realm.Timezone))
-            if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
-                zoneId = 0;
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+            if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(currentRealm->Timezone))
+                if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
+                    zoneId = 0;
 
     return ObjectGuid::Create<HighGuid::ChatChannel>(true, channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel), zoneId, _team == ALLIANCE ? 3 : 5, channelId);
 }

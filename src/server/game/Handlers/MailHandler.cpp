@@ -117,7 +117,7 @@ void WorldSession::HandleSendMail(WorldPackets::Mail::SendMail& sendMail)
     }
 
     TC_LOG_INFO("network", "Player {} is sending mail to {} ({}) with subject {} and body {} "
-        "includes {} items, {} copper and " SI64FMTD  " COD copper with StationeryID = {}",
+        "includes {} items, {} copper and {} COD copper with StationeryID = {}",
         GetPlayerInfo(), sendMail.Info.Target, receiverGuid.ToString(), sendMail.Info.Subject,
         sendMail.Info.Body, sendMail.Info.Attachments.size(), sendMail.Info.SendMoney, sendMail.Info.Cod, sendMail.Info.StationeryID);
 
@@ -576,8 +576,7 @@ void WorldSession::HandleGetMailList(WorldPackets::Mail::MailGetList& getList)
         ++response.TotalNumRecords;
     }
 
-    player->PlayerTalkClass->GetInteractionData().Reset();
-    player->PlayerTalkClass->GetInteractionData().SourceGuid = getList.Mailbox;
+    player->PlayerTalkClass->GetInteractionData().StartInteraction(getList.Mailbox, PlayerInteractionType::MailInfo);
     SendPacket(response.Write());
 
     // recalculate m_nextMailDelivereTime and unReadMails

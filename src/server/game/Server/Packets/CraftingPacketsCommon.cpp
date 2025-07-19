@@ -16,6 +16,7 @@
  */
 
 #include "CraftingPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Crafting
 {
@@ -39,19 +40,24 @@ ByteBuffer& operator<<(ByteBuffer& data, CraftingData const& craftingData)
     data << int32(craftingData.CritBonusSkill);
     data << float(craftingData.field_1C);
     data << uint64(craftingData.field_20);
-    data << uint32(craftingData.ResourcesReturned.size());
+    data << Size<uint32>(craftingData.ResourcesReturned);
     data << uint32(craftingData.OperationID);
     data << craftingData.ItemGUID;
     data << int32(craftingData.Quantity);
     data << int32(craftingData.EnchantID);
+    data << int32(craftingData.ConcentrationCurrencyID);
+    data << int32(craftingData.ConcentrationSpent);
+    data << int32(craftingData.IngenuityRefund);
 
     for (SpellReducedReagent const& spellReducedReagent : craftingData.ResourcesReturned)
         data << spellReducedReagent;
 
-    data.WriteBit(craftingData.IsCrit);
-    data.WriteBit(craftingData.field_29);
-    data.WriteBit(craftingData.field_2A);
-    data.WriteBit(craftingData.BonusCraft);
+    data << Bits<1>(craftingData.IsCrit);
+    data << Bits<1>(craftingData.field_29);
+    data << Bits<1>(craftingData.field_2A);
+    data << Bits<1>(craftingData.BonusCraft);
+    data << Bits<1>(craftingData.HasIngenuityProc);
+    data << Bits<1>(craftingData.ApplyConcentration);
     data.FlushBits();
 
     data << craftingData.OldItem;

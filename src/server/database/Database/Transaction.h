@@ -22,6 +22,7 @@
 #include "DatabaseEnvFwd.h"
 #include "StringFormat.h"
 #include <functional>
+#include <future>
 #include <mutex>
 #include <variant>
 #include <vector>
@@ -34,6 +35,11 @@ struct TransactionData
 
     template<typename... Args>
     TransactionData(Args&&... args) : query(std::forward<Args>(args)...) { }
+    TransactionData(TransactionData const&) = delete;
+    TransactionData(TransactionData&&) noexcept = default;
+    TransactionData& operator=(TransactionData const&) = delete;
+    TransactionData& operator=(TransactionData&&) noexcept = default;
+    ~TransactionData();
 
     static PreparedStatementBase* ToExecutable(std::unique_ptr<PreparedStatementBase> const& stmt) { return stmt.get(); }
     static char const* ToExecutable(std::string const& sql) { return sql.c_str(); }
@@ -100,7 +106,7 @@ private:
 class TC_DATABASE_API TransactionCallback
 {
 public:
-    TransactionCallback(TransactionFuture&& future) : m_future(std::move(future)) { }
+    TransactionCallback(std::future<bool>&& future) : m_future(std::move(future)) { }
     TransactionCallback(TransactionCallback&&) = default;
 
     TransactionCallback& operator=(TransactionCallback&&) = default;
@@ -112,8 +118,10 @@ public:
 
     bool InvokeIfReady();
 
-    TransactionFuture m_future;
+    std::future<bool> m_future;
     std::function<void(bool)> m_callback;
 };
+
+inline bool InvokeAsyncCallbackIfReady(TransactionCallback& callback) { return callback.InvokeIfReady(); }
 
 #endif

@@ -146,7 +146,7 @@ enum SMART_EVENT
     SMART_EVENT_TRANSPORT_REMOVE_PLAYER  = 43,      // NONE
     SMART_EVENT_TRANSPORT_RELOCATE       = 44,      // PointId
     SMART_EVENT_INSTANCE_PLAYER_ENTER    = 45,      // Team (0 any), CooldownMin, CooldownMax
-    SMART_EVENT_AREATRIGGER_ONTRIGGER    = 46,      // TriggerId(0 any)
+    SMART_EVENT_AREATRIGGER_ENTER        = 46,      // NONE
     SMART_EVENT_QUEST_ACCEPTED           = 47,      // none
     SMART_EVENT_QUEST_OBJ_COMPLETION     = 48,      // none
     SMART_EVENT_QUEST_COMPLETION         = 49,      // none
@@ -188,8 +188,9 @@ enum SMART_EVENT
     SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
     SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
+    SMART_EVENT_AREATRIGGER_EXIT         = 88,      // NONE
 
-    SMART_EVENT_END                      = 88
+    SMART_EVENT_END                      = 89
 };
 
 struct SmartEvent
@@ -349,11 +350,6 @@ struct SmartEvent
 
         struct
         {
-            uint32 id;
-        } areatrigger;
-
-        struct
-        {
             uint32 textGroupID;
             uint32 creatureEntry;
         } textOver;
@@ -472,7 +468,7 @@ enum SMART_ACTION
     SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker, flags(SmartActionSummonCreatureFlags)
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
-    SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // QuestID
+    SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // UNUSED, DO NOT REUSE
     SMART_ACTION_SET_INGAME_PHASE_GROUP             = 16,     // phaseGroupId, apply
     SMART_ACTION_SET_EMOTE_STATE                    = 17,     // emoteID
     SMART_ACTION_SET_UNIT_FLAG                      = 18,     // UNUSED, DO NOT REUSE
@@ -483,7 +479,7 @@ enum SMART_ACTION
     SMART_ACTION_INC_EVENT_PHASE                    = 23,     // Value (may be negative to decrement phase, should not be 0)
     SMART_ACTION_EVADE                              = 24,     // toRespawnPosition (0 = Move to RespawnPosition, 1 = Move to last stored home position)
     SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
-    SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
+    SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // UNUSED, DO NOT REUSE
     SMART_ACTION_COMBAT_STOP                        = 27,     //
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid (0 removes all auras), charges (0 removes aura)
     SMART_ACTION_FOLLOW                             = 29,     // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
@@ -609,7 +605,10 @@ enum SMART_ACTION
     SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER   = 149,    // summonType 1-8, duration in ms
     SMART_ACTION_TRIGGER_GAME_EVENT                 = 150,    // eventId, useSaiTargetAsGameEventSource
     SMART_ACTION_DO_ACTION                          = 151,    // actionId
-    SMART_ACTION_END                                = 152
+    SMART_ACTION_COMPLETE_QUEST                     = 152,    // QuestId. Regular quests with objectives can't be completed with this action (only quests with QUEST_FLAGS_COMPLETION_EVENT, QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT)
+    SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO     = 153,
+    SMART_ACTION_DESTROY_CONVERSATION               = 154,    // conversation_template.id, isPrivate, range
+    SMART_ACTION_END                                = 155
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1244,6 +1243,13 @@ struct SmartAction
             uint32 actionId;
         } doAction;
 
+        struct
+        {
+            uint32 id;
+            SAIBool isPrivate;
+            uint32 range;
+        } destroyConversation;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1291,7 +1297,7 @@ enum SMARTAI_TARGETS
     SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
-    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?, StringId
+    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, findCreatureAliveState, StringId
     SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist, StringId
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // maxDist
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
@@ -1401,7 +1407,7 @@ struct SmartTarget
         {
             uint32 entry;
             uint32 dist;
-            SAIBool dead;
+            uint32 findCreatureAliveState;
         } unitClosest;
 
         struct
@@ -1548,7 +1554,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_TRANSPORT_REMOVE_PLAYER,   SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_EVENT_TRANSPORT_RELOCATE,        SMART_SCRIPT_TYPE_MASK_TRANSPORT },
     {SMART_EVENT_INSTANCE_PLAYER_ENTER,     SMART_SCRIPT_TYPE_MASK_INSTANCE },
-    {SMART_EVENT_AREATRIGGER_ONTRIGGER,     SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
+    {SMART_EVENT_AREATRIGGER_ENTER,         SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
     {SMART_EVENT_QUEST_ACCEPTED,            SMART_SCRIPT_TYPE_MASK_QUEST },
     {SMART_EVENT_QUEST_OBJ_COMPLETION,      SMART_SCRIPT_TYPE_MASK_QUEST },
     {SMART_EVENT_QUEST_REWARDED,            SMART_SCRIPT_TYPE_MASK_QUEST },
@@ -1589,7 +1595,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT }
+    {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT },
+    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
 };
 
 enum SmartEventFlags
@@ -1712,10 +1719,15 @@ typedef std::pair<CacheSpellContainer::const_iterator, CacheSpellContainer::cons
 class TC_GAME_API SmartAIMgr
 {
     private:
-        SmartAIMgr() { }
-        ~SmartAIMgr() { }
+        SmartAIMgr();
+        ~SmartAIMgr();
 
     public:
+        SmartAIMgr(SmartAIMgr const&) = delete;
+        SmartAIMgr(SmartAIMgr&&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr const&) = delete;
+        SmartAIMgr& operator=(SmartAIMgr&&) = delete;
+
         static SmartAIMgr* instance();
 
         void LoadSmartAIFromDB();
@@ -1745,7 +1757,6 @@ class TC_GAME_API SmartAIMgr
         static bool IsItemValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsTextEmoteValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsEmoteValid(SmartScriptHolder const& e, uint32 entry);
-        static bool IsAreaTriggerValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsSoundValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsAnimKitValid(SmartScriptHolder const& e, uint32 entry);
         static bool IsSpellVisualKitValid(SmartScriptHolder const& e, uint32 entry);

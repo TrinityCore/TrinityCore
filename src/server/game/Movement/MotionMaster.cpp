@@ -16,24 +16,19 @@
  */
 
 #include "MotionMaster.h"
-#include "AbstractFollower.h"
 #include "Creature.h"
 #include "CreatureAISelector.h"
-#include "Containers.h"
 #include "DB2Stores.h"
 #include "Errors.h"
 #include "G3DPosition.hpp"
 #include "Log.h"
-#include "Map.h"
+#include "MapUtils.h"
+#include "Memory.h"
 #include "MoveSpline.h"
-#include "MoveSplineInit.h"
 #include "ObjectAccessor.h"
 #include "PathGenerator.h"
-#include "PetDefines.h"
 #include "Player.h"
 #include "ScriptSystem.h"
-#include "Unit.h"
-#include "WaypointDefines.h"
 #include <algorithm>
 #include <iterator>
 
@@ -46,7 +41,6 @@
 #include "GenericMovementGenerator.h"
 #include "HomeMovementGenerator.h"
 #include "IdleMovementGenerator.h"
-#include "Memory.h"
 #include "PointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
 #include "SplineChainMovementGenerator.h"
@@ -609,7 +603,7 @@ void MotionMaster::MoveRandom(float wanderDistance /*= 0.0f*/, Optional<Millisec
         scriptResult->SetResult(MovementStopReason::Interrupted);
 }
 
-void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Optional<Milliseconds> duration /*= {}*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/,
+void MotionMaster::MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle /*= {}*/, Optional<Milliseconds> duration /*= {}*/, bool ignoreTargetWalk /*= false*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     // Ignore movement request if target not exist
@@ -621,7 +615,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, ChaseAngle angle, Option
     }
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFollow: '{}', starts following '{}'", _owner->GetGUID(), target->GetGUID());
-    Add(new FollowMovementGenerator(target, dist, angle, duration, std::move(scriptResult)), slot);
+    Add(new FollowMovementGenerator(target, dist, angle, duration, ignoreTargetWalk, std::move(scriptResult)), slot);
 }
 
 void MotionMaster::MoveChase(Unit* target, Optional<ChaseRange> dist, Optional<ChaseAngle> angle)
@@ -843,19 +837,19 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
     _owner->GetNearPoint2D(nullptr, x, y, dist, _owner->GetOrientation() + angle);
     _owner->UpdateAllowedPositionZ(x, y, z);
 
-    MoveJump(x, y, z, 0.0f, speedXY, speedZ);
+    MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
+void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, MovementFacingTarget const& facing /*= {}*/,
+    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
-    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), speedXY, speedZ, id, hasOrientation,
-        arrivalCast, spellEffectExtraData, std::move(scriptResult));
+    MoveJump(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), speedXY, speedZ, id, facing, orientationFixed, arrivalCast,
+        spellEffectExtraData, std::move(scriptResult));
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, bool hasOrientation /* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, MovementFacingTarget const& facing /* = {}*/,
+    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '{}', jumps to point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID(), id, x, y, z);
@@ -874,8 +868,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
         init.MoveTo(x, y, z, false);
         init.SetParabolic(max_height, 0);
         init.SetVelocity(speedXY);
-        if (hasOrientation)
-            init.SetFacing(o);
+        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
+        init.SetJumpOrientationFixed(orientationFixed);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
@@ -895,8 +889,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float o, float speedXY, f
     Add(movement);
 }
 
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, bool hasOrientation/* = false*/,
-    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
+void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
+    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos.ToString());
@@ -914,8 +908,8 @@ void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float
         init.SetUncompressed();
         init.SetVelocity(speedXY);
         init.SetUnlimitedSpeed();
-        if (hasOrientation)
-            init.SetFacing(pos.GetOrientation());
+        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
+        init.SetJumpOrientationFixed(orientationFixed);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
@@ -946,6 +940,8 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         float step = 2 * float(M_PI) / stepCount * (clockwise ? -1.0f : 1.0f);
         Position const& pos = { x, y, z, 0.0f };
         float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
+
+        init.Path().reserve(stepCount + 1);
 
         // add the owner's current position as starting point as it gets removed after entering the cycle
         init.Path().emplace_back(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
@@ -1036,7 +1032,7 @@ void MotionMaster::MoveFall(uint32 id /*= 0*/,
     if (tz <= INVALID_HEIGHT)
     {
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFall: '{}', unable to retrieve a proper height at map Id: {} (X: {}, Y: {}, Z: {})",
-            _owner->GetGUID(), _owner->GetMap()->GetId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
+            _owner->GetGUID(), _owner->GetMapId(), _owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
         return;
     }
 

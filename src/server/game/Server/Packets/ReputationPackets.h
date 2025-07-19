@@ -15,58 +15,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ReputationPackets_h__
-#define ReputationPackets_h__
+#ifndef TRINITYCORE_REPUTATION_PACKETS_H
+#define TRINITYCORE_REPUTATION_PACKETS_H
 
 #include "Packet.h"
-#include <array>
 
 namespace WorldPackets
 {
     namespace Reputation
     {
-        static constexpr uint16 FactionCount = 1000;
+        struct FactionData
+        {
+            int32 FactionID = 0;
+            uint16 Flags = 0;
+            int32 Standing = 0;
+        };
+
+        struct FactionBonusData
+        {
+            int32 FactionID = 0;
+            bool FactionHasBonus = false;
+        };
 
         class InitializeFactions final : public ServerPacket
         {
         public:
-            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, FactionCount * (4 + 2) + FactionCount / 8) { }
+            InitializeFactions() : ServerPacket(SMSG_INITIALIZE_FACTIONS, 0x1000) { }
 
             WorldPacket const* Write() override;
 
-            std::array<int32, FactionCount> FactionStandings = { };
-            std::array<bool, FactionCount> FactionHasBonus = { }; ///< @todo: implement faction bonus
-            std::array<uint16, FactionCount> FactionFlags = { }; ///< @see enum FactionFlags
-        };
-
-        class RequestForcedReactions final : public ClientPacket
-        {
-        public:
-            RequestForcedReactions(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_FORCED_REACTIONS, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        struct ForcedReaction
-        {
-            int32 Faction = 0;
-            int32 Reaction = 0;
-        };
-
-        class SetForcedReactions final : public ServerPacket
-        {
-        public:
-            SetForcedReactions() : ServerPacket(SMSG_SET_FORCED_REACTIONS) { }
-
-            WorldPacket const* Write() override;
-
-            std::vector<ForcedReaction> Reactions;
+            std::vector<FactionData> Factions;
+            std::vector<FactionBonusData> Bonuses;
         };
 
         struct FactionStandingData
         {
             FactionStandingData() { }
-            FactionStandingData(int32 index, int32 standing) : Index(index), Standing(standing) { }
             FactionStandingData(int32 index, int32 standing, int32 factionId) : Index(index), Standing(standing), FactionID(factionId) { }
 
             int32 Index = 0;
@@ -88,4 +72,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ReputationPackets_h__
+#endif // TRINITYCORE_REPUTATION_PACKETS_H

@@ -24,6 +24,7 @@
 #include "CombatLogPackets.h"
 #include "Common.h"
 #include "Creature.h"
+#include "CreatureGroups.h"
 #include "DB2Stores.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -69,11 +70,13 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
     MAX_VISIBILITY_DISTANCE
 };
 
-Object::Object() : m_values(this), m_scriptRef(this, NoopObjectDeleter())
+Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
     m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag.Clear();
+
+    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false);
 
     m_inWorld           = false;
     m_isNewObject       = false;
@@ -150,8 +153,9 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         objectType = TYPEID_ACTIVE_PLAYER;
     }
 
-    if (WorldObject const* worldObject = dynamic_cast<WorldObject const*>(this))
+    if (IsWorldObject())
     {
+        WorldObject const* worldObject = static_cast<WorldObject const*>(this);
         if (!flags.MovementUpdate && !worldObject->m_movementInfo.transport.guid.IsEmpty())
             flags.MovementTransport = true;
 
@@ -176,7 +180,16 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     buf << uint8(objectType);
 
     BuildMovementUpdate(&buf, flags, target);
-    BuildValuesCreate(&buf, target);
+
+    UF::UpdateFieldFlag fieldFlags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
+    buf << uint8(fieldFlags);
+    BuildEntityFragments(&buf, m_entityFragments.GetIds());
+    buf << uint8(1);  // IndirectFragmentActive: CGObject
+    BuildValuesCreate(&buf, fieldFlags, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
+
     data->AddUpdateBlock();
 }
 
@@ -198,7 +211,20 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* tar
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
-    BuildValuesUpdate(&buf, target);
+    EnumFlag<UF::UpdateFieldFlag> fieldFlags = GetUpdateFieldFlagsFor(target);
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
+    buf << uint8(fieldFlags.HasFlag(UF::UpdateFieldFlag::Owner));
+    buf << uint8(m_entityFragments.IdsChanged);
+    if (m_entityFragments.IdsChanged)
+    {
+        buf << uint8(WowCS::EntityFragmentSerializationType::Full);
+        BuildEntityFragments(&buf, m_entityFragments.GetIds());
+    }
+    buf << uint8(m_entityFragments.ContentsChangedMask);
+
+    BuildValuesUpdate(&buf, fieldFlags, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
@@ -207,9 +233,31 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 {
     ByteBuffer& buf = PrepareValuesUpdateBuffer(data);
 
+    std::size_t sizePos = buf.wpos();
+    buf << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buf, flags);
     BuildValuesUpdateWithFlag(&buf, flags, target);
+    buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
+}
+
+void Object::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
+{
+    data->append(fragments.data(), fragments.size());
+    *data << uint8(WowCS::EntityFragment::End);
+}
+
+void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
+{
+    uint8 contentsChangedMask = WowCS::CGObjectChangedMask;
+    for (WowCS::EntityFragment updateableFragmentId : m_entityFragments.GetUpdateableIds())
+        if (WowCS::IsIndirectFragment(updateableFragmentId))
+            contentsChangedMask |= m_entityFragments.GetUpdateMaskFor(updateableFragmentId) >> 1;   // set the "fragment exists" bit
+
+    *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
+    *data << uint8(false);                                  // m_entityFragments.IdsChanged
+    *data << uint8(contentsChangedMask);
 }
 
 void Object::BuildDestroyUpdateBlock(UpdateData* data) const
@@ -252,12 +300,13 @@ void Object::SendOutOfRangeForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player* target) const
+void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const
 {
     std::vector<uint32> const* PauseTimes = nullptr;
     if (GameObject const* go = ToGameObject())
         PauseTimes = go->GetPauseTimes();
 
+    data->WriteBit(IsWorldObject()); // HasPositionFragment
     data->WriteBit(flags.NoBirthAnim);
     data->WriteBit(flags.EnablePortals);
     data->WriteBit(flags.PlayHoverAnim);
@@ -286,6 +335,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         bool HasSpline = unit->IsSplineEnabled();
         bool HasInertia = unit->m_movementInfo.inertia.has_value();
         bool HasAdvFlying = unit->m_movementInfo.advFlying.has_value();
+        bool HasDriveStatus = unit->m_movementInfo.driveStatus.has_value();
         bool HasStandingOnGameObjectGUID = unit->m_movementInfo.standingOnGameObjectGUID.has_value();
 
         *data << GetGUID();                                             // MoverGUID
@@ -317,6 +367,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(false);                                          // RemoteTimeValid
         data->WriteBit(HasInertia);                                     // HasInertia
         data->WriteBit(HasAdvFlying);                                   // HasAdvFlying
+        data->WriteBit(HasDriveStatus);                                 // HasDriveStatus
+        data->FlushBits();
 
         if (!unit->m_movementInfo.transport.guid.IsEmpty())
             *data << unit->m_movementInfo.transport;
@@ -350,6 +402,15 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             }
         }
 
+        if (HasDriveStatus)
+        {
+            *data << float(unit->m_movementInfo.driveStatus->speed);
+            *data << float(unit->m_movementInfo.driveStatus->movementAngle);
+            data->WriteBit(unit->m_movementInfo.driveStatus->accelerating);
+            data->WriteBit(unit->m_movementInfo.driveStatus->drifting);
+            data->FlushBits();
+        }
+
         *data << float(unit->GetSpeed(MOVE_WALK));
         *data << float(unit->GetSpeed(MOVE_RUN));
         *data << float(unit->GetSpeed(MOVE_RUN_BACK));
@@ -371,23 +432,23 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             *data << float(1.0f);                                       // MovementForcesModMagnitude
         }
 
-        *data << float(2.0f);                                           // advFlyingAirFriction
-        *data << float(65.0f);                                          // advFlyingMaxVel
-        *data << float(1.0f);                                           // advFlyingLiftCoefficient
-        *data << float(3.0f);                                           // advFlyingDoubleJumpVelMod
-        *data << float(10.0f);                                          // advFlyingGlideStartMinHeight
-        *data << float(100.0f);                                         // advFlyingAddImpulseMaxSpeed
-        *data << float(90.0f);                                          // advFlyingMinBankingRate
-        *data << float(140.0f);                                         // advFlyingMaxBankingRate
-        *data << float(180.0f);                                         // advFlyingMinPitchingRateDown
-        *data << float(360.0f);                                         // advFlyingMaxPitchingRateDown
-        *data << float(90.0f);                                          // advFlyingMinPitchingRateUp
-        *data << float(270.0f);                                         // advFlyingMaxPitchingRateUp
-        *data << float(30.0f);                                          // advFlyingMinTurnVelocityThreshold
-        *data << float(80.0f);                                          // advFlyingMaxTurnVelocityThreshold
-        *data << float(2.75f);                                          // advFlyingSurfaceFriction
-        *data << float(7.0f);                                           // advFlyingOverMaxDeceleration
-        *data << float(0.4f);                                           // advFlyingLaunchSpeedCoefficient
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_AIR_FRICTION));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_MAX_VEL));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_LIFT_COEFFICIENT));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_DOUBLE_JUMP_VEL_MOD));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_GLIDE_START_MIN_HEIGHT));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_ADD_IMPULSE_MAX_SPEED));
+        *data << float(unit->GetAdvFlyingSpeedMin(ADV_FLYING_BANKING_RATE));
+        *data << float(unit->GetAdvFlyingSpeedMax(ADV_FLYING_BANKING_RATE));
+        *data << float(unit->GetAdvFlyingSpeedMin(ADV_FLYING_PITCHING_RATE_DOWN));
+        *data << float(unit->GetAdvFlyingSpeedMax(ADV_FLYING_PITCHING_RATE_DOWN));
+        *data << float(unit->GetAdvFlyingSpeedMin(ADV_FLYING_PITCHING_RATE_UP));
+        *data << float(unit->GetAdvFlyingSpeedMax(ADV_FLYING_PITCHING_RATE_UP));
+        *data << float(unit->GetAdvFlyingSpeedMin(ADV_FLYING_TURN_VELOCITY_THRESHOLD));
+        *data << float(unit->GetAdvFlyingSpeedMax(ADV_FLYING_TURN_VELOCITY_THRESHOLD));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_SURFACE_FRICTION));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_OVER_MAX_DECELERATION));
+        *data << float(unit->GetAdvFlyingSpeed(ADV_FLYING_LAUNCH_SPEED_COEFFICIENT));
 
         data->WriteBit(HasSpline);
         data->FlushBits();
@@ -405,10 +466,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     if (flags.Stationary)
     {
         WorldObject const* self = static_cast<WorldObject const*>(this);
-        *data << float(self->GetStationaryX());
-        *data << float(self->GetStationaryY());
-        *data << float(self->GetStationaryZ());
-        *data << float(self->GetStationaryO());
+        *data << self->GetStationaryPosition().PositionXYZOStream();
     }
 
     if (flags.CombatVictim)
@@ -446,7 +504,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.AreaTrigger)
     {
-        AreaTrigger const* areaTrigger = ToAreaTrigger();
+        AreaTrigger const* areaTrigger = static_cast<AreaTrigger const*>(this);
         AreaTriggerCreateProperties const* createProperties = areaTrigger->GetCreateProperties();
         AreaTriggerShapeInfo const& shape = areaTrigger->GetShape();
 
@@ -454,26 +512,78 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
         *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
 
+        switch (shape.Type)
+        {
+            case AreaTriggerShapeType::Sphere:
+                *data << int8(0);
+                *data << float(shape.SphereDatas.Radius);
+                *data << float(shape.SphereDatas.RadiusTarget);
+                break;
+            case AreaTriggerShapeType::Box:
+                *data << int8(1);
+                *data << float(shape.BoxDatas.Extents[0]);
+                *data << float(shape.BoxDatas.Extents[1]);
+                *data << float(shape.BoxDatas.Extents[2]);
+                *data << float(shape.BoxDatas.ExtentsTarget[0]);
+                *data << float(shape.BoxDatas.ExtentsTarget[1]);
+                *data << float(shape.BoxDatas.ExtentsTarget[2]);
+                break;
+            case AreaTriggerShapeType::Polygon:
+                *data << int8(3);
+                *data << int32(shape.PolygonVertices.size());
+                *data << int32(shape.PolygonVerticesTarget.size());
+                *data << float(shape.PolygonDatas.Height);
+                *data << float(shape.PolygonDatas.HeightTarget);
+
+                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
+                    *data << vertice;
+
+                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
+                    *data << vertice;
+                break;
+            case AreaTriggerShapeType::Cylinder:
+                *data << int8(4);
+                *data << float(shape.CylinderDatas.Radius);
+                *data << float(shape.CylinderDatas.RadiusTarget);
+                *data << float(shape.CylinderDatas.Height);
+                *data << float(shape.CylinderDatas.HeightTarget);
+                *data << float(shape.CylinderDatas.LocationZOffset);
+                *data << float(shape.CylinderDatas.LocationZOffsetTarget);
+                break;
+            case AreaTriggerShapeType::Disk:
+                *data << int8(7);
+                *data << float(shape.DiskDatas.InnerRadius);
+                *data << float(shape.DiskDatas.InnerRadiusTarget);
+                *data << float(shape.DiskDatas.OuterRadius);
+                *data << float(shape.DiskDatas.OuterRadiusTarget);
+                *data << float(shape.DiskDatas.Height);
+                *data << float(shape.DiskDatas.HeightTarget);
+                *data << float(shape.DiskDatas.LocationZOffset);
+                *data << float(shape.DiskDatas.LocationZOffsetTarget);
+                break;
+            case AreaTriggerShapeType::BoundedPlane:
+                *data << int8(8);
+                *data << float(shape.BoundedPlaneDatas.Extents[0]);
+                *data << float(shape.BoundedPlaneDatas.Extents[1]);
+                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[0]);
+                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[1]);
+                break;
+            default:
+                break;
+        }
+
         bool hasAbsoluteOrientation = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation);
         bool hasDynamicShape        = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape);
         bool hasAttached            = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached);
         bool hasFaceMovementDir     = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir);
         bool hasFollowsTerrain      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain);
-        bool hasUnk1                = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::Unk1);
+        bool hasAlwaysExterior      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::AlwaysExterior);
         bool hasUnknown1025         = false;
         bool hasTargetRollPitchYaw  = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasTargetRollPitchYaw);
         bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
         bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
         bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
         bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
-        bool hasAreaTriggerSphere   = shape.IsSphere();
-        bool hasAreaTriggerBox      = shape.IsBox();
-        bool hasAreaTriggerPolygon  = shape.IsPolygon();
-        bool hasAreaTriggerCylinder = shape.IsCylinder();
-        bool hasDisk                = shape.IsDisk();
-        bool hasBoundedPlane        = shape.IsBoundedPlane();
-        bool hasAreaTriggerSpline   = areaTrigger->HasSplines();
-        bool hasOrbit               = areaTrigger->HasOrbit();
         bool hasMovementScript      = false;
         bool hasPositionalSoundKitID= false;
 
@@ -482,7 +592,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasAttached);
         data->WriteBit(hasFaceMovementDir);
         data->WriteBit(hasFollowsTerrain);
-        data->WriteBit(hasUnk1);
+        data->WriteBit(hasAlwaysExterior);
         data->WriteBit(hasUnknown1025);
         data->WriteBit(hasTargetRollPitchYaw);
         data->WriteBit(hasScaleCurveID);
@@ -490,25 +600,14 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         data->WriteBit(hasFacingCurveID);
         data->WriteBit(hasMoveCurveID);
         data->WriteBit(hasPositionalSoundKitID);
-        data->WriteBit(hasAreaTriggerSphere);
-        data->WriteBit(hasAreaTriggerBox);
-        data->WriteBit(hasAreaTriggerPolygon);
-        data->WriteBit(hasAreaTriggerCylinder);
-        data->WriteBit(hasDisk);
-        data->WriteBit(hasBoundedPlane);
-        data->WriteBit(hasAreaTriggerSpline);
-        data->WriteBit(hasOrbit);
+        data->WriteBit(areaTrigger->HasSplines());
+        data->WriteBit(areaTrigger->HasOrbit());
         data->WriteBit(hasMovementScript);
 
         data->FlushBits();
 
-        if (hasAreaTriggerSpline)
-        {
-            *data << uint32(areaTrigger->GetTimeToTarget());
-            *data << uint32(areaTrigger->GetElapsedTimeForMovement());
-
-            WorldPackets::Movement::CommonMovement::WriteCreateObjectAreaTriggerSpline(areaTrigger->GetSpline(), *data);
-        }
+        if (areaTrigger->HasSplines())
+            WorldPackets::AreaTrigger::WriteAreaTriggerSpline(*data, areaTrigger->GetTimeToTarget(), areaTrigger->GetElapsedTimeForMovement(), areaTrigger->GetSpline());
 
         if (hasTargetRollPitchYaw)
             *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
@@ -528,86 +627,46 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         if (hasPositionalSoundKitID)
             *data << uint32(0);
 
-        if (hasAreaTriggerSphere)
-        {
-            *data << float(shape.SphereDatas.Radius);
-            *data << float(shape.SphereDatas.RadiusTarget);
-        }
-
-        if (hasAreaTriggerBox)
-        {
-            *data << float(shape.BoxDatas.Extents[0]);
-            *data << float(shape.BoxDatas.Extents[1]);
-            *data << float(shape.BoxDatas.Extents[2]);
-            *data << float(shape.BoxDatas.ExtentsTarget[0]);
-            *data << float(shape.BoxDatas.ExtentsTarget[1]);
-            *data << float(shape.BoxDatas.ExtentsTarget[2]);
-        }
-
-        if (hasAreaTriggerPolygon)
-        {
-            *data << int32(shape.PolygonVertices.size());
-            *data << int32(shape.PolygonVerticesTarget.size());
-            *data << float(shape.PolygonDatas.Height);
-            *data << float(shape.PolygonDatas.HeightTarget);
-
-            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
-                *data << vertice;
-
-            for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
-                *data << vertice;
-        }
-
-        if (hasAreaTriggerCylinder)
-        {
-            *data << float(shape.CylinderDatas.Radius);
-            *data << float(shape.CylinderDatas.RadiusTarget);
-            *data << float(shape.CylinderDatas.Height);
-            *data << float(shape.CylinderDatas.HeightTarget);
-            *data << float(shape.CylinderDatas.LocationZOffset);
-            *data << float(shape.CylinderDatas.LocationZOffsetTarget);
-        }
-
-        if (hasDisk)
-        {
-            *data << float(shape.DiskDatas.InnerRadius);
-            *data << float(shape.DiskDatas.InnerRadiusTarget);
-            *data << float(shape.DiskDatas.OuterRadius);
-            *data << float(shape.DiskDatas.OuterRadiusTarget);
-            *data << float(shape.DiskDatas.Height);
-            *data << float(shape.DiskDatas.HeightTarget);
-            *data << float(shape.DiskDatas.LocationZOffset);
-            *data << float(shape.DiskDatas.LocationZOffsetTarget);
-        }
-
-        if (hasBoundedPlane)
-        {
-            *data << float(shape.BoundedPlaneDatas.Extents[0]);
-            *data << float(shape.BoundedPlaneDatas.Extents[1]);
-            *data << float(shape.BoundedPlaneDatas.ExtentsTarget[0]);
-            *data << float(shape.BoundedPlaneDatas.ExtentsTarget[1]);
-        }
-
         //if (hasMovementScript)
         //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
 
-        if (hasOrbit)
-            *data << *areaTrigger->GetOrbit();
+        if (areaTrigger->HasOrbit())
+        {
+            using WorldPackets::AreaTrigger::operator<<;
+            *data << areaTrigger->GetOrbit();
+        }
     }
 
     if (flags.GameObject)
     {
-        bool bit8 = false;
-        uint32 Int1 = 0;
-
         GameObject const* gameObject = ToGameObject();
+        Transport const* transport = gameObject->ToTransport();
+
+        bool bit8 = false;
 
         *data << uint32(gameObject->GetWorldEffectID());
 
         data->WriteBit(bit8);
+        data->WriteBit(transport != nullptr);
+        data->WriteBit(gameObject->GetPathProgressForClient().has_value());
         data->FlushBits();
+        if (transport)
+        {
+            uint32 period = transport->GetTransportPeriod();
+
+            *data << uint32((((int64(transport->GetTimer()) - int64(GameTime::GetGameTimeMS())) % period) + period) % period);  // TimeOffset
+            *data << uint32(transport->GetNextStopTimestamp().value_or(0));
+            data->WriteBit(transport->GetNextStopTimestamp().has_value());
+            data->WriteBit(transport->IsStopped());
+            data->WriteBit(false);
+            data->FlushBits();
+        }
+
         if (bit8)
-            *data << uint32(Int1);
+            *data << uint32(0);
+
+        if (gameObject->GetPathProgressForClient())
+            *data << float(*gameObject->GetPathProgressForClient());
     }
 
     if (flags.SmoothPhasing)
@@ -662,7 +721,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     //                *data << int32(Players[i].Pets[j].Power);
     //                *data << int32(Players[i].Pets[j].Speed);
     //                *data << int32(Players[i].Pets[j].NpcTeamMemberID);
-    //                *data << uint16(Players[i].Pets[j].BreedQuality);
+    //                *data << uint8(Players[i].Pets[j].BreedQuality);
     //                *data << uint16(Players[i].Pets[j].StatusFlags);
     //                *data << int8(Players[i].Pets[j].Slot);
 
@@ -779,11 +838,7 @@ UF::UpdateFieldFlag Object::GetUpdateFieldFlagsFor(Player const* /*target*/) con
 
 void Object::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag /*flags*/, Player const* /*target*/) const
 {
-    std::size_t sizePos = data->wpos();
     *data << uint32(0);
-    *data << uint32(0);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void Object::AddToObjectUpdateIfNeeded()
@@ -795,6 +850,7 @@ void Object::AddToObjectUpdateIfNeeded()
 void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
+    m_entityFragments.IdsChanged = false;
 
     if (m_objectUpdated)
     {
@@ -806,15 +862,7 @@ void Object::ClearUpdateMask(bool remove)
 
 void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
-    UpdateDataMapType::iterator iter = data_map.find(player);
-
-    if (iter == data_map.end())
-    {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.emplace(player, UpdateData(player->GetMapId()));
-        ASSERT(p.second);
-        iter = p.first;
-    }
-
+    UpdateDataMapType::iterator iter = data_map.try_emplace(player, player->GetMapId()).first;
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
@@ -1524,29 +1572,36 @@ SmoothPhasing* WorldObject::GetOrCreateSmoothPhasing()
     return _smoothPhasing.get();
 }
 
-bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bool distanceCheck, bool checkAlert) const
+bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs const& args /*= { }*/) const
 {
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisibleFor(this, implicitDetect) || CanNeverSee(obj))
+    if (obj->IsNeverVisibleFor(this, args.ImplicitDetection) || CanNeverSee(obj, args.IgnorePhaseShift))
         return false;
 
     if (obj->IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
         return true;
 
-    if (!obj->CheckPrivateObjectOwnerVisibility(this))
+    if (!args.IncludeAnyPrivateObject && !obj->CheckPrivateObjectOwnerVisibility(this))
         return false;
 
     if (SmoothPhasing const* smoothPhasing = obj->GetSmoothPhasing())
         if (smoothPhasing->IsBeingReplacedForSeer(GetGUID()))
             return false;
 
-    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj->GetTypeId(), obj->GetEntry(), this))
+    if (!obj->IsPrivateObject() && !sConditionMgr->IsObjectMeetingVisibilityByObjectIdConditions(obj, this))
         return false;
 
+    // Spawn tracking
+    if (!args.IncludeHiddenBySpawnTracking)
+        if (Player const* player = ToPlayer())
+            if (SpawnTrackingStateData const* spawnTrackingStateData = obj->GetSpawnTrackingStateDataForPlayer(player))
+                if (!spawnTrackingStateData->Visible)
+                    return false;
+
     bool corpseVisibility = false;
-    if (distanceCheck)
+    if (args.DistanceCheck)
     {
         bool corpseCheck = false;
         if (Player const* thisPlayer = ToPlayer())
@@ -1614,15 +1669,15 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, bool implicitDetect, bo
     if (obj->IsInvisibleDueToDespawn(this))
         return false;
 
-    if (!CanDetect(obj, implicitDetect, checkAlert))
+    if (!CanDetect(obj, args.ImplicitDetection, args.AlertCheck))
         return false;
 
     return true;
 }
 
-bool WorldObject::CanNeverSee(WorldObject const* obj) const
+bool WorldObject::CanNeverSee(WorldObject const* obj, bool ignorePhaseShift /*= false*/) const
 {
-    return GetMap() != obj->GetMap() || !InSamePhase(obj);
+    return GetMap() != obj->GetMap() || (!ignorePhaseShift && !InSamePhase(obj));
 }
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool implicitDetect, bool checkAlert) const
@@ -1859,12 +1914,12 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
             case SUMMON_CATEGORY_PUPPET:
                 mask = UNIT_MASK_PUPPET;
                 break;
+            case SUMMON_CATEGORY_POSSESSED_VEHICLE:
             case SUMMON_CATEGORY_VEHICLE:
                 mask = UNIT_MASK_MINION;
                 break;
             case SUMMON_CATEGORY_WILD:
             case SUMMON_CATEGORY_ALLY:
-            case SUMMON_CATEGORY_UNK:
             {
                 switch (SummonTitle(properties->Title))
                 {
@@ -1983,6 +2038,38 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
     return summon;
 }
 
+template <std::invocable<TempSummonData const&> SummonCreature>
+static void SummonCreatureGroup(uint32 summonerId, SummonerType summonerType, uint8 group, std::list<TempSummon*>* summoned, SummonCreature summonCreature)
+{
+    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(summonerId, summonerType, group);
+    if (!data)
+    {
+        TC_LOG_WARN("scripts", "Summoner {} type {} tried to summon non-existing summon group {}.", summonerId, summonerType, group);
+        return;
+    }
+
+    std::vector<TempSummon*> summons;
+    summons.reserve(data->size());
+
+    for (TempSummonData const& tempSummonData : *data)
+        if (TempSummon* summon = summonCreature(tempSummonData))
+            summons.push_back(summon);
+
+    CreatureGroup* creatureGroup = new CreatureGroup(0);
+    for (TempSummon* summon : summons)
+    {
+        if (!summon->IsInWorld())   // evil script might despawn a summon
+            continue;
+
+        creatureGroup->AddMember(summon);
+        if (summoned)
+            summoned->push_back(summon);
+    }
+
+    if (creatureGroup->IsEmpty())
+        delete creatureGroup;
+}
+
 /**
 * Summons group of creatures.
 *
@@ -1992,14 +2079,10 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
 
 void Map::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list /*= nullptr*/)
 {
-    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetId(), SUMMONER_TYPE_MAP, group);
-    if (!data)
-        return;
-
-    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, nullptr, itr->time))
-            if (list)
-                list->push_back(summon);
+    ::SummonCreatureGroup(GetId(), SUMMONER_TYPE_MAP, group, list, [&](TempSummonData const& tempSummonData)
+    {
+        return SummonCreature(tempSummonData.entry, tempSummonData.pos, nullptr, tempSummonData.time);
+    });
 }
 
 ZoneScript* WorldObject::FindZoneScript() const
@@ -2148,17 +2231,10 @@ void WorldObject::SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list 
 {
     ASSERT((GetTypeId() == TYPEID_GAMEOBJECT || GetTypeId() == TYPEID_UNIT) && "Only GOs and creatures can summon npc groups!");
 
-    std::vector<TempSummonData> const* data = sObjectMgr->GetSummonGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group);
-    if (!data)
+    ::SummonCreatureGroup(GetEntry(), GetTypeId() == TYPEID_GAMEOBJECT ? SUMMONER_TYPE_GAMEOBJECT : SUMMONER_TYPE_CREATURE, group, list, [&](TempSummonData const& tempSummonData)
     {
-        TC_LOG_WARN("scripts", "{} ({}) tried to summon non-existing summon group {}.", GetName(), GetGUID().ToString(), group);
-        return;
-    }
-
-    for (std::vector<TempSummonData>::const_iterator itr = data->begin(); itr != data->end(); ++itr)
-        if (TempSummon* summon = SummonCreature(itr->entry, itr->pos, itr->type, Milliseconds(itr->time)))
-            if (list)
-                list->push_back(summon);
+        return SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, tempSummonData.time);
+    });
 }
 
 Creature* WorldObject::FindNearestCreature(uint32 entry, float range, bool alive) const
@@ -2497,6 +2573,8 @@ void WorldObject::ModSpellCastTime(SpellInfo const* spellInfo, int32& castTime, 
     else if (!(spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY) || spellInfo->HasAttribute(SPELL_ATTR0_IS_TRADESKILL) || spellInfo->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)) &&
         ((GetTypeId() == TYPEID_PLAYER && spellInfo->SpellFamilyName) || GetTypeId() == TYPEID_UNIT))
         castTime = unitCaster->CanInstantCast() ? 0 : int32(float(castTime) * unitCaster->m_unitData->ModCastingSpeed);
+    else if (spellInfo->HasAttribute(SPELL_ATTR0_IS_ABILITY) && spellInfo->HasAttribute(SPELL_ATTR9_HASTE_AFFECTS_MELEE_ABILITY_CASTTIME))
+        castTime = int32(float(castTime) * unitCaster->m_modAttackSpeedPct[BASE_ATTACK]);
     else if (spellInfo->HasAttribute(SPELL_ATTR0_USES_RANGED_SLOT) && !spellInfo->HasAttribute(SPELL_ATTR2_AUTO_REPEAT))
         castTime = int32(float(castTime) * unitCaster->m_modAttackSpeedPct[RANGED_ATTACK]);
     else if (IsPartOfSkillLine(SKILL_COOKING, spellInfo->Id) && unitCaster->HasAura(67556)) // cooking with Chef Hat.
@@ -2642,7 +2720,7 @@ SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellIn
 
     // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
     // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(spellInfo))
+    if (spellInfo->HasOnlyDamageEffects() && victim->IsImmunedToDamage(this, spellInfo))
         return SPELL_MISS_IMMUNE;
 
     // All positive spells can`t miss
@@ -2914,19 +2992,19 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     SpellInfo const* info = sSpellMgr->GetSpellInfo(spellId, args.CastDifficulty != DIFFICULTY_NONE ? args.CastDifficulty : GetMap()->GetDifficultyID());
     if (!info)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: unknown spell {} by caster {}", spellId, GetGUID());
         return SPELL_FAILED_SPELL_UNAVAILABLE;
     }
 
     if (!targets.Targets)
     {
-        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID().ToString());
+        TC_LOG_ERROR("entities.unit", "CastSpell: Invalid target passed to spell cast {} by {}", spellId, GetGUID());
         return SPELL_FAILED_BAD_TARGETS;
     }
 
     Spell* spell = new Spell(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId);
-    for (auto const& pair : args.SpellValueOverrides)
-        spell->SetSpellValue(pair.first, pair.second);
+    for (CastSpellExtraArgsInit::SpellValueOverride const& value : args.SpellValueOverrides)
+        spell->SetSpellValue(value);
 
     spell->m_CastItem = args.CastItem;
     if (args.OriginalCastItemLevel)
@@ -2948,10 +3026,10 @@ SpellCastResult WorldObject::CastSpell(CastSpellTargetArg const& targets, uint32
     return spell->prepare(*targets.Targets, args.TriggeringAura);
 }
 
-void WorldObject::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+void WorldObject::SendPlayOrphanSpellVisual(Position const& sourceLocation, ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
 {
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
-    playOrphanSpellVisual.SourceLocation = GetPosition();
+    playOrphanSpellVisual.SourceLocation = sourceLocation;
     if (withSourceOrientation)
     {
         if (IsGameObject())
@@ -2973,10 +3051,10 @@ void WorldObject::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spe
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
 }
 
-void WorldObject::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+void WorldObject::SendPlayOrphanSpellVisual(Position const& sourceLocation, Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
 {
     WorldPackets::Spells::PlayOrphanSpellVisual playOrphanSpellVisual;
-    playOrphanSpellVisual.SourceLocation = GetPosition();
+    playOrphanSpellVisual.SourceLocation = sourceLocation;
     if (withSourceOrientation)
     {
         if (IsGameObject())
@@ -2996,6 +3074,16 @@ void WorldObject::SendPlayOrphanSpellVisual(Position const& targetLocation, uint
     playOrphanSpellVisual.SpeedAsTime = speedAsTime;
     playOrphanSpellVisual.LaunchDelay = 0.0f;
     SendMessageToSet(playOrphanSpellVisual.Write(), true);
+}
+
+void WorldObject::SendPlayOrphanSpellVisual(ObjectGuid const& target, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+{
+    SendPlayOrphanSpellVisual(GetPosition(), target, spellVisualId, travelSpeed, speedAsTime, withSourceOrientation);
+}
+
+void WorldObject::SendPlayOrphanSpellVisual(Position const& targetLocation, uint32 spellVisualId, float travelSpeed, bool speedAsTime /*= false*/, bool withSourceOrientation /*= false*/)
+{
+    SendPlayOrphanSpellVisual(GetPosition(), targetLocation, spellVisualId, travelSpeed, speedAsTime, withSourceOrientation);
 }
 
 void WorldObject::SendCancelOrphanSpellVisual(uint32 id)
@@ -3031,11 +3119,16 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
     if (unit)
     {
         // can't attack invisible
-        if (!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT))
+        CanSeeOrDetectExtraArgs canSeeOrDetectExtraArgs;
+        if (bySpell)
         {
-            if (!unit->CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
-                return false;
+            canSeeOrDetectExtraArgs.ImplicitDetection = bySpell->IsAffectingArea();
+            canSeeOrDetectExtraArgs.IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT);
+            canSeeOrDetectExtraArgs.IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING);
+            canSeeOrDetectExtraArgs.IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT);
         }
+        if (!unit->CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
+            return false;
     }
 
     // can't attack dead
@@ -3191,7 +3284,15 @@ bool WorldObject::IsValidAssistTarget(WorldObject const* target, SpellInfo const
     }
 
     // can't assist invisible
-    if ((!bySpell || !bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT)) && !CanSeeOrDetect(target, bySpell && bySpell->IsAffectingArea()))
+    CanSeeOrDetectExtraArgs canSeeOrDetectExtraArgs;
+    if (bySpell)
+    {
+        canSeeOrDetectExtraArgs.ImplicitDetection = bySpell->IsAffectingArea();
+        canSeeOrDetectExtraArgs.IgnorePhaseShift = bySpell->HasAttribute(SPELL_ATTR6_IGNORE_PHASE_SHIFT);
+        canSeeOrDetectExtraArgs.IncludeHiddenBySpawnTracking = bySpell->HasAttribute(SPELL_ATTR8_ALLOW_TARGETS_HIDDEN_BY_SPAWN_TRACKING);
+        canSeeOrDetectExtraArgs.IncludeAnyPrivateObject = bySpell->HasAttribute(SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT);
+    }
+    if (!CanSeeOrDetect(target, canSeeOrDetectExtraArgs))
         return false;
 
     // can't assist dead
@@ -3282,10 +3383,10 @@ Unit* WorldObject::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spel
                 {
                     // Set up missile speed based delay
                     float hitDelay = spellInfo->LaunchDelay;
-                    if (spellInfo->HasAttribute(SPELL_ATTR9_SPECIAL_DELAY_CALCULATION))
-                        hitDelay += spellInfo->Speed;
+                    if (spellInfo->HasAttribute(SPELL_ATTR9_MISSILE_SPEED_IS_DELAY_IN_SEC))
+                        hitDelay += std::max(spellInfo->Speed, spellInfo->MinDuration);
                     else if (spellInfo->Speed > 0.0f)
-                        hitDelay += std::max(victim->GetDistance(this), 5.0f) / spellInfo->Speed;
+                        hitDelay += std::max(std::max(victim->GetDistance(this), 5.0f) / spellInfo->Speed, spellInfo->MinDuration);
 
                     uint32 delay = uint32(std::floor(hitDelay * 1000.0f));
                     // Schedule charge drop
@@ -3349,8 +3450,8 @@ void WorldObject::GetCreatureListWithOptionsInGrid(Container& creatureContainer,
 template <typename Container>
 void WorldObject::GetPlayerListInGrid(Container& playerContainer, float maxSearchRange, bool alive /*= true*/) const
 {
-    Trinity::AnyPlayerInObjectRangeCheck checker(this, maxSearchRange, alive);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, playerContainer, checker);
+    Trinity::AnyUnitInObjectRangeCheck checker(this, maxSearchRange, true, alive);
+    Trinity::PlayerListSearcher searcher(this, playerContainer, checker);
     Cell::VisitWorldObjects(this, searcher, maxSearchRange);
 }
 
@@ -3451,7 +3552,7 @@ void WorldObject::GetContactPoint(WorldObject const* obj, float& x, float& y, fl
     GetNearPoint(obj, x, y, z, distance2d, GetAbsoluteAngle(obj));
 }
 
-void WorldObject::MovePosition(Position &pos, float dist, float angle)
+void WorldObject::MovePosition(Position &pos, float dist, float angle, float maxHeightChange /*= 6.0f*/) const
 {
     angle += GetOrientation();
     float destx, desty, destz, ground, floor;
@@ -3475,7 +3576,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
-        if (std::fabs(pos.m_positionZ - destz) > 6)
+        if (std::fabs(pos.m_positionZ - destz) > maxHeightChange)
         {
             destx -= step * std::cos(angle);
             desty -= step * std::sin(angle);
@@ -3497,7 +3598,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
     pos.SetOrientation(GetOrientation());
 }
 
-void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
+void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle) const
 {
     angle += GetOrientation();
     float destx, desty, destz;
@@ -3643,26 +3744,23 @@ void WorldObject::DestroyForNearbyPlayers()
     if (!IsInWorld())
         return;
 
-    std::list<Player*> targets;
-    Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange(), false);
-    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
-    Cell::VisitWorldObjects(this, searcher, GetVisibilityRange());
-    for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    auto destroyer = [this](Player* player)
     {
-        Player* player = (*iter);
-
         if (player == this)
-            continue;
+            return;
 
         if (!player->HaveAtClient(this))
-            continue;
+            return;
 
         if (Unit const* unit = ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
-            continue;
+            return;
 
         DestroyForPlayer(player);
         player->m_clientGUIDs.erase(GetGUID());
-    }
+    };
+
+    Trinity::PlayerDistWorker worker(this, GetVisibilityRange(), destroyer);
+    Cell::VisitWorldObjects(this, worker, GetVisibilityRange());
 }
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)

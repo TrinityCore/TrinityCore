@@ -558,9 +558,14 @@ struct TC_GAME_API CreatureTemplate
 
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc, Difficulty difficulty) const;
-};
 
-#pragma pack(push, 1)
+    CreatureTemplate();
+    CreatureTemplate(CreatureTemplate const& other) = delete;
+    CreatureTemplate(CreatureTemplate&& other) noexcept;
+    CreatureTemplate& operator=(CreatureTemplate const& other) = delete;
+    CreatureTemplate& operator=(CreatureTemplate&& other) noexcept;
+    ~CreatureTemplate();
+};
 
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
 struct TC_GAME_API CreatureBaseStats
@@ -625,17 +630,6 @@ struct CreatureSummonedData
     Optional<uint32> FlyingMountDisplayID;
     Optional<std::vector<uint32>> DespawnOnQuestsRemoved;
 };
-
-enum InhabitTypeValues
-{
-    INHABIT_GROUND = 1,
-    INHABIT_WATER  = 2,
-    INHABIT_AIR    = 4,
-    INHABIT_ROOT   = 8,
-    INHABIT_ANYWHERE = INHABIT_GROUND | INHABIT_WATER | INHABIT_AIR | INHABIT_ROOT
-};
-
-#pragma pack(pop)
 
 // `creature_addon` table
 struct CreatureAddon

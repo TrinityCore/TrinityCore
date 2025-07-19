@@ -23,6 +23,7 @@
 #include "Creature.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "GossipDef.h"
 #include "Item.h"
 #include "Language.h"
 #include "Log.h"
@@ -438,10 +439,10 @@ void WorldSession::HandleAuctionPlaceBid(WorldPackets::AuctionHouse::AuctionPlac
     if (canBuyout && placeBid.BidAmount == auction->BuyoutOrUnitPrice)
     {
         // buyout
-        auctionHouse->SendAuctionSold(auction, nullptr, trans);
-        auctionHouse->SendAuctionWon(auction, player, trans);
+        std::map<uint32, AuctionPosting>::node_type removedAuctionNode = auctionHouse->RemoveAuction(trans, auction);
 
-        auctionHouse->RemoveAuction(trans, auction);
+        auctionHouse->SendAuctionSold(&removedAuctionNode.mapped(), nullptr, trans);
+        auctionHouse->SendAuctionWon(&removedAuctionNode.mapped(), player, trans);
     }
     else
     {
@@ -508,7 +509,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPackets::AuctionHouse::AuctionRe
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
     if (auction && auction->Owner == player->GetGUID())
     {
-        if (auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
+        if (!auction->Bidder.IsEmpty())                   // If we have a bidder, we have to send him the money he paid
         {
             uint64 cancelCost = CalculatePct(auction->BidAmount, 5u);
             if (!player->HasEnoughMoney(cancelCost))          //player doesn't have enough money
@@ -574,7 +575,7 @@ void WorldSession::HandleAuctionReplicateItems(WorldPackets::AuctionHouse::Aucti
     SendPacket(response.Write());
 }
 
-void WorldSession::HandleAuctionRequestFavoriteList(WorldPackets::AuctionHouse::AuctionRequestFavoriteList& /*requestFavoriteList*/)
+void WorldSession::SendAuctionFavoriteList()
 {
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_FAVORITE_AUCTIONS);
     stmt->setUInt64(0, _player->GetGUID().GetCounter());
@@ -929,7 +930,7 @@ void WorldSession::HandleAuctionSellItem(WorldPackets::AuctionHouse::AuctionSell
 
     auction.Items.push_back(item);
 
-    TC_LOG_INFO("network", "CMSG_AuctionAction::SellItem: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
+    TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
         _player->GetGUID().ToString(), _player->GetName(), item->GetGUID().ToString(), item->GetTemplate()->GetDefaultLocaleName(),
         creature->GetGUID().ToString(), item->GetCount(), sellItem.MinBid, sellItem.BuyoutPrice, uint32(auctionTime.count()), auctionHouse->GetAuctionHouseId());
 
@@ -992,7 +993,7 @@ void WorldSession::HandleAuctionSetFavoriteItem(WorldPackets::AuctionHouse::Auct
 }
 
 //this void causes that auction window is opened
-void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
+void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
 {
     if (GetPlayer()->GetLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
     {
@@ -1004,19 +1005,22 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Creature* unit)
     if (!ahEntry)
         return;
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(guid, PlayerInteractionType::Auctioneer);
+
     WorldPackets::AuctionHouse::AuctionHelloResponse auctionHelloResponse;
-    auctionHelloResponse.Guid = guid;
+    auctionHelloResponse.Auctioneer = guid;
+    auctionHelloResponse.AuctionHouseID = ahEntry->ID;
     auctionHelloResponse.OpenForBusiness = true;                         // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(auctionHelloResponse.Write());
 }
 
-void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagError /*= 0*/)
+void WorldSession::SendAuctionCommandResult(uint32 auctionId, AuctionCommand command, AuctionResult errorCode, Milliseconds delayForNextAction, InventoryResult bagResult /*= 0*/)
 {
     WorldPackets::AuctionHouse::AuctionCommandResult auctionCommandResult;
     auctionCommandResult.AuctionID = auctionId;
     auctionCommandResult.Command = AsUnderlyingType(command);
     auctionCommandResult.ErrorCode = AsUnderlyingType(errorCode);
-    auctionCommandResult.BagResult = AsUnderlyingType(bagError);
+    auctionCommandResult.BagResult = AsUnderlyingType(bagResult);
     auctionCommandResult.DesiredDelay = uint32(delayForNextAction.count());
     SendPacket(auctionCommandResult.Write());
 }

@@ -18,7 +18,6 @@
 #include "WorldSession.h"
 #include "CellImpl.h"
 #include "Common.h"
-#include "Containers.h"
 #include "Corpse.h"
 #include "Creature.h"
 #include "DB2Stores.h"
@@ -31,6 +30,7 @@
 #include "Loot.h"
 #include "LootItemStorage.h"
 #include "LootPackets.h"
+#include "MapUtils.h"
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -155,12 +155,9 @@ void WorldSession::HandleLootMoneyOpcode(WorldPackets::Loot::LootMoney& /*packet
             Group* group = player->GetGroup();
 
             std::vector<Player*> playersNear;
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* member = itr->GetSource();
-                if (!member)
-                    continue;
-
+                Player* member = itr.GetSource();
                 if (!loot->HasAllowedLooter(member->GetGUID()))
                     continue;
 
@@ -237,8 +234,10 @@ void WorldSession::HandleLootOpcode(WorldPackets::Loot::LootUnit& packet)
     std::vector<Creature*> corpses;
     if (aeLootEnabled)
     {
-        Trinity::CreatureListSearcher<AELootCreatureCheck> searcher(_player, corpses, check);
+        Trinity::CreatureListSearcher searcher(_player, corpses, check);
         Cell::VisitGridObjects(_player, searcher, AELootCreatureCheck::LootDistance);
+        if (corpses.size() > 49)
+            corpses.resize(49); // lootTarget is 50th, not in corpses vector
     }
 
     if (!corpses.empty())
@@ -441,12 +440,18 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPackets::Loot::MasterLootItem
 
         if (req.LootListID >= loot->items.size())
         {
+            _player->SendLootError(req.Object, loot->GetOwnerGUID(), LOOT_ERROR_MASTER_OTHER);
             TC_LOG_DEBUG("loot", "MasterLootItem: Player {} might be using a hack! (slot {}, size {})",
                 GetPlayer()->GetName(), req.LootListID, loot->items.size());
             return;
         }
 
         LootItem& item = loot->items[req.LootListID];
+        if (item.type != LootItemType::Item)
+        {
+            _player->SendLootError(req.Object, loot->GetOwnerGUID(), LOOT_ERROR_MASTER_OTHER);
+            return;
+        }
 
         ItemPosCountVec dest;
         InventoryResult msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);

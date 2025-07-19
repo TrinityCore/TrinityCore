@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PacketUtilities_h__
-#define PacketUtilities_h__
+#ifndef TRINITYCORE_PACKET_UTILITIES_H
+#define TRINITYCORE_PACKET_UTILITIES_H
 
 #include "ByteBuffer.h"
 #include "Duration.h"
@@ -30,7 +30,7 @@ namespace WorldPackets
     class InvalidStringValueException : public ByteBufferInvalidValueException
     {
     public:
-        InvalidStringValueException(std::string const& value);
+        InvalidStringValueException(std::string_view value);
 
         std::string const& GetInvalidValue() const { return _value; }
 
@@ -41,29 +41,29 @@ namespace WorldPackets
     class InvalidUtf8ValueException : public InvalidStringValueException
     {
     public:
-        InvalidUtf8ValueException(std::string const& value);
+        InvalidUtf8ValueException(std::string_view value);
     };
 
     class InvalidHyperlinkException : public InvalidStringValueException
     {
     public:
-        InvalidHyperlinkException(std::string const& value);
+        InvalidHyperlinkException(std::string_view value);
     };
 
     class IllegalHyperlinkException : public InvalidStringValueException
     {
     public:
-        IllegalHyperlinkException(std::string const& value);
+        IllegalHyperlinkException(std::string_view value);
     };
 
     namespace Strings
     {
-        struct RawBytes { static bool Validate(std::string const& /*value*/) { return true; } };
+        struct RawBytes { static bool Validate(std::string_view /*value*/) { return true; } };
         template<std::size_t MaxBytesWithoutNullTerminator>
-        struct ByteSize { static bool Validate(std::string const& value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
-        struct Utf8 { static bool Validate(std::string const& value); };
-        struct Hyperlinks { static bool Validate(std::string const& value); };
-        struct NoHyperlinks { static bool Validate(std::string const& value); };
+        struct ByteSize { static bool Validate(std::string_view value) { return value.size() <= MaxBytesWithoutNullTerminator; } };
+        struct Utf8 { static bool Validate(std::string_view value); };
+        struct Hyperlinks { static bool Validate(std::string_view value); };
+        struct NoHyperlinks { static bool Validate(std::string_view value); };
     }
 
     /**
@@ -89,9 +89,7 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, String& value)
         {
-            std::string string = data.ReadCString(false);
-            Validate(string);
-            value._storage = std::move(string);
+            value = data.ReadCString(false);
             return data;
         }
 
@@ -109,14 +107,31 @@ namespace WorldPackets
             return *this;
         }
 
+        String& operator=(std::string_view value)
+        {
+            Validate(value);
+            _storage = std::move(value);
+            return *this;
+        }
+
+        String& operator=(char const* value)
+        {
+            return *this = std::string_view(value);
+        }
+
+        void resize(std::size_t size)
+        {
+            _storage.resize(size);
+        }
+
     private:
-        static bool Validate(std::string const& value)
+        static bool Validate(std::string_view value)
         {
             return ValidateNth(value, std::make_index_sequence<std::tuple_size_v<ValidatorList>>{});
         }
 
         template<std::size_t... indexes>
-        static bool ValidateNth(std::string const& value, std::index_sequence<indexes...>)
+        static bool ValidateNth(std::string_view value, std::index_sequence<indexes...>)
         {
             return (std::tuple_element_t<indexes, ValidatorList>::Validate(value) && ...);
         }
@@ -129,6 +144,8 @@ namespace WorldPackets
     public:
         PacketArrayMaxCapacityException(std::size_t requestedSize, std::size_t sizeLimit);
     };
+
+    [[noreturn]] void OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit);
 
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
@@ -177,6 +194,8 @@ namespace WorldPackets
 
         Array& operator=(Array&& other) noexcept = delete;
 
+        ~Array() = default;
+
         iterator begin() { return _storage.begin(); }
         const_iterator begin() const { return _storage.begin(); }
 
@@ -195,7 +214,7 @@ namespace WorldPackets
         void resize(size_type newSize)
         {
             if (newSize > max_capacity::value)
-                throw PacketArrayMaxCapacityException(newSize, max_capacity::value);
+                OnInvalidArraySize(newSize, max_capacity::value);
 
             _storage.resize(newSize);
         }
@@ -203,7 +222,7 @@ namespace WorldPackets
         void push_back(value_type const& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(value);
         }
@@ -211,7 +230,7 @@ namespace WorldPackets
         void push_back(value_type&& value)
         {
             if (_storage.size() >= max_capacity::value)
-                throw PacketArrayMaxCapacityException(_storage.size() + 1, max_capacity::value);
+                OnInvalidArraySize(_storage.size() + 1, max_capacity::value);
 
             _storage.push_back(std::forward<value_type>(value));
         }
@@ -276,7 +295,7 @@ namespace WorldPackets
 
         friend ByteBuffer& operator>>(ByteBuffer& data, Timestamp& timestamp)
         {
-            timestamp._value = data.read<time_t, Underlying>();
+            timestamp._value = static_cast<time_t>(data.read<Underlying>());
             return data;
         }
 
@@ -319,4 +338,4 @@ namespace WorldPackets
     };
 }
 
-#endif // PacketUtilities_h__
+#endif // TRINITYCORE_PACKET_UTILITIES_H

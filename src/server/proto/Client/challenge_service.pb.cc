@@ -114,15 +114,15 @@ void protobuf_AddDesc_challenge_5fservice_2eproto() {
     "geExternalRequest\022\025\n\rrequest_token\030\001 \001(\t"
     "\022\024\n\014payload_type\030\002 \001(\t\022\017\n\007payload\030\003 \001(\014\""
     "F\n\027ChallengeExternalResult\022\025\n\rrequest_to"
-    "ken\030\001 \001(\t\022\024\n\006passed\030\002 \001(\010:\004true2\255\002\n\021Chal"
+    "ken\030\001 \001(\t\022\024\n\006passed\030\002 \001(\010:\004true2\257\002\n\021Chal"
     "lengeListener\022m\n\023OnExternalChallenge\0223.b"
     "gs.protocol.challenge.v1.ChallengeExtern"
     "alRequest\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371"
     "+\002\010\003\022r\n\031OnExternalChallengeResult\0222.bgs."
     "protocol.challenge.v1.ChallengeExternalR"
     "esult\032\031.bgs.protocol.NO_RESPONSE\"\006\202\371+\002\010\004"
-    "\0325\202\371++\n\'bnet.protocol.challenge.Challeng"
-    "eNotify8\001\212\371+\002\010\001B\005H\002\200\001\000", 542);
+    "\0327\202\371++\n\'bnet.protocol.challenge.Challeng"
+    "eNotify8\001\212\371+\004\010\001 \001B\005H\002\200\001\000", 544);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "challenge_service.proto", &protobuf_RegisterTypes);
   ChallengeExternalRequest::default_instance_ = new ChallengeExternalRequest();

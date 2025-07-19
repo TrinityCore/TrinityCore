@@ -19,6 +19,7 @@
 #include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -27,8 +28,26 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
+#include "Spell.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
+
+namespace Scripts::EasternKingdoms::StormwindCity
+{
+namespace Spells
+{
+    // The King's Command
+    static constexpr uint32 MOPAllianceIntroMoviePlay = 130805;
+    static constexpr uint32 FadeToBlack               = 130411;
+
+    // The Mission
+    static constexpr uint32 TeleportPrep              = 130832;
+    static constexpr uint32 TeleportTimer             = 132032;
+    static constexpr uint32 TheMissionTeleportPlayer  = 130321;
+}
 
 enum TidesOfWarData
 {
@@ -63,6 +82,8 @@ enum NationOfKulTirasData
     SPELL_JAINA_TELEPORT                = 40163,
     SPELL_SKIP_KULTIRAS_INTRO           = 279998,
     SPELL_SKIP_TOLDAGOR_TELEPORT        = 247285,
+    SPELL_BORALUS_TRANSITION            = 240872,
+    SPELL_BORALUS_TRANSITION_MOVIE      = 240873,
 
     CONVERSATION_JAINA_LEAVE_COUNCIL    = 4896,
 
@@ -94,10 +115,10 @@ struct at_stormwind_keep_tides_of_war : AreaTriggerAI
 Position const VisionOfSailorsMemoryPosition = { -8384.131f, 324.383f, 148.443f, 1.559973f };
 
 // 4857 - Conversation
-class conversation_start_council_tides_of_war : public ConversationScript
+class conversation_start_council_tides_of_war : public ConversationAI
 {
 public:
-    conversation_start_council_tides_of_war() : ConversationScript("conversation_start_council_tides_of_war") { }
+    conversation_start_council_tides_of_war(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum Events
     {
@@ -113,7 +134,7 @@ public:
         CONVO_LINE_JAINA_CREDIT     = 19486,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* jainaObject = GetClosestCreatureWithOptions(creator, 30.0f, { .CreatureId = NPC_JAINA_TIDES_OF_WAR, .IgnorePhases = true });
         if (!jainaObject)
@@ -127,7 +148,7 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
@@ -137,7 +158,7 @@ public:
         _events.ScheduleEvent(EVENT_KILL_CREDIT, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_JAINA_CREDIT));
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -187,7 +208,7 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
             if (gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
             {
                 CloseGossipMenuFor(player);
-                // @TODO: script start of TolDagor intro
+                player->CastSpell(nullptr, SPELL_BORALUS_TRANSITION, false);
             }
             else if (gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
             {
@@ -325,6 +346,26 @@ class spell_kultiras_skip_intro : public SpellScript
     }
 };
 
+// 240876 - Stormwind Harbor to Boralus transition
+class spell_stormwind_harbor_to_boralus_transition : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, aurEff->GetAmount(), false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_stormwind_harbor_to_boralus_transition::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 enum AncientCursesData
 {
     QUEST_ANCIENT_CURSES            = 75891,
@@ -412,10 +453,10 @@ private:
 };
 
 // 22025 - Conversation
-class conversation_quest_ancient_curses_accept : public ConversationScript
+class conversation_quest_ancient_curses_accept : public ConversationAI
 {
 public:
-    conversation_quest_ancient_curses_accept() : ConversationScript("conversation_quest_ancient_curses_accept") { }
+    conversation_quest_ancient_curses_accept(Conversation* conversation) : ConversationAI(conversation) { }
 
     enum AncientCursesConversationEvents
     {
@@ -429,7 +470,7 @@ public:
         CONVO_LINE_LYSANDER_START_PATH  = 60113,
     };
 
-    void OnConversationCreate(Conversation* conversation, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         Creature* arkonarinObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_ARKONARIN_STARSHADE, .IgnorePhases = true });
         Creature* lysanderObject = GetClosestCreatureWithOptions(creator, 20.0f, { .CreatureId = NPC_LYSANDER_STARSHADE, .IgnorePhases = true });
@@ -451,7 +492,7 @@ public:
         conversation->Start();
     }
 
-    void OnConversationStart(Conversation* conversation) override
+    void OnStart() override
     {
         LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
 
@@ -462,7 +503,7 @@ public:
             _events.ScheduleEvent(EVENT_LYSANDER_START_PATH, *lysanderPathStartTime);
     }
 
-    void OnConversationUpdate(Conversation* conversation, uint32 diff) override
+    void OnUpdate(uint32 diff) override
     {
         _events.Update(diff);
 
@@ -494,8 +535,135 @@ private:
     EventMap _events;
 };
 
+// 130804 - The King's Command Movie Aura
+class spell_the_kings_command_movie_aura : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::FadeToBlack
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(nullptr, Spells::FadeToBlack, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_the_kings_command_movie_aura::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 130804 - The King's Command Movie Aura
+class spell_the_kings_command_movie_aura_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::MOPAllianceIntroMoviePlay
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->CastSpell(nullptr, Spells::MOPAllianceIntroMoviePlay, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_the_kings_command_movie_aura_aura::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 140885 - Admiral Rogers Script Effect
+class spell_admiral_rogers_script_effect : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TeleportPrep
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        GetHitUnit()->CastSpell(nullptr, Spells::TeleportPrep, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_admiral_rogers_script_effect::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 130832 - Teleport Prep
+class spell_teleport_prep_alliance : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TeleportTimer
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* hitUnit = GetHitUnit();
+
+        hitUnit->CancelMountAura();
+        hitUnit->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .OriginalCastId = GetSpell()->m_castId
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_teleport_prep_alliance::HandleHitTarget, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+// 132032 - Teleport Timer
+class spell_teleport_timer_alliance : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::TheMissionTeleportPlayer
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+
+        target->CancelTravelShapeshiftForm();
+        target->CastSpell(nullptr, Spells::TheMissionTeleportPlayer, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_teleport_timer_alliance::HandleAfterEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+}
+
 void AddSC_stormwind_city()
 {
+    using namespace Scripts::EasternKingdoms::StormwindCity;
+
     // Creature
     RegisterCreatureAI(npc_jaina_proudmoore_tides_of_war);
     RegisterCreatureAI(npc_anduin_wrynn_nation_of_kultiras);
@@ -503,8 +671,8 @@ void AddSC_stormwind_city()
     RegisterCreatureAI(npc_lysande_starshade_ancient_curses);
 
     // Conversation
-    new conversation_start_council_tides_of_war();
-    new conversation_quest_ancient_curses_accept();
+    RegisterConversationAI(conversation_start_council_tides_of_war);
+    RegisterConversationAI(conversation_quest_ancient_curses_accept);
 
     // PlayerScript
     new player_conv_after_movie_tides_of_war();
@@ -515,4 +683,9 @@ void AddSC_stormwind_city()
     // Spells
     RegisterSpellScript(spell_despawn_sailor_memory);
     RegisterSpellScript(spell_kultiras_skip_intro);
+    RegisterSpellScript(spell_stormwind_harbor_to_boralus_transition);
+    RegisterSpellAndAuraScriptPair(spell_the_kings_command_movie_aura, spell_the_kings_command_movie_aura_aura);
+    RegisterSpellScript(spell_admiral_rogers_script_effect);
+    RegisterSpellScript(spell_teleport_prep_alliance);
+    RegisterSpellScript(spell_teleport_timer_alliance);
 }

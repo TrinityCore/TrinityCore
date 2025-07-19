@@ -15,15 +15,9 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaBoundary.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ragefire_chasm.h"
-
-BossBoundaryData const boundaries =
-{
-    { BOSS_SLAGMAW, new RectangleBoundary(-298.2f, -257.1f, 94.4f, 172.4f) }
-};
 
 ObjectData const creatureData[] =
 {
@@ -54,7 +48,6 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadObjectData(creatureData, nullptr);
-            LoadBossBoundaries(boundaries);
             LoadDungeonEncounterData(encounters);
         }
     };

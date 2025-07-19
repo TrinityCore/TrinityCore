@@ -16,6 +16,7 @@
  */
 
 #include "GameObjectPackets.h"
+#include "PacketOperators.h"
 
 void WorldPackets::GameObject::GameObjUse::Read()
 {
@@ -30,12 +31,14 @@ void WorldPackets::GameObject::GameObjReportUse::Read()
 WorldPacket const* WorldPackets::GameObject::GameObjectDespawn::Write()
 {
     _worldPacket << ObjectGUID;
+
     return &_worldPacket;
 }
 
 WorldPacket const* WorldPackets::GameObject::PageText::Write()
 {
     _worldPacket << GameObjectGUID;
+
     return &_worldPacket;
 }
 
@@ -43,7 +46,7 @@ WorldPacket const* WorldPackets::GameObject::GameObjectActivateAnimKit::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << uint32(AnimKitID);
-    _worldPacket.WriteBit(Maintain);
+    _worldPacket << Bits<1>(Maintain);
     _worldPacket.FlushBits();
 
     return &_worldPacket;
@@ -64,7 +67,7 @@ WorldPacket const* WorldPackets::GameObject::GameObjectCustomAnim::Write()
 {
     _worldPacket << ObjectGUID;
     _worldPacket << uint32(CustomAnim);
-    _worldPacket.WriteBit(PlayAsDespawn);
+    _worldPacket << Bits<1>(PlayAsDespawn);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

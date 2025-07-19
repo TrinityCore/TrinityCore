@@ -39,6 +39,7 @@ body:
       options:
         - 3.3.5
         - master
+        - cata_classic
     validations:
       required: true
   - type: textarea

@@ -25,9 +25,9 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
-#include "api/client/v2/attribute_types.pb.h"
 #include "account_types.pb.h"
 #include "message_types.pb.h"
+#include "api/common/v2/attribute_types.pb.h"
 #include "global_extensions/field_options.pb.h"
 #include "Define.h" // for TC_PROTO_API
 // @@protoc_insertion_point(includes)

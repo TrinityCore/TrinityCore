@@ -226,7 +226,7 @@ class spell_grobbulus_poison_cloud : public AuraScript
             return;
 
         uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-        int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
+        float mod = ((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 2 / 3;
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_RADIUS_MOD, mod);

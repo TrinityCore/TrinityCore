@@ -22,6 +22,7 @@
 #include "DBCEnums.h"
 #include "Duration.h"
 #include "ObjectGuid.h"
+#include <span>
 #include <unordered_map>
 #include <vector>
 #include <ctime>
@@ -284,6 +285,7 @@ public:
 protected:
     virtual void SendCriteriaUpdate(Criteria const* criteria, CriteriaProgress const* progress, Seconds timeElapsed, bool timedCompleted) const = 0;
 
+    void UpdateCriteria(Criteria const* criteria, uint64 miscValue1 = 0, uint64 miscValue2 = 0, uint64 miscValue3 = 0, WorldObject const* ref = nullptr, Player* referencePlayer = nullptr);
     CriteriaProgress* GetCriteriaProgress(Criteria const* entry);
     void SetCriteriaProgress(Criteria const* criteria, uint64 changeValue, Player* referencePlayer, ProgressType progressType = PROGRESS_SET);
     void RemoveCriteriaProgress(Criteria const* criteria);
@@ -343,11 +345,7 @@ public:
         return _questObjectiveCriteriasByType[size_t(type)];
     }
 
-    CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const
-    {
-        auto itr = _criteriaTreeByCriteria.find(criteriaId);
-        return itr != _criteriaTreeByCriteria.end() ? &itr->second : nullptr;
-    }
+    CriteriaTreeList const* GetCriteriaTreesByCriteria(uint32 criteriaId) const;
 
     std::unordered_map<int32, CriteriaList> const& GetCriteriaByStartEvent(CriteriaStartEvent startEvent) const;
     CriteriaList const* GetCriteriaByStartEvent(CriteriaStartEvent startEvent, int32 asset) const;
@@ -355,11 +353,7 @@ public:
     std::unordered_map<int32, CriteriaList> const& GetCriteriaByFailEvent(CriteriaFailEvent failEvent) const;
     CriteriaList const* GetCriteriaByFailEvent(CriteriaFailEvent failEvent, int32 asset) const;
 
-    CriteriaDataSet const* GetCriteriaDataSet(Criteria const* Criteria) const
-    {
-        auto iter = _criteriaDataMap.find(Criteria->ID);
-        return iter != _criteriaDataMap.end() ? &iter->second : nullptr;
-    }
+    CriteriaDataSet const* GetCriteriaDataSet(Criteria const* criteria) const;
 
     static bool IsGroupCriteriaType(CriteriaType type)
     {
@@ -394,6 +388,8 @@ public:
     CriteriaTree const* GetCriteriaTree(uint32 criteriaTreeId) const;
     Criteria const* GetCriteria(uint32 criteriaId) const;
     ModifierTreeNode const* GetModifierTree(uint32 modifierTreeId) const;
+
+    static std::span<CriteriaType const> GetRetroactivelyUpdateableCriteriaTypes();
 
 private:
     std::unordered_map<uint32, CriteriaDataSet> _criteriaDataMap;

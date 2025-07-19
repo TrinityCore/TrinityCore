@@ -27,7 +27,7 @@ namespace Battlenet::Services
 {
 ClubMembershipService::ClubMembershipService(WorldSession* session) : BaseService(session) { }
 
-uint32 ClubMembershipService::HandleSubscribe(club::v1::membership::SubscribeRequest const* /*request*/, club::v1::membership::SubscribeResponse* response,
+uint32 ClubMembershipService::HandleSubscribe(club_membership::v1::client::SubscribeRequest const* /*request*/, club_membership::v1::client::SubscribeResponse* response,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     Player const* player = _session->GetPlayer();
@@ -40,7 +40,7 @@ uint32 ClubMembershipService::HandleSubscribe(club::v1::membership::SubscribeReq
     if (!guild)
         return ERROR_OK;
 
-    club::v1::ClubMembershipDescription* description = response->mutable_state()->add_description();
+    club_membership::v1::client::ClubMembershipDescription* description = response->mutable_state()->add_description();
     description->set_allocated_member_id(CreateClubMemberId(player->GetGUID()).release());
 
     club::v1::ClubDescription* club = description->mutable_club();
@@ -57,7 +57,7 @@ uint32 ClubMembershipService::HandleSubscribe(club::v1::membership::SubscribeReq
     club->set_timezone("");
     club->set_locale("");
 
-    club::v1::MemberDescription* leader = club->add_leader();
+    club::v1::client::MemberDescription* leader = club->add_leader();
 
     leader->set_allocated_id(CreateClubMemberId(guild->GetLeaderGUID()).release());
 
@@ -67,7 +67,7 @@ uint32 ClubMembershipService::HandleSubscribe(club::v1::membership::SubscribeReq
     return ERROR_OK;
 }
 
-uint32 ClubMembershipService::HandleUnsubscribe(club::v1::membership::UnsubscribeRequest const* /*request*/, NoData* /*response*/,
+uint32 ClubMembershipService::HandleUnsubscribe(club_membership::v1::client::UnsubscribeRequest const* /*request*/, NoData* /*response*/,
     std::function<void(ServiceBase*, uint32, google::protobuf::Message const*)>& /*continuation*/)
 {
     // We just have to signal the client that the unsubscribe request came through.
@@ -77,7 +77,7 @@ uint32 ClubMembershipService::HandleUnsubscribe(club::v1::membership::Unsubscrib
 std::unique_ptr<club::v1::MemberId> ClubMembershipService::CreateClubMemberId(ObjectGuid guid)
 {
     std::unique_ptr<club::v1::MemberId> id = std::make_unique<club::v1::MemberId>();
-    id->mutable_account_id()->set_id(sCharacterCache->GetCharacterAccountIdByGuid(guid));
+    id->set_account_id(sCharacterCache->GetCharacterAccountIdByGuid(guid));
     id->set_unique_id(Clubs::CreateClubMemberId(guid));
     return id;
 }

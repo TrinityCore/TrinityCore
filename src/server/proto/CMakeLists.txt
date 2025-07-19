@@ -20,8 +20,6 @@ endif()
 
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DTRINITY_API_EXPORT_PROTO)
-
 add_library(proto
   ${PRIVATE_SOURCES}
 )
@@ -50,8 +48,9 @@ target_link_libraries(proto
 
 set_target_properties(proto
   PROPERTIES
-    FOLDER
-      "server")
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_PROTO
+    FOLDER "server")
 
 if( BUILD_SHARED_LIBS )
   if( UNIX )

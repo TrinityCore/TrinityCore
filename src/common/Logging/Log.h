@@ -40,12 +40,12 @@ namespace Trinity
 
 #define LOGGER_ROOT "root"
 
-typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
+typedef Appender*(*AppenderCreatorFn)(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs);
 
 template <class AppenderImpl>
-Appender* CreateAppender(uint8 id, std::string const& name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
+Appender* CreateAppender(uint8 id, std::string name, LogLevel level, AppenderFlags flags, std::vector<std::string_view> const& extraArgs)
 {
-    return new AppenderImpl(id, name, level, flags, extraArgs);
+    return new AppenderImpl(id, std::move(name), level, flags, extraArgs);
 }
 
 class TC_COMMON_API Log
@@ -53,36 +53,37 @@ class TC_COMMON_API Log
     private:
         Log();
         ~Log();
+
+    public:
         Log(Log const&) = delete;
         Log(Log&&) = delete;
         Log& operator=(Log const&) = delete;
         Log& operator=(Log&&) = delete;
 
-    public:
-        static Log* instance();
+        static Log* instance() noexcept;
 
         void Initialize(Trinity::Asio::IoContext* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
-        bool ShouldLog(std::string_view type, LogLevel level) const;
-        Logger const* GetEnabledLogger(std::string_view type, LogLevel level) const;
+        bool ShouldLog(std::string_view type, LogLevel level) const noexcept;
+        Logger const* GetEnabledLogger(std::string_view type, LogLevel level) const noexcept;
         bool SetLogLevel(std::string const& name, int32 level, bool isLogger = true);
 
         template<typename... Args>
-        void OutMessage(std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args)
+        void OutMessage(std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args) noexcept
         {
             this->OutMessageImpl(GetLoggerByType(filter), filter, level, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         template<typename... Args>
-        void OutMessageTo(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args)
+        void OutMessageTo(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatString<Args...> fmt, Args&&... args) noexcept
         {
             this->OutMessageImpl(logger, filter, level, fmt, Trinity::MakeFormatArgs(args...));
         }
 
         template<typename... Args>
-        void OutCommand(uint32 account, Trinity::FormatString<Args...> fmt, Args&&... args)
+        void OutCommand(uint32 account, Trinity::FormatString<Args...> fmt, Args&&... args) noexcept
         {
             if (!ShouldLog("commands.gm", LOG_LEVEL_INFO))
                 return;
@@ -90,7 +91,7 @@ class TC_COMMON_API Log
             this->OutCommandImpl(account, fmt, Trinity::MakeFormatArgs(args...));
         }
 
-        void OutCharDump(char const* str, uint32 account_id, uint64 guid, char const* name);
+        void OutCharDump(std::string const& str, uint32 account_id, uint64 guid, std::string const& name) const noexcept;
 
         void SetRealmId(uint32 id);
 
@@ -126,7 +127,6 @@ class TC_COMMON_API Log
 
     private:
         static std::string GetTimestampStr();
-        void write(Logger const* logger, std::unique_ptr<LogMessage> msg) const;
 
         Logger const* GetLoggerByType(std::string_view type) const;
         Appender* GetAppenderByName(std::string_view name);
@@ -136,8 +136,8 @@ class TC_COMMON_API Log
         void ReadAppendersFromConfig();
         void ReadLoggersFromConfig();
         void RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn);
-        void OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const;
-        void OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const;
+        void OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const noexcept;
+        void OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const noexcept;
 
         std::unordered_map<uint8, AppenderCreatorFn> appenderFactory;
         std::unordered_map<uint8, std::unique_ptr<Appender>> appenders;

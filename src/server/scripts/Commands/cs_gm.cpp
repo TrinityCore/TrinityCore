@@ -30,7 +30,7 @@ EndScriptData */
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
@@ -161,7 +161,7 @@ public:
         ///- Get the accounts with GM Level >0
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
         stmt->setUInt8(0, uint8(SEC_MODERATOR));
-        stmt->setInt32(1, int32(realm.Id.Realm));
+        stmt->setInt32(1, int32(sRealmList->GetCurrentRealmId().Realm));
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         if (result)

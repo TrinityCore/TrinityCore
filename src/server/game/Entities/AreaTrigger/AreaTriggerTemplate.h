@@ -37,24 +37,13 @@ enum class AreaTriggerFlag : uint32
 
 DEFINE_ENUM_FLAG(AreaTriggerFlag);
 
-enum class AreaTriggerShapeType : uint8
-{
-    Sphere                         = 0,
-    Box                            = 1,
-    Unk                            = 2,
-    Polygon                        = 3,
-    Cylinder                       = 4,
-    Disk                           = 5,
-    BoundedPlane                   = 6,
-    Max
-};
-
 enum AreaTriggerActionTypes
 {
     AREATRIGGER_ACTION_CAST        = 0,
     AREATRIGGER_ACTION_ADDAURA     = 1,
     AREATRIGGER_ACTION_TELEPORT    = 2,
-    AREATRIGGER_ACTION_MAX         = 3
+    AREATRIGGER_ACTION_TAVERN      = 3,
+    AREATRIGGER_ACTION_MAX         = 4
 };
 
 enum AreaTriggerActionUserTypes
@@ -76,10 +65,10 @@ enum class AreaTriggerCreatePropertiesFlag : uint32
     HasAttached                    = 0x00004,
     HasFaceMovementDir             = 0x00008,
     HasFollowsTerrain              = 0x00010, // NYI
-    Unk1                           = 0x00020,
+    AlwaysExterior                 = 0x00020,
     HasTargetRollPitchYaw          = 0x00040, // NYI
     HasAnimId                      = 0x00080, // DEPRECATED
-    Unk3                           = 0x00100,
+    VisualAnimIsDecay              = 0x00100,
     HasAnimKitId                   = 0x00200, // DEPRECATED
     HasCircularMovement            = 0x00400, // DEPRECATED
     Unk5                           = 0x00800,
@@ -219,8 +208,10 @@ public:
     AreaTriggerTemplate();
     ~AreaTriggerTemplate();
 
-    AreaTriggerId Id;
-    EnumFlag<AreaTriggerFlag> Flags;
+    AreaTriggerId Id = { .Id = 0, .IsCustom = false };
+    EnumFlag<AreaTriggerFlag> Flags = AreaTriggerFlag::None;
+    uint32 ActionSetId = 0;
+    EnumFlag<AreaTriggerActionSetFlag> ActionSetFlags = AreaTriggerActionSetFlag::None;
     std::vector<AreaTriggerAction> Actions;
 };
 
@@ -232,34 +223,34 @@ public:
 
     bool HasSplines() const;
 
-    AreaTriggerCreatePropertiesId Id;
-    AreaTriggerTemplate const* Template;
-    EnumFlag<AreaTriggerCreatePropertiesFlag> Flags;
+    AreaTriggerCreatePropertiesId Id = { .Id = 0, .IsCustom = false };
+    AreaTriggerTemplate const* Template = nullptr;
+    EnumFlag<AreaTriggerCreatePropertiesFlag> Flags = AreaTriggerCreatePropertiesFlag::None;
 
-    uint32 MoveCurveId;
-    uint32 ScaleCurveId;
-    uint32 MorphCurveId;
-    uint32 FacingCurveId;
+    uint32 MoveCurveId = 0;
+    uint32 ScaleCurveId = 0;
+    uint32 MorphCurveId = 0;
+    uint32 FacingCurveId = 0;
 
-    int32 AnimId;
-    int32 AnimKitId;
+    int32 AnimId = 0;
+    int32 AnimKitId = 0;
 
-    uint32 DecalPropertiesId;
+    uint32 DecalPropertiesId = 0;
 
     Optional<int32> SpellForVisuals;
 
-    uint32 TimeToTarget;
-    uint32 TimeToTargetScale;
+    uint32 TimeToTargetScale = 0;
 
     Optional<AreaTriggerScaleCurveTemplate> OverrideScale;
-    Optional<AreaTriggerScaleCurveTemplate> ExtraScale;
+    Optional<AreaTriggerScaleCurveTemplate> ExtraScale = Optional<AreaTriggerScaleCurveTemplate>(std::in_place);
 
     AreaTriggerShapeInfo Shape;
 
+    float Speed = 1.0f;
     std::vector<Position> SplinePoints;
     Optional<AreaTriggerOrbitInfo> OrbitInfo;
 
-    uint32 ScriptId;
+    uint32 ScriptId = 0;
 };
 
 struct AreaTriggerSpawn : SpawnData

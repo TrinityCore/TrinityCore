@@ -34,7 +34,7 @@ EndScriptData */
 #include "Log.h"
 #include "MySQLThreading.h"
 #include "RBAC.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "UpdateTime.h"
 #include "Util.h"
 #include "VMapFactory.h"
@@ -124,14 +124,10 @@ public:
     {
         std::string dbPortOutput;
 
-        uint16 dbPort = 0;
-        if (QueryResult res = LoginDatabase.PQuery("SELECT port FROM realmlist WHERE id = {}", realm.Id.Realm))
-            dbPort = (*res)[0].GetUInt16();
-
-        if (dbPort)
-            dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", realm.Id.Realm, dbPort);
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+            dbPortOutput = Trinity::StringFormat("Realmlist (Realm Id: {}) configured in port {}", currentRealm->Id.Realm, currentRealm->Port);
         else
-            dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", realm.Id.Realm);
+            dbPortOutput = Trinity::StringFormat("Realm Id: {} not found in `realmlist` table. Please check your setup", sRealmList->GetCurrentRealmId().Realm);
 
         handler->PSendSysMessage("%s", GitRevision::GetFullVersion());
         handler->PSendSysMessage("Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
@@ -208,12 +204,12 @@ public:
                 continue;
             }
 
-            auto end = boost::filesystem::directory_iterator();
-            std::size_t folderSize = std::accumulate(boost::filesystem::directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::path const& mapFile)
+            auto end = boost::filesystem::recursive_directory_iterator();
+            std::size_t folderSize = std::accumulate(boost::filesystem::recursive_directory_iterator(mapPath), end, std::size_t(0), [](std::size_t val, boost::filesystem::directory_entry const& mapFile)
             {
                 boost::system::error_code ec;
-                if (boost::filesystem::is_regular_file(mapFile, ec))
-                    val += boost::filesystem::file_size(mapFile);
+                if (boost::filesystem::is_regular_file(mapFile.path(), ec) && !ec)
+                    val += boost::filesystem::file_size(mapFile.path(), ec);
                 return val;
             });
 

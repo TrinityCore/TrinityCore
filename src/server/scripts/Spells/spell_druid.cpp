@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Containers.h"
@@ -33,11 +35,15 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 
 enum DruidSpells
 {
     SPELL_DRUID_ABUNDANCE                      = 207383,
     SPELL_DRUID_ABUNDANCE_EFFECT               = 207640,
+    SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE      = 450599,
+    SPELL_DRUID_ASTRAL_COMMUNION_TALENT        = 450598,
+    SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE          = 394061,
     SPELL_DRUID_BALANCE_T10_BONUS              = 70718,
     SPELL_DRUID_BALANCE_T10_BONUS_PROC         = 70721,
     SPELL_DRUID_BEAR_FORM                      = 5487,
@@ -55,6 +61,7 @@ enum DruidSpells
     SPELL_DRUID_CULTIVATION                    = 200390,
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
+    SPELL_DRUID_DREAMSTATE                     = 450346,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -62,6 +69,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_OOC                    = 329910,
     SPELL_DRUID_ECLIPSE_SOLAR_AURA             = 48517,
     SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT        = 326053,
+    SPELL_DRUID_ECLIPSE_VISUAL_LUNAR           = 93431,
+    SPELL_DRUID_ECLIPSE_VISUAL_SOLAR           = 93430,
     SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
@@ -78,12 +87,15 @@ enum DruidSpells
     SPELL_DRUID_FORMS_TRINKET_MOONKIN          = 37343,
     SPELL_DRUID_FORMS_TRINKET_NONE             = 37344,
     SPELL_DRUID_FORMS_TRINKET_TREE             = 37342,
+    SPELL_DRUID_FULL_MOON                      = 274283,
     SPELL_DRUID_GALACTIC_GUARDIAN_AURA         = 213708,
     SPELL_DRUID_GERMINATION                    = 155675,
     SPELL_DRUID_GLYPH_OF_STARS                 = 114301,
     SPELL_DRUID_GLYPH_OF_STARS_VISUAL          = 114302,
     SPELL_DRUID_GORE_PROC                      = 93622,
     SPELL_DRUID_GROWL                          = 6795,
+    SPELL_DRUID_HALF_MOON                      = 274282,
+    SPELL_DRUID_HALF_MOON_OVERRIDE             = 274297,
     SPELL_DRUID_IDOL_OF_FERAL_SHADOWS          = 34241,
     SPELL_DRUID_IDOL_OF_WORSHIP                = 60774,
     SPELL_DRUID_INCARNATION                    = 117679,
@@ -95,10 +107,16 @@ enum DruidSpells
     SPELL_DRUID_INFUSION                       = 37238,
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
+    SPELL_DRUID_LUNAR_BEAM_HEAL                = 204069,
+    SPELL_DRUID_LUNAR_BEAM_DAMAGE              = 414613,
     SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
     SPELL_DRUID_MANGLE                         = 33917,
+    SPELL_DRUID_MANGLE_TALENT                  = 231064,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
+    SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
+    SPELL_DRUID_NEW_MOON                       = 274281,
+    SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
     SPELL_DRUID_REGROWTH                       = 8936,
@@ -113,6 +131,7 @@ enum DruidSpells
     SPELL_DRUID_SKULL_BASH_INTERRUPT           = 93985,
     SPELL_DRUID_SPRING_BLOSSOMS                = 207385,
     SPELL_DRUID_SPRING_BLOSSOMS_HEAL           = 207386,
+    SPELL_DRUID_STAR_BURST                     = 356474,
     SPELL_DRUID_SUNFIRE_DAMAGE                 = 164815,
     SPELL_DRUID_SURVIVAL_INSTINCTS             = 50322,
     SPELL_DRUID_TRAVEL_FORM                    = 783,
@@ -160,6 +179,70 @@ class spell_dru_abundance : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dru_abundance::HandleOnApplyOrReapply, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dru_abundance::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 102560 - Incarnation: Chosen of Elune
+// 194223 - Celestial Alignment
+// 383410 - Celestial Alignment
+// 390414 - Incarnation: Chosen of Elune
+class spell_dru_astral_communion_celestial_alignment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ASTRAL_COMMUNION_TALENT, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT);
+    }
+
+    void Energize() const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, CastSpellExtraArgs()
+            .SetTriggeringSpell(GetSpell())
+            .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_astral_communion_celestial_alignment::Energize);
+    }
+};
+
+// 394058 - Astral Smolder
+class spell_dru_astral_smolder : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, DIFFICULTY_NONE)->GetMaxTicks();
+    }
+
+    bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo) const
+    {
+        return eventInfo.GetProcTarget() != nullptr;
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        PreventDefaultAction();
+
+        SpellInfo const* astralSmolderDmg = sSpellMgr->AssertSpellInfo(SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, GetCastDifficulty());
+        int32 pct = aurEff->GetAmount();
+
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / astralSmolderDmg->GetMaxTicks());
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
+        GetTarget()->CastSpell(eventInfo.GetProcTarget(), SPELL_DRUID_ASTRAL_SMOLDER_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_astral_smolder::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_astral_smolder::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -312,6 +395,42 @@ class spell_dru_cat_form : public AuraScript
     }
 };
 
+// 102560 - Incarnation: Chosen of Elune
+// 194223 - Celestial Alignment
+// 383410 - Celestial Alignment
+// 390414 - Incarnation: Chosen of Elune
+class spell_dru_celestial_alignment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ECLIPSE_VISUAL_SOLAR,
+            SPELL_DRUID_ECLIPSE_VISUAL_LUNAR,
+        });
+    }
+
+    void TriggerEclipses() const
+    {
+        Unit* caster = GetCaster();
+        CastSpellExtraArgs args;
+        args.SetTriggeringSpell(GetSpell());
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_SOLAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_LUNAR_AURA, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_SOLAR, args);
+        caster->CastSpell(caster, SPELL_DRUID_ECLIPSE_VISUAL_LUNAR, args);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_celestial_alignment::TriggerEclipses);
+    }
+};
+
 // 774 - Rejuvenation
 // 155777 - Rejuventation (Germination)
 class spell_dru_cultivation : public AuraScript
@@ -435,8 +554,15 @@ class spell_dru_eclipse_dummy : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT, SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
-            SPELL_DRUID_ECLIPSE_SOLAR_AURA, SPELL_DRUID_ECLIPSE_LUNAR_AURA });
+        return ValidateSpellInfo(
+        {
+            SPELL_DRUID_ECLIPSE_SOLAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_LUNAR_SPELL_CNT,
+            SPELL_DRUID_ECLIPSE_SOLAR_AURA,
+            SPELL_DRUID_ECLIPSE_LUNAR_AURA,
+            SPELL_DRUID_ASTRAL_COMMUNION_TALENT,
+            SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE
+        });
     }
 
     void HandleProc(ProcEventInfo& eventInfo)
@@ -492,6 +618,9 @@ private:
             {
                 // cast eclipse
                 target->CastSpell(target, eclipseAuraSpellId, TRIGGERED_FULL_MASK);
+
+                if (target->HasAura(SPELL_DRUID_ASTRAL_COMMUNION_TALENT))
+                    target->CastSpell(target, SPELL_DRUID_ASTRAL_COMMUNION_ENERGIZE, true);
 
                 // Remove stacks from other one as well
                 // reset remaining power on other spellId
@@ -1138,6 +1267,33 @@ class spell_dru_lifebloom : public AuraScript
     }
 };
 
+// 204066 - Lunar Beam
+struct at_dru_lunar_beam : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(500ms, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(caster, SPELL_DRUID_LUNAR_BEAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DRUID_LUNAR_BEAM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 155580 - Lunar Inspiration
 class spell_dru_lunar_inspiration : public AuraScript
 {
@@ -1191,13 +1347,39 @@ class spell_dru_luxuriant_soil : public AuraScript
         if (targetList.empty())
             return;
 
-        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_AND_REAGENT_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        rejuvCaster->CastSpell(Trinity::Containers::SelectRandomContainerElement(targetList), SPELL_DRUID_REJUVENATION, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
     }
 
     void Register() override
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_luxuriant_soil::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_luxuriant_soil::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 33917 - Mangle
+class spell_dru_mangle : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MANGLE_TALENT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_MANGLE_TALENT);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (victim->HasAuraState(AURA_STATE_BLEED))
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dru_mangle::CalculateDamage);
     }
 };
 
@@ -1220,6 +1402,98 @@ class spell_dru_moonfire : public SpellScript
     }
 };
 
+// 450347 - Nature's Grace
+class spell_dru_natures_grace : public AuraScript
+{
+public:
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_NATURES_GRACE_TALENT, SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    static void Trigger(Unit* caster, AuraEffect const* naturesGraceEffect)
+    {
+        caster->CastSpell(caster, SPELL_DRUID_DREAMSTATE, CastSpellExtraArgsInit{
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, naturesGraceEffect->GetAmount() } }
+        });
+
+    }
+
+    void OnOwnerInCombat(bool isNowInCombat) const
+    {
+        if (isNowInCombat)
+            Trigger(GetTarget(), GetEffect(EFFECT_2));
+    }
+
+    void Register() override
+    {
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_dru_natures_grace::OnOwnerInCombat);
+    }
+};
+
+// 48517 Eclipse (Solar) + 48518 Eclipse (Lunar)
+class spell_dru_natures_grace_eclipse : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_DREAMSTATE })
+            && ValidateSpellEffect({ { SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2);
+    }
+
+    void HandleRemoved(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        spell_dru_natures_grace::Trigger(GetTarget(), GetTarget()->GetAuraEffect(SPELL_DRUID_NATURES_GRACE_TALENT, EFFECT_2));
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_natures_grace_eclipse::HandleRemoved, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 274283 - Full Moon
+// 274282 - Half Moon
+// 274281 - New Moon
+class spell_dru_new_moon : public SpellScript
+{
+public:
+    explicit spell_dru_new_moon(Optional<uint32> newOverrideSpell, Optional<uint32> removeOverrideSpell)
+        : _newOverrideSpell(newOverrideSpell), _removeOverrideSpell(removeOverrideSpell) { }
+
+private:
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return (!_newOverrideSpell || ValidateSpellInfo({ *_newOverrideSpell }))
+            && (!_removeOverrideSpell || ValidateSpellInfo({ *_removeOverrideSpell }));
+    }
+
+    void OverrideMoon() const
+    {
+        Unit* caster = GetCaster();
+        if (_newOverrideSpell)
+            caster->CastSpell(caster, *_newOverrideSpell, CastSpellExtraArgs()
+                .SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR)
+                .SetTriggeringSpell(GetSpell()));
+
+        if (_removeOverrideSpell)
+            caster->RemoveAurasDueToSpell(*_removeOverrideSpell);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_dru_new_moon::OverrideMoon);
+    }
+
+    Optional<uint32> _newOverrideSpell;
+    Optional<uint32> _removeOverrideSpell;
+};
+
 // 16864 - Omen of Clarity
 class spell_dru_omen_of_clarity : public AuraScript
 {
@@ -1238,6 +1512,20 @@ class spell_dru_omen_of_clarity : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dru_omen_of_clarity::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 113043 - Omen of Clarity
+class spell_dru_omen_of_clarity_restoration : public AuraScript
+{
+    bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_omen_of_clarity_restoration::CheckProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -1478,6 +1766,26 @@ class spell_dru_starfall_dummy : public SpellScript
     }
 };
 
+// 202347 - Stellar Flare
+class spell_dru_stellar_flare : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_STAR_BURST });
+    }
+
+    void HandleDispel(DispelInfo* dispelInfo)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(dispelInfo->GetDispeller(), SPELL_DRUID_STAR_BURST, true);
+    }
+
+    void Register() override
+    {
+        AfterDispel += AuraDispelFn(spell_dru_stellar_flare::HandleDispel);
+    }
+};
+
 // 340694 - Sudden Ambush
 // 384667 - Sudden Ambush
 class spell_dru_sudden_ambush : public AuraScript
@@ -1597,12 +1905,11 @@ class spell_dru_t3_8p_bonus : public AuraScript
             return;
 
         Unit* caster = eventInfo.GetActor();
-        std::vector<SpellPowerCost> const& costs = spell->GetPowerCost();
-        auto m = std::find_if(costs.begin(), costs.end(), [](SpellPowerCost const& cost) { return cost.Power == POWER_MANA; });
-        if (m == costs.end())
+        Optional<int32> manaCost = spell->GetPowerTypeCostAmount(POWER_MANA);
+        if (!manaCost)
             return;
 
-        int32 amount = CalculatePct(m->Amount, aurEff->GetAmount());
+        int32 amount = CalculatePct(*manaCost, aurEff->GetAmount());
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(amount);
         caster->CastSpell(nullptr, SPELL_DRUID_EXHILARATE, args);
@@ -2073,11 +2380,14 @@ class spell_dru_yseras_gift_group_heal : public SpellScript
 void AddSC_druid_spell_scripts()
 {
     RegisterSpellScript(spell_dru_abundance);
+    RegisterSpellScript(spell_dru_astral_communion_celestial_alignment);
+    RegisterSpellScript(spell_dru_astral_smolder);
     RegisterSpellScript(spell_dru_barkskin);
     RegisterSpellScript(spell_dru_berserk);
     RegisterSpellScript(spell_dru_brambles);
     RegisterSpellScript(spell_dru_bristling_fur);
     RegisterSpellScript(spell_dru_cat_form);
+    RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
     RegisterSpellScript(spell_dru_earthwarden);
@@ -2103,10 +2413,18 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
+    RegisterAreaTriggerAI(at_dru_lunar_beam);
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
+    RegisterSpellScript(spell_dru_mangle);
     RegisterSpellScript(spell_dru_moonfire);
+    RegisterSpellScript(spell_dru_natures_grace);
+    RegisterSpellScript(spell_dru_natures_grace_eclipse);
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_full_moon", Optional<DruidSpells>(), Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_half_moon", Optional<DruidSpells>(SPELL_DRUID_HALF_MOON_OVERRIDE), Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE));
+    RegisterSpellScriptWithArgs(spell_dru_new_moon, "spell_dru_new_moon", Optional<DruidSpells>(SPELL_DRUID_NEW_MOON_OVERRIDE), Optional<DruidSpells>());
     RegisterSpellScript(spell_dru_omen_of_clarity);
+    RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
     RegisterSpellScript(spell_dru_rip);
@@ -2116,6 +2434,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_spring_blossoms);
     RegisterSpellScript(spell_dru_stampeding_roar);
     RegisterSpellScript(spell_dru_starfall_dummy);
+    RegisterSpellScript(spell_dru_stellar_flare);
     RegisterSpellScript(spell_dru_sudden_ambush);
     RegisterSpellScript(spell_dru_sunfire);
     RegisterSpellScript(spell_dru_survival_instincts);

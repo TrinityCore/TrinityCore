@@ -5,24 +5,27 @@
 
 namespace efsw {
 
-namespace Platform { class MutexImpl; }
+namespace Platform {
+class MutexImpl;
+}
 
 /** Simple mutex class */
 class Mutex {
-	public:
-		Mutex();
+  public:
+	Mutex();
 
-		~Mutex();
+	~Mutex();
 
-		/** Lock the mutex */
-		void lock();
+	/** Lock the mutex */
+	void lock();
 
-		/** Unlock the mutex */
-		void unlock();
-	private:
-		Platform::MutexImpl *		mMutexImpl;
+	/** Unlock the mutex */
+	void unlock();
+
+  private:
+	Platform::MutexImpl* mMutexImpl;
 };
 
-}
+} // namespace efsw
 
 #endif

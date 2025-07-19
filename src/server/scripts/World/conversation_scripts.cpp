@@ -17,9 +17,10 @@
 
 #include "ScriptMgr.h"
 #include "Conversation.h"
+#include "ConversationAI.h"
 #include "Player.h"
 
-class conversation_allied_race_dk_defender_of_azeroth : public ConversationScript
+class conversation_allied_race_dk_defender_of_azeroth : public ConversationAI
 {
 public:
     enum DefenderOfAzerothIds : uint32
@@ -30,15 +31,15 @@ public:
         CONVERSATION_LINE_PLAYER            = 32926
     };
 
-    conversation_allied_race_dk_defender_of_azeroth() : ConversationScript("conversation_allied_race_dk_defender_of_azeroth") { }
+    conversation_allied_race_dk_defender_of_azeroth(Conversation* conversation) : ConversationAI(conversation) { }
 
-    void OnConversationCreate(Conversation* /*conversation*/, Unit* creator) override
+    void OnCreate(Unit* creator) override
     {
         if (Player* player = creator->ToPlayer())
             player->KilledMonsterCredit(NPC_TALK_TO_YOUR_COMMANDER_CREDIT);
     }
 
-    void OnConversationLineStarted(Conversation* /*conversation*/, uint32 lineId, Player* sender) override
+    void OnLineStarted(uint32 lineId, Player* sender) override
     {
         if (lineId != CONVERSATION_LINE_PLAYER)
             return;
@@ -49,5 +50,5 @@ public:
 
 void AddSC_conversation_scripts()
 {
-    new conversation_allied_race_dk_defender_of_azeroth();
+    RegisterConversationAI(conversation_allied_race_dk_defender_of_azeroth);
 }

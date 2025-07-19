@@ -19,19 +19,19 @@
 #define ClubMembershipService_h__
 
 #include "WorldserverService.h"
-#include "club_membership_service.pb.h"
+#include "api/client/v1/club_membership_service.pb.h"
 
 namespace Battlenet::Services
 {
-class ClubMembershipService : public WorldserverService<club::v1::membership::ClubMembershipService>
+class ClubMembershipService : public WorldserverService<club_membership::v1::client::ClubMembershipService>
 {
-    typedef WorldserverService<club::v1::membership::ClubMembershipService> BaseService;
+    typedef WorldserverService<club_membership::v1::client::ClubMembershipService> BaseService;
 
 public:
     ClubMembershipService(WorldSession* session);
 
-    uint32 HandleSubscribe(club::v1::membership::SubscribeRequest const* request, club::v1::membership::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
-    uint32 HandleUnsubscribe(club::v1::membership::UnsubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleSubscribe(club_membership::v1::client::SubscribeRequest const* request, club_membership::v1::client::SubscribeResponse* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
+    uint32 HandleUnsubscribe(club_membership::v1::client::UnsubscribeRequest const* request, NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) override;
 
     static std::unique_ptr<club::v1::MemberId> CreateClubMemberId(ObjectGuid guid);
 };

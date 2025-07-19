@@ -26,3 +26,6 @@ G3D-v9.0 hotfix13.diff - 2020-08-04 - MSVC build fix with /permissive-
 G3D-v9.0 hotfix14.diff - 2022-01-16 - warning fixes
 G3D-v9.0 hotfix15.diff - 2022-02-11 - purge Windows.h includes from public headers
 G3D-v9.0 hotfix16.diff - 2022-02-11 - Fix *BSD compile errors
+G3D-v9.0 hotfix17.diff - 2023-03-25 - Fix macOS compile errors
+G3D-v9.0 hotfix18.diff - 2024-02-17 - ARM64 support on MSVC
+G3D-v9.0 hotfix19.diff - 2024-06-09 - clang build fix on windows

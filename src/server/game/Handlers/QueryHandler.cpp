@@ -31,6 +31,7 @@
 #include "QueryPackets.h"
 #include "RealmList.h"
 #include "TerrainMgr.h"
+#include "Transport.h"
 #include "World.h"
 
 void WorldSession::BuildNameQueryData(ObjectGuid guid, WorldPackets::Query::NameCacheLookupResult& lookupData)
@@ -168,7 +169,7 @@ void WorldSession::HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLoc
     packet.MapID = corpseMapID;
     packet.ActualMapID = mapID;
     packet.Position = Position(x, y, z);
-    packet.Transport = ObjectGuid::Empty;
+    packet.Transport = ObjectGuid::Empty;   // TODO: If corpse is on transport, send transport offsets and transport guid
     SendPacket(packet.Write());
 }
 
@@ -236,13 +237,18 @@ void WorldSession::HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTr
 {
     WorldPackets::Query::CorpseTransportQuery response;
     response.Player = queryCorpseTransport.Player;
-    if (Player* player = ObjectAccessor::FindConnectedPlayer(queryCorpseTransport.Player))
+    if (Player* player = ObjectAccessor::FindConnectedPlayer(queryCorpseTransport.Player); player && _player->IsInSameRaidWith(player))
     {
-        Corpse* corpse = player->GetCorpse();
-        if (_player->IsInSameRaidWith(player) && corpse && !corpse->GetTransGUID().IsEmpty() && corpse->GetTransGUID() == queryCorpseTransport.Transport)
+        if (Corpse const* corpse = _player->GetCorpse())
         {
-            response.Position = corpse->GetTransOffset();
-            response.Facing = corpse->GetTransOffsetO();
+            if (Transport const* transport = dynamic_cast<Transport const*>(corpse->GetTransport()))
+            {
+                if (transport->GetGUID() == queryCorpseTransport.Transport)
+                {
+                    response.Position = transport->GetPosition();
+                    response.Facing = transport->GetOrientation();
+                }
+            }
         }
     }
 
@@ -321,13 +327,31 @@ void WorldSession::HandleQueryRealmName(WorldPackets::Query::QueryRealmName& que
     WorldPackets::Query::RealmQueryResponse realmQueryResponse;
     realmQueryResponse.VirtualRealmAddress = queryRealmName.VirtualRealmAddress;
 
-    Battlenet::RealmHandle realmHandle(queryRealmName.VirtualRealmAddress);
-    if (sRealmList->GetRealmNames(realmHandle, &realmQueryResponse.NameInfo.RealmNameActual, &realmQueryResponse.NameInfo.RealmNameNormalized))
+    if (std::shared_ptr<Realm const> realm = sRealmList->GetRealm(queryRealmName.VirtualRealmAddress))
     {
         realmQueryResponse.LookupState = RESPONSE_SUCCESS;
         realmQueryResponse.NameInfo.IsInternalRealm = false;
         realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == GetVirtualRealmAddress();
+        realmQueryResponse.NameInfo.RealmNameActual = realm->Name;
+        realmQueryResponse.NameInfo.RealmNameNormalized = realm->NormalizedName;
     }
     else
         realmQueryResponse.LookupState = RESPONSE_FAILURE;
+
+    SendPacket(realmQueryResponse.Write());
+}
+
+void WorldSession::HandleQueryTreasurePicker(WorldPackets::Query::QueryTreasurePicker const& queryTreasurePicker)
+{
+    Quest const* questInfo = sObjectMgr->GetQuestTemplate(queryTreasurePicker.QuestID);
+    if (!questInfo)
+        return;
+
+    WorldPackets::Query::TreasurePickerResponse treasurePickerResponse;
+    treasurePickerResponse.QuestID = queryTreasurePicker.QuestID;
+    treasurePickerResponse.TreasurePickerID = queryTreasurePicker.TreasurePickerID;
+
+    // TODO: Missing treasure picker implementation
+
+    SendPacket(treasurePickerResponse.Write());
 }

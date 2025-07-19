@@ -16,10 +16,9 @@
  */
 
 #include "MythicPlusPacketsCommon.h"
+#include "PacketOperators.h"
 
-namespace WorldPackets
-{
-namespace MythicPlus
+namespace WorldPackets::MythicPlus
 {
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapSummary const& dungeonScoreMapSummary)
 {
@@ -27,7 +26,8 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapSummary const& dungeonSc
     data << float(dungeonScoreMapSummary.MapScore);
     data << int32(dungeonScoreMapSummary.BestRunLevel);
     data << int32(dungeonScoreMapSummary.BestRunDurationMS);
-    data.WriteBit(dungeonScoreMapSummary.FinishedSuccess);
+    data << uint8(dungeonScoreMapSummary.Unknown1110);
+    data << Bits<1>(dungeonScoreMapSummary.FinishedSuccess);
     data.FlushBits();
 
     return data;
@@ -37,7 +37,7 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSummary const& dungeonScore
 {
     data << float(dungeonScoreSummary.OverallScoreCurrentSeason);
     data << float(dungeonScoreSummary.LadderScoreCurrentSeason);
-    data << uint32(dungeonScoreSummary.Runs.size());
+    data << Size<uint32>(dungeonScoreSummary.Runs);
     for (DungeonScoreMapSummary const& dungeonScoreMapSummary : dungeonScoreSummary.Runs)
         data << dungeonScoreMapSummary;
 
@@ -53,7 +53,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusMember const& mythicPlusMembe
     data << uint32(mythicPlusMember.NativeRealmAddress);
     data << uint32(mythicPlusMember.VirtualRealmAddress);
     data << int32(mythicPlusMember.ChrSpecializationID);
-    data << int16(mythicPlusMember.RaceID);
+    data << int8(mythicPlusMember.RaceID);
     data << int32(mythicPlusMember.ItemLevel);
     data << int32(mythicPlusMember.CovenantID);
     data << int32(mythicPlusMember.SoulbindID);
@@ -70,12 +70,12 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusRun const& mythicPlusRun)
     data << mythicPlusRun.CompletionDate;
     data << int32(mythicPlusRun.Season);
     data.append(mythicPlusRun.KeystoneAffixIDs.data(), mythicPlusRun.KeystoneAffixIDs.size());
-    data << uint32(mythicPlusRun.Members.size());
+    data << Size<uint32>(mythicPlusRun.Members);
     data << float(mythicPlusRun.RunScore);
     for (MythicPlusMember const& member : mythicPlusRun.Members)
         data << member;
 
-    data.WriteBit(mythicPlusRun.Completed);
+    data << Bits<1>(mythicPlusRun.Completed);
     data.FlushBits();
 
     return data;
@@ -93,7 +93,7 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreBestRunForAffix const& dung
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapData const& dungeonScoreMapData)
 {
     data << int32(dungeonScoreMapData.MapChallengeModeID);
-    data << uint32(dungeonScoreMapData.BestRuns.size());
+    data << Size<uint32>(dungeonScoreMapData.BestRuns);
     data << float(dungeonScoreMapData.OverAllScore);
     for (DungeonScoreBestRunForAffix const& bestRun : dungeonScoreMapData.BestRuns)
         data << bestRun;
@@ -104,8 +104,8 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreMapData const& dungeonScore
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSeasonData const& dungeonScoreSeasonData)
 {
     data << int32(dungeonScoreSeasonData.Season);
-    data << uint32(dungeonScoreSeasonData.SeasonMaps.size());
-    data << uint32(dungeonScoreSeasonData.LadderMaps.size());
+    data << Size<uint32>(dungeonScoreSeasonData.SeasonMaps);
+    data << Size<uint32>(dungeonScoreSeasonData.LadderMaps);
     data << float(dungeonScoreSeasonData.SeasonScore);
     data << float(dungeonScoreSeasonData.LadderScore);
     for (DungeonScoreMapData const& map : dungeonScoreSeasonData.SeasonMaps)
@@ -119,12 +119,11 @@ ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreSeasonData const& dungeonSc
 
 ByteBuffer& operator<<(ByteBuffer& data, DungeonScoreData const& dungeonScoreData)
 {
-    data << uint32(dungeonScoreData.Seasons.size());
+    data << Size<uint32>(dungeonScoreData.Seasons);
     data << int32(dungeonScoreData.TotalRuns);
     for (DungeonScoreSeasonData const& season : dungeonScoreData.Seasons)
         data << season;
 
     return data;
-}
 }
 }

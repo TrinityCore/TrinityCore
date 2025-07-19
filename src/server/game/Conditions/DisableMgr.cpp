@@ -241,6 +241,17 @@ void LoadDisables()
                     TC_LOG_INFO("misc", "Pathfinding disabled for {} map {}.", MapTypeNames[mapEntry->InstanceType], entry);
                 break;
             }
+            case DISABLE_TYPE_PHASE_AREA:
+            {
+                if (!sPhaseStore.LookupEntry(entry))
+                {
+                    TC_LOG_ERROR("sql.sql", "Phase entry {} from `disables` doesn't exist in dbc, skipped.", entry);
+                    continue;
+                }
+                if (flags)
+                    TC_LOG_ERROR("sql.sql", "Disable flags specified for phase {}, useless data.", entry);
+                break;
+            }
             default:
                 break;
         }
@@ -383,6 +394,7 @@ bool IsDisabledFor(DisableType type, uint32 entry, WorldObject const* ref, uint8
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_CRITERIA:
         case DISABLE_TYPE_MMAP:
+        case DISABLE_TYPE_PHASE_AREA:
             return true;
         case DISABLE_TYPE_VMAP:
            return (flags & itr->second.flags) != 0;

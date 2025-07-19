@@ -68,7 +68,7 @@ bool Ed25519::LoadFromFile(std::string const& fileName)
         _key = nullptr;
     }
 
-    auto keyBIO = make_unique_ptr_with_deleter(BIO_new_file(fileName.c_str(), "r"), &BIO_free);
+    auto keyBIO = make_unique_ptr_with_deleter<&BIO_free>(BIO_new_file(fileName.c_str(), "r"));
     if (!keyBIO)
         return false;
 
@@ -87,9 +87,9 @@ bool Ed25519::LoadFromString(std::string const& keyPem)
         _key = nullptr;
     }
 
-    auto keyBIO = make_unique_ptr_with_deleter(BIO_new_mem_buf(
+    auto keyBIO = make_unique_ptr_with_deleter<&BIO_free>(BIO_new_mem_buf(
         const_cast<char*>(keyPem.c_str()) /*api hack - this function assumes memory is readonly but lacks const modifier*/,
-        keyPem.length() + 1), &BIO_free);
+        keyPem.length() + 1));
     if (!keyBIO)
         return false;
 

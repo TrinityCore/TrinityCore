@@ -19,59 +19,12 @@
 namespace bgs {
 namespace protocol {
 
-namespace {
-
-const ::google::protobuf::Descriptor* GetEventOptions_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  GetEventOptions_reflection_ = NULL;
-const ::google::protobuf::Descriptor* ViewMarker_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  ViewMarker_reflection_ = NULL;
-const ::google::protobuf::EnumDescriptor* EventOrder_descriptor_ = NULL;
-
-}  // namespace
-
 void protobuf_AssignDesc_event_5fview_5ftypes_2eproto() {
   protobuf_AddDesc_event_5fview_5ftypes_2eproto();
   const ::google::protobuf::FileDescriptor* file =
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "event_view_types.proto");
   GOOGLE_CHECK(file != NULL);
-  GetEventOptions_descriptor_ = file->message_type(0);
-  static const int GetEventOptions_offsets_[4] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, fetch_from_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, fetch_until_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, max_events_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, order_),
-  };
-  GetEventOptions_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      GetEventOptions_descriptor_,
-      GetEventOptions::default_instance_,
-      GetEventOptions_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetEventOptions, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(GetEventOptions));
-  ViewMarker_descriptor_ = file->message_type(1);
-  static const int ViewMarker_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ViewMarker, last_read_time_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ViewMarker, last_message_time_),
-  };
-  ViewMarker_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      ViewMarker_descriptor_,
-      ViewMarker::default_instance_,
-      ViewMarker_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ViewMarker, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ViewMarker, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(ViewMarker));
-  EventOrder_descriptor_ = file->enum_type(0);
 }
 
 namespace {
@@ -84,19 +37,11 @@ inline void protobuf_AssignDescriptorsOnce() {
 
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    GetEventOptions_descriptor_, &GetEventOptions::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    ViewMarker_descriptor_, &ViewMarker::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_event_5fview_5ftypes_2eproto() {
-  delete GetEventOptions::default_instance_;
-  delete GetEventOptions_reflection_;
-  delete ViewMarker::default_instance_;
-  delete ViewMarker_reflection_;
 }
 
 void protobuf_AddDesc_event_5fview_5ftypes_2eproto() {
@@ -105,21 +50,13 @@ void protobuf_AddDesc_event_5fview_5ftypes_2eproto() {
   already_here = true;
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+  ::bgs::protocol::protobuf_AddDesc_api_2fcommon_2fv1_2fevent_5fview_5ftypes_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\026event_view_types.proto\022\014bgs.protocol\"w"
-    "\n\017GetEventOptions\022\022\n\nfetch_from\030\001 \001(\004\022\023\n"
-    "\013fetch_until\030\002 \001(\004\022\022\n\nmax_events\030\003 \001(\r\022\'"
-    "\n\005order\030\004 \001(\0162\030.bgs.protocol.EventOrder\""
-    "\?\n\nViewMarker\022\026\n\016last_read_time\030\001 \001(\004\022\031\n"
-    "\021last_message_time\030\002 \001(\004*7\n\nEventOrder\022\024"
-    "\n\020EVENT_DESCENDING\020\000\022\023\n\017EVENT_ASCENDING\020"
-    "\001B\002H\002", 285);
+    "\n\026event_view_types.proto\022\014bgs.protocol\032$"
+    "api/common/v1/event_view_types.protoB\002H\002"
+    "P\000", 82);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "event_view_types.proto", &protobuf_RegisterTypes);
-  GetEventOptions::default_instance_ = new GetEventOptions();
-  ViewMarker::default_instance_ = new ViewMarker();
-  GetEventOptions::default_instance_->InitAsDefaultInstance();
-  ViewMarker::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_event_5fview_5ftypes_2eproto);
 }
 
@@ -129,172 +66,6 @@ struct StaticDescriptorInitializer_event_5fview_5ftypes_2eproto {
     protobuf_AddDesc_event_5fview_5ftypes_2eproto();
   }
 } static_descriptor_initializer_event_5fview_5ftypes_2eproto_;
-const ::google::protobuf::EnumDescriptor* EventOrder_descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return EventOrder_descriptor_;
-}
-bool EventOrder_IsValid(int value) {
-  switch(value) {
-    case 0:
-    case 1:
-      return true;
-    default:
-      return false;
-  }
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int GetEventOptions::kFetchFromFieldNumber;
-const int GetEventOptions::kFetchUntilFieldNumber;
-const int GetEventOptions::kMaxEventsFieldNumber;
-const int GetEventOptions::kOrderFieldNumber;
-#endif  // !_MSC_VER
-
-GetEventOptions::GetEventOptions()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.GetEventOptions)
-}
-
-void GetEventOptions::InitAsDefaultInstance() {
-}
-
-GetEventOptions::GetEventOptions(const GetEventOptions& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.GetEventOptions)
-}
-
-void GetEventOptions::SharedCtor() {
-  _cached_size_ = 0;
-  fetch_from_ = GOOGLE_ULONGLONG(0);
-  fetch_until_ = GOOGLE_ULONGLONG(0);
-  max_events_ = 0u;
-  order_ = 0;
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-GetEventOptions::~GetEventOptions() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.GetEventOptions)
-  SharedDtor();
-}
-
-void GetEventOptions::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void GetEventOptions::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* GetEventOptions::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return GetEventOptions_descriptor_;
-}
-
-const GetEventOptions& GetEventOptions::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_event_5fview_5ftypes_2eproto();
-  return *default_instance_;
-}
-
-GetEventOptions* GetEventOptions::default_instance_ = NULL;
-
-GetEventOptions* GetEventOptions::New() const {
-  return new GetEventOptions;
-}
-
-void GetEventOptions::Swap(GetEventOptions* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata GetEventOptions::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = GetEventOptions_descriptor_;
-  metadata.reflection = GetEventOptions_reflection_;
-  return metadata;
-}
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int ViewMarker::kLastReadTimeFieldNumber;
-const int ViewMarker::kLastMessageTimeFieldNumber;
-#endif  // !_MSC_VER
-
-ViewMarker::ViewMarker()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:bgs.protocol.ViewMarker)
-}
-
-void ViewMarker::InitAsDefaultInstance() {
-}
-
-ViewMarker::ViewMarker(const ViewMarker& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:bgs.protocol.ViewMarker)
-}
-
-void ViewMarker::SharedCtor() {
-  _cached_size_ = 0;
-  last_read_time_ = GOOGLE_ULONGLONG(0);
-  last_message_time_ = GOOGLE_ULONGLONG(0);
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-ViewMarker::~ViewMarker() {
-  // @@protoc_insertion_point(destructor:bgs.protocol.ViewMarker)
-  SharedDtor();
-}
-
-void ViewMarker::SharedDtor() {
-  if (this != default_instance_) {
-  }
-}
-
-void ViewMarker::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* ViewMarker::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return ViewMarker_descriptor_;
-}
-
-const ViewMarker& ViewMarker::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_event_5fview_5ftypes_2eproto();
-  return *default_instance_;
-}
-
-ViewMarker* ViewMarker::default_instance_ = NULL;
-
-ViewMarker* ViewMarker::New() const {
-  return new ViewMarker;
-}
-
-void ViewMarker::Swap(ViewMarker* other) {
-  if (other != this) {
-    GetReflection()->Swap(this, other);}
-}
-
-::google::protobuf::Metadata ViewMarker::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = ViewMarker_descriptor_;
-  metadata.reflection = ViewMarker_reflection_;
-  return metadata;
-}
-
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace protocol

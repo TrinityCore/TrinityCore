@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -96,6 +97,8 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     if (!curloc)
         return;
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(unit->GetGUID(), PlayerInteractionType::TaxiNode);
+
     bool lastTaxiCheaterState = GetPlayer()->isTaxiCheater();
     if (unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
@@ -133,7 +136,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 
     if (GetPlayer()->m_taxi.SetTaximaskNode(curloc))
     {
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(curloc).Write());
 
         WorldPackets::Taxi::TaxiNodeStatus data;
         data.Unit = unit->GetGUID();
@@ -150,7 +153,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
 {
     if (GetPlayer()->m_taxi.SetTaximaskNode(nodeid))
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(nodeid).Write());
 }
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& activateTaxi)

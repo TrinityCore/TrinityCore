@@ -30,7 +30,7 @@ EndScriptData */
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "SupportMgr.h"
 #include "World.h"
 #include "WorldSession.h"
@@ -132,7 +132,7 @@ bool ticket_commandscript::HandleTicketAssignToCommand(ChatHandler* handler, cha
     ObjectGuid targetGuid = sCharacterCache->GetCharacterGuidByName(target);
     uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(targetGuid);
     // Target must exist and have administrative rights
-    if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realm.Id.Realm))
+    if (!AccountMgr::HasPermission(accountId, rbac::RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, sRealmList->GetCurrentRealmId().Realm))
     {
         handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         return true;
@@ -328,7 +328,7 @@ bool ticket_commandscript::HandleTicketUnAssignCommand(ChatHandler* handler, cha
     {
         ObjectGuid guid = ticket->GetAssignedToGUID();
         uint32 accountId = sCharacterCache->GetCharacterAccountIdByGuid(guid);
-        security = AccountMgr::GetSecurity(accountId, realm.Id.Realm);
+        security = AccountMgr::GetSecurity(accountId, sRealmList->GetCurrentRealmId().Realm);
     }
 
     // Check security

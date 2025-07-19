@@ -23,8 +23,6 @@
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "Util.h"
-#include <boost/preprocessor/repetition/repeat.hpp>
-#include <boost/preprocessor/punctuation/comma_if.hpp>
 #include <fmt/ostream.h>
 #include <string>
 #include <string_view>
@@ -50,21 +48,23 @@ namespace Trinity::Impl::ChatCommands
         using type = typename T::value_type;
     };
 
-    template <size_t N>
-    inline constexpr char GetChar(char const (&s)[N], size_t i)
+    template <std::size_t Size>
+    struct string_literal
     {
-        static_assert(N <= 25, "The EXACT_SEQUENCE macro can only be used with up to 25 character long literals. Specify them char-by-char (null terminated) as parameters to ExactSequence<> instead.");
-        return i >= N ? '\0' : s[i];
-    }
+        constexpr string_literal(char const (&str)[Size])
+        {
+            std::ranges::copy_n(str, Size, value.begin());
+        }
 
-#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR(z, i, strliteral) \
-        BOOST_PP_COMMA_IF(i) Trinity::Impl::ChatCommands::GetChar(strliteral, i)
+        constexpr operator std::string_view() const
+        {
+            return { value.data(), value.size() - 1 };
+        }
 
-#define CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(maxlen, strliteral)  \
-        BOOST_PP_REPEAT(maxlen, CHATCOMMANDS_IMPL_SPLIT_LITERAL_EXTRACT_CHAR, strliteral)
+        std::array<char, Size> value;
+    };
 
-    // this creates always 25 elements - "abc" -> 'a', 'b', 'c', '\0', '\0', ... up to 25
-#define CHATCOMMANDS_IMPL_SPLIT_LITERAL(strliteral) CHATCOMMANDS_IMPL_SPLIT_LITERAL_CONSTRAINED(25, strliteral)
+    TC_GAME_API ChatCommandResult TryConsumExactSequencee(std::string_view sequence, ChatHandler const* handler, std::string_view args);
 }
 
 namespace Trinity::ChatCommands
@@ -83,33 +83,18 @@ namespace Trinity::ChatCommands
     |*                                                                                      *|
     \****************************************************************************************/
 
-    template <char... chars>
+    template <Impl::ChatCommands::string_literal Sequence>
     struct ExactSequence : Trinity::Impl::ChatCommands::ContainerTag
     {
         using value_type = void;
 
         ChatCommandResult TryConsume(ChatHandler const* handler, std::string_view args) const
         {
-            if (args.empty())
-                return std::nullopt;
-            std::string_view start = args.substr(0, _string.length());
-            if (StringEqualI(start, _string))
-            {
-                auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(_string.length()));
-                if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
-                    return tail;
-                start = args.substr(0, _string.length() + remainingToken.length());
-            }
-            return Trinity::Impl::ChatCommands::FormatTrinityString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(_string), STRING_VIEW_FMT_ARG(start));
+            return Trinity::Impl::ChatCommands::TryConsumExactSequencee(Sequence, handler, args);
         }
-
-        private:
-            static constexpr std::array<char, sizeof...(chars)> _storage = { chars... };
-            static_assert(!_storage.empty() && (_storage.back() == '\0'), "ExactSequence parameters must be null terminated! Use the EXACT_SEQUENCE macro to make this easier!");
-            static constexpr std::string_view _string = { _storage.data(), std::string_view::traits_type::length(_storage.data()) };
     };
 
-#define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<CHATCOMMANDS_IMPL_SPLIT_LITERAL(str)>
+#define EXACT_SEQUENCE(str) Trinity::ChatCommands::ExactSequence<str>
 
     struct Tail : std::string_view, Trinity::Impl::ChatCommands::ContainerTag
     {

@@ -26,6 +26,7 @@
 #include <CascLib.h>
 #include <algorithm>
 #include <cstdio>
+#include "advstd.h"
 
 bool ExtractSingleModel(std::string& fname)
 {
@@ -60,15 +61,16 @@ bool ExtractSingleModel(std::string& fname)
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
 
-bool GetHeaderMagic(std::string const& fileName, uint32* magic)
+bool GetHeaderMagic(std::string const& fileName, std::array<char, 4>* magic)
 {
-    *magic = 0;
+    *magic = { };
     std::unique_ptr<CASC::File> file(CascStorage->OpenFile(fileName.c_str(), CASC_LOCALE_ALL_WOW));
     if (!file)
         return false;
 
+    uint32 bytesToRead = uint32(magic->size() * sizeof(std::remove_pointer_t<decltype(magic)>::value_type));
     uint32 bytesRead = 0;
-    if (!file->ReadFile(magic, 4, &bytesRead) || bytesRead != 4)
+    if (!file->ReadFile(magic->data(), bytesToRead, &bytesRead) || bytesRead != bytesToRead)
         return false;
 
     return true;
@@ -115,16 +117,21 @@ void ExtractGameobjectModels()
 
         std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", fileId);
         bool result = false;
-        uint32 header;
-        if (!GetHeaderMagic(fileName, &header))
+        std::array<char, 4> headerRaw;
+        if (!GetHeaderMagic(fileName, &headerRaw))
             continue;
 
-        if (!memcmp(&header, "REVM", 4))
+        std::string_view header(headerRaw.data(), headerRaw.size());
+        if (header == "REVM")
             result = ExtractSingleWmo(fileName);
-        else if (!memcmp(&header, "MD20", 4) || !memcmp(&header, "MD21", 4))
+        else if (header == "MD20" || header == "MD21")
             result = ExtractSingleModel(fileName);
+        else if (header == "BLP2")
+            continue;   // broken db2 data
         else
-            ABORT_MSG("%s header: %d - %c%c%c%c", fileName.c_str(), header, (header >> 24) & 0xFF, (header >> 16) & 0xFF, (header >> 8) & 0xFF, header & 0xFF);
+            ABORT_MSG("%s header: 0x%X%X%X%X - " STRING_VIEW_FMT, fileName.c_str(),
+                uint32(headerRaw[3]), uint32(headerRaw[2]), uint32(headerRaw[1]), uint32(headerRaw[0]),
+                STRING_VIEW_FMT_ARG(header));
 
         if (result)
         {

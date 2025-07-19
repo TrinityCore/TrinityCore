@@ -55,11 +55,11 @@ void WorldSession::HandleArtifactAddPower(WorldPackets::Artifact::ArtifactAddPow
     if (!artifactPowerEntry)
         return;
 
-    if (artifactPowerEntry->Tier > currentArtifactTier)
+    if (uint32(artifactPowerEntry->Tier) > currentArtifactTier)
         return;
 
     uint32 maxRank = artifactPowerEntry->MaxPurchasableRank;
-    if (artifactPowerEntry->Tier < currentArtifactTier)
+    if (uint32(artifactPowerEntry->Tier) < currentArtifactTier)
     {
         if (artifactPowerEntry->Flags & ARTIFACT_POWER_FLAG_FINAL)
             maxRank = 1;

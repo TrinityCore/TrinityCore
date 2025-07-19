@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.36, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.36-0ubuntu0.22.04.1
+-- Server version	8.0.42-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -127,7 +127,6 @@ CREATE TABLE `areatrigger` (
   `PhaseUseFlags` tinyint unsigned DEFAULT '0',
   `PhaseId` int unsigned DEFAULT '0',
   `PhaseGroup` int unsigned DEFAULT '0',
-  `SpellForVisuals` int DEFAULT NULL,
   `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -155,8 +154,9 @@ CREATE TABLE `areatrigger_create_properties` (
   `AnimId` int NOT NULL DEFAULT '-1',
   `AnimKitId` int NOT NULL DEFAULT '0',
   `DecalPropertiesId` int unsigned NOT NULL DEFAULT '0',
-  `TimeToTarget` int unsigned NOT NULL DEFAULT '0',
+  `SpellForVisuals` int DEFAULT NULL,
   `TimeToTargetScale` int unsigned NOT NULL DEFAULT '0',
+  `Speed` float NOT NULL DEFAULT '1',
   `Shape` tinyint unsigned NOT NULL DEFAULT '0',
   `ShapeData0` float NOT NULL DEFAULT '0',
   `ShapeData1` float NOT NULL DEFAULT '0',
@@ -302,6 +302,8 @@ CREATE TABLE `areatrigger_template` (
   `Id` int unsigned NOT NULL,
   `IsCustom` tinyint unsigned NOT NULL,
   `Flags` int unsigned NOT NULL DEFAULT '0',
+  `ActionSetId` int unsigned NOT NULL DEFAULT '0',
+  `ActionSetFlags` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`,`IsCustom`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -741,8 +743,8 @@ DROP TABLE IF EXISTS `creature_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creature_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -750,7 +752,7 @@ CREATE TABLE `creature_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1196,7 +1198,7 @@ CREATE TABLE `creature_text` (
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
   `Text` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Type` tinyint unsigned NOT NULL DEFAULT '0',
-  `Language` tinyint NOT NULL DEFAULT '0',
+  `Language` tinyint unsigned NOT NULL DEFAULT '0',
   `Probability` float NOT NULL DEFAULT '0',
   `Emote` int unsigned NOT NULL DEFAULT '0',
   `Duration` int unsigned NOT NULL DEFAULT '0',
@@ -1301,8 +1303,8 @@ DROP TABLE IF EXISTS `disenchant_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `disenchant_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1310,7 +1312,7 @@ CREATE TABLE `disenchant_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1373,8 +1375,8 @@ DROP TABLE IF EXISTS `fishing_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `fishing_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1382,7 +1384,7 @@ CREATE TABLE `fishing_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1628,7 +1630,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2167 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2291 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1723,8 +1725,8 @@ DROP TABLE IF EXISTS `gameobject_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `gameobject_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -1732,7 +1734,7 @@ CREATE TABLE `gameobject_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1808,7 +1810,7 @@ CREATE TABLE `gameobject_template` (
   `entry` int unsigned NOT NULL DEFAULT '0',
   `type` tinyint unsigned NOT NULL DEFAULT '0',
   `displayId` int unsigned NOT NULL DEFAULT '0',
-  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `IconName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `castBarCaption` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `unk1` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -1964,6 +1966,7 @@ DROP TABLE IF EXISTS `gossip_menu_addon`;
 CREATE TABLE `gossip_menu_addon` (
   `MenuID` int unsigned NOT NULL DEFAULT '0',
   `FriendshipFactionID` int NOT NULL DEFAULT '0',
+  `LfgDungeonsID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`MenuID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1989,7 +1992,7 @@ CREATE TABLE `gossip_menu_option` (
   `ActionPoiID` int unsigned NOT NULL DEFAULT '0',
   `GossipNpcOptionID` int DEFAULT NULL,
   `BoxCoded` tinyint unsigned NOT NULL DEFAULT '0',
-  `BoxMoney` int unsigned NOT NULL DEFAULT '0',
+  `BoxMoney` bigint unsigned NOT NULL DEFAULT '0',
   `BoxText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `BoxBroadcastTextID` int unsigned NOT NULL DEFAULT '0',
   `SpellID` int DEFAULT NULL,
@@ -2102,8 +2105,8 @@ DROP TABLE IF EXISTS `item_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2111,7 +2114,7 @@ CREATE TABLE `item_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2259,8 +2262,8 @@ DROP TABLE IF EXISTS `mail_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `mail_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2268,7 +2271,7 @@ CREATE TABLE `mail_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2281,8 +2284,8 @@ DROP TABLE IF EXISTS `milling_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `milling_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2290,7 +2293,7 @@ CREATE TABLE `milling_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2503,8 +2506,8 @@ DROP TABLE IF EXISTS `pickpocketing_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pickpocketing_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -2512,7 +2515,7 @@ CREATE TABLE `pickpocketing_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2526,10 +2529,10 @@ DROP TABLE IF EXISTS `player_classlevelstats`;
 CREATE TABLE `player_classlevelstats` (
   `class` tinyint unsigned NOT NULL,
   `level` tinyint unsigned NOT NULL,
-  `str` smallint unsigned NOT NULL COMMENT 'strength',
-  `agi` smallint unsigned NOT NULL COMMENT 'agility',
-  `sta` smallint unsigned NOT NULL COMMENT 'stamina',
-  `inte` smallint unsigned NOT NULL COMMENT 'intellect',
+  `str` int NOT NULL COMMENT 'strength',
+  `agi` int NOT NULL COMMENT 'agility',
+  `sta` int NOT NULL COMMENT 'stamina',
+  `inte` int NOT NULL COMMENT 'intellect',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`class`,`level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Stores levels stats.';
@@ -2741,7 +2744,6 @@ CREATE TABLE `playerchoice_response_maw_power` (
   `ResponseId` int NOT NULL,
   `TypeArtFileID` int DEFAULT '0',
   `Rarity` int DEFAULT '0',
-  `RarityColor` int unsigned DEFAULT '0',
   `SpellID` int DEFAULT '0',
   `MaxStacks` int DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -3021,8 +3023,8 @@ DROP TABLE IF EXISTS `prospecting_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `prospecting_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -3030,7 +3032,7 @@ CREATE TABLE `prospecting_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3467,6 +3469,7 @@ CREATE TABLE `quest_template` (
   `Flags` int unsigned NOT NULL DEFAULT '0',
   `FlagsEx` int unsigned NOT NULL DEFAULT '0',
   `FlagsEx2` int unsigned NOT NULL DEFAULT '0',
+  `FlagsEx3` int unsigned NOT NULL DEFAULT '0',
   `RewardItem1` int unsigned NOT NULL DEFAULT '0',
   `RewardAmount1` int unsigned NOT NULL DEFAULT '0',
   `RewardItem2` int unsigned NOT NULL DEFAULT '0',
@@ -3547,7 +3550,6 @@ CREATE TABLE `quest_template` (
   `AreaGroupID` int unsigned NOT NULL DEFAULT '0',
   `TimeAllowed` bigint NOT NULL DEFAULT '0',
   `AllowableRaces` bigint unsigned DEFAULT '0',
-  `TreasurePickerID` int NOT NULL DEFAULT '0',
   `Expansion` int NOT NULL DEFAULT '0',
   `ManagedWorldStateID` int NOT NULL DEFAULT '0',
   `QuestSessionBonus` int NOT NULL DEFAULT '0',
@@ -3560,6 +3562,7 @@ CREATE TABLE `quest_template` (
   `PortraitTurnInText` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `PortraitTurnInName` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `QuestCompletionLog` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `ResetByScheduler` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quest System';
@@ -3621,6 +3624,21 @@ CREATE TABLE `quest_template_locale` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `quest_treasure_pickers`
+--
+
+DROP TABLE IF EXISTS `quest_treasure_pickers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `quest_treasure_pickers` (
+  `QuestID` int unsigned NOT NULL,
+  `TreasurePickerID` int NOT NULL,
+  `OrderIndex` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`QuestID`,`TreasurePickerID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `quest_visual_effect`
 --
 
@@ -3660,8 +3678,8 @@ DROP TABLE IF EXISTS `reference_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reference_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -3669,7 +3687,7 @@ CREATE TABLE `reference_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3863,6 +3881,7 @@ CREATE TABLE `serverside_spell` (
   `AttributesEx12` int unsigned NOT NULL DEFAULT '0',
   `AttributesEx13` int unsigned NOT NULL DEFAULT '0',
   `AttributesEx14` int unsigned NOT NULL DEFAULT '0',
+  `AttributesEx15` int unsigned NOT NULL DEFAULT '0',
   `Stances` bigint unsigned NOT NULL DEFAULT '0',
   `StancesNot` bigint unsigned NOT NULL DEFAULT '0',
   `Targets` int unsigned NOT NULL DEFAULT '0',
@@ -4074,8 +4093,8 @@ DROP TABLE IF EXISTS `skinning_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `skinning_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -4083,7 +4102,7 @@ CREATE TABLE `skinning_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4161,6 +4180,75 @@ CREATE TABLE `spawn_group_template` (
   `groupName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `groupFlags` int unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`groupId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spawn_tracking`
+--
+
+DROP TABLE IF EXISTS `spawn_tracking`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spawn_tracking` (
+  `SpawnTrackingId` int unsigned NOT NULL,
+  `SpawnType` tinyint unsigned NOT NULL,
+  `SpawnId` bigint unsigned NOT NULL,
+  `QuestObjectiveId` int unsigned NOT NULL,
+  PRIMARY KEY (`SpawnTrackingId`,`SpawnType`,`SpawnId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spawn_tracking_quest_objective`
+--
+
+DROP TABLE IF EXISTS `spawn_tracking_quest_objective`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spawn_tracking_quest_objective` (
+  `SpawnTrackingId` int unsigned NOT NULL,
+  `QuestObjectiveId` int unsigned NOT NULL,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`SpawnTrackingId`,`QuestObjectiveId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spawn_tracking_state`
+--
+
+DROP TABLE IF EXISTS `spawn_tracking_state`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spawn_tracking_state` (
+  `SpawnType` tinyint unsigned NOT NULL,
+  `SpawnId` bigint unsigned NOT NULL,
+  `State` tinyint unsigned NOT NULL DEFAULT '0',
+  `Visible` tinyint unsigned NOT NULL DEFAULT '1',
+  `StateSpellVisualId` int unsigned DEFAULT NULL,
+  `StateAnimId` smallint unsigned DEFAULT NULL,
+  `StateAnimKitId` smallint unsigned DEFAULT NULL,
+  `StateWorldEffects` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`SpawnType`,`SpawnId`,`State`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `spawn_tracking_template`
+--
+
+DROP TABLE IF EXISTS `spawn_tracking_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `spawn_tracking_template` (
+  `SpawnTrackingId` int unsigned NOT NULL,
+  `MapId` smallint unsigned NOT NULL DEFAULT '0',
+  `PhaseId` int NOT NULL DEFAULT '0',
+  `PhaseGroup` int NOT NULL DEFAULT '0',
+  `PhaseUseFlags` tinyint unsigned NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`SpawnTrackingId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4285,8 +4373,8 @@ DROP TABLE IF EXISTS `spell_loot_template`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `spell_loot_template` (
   `Entry` int unsigned NOT NULL DEFAULT '0',
+  `ItemType` tinyint NOT NULL DEFAULT '0',
   `Item` int unsigned NOT NULL DEFAULT '0',
-  `Reference` int unsigned NOT NULL DEFAULT '0',
   `Chance` float NOT NULL DEFAULT '100',
   `QuestRequired` tinyint(1) NOT NULL DEFAULT '0',
   `LootMode` smallint unsigned NOT NULL DEFAULT '1',
@@ -4294,7 +4382,7 @@ CREATE TABLE `spell_loot_template` (
   `MinCount` tinyint unsigned NOT NULL DEFAULT '1',
   `MaxCount` tinyint unsigned NOT NULL DEFAULT '1',
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`Entry`,`Item`)
+  KEY `idx_primary` (`Entry`,`ItemType`,`Item`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Loot System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4405,13 +4493,14 @@ DROP TABLE IF EXISTS `spell_target_position`;
 CREATE TABLE `spell_target_position` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `EffectIndex` tinyint unsigned NOT NULL DEFAULT '0',
+  `OrderIndex` int NOT NULL DEFAULT '0',
   `MapID` smallint unsigned NOT NULL DEFAULT '0',
   `PositionX` float NOT NULL DEFAULT '0',
   `PositionY` float NOT NULL DEFAULT '0',
   `PositionZ` float NOT NULL DEFAULT '0',
   `Orientation` float DEFAULT NULL,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`ID`,`EffectIndex`)
+  PRIMARY KEY (`ID`,`EffectIndex`,`OrderIndex`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Spell System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -4573,6 +4662,36 @@ CREATE TABLE `trinity_string` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ui_map_quest`
+--
+
+DROP TABLE IF EXISTS `ui_map_quest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ui_map_quest` (
+  `UiMapId` int unsigned NOT NULL,
+  `QuestId` int unsigned NOT NULL,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UiMapId`,`QuestId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ui_map_quest_line`
+--
+
+DROP TABLE IF EXISTS `ui_map_quest_line`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ui_map_quest_line` (
+  `UiMapId` int unsigned NOT NULL,
+  `QuestLineId` int unsigned NOT NULL,
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`UiMapId`,`QuestLineId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `updates`
 --
 
@@ -4618,6 +4737,7 @@ CREATE TABLE `vehicle_accessory` (
   `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
+  `RideSpellID` int DEFAULT NULL,
   PRIMARY KEY (`guid`,`seat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4651,6 +4771,7 @@ DROP TABLE IF EXISTS `vehicle_template`;
 CREATE TABLE `vehicle_template` (
   `creatureId` int unsigned NOT NULL,
   `despawnDelayMs` int NOT NULL DEFAULT '0',
+  `Pitch` float DEFAULT NULL,
   PRIMARY KEY (`creatureId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4670,6 +4791,7 @@ CREATE TABLE `vehicle_template_accessory` (
   `description` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `summontype` tinyint unsigned NOT NULL DEFAULT '6' COMMENT 'see enum TempSummonType',
   `summontimer` int unsigned NOT NULL DEFAULT '30000' COMMENT 'timer, only relevant for certain summontypes',
+  `RideSpellID` int DEFAULT NULL,
   PRIMARY KEY (`entry`,`seat_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4844,6 +4966,7 @@ CREATE TABLE `world_safe_locs` (
   `LocY` float DEFAULT NULL,
   `LocZ` float DEFAULT NULL,
   `Facing` float DEFAULT NULL,
+  `TransportSpawnId` bigint unsigned DEFAULT NULL,
   `Comment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -4883,7 +5006,7 @@ CREATE TABLE `world_state` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_conditions_with_labels` AS select (case when (`conditions`.`SourceTypeOrReferenceId` = 0) then 'CONDITION_SOURCE_TYPE_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 1) then 'CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 2) then 'CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 3) then 'CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 4) then 'CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 5) then 'CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 6) then 'CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 7) then 'CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 8) then 'CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 9) then 'CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 10) then 'CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 11) then 'CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 12) then 'CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE' when (`conditions`.`SourceTypeOrReferenceId` = 13) then 'CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET' when (`conditions`.`SourceTypeOrReferenceId` = 14) then 'CONDITION_SOURCE_TYPE_GOSSIP_MENU' when (`conditions`.`SourceTypeOrReferenceId` = 15) then 'CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION' when (`conditions`.`SourceTypeOrReferenceId` = 16) then 'CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE' when (`conditions`.`SourceTypeOrReferenceId` = 17) then 'CONDITION_SOURCE_TYPE_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 18) then 'CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 19) then 'CONDITION_SOURCE_TYPE_QUEST_AVAILABLE' when (`conditions`.`SourceTypeOrReferenceId` = 21) then 'CONDITION_SOURCE_TYPE_VEHICLE_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 22) then 'CONDITION_SOURCE_TYPE_SMART_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 23) then 'CONDITION_SOURCE_TYPE_NPC_VENDOR' when (`conditions`.`SourceTypeOrReferenceId` = 24) then 'CONDITION_SOURCE_TYPE_SPELL_PROC' when (`conditions`.`SourceTypeOrReferenceId` = 25) then 'CONDITION_SOURCE_TYPE_TERRAIN_SWAP' when (`conditions`.`SourceTypeOrReferenceId` = 26) then 'CONDITION_SOURCE_TYPE_PHASE' when (`conditions`.`SourceTypeOrReferenceId` = 27) then 'CONDITION_SOURCE_TYPE_GRAVEYARD' when (`conditions`.`SourceTypeOrReferenceId` = 28) then 'CONDITION_SOURCE_TYPE_AREATRIGGER' when (`conditions`.`SourceTypeOrReferenceId` = 29) then 'CONDITION_SOURCE_TYPE_CONVERSATION_LINE' when (`conditions`.`SourceTypeOrReferenceId` = 30) then 'CONDITION_SOURCE_TYPE_AREATRIGGER_CLIENT_TRIGGERED' when (`conditions`.`SourceTypeOrReferenceId` = 31) then 'CONDITION_SOURCE_TYPE_TRAINER_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 32) then 'CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY' else `conditions`.`SourceTypeOrReferenceId` end) AS `SourceTypeOrReferenceId`,`conditions`.`SourceGroup` AS `SourceGroup`,`conditions`.`SourceEntry` AS `SourceEntry`,`conditions`.`SourceId` AS `SourceId`,`conditions`.`ElseGroup` AS `ElseGroup`,(case when (`conditions`.`SourceTypeOrReferenceId` = 0) then 'CONDITION_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 1) then 'CONDITION_AURA' when (`conditions`.`SourceTypeOrReferenceId` = 2) then 'CONDITION_ITEM' when (`conditions`.`SourceTypeOrReferenceId` = 3) then 'CONDITION_ITEM_EQUIPPED' when (`conditions`.`SourceTypeOrReferenceId` = 4) then 'CONDITION_ZONEID' when (`conditions`.`SourceTypeOrReferenceId` = 5) then 'CONDITION_REPUTATION_RANK' when (`conditions`.`SourceTypeOrReferenceId` = 6) then 'CONDITION_TEAM' when (`conditions`.`SourceTypeOrReferenceId` = 7) then 'CONDITION_SKILL' when (`conditions`.`SourceTypeOrReferenceId` = 8) then 'CONDITION_QUESTREWARDED' when (`conditions`.`SourceTypeOrReferenceId` = 9) then 'CONDITION_QUESTTAKEN' when (`conditions`.`SourceTypeOrReferenceId` = 10) then 'CONDITION_DRUNKENSTATE' when (`conditions`.`SourceTypeOrReferenceId` = 11) then 'CONDITION_WORLD_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 12) then 'CONDITION_ACTIVE_EVENT' when (`conditions`.`SourceTypeOrReferenceId` = 13) then 'CONDITION_INSTANCE_INFO' when (`conditions`.`SourceTypeOrReferenceId` = 14) then 'CONDITION_QUEST_NONE' when (`conditions`.`SourceTypeOrReferenceId` = 15) then 'CONDITION_CLASS' when (`conditions`.`SourceTypeOrReferenceId` = 16) then 'CONDITION_RACE' when (`conditions`.`SourceTypeOrReferenceId` = 17) then 'CONDITION_ACHIEVEMENT' when (`conditions`.`SourceTypeOrReferenceId` = 18) then 'CONDITION_TITLE' when (`conditions`.`SourceTypeOrReferenceId` = 19) then 'CONDITION_SPAWNMASK' when (`conditions`.`SourceTypeOrReferenceId` = 20) then 'CONDITION_GENDER' when (`conditions`.`SourceTypeOrReferenceId` = 21) then 'CONDITION_UNIT_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 22) then 'CONDITION_MAPID' when (`conditions`.`SourceTypeOrReferenceId` = 23) then 'CONDITION_AREAID' when (`conditions`.`SourceTypeOrReferenceId` = 24) then 'CONDITION_CREATURE_TYPE' when (`conditions`.`SourceTypeOrReferenceId` = 25) then 'CONDITION_SPELL' when (`conditions`.`SourceTypeOrReferenceId` = 26) then 'CONDITION_PHASEMASK' when (`conditions`.`SourceTypeOrReferenceId` = 27) then 'CONDITION_LEVEL' when (`conditions`.`SourceTypeOrReferenceId` = 28) then 'CONDITION_QUEST_COMPLETE' when (`conditions`.`SourceTypeOrReferenceId` = 29) then 'CONDITION_NEAR_CREATURE' when (`conditions`.`SourceTypeOrReferenceId` = 30) then 'CONDITION_NEAR_GAMEOBJECT' when (`conditions`.`SourceTypeOrReferenceId` = 31) then 'CONDITION_OBJECT_ENTRY_GUID_LEGACY' when (`conditions`.`SourceTypeOrReferenceId` = 32) then 'CONDITION_TYPE_MASK_LEGACY' when (`conditions`.`SourceTypeOrReferenceId` = 33) then 'CONDITION_RELATION_TO' when (`conditions`.`SourceTypeOrReferenceId` = 34) then 'CONDITION_REACTION_TO' when (`conditions`.`SourceTypeOrReferenceId` = 35) then 'CONDITION_DISTANCE_TO' when (`conditions`.`SourceTypeOrReferenceId` = 36) then 'CONDITION_ALIVE' when (`conditions`.`SourceTypeOrReferenceId` = 37) then 'CONDITION_HP_VAL' when (`conditions`.`SourceTypeOrReferenceId` = 38) then 'CONDITION_HP_PCT' when (`conditions`.`SourceTypeOrReferenceId` = 39) then 'CONDITION_REALM_ACHIEVEMENT' when (`conditions`.`SourceTypeOrReferenceId` = 40) then 'CONDITION_IN_WATER' when (`conditions`.`SourceTypeOrReferenceId` = 41) then 'CONDITION_TERRAIN_SWAP' when (`conditions`.`SourceTypeOrReferenceId` = 42) then 'CONDITION_STAND_STATE' when (`conditions`.`SourceTypeOrReferenceId` = 43) then 'CONDITION_DAILY_QUEST_DONE' when (`conditions`.`SourceTypeOrReferenceId` = 44) then 'CONDITION_CHARMED' when (`conditions`.`SourceTypeOrReferenceId` = 45) then 'CONDITION_PET_TYPE' when (`conditions`.`SourceTypeOrReferenceId` = 46) then 'CONDITION_TAXI' when (`conditions`.`SourceTypeOrReferenceId` = 47) then 'CONDITION_QUESTSTATE' when (`conditions`.`SourceTypeOrReferenceId` = 48) then 'CONDITION_QUEST_OBJECTIVE_PROGRESS' when (`conditions`.`SourceTypeOrReferenceId` = 49) then 'CONDITION_DIFFICULTY_ID' when (`conditions`.`SourceTypeOrReferenceId` = 50) then 'CONDITION_GAMEMASTER' when (`conditions`.`SourceTypeOrReferenceId` = 51) then 'CONDITION_OBJECT_ENTRY_GUID' when (`conditions`.`SourceTypeOrReferenceId` = 52) then 'CONDITION_TYPE_MASK' else `conditions`.`ConditionTypeOrReference` end) AS `ConditionTypeOrReference`,`conditions`.`ConditionTarget` AS `ConditionTarget`,`conditions`.`ConditionValue1` AS `ConditionValue1`,`conditions`.`ConditionValue2` AS `ConditionValue2`,`conditions`.`ConditionValue3` AS `ConditionValue3`,`conditions`.`NegativeCondition` AS `NegativeCondition`,`conditions`.`ErrorType` AS `ErrorType`,`conditions`.`ErrorTextId` AS `ErrorTextId`,`conditions`.`ScriptName` AS `ScriptName`,`conditions`.`Comment` AS `Comment` from `conditions` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4901,7 +5024,7 @@ CREATE TABLE `world_state` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_disables_with_labels` AS select (case when (`disables`.`sourceType` = 0) then 'DISABLE_TYPE_SPELL' when (`disables`.`sourceType` = 1) then 'DISABLE_TYPE_QUEST' when (`disables`.`sourceType` = 2) then 'DISABLE_TYPE_MAP' when (`disables`.`sourceType` = 3) then 'DISABLE_TYPE_BATTLEGROUND' when (`disables`.`sourceType` = 4) then 'DISABLE_TYPE_ACHIEVEMENT_CRITERIA' when (`disables`.`sourceType` = 5) then 'DISABLE_TYPE_OUTDOORPVP' when (`disables`.`sourceType` = 6) then 'DISABLE_TYPE_VMAP' when (`disables`.`sourceType` = 7) then 'DISABLE_TYPE_MMAP' when (`disables`.`sourceType` = 8) then 'DISABLE_TYPE_LFG_MAP' else `disables`.`sourceType` end) AS `sourceType`,`disables`.`entry` AS `entry`,`disables`.`flags` AS `flags`,`disables`.`params_0` AS `params_0`,`disables`.`params_1` AS `params_1`,`disables`.`comment` AS `comment` from `disables` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4919,7 +5042,7 @@ CREATE TABLE `world_state` (
 /*!50001 SET character_set_results     = utf8mb3 */;
 /*!50001 SET collation_connection      = utf8mb3_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
-/*!50013 */
+/*!50013 SQL SECURITY DEFINER */
 /*!50001 VIEW `vw_smart_scripts_with_labels` AS select `smart_scripts`.`entryorguid` AS `entryorguid`,`smart_scripts`.`source_type` AS `source_type`,`smart_scripts`.`id` AS `id`,`smart_scripts`.`link` AS `link`,(case `smart_scripts`.`event_type` when 0 then 'SMART_EVENT_UPDATE_IC' when 1 then 'SMART_EVENT_UPDATE_OOC' when 2 then 'SMART_EVENT_HEALTH_PCT' when 3 then 'SMART_EVENT_MANA_PCT' when 4 then 'SMART_EVENT_AGGRO' when 5 then 'SMART_EVENT_KILL' when 6 then 'SMART_EVENT_DEATH' when 7 then 'SMART_EVENT_EVADE' when 8 then 'SMART_EVENT_SPELLHIT' when 9 then 'SMART_EVENT_RANGE' when 10 then 'SMART_EVENT_OOC_LOS' when 11 then 'SMART_EVENT_RESPAWN' when 12 then 'SMART_EVENT_TARGET_HEALTH_PCT' when 13 then 'SMART_EVENT_VICTIM_CASTING' when 14 then 'SMART_EVENT_FRIENDLY_HEALTH' when 15 then 'SMART_EVENT_FRIENDLY_IS_CC' when 16 then 'SMART_EVENT_FRIENDLY_MISSING_BUFF' when 17 then 'SMART_EVENT_SUMMONED_UNIT' when 18 then 'SMART_EVENT_TARGET_MANA_PCT' when 19 then 'SMART_EVENT_ACCEPTED_QUEST' when 20 then 'SMART_EVENT_REWARD_QUEST' when 21 then 'SMART_EVENT_REACHED_HOME' when 22 then 'SMART_EVENT_RECEIVE_EMOTE' when 23 then 'SMART_EVENT_HAS_AURA' when 24 then 'SMART_EVENT_TARGET_BUFFED' when 25 then 'SMART_EVENT_RESET' when 26 then 'SMART_EVENT_IC_LOS' when 27 then 'SMART_EVENT_PASSENGER_BOARDED' when 28 then 'SMART_EVENT_PASSENGER_REMOVED' when 29 then 'SMART_EVENT_CHARMED' when 30 then 'SMART_EVENT_CHARMED_TARGET' when 31 then 'SMART_EVENT_SPELLHIT_TARGET' when 32 then 'SMART_EVENT_DAMAGED' when 33 then 'SMART_EVENT_DAMAGED_TARGET' when 34 then 'SMART_EVENT_MOVEMENTINFORM' when 35 then 'SMART_EVENT_SUMMON_DESPAWNED' when 36 then 'SMART_EVENT_CORPSE_REMOVED' when 37 then 'SMART_EVENT_AI_INIT' when 38 then 'SMART_EVENT_DATA_SET' when 39 then 'SMART_EVENT_WAYPOINT_START' when 40 then 'SMART_EVENT_WAYPOINT_REACHED' when 41 then 'SMART_EVENT_TRANSPORT_ADDPLAYER' when 42 then 'SMART_EVENT_TRANSPORT_ADDCREATURE' when 43 then 'SMART_EVENT_TRANSPORT_REMOVE_PLAYER' when 44 then 'SMART_EVENT_TRANSPORT_RELOCATE' when 45 then 'SMART_EVENT_INSTANCE_PLAYER_ENTER' when 46 then 'SMART_EVENT_AREATRIGGER_ONTRIGGER' when 47 then 'SMART_EVENT_QUEST_ACCEPTED' when 48 then 'SMART_EVENT_QUEST_OBJ_COPLETETION' when 49 then 'SMART_EVENT_QUEST_COMPLETION' when 50 then 'SMART_EVENT_QUEST_REWARDED' when 51 then 'SMART_EVENT_QUEST_FAIL' when 52 then 'SMART_EVENT_TEXT_OVER' when 53 then 'SMART_EVENT_RECEIVE_HEAL' when 54 then 'SMART_EVENT_JUST_SUMMONED' when 55 then 'SMART_EVENT_WAYPOINT_PAUSED' when 56 then 'SMART_EVENT_WAYPOINT_RESUMED' when 57 then 'SMART_EVENT_WAYPOINT_STOPPED' when 58 then 'SMART_EVENT_WAYPOINT_ENDED' when 59 then 'SMART_EVENT_TIMED_EVENT_TRIGGERED' when 60 then 'SMART_EVENT_UPDATE' when 61 then 'SMART_EVENT_LINK' when 62 then 'SMART_EVENT_GOSSIP_SELECT' when 63 then 'SMART_EVENT_JUST_CREATED' when 64 then 'SMART_EVENT_GOSSIP_HELLO' when 65 then 'SMART_EVENT_FOLLOW_COMPLETED' when 66 then 'SMART_EVENT_EVENT_PHASE_CHANGE' when 67 then 'SMART_EVENT_IS_BEHIND_TARGET' when 68 then 'SMART_EVENT_GAME_EVENT_START' when 69 then 'SMART_EVENT_GAME_EVENT_END' when 70 then 'SMART_EVENT_GO_LOOT_STATE_CHANGED' when 71 then 'SMART_EVENT_GO_EVENT_INFORM' when 72 then 'SMART_EVENT_ACTION_DONE' when 73 then 'SMART_EVENT_ON_SPELLCLICK' when 74 then 'SMART_EVENT_FRIENDLY_HEALTH_PCT' when 75 then 'SMART_EVENT_DISTANCE_CREATURE' when 76 then 'SMART_EVENT_DISTANCE_GAMEOBJECT' when 77 then 'SMART_EVENT_COUNTER_SET' when 78 then 'SMART_EVENT_SCENE_START' when 79 then 'SMART_EVENT_SCENE_TRIGGER' when 80 then 'SMART_EVENT_SCENE_CANCEL' when 81 then 'SMART_EVENT_SCENE_COMPLETE' when 82 then 'SMART_EVENT_SUMMONED_UNIT_DIES' else `smart_scripts`.`event_type` end) AS `event_type`,`smart_scripts`.`event_phase_mask` AS `event_phase_mask`,`smart_scripts`.`event_chance` AS `event_chance`,`smart_scripts`.`event_flags` AS `event_flags`,`smart_scripts`.`event_param1` AS `event_param1`,`smart_scripts`.`event_param2` AS `event_param2`,`smart_scripts`.`event_param3` AS `event_param3`,`smart_scripts`.`event_param4` AS `event_param4`,`smart_scripts`.`event_param5` AS `event_param5`,(case `smart_scripts`.`action_type` when 0 then 'SMART_ACTION_NONE' when 1 then 'SMART_ACTION_TALK' when 2 then 'SMART_ACTION_SET_FACTION' when 3 then 'SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL' when 4 then 'SMART_ACTION_SOUND' when 5 then 'SMART_ACTION_PLAY_EMOTE' when 6 then 'SMART_ACTION_FAIL_QUEST' when 7 then 'SMART_ACTION_OFFER_QUEST' when 8 then 'SMART_ACTION_SET_REACT_STATE' when 9 then 'SMART_ACTION_ACTIVATE_GOBJECT' when 10 then 'SMART_ACTION_RANDOM_EMOTE' when 11 then 'SMART_ACTION_CAST' when 12 then 'SMART_ACTION_SUMMON_CREATURE' when 13 then 'SMART_ACTION_THREAT_SINGLE_PCT' when 14 then 'SMART_ACTION_THREAT_ALL_PCT' when 15 then 'SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS' when 16 then 'SMART_ACTION_SET_INGAME_PHASE_GROUP' when 17 then 'SMART_ACTION_SET_EMOTE_STATE' when 18 then 'SMART_ACTION_SET_UNIT_FLAG' when 19 then 'SMART_ACTION_REMOVE_UNIT_FLAG' when 20 then 'SMART_ACTION_AUTO_ATTACK' when 21 then 'SMART_ACTION_ALLOW_COMBAT_MOVEMENT' when 22 then 'SMART_ACTION_SET_EVENT_PHASE' when 23 then 'SMART_ACTION_INC_EVENT_PHASE' when 24 then 'SMART_ACTION_EVADE' when 25 then 'SMART_ACTION_FLEE_FOR_ASSIST' when 26 then 'SMART_ACTION_CALL_GROUPEVENTHAPPENS' when 27 then 'SMART_ACTION_COMBAT_STOP' when 28 then 'SMART_ACTION_REMOVEAURASFROMSPELL' when 29 then 'SMART_ACTION_FOLLOW' when 30 then 'SMART_ACTION_RANDOM_PHASE' when 31 then 'SMART_ACTION_RANDOM_PHASE_RANGE' when 32 then 'SMART_ACTION_RESET_GOBJECT' when 33 then 'SMART_ACTION_CALL_KILLEDMONSTER' when 34 then 'SMART_ACTION_SET_INST_DATA' when 35 then 'SMART_ACTION_SET_INST_DATA64' when 36 then 'SMART_ACTION_UPDATE_TEMPLATE' when 37 then 'SMART_ACTION_DIE' when 38 then 'SMART_ACTION_SET_IN_COMBAT_WITH_ZONE' when 39 then 'SMART_ACTION_CALL_FOR_HELP' when 40 then 'SMART_ACTION_SET_SHEATH' when 41 then 'SMART_ACTION_FORCE_DESPAWN' when 42 then 'SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL' when 43 then 'SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL' when 44 then 'SMART_ACTION_SET_INGAME_PHASE_ID' when 45 then 'SMART_ACTION_SET_DATA' when 46 then 'SMART_ACTION_ATTACK_STOP' when 47 then 'SMART_ACTION_SET_VISIBILITY' when 48 then 'SMART_ACTION_SET_ACTIVE' when 49 then 'SMART_ACTION_ATTACK_START' when 50 then 'SMART_ACTION_SUMMON_GO' when 51 then 'SMART_ACTION_KILL_UNIT' when 52 then 'SMART_ACTION_ACTIVATE_TAXI' when 53 then 'SMART_ACTION_WP_START' when 54 then 'SMART_ACTION_WP_PAUSE' when 55 then 'SMART_ACTION_WP_STOP' when 56 then 'SMART_ACTION_ADD_ITEM' when 57 then 'SMART_ACTION_REMOVE_ITEM' when 58 then 'SMART_ACTION_INSTALL_AI_TEMPLATE' when 59 then 'SMART_ACTION_SET_RUN' when 60 then 'SMART_ACTION_SET_DISABLE_GRAVITY' when 61 then 'SMART_ACTION_SET_SWIM' when 62 then 'SMART_ACTION_TELEPORT' when 63 then 'SMART_ACTION_SET_COUNTER' when 64 then 'SMART_ACTION_STORE_TARGET_LIST' when 65 then 'SMART_ACTION_WP_RESUME' when 66 then 'SMART_ACTION_SET_ORIENTATION' when 67 then 'SMART_ACTION_CREATE_TIMED_EVENT' when 68 then 'SMART_ACTION_PLAYMOVIE' when 69 then 'SMART_ACTION_MOVE_TO_POS' when 70 then 'SMART_ACTION_ENABLE_TEMP_GOBJ' when 71 then 'SMART_ACTION_EQUIP' when 72 then 'SMART_ACTION_CLOSE_GOSSIP' when 73 then 'SMART_ACTION_TRIGGER_TIMED_EVENT' when 74 then 'SMART_ACTION_REMOVE_TIMED_EVENT' when 75 then 'SMART_ACTION_ADD_AURA' when 76 then 'SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT' when 77 then 'SMART_ACTION_RESET_SCRIPT_BASE_OBJECT' when 78 then 'SMART_ACTION_CALL_SCRIPT_RESET' when 79 then 'SMART_ACTION_SET_RANGED_MOVEMENT' when 80 then 'SMART_ACTION_CALL_TIMED_ACTIONLIST' when 81 then 'SMART_ACTION_SET_NPC_FLAG' when 82 then 'SMART_ACTION_ADD_NPC_FLAG' when 83 then 'SMART_ACTION_REMOVE_NPC_FLAG' when 84 then 'SMART_ACTION_SIMPLE_TALK' when 85 then 'SMART_ACTION_SELF_CAST' when 86 then 'SMART_ACTION_CROSS_CAST' when 87 then 'SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST' when 88 then 'SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST' when 89 then 'SMART_ACTION_RANDOM_MOVE' when 90 then 'SMART_ACTION_SET_UNIT_FIELD_BYTES_1' when 91 then 'SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1' when 92 then 'SMART_ACTION_INTERRUPT_SPELL' when 93 then 'SMART_ACTION_SEND_GO_CUSTOM_ANIM' when 94 then 'SMART_ACTION_SET_DYNAMIC_FLAG' when 95 then 'SMART_ACTION_ADD_DYNAMIC_FLAG' when 96 then 'SMART_ACTION_REMOVE_DYNAMIC_FLAG' when 97 then 'SMART_ACTION_JUMP_TO_POS' when 98 then 'SMART_ACTION_SEND_GOSSIP_MENU' when 99 then 'SMART_ACTION_GO_SET_LOOT_STATE' when 100 then 'SMART_ACTION_SEND_TARGET_TO_TARGET' when 101 then 'SMART_ACTION_SET_HOME_POS' when 102 then 'SMART_ACTION_SET_HEALTH_REGEN' when 103 then 'SMART_ACTION_SET_ROOT' when 104 then 'SMART_ACTION_SET_GO_FLAG' when 105 then 'SMART_ACTION_ADD_GO_FLAG' when 106 then 'SMART_ACTION_REMOVE_GO_FLAG' when 107 then 'SMART_ACTION_SUMMON_CREATURE_GROUP' when 108 then 'SMART_ACTION_SET_POWER' when 109 then 'SMART_ACTION_ADD_POWER' when 110 then 'SMART_ACTION_REMOVE_POWER' when 111 then 'SMART_ACTION_GAME_EVENT_STOP' when 112 then 'SMART_ACTION_GAME_EVENT_START' when 113 then 'SMART_ACTION_START_CLOSEST_WAYPOINT' when 114 then 'SMART_ACTION_MOVE_OFFSET' when 115 then 'SMART_ACTION_RANDOM_SOUND' when 116 then 'SMART_ACTION_SET_CORPSE_DELAY' when 117 then 'SMART_ACTION_DISABLE_EVADE' when 118 then 'SMART_ACTION_GO_SET_GO_STATE' when 119 then 'SMART_ACTION_SET_CAN_FLY' when 120 then 'SMART_ACTION_REMOVE_AURAS_BY_TYPE' when 121 then 'SMART_ACTION_SET_SIGHT_DIST' when 122 then 'SMART_ACTION_FLEE' when 123 then 'SMART_ACTION_ADD_THREAT' when 124 then 'SMART_ACTION_LOAD_EQUIPMENT' when 125 then 'SMART_ACTION_TRIGGER_RANDOM_TIMED_EVENT' when 126 then 'SMART_ACTION_REMOVE_ALL_GAMEOBJECTS' when 127 then 'SMART_ACTION_PAUSE_MOVEMENT' when 128 then 'SMART_ACTION_PLAY_ANIMKIT' when 129 then 'SMART_ACTION_SCENE_PLAY' when 130 then 'SMART_ACTION_SCENE_CANCEL' when 131 then 'SMART_ACTION_SPAWN_SPAWNGROUP' when 132 then 'SMART_ACTION_DESPAWN_SPAWNGROUP' when 133 then 'SMART_ACTION_RESPAWN_BY_SPAWNID' when 134 then 'SMART_ACTION_INVOKER_CAST' when 135 then 'SMART_ACTION_PLAY_CINEMATIC' when 136 then 'SMART_ACTION_SET_MOVEMENT_SPEED' when 137 then 'SMART_ACTION_PLAY_SPELL_VISUAL_KIT' when 138 then 'SMART_ACTION_OVERRIDE_LIGHT' when 139 then 'SMART_ACTION_OVERRIDE_WEATHER' when 143 then 'SMART_ACTION_CREATE_CONVERSATION' when 144 then 'SMART_ACTION_SET_IMMUNE_PC' when 145 then 'SMART_ACTION_SET_IMMUNE_NPC' when 146 then 'SMART_ACTION_SET_UNINTERACTIBLE' when 147 then 'SMART_ACTION_ACTIVATE_GAMEOBJECT' when 148 then 'SMART_ACTION_ADD_TO_STORED_TARGET_LIST' when 149 then 'SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER' else `smart_scripts`.`action_type` end) AS `action_type`,`smart_scripts`.`action_param1` AS `action_param1`,`smart_scripts`.`action_param2` AS `action_param2`,`smart_scripts`.`action_param3` AS `action_param3`,`smart_scripts`.`action_param4` AS `action_param4`,`smart_scripts`.`action_param5` AS `action_param5`,`smart_scripts`.`action_param6` AS `action_param6`,(case `smart_scripts`.`target_type` when 0 then 'SMART_TARGET_NONE' when 1 then 'SMART_TARGET_SELF' when 2 then 'SMART_TARGET_VICTIM' when 3 then 'SMART_TARGET_HOSTILE_SECOND_AGGRO' when 4 then 'SMART_TARGET_HOSTILE_LAST_AGGRO' when 5 then 'SMART_TARGET_HOSTILE_RANDOM' when 6 then 'SMART_TARGET_HOSTILE_RANDOM_NOT_TOP' when 7 then 'SMART_TARGET_ACTION_INVOKER' when 8 then 'SMART_TARGET_POSITION' when 9 then 'SMART_TARGET_CREATURE_RANGE' when 10 then 'SMART_TARGET_CREATURE_GUID' when 11 then 'SMART_TARGET_CREATURE_DISTANCE' when 12 then 'SMART_TARGET_STORED' when 13 then 'SMART_TARGET_GAMEOBJECT_RANGE' when 14 then 'SMART_TARGET_GAMEOBJECT_GUID' when 15 then 'SMART_TARGET_GAMEOBJECT_DISTANCE' when 16 then 'SMART_TARGET_INVOKER_PARTY' when 17 then 'SMART_TARGET_PLAYER_RANGE' when 18 then 'SMART_TARGET_PLAYER_DISTANCE' when 19 then 'SMART_TARGET_CLOSEST_CREATURE' when 20 then 'SMART_TARGET_CLOSEST_GAMEOBJECT' when 21 then 'SMART_TARGET_CLOSEST_PLAYER' when 22 then 'SMART_TARGET_ACTION_INVOKER_VEHICLE' when 23 then 'SMART_TARGET_OWNER_OR_SUMMONER' when 24 then 'SMART_TARGET_THREAT_LIST' when 25 then 'SMART_TARGET_CLOSEST_ENEMY' when 26 then 'SMART_TARGET_CLOSEST_FRIENDLY' when 27 then 'SMART_TARGET_LOOT_RECIPIENTS' when 28 then 'SMART_TARGET_FARTHEST' when 29 then 'SMART_TARGET_VEHICLE_PASSENGER' when 30 then 'SMART_TARGET_CLOSEST_UNSPAWNED_GAMEOBJECT' else `smart_scripts`.`target_type` end) AS `target_type`,`smart_scripts`.`target_param1` AS `target_param1`,`smart_scripts`.`target_param2` AS `target_param2`,`smart_scripts`.`target_param3` AS `target_param3`,`smart_scripts`.`target_param4` AS `target_param4`,`smart_scripts`.`target_x` AS `target_x`,`smart_scripts`.`target_y` AS `target_y`,`smart_scripts`.`target_z` AS `target_z`,`smart_scripts`.`target_o` AS `target_o`,`smart_scripts`.`comment` AS `comment` from `smart_scripts` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -4934,4 +5057,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-11  3:06:56
+-- Dump completed on 2025-05-31 19:45:59

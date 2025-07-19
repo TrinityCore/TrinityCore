@@ -16,14 +16,19 @@
  */
 
 #include "WardenPackets.h"
+#include "PacketUtilities.h"
 
-void WorldPackets::Warden::WardenData::Read()
+namespace WorldPackets::Warden
 {
-    uint32 size = _worldPacket.read<uint32>();
+void WardenData::Read()
+{
+    uint32 requestedSize = _worldPacket.read<uint32>();
+    std::size_t pos = _worldPacket.rpos();
+    std::size_t remainingSize = _worldPacket.size() - pos;
+    if (requestedSize > remainingSize)
+        OnInvalidArraySize(requestedSize, remainingSize);
 
-    if (size)
-    {
-        Data.resize(size);
-        _worldPacket.read(Data.contents(), size);
-    }
+    Data.resize(requestedSize);
+    _worldPacket.read(Data.data(), requestedSize);
+}
 }

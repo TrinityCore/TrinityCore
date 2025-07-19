@@ -4809,7 +4809,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // ENDOF THE AZURE VAULT SPELLS
     //
-
+    
     //
     // TERRACE OF ENDLESS SPRING SPELLS
     //
@@ -4822,7 +4822,7 @@ void SpellMgr::LoadSpellInfoCorrections()
 
     // END OF TERRACE OF ENDLESS SPRING SPELLS
     //
-
+    
     // Summon Master Li Fei
     ApplySpellFix({ 102445 }, [](SpellInfo* spellInfo)
     {
@@ -5130,6 +5130,20 @@ void SpellMgr::LoadSpellTotemModel()
         mSpellTotemModel[std::make_pair(spellId, race)] = displayId;
         ++count;
 
+    } while (result->NextRow());
+
+    TC_LOG_INFO("server.loading", ">> Loaded {} spell totem model records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+}
+
+uint32 SpellMgr::GetModelForTotem(uint32 spellId, uint8 race) const
+{
+    auto itr = mSpellTotemModel.find(std::make_pair(spellId, race));
+    if (itr != mSpellTotemModel.end())
+        return itr->second;
+
+    return 0;
+}
     } while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} spell totem model records in {} ms", count, GetMSTimeDiffToNow(oldMSTime));

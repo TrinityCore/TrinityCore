@@ -37,18 +37,18 @@ TC_API_EXPORT EnumText EnumUtils<MoveSplineFlagEnum>::ToString(MoveSplineFlagEnu
         case MoveSplineFlagEnum::Unknown_0x1: return { "Unknown_0x1", "Unknown_0x1", "NOT VERIFIED" };
         case MoveSplineFlagEnum::Unknown_0x2: return { "Unknown_0x2", "Unknown_0x2", "NOT VERIFIED" };
         case MoveSplineFlagEnum::Unknown_0x4: return { "Unknown_0x4", "Unknown_0x4", "NOT VERIFIED" };
-        case MoveSplineFlagEnum::Unknown_0x8: return { "Unknown_0x8", "Unknown_0x8", "NOT VERIFIED - does someting related to falling/fixed orientation" };
+        case MoveSplineFlagEnum::JumpOrientationFixed: return { "JumpOrientationFixed", "JumpOrientationFixed", "Model orientation fixed (jump animation)" };
         case MoveSplineFlagEnum::FallingSlow: return { "FallingSlow", "FallingSlow", "" };
         case MoveSplineFlagEnum::Done: return { "Done", "Done", "" };
         case MoveSplineFlagEnum::Falling: return { "Falling", "Falling", "Affects elevation computation, can't be combined with Parabolic flag" };
         case MoveSplineFlagEnum::No_Spline: return { "No_Spline", "No_Spline", "" };
         case MoveSplineFlagEnum::Unknown_0x100: return { "Unknown_0x100", "Unknown_0x100", "NOT VERIFIED" };
         case MoveSplineFlagEnum::Flying: return { "Flying", "Flying", "Smooth movement(Catmullrom interpolation mode), flying animation" };
-        case MoveSplineFlagEnum::OrientationFixed: return { "OrientationFixed", "OrientationFixed", "Model orientation fixed" };
+        case MoveSplineFlagEnum::OrientationFixed: return { "OrientationFixed", "OrientationFixed", "Model orientation fixed (knockback animation)" };
         case MoveSplineFlagEnum::Catmullrom: return { "Catmullrom", "Catmullrom", "Used Catmullrom interpolation mode" };
         case MoveSplineFlagEnum::Cyclic: return { "Cyclic", "Cyclic", "Movement by cycled spline" };
         case MoveSplineFlagEnum::Enter_Cycle: return { "Enter_Cycle", "Enter_Cycle", "Everytimes appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done" };
-        case MoveSplineFlagEnum::Frozen: return { "Frozen", "Frozen", "Will never arrive" };
+        case MoveSplineFlagEnum::Turning: return { "Turning", "Turning", "Turns in place" };
         case MoveSplineFlagEnum::TransportEnter: return { "TransportEnter", "TransportEnter", "" };
         case MoveSplineFlagEnum::TransportExit: return { "TransportExit", "TransportExit", "" };
         case MoveSplineFlagEnum::Unknown_0x20000: return { "Unknown_0x20000", "Unknown_0x20000", "NOT VERIFIED" };
@@ -82,7 +82,7 @@ TC_API_EXPORT MoveSplineFlagEnum EnumUtils<MoveSplineFlagEnum>::FromIndex(size_t
         case 1: return MoveSplineFlagEnum::Unknown_0x1;
         case 2: return MoveSplineFlagEnum::Unknown_0x2;
         case 3: return MoveSplineFlagEnum::Unknown_0x4;
-        case 4: return MoveSplineFlagEnum::Unknown_0x8;
+        case 4: return MoveSplineFlagEnum::JumpOrientationFixed;
         case 5: return MoveSplineFlagEnum::FallingSlow;
         case 6: return MoveSplineFlagEnum::Done;
         case 7: return MoveSplineFlagEnum::Falling;
@@ -93,7 +93,7 @@ TC_API_EXPORT MoveSplineFlagEnum EnumUtils<MoveSplineFlagEnum>::FromIndex(size_t
         case 12: return MoveSplineFlagEnum::Catmullrom;
         case 13: return MoveSplineFlagEnum::Cyclic;
         case 14: return MoveSplineFlagEnum::Enter_Cycle;
-        case 15: return MoveSplineFlagEnum::Frozen;
+        case 15: return MoveSplineFlagEnum::Turning;
         case 16: return MoveSplineFlagEnum::TransportEnter;
         case 17: return MoveSplineFlagEnum::TransportExit;
         case 18: return MoveSplineFlagEnum::Unknown_0x20000;
@@ -124,7 +124,7 @@ TC_API_EXPORT size_t EnumUtils<MoveSplineFlagEnum>::ToIndex(MoveSplineFlagEnum v
         case MoveSplineFlagEnum::Unknown_0x1: return 1;
         case MoveSplineFlagEnum::Unknown_0x2: return 2;
         case MoveSplineFlagEnum::Unknown_0x4: return 3;
-        case MoveSplineFlagEnum::Unknown_0x8: return 4;
+        case MoveSplineFlagEnum::JumpOrientationFixed: return 4;
         case MoveSplineFlagEnum::FallingSlow: return 5;
         case MoveSplineFlagEnum::Done: return 6;
         case MoveSplineFlagEnum::Falling: return 7;
@@ -135,7 +135,7 @@ TC_API_EXPORT size_t EnumUtils<MoveSplineFlagEnum>::ToIndex(MoveSplineFlagEnum v
         case MoveSplineFlagEnum::Catmullrom: return 12;
         case MoveSplineFlagEnum::Cyclic: return 13;
         case MoveSplineFlagEnum::Enter_Cycle: return 14;
-        case MoveSplineFlagEnum::Frozen: return 15;
+        case MoveSplineFlagEnum::Turning: return 15;
         case MoveSplineFlagEnum::TransportEnter: return 16;
         case MoveSplineFlagEnum::TransportExit: return 17;
         case MoveSplineFlagEnum::Unknown_0x20000: return 18;

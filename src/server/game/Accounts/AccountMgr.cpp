@@ -22,11 +22,10 @@
 #include "Log.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SRP6.h"
 #include "Util.h"
-#include "World.h"
 #include "WorldSession.h"
 
 using AccountSRP6 = Trinity::Crypto::SRP::GruntSRP6;
@@ -64,7 +63,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     stmt->setString(0, username);
     auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<AccountSRP6>(username, password);
     stmt->setBinary(1, salt);
-    stmt->setBinary(2, verifier);
+    stmt->setBinary(2, std::move(verifier));
     stmt->setString(3, email);
     stmt->setString(4, email);
 
@@ -189,7 +188,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     auto [salt, verifier] = Trinity::Crypto::SRP6::MakeRegistrationData<AccountSRP6>(newUsername, newPassword);
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
     stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
+    stmt->setBinary(1, std::move(verifier));
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
@@ -218,7 +217,7 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGON);
     stmt->setBinary(0, salt);
-    stmt->setBinary(1, verifier);
+    stmt->setBinary(1, std::move(verifier));
     stmt->setUInt32(2, accountId);
     LoginDatabase.Execute(stmt);
 
@@ -289,7 +288,7 @@ AccountOpResult AccountMgr::ChangeRegEmail(uint32 accountId, std::string newEmai
 uint32 AccountMgr::GetId(std::string_view username)
 {
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
-    stmt->setStringView(0, username);
+    stmt->setString(0, username);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     return (result) ? (*result)[0].GetUInt32() : 0;
@@ -503,7 +502,7 @@ void AccountMgr::LoadRBAC()
     while (result->NextRow());
 
     TC_LOG_DEBUG("rbac", "AccountMgr::LoadRBAC: Loading default permissions");
-    result = LoginDatabase.PQuery("SELECT secId, permissionId FROM rbac_default_permissions WHERE (realmId = {} OR realmId = -1) ORDER BY secId ASC", realm.Id.Realm);
+    result = LoginDatabase.PQuery("SELECT secId, permissionId FROM rbac_default_permissions WHERE (realmId = {} OR realmId = -1) ORDER BY secId ASC", sRealmList->GetCurrentRealmId().Realm);
     if (!result)
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");

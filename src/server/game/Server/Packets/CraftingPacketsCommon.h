@@ -52,6 +52,11 @@ struct CraftingData
     Item::ItemInstance OldItem;
     Item::ItemInstance NewItem;
     int32 EnchantID = 0;
+    int32 ConcentrationCurrencyID = 0;
+    int32 ConcentrationSpent = 0;
+    int32 IngenuityRefund = 0;
+    bool HasIngenuityProc = false;
+    bool ApplyConcentration = false;
 };
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellReducedReagent const& spellReducedReagent);

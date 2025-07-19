@@ -46,7 +46,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
 {
     uint32 oldMSTime = getMSTime();
 
-    auto model_list_file = Trinity::make_unique_ptr_with_deleter(fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb"), &::fclose);
+    auto model_list_file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen((dataPath + "vmaps/" + VMAP::GAMEOBJECT_MODELS).c_str(), "rb"));
     if (!model_list_file)
     {
         TC_LOG_ERROR("misc", "Unable to open '{}' file.", VMAP::GAMEOBJECT_MODELS);
@@ -93,11 +93,7 @@ bool LoadGameObjectModelList(std::string const& dataPath)
     return true;
 }
 
-GameObjectModel::~GameObjectModel()
-{
-    if (iModel)
-        VMAP::VMapFactory::createOrGetVMapManager()->releaseModelInstance(iModel->GetName());
-}
+GameObjectModel::~GameObjectModel() = default;
 
 bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
 {
@@ -126,7 +122,7 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
-    AABox rotated_bounds;
+    AABox rotated_bounds = G3D::AABox::empty();
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 
@@ -156,14 +152,14 @@ GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBas
     return mdl;
 }
 
-bool GameObjectModel::isMapObject() const
+bool GameObjectModel::IsMapObject() const
 {
     return !iModel->IsM2();
 }
 
-bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
+bool GameObjectModel::IntersectRay(G3D::Ray const& ray, float& maxDist, bool stopAtFirstHit, PhaseShift const& phaseShift, VMAP::ModelIgnoreFlags ignoreFlags) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned())
+    if (!IsCollisionEnabled() || !owner->IsSpawned())
         return false;
 
     if (!owner->IsInPhase(phaseShift))
@@ -188,7 +184,7 @@ bool GameObjectModel::intersectRay(G3D::Ray const& ray, float& maxDist, bool sto
 
 bool GameObjectModel::GetLocationInfo(G3D::Vector3 const& point, VMAP::LocationInfo& info, PhaseShift const& phaseShift) const
 {
-    if (!isCollisionEnabled() || !owner->IsSpawned() || !isMapObject())
+    if (!IsCollisionEnabled() || !owner->IsSpawned() || !IsMapObject())
         return false;
 
     if (!owner->IsInPhase(phaseShift))
@@ -256,7 +252,7 @@ bool GameObjectModel::UpdatePosition()
     iInvRot = iRotation.inverse();
     // transform bounding box:
     mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
-    AABox rotated_bounds;
+    AABox rotated_bounds = G3D::AABox::empty();
     for (int i = 0; i < 8; ++i)
         rotated_bounds.merge(iRotation * mdl_box.corner(i));
 
