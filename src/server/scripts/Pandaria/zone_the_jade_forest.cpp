@@ -15,16 +15,44 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptMgr.h"
+#include "DB2Stores.h"
+#include "Map.h"
+#include "MotionMaster.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 #include "Unit.h"
+#include "Vehicle.h"
 
 namespace Scripts::Pandaria::TheJadeForest
 {
+namespace Points
+{
+    static constexpr uint32 RappellingRopeDestination = 1;
+}
+
+namespace Positions
+{
+    static constexpr std::array<Position, 3> RappellingRopeSpawns =
+    {{
+        { 3133.9192f, -750.8542f, 298.9847f },
+        { 3156.4932f, -742.7101f, 297.54916f },
+        { 3169.0479f, -737.92017f, 298.42493f }
+    }};
+
+    static constexpr std::array<Position, 3> RappellingRopeDestinations =
+    {{
+        { 3133.9475f, -749.46844f, 240.00467f },
+        { 3156.2786f, -742.8666f, 239.32095f },
+        { 3168.5525f, -738.01764f, 240.19081f }
+    }};
+}
+
 namespace Quests
 {
     static constexpr uint32 PaintItRed                = 31765;
@@ -50,6 +78,10 @@ namespace Spells
     static constexpr uint32 AbandonVehicle            = 92678;
     static constexpr uint32 CannonExplosionTrigger    = 130234;
     static constexpr uint32 BarrelExplosionTrigger    = 130247;
+
+    // Touching Ground
+    static constexpr uint32 ReverseCastRideSeat1      = 85299;
+    static constexpr uint32 RappellingRope            = 130960;
 }
 
 // 121545 - Into the Mists Scene - JF
@@ -69,7 +101,7 @@ class spell_into_the_mists_scene_jf : public SpellScript
         hitUnit->CancelMountAura();
         hitUnit->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -97,7 +129,7 @@ class spell_into_the_mists_scene_end : public SpellScript
 
         CastSpellExtraArgs const& castSpellExtraArgs = CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         };
         hitUnit->CastSpell(nullptr, Spells::TeleportPlayerToCrashSite, castSpellExtraArgs);
         hitUnit->CastSpell(nullptr, Spells::CutToBlack, castSpellExtraArgs);
@@ -127,7 +159,7 @@ class spell_the_mission_scene_jf : public SpellScript
         hitUnit->CancelMountAura();
         hitUnit->CastSpell(nullptr, Spells::CancelBlackout, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -158,7 +190,7 @@ class spell_the_mission_scene_end : public SpellScript
 
         CastSpellExtraArgs const& castSpellExtraArgs = CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         };
         hitUnit->CastSpell(nullptr, Spells::TheMissionTeleportPlayer, castSpellExtraArgs);
         hitUnit->CastSpell(nullptr, Spells::CutToBlack, castSpellExtraArgs);
@@ -271,11 +303,116 @@ class spell_barrel_explosion_reversecast : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_barrel_explosion_reversecast::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
+// 66640 - Rappelling Rope
+struct npc_rappelling_rope : public ScriptedAI
+{
+    npc_rappelling_rope(Creature* creature) : ScriptedAI(creature) {}
+
+    void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) override
+    {
+        if (apply)
+        {
+            passenger->SetDisableGravity(true);
+            _scheduler.Schedule(1500ms, [this](TaskContext /*context*/)
+            {
+                auto closestPosition = std::ranges::min_element(Positions::RappellingRopeDestinations, std::ranges::less(),
+                    [this](Position const& pos) { return me->GetDistance(pos); });
+
+                me->GetMotionMaster()->MovePoint(Points::RappellingRopeDestination, *closestPosition);
+            });
+        }
+        else
+            passenger->SetDisableGravity(false);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == Points::RappellingRopeDestination)
+        {
+            if (Vehicle* vehicle = me->GetVehicleKit())
+                vehicle->RemoveAllPassengers();
+
+            me->DespawnOrUnsummon(1s);
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
+// 130960 - Rappelling Rope
+class spell_rappelling_rope : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::ReverseCastRideSeat1
+        });
+    }
+
+    void HandleHitTarget(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        Unit* caster = GetCaster();
+        uint32 creatureId = uint32(GetEffectInfo().MiscValue);
+        SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(uint32(GetEffectInfo().MiscValueB));
+        Milliseconds duration = Milliseconds(GetSpellInfo()->CalcDuration(caster));
+        auto closestPosition = std::ranges::min_element(Positions::RappellingRopeSpawns, std::ranges::less(),
+            [caster](Position const& pos) { return caster->GetDistance(pos); });
+
+        if (Creature* rappellingRope = caster->GetMap()->SummonCreature(creatureId, *closestPosition, summonProperties, duration, caster, GetSpellInfo()->Id))
+        {
+            if (TempSummon* summon = rappellingRope->ToTempSummon())
+                summon->SetCanFollowOwner(false);
+
+            rappellingRope->CastSpell(caster, Spells::ReverseCastRideSeat1, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_rappelling_rope::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SUMMON);
+    }
+};
+
+// 130970 - Rappelling Rope Aura
+class spell_rappelling_rope_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            Spells::RappellingRope
+        });
+    }
+
+    void HandleAfterEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(Spells::RappellingRope);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_rappelling_rope_aura::HandleAfterEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
 }
 
 void AddSC_zone_the_jade_forest()
 {
     using namespace Scripts::Pandaria::TheJadeForest;
+
+    // Creatures
+    RegisterCreatureAI(npc_rappelling_rope);
 
     // Spells
     RegisterSpellScript(spell_into_the_mists_scene_jf);
@@ -286,4 +423,6 @@ void AddSC_zone_the_jade_forest()
     RegisterSpellScript(spell_summon_gunship_turret);
     RegisterSpellScript(spell_cannon_explosion_reversecast);
     RegisterSpellScript(spell_barrel_explosion_reversecast);
+    RegisterSpellScript(spell_rappelling_rope);
+    RegisterSpellScript(spell_rappelling_rope_aura);
 }
