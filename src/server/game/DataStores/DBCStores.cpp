@@ -718,6 +718,23 @@ WMOAreaTableEntry const* GetWMOAreaTableEntryByTripple(int32 rootid, int32 adtid
     return nullptr;
 }
 
+bool IsInArea(uint32 objectAreaId, uint32 areaId)
+{
+    do
+    {
+        if (objectAreaId == areaId)
+            return true;
+
+        AreaTableEntry const* objectArea = sAreaTableStore.LookupEntry(objectAreaId);
+        if (!objectArea)
+            break;
+
+        objectAreaId = objectArea->ParentAreaID;
+    } while (objectAreaId);
+
+    return false;
+}
+
 char const* GetRaceName(uint8 race, uint8 locale)
 {
     ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);

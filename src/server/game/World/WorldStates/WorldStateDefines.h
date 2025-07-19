@@ -29,6 +29,7 @@ struct WorldStateTemplate
     uint32 ScriptId = 0;
 
     std::unordered_set<uint32> MapIds;
+    std::unordered_set<uint32> AreaIds;
 };
 
 using WorldStateValueContainer = std::unordered_map<int32 /*worldStateId*/, int32 /*value*/>;
