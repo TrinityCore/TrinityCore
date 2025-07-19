@@ -100,6 +100,19 @@ enum WarriorMisc
     SPELL_VISUAL_BLAZING_CHARGE = 26423
 };
 
+static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spell const* triggeringSpell)
+{
+    SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, difficulty);
+    int32 stackAmount = static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount);
+    caster->ApplySpellMod(whirlwindCleaveAuraInfo, SpellModOp::MaxAuraStacks, stackAmount);
+
+    caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
+        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+        .TriggeringSpell = triggeringSpell,
+        .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
+    });
+}
+
 // 107574 - Avatar
 class spell_warr_avatar : public SpellScript
 {
@@ -729,15 +742,7 @@ class spell_improved_whirlwind : public SpellScript
             .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT0, rageGained * 10 } }
         });
 
-        SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, GetCastDifficulty());
-        int32 stackAmount = static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount);
-        caster->ApplySpellMod(whirlwindCleaveAuraInfo, SpellModOp::MaxAuraStacks, stackAmount);
-
-        caster->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
-        });
+        ApplyWhirlwindCleaveAura(caster, GetCastDifficulty(), GetSpell());
     }
 
     void Register() override
@@ -1172,14 +1177,7 @@ class spell_warr_titanic_rage : public AuraScript
             .TriggeringSpell = eventInfo.GetProcSpell()
         });
 
-        SpellInfo const* whirlwindCleaveAuraInfo = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, GetCastDifficulty());
-        int32 stackAmount = static_cast<int32>(whirlwindCleaveAuraInfo->StackAmount);
-        target->ApplySpellMod(whirlwindCleaveAuraInfo, SpellModOp::MaxAuraStacks, stackAmount);
-
-        target->CastSpell(nullptr, SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, stackAmount } }
-        });
+        ApplyWhirlwindCleaveAura(target, GetCastDifficulty(), nullptr);
     }
 
     void Register() override
