@@ -8647,7 +8647,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
     Battleground* battleground = GetBattleground();
     OutdoorPvP* outdoorPvP = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneId);
     InstanceScript* instance = GetInstanceScript();
-    Battlefield* battlefield = sBattlefieldMgr->GetBattlefieldToZoneId(zoneId);
 
     TC_LOG_DEBUG("network", "Player::SendInitWorldStates: Sending SMSG_INIT_WORLD_STATES for Map: {}, Zone: {}", mapId, zoneId);
 
@@ -9240,7 +9239,6 @@ void Player::SendInitWorldStates(uint32 zoneId, uint32 areaId)
 
     SendDirectMessage(packet.Write());
     SendBGWeekendWorldStates();
-    SendBattlefieldWorldStates();
 }
 
 void Player::SendBGWeekendWorldStates() const
@@ -9257,12 +9255,6 @@ void Player::SendBGWeekendWorldStates() const
         }
     }
 }
-
-void Player::SendBattlefieldWorldStates() const
-{
-    /// Send misc stuff that needs to be sent on every login, like the battle timers.
-}
-
 uint32 Player::GetXPRestBonus(uint32 xp)
 {
     uint32 rested_bonus = (uint32)GetRestBonus();           // xp for each rested bonus
