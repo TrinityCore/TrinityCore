@@ -24,7 +24,7 @@
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 
-enum Texts
+enum RubySanctumTexts
 {
     SAY_XERESTRASZA_EVENT       = 0,
     SAY_XERESTRASZA_EVENT_1     = 1,
@@ -37,7 +37,7 @@ enum Texts
     SAY_XERESTRASZA_INTRO       = 8,
 };
 
-enum Events
+enum RubySanctumEvents
 {
     EVENT_XERESTRASZA_EVENT_1   = 1,
     EVENT_XERESTRASZA_EVENT_2   = 2,
@@ -48,13 +48,14 @@ enum Events
     EVENT_XERESTRASZA_EVENT_7   = 7,
 };
 
-enum Spells
+enum RubySanctumSpells
 {
     SPELL_RALLY                 = 75416
 };
 
 Position const xerestraszaMovePos = {3151.236f, 379.8733f, 86.31996f, 0.0f};
 
+// 40429 - Sanctum Guardian Xerestrasza
 struct npc_xerestrasza : public ScriptedAI
 {
     npc_xerestrasza(Creature* creature) : ScriptedAI(creature)

@@ -1088,7 +1088,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         void SetVirtualItemSlot(uint8 i, Item* item);
         void SetSheath(SheathState sheathed) override;             // overwrite Unit version
-        uint8 FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) const;
+        uint8 FindEquipSlot(Item const* item, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
         Item* GetItemByGuid(ObjectGuid guid) const;
@@ -1299,7 +1299,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void ResetDailyQuestStatus();
         void ResetWeeklyQuestStatus();
         void ResetMonthlyQuestStatus();
-        void ResetSeasonalQuestStatus(uint16 event_id);
+        void ResetSeasonalQuestStatus(uint16 event_id, time_t eventStartTime);
 
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const;
@@ -1633,7 +1633,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void StoreRaidMapDifficulty();
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
-        bool UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step);
+        bool UpdateSkillPro(uint16 skillId, int32 chance, uint32 step);
 
         bool UpdateCraftSkill(uint32 spellid);
         bool UpdateGatherSkill(uint32 SkillId, uint32 SkillValue, uint32 RedLevel, uint32 Multiplicator = 1);
@@ -1818,7 +1818,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
         void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
-        bool isHonorOrXPTarget(Unit* victim) const;
+        bool isHonorOrXPTarget(Unit const* victim) const;
 
         bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() const { return m_grantableLevels; }
@@ -1875,8 +1875,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SetCanParry(bool value);
         bool CanBlock() const { return m_canBlock; }
         void SetCanBlock(bool value);
-        bool CanTitanGrip() const { return m_canTitanGrip; }
-        void SetCanTitanGrip(bool value, uint32 penaltySpellId = 0);
+        bool CanTitanGrip(Item const* item) const;
+        void SetCanTitanGrip(bool value, uint32 penaltySpellId = 0, int32 allowedItemClass = 0, int32 allowedItemSubClassMask = 0);
         void CheckTitanGripPenalty();
         bool CanTameExoticPets() const { return IsGameMaster() || HasAuraType(SPELL_AURA_ALLOW_TAME_PET_TYPE); }
 
@@ -2276,12 +2276,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
         typedef std::set<uint32> QuestSet;
-        typedef std::set<uint32> SeasonalQuestSet;
-        typedef std::unordered_map<uint32, SeasonalQuestSet> SeasonalEventQuestMap;
+        typedef std::unordered_map<uint32, time_t> SeasonalQuestMapByQuest;
+        typedef std::unordered_map<uint32, SeasonalQuestMapByQuest> SeasonalQuestMapByEvent;
         QuestSet m_timedquests;
         QuestSet m_weeklyquests;
         QuestSet m_monthlyquests;
-        SeasonalEventQuestMap m_seasonalquests;
+        SeasonalQuestMapByEvent m_seasonalquests;
 
         ObjectGuid m_playerSharingQuest;
         uint32 m_sharedQuestId;
@@ -2440,6 +2440,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool m_canParry;
         bool m_canBlock;
         bool m_canTitanGrip;
+        uint32 m_titanGripWeaponSubclasses;
+        uint32 m_titanGripArmorSubclasses;
         uint32 m_titanGripPenaltySpellId;
         uint8 m_swingErrorMsg;
         float m_ammoDPS;
