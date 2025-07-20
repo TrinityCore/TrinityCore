@@ -30,9 +30,10 @@
 
 namespace
 {
+constexpr int32 WORLDSTATE_ANY_MAP = -1;
 std::unordered_map<int32, WorldStateTemplate> _worldStateTemplates;
 WorldStateValueContainer _realmWorldStateValues;
-std::unordered_map<uint32, WorldStateValueContainer> _worldStatesByMap;
+std::unordered_map<int32, WorldStateValueContainer> _worldStatesByMap;
 }
 
 void WorldStateMgr::LoadFromDB()
@@ -56,7 +57,7 @@ void WorldStateMgr::LoadFromDB()
         std::string_view mapIds = fields[2].GetStringView();
         for (std::string_view mapIdToken : Trinity::Tokenize(mapIds, ',', false))
         {
-            Optional<uint32> mapId = Trinity::StringTo<uint32>(mapIdToken);
+            Optional<int32> mapId = Trinity::StringTo<int32>(mapIdToken);
             if (!mapId)
             {
                 TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %d with non-integer MapID (" STRING_VIEW_FMT "), map ignored",
@@ -64,9 +65,9 @@ void WorldStateMgr::LoadFromDB()
                 continue;
             }
 
-            if (!sMapStore.LookupEntry(*mapId))
+            if (!sMapStore.LookupEntry(*mapId) && mapId != WORLDSTATE_ANY_MAP)
             {
-                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %d with invalid MapID (%u), map ignored",
+                TC_LOG_ERROR("sql.sql", "Table `world_state` contains a world state %d with invalid MapID (%d), map ignored",
                     id, *mapId);
                 continue;
             }
@@ -129,7 +130,7 @@ void WorldStateMgr::LoadFromDB()
 
         if (!worldState.MapIds.empty())
         {
-            for (uint32 mapId : worldState.MapIds)
+            for (int32 mapId : worldState.MapIds)
                 _worldStatesByMap[mapId][id] = worldState.DefaultValue;
         }
         else
@@ -160,7 +161,7 @@ void WorldStateMgr::LoadFromDB()
 
             if (!worldState->MapIds.empty())
             {
-                for (uint32 mapId : worldState->MapIds)
+                for (int32 mapId : worldState->MapIds)
                     _worldStatesByMap[mapId][worldStateId] = value;
             }
             else
@@ -190,7 +191,7 @@ int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
         return 0;
     }
 
-    if (!map || worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
+    if (!map || (!worldStateTemplate->MapIds.count(map->GetId()) && !worldStateTemplate->MapIds.count(WORLDSTATE_ANY_MAP)))
         return 0;
 
     return map->GetWorldStateValue(worldStateId);
@@ -220,7 +221,7 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, bool hidden, Map* 
         return;
     }
 
-    if (!map || worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
+    if (!map || (!worldStateTemplate->MapIds.count(map->GetId()) && !worldStateTemplate->MapIds.count(WORLDSTATE_ANY_MAP)))
         return;
 
     map->SetWorldStateValue(worldStateId, value, hidden);
@@ -247,7 +248,10 @@ WorldStateValueContainer WorldStateMgr::GetInitialWorldStatesForMap(Map const* m
 {
     WorldStateValueContainer initialValues;
     if (WorldStateValueContainer const* valuesTemplate = Trinity::Containers::MapGetValuePtr(_worldStatesByMap, map->GetId()))
-        initialValues = *valuesTemplate;
+        initialValues.insert(valuesTemplate->begin(), valuesTemplate->end());
+
+    if (WorldStateValueContainer const* valuesTemplate = Trinity::Containers::MapGetValuePtr(_worldStatesByMap, WORLDSTATE_ANY_MAP))
+        initialValues.insert(valuesTemplate->begin(), valuesTemplate->end());
 
     return initialValues;
 }
