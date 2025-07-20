@@ -72,16 +72,16 @@ enum BG_WS_SpellId
 
 enum BG_WS_WorldStates
 {
-    BG_WS_FLAG_UNK_ALLIANCE       = 1545,
-    BG_WS_FLAG_UNK_HORDE          = 1546,
-//    FLAG_UNK                      = 1547,
-    BG_WS_FLAG_CAPTURES_ALLIANCE  = 1581,
-    BG_WS_FLAG_CAPTURES_HORDE     = 1582,
-    BG_WS_FLAG_CAPTURES_MAX       = 1601,
-    BG_WS_FLAG_STATE_HORDE        = 2338,
-    BG_WS_FLAG_STATE_ALLIANCE     = 2339,
-    BG_WS_STATE_TIMER             = 4248,
-    BG_WS_STATE_TIMER_ACTIVE      = 4247
+    BG_WS_FLAG_STATE_ALLIANCE           = 1545,
+    BG_WS_FLAG_STATE_HORDE              = 1546,
+    BG_WS_FLAG_STATE_NEUTRAL            = 1547,     // unused
+    BG_WS_FLAG_CAPTURES_ALLIANCE        = 1581,
+    BG_WS_FLAG_CAPTURES_HORDE           = 1582,
+    BG_WS_FLAG_CAPTURES_MAX             = 1601,
+    BG_WS_FLAG_CONTROL_HORDE            = 2338,
+    BG_WS_FLAG_CONTROL_ALLIANCE         = 2339,
+    BG_WS_STATE_TIMER                   = 4248,
+    BG_WS_STATE_TIMER_ACTIVE            = 4247
 };
 
 enum BG_WS_ObjectTypes
@@ -247,7 +247,6 @@ class BattlegroundWS : public Battleground
         }
 
         ObjectGuid GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)]; }
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
         /* Scorekeeping */
         void AddPoint(uint32 TeamID, uint32 Points = 1)     { m_TeamScores[GetTeamIndexByTeamId(TeamID)] += Points; }

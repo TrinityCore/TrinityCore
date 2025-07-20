@@ -27,7 +27,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "UpdateData.h"
-#include "WorldStatePackets.h"
+#include "WorldStateMgr.h"
 
 void BattlegroundSAScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {
@@ -53,7 +53,7 @@ BattlegroundSA::BattlegroundSA()
     Status = BG_SA_NOT_STARTED;
 
     for (uint8 i = 0; i < MAX_GATES; ++i)
-        GateStatus[i] = BG_SA_GATE_OK;
+        GateStatus[i] = BG_SA_HORDE_GATE_OK;
 
     for (uint8 i = 0; i < 2; i++)
     {
@@ -75,7 +75,7 @@ void BattlegroundSA::Reset()
     TotalTime = 0;
     Attackers = ((urand(0, 1)) ? TEAM_ALLIANCE : TEAM_HORDE);
     for (uint8 i = 0; i <= 5; i++)
-        GateStatus[i] = BG_SA_GATE_OK;
+        GateStatus[i] = BG_SA_HORDE_GATE_OK;
     ShipsStarted = false;
     _gateDestroyed = false;
     _allVehiclesAlive[TEAM_ALLIANCE] = true;
@@ -107,7 +107,7 @@ bool BattlegroundSA::ResetObjs()
         DelCreature(i);
 
     for (uint8 i = 0; i < MAX_GATES; ++i)
-        GateStatus[i] = BG_SA_GATE_OK;
+        GateStatus[i] = Attackers == TEAM_HORDE ? BG_SA_ALLIANCE_GATE_OK : BG_SA_HORDE_GATE_OK;
 
     if (!AddCreature(BG_SA_NpcEntries[BG_SA_NPC_KANRETHAD], BG_SA_NPC_KANRETHAD, BG_SA_NpcSpawnlocs[BG_SA_NPC_KANRETHAD]))
     {
@@ -433,49 +433,8 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
         {
             SendTime();
             UpdateDemolisherSpawns();
-        }
     }
-}
-
-void BattlegroundSA::StartingEventCloseDoors() { }
-
-void BattlegroundSA::StartingEventOpenDoors() { }
-
-void BattlegroundSA::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    bool const allyAttacks = Attackers == TEAM_ALLIANCE;
-    bool const hordeAttacks = Attackers == TEAM_HORDE;
-
-    packet.Worldstates.emplace_back(BG_SA_ANCIENT_GATEWS, GateStatus[BG_SA_ANCIENT_GATE]);
-    packet.Worldstates.emplace_back(BG_SA_YELLOW_GATEWS, GateStatus[BG_SA_YELLOW_GATE]);
-    packet.Worldstates.emplace_back(BG_SA_GREEN_GATEWS, GateStatus[BG_SA_GREEN_GATE]);
-    packet.Worldstates.emplace_back(BG_SA_BLUE_GATEWS, GateStatus[BG_SA_BLUE_GATE]);
-    packet.Worldstates.emplace_back(BG_SA_RED_GATEWS, GateStatus[BG_SA_RED_GATE]);
-    packet.Worldstates.emplace_back(BG_SA_PURPLE_GATEWS, GateStatus[BG_SA_PURPLE_GATE]);
-
-    packet.Worldstates.emplace_back(BG_SA_BONUS_TIMER, 0);
-    packet.Worldstates.emplace_back(BG_SA_HORDE_ATTACKS, hordeAttacks);
-    packet.Worldstates.emplace_back(BG_SA_ALLY_ATTACKS, allyAttacks);
-
-    // Time will be sent on first update...
-    packet.Worldstates.emplace_back(BG_SA_ENABLE_TIMER, TimerEnabled);
-    packet.Worldstates.emplace_back(BG_SA_TIMER_MINS, 0);
-    packet.Worldstates.emplace_back(BG_SA_TIMER_SEC_TENS, 0);
-    packet.Worldstates.emplace_back(BG_SA_TIMER_SEC_DECS, 0);
-
-    packet.Worldstates.emplace_back(BG_SA_RIGHT_GY_HORDE, (GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_HORDE) ? 1 : 0);
-    packet.Worldstates.emplace_back(BG_SA_LEFT_GY_HORDE, (GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_HORDE) ? 1 : 0);
-    packet.Worldstates.emplace_back(BG_SA_CENTER_GY_HORDE, (GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_HORDE) ? 1 : 0);
-    packet.Worldstates.emplace_back(BG_SA_RIGHT_GY_ALLIANCE, (GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_ALLIANCE) ? 1 : 0);
-    packet.Worldstates.emplace_back(BG_SA_LEFT_GY_ALLIANCE, (GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_ALLIANCE) ? 1 : 0);
-    packet.Worldstates.emplace_back(BG_SA_CENTER_GY_ALLIANCE, (GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_ALLIANCE) ? 1 : 0);
-
-    packet.Worldstates.emplace_back(BG_SA_HORDE_DEFENCE_TOKEN, allyAttacks);
-    packet.Worldstates.emplace_back(BG_SA_ALLIANCE_DEFENCE_TOKEN, hordeAttacks);
-    packet.Worldstates.emplace_back(BG_SA_LEFT_ATT_TOKEN_HRD, hordeAttacks);
-    packet.Worldstates.emplace_back(BG_SA_RIGHT_ATT_TOKEN_HRD, hordeAttacks);
-    packet.Worldstates.emplace_back(BG_SA_RIGHT_ATT_TOKEN_ALL, allyAttacks);
-    packet.Worldstates.emplace_back(BG_SA_LEFT_ATT_TOKEN_ALL, allyAttacks);
+    }
 }
 
 void BattlegroundSA::AddPlayer(Player* player)
@@ -566,7 +525,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                     // damaged
                     if (eventId == go->GetGOInfo()->building.damagedEvent)
                     {
-                        GateStatus[gateId] = BG_SA_GATE_DAMAGED;
+                        GateStatus[gateId] = Attackers == TEAM_HORDE ? BG_SA_ALLIANCE_GATE_DAMAGED : BG_SA_HORDE_GATE_DAMAGED;
 
                         if (Creature* c = obj->FindNearestCreature(NPC_WORLD_TRIGGER, 500.0f))
                             SendChatMessage(c, gate->DamagedText, invoker);
@@ -576,7 +535,7 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                     // destroyed
                     else if (eventId == go->GetGOInfo()->building.destroyedEvent)
                     {
-                        GateStatus[gate->GateId] = BG_SA_GATE_DESTROYED;
+                        GateStatus[gate->GateId] = Attackers == TEAM_HORDE ? BG_SA_ALLIANCE_GATE_DESTROYED : BG_SA_HORDE_GATE_DESTROYED;
                         _gateDestroyed = true;
 
                         if (gateId < 5)
@@ -591,19 +550,19 @@ void BattlegroundSA::ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject*
                         switch (gateId)
                         {
                             case BG_SA_GREEN_GATE:
-                                if (GateStatus[BG_SA_BLUE_GATE] == BG_SA_GATE_DESTROYED)
+                                if (IsGateDestroyed(BG_SA_BLUE_GATE))
                                     rewardHonor = false;
                                 break;
                             case BG_SA_BLUE_GATE:
-                                if (GateStatus[BG_SA_GREEN_GATE] == BG_SA_GATE_DESTROYED)
+                                if (IsGateDestroyed(BG_SA_GREEN_GATE))
                                     rewardHonor = false;
                                 break;
                             case BG_SA_RED_GATE:
-                                if (GateStatus[BG_SA_PURPLE_GATE] == BG_SA_GATE_DESTROYED)
+                                if (IsGateDestroyed(BG_SA_PURPLE_GATE))
                                     rewardHonor = false;
                                 break;
                             case BG_SA_PURPLE_GATE:
-                                if (GateStatus[BG_SA_RED_GATE] == BG_SA_GATE_DESTROYED)
+                                if (IsGateDestroyed(BG_SA_RED_GATE))
                                     rewardHonor = false;
                                 break;
                             default:
@@ -739,16 +698,16 @@ bool BattlegroundSA::CanInteractWithObject(uint32 objectId)
     switch (objectId)
     {
         case BG_SA_TITAN_RELIC:
-            if (GateStatus[BG_SA_ANCIENT_GATE] != BG_SA_GATE_DESTROYED || GateStatus[BG_SA_YELLOW_GATE] != BG_SA_GATE_DESTROYED)
+            if (!IsGateDestroyed(BG_SA_ANCIENT_GATE) || !IsGateDestroyed(BG_SA_YELLOW_GATE))
                 return false;
             [[fallthrough]];
         case BG_SA_CENTRAL_FLAG:
-            if (GateStatus[BG_SA_RED_GATE] != BG_SA_GATE_DESTROYED && GateStatus[BG_SA_PURPLE_GATE] != BG_SA_GATE_DESTROYED)
+            if (!IsGateDestroyed(BG_SA_RED_GATE) && !IsGateDestroyed(BG_SA_PURPLE_GATE))
                 return false;
             [[fallthrough]];
         case BG_SA_LEFT_FLAG:
         case BG_SA_RIGHT_FLAG:
-            if (GateStatus[BG_SA_GREEN_GATE] != BG_SA_GATE_DESTROYED && GateStatus[BG_SA_BLUE_GATE] != BG_SA_GATE_DESTROYED)
+            if (!IsGateDestroyed(BG_SA_GREEN_GATE) && !IsGateDestroyed(BG_SA_BLUE_GATE))
                 return false;
             break;
         default:
@@ -1049,6 +1008,12 @@ bool BattlegroundSA::CheckAchievementCriteriaMeet(uint32 criteriaId, Player cons
     }
 
     return Battleground::CheckAchievementCriteriaMeet(criteriaId, source, target, miscValue);
+}
+
+bool BattlegroundSA::IsGateDestroyed(BG_SA_Objects gateId) const
+{
+    ASSERT(gateId < MAX_GATES);
+    return GateStatus[gateId] == BG_SA_ALLIANCE_GATE_DESTROYED || GateStatus[gateId] == BG_SA_HORDE_GATE_DESTROYED;
 }
 
 bool BattlegroundSA::IsSpellAllowed(uint32 spellId, Player const* /*player*/) const

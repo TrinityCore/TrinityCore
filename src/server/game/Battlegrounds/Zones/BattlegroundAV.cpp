@@ -25,8 +25,6 @@
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldSession.h"
-#include "WorldStatePackets.h"
 
 void BattlegroundAVScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {
@@ -91,6 +89,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     */
     if (entry == BG_AV_CreatureInfo[AV_NPC_A_BOSS])
     {
+        UpdateWorldState(AV_WS_VANDAAR_ALIVE, 0);
         CastSpellOnTeam(23658, HORDE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(729, BG_AV_REP_BOSS, HORDE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_BOSS), HORDE);
@@ -99,6 +98,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
     }
     else if (entry == BG_AV_CreatureInfo[AV_NPC_H_BOSS])
     {
+        UpdateWorldState(AV_WS_DREKTHAR_ALIVE, 0);
         CastSpellOnTeam(23658, ALLIANCE); //this is a spell which finishes a quest where a player has to kill the boss
         RewardReputationToTeam(730, BG_AV_REP_BOSS, ALLIANCE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_BOSS), ALLIANCE);
@@ -113,6 +113,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             return;
         }
         m_CaptainAlive[0]=false;
+        UpdateWorldState(AV_WS_BALINDA_ALIVE, 0);
         RewardReputationToTeam(729, BG_AV_REP_CAPTAIN, HORDE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), HORDE);
         UpdateScore(ALLIANCE, (-1)*BG_AV_RES_CAPTAIN);
@@ -132,6 +133,7 @@ void BattlegroundAV::HandleKillUnit(Creature* unit, Player* killer)
             return;
         }
         m_CaptainAlive[1]=false;
+        UpdateWorldState(AV_WS_GALVAGAR_ALIVE, 0);
         RewardReputationToTeam(730, BG_AV_REP_CAPTAIN, ALLIANCE);
         RewardHonorToTeam(GetBonusHonorFromKill(BG_AV_KILL_CAPTAIN), ALLIANCE);
         UpdateScore(HORDE, (-1)*BG_AV_RES_CAPTAIN);
@@ -259,13 +261,13 @@ void BattlegroundAV::UpdateScore(uint16 team, int16 points)
     uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
     m_Team_Scores[teamindex] += points;
 
-    UpdateWorldState(((teamindex == TEAM_HORDE)?AV_Horde_Score:AV_Alliance_Score), m_Team_Scores[teamindex]);
+    UpdateWorldState(teamindex == TEAM_HORDE ? AV_WS_HORDE_REINFORCEMENTS : AV_WS_ALLIANCE_REINFORCEMENTS, m_Team_Scores[teamindex]);
     if (points < 0)
     {
         if (m_Team_Scores[teamindex] < 1)
         {
-            m_Team_Scores[teamindex]=0;
-            EndBattleground(((teamindex == TEAM_HORDE)?ALLIANCE:HORDE));
+            m_Team_Scores[teamindex] = 0;
+            EndBattleground(teamindex == TEAM_HORDE ? ALLIANCE : HORDE);
         }
         else if (!m_IsInformedNearVictory[teamindex] && m_Team_Scores[teamindex] < SEND_MSG_NEAR_LOSE)
         {
@@ -429,8 +431,8 @@ void BattlegroundAV::StartingEventOpenDoors()
     for (uint8 mine = AV_NORTH_MINE; mine <= AV_SOUTH_MINE; mine++) //mine population
         ChangeMineOwner(mine, AV_NEUTRAL_TEAM, true);
 
-    UpdateWorldState(AV_SHOW_H_SCORE, 1);
-    UpdateWorldState(AV_SHOW_A_SCORE, 1);
+    UpdateWorldState(AV_WS_SHOW_HORDE_REINFORCEMENTS, 1);
+    UpdateWorldState(AV_WS_SHOW_ALLIANCE_REINFORCEMENTS, 1);
 
     DoorOpen(BG_AV_OBJECT_DOOR_H);
     DoorOpen(BG_AV_OBJECT_DOOR_A);
@@ -1024,38 +1026,6 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     UpdatePlayerScore(player, (IsTower(node)) ? SCORE_TOWERS_ASSAULTED : SCORE_GRAVEYARDS_ASSAULTED, 1);
 }
 
-void BattlegroundAV::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    for (uint8 itr = BG_AV_NODES_FIRSTAID_STATION; itr < BG_AV_NODES_MAX; ++itr)
-    {
-        uint16 owner = m_Nodes[itr].Owner;
-        BG_AV_States state = m_Nodes[itr].State;
-
-        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceAssault, (owner == ALLIANCE && state == POINT_ASSAULTED) ? 1 : 0);
-        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.AllianceControl, (owner == ALLIANCE && state >= POINT_DESTROYED) ? 1 : 0);
-        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeAssault, (owner == HORDE && state == POINT_ASSAULTED) ? 1 : 0);
-        packet.Worldstates.emplace_back(BGAVNodeInfo[itr].WorldStateIds.HordeControl, (owner == HORDE && state >= POINT_DESTROYED) ? 1 : 0);
-    }
-
-    packet.Worldstates.emplace_back(AV_SNOWFALL_N, (m_Nodes[BG_AV_NODES_SNOWFALL_GRAVE].Owner == AV_NEUTRAL_TEAM ? 1 : 0));
-    packet.Worldstates.emplace_back(AV_Alliance_Score, m_Team_Scores[0]);
-    packet.Worldstates.emplace_back(AV_Horde_Score, m_Team_Scores[1]);
-
-    // only if game started the teamscores are displayed
-    if (GetStatus() == STATUS_IN_PROGRESS) {
-        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 1);
-        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 1);
-    }
-    else
-    {
-        packet.Worldstates.emplace_back(AV_SHOW_A_SCORE, 0);
-        packet.Worldstates.emplace_back(AV_SHOW_H_SCORE, 0);
-    }
-
-    SendMineWorldStates(AV_NORTH_MINE);
-    SendMineWorldStates(AV_SOUTH_MINE);
-}
-
 void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
 {
     if (StaticNodeInfo const* nodeInfo = GetStaticNodeInfo(node))
@@ -1070,7 +1040,7 @@ void BattlegroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
     }
 
     if (node == BG_AV_NODES_SNOWFALL_GRAVE)
-        UpdateWorldState(AV_SNOWFALL_N, m_Nodes[node].Owner == AV_NEUTRAL_TEAM);
+        UpdateWorldState(AV_WS_SNOWFALL_GRAVEYARD_UNCONTROLLED, m_Nodes[node].Owner == AV_NEUTRAL_TEAM);
 }
 
 void BattlegroundAV::SendMineWorldStates(uint32 mine)
@@ -1476,7 +1446,7 @@ void BattlegroundAV::ResetBGSubclass()
     {
         for (uint8 j=0; j<9; j++)
             m_Team_QuestStatus[i][j]=0;
-        m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
+        m_Team_Scores[i] = BG_AV_SCORE_INITIAL_POINTS;
         m_IsInformedNearVictory[i]=false;
         m_CaptainAlive[i] = true;
         m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes @todo get the right times
