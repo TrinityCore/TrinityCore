@@ -17,8 +17,8 @@
 
 /*
  * Everything should be rechecked with sniffs
- * The way beams are handled out of combat requires additional research (currently NYI). It seems like they're timed
-   and are enabled and disabled from time to time
+ * The way beams are handled out of combat requires additional research. It seems like it's timed
+   and is enabled and disabled from time to time, not used all the time
  */
 
 #include "ScriptMgr.h"
@@ -84,7 +84,9 @@ enum HydrossEvents
     EVENT_VILE_SLUDGE,
     EVENT_SWITCH_TO_PURIFIED,
 
-    EVENT_BERSERK
+    EVENT_BERSERK,
+
+    EVENT_BLUE_BEAMS
 };
 
 enum HydrossMisc
@@ -101,6 +103,11 @@ struct boss_hydross_the_unstable : public BossAI
 {
     boss_hydross_the_unstable(Creature* creature) : BossAI(creature, BOSS_HYDROSS_THE_UNSTABLE),
         _markOfHydrossCount(0), _markOfCorruptionCount(0), _corruptedForm(false) { }
+
+    void JustAppeared() override
+    {
+        events.ScheduleEvent(EVENT_BLUE_BEAMS, 5s);
+    }
 
     void Reset() override
     {
@@ -145,6 +152,12 @@ struct boss_hydross_the_unstable : public BossAI
         events.ScheduleEvent(EVENT_BERSERK, 10min);
     }
 
+    void JustReachedHome() override
+    {
+        events.ScheduleEvent(EVENT_BLUE_BEAMS, 5s);
+        _JustReachedHome();
+    }
+
     void KilledUnit(Unit* /*victim*/) override
     {
         Talk(_corruptedForm ? SAY_CORRUPT_SLAY : SAY_CLEAN_SLAY);
@@ -157,10 +170,30 @@ struct boss_hydross_the_unstable : public BossAI
         _JustDied();
     }
 
+    void UpdateOutOfCombatEvents(uint32 diff)
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_BLUE_BEAMS:
+                    HandleBeamHelpers(false);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            UpdateOutOfCombatEvents(diff);
             return;
+        }
 
         events.Update(diff);
 
