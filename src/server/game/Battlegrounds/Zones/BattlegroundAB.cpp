@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
+#include "WorldSession.h"
 
 void BattlegroundABScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {

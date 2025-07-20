@@ -505,7 +505,6 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* node)
     }
 
     UpdateWorldState(worldstate, 1);
-    UpdateWorldState(node->worldStates[5], node->nodeState == NODE_STATE_CONTROLLED_H ? 2 : node->nodeState == NODE_STATE_CONTROLLED_A ? 1 : 0);
 }
 
 uint32 BattlegroundIC::GetNextBanner(ICNodePoint* node, uint32 team, bool returnDefinitve)
