@@ -132,7 +132,6 @@ class OutdoorPvPEP : public OutdoorPvP
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
         bool Update(uint32 diff) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
 
         void BuffTeams();
@@ -149,7 +148,6 @@ class OPvPCapturePointEP_EWT : public OPvPCapturePoint
         OPvPCapturePointEP_EWT(OutdoorPvP* pvp);
 
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonSupportUnitAtNorthpassTower(uint32 team);
@@ -165,7 +163,6 @@ class OPvPCapturePointEP_NPT : public OPvPCapturePoint
         OPvPCapturePointEP_NPT(OutdoorPvP* pvp);
 
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonGO(uint32 team);
@@ -181,7 +178,6 @@ class OPvPCapturePointEP_CGT : public OPvPCapturePoint
         OPvPCapturePointEP_CGT(OutdoorPvP* pvp);
 
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void LinkGraveyard(uint32 team);
@@ -197,7 +193,6 @@ class OPvPCapturePointEP_PWT : public OPvPCapturePoint
         OPvPCapturePointEP_PWT(OutdoorPvP* pvp);
 
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     protected:
         void SummonFlightMaster(uint32 team);
