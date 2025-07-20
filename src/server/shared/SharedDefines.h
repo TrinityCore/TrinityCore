@@ -3876,16 +3876,7 @@ enum WorldState : uint32
     WS_BATTLEFIELD_WG_ATTACKED_A            = 4023,
     WS_BATTLEFIELD_WG_DEFENDED_H            = 4024,
     WS_BATTLEFIELD_WG_DEFENDED_A            = 4025,
-    WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE      = 4354,
-
-    WS_ARENA_DISTRIBUTION_TIME  = 20001,                     // Next arena distribution time
-    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly quest reset time
-    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
-    WS_CLEANING_FLAGS           = 20004,                     // Cleaning Flags
-    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
-    WS_MONTHLY_QUEST_RESET_TIME = 20007,                     // Next monthly quest reset time
-    WS_DAILY_QUEST_RESET_TIME   = 20008,                     // Next daily quest reset time
-    WS_DAILY_CALENDAR_DELETION_OLD_EVENTS_TIME = 20009,      // Next daily calendar deletions of old events time
+    WS_BATTLEFIELD_WG_TIME_NEXT_BATTLE      = 4354
 };
 
 namespace Trinity

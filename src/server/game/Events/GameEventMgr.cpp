@@ -143,7 +143,7 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         }
 
         // When event is started, set its worldstate to current time
-        sWorld->setWorldState(event_id, GameTime::GetGameTime());
+        sWorldStateMgr->SaveValueInDb(event_id, GameTime::GetGameTime());
         return false;
     }
     else
@@ -180,7 +180,7 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
     UnApplyEvent(event_id);
 
     // When event is stopped, clean up its worldstate
-    sWorld->setWorldState(event_id, 0);
+    sWorldStateMgr->SaveValueInDb(event_id, 0);
 
     if (overwrite && !serverwide_evt)
     {
@@ -1107,7 +1107,7 @@ uint32 GameEventMgr::Update()                               // return the next e
         else
         {
             // If event is inactive, periodically clean up its worldstate
-            sWorld->setWorldState(itr, 0);
+            sWorldStateMgr->GetValue(itr, nullptr);
             //TC_LOG_DEBUG("misc", "GameEvent {} is not active", itr->first);
             if (IsActiveEvent(itr))
                 deactivate.insert(itr);
@@ -1193,7 +1193,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 
     // If event's worldstate is 0, it means the event hasn't been started yet. In that case, reset seasonal quests.
     // When event ends (if it expires or if it's stopped via commands) worldstate will be set to 0 again, ready for another seasonal quest reset.
-    if (sWorld->getWorldState(event_id) == 0)
+    if (sWorldStateMgr->GetValue(event_id, nullptr) == 0)
         sWorld->ResetEventSeasonalQuests(event_id);
 }
 
