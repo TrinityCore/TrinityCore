@@ -17,6 +17,8 @@
 
 /*
  * Everything should be rechecked with sniffs
+ * The way beams are handled out of combat requires additional research (currently NYI). It seems like they're timed
+   and are enabled and disabled from time to time
  */
 
 #include "ScriptMgr.h"
