@@ -156,7 +156,7 @@ int32 WorldStateMgr::GetValue(int32 worldStateId, Map const* map) const
         return 0;
     }
 
-    if (worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
+    if (!map || worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
         return 0;
 
     return map->GetWorldStateValue(worldStateId);
@@ -186,7 +186,7 @@ void WorldStateMgr::SetValue(int32 worldStateId, int32 value, bool hidden, Map* 
         return;
     }
 
-    if (worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
+    if (!map || worldStateTemplate->MapIds.find(map->GetId()) == worldStateTemplate->MapIds.end())
         return;
 
     map->SetWorldStateValue(worldStateId, value, hidden);
