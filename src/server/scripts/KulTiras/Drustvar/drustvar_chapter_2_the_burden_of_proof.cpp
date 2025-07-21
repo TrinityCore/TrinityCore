@@ -18,12 +18,14 @@
 #include "Conversation.h"
 #include "ConversationAI.h"
 #include "CreatureAIImpl.h"
+#include "Locales.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum StandingAccusedData
@@ -232,7 +234,7 @@ class spell_drustvar_cut_onions_burden_of_proof : public SpellScript
         return ValidateSpellInfo({ SPELL_EVENT_ONIONS_CUT });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_EVENT_ONIONS_CUT, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
@@ -244,25 +246,95 @@ class spell_drustvar_cut_onions_burden_of_proof : public SpellScript
 };
 
 // 5694 - Conversation
-class conversation_burden_of_proof_first_test_given : public ConversationAI
+// 5695 - Conversation
+// 5696 - Conversation
+class conversation_burden_of_proof_base : public ConversationAI
 {
 public:
     using ConversationAI::ConversationAI;
 
+    void SummonClones(Unit* creator)
+    {
+        if (Creature* constableObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_CONSTABLE_HENRY_FRAMER, .IgnorePhases = true }))
+        {
+            if (TempSummon* constableClone = constableObject->SummonPersonalClone(constableObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer()))
+            {
+                _constableCloneGUID = constableClone->GetGUID();
+                constableClone->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+            }
+        }
+
+        if (Creature* lucilleObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_LUCILLE_WAYCREST, .IgnorePhases = true }))
+        {
+            if (TempSummon* lucilleClone = lucilleObject->SummonPersonalClone(lucilleObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer()))
+            {
+                _lucilleCloneGUID = lucilleClone->GetGUID();
+                lucilleClone->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
+            }
+        }
+    }
+
+    void ScheduleEvents(uint32 pathId, int32 lineId, uint32 creditEntry) const
+    {
+        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
+
+        conversation->m_Events.AddEvent([this, pathId]()
+        {
+            if (Creature* constableClone = GetConstableClone())
+                constableClone->GetMotionMaster()->MovePath(pathId, false);
+
+        }, conversation->GetLineEndTime(privateOwnerLocale, lineId));
+
+        conversation->m_Events.AddEvent([this, creditEntry, conversation = conversation]()
+        {
+            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
+            if (!player)
+                return;
+
+            player->KilledMonsterCredit(creditEntry);
+
+            if (Creature* constableClone = GetConstableClone())
+                constableClone->DespawnOrUnsummon();
+
+            if (Creature* lucilleClone = GetLucilleClone())
+                lucilleClone->DespawnOrUnsummon();
+
+        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+    }
+
+    Creature* GetConstableClone() const
+    {
+        return ObjectAccessor::GetCreature(*conversation, _constableCloneGUID);
+    }
+
+    Creature* GetLucilleClone() const
+    {
+        return ObjectAccessor::GetCreature(*conversation, _lucilleCloneGUID);
+    }
+
+protected:
+    ObjectGuid _constableCloneGUID;
+    ObjectGuid _lucilleCloneGUID;
+};
+
+// 5694 - Conversation
+class conversation_burden_of_proof_first_test_given : public conversation_burden_of_proof_base
+{
+public:
+    using conversation_burden_of_proof_base::conversation_burden_of_proof_base;
+
     void OnCreate(Unit* creator) override
     {
-        Creature* constableObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_CONSTABLE_HENRY_FRAMER, .IgnorePhases = true });
-        Creature* lucilleObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_LUCILLE_WAYCREST, .IgnorePhases = true });
-        if (!constableObject || !lucilleObject)
+        SummonClones(creator);
+
+        Creature* constableClone = GetConstableClone();
+        if (!constableClone)
             return;
 
-        TempSummon* constableClone = constableObject->SummonPersonalClone(constableObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* lucilleClone = lucilleObject->SummonPersonalClone(lucilleObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!constableClone || !lucilleClone)
+        Creature* lucilleClone = GetLucilleClone();
+        if (!lucilleClone)
             return;
 
-        constableClone->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        lucilleClone->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
         lucilleClone->CastSpell(nullptr, SPELL_EVENT_LUCILLE_CRYING, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
 
         conversation->AddActor(CONVO_ACTOR_CONSTABLE, 1, constableClone->GetGUID());
@@ -272,31 +344,7 @@ public:
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            if (Creature* constableClone = conversation->GetActorCreature(1))
-                constableClone->GetMotionMaster()->MovePath(PATH_CONSTABLE_FIRST_TEST, false);
-
-        }, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_FIRST_TEST_GIVEN));
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
-            if (!player)
-                return;
-
-            Creature* constableClone = conversation->GetActorCreature(1);
-            Creature* lucilleClone = conversation->GetActorCreature(2);
-            if (!constableClone || !lucilleClone)
-                return;
-
-            player->KilledMonsterCredit(CREDIT_FIRST_TEST_GIVEN);
-            constableClone->DespawnOrUnsummon();
-            lucilleClone->DespawnOrUnsummon();
-
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        ScheduleEvents(PATH_CONSTABLE_FIRST_TEST, CONVO_LINE_FIRST_TEST_GIVEN, CREDIT_FIRST_TEST_GIVEN);
     }
 };
 
@@ -308,7 +356,7 @@ class spell_drustvar_release_bloodflies_burden_of_proof : public SpellScript
         return ValidateSpellInfo({ SPELL_EVENT_FLIES_RELEASED });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_EVENT_FLIES_RELEASED, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
@@ -320,25 +368,23 @@ class spell_drustvar_release_bloodflies_burden_of_proof : public SpellScript
 };
 
 // 5695 - Conversation
-class conversation_burden_of_proof_second_test_given : public ConversationAI
+class conversation_burden_of_proof_second_test_given : public conversation_burden_of_proof_base
 {
 public:
-    using ConversationAI::ConversationAI;
+    using conversation_burden_of_proof_base::conversation_burden_of_proof_base;
 
     void OnCreate(Unit* creator) override
     {
-        Creature* constableObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_CONSTABLE_HENRY_FRAMER, .IgnorePhases = true });
-        Creature* lucilleObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_LUCILLE_WAYCREST, .IgnorePhases = true });
-        if (!constableObject || !lucilleObject)
+        SummonClones(creator);
+
+        Creature* constableClone = GetConstableClone();
+        if (!constableClone)
             return;
 
-        TempSummon* constableClone = constableObject->SummonPersonalClone(constableObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* lucilleClone = lucilleObject->SummonPersonalClone(lucilleObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!constableClone || !lucilleClone)
+        Creature* lucilleClone = GetLucilleClone();
+        if (!lucilleClone)
             return;
 
-        constableClone->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        lucilleClone->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
         lucilleClone->CastSpell(nullptr, SPELL_LUCILLE_BITING_INSECTS, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
 
         conversation->AddActor(CONVO_ACTOR_CONSTABLE, 2, constableClone->GetGUID());
@@ -348,31 +394,7 @@ public:
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            if (Creature* constableClone = conversation->GetActorCreature(2))
-                constableClone->GetMotionMaster()->MovePath(PATH_CONSTABLE_SECOND_TEST, false);
-
-        }, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_SECOND_TEST_GIVEN));
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
-            if (!player)
-                return;
-
-            Creature* constableClone = conversation->GetActorCreature(2);
-            Creature* lucilleClone = conversation->GetActorCreature(0);
-            if (!constableClone || !lucilleClone)
-                return;
-
-            player->KilledMonsterCredit(CREDIT_SECOND_TEST_GIVEN);
-            constableClone->DespawnOrUnsummon();
-            lucilleClone->DespawnOrUnsummon();
-
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        ScheduleEvents(PATH_CONSTABLE_SECOND_TEST, CONVO_LINE_SECOND_TEST_GIVEN, CREDIT_SECOND_TEST_GIVEN);
     }
 };
 
@@ -384,7 +406,7 @@ class spell_drustvar_administering_venom_burden_of_proof : public SpellScript
         return ValidateSpellInfo({ SPELL_EVENT_TOXIN_GIVEN });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_EVENT_TOXIN_GIVEN, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
@@ -396,25 +418,23 @@ class spell_drustvar_administering_venom_burden_of_proof : public SpellScript
 };
 
 // 5696 - Conversation
-class conversation_burden_of_proof_third_test_given : public ConversationAI
+class conversation_burden_of_proof_third_test_given : public conversation_burden_of_proof_base
 {
 public:
-    using ConversationAI::ConversationAI;
+    using conversation_burden_of_proof_base::conversation_burden_of_proof_base;
 
     void OnCreate(Unit* creator) override
     {
-        Creature* constableObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_CONSTABLE_HENRY_FRAMER, .IgnorePhases = true });
-        Creature* lucilleObject = creator->FindNearestCreatureWithOptions(20.0f, { .CreatureId = NPC_LUCILLE_WAYCREST, .IgnorePhases = true });
-        if (!constableObject || !lucilleObject)
+        SummonClones(creator);
+
+        Creature* constableClone = GetConstableClone();
+        if (!constableClone)
             return;
 
-        TempSummon* constableClone = constableObject->SummonPersonalClone(constableObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        TempSummon* lucilleClone = lucilleObject->SummonPersonalClone(lucilleObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!constableClone || !lucilleClone)
+        Creature* lucilleClone = GetLucilleClone();
+        if (!lucilleClone)
             return;
 
-        constableClone->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        lucilleClone->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
         lucilleClone->CastSpell(nullptr, SPELL_LUCILLE_VOMIT, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
 
         conversation->AddActor(CONVO_ACTOR_CONSTABLE, 3, constableClone->GetGUID());
@@ -424,31 +444,7 @@ public:
 
     void OnStart() override
     {
-        LocaleConstant privateOwnerLocale = conversation->GetPrivateObjectOwnerLocale();
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            if (Creature* constableClone = conversation->GetActorCreature(3))
-                constableClone->GetMotionMaster()->MovePath(PATH_CONSTABLE_THIRD_TEST, false);
-
-        }, conversation->GetLineEndTime(privateOwnerLocale, CONVO_LINE_THIRD_TEST_GIVEN));
-
-        conversation->m_Events.AddEvent([conversation = conversation]()
-        {
-            Player* player = ObjectAccessor::GetPlayer(*conversation, conversation->GetPrivateObjectOwner());
-            if (!player)
-                return;
-
-            Creature* constableClone = conversation->GetActorCreature(3);
-            Creature* lucilleClone = conversation->GetActorCreature(0);
-            if (!constableClone || !lucilleClone)
-                return;
-
-            player->KilledMonsterCredit(CREDIT_THIRD_TEST_GIVEN);
-            constableClone->DespawnOrUnsummon();
-            lucilleClone->DespawnOrUnsummon();
-
-        }, conversation->GetLastLineEndTime(privateOwnerLocale));
+        ScheduleEvents(PATH_CONSTABLE_THIRD_TEST, CONVO_LINE_THIRD_TEST_GIVEN, CREDIT_THIRD_TEST_GIVEN);
     }
 };
 
