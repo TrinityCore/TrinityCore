@@ -4662,7 +4662,7 @@ public:
 
     void HandleTargetHeartbeat()
     {
-        GetTarget()->SendPlaySpellVisual(_isFood ? SPELL_VISUAL_KIT_FOOD : SPELL_VISUAL_KIT_DRINK);
+        GetTarget()->SendPlaySpellVisualKit(_isFood ? SPELL_VISUAL_KIT_FOOD : SPELL_VISUAL_KIT_DRINK, 0);
     }
 
     void Register() override

@@ -4938,7 +4938,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->Attributes &= ~SPELL_ATTR0_HEARTBEAT_RESIST_CHECK;
-    };
+    });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
     {
