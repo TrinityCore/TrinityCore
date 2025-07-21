@@ -689,17 +689,12 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
-    Map const* map = sMapMgr->CreateBaseMap(mapid);          // _not_ include difficulty
-    MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
-    MapInstanced::InstancedMaps::iterator mitr;
+    Map* baseMap = sMapMgr->CreateBaseMap(mapid);            // _not_ include difficulty
     uint32 timeLeft;
 
-    for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
+    for (auto& [_, map] : baseMap->ToMapInstanced()->GetInstancedMaps())
     {
-        Map* map2 = mitr->second;
-        if (!map2->IsDungeon())
-            continue;
-
+        InstanceMap* instanceMap = map->ToInstanceMap();
         if (warn)
         {
             if (now >= resetTime)
@@ -707,10 +702,10 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
             else
                 timeLeft = uint32(resetTime - now);
 
-            ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
+            instanceMap->SendResetWarnings(timeLeft);
         }
         else
-            ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
+            instanceMap->Reset(INSTANCE_RESET_GLOBAL);
     }
 
     /// @todo delete creature/gameobject respawn times even if the maps are not loaded

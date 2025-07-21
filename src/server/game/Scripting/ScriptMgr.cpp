@@ -484,7 +484,7 @@ class CreatureGameObjectScriptRegistrySwapHooks
             }
         };
 
-        AIFunctionMapWorker<typename std::decay<decltype(evaluator)>::type> worker(std::move(evaluator));
+        AIFunctionMapWorker<std::decay_t<decltype(evaluator)>> worker(std::move(evaluator));
         TypeContainerVisitor<decltype(worker), MapStoredObjectTypesContainer> containerVisitor(worker);
 
         containerVisitor.Visit(map->GetObjectsStore());
@@ -809,8 +809,8 @@ public:
         }
         else
         {
-            // The script uses a script name from database, but isn't assigned to anything.
-            TC_LOG_ERROR("sql.sql", "Script '{}' exists in the core, but the database does not assign it to any creature.",
+            // The script exist in the core, but isn't assigned to anything in the database.
+            TC_LOG_ERROR("sql.sql", "Script '{}' exists in the core, but is not referenced by the database!",
                 script->GetName());
 
             // Avoid calling "delete script;" because we are currently in the script constructor

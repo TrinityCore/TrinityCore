@@ -19,6 +19,8 @@
 #define PetPackets_h__
 
 #include "Packet.h"
+#include "PetDefines.h"
+#include "Position.h"
 #include "ObjectGuid.h"
 
 namespace WorldPackets
@@ -93,6 +95,39 @@ namespace WorldPackets
             RequestPetInfo(WorldPacket&& packet) : ClientPacket(CMSG_REQUEST_PET_INFO, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        class PetActionFeedback final : public ServerPacket
+        {
+        public:
+            PetActionFeedback() : ServerPacket(SMSG_PET_ACTION_FEEDBACK, 4 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            int32 SpellID = 0;
+            ::PetActionFeedback Response = ::PetActionFeedback::None;
+        };
+
+        class PetActionSound final : public ServerPacket
+        {
+        public:
+            PetActionSound() : ServerPacket(SMSG_PET_ACTION_SOUND, 8 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid UnitGUID;
+            int32 Action = 0;
+        };
+
+        class PetDismissSound final : public ServerPacket
+        {
+        public:
+            PetDismissSound() : ServerPacket(SMSG_PET_DISMISS_SOUND, 4 + 12) { }
+
+            WorldPacket const* Write() override;
+
+            int32 ModelId = 0;
+            TaggedPosition<Position::XYZ> ModelPosition;
         };
     }
 }

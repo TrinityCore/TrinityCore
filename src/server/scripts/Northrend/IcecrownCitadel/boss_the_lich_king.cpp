@@ -32,7 +32,7 @@
 #include "Vehicle.h"
 #include "Weather.h"
 
-enum Texts
+enum LichKingTexts
 {
     // The Lich King
     SAY_LK_INTRO_1                  = 0,
@@ -73,7 +73,7 @@ enum Texts
     SAY_TERENAS_INTRO_3             = 2,
 };
 
-enum Spells
+enum LichKingSpells
 {
     // The Lich King
     SPELL_PLAGUE_AVOIDANCE              = 72846,    // raging spirits also get it
@@ -193,7 +193,7 @@ enum Spells
 #define HARVEST_SOUL         RAID_MODE<uint32>(68980, 74325, 74296, 74297)
 #define ENRAGE               RAID_MODE<uint32>(72143, 72146, 72147, 72148)
 
-enum Events
+enum LichKingEvents
 {
     // The Lich King
     // intro events
@@ -276,13 +276,13 @@ enum Events
     EVENT_BOMB_EXPLOSION
 };
 
-enum EventGroups
+enum LichKingEventGroups
 {
     EVENT_GROUP_BERSERK         = 1,
     EVENT_GROUP_VILE_SPIRITS    = 2,
 };
 
-enum Phases
+enum LichKingPhases
 {
     PHASE_INTRO                 = 1,
     PHASE_ONE                   = 2,
@@ -311,7 +311,7 @@ Position const TerenasSpawn       = {495.5542f, -2517.012f, 1050.000f, 4.6993f};
 Position const TerenasSpawnHeroic = {495.7080f, -2523.760f, 1050.000f, 0.0f};
 Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
 
-enum MovePoints
+enum LichKingPoints
 {
     POINT_CENTER_1          = 1,
     POINT_CENTER_2          = 2,
@@ -330,7 +330,7 @@ enum MovePoints
     POINT_CHARGE            = 1003, // globally used number for charge spell effects
 };
 
-enum EncounterActions
+enum LichKingActions
 {
     ACTION_START_ENCOUNTER      = 0,
     ACTION_CONTINUE_INTRO       = 1,
@@ -344,7 +344,7 @@ enum EncounterActions
     ACTION_DISABLE_RAGING       = 9
 };
 
-enum MiscData
+enum LichKingMiscData
 {
     LIGHT_DEFAULT               = 2488,
     LIGHT_SNOWSTORM             = 2490,
@@ -364,7 +364,7 @@ enum MiscData
     MOVIE_FALL_OF_THE_LICH_KING = 16,
 };
 
-enum Misc
+enum LichKingMisc
 {
     DATA_PLAGUE_STACK           = 70337,
     DATA_VILE                   = 45814622
@@ -512,6 +512,7 @@ class TriggerWickedSpirit : public BasicEvent
         uint32 _counter;
 };
 
+// 36597 - The Lich King
 struct boss_the_lich_king : public BossAI
 {
     boss_the_lich_king(Creature* creature) : BossAI(creature, DATA_THE_LICH_KING)
@@ -1158,6 +1159,7 @@ private:
     uint32 _vileSpiritExplosions;
 };
 
+// 38995 - Highlord Tirion Fordring
 struct npc_tirion_fordring_tft : public ScriptedAI
 {
     npc_tirion_fordring_tft(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -1290,6 +1292,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 37698 - Shambling Horror
 struct npc_shambling_horror_icc : public ScriptedAI
 {
     npc_shambling_horror_icc(Creature* creature) : ScriptedAI(creature)
@@ -1356,6 +1359,7 @@ private:
     bool _frenzied;
 };
 
+// 36701 - Raging Spirit
 struct npc_raging_spirit : public ScriptedAI
 {
     npc_raging_spirit(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -1441,6 +1445,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 36609 - Val'kyr Shadowguard
 struct npc_valkyr_shadowguard : public ScriptedAI
 {
     npc_valkyr_shadowguard(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
@@ -1587,6 +1592,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 36598 - Strangulate Vehicle
 struct npc_strangulate_vehicle : public ScriptedAI
 {
     npc_strangulate_vehicle(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -1683,6 +1689,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 36823, 38579, 39217 - Terenas Menethil
 struct npc_terenas_menethil : public ScriptedAI
 {
     npc_terenas_menethil(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -1823,6 +1830,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 36824 - Spirit Warden
 struct npc_spirit_warden : public ScriptedAI
 {
     npc_spirit_warden(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -1868,6 +1876,7 @@ private:
     InstanceScript* _instance;
 };
 
+// 39189 - Spirit Bomb
 struct npc_spirit_bomb : public CreatureAI
 {
     npc_spirit_bomb(Creature* creature) : CreatureAI(creature) { }
@@ -1911,6 +1920,7 @@ private:
     EventMap _events;
 };
 
+// 38584 - Frostmourne Trigger
 struct npc_broken_frostmourne : public CreatureAI
 {
     npc_broken_frostmourne(Creature* creature) : CreatureAI(creature) { }

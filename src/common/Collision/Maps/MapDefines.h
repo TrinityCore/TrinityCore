@@ -19,7 +19,8 @@
 #define _MAPDEFINES_H
 
 #include "Define.h"
-#include "DetourNavMesh.h"
+#include "Optional.h"
+#include <DetourNavMesh.h>
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
 #define MMAP_VERSION 15
@@ -69,4 +70,47 @@ enum NavTerrainFlag
     NAV_MAGMA_SLIME  = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_MAGMA_SLIME)
 };
 
-#endif /* _MAPDEFINES_H */
+enum ZLiquidStatus : uint32
+{
+    LIQUID_MAP_NO_WATER     = 0x00000000,
+    LIQUID_MAP_ABOVE_WATER  = 0x00000001,
+    LIQUID_MAP_WATER_WALK   = 0x00000002,
+    LIQUID_MAP_IN_WATER     = 0x00000004,
+    LIQUID_MAP_UNDER_WATER  = 0x00000008,
+};
+
+#define MAP_LIQUID_STATUS_SWIMMING (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)
+#define MAP_LIQUID_STATUS_IN_CONTACT (MAP_LIQUID_STATUS_SWIMMING | LIQUID_MAP_WATER_WALK)
+
+struct LiquidData
+{
+    uint32 type_flags;
+    uint32 entry;
+    float  level;
+    float  depth_level;
+};
+
+struct WmoLocation
+{
+    WmoLocation() = default;
+    WmoLocation(int32 groupId, int32 nameSetId, int32 rootId, uint32 uniqueId)
+        : GroupId(groupId), NameSetId(nameSetId), RootId(rootId), UniqueId(uniqueId) { }
+
+    int32 GroupId = 0;
+    int32 NameSetId = 0;
+    int32 RootId = 0;
+    uint32 UniqueId = 0;
+};
+
+struct PositionFullTerrainStatus
+{
+    PositionFullTerrainStatus() : areaId(0), floorZ(0.0f), outdoors(true), liquidStatus(LIQUID_MAP_NO_WATER) { }
+    uint32 areaId;
+    float floorZ;
+    bool outdoors;
+    ZLiquidStatus liquidStatus;
+    Optional<WmoLocation> wmoLocation;
+    Optional<LiquidData> liquidInfo;
+};
+
+#endif // _MAPDEFINES_H

@@ -127,9 +127,21 @@ public:
     }
 
     /// Marks the socket for closing after write buffer becomes empty
-    void DelayedCloseSocket() { _closing = true; }
+    void DelayedCloseSocket()
+    {
+        if (_closing.exchange(true))
+            return;
+
+        if (_writeQueue.empty())
+            CloseSocket();
+    }
 
     MessageBuffer& GetReadBuffer() { return _readBuffer; }
+
+    tcp::socket& underlying_stream()
+    {
+        return _socket;
+    }
 
 protected:
     virtual void OnClose() { }

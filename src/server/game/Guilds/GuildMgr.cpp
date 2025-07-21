@@ -26,15 +26,13 @@
 GuildMgr::GuildMgr() : NextGuildId(1)
 { }
 
-GuildMgr::~GuildMgr()
-{
-    for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        delete itr->second;
-}
+GuildMgr::~GuildMgr() = default;
 
 void GuildMgr::AddGuild(Guild* guild)
 {
-    GuildStore[guild->GetId()] = guild;
+    Trinity::unique_trackable_ptr<Guild>& ptr = GuildStore[guild->GetId()];
+    ptr.reset(guild);
+    guild->SetWeakPtr(ptr);
 }
 
 void GuildMgr::RemoveGuild(ObjectGuid::LowType guildId)
@@ -57,16 +55,16 @@ Guild* GuildMgr::GetGuildById(ObjectGuid::LowType guildId) const
 {
     GuildContainer::const_iterator itr = GuildStore.find(guildId);
     if (itr != GuildStore.end())
-        return itr->second;
+        return itr->second.get();
 
     return nullptr;
 }
 
 Guild* GuildMgr::GetGuildByName(std::string_view guildName) const
 {
-    for (auto [id, guild] : GuildStore)
+    for (auto const& [id, guild] : GuildStore)
         if (StringEqualI(guild->GetName(), guildName))
-            return guild;
+            return guild.get();
 
     return nullptr;
 }
@@ -89,7 +87,7 @@ Guild* GuildMgr::GetGuildByLeader(ObjectGuid guid) const
 {
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
         if (itr->second->GetLeaderGUID() == guid)
-            return itr->second;
+            return itr->second.get();
 
     return nullptr;
 }
@@ -387,10 +385,10 @@ void GuildMgr::LoadGuilds()
 
         for (GuildContainer::iterator itr = GuildStore.begin(); itr != GuildStore.end();)
         {
-            Guild* guild = itr->second;
+            Guild* guild = itr->second.get();
             ++itr;
-            if (guild && !guild->Validate())
-                delete guild;
+            if (guild)
+                guild->Validate();
         }
 
         TC_LOG_INFO("server.loading", ">> Validated data of loaded guilds in {} ms", GetMSTimeDiffToNow(oldMSTime));
@@ -400,7 +398,7 @@ void GuildMgr::LoadGuilds()
 void GuildMgr::ResetTimes()
 {
     for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        if (Guild* guild = itr->second)
+        if (Guild* guild = itr->second.get())
             guild->ResetTimes();
 
     CharacterDatabase.DirectExecute("TRUNCATE guild_member_withdraw");

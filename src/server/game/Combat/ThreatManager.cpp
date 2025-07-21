@@ -34,15 +34,11 @@
 #include <algorithm>
 #include <boost/heap/fibonacci_heap.hpp>
 
-#include "Hacks/boost_1_74_fibonacci_heap.h"
-
 const CompareThreatLessThan ThreatManager::CompareThreat;
 
 class ThreatManager::Heap : public boost::heap::fibonacci_heap<ThreatReference const*, boost::heap::compare<CompareThreatLessThan>>
 {
 };
-
-BOOST_1_74_FIBONACCI_HEAP_MSVC_COMPILE_FIX(ThreatManager::Heap::value_type)
 
 void ThreatReference::AddThreat(float amount)
 {
@@ -378,21 +374,14 @@ void ThreatManager::AddThreat(Unit* target, float amount, SpellInfo const* spell
             return;
         amount = 0.0f;
     }
-    else if (TempSummon* tempSummonVictim = target->ToTempSummon())
+
+    // If victim is personal spawn, redirect all aggro to summoner
+    if (target->IsPrivateObject() && (!GetOwner()->IsPrivateObject() || !GetOwner()->CheckPrivateObjectOwnerVisibility(target)))
     {
-        if (tempSummonVictim->IsVisibleBySummonerOnly())
+        if (Unit* privateObjectOwner = ObjectAccessor::GetUnit(*GetOwner(), target->GetPrivateObjectOwner()))
         {
-            if (Unit* tempSummonSummoner = tempSummonVictim->GetSummonerUnit())
-            {
-                // Personnal Spawns from same summoner can aggro each other
-                if (!_owner->ToTempSummon() ||
-                    !_owner->ToTempSummon()->IsVisibleBySummonerOnly() ||
-                    tempSummonVictim->GetSummonerGUID() != GetOwner()->ToTempSummon()->GetSummonerGUID())
-                {
-                    AddThreat(tempSummonSummoner, amount, spell, ignoreModifiers, ignoreRedirects);
-                    amount = 0.0f;
-                }
-            }
+            AddThreat(privateObjectOwner, amount, spell, ignoreModifiers, ignoreRedirects);
+            amount = 0.0f;
         }
     }
 
