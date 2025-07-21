@@ -170,7 +170,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
     unit->SetHomePosition(unit->GetPosition());
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
-    if (unit->IsSpiritGuide())
+    if (unit->IsAreaSpiritHealer())
     {
         Battleground* bg = _player->GetBattleground();
         if (bg)
@@ -197,7 +197,7 @@ void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
     ObjectGuid guid;
     recvData >> guid;
 
-    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRITHEALER);
+    Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_SPIRIT_HEALER);
     if (!unit)
     {
         TC_LOG_DEBUG("network", "WORLD: HandleSpiritHealerActivateOpcode - {} not found or you can not interact with him.", guid.ToString());
