@@ -54,10 +54,16 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnMask`, `p
 
 UPDATE `creature_template` SET `flags_extra` = `flags_extra`|128 WHERE `entry` IN (19523,19524,20572,20573);
 
-DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (19523,19524);
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=16809 AND `ID`=2;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `ItemID2`, `ItemID3`, `VerifiedBuild`) VALUES
+(16809, 2, 29479, 0, 0, 61967);
+
+DELETE FROM `creature_template_movement` WHERE `CreatureId` IN (19523,19524,20572,20573);
 INSERT INTO `creature_template_movement` (`CreatureId`, `Ground`, `Swim`, `Flight`, `Rooted`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
 (19523,1,1,1,1,0,0,NULL),
-(19524,1,1,1,1,0,0,NULL);
+(20572,1,1,1,1,0,0,NULL),
+(19524,1,1,1,1,0,0,NULL),
+(20573,1,1,1,1,0,0,NULL);
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (19523,19524,16809);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

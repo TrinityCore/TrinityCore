@@ -95,6 +95,11 @@ enum OmroggActions
     ACTION_DEATH                = 10
 };
 
+enum OmroggEquips
+{
+    EQUIP_ID_BURNING_MAUL       = 2
+};
+
 // 16809 - Warbringer O'mrogg
 struct boss_warbringer_omrogg : public BossAI
 {
@@ -408,6 +413,18 @@ class spell_omrogg_burning_maul : public AuraScript
         return ValidateSpellInfo({ SPELL_BLAST_WAVE });
     }
 
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* creature = GetTarget()->ToCreature())
+            creature->LoadEquipment(EQUIP_ID_BURNING_MAUL);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* creature = GetTarget()->ToCreature())
+            creature->LoadEquipment(creature->GetOriginalEquipmentId());
+    }
+
     void OnProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
         if (roll_chance_i(50))
@@ -416,6 +433,8 @@ class spell_omrogg_burning_maul : public AuraScript
 
     void Register() override
     {
+        OnEffectApply += AuraEffectApplyFn(spell_omrogg_burning_maul::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_omrogg_burning_maul::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
         OnEffectProc += AuraEffectProcFn(spell_omrogg_burning_maul::OnProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
