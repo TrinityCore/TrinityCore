@@ -26,6 +26,7 @@
 #include "AsyncCallbackProcessor.h"
 #include "AuthDefines.h"
 #include "DatabaseEnvFwd.h"
+#include "Duration.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
 #include "Packet.h"
@@ -85,6 +86,22 @@ namespace WorldPackets
         class AutoBankItem;
         class AutoStoreBankItem;
         class BuyBankSlot;
+    }
+
+    namespace Battleground
+    {
+        class AreaSpiritHealerQuery;
+        class AreaSpiritHealerQueue;
+        class HearthAndResurrect;
+        class PVPLogDataRequest;
+        class BattlemasterJoin;
+        class BattlemasterJoinArena;
+        class BattlefieldLeave;
+        class BattlefieldPort;
+        class BattlefieldListRequest;
+        class RequestBattlefieldStatus;
+        class ReportPvPPlayerAFK;
+        class BattlegroundPlayerPositionsRequest;
     }
 
     namespace Calendar
@@ -206,6 +223,11 @@ namespace WorldPackets
         class TrainerBuySpell;
     }
 
+    namespace Party
+    {
+        class PartyInviteClient;
+    }
+
     namespace Pet
     {
         class DismissCritter;
@@ -219,6 +241,8 @@ namespace WorldPackets
     {
         class QueryCreature;
         class QueryGameObject;
+        class QueryCorpseLocationFromClient;
+        class QueryCorpseTransport;
         class QueryItemSingle;
         class QuestPOIQuery;
     }
@@ -535,8 +559,6 @@ class TC_GAME_API WorldSession
 
         void SendAttackStop(Unit const* enemy);
 
-        void SendBattleGroundList(ObjectGuid guid, BattlegroundTypeId bgTypeId = BATTLEGROUND_RB);
-
         void SendTradeStatus(TradeStatusInfo const& status);
         void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade(TradeStatus status);
@@ -570,11 +592,28 @@ class TC_GAME_API WorldSession
                 m_TutorialsChanged |= TUTORIALS_FLAG_CHANGED;
             }
         }
+        void LoadInstanceTimeRestrictions(PreparedQueryResult result);
+        void SaveInstanceTimeRestrictions(CharacterDatabaseTransaction trans);
+        bool UpdateAndCheckInstanceCount(uint32 instanceId);
+        void AddInstanceEnterTime(uint32 instanceId, SystemTimePoint enterTime);
+        void UpdateInstanceEnterTimes();
         //auction
-        void SendAuctionHello(ObjectGuid guid, Creature* unit);
-        void SendAuctionCommandResult(uint32 auctionItemId, AuctionAction command, AuctionError errorCode, InventoryResult bagResult = InventoryResult(0));
+        void SendAuctionHello(ObjectGuid guid, Unit const* unit);
+
+        /**
+         * @fn  void WorldSession::SendAuctionCommandResult(uint32 auctionId, uint32 action, uint32 errorCode, uint32 bagError = 0);
+         *
+         * @brief   Notifies the client of the result of his last auction operation. It is called when the player bids, creates, or deletes an auction
+         *
+         * @param   auction         The relevant auction data
+         * @param   command         The action that was performed.
+         * @param   errorCode       The resulting error code.
+         * @param   bagResult       (Optional) InventoryResult.
+         */
+        void SendAuctionCommandResult(AuctionEntry const* auction, AuctionAction command, AuctionError errorCode, InventoryResult bagResult = InventoryResult(0));
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, ObjectGuid bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry* auction);
+        void SendAuctionRemovedNotification(uint32 auctionId, uint32 itemEntry, int32 randomPropertyId);
 
         //Item Enchantment
         void SendEnchantmentLog(ObjectGuid target, ObjectGuid caster, uint32 itemId, uint32 enchantId);
@@ -766,9 +805,7 @@ class TC_GAME_API WorldSession
 
         void HandleRequestRaidInfoOpcode(WorldPacket& recvData);
 
-        void HandleBattlefieldStatusOpcode(WorldPacket& recvData);
-
-        void HandleGroupInviteOpcode(WorldPacket& recvPacket);
+        void HandleGroupInviteOpcode(WorldPackets::Party::PartyInviteClient& packet);
         void HandleGroupAcceptOpcode(WorldPacket& recvPacket);
         void HandleGroupDeclineOpcode(WorldPacket& recvPacket);
         void HandleGroupUninviteOpcode(WorldPacket& recvPacket);
@@ -945,8 +982,8 @@ class TC_GAME_API WorldSession
         void HandleChatIgnoredOpcode(WorldPacket& recvPacket);
 
         void HandleReclaimCorpse(WorldPackets::Misc::ReclaimCorpse& packet);
-        void HandleCorpseQueryOpcode(WorldPacket& recvPacket);
-        void HandleCorpseMapPositionQuery(WorldPacket& recvPacket);
+        void HandleQueryCorpseLocation(WorldPackets::Query::QueryCorpseLocationFromClient& packet);
+        void HandleQueryCorpseTransport(WorldPackets::Query::QueryCorpseTransport& packet);
         void HandleResurrectResponse(WorldPackets::Misc::ResurrectResponse& packet);
         void HandleSummonResponseOpcode(WorldPacket& recvData);
 
@@ -1000,15 +1037,19 @@ class TC_GAME_API WorldSession
         void HandleDismissCritter(WorldPackets::Pet::DismissCritter& dismissCritter);
 
         //Battleground
-        void HandleBattlemasterHelloOpcode(WorldPacket& recvData);
-        void HandleBattlemasterJoinOpcode(WorldPacket& recvData);
-        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recvData);
-        void HandlePVPLogDataOpcode(WorldPacket& recvData);
-        void HandleBattleFieldPortOpcode(WorldPacket& recvData);
-        void HandleBattlefieldListOpcode(WorldPacket& recvData);
-        void HandleBattlefieldLeaveOpcode(WorldPacket& recvData);
-        void HandleBattlemasterJoinArena(WorldPacket& recvData);
-        void HandleReportPvPAFK(WorldPacket& recvData);
+        void HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello);
+        void HandleBattlemasterJoinOpcode(WorldPackets::Battleground::BattlemasterJoin& battlemasterJoin);
+        void HandleBattlegroundPlayerPositionsOpcode(WorldPackets::Battleground::BattlegroundPlayerPositionsRequest& battlegroundPlayerPositionsRequest);
+        void HandlePVPLogDataOpcode(WorldPackets::Battleground::PVPLogDataRequest& pvpLogDataRequest);
+        void HandleBattleFieldPortOpcode(WorldPackets::Battleground::BattlefieldPort& battlefieldPort);
+        void HandleBattlefieldListOpcode(WorldPackets::Battleground::BattlefieldListRequest& battlefieldList);
+        void HandleBattlefieldLeaveOpcode(WorldPackets::Battleground::BattlefieldLeave& battlefieldLeave);
+        void HandleBattlemasterJoinArena(WorldPackets::Battleground::BattlemasterJoinArena& packet);
+        void HandleReportPvPAFK(WorldPackets::Battleground::ReportPvPPlayerAFK& reportPvPPlayerAFK);
+        void HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground::AreaSpiritHealerQuery& areaSpiritHealerQuery);
+        void HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue);
+        void HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& hearthAndResurrect);
+        void HandleRequestBattlefieldStatusOpcode(WorldPackets::Battleground::RequestBattlefieldStatus& requestBattlefieldStatus);
 
         // Battlefield
         void SendBfInvitePlayerToWar(uint32 battleId, uint32 zoneId, uint32 time);
@@ -1032,7 +1073,6 @@ class TC_GAME_API WorldSession
         void HandleTimeSyncResponse(WorldPacket& recvData);
         void HandleWhoIsOpcode(WorldPacket& recvData);
         void HandleResetInstancesOpcode(WorldPacket& recvData);
-        void HandleHearthAndResurrect(WorldPacket& recvData);
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
         // Looking for Dungeon/Raid
@@ -1075,8 +1115,6 @@ class TC_GAME_API WorldSession
         void HandleArenaTeamDisbandOpcode(WorldPacket& recvData);
         void HandleArenaTeamLeaderOpcode(WorldPacket& recvData);
 
-        void HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData);
-        void HandleAreaSpiritHealerQueueOpcode(WorldPacket& recvData);
         void HandleSelfResOpcode(WorldPacket& recvData);
         void HandleComplainOpcode(WorldPacket& recvData);
         void HandleRequestPetInfo(WorldPackets::Pet::RequestPetInfo& packet);
@@ -1244,6 +1282,9 @@ class TC_GAME_API WorldSession
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
         uint32 m_Tutorials[MAX_ACCOUNT_TUTORIAL_VALUES];
         uint8  m_TutorialsChanged;
+
+        std::unordered_map<uint32 /*instanceId*/, SystemTimePoint/*releaseTime*/> _instanceResetTimes;
+
         struct Addons
         {
             struct SecureAddonInfo

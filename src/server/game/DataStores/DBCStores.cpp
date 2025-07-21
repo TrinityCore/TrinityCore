@@ -589,11 +589,12 @@ void LoadDBCStores(const std::string& dataPath)
                 if (sInfo->Effect[j] == SPELL_EFFECT_SEND_TAXI)
                     spellPaths.insert(sInfo->EffectMiscValue[j]);
 
-        sTaxiNodesMask.fill(0);
-        sOldContinentsNodesMask.fill(0);
-        sHordeTaxiNodesMask.fill(0);
-        sAllianceTaxiNodesMask.fill(0);
-        sDeathKnightTaxiNodesMask.fill(0);
+        // reinitialize internal storage for globals after loading TaxiNodes.db2
+        sTaxiNodesMask = {};
+        sOldContinentsNodesMask = {};
+        sHordeTaxiNodesMask = {};
+        sAllianceTaxiNodesMask = {};
+        sDeathKnightTaxiNodesMask = {};
         for (TaxiNodesEntry const* node : sTaxiNodesStore)
         {
             TaxiPathSetBySource::const_iterator src_i = sTaxiPathSetBySource.find(node->ID);
@@ -615,8 +616,8 @@ void LoadDBCStores(const std::string& dataPath)
             }
 
             // valid taxi network node
-            uint8  field   = (uint8)((node->ID - 1) / 32);
-            uint32 submask = 1  <<  ((node->ID - 1) % 32);
+            uint32 field = uint32((node->ID - 1) / (sizeof(TaxiMask::value_type) * 8));
+            TaxiMask::value_type submask = TaxiMask::value_type(1 << ((node->ID - 1) % (sizeof(TaxiMask::value_type) * 8)));
             sTaxiNodesMask[field] |= submask;
 
             if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
@@ -984,4 +985,13 @@ EmotesTextSoundEntry const* FindTextSoundEmoteFor(uint32 emote, uint32 race, uin
 {
     auto itr = sEmotesTextSoundMap.find(EmotesTextSoundKey(emote, race, gender));
     return itr != sEmotesTextSoundMap.end() ? itr->second : nullptr;
+}
+
+TaxiMask::TaxiMask()
+{
+    if (sTaxiNodesStore.GetNumRows())
+    {
+        _data.resize((sTaxiNodesStore.GetNumRows() + (8 * sizeof(uint64) - 1)) / (8 * sizeof(uint64)) * (sizeof(uint64) / sizeof(value_type)), 0);
+        ASSERT((_data.size() % (8 / sizeof(value_type))) == 0, "TaxiMask byte size must be aligned to a multiple of uint64");
+    }
 }

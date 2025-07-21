@@ -20,6 +20,7 @@
 
 #include "Packet.h"
 #include "ObjectGuid.h"
+#include "Position.h"
 #include <array>
 
 namespace WorldPackets
@@ -65,6 +66,20 @@ namespace WorldPackets
             int32 TrainerType = 0;
             std::vector<TrainerListSpell> Spells;
             std::string Greeting;
+        };
+
+        class GossipPOI final : public ServerPacket
+        {
+        public:
+            GossipPOI() : ServerPacket(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 32) { }
+
+            WorldPacket const* Write() override;
+
+            uint32 Flags = 0;
+            TaggedPosition<Position::XY> Pos;
+            int32 Icon = 0;
+            int32 Importance = 0;
+            std::string Name;
         };
 
         class TrainerBuySpell final : public ClientPacket

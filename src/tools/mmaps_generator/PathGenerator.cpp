@@ -25,6 +25,11 @@
 #include <boost/filesystem.hpp>
 #include <unordered_map>
 
+constexpr char Readme[] =
+{
+#include "Info/readme.txt"
+};
+
 using namespace MMAP;
 
 namespace
@@ -253,6 +258,12 @@ bool handleArgs(int argc, char** argv,
         else if (strcmp(argv[i], "--allowDebug") == 0)
         {
             allowDebug = true;
+        }
+        else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
+        {
+            printf("%s\n", Readme);
+            silent = true;
+            return false;
         }
         else
         {

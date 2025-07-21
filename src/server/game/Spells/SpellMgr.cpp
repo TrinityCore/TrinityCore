@@ -177,7 +177,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, WorldObject const* cast
     if (!GetSpellInfo(spellId))
         return spellId;
 
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
+    if (!caster || !caster->GetMap() || (!caster->GetMap()->IsDungeon() && !caster->GetMap()->IsBattleground()))
         return spellId;
 
     uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
@@ -519,22 +519,6 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
     // always trigger for these types
     if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
         return true;
-
-    // do triggered cast checks
-    // Do not consider autoattacks as triggered spells
-    if (!(procEntry.AttributesMask & PROC_ATTR_TRIGGERED_CAN_PROC) && !(eventInfo.GetTypeMask() & AUTO_ATTACK_PROC_FLAG_MASK))
-    {
-        if (Spell const* spell = eventInfo.GetProcSpell())
-        {
-            if (spell->IsTriggered())
-            {
-                SpellInfo const* spellInfo = spell->GetSpellInfo();
-                if (!spellInfo->HasAttribute(SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2) &&
-                    !spellInfo->HasAttribute(SPELL_ATTR2_TRIGGERED_CAN_TRIGGER_PROC))
-                    return false;
-            }
-        }
-    }
 
     // check school mask (if set) for other trigger types
     if (procEntry.SchoolMask && !(eventInfo.GetSchoolMask() & procEntry.SchoolMask))
@@ -1973,6 +1957,10 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
+    // Don't autolearn secondary variant of Seal of Righteousness - it is learned together with Judgement of Light
+    if (SkillLineAbilityEntry* sealOfRighteousnessR2 = const_cast<SkillLineAbilityEntry*>(sSkillLineAbilityStore.LookupEntry(11957)))
+        sealOfRighteousnessR2->AcquireMethod = 0;
+
     TC_LOG_INFO("server.loading", ">> Loaded {} SkillLineAbility MultiMap Data in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
@@ -3233,7 +3221,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         // due to discrepancies between ranks
         spellInfo->EquippedItemSubClassMask = 0x0000FC33;
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_FROM_PROCS;
     });
 
     ApplySpellFix({
@@ -3246,7 +3234,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     }, [](SpellInfo* spellInfo)
     {
         // Entries were not updated after spell effect change, we have to do that manually :/
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
+        spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_FROM_PROCS;
     });
 
     ApplySpellFix({
@@ -4910,6 +4898,52 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({ 53659 }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
+    });
+
+    // Pilgrim's Bounty - Candied Sweet Potato
+    ApplySpellFix({ 65418 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65410;
+    });
+
+    // Pilgrim's Bounty - Spice Bread Stuffing
+    ApplySpellFix({ 65419 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65416;
+    });
+
+    // Pilgrim's Bounty - Cranberry Chutney
+    ApplySpellFix({ 65420 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65412;
+    });
+
+    // Pilgrim's Bounty - Pumpkin Pie
+    ApplySpellFix({ 65421 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65415;
+    });
+
+    // Pilgrim's Bounty - Slow-Roasted Turkey
+    ApplySpellFix({ 65422 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_2).TriggerSpell = 65414;
+    });
+
+    ApplySpellFix({
+        24869, // Bobbing Apple, Bread of the Dead, Winter Veil Cookie
+        61874, // Noblegarden Chocolate
+        71068, // Sweet Surprise
+        71071, // Very Berry Cream
+        71073, // Dark Desire
+        71074  // Buttermilk Delight
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_1).Effect          = SPELL_EFFECT_APPLY_AURA;
+        spellInfo->_GetEffect(EFFECT_1).TargetA         = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
+        spellInfo->_GetEffect(EFFECT_1).ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
+        spellInfo->_GetEffect(EFFECT_1).Amplitude       = 10 * IN_MILLISECONDS;
+        spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)

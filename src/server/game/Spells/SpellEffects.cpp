@@ -1109,7 +1109,7 @@ void Spell::EffectPowerDrain()
         return;
 
     Powers powerType = Powers(effectInfo->MiscValue);
-    if (!unitTarget || !unitTarget->IsAlive() || unitTarget->GetPowerType() != powerType || damage < 0)
+    if (!unitTarget || !unitTarget->IsAlive() || (unitTarget->GetPowerType() != powerType && powerType != POWER_HAPPINESS) || damage < 0)
         return;
 
     Unit* unitCaster = GetUnitCasterForEffectHandlers();
@@ -1463,7 +1463,7 @@ void Spell::DoCreateItem(uint32 itemId)
     if (msg != EQUIP_ERR_OK)
     {
         // convert to possible store amount
-        if (msg == EQUIP_ERR_INVENTORY_FULL || msg == EQUIP_ERR_CANT_CARRY_MORE_OF_THIS)
+        if (msg == EQUIP_ERR_INV_FULL || msg == EQUIP_ERR_ITEM_MAX_COUNT)
             num_to_add -= no_space;
         else
         {
@@ -1566,6 +1566,10 @@ void Spell::EffectPersistentAA()
     if (!unitCaster)
         return;
 
+    // Caster not in world, might be spell triggered from aura removal
+    if (!unitCaster->IsInWorld())
+        return;
+
     // only handle at last effect
     for (size_t i = effectInfo->EffectIndex + 1; i < m_spellInfo->GetEffects().size(); ++i)
         if (m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
@@ -1573,14 +1577,16 @@ void Spell::EffectPersistentAA()
 
     ASSERT(!_dynObjAura);
 
-    float radius = effectInfo->CalcRadius(unitCaster);
-
-    // Caster not in world, might be spell triggered from aura removal
-    if (!unitCaster->IsInWorld())
-        return;
+    float radius = 0.0f;
+    for (size_t i = 0; i <= effectInfo->EffectIndex; ++i)
+    {
+        SpellEffectInfo const& spellEffectInfo = m_spellInfo->GetEffect(SpellEffIndex(i));
+        if (spellEffectInfo.IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+            radius = std::max(radius, spellEffectInfo.CalcRadius(unitCaster));
+    }
 
     DynamicObject* dynObj = new DynamicObject(false);
-    if (!dynObj->CreateDynamicObject(unitCaster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), unitCaster, m_spellInfo->Id, *destTarget, radius, DYNAMIC_OBJECT_AREA_SPELL))
+    if (!dynObj->CreateDynamicObject(unitCaster->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), unitCaster, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_AREA_SPELL))
     {
         delete dynObj;
         return;
@@ -1600,7 +1606,9 @@ void Spell::EffectPersistentAA()
         return;
 
     ASSERT(_dynObjAura->GetDynobjOwner());
-    _dynObjAura->_ApplyEffectForTargets(effectInfo->EffectIndex);
+    for (size_t i = 0; i < m_spellInfo->GetEffects().size(); ++i)
+        if (m_spellInfo->GetEffect(SpellEffIndex(i)).IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
+            _dynObjAura->_ApplyEffectForTargets(i);
 }
 
 void Spell::EffectEnergize()
@@ -1972,9 +1980,9 @@ void Spell::EffectSummonChangeItem()
 
         InventoryResult msg = player->CanEquipItem(m_CastItem->GetSlot(), dest, pNewItem, true);
 
-        if (msg == EQUIP_ERR_OK || msg == EQUIP_ERR_CANT_DO_RIGHT_NOW)
+        if (msg == EQUIP_ERR_OK || msg == EQUIP_ERR_CLIENT_LOCKED_OUT)
         {
-            if (msg == EQUIP_ERR_CANT_DO_RIGHT_NOW) dest = EQUIPMENT_SLOT_MAINHAND;
+            if (msg == EQUIP_ERR_CLIENT_LOCKED_OUT) dest = EQUIPMENT_SLOT_MAINHAND;
 
             // prevent crash at access and unexpected charges counting with item update queue corrupt
             if (m_CastItem == m_targets.GetItemTarget())
@@ -2038,7 +2046,9 @@ void Spell::EffectSummonType()
     if (m_originalCaster)
         caster = m_originalCaster;
 
-    bool personalSpawn = (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN) != 0;
+    ObjectGuid privateObjectOwner;
+    if (properties->Flags & SUMMON_PROP_FLAG_PERSONAL_SPAWN)
+        privateObjectOwner = m_originalCaster->IsPrivateObject() ? m_originalCaster->GetPrivateObjectOwner() : m_originalCaster->GetGUID();
     int32 duration = m_spellInfo->GetDuration();
     if (Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
@@ -2114,7 +2124,7 @@ void Spell::EffectSummonType()
                     if (!unitCaster)
                         return;
 
-                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
+                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
                     if (!summon || !summon->IsTotem())
                         return;
 
@@ -2134,7 +2144,7 @@ void Spell::EffectSummonType()
                     if (!unitCaster)
                         return;
 
-                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
+                    summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
@@ -2158,7 +2168,7 @@ void Spell::EffectSummonType()
                             // randomize position for multiple summons
                             pos = caster->GetRandomPoint(*destTarget, radius);
 
-                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id, personalSpawn);
+                        summon = caster->SummonCreature(entry, pos, summonType, Milliseconds(duration), 0, m_spellInfo->Id, privateObjectOwner);
                         if (!summon)
                             continue;
 
@@ -2183,7 +2193,7 @@ void Spell::EffectSummonType()
             if (!unitCaster)
                 return;
 
-            summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, personalSpawn);
+            summon = unitCaster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, unitCaster, m_spellInfo->Id, 0, privateObjectOwner);
             break;
         }
         case SUMMON_CATEGORY_VEHICLE:
@@ -2421,7 +2431,7 @@ void Spell::EffectAddFarsight()
         return;
 
     DynamicObject* dynObj = new DynamicObject(true);
-    if (!dynObj->CreateDynamicObject(player->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), player, m_spellInfo->Id, *destTarget, radius, DYNAMIC_OBJECT_FARSIGHT_FOCUS))
+    if (!dynObj->CreateDynamicObject(player->GetMap()->GenerateLowGuid<HighGuid::DynamicObject>(), player, m_spellInfo, *destTarget, radius, DYNAMIC_OBJECT_FARSIGHT_FOCUS))
     {
         delete dynObj;
         return;
@@ -3360,7 +3370,7 @@ void Spell::EffectInterruptCast()
                             PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_INTERRUPT, nullptr, nullptr, nullptr);
                 }
                 ExecuteLogEffectInterruptCast(effectInfo->EffectIndex, unitTarget, curSpellInfo->Id);
-                unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
+                unitTarget->InterruptSpell(CurrentSpellTypes(i), false, false, SPELL_FAILED_INTERRUPTED_COMBAT, SPELL_FAILED_DONT_REPORT);
             }
         }
     }
@@ -3805,7 +3815,7 @@ void Spell::EffectApplyGlyph()
             }
 
             // remove old glyph
-            if (uint32 oldglyph = player->GetGlyph(m_glyphIndex))
+            if (uint32 oldglyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
             {
                 if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 {
@@ -3896,17 +3906,25 @@ void Spell::EffectInebriate()
 
     Player* player = unitTarget->ToPlayer();
     uint8 currentDrunk = player->GetDrunkValue();
-    uint8 drunkMod = damage;
-    if (currentDrunk + drunkMod > 100)
-    {
+    int32 drunkMod = damage;
+
+    if (drunkMod == 0)
+        return;
+
+    // drunkMod may contain values that are guaranteed to cause uint8 overflow/underflow (examples: 29690, 46874)
+    // In addition, we would not want currentDrunk to become more than 100.
+    // So before adding the values, let's check that everything is fine.
+    if (drunkMod > static_cast<int32>(100 - currentDrunk))
         currentDrunk = 100;
-        if (rand_chance() < 25.0f)
-            player->CastSpell(player, 67468, false);    // Drunken Vomit
-    }
+    else if (drunkMod < static_cast<int32>(0 - currentDrunk))
+        currentDrunk = 0;
     else
-        currentDrunk += drunkMod;
+        currentDrunk += drunkMod; // Due to previous checks we can be sure that currentDrunk will not go beyond [0-100] range.
 
     player->SetDrunkValue(currentDrunk, m_CastItem ? m_CastItem->GetEntry() : 0);
+
+    if (currentDrunk == 100 && roll_chance_i(25))
+        player->CastSpell(player, 67468, false);    // Drunken Vomit
 }
 
 void Spell::EffectFeedPet()
@@ -4305,13 +4323,9 @@ void Spell::EffectKnockBack()
             if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
                 return;
 
-    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT/STUN
-    if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
+    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT
+    if (unitTarget->HasUnitState(UNIT_STATE_ROOT))
         return;
-
-    // Instantly interrupt non melee spells being cast
-    if (unitTarget->IsNonMeleeSpellCast(true))
-        unitTarget->InterruptNonMeleeSpells(true);
 
     float ratio = 0.1f;
     float speedxy = float(effectInfo->MiscValue) * ratio;
@@ -5148,7 +5162,7 @@ void Spell::EffectTitanGrip()
         return;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true, effectInfo->MiscValue);
+        m_caster->ToPlayer()->SetCanTitanGrip(true, effectInfo->MiscValue, m_spellInfo->EquippedItemClass, m_spellInfo->EquippedItemSubClassMask);
 }
 
 void Spell::EffectRedirectThreat()

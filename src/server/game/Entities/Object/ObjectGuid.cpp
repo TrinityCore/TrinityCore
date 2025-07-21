@@ -17,14 +17,76 @@
 
 #include "ObjectGuid.h"
 #include "ByteBuffer.h"
+#include "Errors.h"
 #include "Log.h"
+#include "Util.h"
 #include "World.h"
-#include <sstream>
-#include <iomanip>
+#include <charconv>
 
 ObjectGuid const ObjectGuid::Empty = ObjectGuid();
 
-char const* ObjectGuid::GetTypeName(HighGuid high)
+namespace
+{
+struct ObjectGuidInfo
+{
+    struct FormatPadding { std::ptrdiff_t Value; constexpr operator std::ptrdiff_t() const { return Value; } };
+
+    template <std::ptrdiff_t Width>
+    static constexpr inline FormatPadding padding{ .Value = Width };
+    static constexpr inline FormatPadding no_padding{ .Value = 0 };
+
+    struct FormatBase { int32 Value; constexpr operator int32() const { return Value; } };
+
+    static constexpr inline FormatBase dec{ 10 };
+    static constexpr inline FormatBase hex{ 16 };
+
+    static fmt::appender AppendTypeName(fmt::format_context& ctx, std::string_view type)
+    {
+        return std::copy(type.begin(), type.end(), ctx.out());
+    }
+
+    template <FormatPadding Width, FormatBase Base>
+    static fmt::appender AppendComponent(fmt::format_context& ctx, uint64 component)
+    {
+        std::array<char, 20> buf;
+        auto [end, err] = std::to_chars(buf.data(), buf.data() + buf.size(), component, Base);
+
+        ASSERT(err == std::errc(), "Failed to convert guid part to string");
+
+        if constexpr (Width != 0)
+        {
+            if (std::distance(buf.data(), end) < Width)
+                std::fill_n(ctx.out(), Width - std::distance(buf.data(), end), '0');
+        }
+
+        if constexpr (Base > 10)
+            return std::transform(buf.data(), end, ctx.out(), charToUpper);
+        else
+            return std::copy(buf.data(), end, ctx.out());
+    }
+};
+}
+
+template <typename FormatContext>
+auto fmt::formatter<ObjectGuid>::format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    ctx.advance_to(ObjectGuidInfo::AppendTypeName(ctx, "GUID Full: 0x"));
+    ctx.advance_to(ObjectGuidInfo::AppendComponent<ObjectGuidInfo::padding<16>, ObjectGuidInfo::hex>(ctx, guid.GetRawValue()));
+    ctx.advance_to(ObjectGuidInfo::AppendTypeName(ctx, " Type: "));
+    ctx.advance_to(ObjectGuidInfo::AppendTypeName(ctx, guid.GetTypeName()));
+    if (uint32 entry = guid.GetEntry())
+    {
+        ctx.advance_to(ObjectGuidInfo::AppendTypeName(ctx, guid.IsPet() ? " Pet number: " : " Entry: "));
+        ctx.advance_to(ObjectGuidInfo::AppendComponent<ObjectGuidInfo::no_padding, ObjectGuidInfo::dec>(ctx, entry));
+    }
+    ctx.advance_to(ObjectGuidInfo::AppendTypeName(ctx, " Low: "));
+    ctx.advance_to(ObjectGuidInfo::AppendComponent<ObjectGuidInfo::no_padding, ObjectGuidInfo::dec>(ctx, guid.GetCounter()));
+    return ctx.out();
+}
+
+template TC_GAME_API fmt::appender fmt::formatter<ObjectGuid>::format<fmt::format_context>(ObjectGuid const&, format_context&) const;
+
+std::string_view ObjectGuid::GetTypeName(HighGuid high)
 {
     switch (high)
     {
@@ -47,14 +109,12 @@ char const* ObjectGuid::GetTypeName(HighGuid high)
 
 std::string ObjectGuid::ToString() const
 {
-    std::ostringstream str;
-    str << "GUID Full: 0x" << std::hex << std::setw(16) << std::setfill('0') << _guid << std::dec;
-    str << " Type: " << GetTypeName();
-    if (HasEntry())
-        str << (IsPet() ? " Pet number: " : " Entry: ") << GetEntry() << " ";
+    return Trinity::StringFormat("{}", *this);
+}
 
-    str << " Low: " << GetCounter();
-    return str.str();
+std::string ObjectGuid::ToHexString() const
+{
+    return Trinity::StringFormat("0x{:016X}", _guid);
 }
 
 ObjectGuid ObjectGuid::Global(HighGuid type, LowType counter)

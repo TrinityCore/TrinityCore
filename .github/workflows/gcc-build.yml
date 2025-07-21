@@ -6,13 +6,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
     - name: Dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-10
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10
+        sudo apt-get update && sudo apt-get install -yq libboost-all-dev g++-11
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 100 --slave /usr/bin/g++ g++ /usr/bin/g++-11
     - name: Setup
       run: |
         mkdir bin

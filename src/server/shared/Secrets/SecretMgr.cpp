@@ -17,7 +17,7 @@
 
 #include "SecretMgr.h"
 #include "AES.h"
-#include "Argon2.h"
+#include "Argon2Hash.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
 #include "DatabaseEnv.h"

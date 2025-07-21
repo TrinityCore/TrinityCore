@@ -30,6 +30,12 @@ namespace VMAP
     enum class LoadResult : uint8;
     enum class ModelIgnoreFlags : uint32;
 
+    struct GroupLocationInfo
+    {
+        const GroupModel* hitModel = nullptr;
+        int32 rootId = -1;
+    };
+
     struct TC_COMMON_API LocationInfo
     {
         LocationInfo(): rootId(-1), hitInstance(nullptr), hitModel(nullptr), ground_Z(-G3D::finf()) { }
@@ -73,7 +79,6 @@ namespace VMAP
             bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2, ModelIgnoreFlags ignoreFlags) const;
             bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
             float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
-            bool getAreaInfo(G3D::Vector3 &pos, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const;
             bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
 
             bool InitMap(const std::string &fname, VMapManager2* vm);

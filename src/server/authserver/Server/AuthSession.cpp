@@ -19,22 +19,27 @@
 #include "AES.h"
 #include "AuthCodes.h"
 #include "ByteBuffer.h"
+#include "ClientBuildInfo.h"
 #include "Config.h"
 #include "CryptoGenerics.h"
 #include "CryptoHash.h"
 #include "CryptoRandom.h"
 #include "DatabaseEnv.h"
 #include "IPLocation.h"
+#include "IoContext.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "SecretMgr.h"
 #include "TOTP.h"
 #include "Util.h"
+#include <boost/endian/arithmetic.hpp>
 #include <boost/lexical_cast.hpp>
 
 using boost::asio::ip::tcp;
+using boost::endian::little_uint16_t;
+using boost::endian::little_uint32_t;
 
-enum eAuthCmd
+enum eAuthCmd : uint8
 {
     AUTH_LOGON_CHALLENGE = 0x00,
     AUTH_LOGON_PROOF = 0x01,
@@ -54,19 +59,19 @@ typedef struct AUTH_LOGON_CHALLENGE_C
 {
     uint8   cmd;
     uint8   error;
-    uint16  size;
-    uint8   gamename[4];
+    little_uint16_t size;
+    little_uint32_t gamename;
     uint8   version1;
     uint8   version2;
     uint8   version3;
-    uint16  build;
-    uint8   platform[4];
-    uint8   os[4];
-    uint8   country[4];
-    uint32  timezone_bias;
-    uint32  ip;
+    little_uint16_t build;
+    little_uint32_t platform;
+    little_uint32_t os;
+    little_uint32_t country;
+    little_uint32_t timezone_bias;
+    little_uint32_t ip;
     uint8   I_len;
-    uint8   I[1];
+    char    I[1];
 } sAuthLogonChallenge_C;
 static_assert(sizeof(sAuthLogonChallenge_C) == (1 + 1 + 2 + 4 + 1 + 1 + 1 + 2 + 4 + 4 + 4 + 4 + 4 + 1 + 1));
 
@@ -86,9 +91,9 @@ typedef struct AUTH_LOGON_PROOF_S
     uint8   cmd;
     uint8   error;
     Trinity::Crypto::SHA1::Digest M2;
-    uint32  AccountFlags;
-    uint32  SurveyId;
-    uint16  LoginFlags;
+    little_uint32_t AccountFlags;
+    little_uint32_t SurveyId;
+    little_uint16_t LoginFlags;
 } sAuthLogonProof_S;
 static_assert(sizeof(sAuthLogonProof_S) == (1 + 1 + 20 + 4 + 4 + 2));
 
@@ -97,7 +102,7 @@ typedef struct AUTH_LOGON_PROOF_S_OLD
     uint8   cmd;
     uint8   error;
     Trinity::Crypto::SHA1::Digest M2;
-    uint32  unk2;
+    little_uint32_t unk2;
 } sAuthLogonProof_S_Old;
 static_assert(sizeof(sAuthLogonProof_S_Old) == (1 + 1 + 20 + 4));
 
@@ -119,20 +124,56 @@ std::array<uint8, 16> VersionChallenge = { { 0xBA, 0xA3, 0x1E, 0x99, 0xA0, 0x0B,
 #define AUTH_LOGON_CHALLENGE_INITIAL_SIZE 4
 #define REALM_LIST_PACKET_SIZE 5
 
-std::unordered_map<uint8, AuthHandler> AuthSession::InitHandlers()
+struct AuthHandler
 {
-    std::unordered_map<uint8, AuthHandler> handlers;
+    eAuthCmd cmd = { };
+    AuthStatus status = STATUS_CLOSED;
+    size_t packetSize = 0;
+    bool (*handler)(AuthSession*) = nullptr;
+};
 
-    handlers[AUTH_LOGON_CHALLENGE]     = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleLogonChallenge };
-    handlers[AUTH_LOGON_PROOF]         = { STATUS_LOGON_PROOF, sizeof(AUTH_LOGON_PROOF_C),        &AuthSession::HandleLogonProof };
-    handlers[AUTH_RECONNECT_CHALLENGE] = { STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, &AuthSession::HandleReconnectChallenge };
-    handlers[AUTH_RECONNECT_PROOF]     = { STATUS_RECONNECT_PROOF, sizeof(AUTH_RECONNECT_PROOF_C),    &AuthSession::HandleReconnectProof };
-    handlers[REALM_LIST]               = { STATUS_AUTHED,    REALM_LIST_PACKET_SIZE,            &AuthSession::HandleRealmList };
+class AuthHandlerTable
+{
+public:
+    consteval AuthHandlerTable()
+    {
+        InitializeHandler(AUTH_LOGON_CHALLENGE, STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, [](AuthSession* session) { return session->HandleLogonChallenge(); });
+        InitializeHandler(AUTH_LOGON_PROOF, STATUS_LOGON_PROOF, sizeof(AUTH_LOGON_PROOF_C), [](AuthSession* session) { return session->HandleLogonProof(); });
+        InitializeHandler(AUTH_RECONNECT_CHALLENGE, STATUS_CHALLENGE, AUTH_LOGON_CHALLENGE_INITIAL_SIZE, [](AuthSession* session) { return session->HandleReconnectChallenge(); });
+        InitializeHandler(AUTH_RECONNECT_PROOF, STATUS_RECONNECT_PROOF, sizeof(AUTH_RECONNECT_PROOF_C), [](AuthSession* session) { return session->HandleReconnectProof(); });
+        InitializeHandler(REALM_LIST, STATUS_AUTHED, REALM_LIST_PACKET_SIZE, [](AuthSession* session) { return session->HandleRealmList(); });
+        InitializeHandler(XFER_ACCEPT, STATUS_XFER, 1, [](AuthSession* session) { return session->HandleXferAccept(); });
+        InitializeHandler(XFER_RESUME, STATUS_XFER, 9, [](AuthSession* session) { return session->HandleXferResume(); });
+        InitializeHandler(XFER_CANCEL, STATUS_XFER, 1, [](AuthSession* session) { return session->HandleXferCancel(); });
+    }
 
-    return handlers;
-}
+    constexpr AuthHandler const* operator[](eAuthCmd cmd) const
+    {
+        std::size_t index = GetOpcodeArrayIndex(cmd);
+        if (index >= _handlers.size())
+            return nullptr;
 
-std::unordered_map<uint8, AuthHandler> const Handlers = AuthSession::InitHandlers();
+        AuthHandler const& handler = _handlers[index];
+        if (handler.cmd != cmd)
+            return nullptr;
+
+        return &handler;
+    }
+
+private:
+    // perfect hash function for all valid values of eAuthCmd
+    inline static constexpr std::size_t GetOpcodeArrayIndex(eAuthCmd c)
+    {
+        return (c & 0x7) + ((c & 0x10) >> 2) + ((c & 0x20) >> 5);
+    }
+
+    constexpr void InitializeHandler(eAuthCmd cmd, AuthStatus status, std::size_t packetSize, bool (*handler)(AuthSession*))
+    {
+        _handlers[GetOpcodeArrayIndex(cmd)] = { .cmd = cmd, .status = status, .packetSize = packetSize, .handler = handler, };
+    }
+
+    std::array<AuthHandler, 10> _handlers;
+} inline constexpr Handlers;
 
 void AccountInfo::LoadResult(Field* fields)
 {
@@ -143,10 +184,10 @@ void AccountInfo::LoadResult(Field* fields)
     //FROM account a LEFT JOIN account_access aa ON a.id = aa.AccountID LEFT JOIN account_banned ab ON ab.id = a.id AND ab.active = 1 WHERE a.username = ?
 
     Id = fields[0].GetUInt32();
-    Login = fields[1].GetString();
+    Login = fields[1].GetStringView();
     IsLockedToIP = fields[2].GetBool();
-    LockCountry = fields[3].GetString();
-    LastIP = fields[4].GetString();
+    LockCountry = fields[3].GetStringView();
+    LastIP = fields[4].GetStringView();
     FailedLogins = fields[5].GetUInt32();
     IsBanned = fields[6].GetUInt64() != 0;
     IsPermanenetlyBanned = fields[7].GetUInt64() != 0;
@@ -159,7 +200,10 @@ void AccountInfo::LoadResult(Field* fields)
 }
 
 AuthSession::AuthSession(tcp::socket&& socket) : Socket(std::move(socket)),
-_status(STATUS_CHALLENGE), _build(0), _timezoneOffset(0min), _expversion(0) { }
+    _timeout(*underlying_stream().get_executor().target<boost::asio::io_context::executor_type>()),
+    _status(STATUS_CHALLENGE), _locale(LOCALE_enUS), _os(0), _build(0), _expversion(0), _timezoneOffset(0min)
+{
+}
 
 void AuthSession::Start()
 {
@@ -208,6 +252,7 @@ void AuthSession::CheckIpCallback(PreparedQueryResult result)
     }
 
     AsyncRead();
+    SetTimeout();
 }
 
 void AuthSession::ReadHandler()
@@ -215,22 +260,15 @@ void AuthSession::ReadHandler()
     MessageBuffer& packet = GetReadBuffer();
     while (packet.GetActiveSize())
     {
-        uint8 cmd = packet.GetReadPointer()[0];
-        auto itr = Handlers.find(cmd);
-        if (itr == Handlers.end())
-        {
-            // well we dont handle this, lets just ignore it
-            packet.Reset();
-            break;
-        }
-
-        if (_status != itr->second.status)
+        eAuthCmd cmd = eAuthCmd(packet.GetReadPointer()[0]);
+        AuthHandler const* itr = Handlers[cmd];
+        if (!itr || _status != itr->status)
         {
             CloseSocket();
             return;
         }
 
-        uint16 size = uint16(itr->second.packetSize);
+        std::size_t size = itr->packetSize;
         if (packet.GetActiveSize() < size)
             break;
 
@@ -248,13 +286,14 @@ void AuthSession::ReadHandler()
         if (packet.GetActiveSize() < size)
             break;
 
-        if (!(*this.*itr->second.handler)())
+        if (!itr->handler(this))
         {
             CloseSocket();
             return;
         }
 
         packet.ReadCompleted(size);
+        SetTimeout();
     }
 
     AsyncRead();
@@ -281,28 +320,19 @@ bool AuthSession::HandleLogonChallenge()
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
         return false;
 
-    std::string login((char const*)challenge->I, challenge->I_len);
+    std::string_view login(challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[AuthChallenge] '{}'", login);
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
-    std::array<char, 5> os;
-    os.fill('\0');
-    memcpy(os.data(), challenge->os, sizeof(challenge->os));
-    _os = os.data();
-
-    // Restore string order as its byte order is reversed
-    std::reverse(_os.begin(), _os.end());
-
-    _localizationName.resize(4);
-    for (int i = 0; i < 4; ++i)
-        _localizationName[i] = challenge->country[4 - i - 1];
+    _os = challenge->os;
+    _locale = GetLocaleByName(ClientBuild::ToCharArray(challenge->country).data());
 
     _timezoneOffset = Minutes(challenge->timezone_bias);
 
     // Get the account details from the account table
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
-    stmt->setString(0, login);
+    stmt->setStringView(0, login);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
         .WithPreparedCallback([this](PreparedQueryResult result) { LogonChallengeCallback(std::move(result)); }));
@@ -437,7 +467,7 @@ void AuthSession::LogonChallengeCallback(PreparedQueryResult result)
             pkt << uint8(1);
 
         TC_LOG_DEBUG("server.authserver", "'{}:{}' [AuthChallenge] account {} is using '{}' locale ({})",
-            ipAddress, port, _accountInfo.Login, _localizationName, GetLocaleByName(_localizationName));
+            ipAddress, port, _accountInfo.Login, localeNames[_locale], uint32(_locale));
 
         _status = STATUS_LOGON_PROOF;
     }
@@ -494,7 +524,7 @@ bool AuthSession::HandleLogonProof()
             return true;
         }
 
-        if (!VerifyVersion(logonProof->A.data(), logonProof->A.size(), logonProof->crc_hash, false))
+        if (!VerifyVersion(logonProof->A, logonProof->crc_hash, false))
         {
             ByteBuffer packet;
             packet << uint8(AUTH_LOGON_PROOF);
@@ -512,43 +542,43 @@ bool AuthSession::HandleLogonProof()
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setBinary(0, _sessionKey);
         stmt->setString(1, address);
-        stmt->setUInt32(2, GetLocaleByName(_localizationName));
-        stmt->setString(3, _os);
+        stmt->setUInt32(2, _locale);
+        stmt->setStringView(3, ClientBuild::ToCharArray(_os).data());
         stmt->setInt16(4, _timezoneOffset.count());
         stmt->setString(5, _accountInfo.Login);
-        LoginDatabase.DirectExecute(stmt);
-
-        // Finish SRP6 and send the final result to the client
-        Trinity::Crypto::SHA1::Digest M2 = Trinity::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey);
-
-        ByteBuffer packet;
-        if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
+        _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
+            .WithPreparedCallback([this, M2 = Trinity::Crypto::SRP6::GetSessionVerifier(logonProof->A, logonProof->clientM, _sessionKey)](PreparedQueryResult const&)
         {
-            sAuthLogonProof_S proof;
-            proof.M2 = M2;
-            proof.cmd = AUTH_LOGON_PROOF;
-            proof.error = 0;
-            proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
-            proof.SurveyId = 0;
-            proof.LoginFlags = 0;               // 0x1 = has account message
+            // Finish SRP6 and send the final result to the client
+            ByteBuffer packet;
+            if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
+            {
+                sAuthLogonProof_S proof;
+                proof.M2 = M2;
+                proof.cmd = AUTH_LOGON_PROOF;
+                proof.error = 0;
+                proof.AccountFlags = 0x00800000;    // 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+                proof.SurveyId = 0;
+                proof.LoginFlags = 0;               // 0x1 = has account message
 
-            packet.resize(sizeof(proof));
-            std::memcpy(packet.contents(), &proof, sizeof(proof));
-        }
-        else
-        {
-            sAuthLogonProof_S_Old proof;
-            proof.M2 = M2;
-            proof.cmd = AUTH_LOGON_PROOF;
-            proof.error = 0;
-            proof.unk2 = 0x00;
+                packet.resize(sizeof(proof));
+                std::memcpy(packet.contents(), &proof, sizeof(proof));
+            }
+            else
+            {
+                sAuthLogonProof_S_Old proof;
+                proof.M2 = M2;
+                proof.cmd = AUTH_LOGON_PROOF;
+                proof.error = 0;
+                proof.unk2 = 0x00;
 
-            packet.resize(sizeof(proof));
-            std::memcpy(packet.contents(), &proof, sizeof(proof));
-        }
+                packet.resize(sizeof(proof));
+                std::memcpy(packet.contents(), &proof, sizeof(proof));
+            }
 
-        SendPacket(packet);
-        _status = STATUS_AUTHED;
+            SendPacket(packet);
+            _status = STATUS_AUTHED;
+        }));
     }
     else
     {
@@ -621,28 +651,19 @@ bool AuthSession::HandleReconnectChallenge()
     if (challenge->size - (sizeof(sAuthLogonChallenge_C) - AUTH_LOGON_CHALLENGE_INITIAL_SIZE - 1) != challenge->I_len)
         return false;
 
-    std::string login((char const*)challenge->I, challenge->I_len);
+    std::string_view login(challenge->I, challenge->I_len);
     TC_LOG_DEBUG("server.authserver", "[ReconnectChallenge] '{}'", login);
 
     _build = challenge->build;
     _expversion = uint8(AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG));
-    std::array<char, 5> os;
-    os.fill('\0');
-    memcpy(os.data(), challenge->os, sizeof(challenge->os));
-    _os = os.data();
-
-    // Restore string order as its byte order is reversed
-    std::reverse(_os.begin(), _os.end());
-
-    _localizationName.resize(4);
-    for (int i = 0; i < 4; ++i)
-        _localizationName[i] = challenge->country[4 - i - 1];
+    _os = challenge->os;
+    _locale = GetLocaleByName(ClientBuild::ToCharArray(challenge->country).data());
 
     _timezoneOffset = Minutes(challenge->timezone_bias);
 
     // Get the account details from the account table
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RECONNECTCHALLENGE);
-    stmt->setString(0, login);
+    stmt->setStringView(0, login);
 
     _queryProcessor.AddCallback(LoginDatabase.AsyncQuery(stmt)
         .WithPreparedCallback([this](PreparedQueryResult result) { ReconnectChallengeCallback(std::move(result)); }));
@@ -694,7 +715,7 @@ bool AuthSession::HandleReconnectProof()
 
     if (sha.GetDigest() == reconnectProof->R2)
     {
-        if (!VerifyVersion(reconnectProof->R1, sizeof(reconnectProof->R1), reconnectProof->R3, true))
+        if (!VerifyVersion(reconnectProof->R1, reconnectProof->R3, true))
         {
             ByteBuffer packet;
             packet << uint8(AUTH_RECONNECT_PROOF);
@@ -756,7 +777,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         // No SQL injection. id of realm is controlled by the database.
         uint32 flag = realm.Flags;
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(realm.Build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(realm.Build);
         if (!okBuild)
         {
             if (!buildInfo)
@@ -770,11 +791,7 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
 
         std::string name = realm.Name;
         if (_expversion & PRE_BC_EXP_FLAG && flag & REALM_FLAG_SPECIFYBUILD)
-        {
-            std::ostringstream ss;
-            ss << name << " (" << buildInfo->MajorVersion << '.' << buildInfo->MinorVersion << '.' << buildInfo->BugfixVersion << ')';
-            name = ss.str();
-        }
+            Trinity::StringFormatTo(std::back_inserter(name), " ({}.{}.{})", buildInfo->MajorVersion, buildInfo->MinorVersion, buildInfo->BugfixVersion);
 
         uint8 lock = (realm.AllowedSecurityLevel > _accountInfo.SecurityLevel) ? 1 : 0;
 
@@ -832,7 +849,31 @@ void AuthSession::RealmListCallback(PreparedQueryResult result)
     _status = STATUS_AUTHED;
 }
 
-bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
+bool AuthSession::HandleXferAccept()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferAccept");
+
+    // empty handler meant to close the connection if received
+    return false;
+}
+
+bool AuthSession::HandleXferResume()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferResume");
+
+    // empty handler meant to close the connection if received
+    return false;
+}
+
+bool AuthSession::HandleXferCancel()
+{
+    TC_LOG_DEBUG("server.authserver", "Entering _HandleXferCancel");
+
+    // empty handler meant to close the connection if received
+    return false;
+}
+
+bool AuthSession::VerifyVersion(std::span<uint8 const> a, Trinity::Crypto::SHA1::Digest const& versionProof, bool isReconnect)
 {
     if (!sConfigMgr->GetBoolDefault("StrictVersionCheck", false))
         return true;
@@ -841,28 +882,54 @@ bool AuthSession::VerifyVersion(uint8 const* a, int32 aLength, Trinity::Crypto::
     Trinity::Crypto::SHA1::Digest const* versionHash = nullptr;
     if (!isReconnect)
     {
-        RealmBuildInfo const* buildInfo = sRealmList->GetBuildInfo(_build);
+        ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(_build);
         if (!buildInfo)
             return false;
 
-        if (_os == "Win")
-            versionHash = &buildInfo->WindowsHash;
-        else if (_os == "OSX")
-            versionHash = &buildInfo->MacHash;
-
-        if (!versionHash)
-            return false;
-
-        if (zeros == *versionHash)
+        auto platformItr = std::ranges::find(buildInfo->ExecutableHashes, _os, &ClientBuild::ExecutableHash::Platform);
+        if (platformItr == buildInfo->ExecutableHashes.end())
             return true;                                                            // not filled serverside
+
+        versionHash = &platformItr->Hash;
     }
     else
         versionHash = &zeros;
 
     Trinity::Crypto::SHA1 version;
-    version.UpdateData(a, aLength);
+    version.UpdateData(a);
     version.UpdateData(*versionHash);
     version.Finalize();
 
-    return (versionProof == version.GetDigest());
+    return versionProof == version.GetDigest();
+}
+
+void AuthSession::SetTimeout()
+{
+    _timeout.cancel();
+
+    switch (_status)
+    {
+        case STATUS_AUTHED:
+        case STATUS_WAITING_FOR_REALM_LIST:
+            _timeout.expires_after(1min);
+            break;
+        case STATUS_XFER:
+            return;
+        default:
+            _timeout.expires_after(10s);
+            break;
+    }
+
+    _timeout.async_wait([selfRef = weak_from_this()](boost::system::error_code const& error)
+    {
+        std::shared_ptr<AuthSession> self = selfRef.lock();
+        if (!self)
+            return;
+
+        if (error == boost::asio::error::operation_aborted)
+            return;
+
+        TC_LOG_DEBUG("server.authserver", "{}:{} session timed out.", self->GetRemoteIpAddress().to_string(), self->GetRemotePort());
+        self->CloseSocket();
+    });
 }

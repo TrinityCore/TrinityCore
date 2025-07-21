@@ -29,7 +29,7 @@
     ItemTemplate& t = sObjectMgr->_itemTemplateStore[itemId];
     t = {};
     t.ItemId = itemId;
-    t.Class = ItemClass::ITEM_CLASS_MISC;
+    t.Class = ItemClass::ITEM_CLASS_MISCELLANEOUS;
     t.SoundOverrideSubclass = -1;
     t.Name1 = name;
     t.Quality = ItemQualities::ITEM_QUALITY_ARTIFACT;

@@ -127,15 +127,6 @@ void WorldSession::HandleGuildDelete(WorldPackets::Guild::GuildDelete& /*packet*
         guild->HandleDisband(this);
 }
 
-void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet)
-{
-    TC_LOG_DEBUG("guild", "CMSG_GUILD_LEADER [{}]: Target: {}", GetPlayerInfo(), packet.NewMasterName);
-
-    if (normalizePlayerName(packet.NewMasterName))
-        if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetLeader(this, packet.NewMasterName);
-}
-
 void WorldSession::HandleGuildUpdateMotdText(WorldPackets::Guild::GuildUpdateMotdText& packet)
 {
     TC_LOG_DEBUG("guild", "CMSG_GUILD_MOTD [{}]: MOTD: {}", GetPlayerInfo(), packet.MotdText);
@@ -151,7 +142,7 @@ void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPackets::Guild::GuildSetM
 
     if (normalizePlayerName(packet.NoteeName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, packet.NoteeName, packet.Note, false);
+            guild->HandleSetMemberNote(this, packet.Note, packet.NoteeName, true);
 }
 
 void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPackets::Guild::GuildSetMemberNote& packet)
@@ -161,7 +152,7 @@ void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPackets::Guild::GuildSet
 
     if (normalizePlayerName(packet.NoteeName))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetMemberNote(this, packet.NoteeName, packet.Note, true);
+            guild->HandleSetMemberNote(this, packet.Note, packet.NoteeName, false);
 }
 
 void WorldSession::HandleGuildSetRankPermissions(WorldPackets::Guild::GuildSetRankPermissions& packet)
@@ -265,7 +256,7 @@ void WorldSession::HandleGuildBankActivate(WorldPackets::Guild::GuildBankActivat
         return;
     }
 
-    guild->SendBankTabsInfo(this, packet.FullUpdate);
+    guild->SendBankList(this, 0, packet.FullUpdate);
 }
 
 // Called when opening guild bank tab only (first one)
@@ -276,7 +267,7 @@ void WorldSession::HandleGuildBankQueryTab(WorldPackets::Guild::GuildBankQueryTa
 
     if (GetPlayer()->GetGameObjectIfCanInteractWith(packet.Banker, GAMEOBJECT_TYPE_GUILD_BANK))
         if (Guild* guild = GetPlayer()->GetGuild())
-            guild->SendBankTabData(this, packet.Tab, true /*packet.FullUpdate*/);
+            guild->SendBankList(this, packet.Tab, true /*packet.FullUpdate*/);
                                                           // HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
                                                           // but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
                                                           // tab content with only data for that change
@@ -332,7 +323,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPackets::Guild::GuildBankSwapIt
         // Player <-> Bank
         // Allow to work with inventory only
         if (!Player::IsInventoryPos(playerBag, playerSlotId) && !(playerBag == NULL_BAG && playerSlotId == NULL_SLOT))
-            GetPlayer()->SendEquipError(EQUIP_ERR_NONE, nullptr);
+            GetPlayer()->SendEquipError(EQUIP_ERR_INTERNAL_BAG_ERROR, nullptr);
         else
             guild->SwapItemsWithInventory(GetPlayer(), toChar != 0, packet.BankTab, packet.BankSlot, playerBag, playerSlotId, splitedAmount);
     }
@@ -380,4 +371,13 @@ void WorldSession::HandleGuildBankSetTabText(WorldPackets::Guild::GuildBankSetTa
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->SetBankTabText(packet.Tab, packet.TabText);
+}
+
+void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet)
+{
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_LEADER [{}]: Target: {}", GetPlayerInfo(), packet.NewMasterName);
+
+    if (normalizePlayerName(packet.NewMasterName))
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleSetNewGuildMaster(this, packet.NewMasterName);
 }

@@ -716,6 +716,13 @@ ArenaTeam.CharterCost.5v5 = 2000000
 MaxWhoListReturns = 49
 
 #
+#    WhoList.Update.Interval
+#        Description: Interval in seconds for Who List to get updated
+#        Default:     5 (seconds)
+
+WhoList.Update.Interval = 5
+
+#
 #    CharacterCreating.Disabled
 #        Description: Disable character creation for players based on faction.
 #        Default:     0 - (Enabled, All factions are allowed)
@@ -728,7 +735,7 @@ CharacterCreating.Disabled = 0
 #
 #    CharacterCreating.Disabled.RaceMask
 #        Description: Mask of races which cannot be created by players.
-#        Example:     1536 - (1024 + 512, Blood Elf and Draenei races are disabled)
+#        Example:     1536 - (512 + 1024, Blood Elf and Draenei races are disabled)
 #        Default:     0    - (Enabled, All races are allowed)
 #                     1    - (Disabled, Human)
 #                     2    - (Disabled, Orc)
@@ -844,6 +851,14 @@ StartDeathKnightPlayerLevel = 55
 #                     100 - (1 Silver)
 
 StartPlayerMoney = 0
+
+#
+#    StartDeathKnightPlayerMoney
+#        Description: Amount of money (in Copper) that a death knight character has after creation.
+#        Default:     2000
+#                     100 - (1 Silver)
+
+StartDeathKnightPlayerMoney = 2000
 
 #
 #    MaxHonorPoints
@@ -2170,8 +2185,12 @@ GM.AllowInvite = 0
 
 #
 #    GM.LowerSecurity
-#        Description: Allow lower security levels to use commands on higher security level
-#                     characters.
+#        Description: Disallow lower security levels to use commands on higher security level
+#                     characters. Regardless of this value, lower security check is always
+#                     enabled for accounts without RBAC_PERM_CAN_IGNORE_LOWER_SECURITY_CHECK.
+#                     This option also does not affect "strong" checks, such as in
+#                     certain .account and .rbac commands, which are always enabled.
+#
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
