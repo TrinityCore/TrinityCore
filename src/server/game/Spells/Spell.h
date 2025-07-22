@@ -277,6 +277,7 @@ class TC_GAME_API Spell
         void EffectRemoveAura();
         void EffectCastButtons();
         void EffectRechargeManaGem();
+        void EffectTeleportGraveyard();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
