@@ -528,8 +528,6 @@ class TC_GAME_API Battleground
 
         // Player lists, those need to be accessible by inherited classes
         BattlegroundPlayerMap m_Players;
-        // Spirit Guide guid + Player list GUIDS
-        std::map<ObjectGuid, GuidVector> m_ReviveQueue;
 
         // these are important variables used for starting messages
         uint8 m_Events;
