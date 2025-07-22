@@ -461,6 +461,8 @@ class TC_GAME_API Spell
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
+        int32 GetTimer() const { return m_timer; }
+
         std::string GetDebugInfo() const;
 
         Trinity::unique_weak_ptr<Spell> GetWeakPtr() const;

@@ -4653,6 +4653,87 @@ class spell_gen_submerged : public SpellScript
     }
 };
 
+// AoE resurrections by spirit guides
+// 22012 - Spirit Heal
+class spell_gen_spirit_heal_aoe : public SpellScript
+{
+    PrepareSpellScript(spell_gen_spirit_heal_aoe);
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* target) -> bool
+        {
+            if (Player* playerTarget = target->ToPlayer())
+                return !playerTarget->CanAcceptAreaSpiritHealFrom(caster);
+
+            return true;
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_gen_spirit_heal_aoe::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+class RecastSpiritHealChannelEvent : public BasicEvent
+{
+public:
+    RecastSpiritHealChannelEvent(Unit* caster) : _caster(caster) { }
+
+    bool Execute(uint64 /*e_time*/, uint32 /*p_time*/) override
+    {
+        if (_caster->GetChannelSpellId() == 0)
+            _caster->CastSpell(nullptr, SPELL_SPIRIT_HEAL_CHANNEL_AOE, false);
+
+        return true;
+    }
+
+private:
+    Unit* _caster;
+};
+
+// 22011 - Spirit Heal Channel
+class spell_gen_spirit_heal_channel : public AuraScript
+{
+    PrepareAuraScript(spell_gen_spirit_heal_channel);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        Unit* target = GetTarget();
+        target->m_Events.AddEventAtOffset(new RecastSpiritHealChannelEvent(target), 1s);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_spirit_heal_channel::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 2584 - Waiting to Resurrect
+class spell_gen_waiting_to_resurrect : public AuraScript
+{
+    PrepareAuraScript(spell_gen_waiting_to_resurrect);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Player* targetPlayer = GetTarget()->ToPlayer();
+        if (!targetPlayer)
+            return;
+
+        targetPlayer->SetAreaSpiritHealer(nullptr);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_gen_waiting_to_resurrect::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     RegisterSpellScript(spell_gen_absorb0_hitlimit1);
@@ -4801,4 +4882,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterSpellScript(spell_gen_cannon_blast);
     RegisterSpellScript(spell_gen_submerged);
+    RegisterSpellScript(spell_gen_spirit_heal_aoe);
+    RegisterSpellScript(spell_gen_spirit_heal_channel);
+    RegisterSpellScript(spell_gen_waiting_to_resurrect);
 }

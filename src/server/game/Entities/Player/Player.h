@@ -911,6 +911,8 @@ private:
     PlayerTalentInfo(PlayerTalentInfo const&);
 };
 
+float constexpr MAX_AREA_SPIRIT_HEALER_RANGE = 20.0f;
+
 class TC_GAME_API Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -2244,6 +2246,12 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetDebugInfo() const override;
 
+        void SetAreaSpiritHealer(Creature* creature);
+        ObjectGuid const& GetSpiritHealerGUID() const { return _areaSpiritHealerGUID; }
+        bool CanAcceptAreaSpiritHealFrom(Unit* spiritHealer) const { return spiritHealer->GetGUID() == _areaSpiritHealerGUID; }
+        void SendAreaSpiritHealerTime(Unit* spiritHealer) const;
+        void SendAreaSpiritHealerTime(ObjectGuid const& spiritHealerGUID, int32 timeLeft) const;
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2562,6 +2570,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+        ObjectGuid _areaSpiritHealerGUID;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

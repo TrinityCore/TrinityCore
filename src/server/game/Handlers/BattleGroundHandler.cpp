@@ -37,6 +37,9 @@
 #include "Object.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "SpellAuras.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 #include "World.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPackets::NPC::Hello& hello)
@@ -725,14 +728,13 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPackets::Battleground:
     if (!spiritHealer)
         return;
 
-    if (!spiritHealer->IsSpiritService())
+    if (!spiritHealer->IsAreaSpiritHealer())
         return;
 
-    if (Battleground* bg = _player->GetBattleground())
-        sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, areaSpiritHealerQuery.HealerGuid);
+    if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)
+        return;
 
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->SendAreaSpiritHealerQueryOpcode(_player, areaSpiritHealerQuery.HealerGuid);
+    _player->SendAreaSpiritHealerTime(spiritHealer);
 }
 
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground::AreaSpiritHealerQueue& areaSpiritHealerQueue)
@@ -741,14 +743,13 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPackets::Battleground:
     if (!spiritHealer)
         return;
 
-    if (!spiritHealer->IsSpiritService())
+    if (!spiritHealer->IsAreaSpiritHealer())
         return;
 
-    if (Battleground* bg = _player->GetBattleground())
-        bg->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
+    if (_player->GetExactDist(spiritHealer) > MAX_AREA_SPIRIT_HEALER_RANGE)
+        return;
 
-    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(_player->GetZoneId()))
-        bf->AddPlayerToResurrectQueue(areaSpiritHealerQueue.HealerGuid, _player->GetGUID());
+    _player->SetAreaSpiritHealer(spiritHealer);
 }
 
 void WorldSession::HandleHearthAndResurrect(WorldPackets::Battleground::HearthAndResurrect& /*hearthAndResurrect*/)

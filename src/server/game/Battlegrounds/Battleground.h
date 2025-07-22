@@ -134,8 +134,8 @@ enum BattlegroundCreatures
 
 enum BattlegroundSpells
 {
+    SPELL_SPIRIT_HEAL_CHANNEL_AOE   = 22011,                // used for AoE resurrections
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
-    SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal
     SPELL_RESURRECTION_VISUAL       = 24171,                // Resurrection Impact Visual
     SPELL_ARENA_PREPARATION         = 32727,                // use this one, 32728 not correct
@@ -144,7 +144,8 @@ enum BattlegroundSpells
     SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
-    SPELL_HONORABLE_DEFENDER_60Y    = 66157                 // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_PET_SUMMONED              = 6962 // used after resurrection
 };
 
 enum BattlegroundTimeIntervals
@@ -279,7 +280,6 @@ class TC_GAME_API Battleground
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetStartTime() const         { return m_StartTime; }
         uint32 GetEndTime() const           { return m_EndTime; }
-        uint32 GetLastResurrectTime() const { return m_LastResurrectTime; }
         uint32 GetMaxPlayers() const        { return m_MaxPlayers; }
         uint32 GetMinPlayers() const        { return m_MinPlayers; }
 
@@ -307,7 +307,6 @@ class TC_GAME_API Battleground
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
         void SetStartTime(uint32 Time)      { m_StartTime = Time; }
         void SetEndTime(uint32 Time)        { m_EndTime = Time; }
-        void SetLastResurrectTime(uint32 Time) { m_LastResurrectTime = Time; }
         void SetMaxPlayers(uint32 MaxPlayers) { m_MaxPlayers = MaxPlayers; }
         void SetMinPlayers(uint32 MinPlayers) { m_MinPlayers = MinPlayers; }
         void SetLevelRange(uint32 min, uint32 max) { m_LevelMin = min; m_LevelMax = max; }
@@ -344,15 +343,6 @@ class TC_GAME_API Battleground
         uint32 GetPlayersSize() const { return m_Players.size(); }
 
         typedef std::map<uint32, BattlegroundScore*> BattlegroundScoreMap;
-        uint32 GetPlayerScoresSize() const { return PlayerScores.size(); }
-
-        uint32 GetReviveQueueSize() const { return m_ReviveQueue.size(); }
-
-        void AddPlayerToResurrectQueue(ObjectGuid npc_guid, ObjectGuid player_guid);
-        void RemovePlayerFromResurrectQueue(ObjectGuid player_guid);
-
-        /// Relocate all players in ReviveQueue to the closest graveyard
-        void RelocateDeadPlayers(ObjectGuid guideGuid);
 
         void StartBattleground();
 
@@ -610,7 +600,6 @@ class TC_GAME_API Battleground
         virtual void PostUpdateImpl(uint32 /* diff */) { }
 
         // Player lists
-        GuidVector m_ResurrectQueue;                        // Player GUID
         std::deque<ObjectGuid> m_OfflineQueue;              // Player GUID
 
         // Invited counters are useful for player invitation to BG - do not allow, if BG is started to one faction to have 2 more players than another faction

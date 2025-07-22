@@ -673,14 +673,6 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance {} (bgType {}) not found while trying to teleport player {}", instanceId, bgTypeId, player->GetName());
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, ObjectGuid guid)
-{
-    WorldPackets::Battleground::AreaSpiritHealerTime areaSpiritHealerTime;
-    areaSpiritHealerTime.HealerGuid = guid;
-    areaSpiritHealerTime.TimeLeft = std::max(30000 - int32(bg->GetLastResurrectTime()), 0);
-    player->SendDirectMessage(areaSpiritHealerTime.Write());
-}
-
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
 {
     return bgTypeId == BATTLEGROUND_AA
