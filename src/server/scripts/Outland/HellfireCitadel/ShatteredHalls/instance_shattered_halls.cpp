@@ -36,6 +36,12 @@ static constexpr DoorData doorData[] =
     { GO_GRAND_WARLOCK_CHAMBER_DOOR_2, DATA_NETHEKURSE, EncounterDoorBehavior::OpenWhenDone },
 };
 
+static constexpr ObjectData creatureData[] =
+{
+    { NPC_LEFT_HEAD,             DATA_LEFT_HEAD  },
+    { NPC_RIGHT_HEAD,            DATA_RIGHT_HEAD },
+};
+
 static constexpr DungeonEncounterData encounters[] =
 {
     { DATA_NETHEKURSE, {{ 1936 }} },
@@ -61,6 +67,7 @@ class instance_shattered_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, {});
                 LoadDungeonEncounterData(encounters);
                 executionTimer = 0;
                 executed = 0;
@@ -96,6 +103,8 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 switch (creature->GetEntry())
                 {
                     case NPC_GRAND_WARLOCK_NETHEKURSE:
