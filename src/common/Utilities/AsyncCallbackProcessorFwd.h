@@ -15,19 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef maraudon_h__
-#define maraudon_h__
+#ifndef TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
+#define TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H
 
-#include "CreatureAIImpl.h"
+#include <concepts>
 
-#define MaraudonScriptName "instance_maraudon"
+template <typename T>
+concept AsyncCallback = requires(T& t) { { InvokeAsyncCallbackIfReady(t) } -> std::convertible_to<bool>; };
 
-template <class AI, class T>
-inline AI* GetMaraudonAI(T* obj)
-{
-    return GetInstanceAI<AI>(obj, MaraudonScriptName);
-}
+template<AsyncCallback T>
+class AsyncCallbackProcessor;
 
-#define RegisterMaraudonCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetMaraudonAI)
-
-#endif // maraudon_h__
+#endif // TRINITYCORE_ASYNC_CALLBACK_PROCESSOR_FWD_H

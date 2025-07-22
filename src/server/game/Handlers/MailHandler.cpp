@@ -361,8 +361,7 @@ void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSend
         player->SendMailResult(returnToSender.MailID, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
-    //we can return mail now
-    //so firstly delete the old one
+    //we can return mail now, so firstly delete the old one
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
@@ -386,14 +385,8 @@ void WorldSession::HandleMailReturnToSender(WorldPackets::Mail::MailReturnToSend
         {
             for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
             {
-                Item* item = player->GetMItem(itr2->item_guid);
-                if (item)
+                if (Item* item = player->GetMItem(itr2->item_guid))
                     draft.AddItem(item);
-                else
-                {
-                    //WTF?
-                }
-
                 player->RemoveMItem(itr2->item_guid);
             }
         }
