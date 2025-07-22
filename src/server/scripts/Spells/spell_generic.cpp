@@ -2177,10 +2177,10 @@ class spell_gen_knock_away_threat_reduction : public SpellScript
     PrepareSpellScript(spell_gen_knock_away_threat_reduction);
 
 public:
-    spell_gen_knock_away_threat_reduction(uint8 threatPercent) : SpellScript(), _threatPercent(threatPercent) { }
+    explicit spell_gen_knock_away_threat_reduction(int32 threatPercent) : _threatPercent(threatPercent) { }
 
 private:
-    uint8 _threatPercent;
+    int32 _threatPercent;
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
