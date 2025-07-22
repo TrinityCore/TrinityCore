@@ -90,7 +90,7 @@ enum MillhouseMisc
     POINT_CENTER               = 1
 };
 
-const Position CenterPos = { 445.88043f, -158.70554f, 43.068977f, 0.0f };
+Position const CenterPos = { 445.88043f, -158.70554f, 43.068977f, 0.0f };
 
 // 20977 - Millhouse Manastorm
 struct npc_millhouse_manastorm : public ScriptedAI
@@ -181,76 +181,7 @@ struct npc_millhouse_manastorm : public ScriptedAI
     {
         if (!UpdateVictim())
         {
-            _events.Update(diff);
-
-            while (uint32 eventId = _events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                    case EVENT_INTRO_1:
-                        DoCastSelf(SPELL_SIMPLE_TELEPORT);
-                        _events.ScheduleEvent(EVENT_INTRO_2, 2s);
-                        break;
-                    case EVENT_INTRO_2:
-                        Talk(SAY_INTRO_1);
-                        _events.ScheduleEvent(EVENT_INTRO_3, 4s + 500ms);
-                        break;
-                    case EVENT_INTRO_3:
-                        me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                        _events.ScheduleEvent(EVENT_INTRO_4, 14s);
-                        break;
-                    case EVENT_INTRO_4:
-                        if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
-                            me->SetFacingToObject(mellichar);
-                        Talk(SAY_INTRO_2);
-                        _events.ScheduleEvent(EVENT_INTRO_5, 9s);
-                        break;
-                    case EVENT_INTRO_5:
-                        Talk(SAY_INTRO_3);
-                        me->SetFacingTo(0.03490658476948738f);
-                        _events.ScheduleEvent(EVENT_INTRO_6, 8s);
-                        break;
-                    case EVENT_INTRO_6:
-                        if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
-                            me->SetFacingToObject(mellichar);
-                        Talk(SAY_INTRO_4);
-                        _events.ScheduleEvent(EVENT_INTRO_7, 5s);
-                        break;
-                    case EVENT_INTRO_7:
-                        Talk(SAY_WATER);
-                        DoCastSelf(SPELL_CONJURE_WATER);
-                        _events.ScheduleEvent(EVENT_INTRO_8, 7s);
-                        break;
-                    case EVENT_INTRO_8:
-                        Talk(SAY_BUFFS);
-                        DoCastSelf(SPELL_ARCANE_INTELLECT);
-                        _events.ScheduleEvent(EVENT_INTRO_9, 3s);
-                        break;
-                    case EVENT_INTRO_9:
-                        DoCastSelf(SPELL_ICE_ARMOR);
-                        _events.ScheduleEvent(EVENT_INTRO_10, 6s);
-                        break;
-                    case EVENT_INTRO_10:
-                        Talk(SAY_DRINK);
-                        DoCastSelf(SPELL_DRINK);
-                        _events.ScheduleEvent(EVENT_INTRO_11, 6s);
-                        break;
-                    case EVENT_INTRO_11:
-                        Talk(SAY_READY);
-                        // Clear stand state from Drink spell manually, otherwise it will be not cleared
-                        me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->GetMotionMaster()->MovePoint(POINT_CENTER, CenterPos);
-                        break;
-                    case EVENT_INTRO_12:
-                        if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
-                            me->SetFacingToObject(mellichar);
-                        me->SetImmuneToAll(false);
-                        me->SetHomePosition(me->GetPosition());
-                        break;
-                    default:
-                        break;
-                }
-            }
+            UpdateIntroEvents(diff);
             return;
         }
 
@@ -298,6 +229,80 @@ struct npc_millhouse_manastorm : public ScriptedAI
         }
 
         DoMeleeAttackIfReady();
+    }
+
+    void UpdateIntroEvents(uint32 diff)
+    {
+        _events.Update(diff);
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRO_1:
+                    DoCastSelf(SPELL_SIMPLE_TELEPORT);
+                    _events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                    break;
+                case EVENT_INTRO_2:
+                    Talk(SAY_INTRO_1);
+                    _events.ScheduleEvent(EVENT_INTRO_3, 4s + 500ms);
+                    break;
+                case EVENT_INTRO_3:
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                    _events.ScheduleEvent(EVENT_INTRO_4, 14s);
+                    break;
+                case EVENT_INTRO_4:
+                    if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
+                        me->SetFacingToObject(mellichar);
+                    Talk(SAY_INTRO_2);
+                    _events.ScheduleEvent(EVENT_INTRO_5, 9s);
+                    break;
+                case EVENT_INTRO_5:
+                    Talk(SAY_INTRO_3);
+                    me->SetFacingTo(0.03490658476948738f);
+                    _events.ScheduleEvent(EVENT_INTRO_6, 8s);
+                    break;
+                case EVENT_INTRO_6:
+                    if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
+                        me->SetFacingToObject(mellichar);
+                    Talk(SAY_INTRO_4);
+                    _events.ScheduleEvent(EVENT_INTRO_7, 5s);
+                    break;
+                case EVENT_INTRO_7:
+                    Talk(SAY_WATER);
+                    DoCastSelf(SPELL_CONJURE_WATER);
+                    _events.ScheduleEvent(EVENT_INTRO_8, 7s);
+                    break;
+                case EVENT_INTRO_8:
+                    Talk(SAY_BUFFS);
+                    DoCastSelf(SPELL_ARCANE_INTELLECT);
+                    _events.ScheduleEvent(EVENT_INTRO_9, 3s);
+                    break;
+                case EVENT_INTRO_9:
+                    DoCastSelf(SPELL_ICE_ARMOR);
+                    _events.ScheduleEvent(EVENT_INTRO_10, 6s);
+                    break;
+                case EVENT_INTRO_10:
+                    Talk(SAY_DRINK);
+                    DoCastSelf(SPELL_DRINK);
+                    _events.ScheduleEvent(EVENT_INTRO_11, 6s);
+                    break;
+                case EVENT_INTRO_11:
+                    Talk(SAY_READY);
+                    // Clear stand state from Drink spell manually, otherwise it will be not cleared
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    me->GetMotionMaster()->MovePoint(POINT_CENTER, CenterPos);
+                    break;
+                case EVENT_INTRO_12:
+                    if (Creature* mellichar = _instance->GetCreature(DATA_MELLICHAR))
+                        me->SetFacingToObject(mellichar);
+                    me->SetImmuneToAll(false);
+                    me->SetHomePosition(me->GetPosition());
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
 private:
