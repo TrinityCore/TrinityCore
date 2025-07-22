@@ -31,15 +31,11 @@ class Spell;
 class SpellMgr;
 class SpellInfo;
 class Unit;
+class WorldObject;
 struct Condition;
 struct SpellChainNode;
-struct SpellTargetPosition;
-struct SpellDurationEntry;
 struct SpellModifier;
-struct SpellRangeEntry;
-struct SpellRadiusEntry;
-struct SpellEntry;
-struct SpellCastTimesEntry;
+enum WeaponAttackType : uint8;
 
 enum SpellTargetSelectionCategories
 {

@@ -15,12 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_wrath_scryer_soccothrates
-SD%Complete: 95%
-SDComment: charge left to script
-SDCategory: Tempest Keep, The Arcatraz
-EndScriptData */
+/*
+ * Charge left to script
+ * Conversation between creatures requires rechecks and improvements
+ */
 
 #include "ScriptMgr.h"
 #include "arcatraz.h"
@@ -28,8 +26,9 @@ EndScriptData */
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 
-enum Say
+enum SoccothratesTexts
 {
     // Wrath-Scryer Soccothrates
     SAY_AGGRO                       = 1,
@@ -50,48 +49,109 @@ enum Say
     SAY_DALLIAH_CONVO_3             = 10
 };
 
-enum Spells
+enum SoccothratesSpells
 {
     SPELL_FELFIRE_SHOCK             = 35759,
     SPELL_KNOCK_AWAY                = 36512,
+
     SPELL_FELFIRE_LINE_UP           = 35770,
+    SPELL_TRIGGER_CHARGE_TARGETING  = 36564,
     SPELL_CHARGE_TARGETING          = 36038,
     SPELL_CHARGE                    = 35754
 };
 
-enum Events
+enum SoccothratesEvents
 {
     EVENT_FELFIRE_SHOCK             = 1,
-    EVENT_KNOCK_AWAY                = 2,
+    EVENT_KNOCK_AWAY,
 
-    EVENT_PREFIGHT_1                = 3,
-    EVENT_PREFIGHT_2                = 4,
-    EVENT_PREFIGHT_3                = 5,
-    EVENT_PREFIGHT_4                = 6,
-    EVENT_PREFIGHT_5                = 7,
-    EVENT_PREFIGHT_6                = 8,
-    EVENT_PREFIGHT_7                = 9,
-    EVENT_PREFIGHT_8                = 10,
-    EVENT_PREFIGHT_9                = 11,
-    EVENT_ME_FIRST                  = 12,
-    EVENT_DALLIAH_DEATH             = 13
+    EVENT_PREFIGHT_1,
+    EVENT_PREFIGHT_2,
+    EVENT_PREFIGHT_3,
+    EVENT_PREFIGHT_4,
+    EVENT_PREFIGHT_5,
+    EVENT_PREFIGHT_6,
+    EVENT_PREFIGHT_7,
+    EVENT_PREFIGHT_8,
+    EVENT_PREFIGHT_9,
+
+    EVENT_ME_FIRST,
+    EVENT_DALLIAH_DEATH
 };
 
+// 20886 - Wrath-Scryer Soccothrates
 struct boss_wrath_scryer_soccothrates : public BossAI
 {
-    boss_wrath_scryer_soccothrates(Creature* creature) : BossAI(creature, DATA_SOCCOTHRATES)
-    {
-        preFight = false;
-        dalliahTaunt = false;
-        dalliahDeath = false;
-    }
+    boss_wrath_scryer_soccothrates(Creature* creature) : BossAI(creature, DATA_SOCCOTHRATES),
+        _preFight(false), _dalliahTaunt(false), _dalliahDeath(false) { }
 
     void Reset() override
     {
         _Reset();
-        preFight = false;
-        dalliahTaunt = false;
-        dalliahDeath = false;
+        _preFight = false;
+        _dalliahTaunt = false;
+        _dalliahDeath = false;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 8s, 18s);
+        events.ScheduleEvent(EVENT_KNOCK_AWAY, 25s, 30s);
+        events.ScheduleEvent(EVENT_ME_FIRST, 6s);
+        Talk(SAY_AGGRO);
+        _preFight = false;
+    }
+
+    /// @todo: Maybe this is handled by Gameobject 184953 (Tempest Keep Prison - Boss React - Trigger 001) or it belongs to Mellichar's event
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (instance->GetData(DATA_CONVERSATION) == NOT_STARTED && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 70.0f))
+        {
+            Talk(SAY_SOCCOTHRATES_CONVO_1);
+            instance->SetData(DATA_CONVERSATION, DONE);
+
+            _preFight = true;
+            events.ScheduleEvent(EVENT_PREFIGHT_1, 2s);
+        }
+
+        BossAI::MoveInLineOfSight(who);
+    }
+
+    void SetData(uint32 /*type*/, uint32 data) override
+    {
+        switch (data)
+        {
+            case 1:
+                events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6s);
+                _dalliahDeath = true;
+                break;
+            default:
+                break;
+        }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_dalliahTaunt && me->HealthBelowPctDamaged(25, damage))
+        {
+            _dalliahTaunt = true;
+
+            if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
+                dalliah->AI()->Talk(SAY_SOCCOTHRATES_25_PERCENT);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_KNOCK_AWAY)
+            if (roll_chance_i(50))
+                Talk(SAY_KNOCK_AWAY);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -104,51 +164,11 @@ struct boss_wrath_scryer_soccothrates : public BossAI
                 dalliah->AI()->SetData(1, 1);
     }
 
-    void JustEngagedWith(Unit* who) override
-    {
-        BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
-        events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
-        events.ScheduleEvent(EVENT_ME_FIRST, 6s);
-        Talk(SAY_AGGRO);
-        preFight = false;
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void MoveInLineOfSight(Unit* who) override
-    {
-        if (instance->GetData(DATA_CONVERSATION) == NOT_STARTED && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 70.0f))
-        {
-            Talk(SAY_SOCCOTHRATES_CONVO_1);
-            instance->SetData(DATA_CONVERSATION, DONE);
-
-            preFight = true;
-            events.ScheduleEvent(EVENT_PREFIGHT_1, 2s);
-        }
-    }
-
-    void SetData(uint32 /*type*/, uint32 data) override
-    {
-        switch (data)
-        {
-            case 1:
-                events.ScheduleEvent(EVENT_DALLIAH_DEATH, 6s);
-                dalliahDeath = true;
-                break;
-            default:
-                break;
-        }
-    }
-
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
         {
-            if (preFight)
+            if (_preFight)
             {
                 events.Update(diff);
 
@@ -199,7 +219,7 @@ struct boss_wrath_scryer_soccothrates : public BossAI
                                 me->SetFacingToObject(dalliah);
                                 dalliah->SetHomePosition(dalliah->GetPositionX(), dalliah->GetPositionY(), dalliah->GetPositionZ(), 1.51737f);
                                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 4.725722f);
-                                preFight = false;
+                                _preFight = false;
                             }
                             break;
                         default:
@@ -208,7 +228,7 @@ struct boss_wrath_scryer_soccothrates : public BossAI
                 }
             }
 
-            if (dalliahDeath)
+            if (_dalliahDeath)
             {
                 events.Update(diff);
 
@@ -238,14 +258,14 @@ struct boss_wrath_scryer_soccothrates : public BossAI
             switch (eventId)
             {
                 case EVENT_FELFIRE_SHOCK:
-                    DoCastVictim(SPELL_FELFIRE_SHOCK, true);
-                    events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
+                    DoCastVictim(SPELL_FELFIRE_SHOCK);
+                    events.Repeat(10s, 15s);
                     break;
                 case EVENT_KNOCK_AWAY:
-                    DoCast(me, SPELL_KNOCK_AWAY);
-                    Talk(SAY_KNOCK_AWAY);
-                    events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
+                    DoCastSelf(SPELL_KNOCK_AWAY);
+                    events.Repeat(25s, 30s);
                     break;
+
                 case EVENT_ME_FIRST:
                     if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
                         if (dalliah->IsAlive() && !dalliah->IsInCombat())
@@ -259,20 +279,13 @@ struct boss_wrath_scryer_soccothrates : public BossAI
                 return;
         }
 
-        if (HealthBelowPct(25) && !dalliahTaunt)
-        {
-            if (Creature* dalliah = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_DALLIAH)))
-                dalliah->AI()->Talk(SAY_SOCCOTHRATES_25_PERCENT);
-            dalliahTaunt = true;
-        }
-
         DoMeleeAttackIfReady();
     }
 
 private:
-    bool preFight;
-    bool dalliahTaunt;
-    bool dalliahDeath;
+    bool _preFight;
+    bool _dalliahTaunt;
+    bool _dalliahDeath;
 };
 
 void AddSC_boss_wrath_scryer_soccothrates()
