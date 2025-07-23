@@ -2610,7 +2610,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (WorldObject* target : targets)
             {
-                if (Unit* unitTarget = Object::ToUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     me->EnterVehicle(unitTarget, (uint8)e.action.enterVehicle.seatId);
                     break;
@@ -2625,7 +2625,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (WorldObject* target : targets)
             {
-                if (Unit* unitTarget = Object::ToUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     unitTarget->EnterVehicle(me, (uint8)e.action.enterVehicle.seatId);
                     break;
@@ -2637,7 +2637,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         {
             for (WorldObject* target : targets)
             {
-                if (Unit* unitTarget = Object::ToUnit(target))
+                if (Unit* unitTarget = target->ToUnit())
                 {
                     unitTarget->ExitVehicle();
                 }
