@@ -1627,9 +1627,7 @@ void GameObject::Update(uint32 diff)
                     m_usetimes = 0;
                 }
 
-                // Only goobers with a lock id or a reset time may reset their go state
-                if (GetGOInfo()->GetLockId() || GetGOInfo()->GetAutoCloseTime())
-                    SetGoState(GO_STATE_READY);
+                SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
                 if (GameObjectOverride const* goOverride = GetGameObjectOverride())
@@ -2835,10 +2833,9 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
 
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                        if (Player* member = itr->GetSource())
-                            if (member->IsAtGroupRewardDistance(this))
-                                member->KillCreditGO(info->entry, GetGUID());
+                    for (GroupReference const& itr : group->GetMembers())
+                        if (itr.GetSource()->IsAtGroupRewardDistance(this))
+                            itr.GetSource()->KillCreditGO(info->entry, GetGUID());
                 }
                 else
                     player->KillCreditGO(info->entry, GetGUID());

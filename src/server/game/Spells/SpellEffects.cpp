@@ -4244,7 +4244,7 @@ void Spell::EffectResurrectPet()
     if (!player->GetPet())
     {
         PetStable const* petStable = player->GetPetStable();
-        auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+        auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
         {
             return petInfo && !petInfo->Health;
         });
@@ -5465,16 +5465,13 @@ void Spell::EffectCancelConversation()
     if (!unitTarget)
         return;
 
-    std::vector<WorldObject*> objs;
-    Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::ConversationListSearcher checker(unitTarget, objs, check);
-    Cell::VisitGridObjects(unitTarget, checker, 100.0f);
-
-    for (WorldObject* obj : objs)
+    auto work = [check = Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck(unitTarget->GetGUID(), effectInfo->MiscValue)](Conversation* conversation)
     {
-        if (Conversation* convo = obj->ToConversation())
-            convo->Remove();
-    }
+        if (check(conversation))
+            conversation->Remove();
+    };
+    Trinity::ConversationWorker worker(unitTarget, work);
+    Cell::VisitGridObjects(unitTarget, worker, 100.0f);
 }
 
 void Spell::EffectAddGarrisonFollower()

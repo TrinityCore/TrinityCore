@@ -1630,7 +1630,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2291 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2305 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2653,11 +2653,16 @@ CREATE TABLE `playerchoice` (
   `UiTextureKitId` int NOT NULL DEFAULT '0',
   `SoundKitId` int unsigned NOT NULL DEFAULT '0',
   `CloseSoundKitId` int unsigned NOT NULL DEFAULT '0',
-  `Duration` bigint NOT NULL DEFAULT '0',
+  `Duration` bigint DEFAULT '0',
   `PendingChoiceText` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `Question` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `HideWarboardHeader` tinyint(1) NOT NULL DEFAULT '0',
+  `HideWarboardHeader` tinyint unsigned NOT NULL DEFAULT '0',
   `KeepOpenAfterChoice` tinyint unsigned NOT NULL DEFAULT '0',
+  `ShowChoicesAsList` tinyint unsigned NOT NULL DEFAULT '0',
+  `ForceDontShowChoicesAsList` tinyint unsigned NOT NULL DEFAULT '0',
+  `MaxResponses` int unsigned DEFAULT NULL,
+  `ScriptName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `InfiniteRange` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ChoiceId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2689,7 +2694,6 @@ DROP TABLE IF EXISTS `playerchoice_response`;
 CREATE TABLE `playerchoice_response` (
   `ChoiceId` int NOT NULL,
   `ResponseId` int NOT NULL,
-  `ResponseIdentifier` smallint unsigned NOT NULL,
   `Index` int unsigned NOT NULL,
   `ChoiceArtFileId` int NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
@@ -4194,7 +4198,7 @@ CREATE TABLE `spawn_tracking` (
   `SpawnTrackingId` int unsigned NOT NULL,
   `SpawnType` tinyint unsigned NOT NULL,
   `SpawnId` bigint unsigned NOT NULL,
-  `QuestObjectiveId` int unsigned NOT NULL,
+  `QuestObjectiveIds` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`SpawnTrackingId`,`SpawnType`,`SpawnId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5057,4 +5061,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-31 19:45:59
+-- Dump completed on 2025-07-21 22:51:09

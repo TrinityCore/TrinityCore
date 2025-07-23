@@ -8585,30 +8585,40 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     TC_LOG_INFO("server.loading", ">> Loaded {} spellclick definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType guid)
+CreatureData& ObjectMgr::NewOrExistCreatureData(ObjectGuid::LowType spawnId)
 {
-    // remove mapid*cellid -> guid_set map
-    CreatureData const* data = GetCreatureData(guid);
-    if (data)
-    {
-        RemoveCreatureFromGrid(data);
-        OnDeleteSpawnData(data);
-    }
-
-    _creatureDataStore.erase(guid);
+    return _creatureDataStore[spawnId];
 }
 
-void ObjectMgr::DeleteGameObjectData(ObjectGuid::LowType guid)
+void ObjectMgr::DeleteCreatureData(ObjectGuid::LowType spawnId)
 {
     // remove mapid*cellid -> guid_set map
-    GameObjectData const* data = GetGameObjectData(guid);
-    if (data)
-    {
-        RemoveGameobjectFromGrid(data);
-        OnDeleteSpawnData(data);
-    }
+    auto itr = _creatureDataStore.find(spawnId);
+    if (itr == _creatureDataStore.end())
+        return;
 
-    _gameObjectDataStore.erase(guid);
+    RemoveCreatureFromGrid(&itr->second);
+    OnDeleteSpawnData(&itr->second);
+
+    _creatureDataStore.erase(itr);
+}
+
+GameObjectData& ObjectMgr::NewOrExistGameObjectData(ObjectGuid::LowType spawnId)
+{
+    return _gameObjectDataStore[spawnId];
+}
+
+void ObjectMgr::DeleteGameObjectData(ObjectGuid::LowType spawnId)
+{
+    // remove mapid*cellid -> guid_set map
+    auto itr = _gameObjectDataStore.find(spawnId);
+    if (itr == _gameObjectDataStore.end())
+        return;
+
+    RemoveGameobjectFromGrid(&itr->second);
+    OnDeleteSpawnData(&itr->second);
+
+    _gameObjectDataStore.erase(itr);
 }
 
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, QuestRelationsReverse* reverseMap, std::string const& table)
