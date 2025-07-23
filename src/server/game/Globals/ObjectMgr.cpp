@@ -3512,8 +3512,8 @@ void ObjectMgr::LoadVehicleTemplate()
 
     _vehicleTemplateStore.clear();
 
-    //                                               0           1               2
-    QueryResult result = WorldDatabase.Query("SELECT creatureId, despawnDelayMs, Pitch FROM vehicle_template");
+    //                                               0           1               2      3
+    QueryResult result = WorldDatabase.Query("SELECT creatureId, despawnDelayMs, Pitch, CustomFlags FROM vehicle_template");
 
     if (!result)
     {
@@ -3543,6 +3543,7 @@ void ObjectMgr::LoadVehicleTemplate()
         VehicleTemplate& vehicleTemplate = _vehicleTemplateStore[creatureId];
         vehicleTemplate.DespawnDelay = Milliseconds(fields[1].GetInt32());
         vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
+        vehicleTemplate.CustomFlags = VehicleCustomFlags(fields[3].GetInt32());
 
         if (vehicleTemplate.Pitch)
         {
