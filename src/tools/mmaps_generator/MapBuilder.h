@@ -18,40 +18,22 @@
 #ifndef _MAP_BUILDER_H
 #define _MAP_BUILDER_H
 
-#include <vector>
-#include <set>
-#include <list>
-#include <atomic>
-#include <thread>
-
-#include "TerrainBuilder.h"
-
-#include "Recast.h"
-#include "DetourNavMesh.h"
+#include "FlatSet.h"
 #include "Optional.h"
 #include "ProducerConsumerQueue.h"
+#include "TerrainBuilder.h"
+#include <DetourNavMesh.h>
+#include <Recast.h>
+#include <atomic>
+#include <span>
+#include <thread>
+#include <vector>
 
 using namespace VMAP;
 
 namespace MMAP
 {
-    struct MapTiles
-    {
-        MapTiles() : m_mapId(uint32(-1)), m_tiles(nullptr) {}
-
-        MapTiles(uint32 id, std::set<uint32>* tiles) : m_mapId(id), m_tiles(tiles) {}
-        ~MapTiles() {}
-
-        uint32 m_mapId;
-        std::set<uint32>* m_tiles;
-
-        bool operator==(uint32 id)
-        {
-            return m_mapId == id;
-        }
-    };
-
-    typedef std::list<MapTiles> TileList;
+    typedef std::unordered_map<uint32, Trinity::Containers::FlatSet<uint32>> TileList;
 
     struct Tile
     {
@@ -173,14 +155,13 @@ namespace MMAP
             void buildMap(uint32 mapID);
             // detect maps and tiles
             void discoverTiles();
-            std::set<uint32>* getTileList(uint32 mapID);
+            std::span<uint32 const> getTileList(uint32 mapID) const;
 
             void buildNavMesh(uint32 mapID, dtNavMesh* &navMesh);
 
             void getTileBounds(uint32 tileX, uint32 tileY,
                 float* verts, int vertCount,
                 float* bmin, float* bmax) const;
-            void getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY);
 
             bool shouldSkipMap(uint32 mapID) const;
             bool isTransportMap(uint32 mapID) const;
@@ -213,7 +194,7 @@ namespace MMAP
 
             int32 m_mapid;
 
-            std::atomic<uint32> m_totalTiles;
+            uint32 m_totalTiles;
             std::atomic<uint32> m_totalTilesProcessed;
 
             // build performance - not really used for now
