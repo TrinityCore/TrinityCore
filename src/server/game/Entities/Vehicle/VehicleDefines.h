@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_VEHICLEDEFINES_H
-#define __TRINITY_VEHICLEDEFINES_H
+#ifndef TRINITYCORE_VEHICLE_DEFINES_H
+#define TRINITYCORE_VEHICLE_DEFINES_H
 
-#include "EnumFlag.h"
 #include "Define.h"
 #include "Duration.h"
-#include <vector>
+#include "EnumFlag.h"
 #include <map>
+#include <vector>
 
 class Map;
 class WorldObject;
