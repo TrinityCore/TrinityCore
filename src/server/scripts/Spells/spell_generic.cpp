@@ -2171,6 +2171,29 @@ class spell_gen_injured : public SpellScript
     }
 };
 
+// To be added: 19633, 20686, 23382, 31389, 32959
+class spell_gen_knock_away_threat_reduction : public SpellScript
+{
+    PrepareSpellScript(spell_gen_knock_away_threat_reduction);
+
+public:
+    explicit spell_gen_knock_away_threat_reduction(int32 threatPercent) : _threatPercent(threatPercent) { }
+
+private:
+    int32 _threatPercent;
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ModifyThreatByPercent(GetHitUnit(), -_threatPercent);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_gen_knock_away_threat_reduction::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class spell_gen_lifeblood : public AuraScript
 {
     PrepareAuraScript(spell_gen_lifeblood);
@@ -3319,6 +3342,23 @@ class spell_gen_replenishment_aura : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_replenishment_aura::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+    }
+};
+
+// 32343 - Revive Self
+class spell_gen_revive_self : public SpellScript
+{
+    PrepareSpellScript(spell_gen_revive_self);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetFullHealth();
+        GetCaster()->SetFullPower(POWER_MANA);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_revive_self::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4718,6 +4758,9 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_hate_to_50);
     RegisterSpellScript(spell_gen_hate_to_75);
     RegisterSpellScript(spell_gen_injured);
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_100", 100);   // 10101
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_50", 50);     // 18670, 18945
+    RegisterSpellScriptWithArgs(spell_gen_knock_away_threat_reduction, "spell_gen_knock_away_threat_reduction_25", 25);     // 18813, 25778
     RegisterSpellScript(spell_gen_lifeblood);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_hexlord_lifebloom", SPELL_HEXLORD_MALACRASS_LIFEBLOOM_FINAL_HEAL);
     RegisterSpellScriptWithArgs(spell_gen_lifebloom, "spell_tur_ragepaw_lifebloom", SPELL_TUR_RAGEPAW_LIFEBLOOM_FINAL_HEAL);
@@ -4763,6 +4806,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_gen_remove_on_health_pct);
     RegisterSpellScript(spell_gen_remove_on_full_health);
     RegisterSpellScript(spell_gen_remove_on_full_health_pct);
+    RegisterSpellScript(spell_gen_revive_self);
     RegisterSpellScript(spell_gen_seaforium_blast);
     RegisterSpellScript(spell_gen_spectator_cheer_trigger);
     RegisterSpellScript(spell_gen_spirit_healer_res);
