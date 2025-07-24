@@ -35,7 +35,7 @@ like lack of delays between packets makes it work differently too.
 Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
 */
 
-enum Spells
+enum BlackStalkerSpells
 {
     SPELL_LEVITATE                      = 31704,
     SPELL_CHAIN_LIGHTNING               = 31717,
@@ -52,7 +52,7 @@ enum Spells
     SPELL_SUMMON_SPORE_STRIDER          = 38755
 };
 
-enum Events
+enum BlackStalkerEvents
 {
     EVENT_LEASH_CHECK                   = 1,
     EVENT_LEVITATE,
@@ -61,6 +61,7 @@ enum Events
     EVENT_SUMMON_SPORE_STRIDER
 };
 
+// 17882 - The Black Stalker
 struct boss_the_black_stalker : public BossAI
 {
     boss_the_black_stalker(Creature* creature) : BossAI(creature, DATA_THE_BLACK_STALKER) { }
