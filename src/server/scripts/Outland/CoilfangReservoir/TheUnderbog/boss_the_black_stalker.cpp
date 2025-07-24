@@ -66,6 +66,7 @@ enum BlackStalkerPaths
     PATH_BLACK_STALKER_IDLE             = 4346960,
 };
 
+// 17882 - The Black Stalker
 struct boss_the_black_stalker : public BossAI
 {
     boss_the_black_stalker(Creature* creature) : BossAI(creature, DATA_THE_BLACK_STALKER) { }
