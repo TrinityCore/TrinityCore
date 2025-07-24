@@ -59,10 +59,10 @@ struct boss_talon_king_ikiss : public BossAI
     void Reset() override
     {
         _Reset();
-        _introDone = false;
         _manaShieldTriggered = false;
     }
 
+    /// @todo: Handle this with GameObject 184118 (Auchindoun Arakkoa - Talon King Ikiss Intro Event - Trigger 000)
     void MoveInLineOfSight(Unit* who) override
     {
         if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
