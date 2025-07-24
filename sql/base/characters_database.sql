@@ -2795,7 +2795,7 @@ INSERT INTO `world_variable` VALUES
 ('NextGuildDailyResetTime',0),
 ('NextMonthlyQuestResetTime',0),
 ('NextDailyQuestResetTime',0),
-('NextOldCalendarEventDeletionTime',0),
+('NextOldCalendarEventDeletionTime',0);
 /*!40000 ALTER TABLE `world_variable` ENABLE KEYS */;
 UNLOCK TABLES;
 
