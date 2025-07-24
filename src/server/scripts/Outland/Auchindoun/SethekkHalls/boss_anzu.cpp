@@ -15,18 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Pathing for Brood of Anzu is NYI (try to remove extra flag to ignore pathfinding when paths will be implemented)
+ * Birds-helpers are NYI
+ */
+
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sethekk_halls.h"
 
 enum AnzuTexts
 {
-    SAY_SUMMON_BROOD            = 0,
-    SAY_SPELL_BOMB              = 1
+    SAY_INTRO_1                 = 0,
+    SAY_INTRO_2                 = 1,
+    SAY_SUMMON                  = 2,
+    SAY_BOMB                    = 3
 };
 
 enum AnzuSpells
 {
+    SPELL_SHADOWFORM            = 37816,
+
     SPELL_PARALYZING_SCREECH    = 40184,
     SPELL_SPELL_BOMB            = 40303,
     SPELL_CYCLONE_OF_FEATHERS   = 40321,
@@ -38,7 +47,12 @@ enum AnzuEvents
     EVENT_PARALYZING_SCREECH    = 1,
     EVENT_SPELL_BOMB,
     EVENT_CYCLONE_OF_FEATHERS,
-    EVENT_SUMMON
+    EVENT_SUMMON_1,
+    EVENT_SUMMON_2,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+    EVENT_INTRO_3
 };
 
 enum AnzuPhases : uint8
@@ -48,7 +62,12 @@ enum AnzuPhases : uint8
     PHASE_HEALTH_33
 };
 
-Position const PosSummonBrood[7] =
+enum AnzuMisc
+{
+    NPC_BROOD_OF_ANZU           = 23132
+};
+
+static Position const PosSummonBrood[] =
 {
     { -118.1717f, 284.5299f, 121.2287f, 2.775074f },
     { -98.15528f, 293.4469f, 109.2385f, 0.174533f },
@@ -62,20 +81,27 @@ Position const PosSummonBrood[7] =
 // 23035 - Anzu
 struct boss_anzu : public BossAI
 {
-    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _phase(PHASE_NONE) { }
+    boss_anzu(Creature* creature) : BossAI(creature, DATA_ANZU), _phase(PHASE_NONE), _deadBroodCount(0) { }
+
+    void JustAppeared() override
+    {
+        events.ScheduleEvent(EVENT_INTRO_1, 0s);
+    }
 
     void Reset() override
     {
-        //_Reset();
-        events.Reset();
+        _Reset();
         _phase = PHASE_NONE;
+        _deadBroodCount = 0;
+        me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
-        events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
+        events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 15s, 25s);
+        events.ScheduleEvent(EVENT_SPELL_BOMB, 20s, 30s);
+        events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 10s, 15s);
     }
 
     void DamageTaken(Unit* /*killer*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -83,45 +109,69 @@ struct boss_anzu : public BossAI
         if (_phase < PHASE_HEALTH_66 && me->HealthBelowPctDamaged(66, damage))
         {
             _phase++;
-            Talk(SAY_SUMMON_BROOD);
-            events.ScheduleEvent(EVENT_SUMMON, 3s);
+            events.ScheduleEvent(EVENT_SUMMON_1, 0s);
         }
 
         if (_phase < PHASE_HEALTH_33 && me->HealthBelowPctDamaged(33, damage))
         {
             _phase++;
-            Talk(SAY_SUMMON_BROOD);
-            events.ScheduleEvent(EVENT_SUMMON, 3s);
+            events.ScheduleEvent(EVENT_SUMMON_1, 0s);
+        }
+    }
+
+    void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) override
+    {
+        _deadBroodCount++;
+
+        if (_deadBroodCount == std::size(PosSummonBrood))
+        {
+            me->RemoveAurasDueToSpell(SPELL_BANISH_SELF);
+            _deadBroodCount = 0;
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_INTRO_1:
+                        Talk(SAY_INTRO_1);
+                        DoCastSelf(SPELL_SHADOWFORM);
+                        events.ScheduleEvent(EVENT_INTRO_2, 6s);
+                        break;
+                    case EVENT_INTRO_2:
+                        Talk(SAY_INTRO_2);
+                        events.ScheduleEvent(EVENT_INTRO_3, 4s);
+                        break;
+                    case EVENT_INTRO_3:
+                        me->RemoveAurasDueToSpell(SPELL_SHADOWFORM);
+                        me->SetImmuneToAll(false);
+                        break;
+                    default:
+                        break;
+                }
+            }
             return;
+        }
 
         events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
 
         while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_PARALYZING_SCREECH:
-                    DoCastVictim(SPELL_PARALYZING_SCREECH);
-                    events.Repeat(25s);
-                    break;
-                case EVENT_CYCLONE_OF_FEATHERS:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                        DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
-                    events.Repeat(21s);
-                    break;
-                case EVENT_SUMMON:
-                    // TODO: Add pathing for Brood of Anzu
-                    for (uint8 i = 0; i < 7; i++)
-                        me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
-
-                    DoCastSelf(SPELL_BANISH_SELF);
-                    events.ScheduleEvent(EVENT_SPELL_BOMB, 12s);
+                    DoCastSelf(SPELL_PARALYZING_SCREECH);
+                    events.Repeat(25s, 35s);
                     break;
                 case EVENT_SPELL_BOMB:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
@@ -129,13 +179,36 @@ struct boss_anzu : public BossAI
                         if (target->GetPowerType() == POWER_MANA)
                         {
                             DoCast(target, SPELL_SPELL_BOMB);
-                            Talk(SAY_SPELL_BOMB, target);
+                            Talk(SAY_BOMB, target);
                         }
                     }
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_CYCLONE_OF_FEATHERS:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_CYCLONE_OF_FEATHERS);
+                    events.Repeat(20s, 25s);
+                    break;
+                case EVENT_SUMMON_1:
+                    me->SetReactState(REACT_PASSIVE);
+                    Talk(SAY_SUMMON);
+
+                    _deadBroodCount = 0;
+                    for (Position const& summonPos : PosSummonBrood)
+                        me->SummonCreature(NPC_BROOD_OF_ANZU, summonPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
+
+                    events.ScheduleEvent(EVENT_SUMMON_2, 3s);
+                    break;
+                case EVENT_SUMMON_2:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCastSelf(SPELL_BANISH_SELF);
                     break;
                 default:
                     break;
             }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
 
         DoMeleeAttackIfReady();
@@ -143,6 +216,7 @@ struct boss_anzu : public BossAI
 
 private:
     uint8 _phase;
+    uint8 _deadBroodCount;
 };
 
 void AddSC_boss_anzu()
