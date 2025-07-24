@@ -63,7 +63,6 @@ class WorldSocket;
 class WorldObject;
 class WorldSession;
 
-struct AchievementCriteriaData;
 struct AreaTriggerEntry;
 struct AuctionEntry;
 struct ConditionSourceInfo;
