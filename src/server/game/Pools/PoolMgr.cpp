@@ -393,9 +393,13 @@ void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
     Spawn1Object(obj);
 }
 
-// Nothing to do for a child Pool
+// Method that does the respawn job on the specified pool
 template <>
-void PoolGroup<Pool>::ReSpawn1Object(PoolObject* /*obj*/) { }
+void PoolGroup<Pool>::ReSpawn1Object(PoolObject* obj)
+{
+    Despawn1Object(obj->guid, false, false);
+    Spawn1Object(obj);
+}
 
 template <>
 void PoolGroup<Creature>::RemoveRespawnTimeFromDB(ObjectGuid::LowType guid)
