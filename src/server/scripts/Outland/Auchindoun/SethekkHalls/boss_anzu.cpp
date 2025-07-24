@@ -64,11 +64,10 @@ enum AnzuPhases : uint8
 
 enum AnzuMisc
 {
-    NPC_BROOD_OF_ANZU           = 23132,
-    MAX_BROOD                   = 7
+    NPC_BROOD_OF_ANZU           = 23132
 };
 
-Position const PosSummonBrood[MAX_BROOD] =
+static Position const PosSummonBrood[] =
 {
     { -118.1717f, 284.5299f, 121.2287f, 2.775074f },
     { -98.15528f, 293.4469f, 109.2385f, 0.174533f },
@@ -124,7 +123,7 @@ struct boss_anzu : public BossAI
     {
         _deadBroodCount++;
 
-        if (_deadBroodCount == MAX_BROOD)
+        if (_deadBroodCount == std::size(PosSummonBrood))
         {
             me->RemoveAurasDueToSpell(SPELL_BANISH_SELF);
             _deadBroodCount = 0;
@@ -194,8 +193,9 @@ struct boss_anzu : public BossAI
                     me->SetReactState(REACT_PASSIVE);
                     Talk(SAY_SUMMON);
 
-                    for (uint8 i = 0; i < MAX_BROOD; i++)
-                        me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
+                    _deadBroodCount = 0;
+                    for (Position const& summonPos : PosSummonBrood)
+                        me->SummonCreature(NPC_BROOD_OF_ANZU, summonPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46s);
 
                     events.ScheduleEvent(EVENT_SUMMON_2, 3s);
                     break;
