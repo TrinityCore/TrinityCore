@@ -148,14 +148,11 @@ struct boss_warlord_kalithresh : public BossAI
         Talk(SAY_DEATH);
         _JustDied();
 
-        std::list<Creature*> distillersList;
-        me->GetCreatureListWithEntryInGrid(distillersList, NPC_NAGA_DISTILLER);
-        if (!distillersList.empty())
-        {
-            for (Creature* distiller : distillersList)
-                if (distiller->IsAlive())
-                    distiller->CastSpell(distiller, SPELL_QUIET_SUICIDE, true);
-        }
+        std::vector<Creature*> distillers;
+        GetCreatureListWithEntryInGrid(distillers, me, NPC_NAGA_DISTILLER, 250.0f);
+        for (Creature* distiller : distillers)
+            if (distiller->IsAlive())
+                distiller->CastSpell(distiller, SPELL_QUIET_SUICIDE, true);
     }
 
     void UpdateAI(uint32 diff) override
