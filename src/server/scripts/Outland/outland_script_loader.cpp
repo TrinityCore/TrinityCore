@@ -68,6 +68,7 @@ void AddSC_boss_hydromancer_thespia();
 void AddSC_boss_mekgineer_steamrigger();
 void AddSC_boss_warlord_kalithresh();
 void AddSC_instance_steam_vault();
+void AddSC_steam_vault();
 
 // Coilfang Reservoir - The Slave Pens
 void AddSC_instance_the_slave_pens();
@@ -193,6 +194,7 @@ void AddOutlandScripts()
     AddSC_boss_hydromancer_thespia();
     AddSC_boss_mekgineer_steamrigger();
     AddSC_boss_warlord_kalithresh();
+    AddSC_steam_vault();
 
     // Coilfang Reservoir - The Slave Pens
     AddSC_instance_the_slave_pens();
