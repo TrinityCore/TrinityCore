@@ -550,7 +550,7 @@ class spell_rokmora_update_interactions : public SpellScript
 
 void AddSC_boss_rokmora()
 {
-    RegisterNeltharionsLairCreatureAI(boss_rokmora);   
+    RegisterNeltharionsLairCreatureAI(boss_rokmora);
 
     RegisterSpellScript(spell_rokmora_crystalline_ground_periodic);
     RegisterSpellScript(spell_rokmora_shatter);
