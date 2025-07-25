@@ -404,7 +404,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
 
         delay += 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext task)
+        _scheduler.Schedule(delay, [this](TaskContext)
         {
             if (Creature* ularogg = me->FindNearestCreature(NPC_ULAROGG, 50.0f))
             {
@@ -424,7 +424,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
 
         delay += 1s;
 
-        _scheduler.Schedule(delay, [this](TaskContext task)
+        _scheduler.Schedule(delay, [this](TaskContext)
         {
             if (Creature* ularogg = me->FindNearestCreature(NPC_ULAROGG, 50.0f))
                 ularogg->CastSpell(ularogg->GetPosition(), SPELL_BOSS_INTRO_CONVERSATION);
