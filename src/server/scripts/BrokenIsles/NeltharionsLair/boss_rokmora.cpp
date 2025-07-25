@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "PathGenerator.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
