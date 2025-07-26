@@ -247,16 +247,18 @@ class spell_rokmora_shatter : public SpellScript
 
     void HandleShatter() const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
 
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
-        creatureCaster->CastSpell(creatureCaster, SPELL_SHATTER_KILL_SKITTERS, args);
+        caster->CastSpell(caster, SPELL_SHATTER_KILL_SKITTERS, args);
 
-        if (creatureCaster->GetMap()->IsHeroicOrHigher())
-            creatureCaster->CastSpell(creatureCaster->GetPosition(), SPELL_CRYSTALLINE_GROUND_AREATRIGGER, args);
+        if (caster->GetMap()->IsHeroicOrHigher())
+            caster->CastSpell(caster->GetPosition(), SPELL_CRYSTALLINE_GROUND_AREATRIGGER, args);
 
-        creatureCaster->SetPower(POWER_ENERGY, 0);
+        caster->SetPower(POWER_ENERGY, 0);
     }
 
     void Register() override
@@ -418,6 +420,9 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
                 return;
 
             Creature* rokmora = instance->GetCreature(DATA_ROKMORA);
+            if (!rokmora)
+                return;
+
             rokmora->AI()->DoCastSelf(SPELL_BOSS_INTRO_EMERGE);
 
             me->GetMotionMaster()->MovePoint(POINT_INTRO, NavarroggIntroPosition2);
@@ -499,12 +504,12 @@ class spell_rokmora_emerge : public SpellScript
 
     void HandleShatter() const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
-        InstanceScript* instance = creatureCaster->GetInstanceScript();
+        Unit* caster = GetCaster();
+        InstanceScript* instance = caster->GetInstanceScript();
         if (!instance)
             return;
 
-        creatureCaster->CastSpell(creatureCaster, SPELL_UPDATE_INTERACTIONS, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(caster, SPELL_UPDATE_INTERACTIONS, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         instance->SetData(DATA_ROKMORA_INTRO_STATE, DONE);
     }
@@ -519,12 +524,16 @@ class spell_rokmora_emerge_aura : public AuraScript
 {
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        GetCaster()->ToCreature()->AddUnitState(UNIT_STATE_ROOT);
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        caster->AddUnitState(UNIT_STATE_ROOT);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        GetCaster()->ToCreature()->ClearUnitState(UNIT_STATE_ROOT);
+        caster->ClearUnitState(UNIT_STATE_ROOT);
     }
 
     void Register() override
@@ -539,8 +548,11 @@ class spell_rokmora_update_interactions : public SpellScript
 {
     void HandleScript(SpellEffIndex /*effIndex*/) const
     {
-        Creature* creatureCaster = GetCaster()->ToCreature();
-        creatureCaster->SetImmuneToPC(false);
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        caster->SetImmuneToPC(false);
     }
 
     void Register() override
