@@ -315,6 +315,8 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         std::string GetDebugInfo() const override;
 
     protected:
+        void Heartbeat() override;
+
         void CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
         uint32      m_spellId;
