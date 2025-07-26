@@ -344,7 +344,7 @@ enum TrinityStrings
     LANG_COMMAND_NPC_SHOWLOOT_LABEL_2     = 293,
     LANG_COMMAND_NPC_SHOWLOOT_SUBLABEL    = 294,
     LANG_COMMAND_NPC_SHOWLOOT_ENTRY_2     = 295,
-      // 296 free
+    LANG_COMMAND_NPC_SHOWLOOT_CURRENCY    = 296, // master branch ONLY
 
       // END
     LANG_COMMAND_WANDER_DISTANCE          = 297,
@@ -1015,7 +1015,7 @@ enum TrinityStrings
     LANG_CMDPARSER_SPELL_NO_EXIST         = 1514,
     LANG_CMDPARSER_EXACT_SEQ_MISMATCH     = 1515,
     LANG_CMDPARSER_CURRENCY_NO_EXIST      = 1516, // master branch ONLY
-    LANG_CMDPARSER_QUEST_NO_EXIST         = 1517, // RESERVED future cherry-pick
+    LANG_CMDPARSER_QUEST_NO_EXIST         = 1517,
 
     // 1516-1996 - free
     LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED = 1997, // master branch ONLY
@@ -1153,7 +1153,7 @@ enum TrinityStrings
     LANG_NPCINFO_NPC_FLAGS                = 5086, // master branch ONLY
     LANG_NPCINFO_PHASE_IDS                = 5087, // master branch ONLY
     LANG_SCENARIO                         = 5088, // master branch ONLY
-    LANG_OBJECTINFO_STRINGIDS             = 5089, // master branch ONLY
+    LANG_OBJECTINFO_STRINGIDS             = 5089,
 
     // Room for more Trinity strings        5090-6603
 

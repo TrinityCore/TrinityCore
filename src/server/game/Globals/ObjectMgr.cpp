@@ -495,7 +495,9 @@ void ObjectMgr::LoadCreatureTemplates()
         // 62
         "flags_extra,"
         // 63
-        "ScriptName"
+        "ScriptName,"
+        // 64
+        "StringId"
         " FROM creature_template ct"
         " LEFT JOIN creature_template_movement ctm ON ct.entry = ctm.CreatureId");
 
@@ -615,6 +617,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.SpellSchoolImmuneMask = fields[61].GetUInt32();
     creatureTemplate.flags_extra           = fields[62].GetUInt32();
     creatureTemplate.ScriptID              = GetScriptId(fields[63].GetString());
+    creatureTemplate.StringId              = fields[64].GetString();
 }
 
 void ObjectMgr::LoadCreatureTemplateResistances()
@@ -2164,8 +2167,8 @@ void ObjectMgr::LoadCreatures()
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, "
     //   11               12         13       14            15         16          17          18                19                   20                    21
         "currentwaypoint, curhealth, curmana, MovementType, spawnMask, phaseMask, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.dynamicflags, "
-    //   22
-        "creature.ScriptName "
+    //   22                   23
+        "creature.ScriptName, creature.StringId "
         "FROM creature "
         "LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 0 AND creature.guid = pool_members.spawnId");
@@ -2221,6 +2224,7 @@ void ObjectMgr::LoadCreatures()
         data.unit_flags     = fields[20].GetUInt32();
         data.dynamicflags   = fields[21].GetUInt32();
         data.scriptId       = GetScriptId(fields[22].GetString());
+        data.StringId       = fields[23].GetString();
         data.spawnGroupData = GetDefaultSpawnGroup();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapId);
@@ -2485,8 +2489,8 @@ void ObjectMgr::LoadGameObjects()
     QueryResult result = WorldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, "
     //   7          8          9          10         11             12            13     14         15         16          17
         "rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnMask, phaseMask, eventEntry, poolSpawnId, "
-    //   18
-        "ScriptName "
+    //   18          19
+        "ScriptName, StringId "
         "FROM gameobject LEFT OUTER JOIN game_event_gameobject ON gameobject.guid = game_event_gameobject.guid "
         "LEFT OUTER JOIN pool_members ON pool_members.type = 1 AND gameobject.guid = pool_members.spawnId");
 
@@ -2590,6 +2594,7 @@ void ObjectMgr::LoadGameObjects()
         uint32 PoolId        = fields[17].GetUInt32();
 
         data.scriptId = GetScriptId(fields[18].GetString());
+        data.StringId = fields[19].GetString();
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
@@ -3138,7 +3143,7 @@ void ObjectMgr::LoadItemTemplates()
         if (itemTemplate.Class >= MAX_ITEM_CLASS)
         {
             TC_LOG_ERROR("sql.sql", "Item (Entry: {}) has wrong Class value ({})", entry, itemTemplate.Class);
-            itemTemplate.Class = ITEM_CLASS_MISC;
+            itemTemplate.Class = ITEM_CLASS_MISCELLANEOUS;
         }
 
         if (itemTemplate.SubClass >= MaxItemSubclassValues[itemTemplate.Class])
@@ -6842,8 +6847,8 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
         if (!node || node->ContinentID != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
 
-        uint8  field   = (uint8)((i - 1) / 32);
-        uint32 submask = 1<<((i-1)%32);
+        uint32 field = uint32((node->ID - 1) / (sizeof(TaxiMask::value_type) * 8));
+        TaxiMask::value_type submask = TaxiMask::value_type(1 << ((node->ID - 1) % (sizeof(TaxiMask::value_type) * 8)));
 
         // skip not taxi network nodes
         if ((sTaxiNodesMask[field] & submask) == 0)
@@ -7381,7 +7386,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar->achievement)
         {
-            if (!sAchievementMgr->GetAchievement(ar->achievement))
+            if (!sAchievementStore.LookupEntry(ar->achievement))
             {
                 TC_LOG_ERROR("sql.sql", "Required Achievement {} not exist for map {} difficulty {}, remove quest done requirement.", ar->achievement, mapid, difficulty);
                 ar->achievement = 0;
@@ -7446,21 +7451,22 @@ void ObjectMgr::SetHighestGuids()
 {
     QueryResult result = CharacterDatabase.Query("SELECT MAX(guid) FROM characters");
     if (result)
-        GetGuidSequenceGenerator(HighGuid::Player).Set((*result)[0].GetUInt32() + 1);
+        GetGenerator<HighGuid::Player>().Set((*result)[0].GetUInt32() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM item_instance");
     if (result)
-        GetGuidSequenceGenerator(HighGuid::Item).Set((*result)[0].GetUInt32() + 1);
+        GetGenerator<HighGuid::Item>().Set((*result)[0].GetUInt32() + 1);
 
     // Cleanup other tables from nonexistent guids ( >= _hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '{}'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());      // One-time query
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '{}'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());          // One-time query
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '{}'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());         // One-time query
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '{}'", GetGuidSequenceGenerator(HighGuid::Item).GetNextAfterMaxUsed());     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '{}'", GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed());     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '{}'", GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed());         // One-time query
+    CharacterDatabase.PExecute("DELETE a, ab FROM auctionhouse a LEFT JOIN auctionbidders ab ON ab.id = a.id WHERE itemguid >= '{}'",
+        GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed());                                                                                  // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '{}'", GetGenerator<HighGuid::Item>().GetNextAfterMaxUsed());    // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
     if (result)
-        GetGuidSequenceGenerator(HighGuid::Transport).Set((*result)[0].GetUInt32() + 1);
+        GetGenerator<HighGuid::Mo_Transport>().Set((*result)[0].GetUInt32() + 1);
 
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
@@ -7622,7 +7628,7 @@ inline void CheckGOSpellId(GameObjectTemplate const* goInfo, uint32 dataN, uint3
         goInfo->entry, goInfo->type, N, dataN, dataN);
 }
 
-inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32 const& dataN, uint32 N)
+inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32& dataN, uint32 N)
 {
     if (dataN <= (UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR))
         return;
@@ -7631,7 +7637,7 @@ inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32 
         goInfo->entry, goInfo->type, N, dataN, UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR);
 
     // prevent client and server unexpected work
-    const_cast<uint32&>(dataN) = 0;
+    dataN = 0;
 }
 
 inline void CheckGONoDamageImmuneId(GameObjectTemplate* goTemplate, uint32 dataN, uint32 N)
@@ -7661,8 +7667,8 @@ void ObjectMgr::LoadGameObjectTemplate()
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, "
     //                                         8      9      10     11     12     13     14     15     16     17     18      19      20
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
-    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33
-                                             "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName "
+    //                                         21      22      23      24      25      26      27      28      29      30      31      32      33          34
+                                             "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, AIName, ScriptName, StringId "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7693,6 +7699,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.AIName = fields[32].GetString();
         got.ScriptId = GetScriptId(fields[33].GetString());
+        got.StringId = fields[34].GetString();
 
         // Checks
         if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))
@@ -9699,7 +9706,7 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= tru
     return true;
 }
 
-bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
+bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 id, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, Player* player, std::set<uint32>* skip_vendors, uint32 ORnpcflag) const
 {
     CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(vendor_entry);
     if (!cInfo)
@@ -9726,12 +9733,12 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         return false;
     }
 
-    if (!sObjectMgr->GetItemTemplate(item_id))
+    if (!sObjectMgr->GetItemTemplate(id))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, id);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: {}) have in item list non-existed item ({}), ignore", vendor_entry, item_id);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` for Vendor (Entry: {}) have in item list non-existed item ({}), ignore", vendor_entry, id);
         return false;
     }
 
@@ -9740,7 +9747,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (player)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: {}) with wrong ExtendedCost ({}) for vendor ({}), ignore", item_id, ExtendedCost, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has Item (Entry: {}) with wrong ExtendedCost ({}) for vendor ({}), ignore", id, ExtendedCost, vendor_entry);
         return false;
     }
 
@@ -9749,7 +9756,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (player)
             ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", maxcount);
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` ({}) for item {} of vendor (Entry: {}) but `incrtime`=0, ignore", maxcount, item_id, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount` ({}) for item {} of vendor (Entry: {}) but `incrtime`=0, ignore", maxcount, id, vendor_entry);
         return false;
     }
     else if (maxcount == 0 && incrtime > 0)
@@ -9757,7 +9764,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (player)
             ChatHandler(player->GetSession()).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
         else
-            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item {} of vendor (Entry: {}) but `incrtime`<>0, ignore", item_id, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `(game_event_)npc_vendor` has `maxcount`=0 for item {} of vendor (Entry: {}) but `incrtime`<>0, ignore", id, vendor_entry);
         return false;
     }
 
@@ -9765,12 +9772,12 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if (vItems->FindItemCostPair(item_id, ExtendedCost))
+    if (vItems->FindItemCostPair(id, ExtendedCost))
     {
         if (player)
-            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, item_id, ExtendedCost);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, id, ExtendedCost);
         else
-            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items {} (with extended cost {}) for vendor (Entry: {}), ignoring", item_id, ExtendedCost, vendor_entry);
+            TC_LOG_ERROR("sql.sql", "Table `npc_vendor` has duplicate items {} (with extended cost {}) for vendor (Entry: {}), ignoring", id, ExtendedCost, vendor_entry);
         return false;
     }
 
@@ -10035,7 +10042,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
 
         for (uint8 i = 0; i < MAX_EXPANSIONS; ++i)
         {
-            stats.BaseHealth[i] = fields[2 + i].GetUInt16();
+            stats.BaseHealth[i] = fields[2 + i].GetUInt32();
 
             if (stats.BaseHealth[i] == 0)
             {
@@ -10051,8 +10058,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             }
         }
 
-        stats.BaseMana = fields[5].GetUInt16();
-        stats.BaseArmor = fields[6].GetUInt16();
+        stats.BaseMana = fields[5].GetUInt32();
+        stats.BaseArmor = fields[6].GetUInt32();
 
         stats.AttackPower = fields[7].GetUInt16();
         stats.RangedAttackPower = fields[8].GetUInt16();
@@ -10096,9 +10103,9 @@ void ObjectMgr::LoadFactionChangeAchievements()
         uint32 alliance = fields[0].GetUInt32();
         uint32 horde = fields[1].GetUInt32();
 
-        if (!sAchievementMgr->GetAchievement(alliance))
+        if (!sAchievementStore.LookupEntry(alliance))
             TC_LOG_ERROR("sql.sql", "Achievement {} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-        else if (!sAchievementMgr->GetAchievement(horde))
+        else if (!sAchievementStore.LookupEntry(horde))
             TC_LOG_ERROR("sql.sql", "Achievement {} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
         else
             FactionChangeAchievements[alliance] = horde;

@@ -917,6 +917,19 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
     }
 
+    m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = sConfigMgr->GetIntDefault("StartDeathKnightPlayerMoney", 2000);
+    if (int32(m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY]) < 0)
+    {
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerMoney ({}) must be in range 0..{}. Set to {}.", m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], MAX_MONEY_AMOUNT, 2000);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = 2000;
+    }
+    else if (m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] > MAX_MONEY_AMOUNT)
+    {
+        TC_LOG_ERROR("server.loading", "StartDeathKnightPlayerMoney ({}) must be in range 0..{}. Set to {}.",
+            m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY], MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
+        m_int_configs[CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
+    }
+
     m_int_configs[CONFIG_MAX_HONOR_POINTS] = sConfigMgr->GetIntDefault("MaxHonorPoints", 75000);
     if (int32(m_int_configs[CONFIG_MAX_HONOR_POINTS]) < 0)
     {
@@ -1413,6 +1426,18 @@ void World::LoadConfigSettings(bool reload)
     TC_LOG_INFO("server.loading", "VMap data directory is: {}vmaps", m_dataPath);
 
     m_int_configs[CONFIG_MAX_WHO] = sConfigMgr->GetIntDefault("MaxWhoListReturns", 49);
+    m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] = sConfigMgr->GetIntDefault("WhoList.Update.Interval", 5);
+    if (int32(m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL]) <= 0)
+    {
+        TC_LOG_ERROR("server.loading", "WhoList.Update.Interval ({}) must be > 0, set to default 5 seconds.", m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL]);
+        m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] = 5;
+    }
+    if (reload)
+    {
+        m_timers[WUPDATE_WHO_LIST].SetInterval(m_int_configs[CONFIG_WHO_LIST_UPDATE_INTERVAL] * IN_MILLISECONDS);
+        m_timers[WUPDATE_WHO_LIST].Reset();
+    }
+
     m_bool_configs[CONFIG_START_ALL_SPELLS] = sConfigMgr->GetBoolDefault("PlayerStart.AllSpells", false);
     m_int_configs[CONFIG_HONOR_AFTER_DUEL] = sConfigMgr->GetIntDefault("HonorPointsAfterDuel", 0);
     m_bool_configs[CONFIG_RESET_DUEL_COOLDOWNS] = sConfigMgr->GetBoolDefault("ResetDuelCooldowns", false);
@@ -2131,7 +2156,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_CHECK_FILECHANGES].SetInterval(500);
 
-    m_timers[WUPDATE_WHO_LIST].SetInterval(5 * IN_MILLISECONDS); // update who list cache every 5 seconds
+    m_timers[WUPDATE_WHO_LIST].SetInterval(getIntConfig(CONFIG_WHO_LIST_UPDATE_INTERVAL) * IN_MILLISECONDS); // update who list cache every 5 seconds
 
     m_timers[WUPDATE_CHANNEL_SAVE].SetInterval(getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_INTERVAL) * MINUTE * IN_MILLISECONDS);
 
@@ -2544,7 +2569,7 @@ void World::Update(uint32 diff)
     {
         TC_METRIC_TIMER("world_update_time", TC_METRIC_TAG("type", "Ping MySQL"));
         m_timers[WUPDATE_PINGDB].Reset();
-        TC_LOG_DEBUG("misc", "Ping MySQL to keep connection alive");
+        TC_LOG_DEBUG("sql.driver", "Ping MySQL to keep connection alive");
         CharacterDatabase.KeepAlive();
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
@@ -3392,17 +3417,18 @@ void World::InitGuildResetTime()
         sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
 }
 
-void World::ResetEventSeasonalQuests(uint16 event_id)
+void World::ResetEventSeasonalQuests(uint16 event_id, time_t eventStartTime)
 {
     TC_LOG_INFO("misc", "Seasonal quests reset for all characters.");
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
     stmt->setUInt16(0, event_id);
+    stmt->setInt64(1, eventStartTime);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
-            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
+            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id, eventStartTime);
 }
 
 void World::ResetRandomBG()

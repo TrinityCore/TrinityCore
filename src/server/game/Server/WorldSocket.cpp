@@ -17,6 +17,7 @@
 
 #include "WorldSocket.h"
 #include "BigNumber.h"
+#include "ClientBuildInfo.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
 #include "CryptoHash.h"
@@ -506,7 +507,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<AuthSession> authSes
 
     // Must be done before WorldSession is created
     bool wardenActive = sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED);
-    if (wardenActive && account.OS != "Win" && account.OS != "OSX")
+    if (wardenActive && !ClientBuild::Platform::IsValid(account.OS))
     {
         SendAuthResponseError(AUTH_REJECT);
         TC_LOG_ERROR("network", "WorldSocket::HandleAuthSession: Client {} attempted to log in using invalid client OS ({}).", address, account.OS);

@@ -349,6 +349,7 @@ struct TC_GAME_API CreatureTemplate
     uint32  SpellSchoolImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    std::string StringId;
     WorldPacket QueryData[TOTAL_LOCALES];
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
@@ -402,7 +403,7 @@ struct TC_GAME_API CreatureBaseStats
 
     uint32 GenerateHealth(CreatureTemplate const* info) const
     {
-        return uint32(ceil(BaseHealth[info->expansion] * info->ModHealth));
+        return uint32(std::round(std::max(BaseHealth[info->expansion] * info->ModHealth, 1.0f)));
     }
 
     uint32 GenerateMana(CreatureTemplate const* info) const

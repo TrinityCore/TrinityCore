@@ -44,11 +44,11 @@ struct Realm;
 // ServerMessages.dbc
 enum ServerMessageType
 {
-    SERVER_MSG_SHUTDOWN_TIME      = 1,
-    SERVER_MSG_RESTART_TIME       = 2,
-    SERVER_MSG_STRING             = 3,
-    SERVER_MSG_SHUTDOWN_CANCELLED = 4,
-    SERVER_MSG_RESTART_CANCELLED  = 5
+    SERVER_MSG_SHUTDOWN_TIME          = 1,
+    SERVER_MSG_RESTART_TIME           = 2,
+    SERVER_MSG_STRING                 = 3,
+    SERVER_MSG_SHUTDOWN_CANCELLED     = 4,
+    SERVER_MSG_RESTART_CANCELLED      = 5
 };
 
 enum ShutdownMask : uint32
@@ -238,6 +238,7 @@ enum WorldIntConfigs : uint32
     CONFIG_START_PLAYER_LEVEL,
     CONFIG_START_DEATH_KNIGHT_PLAYER_LEVEL,
     CONFIG_START_PLAYER_MONEY,
+    CONFIG_START_DEATH_KNIGHT_PLAYER_MONEY,
     CONFIG_MAX_HONOR_POINTS,
     CONFIG_START_HONOR_POINTS,
     CONFIG_MAX_ARENA_POINTS,
@@ -323,6 +324,7 @@ enum WorldIntConfigs : uint32
     CONFIG_ARENA_START_PERSONAL_RATING,
     CONFIG_ARENA_START_MATCHMAKER_RATING,
     CONFIG_MAX_WHO,
+    CONFIG_WHO_LIST_UPDATE_INTERVAL,
     CONFIG_HONOR_AFTER_DUEL,
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
@@ -759,7 +761,7 @@ class TC_GAME_API World
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-        void ResetEventSeasonalQuests(uint16 event_id);
+        void ResetEventSeasonalQuests(uint16 event_id, time_t eventStartTime);
 
         void ReloadRBAC();
 
@@ -842,7 +844,7 @@ class TC_GAME_API World
         // CLI command holder to be thread safe
         LockedQueue<CliCommandHolder*> cliCmdQueue;
 
-        // next daily quests and random bg reset time
+        // scheduled reset times
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
         time_t m_NextMonthlyQuestReset;

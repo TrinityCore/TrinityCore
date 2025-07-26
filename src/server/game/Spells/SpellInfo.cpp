@@ -405,7 +405,7 @@ bool SpellEffectInfo::IsAura() const
 
 bool SpellEffectInfo::IsAura(AuraType aura) const
 {
-    return IsAura() && ApplyAuraName == uint32(aura);
+    return IsAura() && ApplyAuraName == aura;
 }
 
 bool SpellEffectInfo::IsTargetingArea() const
@@ -1136,23 +1136,23 @@ bool SpellInfo::IsStackableWithRanks() const
         return false;
 
     // All stance spells. if any better way, change it.
-    for (SpellEffectInfo const& effect : GetEffects())
+    switch (SpellFamilyName)
     {
-        switch (SpellFamilyName)
-        {
-            case SPELLFAMILY_PALADIN:
-                // Paladin aura Spell
-                if (effect.Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
-                    return false;
-                break;
-            case SPELLFAMILY_DRUID:
-                // Druid form Spell
-                if (effect.Effect == SPELL_EFFECT_APPLY_AURA &&
-                    effect.ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
-                    return false;
-                break;
-        }
+        case SPELLFAMILY_PALADIN:
+            // Paladin aura Spell
+            if (HasEffect(SPELL_EFFECT_APPLY_AREA_AURA_RAID))
+                return false;
+            // Seal of Righteousness
+            if (SpellFamilyFlags[1] & 0x20000000)
+                return false;
+            break;
+        case SPELLFAMILY_DRUID:
+            // Druid form Spell
+            if (HasAura(SPELL_AURA_MOD_SHAPESHIFT))
+                return false;
+            break;
     }
+
     return true;
 }
 
@@ -3279,10 +3279,17 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
                 return 0;
         }
     }
-    SpellSchools school = GetFirstSchoolInMask(schoolMask);
-    // Flat mod from caster auras by spell school
-    powerCost += unitCaster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + AsUnderlyingType(school));
 
+    // Flat mod from caster auras by spell school and power type
+    Unit::AuraEffectList const& auras = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+    for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+    {
+        if (!((*i)->GetMiscValue() & schoolMask))
+            continue;
+        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+            continue;
+        powerCost += (*i)->GetAmount();
+    }
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
     if (HasAttribute(SPELL_ATTR4_SPELL_VS_EXTEND_COST))
     {
@@ -3310,8 +3317,16 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
         }
     }
 
-    // PCT mod from user auras by school
-    powerCost = int32(powerCost * (1.0f + unitCaster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + AsUnderlyingType(school))));
+    // PCT mod from user auras by spell school and power type
+    Unit::AuraEffectList const& aurasPct = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
+    for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
+    {
+        if (!((*i)->GetMiscValue() & schoolMask))
+            continue;
+        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+            continue;
+        powerCost += CalculatePct(powerCost, (*i)->GetAmount());
+    }
     if (powerCost < 0)
         powerCost = 0;
     return powerCost;
@@ -3361,7 +3376,7 @@ SpellInfo const* SpellInfo::GetAuraRankForLevel(uint8 level) const
         return this;
 
     // Client ignores spell with these attributes (sub_53D9D0)
-    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR2_UNK3) || HasAttribute(SPELL_ATTR3_DRAIN_SOUL))
+    if (HasAttribute(SPELL_ATTR0_NEGATIVE_1) || HasAttribute(SPELL_ATTR2_ALLOW_LOW_LEVEL_BUFF) || HasAttribute(SPELL_ATTR3_DRAIN_SOUL))
         return this;
 
     bool needRankSelection = false;

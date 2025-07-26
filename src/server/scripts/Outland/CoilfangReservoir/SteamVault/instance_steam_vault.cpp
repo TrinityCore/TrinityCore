@@ -19,28 +19,9 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "GameObject.h"
-#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "steam_vault.h"
-
-struct go_main_chambers_access_panel : public GameObjectAI
-{
-    go_main_chambers_access_panel(GameObject* go) : GameObjectAI(go), _instance(go->GetInstanceScript()) { }
-
-    bool OnGossipHello(Player* /*player*/) override
-    {
-        if (Creature* controller = _instance->GetCreature(DATA_DOOR_CONTROLLER))
-            controller->AI()->Talk(CONTROLLER_TEXT_ACESS_USED);
-        _instance->SetData(ACTION_OPEN_DOOR, 0);
-        me->SetFlag(GO_FLAG_NOT_SELECTABLE);
-        me->SetGoState(GO_STATE_ACTIVE);
-        return true;
-    }
-
-private:
-    InstanceScript* _instance;
-};
 
 ObjectData const gameObjectData[] =
 {
@@ -71,7 +52,6 @@ class instance_steam_vault : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, gameObjectData);
-                distillerState = 0;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -96,19 +76,10 @@ class instance_steam_vault : public InstanceMapScript
                 }
             }
 
-            void SetData(uint32 type, uint32 data) override
+            void SetData(uint32 type, uint32 /*data*/) override
             {
-                if (type == DATA_DISTILLER)
-                    distillerState = data;
-                else if (type == ACTION_OPEN_DOOR)
+                if (type == ACTION_OPEN_DOOR)
                     CheckMainDoor();
-            }
-
-            uint32 GetData(uint32 type) const override
-            {
-                if (type == DATA_DISTILLER)
-                    return distillerState;
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state) override
@@ -134,9 +105,6 @@ class instance_steam_vault : public InstanceMapScript
 
                 return true;
             }
-
-        protected:
-            uint8 distillerState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
@@ -147,6 +115,5 @@ class instance_steam_vault : public InstanceMapScript
 
 void AddSC_instance_steam_vault()
 {
-    RegisterGameObjectAI(go_main_chambers_access_panel);
     new instance_steam_vault();
 }

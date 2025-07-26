@@ -139,11 +139,8 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
         {
             mGameEvent[event_id].start = GameTime::GetGameTime();
             if (data.end <= data.start)
-                data.end = data.start + data.length;
+                data.end = data.start + data.length * MINUTE;
         }
-
-        // When event is started, set its worldstate to current time
-        sWorld->setWorldState(event_id, GameTime::GetGameTime());
         return false;
     }
     else
@@ -179,14 +176,11 @@ void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
 
-    // When event is stopped, clean up its worldstate
-    sWorld->setWorldState(event_id, 0);
-
     if (overwrite && !serverwide_evt)
     {
         data.start = GameTime::GetGameTime() - data.length * MINUTE;
         if (data.end <= data.start)
-            data.end = data.start + data.length;
+            data.end = data.start + data.length * MINUTE;
     }
     else if (serverwide_evt)
     {
@@ -1106,8 +1100,6 @@ uint32 GameEventMgr::Update()                               // return the next e
         }
         else
         {
-            // If event is inactive, periodically clean up its worldstate
-            sWorld->setWorldState(itr, 0);
             //TC_LOG_DEBUG("misc", "GameEvent {} is not active", itr->first);
             if (IsActiveEvent(itr))
                 deactivate.insert(itr);
@@ -1191,10 +1183,8 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     //! Run SAI scripts with SMART_EVENT_GAME_EVENT_START
     RunSmartAIScripts(event_id, true);
 
-    // If event's worldstate is 0, it means the event hasn't been started yet. In that case, reset seasonal quests.
-    // When event ends (if it expires or if it's stopped via commands) worldstate will be set to 0 again, ready for another seasonal quest reset.
-    if (sWorld->getWorldState(event_id) == 0)
-        sWorld->ResetEventSeasonalQuests(event_id);
+    // check for seasonal quest reset.
+    sWorld->ResetEventSeasonalQuests(event_id, GetLastStartTime(event_id));
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1826,6 +1816,21 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
             // if none is found we don't modify start date and use the one in game_event
         }
     }
+}
+
+time_t GameEventMgr::GetLastStartTime(uint16 event_id) const
+{
+    if (event_id >= mGameEvent.size())
+        return 0;
+
+    if (mGameEvent[event_id].state != GAMEEVENT_NORMAL)
+        return 0;
+
+    SystemTimePoint now = GameTime::GetSystemTime();
+    SystemTimePoint eventInitialStart = std::chrono::system_clock::from_time_t(mGameEvent[event_id].start);
+    Minutes occurence(mGameEvent[event_id].occurence);
+    SystemTimePoint::duration durationSinceLastStart = (now - eventInitialStart) % occurence;
+    return std::chrono::system_clock::to_time_t(now - durationSinceLastStart);
 }
 
 bool IsHolidayActive(HolidayIds id)

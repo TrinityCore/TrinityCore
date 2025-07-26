@@ -17,6 +17,7 @@
 
 #include "BattlegroundAB.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundPackets.h"
 #include "Creature.h"
 #include "DBCStores.h"
 #include "GameObject.h"
@@ -25,15 +26,12 @@
 #include "Player.h"
 #include "Random.h"
 #include "Util.h"
-#include "WorldPacket.h"
 #include "WorldSession.h"
 #include "WorldStatePackets.h"
 
-void BattlegroundABScore::BuildObjectivesBlock(WorldPacket& data)
+void BattlegroundABScore::BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData)
 {
-    data << uint32(2);
-    data << uint32(BasesAssaulted);
-    data << uint32(BasesDefended);
+    playerData.Stats = { BasesAssaulted, BasesDefended };
 }
 
 BattlegroundAB::BattlegroundAB()

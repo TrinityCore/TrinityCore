@@ -24,6 +24,7 @@
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
 #include "CreatureTextMgr.h"
+#include "DBCStores.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Log.h"
@@ -762,7 +763,7 @@ void BattlefieldWG::OnBattleEnd(bool endByTimer)
 // *******************************************************
 void BattlefieldWG::DoCompleteOrIncrementAchievement(uint32 achievement, Player* player, uint8 /*incrementNumber*/)
 {
-    AchievementEntry const* achievementEntry = sAchievementMgr->GetAchievement(achievement);
+    AchievementEntry const* achievementEntry = sAchievementStore.LookupEntry(achievement);
 
     if (!achievementEntry)
         return;

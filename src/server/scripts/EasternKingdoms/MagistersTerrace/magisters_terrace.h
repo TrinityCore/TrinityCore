@@ -51,13 +51,13 @@ enum MTCreatureIds
     BOSS_PRIESTESS_DELRISSA     = 24560,
 
     // Encounter related
-    /*Kael'thas Sunstrider*/
+    // Kael'thas Sunstrider
     NPC_ARCANE_SPHERE           = 24708,
     NPC_FLAME_STRIKE            = 24666,
     NPC_PHOENIX                 = 24674,
     NPC_PHOENIX_EGG             = 24675,
 
-    /*Selin Fireheart*/
+    // Selin Fireheart
     NPC_FEL_CRYSTAL             = 24722,
 
     // Event related
@@ -83,17 +83,7 @@ enum MTGameObjectIds
 
 enum MTInstanceEventIds
 {
-    EVENT_SPAWN_KALECGOS    = 16547
-};
-
-enum MTInstanceText
-{
-    SAY_KALECGOS_SPAWN      = 0
-};
-
-enum MTMovementData
-{
-    PATH_KALECGOS_FLIGHT    = 248440
+    EVENT_SPAWN_KALECGOS        = 16547
 };
 
 template <class AI, class T>

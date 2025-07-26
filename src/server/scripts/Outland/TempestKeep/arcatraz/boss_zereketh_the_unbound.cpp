@@ -17,9 +17,11 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
 #include "arcatraz.h"
 
-enum Say
+enum ZerekethTexts
 {
     SAY_AGGRO                       = 0,
     SAY_SLAY                        = 1,
@@ -27,47 +29,53 @@ enum Say
     SAY_DEATH                       = 3
 };
 
-enum Spells
+enum ZerekethSpells
 {
     SPELL_VOID_ZONE                 = 36119,
     SPELL_SHADOW_NOVA               = 36127,
     SPELL_SEED_OF_CORRUPTION        = 36123
 };
 
-enum Events
+enum ZerekethEvents
 {
     EVENT_VOID_ZONE                 = 1,
-    EVENT_SHADOW_NOVA               = 2,
-    EVENT_SEED_OF_CORRUPTION        = 3
+    EVENT_SHADOW_NOVA,
+    EVENT_SEED_OF_CORRUPTION
 };
 
+// 20870 - Zereketh the Unbound
 struct boss_zereketh_the_unbound : public BossAI
 {
     boss_zereketh_the_unbound(Creature* creature) : BossAI(creature, DATA_ZEREKETH) { }
 
-    void Reset() override
+    void JustEngagedWith(Unit* who) override
     {
-        _Reset();
+        BossAI::JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_VOID_ZONE, 10s, 15s);
+        events.ScheduleEvent(EVENT_SHADOW_NOVA, 15s, 20s);
+        events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 5s, 10s);
+        Talk(SAY_AGGRO);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == sSpellMgr->GetSpellIdForDifficulty(SPELL_SHADOW_NOVA, me))
+            if (roll_chance_i(50))
+                Talk(SAY_SHADOW_NOVA);
+    }
+
+    // Do not despawn Void Zone
+    void JustSummoned(Creature* /*summon*/) override { }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         Talk(SAY_DEATH);
-    }
-
-    void JustEngagedWith(Unit* who) override
-    {
-        BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_VOID_ZONE, 6s, 10s);
-        events.ScheduleEvent(EVENT_SHADOW_NOVA, 6s, 10s);
-        events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 12s, 20s);
-        Talk(SAY_AGGRO);
-    }
-
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
     }
 
     void UpdateAI(uint32 diff) override
@@ -85,19 +93,18 @@ struct boss_zereketh_the_unbound : public BossAI
             switch (eventId)
             {
                 case EVENT_VOID_ZONE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_VOID_ZONE);
-                    events.ScheduleEvent(EVENT_VOID_ZONE, 6s, 10s);
+                    events.Repeat(15s);
                     break;
                 case EVENT_SHADOW_NOVA:
-                    DoCastVictim(SPELL_SHADOW_NOVA, true);
-                    Talk(SAY_SHADOW_NOVA);
-                    events.ScheduleEvent(EVENT_SHADOW_NOVA, 6s, 10s);
+                    DoCastSelf(SPELL_SHADOW_NOVA);
+                    events.Repeat(15s, 20s);
                     break;
                 case EVENT_SEED_OF_CORRUPTION:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_SEED_OF_CORRUPTION);
-                    events.ScheduleEvent(EVENT_SEED_OF_CORRUPTION, 12s, 20s);
+                    events.Repeat(15s, 20s);
                     break;
                 default:
                     break;

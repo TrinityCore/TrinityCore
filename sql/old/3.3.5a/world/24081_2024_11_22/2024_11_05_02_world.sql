@@ -1,0 +1,3 @@
+--
+UPDATE `gameobject` SET `rotation2`=-0.99026775360107421, `rotation3`=0.139175355434417724 WHERE `guid` IN (13553);
+UPDATE `gameobject` SET `rotation2`=-0.13917255401611328, `rotation3`=0.990268170833587646 WHERE `guid` IN (13563);

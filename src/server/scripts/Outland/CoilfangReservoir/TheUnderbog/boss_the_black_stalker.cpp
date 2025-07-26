@@ -35,7 +35,7 @@ like lack of delays between packets makes it work differently too.
 Of course as was said above player can be pulled towards 2 times in a row but that looks like a rare case.
 */
 
-enum Spells
+enum BlackStalkerSpells
 {
     SPELL_LEVITATE                      = 31704,
     SPELL_CHAIN_LIGHTNING               = 31717,
@@ -52,7 +52,7 @@ enum Spells
     SPELL_SUMMON_SPORE_STRIDER          = 38755
 };
 
-enum Events
+enum BlackStalkerEvents
 {
     EVENT_LEASH_CHECK                   = 1,
     EVENT_LEVITATE,
@@ -61,19 +61,20 @@ enum Events
     EVENT_SUMMON_SPORE_STRIDER
 };
 
+// 17882 - The Black Stalker
 struct boss_the_black_stalker : public BossAI
 {
-    boss_the_black_stalker(Creature* creature) : BossAI(creature, DATA_THE_BLACK_STALKER), _summons(creature) { }
+    boss_the_black_stalker(Creature* creature) : BossAI(creature, DATA_THE_BLACK_STALKER) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        _events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
-        _events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
-        _events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
-        _events.ScheduleEvent(EVENT_STATIC_CHARGE, 10s);
+        events.ScheduleEvent(EVENT_LEASH_CHECK, 5s);
+        events.ScheduleEvent(EVENT_LEVITATE, 8s, 18s);
+        events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 0s, 3s);
+        events.ScheduleEvent(EVENT_STATIC_CHARGE, 10s);
         if (IsHeroic())
-            _events.ScheduleEvent(EVENT_SUMMON_SPORE_STRIDER, 20s, 30s);
+            events.ScheduleEvent(EVENT_SUMMON_SPORE_STRIDER, 20s, 30s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -81,12 +82,12 @@ struct boss_the_black_stalker : public BossAI
         if (!UpdateVictim())
             return;
 
-        _events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = _events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
@@ -99,25 +100,25 @@ struct boss_the_black_stalker : public BossAI
                         EnterEvadeMode();
                         return;
                     }
-                    _events.Repeat(1s);
+                    events.Repeat(1s);
                     break;
                 }
                 case EVENT_LEVITATE:
                     DoCastSelf(SPELL_LEVITATE);
-                    _events.Repeat(18s, 24s);
+                    events.Repeat(18s, 24s);
                     break;
                 case EVENT_CHAIN_LIGHTNING:
                     DoCastVictim(SPELL_CHAIN_LIGHTNING);
-                    _events.Repeat(6s, 12s);
+                    events.Repeat(6s, 12s);
                     break;
                 case EVENT_STATIC_CHARGE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 30, true))
                         DoCast(target, SPELL_STATIC_CHARGE);
-                    _events.Repeat(10s);
+                    events.Repeat(10s);
                     break;
                 case EVENT_SUMMON_SPORE_STRIDER:
                     DoCastSelf(SPELL_SUMMON_SPORE_STRIDER_SCRIPT);
-                    _events.Repeat(15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 default:
                     break;
@@ -129,10 +130,6 @@ struct boss_the_black_stalker : public BossAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    EventMap _events;
-    SummonList _summons;
 };
 
 // 31704 - Levitate

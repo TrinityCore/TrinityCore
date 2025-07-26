@@ -76,7 +76,7 @@ enum SpellCastFlags
 {
     CAST_FLAG_NONE               = 0x00000000,
     CAST_FLAG_PENDING            = 0x00000001,              // aoe combat log?
-    CAST_FLAG_UNKNOWN_2          = 0x00000002,
+    CAST_FLAG_HAS_TRAJECTORY     = 0x00000002,
     CAST_FLAG_UNKNOWN_3          = 0x00000004,
     CAST_FLAG_UNKNOWN_4          = 0x00000008,              // ignore AOE visual
     CAST_FLAG_UNKNOWN_5          = 0x00000010,
@@ -338,6 +338,7 @@ class TC_GAME_API Spell
         SpellCastResult CheckPower() const;
         SpellCastResult CheckRuneCost(uint32 runeCostID) const;
         SpellCastResult CheckCasterAuras(uint32* param1) const;
+        SpellCastResult CheckArenaCastRules() const;
         SpellCastResult CheckMovement() const;
 
         bool CheckSpellCancelsAuraEffect(AuraType auraType, uint32* param1) const;

@@ -29,6 +29,7 @@ EndScriptData */
 #include "Language.h"
 #include "Map.h"
 #include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "WaypointDefines.h"
@@ -245,43 +246,45 @@ public:
 
     static bool HandleWpUnLoadCommand(ChatHandler* handler, char const* /*args*/)
     {
-
         Creature* target = handler->getSelectedCreature();
         WorldDatabasePreparedStatement* stmt = nullptr;
 
         if (!target)
         {
-            handler->PSendSysMessage("%s%s|r", "|cff33ffff", "You must select target.");
+            handler->PSendSysMessage("%s%s|r", "|cff33ffff", "You must select a target.");
             return true;
         }
 
-        uint32 guildLow = target->GetSpawnId();
-
-        if (target->GetCreatureAddon())
+        ObjectGuid::LowType guidLow = target->GetSpawnId();
+        if (!guidLow)
         {
-            if (target->GetCreatureAddon()->path_id != 0)
-            {
-                stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
-                stmt->setUInt32(0, guildLow);
-                WorldDatabase.Execute(stmt);
-
-                target->UpdateCurrentWaypointInfo(0, 0);
-
-                stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
-                stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));
-                stmt->setUInt32(1, guildLow);
-                WorldDatabase.Execute(stmt);
-
-                target->LoadPath(0);
-                target->SetDefaultMovementType(IDLE_MOTION_TYPE);
-                target->GetMotionMaster()->MoveTargetedHome();
-                target->GetMotionMaster()->Initialize();
-                target->Say("Path unloaded.", LANG_UNIVERSAL);
-
-                return true;
-            }
-            handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Target have no loaded path.");
+            handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Target is not saved to DB.");
+            return true;
         }
+
+        CreatureAddon const* addon = sObjectMgr->GetCreatureAddon(guidLow);
+        if (!addon || addon->path_id == 0)
+        {
+            handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Target does not have a loaded path.");
+            return true;
+        }
+
+        stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CREATURE_ADDON);
+        stmt->setUInt32(0, guidLow);
+        WorldDatabase.Execute(stmt);
+
+        target->UpdateCurrentWaypointInfo(0, 0);
+
+        stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
+        stmt->setUInt8(0, uint8(IDLE_MOTION_TYPE));
+        stmt->setUInt32(1, guidLow);
+        WorldDatabase.Execute(stmt);
+
+        target->LoadPath(0);
+        target->SetDefaultMovementType(IDLE_MOTION_TYPE);
+        target->GetMotionMaster()->MoveTargetedHome();
+        target->GetMotionMaster()->Initialize();
+        target->Say("Path unloaded.", LANG_UNIVERSAL);
         return true;
     }
 
@@ -302,7 +305,11 @@ public:
 
         if (show == "add")
         {
-            if (Optional<uint32> id = Trinity::StringTo<uint32>(arg_id))
+            Optional<uint32> id;
+            if (arg_id)
+                id = Trinity::StringTo<uint32>(arg_id);
+
+            if (id)
             {
                 stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
                 stmt->setUInt32(0, *id);
@@ -344,9 +351,8 @@ public:
 
             uint32 id = Trinity::StringTo<uint32>(arg_id).value_or(0);
 
-            uint32 a2, a3, a4, a5, a6;
+            uint32 a2, a3, a4, a5, a6, a7;
             float a8, a9, a10, a11;
-            char const* a7;
 
             stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_SCRIPT_BY_ID);
             stmt->setUInt32(0, id);
@@ -368,13 +374,13 @@ public:
                 a4 = fields[2].GetUInt32();
                 a5 = fields[3].GetUInt32();
                 a6 = fields[4].GetUInt32();
-                a7 = fields[5].GetCString();
+                a7 = fields[5].GetUInt32();
                 a8 = fields[6].GetFloat();
                 a9 = fields[7].GetFloat();
                 a10 = fields[8].GetFloat();
                 a11 = fields[9].GetFloat();
 
-                handler->PSendSysMessage("|cffff33ffid:|r|cff00ffff %u|r|cff00ff00, guid: |r|cff00ffff%u|r|cff00ff00, delay: |r|cff00ffff%u|r|cff00ff00, command: |r|cff00ffff%u|r|cff00ff00, datalong: |r|cff00ffff%u|r|cff00ff00, datalong2: |r|cff00ffff%u|r|cff00ff00, datatext: |r|cff00ffff%s|r|cff00ff00, posx: |r|cff00ffff%f|r|cff00ff00, posy: |r|cff00ffff%f|r|cff00ff00, posz: |r|cff00ffff%f|r|cff00ff00, orientation: |r|cff00ffff%f|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+                handler->PSendSysMessage("|cffff33ffid:|r|cff00ffff %u|r|cff00ff00, guid: |r|cff00ffff%u|r|cff00ff00, delay: |r|cff00ffff%u|r|cff00ff00, command: |r|cff00ffff%u|r|cff00ff00, datalong: |r|cff00ffff%u|r|cff00ff00, datalong2: |r|cff00ffff%u|r|cff00ff00, dataint: |r|cff00ffff%u|r|cff00ff00, posx: |r|cff00ffff%f|r|cff00ff00, posy: |r|cff00ffff%f|r|cff00ff00, posz: |r|cff00ffff%f|r|cff00ff00, orientation: |r|cff00ffff%f|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
             }
             while (result->NextRow());
         }

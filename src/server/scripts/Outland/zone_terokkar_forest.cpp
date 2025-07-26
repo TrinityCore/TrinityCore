@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "CreatureAIImpl.h"
 #include "GameObject.h"
 #include "Group.h"
 #include "Map.h"
@@ -317,6 +318,126 @@ class spell_terokkar_cancel_shadowy_disguise : public SpellScript
     }
 };
 
+enum Translocation
+{
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN     = 32572,
+    SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP       = 32568,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN        = 32569,
+    SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP          = 32571
+};
+
+// 25143 - Translocate
+// 29128 - Translocate
+// 29129 - Translocate
+// 25140 - Translocate
+class spell_terokkar_translocation_firewing_point : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_translocation_firewing_point);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _triggeredSpellId });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), _triggeredSpellId);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_terokkar_translocation_firewing_point::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+    uint32 _triggeredSpellId;
+
+public:
+    explicit spell_terokkar_translocation_firewing_point(Translocation triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
+};
+
+/*######
+## Quest 10929: Fumping / 10930: The Big Bone Worm
+######*/
+
+enum Fumping
+{
+    SPELL_SUMMON_SAND_GNOME    = 39240,
+    SPELL_SUMMON_BONE_SLICER   = 39241,
+
+    SPELL_SUMMON_SAND_GNOME_1  = 39247,
+    SPELL_SUMMON_BONE_SLICER_1 = 39245,
+    SPELL_SUMMON_HAISHULUD     = 39248,
+    SPELL_DESPAWN_CLEFTHOOF    = 39250
+};
+
+// 39238 - Fumping
+class spell_terokkar_fumping : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_fumping);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER });
+    }
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position const offset = { 0.5f, 0.5f, 5.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), RAND(SPELL_SUMMON_SAND_GNOME, SPELL_SUMMON_BONE_SLICER), true);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_terokkar_fumping::SetDest, EFFECT_1, TARGET_DEST_CASTER);
+        OnEffectHit += SpellEffectFn(spell_terokkar_fumping::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 39246 - Fumping
+class spell_terokkar_fumping_the_big_bone_worm : public SpellScript
+{
+    PrepareSpellScript(spell_terokkar_fumping_the_big_bone_worm);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_SAND_GNOME_1,
+            SPELL_SUMMON_BONE_SLICER_1,
+            SPELL_SUMMON_HAISHULUD,
+            SPELL_DESPAWN_CLEFTHOOF
+        });
+    }
+
+    void SetDest(SpellDestination& dest)
+    {
+        Position const offset = { 0.5f, 0.5f, 5.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void HandleSummon(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), RAND(SPELL_SUMMON_SAND_GNOME_1, SPELL_SUMMON_BONE_SLICER_1, SPELL_SUMMON_HAISHULUD), true);
+    }
+
+    void HandleDespawn(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DESPAWN_CLEFTHOOF, true);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_terokkar_fumping_the_big_bone_worm::SetDest, EFFECT_1, TARGET_DEST_CASTER);
+        OnEffectHit += SpellEffectFn(spell_terokkar_fumping_the_big_bone_worm::HandleSummon, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectHit += SpellEffectFn(spell_terokkar_fumping_the_big_bone_worm::HandleDespawn, EFFECT_2, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_terokkar_forest()
 {
     new npc_unkor_the_ruthless();
@@ -326,4 +447,10 @@ void AddSC_terokkar_forest()
     RegisterSpellScript(spell_terokkar_shadowy_disguise_cast_from_questgiver);
     RegisterSpellScript(spell_terokkar_shadowy_disguise);
     RegisterSpellScript(spell_terokkar_cancel_shadowy_disguise);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_down", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_building_up", SPELL_TRANSLOCATION_FIREWING_POINT_BUILDING_UP);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_down", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_DOWN);
+    RegisterSpellScriptWithArgs(spell_terokkar_translocation_firewing_point, "spell_terokkar_translocation_firewing_point_tower_up", SPELL_TRANSLOCATION_FIREWING_POINT_TOWER_UP);
+    RegisterSpellScript(spell_terokkar_fumping);
+    RegisterSpellScript(spell_terokkar_fumping_the_big_bone_worm);
 }

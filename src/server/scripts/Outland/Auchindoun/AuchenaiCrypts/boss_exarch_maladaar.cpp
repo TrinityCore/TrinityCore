@@ -23,7 +23,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Texts
+enum MaladaarTexts
 {
     SAY_ROAR                    = 0,
     SAY_SOUL_CLEAVE             = 1,
@@ -33,7 +33,7 @@ enum Texts
     SAY_DEATH                   = 5
 };
 
-enum Spells
+enum MaladaarSpells
 {
     SPELL_SOUL_SCREAM           = 32421,
     SPELL_RIBBON_OF_SOULS       = 32422,
@@ -57,7 +57,7 @@ enum Spells
     SPELL_PLAGUE_STRIKE         = 58839
 };
 
-enum Events
+enum MaladaarEvents
 {
     EVENT_SOUL_SCREAM           = 1,
     EVENT_RIBBON_OF_SOULS,
@@ -65,7 +65,7 @@ enum Events
     EVENT_SUMMON_AVATAR
 };
 
-enum Misc
+enum MaladaarMisc
 {
     NPC_DORE                    = 19412,
 
@@ -93,6 +93,7 @@ enum Misc
 
 Position const DoreSpawnPos = { -4.40722f, -387.277f, 40.6294f, 6.26573f };
 
+// 18373 - Exarch Maladaar
 struct boss_exarch_maladaar : public BossAI
 {
     boss_exarch_maladaar(Creature* creature) : BossAI(creature, DATA_EXARCH_MALADAAR), _avatarSummoned(false) { }
@@ -123,9 +124,19 @@ struct boss_exarch_maladaar : public BossAI
 
     void OnSpellCast(SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_STOLEN_SOUL)
-            if (roll_chance_i(25))
-                Talk(SAY_SOUL_CLEAVE);
+        switch (spell->Id)
+        {
+            case SPELL_STOLEN_SOUL:
+                if (roll_chance_i(25))
+                    Talk(SAY_SOUL_CLEAVE);
+                break;
+            case SPELL_SOUL_SCREAM:
+                if (roll_chance_i(25))
+                    Talk(SAY_ROAR);
+                break;
+            default:
+                break;
+        }
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -164,8 +175,6 @@ struct boss_exarch_maladaar : public BossAI
             switch (eventId)
             {
                 case EVENT_SOUL_SCREAM:
-                    if (roll_chance_i(25))
-                        Talk(SAY_ROAR);
                     DoCastSelf(SPELL_SOUL_SCREAM);
                     events.Repeat(RAND(15s, 20s));
                     break;
@@ -197,6 +206,7 @@ private:
     bool _avatarSummoned;
 };
 
+// 18441 - Stolen Soul
 struct npc_stolen_soul : public ScriptedAI
 {
     npc_stolen_soul(Creature* creature) : ScriptedAI(creature), _summonerClass(CLASS_NONE) { }
