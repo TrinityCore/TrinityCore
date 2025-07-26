@@ -72,7 +72,8 @@ enum BWLGameObjectIds
     GO_CHROMAGGUS_LEVER         = 179148,
     GO_CHROMAGGUS_DOOR          = 179116,
     GO_PORTCULLIS_NEFARIAN      = 176966,
-    GO_SUPPRESSION_DEVICE       = 179784
+    GO_SUPPRESSION_DEVICE       = 179784,
+    GO_DRAKONID_BONES           = 179804
 };
 
 enum BWLEvents
@@ -86,7 +87,10 @@ enum BWLMisc
 {
     // Razorgore Egg Event
     ACTION_PHASE_TWO            = 1,
-    DATA_EGG_EVENT
+    DATA_EGG_EVENT,
+
+    // Nefarian Drakonid Respawn
+    DATA_DRAKONID_BONES
 };
 
 template <class AI, class T>
