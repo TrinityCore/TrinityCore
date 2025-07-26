@@ -47,9 +47,6 @@ public:
                 case NPC_GHAZAN:
                     SetBossState(DATA_GHAZAN, DONE);
                     break;
-                case NPC_SWAMPLORD_MUSELEK:
-                    SetBossState(DATA_SWAMPLORD_MUSELEK, DONE);
-                    break;
                 default:
                     break;
             }

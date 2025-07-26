@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "CreatureAIImpl.h"
+#include "DBCStores.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "MotionMaster.h"
@@ -1013,6 +1014,300 @@ class spell_oscillating_field : public SpellScriptLoader
         }
 };
 
+/*######
+## Quest 10556: Scratches
+######*/
+
+enum Scratches
+{
+    SPELL_LASHHAN_CHANNELING     = 36904
+};
+
+// 37028 - Dispelling Analysis
+class spell_bem_dispelling_analysis : public SpellScript
+{
+    PrepareSpellScript(spell_bem_dispelling_analysis);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LASHHAN_CHANNELING });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_LASHHAN_CHANNELING);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_dispelling_analysis::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 10544: A Curse Upon Both of Your Clans!
+######*/
+
+enum ACurseUponBothOfYourClans
+{
+    NPC_OGRE_BUILDING_BUNNY_LARGE     = 21351
+};
+
+// 32580 - Wicked Strong Fetish
+class spell_bem_wicked_strong_fetish : public SpellScript
+{
+    PrepareSpellScript(spell_bem_wicked_strong_fetish);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->SummonCreature(NPC_OGRE_BUILDING_BUNNY_LARGE, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_bem_wicked_strong_fetish::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+enum TheSmallestCreature
+{
+    SPELL_CHARM_REXXARS_RODENT          = 38586,
+    SPELL_COAX_MARMOT                   = 38544,
+    SPELL_STEALTH_MARMOT                = 42347,
+    SPELL_GREEN_EYE_GROG_CREDIT         = 38996,
+    SPELL_RIPE_MOONSHINE_CREDIT         = 38997,
+    SPELL_FERMENTED_SEED_BEER_CREDIT    = 38998,
+
+    NPC_MARMOT                          = 22189,
+    NPC_GREEN_SPOT_GROG_KEG_CREDIT      = 22356,
+    NPC_RIPE_MOONSHINE_KEG_CREDIT       = 22367,
+    NPC_FERMENTED_SEED_BEER_KEG_CREDIT  = 22368
+};
+
+struct npc_q10720_keg_credit : public ScriptedAI
+{
+    npc_q10720_keg_credit(Creature * creature) : ScriptedAI(creature)
+    {
+        // Neccessary hack to allow spell 38629 to hit the keg credit (visibility is checked against the summoner, not the caster)
+        creature->m_invisibilityDetect.AddFlag(INVISIBILITY_UNK4);
+    }
+};
+
+struct npc_q10720_marmot : public ScriptedAI
+{
+    using ScriptedAI::ScriptedAI;
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        summoner->CastSpell(me, SPELL_CHARM_REXXARS_RODENT, true);
+    }
+};
+
+// 38544 - Coax Marmot
+class spell_bem_coax_marmot : public AuraScript
+{
+    PrepareAuraScript(spell_bem_coax_marmot);
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        // prevent loading the aura from db
+        if (GetTarget()->GetCharmedGUID().IsEmpty())
+            Remove();
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Creature* marmot = Object::ToCreature(GetTarget()->GetCharmed()))
+            if (marmot->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_COAX_MARMOT)
+                marmot->DespawnOrUnsummon();
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectApply, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_bem_coax_marmot::HandleEffectRemove, EFFECT_1, SPELL_AURA_MOD_INVISIBILITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 38586 - [DND]Charm Rexxar's Rodent
+class spell_bem_charm_rexxars_rodent : public AuraScript
+{
+    PrepareAuraScript(spell_bem_charm_rexxars_rodent);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+
+        if (Creature* creature = GetTarget()->ToCreature())
+            creature->DespawnOrUnsummon(1ms);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bem_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 38629 - Poison Keg
+class spell_bem_q10720_poison_keg : public SpellScript
+{
+    PrepareSpellScript(spell_bem_q10720_poison_keg);
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            uint32 spellId = 0;
+            switch (GetHitUnit()->GetEntry())
+            {
+                case NPC_GREEN_SPOT_GROG_KEG_CREDIT:
+                    spellId = SPELL_GREEN_EYE_GROG_CREDIT;
+                    break;
+                case NPC_RIPE_MOONSHINE_KEG_CREDIT:
+                    spellId = SPELL_RIPE_MOONSHINE_CREDIT;
+                    break;
+                case NPC_FERMENTED_SEED_BEER_KEG_CREDIT:
+                    spellId = SPELL_FERMENTED_SEED_BEER_CREDIT;
+                    break;
+                default:
+                    return;
+            }
+
+            player->CastSpell(nullptr, spellId, true);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_q10720_poison_keg::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11010: Bombing Run / 11102: Bombing Run / 11023: Bomb Them Again!
+######*/
+
+enum BombingRun
+{
+    SPELL_FLAK_CANNON_TRIGGER = 40110,
+    SPELL_CHOOSE_LOC          = 40056,
+    SPELL_AGGRO_CHECK         = 40112,
+
+    NPC_FEL_CANNON2           = 23082
+};
+
+// 40113 - Knockdown Fel Cannon: The Aggro Check Aura
+class spell_bem_aggro_check_aura : public AuraScript
+{
+    PrepareAuraScript(spell_bem_aggro_check_aura);
+
+    void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* target = GetTarget())
+            // On trigger proccing
+            target->CastSpell(target, SPELL_AGGRO_CHECK);
+    }
+
+    void Register() override
+    {
+       OnEffectPeriodic += AuraEffectPeriodicFn(spell_bem_aggro_check_aura::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 40112 - Knockdown Fel Cannon: The Aggro Check
+class spell_bem_aggro_check : public SpellScript
+{
+    PrepareSpellScript(spell_bem_aggro_check);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* playerTarget = GetHitPlayer())
+            // Check if found player target is on fly mount or using flying form
+            if (playerTarget->HasAuraType(SPELL_AURA_FLY) || playerTarget->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                playerTarget->CastSpell(playerTarget, SPELL_FLAK_CANNON_TRIGGER, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_aggro_check::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 40119 - Knockdown Fel Cannon: The Aggro Burst
+class spell_bem_aggro_burst : public AuraScript
+{
+    PrepareAuraScript(spell_bem_aggro_burst);
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (Unit* target = GetTarget())
+            // On each tick cast Choose Loc to trigger summon
+            target->CastSpell(target, SPELL_CHOOSE_LOC);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_bem_aggro_burst::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 40056 - Knockdown Fel Cannon: Choose Loc
+class spell_bem_choose_loc : public SpellScript
+{
+    PrepareSpellScript(spell_bem_choose_loc);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        // Check for player that is in 65 y range
+        std::vector<Player*> playerList;
+        caster->GetPlayerListInGrid(playerList, 65.0f);
+        for (Player* player : playerList)
+            // Check if found player target is on fly mount or using flying form
+            if (player->HasAuraType(SPELL_AURA_FLY) || player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                // Summom Fel Cannon (bunny version) at found player
+                caster->SummonCreature(NPC_FEL_CANNON2, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_bem_choose_loc::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 39844 - Skyguard Blasting Charge
+// 40160 - Throw Bomb
+class spell_bem_check_fly_mount : public SpellScript
+{
+    PrepareSpellScript(spell_bem_check_fly_mount);
+
+    SpellCastResult CheckRequirement()
+    {
+        Unit* caster = GetCaster();
+        // This spell will be cast only if caster has one of these auras
+        if (!(caster->HasAuraType(SPELL_AURA_FLY) || caster->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED)))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+        return SPELL_CAST_OK;
+    }
+
+    void Register() override
+    {
+        OnCheckCast += SpellCheckCastFn(spell_bem_check_fly_mount::CheckRequirement);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1022,4 +1317,16 @@ void AddSC_blades_edge_mountains()
     new go_apexis_relic();
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
+    RegisterSpellScript(spell_bem_dispelling_analysis);
+    RegisterSpellScript(spell_bem_wicked_strong_fetish);
+    RegisterCreatureAI(npc_q10720_keg_credit);
+    RegisterCreatureAI(npc_q10720_marmot);
+    RegisterSpellScript(spell_bem_coax_marmot);
+    RegisterSpellScript(spell_bem_charm_rexxars_rodent);
+    RegisterSpellScript(spell_bem_q10720_poison_keg);
+    RegisterSpellScript(spell_bem_aggro_check_aura);
+    RegisterSpellScript(spell_bem_aggro_check);
+    RegisterSpellScript(spell_bem_aggro_burst);
+    RegisterSpellScript(spell_bem_choose_loc);
+    RegisterSpellScript(spell_bem_check_fly_mount);
 }

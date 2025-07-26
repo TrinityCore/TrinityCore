@@ -91,7 +91,7 @@ public:
 
             DoCast(me, SPELL_IRRIDATION, true);
 
-            me->SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+            me->SetPvP(true);
             me->SetUnitFlag(UNIT_FLAG_IN_COMBAT);
             me->SetHealth(me->CountPctFromMaxHealth(10));
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -115,7 +115,7 @@ public:
         {
             if (spellInfo->SpellFamilyFlags[2] & 0x080000000)
             {
-                me->RemoveUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);
+                me->SetPvP(false);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 DoCast(me, SPELL_STUNNED, true);

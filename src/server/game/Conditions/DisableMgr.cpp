@@ -188,7 +188,7 @@ void LoadDisables()
                     TC_LOG_ERROR("sql.sql", "Disable flags specified for outdoor PvP {}, useless data.", entry);
                 break;
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
-                if (!sAchievementMgr->GetAchievementCriteria(entry))
+                if (!sAchievementCriteriaStore.LookupEntry(entry))
                 {
                     TC_LOG_ERROR("sql.sql", "Achievement Criteria entry {} from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;

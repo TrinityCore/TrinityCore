@@ -22,14 +22,14 @@
 #include "PassiveAI.h"
 #include "ScriptedCreature.h"
 
-enum Texts
+enum SupremusTexts
 {
     EMOTE_NEW_TARGET          = 0,
     EMOTE_PUNCH_GROUND        = 1,
     EMOTE_GROUND_CRACK        = 2
 };
 
-enum Spells
+enum SupremusSpells
 {
     SPELL_MOLTEN_PUNCH        = 40126,
     SPELL_HATEFUL_STRIKE      = 41926,
@@ -42,7 +42,7 @@ enum Spells
     SPELL_CHARGE              = 41581
 };
 
-enum Events
+enum SupremusEvents
 {
     EVENT_BERSERK = 1,
     EVENT_SWITCH_PHASE,
@@ -52,17 +52,19 @@ enum Events
     EVENT_HATEFUL_STRIKE
 };
 
-enum Phases
+enum SupremusPhases
 {
     PHASE_INITIAL =  1,
     PHASE_STRIKE  =  2,
     PHASE_CHASE   =  3
 };
 
-enum Actions
+enum SupremusActions
 {
     ACTION_DISABLE_VULCANO = 1
 };
+
+// 22898 - Supremus
 struct boss_supremus : public BossAI
 {
     boss_supremus(Creature* creature) : BossAI(creature, DATA_SUPREMUS) { }
@@ -96,7 +98,7 @@ struct boss_supremus : public BossAI
             events.SetPhase(PHASE_STRIKE);
             DummyEntryCheckPredicate pred;
             summons.DoAction(ACTION_DISABLE_VULCANO, pred);
-            events.ScheduleEvent(EVENT_HATEFUL_STRIKE, Seconds(2), 0, PHASE_STRIKE);
+            events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 2s, 0, PHASE_STRIKE);
             me->RemoveAurasDueToSpell(SPELL_SNARE_SELF);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
@@ -104,8 +106,8 @@ struct boss_supremus : public BossAI
         else
         {
             events.SetPhase(PHASE_CHASE);
-            events.ScheduleEvent(EVENT_VOLCANO, Seconds(5), 0, PHASE_CHASE);
-            events.ScheduleEvent(EVENT_SWITCH_TARGET, Seconds(10), 0, PHASE_CHASE);
+            events.ScheduleEvent(EVENT_VOLCANO, 5s, 0, PHASE_CHASE);
+            events.ScheduleEvent(EVENT_SWITCH_TARGET, 10s, 0, PHASE_CHASE);
             me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
             DoCast(SPELL_SNARE_SELF);
@@ -145,12 +147,12 @@ struct boss_supremus : public BossAI
                 break;
             case EVENT_FLAME:
                 DoCast(SPELL_MOLTEN_PUNCH);
-                events.Repeat(Seconds(15), Seconds(20));
+                events.Repeat(15s, 20s);
                 break;
             case EVENT_HATEFUL_STRIKE:
                 if (Unit* target = CalculateHatefulStrikeTarget())
                     DoCast(target, SPELL_HATEFUL_STRIKE);
-                events.Repeat(Seconds(5));
+                events.Repeat(5s);
                 break;
             case EVENT_SWITCH_TARGET:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
@@ -160,12 +162,12 @@ struct boss_supremus : public BossAI
                     DoCast(target, SPELL_CHARGE);
                     Talk(EMOTE_NEW_TARGET);
                 }
-                events.Repeat(Seconds(10));
+                events.Repeat(10s);
                 break;
             case EVENT_VOLCANO:
                 DoCastAOE(SPELL_VOLCANIC_SUMMON, true);
                 Talk(EMOTE_GROUND_CRACK);
-                events.Repeat(Seconds(10));
+                events.Repeat(10s);
                 break;
             case EVENT_SWITCH_PHASE:
                 ChangePhase();
@@ -176,6 +178,7 @@ struct boss_supremus : public BossAI
     }
 };
 
+// 23095 - Supremus Punch Invis Stalker
 struct npc_molten_flame : public NullCreatureAI
 {
     npc_molten_flame(Creature* creature) : NullCreatureAI(creature) { }
@@ -189,13 +192,14 @@ struct npc_molten_flame : public NullCreatureAI
     }
 };
 
+// 23085 - Supremus Volcano
 struct npc_volcano : public NullCreatureAI
 {
     npc_volcano(Creature* creature) : NullCreatureAI(creature) { }
 
     void Reset() override
     {
-        _scheduler.Schedule(Seconds(3), [this](TaskContext /*context*/)
+        _scheduler.Schedule(3s, [this](TaskContext /*context*/)
         {
             DoCastSelf(SPELL_VOLCANIC_ERUPTION);
         });

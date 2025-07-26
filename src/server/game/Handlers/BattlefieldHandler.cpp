@@ -155,14 +155,10 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
 
     // If player accept invitation
     if (accepted)
-    {
         bf->PlayerAcceptInviteToWar(_player);
-    }
     else
-    {
         if (_player->GetZoneId() == bf->GetZoneId())
             bf->KickPlayerFromBattlefield(_player->GetGUID());
-    }
 }
 
 /**
@@ -178,9 +174,6 @@ void WorldSession::HandleBfQueueExitRequest(WorldPacket& recvData)
 
     TC_LOG_DEBUG("misc", "HandleBfQueueExitRequest: battleId: {} ", battleId);
 
-    Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId);
-    if (!bf)
-        return;
-
-    bf->AskToLeaveQueue(_player);
+    if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByBattleId(battleId))
+        bf->AskToLeaveQueue(_player);
 }

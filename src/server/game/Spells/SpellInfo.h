@@ -31,15 +31,11 @@ class Spell;
 class SpellMgr;
 class SpellInfo;
 class Unit;
+class WorldObject;
 struct Condition;
 struct SpellChainNode;
-struct SpellTargetPosition;
-struct SpellDurationEntry;
 struct SpellModifier;
-struct SpellRangeEntry;
-struct SpellRadiusEntry;
-struct SpellEntry;
-struct SpellCastTimesEntry;
+enum WeaponAttackType : uint8;
 
 enum SpellTargetSelectionCategories
 {
@@ -167,6 +163,7 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DEPRECATED_LIQUID_AURA        = 0x00400000, // DO NOT REUSE
     SPELL_ATTR0_CU_IS_TALENT                     = 0x00800000, // reserved for master branch
     SPELL_ATTR0_CU_AURA_CANNOT_BE_SAVED          = 0x01000000,
+    SPELL_ATTR0_CU_CAN_TARGET_ANY_PRIVATE_OBJECT = 0x02000000, // reserved for master branch
 
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2
 };

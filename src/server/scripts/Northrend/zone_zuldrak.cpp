@@ -906,6 +906,296 @@ class spell_zuldrak_chains_of_the_scourge : public SpellScript
     }
 };
 
+/*######
+## Quest 12721: Rampage
+######*/
+
+enum Rampage
+{
+    SPELL_RAMPAGE_SUMMON_AKILZON    = 52934,
+    SPELL_RAMPAGE_SUMMON_HALAZZI    = 52935,
+    SPELL_RAMPAGE_SUMMON_JANALAI    = 52936,
+    SPELL_RAMPAGE_SUMMON_NALORAKK   = 52937
+};
+
+// 52933 - Rampage: Summon Zul'Aman Gods Master
+class spell_zuldrak_rampage_summon_zulaman_gods_master : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_rampage_summon_zulaman_gods_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_RAMPAGE_SUMMON_AKILZON,
+            SPELL_RAMPAGE_SUMMON_HALAZZI,
+            SPELL_RAMPAGE_SUMMON_JANALAI,
+            SPELL_RAMPAGE_SUMMON_NALORAKK
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_AKILZON);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_HALAZZI);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_JANALAI);
+        caster->CastSpell(caster, SPELL_RAMPAGE_SUMMON_NALORAKK);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_zuldrak_rampage_summon_zulaman_gods_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12627: Breaking Through Jin'Alai
+######*/
+
+enum BreakingThroughJinAlai
+{
+    SPELL_BREAKING_THROUGH_SUMMON_AKILZON    = 51861,
+    SPELL_BREAKING_THROUGH_SUMMON_JANALAI    = 52452,
+    SPELL_BREAKING_THROUGH_SUMMON_HALAZZI    = 52453,
+    SPELL_BREAKING_THROUGH_SUMMON_NALORAKK   = 52454
+};
+
+// 51862 - Breaking Through Jin'Alai: Summon Zul'Aman Gods Master
+class spell_zuldrak_breaking_through_summon_zulaman_gods_master : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_BREAKING_THROUGH_SUMMON_AKILZON,
+            SPELL_BREAKING_THROUGH_SUMMON_JANALAI,
+            SPELL_BREAKING_THROUGH_SUMMON_HALAZZI,
+            SPELL_BREAKING_THROUGH_SUMMON_NALORAKK
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_AKILZON);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_JANALAI);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_HALAZZI);
+        caster->CastSpell(caster, SPELL_BREAKING_THROUGH_SUMMON_NALORAKK);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_zuldrak_breaking_through_summon_zulaman_gods_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12630: Kickin' Nass and Takin' Manes
+######*/
+
+enum KickinNassAndTakinManes
+{
+    SPELL_SUMMON_NASS     = 51865
+};
+
+// 51864 - Player Summon Nass
+// 51889 - Quest Accept Summon Nass
+class spell_zuldrak_summon_nass : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_summon_nass);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_NASS });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_NASS);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_summon_nass::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12730: Convocation at Zol'Heb
+######*/
+
+enum ConvocationAtZolHeb
+{
+    SPELL_AKALIS_STUN           = 52989,
+    SPELL_FLICKERING_FLAMES     = 53504
+};
+
+// 53010 - Convocation at Zol'Heb: Removef Akali's Stun
+class spell_zuldrak_remove_akalis_stun : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_remove_akalis_stun);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AKALIS_STUN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_AKALIS_STUN);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_remove_akalis_stun::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 53350 - Quenching Mist
+class spell_zuldrak_quenching_mist : public AuraScript
+{
+    PrepareAuraScript(spell_zuldrak_quenching_mist);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_zuldrak_quenching_mist::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+/*######
+## Quest 12661: Infiltrating Voltarus / 12669: So Far, So Bad / 12676: Sabotage / 12677: Hazardous Materials / 12713: Betrayal
+######*/
+
+// 55368 - Summon Stefan
+class spell_zuldrak_summon_stefan : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_summon_stefan);
+
+    void SetDest(SpellDestination& dest)
+    {
+        // Adjust effect summon position (sniff)
+        Position const offset = { 0.0f, 0.0f, 30.0f, 0.0f };
+        dest.RelocateOffset(offset);
+    }
+
+    void Register() override
+    {
+        OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_zuldrak_summon_stefan::SetDest, EFFECT_0, TARGET_DEST_CASTER_BACK);
+    }
+};
+
+/*######
+## Quest 12527: Gluttonous Lurkers
+######*/
+
+enum GluttonousLurkers
+{
+    SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
+};
+
+// 50894 - Zul'Drak Rat
+class spell_zuldrak_zuldrak_rat : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_zuldrak_rat);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_GORGED_LURKING_BASILISK });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /* effIndex */)
+    {
+        if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
+        {
+            GetHitUnit()->CastSpell((Unit*) nullptr, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+            if (Creature* basilisk = GetHitUnit()->ToCreature())
+                basilisk->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_zuldrak_rat::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12919: The Storm King's Vengeance
+######*/
+
+enum TheStormKingsVengeance
+{
+    SPELL_RIDE_GYMER            = 43671,
+    SPELL_GRABBED               = 55424,
+    SPELL_VARGUL_EXPLOSION      = 55569
+};
+
+// 55516 - Gymer's Grab
+class spell_zuldrak_gymers_grab : public SpellScript
+{
+    PrepareSpellScript(spell_zuldrak_gymers_grab);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RIDE_GYMER, SPELL_GRABBED });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitCreature())
+            return;
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.AddSpellBP0(2);
+        GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
+        GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_gymers_grab::HandleScript, EFFECT_0,  SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 55421 - Gymer's Throw
+class spell_zuldrak_gymers_throw : public SpellScript
+{
+   PrepareSpellScript(spell_zuldrak_gymers_throw);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VARGUL_EXPLOSION });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (caster->IsVehicle())
+            if (Unit* passenger = caster->GetVehicleKit()->GetPassenger(1))
+            {
+                passenger->ExitVehicle();
+                caster->CastSpell(passenger, SPELL_VARGUL_EXPLOSION, true);
+            }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zuldrak_gymers_throw::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -925,4 +1215,13 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_cocooned_on_quest);
     RegisterSpellScript(spell_zuldrak_scourgewagon_explosion);
     RegisterSpellScript(spell_zuldrak_chains_of_the_scourge);
+    RegisterSpellScript(spell_zuldrak_rampage_summon_zulaman_gods_master);
+    RegisterSpellScript(spell_zuldrak_breaking_through_summon_zulaman_gods_master);
+    RegisterSpellScript(spell_zuldrak_summon_nass);
+    RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
+    RegisterSpellScript(spell_zuldrak_quenching_mist);
+    RegisterSpellScript(spell_zuldrak_summon_stefan);
+    RegisterSpellScript(spell_zuldrak_zuldrak_rat);
+    RegisterSpellScript(spell_zuldrak_gymers_grab);
+    RegisterSpellScript(spell_zuldrak_gymers_throw);
 }
