@@ -241,7 +241,7 @@ Player* ObjectAccessor::FindPlayer(ObjectGuid const& guid)
 
 Player* ObjectAccessor::FindPlayerByName(std::string_view name)
 {
-    Player* player = PlayerNameMapHolder::Find(name);
+    Player* player = FindConnectedPlayerByName(name);
     if (!player || !player->IsInWorld())
         return nullptr;
 
