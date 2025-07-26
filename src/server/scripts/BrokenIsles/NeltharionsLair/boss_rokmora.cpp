@@ -533,6 +533,10 @@ class spell_rokmora_emerge_aura : public AuraScript
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
         caster->ClearUnitState(UNIT_STATE_ROOT);
     }
 
