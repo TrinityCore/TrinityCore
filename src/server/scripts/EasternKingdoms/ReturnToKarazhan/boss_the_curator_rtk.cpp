@@ -67,7 +67,7 @@ struct boss_the_curator_rtk : public BossAI
 {
     boss_the_curator_rtk(Creature* creature) : BossAI(creature, DATA_THE_CURATOR_RTK) { }
 
-    void RemoveAreaTriggers()
+    void RemoveAreaTriggers() const
     {
         for (AreaTrigger* powerDischarge : me->GetAreaTriggers(SPELL_POWER_DISCHARGE_AREATRIGGER))
             powerDischarge->Remove();
@@ -110,6 +110,7 @@ struct boss_the_curator_rtk : public BossAI
 
         events.ScheduleEvent(EVENT_VOLATILE_ENERGY, 5s);
         events.ScheduleEvent(EVENT_POWER_DISCHARGE, 12s);
+        events.ScheduleEvent(EVENT_CHECK_MANA, 500ms);
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
@@ -272,15 +273,15 @@ class spell_the_curator_rtk_overload : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        Creature* creatureTarget = GetCaster()->ToCreature();
-        if (!creatureTarget)
+        Creature* creatureCaster = GetCaster()->ToCreature();
+        if (!creatureCaster)
             return;
 
-        creatureTarget->CastSpell(GetHitUnit(), SPELL_OVERLOAD_DAMAGE, CastSpellExtraArgsInit{
+        creatureCaster->CastSpell(GetHitUnit(), SPELL_OVERLOAD_DAMAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        creatureTarget->SetReactState(REACT_AGGRESSIVE);
+        creatureCaster->SetReactState(REACT_AGGRESSIVE);
     }
 
     void Register() override

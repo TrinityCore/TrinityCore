@@ -1,4 +1,4 @@
-SET @CGUID := 6005771;
+SET @CGUID := 6005878;
 SET @SPAWNGROUP := 1268;
 
 -- Creature
