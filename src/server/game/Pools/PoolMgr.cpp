@@ -377,25 +377,9 @@ void PoolGroup<Pool>::Spawn1Object(PoolObject* obj)
     sPoolMgr->SpawnPool(obj->guid);
 }
 
-// Method that does the respawn job on the specified creature
-template <>
-void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
-{
-    Despawn1Object(obj->guid, false, false);
-    Spawn1Object(obj);
-}
-
-// Method that does the respawn job on the specified gameobject
-template <>
-void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
-{
-    Despawn1Object(obj->guid, false, false);
-    Spawn1Object(obj);
-}
-
-// Method that does the respawn job on the specified pool
-template <>
-void PoolGroup<Pool>::ReSpawn1Object(PoolObject* obj)
+// Method that does the respawn job on the specified object
+template <typename T>
+void PoolGroup<T>::ReSpawn1Object(PoolObject* obj)
 {
     Despawn1Object(obj->guid, false, false);
     Spawn1Object(obj);
