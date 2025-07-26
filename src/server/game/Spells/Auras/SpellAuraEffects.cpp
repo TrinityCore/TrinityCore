@@ -6007,10 +6007,16 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     // don't regen when permanent aura and limit is already reached
     if (GetBase()->IsPermanent())
     {
-        if ((target->GetPower(powerType) == target->GetMaxPower(powerType) && GetAmount() > 0)
-            || (target->GetPower(powerType) == 0 && GetAmount() < 0))
-        return;
+        if (GetAmount() >= 0)
+        {
+            if (target->GetPower(powerType) >= target->GetMaxPower(powerType))
+                return;
+        }
+        else
+            if (target->GetPower(powerType) <= target->GetMinPower(powerType))
+                return;
     }
+
     int32 amount = GetAmount() * target->GetMaxPower(powerType) / 100;
     TC_LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
         GetCasterGUID().ToString(), target->GetGUID().ToString(), amount, GetId());
