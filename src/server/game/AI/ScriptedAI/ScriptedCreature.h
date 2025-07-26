@@ -337,7 +337,7 @@ class TC_GAME_API BossAI : public ScriptedAI
         void _JustEngagedWith(Unit* who);
         void _JustDied();
         void _JustReachedHome();
-        void _DespawnAtEvade(Seconds delayToRespawn = 30s,  Creature* who = nullptr);
+        void _DespawnAtEvade(Seconds delayToRespawn = 30s, Creature* who = nullptr);
 
         void TeleportCheaters();
 

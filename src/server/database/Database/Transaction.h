@@ -120,4 +120,6 @@ public:
     std::function<void(bool)> m_callback;
 };
 
+inline bool InvokeAsyncCallbackIfReady(TransactionCallback& callback) { return callback.InvokeIfReady(); }
+
 #endif

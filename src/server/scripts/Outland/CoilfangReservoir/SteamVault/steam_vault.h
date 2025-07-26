@@ -67,6 +67,7 @@ inline AI* GetSteamVaultAI(T* obj)
     return GetInstanceAI<AI>(obj, SteamVaultScriptName);
 }
 
-#define RegisterSteamVaultAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSteamVaultAI)
+#define RegisterSteamVaultCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSteamVaultAI)
+#define RegisterSteamVaultGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetSteamVaultAI)
 
 #endif

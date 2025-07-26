@@ -30,7 +30,7 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
-enum ScriptTexts
+enum DeathwhisperTexts
 {
     // Lady Deathwhisper
     SAY_INTRO_1                 = 0,
@@ -56,7 +56,7 @@ enum ScriptTexts
     SAY_DARNAVAN_RESCUED        = 1,
 };
 
-enum Spells
+enum DeathwhisperSpells
 {
     // Lady Deathwhisper
     SPELL_MANA_BARRIER                = 70842,
@@ -124,7 +124,7 @@ enum Spells
     SPELL_SUNDER_ARMOR                = 65936,
 };
 
-enum EventTypes
+enum DeathwhisperEvents
 {
     // Darnavan
     EVENT_DARNAVAN_BLADESTORM           = 27,
@@ -135,7 +135,7 @@ enum EventTypes
     EVENT_DARNAVAN_SUNDER_ARMOR         = 32,
 };
 
-enum Phases
+enum DeathwhisperPhases
 {
     PHASE_ALL       = 0,
     PHASE_INTRO     = 1,
@@ -143,14 +143,14 @@ enum Phases
     PHASE_TWO       = 3
 };
 
-enum Groups
+enum DeathwhisperGroups
 {
     GROUP_INTRO              = 0,
     GROUP_ONE                = 1,
     GROUP_TWO                = 2
 };
 
-enum DeprogrammingData
+enum DeathwhisperMisc
 {
     NPC_DARNAVAN_10         = 38472,
     NPC_DARNAVAN_25         = 38485,
@@ -161,7 +161,7 @@ enum DeprogrammingData
     POINT_DESPAWN           = 384721,
 };
 
-enum Actions
+enum DeathwhisperActions
 {
     ACTION_START_INTRO
 };
@@ -198,6 +198,7 @@ class DaranavanMoveEvent : public BasicEvent
         Creature& _darnavan;
 };
 
+// 36855 - Lady Deathwhisper
 struct boss_lady_deathwhisper : public BossAI
 {
     boss_lady_deathwhisper(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
@@ -237,29 +238,29 @@ struct boss_lady_deathwhisper : public BossAI
 
         Talk(SAY_INTRO_1);
         _phase = PHASE_INTRO;
-        scheduler.Schedule(Seconds(10), GROUP_INTRO, [this](TaskContext context)
+        scheduler.Schedule(10s, GROUP_INTRO, [this](TaskContext context)
         {
             switch (context.GetRepeatCounter())
             {
                 case 0:
                     Talk(SAY_INTRO_2);
-                    context.Repeat(Seconds(21));
+                    context.Repeat(21s);
                     break;
                 case 1:
                     Talk(SAY_INTRO_3);
-                    context.Repeat(Seconds(11));
+                    context.Repeat(11s);
                     break;
                 case 2:
                     Talk(SAY_INTRO_4);
-                    context.Repeat(Seconds(9));
+                    context.Repeat(9s);
                     break;
                 case 3:
                     Talk(SAY_INTRO_5);
-                    context.Repeat(Seconds(21));
+                    context.Repeat(21s);
                     break;
                 case 4:
                     Talk(SAY_INTRO_6);
-                    context.Repeat(Seconds(10));
+                    context.Repeat(10s);
                     break;
                 case 5:
                     Talk(SAY_INTRO_7);
@@ -295,44 +296,44 @@ struct boss_lady_deathwhisper : public BossAI
         scheduler.CancelGroup(GROUP_INTRO);
         // phase-independent events
         scheduler
-            .Schedule(Minutes(10), [this](TaskContext /*context*/)
+            .Schedule(10min, [this](TaskContext /*context*/)
             {
                 DoCastSelf(SPELL_BERSERK);
                 Talk(SAY_BERSERK);
             })
-            .Schedule(Seconds(17), [this](TaskContext death_and_decay)
+            .Schedule(17s, [this](TaskContext death_and_decay)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                     DoCast(target, SPELL_DEATH_AND_DECAY);
-                death_and_decay.Repeat(Seconds(22), Seconds(30));
+                death_and_decay.Repeat(22s, 30s);
             });
             if (GetDifficulty() != RAID_DIFFICULTY_10MAN_NORMAL)
-                scheduler.Schedule(Seconds(27), [this](TaskContext dominate_mind)
+                scheduler.Schedule(27s, [this](TaskContext dominate_mind)
                 {
                     Talk(SAY_DOMINATE_MIND);
                     std::list<Unit*> targets;
                     SelectTargetList(targets, _dominateMindCount, SelectTargetMethod::Random, 0, 0.0f, true, false, -SPELL_DOMINATE_MIND);
                     for (Unit* target : targets)
                       DoCast(target, SPELL_DOMINATE_MIND);
-                    dominate_mind.Repeat(Seconds(40), Seconds(45));
+                    dominate_mind.Repeat(40s, 45s);
                 });
         // phase one only
         scheduler
-            .Schedule(Seconds(5), GROUP_ONE, [this](TaskContext wave)
+            .Schedule(5s, GROUP_ONE, [this](TaskContext wave)
             {
                 SummonWaveP1();
-                wave.Repeat(Seconds(IsHeroic() ? 45 : 60));
+                wave.Repeat(IsHeroic() ? 45s : 60s);
             })
-            .Schedule(Seconds(2), GROUP_ONE, [this](TaskContext shadow_bolt)
+            .Schedule(2s, GROUP_ONE, [this](TaskContext shadow_bolt)
             {
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random))
                     DoCast(target, SPELL_SHADOW_BOLT);
-                shadow_bolt.Repeat(Milliseconds(2450), Milliseconds(3600));
+                shadow_bolt.Repeat(2450ms, 3600ms);
             })
-            .Schedule(Seconds(15), GROUP_ONE, [this](TaskContext context)
+            .Schedule(15s, GROUP_ONE, [this](TaskContext context)
             {
                 DoImproveCultist();
-                context.Repeat(Seconds(25));
+                context.Repeat(25s);
             });
 
         Talk(SAY_AGGRO);
@@ -420,23 +421,23 @@ struct boss_lady_deathwhisper : public BossAI
             scheduler.CancelGroup(GROUP_ONE);
 
             scheduler
-                .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext frostbolt)
+                .Schedule(12s, GROUP_TWO, [this](TaskContext frostbolt)
                 {
                     DoCastVictim(SPELL_FROSTBOLT);
                     frostbolt.Repeat();
                 })
-                .Schedule(Seconds(20), GROUP_TWO, [this](TaskContext frostboldVolley)
+                .Schedule(20s, GROUP_TWO, [this](TaskContext frostboldVolley)
                 {
                     DoCastAOE(SPELL_FROSTBOLT_VOLLEY);
                     frostboldVolley.Repeat();
                 })
-                .Schedule(Seconds(6), Seconds(9), GROUP_TWO, [this](TaskContext touch)
+                .Schedule(6s, 9s, GROUP_TWO, [this](TaskContext touch)
                 {
                     if (me->GetVictim())
                         me->AddAura(SPELL_TOUCH_OF_INSIGNIFICANCE, me->EnsureVictim());
                     touch.Repeat();
                 })
-                .Schedule(Seconds(12), GROUP_TWO, [this](TaskContext summonShade)
+                .Schedule(12s, GROUP_TWO, [this](TaskContext summonShade)
                 {
                     CastSpellExtraArgs args;
                     args.AddSpellMod(SPELLVALUE_MAX_TARGETS, Is25ManRaid() ? 2 : 1);
@@ -449,10 +450,10 @@ struct boss_lady_deathwhisper : public BossAI
             {
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                scheduler.Schedule(Seconds(), GROUP_TWO, [this](TaskContext context)
+                scheduler.Schedule(0s, GROUP_TWO, [this](TaskContext context)
                 {
                     SummonWaveP2();
-                    context.Repeat(Seconds(45));
+                    context.Repeat(45s);
                 });
             }
         }
@@ -587,6 +588,9 @@ private:
     uint8 _phase;
 };
 
+/* 37890 - Cult Fanatic
+   38009 - Reanimated Fanatic
+   38135 - Deformed Fanatic */
 struct npc_cult_fanatic : public ScriptedAI
 {
     npc_cult_fanatic(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -599,20 +603,20 @@ struct npc_cult_fanatic : public ScriptedAI
             {
                 return !me->HasUnitState(UNIT_STATE_CASTING);
             })
-            .Schedule(Seconds(17), [this](TaskContext vampiric_might)
+            .Schedule(17s, [this](TaskContext vampiric_might)
             {
                 DoCastSelf(SPELL_VAMPIRIC_MIGHT);
-                vampiric_might.Repeat(Seconds(25));
+                vampiric_might.Repeat(25s);
             })
-            .Schedule(Seconds(12), [this](TaskContext shadow_cleave)
+            .Schedule(12s, [this](TaskContext shadow_cleave)
             {
                 DoCastVictim(SPELL_SHADOW_CLEAVE);
-                shadow_cleave.Repeat(Seconds(14));
+                shadow_cleave.Repeat(14s);
             })
-            .Schedule(Seconds(10), [this](TaskContext necrotic_strike)
+            .Schedule(10s, [this](TaskContext necrotic_strike)
             {
                 DoCastVictim(SPELL_NECROTIC_STRIKE);
-                necrotic_strike.Repeat(Seconds(17));
+                necrotic_strike.Repeat(17s);
             });
     }
 
@@ -639,7 +643,7 @@ struct npc_cult_fanatic : public ScriptedAI
             case SPELL_DARK_MARTYRDOM_FANATIC_10H:
             case SPELL_DARK_MARTYRDOM_FANATIC_25H:
                 _scheduler
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(2s, [this](TaskContext /*context*/)
                     {
                         me->UpdateEntry(NPC_REANIMATED_FANATIC);
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
@@ -647,7 +651,7 @@ struct npc_cult_fanatic : public ScriptedAI
                         DoCastSelf(SPELL_FULL_HEAL, true);
                         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     })
-                    .Schedule(Seconds(6), [this](TaskContext /*context*/)
+                    .Schedule(6s, [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
                         me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
@@ -679,6 +683,9 @@ protected:
     InstanceScript* _instance;
 };
 
+/* 37949 - Cult Adherent
+   38010 - Reanimated Adherent
+   38136 - Empowered Adherent */
 struct npc_cult_adherent : public ScriptedAI
 {
     npc_cult_adherent(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
@@ -691,24 +698,24 @@ struct npc_cult_adherent : public ScriptedAI
            {
                return !me->HasUnitState(UNIT_STATE_CASTING);
            })
-           .Schedule(Seconds(5), [this](TaskContext deathchill)
+           .Schedule(5s, [this](TaskContext deathchill)
            {
                if (me->GetEntry() == NPC_EMPOWERED_ADHERENT)
                    DoCastVictim(SPELL_DEATHCHILL_BLAST);
                else
                    DoCastVictim(SPELL_DEATHCHILL_BOLT);
-               deathchill.Repeat(Milliseconds(2500));
+               deathchill.Repeat(2500ms);
            })
-           .Schedule(Seconds(15), [this](TaskContext shroud_of_the_occult)
+           .Schedule(15s, [this](TaskContext shroud_of_the_occult)
            {
                DoCastSelf(SPELL_SHROUD_OF_THE_OCCULT);
-               shroud_of_the_occult.Repeat(Seconds(10));
+               shroud_of_the_occult.Repeat(10s);
            })
-           .Schedule(Seconds(15), [this](TaskContext curse_of_torpor)
+           .Schedule(15s, [this](TaskContext curse_of_torpor)
            {
                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                    DoCast(target, SPELL_CURSE_OF_TORPOR);
-               curse_of_torpor.Repeat(Seconds(18));
+               curse_of_torpor.Repeat(18s);
            });
     }
 
@@ -730,7 +737,7 @@ struct npc_cult_adherent : public ScriptedAI
             case SPELL_DARK_MARTYRDOM_ADHERENT_10H:
             case SPELL_DARK_MARTYRDOM_ADHERENT_25H:
                 _scheduler
-                    .Schedule(Seconds(2), [this](TaskContext /*context*/)
+                    .Schedule(2s, [this](TaskContext /*context*/)
                     {
                         me->UpdateEntry(NPC_REANIMATED_ADHERENT);
                         DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
@@ -738,7 +745,7 @@ struct npc_cult_adherent : public ScriptedAI
                         DoCastSelf(SPELL_FULL_HEAL, true);
                         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     })
-                    .Schedule(Seconds(6), [this](TaskContext /*context*/)
+                    .Schedule(6s, [this](TaskContext /*context*/)
                     {
                         me->RemoveAurasDueToSpell(SPELL_PERMANENT_FEIGN_DEATH);
                         me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
@@ -768,6 +775,7 @@ protected:
     InstanceScript* _instance;
 };
 
+// 38222 - Vengeful Shade
 struct npc_vengeful_shade : public ScriptedAI
 {
     npc_vengeful_shade(Creature* creature) : ScriptedAI(creature) { }
@@ -778,12 +786,12 @@ struct npc_vengeful_shade : public ScriptedAI
         me->AddAura(SPELL_VENGEFUL_BLAST_PASSIVE, me);
 
         _scheduler
-            .Schedule(Seconds(2), [this](TaskContext /*context*/)
+            .Schedule(2s, [this](TaskContext /*context*/)
             {
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->AI()->AttackStart(ObjectAccessor::GetUnit(*me, _targetGUID));
             })
-            .Schedule(Seconds(7), [this](TaskContext /*context*/)
+            .Schedule(7s, [this](TaskContext /*context*/)
             {
                 me->KillSelf();
             });
@@ -822,6 +830,7 @@ private:
     ObjectGuid _targetGUID;
 };
 
+// 38472, 38485 - Darnavan
 struct npc_darnavan : public ScriptedAI
 {
     npc_darnavan(Creature* creature) : ScriptedAI(creature)
@@ -918,7 +927,7 @@ struct npc_darnavan : public ScriptedAI
                     break;
                 case EVENT_DARNAVAN_INTIMIDATING_SHOUT:
                     DoCast(SPELL_INTIMIDATING_SHOUT);
-                    _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, Seconds(90), Minutes(2));
+                    _events.ScheduleEvent(EVENT_DARNAVAN_INTIMIDATING_SHOUT, 90s, 2min);
                     break;
                 case EVENT_DARNAVAN_MORTAL_STRIKE:
                     DoCastVictim(SPELL_MORTAL_STRIKE);

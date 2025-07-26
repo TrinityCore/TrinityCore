@@ -60,6 +60,12 @@ target_include_directories(g3dlib
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if((CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM) OR TSAN)
+  target_compile_definitions(g3dlib
+    PRIVATE
+      NO_BUFFERPOOL)
+endif()
+
 target_link_libraries(g3dlib
   PRIVATE
     trinity-dependency-interface

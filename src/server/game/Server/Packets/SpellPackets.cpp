@@ -19,46 +19,34 @@
 #include "SharedDefines.h"
 #include "Spell.h"
 #include "SpellInfo.h"
+#include <span>
 
-void WorldPackets::Spells::CancelCast::Read()
+namespace WorldPackets::Spells
 {
-    _worldPacket >> CastID;
-    _worldPacket >> SpellID;
-}
-
-void WorldPackets::Spells::CancelAura::Read()
+void CancelAura::Read()
 {
     _worldPacket >> SpellID;
 }
 
-void WorldPackets::Spells::PetCancelAura::Read()
+void CancelChannelling::Read()
+{
+    _worldPacket >> ChannelSpell;
+}
+
+void PetCancelAura::Read()
 {
     _worldPacket >> PetGUID;
     _worldPacket >> SpellID;
 }
 
-void WorldPackets::Spells::CancelChannelling::Read()
-{
-    _worldPacket >> ChannelSpell;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellMissStatus const& spellMissStatus)
-{
-    data << uint64(spellMissStatus.TargetGUID);
-    data << uint8(spellMissStatus.Reason);
-    if (spellMissStatus.Reason == SPELL_MISS_REFLECT)
-        data << uint8(spellMissStatus.ReflectStatus);
-    return data;
-}
-
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::TargetLocation const& targetLocation)
+ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 {
     data << targetLocation.Transport.WriteAsPacked(); // relative position guid here - transport for example
     data << targetLocation.Location.PositionXYZStream();
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetData const& spellTargetData)
+ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
 {
     data << uint32(spellTargetData.Flags);
 
@@ -76,40 +64,52 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellTargetData c
 
     if (spellTargetData.Name)
         data << *spellTargetData.Name;
+
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::RuneData const& runeData)
+ByteBuffer& operator<<(ByteBuffer& data, SpellMissStatus const& spellMissStatus)
+{
+    data << uint64(spellMissStatus.TargetGUID);
+    data << uint8(spellMissStatus.Reason);
+    if (spellMissStatus.Reason == SPELL_MISS_REFLECT)
+        data << uint8(spellMissStatus.ReflectStatus);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, RuneData const& runeData)
 {
     data << uint8(runeData.Start);
     data << uint8(runeData.Count);
     for (uint8 cooldown : runeData.Cooldowns)
         data << uint8(cooldown);
+
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::MissileTrajectoryResult const& traj)
+ByteBuffer& operator<<(ByteBuffer& data, MissileTrajectoryResult const& traj)
 {
     data << float(traj.Pitch);
     data << uint32(traj.TravelTime);
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellAmmo const& spellAmmo)
+ByteBuffer& operator<<(ByteBuffer& data, SpellAmmo const& spellAmmo)
 {
     data << uint32(spellAmmo.DisplayID);
     data << uint32(spellAmmo.InventoryType);
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::CreatureImmunities const& immunities)
+ByteBuffer& operator<<(ByteBuffer& data, CreatureImmunities const& immunities)
 {
     data << uint32(immunities.School);
     data << uint32(immunities.Value);
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData const& spellCastData)
+ByteBuffer& operator<<(ByteBuffer& data, SpellCastData const& spellCastData)
 {
     data << spellCastData.CasterGUID.WriteAsPacked();
     data << spellCastData.CasterUnit.WriteAsPacked();
@@ -125,19 +125,16 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
         // Spells like 40647 (with a huge radius) can easily reach this limit (spell might need
         // target conditions but we still need to limit the number of targets sent and keeping
         // correct count for both hit and miss).
-        static std::size_t const PACKET_TARGET_LIMIT = std::numeric_limits<uint8>::max();
-        if (spellCastData.HitTargets->size() > PACKET_TARGET_LIMIT)
-            spellCastData.HitTargets->resize(PACKET_TARGET_LIMIT);
+        static constexpr std::size_t PACKET_TARGET_LIMIT = std::numeric_limits<uint8>::max();
 
-        data << uint8(spellCastData.HitTargets->size());
-        for (ObjectGuid const& target : *spellCastData.HitTargets)
-            data << uint64(target);
+        std::span<ObjectGuid const> hitTargets(spellCastData.HitTargets->data(), std::min(spellCastData.HitTargets->size(), PACKET_TARGET_LIMIT));
+        data << uint8(hitTargets.size());
+        for (ObjectGuid const& target : hitTargets)
+            data << target;
 
-        if (spellCastData.MissStatus->size() > PACKET_TARGET_LIMIT)
-            spellCastData.MissStatus->resize(PACKET_TARGET_LIMIT);
-
-        data << uint8(spellCastData.MissStatus->size());
-        for (WorldPackets::Spells::SpellMissStatus const& status : *spellCastData.MissStatus)
+        std::span<SpellMissStatus const> missTargets(spellCastData.MissStatus->data(), std::min(spellCastData.MissStatus->size(), PACKET_TARGET_LIMIT));
+        data << uint8(missTargets.size());
+        for (SpellMissStatus const& status : missTargets)
             data << status;
     }
 
@@ -164,37 +161,66 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Spells::SpellCastData con
         data << uint32(0);
     }
 
-    if (spellCastData.Target.Flags & TARGET_FLAG_DEST_LOCATION)
-        data << uint8(0);
+    if (spellCastData.DestLocSpellCastIndex)
+        data << uint8(*spellCastData.DestLocSpellCastIndex);
+
+    if (spellCastData.TargetPoints)
+    {
+        data << int32(spellCastData.TargetPoints->size());
+        for (TargetLocation const& targetPoint : *spellCastData.TargetPoints)
+        {
+            data << targetPoint.Location.PositionXYZStream();
+            data << targetPoint.Transport;
+        }
+    }
+
     return data;
 }
 
-WorldPacket const* WorldPackets::Spells::SpellGo::Write()
+WorldPacket const* SpellStart::Write()
 {
     _worldPacket << Cast;
+
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Spells::SpellStart::Write()
+WorldPacket const* SpellGo::Write()
 {
     _worldPacket << Cast;
+
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Spells::ResyncRunes::Write()
+WorldPacket const* PlaySpellVisualKit::Write()
+{
+    _worldPacket << Unit;
+    _worldPacket << int32(KitRecID);
+
+    return &_worldPacket;
+}
+
+void CancelCast::Read()
+{
+    _worldPacket >> CastID;
+    _worldPacket >> SpellID;
+}
+
+WorldPacket const* ResyncRunes::Write()
 {
     _worldPacket << Count;
-    for (WorldPackets::Spells::ResyncRune const& rune : Runes)
+    for (ResyncRune const& rune : Runes)
     {
         _worldPacket << rune.RuneType;
         _worldPacket << rune.Cooldown;
     }
+
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Spells::MountResult::Write()
+WorldPacket const* MountResult::Write()
 {
     _worldPacket << int32(Result);
 
     return &_worldPacket;
+}
 }

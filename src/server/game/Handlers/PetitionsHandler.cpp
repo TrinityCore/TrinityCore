@@ -463,7 +463,7 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
         data << uint64(petitionGuid);
         data << uint64(_player->GetGUID());
-        data << (uint32)PETITION_SIGN_ALREADY_SIGNED;
+        data << uint32(PETITION_SIGN_ALREADY_SIGNED);
 
         // close at signer side
         SendPacket(&data);
@@ -624,7 +624,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         if (_player->GetGuildId())
         {
             data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
-            data << (uint32)PETITION_TURN_ALREADY_IN_GUILD;
+            data << uint32(PETITION_TURN_ALREADY_IN_GUILD);
             _player->SendDirectMessage(&data);
             return;
         }

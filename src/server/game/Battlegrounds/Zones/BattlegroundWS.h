@@ -186,10 +186,10 @@ struct BattlegroundWGScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-        uint32 GetAttr1() const final override { return FlagCaptures; }
-        uint32 GetAttr2() const final override { return FlagReturns; }
+        uint32 GetAttr1() const override { return FlagCaptures; }
+        uint32 GetAttr2() const override { return FlagReturns; }
 
         uint32 FlagCaptures;
         uint32 FlagReturns;

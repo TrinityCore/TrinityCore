@@ -130,7 +130,7 @@ enum BG_AB_Timers
 
 enum BG_AB_Score
 {
-    BG_AB_WARNING_NEAR_VICTORY_SCORE    = 1400,
+    BG_AB_WARNING_NEAR_VICTORY_SCORE    = 1440,
     BG_AB_MAX_TEAM_SCORE                = 1600
 };
 
@@ -197,8 +197,8 @@ enum BG_AB_Sounds
     BG_AB_SOUND_NODE_CAPTURED_HORDE     = 8213,
     BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE = 8212,
     BG_AB_SOUND_NODE_ASSAULTED_HORDE    = 8174,
-    BG_AB_SOUND_NEAR_VICTORY_ALLIANCE   = 8456,
-    BG_AB_SOUND_NEAR_VICTORY_HORDE      = 8457
+    BG_AB_SOUND_NEAR_VICTORY_ALLIANCE   = 8457,
+    BG_AB_SOUND_NEAR_VICTORY_HORDE      = 8456
 };
 
 enum BG_AB_Objectives
@@ -288,10 +288,10 @@ struct BattlegroundABScore final : public BattlegroundScore
             }
         }
 
-        void BuildObjectivesBlock(WorldPacket& data) final override;
+        void BuildObjectivesBlock(WorldPackets::Battleground::PVPLogData_Player& playerData) override;
 
-        uint32 GetAttr1() const final override { return BasesAssaulted; }
-        uint32 GetAttr2() const final override { return BasesDefended; }
+        uint32 GetAttr1() const override { return BasesAssaulted; }
+        uint32 GetAttr2() const override { return BasesDefended; }
 
         uint32 BasesAssaulted;
         uint32 BasesDefended;

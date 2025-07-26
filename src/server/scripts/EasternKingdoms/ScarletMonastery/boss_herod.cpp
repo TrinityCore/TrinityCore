@@ -134,7 +134,7 @@ struct npc_scarlet_trainee : public EscortAI
 
     void UpdateAI(uint32 diff) override
     {
-        if (_startTimer)
+        if (_startTimer && !me->IsInCombat())
         {
             if (_startTimer <= diff)
             {
