@@ -1,9 +1,7 @@
 SET @CGUID := 8100000;
 SET @OGUID := 8100000;
 
--- CREATURES
-
--- Spawns
+-- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+754;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 180751, 2441, 13577, 13577, '23,2,8', '0', 0, 0, 1, 3934.854248046875, -1153.7291259765625, 69.1924591064453125, 3.62255096435546875, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Speakeasy Handler (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
@@ -756,8 +754,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+752, 176561, 2441, 13577, 13577, '23,2,8', '0', 0, 0, 0, 3904.177978515625, -1181.373291015625, 69.193389892578125, 0.461122065782546997, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Unruly Patron (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
 (@CGUID+753, 180158, 2441, 13577, 13577, '23,2,8', '0', 0, 0, 0, 3902.82470703125, -1147.43408203125, 60.39190673828125, 0.482556790113449096, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 61609), -- Unruly Patron (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
 (@CGUID+754, 176561, 2441, 13577, 13577, '23,2,8', '0', 0, 0, 0, 3920.663330078125, -1159.173583984375, 69.18819427490234375, 3.741235017776489257, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 61609); -- Unruly Patron (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-
--- Addons
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+754;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+6, 0, 0, 0, 0, 0, 1, 0, 378, 0, 0, 0, 0, ''), -- Cartel Wiseguy
@@ -871,6 +867,101 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 (@CGUID+666, 0, 0, 0, 0, 0, 1, 0, 415, 0, 0, 0, 0, '237007'), -- Oasis Guest - 237007 - Mod Scale 90-100%
 (@CGUID+667, 0, 0, 0, 0, 0, 1, 0, 720, 0, 0, 0, 0, '237007'); -- Backalley Schemer - 237007 - Mod Scale 90-100%
 
+-- GameObject
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+56;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 369744, 2441, 13577, 13577, '23,2,8', '0', 0, 3566.266357421875, -819.649658203125, 108.470123291015625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 86400, 255, 0, 61967), -- Energy Barrier (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+1, 369316, 2441, 13577, 13577, '23,2,8', '0', 0, 3596.484619140625, -1497.988037109375, 93.56156158447265625, 2.094393253326416015, 0, 0, 0.866024971008300781, 0.50000077486038208, 86400, 255, 1, 61967), -- Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+2, 369317, 2441, 13577, 13577, '23,2,8', '0', 0, 3588.68115234375, -899.8076171875, 114.3051910400390625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 86400, 255, 1, 61967), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+3, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3492.559814453125, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+4, 369315, 2441, 13577, 13577, '23,2,8', '0', 0, 3596.8046875, -1510.46435546875, 106.0002517700195312, 2.094393253326416015, 0, 0, 0.866024971008300781, 0.50000077486038208, 86400, 255, 1, 61967), -- Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+5, 369260, 2441, 13577, 13577, '23,2,8', '0', 0, 3655.9736328125, -1202.598876953125, 73.847503662109375, 4.712392330169677734, 0, 0, -0.70710563659667968, 0.707107901573181152, 86400, 255, 1, 61967), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+6, 368938, 2441, 13577, 13577, '23,2,8', '0', 0, 3746.939453125, -1162.279541015625, 74.1822357177734375, 3.130894899368286132, 0, 0, 0.999985694885253906, 0.005348853301256895, 86400, 255, 1, 61967), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+7, 369890, 2441, 13577, 13577, '23,2,8', '0', 0, 3651.575439453125, -1563.5208740234375, 93.2502288818359375, 0.809137582778930664, 0, 0, 0.393622398376464843, 0.919272243976593017, 86400, 255, 1, 61967), -- Expedition Report A37J - Part 2 (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+8, 369258, 2441, 13577, 13577, '23,2,8', '0', 0, 3503.295166015625, -1299.620361328125, 73.84748077392578125, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 86400, 255, 1, 61967), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+9, 369891, 2441, 13577, 13577, '23,2,8', '0', 0, 3585.30029296875, -1586, 108.8809432983398437, 5.241250038146972656, 0, 0, -0.49771976470947265, 0.86733788251876831, 86400, 255, 1, 61967), -- Expedition Report A37J - Part 3 (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+10, 368246, 2441, 13577, 13577, '23,2,8', '0', 0, 3802.552978515625, -1182.2984619140625, 76.01384735107421875, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 86400, 255, 1, 61967), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+11, 365351, 2441, 13577, 13577, '23,2,8', '0', 0, 3609.935791015625, -1555.6185302734375, 106.15667724609375, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 86400, 255, 1, 61967), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+12, 368247, 2441, 13577, 13577, '23,2,8', '0', 0, 3431.483642578125, -1295.3753662109375, 73.7119293212890625, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 86400, 255, 1, 61967), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+13, 326155, 2441, 13577, 13577, '23,2,8', '0', 0, 3643.640625, -1801.201416015625, 92.4810028076171875, 4.142352581024169921, 0, 0, -0.87740039825439453, 0.479758828878402709, 86400, 255, 1, 61967), -- Collision Object (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+14, 343702, 2441, 13577, 13577, '23,2,8', '0', 0, 3641.11376953125, -1798.454833984375, 92.48101806640625, 3.683762550354003906, 0, 0, -0.96348094940185546, 0.267776846885681152, 86400, 255, 1, 61967), -- Collision Cylinder (0.80) (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+15, 365352, 2441, 13577, 13577, '23,2,8', '0', 0, 3609.935791015625, -1722.697265625, 106.1566696166992187, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 86400, 255, 1, 61967), -- Customs Enforcement Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+16, 368248, 2441, 13577, 13577, '23,2,8', '0', 0, 3431.44189453125, -1246.96484375, 73.7119293212890625, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 86400, 255, 0, 61967), -- Menagerie Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+17, 365353, 2441, 13577, 13577, '23,2,8', '0', 0, 3669.245849609375, -1161.827392578125, 73.88088226318359375, 3.926995515823364257, 0, 0, -0.92387866973876953, 0.38268551230430603, 86400, 255, 0, 61967), -- Mailroom Entrance (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+18, 368249, 2441, 13577, 13577, '23,2,8', '0', 0, 3481.945556640625, -1324.55126953125, 73.709136962890625, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 86400, 255, 1, 61967), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+19, 326155, 2441, 13577, 13577, '23,2,8', '0', 0, 3640.7978515625, -1801.1285400390625, 92.4810028076171875, 4.142352581024169921, 0, 0, -0.87740039825439453, 0.479758828878402709, 86400, 255, 1, 61967), -- Collision Object (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+20, 368250, 2441, 13577, 13577, '23,2,8', '0', 0, 3481.939208984375, -1217.8514404296875, 73.70972442626953125, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 86400, 255, 0, 61967), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+21, 368580, 2441, 13577, 13577, '23,2,8', '0', 0, 3661.803466796875, -1670.30078125, 106.6638641357421875, 1.832594871520996093, 0, 0, 0.793353080749511718, 0.608761727809906005, 86400, 255, 1, 61967), -- Portal to Myza's Oasis (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+22, 368581, 2441, 13577, 13577, '23,2,8', '0', 0, 3682.55322265625, -1639.171630859375, 106.7036666870117187, 3.141592741012573242, 0, 0, -1, 0, 86400, 255, 1, 61967), -- Portal to the Opulent Nexus (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+23, 368577, 2441, 13577, 13577, '23,2,8', '0', 0, 3674.18603515625, -1611.2802734375, 106.6583023071289062, 4.45059061050415039, 0, 0, -0.79335308074951171, 0.608761727809906005, 86400, 255, 1, 61967), -- Portal to The Grand Menagerie (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+24, 368578, 2441, 13577, 13577, '23,2,8', '0', 0, 3661.8369140625, -1608.0947265625, 106.6583023071289062, 4.45059061050415039, 0, 0, -0.79335308074951171, 0.608761727809906005, 86400, 255, 1, 61967), -- Portal to the Lap of Luxury (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+25, 368579, 2441, 13577, 13577, '23,2,8', '0', 0, 3674.00537109375, -1667.1512451171875, 106.663848876953125, 1.832594871520996093, 0, 0, 0.793353080749511718, 0.608761727809906005, 86400, 255, 1, 61967), -- Portal to The P.O.S.T. (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+26, 369467, 2441, 13577, 13577, '23,2,8', '0', 0, 3668.8837890625, -1474.2137451171875, 93.23809051513671875, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 86400, 255, 1, 61967), -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+27, 369466, 2441, 13577, 13577, '23,2,8', '0', 0, 3759.882080078125, -1409.46630859375, 73.71128082275390625, 3.141592741012573242, 0, 0, -1, 0, 86400, 255, 1, 61967), -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+28, 369889, 2441, 13577, 13577, '23,2,8', '0', 0, 3541.432373046875, -1344.9114990234375, 65.81578826904296875, 6.08640146255493164, 0, 0, -0.09823322296142578, 0.995163440704345703, 86400, 255, 1, 61967), -- Expedition Report A37J - Part 1 (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+29, 368937, 2441, 13577, 13577, '23,2,8', '0', 0, 3751.432861328125, -1298.2178955078125, 74.02972412109375, 1.535714507102966308, 0, 0, 0.6945953369140625, 0.719400703907012939, 86400, 255, 1, 61967), -- Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+30, 369887, 2441, 13577, 13577, '23,2,8', '0', 0, 3770.673583984375, -1240.9947509765625, 73.73189544677734375, 5.241250038146972656, 0, 0, -0.49771976470947265, 0.86733788251876831, 86400, 255, 1, 61967), -- Cartel Al Incident Report (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+31, 369464, 2441, 13577, 13577, '23,2,8', '0', 0, 3674.37890625, -1177.577392578125, 73.61466217041015625, 3.926995515823364257, 0, 0, -0.92387866973876953, 0.38268551230430603, 86400, 255, 1, 61967), -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+32, 368943, 2441, 13577, 13577, '23,2,8', '0', 0, 3696.4072265625, -1168.9923095703125, 74.64334869384765625, 1.57079315185546875, 0, 0, 0.707105636596679687, 0.707107901573181152, 86400, 255, 1, 61967), -- Delivery Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+33, 369465, 2441, 13577, 13577, '23,2,8', '0', 0, 3653.58203125, -1156.37890625, 73.61466217041015625, 3.926995515823364257, 0, 0, -0.92387866973876953, 0.38268551230430603, 86400, 255, 1, 61967), -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+34, 368940, 2441, 13577, 13577, '23,2,8', '0', 0, 3662.011962890625, -1133.775146484375, 74.64333343505859375, 0, 0, 0, 0, 1, 86400, 255, 1, 61967), -- Delivery Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+35, 368941, 2441, 13577, 13577, '23,2,8', '0', 0, 3662.011962890625, -1113.0069580078125, 74.64333343505859375, 0, 0, 0, 0, 1, 86400, 255, 1, 61967), -- Delivery Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+36, 368939, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.6298828125, -1143.38525390625, 81.0930023193359375, 4.712392330169677734, 0, 0, -0.70710563659667968, 0.707107901573181152, 86400, 255, 1, 61967), -- Signature Authorization Device and Transport Facility (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+37, 368942, 2441, 13577, 13577, '23,2,8', '0', 0, 3715.25048828125, -1091.744384765625, 74.64334869384765625, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 86400, 255, 1, 61967), -- Delivery Portal (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+38, 369259, 2441, 13577, 13577, '23,2,8', '0', 0, 3512.4111328125, -1178.7630615234375, 73.84749603271484375, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 86400, 255, 1, 61967), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+39, 365063, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.70654296875, -1143.4149169921875, 115.8447265625, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+40, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.70654296875, -1143.4149169921875, 115.8447265625, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+41, 369888, 2441, 13577, 13577, '23,2,8', '0', 0, 3675.89501953125, -1082.703125, 74.7859954833984375, 1.522884726524353027, 0, 0, 0.689966201782226562, 0.723841607570648193, 86400, 255, 1, 61967), -- Expedition Report A37J - Foreword (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+42, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3617.56005859375, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+43, 370083, 2441, 13577, 13577, '23,2,8', '0', 0, 3893.630126953125, -1128.7742919921875, 63.1267242431640625, 0.539607822895050048, 0, 0, 0.266542434692382812, 0.963823199272155761, 86400, 255, 1, 61967), -- Microphone Stand (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+44, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1131.6353759765625, 114.3050003051757812, 0, 0, 0, 0, 1, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+45, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3642.56005859375, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+46, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3592.56005859375, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+47, 368990, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1097.8316650390625, 114.3051605224609375, 0, 0, 0, 0, 1, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+48, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+49, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1106.6353759765625, 114.3050003051757812, 0, 0, 0, 0, 1, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+50, 365063, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+51, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1081.63720703125, 114.3050003051757812, 0, 0, 0, 0, 1, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+52, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3542.56005859375, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+53, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3517.56005859375, -1097.8316650390625, 114.3051605224609375, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 0, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+54, 375002, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.70654296875, -1062.9288330078125, 115.8447265625, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 1, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+55, 375003, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.70654296875, -1062.9288330078125, 115.8447265625, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 86400, 255, 1, 61967), -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+(@OGUID+56, 368991, 2441, 13577, 13577, '23,2,8', '0', 0, 3567.559814453125, -1056.6353759765625, 114.3050003051757812, 0, 0, 0, 0, 1, 86400, 255, 0, 61967); -- Force Field (Area: Tazavesh, the Veiled Market - Difficulty: Heroic) CreateObject1
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+57;
+INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
+(@OGUID+0, 0, 0, 1, -0.00000004371138828, 0, 0), -- Energy Barrier
+(@OGUID+1, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal
+(@OGUID+2, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
+(@OGUID+4, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal
+(@OGUID+5, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
+(@OGUID+6, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
+(@OGUID+8, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
+(@OGUID+10, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
+(@OGUID+11, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
+(@OGUID+12, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
+(@OGUID+15, 0, 0, 1, -0.00000004371138828, 0, 0), -- Customs Enforcement Door
+(@OGUID+16, 0, 0, 1, -0.00000004371138828, 0, 0), -- Menagerie Door
+(@OGUID+17, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailroom Entrance
+(@OGUID+18, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
+(@OGUID+20, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
+(@OGUID+21, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to Myza's Oasis
+(@OGUID+22, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to the Opulent Nexus
+(@OGUID+23, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to The Grand Menagerie
+(@OGUID+24, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to the Lap of Luxury
+(@OGUID+25, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to The P.O.S.T.
+(@OGUID+26, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailbox
+(@OGUID+27, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailbox
+(@OGUID+29, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal
+(@OGUID+31, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailbox
+(@OGUID+32, 0, 0, 1, -0.00000004371138828, 0, 0), -- Delivery Portal
+(@OGUID+33, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailbox
+(@OGUID+34, 0, 0, 1, -0.00000004371138828, 0, 0), -- Delivery Portal
+(@OGUID+35, 0, 0, 1, -0.00000004371138828, 0, 0), -- Delivery Portal
+(@OGUID+36, 0, 0, 1, -0.00000004371138828, 0, 0), -- Signature Authorization Device and Transport Facility
+(@OGUID+37, 0, 0, 1, -0.00000004371138828, 0, 0), -- Delivery Portal
+(@OGUID+38, 0, 0, 1, -0.00000004371138828, 0, 0); -- Portal to Customs
+
+-- Template Addon
 DELETE FROM `creature_template_addon` WHERE `entry` IN (179821,176384,175796,178962,179556,180852,180846,176705,176556,180567,176555,177994,177756,177998,177760,175646,177995,177753,178383,177755,177752,177757,179886,176896,175806,176519,176396,176397,176398,176394,179841, 179840, 177999, 177996, 180565, 176514, 180563, 180566, 180310 /*180310 (Shop Patron) - North Side  Rename Spawn Spell*/, 180390 /*180390 (Dantun) - Energy Cage*/, 180091 /*180091 (Ancient Core Hound) - Emanating Heat, Heated*/, 179837 /*179837 (Tracker Zo'korss) - [DNT] Send Event <Points> On Enter Combat, Invisibility and Stealth Detection*/, 180249 /*180249 (Market Server) - [DNT] Serve Food*/, 180244 /*180244 (Culinary Assistant) - [DNT] Carry Food Stuffs*/, 180161 /*180161 (Shopkeeper) - [DNT] Aura Vendor AreaTrigger*/, 177808 /*177808 (Armored Overseer) - [DNT] Send Event <Points> On Enter Combat, Dual Wield*/, 179334 /*179334 (Portalmancer Zo'honn) - Rename Spawn Spell, [DNT] Send Event <Points> On Enter Combat, Stabilize Portal*/, 177807 /*177807 (Customs Security) - [DNT] Send Event <Points> On Enter Combat*/, 177817 /*177817 (Support Officer) - Refraction Shield, [DNT] Send Event <Points> On Enter Combat*/, 177816 /*177816 (Interrogation Specialist) - Mod Scale 90-100%, [DNT] Send Event <Points> On Enter Combat*/, 177672 /*177672 (Terminal Attendant) - Mod Scale 90-100%*/, 176759 /*176759 (Xy'nam)*/, 176758 /*176758 (Xy'noc)*/, 179983 /*179983 (Dozing Laborer)*/, 180056 /*180056 (Empty Hyperspatial Container) - Hyperlight Containment Cell*/, 178392 /*178392 (Gatewarden Zo'mazz) - Broker Energy Shield Cosmetic*/, 178074 /*178074 (Al'dalil)*/, 179011 /*179011 (Shipping Facilitator) - Broker Carry Box Aura*/, 180322 /*180322 (Fe'tajid) - [DNT] Aura Update Interact*/, 180510 /*180510 (Toxic Saurid) - Hyperlight Containment Cell*/, 180153 /*180153 (Aqir Impaler) - Hyperlight Containment Cell*/, 180092, 165855, 179515 /*179515 (Shipping Facilitator)*/);
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (179821, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4, '18950'), -- 179821 (Commander Zo'far) - Invisibility and Stealth Detection
@@ -938,6 +1029,35 @@ INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`,
 (165855, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '356251'), -- 165855 (Moonfrog) - Hyperlight Containment Cell
 (179515, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''); -- 179515 (Shipping Facilitator)
 
+DELETE FROM `gameobject_template_addon` WHERE `entry` IN (375003 /*Force Field*/, 375002 /*Force Field*/, 368990 /*Force Field*/, 370083 /*Microphone Stand*/, 368991 /*Force Field*/, 365063 /*Force Field*/, 368939 /*Signature Authorization Device and Transport Facility*/, 368579 /*Portal to The P.O.S.T.*/, 368578 /*Portal to the Lap of Luxury*/, 368577 /*Portal to The Grand Menagerie*/, 368581 /*Portal to the Opulent Nexus*/, 368580 /*Portal to Myza's Oasis*/, 368250 /*Door*/, 368249 /*Door*/, 365353 /*Mailroom Entrance*/, 368248 /*Menagerie Door*/, 365352 /*Customs Enforcement Door*/, 343702 /*Collision Cylinder (0.80)*/, 368247 /*Door*/, 365351 /*Door*/, 368246 /*Door*/, 369258 /*Portal to Customs*/, 368938 /*Portal to Customs*/, 369260 /*Portal to Customs*/, 369317 /*Portal to Customs*/, 369744 /*Energy Barrier*/);
+INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
+(375003, 114, 0x0, 0, 0), -- Force Field
+(375002, 114, 0x0, 0, 0), -- Force Field
+(368990, 114, 0x0, 0, 0), -- Force Field
+(370083, 0, 0x10, 0, 0), -- Microphone Stand
+(368991, 114, 0x0, 0, 0), -- Force Field
+(365063, 114, 0x0, 0, 0), -- Force Field
+(368939, 0, 0x10, 0, 0), -- Signature Authorization Device and Transport Facility
+(368579, 0, 0x0, 0, 8414), -- Portal to The P.O.S.T.
+(368578, 0, 0x0, 0, 8414), -- Portal to the Lap of Luxury
+(368577, 0, 0x0, 0, 8414), -- Portal to The Grand Menagerie
+(368581, 0, 0x0, 0, 8414), -- Portal to the Opulent Nexus
+(368580, 0, 0x0, 0, 8414), -- Portal to Myza's Oasis
+(368250, 0, 0x30, 0, 0), -- Door
+(368249, 0, 0x30, 0, 0), -- Door
+(365353, 0, 0x30, 0, 0), -- Mailroom Entrance
+(368248, 0, 0x30, 0, 0), -- Menagerie Door
+(365352, 0, 0x30, 0, 0), -- Customs Enforcement Door
+(343702, 0, 0x20, 0, 0), -- Collision Cylinder (0.80)
+(368247, 0, 0x30, 0, 0), -- Door
+(365351, 0, 0x30, 0, 0), -- Door
+(368246, 0, 0x32, 0, 0), -- Door
+(369258, 0, 0x30, 0, 0), -- Portal to Customs
+(368938, 0, 0x30, 0, 0), -- Portal to Customs
+(369260, 0, 0x30, 0, 0), -- Portal to Customs
+(369317, 0, 0x30, 0, 0), -- Portal to Customs
+(369744, 0, 0x30, 0, 0); -- Energy Barrier
+
 -- Templates
 UPDATE `creature_template_addon` SET `auras`='87978 84461' WHERE `entry`=47203; -- 47203 (Creeper Egg) - Creeper Egg, Sparkle Aura
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=176514; -- Angry Customer
@@ -946,29 +1066,28 @@ UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x140, `unit_flags2`=0x800 WHERE `entry`=180495; -- Enraged Direhorn
 UPDATE `creature_template` SET `faction`=188, `npcflag`=1073741824, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=179167; -- Damp Skrat
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180328; -- Au'ri
-UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.714285731315612792, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180348; -- Cartel Muscle
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.714285731315612792, `speed_run`=2, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=180348; -- Cartel Muscle
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180314; -- Patio Waiter
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180315; -- Shady Dealer
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=1500, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180310; -- Shop Patron
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180320; -- Illicit Purveyor
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=1500, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180310; -- Shop Patron
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180320; -- Illicit Purveyor
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180443; -- Exotic Reseller
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180442; -- Novice Acquirer
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=1500, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180390; -- Dantun
-UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.60000002384185791, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180335; -- Cartel Smuggler
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.60000002384185791, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=180335; -- Cartel Smuggler
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry` IN (180150, 180149); -- Relaxed Patron
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` =180150; -- Relaxed Patron
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=0.428571432828903198, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x820, `unit_flags3`=0x41000001, `AIName`='SmartAI' WHERE `entry`=180072; -- Tether Post
-UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.60000002384185791, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180336; -- Cartel Wiseguy
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.60000002384185791, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=180336; -- Cartel Wiseguy
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry` IN (179947, 179948); -- Impressed Patron
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1.714285731315612792, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180091; -- Ancient Core Hound
 UPDATE `creature_template` SET `faction`=35, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=180822; -- Goblin
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180147; -- Well-informed Trader
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180147; -- Well-informed Trader
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=179837; -- Tracker Zo'korss
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180327; -- Au'mba
 UPDATE `creature_template` SET `faction`=14, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180148; -- Coin Changer
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180260; -- Spice Trader Au'saar
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry` IN (180241, 180215); -- Export Hauler
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180266; -- Ta'ules
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry` IN (180241, 180215); -- Export Hauler
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180266; -- Ta'ules
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180295; -- Xy'rihn the Keen
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180247; -- Hungry Hauler
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180268; -- Ta'sam
@@ -977,21 +1096,21 @@ UPDATE `creature_template` SET `faction`=35, `npcflag`=1, `BaseAttackTime`=2000,
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180248; -- Hungry Patron
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180243; -- Market Chef
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180249; -- Market Server
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180244; -- Culinary Assistant
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180244; -- Culinary Assistant
 UPDATE `creature_template` SET `faction`=31, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=180269; -- Curiosity
 UPDATE `creature_template` SET `faction`=35, `npcflag`=128, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180754; -- Questionable Trader
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180267; -- Ta'rex
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180228; -- Export Supervisor
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180228; -- Export Supervisor
 UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=180161; -- Shopkeeper
 UPDATE `creature_template` SET `faction`=188, `npcflag`=1073741824, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=179168; -- Scavenging Skrat
-UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=180261; -- Market Patron
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180261; -- Market Patron
 UPDATE `creature_template` SET `faction`=188, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=179367; -- Scavenging Skrat
 UPDATE `creature_template` SET `faction`=16, `npcflag`=4224, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=177259; -- Zo'pare
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x800, `unit_flags3`=0x41000001 WHERE `entry`=179121; -- Zo'phex Cosmetic Summon Stalker
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x800, `unit_flags3`=0x41000001, `flags_extra` = 128 WHERE `entry`=179121; -- Zo'phex Cosmetic Summon Stalker
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=1500, `unit_flags2`=0x800 WHERE `entry`=177808; -- Armored Overseer
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=1500, `unit_flags2`=0x800 WHERE `entry`=179334; -- Portalmancer Zo'honn
 UPDATE `creature_template` SET `faction`=14, `npcflag`=2097152, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=177255; -- Contraband Auctioneer
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x800, `unit_flags3`=0x41000001 WHERE `entry`=178545; -- Watch-Agent Summon Stalker
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x800, `unit_flags3`=0x41000001, `flags_extra` = 128 WHERE `entry`=178545; -- Watch-Agent Summon Stalker
 UPDATE `creature_template` SET `faction`=16, `npcflag`=131076, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=177239; -- Collector of Worth
 UPDATE `creature_template` SET `faction`=35, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=180824; -- Waffle
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=1500, `unit_flags2`=0x800 WHERE `entry`=177817; -- Support Officer
@@ -1022,7 +1141,6 @@ UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x140, `unit_flags2`=0x800 WHERE `entry`=180567; -- Frenzied Nightclaw
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180095; -- Ankylodon Bull
 UPDATE `creature_template` SET `faction`=14, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x4000800, `unit_flags3`=0x41008001, `AIName`='SmartAI' WHERE `entry` IN (179843, 179844); -- Shocklight Barrier
-UPDATE `creature_template` SET `unit_flags`=0x100 WHERE `entry`=165855; -- Moonfrog
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=179909; -- Curious Onlooker
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=177996; -- Bazaar Shopper
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180317; -- Illicit Hauler
@@ -1036,7 +1154,7 @@ UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=179908; -- Distressed Merchant
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=179909; -- Curious Onlooker
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=179841; -- Veteran Sparkcaster
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800, `AIName`='SmartAI' WHERE `entry`=179840; -- Market Peacekeeper
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=179840; -- Market Peacekeeper
 UPDATE `creature_template` SET `faction`=190, `speed_walk`=0.699999988079071044, `speed_run`=0.25, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180858; -- Nether Beast
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x340, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180848; -- Dew Monster
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000, `VehicleId`=1251 WHERE `entry`=180852; -- Infested Bear
@@ -1048,7 +1166,7 @@ UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2
 UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x800 WHERE `entry`=176398; -- Shipped Livestock
 UPDATE `creature_template` SET `faction`=35, `npcflag`=16777216, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x4000800, `unit_flags3`=0x41000000 WHERE `entry`=176397; -- Holding Pen
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=176396; -- Defective Sorter
-UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=0x2000300, `unit_flags2`=0x800, `unit_flags3`=0x41000000 WHERE `entry`=179654; -- Invis Flee Point
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=0x2000300, `unit_flags2`=0x800, `unit_flags3`=0x41000000, `flags_extra` = 128 WHERE `entry`=179654; -- Invis Flee Point
 UPDATE `creature_template` SET `faction`=35, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=180821; -- Sassafras
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180850; -- Glimmershell Crab
 UPDATE `creature_template` SET `faction`=190, `speed_walk`=1.60000002384185791, `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180854; -- Proto-Drake
@@ -1066,7 +1184,7 @@ UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flag
 UPDATE `creature_template` SET `faction`=16, `speed_run`=0.992062866687774658, `BaseAttackTime`=2000 WHERE `entry`=175646; -- P.O.S.T. Master
 UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=177995; -- Xy'zaro
 UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=177753; -- Xy'mal
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x4000800, `unit_flags3`=0x40000000 WHERE `entry`=178383; -- [DNT] Controller
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x4000800, `unit_flags3`=0x40000000, `flags_extra` = 128 WHERE `entry`=178383; -- [DNT] Controller
 UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=177755; -- Xy'jahid
 UPDATE `creature_template` SET `faction`=35, `npcflag`=1, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=179799; -- Portal Authority Tunnelmancer
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=180856; -- Deranged Helboar
@@ -1076,7 +1194,6 @@ UPDATE `creature_template` SET `faction`=35, `speed_walk`=1.20000004768371582, `
 UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=1.714285731315612792, `BaseAttackTime`=2000, `unit_flags`=0x140, `unit_flags2`=0x4000800, `unit_flags3`=0x1 WHERE `entry`=176556; -- Alcruux
 UPDATE `creature_template` SET `faction`=35, `speed_walk`=1.20000004768371582, `speed_run`=1.714285731315612792, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=176705; -- Venza Goldfuse
 UPDATE `creature_template` SET `faction`=190, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180846; -- Sickly Gazelle
-UPDATE `creature_template` SET `unit_flags3`=0x41000001 WHERE `entry`=47203; -- Creeper Egg
 UPDATE `creature_template` SET `faction`=35, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x200, `unit_flags2`=0x800 WHERE `entry`=180823; -- Pancake
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=180859; -- Raging Colossus
 UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x340, `unit_flags2`=0x800 WHERE `entry`=180849; -- Dew Monster
@@ -1086,14 +1203,197 @@ UPDATE `creature_template` SET `faction`=35, `speed_run`=0.857142865657806396, `
 UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=0x800, `unit_flags3`=0x1000000 WHERE `entry`=175796; -- Mailroom Portal
 UPDATE `creature_template` SET `faction`=35, `npcflag`=67108864, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=176384; -- Katy Stampwhistle
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=179821; -- Commander Zo'far
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x4000800, `unit_flags3`=0x40000001, `flags_extra` = 128 WHERE `entry`=176560; -- [DNT] Encounter Controller
+UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=177329; -- Evaile
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=1500, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180444; -- Hired Runner
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=0x4000800, `unit_flags3`=0x41008000 WHERE `entry`=177438; -- Replace Horn
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000200, `unit_flags2`=0x4000800, `unit_flags3`=0x40000001, `flags_extra` = 128 WHERE `entry`=179797; -- [DNT] Spotlight Stalker
+UPDATE `creature_template` SET `faction`=16, `speed_walk`=1.20000004768371582, `speed_run`=0.428571432828903198, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x820, `unit_flags3`=0x41000001, `flags_extra` = 128 WHERE `entry`=179773; -- Invis Stalker
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=0x800, `unit_flags3`=0x40000000 WHERE `entry`=176615; -- Waffles
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000001 WHERE `entry` IN (180158, 176561); -- Unruly Patron
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000001 WHERE `entry`=179551; -- Speakeasy Security
+UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags2`=0x800 WHERE `entry`=176616; -- Speakeasy Drinksmith
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=180614; -- Oasis Server
+UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000001 WHERE `entry`=180755; -- High Roller
+UPDATE `creature_template` SET `faction`=2028, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x40000001 WHERE `entry`=180756; -- Shady Solicitor
+UPDATE `creature_template` SET `faction`=35, `npcflag`=3, `BaseAttackTime`=2000, `unit_flags`=0x100, `unit_flags2`=0x800 WHERE `entry`=180750; -- Au'manal
+UPDATE `creature_template` SET `faction`=190, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800, `unit_flags3`=0x1 WHERE `entry`=180613; -- Oasis Host
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=180751; -- Speakeasy Handler
+UPDATE `creature_template` SET `faction`=190, `npcflag`=1073741824, `speed_run`=0.857142865657806396, `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=179165; -- Silver Purrkin
 
 -- Movement
 DELETE FROM `creature_template_movement` WHERE `CreatureId`=180858;
 INSERT INTO `creature_template_movement` (`CreatureId`, `HoverInitiallyEnabled`, `Chase`, `Random`, `InteractionPauseTimer`) VALUES
 (180858, 1, 0, 0, NULL);
 
+-- Difficulty (Heroic)
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=2 AND `Entry` IN (179843,179844,179778,179954,180072,178074,179519));
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
+(179843, 2, 0, 0, 748, 0x20000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179843 (Shocklight Barrier) - Sessile, Floating - CannotTurn
+(179844, 2, 0, 0, 748, 0x20000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179844 (Shocklight Barrier) - Sessile, Floating - CannotTurn
+(179778, 2, 0, 0, 748, 0x20000100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179778 (Rift Blast Portal) - Sessile, Floating
+(179954, 2, 0, 0, 748, 0x20000100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179954 (Beam Splicer) - Sessile, Floating
+(180072, 2, 0, 0, 748, 0x20000100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180072 (Tether Post) - Sessile, Floating
+(178074, 2, 0, 0, 783, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 178074 (Al'dalil) - 
+(179519, 2, 0, 0, 748, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967); -- 179519 (Al'dalil) - 
+
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=2 AND `Entry` IN (179844,179843));
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
+(179844, 2, 8, 1, 1, 203380, 0x0, 0), -- Shocklight Barrier
+(179843, 2, 8, 1, 1, 203379, 0x0, 0); -- Shocklight Barrier
+
+UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `CreatureDifficultyID`=203314, `TypeFlags`=0x60000010, `TypeFlags2`=6 WHERE (`Entry`=179778 AND `DifficultyID`=2); -- Rift Blast Portal
+UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `CreatureDifficultyID`=203533 WHERE (`Entry`=179954 AND `DifficultyID`=2); -- Beam Splicer
+UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `CreatureDifficultyID`=203705, `TypeFlags`=0x1000400, `TypeFlags2`=16 WHERE (`Entry`=180072 AND `DifficultyID`=2); -- Tether Post
+UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `CreatureDifficultyID`=201337 WHERE (`Entry`=178074 AND `DifficultyID`=2); -- Al'dalil
+UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `CreatureDifficultyID`=203042 WHERE (`Entry`=179519 AND `DifficultyID`=2); -- Al'dalil
+
+
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=179773 AND `DifficultyID`=2); -- 179773 (Invis Stalker) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=176896 AND `DifficultyID`=2); -- 176896 (Edge of Annihilation) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180853 AND `DifficultyID`=2); -- 180853 (Skeletal Lasher) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180854 AND `DifficultyID`=2); -- 180854 (Proto-Drake) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179821 AND `DifficultyID`=2); -- 179821 (Commander Zo'far) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179842 AND `DifficultyID`=2); -- 179842 (Commerce Enforcer) - CanSwim
+UPDATE `creature_template_difficulty` SET `VerifiedBuild`=61967 WHERE (`DifficultyID`=2 AND `Entry` IN (179908,179909,180750,176519,180751,180849,180856,180317,180328,180320,180314,180443,180442,180315,179947,180150,180149,179948,180147,180327,180260,180241,180148,180266,180268,180244,180754,179981,180510,179011,179983,180156,179982,180295,180152,180243,177255,180215,180247,180228,180267,180261,180056));
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179843 AND `DifficultyID`=2); -- 179843 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179844 AND `DifficultyID`=2); -- 179844 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179841 AND `DifficultyID`=2); -- 179841 (Veteran Sparkcaster) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179840 AND `DifficultyID`=2); -- 179840 (Market Peacekeeper) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180444 AND `DifficultyID`=2); -- 180444 (Hired Runner) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180817 AND `DifficultyID`=2); -- 180817 (Pickle) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180821 AND `DifficultyID`=2); -- 180821 (Sassafras) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180851 AND `DifficultyID`=2); -- 180851 (Dragonbone Condor) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=179556 AND `DifficultyID`=2); -- 179556 (Broker Boat Medium 01) - Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x40000, `VerifiedBuild`=61967 WHERE (`Entry`=175600 AND `DifficultyID`=2); -- 175600 (Drumset) - Sessile, Floating - AllowInteractionWhileInCombat
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179785 AND `DifficultyID`=2); -- 179785 (Replace Saxophone) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176445 AND `DifficultyID`=2); -- 176445 (Au'myza) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177325 AND `DifficultyID`=2); -- 177325 (Hips) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=177440 AND `DifficultyID`=2); -- 177440 (Seat) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180850 AND `DifficultyID`=2); -- 180850 (Glimmershell Crab) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=176660 AND `DifficultyID`=2); -- 176660 (Replace Guitar) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179786 AND `DifficultyID`=2); -- 179786 (Replace Trumpet) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177327 AND `DifficultyID`=2); -- 177327 (Verethian) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177609 AND `DifficultyID`=2); -- 177609 (Dirtwhistle) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179551 AND `DifficultyID`=2); -- 179551 (Speakeasy Security) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177329 AND `DifficultyID`=2); -- 177329 (Evaile) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177611 AND `DifficultyID`=2); -- 177611 (Vilt) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179797 AND `DifficultyID`=2); -- 179797 ([DNT] Spotlight Stalker) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=177438 AND `DifficultyID`=2); -- 177438 (Replace Horn) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=180616 AND `DifficultyID`=2); -- 180616 (Trade Prince Gallywix) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180618 AND `DifficultyID`=2); -- 180618 (Cartel Negotiator) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=180617 AND `DifficultyID`=2); -- 180617 (Hired Scoundrel) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=176217 AND `DifficultyID`=2); -- 176217 (So'azmi) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=180158 AND `DifficultyID`=2); -- 180158 (Unruly Patron) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=179654 AND `DifficultyID`=2); -- 179654 (Invis Flee Point) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=180756 AND `DifficultyID`=2); -- 180756 (Shady Solicitor) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180818 AND `DifficultyID`=2); -- 180818 (Oswald) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176384 AND `DifficultyID`=2); -- 176384 (Katy Stampwhistle) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=175796 AND `DifficultyID`=2); -- 175796 (Mailroom Portal) - Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180614 AND `DifficultyID`=2); -- 180614 (Oasis Server) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=178962 AND `DifficultyID`=2); -- 178962 (Xy'aro) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=175806 AND `DifficultyID`=2); -- 175806 (So'azmi) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180565 AND `DifficultyID`=2); -- 180565 (Bazaar Vagabond) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=176615 AND `DifficultyID`=2); -- 176615 (Waffles) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176616 AND `DifficultyID`=2); -- 176616 (Speakeasy Drinksmith) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180613 AND `DifficultyID`=2); -- 180613 (Oasis Host) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=175677 AND `DifficultyID`=2); -- 175677 (Smuggled Creature) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=176397 AND `DifficultyID`=2); -- 176397 (Holding Pen) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176395 AND `DifficultyID`=2); -- 176395 (Overloaded Mailemental) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176394 AND `DifficultyID`=2); -- 176394 (P.O.S.T. Worker) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176396 AND `DifficultyID`=2); -- 176396 (Defective Sorter) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=176561 AND `DifficultyID`=2); -- 176561 (Unruly Patron) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176398 AND `DifficultyID`=2); -- 176398 (Shipped Livestock) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=175736 AND `DifficultyID`=2); -- 175736 (Delivery Portal) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=176560 AND `DifficultyID`=2); -- 176560 ([DNT] Encounter Controller) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176564 AND `DifficultyID`=2); -- 176564 (Zo'gron) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179893 AND `DifficultyID`=2); -- 179893 (Cartel Skulker) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=180755 AND `DifficultyID`=2); -- 180755 (High Roller) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180562 AND `DifficultyID`=2); -- 180562 (Fruit Vendor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=180566 AND `DifficultyID`=2); -- 180566 (Rat of Unusual Size) - Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177999 AND `DifficultyID`=2); -- 177999 (Xy'darid) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180561 AND `DifficultyID`=2); -- 180561 (Oasis Guest) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177756 AND `DifficultyID`=2); -- 177756 (Xy'aqida) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177994 AND `DifficultyID`=2); -- 177994 (Xy'har) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176514 AND `DifficultyID`=2); -- 176514 (Angry Customer) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180563 AND `DifficultyID`=2); -- 180563 (Backalley Schemer) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177998 AND `DifficultyID`=2); -- 177998 (Xy'nara) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177760 AND `DifficultyID`=2); -- 177760 (Xy'kitaab) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=175646 AND `DifficultyID`=2); -- 175646 (P.O.S.T. Master) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=180858 AND `DifficultyID`=2); -- 180858 (Nether Beast) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177753 AND `DifficultyID`=2); -- 177753 (Xy'mal) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177995 AND `DifficultyID`=2); -- 177995 (Xy'zaro) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179886 AND `DifficultyID`=2); -- 179886 (Auction Bidder) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180859 AND `DifficultyID`=2); -- 180859 (Raging Colossus) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=178383 AND `DifficultyID`=2); -- 178383 ([DNT] Controller) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177755 AND `DifficultyID`=2); -- 177755 (Xy'jahid) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177757 AND `DifficultyID`=2); -- 177757 (Xy'tadir) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179799 AND `DifficultyID`=2); -- 179799 (Portal Authority Tunnelmancer) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176555 AND `DifficultyID`=2); -- 176555 (Achillite) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179167 AND `DifficultyID`=2); -- 179167 (Damp Skrat) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180095 AND `DifficultyID`=2); -- 180095 (Ankylodon Bull) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180567 AND `DifficultyID`=2); -- 180567 (Frenzied Nightclaw) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177752 AND `DifficultyID`=2); -- 177752 (Xy'ghana) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180852 AND `DifficultyID`=2); -- 180852 (Infested Bear) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176705 AND `DifficultyID`=2); -- 176705 (Venza Goldfuse) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176556 AND `DifficultyID`=2); -- 176556 (Alcruux) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=47203 AND `DifficultyID`=2); -- 47203 (Creeper Egg) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177996 AND `DifficultyID`=2); -- 177996 (Bazaar Shopper) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180846 AND `DifficultyID`=2); -- 180846 (Sickly Gazelle) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180823 AND `DifficultyID`=2); -- 180823 (Pancake) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180848 AND `DifficultyID`=2); -- 180848 (Dew Monster) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=180855 AND `DifficultyID`=2); -- 180855 (Devourer Mite) - Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=165855 AND `DifficultyID`=2); -- 165855 (Moonfrog) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180495 AND `DifficultyID`=2); -- 180495 (Enraged Direhorn) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=175616 AND `DifficultyID`=2); -- 175616 (Zo'phex) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=176540 AND `DifficultyID`=2); -- 176540 (Body Armor Left) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=176534 AND `DifficultyID`=2); -- 176534 (Arm Right) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=61967 WHERE (`Entry`=176438 AND `DifficultyID`=2); -- 176438 (Arm Left) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=179122 AND `DifficultyID`=2); -- 179122 (Body Armor Right) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=179955 AND `DifficultyID`=2); -- 179955 (Sorting Device Visual Stalkers) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179366 AND `DifficultyID`=2); -- 179366 (Damp Skrat) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000000, `VerifiedBuild`=61967 WHERE (`Entry`=180092 AND `DifficultyID`=2); -- 180092 (Giant Hive Guardian) - CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180348 AND `DifficultyID`=2); -- 180348 (Cartel Muscle) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180390 AND `DifficultyID`=2); -- 180390 (Dantun) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180335 AND `DifficultyID`=2); -- 180335 (Cartel Smuggler) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180822 AND `DifficultyID`=2); -- 180822 (Goblin) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180336 AND `DifficultyID`=2); -- 180336 (Cartel Wiseguy) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180310 AND `DifficultyID`=2); -- 180310 (Shop Patron) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180091 AND `DifficultyID`=2); -- 180091 (Ancient Core Hound) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179837 AND `DifficultyID`=2); -- 179837 (Tracker Zo'korss) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180269 AND `DifficultyID`=2); -- 180269 (Curiosity) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176759 AND `DifficultyID`=2); -- 176759 (Xy'nam) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177868 AND `DifficultyID`=2); -- 177868 (Creature Collector) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180114 AND `DifficultyID`=2); -- 180114 (Fruit Vendor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180824 AND `DifficultyID`=2); -- 180824 (Waffle) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179795 AND `DifficultyID`=2); -- 179795 (Ta'speri) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180117 AND `DifficultyID`=2); -- 180117 (Meat Vendor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179796 AND `DifficultyID`=2); -- 179796 (Ta'leesa) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=178392 AND `DifficultyID`=2); -- 178392 (Gatewarden Zo'mazz) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180161 AND `DifficultyID`=2); -- 180161 (Shopkeeper) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177259 AND `DifficultyID`=2); -- 177259 (Zo'pare) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=180153 AND `DifficultyID`=2); -- 180153 (Aqir Impaler) - Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=176758 AND `DifficultyID`=2); -- 176758 (Xy'noc) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179334 AND `DifficultyID`=2); -- 179334 (Portalmancer Zo'honn) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179164 AND `DifficultyID`=2); -- 179164 (Curious Purrkin) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180249 AND `DifficultyID`=2); -- 180249 (Market Server) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=179121 AND `DifficultyID`=2); -- 179121 (Zo'phex Cosmetic Summon Stalker) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177808 AND `DifficultyID`=2); -- 177808 (Armored Overseer) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177817 AND `DifficultyID`=2); -- 177817 (Support Officer) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179367 AND `DifficultyID`=2); -- 179367 (Scavenging Skrat) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180248 AND `DifficultyID`=2); -- 180248 (Hungry Patron) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177816 AND `DifficultyID`=2); -- 177816 (Interrogation Specialist) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180130 AND `DifficultyID`=2); -- 180130 (Antique Vendor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179168 AND `DifficultyID`=2); -- 179168 (Scavenging Skrat) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=180129 AND `DifficultyID`=2); -- 180129 (Toy Vendor) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=178545 AND `DifficultyID`=2); -- 178545 (Watch-Agent Summon Stalker) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177807 AND `DifficultyID`=2); -- 177807 (Customs Security) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177239 AND `DifficultyID`=2); -- 177239 (Collector of Worth) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=177672 AND `DifficultyID`=2); -- 177672 (Terminal Attendant) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000000, `VerifiedBuild`=61967 WHERE (`Entry`=97809 AND `DifficultyID`=2); -- 97809 (Coastal Seagull) - CanSwim, Floating
+
 -- Difficulty (Mythic)
-DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` IN (178962,180818,175796,176384,179821,179556,180859,180849,180846,180823,176705,176556,176555,180856,179799,177994,177756,177998,177760,180563,175646,177995,177753,178383,177755,177752,177757,179886,180851,180817,176896,175806,176519,180853,180854,180850,180821,179654,176396,176397,176398,175736,176394,176395,176217,175677, 180852,47203, 180848,180858, 179841,179840,179909,179908,179842,180561, 180562, 176564, 177999, 176514, 180566, 180855,177996,179843,179844,165855,180095,179167,180328,180348,180314,180315,180310,180320,180443,180442,180390,180335,180150,180072,180336,180149,179947,180091,179948,180822,180147,179837,180327,180148,180260,180241,180266,180295,180247,180268,179795,179796,180248,180243,180249,180244,180269,180754,180215,180267,180228,180161,179168,180261,179367,177259,179121,177808,179334,177255,178545,177239,180824,177817,177816,177672,180156,180114,180117,177868,176759,176758,179981,180130,180056,178392,178074,179519,177807,179011,179983,179366,180322,180129,180510,180153,97809,180152,180495,180092,180567,179982));
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` IN (178962,180818,175796,176384,179821,179556,180859,180849,180846,180823,176705,176556,176555,180856,179799,177994,177756,177998,177760,180563,175646,177995,177753,178383,177755,177752,177757,179886,180851,180817,176896,175806,176519,180853,180854,180850,180821,179654,176396,176397,176398,175736,176394,176395,176217,175677, 180852,47203, 180848,180858, 179841,179840,179909,179908,179842,180561, 180562, 176564, 177999, 176514, 180566, 180855,177996,179843,179844,165855,180095,179167,180328,180348,180314,180315,180310,180320,180443,180442,180390,180335,180150,180072,180336,180149,179947,180091,179948,180822,180147,179837,180327,180148,180260,180241,180266,180295,180247,180268,179795,179796,180248,180243,180249,180244,180269,180754,180215,180267,180228,180161,179168,180261,179367,177259,179121,177808,179334,177255,178545,177239,180824,177817,177816,177672,180156,180114,180117,177868,176759,176758,179981,180130,180056,178392,178074,179519,177807,179011,179983,179366,180322,180129,180510,180153,97809,180152,180495,180092,180567,179982,176560,177329,180444,177438,179797,179773,176615,180158,179551,176616,180614,180755,176561,180756,180750,180613,180751,180565,180317,179165));
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
 (178962, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 178962 (Xy'aro) - CanSwim
 (180818, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 180818 (Oswald) - CanSwim
@@ -1242,7 +1542,32 @@ INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScali
 (180495, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 180495 (Enraged Direhorn) - CanSwim
 (180092, 23, 0, 0, 2042, 0x30000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 180092 (Giant Hive Guardian) - CanSwim, Floating
 (180567, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 180567 (Frenzied Nightclaw) - CanSwim
-(179982, 23, 0, 0, 2042, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609); -- 179982 (Hungry Laborer) - 
+(179982, 23, 0, 0, 2042, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61609), -- 179982 (Hungry Laborer) - 
+(176560, 23, 0, 0, 749, 0x20000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 176560 ([DNT] Encounter Controller) - Sessile, Floating - CannotTurn
+(177329, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 177329 (Evaile) - CanSwim
+(180444, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180444 (Hired Runner) - CanSwim
+(177438, 23, 0, 0, 749, 0x20000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 177438 (Replace Horn) - Sessile, Floating - CannotTurn
+(179797, 23, 0, 0, 749, 0x20000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179797 ([DNT] Spotlight Stalker) - Sessile, Floating - CannotTurn
+(179773, 23, 0, 0, 1240, 0x20000100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179773 (Invis Stalker) - Sessile, Floating
+(176615, 23, 0, 0, 2042, 0x30000100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 176615 (Waffles) - Sessile, CanSwim, Floating
+(180158, 23, 0, 0, 2042, 0x30000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180158 (Unruly Patron) - Sessile, CanSwim, Floating - CannotTurn
+(179551, 23, 0, 0, 2042, 0x30000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 179551 (Speakeasy Security) - Sessile, CanSwim, Floating - CannotTurn
+(176616, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 176616 (Speakeasy Drinksmith) - CanSwim
+(180614, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180614 (Oasis Server) - CanSwim
+(180755, 23, 0, 0, 2042, 0x30000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180755 (High Roller) - Sessile, CanSwim, Floating - CannotTurn
+(176561, 23, 0, 0, 2042, 0x30000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 176561 (Unruly Patron) - Sessile, CanSwim, Floating - CannotTurn
+(180756, 23, 0, 0, 2042, 0x30000100, 0x0, 0x2000000, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180756 (Shady Solicitor) - Sessile, CanSwim, Floating - CannotTurn
+(180750, 23, 0, 0, 2042, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180750 (Au'manal) - 
+(180613, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180613 (Oasis Host) - CanSwim
+(180751, 23, 0, 0, 2042, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180751 (Speakeasy Handler) - 
+(180565, 23, 0, 0, 2042, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180565 (Bazaar Vagabond) - CanSwim
+(180317, 23, 0, 0, 2042, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967), -- 180317 (Illicit Hauler) - 
+(179165, 23, 0, 0, 371, 0x10000000, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 61967); -- 179165 (Silver Purrkin) - CanSwim
+
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` IN (179844,179843));
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`) VALUES
+(179844, 23, 8, 1, 1, 203380, 0x0, 0), -- Shocklight Barrier
+(179843, 23, 8, 1, 1, 203379, 0x0, 0); -- Shocklight Barrier
 
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=7.5, `CreatureDifficultyID`=203998, `TypeFlags`=0x200048 WHERE (`Entry`=180348 AND `DifficultyID`=23); -- Cartel Muscle
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=2, `CreatureDifficultyID`=203978 WHERE (`Entry`=180328 AND `DifficultyID`=23); -- Au'ri
@@ -1388,6 +1713,13 @@ UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthMod
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=12, `CreatureDifficultyID`=199482, `TypeFlags`=0x200048, `TypeFlags2`=128 WHERE (`Entry`=176556 AND `DifficultyID`=23); -- Alcruux
 UPDATE `creature_template_difficulty` SET `HealthModifier`=0.023809999227523803, `CreatureDifficultyID`=43895, `TypeFlags`=0x40000040 WHERE (`Entry`=47203 AND `DifficultyID`=23); -- Creeper Egg
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=0.200000002980232238, `CreatureDifficultyID`=204489, `TypeFlags2`=2 WHERE (`Entry`=180823 AND `DifficultyID`=23); -- Pancake
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180215 AND `DifficultyID`=23); -- 180215 (Export Hauler) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180852 AND `DifficultyID`=23); -- 180852 (Infested Bear) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180848 AND `DifficultyID`=23); -- 180848 (Dew Monster) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180855 AND `DifficultyID`=23); -- 180855 (Devourer Mite) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180315 AND `DifficultyID`=23); -- 180315 (Shady Dealer) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2042, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179843 AND `DifficultyID`=23); -- 179843 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2042, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179844 AND `DifficultyID`=23); -- 179844 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
 
 DELETE FROM `creature_static_flags_override` WHERE `SpawnId`IN (@CGUID+213, @CGUID+277, @CGUID+339);
 INSERT INTO `creature_static_flags_override` (`SpawnId`, `DifficultyId`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`) VALUES
@@ -1445,88 +1777,7 @@ UPDATE `creature_model_info` SET `BoundingRadius`=0.270005762577056884, `CombatR
 UPDATE `creature_model_info` SET `BoundingRadius`=0.238976046442985534, `CombatReach`=1, `VerifiedBuild`=61609 WHERE `DisplayID`=100438;
 UPDATE `creature_model_info` SET `BoundingRadius`=1.513618111610412597, `CombatReach`=2.25, `VerifiedBuild`=61609 WHERE `DisplayID`=100049;
 
--- GAMEOBJECTS
-
--- Spawns
-DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26;
-INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
-(@OGUID+0, 369260, 2441, 13577, 13577, '23,2,8', '0', 0, 3655.9736328125, -1202.598876953125, 73.847503662109375, 4.712392330169677734, 0, 0, -0.70710563659667968, 0.707107901573181152, 7200, 255, 1, 61609), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+1, 368577, 2441, 13577, 13577, '23,2,8', '0', 0, 3674.18603515625, -1611.2802734375, 106.6583023071289062, 4.45059061050415039, 0, 0, -0.79335308074951171, 0.608761727809906005, 7200, 255, 1, 61609), -- Portal to The Grand Menagerie (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+2, 368578, 2441, 13577, 13577, '23,2,8', '0', 0, 3661.8369140625, -1608.0947265625, 106.6583023071289062, 4.45059061050415039, 0, 0, -0.79335308074951171, 0.608761727809906005, 7200, 255, 1, 61609), -- Portal to the Lap of Luxury (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+3, 368246, 2441, 13577, 13577, '23,2,8', '0', 0, 3802.552978515625, -1182.2984619140625, 76.01384735107421875, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 7200, 255, 1, 61609), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+4, 368579, 2441, 13577, 13577, '23,2,8', '0', 0, 3674.00537109375, -1667.1512451171875, 106.663848876953125, 1.832594871520996093, 0, 0, 0.793353080749511718, 0.608761727809906005, 7200, 255, 1, 61609), -- Portal to The P.O.S.T. (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+5, 368247, 2441, 13577, 13577, '23,2,8', '0', 0, 3431.483642578125, -1295.3753662109375, 73.7119293212890625, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 7200, 255, 1, 61609), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+6, 369258, 2441, 13577, 13577, '23,2,8', '0', 0, 3503.295166015625, -1299.620361328125, 73.84748077392578125, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 7200, 255, 1, 61609), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+7, 365352, 2441, 13577, 13577, '23,2,8', '0', 0, 3609.935791015625, -1722.697265625, 106.1566696166992187, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 7200, 255, 1, 61609), -- Customs Enforcement Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+8, 365353, 2441, 13577, 13577, '23,2,8', '0', 0, 3669.245849609375, -1161.827392578125, 73.88088226318359375, 3.926995515823364257, 0, 0, -0.92387866973876953, 0.38268551230430603, 7200, 255, 1, 61609), -- Mailroom Entrance (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+9, 369744, 2441, 13577, 13577, '23,2,8', '0', 0, 3566.266357421875, -819.649658203125, 108.470123291015625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 7200, 255, 0, 61609), -- Energy Barrier (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+10, 368248, 2441, 13577, 13577, '23,2,8', '0', 0, 3431.44189453125, -1246.96484375, 73.7119293212890625, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 7200, 255, 0, 61609), -- Menagerie Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+11, 369317, 2441, 13577, 13577, '23,2,8', '0', 0, 3588.68115234375, -899.8076171875, 114.3051910400390625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 7200, 255, 1, 61609), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+12, 368249, 2441, 13577, 13577, '23,2,8', '0', 0, 3481.945556640625, -1324.55126953125, 73.709136962890625, 2.617989301681518554, 0, 0, 0.965925216674804687, 0.258821308612823486, 7200, 255, 1, 61609), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+13, 368250, 2441, 13577, 13577, '23,2,8', '0', 0, 3481.939208984375, -1217.8514404296875, 73.70972442626953125, 3.665196180343627929, 0, 0, -0.96592521667480468, 0.258821308612823486, 7200, 255, 0, 61609), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+14, 368938, 2441, 13577, 13577, '23,2,8', '0', 0, 3746.939453125, -1162.279541015625, 74.1822357177734375, 3.130894899368286132, 0, 0, 0.999985694885253906, 0.005348853301256895, 7200, 255, 1, 61609), -- Portal to Customs (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+15, 368580, 2441, 13577, 13577, '23,2,8', '0', 0, 3661.803466796875, -1670.30078125, 106.6638641357421875, 1.832594871520996093, 0, 0, 0.793353080749511718, 0.608761727809906005, 7200, 255, 1, 61609), -- Portal to Myza's Oasis (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+16, 368581, 2441, 13577, 13577, '23,2,8', '0', 0, 3682.55322265625, -1639.171630859375, 106.7036666870117187, 3.141592741012573242, 0, 0, -1, 0, 7200, 255, 1, 61609), -- Portal to the Opulent Nexus (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+17, 365351, 2441, 13577, 13577, '23,2,8', '0', 0, 3609.935791015625, -1555.6185302734375, 106.15667724609375, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 7200, 255, 1, 61609), -- Door (Area: Tazavesh, the Veiled Market - Difficulty: 0) CreateObject1
-(@OGUID+18, 326155, 2441, 13577, 13577, '23,2,8', '0', 0, 3640.7978515625, -1801.1285400390625, 92.4810028076171875, 4.142352581024169921, 0, 0, -0.87740039825439453, 0.479758828878402709, 7200, 255, 1, 61609), -- Collision Object (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject2
-(@OGUID+19, 326155, 2441, 13577, 13577, '23,2,8', '0', 0, 3643.640625, -1801.201416015625, 92.4810028076171875, 4.142352581024169921, 0, 0, -0.87740039825439453, 0.479758828878402709, 7200, 255, 1, 61609), -- Collision Object (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject2
-(@OGUID+20, 343702, 2441, 13577, 13577, '23,2,8', '0', 0, 3641.11376953125, -1798.454833984375, 92.48101806640625, 3.683762550354003906, 0, 0, -0.96348094940185546, 0.267776846885681152, 7200, 255, 1, 61609), -- Collision Cylinder (0.80) (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject2
-(@OGUID+21, 369891, 2441, 13577, 13577, '23,2,8', '0', 0, 3585.30029296875, -1586, 108.8809432983398437, 5.241250038146972656, 0, 0, -0.49771976470947265, 0.86733788251876831, 7200, 255, 1, 61609), -- Expedition Report A37J - Part 3 (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-(@OGUID+22, 369890, 2441, 13577, 13577, '23,2,8', '0', 0, 3651.575439453125, -1563.5208740234375, 93.2502288818359375, 0.809137582778930664, 0, 0, 0.393622398376464843, 0.919272243976593017, 7200, 255, 1, 61609), -- Expedition Report A37J - Part 2 (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-(@OGUID+23, 369316, 2441, 13577, 13577, '23,2,8', '0', 0, 3596.484619140625, -1497.988037109375, 93.56156158447265625, 2.094393253326416015, 0, 0, 0.866024971008300781, 0.50000077486038208, 7200, 255, 1, 61609), -- Portal (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-(@OGUID+24, 369315, 2441, 13577, 13577, '23,2,8', '0', 0, 3596.8046875, -1510.46435546875, 106.0002517700195312, 2.094393253326416015, 0, 0, 0.866024971008300781, 0.50000077486038208, 7200, 255, 1, 61609), -- Portal (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-(@OGUID+25, 369467, 2441, 13577, 13577, '23,2,8', '0', 0, 3668.8837890625, -1474.2137451171875, 93.23809051513671875, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 7200, 255, 1, 61609), -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-(@OGUID+26, 369466, 2441, 13577, 13577, '23,2,8', '0', 0, 3759.882080078125, -1409.46630859375, 73.71128082275390625, 3.141592741012573242, 0, 0, -1, 0, 7200, 255, 1, 61609); -- Mailbox (Area: Tazavesh, the Veiled Market - Difficulty: Mythic) CreateObject1
-
--- Addons
-DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26;
-INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
-(@OGUID+0, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
-(@OGUID+1, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to The Grand Menagerie
-(@OGUID+2, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to the Lap of Luxury
-(@OGUID+3, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
-(@OGUID+4, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to The P.O.S.T.
-(@OGUID+5, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
-(@OGUID+6, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
-(@OGUID+7, 0, 0, 1, -0.00000004371138828, 0, 0), -- Customs Enforcement Door
-(@OGUID+8, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailroom Entrance
-(@OGUID+9, 0, 0, 1, -0.00000004371138828, 0, 0), -- Energy Barrier
-(@OGUID+10, 0, 0, 1, -0.00000004371138828, 0, 0), -- Menagerie Door
-(@OGUID+11, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
-(@OGUID+12, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
-(@OGUID+13, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
-(@OGUID+14, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal to Customs
-(@OGUID+15, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to Myza's Oasis
-(@OGUID+16, 0, 0, 1, -0.00000004371138828, 0, 8414), -- Portal to the Opulent Nexus
-(@OGUID+17, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
-(@OGUID+23, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal
-(@OGUID+24, 0, 0, 1, -0.00000004371138828, 0, 0), -- Portal
-(@OGUID+25, 0, 0, 1, -0.00000004371138828, 0, 0), -- Mailbox
-(@OGUID+26, 0, 0, 1, -0.00000004371138828, 0, 0); -- Mailbox
-
-DELETE FROM `gameobject_template_addon` WHERE `entry` IN (343702 /*Collision Cylinder (0.80)*/, 365352 /*Customs Enforcement Door*/, 368581 /*Portal to the Opulent Nexus*/, 368578 /*Portal to the Lap of Luxury*/, 368577 /*Portal to The Grand Menagerie*/, 368580 /*Portal to Myza's Oasis*/, 368579 /*Portal to The P.O.S.T.*/, 368247 /*Door*/, 368246 /*Door*/, 369260 /*Portal to Customs*/, 368938 /*Portal to Customs*/, 368250 /*Door*/, 368249 /*Door*/, 369317 /*Portal to Customs*/, 368248 /*Menagerie Door*/, 369744 /*Energy Barrier*/, 365353 /*Mailroom Entrance*/, 369258 /*Portal to Customs*/, 365351 /*Door*/);
-INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
-(343702, 0, 0x20, 0, 0), -- Collision Cylinder (0.80)
-(365352, 0, 0x30, 0, 0), -- Customs Enforcement Door
-(368581, 0, 0x0, 0, 8414), -- Portal to the Opulent Nexus
-(368578, 0, 0x0, 0, 8414), -- Portal to the Lap of Luxury
-(368577, 0, 0x0, 0, 8414), -- Portal to The Grand Menagerie
-(368580, 0, 0x0, 0, 8414), -- Portal to Myza's Oasis
-(368579, 0, 0x0, 0, 8414), -- Portal to The P.O.S.T.
-(368247, 0, 0x30, 0, 0), -- Door
-(368246, 0, 0x32, 0, 0), -- Door
-(369260, 0, 0x30, 0, 0), -- Portal to Customs
-(368938, 0, 0x30, 0, 0), -- Portal to Customs
-(368250, 0, 0x30, 0, 0), -- Door
-(368249, 0, 0x30, 0, 0), -- Door
-(369317, 0, 0x30, 0, 0), -- Portal to Customs
-(368248, 0, 0x30, 0, 0), -- Menagerie Door
-(369744, 0, 0x30, 0, 0), -- Energy Barrier
-(365353, 0, 0x30, 0, 0), -- Mailroom Entrance
-(369258, 0, 0x30, 0, 0), -- Portal to Customs
-(365351, 0, 0x30, 0, 0); -- Door
-
--- VEHICLES
+-- Vehicle
 DELETE FROM `vehicle_template_accessory` WHERE (`entry`=180852 AND `seat_id` IN (7,6,5,4,3,2,1,0));
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
 (180852, 47203, 7, 1, 'Infested Bear - Creeper Egg', 7, 0), -- Infested Bear - Creeper Egg
@@ -1538,11 +1789,12 @@ INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`,
 (180852, 47203, 1, 1, 'Infested Bear - Creeper Egg', 7, 0), -- Infested Bear - Creeper Egg
 (180852, 47203, 0, 1, 'Infested Bear - Creeper Egg', 7, 0); -- Infested Bear - Creeper Egg
 
+-- Spellclick
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` = 180852;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (180852, 87978, 0, 0);
 
--- VENDORS
+-- Vendor
 DELETE FROM `npc_vendor` WHERE (`entry`=177999 AND `item`=185932 AND `ExtendedCost`=0 AND `type`=1);
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
 (177999, 3, 185932, 1, 0, 1, 0, 0, 61609); -- Damaged Flask
@@ -1597,250 +1849,262 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
 (180754, 2, 5263, 0, 0, 1, 0, 0, 61967), -- Pocket Lint
 (180754, 1, 6297, 0, 0, 1, 0, 0, 61967); -- Old Skull
 
--- SAI
+-- Enthusiastic Trader smart ai
+SET @ENTRY := 180156;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 3000, 3000, 3000, 0, 5, 595, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 seconds (OOC) - Self: Play emote 595', '');
 
--- TODO: REVIEW THESE SAIS --
--- Shockling Barrier Sai
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 179843 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179843, 0, 0, 1, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 355500, 0, 11, 179844, 10, 1, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Shocklight Barrier - On Just Created - Cast Shocklight Barrier'),
-(179843, 0, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Shocklight Barrier - On Just Created - Set React State Passive');
+-- Meat Vendor smart ai
+SET @ENTRY := 180117;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 1500, 1500, 1500, 2000, 0, 10, 25, 274, 604, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 1.5 - 2 seconds (1.5 - 1.5s initially) (OOC) - Self: Play random emote: 25, 274, 604,', ''),
+(@ENTRY, 0, 1, 0, 10, 0, 100, 1, 1, 14, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On only non hostile unit in line of sight (OOC) - Self: Talk 0 to invoker', '');
 
--- Tether Post Sai
-UPDATE `creature` SET `StringId`='npc_tether_post_1' WHERE `guid` = @CGUID+214;
-UPDATE `creature` SET `StringId`='npc_tether_post_2' WHERE `guid` = @CGUID+285;
-UPDATE `creature` SET `StringId`='npc_tether_post_3' WHERE `guid` = @CGUID+311;
+-- Fruit Vendor smart ai
+SET @ENTRY := 180114;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 10, 0, 100, 1, 1, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On only non hostile unit in line of sight (OOC) - Self: Talk 0 to invoker', '');
 
-UPDATE `creature` SET `StringId`='npc_ancient_core_hound' WHERE `guid` IN (@CGUID+209, @CGUID+229);
-UPDATE `creature` SET `StringId`='npc_enraged_direhorn' WHERE `guid` = @CGUID+283;
-UPDATE `creature` SET `StringId`='npc_ankylodon_bull' WHERE `guid` = @CGUID+316;
+-- Ta'ules smart ai
+SET @ENTRY := 180266;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 10, 1, 5, 6, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play random emote: 1, 5, 6,', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180072;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 2, 180072, 0, 0, 58, 1, 0, 0, 0, 'npc_tether_post_1', 0, 0, 0, '', 'Scripted creature has StringId \'npc_tether_post_1\''),
-(22, 3, 180072, 0, 0, 58, 1, 0, 0, 0, 'npc_tether_post_2', 0, 0, 0, '', 'Scripted creature has StringId \'npc_tether_post_2\''),
-(22, 4, 180072, 0, 0, 58, 1, 0, 0, 0, 'npc_tether_post_3', 0, 0, 0, '', 'Scripted creature has StringId \'npc_tether_post_3\'');
+-- Well-informed Trader smart ai
+SET @ENTRY := 180147;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play emote 1', '');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180072 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180072, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Tether Post - On Just Created - Set React Passive'),
-(180072, 0, 1, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 356323, 0, 11, 180091, 20, 0, 0, 'npc_ancient_core_hound', 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Tether Post - On Just Created - Cast Woefully Insufficient Fetters'),
-(180072, 0, 2, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 356323, 0, 11, 180095, 20, 0, 0, 'npc_enraged_direhorn', 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Tether Post - On Just Created - Cast Woefully Insufficient Fetters'),
-(180072, 0, 3, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 86, 356323, 0, 11, 180495, 20, 0, 0, 'npc_ankylodon_bull', 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Tether Post - On Just Created - Cast Woefully Insufficient Fetters');
- 
--- Generic SAI
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 179844 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179844, 0, 1, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 8, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Shocklight Barrier - On Just Created - Set React Passive');
+-- Relaxed Patron smart ai
+SET @ENTRY := 180150;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play emote 1', '');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=180156 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180156, 0, 0, 0, '', 1, 0, 100, 0, 3000, 3000, 3000, 3000, 0, '', 5, 595, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Enthusiastic Trader - Every 3 seconds (OOC) - Self: Play emote 595');
+-- Tracker Zo'korss smart ai
+SET @ENTRY := 179837;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play emote 1', '');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=180117 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180117, 0, 0, 0, '', 1, 0, 100, 0, 1500, 1500, 1500, 2000, 0, '', 10, 25, 274, 604, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Meat Vendor - Every 3 seconds (OOC) - Self: Play random emote'),
-(180117, 0, 1, 0, '', 10, 0, 100, 0, 1, 14, 60000, 60000, 1, '', 1, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Meat Vendor - On LoS with Player Near - Talk');
+-- Market Peacekeeper smart ai
+SET @ENTRY := 179840;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 9000, 10000, 9000, 10000, 0, 5, 669, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 9 - 10 seconds (OOC) - Self: Play emote 669', '');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=180114 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180114, 0, 0, 0, '', 10, 0, 100, 0, 1, 8, 60000, 60000, 1, '', 1, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Fruit Vendor - On LoS with Player Near - Talk');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+514, @CGUID+518, @CGUID+539, @CGUID+540, @CGUID+513);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180266 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180266, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 10, 1, 5, 6, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Ta\'ules - Every 3 - 10 seconds (OOC) - Self: Play random emote');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 179840 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 179840, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180147 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180147, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 5, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Well-informed Trader - Every 3 -10 seconds (OOC) - Self: Play emote 1');
+-- Shop Patron smart ai
+SET @ENTRY := 180310;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play emote 1', '');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180150 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180150, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 5, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Relaxed Patron - Every 3 -10 seconds (OOC) - Self: Play emote 1');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+274, @CGUID+10, @CGUID+9, @CGUID+236);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 179837 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179837, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 5, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Tracker Zo\'korss - Every 3 -10 seconds (OOC) - Self: Play emote 1');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180310 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180310, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
--- Market Peacekeeper SAI
-UPDATE `creature` SET `StringId`='npc_market_peacekeeper_cosmetic' WHERE `guid` IN (@CGUID+514, @CGUID+518, @CGUID+539, @CGUID+540, @CGUID+513);
+-- Export Supervisor smart ai
+SET @ENTRY := 180228;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 4000, 3000, 4000, 0, 5, 22, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 4 seconds (OOC) - Self: Play emote 22', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=179840;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 179840, 0, 0, 58, 1, 0, 0, 0, 'npc_market_peacekeeper_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_market_peacekeeper_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+170, @CGUID+128);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 179840 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179840, 0, 0, 0, '', 1, 0, 100, 0, 9000, 10000, 9000, 10000, 0, '', 5, 669, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Market Peacekeeper - Every 9 -10 seconds (OOC) - Self: Play emote 669');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180228 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180228, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
--- Shop patron SAI
-UPDATE `creature` SET `StringId`='npc_shop_patron_cosmetic' WHERE `guid` IN (@CGUID+274, @CGUID+10, @CGUID+9, @CGUID+236);
+-- Distressed Merchant smart ai
+SET @ENTRY := 179908;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 10, 1, 6, 273, 274, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play random emote: 1, 6, 273, 274,', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180310;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180310, 0, 0, 58, 1, 0, 0, 0, 'npc_shop_patron_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_shop_patron_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+533, @CGUID+527, @CGUID+612, @CGUID+566, @CGUID+610, @CGUID+568, @CGUID+592, @CGUID+577);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180310 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180310, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 5, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Shop patron - Every 3 -10 seconds (OOC) - Self: Play emote 1');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 179908 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 179908, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
--- Export supervisor SAI
-UPDATE `creature` SET `StringId`='npc_expert_supervisor_cosmetic' WHERE `guid` IN (@CGUID+170, @CGUID+128);
+ -- Market Patron smart ai
+SET @ENTRY := 180261;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 10, 1, 5, 6, 25, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play random emote: 1, 5, 6, 25,', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180228;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180228, 0, 0, 58, 1, 0, 0, 0, 'npc_expert_supervisor_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_expert_supervisor_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+120, @CGUID+125, @CGUID+114, @CGUID+110, @CGUID+148, @CGUID+108, @CGUID+106, @CGUID+118, @CGUID+138, @CGUID+153, @CGUID+171, @CGUID+178, @CGUID+185, @CGUID+199, @CGUID+202, @CGUID+186, @CGUID+189, @CGUID+187, @CGUID+188, @CGUID+190, @CGUID+192, @CGUID+230, @CGUID+232, @CGUID+252, @CGUID+247, @CGUID+239, @CGUID+261,  @CGUID+144, @CGUID+241);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180228 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180228, 0, 0, 0, '', 1, 0, 100, 0, 3000, 4000, 3000, 4000, 0, '', 5, 22, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Supervisor - Every 3 - 4 seconds (OOC) - Self: Play emote 22');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180261 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180261, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
--- Distressed Merchant SAI
-UPDATE `creature` SET `StringId`='npc_market_patron_cosmetic' WHERE `guid` IN (@CGUID+533, @CGUID+527, @CGUID+612, @CGUID+566, @CGUID+610, @CGUID+568, @CGUID+592, @CGUID+577);
+ -- Illicit Purveyor smart ai
+SET @ENTRY := 180320;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 10, 1, 5, 6, 25, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play random emote: 1, 5, 6, 25,', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=179908;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 179908, 0, 0, 58, 1, 0, 0, 0, 'npc_distressed_merchant_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_distressed_merchant_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticEmotes' WHERE `guid` IN (@CGUID+224, @CGUID+263, @CGUID+324, @CGUID+294, @CGUID+279);
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 179908 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179908, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 10, 1, 6, 273, 274, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Distressed Merchant - Every 3 - 10 seconds (OOC) - Self: Play random emote');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180320 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180320, 0, 0, 58, 1, 0, 0, 0, 'CosmeticEmotes', 0, 'Object has StringID CosmeticEmotes');
 
--- Market Patron SAI
-UPDATE `creature` SET `StringId`='npc_market_patron_cosmetic' WHERE `guid` IN (@CGUID+120, @CGUID+125, @CGUID+114, @CGUID+110, @CGUID+148, @CGUID+108, @CGUID+106, @CGUID+118, @CGUID+138, @CGUID+153, @CGUID+171, @CGUID+178, @CGUID+185, @CGUID+199, @CGUID+202, @CGUID+186, @CGUID+189, @CGUID+187, @CGUID+188, @CGUID+190, @CGUID+192, @CGUID+230, @CGUID+232, @CGUID+252, @CGUID+247, @CGUID+239, @CGUID+261,  @CGUID+144, @CGUID+241);
+-- Commerce Enforcer smart ai
+SET @ENTRY := 179842;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 1, 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, 5, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Play emote 1', ''),
+(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 128, 22905, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 3 - 10 seconds (OOC) - Self: Plays Anim with ID 22905', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180261;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180261, 0, 0, 58, 1, 0, 0, 0, 'npc_market_patron_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_market_patron_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticScript' WHERE `guid` = @CGUID+555;
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180261 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180261, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 10, 1, 5, 6, 25, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Market Patron - Every 3 - 10 seconds (OOC) - Self: Play random emote');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 179842 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 179842, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript', 0, 'Object has StringID CosmeticScript');
 
--- Illicit Purveyor SAI
-UPDATE `creature` SET `StringId`='npc_illicit_purveyor_cosmetic' WHERE `guid` IN (@CGUID+224, @CGUID+263, @CGUID+324, @CGUID+294, @CGUID+279);
+ -- Culinary Assistant smart ai
+SET @ENTRY := 180244;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (18024400, 18024401);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 34, 0, 100, 0, 2, 2, 0, 0, 0, 80, 18024400, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 2 - Self: Start timed action list id #Culinary Assistant #0 (18024400) (update out of combat) // -inline', ''),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 28, 356762, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Remove aura due to spell  356762', ''),
+(@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 5, 36, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Play emote 36', ''),
+(@ENTRY, 0, 1, 0, 34, 0, 100, 0, 2, 4, 0, 0, 0, 80, 18024401, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 4 - Self: Start timed action list id #Culinary Assistant #1 (18024401) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 17, 69, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Set emote state to 69', ''),
+(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 4 seconds - Self: Set emote state to 0', ''),
+(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 85, 356762, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 0 seconds - Self: Cast spell 356762 on self', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180320;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180320, 0, 0, 58, 1, 0, 0, 0, 'npc_illicit_purveyor_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_illicit_purveyor_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticScript' WHERE `guid` = @CGUID+132;
 
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 180320 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180320, 0, 0, 0, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 10, 1, 5, 6, 25, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Illicit Purveyor - Every 3 - 10 seconds (OOC) - Self: Play random emote');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180244 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180244, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript', 0, 'Object has StringID CosmeticScript'),
+(22, 2, 180244, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript', 0, 'Object has StringID CosmeticScript');
 
--- Commerce Enforcer SAI
-UPDATE `creature` SET `StringId`='npc_commerce_enforcer_cosmetic' WHERE `guid` = @CGUID+555;
+ -- Export Hauler smart ai
+SET @ENTRY := 180215;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (18021500, 18021501, 18021502, 18021503, 18021504);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 34, 0, 100, 0, 2, 0, 0, 0, 0, 85, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform - Self: Cast spell 356711 on self', ''),
+(@ENTRY, 0, 1, 0, 34, 0, 100, 0, 2, 4, 0, 0, 0, 80, 18021500, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 4 - Self: Start timed action list id #Export Hauler #0 (18021500) (update out of combat) // -inline', ''),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 28, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Remove aura due to spell  356711', ''),
+(@ENTRY, 0, 2, 0, 34, 0, 100, 0, 2, 19, 0, 0, 0, 85, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 19 - Self: Cast spell 356711 on self', ''),
+(@ENTRY, 0, 3, 0, 34, 0, 100, 0, 2, 8, 0, 0, 0, 80, 18021501, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 8 - Self: Start timed action list id #Export Hauler #1 (18021501) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 28, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Remove aura due to spell  356711', ''),
+(@ENTRY, 0, 4, 0, 34, 0, 100, 0, 2, 9, 0, 0, 0, 85, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 9 - Self: Cast spell 356711 on self', ''),
+(@ENTRY, 0, 5, 0, 34, 0, 100, 0, 2, 2, 0, 0, 0, 80, 18021502, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 2 - Self: Start timed action list id #Export Hauler #2 (18021502) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 2, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 28, 356711, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Remove aura due to spell  356711', ''),
+(@ENTRY, 0, 6, 0, 63, 0, 100, 0, 0, 0, 0, 0, 0, 17, 900, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Set emote state to 900', ''),
+(@ENTRY, 0, 7, 0, 34, 0, 100, 0, 2, 1, 0, 0, 0, 80, 18021503, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 1 - Self: Start timed action list id #Export Hauler #3 (18021503) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 3, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 3.47321, 'After 1 seconds - Self: Set orientation to 3.47321', ''),
+(@ENTRY * 100 + 3, 9, 1, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 180215, 20, 1, 0, 0, 0, 0, 'After 3 seconds - Creature Export Hauler (180215) in 20 yd: Set creature data #0 to 1', ''),
+(@ENTRY, 0, 8, 0, 34, 0, 100, 0, 2, 0, 0, 0, 0, 80, 18021504, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform - Self: Start timed action list id #Export Hauler #4 (18021504) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 4, 9, 0, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 66, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 4.29351, 'After 1 seconds - Self: Set orientation to 4.29351', ''),
+(@ENTRY * 100 + 4, 9, 1, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 0, 28, 356706, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 1 seconds - Self: Remove aura due to spell  356706', ''),
+(@ENTRY, 0, 9, 10, 38, 0, 100, 0, 0, 1, 0, 0, 0, 11, 356706, 0, 0, 0, 0, 0, 0, 11, 180215, 20, 1, 0, 0, 0, 0, 'On data[0] set to 1 - Self: Cast spell  356706 on Creature Export Hauler (180215) in 20 yd', ''),
+(@ENTRY, 0, 10, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[0] set to 1 - Self: Set data[0] to 0', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=179842;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 179842, 0, 0, 58, 1, 0, 0, 0, 'npc_commerce_enforcer_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_commerce_enforcer_cosmetic\'');
+UPDATE `creature` SET `StringId`='CosmeticScript1' WHERE `guid` = @CGUID+127;
+UPDATE `creature` SET `StringId`='CosmeticScript2' WHERE `guid` = @CGUID+168;
+UPDATE `creature` SET `StringId`='CosmeticScript3' WHERE `guid` = @CGUID+133;
+UPDATE `creature` SET `StringId`='CosmeticScript4' WHERE `guid` = @CGUID+172;
+UPDATE `creature` SET `StringId`='CosmeticScript5' WHERE `guid` = @CGUID+175;
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`=179842 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(179842, 0, 0, 1, '', 1, 0, 100, 0, 3000, 10000, 3000, 10000, 0, '', 5, 1, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Commerce Enforcer - Every 3 - 10 seconds (OOC) - Self: Play emote 1'),
-(179842, 0, 1, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 128, 22905, 1, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Commerce Enforcer - On Linked Play SetAIAnimKitId 22905');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180215 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript1', 0, 'Object has StringID CosmeticScript1'),
+(22, 2, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript1', 0, 'Object has StringID CosmeticScript1'),
+(22, 3, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript2', 0, 'Object has StringID CosmeticScript2'),
+(22, 4, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript2', 0, 'Object has StringID CosmeticScript2'),
+(22, 5, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript3', 0, 'Object has StringID CosmeticScript3'),
+(22, 6, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript3', 0, 'Object has StringID CosmeticScript3'),
+(22, 7, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript4', 0, 'Object has StringID CosmeticScript4'),
+(22, 8, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript4', 0, 'Object has StringID CosmeticScript4'),
+(22, 9, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript4', 0, 'Object has StringID CosmeticScript4'),
+(22, 10, 180215, 0, 0, 58, 1, 0, 0, 0, 'CosmeticScript5', 0, 'Object has StringID CosmeticScript5');
 
--- Culinary Assistant SAI
-UPDATE `creature` SET `StringId`='npc_culinary_assistant_cosmetic' WHERE `guid` = @CGUID+132;
+-- Cartel Muscle smart ai
+SET @ENTRY := 180348;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (18034800, 18034801);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 34, 0, 100, 0, 2, 8, 0, 0, 0, 80, 18034800, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 8 - Self: Start timed action list id #Cartel Muscle #0 (18034800) (update out of combat) // -inline', ''),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 12000, 12000, 0, 0, 0, 85, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 12 seconds - Self: Cast spell 357099 on self', ''),
+(@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 180335, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Smuggler (180335) in 20 yd: Set creature data #0 to 1', ''),
+(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 180336, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Wiseguy (180336) in 20 yd: Set creature data #0 to 1', ''),
+(@ENTRY, 0, 1, 0, 34, 0, 100, 0, 2, 24, 0, 0, 0, 80, 18034801, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 24 - Self: Start timed action list id #Cartel Muscle #1 (18034801) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 0, 28, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell  357099', ''),
+(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 11, 180335, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Smuggler (180335) in 20 yd: Set creature data #0 to 0', ''),
+(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 11, 180336, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Wiseguy (180336) in 20 yd: Set creature data #0 to 0', '');
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180244;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180244, 0, 0, 58, 1, 0, 0, 0, 'npc_culinary_assistant_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_culinary_assistant_cosmetic\''),
-(22, 2, 180244, 0, 0, 58, 1, 0, 0, 0, 'npc_culinary_assistant_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_culinary_assistant_cosmetic\'');
-
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 180244 AND `source_type`=0 OR (`entryorguid` IN (180244 * 100, 180244 * 101) AND `source_type`= 9);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180244, 0, 0, 0, '', 34, 0, 100, 0, 2, 2, 0, 0, 0, '', 80, (180244 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - OnMovementInform PathID 2 - Run Actionlist - to self'),
-(180244, 0, 1, 0, '', 34, 0, 100, 0, 2, 4, 0, 0, 0, '', 80, (180244 * 101), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - OnMovementInform PathID 4 - Run Actionlist - to self'),
-((180244 * 100), 9, 0, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 28, 356762, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - On Action - Remove 356762'),
-((180244 * 100), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 5, 36, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - On Action - Play emote 36'),
-((180244 * 101), 9, 0, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 17, 69, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - On Action - Set emote state 69'),
-((180244 * 101), 9, 1, 0, '', 0, 0, 100, 0, 4000, 4000, 4000, 4000, 0, '', 17, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - On Action - Set emote state 0'),
-((180244 * 101), 9, 2, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 356762, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Culinary Assistant - On Action - Cast 356762');
-
--- Export Hauler SAI
-UPDATE `creature` SET `StringId`='npc_export_hauler_cosmetic_1' WHERE `guid` = @CGUID+127;
-UPDATE `creature` SET `StringId`='npc_export_hauler_cosmetic_2' WHERE `guid` = @CGUID+168;
-UPDATE `creature` SET `StringId`='npc_export_hauler_cosmetic_3' WHERE `guid` = @CGUID+133;
-UPDATE `creature` SET `StringId`='npc_export_hauler_cosmetic_4' WHERE `guid` = @CGUID+172;
-UPDATE `creature` SET `StringId`='npc_export_hauler_cosmetic_5' WHERE `guid` = @CGUID+175;
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180215;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_1', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_1\''),
-(22, 2, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_1', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_1\''),
-(22, 3, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_2', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_2\''),
-(22, 4, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_2', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_2\''),
-(22, 5, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_3', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_3\''),
-(22, 6, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_3', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_3\''),
-(22, 7, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_4', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_4\''),
-(22, 8, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_4', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_4\''),
-(22, 9, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_4', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_4\''),
-(22, 10, 180215, 0, 0, 58, 1, 0, 0, 0, 'npc_export_hauler_cosmetic_5', 0, 0, 0, '', 'Scripted creature has StringId \'npc_export_hauler_cosmetic_5\'');
-
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 180215 AND `source_type`=0 OR `entryorguid` IN ((180215 * 100), (180215 * 101), (180215 * 102), (180215 * 103), (180215 * 104)) AND `source_type`= 9;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180215, 0, 0, 0, '', 34, 0, 100, 0, 2, 0, 0, 0, 0, '', 85, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 0 - Cast 356711'),
-(180215, 0, 1, 0, '', 34, 0, 100, 0, 2, 4, 0, 0, 0, '', 80, (180215 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 4 - Run Actionlist - to self'),
-(180215, 0, 2, 0, '', 34, 0, 100, 0, 2, 19, 0, 0, 0, '', 85, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 19 - Cast 356711'),
-(180215, 0, 3, 0, '', 34, 0, 100, 0, 2, 8, 0, 0, 0, '', 80, (180215 * 101), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 8 - Run Actionlist - to self'),
-(180215, 0, 4, 0, '', 34, 0, 100, 0, 2, 9, 0, 0, 0, '', 85, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 19 - Cast 356711'),
-(180215, 0, 5, 0, '', 34, 0, 100, 0, 2, 2, 0, 0, 0, '', 80, (180215 * 102), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 8 - Run Actionlist - to self'),
-(180215, 0, 6, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 17, 900, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Just Created - Set Emotestate 900'),
-(180215, 0, 7, 0, '', 34, 0, 100, 0, 2, 1, 0, 0, 0, '', 80, (180215 * 103), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 1 - Run Actionlist - to self'),
-(180215, 0, 8, 0, '', 34, 0, 100, 0, 2, 0, 0, 0, 0, '', 80, (180215 * 104), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - OnMovementInform PathID 0 - Run Actionlist - to self'),
-(180215, 0, 9, 10, '', 38, 0, 100, 0, 0, 1, 0, 0, 0, '', 11, 356706, 0, 0, 0, 0, 0, 0, NULL, 11, 180215, 20, 1, 0, 'npc_export_hauler_cosmetic_4', 0, 0, 0, 0, 'Export Hauler - On Data Set 0 1 - Cast 356706'),
-(180215, 0, 10, 0, '', 61, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Linked - Set Data 0 0'),
-((180215 * 100), 9, 0, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 28, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Action - Remove 356711'),
-((180215 * 101), 9, 0, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 28, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Action - Remove 356711'),
-((180215 * 102), 9, 0, 0, '', 34, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 28, 356711, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Action - Remove 356711'),
-((180215 * 103), 9, 0, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 66, 0, 0, 0, 0, 0, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, 0, 0, 0, 3.473205, 'Export Hauler - On Action - Set Orientation'),
-((180215 * 103), 9, 1, 0, '', 0, 0, 100, 0, 3000, 3000, 3000, 3000, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 11, 180215, 20, 1, 0, 'npc_export_hauler_cosmetic_5', 0, 0, 0, 0, 'Export Hauler - On Action - Set Data 0 1'),
-((180215 * 104), 9, 0, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 66, 0, 0, 0, 0, 0, 0, 0, NULL, 8, 0, 0, 0, 0, NULL, 0, 0, 0, 4.293509, 'Export Hauler - On Action - Set Orientation'),
-((180215 * 104), 9, 1, 0, '', 0, 0, 100, 0, 1000, 1000, 1000, 1000, 0, '', 28, 356706, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Export Hauler - On Action - Remove 356711');
-
--- Cartel Muscle SAI
 UPDATE `creature` SET `StringId`='npc_cartel_muscle_cosmetic' WHERE `guid` = @CGUID+254;
 UPDATE `creature` SET `StringId`='npc_cartel_wiseguy_cosmetic' WHERE `guid` = @CGUID+255;
 UPDATE `creature` SET `StringId`='npc_cartel_smuggler_cosmetic' WHERE `guid` IN (@CGUID+256, @CGUID+257);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180348;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_muscle_cosmetic\''),
-(22, 2, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_muscle_cosmetic\'');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180348 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 'Object has StringID npc_cartel_muscle_cosmetic'),
+(22, 2, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 'Object has StringID npc_cartel_muscle_cosmetic');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 180348 AND `source_type`=0 OR `entryorguid` IN ((180348 * 100), (180348 * 101)) AND `source_type`= 9;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180348, 0, 0, 0, '', 34, 0, 100, 0, 2, 8, 0, 0, 0, '', 80, (180348 * 100), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Muscle - OnMovementInform PathID 8 - Run Actionlist - to self'),
-(180348, 0, 1, 0, '', 34, 0, 100, 0, 2, 24, 0, 0, 0, '', 80, (180348 * 101), 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Muscle - OnMovementInform PathID 24 - Run Actionlist - to self'),
-((180348 * 100), 9, 0, 0, '', 0, 0, 100, 0, 12000, 12000, 12000, 12000, 0, '', 85, 357099, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Muscle - On Action - Cast 357099'),
-((180348 * 100), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 11, 180335, 20, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 0, 0, 0, 'Cartel Muscle - On Action - Set Data 0 1'),
-((180348 * 100), 9, 2, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 1, 0, 0, 0, 0, 0, NULL, 11, 180336, 20, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 0, 0, 0, 'Cartel Muscle - On Action - Set Data 0 1'),
-((180348 * 101), 9, 0, 0, '', 0, 0, 100, 0, 10000, 10000, 10000, 10000, 0, '', 28, 357099, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Muscle - On Action - Remove 357099'),
-((180348 * 101), 9, 1, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 0, 0, 0, 0, 0, 0, NULL, 11, 180335, 20, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 0, 0, 0, 'Cartel Muscle - On Action - Set Data 0 0'),
-((180348 * 101), 9, 2, 0, '', 0, 0, 100, 0, 0, 0, 0, 0, 0, '', 45, 0, 0, 0, 0, 0, 0, 0, NULL, 11, 180336, 20, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 0, 0, 0, 'Cartel Muscle - On Action - Set Data 0 0');
+-- Cartel Wiseguy smart ai
+SET @ENTRY := 180336;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 38, 0, 100, 0, 0, 0, 0, 0, 0, 28, 357100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[0] set to 0 - Self: Remove aura due to spell  357100', ''),
+(@ENTRY, 0, 1, 0, 38, 0, 100, 0, 0, 1, 0, 0, 0, 11, 357100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[0] set to 1 - Self: Cast spell  357100 on Self', '');
 
--- Cartel Smuggler SAI
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180335;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_smuggler_cosmetic\''),
-(22, 2, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_smuggler_cosmetic\'');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180336 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 'Object has StringID npc_cartel_wiseguy_cosmetic'),
+(22, 2, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 'Object has StringID npc_cartel_wiseguy_cosmetic');
 
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 180335 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180335, 0, 0, 0, '', 38, 0, 100, 0, 0, 0, 0, 0, 0, '', 28, 357100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Smuggler - On Data Set 0 0 - Cast 357100'),
-(180335, 0, 1, 0, '', 38, 0, 100, 0, 0, 1, 0, 0, 0, '', 11, 357100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Smuggler - On Data Set 0 1 - Cast 357100');
+-- Cartel Smuggler smart ai
+SET @ENTRY := 180335;
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 38, 0, 100, 0, 0, 0, 0, 0, 0, 28, 357100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[0] set to 0 - Self: Remove aura due to spell  357100', ''),
+(@ENTRY, 0, 1, 0, 38, 0, 100, 0, 0, 1, 0, 0, 0, 11, 357100, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On data[0] set to 1 - Self: Cast spell  357100 on Self', '');
 
--- Cartel Wiseguy SAI
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=22 AND `SourceEntry`=180336;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(22, 1, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_wiseguy_cosmetic\''),
-(22, 2, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 0, 0, '', 'Scripted creature has StringId \'npc_cartel_wiseguy_cosmetic\'');
-
-DELETE FROM `smart_scripts` WHERE `entryorguid`= 180336 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(180336, 0, 0, 0, '', 38, 0, 100, 0, 0, 0, 0, 0, 0, '', 28, 357100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Wiseguy - On Data Set 0 0 - Cast 357100'),
-(180336, 0, 1, 0, '', 38, 0, 100, 0, 0, 1, 0, 0, 0, '', 11, 357100, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Cartel Wiseguy - On Data Set 0 1 - Cast 357100');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180335 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
+(22, 1, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 'Object has StringID npc_cartel_smuggler_cosmetic'),
+(22, 2, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 'Object has StringID npc_cartel_smuggler_cosmetic');
 
 -- TEXTS (missing BroadcastTextId)
 DELETE FROM `creature_text` WHERE `CreatureID`IN (180114, 180117);
