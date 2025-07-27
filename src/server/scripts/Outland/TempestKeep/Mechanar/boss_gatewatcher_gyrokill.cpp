@@ -25,7 +25,8 @@ enum GyroKillTexts
     SAY_AGGRO                       = 0,
     SAY_SLAY                        = 1,
     SAY_SAW_BLADES                  = 2,
-    SAY_DEATH                       = 3
+    SAY_DEATH                       = 3,
+    EMOTE_DEATH                     = 4
 };
 
 enum GyroKillSpells
@@ -50,7 +51,7 @@ struct boss_gatewatcher_gyrokill : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10s);
+        events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 15s, 25s);
         events.ScheduleEvent(EVENT_SAW_BLADE, 20s);
         events.ScheduleEvent(EVENT_SHADOW_POWER, 25s);
         Talk(SAY_AGGRO);
@@ -71,6 +72,7 @@ struct boss_gatewatcher_gyrokill : public BossAI
     {
         _JustDied();
         Talk(SAY_DEATH);
+        Talk(EMOTE_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
@@ -88,8 +90,8 @@ struct boss_gatewatcher_gyrokill : public BossAI
             switch (eventId)
             {
                 case EVENT_STREAM_OF_MACHINE_FLUID:
-                    DoCastVictim(SPELL_STREAM_OF_MACHINE_FLUID);
-                    events.Repeat(13s, 17s);
+                    DoCastSelf(SPELL_STREAM_OF_MACHINE_FLUID);
+                    events.Repeat(35s, 50s);
                     break;
                 case EVENT_SAW_BLADE:
                     DoCastVictim(SPELL_SAW_BLADE);
