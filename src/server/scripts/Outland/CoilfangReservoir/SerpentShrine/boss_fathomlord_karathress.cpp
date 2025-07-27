@@ -175,21 +175,20 @@ struct boss_fathomlord_karathress : public BossAI
 
             _blessingOfTides = true;
             bool canPerformEmote = true;
-            for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-                if (_advisors[i])
+            for (ObjectGuid advisorGuid : _advisors)
+            {
+                Creature* advisor = ObjectAccessor::GetCreature(*me, advisorGuid);
+                if (advisor && advisor->IsAlive())
                 {
-                    Creature* advisor = ObjectAccessor::GetCreature(*me, _advisors[i]);
-                    if (advisor && advisor->IsAlive())
-                    {
-                        advisor->CastSpell(advisor, SPELL_BLESSING_OF_THE_TIDES, true);
+                    advisor->CastSpell(advisor, SPELL_BLESSING_OF_THE_TIDES, true);
 
-                        if (canPerformEmote)
-                        {
-                            Talk(SAY_GAIN_BLESSING);
-                            canPerformEmote = false;
-                        }
+                    if (canPerformEmote)
+                    {
+                        Talk(SAY_GAIN_BLESSING);
+                        canPerformEmote = false;
                     }
                 }
+            }
         }
     }
 
