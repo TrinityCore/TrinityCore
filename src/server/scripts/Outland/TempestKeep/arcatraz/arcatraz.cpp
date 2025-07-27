@@ -21,10 +21,12 @@
 
 #include "ScriptMgr.h"
 #include "arcatraz.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum MillhouseTexts
 {
@@ -680,8 +682,50 @@ private:
     bool _inProgress;
 };
 
+enum ChaosBreath
+{
+    SPELL_NECROTIC_POISON     = 36693,
+    SPELL_CORROSIVE_POISON    = 36694,
+    SPELL_FEVERED_FATIGUE     = 36695,
+    SPELL_WITHERED_TOUCH      = 36696,
+    SPELL_SHRINK              = 36697,
+    SPELL_PIERCING_SHADOW     = 36698,
+    SPELL_WAVERING_WILL       = 36699,
+    SPELL_HEX                 = 36700
+};
+
+// 36677 - Chaos Breath
+class spell_arcatraz_chaos_breath : public SpellScript
+{
+    PrepareSpellScript(spell_arcatraz_chaos_breath);
+
+    static constexpr std::array<uint32, 8> PossibleSpells = { SPELL_NECROTIC_POISON, SPELL_CORROSIVE_POISON, SPELL_FEVERED_FATIGUE, SPELL_WITHERED_TOUCH, SPELL_SHRINK, SPELL_PIERCING_SHADOW, SPELL_WAVERING_WILL, SPELL_HEX };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(PossibleSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        std::array<uint32, 8> spellsToCast = PossibleSpells;
+
+        Trinity::Containers::RandomShuffle(spellsToCast);
+
+        for (uint8 i = 0; i < 3; ++i)
+            caster->CastSpell(caster, spellsToCast[i]);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_arcatraz_chaos_breath::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_arcatraz()
 {
     RegisterArcatrazCreatureAI(npc_millhouse_manastorm);
     RegisterArcatrazCreatureAI(npc_warden_mellichar);
+    RegisterSpellScript(spell_arcatraz_chaos_breath);
 }
