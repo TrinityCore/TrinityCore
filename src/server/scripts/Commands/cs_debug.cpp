@@ -1186,7 +1186,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra)
+    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra, Optional<uint32> moveFlagsExtra2)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1199,12 +1199,13 @@ public:
         }
         else
         {
-            /// @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
+            target->SetUnitMovementFlags(*moveFlags);
 
             if (moveFlagsExtra)
-            {
                 target->SetExtraUnitMovementFlags(*moveFlagsExtra);
-            }
+
+            if (moveFlagsExtra2)
+                target->SetExtraUnitMovementFlags2(*moveFlagsExtra2);
 
             if (target->GetTypeId() != TYPEID_PLAYER)
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
