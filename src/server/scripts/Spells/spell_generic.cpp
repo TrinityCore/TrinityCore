@@ -3041,12 +3041,9 @@ class spell_gen_running_wild : public SpellScript
         return ValidateSpellInfo({ SPELL_ALTERED_FORM });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
-        // Definitely not a good thing, but currently the only way to do something at cast start
-        // Should be replaced as soon as possible with a new hook: BeforeCastStart
         GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
-        return false;
     }
 
     void Register() override
