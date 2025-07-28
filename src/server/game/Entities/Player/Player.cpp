@@ -9911,6 +9911,38 @@ void Player::SetInventorySlotCount(uint8 slots)
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBackpackSlots), slots);
 }
 
+bool Player::HasBagAnyPriorityFlag(uint8 bagSlot)
+{
+    if (GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityConsumables))
+        return true;
+    if (GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityEquipment))
+        return true;
+    if (GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityJunk))
+        return true;
+    if (GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityQuestItems))
+        return true;
+    if (GetBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityTradeGoods))
+        return true;
+
+    return false;
+}
+
+bool Player::HasBankBagAnyPriorityFlag(uint8 bagSlot)
+{
+    if (GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityConsumables))
+        return true;
+    if (GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityEquipment))
+        return true;
+    if (GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityJunk))
+        return true;
+    if (GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityQuestItems))
+        return true;
+    if (GetBankBagSlotFlags(bagSlot).HasFlag(BagSlotFlags::PriorityTradeGoods))
+        return true;
+
+    return false;
+}
+
 bool Player::HasItemCount(uint32 item, uint32 count, bool inBankAlso) const
 {
     ItemSearchLocation location = ItemSearchLocation::Equipment | ItemSearchLocation::Inventory | ItemSearchLocation::ReagentBank;
@@ -10066,6 +10098,302 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& des
         return EQUIP_ERR_ITEM_NOT_FOUND;
     uint32 count = pItem->GetCount();
     return CanStoreItem(bag, slot, dest, pItem->GetEntry(), count, pItem, swap, nullptr);
+}
+
+void Player::StoreItemInBag(Item* item)
+{
+    if (!item)
+        return;
+    uint32 itemQuality = item->GetQuality();
+    uint32 itemClass = item->GetTemplate()->GetClass();
+    ItemPosCountVec dest;
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
+    if (itemQuality != ITEM_QUALITY_POOR)
+    {
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            Bag* pbag = GetBagByPos(i);
+            if (pbag)
+            {
+                if (GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityEquipment)
+                    && (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON))
+                {
+                    if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityConsumables) && itemClass == ITEM_CLASS_CONSUMABLE)
+                {
+                    if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityQuestItems) && itemClass == ITEM_CLASS_QUEST)
+                {
+                    if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityTradeGoods) && itemClass == ITEM_CLASS_TRADE_GOODS)
+                {
+                    if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+        {
+            StoreItem(dest, item, true);
+            return;
+        }
+
+        for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+        {
+            Bag* pbag = GetBagByPos(i);
+            if (pbag)
+            {
+                if (HasBagAnyPriorityFlag(i - INVENTORY_SLOT_BAG_START)) //to ignore the flagged bags
+                    continue;
+                if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    StoreItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+    else //for junk
+    {
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = INVENTORY_SLOT_BAG_END - 1; i >= INVENTORY_SLOT_BAG_START; --i)
+        {
+            Bag* pbag = GetBagByPos(i);
+            if (pbag)
+            {
+                if (GetBagSlotFlags(i - INVENTORY_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityJunk))
+                    for (uint8 j = GetBagSize(pbag); j > 0; j--)
+                    {
+                        if (CanStoreItem(i, j - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                        {
+                            StoreItem(dest, item, true);
+                            return;
+                        }
+                    }
+            }
+        }
+
+        for (uint8 i = INVENTORY_SLOT_BAG_END - 1; i >= INVENTORY_SLOT_BAG_START; --i)
+        {
+            Bag* pbag = GetBagByPos(i);
+            if (pbag)
+            {
+                if (HasBagAnyPriorityFlag(i - INVENTORY_SLOT_BAG_START)) //to ignore the flagged bags
+                    continue;
+                for (uint8 j = GetBagSize(pbag); j > 0; j--)
+                {
+                    if (CanStoreItem(i, j - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        StoreItem(dest, item, true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        uint8 endbackpackSlot = INVENTORY_SLOT_ITEM_START + GetInventorySlotCount();
+        for (uint8 i = endbackpackSlot; i > 0; i--)
+        {
+            if (CanStoreItem(INVENTORY_SLOT_BAG_0, i - 1, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                StoreItem(dest, item, true);
+                return;
+            }
+        }
+
+    }
+
+    //In case we don't have any place in other bags we store in all the remaining bags
+    if (CanStoreItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        StoreItem(dest, item, true);
+        return;
+    }
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+    {
+        Bag* pbag = GetBagByPos(i);
+        if (pbag)
+        {
+            if (CanStoreItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                StoreItem(dest, item, true);
+                return;
+            }
+        }
+    }
+}
+
+void Player::StoreItemInBank(Item* item)
+{
+    if (!item)
+        return;
+
+    uint32 itemQuality = item->GetQuality();
+    uint32 itemClass = item->GetTemplate()->GetClass();
+    ItemPosCountVec dest;
+
+    //Then we check all the bags + inventory. But we don't want to store items in flagged bags
+    if (itemQuality != ITEM_QUALITY_POOR)
+    {
+        //First we prioritize the bag with Priority flags
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = GetBagByPos(i);
+            if (pBag)
+            {
+                if (GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::DisableAutoSort))
+                    continue;
+                if (GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityEquipment)
+                    && (itemClass == ITEM_CLASS_ARMOR || itemClass == ITEM_CLASS_WEAPON))
+                {
+                    if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityConsumables) && itemClass == ITEM_CLASS_CONSUMABLE)
+                {
+                    if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityQuestItems) && itemClass == ITEM_CLASS_QUEST)
+                {
+                    if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        BankItem(dest, item, true);
+                        return;
+                    }
+                }
+                if (GetBankBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityTradeGoods) && itemClass == ITEM_CLASS_TRADE_GOODS)
+                {
+                    if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        BankItem(dest, item, true);
+                        return;
+                    }
+                }
+            }
+        }
+        if (CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+        {
+            BankItem(dest, item, true);
+            return;
+        }
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = GetBagByPos(i);
+            if (pBag)
+            {
+                if (HasBankBagAnyPriorityFlag(i - BANK_SLOT_BAG_START))
+                    continue;
+
+                if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    BankItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+    }
+    else //for junk
+    {
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = GetBagByPos(i);
+            if (pBag)
+            {
+                if (GetBagSlotFlags(i - BANK_SLOT_BAG_START).HasFlag(BagSlotFlags::PriorityJunk))
+                    if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                    {
+                        BankItem(dest, item, true);
+                        return;
+                    }
+            }
+        }
+
+        for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+        {
+            Bag* pBag = GetBagByPos(i);
+            if (pBag)
+            {
+                if (HasBankBagAnyPriorityFlag(i - BANK_SLOT_BAG_START))
+                    continue;
+                if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+                {
+                    BankItem(dest, item, true);
+                    return;
+                }
+            }
+        }
+
+        for (uint8 slot = BANK_SLOT_ITEM_END - 1; slot >= BANK_SLOT_ITEM_START; slot--)
+        {
+            if (CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                BankItem(dest, item, true);
+                return;
+            }
+        }
+    }
+
+    //In case we don't have any place in other bags we store in all the remaining bags
+    if (CanBankItem(INVENTORY_SLOT_BAG_0, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        BankItem(dest, item, true);
+        return;
+    }
+
+    for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    {
+        Bag* pBag = GetBagByPos(i);
+        if (pBag)
+        {
+            if (CanBankItem(i, NULL_SLOT, dest, item, false) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+            {
+                BankItem(dest, item, true);
+                return;
+            }
+        }
+    }
+}
+
+void Player::StoreItemInReagentBank(Item* item)
+{
+    if (!item)
+        return;
+
+    ItemPosCountVec dest;
+    if (CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true) == EQUIP_ERR_OK && !(dest.size() == 1 && dest[0].pos == item->GetPos()))
+    {
+        BankItem(dest, item, true);
+        return;
+    }
 }
 
 bool Player::HasItemTotemCategory(uint32 TotemCategory) const
