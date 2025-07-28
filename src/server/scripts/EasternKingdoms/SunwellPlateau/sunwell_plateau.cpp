@@ -17,8 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Unit.h"
 #include "sunwell_plateau.h"
 
 enum CataclysmBreath
@@ -52,7 +52,7 @@ class spell_sunwell_plateau_cataclysm_breath : public SpellScript
 
         Trinity::Containers::RandomShuffle(spellsToCast);
 
-        for (uint8 i = 0; i < 4; ++i)
+        for (uint32 i = 0; i < 4; ++i)
             caster->CastSpell(caster, spellsToCast[i]);
     }
 
