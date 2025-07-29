@@ -76,6 +76,7 @@ struct TC_SHARED_API Realm
     uint8 Timezone;
     AccountTypes AllowedSecurityLevel;
     float PopulationLevel;
+    uint32 groupId;
 
     boost::asio::ip::tcp_endpoint GetAddressForClient(boost::asio::ip::address const& clientAddr) const;
 };

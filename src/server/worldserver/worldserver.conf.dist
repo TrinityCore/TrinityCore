@@ -66,6 +66,12 @@
 
 RealmID = 1
 
+#    RealmGroupID
+#        Description: Realm group ID used for Shared Names system
+#        Default:     0
+
+RealmGroupID = 0
+
 #
 #    DataDir
 #        Description: Data directory setting.

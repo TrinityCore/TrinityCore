@@ -669,6 +669,7 @@ bool StartDB()
         TC_LOG_ERROR("server.worldserver", "Realm ID not defined in configuration file");
         return false;
     }
+    realm.groupId = sConfigMgr->GetIntDefault("RealmGroupID", 0);
 
     TC_LOG_INFO("server.worldserver", "Realm running as realm ID {}", realm.Id.Realm);
 

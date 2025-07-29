@@ -585,4 +585,12 @@ std::string GetTypeName(T&& v)
 }
 }
 
+// implementation of std::to_underlying from c++23
+// casts enum value to its underlying type
+template<typename E>
+constexpr auto to_underlying(E e) -> std::underlying_type_t<E>
+{
+    return static_cast<std::underlying_type_t<E>>(e);
+}
+
 #endif

@@ -53,6 +53,7 @@
 #include "SystemPackets.h"
 #include "QueryHolder.h"
 #include "World.h"
+#include "SharedNamesMgr.h"
 
 class LoginQueryHolder : public CharacterDatabaseQueryHolder
 {
@@ -410,6 +411,15 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
     stmt->setString(0, createInfo->Name);
 
     _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
+        .WithChainingPreparedCallback([this, name = createInfo->Name](QueryCallback& queryCallback, PreparedQueryResult result)
+    {
+        if (result)
+        {
+            SendCharCreate(CHAR_CREATE_NAME_IN_USE);
+            return;
+        }
+        queryCallback.SetNextQuery(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::PlayerName, name));
+    })
         .WithChainingPreparedCallback([this](QueryCallback& queryCallback, PreparedQueryResult result)
     {
         if (result)
@@ -606,6 +616,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
                     sCharacterCache->AddCharacterCacheEntry(newChar->GetGUID(), GetAccountId(), newChar->GetName(), newChar->GetNativeGender(), newChar->GetRace(), newChar->GetClass(), newChar->GetLevel());
 
                     SendCharCreate(CHAR_CREATE_SUCCESS);
+                    sSharedNamesMgr.AddSharedName(SharedNameType::PlayerName, newChar->GetName(), newChar->GetGUID().GetCounter());
                 }
                 else
                     SendCharCreate(CHAR_CREATE_ERROR);
@@ -694,6 +705,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     Player::DeleteFromDB(guid, accountId);
 
     SendCharDelete(CHAR_DELETE_SUCCESS);
+    sSharedNamesMgr.DeleteSharedName(SharedNameType::PlayerName, guid.GetCounter());
 }
 
 void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
@@ -1126,16 +1138,25 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recvData)
         return;
     }
 
-    // Ensure that the character belongs to the current account, that rename at login is enabled
-    // and that there is no character with the desired new name
-    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
+    _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::PlayerName, renameInfo->Name).
+        WithChainingPreparedCallback([this, renameInfo](QueryCallback& queryCallback, PreparedQueryResult result)
+    {
+        if (result)
+        {
+            SendCharRename(CHAR_CREATE_NAME_IN_USE, renameInfo.get());
+            return;
+        }
 
-    stmt->setUInt32(0, renameInfo->Guid.GetCounter());
-    stmt->setUInt32(1, GetAccountId());
-    stmt->setString(2, renameInfo->Name);
+        // Ensure that the character belongs to the current account, that rename at login is enabled
+        // and that there is no character with the desired new name
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_FREE_NAME);
 
-    _queryProcessor.AddCallback(CharacterDatabase.AsyncQuery(stmt)
-        .WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallBack, this, renameInfo, std::placeholders::_1)));
+        stmt->setUInt32(0, renameInfo->Guid.GetCounter());
+        stmt->setUInt32(1, GetAccountId());
+        stmt->setString(2, renameInfo->Name);
+
+        queryCallback.SetNextQuery(CharacterDatabase.AsyncQuery(stmt));
+    }).WithPreparedCallback(std::bind(&WorldSession::HandleCharRenameCallBack, this, renameInfo, std::placeholders::_1)));
 }
 
 void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo> renameInfo, PreparedQueryResult result)
@@ -1183,6 +1204,7 @@ void WorldSession::HandleCharRenameCallBack(std::shared_ptr<CharacterRenameInfo>
     SendCharRename(RESPONSE_SUCCESS, renameInfo.get());
 
     sCharacterCache->UpdateCharacterData(renameInfo->Guid, renameInfo->Name);
+    sSharedNamesMgr.UpdateSharedName(SharedNameType::PlayerName, renameInfo->Name, renameInfo->Guid.GetCounter());
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)

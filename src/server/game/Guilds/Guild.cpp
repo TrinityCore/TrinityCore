@@ -38,6 +38,7 @@
 #include "World.h"
 #include "WorldSession.h"
 #include <boost/iterator/counting_iterator.hpp>
+#include <SharedNamesMgr.h>
 
 size_t const MAX_GUILD_BANK_TAB_TEXT_LEN = 500;
 
@@ -1135,6 +1136,7 @@ bool Guild::Create(Player* pLeader, std::string_view name)
     if (ret)
         sScriptMgr->OnGuildCreate(this, pLeader, m_name);
 
+    sSharedNamesMgr.AddSharedName(SharedNameType::Guild, m_name, m_id);
     return ret;
 }
 
@@ -1186,6 +1188,7 @@ void Guild::Disband()
     trans->Append(stmt);
 
     CharacterDatabase.CommitTransaction(trans);
+    sSharedNamesMgr.DeleteSharedName(SharedNameType::Guild, m_id);
     sGuildMgr->RemoveGuild(m_id);
 }
 
@@ -2322,7 +2325,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     if (!isDisbanding)
         _UpdateAccountsNumber();
 
-    if (m_members.empty())
+    if (m_members.empty() && !isDisbanding)
     {
         Disband();
         return true;

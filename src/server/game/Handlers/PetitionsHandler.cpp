@@ -33,6 +33,7 @@
 #include "PetitionMgr.h"
 #include "WorldPacket.h"
 #include "World.h"
+#include "SharedNamesMgr.h"
 
 #define CHARTER_DISPLAY_ID 16161
 
@@ -44,6 +45,42 @@ enum CharterItemIDs
     ARENA_TEAM_CHARTER_3v3                        = 23561,
     ARENA_TEAM_CHARTER_5v5                        = 23562
 };
+
+void FinalizePetitionBuy(Player* player, uint32 charterid, ItemTemplate const* pProto, uint32 cost, std::string& name, CharterTypes type)
+{
+    ItemPosCountVec dest;
+    InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
+    if (msg != EQUIP_ERR_OK)
+    {
+        player->SendEquipError(msg, nullptr, nullptr, charterid);
+        return;
+    }
+
+    player->ModifyMoney(-(int32)cost);
+    Item* charter = player->StoreNewItem(dest, charterid, true);
+    if (!charter)
+        return;
+
+    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUID().GetCounter());
+    // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
+    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
+    charter->SetState(ITEM_CHANGED, player);
+    player->SendNewItem(charter, 1, true, false);
+
+    // a petition is invalid, if both the owner and the type matches
+    // we checked above, if this player is in an arenateam, so this must be
+    // datacorruption
+    CharacterDatabase.EscapeString(name);
+    if (Petition const* petition = sPetitionMgr->GetPetitionByOwnerWithType(player->GetGUID(), type))
+    {
+        // clear from petition store
+        sPetitionMgr->RemovePetition(petition->PetitionGuid);
+        TC_LOG_DEBUG("network", "Invalid petition {}", petition->PetitionGuid.ToString());
+    }
+
+    // fill petition store
+    sPetitionMgr->AddPetition(charter->GetGUID(), player->GetGUID(), name, type, false);
+}
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {
@@ -183,38 +220,22 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         return;
     }
 
-    ItemPosCountVec dest;
-    InventoryResult msg = _player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, charterid, pProto->BuyCount);
-    if (msg != EQUIP_ERR_OK)
+    if (type == GUILD_CHARTER_TYPE)
     {
-        _player->SendEquipError(msg, nullptr, nullptr, charterid);
+        _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, name)).
+            WithChainingPreparedCallback([this, charterid, pProto, cost, name, type](QueryCallback&, PreparedQueryResult result) mutable
+        {
+            if (result)
+            {
+                Guild::SendCommandResult(_player->GetSession(), GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
+                return;
+            }
+            FinalizePetitionBuy(_player, charterid, pProto, cost, name, type);
+        });
         return;
     }
 
-    _player->ModifyMoney(-(int32)cost);
-    Item* charter = _player->StoreNewItem(dest, charterid, true);
-    if (!charter)
-        return;
-
-    charter->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1, charter->GetGUID().GetCounter());
-    // ITEM_FIELD_ENCHANTMENT_1_1 is guild/arenateam id
-    // ITEM_FIELD_ENCHANTMENT_1_1+1 is current signatures count (showed on item)
-    charter->SetState(ITEM_CHANGED, _player);
-    _player->SendNewItem(charter, 1, true, false);
-
-    // a petition is invalid, if both the owner and the type matches
-    // we checked above, if this player is in an arenateam, so this must be
-    // datacorruption
-    CharacterDatabase.EscapeString(name);
-    if (Petition const* petition = sPetitionMgr->GetPetitionByOwnerWithType(_player->GetGUID(), type))
-    {
-        // clear from petition store
-        sPetitionMgr->RemovePetition(petition->PetitionGuid);
-        TC_LOG_DEBUG("network", "Invalid petition {}", petition->PetitionGuid.ToString());
-    }
-
-    // fill petition store
-    sPetitionMgr->AddPetition(charter->GetGUID(), _player->GetGUID(), name, type, false);
+    FinalizePetitionBuy(_player, charterid, pProto, cost, name, type);
 }
 
 void WorldSession::HandlePetitionShowSignatures(WorldPacket& recvData)
@@ -319,6 +340,27 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
     SendPacket(&data);
 }
 
+void FinalizePetitionRename(Player* player, std::string& newName, ObjectGuid const& petitionGuid)
+{
+    Petition* petition = sPetitionMgr->GetPetition(petitionGuid);
+    if (!petition)
+    {
+        TC_LOG_DEBUG("network", "CMSG_PETITION_QUERY failed for petition {}", petitionGuid.ToString());
+        return;
+    }
+
+    CharacterDatabase.EscapeString(newName);
+
+    // update petition storage
+    petition->UpdateName(newName);
+
+    TC_LOG_DEBUG("network", "Petition {} renamed to '{}'", petitionGuid.ToString(), newName);
+    WorldPacket data(MSG_PETITION_RENAME, (8 + newName.size() + 1));
+    data << uint64(petitionGuid);
+    data << newName;
+    player->GetSession()->SendPacket(&data);
+}
+
 void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode MSG_PETITION_RENAME");
@@ -368,16 +410,22 @@ void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
         }
     }
 
-    CharacterDatabase.EscapeString(newName);
+    if (type == GUILD_CHARTER_TYPE)
+    {
+        _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, newName)).
+            WithChainingPreparedCallback([this, newName, petitionGuid](QueryCallback&, PreparedQueryResult result) mutable
+        {
+            if (result)
+            {
+                Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, newName);
+                return;
+            }
+            FinalizePetitionRename(_player, newName, petitionGuid);
+        });
+        return;
+    }
 
-    // update petition storage
-    petition->UpdateName(newName);
-
-    TC_LOG_DEBUG("network", "Petition {} renamed to '{}'", petitionGuid.ToString(), newName);
-    WorldPacket data(MSG_PETITION_RENAME, (8+newName.size()+1));
-    data << uint64(petitionGuid);
-    data << newName;
-    SendPacket(&data);
+    FinalizePetitionRename(_player, newName, petitionGuid);
 }
 
 void WorldSession::HandleSignPetition(WorldPacket& recvData)
@@ -586,6 +634,43 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
     SendPetitionSigns(petition, player);
 }
 
+void FinalizeGuildPetitionTurnIn(Player* player, std::string const& name, SignaturesVector const& signatures, ObjectGuid const& petitionGuid)
+{
+    // Create guild
+    Guild* guild = new Guild;
+
+    if (!guild->Create(player, name))
+    {
+        delete guild;
+        return;
+    }
+
+    // Register guild and add guild master
+    sGuildMgr->AddGuild(guild);
+
+    Guild::SendCommandResult(player->GetSession(), GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
+
+    {
+        CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+        // Add members from signatures
+        for (Signature const& signature : signatures)
+            guild->AddMember(trans, signature.second);
+
+        CharacterDatabase.CommitTransaction(trans);
+    }
+
+    sPetitionMgr->RemovePetition(petitionGuid);
+
+    // created
+    TC_LOG_DEBUG("network", "Player {} ({}) turning in petition {}", player->GetName(), player->GetGUID().ToString(), petitionGuid.ToString());
+
+    WorldPacket data;
+    data.Initialize(SMSG_TURN_IN_PETITION_RESULTS, 4);
+    data << (uint32)PETITION_TURN_OK;
+    player->GetSession()->SendPacket(&data);
+}
+
 void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 {
     TC_LOG_DEBUG("network", "Received opcode CMSG_TURN_IN_PETITION");
@@ -674,37 +759,30 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 
     // Proceed with guild/arena team creation
 
-    // Delete charter item
-    _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
-
     if (type == GUILD_CHARTER_TYPE)
     {
-        // Create guild
-        Guild* guild = new Guild;
-
-        if (!guild->Create(_player, name))
+        _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, name)).
+            WithChainingPreparedCallback([&, name, signatures, petitionGuid](QueryCallback&, PreparedQueryResult result)
         {
-            delete guild;
-            return;
-        }
+            if (result)
+            {
+                Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
+                return;
+            }
 
-        // Register guild and add guild master
-        sGuildMgr->AddGuild(guild);
+            // Delete charter item
+            _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 
-        Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_COMMAND_SUCCESS, name);
-
-        {
-            CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-
-            // Add members from signatures
-            for (Signature const& signature : signatures)
-                guild->AddMember(trans, signature.second);
-
-            CharacterDatabase.CommitTransaction(trans);
-        }
+            FinalizeGuildPetitionTurnIn(_player, name, signatures, petitionGuid);
+        });
+        
+        return;
     }
     else
     {
+        // Delete charter item
+        _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+
         // Receive the rest of the packet in arena team creation case
         uint32 background, icon, iconcolor, border, bordercolor;
         recvData >> background >> icon >> iconcolor >> border >> bordercolor;

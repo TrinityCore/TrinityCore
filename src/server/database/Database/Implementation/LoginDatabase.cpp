@@ -120,6 +120,12 @@ void LoginDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(LOGIN_SEL_ACCOUNT_TOTP_SECRET, "SELECT totp_secret FROM account WHERE id = ?", CONNECTION_SYNCH);
     PrepareStatement(LOGIN_UPD_ACCOUNT_TOTP_SECRET, "UPDATE account SET totp_secret = ? WHERE id = ?", CONNECTION_ASYNC);
+
+    // Shared Names
+    PrepareStatement(LOGIN_INS_SHARED_NAMES, "INSERT INTO `shared_names`(`type`, `guid`, `name`, `realmId`, `realmGroupId`) VALUES (?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_SHARED_NAMES_BY_NAME, "SELECT 1 FROM `shared_names` WHERE `type` = ? AND `name` = ? AND `realmGroupId` = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_SHARED_NAMES_BY_GUID, "DELETE FROM `shared_names` WHERE `type` = ? AND `guid` = ? AND `realmId` = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_UPD_SHARED_NAME_BY_GUID, "UPDATE `shared_names` SET `name` = ? WHERE `type` = ? AND `guid` = ? AND `realmId` = ?", CONNECTION_ASYNC);
 }
 
 LoginDatabaseConnection::LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

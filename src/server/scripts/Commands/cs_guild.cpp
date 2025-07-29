@@ -32,6 +32,9 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "WorldSession.h"
+#include "SharedNamesMgr.h"
+#include "QueryCallback.h"
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -111,16 +114,35 @@ public:
             return false;
         }
 
-        Guild* guild = new Guild;
-        if (!guild->Create(target, guildName))
+        handler->GetSession()->GetQueryProcessor().AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, guildName))
+            .WithChainingPreparedCallback([session = handler->GetSession(), guildName, leaderGuid = target->GetGUID()](QueryCallback&, PreparedQueryResult result)
         {
-            delete guild;
-            handler->SendSysMessage(LANG_GUILD_NOT_CREATED);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+            ChatHandler handler(session);
 
-        sGuildMgr->AddGuild(guild);
+            if (result)
+            {
+                handler.PSendSysMessage(LANG_GUILD_RENAME_ALREADY_EXISTS, guildName);
+                handler.SetSentErrorMessage(true);
+                return;
+            }
+
+            Player* leader = ObjectAccessor::FindConnectedPlayer(leaderGuid);
+            if (!leader)
+                return;
+
+            Guild* guild = new Guild;
+            if (!guild->Create(leader, guildName))
+            {
+                delete guild;
+                handler.SendSysMessage(LANG_GUILD_NOT_CREATED);
+                handler.SetSentErrorMessage(true);
+                return;
+            }
+
+            sGuildMgr->AddGuild(guild);
+            sSharedNamesMgr.AddSharedName(SharedNameType::Guild, guildName, guild->GetId());
+        });
+       
 
         return true;
     }
@@ -247,15 +269,37 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+        std::string oldNameS(oldGuildStr);
+        std::string newNameS(newGuildStr);
 
-        if (!guild->SetName(newGuildStr))
+        handler->GetSession()->GetQueryProcessor().AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, newGuildStr)).
+            WithChainingPreparedCallback([session = handler->GetSession(), oldName = oldNameS, newName = newNameS](QueryCallback&, PreparedQueryResult result)
         {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+            ChatHandler handler(session);
 
-        handler->PSendSysMessage(LANG_GUILD_RENAME_DONE, oldGuildStr, newGuildStr);
+            if (result)
+            {
+                handler.PSendSysMessage(LANG_GUILD_RENAME_ALREADY_EXISTS, newName);
+                handler.SetSentErrorMessage(true);
+                return;
+            }
+            Guild* guild = sGuildMgr->GetGuildByName(oldName);
+
+            if (!guild)
+                return;
+
+            if (!guild->SetName(newName))
+            {
+                handler.SendSysMessage(LANG_BAD_VALUE);
+                handler.SetSentErrorMessage(true);
+                return;
+            }
+
+            handler.PSendSysMessage(LANG_GUILD_RENAME_DONE, oldName, newName);
+            sSharedNamesMgr.UpdateSharedName(SharedNameType::Guild, newName, guild->GetId());
+        });
+
+        
         return true;
     }
 
