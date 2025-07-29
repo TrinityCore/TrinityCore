@@ -269,11 +269,9 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
-        std::string oldNameS(oldGuildStr);
-        std::string newNameS(newGuildStr);
 
         handler->GetSession()->GetQueryProcessor().AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, newGuildStr)).
-            WithChainingPreparedCallback([session = handler->GetSession(), oldName = oldNameS, newName = newNameS](QueryCallback&, PreparedQueryResult result)
+            WithChainingPreparedCallback([session = handler->GetSession(), oldName = std::string(oldGuildStr), newName = std::string(newGuildStr)](QueryCallback&, PreparedQueryResult result)
         {
             ChatHandler handler(session);
 

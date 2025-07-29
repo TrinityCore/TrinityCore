@@ -225,6 +225,9 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
         _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, name)).
             WithChainingPreparedCallback([this, charterid, pProto, cost, name, type](QueryCallback&, PreparedQueryResult result) mutable
         {
+            if (!_player)
+                return;
+
             if (result)
             {
                 Guild::SendCommandResult(_player->GetSession(), GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
@@ -415,6 +418,9 @@ void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
         _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, newName)).
             WithChainingPreparedCallback([this, newName, petitionGuid](QueryCallback&, PreparedQueryResult result) mutable
         {
+            if (!_player)
+                return;
+
             if (result)
             {
                 Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, newName);
@@ -764,6 +770,9 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
         _queryProcessor.AddCallback(sSharedNamesMgr.GetSharedNameCheckQueryCallback(SharedNameType::Guild, name)).
             WithChainingPreparedCallback([&, name, signatures, petitionGuid](QueryCallback&, PreparedQueryResult result)
         {
+            if (!_player)
+                return;
+
             if (result)
             {
                 Guild::SendCommandResult(this, GUILD_COMMAND_CREATE, ERR_GUILD_NAME_EXISTS_S, name);
@@ -771,7 +780,8 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
             }
 
             // Delete charter item
-            _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
+            if (Item const* petitionItem = _player->GetItemByGuid(petitionGuid))
+                _player->DestroyItem(petitionItem->GetBagSlot(), petitionItem->GetSlot(), true);
 
             FinalizeGuildPetitionTurnIn(_player, name, signatures, petitionGuid);
         });
