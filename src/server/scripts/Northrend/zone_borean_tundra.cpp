@@ -1949,6 +1949,36 @@ class spell_borean_tundra_land_mine_barrier : public SpellScript
     }
 };
 
+/*######
+## Quest 11681: Rescuing Evanor
+######*/
+
+enum RescuingEvanor
+{
+    SPELL_AMBER_LEDGE_TO_BERYL_POINT     = 45883
+};
+
+// 45992 - Taxi - Amber Ledge to Beryl Point Platform
+class spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_LEDGE_TO_BERYL_POINT });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_AMBER_LEDGE_TO_BERYL_POINT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1982,4 +2012,5 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_signal_alliance);
     RegisterSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
     RegisterSpellScript(spell_borean_tundra_land_mine_barrier);
+    RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
 }

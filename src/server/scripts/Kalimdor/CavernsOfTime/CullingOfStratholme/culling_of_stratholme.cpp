@@ -30,6 +30,7 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "ScriptMgr.h"
 #include "SplineChainMovementGenerator.h"
 #include "TemporarySummon.h"
@@ -1465,6 +1466,32 @@ public:
     }
 };
 
+enum TeleportToStratholme
+{
+    SPELL_TELEPORT_TO_COT_STRATHOLME     = 53436
+};
+
+// 53435 - Teleport to CoT Stratholme Phase 4
+class spell_cos_teleport_to_cot_stratholme_phase_4 : public SpellScript
+{
+    PrepareSpellScript(spell_cos_teleport_to_cot_stratholme_phase_4);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TELEPORT_TO_COT_STRATHOLME });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_TELEPORT_TO_COT_STRATHOLME);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_cos_teleport_to_cot_stratholme_phase_4::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_culling_of_stratholme()
 {
     new npc_hearthsinger_forresten_cot();
@@ -1480,4 +1507,6 @@ void AddSC_culling_of_stratholme()
     new npc_sergeant_morigan();
     new npc_roger_owens();
     new npc_crate_helper();
+
+    RegisterSpellScript(spell_cos_teleport_to_cot_stratholme_phase_4);
 }

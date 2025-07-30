@@ -112,3 +112,80 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (51068, 'spell_zuldrak_have_ingredient'),
 (51088, 'spell_zuldrak_have_ingredient'),
 (51094, 'spell_zuldrak_have_ingredient');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 52839;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_zuldrak_summon_escort_aura';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(52839, 'spell_zuldrak_summon_escort_aura');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 52989;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_zuldrak_akalis_stun';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(52989, 'spell_zuldrak_akalis_stun');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 53435;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_cos_teleport_to_cot_stratholme_phase_4';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(53435, 'spell_cos_teleport_to_cot_stratholme_phase_4');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -45992;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45992, 'spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -51221;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_fjord_taxi_to_explorers_league_outpost';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(51221, 'spell_fjord_taxi_to_explorers_league_outpost');
+
+-- Quest 12166
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 46770;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (26616,26643) AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(26616,0,0,0,8,0,100,1,46770,0,0,0,0,33,27111,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Blighted Elk - On Spellhit 'Liquid Fire of Elune' - Quest Credit 'The Liquid Fire of Elune'"),
+(26616,0,1,0,8,0,100,1,46770,0,0,0,0,11,47972,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Blighted Elk - On Spellhit 'Liquid Fire of Elune' - Cast 'The Liquid Fire of Elune: Blue Fire'"),
+(26616,0,2,0,8,0,100,1,46770,0,0,0,0,41,10000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Blighted Elk - On Spellhit 'Liquid Fire of Elune' - Despawn"),
+
+(26643,0,0,0,8,0,100,0,46770,0,0,0,0,33,27112,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Rabid Grizzly - On Spellhit 'Liquid Fire of Elune' - Quest Credit 'The Liquid Fire of Elune'"),
+(26643,0,1,0,8,0,100,0,46770,0,0,0,0,11,47972,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Rabid Grizzly - On Spellhit 'Liquid Fire of Elune' - Cast 'The Liquid Fire of Elune: Blue Fire'"),
+(26643,0,2,0,8,0,100,0,46770,0,0,0,0,41,10000,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Rabid Grizzly - On Spellhit 'Liquid Fire of Elune' - Despawn");
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 47190;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dragonblight_toaluus_spiritual_incense';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47190, 'spell_dragonblight_toaluus_spiritual_incense');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 61122;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_storm_peaks_contact_brann';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(61122, 'spell_storm_peaks_contact_brann');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 61121;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,61121,0,0,31,0,3,29579,0,0,0,0,"","Group 0: Spell 'Despawn Brann' targets creature 'Brann Bronzebeard'"),
+(13,1,61121,0,0,33,0,1,3,0,0,0,0,"","Group 0: Spell 'Despawn Brann' targets creature 'Brann Bronzebeard' if owned by spell caster");
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_gen_despawn_target' AND `spell_id` = 61121;
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(61121, 'spell_gen_despawn_target');
+
+-- Already scripted in SpellScript
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 66744;
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (31606,31746,-31773,-31774,-31775,-31776);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_zangarmarsh_stormcrow_amulet','spell_zangarmarsh_whisper_aura');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(31606, 'spell_zangarmarsh_stormcrow_amulet'),
+(31773, 'spell_zangarmarsh_whisper_aura'),
+(31774, 'spell_zangarmarsh_whisper_aura'),
+(31775, 'spell_zangarmarsh_whisper_aura'),
+(31776, 'spell_zangarmarsh_whisper_aura');

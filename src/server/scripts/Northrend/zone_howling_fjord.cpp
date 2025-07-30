@@ -749,6 +749,36 @@ class spell_fjord_failed_mix_concoction_2 : public SpellScript
     }
 };
 
+/*######
+## Quest 11448: The Explorers' League Outpost
+######*/
+
+enum TheExplorersLeagueOutpost
+{
+    SPELL_TAXI_TO_EXPLORERS_LEAGUE     = 44280
+};
+
+// 51221 - Taxi to Explorers' League Outpost
+class spell_fjord_taxi_to_explorers_league_outpost : public AuraScript
+{
+    PrepareAuraScript(spell_fjord_taxi_to_explorers_league_outpost);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TAXI_TO_EXPLORERS_LEAGUE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_TAXI_TO_EXPLORERS_LEAGUE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_taxi_to_explorers_league_outpost::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -769,4 +799,5 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_mixing_vrykul_blood);
     RegisterSpellScript(spell_fjord_failed_mix_concoction_1);
     RegisterSpellScript(spell_fjord_failed_mix_concoction_2);
+    RegisterSpellScript(spell_fjord_taxi_to_explorers_league_outpost);
 }

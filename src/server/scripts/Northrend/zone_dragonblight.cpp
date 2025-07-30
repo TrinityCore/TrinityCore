@@ -1035,6 +1035,36 @@ class spell_dragonblight_end_of_the_line_quest_completion_script : public SpellS
     }
 };
 
+/*######
+## Quest 12028: Spiritual Insight
+######*/
+
+enum SpiritualInsight
+{
+    SPELL_SPIRITUAL_INSIGHT     = 47189
+};
+
+// 47190 - Toalu'u's Spiritual Incense
+class spell_dragonblight_toaluus_spiritual_incense : public AuraScript
+{
+    PrepareAuraScript(spell_dragonblight_toaluus_spiritual_incense);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SPIRITUAL_INSIGHT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SPIRITUAL_INSIGHT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dragonblight_toaluus_spiritual_incense::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
@@ -1056,4 +1086,5 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_focus_on_the_beach_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
+    RegisterSpellScript(spell_dragonblight_toaluus_spiritual_incense);
 }
