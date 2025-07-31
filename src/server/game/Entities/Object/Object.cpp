@@ -3739,28 +3739,82 @@ void WorldObject::PlayObjectSound(int32 soundKitId, ObjectGuid targetObjectGUID,
         SendMessageToSet(pkt.Write(), true);
 }
 
+template <std::invocable<Player*> Work>
+struct WorldObjectVisibleChangeVisitor
+{
+    Work& work;
+
+    explicit WorldObjectVisibleChangeVisitor(Work& work_) : work(work_) { }
+
+    void Visit(PlayerMapType& m) const
+    {
+        for (GridReference<Player>& ref : m)
+        {
+            Player* source = ref.GetSource();
+
+            work(source);
+
+            for (Player* viewer : source->GetSharedVisionList())
+                work(viewer);
+        }
+    }
+
+    void Visit(CreatureMapType& m) const
+    {
+        for (GridReference<Creature>& ref : m)
+            for (Player* viewer : ref.GetSource()->GetSharedVisionList())
+                work(viewer);
+    }
+
+    void Visit(DynamicObjectMapType& m) const
+    {
+        for (GridReference<DynamicObject>& ref : m)
+        {
+            DynamicObject* source = ref.GetSource();
+            ObjectGuid guid = source->GetCasterGUID();
+
+            if (guid.IsPlayer())
+            {
+                //GetCaster() will be nullptr if DynObj is in removelist
+                if (Player* caster = ObjectAccessor::GetPlayer(*source, guid))
+                    if (*caster->m_activePlayerData->FarsightObject == source->GetGUID())
+                        work(caster);
+            }
+        }
+    }
+
+    template <class SKIP>
+    static void Visit(GridRefManager<SKIP> const&) { }
+};
+
+struct WorldObjectClientDestroyWork
+{
+    WorldObject* object;
+
+    void operator()(Player* player) const
+    {
+        if (player == object)
+            return;
+
+        if (!player->HaveAtClient(object))
+            return;
+
+        if (Unit const* unit = object->ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
+            return;
+
+        object->DestroyForPlayer(player);
+        player->m_clientGUIDs.erase(object->GetGUID());
+    }
+};
+
 void WorldObject::DestroyForNearbyPlayers()
 {
     if (!IsInWorld())
         return;
 
-    auto destroyer = [this](Player* player)
-    {
-        if (player == this)
-            return;
-
-        if (!player->HaveAtClient(this))
-            return;
-
-        if (Unit const* unit = ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
-            return;
-
-        DestroyForPlayer(player);
-        player->m_clientGUIDs.erase(GetGUID());
-    };
-
-    Trinity::PlayerDistWorker worker(this, GetVisibilityRange(), destroyer);
-    Cell::VisitWorldObjects(this, worker, GetVisibilityRange());
+    WorldObjectClientDestroyWork destroyer{ .object = this };
+    WorldObjectVisibleChangeVisitor visitor(destroyer);
+    Cell::VisitWorldObjects(this, visitor, GetVisibilityRange());
 }
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)
@@ -3775,77 +3829,23 @@ struct WorldObjectChangeAccumulator
 {
     UpdateDataMapType& i_updateDatas;
     WorldObject& i_object;
-    GuidSet plr_list;
+    GuidUnorderedSet plr_list;
     WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) { }
-    void Visit(PlayerMapType &m)
-    {
-        Player* source = nullptr;
-        for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
 
-            BuildPacket(source);
-
-            if (!source->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
-                for (; it != source->GetSharedVisionList().end(); ++it)
-                    BuildPacket(*it);
-            }
-        }
-    }
-
-    void Visit(CreatureMapType &m)
-    {
-        Creature* source = nullptr;
-        for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
-            if (!source->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
-                for (; it != source->GetSharedVisionList().end(); ++it)
-                    BuildPacket(*it);
-            }
-        }
-    }
-
-    void Visit(DynamicObjectMapType &m)
-    {
-        DynamicObject* source = nullptr;
-        for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
-            ObjectGuid guid = source->GetCasterGUID();
-
-            if (guid.IsPlayer())
-            {
-                //Caster may be nullptr if DynObj is in removelist
-                if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (*caster->m_activePlayerData->FarsightObject == source->GetGUID())
-                        BuildPacket(caster);
-            }
-        }
-    }
-
-    void BuildPacket(Player* player)
+    void operator()(Player* player)
     {
         // Only send update once to a player
-        if (plr_list.find(player->GetGUID()) == plr_list.end() && player->HaveAtClient(&i_object))
-        {
+        if (player->HaveAtClient(&i_object) && plr_list.insert(player->GetGUID()).second)
             i_object.BuildFieldsUpdate(player, i_updateDatas);
-            plr_list.insert(player->GetGUID());
-        }
     }
-
-    template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 };
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
     WorldObjectChangeAccumulator notifier(*this, data_map);
+    WorldObjectVisibleChangeVisitor visitor(notifier);
     //we must build packets for all visible players
-    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+    Cell::VisitWorldObjects(this, visitor, GetVisibilityRange());
 
     ClearUpdateMask(false);
 }
