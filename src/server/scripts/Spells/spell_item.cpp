@@ -116,38 +116,6 @@ class spell_item_aegis_of_preservation : public AuraScript
     }
 };
 
-enum ZezzaksShard
-{
-    SPELL_EYE_OF_GRILLOK = 38495
-};
-
-// 38554 - Absorb Eye of Grillok (31463: Zezzak's Shard)
-class spell_item_absorb_eye_of_grillok : public AuraScript
-{
-    PrepareAuraScript(spell_item_absorb_eye_of_grillok);
-
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
-    }
-
-    void PeriodicTick(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-
-        if (!GetCaster() || GetTarget()->GetTypeId() != TYPEID_UNIT)
-            return;
-
-        GetCaster()->CastSpell(GetCaster(), SPELL_EYE_OF_GRILLOK, aurEff);
-        GetTarget()->ToCreature()->DespawnOrUnsummon();
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_item_absorb_eye_of_grillok::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 enum AlchemistStone
 {
     SPELL_ALCHEMISTS_STONE_EXTRA_HEAL       = 21399,
@@ -2809,42 +2777,6 @@ class spell_magic_eater_food : public AuraScript
     }
 };
 
-enum PurifyHelboarMeat
-{
-    SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
-    SPELL_SUMMON_TOXIC_HELBOAR_MEAT         = 29278,
-};
-
-class spell_item_purify_helboar_meat : public SpellScript
-{
-    PrepareSpellScript(spell_item_purify_helboar_meat);
-
-    bool Load() override
-    {
-        return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-    }
-
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo(
-        {
-            SPELL_SUMMON_PURIFIED_HELBOAR_MEAT,
-            SPELL_SUMMON_TOXIC_HELBOAR_MEAT
-        });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true);
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_purify_helboar_meat::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
 enum NighInvulnerability
 {
     SPELL_NIGH_INVULNERABILITY                  = 30456,
@@ -2902,47 +2834,6 @@ class spell_item_poultryizer : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_item_poultryizer::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-enum SocretharsStone
-{
-    SPELL_SOCRETHAR_TO_SEAT     = 35743,
-    SPELL_SOCRETHAR_FROM_SEAT   = 35744,
-};
-
-class spell_item_socrethars_stone : public SpellScript
-{
-    PrepareSpellScript(spell_item_socrethars_stone);
-
-    bool Load() override
-    {
-        return (GetCaster()->GetAreaId() == 3900 || GetCaster()->GetAreaId() == 3742);
-    }
-    bool Validate(SpellInfo const* /*spell*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SOCRETHAR_TO_SEAT, SPELL_SOCRETHAR_FROM_SEAT });
-    }
-
-    void HandleDummy(SpellEffIndex /* effIndex */)
-    {
-        Unit* caster = GetCaster();
-        switch (caster->GetAreaId())
-        {
-            case 3900:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_TO_SEAT, true);
-                break;
-            case 3742:
-                caster->CastSpell(caster, SPELL_SOCRETHAR_FROM_SEAT, true);
-                break;
-            default:
-                return;
-        }
-    }
-
-    void Register() override
-    {
-        OnEffectHitTarget += SpellEffectFn(spell_item_socrethars_stone::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -4351,7 +4242,6 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
 
     RegisterSpellScript(spell_item_aegis_of_preservation);
-    RegisterSpellScript(spell_item_absorb_eye_of_grillok);
     RegisterSpellScript(spell_item_alchemists_stone);
     new spell_item_anger_capacitor<8>("spell_item_tiny_abomination_in_a_jar");
     new spell_item_anger_capacitor<7>("spell_item_tiny_abomination_in_a_jar_hero");
@@ -4429,10 +4319,8 @@ void AddSC_item_spell_scripts()
 
     RegisterSpellScript(spell_item_ashbringer);
     RegisterSpellScript(spell_magic_eater_food);
-    RegisterSpellScript(spell_item_purify_helboar_meat);
     RegisterSpellScript(spell_item_nigh_invulnerability);
     RegisterSpellScript(spell_item_poultryizer);
-    RegisterSpellScript(spell_item_socrethars_stone);
     RegisterSpellScript(spell_item_demon_broiled_surprise);
     RegisterSpellScript(spell_item_complete_raptor_capture);
     RegisterSpellScript(spell_item_impale_leviroth);
