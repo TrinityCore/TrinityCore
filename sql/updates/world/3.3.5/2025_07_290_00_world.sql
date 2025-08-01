@@ -189,3 +189,71 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (31774, 'spell_zangarmarsh_whisper_aura'),
 (31775, 'spell_zangarmarsh_whisper_aura'),
 (31776, 'spell_zangarmarsh_whisper_aura');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 19512;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (1229600,1229800) AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(1229600,9,0,0,0,0,100,0,0,0,0,0,0,36,12297,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Update Template To 'Cured Gazelle'"),
+(1229600,9,1,0,0,0,100,0,0,0,0,0,0,28,19502,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Remove Aura 'Sickly Critter Aura'"),
+(1229600,9,2,0,0,0,100,0,0,0,0,0,0,33,12297,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Quest Credit 'Curing the Sick'"),
+(1229600,9,3,0,0,0,100,0,1500,1500,0,0,0,114,0,0,0,0,0,0,1,0,0,0,0,30,30,0,0,"Sickly Gazelle - On Script - Move Offset"),
+(1229600,9,4,0,0,0,100,0,5000,5000,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Gazelle - On Script - Despawn"),
+
+(1229800,9,0,0,0,0,100,0,0,0,0,0,0,36,12299,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Update Template To 'Cured Deer'"),
+(1229800,9,1,0,0,0,100,0,0,0,0,0,0,28,19502,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Remove Aura 'Sickly Critter Aura'"),
+(1229800,9,2,0,0,0,100,0,0,0,0,0,0,33,12299,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Quest Credit 'Curing the Sick'"),
+(1229800,9,3,0,0,0,100,0,1500,1500,0,0,0,114,0,0,0,0,0,0,1,0,0,0,0,30,30,0,0,"Sickly Deer - On Script - Move Offset"),
+(1229800,9,4,0,0,0,100,0,5000,5000,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Sickly Deer - On Script - Despawn");
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (43369,-43369,-68347);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fjord_worg_disguise', 'spell_fjord_worg_disguise_dummy');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(43369, 'spell_fjord_worg_disguise'),
+(68347, 'spell_fjord_worg_disguise_dummy');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 47435;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dragonblight_scrape_corrosive_spit';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47435, 'spell_dragonblight_scrape_corrosive_spit');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -46813;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(46813, 'spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -42385;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dustwallow_marsh_alcaz_survey_aura';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(42385, 'spell_dustwallow_marsh_alcaz_survey_aura');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-40623,-40625,-40626);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_apexis_swiftness';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(40623, 'spell_bem_apexis_swiftness'),
+(40625, 'spell_bem_apexis_swiftness'),
+(40626, 'spell_bem_apexis_swiftness');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 24714;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hallow_end_trick_initial';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(24714, 'spell_hallow_end_trick_initial');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 36587;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_vision_guide';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(36587, 'spell_bem_vision_guide');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 42144;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hallow_end_create_water_bucket';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(42144, 'spell_hallow_end_create_water_bucket');

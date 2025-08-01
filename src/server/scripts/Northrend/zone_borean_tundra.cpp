@@ -1979,6 +1979,36 @@ class spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform : public Aura
     }
 };
 
+/*######
+## Quest 11969: Springing the Trap
+######*/
+
+enum SpringingTheTrap
+{
+    SPELL_COLDARRA_TO_TRANSITUS     = 46814
+};
+
+// 46813 - Taxi - Coldarra Ledge to Transitus Shield
+class spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_COLDARRA_TO_TRANSITUS });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_COLDARRA_TO_TRANSITUS);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -2013,4 +2043,5 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
     RegisterSpellScript(spell_borean_tundra_land_mine_barrier);
     RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+    RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
 }
