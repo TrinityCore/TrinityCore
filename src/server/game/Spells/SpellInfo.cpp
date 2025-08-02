@@ -4203,6 +4203,11 @@ Optional<SpellPowerCost> SpellInfo::CalcPowerCost(SpellPowerEntry const* power, 
     if (initiallyNegative != (powerCost < 0))
         powerCost = 0;
 
+    // Temp Ugly HackFix: Tidesage Council should apply wards when reaching full mana, but since they changed ContentTuning for BFA they forgot to change mana cost of these spells (Power POWER_MANA, Base 100000)
+    // causing this encounter to be bugged on retail
+    if ((Id == 267902 || Id == 267903) && power->PowerType == POWER_MANA)
+        powerCost = 0;
+
     return SpellPowerCost{ .Power = Powers(power->PowerType), .Amount = powerCost };
 }
 
