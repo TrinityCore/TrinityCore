@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "violet_hold.h"
 
 enum ZuramatTexts
@@ -187,6 +188,27 @@ private:
     SummonList _summons;
 };
 
+// 54361, 59743 - Void Shift
+class spell_zuramat_void_shift : public AuraScript
+{
+    PrepareAuraScript(spell_zuramat_void_shift);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VOID_SHIFTED });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_VOID_SHIFTED, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_zuramat_void_shift::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_void_dance : public AchievementCriteriaScript
 {
     public:
@@ -209,5 +231,6 @@ void AddSC_boss_zuramat()
 {
     RegisterVioletHoldCreatureAI(boss_zuramat);
     RegisterVioletHoldCreatureAI(npc_void_sentry);
+    RegisterSpellScript(spell_zuramat_void_shift);
     new achievement_void_dance();
 }
