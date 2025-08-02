@@ -75,13 +75,13 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 
 -- Dead
 (134058, 5, 0, 'The clouds... break...', 14, 0, 100, 0, 0, 102935, 150506, 0, 'Galecaller Faye'),
-(134063, 5, 0, 'Return me... to the sea...', 14, 0, 100, 0, 0, 102946, 150515, 0, 'Brother Ironhull to Brother Ironhull');
+(134063, 5, 0, 'Return me... to the sea...', 14, 0, 100, 0, 0, 102946, 150515, 0, 'Brother Ironhull to Brother Ironhull'),
 
 -- Galecaller Faye
 (134058, 1, 0, '|TInterface\\Icons\\70_inscription_vantus_rune_azure:20|t%s creates a |cFFFF0000|Hspell:267891|h[Swiftness Ward]|h|r!', 41, 0, 100, 0, 0, 102933, 151969, 0, 'Galecaller Faye'),
 (134058, 2, 0, 'The breeze is ever at our backs!', 14, 0, 100, 0, 0, 102933, 151288, 0, 'Galecaller Faye'),
 (134058, 6, 0, 'Winds, protect me!', 14, 0, 100, 0, 0, 102930, 151290, 0, 'Galecaller Faye'),
-(134058, 7, 0, 'Beloved! No!', 14, 0, 50, 0, 0, 102931, 150504, 0, 'Galecaller Faye'),V
+(134058, 7, 0, 'Beloved! No!', 14, 0, 50, 0, 0, 102931, 150504, 0, 'Galecaller Faye'),
 (134058, 7, 1, 'The winds will blast the flesh from your bones!', 14, 0, 50, 0, 0, 102932, 150505, 0, 'Galecaller Faye'),
 
 -- Brother Ironhull
