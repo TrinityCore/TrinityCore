@@ -257,3 +257,35 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 42144;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hallow_end_create_water_bucket';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (42144, 'spell_hallow_end_create_water_bucket');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -68839;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bronjahm_corrupt_soul';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(68839, 'spell_bronjahm_corrupt_soul');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -62320;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_thorim_aura_of_celerity';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(62320, 'spell_thorim_aura_of_celerity');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-54361,-59743);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_zuramat_void_shift';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(54361, 'spell_zuramat_void_shift'),
+(59743, 'spell_zuramat_void_shift');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-47744,61611);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_grizzly_hills_rage_of_jinarrak';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(47744, 'spell_grizzly_hills_rage_of_jinarrak');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (-30448,30447,30448);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_azuremyst_isle_shadow_of_the_forest_creature','spell_azuremyst_isle_shadow_of_the_forest_player');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(30447, 'spell_azuremyst_isle_shadow_of_the_forest_creature'),
+(30448, 'spell_azuremyst_isle_shadow_of_the_forest_player');
