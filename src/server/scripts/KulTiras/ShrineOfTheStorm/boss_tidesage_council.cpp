@@ -414,7 +414,7 @@ struct at_tidesage_council_reinforcing_ward : AreaTriggerAI
     using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
-    {    
+    {
         if (unit->GetEntry() == BOSS_BROTHER_IRONHULL || unit->GetEntry() == BOSS_GALECALLER_FAYE)
         {
             unit->CastSpell(unit, SPELL_REINFORCING_WARD_DAMAGE_TAKEN_BOSS, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
