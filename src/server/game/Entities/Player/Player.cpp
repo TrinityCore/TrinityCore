@@ -15093,6 +15093,30 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     uint32 quest_id = quest->GetQuestId();
     QuestStatus oldStatus = GetQuestStatus(quest_id);
 
+    if (quest->IsDaily() || quest->IsDFQuest())
+    {
+        SetDailyQuestStatus(quest_id);
+        if (quest->IsDaily())
+        {
+            StartCriteria(CriteriaStartEvent::CompleteDailyQuest, 0);
+            UpdateCriteria(CriteriaType::CompleteDailyQuest, quest_id);
+            UpdateCriteria(CriteriaType::CompleteAnyDailyQuestPerDay, quest_id);
+        }
+    }
+    else if (quest->IsWeekly())
+        SetWeeklyQuestStatus(quest_id);
+    else if (quest->IsMonthly())
+        SetMonthlyQuestStatus(quest_id);
+    else if (quest->IsSeasonal())
+        SetSeasonalQuestStatus(quest_id);
+
+    RemoveTimedQuest(quest_id);
+    RemoveActiveQuest(quest_id, false);
+    if (quest->CanIncreaseRewardedQuestCounters())
+        SetRewardedQuest(quest_id);
+
+    SetQuestCompletedBit(quest_id, true);
+
     for (QuestObjective const& obj : quest->GetObjectives())
     {
         switch (obj.Type)
@@ -15124,8 +15148,6 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
             }
         }
     }
-
-    RemoveTimedQuest(quest_id);
 
     if (quest->GetRewItemsCount() > 0)
     {
@@ -15213,10 +15235,6 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
     if (uint32 skill = quest->GetRewardSkillId())
         UpdateSkillPro(skill, 1000, quest->GetRewardSkillPoints());
 
-    uint16 log_slot = FindQuestSlot(quest_id);
-    if (log_slot < MAX_QUEST_LOG_SIZE)
-        SetQuestSlot(log_slot, 0);
-
     uint32 XP = GetQuestXPReward(quest);
 
     int32 moneyRew = 0;
@@ -15260,27 +15278,6 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    if (quest->IsDaily() || quest->IsDFQuest())
-    {
-        SetDailyQuestStatus(quest_id);
-        if (quest->IsDaily())
-        {
-            StartCriteria(CriteriaStartEvent::CompleteDailyQuest, 0);
-            UpdateCriteria(CriteriaType::CompleteDailyQuest, quest_id);
-            UpdateCriteria(CriteriaType::CompleteAnyDailyQuestPerDay, quest_id);
-        }
-    }
-    else if (quest->IsWeekly())
-        SetWeeklyQuestStatus(quest_id);
-    else if (quest->IsMonthly())
-        SetMonthlyQuestStatus(quest_id);
-    else if (quest->IsSeasonal())
-        SetSeasonalQuestStatus(quest_id);
-
-    RemoveActiveQuest(quest_id, false);
-    if (quest->CanIncreaseRewardedQuestCounters())
-        SetRewardedQuest(quest_id);
-
     SendQuestReward(quest, questGiver ? questGiver->ToCreature() : nullptr, XP, !announce);
 
     RewardReputation(quest);
@@ -15319,8 +15316,6 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     // make full db save
     SaveToDB(false);
-
-    SetQuestCompletedBit(quest_id, true);
 
     if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
     {
@@ -16037,6 +16032,8 @@ void Player::RemoveActiveQuest(uint32 questId, bool update /*= true*/)
     QuestStatusMap::iterator itr = m_QuestStatus.find(questId);
     if (itr != m_QuestStatus.end())
     {
+        SetQuestSlot(itr->second.Slot, 0);
+
         for (auto objectiveItr = m_questObjectiveStatus.begin(); objectiveItr != m_questObjectiveStatus.end(); )
         {
             if (objectiveItr->second.QuestStatusItr == itr)
@@ -16295,11 +16292,13 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
         if (!quest)
             return;
 
-        uint16 questSlot = FindQuestSlot(questId);
-        QuestStatus oldStatus = GetQuestStatus(questSlot);
+        QuestStatus oldStatus = GetQuestStatus(questId);
 
-        if (questSlot != MAX_QUEST_LOG_SIZE)
+        if (oldStatus != QUEST_STATUS_NONE && oldStatus != QUEST_STATUS_REWARDED)
         {
+            RemoveActiveQuest(questId);
+            TakeQuestSourceItem(questId, true); // remove quest src item from player
+            AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
             if (quest->GetLimitTime())
                 RemoveTimedQuest(questId);
 
@@ -16308,11 +16307,6 @@ void Player::SkipQuests(std::vector<uint32> const& questIds)
                 pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
                 UpdatePvPState();
             }
-
-            SetQuestSlot(questSlot, 0);
-            TakeQuestSourceItem(questId, true); // remove quest src item from player
-            AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
-            RemoveActiveQuest(questId);
         }
 
         SetRewardedQuest(questId);
@@ -19606,10 +19600,6 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
         }
         while (result->NextRow());
     }
-
-    // clear quest log tail
-    for (uint16 i = slot; i < MAX_QUEST_LOG_SIZE; ++i)
-        SetQuestSlot(i, 0);
 }
 
 void Player::_LoadQuestStatusObjectives(PreparedQueryResult result)
@@ -25474,9 +25464,8 @@ void Player::DailyReset()
         if (!quest || !quest->IsDaily() || !quest->HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
             continue;
 
-        SetQuestSlot(slot, 0);
-        AbandonQuest(questId);
         RemoveActiveQuest(questId);
+        AbandonQuest(questId);
         DespawnPersonalSummonsForQuest(questId);
 
         if (quest->GetLimitTime())
@@ -25513,9 +25502,8 @@ void Player::ResetWeeklyQuestStatus()
         if (!quest || !quest->IsWeekly() || !quest->HasFlagEx(QUEST_FLAGS_EX_REMOVE_ON_PERIODIC_RESET))
             continue;
 
-        SetQuestSlot(slot, 0);
-        AbandonQuest(questId);
         RemoveActiveQuest(questId);
+        AbandonQuest(questId);
         DespawnPersonalSummonsForQuest(questId);
 
         if (quest->GetLimitTime())

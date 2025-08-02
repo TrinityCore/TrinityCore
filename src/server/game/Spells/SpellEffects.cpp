@@ -4068,26 +4068,21 @@ void Spell::EffectQuestClear()
     if (oldStatus == QUEST_STATUS_NONE)
         return;
 
+    player->RemoveActiveQuest(quest_id, false);
+
     // remove all quest entries for 'entry' from quest log
-    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    if (oldStatus != QUEST_STATUS_REWARDED)
     {
-        uint32 logQuest = player->GetQuestSlotQuestId(slot);
-        if (logQuest == quest_id)
+        // we ignore unequippable quest items in this case, it's still be equipped
+        player->TakeQuestSourceItem(quest_id, false);
+
+        if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
         {
-            player->SetQuestSlot(slot, 0);
-
-            // we ignore unequippable quest items in this case, it's still be equipped
-            player->TakeQuestSourceItem(logQuest, false);
-
-            if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-            {
-                player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                player->UpdatePvPState();
-            }
+            player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+            player->UpdatePvPState();
         }
     }
 
-    player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
     player->DespawnPersonalSummonsForQuest(quest_id);
 
