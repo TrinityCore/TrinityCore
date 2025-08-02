@@ -270,7 +270,7 @@ struct boss_brother_ironhull : public TidesageCouncilSharedAI
                 {
                     Talk(SAY_REINFORCING_WARD);
                     Talk(SAY_REINFORCING_WARD_WARNING);
-                    DoCast(SPELL_REINFORCING_WARD_SELECTOR);
+                    DoCast(SPELL_REINFORCING_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST);
                 }
                 events.Repeat(500ms);
                 break;
@@ -349,7 +349,7 @@ struct boss_galecaller_faye : public TidesageCouncilSharedAI
                 {
                     Talk(SAY_SWIFTING_WARD_WARNING);
                     Talk(SAY_SWIFTING_WARD);
-                    DoCast(SPELL_SWIFTNESS_WARD_SELECTOR);
+                    DoCast(SPELL_SWIFTNESS_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST);
                 }
                 events.Repeat(500ms);
                 break;
