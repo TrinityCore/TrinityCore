@@ -1,5 +1,5 @@
-SET @CGUID := 8100000;
-SET @OGUID := 8100000;
+SET @CGUID := 8000073;
+SET @OGUID := 8000047;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+754;
@@ -1255,7 +1255,6 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBu
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180854 AND `DifficultyID`=2); -- 180854 (Proto-Drake) - Sessile, Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179821 AND `DifficultyID`=2); -- 179821 (Commander Zo'far) - CanSwim
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179842 AND `DifficultyID`=2); -- 179842 (Commerce Enforcer) - CanSwim
-UPDATE `creature_template_difficulty` SET `VerifiedBuild`=61967 WHERE (`DifficultyID`=2 AND `Entry` IN (179908,179909,180750,176519,180751,180849,180856,180317,180328,180320,180314,180443,180442,180315,179947,180150,180149,179948,180147,180327,180260,180241,180148,180266,180268,180244,180754,179981,180510,179011,179983,180156,179982,180295,180152,180243,177255,180215,180247,180228,180267,180261,180056));
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179843 AND `DifficultyID`=2); -- 179843 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=748, `StaticFlags1`=0x22000100, `StaticFlags3`=0x2000000, `VerifiedBuild`=61967 WHERE (`Entry`=179844 AND `DifficultyID`=2); -- 179844 (Shocklight Barrier) - Sessile, Floating - CannotTurn, passive
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=61967 WHERE (`Entry`=179841 AND `DifficultyID`=2); -- 179841 (Veteran Sparkcaster) - CanSwim
@@ -1713,7 +1712,7 @@ UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthMod
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=12, `CreatureDifficultyID`=199482, `TypeFlags`=0x200048, `TypeFlags2`=128 WHERE (`Entry`=176556 AND `DifficultyID`=23); -- Alcruux
 UPDATE `creature_template_difficulty` SET `HealthModifier`=0.023809999227523803, `CreatureDifficultyID`=43895, `TypeFlags`=0x40000040 WHERE (`Entry`=47203 AND `DifficultyID`=23); -- Creeper Egg
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=8, `HealthModifier`=0.200000002980232238, `CreatureDifficultyID`=204489, `TypeFlags2`=2 WHERE (`Entry`=180823 AND `DifficultyID`=23); -- Pancake
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180215 AND `DifficultyID`=23); -- 180215 (Export Hauler) - Sessile, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=61967 WHERE (`Entry`=180215 AND `DifficultyID`=23); -- 180215 (Export Hauler)
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180852 AND `DifficultyID`=23); -- 180852 (Infested Bear) - Sessile, Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180848 AND `DifficultyID`=23); -- 180848 (Dew Monster) - Sessile, Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000100, `VerifiedBuild`=61967 WHERE (`Entry`=180855 AND `DifficultyID`=23); -- 180855 (Devourer Mite) - Sessile, Floating
@@ -2061,24 +2060,21 @@ SET @ENTRY := 180348;
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` IN (18034800, 18034801);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
-(@ENTRY, 0, 0, 0, 34, 0, 100, 0, 2, 8, 0, 0, 0, 80, 18034800, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 8 - Self: Start timed action list id #Cartel Muscle #0 (18034800) (update out of combat) // -inline', ''),
-(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 12000, 12000, 0, 0, 0, 85, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 12 seconds - Self: Cast spell 357099 on self', ''),
-(@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 180335, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Smuggler (180335) in 20 yd: Set creature data #0 to 1', ''),
-(@ENTRY * 100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 180336, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Wiseguy (180336) in 20 yd: Set creature data #0 to 1', ''),
-(@ENTRY, 0, 1, 0, 34, 0, 100, 0, 2, 24, 0, 0, 0, 80, 18034801, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 24 - Self: Start timed action list id #Cartel Muscle #1 (18034801) (update out of combat) // -inline', ''),
-(@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 0, 28, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell  357099', ''),
-(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 11, 180335, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Smuggler (180335) in 20 yd: Set creature data #0 to 0', ''),
-(@ENTRY * 100 + 1, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 11, 180336, 20, 0, 0, 0, 0, 0, 'After 0 seconds - Creature Cartel Wiseguy (180336) in 20 yd: Set creature data #0 to 0', '');
-
-UPDATE `creature` SET `StringId`='npc_cartel_muscle_cosmetic' WHERE `guid` = @CGUID+254;
-UPDATE `creature` SET `StringId`='npc_cartel_wiseguy_cosmetic' WHERE `guid` = @CGUID+255;
-UPDATE `creature` SET `StringId`='npc_cartel_smuggler_cosmetic' WHERE `guid` IN (@CGUID+256, @CGUID+257);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 0, 34, 0, 100, 0, 2, 8, 0, 0, 0, 80, 18034800, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 8 - Self: Start timed action list id #Cartel Muscle #0 (18034800) (update out of combat) // -inline', ''),
+(@ENTRY * 100, 9, 0, 0, 0, 0, 100, 0, 12000, 12000, 0, 0, 0, 85, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'After 12 seconds - Self: Cast spell 357099 on self', ''),
+(@ENTRY * 100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 1, 0, 0, 0, 0, 0, 11, 0, 15, 0, 0, 'CartelMuscleTarget', 0, 0, 0, 0, 'After 0 seconds - Any creature in 0 yd: Set creature data #0 to 1', ''),
+(@ENTRY, 0, 1, 0, 34, 0, 100, 0, 2, 24, 0, 0, 0, 80, 18034801, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'On movement of type WAYPOINT_MOTION_TYPE inform, point 24 - Self: Start timed action list id #Cartel Muscle #1 (18034801) (update out of combat) // -inline', ''),
+(@ENTRY * 100 + 1, 9, 0, 0, 0, 0, 100, 0, 10000, 10000, 0, 0, 0, 28, 357099, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, '', 0, 0, 0, 0, 'After 10 seconds - Self: Remove aura due to spell  357099', ''),
+(@ENTRY * 100 + 1, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 0, 11, 0, 15, 0, 0, 'CartelMuscleTarget', 0, 0, 0, 0, 'After 0 seconds - Any creature in 0 yd: Set creature data #0 to 0', '');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180348 AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(22, 1, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 'Object has StringID npc_cartel_muscle_cosmetic'),
-(22, 2, 180348, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_muscle_cosmetic', 0, 'Object has StringID npc_cartel_muscle_cosmetic');
+(22, 1, 180348, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleScript', 0, 'Object has StringID CartelMuscleScript'),
+(22, 2, 180348, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleScript', 0, 'Object has StringID CartelMuscleScript');
+
+UPDATE `creature` SET `StringId`='CartelMuscleScript' WHERE `guid` = @CGUID+254;
+UPDATE `creature` SET `StringId`='CartelMuscleTarget' WHERE `guid` IN (@CGUID+255, @CGUID+256, @CGUID+257);
 
 -- Cartel Wiseguy smart ai
 SET @ENTRY := 180336;
@@ -2090,8 +2086,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180336 AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(22, 1, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 'Object has StringID npc_cartel_wiseguy_cosmetic'),
-(22, 2, 180336, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_wiseguy_cosmetic', 0, 'Object has StringID npc_cartel_wiseguy_cosmetic');
+(22, 1, 180336, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleTarget', 0, 'Object has StringID CartelMuscleTarget'),
+(22, 2, 180336, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleTarget', 0, 'Object has StringID CartelMuscleTarget');
 
 -- Cartel Smuggler smart ai
 SET @ENTRY := 180335;
@@ -2103,16 +2099,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 180335 AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(22, 1, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 'Object has StringID npc_cartel_smuggler_cosmetic'),
-(22, 2, 180335, 0, 0, 58, 1, 0, 0, 0, 'npc_cartel_smuggler_cosmetic', 0, 'Object has StringID npc_cartel_smuggler_cosmetic');
+(22, 1, 180335, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleTarget', 0, 'Object has StringID CartelMuscleTarget'),
+(22, 2, 180335, 0, 0, 58, 1, 0, 0, 0, 'CartelMuscleTarget', 0, 'Object has StringID CartelMuscleTarget');
 
--- TEXTS (missing BroadcastTextId)
+-- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID`IN (180114, 180117);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (180114, 0, 0, 'I wouldn\'t touch that meat, they don\'t call it the Veiled Market for nothing... Allow me to interest you in this fruit before Customs handles it?', 12, 0, 100, 0, 0, 0, 0, 0, 'Fruit Vendor'),
 (180117, 0, 0, 'Our meats have not yet passed through Customs, the price cannot be beat!', 12, 0, 100, 274, 0, 0, 0, 0, 'Meat Vendor');
-
--- WAYPOINTS
 
 -- Armored Overseer
 SET @ENTRY := 177808;
