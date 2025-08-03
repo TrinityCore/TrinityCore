@@ -89,8 +89,7 @@ class spell_temple_of_ahnqiraj_itch : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
-            if (caster->IsAlive())
-                caster->CastSpell(GetTarget(), SPELL_VEKNISS_CATALYST, true);
+            caster->CastSpell(GetTarget(), SPELL_VEKNISS_CATALYST, true);
     }
 
     void Register() override

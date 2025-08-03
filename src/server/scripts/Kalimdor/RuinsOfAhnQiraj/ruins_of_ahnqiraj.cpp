@@ -41,8 +41,7 @@ class spell_ruins_of_ahnqiraj_itch : public AuraScript
             return;
 
         if (Unit* caster = GetCaster())
-            if (caster->IsAlive())
-                caster->CastSpell(GetTarget(), SPELL_HIVEZARA_CATALYST, true);
+            caster->CastSpell(GetTarget(), SPELL_HIVEZARA_CATALYST, true);
     }
 
     void Register() override
