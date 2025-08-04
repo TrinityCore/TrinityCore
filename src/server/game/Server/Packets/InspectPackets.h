@@ -120,9 +120,9 @@ namespace WorldPackets
 
         struct TraitInspectInfo
         {
-            int32 Level = 0;
-            int32 ChrSpecializationID = 0;
-            Traits::TraitConfig Config;
+            int32 PlayerLevel = 0;
+            int32 SpecID = 0;
+            Traits::TraitConfig ActiveCombatTraits;
         };
 
         class InspectResult final : public ServerPacket
@@ -145,7 +145,7 @@ namespace WorldPackets
             uint16 TodayHK = 0;
             uint16 YesterdayHK = 0;
             uint8 LifetimeMaxRank = 0;
-            TraitInspectInfo TalentTraits;
+            TraitInspectInfo TraitsInfo;
         };
 
         class QueryInspectAchievements final : public ClientPacket
