@@ -222,7 +222,7 @@ void WorldSession::SendSpiritResurrect()
     {
         WorldLocation const& corpseLocation = _player->GetCorpseLocation();
         corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation.GetPositionX(), corpseLocation.GetPositionY(),
-                                                      corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam(), _player->GetGUID());
+            corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam(), _player->GetGUID());
     }
 
     // now can spawn bones
