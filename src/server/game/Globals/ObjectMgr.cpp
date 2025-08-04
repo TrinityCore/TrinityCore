@@ -7028,7 +7028,7 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(float x, float y, float
     {
         if (z > -500)
         {
-            TC_LOG_ERROR("misc", "ZoneId not found for map {} coords ({}, {}, {}), player GUID: {}", MapId, x, y, z, playerGuid.GetRawValue());
+            TC_LOG_ERROR("misc", "ZoneId not found for map {} coords ({}, {}, {}), player GUID: {}", MapId, x, y, z, playerGuid);
             return GetDefaultGraveyard(team);
         }
     }
