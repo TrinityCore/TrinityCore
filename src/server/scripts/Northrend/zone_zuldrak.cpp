@@ -1075,6 +1075,27 @@ class spell_zuldrak_quenching_mist : public AuraScript
     }
 };
 
+// 52989 - Akali's Stun
+class spell_zuldrak_akalis_stun : public AuraScript
+{
+    PrepareAuraScript(spell_zuldrak_akalis_stun);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLICKERING_FLAMES });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_FLICKERING_FLAMES);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_zuldrak_akalis_stun::AfterApply, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 /*######
 ## Quest 12661: Infiltrating Voltarus / 12669: So Far, So Bad / 12676: Sabotage / 12677: Hazardous Materials / 12713: Betrayal
 ######*/
@@ -1196,6 +1217,109 @@ class spell_zuldrak_gymers_throw : public SpellScript
     }
 };
 
+/*######
+## Quest 12557: Lab Work
+######*/
+
+enum LabWork
+{
+    SPELL_LAB_WORK_HAVE_WITHERED_BATWING        = 51060,
+    SPELL_LAB_WORK_HAVE_MUDDY_MIRE_MAGGOT       = 51068,
+    SPELL_LAB_WORK_HAVE_AMBERSEED               = 51088,
+    SPELL_LAB_WORK_HAVE_CHILLED_SERPENT_MUCUS   = 51094,
+
+    SPELL_WITHERED_BATWING_KILL_CREDIT          = 51226,
+    SPELL_MUDDY_MIRE_MAGGOT_KILL_CREDIT         = 51227,
+    SPELL_AMBERSEED_KILL_CREDIT                 = 51228,
+    SPELL_CHILLED_SERPENT_MUCUS_KILL_CREDIT     = 51229
+};
+
+// 51060 - Have Withered Batwing
+// 51068 - Have Muddy Mire Maggot
+// 51088 - Have Amberseed
+// 51094 - Have Chilled Serpent Mucus
+class spell_zuldrak_have_ingredient : public AuraScript
+{
+    PrepareAuraScript(spell_zuldrak_have_ingredient);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_WITHERED_BATWING_KILL_CREDIT,
+            SPELL_MUDDY_MIRE_MAGGOT_KILL_CREDIT,
+            SPELL_AMBERSEED_KILL_CREDIT,
+            SPELL_CHILLED_SERPENT_MUCUS_KILL_CREDIT
+        });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        switch (GetId())
+        {
+            case SPELL_LAB_WORK_HAVE_WITHERED_BATWING:
+                GetTarget()->CastSpell(GetTarget(), SPELL_WITHERED_BATWING_KILL_CREDIT);
+                break;
+            case SPELL_LAB_WORK_HAVE_MUDDY_MIRE_MAGGOT:
+                GetTarget()->CastSpell(GetTarget(), SPELL_MUDDY_MIRE_MAGGOT_KILL_CREDIT);
+                break;
+            case SPELL_LAB_WORK_HAVE_AMBERSEED:
+                GetTarget()->CastSpell(GetTarget(), SPELL_AMBERSEED_KILL_CREDIT);
+                break;
+            case SPELL_LAB_WORK_HAVE_CHILLED_SERPENT_MUCUS:
+                GetTarget()->CastSpell(GetTarget(), SPELL_CHILLED_SERPENT_MUCUS_KILL_CREDIT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_zuldrak_have_ingredient::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 12710: Disclosure
+######*/
+
+// 52839 - Summon Escort Aura
+class spell_zuldrak_summon_escort_aura : public AuraScript
+{
+    PrepareAuraScript(spell_zuldrak_summon_escort_aura);
+
+    enum Disclosure
+    {
+        SPELL_SCOURGE_DISGUISE          = 51966,
+        SPELL_SUMMON_ESCORT             = 52775,
+        SPELL_SCOURGE_DISGUISE_ESCORT   = 52842
+    };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SCOURGE_DISGUISE,
+            SPELL_SUMMON_ESCORT,
+            SPELL_SCOURGE_DISGUISE_ESCORT
+        });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_SCOURGE_DISGUISE);
+        target->CastSpell(target, SPELL_SUMMON_ESCORT);
+        target->CastSpell(target, SPELL_SCOURGE_DISGUISE_ESCORT);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_zuldrak_summon_escort_aura::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1220,8 +1344,11 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_summon_nass);
     RegisterSpellScript(spell_zuldrak_remove_akalis_stun);
     RegisterSpellScript(spell_zuldrak_quenching_mist);
+    RegisterSpellScript(spell_zuldrak_akalis_stun);
     RegisterSpellScript(spell_zuldrak_summon_stefan);
     RegisterSpellScript(spell_zuldrak_zuldrak_rat);
     RegisterSpellScript(spell_zuldrak_gymers_grab);
     RegisterSpellScript(spell_zuldrak_gymers_throw);
+    RegisterSpellScript(spell_zuldrak_have_ingredient);
+    RegisterSpellScript(spell_zuldrak_summon_escort_aura);
 }
