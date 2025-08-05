@@ -1337,5 +1337,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_zuldrak_rat);
     RegisterSpellScript(spell_zuldrak_gymers_grab);
     RegisterSpellScript(spell_zuldrak_gymers_throw);
-    RegisterCreatureAI(npc_servant_of_drakuru);
+    new npc_servant_of_drakuru();
 }
