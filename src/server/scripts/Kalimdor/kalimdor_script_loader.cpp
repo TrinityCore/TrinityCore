@@ -83,6 +83,7 @@ void AddSC_boss_buru();
 void AddSC_boss_ayamiss();
 void AddSC_boss_ossirian();
 void AddSC_instance_ruins_of_ahnqiraj();
+void AddSC_ruins_of_ahnqiraj();
 // Temple of ahn'qiraj
 void AddSC_boss_cthun();
 void AddSC_boss_viscidus();
@@ -197,6 +198,7 @@ void AddKalimdorScripts()
     AddSC_boss_ayamiss();
     AddSC_boss_ossirian();
     AddSC_instance_ruins_of_ahnqiraj();
+    AddSC_ruins_of_ahnqiraj();
     // Temple of ahn'qiraj
     AddSC_boss_cthun();
     AddSC_boss_viscidus();
