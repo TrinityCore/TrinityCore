@@ -1196,6 +1196,119 @@ class spell_zuldrak_gymers_throw : public SpellScript
     }
 };
 
+//Quest 12686 Zero Tolerance
+
+enum
+{
+    SPELL_TRIGGER_ID = 52390,
+    NPC_ENTRY_CONTROLLED = 28805,
+    NPC_ENTRY_NORMAL = 28802,
+    QUEST_ID = 12686,
+    SPELL_CAST = 50361
+};
+
+class npc_servant_of_drakuru : public CreatureScript
+{
+public:
+    npc_servant_of_drakuru() : CreatureScript("npc_servant_of_drakuru") {}
+
+    struct npc_servant_of_drakuruAI : public ScriptedAI
+    {
+        npc_servant_of_drakuruAI(Creature* creature)
+            : ScriptedAI(creature), _controller(nullptr), _checkTimer(1000), _controlled(false)
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_CAST_SPELL, 4s, 5s);
+        }
+
+        enum Events
+        {
+            EVENT_CAST_SPELL = 1
+        };
+
+        void SpellHit(WorldObject* caster, SpellInfo const* spell) override
+        {
+            if (!spell)
+                return;
+
+            if (spell->Id == SPELL_TRIGGER_ID)
+            {
+                if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Player* player = caster->ToPlayer();
+                    if (player && player->GetQuestStatus(QUEST_ID) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        _controller = player;
+                        Talk(0);
+                        me->UpdateEntry(NPC_ENTRY_CONTROLLED);
+                        me->SetHealth(me->GetMaxHealth());
+                        _controlled = true;
+                    }
+                }
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            if (_controlled)
+            {
+                bool stillCharmed = (me->GetCharmerOrOwner() == _controller);
+
+                if (!stillCharmed)
+                {
+                    if (_controller && _controller->GetQuestStatus(QUEST_ID) == QUEST_STATUS_INCOMPLETE)
+                        me->DespawnOrUnsummon(1s, 3s);
+
+                    _controlled = false;
+                    _controller = nullptr;
+                    _events.Reset();
+                    return;
+                }
+            }
+
+            if (!_controlled)
+            {
+                _events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                    case EVENT_CAST_SPELL:
+                        if (Unit* target = me->GetVictim())
+                        {
+                            me->CastSpell(target, SPELL_CAST, false);
+                        }
+                        _events.ScheduleEvent(EVENT_CAST_SPELL, 12s, 14s);
+                        break;
+                    }
+                }
+            }
+
+            if (_checkTimer <= diff)
+            {
+                _checkTimer = 1000;
+            }
+            else
+                _checkTimer -= diff;
+
+            if (!_controlled)
+                ScriptedAI::UpdateAI(diff);
+        }
+
+    private:
+        Player* _controller;
+        uint32 _checkTimer;
+        bool _controlled;
+        EventMap _events;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const override
+    {
+        return new npc_servant_of_drakuruAI(creature);
+    }
+};
+
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1224,4 +1337,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_zuldrak_rat);
     RegisterSpellScript(spell_zuldrak_gymers_grab);
     RegisterSpellScript(spell_zuldrak_gymers_throw);
+    RegisterCreatureAI(npc_servant_of_drakuru);
 }
