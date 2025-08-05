@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 #include "SpellScript.h"
 #include "darkmaul_citadel.h"
 
