@@ -1043,7 +1043,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team, player->GetGUID());
+        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team, player->GetGUID(), player->GetName());
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
