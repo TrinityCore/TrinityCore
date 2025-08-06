@@ -1140,7 +1140,9 @@ enum TheStormKingsVengeance
 {
     SPELL_RIDE_GYMER            = 43671,
     SPELL_GRABBED               = 55424,
-    SPELL_VARGUL_EXPLOSION      = 55569
+    SPELL_VARGUL_EXPLOSION      = 55569,
+    SPELL_HEALING_WINDS         = 55549,
+    NPC_STORM_CLOUD             = 29939
 };
 
 // 55516 - Gymer's Grab
@@ -1161,6 +1163,9 @@ class spell_zuldrak_gymers_grab : public SpellScript
         args.AddSpellBP0(2);
         GetHitCreature()->CastSpell(GetCaster(), SPELL_RIDE_GYMER, args);
         GetHitCreature()->CastSpell(GetHitCreature(), SPELL_GRABBED, true);
+
+        if (GetHitCreature()->GetEntry() == NPC_STORM_CLOUD) // Storm Cloud
+        GetHitCreature()->CastSpell(GetCaster(), SPELL_HEALING_WINDS, true); // Healing Winds
     }
 
     void Register() override
