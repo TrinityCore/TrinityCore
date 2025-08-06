@@ -10076,7 +10076,12 @@ InventoryResult Player::CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item
     }
 
     if (pItem && pItem->m_lootGenerated)
+    {
+        if (pProto->InventoryType == INVTYPE_NON_EQUIP)
+            return EQUIP_ERR_NOT_EQUIPPABLE;
+
         return EQUIP_ERR_LOOT_GONE;
+    }
 
     // no maximum
     if ((pProto->MaxCount <= 0 && pProto->ItemLimitCategory == 0) || pProto->MaxCount == 2147483647)
@@ -10377,7 +10382,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     if (pItem)
     {
         // item used
-        if (pItem->m_lootGenerated)
+        if (pItem->IsLootCompletelyUsed())
         {
             if (no_space_count)
                 *no_space_count = count;
@@ -11130,10 +11135,6 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
         ItemTemplate const* pProto = pItem->GetTemplate();
         if (pProto)
         {
-            // item used
-            if (pItem->m_lootGenerated)
-                return EQUIP_ERR_LOOT_GONE;
-
             if (pItem->IsBindedNotWith(this))
                 return EQUIP_ERR_NOT_OWNER;
 
@@ -11181,6 +11182,10 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             uint8 eslot = FindEquipSlot(pItem, slot, swap);
             if (eslot == NULL_SLOT)
                 return EQUIP_ERR_NOT_EQUIPPABLE;
+
+            // item used
+            if (pItem->m_lootGenerated)
+                return EQUIP_ERR_LOOT_GONE;
 
             res = CanUseItem(pItem, not_loading);
             if (res != EQUIP_ERR_OK)
