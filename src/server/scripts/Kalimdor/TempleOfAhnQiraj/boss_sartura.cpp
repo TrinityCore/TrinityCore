@@ -226,8 +226,8 @@ class spell_sartura_whirlwind : public SpellScript
 
                 // This requires additional research
                 caster->GetThreatManager().ResetAllThreat();
-				if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-				    caster->GetThreatManager().AddThreat(target, 100000.0f);
+                if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    caster->GetThreatManager().AddThreat(target, 100000.0f);
             }
             else
                 caster->GetThreatManager().ResetAllThreat();
