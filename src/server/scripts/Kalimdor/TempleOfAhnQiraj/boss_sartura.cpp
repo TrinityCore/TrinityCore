@@ -15,304 +15,229 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Sartura
-SD%Complete: 95
-SDComment:
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellScript.h"
 #include "temple_of_ahnqiraj.h"
 #include "Player.h"
 
-enum Sartura
+enum SarturaTexts
 {
-    SAY_AGGRO           = 0,
-    SAY_SLAY            = 1,
-    SAY_DEATH           = 2,
-
-    SPELL_WHIRLWIND     = 26083,
-    SPELL_ENRAGE        = 28747,            //Not sure if right ID.
-    SPELL_ENRAGEHARD    = 28798,
-
-    //Guard Spell
-    SPELL_WHIRLWINDADD  = 26038,
-    SPELL_KNOCKBACK     = 26027
+    SAY_AGGRO                  = 0,
+    SAY_SLAY                   = 1,
+    SAY_DEATH                  = 2,
+    EMOTE_FRENZY               = 3
 };
 
-class boss_sartura : public CreatureScript
+enum SarturaSpells
 {
-public:
-    boss_sartura() : CreatureScript("boss_sartura") { }
+    // Sartura
+    SPELL_SUNDERING_CLEAVE     = 25174,
+    SPELL_WHIRLWIND            = 26083,
+    SPELL_FRENZY               = 8269,
+    SPELL_BERSERK              = 27680,
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetAQ40AI<boss_sarturaAI>(creature);
-    }
-
-    struct boss_sarturaAI : public BossAI
-    {
-        boss_sarturaAI(Creature* creature) : BossAI(creature, DATA_SARTURA)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = urand(3000, 7000);
-            WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = urand(45000, 55000);
-            AggroResetEnd_Timer = 5000;
-            EnrageHard_Timer = 10 * 60000;
-
-            WhirlWind = false;
-            AggroReset = false;
-            Enraged = false;
-            EnragedHard = false;
-        }
-
-        uint32 WhirlWind_Timer;
-        uint32 WhirlWindRandom_Timer;
-        uint32 WhirlWindEnd_Timer;
-        uint32 AggroReset_Timer;
-        uint32 AggroResetEnd_Timer;
-        uint32 EnrageHard_Timer;
-
-        bool Enraged;
-        bool EnragedHard;
-        bool WhirlWind;
-        bool AggroReset;
-
-        void Reset() override
-        {
-            Initialize();
-            _Reset();
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            Talk(SAY_AGGRO);
-            BossAI::JustEngagedWith(who);
-        }
-
-         void JustDied(Unit* /*killer*/) override
-         {
-             Talk(SAY_DEATH);
-             _JustDied();
-         }
-
-         void KilledUnit(Unit* /*victim*/) override
-         {
-             Talk(SAY_SLAY);
-         }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            if (WhirlWind)
-            {
-                if (WhirlWindRandom_Timer <= diff)
-                {
-                    //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
-                    {
-                        AddThreat(target, 1.0f);
-                        AttackStart(target);
-                    }
-                    WhirlWindRandom_Timer = urand(3000, 7000);
-                } else WhirlWindRandom_Timer -= diff;
-
-                if (WhirlWindEnd_Timer <= diff)
-                {
-                    WhirlWind = false;
-                    WhirlWind_Timer = urand(25000, 40000);
-                } else WhirlWindEnd_Timer -= diff;
-            }
-
-            if (!WhirlWind)
-            {
-                if (WhirlWind_Timer <= diff)
-                {
-                    DoCast(me, SPELL_WHIRLWIND);
-                    WhirlWind = true;
-                    WhirlWindEnd_Timer = 15000;
-                } else WhirlWind_Timer -= diff;
-
-                if (AggroReset_Timer <= diff)
-                {
-                    //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
-                    {
-                        AddThreat(target, 1.0f);
-                        AttackStart(target);
-                    }
-                    AggroReset = true;
-                    AggroReset_Timer = urand(2000, 5000);
-                } else AggroReset_Timer -= diff;
-
-                if (AggroReset)
-                {
-                    if (AggroResetEnd_Timer <= diff)
-                    {
-                        AggroReset = false;
-                        AggroResetEnd_Timer = 5000;
-                        AggroReset_Timer = urand(35000, 45000);
-                    } else AggroResetEnd_Timer -= diff;
-                }
-
-                //If she is 20% enrage
-                if (!Enraged)
-                {
-                    if (!HealthAbovePct(20) && !me->IsNonMeleeSpellCast(false))
-                    {
-                        DoCast(me, SPELL_ENRAGE);
-                        Enraged = true;
-                    }
-                }
-
-                //After 10 minutes hard enrage
-                if (!EnragedHard)
-                {
-                    if (EnrageHard_Timer <= diff)
-                    {
-                        DoCast(me, SPELL_ENRAGEHARD);
-                        EnragedHard = true;
-                    } else EnrageHard_Timer -= diff;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        }
-    };
-
+    // Guard
+    SPELL_KNOCKBACK            = 26027,
+    SPELL_WHIRLWIND_GUARD      = 26038
 };
 
-class npc_sartura_royal_guard : public CreatureScript
+enum SarturaEvents
 {
-public:
-    npc_sartura_royal_guard() : CreatureScript("npc_sartura_royal_guard") { }
+    // Sartura
+    EVENT_SUNDERING_CLEAVE     = 1,
+    EVENT_WHIRLWIND,
+    EVENT_FRENZY,
+    EVENT_BERSERK,
 
-    CreatureAI* GetAI(Creature* creature) const override
+    // Guard
+    EVENT_KNOCKBACK,
+    EVENT_WHIRLWIND_GUARD
+};
+
+// 15516 - Battleguard Sartura
+struct boss_sartura : public BossAI
+{
+    boss_sartura(Creature* creature) : BossAI(creature, DATA_SARTURA), _frenzied(false) { }
+
+    void Reset() override
     {
-        return GetAQ40AI<npc_sartura_royal_guardAI>(creature);
+        _Reset();
+        _frenzied = false;
     }
 
-    struct npc_sartura_royal_guardAI : public ScriptedAI
+    void JustEngagedWith(Unit* who) override
     {
-        npc_sartura_royal_guardAI(Creature* creature) : ScriptedAI(creature)
+        Talk(SAY_AGGRO);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_SUNDERING_CLEAVE, 2s, 5s);
+        events.ScheduleEvent(EVENT_WHIRLWIND, 10s, 20s);
+        events.ScheduleEvent(EVENT_BERSERK, 10min);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_frenzied && me->HealthBelowPctDamaged(25, damage))
         {
-            Initialize();
+            _frenzied = true;
+            events.ScheduleEvent(EVENT_FRENZY, 0s);
         }
+    }
 
-        void Initialize()
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FRENZY)
+            Talk(EMOTE_FRENZY);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = urand(3000, 7000);
-            WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = urand(45000, 55000);
-            AggroResetEnd_Timer = 5000;
-            KnockBack_Timer = 10000;
+            switch (eventId)
+            {
+                case EVENT_SUNDERING_CLEAVE:
+                    DoCastVictim(SPELL_SUNDERING_CLEAVE);
+                    events.Repeat(2s, 5s);
+                    break;
+                case EVENT_WHIRLWIND:
+                    DoCastSelf(SPELL_WHIRLWIND);
+                    events.Repeat(20s, 25s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    break;
+                case EVENT_BERSERK:
+                    DoCastSelf(SPELL_BERSERK);
+                    break;
+                default:
+                    break;
+            }
 
-            WhirlWind = false;
-            AggroReset = false;
-        }
-
-        uint32 WhirlWind_Timer;
-        uint32 WhirlWindRandom_Timer;
-        uint32 WhirlWindEnd_Timer;
-        uint32 AggroReset_Timer;
-        uint32 AggroResetEnd_Timer;
-        uint32 KnockBack_Timer;
-
-        bool WhirlWind;
-        bool AggroReset;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            if (!WhirlWind && WhirlWind_Timer <= diff)
-            {
-                DoCast(me, SPELL_WHIRLWINDADD);
-                WhirlWind = true;
-                WhirlWind_Timer = urand(25000, 40000);
-                WhirlWindEnd_Timer = 15000;
-            } else WhirlWind_Timer -= diff;
-
-            if (WhirlWind)
-            {
-                if (WhirlWindRandom_Timer <= diff)
-                {
-                    //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
-                    {
-                        AddThreat(target, 1.0f);
-                        AttackStart(target);
-                    }
-
-                    WhirlWindRandom_Timer = urand(3000, 7000);
-                } else WhirlWindRandom_Timer -= diff;
-
-                if (WhirlWindEnd_Timer <= diff)
-                {
-                    WhirlWind = false;
-                } else WhirlWindEnd_Timer -= diff;
-            }
-
-            if (!WhirlWind)
-            {
-                if (AggroReset_Timer <= diff)
-                {
-                    //Attack random Gamers
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.0f, true))
-                    {
-                        AddThreat(target, 1.0f);
-                        AttackStart(target);
-                    }
-
-                    AggroReset = true;
-                    AggroReset_Timer = urand(2000, 5000);
-                } else AggroReset_Timer -= diff;
-
-                if (KnockBack_Timer <= diff)
-                {
-                    DoCast(me, SPELL_WHIRLWINDADD);
-                    KnockBack_Timer = urand(10000, 20000);
-                } else KnockBack_Timer -= diff;
-            }
-
-            if (AggroReset)
-            {
-                if (AggroResetEnd_Timer <= diff)
-                {
-                    AggroReset = false;
-                    AggroResetEnd_Timer = 5000;
-                    AggroReset_Timer = urand(30000, 40000);
-                } else AggroResetEnd_Timer -= diff;
-            }
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _frenzied;
+};
+
+// 15984 - Sartura's Royal Guard
+struct npc_sartura_royal_guard : public ScriptedAI
+{
+    npc_sartura_royal_guard(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
+    {
+        _events.Reset();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        _events.ScheduleEvent(EVENT_KNOCKBACK, 5s, 10s);
+        _events.ScheduleEvent(EVENT_WHIRLWIND_GUARD, 10s, 15s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_KNOCKBACK:
+                    DoCastSelf(SPELL_KNOCKBACK);
+                    _events.Repeat(20s, 30s);
+                    break;
+                case EVENT_WHIRLWIND_GUARD:
+                    DoCastSelf(SPELL_WHIRLWIND_GUARD);
+                    _events.Repeat(10s, 20s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
+};
+
+// 26084 - Whirlwind
+// 26686 - Whirlwind
+class spell_sartura_whirlwind : public SpellScript
+{
+    PrepareSpellScript(spell_sartura_whirlwind);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        SpellInfo const* spellInfo = GetTriggeringSpell();
+        if (!spellInfo)
+            return;
+
+        if (AuraEffect const* eff = caster->GetAuraEffect(spellInfo->Id, EFFECT_0))
+        {
+            if (eff->GetTickNumber() != spellInfo->GetMaxTicks())
+            {
+                if (spellInfo->Id == SPELL_WHIRLWIND_GUARD)
+                    if (urand(0, 2))
+                        return;
+
+                // This requires additional research
+                caster->GetThreatManager().ResetAllThreat();
+                if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                    caster->GetThreatManager().AddThreat(target, 100000.0f);
+            }
+            else
+                caster->GetThreatManager().ResetAllThreat();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_sartura_whirlwind::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 4052
@@ -333,7 +258,8 @@ public:
 
 void AddSC_boss_sartura()
 {
-    new boss_sartura();
-    new npc_sartura_royal_guard();
+    RegisterAQ40CreatureAI(boss_sartura);
+    RegisterAQ40CreatureAI(npc_sartura_royal_guard);
+    RegisterSpellScript(spell_sartura_whirlwind);
     new at_aq_battleguard_sartura();
 }
