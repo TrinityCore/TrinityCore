@@ -33,10 +33,6 @@ namespace WorldPackets
     {
         class PVPMatchStatistics;
     }
-    namespace WorldState
-    {
-        class InitWorldStates;
-    }
 }
 
 class BattlegroundMap;
@@ -376,7 +372,6 @@ class TC_GAME_API Battleground
 
         // Packet Transfer
         // method that should fill worldpacket with actual world states (not yet implemented for all battlegrounds!)
-        virtual void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& /*packet*/) { }
         void SendPacketToTeam(uint32 TeamID, WorldPacket const* packet, Player* sender = nullptr, bool self = true);
         void SendPacketToAll(WorldPacket const* packet);
 
@@ -392,7 +387,7 @@ class TC_GAME_API Battleground
         void RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID);
         void RewardHonorToTeam(uint32 Honor, uint32 TeamID);
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
-        void UpdateWorldState(uint32 variable, uint32 value);
+        void UpdateWorldState(int32 worldStateId, int32 value, bool hidden = false);
         virtual void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
