@@ -43,7 +43,8 @@ enum RTKCreatureIds
 {
     // Bosses
     BOSS_MAIDEN_OF_VIRTUE_RTK = 113971,
-    BOSS_THE_CURATOR_RTK      = 114247
+    BOSS_THE_CURATOR_RTK      = 114247,
+    BOSS_MANA_DEVOURER        = 114252
 };
 
 enum RTKGameObjectsIds
