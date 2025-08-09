@@ -23,6 +23,7 @@
 #include "GridNotifiers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
