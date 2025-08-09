@@ -491,50 +491,6 @@ namespace UF
         using Mask = UpdateMask<Bits>;
 
         template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { (static_cast<Derived*>(this)->*field)._value };
-        }
-
-        template<typename Derived, typename T, std::size_t Size, uint32 Bit, int32 FirstElementBit>
-        MutableFieldReference<T, false> ModifyValue(UpdateFieldArray<T, Size, Bit, FirstElementBit>(Derived::* field), uint32 index)
-        {
-            MarkChanged(field, index);
-            return { (static_cast<Derived*>(this)->*field)._values[index] };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { (static_cast<Derived*>(this)->*field)._values };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(DynamicUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 index)
-        {
-            DynamicUpdateField<T, BlockBit, Bit>& uf = (static_cast<Derived*>(this)->*field);
-            if (index >= uf.size())
-            {
-                // fill with zeros until reaching desired slot
-                uf._values.resize(index + 1);
-                uf._updateMask.resize((index + 1 + 31) / 32);
-            }
-
-            MarkChanged(field);
-            (static_cast<Derived*>(this)->*field).MarkChanged(index);
-            return { uf._values[index] };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field))
-        {
-            MarkChanged(field);
-            return { *((static_cast<Derived*>(this)->*field)._value) };
-        }
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
         void MarkChanged(UpdateField<T, BlockBit, Bit>(Derived::*))
         {
             static_assert(std::is_base_of_v<Base, Derived>, "Given field argument must belong to the same structure as this HasChangesMask");
@@ -897,11 +853,6 @@ namespace UF
         using value_type = T;
         using IsLarge = std::integral_constant<bool, sizeof(void*) * 3 < sizeof(T)>;
         using StorageType = std::conditional_t<IsLarge::value, std::unique_ptr<T>, Optional<T>>;
-
-        ~OptionalUpdateFieldBase()
-        {
-            DestroyValue();
-        }
 
         bool has_value() const
         {
