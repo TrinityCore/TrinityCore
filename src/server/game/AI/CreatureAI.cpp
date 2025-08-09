@@ -42,7 +42,7 @@ AISpellInfoType* GetAISpellInfo(uint32 spellId, Difficulty difficulty)
     return Trinity::Containers::MapGetValuePtr(UnitAI::AISpellInfo, { spellId, difficulty });
 }
 
-CreatureAI::CreatureAI(Creature* creature, uint32 scriptId)
+CreatureAI::CreatureAI(Creature* creature, uint32 scriptId) noexcept
     : UnitAI(creature), me(creature), _boundary(nullptr),
       _negateBoundary(false), _scriptId(scriptId ? scriptId : creature->GetScriptId()), _isEngaged(false), _moveInLOSLocked(false)
 {

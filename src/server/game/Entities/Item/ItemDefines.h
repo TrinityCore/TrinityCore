@@ -279,6 +279,8 @@ enum ItemModifier : uint16
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_13                  = 56,
     ITEM_MODIFIER_CRAFTING_REAGENT_SLOT_14                  = 57,
     ITEM_MODIFIER_REFORGE                                   = 58,
+    ITEM_MODIFIER_DBID_HIGH                                 = 59,
+    ITEM_MODIFIER_DBID_LOW                                  = 60,
 
     MAX_ITEM_MODIFIERS
 };

@@ -248,7 +248,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
     &Spell::EffectMilling,                                  //158 SPELL_EFFECT_MILLING                  milling
     &Spell::EffectRenamePet,                                //159 SPELL_EFFECT_ALLOW_RENAME_PET         allow rename pet once again
-    &Spell::EffectForceCast,                                //160 SPELL_EFFECT_FORCE_CAST_2
+    &Spell::EffectForceCast2,                               //160 SPELL_EFFECT_FORCE_CAST_2
     &Spell::EffectNULL,                                     //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectNULL,                                     //163 SPELL_EFFECT_OBLITERATE_ITEM
@@ -423,12 +423,13 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //332 SPELL_EFFECT_332
     &Spell::EffectNULL,                                     //333 SPELL_EFFECT_333
     &Spell::EffectNULL,                                     //334 SPELL_EFFECT_334
-    &Spell::EffectNULL,                                     //335 SPELL_EFFECT_335
-    &Spell::EffectNULL,                                     //336 SPELL_EFFECT_336
-    &Spell::EffectNULL,                                     //337 SPELL_EFFECT_337
-    &Spell::EffectNULL,                                     //338 SPELL_EFFECT_338
+    &Spell::EffectSetPlayerDataElementAccount,              //335 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_ACCOUNT
+    &Spell::EffectSetPlayerDataElementCharacter,            //336 SPELL_EFFECT_SET_PLAYER_DATA_ELEMENT_CHARACTER
+    &Spell::EffectSetPlayerDataFlagAccount,                 //337 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_ACCOUNT
+    &Spell::EffectSetPlayerDataFlagCharacter,               //338 SPELL_EFFECT_SET_PLAYER_DATA_FLAG_CHARACTER
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
+    &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
 };
 
 void Spell::EffectNULL()
@@ -539,34 +540,6 @@ void Spell::EffectSchoolDMG()
         }
 
         Unit* unitCaster = GetUnitCasterForEffectHandlers();
-        switch (m_spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_GENERIC:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARRIOR:
-            {
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
-                break;
-            }
-            case SPELLFAMILY_PRIEST:
-            {
-                break;
-            }
-            case SPELLFAMILY_DRUID:
-            {
-                break;
-            }
-            case SPELLFAMILY_DEATHKNIGHT:
-            {
-                break;
-            }
-        }
-
         if (unitCaster && apply_direct_bonus)
         {
             uint32 bonus = unitCaster->SpellDamageBonusDone(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE, *effectInfo, 1, this);
@@ -800,7 +773,7 @@ void Spell::EffectTriggerMissileSpell()
 
 void Spell::EffectForceCast()
 {
-    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     if (!unitTarget)
@@ -835,7 +808,6 @@ void Spell::EffectForceCast()
             {
                 CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
                 args.SetOriginalCaster(m_originalCasterGUID);
-                args.SetTriggeringSpell(this);
                 args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
                 unitTarget->CastSpell(unitTarget, spellInfo->Id, args);
                 return;
@@ -847,18 +819,56 @@ void Spell::EffectForceCast()
     {
         case 72298: // Malleable Goo Summon
             unitTarget->CastSpell(unitTarget, spellInfo->Id, CastSpellExtraArgs(TRIGGERED_FULL_MASK)
-                .SetOriginalCaster(m_originalCasterGUID)
-                .SetTriggeringSpell(this));
+                .SetOriginalCaster(m_originalCasterGUID));
             return;
     }
 
-    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_REAGENT_COST));
-    args.SetTriggeringSpell(this);
+    CastSpellExtraArgs args(TRIGGERED_FULL_MASK & ~(TRIGGERED_IGNORE_POWER_COST | TRIGGERED_CAST_DIRECTLY | TRIGGERED_IGNORE_REAGENT_COST));
     if (effectInfo->Effect == SPELL_EFFECT_FORCE_CAST_WITH_VALUE)
         for (std::size_t i = 0; i < spellInfo->GetEffects().size(); ++i)
             args.AddSpellMod(SpellValueMod(SPELLVALUE_BASE_POINT0 + i), damage);
 
     unitTarget->CastSpell(m_caster, spellInfo->Id, args);
+}
+
+void Spell::EffectForceCast2()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    uint32 triggered_spell_id = effectInfo->TriggerSpell;
+    if (triggered_spell_id == 0)
+    {
+        TC_LOG_WARN("spells.effect.nospell", "Spell::EffectForceCast2: Spell {} [EffectIndex: {}] does not have triggered spell.", m_spellInfo->Id, effectInfo->EffectIndex);
+        return;
+    }
+
+    // normal case
+    if (!sSpellMgr->GetSpellInfo(triggered_spell_id, GetCastDifficulty()))
+    {
+        TC_LOG_ERROR("spells.effect.nospell", "Spell::EffectForceCast2 of spell {}: triggering unknown spell id {}.", m_spellInfo->Id, triggered_spell_id);
+        return;
+    }
+
+    // Start the cast during next update tick
+    // This is neccessary to preserve proper SMSG_SPELL_START and SMSG_SPELL_GO packet sequence
+    // (if packet sequence is not preserved then client cast bar in UI bugs and doesn't stop when the spell is interrupted)
+    // Triggered spells from effects handled during launch phase (such as SPELL_EFFECT_TRIGGER_SPELL)
+    // normally have their SMSG_SPELL_GO sent before parent spell SMSG_SPELL_GO
+    // SPELL_EFFECT_FORCE_CAST_2 requires these packets to be sent after parent spell
+    // but also needs to be handled during launch phase as well
+    unitTarget->m_Events.AddEventAtOffset([triggered_spell_id, target = CastSpellTargetArg(m_caster), caster = unitTarget]() mutable
+    {
+        if (!target.Targets)
+            return;
+
+        target.Targets->Update(caster);
+
+        caster->CastSpell(target, triggered_spell_id);
+    }, 0ms);
 }
 
 void Spell::EffectTriggerRitualOfSummoning()
@@ -2201,6 +2211,9 @@ void Spell::EffectDispel()
 
     CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
 
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
 
@@ -2781,8 +2794,12 @@ void Spell::EffectWeaponDmg()
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
+    uint32 effectMask = std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->EffectMask;
     for (size_t j = effectInfo->EffectIndex + 1; j < m_spellInfo->GetEffects().size(); ++j)
     {
+        if (!(effectMask & (1 << j)))
+            continue;
+
         switch (m_spellInfo->GetEffect(SpellEffIndex(j)).Effect)
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
@@ -2816,6 +2833,9 @@ void Spell::EffectWeaponDmg()
     float weaponDamagePercentMod = 1.0f;
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
     {
+        if (!(effectMask & (1 << spellEffectInfo.EffectIndex)))
+            continue;
+
         switch (spellEffectInfo.Effect)
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
@@ -2861,6 +2881,9 @@ void Spell::EffectWeaponDmg()
     // Sequence is important
     for (SpellEffectInfo const& spellEffectInfo : m_spellInfo->GetEffects())
     {
+        if (!(effectMask & (1 << spellEffectInfo.EffectIndex)))
+            continue;
+
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
         switch (spellEffectInfo.Effect)
@@ -2950,7 +2973,7 @@ void Spell::EffectInterruptCast()
         {
             SpellInfo const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
-            if ((spell->getState() == SPELL_STATE_CASTING
+            if ((spell->getState() == SPELL_STATE_CHANNELING
                 || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
                 && curSpellInfo->CanBeInterrupted(m_caster, unitTarget))
             {
@@ -4045,26 +4068,21 @@ void Spell::EffectQuestClear()
     if (oldStatus == QUEST_STATUS_NONE)
         return;
 
+    player->RemoveActiveQuest(quest_id, false);
+
     // remove all quest entries for 'entry' from quest log
-    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    if (oldStatus != QUEST_STATUS_REWARDED)
     {
-        uint32 logQuest = player->GetQuestSlotQuestId(slot);
-        if (logQuest == quest_id)
+        // we ignore unequippable quest items in this case, it's still be equipped
+        player->TakeQuestSourceItem(quest_id, false);
+
+        if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
         {
-            player->SetQuestSlot(slot, 0);
-
-            // we ignore unequippable quest items in this case, it's still be equipped
-            player->TakeQuestSourceItem(logQuest, false);
-
-            if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-            {
-                player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                player->UpdatePvPState();
-            }
+            player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+            player->UpdatePvPState();
         }
     }
 
-    player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
     player->DespawnPersonalSummonsForQuest(quest_id);
 
@@ -4195,6 +4213,11 @@ void Spell::EffectDispelMechanic()
     for (auto itr = dispel_list.begin(); itr != dispel_list.end(); ++itr)
         unitTarget->RemoveAura(itr->first, itr->second, 0, AURA_REMOVE_BY_ENEMY_SPELL);
 
+    CallScriptSuccessfulDispel(SpellEffIndex(effectInfo->EffectIndex));
+
+    Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, { PROC_FLAG_NONE, PROC_FLAG_2_SUCCESSFUL_DISPEL }, PROC_FLAG_NONE,
+        PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
+
     std::ranges::find(m_UniqueTargetInfo, unitTarget->GetGUID(), &TargetInfo::TargetGUID)->ProcHitMask |= PROC_HIT_DISPEL;
 }
 
@@ -4216,7 +4239,7 @@ void Spell::EffectResurrectPet()
     if (!player->GetPet())
     {
         PetStable const* petStable = player->GetPetStable();
-        auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+        auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
         {
             return petInfo && !petInfo->Health;
         });
@@ -5437,16 +5460,13 @@ void Spell::EffectCancelConversation()
     if (!unitTarget)
         return;
 
-    std::vector<WorldObject*> objs;
-    Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(unitTarget->GetGUID(), effectInfo->MiscValue);
-    Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(unitTarget, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-    Cell::VisitGridObjects(unitTarget, checker, 100.0f);
-
-    for (WorldObject* obj : objs)
+    auto work = [check = Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck(unitTarget->GetGUID(), effectInfo->MiscValue)](Conversation* conversation)
     {
-        if (Conversation* convo = obj->ToConversation())
-            convo->Remove();
-    }
+        if (check(conversation))
+            conversation->Remove();
+    };
+    Trinity::ConversationWorker worker(unitTarget, work);
+    Cell::VisitGridObjects(unitTarget, worker, 100.0f);
 }
 
 void Spell::EffectAddGarrisonFollower()
@@ -6083,9 +6103,7 @@ void Spell::EffectModifyCooldowns()
         if (bitIndex < 0 || uint32(bitIndex) >= sizeof(flag128) * 8)
             return false;
 
-        flag128 reqFlag;
-        reqFlag[bitIndex / 32] = 1u << (bitIndex % 32);
-        return bool(spellOnCooldown->SpellFamilyFlags & reqFlag);
+        return (spellOnCooldown->SpellFamilyFlags[bitIndex / 32] & 1u << (bitIndex % 32)) != 0;
     }, Milliseconds(damage));
 }
 
@@ -6175,4 +6193,64 @@ void Spell::EffectUpdateInteractions()
         return;
 
     target->UpdateVisibleObjectInteractions(true, false, true, true);
+}
+
+void Spell::EffectLearnWarbandScene()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->GetSession()->GetCollectionMgr()->AddWarbandScene(effectInfo->MiscValue);
+}
+
+void Spell::EffectSetPlayerDataElementAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementAccount(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataElementCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataElementCharacter(effectInfo->MiscValue, int64(damage));
+}
+
+void Spell::EffectSetPlayerDataFlagAccount()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagAccount(effectInfo->MiscValue, damage != 0);
+}
+
+void Spell::EffectSetPlayerDataFlagCharacter()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* target = Object::ToPlayer(unitTarget);
+    if (!target)
+        return;
+
+    target->SetDataFlagCharacter(effectInfo->MiscValue, damage != 0);
 }

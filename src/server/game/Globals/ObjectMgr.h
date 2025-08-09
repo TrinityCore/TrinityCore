@@ -30,6 +30,7 @@
 #include "ObjectDefines.h"
 #include "ObjectGuid.h"
 #include "ObjectGuidSequenceGenerator.h"
+#include "PlayerChoice.h"
 #include "Position.h"
 #include "QuestDef.h"
 #include "RaceMask.h"
@@ -52,6 +53,7 @@ enum class GossipOptionNpc : uint8;
 struct AccessRequirement;
 struct DeclinedName;
 struct FactionEntry;
+struct PlayerChoice;
 struct PlayerInfo;
 struct PlayerLevelInfo;
 struct SkillRaceClassInfoEntry;
@@ -757,7 +759,7 @@ struct GossipMenuItems
     uint32              ActionPoiID;
     Optional<int32>     GossipNpcOptionID;
     bool                BoxCoded;
-    uint32              BoxMoney;
+    uint64              BoxMoney;
     std::string         BoxText;
     uint32              BoxBroadcastTextID;
     Optional<int32>     SpellID;
@@ -868,100 +870,6 @@ struct SceneTemplate
 typedef std::unordered_map<uint32, SceneTemplate> SceneTemplateContainer;
 
 typedef std::unordered_map<uint32, std::string> PhaseNameContainer;
-
-struct PlayerChoiceResponseRewardItem
-{
-    PlayerChoiceResponseRewardItem() : Id(0), Quantity(0) { }
-    PlayerChoiceResponseRewardItem(uint32 id, std::vector<int32> bonusListIDs, int32 quantity) : Id(id), BonusListIDs(std::move(bonusListIDs)), Quantity(quantity) { }
-
-    uint32 Id;
-    std::vector<int32> BonusListIDs;
-    int32 Quantity;
-};
-
-struct PlayerChoiceResponseRewardEntry
-{
-    PlayerChoiceResponseRewardEntry() : Id(0), Quantity(0) { }
-    PlayerChoiceResponseRewardEntry(uint32 id, int32 quantity) : Id(id), Quantity(quantity) { }
-
-    uint32 Id;
-    int32 Quantity;
-};
-
-struct PlayerChoiceResponseReward
-{
-    int32 TitleId;
-    int32 PackageId;
-    int32 SkillLineId;
-    uint32 SkillPointCount;
-    uint32 ArenaPointCount;
-    uint32 HonorPointCount;
-    uint64 Money;
-    uint32 Xp;
-    std::vector<PlayerChoiceResponseRewardItem> Items;
-    std::vector<PlayerChoiceResponseRewardEntry> Currency;
-    std::vector<PlayerChoiceResponseRewardEntry> Faction;
-    std::vector<PlayerChoiceResponseRewardItem> ItemChoices;
-};
-
-struct PlayerChoiceResponseMawPower
-{
-    int32 TypeArtFileID = 0;
-    Optional<int32> Rarity;
-    Optional<uint32> RarityColor;
-    int32 SpellID = 0;
-    int32 MaxStacks = 0;
-};
-
-struct PlayerChoiceResponse
-{
-    int32 ResponseId = 0;
-    uint16 ResponseIdentifier = 0;
-    int32 ChoiceArtFileId = 0;
-    int32 Flags = 0;
-    uint32 WidgetSetID = 0;
-    uint32 UiTextureAtlasElementID = 0;
-    uint32 SoundKitID = 0;
-    uint8 GroupID = 0;
-    int32 UiTextureKitID = 0;
-    std::string Answer;
-    std::string Header;
-    std::string SubHeader;
-    std::string ButtonTooltip;
-    std::string Description;
-    std::string Confirmation;
-    Optional<PlayerChoiceResponseReward> Reward;
-    Optional<uint32> RewardQuestID;
-    Optional<PlayerChoiceResponseMawPower> MawPower;
-};
-
-struct PlayerChoice
-{
-    int32 ChoiceId;
-    int32 UiTextureKitId;
-    uint32 SoundKitId;
-    uint32 CloseSoundKitId;
-    int64 Duration;
-    std::string Question;
-    std::string PendingChoiceText;
-    std::vector<PlayerChoiceResponse> Responses;
-    bool HideWarboardHeader;
-    bool KeepOpenAfterChoice;
-
-    PlayerChoiceResponse const* GetResponse(int32 responseId) const
-    {
-        auto itr = std::find_if(Responses.begin(), Responses.end(),
-            [responseId](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseId == responseId; });
-        return itr != Responses.end() ? &(*itr) : nullptr;
-    }
-
-    PlayerChoiceResponse const* GetResponseByIdentifier(int32 responseIdentifier) const
-    {
-        auto itr = std::find_if(Responses.begin(), Responses.end(),
-            [responseIdentifier](PlayerChoiceResponse const& playerChoiceResponse) { return playerChoiceResponse.ResponseIdentifier == responseIdentifier; });
-        return itr != Responses.end() ? &(*itr) : nullptr;
-    }
-};
 
 enum SkillRangeType
 {
@@ -1530,7 +1438,7 @@ class TC_GAME_API ObjectMgr
             if (itr == _creatureDataStore.end()) return nullptr;
             return &itr->second;
         }
-        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId) { return _creatureDataStore[spawnId]; }
+        CreatureData& NewOrExistCreatureData(ObjectGuid::LowType spawnId);
         void DeleteCreatureData(ObjectGuid::LowType spawnId);
         ObjectGuid GetLinkedRespawnGuid(ObjectGuid spawnId) const
         {
@@ -1551,7 +1459,7 @@ class TC_GAME_API ObjectMgr
             if (itr == _gameObjectDataStore.end()) return nullptr;
             return &itr->second;
         }
-        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType spawnId) { return _gameObjectDataStore[spawnId]; }
+        GameObjectData& NewOrExistGameObjectData(ObjectGuid::LowType spawnId);
         void DeleteGameObjectData(ObjectGuid::LowType spawnId);
         GameObjectLocale const* GetGameObjectLocale(uint32 entry) const
         {

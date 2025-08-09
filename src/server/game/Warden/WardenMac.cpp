@@ -182,7 +182,7 @@ void WardenMac::RequestChecks()
     buff.hexlike();
 
     // Encrypt with warden RC4 key.
-    EncryptData(buff.contents(), buff.size());
+    EncryptData(buff.data(), buff.size());
 
     WorldPacket pkt(SMSG_WARDEN3_DATA, buff.size());
     pkt.append(buff);

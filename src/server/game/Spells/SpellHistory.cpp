@@ -27,6 +27,7 @@
 #include "PetPackets.h"
 #include "Player.h"
 #include "Spell.h"
+#include "SpellAuraEffects.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
@@ -422,6 +423,8 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
     {
         if (!forcedCooldown)
         {
+            Duration baseCooldown = cooldown;
+
             // Now we have cooldown data (if found any), time to apply mods
             if (Player* modOwner = _owner->GetSpellModOwner())
             {
@@ -449,6 +452,34 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
             {
                 cooldown = Duration(int64(cooldown.count() * _owner->m_unitData->ModHasteRegen));
                 categoryCooldown = Duration(int64(categoryCooldown.count() * _owner->m_unitData->ModHasteRegen));
+            }
+
+            {
+                auto calcRecoveryRate = [&](AuraEffect const* modRecoveryRate)
+                {
+                    float rate = 100.0f / (std::max<float>(modRecoveryRate->GetAmount(), -99.0f) + 100.0f);
+                    if (baseCooldown <= 1h
+                        && !spellInfo->HasAttribute(SPELL_ATTR6_IGNORE_FOR_MOD_TIME_RATE)
+                        && !modRecoveryRate->GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes::IgnoreDuringCooldownTimeRateCalculation))
+                        rate *= *_owner->m_unitData->ModTimeRate;
+
+                    return rate;
+                };
+
+                float recoveryRate = 1.0f;
+                for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_RECOVERY_RATE))
+                    if (modRecoveryRate->IsAffectingSpell(spellInfo))
+                        recoveryRate *= calcRecoveryRate(modRecoveryRate);
+
+                for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_RECOVERY_RATE_BY_SPELL_LABEL))
+                    if (spellInfo->HasLabel(modRecoveryRate->GetMiscValue()) || (modRecoveryRate->GetMiscValueB() && spellInfo->HasLabel(modRecoveryRate->GetMiscValueB())))
+                        recoveryRate *= calcRecoveryRate(modRecoveryRate);
+
+                if (recoveryRate > 0.0f)
+                {
+                    cooldown = Duration(int64(cooldown.count() * recoveryRate));
+                    categoryCooldown = Duration(int64(categoryCooldown.count() * recoveryRate));
+                }
             }
 
             if (int32 cooldownMod = _owner->GetTotalAuraModifier(SPELL_AURA_MOD_COOLDOWN))
@@ -591,12 +622,36 @@ void SpellHistory::ModifySpellCooldown(CooldownStorageType::iterator& itr, Durat
         modifyCooldown.IsPet = _owner != playerOwner;
         modifyCooldown.SpellID = itr->second.SpellId;
         modifyCooldown.DeltaTime = duration_cast<Milliseconds>(cooldownMod).count();
-        modifyCooldown.WithoutCategoryCooldown = withoutCategoryCooldown;
+        modifyCooldown.SkipCategory = withoutCategoryCooldown;
         playerOwner->SendDirectMessage(modifyCooldown.Write());
     }
 
     if (itr->second.CooldownEnd <= now)
         itr = EraseCooldown(itr);
+}
+
+void SpellHistory::UpdateCooldownRecoveryRate(CooldownStorageType::iterator& itr, float modChange, bool apply)
+{
+    if (modChange <= 0.0f)
+        return;
+
+    if (!apply)
+        modChange = 1.0f / modChange;
+
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+
+    itr->second.CooldownEnd = now + duration_cast<Duration>((itr->second.CooldownEnd - now) * modChange);
+
+    if (itr->second.CategoryId)
+        itr->second.CategoryEnd = now + duration_cast<Duration>((itr->second.CategoryEnd - now) * modChange);
+
+    if (Player* playerOwner = GetPlayerOwner())
+    {
+        WorldPackets::Spells::UpdateCooldown updateCooldown;
+        updateCooldown.SpellID = itr->second.SpellId;
+        updateCooldown.ModChange = modChange;
+        playerOwner->SendDirectMessage(updateCooldown.Write());
+    }
 }
 
 void SpellHistory::ModifyCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown)
@@ -804,6 +859,9 @@ bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
     int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryId);
     if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
     {
+        if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_IGNORE_SPELL_CHARGE_COOLDOWN, chargeCategoryId))
+            return true;
+
         TimePoint recoveryStart;
         std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
         if (charges.empty())
@@ -840,6 +898,43 @@ void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Duration co
         itr->second.pop_front();
 
     SendSetSpellCharges(chargeCategoryId, itr->second);
+}
+
+void SpellHistory::UpdateChargeRecoveryRate(uint32 chargeCategoryId, float modChange, bool apply)
+{
+    auto itr = _categoryCharges.find(chargeCategoryId);
+    if (itr == _categoryCharges.end() || itr->second.empty())
+        return;
+
+    if (modChange <= 0.0f)
+        return;
+
+    if (!apply)
+        modChange = 1.0f / modChange;
+
+    TimePoint now = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+
+    auto chargeItr = itr->second.begin();
+
+    chargeItr->RechargeEnd = now + duration_cast<Duration>((chargeItr->RechargeEnd - now) * modChange);
+
+    TimePoint prevEnd = chargeItr->RechargeEnd;
+
+    while (++chargeItr != itr->second.end())
+    {
+        Duration rechargeTime = duration_cast<Duration>((chargeItr->RechargeEnd - chargeItr->RechargeStart) * modChange);
+        chargeItr->RechargeStart = prevEnd;
+        chargeItr->RechargeEnd = prevEnd + rechargeTime;
+        prevEnd = chargeItr->RechargeEnd;
+    }
+
+    if (Player* playerOwner = GetPlayerOwner())
+    {
+        WorldPackets::Spells::UpdateChargeCategoryCooldown updateChargeCategoryCooldown;
+        updateChargeCategoryCooldown.Category = chargeCategoryId;
+        updateChargeCategoryCooldown.ModChange = modChange;
+        playerOwner->SendDirectMessage(updateChargeCategoryCooldown.Write());
+    }
 }
 
 void SpellHistory::RestoreCharge(uint32 chargeCategoryId)
@@ -916,6 +1011,10 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
     int32 recoveryTime = chargeCategoryEntry->ChargeRecoveryTime;
     recoveryTime += _owner->GetTotalAuraModifierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MOD, chargeCategoryId);
 
+    for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_CHARGE_RECOVERY_BY_TYPE_MASK))
+        if (modRecoveryRate->GetMiscValue() & chargeCategoryEntry->TypeMask)
+            recoveryTime += modRecoveryRate->GetAmount();
+
     float recoveryTimeF = float(recoveryTime);
     recoveryTimeF *= _owner->GetTotalAuraMultiplierByMiscValue(SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER, chargeCategoryId);
 
@@ -924,6 +1023,19 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
 
     if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_CHARGE_RECOVERY_AFFECTED_BY_HASTE_REGEN, chargeCategoryId))
         recoveryTimeF *= _owner->m_unitData->ModHasteRegen;
+
+    for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_CHARGE_RECOVERY_RATE))
+        if (modRecoveryRate->GetMiscValue() == int32(chargeCategoryId))
+            recoveryTimeF *= 100.0f / (std::max<float>(modRecoveryRate->GetAmount(), -99.0f) + 100.0f);
+
+    for (AuraEffect const* modRecoveryRate : _owner->GetAuraEffectsByType(SPELL_AURA_MOD_CHARGE_RECOVERY_RATE_BY_TYPE_MASK))
+        if (modRecoveryRate->GetMiscValue() & chargeCategoryEntry->TypeMask)
+            recoveryTimeF *= 100.0f / (std::max<float>(modRecoveryRate->GetAmount(), -99.0f) + 100.0f);
+
+    if (Milliseconds(chargeCategoryEntry->ChargeRecoveryTime) <= 1h
+        && !(chargeCategoryEntry->Flags & SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE)
+        && !(chargeCategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET))
+        recoveryTimeF *= *_owner->m_unitData->ModTimeRate;
 
     return int32(std::floor(recoveryTimeF));
 }

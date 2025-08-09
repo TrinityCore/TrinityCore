@@ -140,7 +140,7 @@ void WorldSession::HandleWhoOpcode(WorldPackets::Who::WhoRequestPkt& whoRequest)
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPackets::Who::WhoResponsePkt response;
-    response.RequestID = whoRequest.RequestID;
+    response.Token = whoRequest.Token;
 
     WhoListInfoVector const& whoList = sWhoListStorageMgr->GetWhoList();
     for (WhoListPlayerInfo const& target : whoList)
@@ -567,9 +567,14 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     {
         // set resting flag we are in the inn
         if (packet.Entered)
-            player->GetRestMgr().SetInnTriggerID(atEntry->ID);
+        {
+            player->GetRestMgr().SetInnTrigger(InnAreaTrigger{ .IsDBC = true, .AreaTriggerEntryId = atEntry->ID });
+        }
         else
+        {
             player->GetRestMgr().RemoveRestFlag(REST_FLAG_IN_TAVERN);
+            player->GetRestMgr().SetInnTrigger(std::nullopt);
+        }
 
         if (sWorld->IsFFAPvPRealm())
         {
@@ -698,6 +703,13 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     if (packet.Size == 0)                               // erase
     {
         SetAccountData(AccountDataType(packet.DataType), 0, "");
+
+        WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+        updateAccountDataComplete.Player = packet.PlayerGuid;
+        updateAccountDataComplete.DataType = packet.DataType;
+        updateAccountDataComplete.Result = 0;
+        SendPacket(updateAccountDataComplete.Write());
+
         return;
     }
 
@@ -711,13 +723,19 @@ void WorldSession::HandleUpdateAccountData(WorldPackets::ClientConfig::UserClien
     dest.resize(packet.Size);
 
     uLongf realSize = packet.Size;
-    if (uncompress(reinterpret_cast<Bytef*>(dest.data()), &realSize, packet.CompressedData.contents(), packet.CompressedData.size()) != Z_OK)
+    if (uncompress(reinterpret_cast<Bytef*>(dest.data()), &realSize, packet.CompressedData.data(), packet.CompressedData.size()) != Z_OK)
     {
         TC_LOG_ERROR("network", "UAD: Failed to decompress account data");
         return;
     }
 
     SetAccountData(AccountDataType(packet.DataType), packet.Time, dest);
+
+    WorldPackets::ClientConfig::UpdateAccountDataComplete updateAccountDataComplete;
+    updateAccountDataComplete.Player = packet.PlayerGuid;
+    updateAccountDataComplete.DataType = packet.DataType;
+    updateAccountDataComplete.Result = 0;
+    SendPacket(updateAccountDataComplete.Write());
 }
 
 void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestAccountData& request)
@@ -739,7 +757,7 @@ void WorldSession::HandleRequestAccountData(WorldPackets::ClientConfig::RequestA
 
     data.CompressedData.resize(destSize);
 
-    if (data.Size && compress(data.CompressedData.contents(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
+    if (data.Size && compress(data.CompressedData.data(), &destSize, (uint8 const*)adata->Data.c_str(), data.Size) != Z_OK)
     {
         TC_LOG_ERROR("network", "RAD: Failed to compress account data");
         return;

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PetitionPackets_h__
-#define PetitionPackets_h__
+#ifndef TRINITYCORE_PETITION_PACKETS_H
+#define TRINITYCORE_PETITION_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -28,7 +28,7 @@ namespace WorldPackets
         class QueryPetition final : public ClientPacket
         {
         public:
-            QueryPetition(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PETITION, std::move(packet)) { }
+            explicit QueryPetition(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -61,7 +61,7 @@ namespace WorldPackets
         class QueryPetitionResponse final : public ServerPacket
         {
         public:
-            QueryPetitionResponse() : ServerPacket(SMSG_QUERY_PETITION_RESPONSE, 75) { }
+            explicit QueryPetitionResponse() : ServerPacket(SMSG_QUERY_PETITION_RESPONSE, 75) { }
 
             WorldPacket const* Write() override;
 
@@ -73,7 +73,7 @@ namespace WorldPackets
         class PetitionShowList final : public ClientPacket
         {
         public:
-            PetitionShowList(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_SHOW_LIST, std::move(packet)) { }
+            explicit PetitionShowList(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_SHOW_LIST, std::move(packet)) { }
 
             void Read() override;
 
@@ -83,7 +83,7 @@ namespace WorldPackets
         class ServerPetitionShowList final : public ServerPacket
         {
         public:
-            ServerPetitionShowList() : ServerPacket(SMSG_PETITION_SHOW_LIST, 20) { }
+            explicit ServerPetitionShowList() : ServerPacket(SMSG_PETITION_SHOW_LIST, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -94,7 +94,7 @@ namespace WorldPackets
         class PetitionBuy final : public ClientPacket
         {
         public:
-            PetitionBuy(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_BUY, std::move(packet)) { }
+            explicit PetitionBuy(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_BUY, std::move(packet)) { }
 
             void Read() override;
 
@@ -106,7 +106,7 @@ namespace WorldPackets
         class PetitionShowSignatures final : public ClientPacket
         {
         public:
-            PetitionShowSignatures(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_SHOW_SIGNATURES, std::move(packet)) { }
+            explicit PetitionShowSignatures(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_SHOW_SIGNATURES, std::move(packet)) { }
 
             void Read() override;
 
@@ -122,7 +122,7 @@ namespace WorldPackets
                 int32 Choice = 0;
             };
 
-            ServerPetitionShowSignatures() : ServerPacket(SMSG_PETITION_SHOW_SIGNATURES, 40) { }
+            explicit ServerPetitionShowSignatures() : ServerPacket(SMSG_PETITION_SHOW_SIGNATURES, 40) { }
 
             WorldPacket const* Write() override;
 
@@ -136,7 +136,7 @@ namespace WorldPackets
         class SignPetition final : public ClientPacket
         {
         public:
-            SignPetition(WorldPacket&& packet) : ClientPacket(CMSG_SIGN_PETITION, std::move(packet)) { }
+            explicit SignPetition(WorldPacket&& packet) : ClientPacket(CMSG_SIGN_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -147,7 +147,7 @@ namespace WorldPackets
         class PetitionSignResults final : public ServerPacket
         {
         public:
-            PetitionSignResults() : ServerPacket(SMSG_PETITION_SIGN_RESULTS, 33) { }
+            explicit PetitionSignResults() : ServerPacket(SMSG_PETITION_SIGN_RESULTS, 33) { }
 
             WorldPacket const* Write() override;
 
@@ -159,7 +159,7 @@ namespace WorldPackets
         class PetitionAlreadySigned final : public ServerPacket
         {
         public:
-            PetitionAlreadySigned() : ServerPacket(SMSG_PETITION_ALREADY_SIGNED, 16) { }
+            explicit PetitionAlreadySigned() : ServerPacket(SMSG_PETITION_ALREADY_SIGNED, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -169,7 +169,7 @@ namespace WorldPackets
         class DeclinePetition final : public ClientPacket
         {
         public:
-            DeclinePetition(WorldPacket&& packet) : ClientPacket(CMSG_DECLINE_PETITION, std::move(packet)) { }
+            explicit DeclinePetition(WorldPacket&& packet) : ClientPacket(CMSG_DECLINE_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -179,7 +179,7 @@ namespace WorldPackets
         class TurnInPetition final : public ClientPacket
         {
         public:
-            TurnInPetition(WorldPacket&& packet) : ClientPacket(CMSG_TURN_IN_PETITION, std::move(packet)) { }
+            explicit TurnInPetition(WorldPacket&& packet) : ClientPacket(CMSG_TURN_IN_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -189,7 +189,7 @@ namespace WorldPackets
         class TurnInPetitionResult final : public ServerPacket
         {
         public:
-            TurnInPetitionResult() : ServerPacket(SMSG_TURN_IN_PETITION_RESULT, 4) { }
+            explicit TurnInPetitionResult() : ServerPacket(SMSG_TURN_IN_PETITION_RESULT, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -199,7 +199,7 @@ namespace WorldPackets
         class OfferPetition final : public ClientPacket
         {
         public:
-            OfferPetition(WorldPacket&& packet) : ClientPacket(CMSG_OFFER_PETITION, std::move(packet)) { }
+            explicit OfferPetition(WorldPacket&& packet) : ClientPacket(CMSG_OFFER_PETITION, std::move(packet)) { }
 
             void Read() override;
 
@@ -210,7 +210,7 @@ namespace WorldPackets
         class OfferPetitionError final : public ServerPacket
         {
         public:
-            OfferPetitionError() : ServerPacket(SMSG_OFFER_PETITION_ERROR, 16) { }
+            explicit OfferPetitionError() : ServerPacket(SMSG_OFFER_PETITION_ERROR, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -220,7 +220,7 @@ namespace WorldPackets
         class PetitionRenameGuild final : public ClientPacket
         {
         public:
-            PetitionRenameGuild(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_RENAME_GUILD, std::move(packet)) { }
+            explicit PetitionRenameGuild(WorldPacket&& packet) : ClientPacket(CMSG_PETITION_RENAME_GUILD, std::move(packet)) { }
 
             void Read() override;
 
@@ -231,7 +231,7 @@ namespace WorldPackets
         class PetitionRenameGuildResponse final : public ServerPacket
         {
         public:
-            PetitionRenameGuildResponse() : ServerPacket(SMSG_PETITION_RENAME_GUILD_RESPONSE, 20) { }
+            explicit PetitionRenameGuildResponse() : ServerPacket(SMSG_PETITION_RENAME_GUILD_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 
@@ -241,4 +241,4 @@ namespace WorldPackets
     }
 }
 
-#endif // PetitionPackets_h__
+#endif // TRINITYCORE_PETITION_PACKETS_H

@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BankPackets_h__
-#define BankPackets_h__
+#ifndef TRINITYCORE_BANK_PACKETS_H
+#define TRINITYCORE_BANK_PACKETS_H
 
 #include "Packet.h"
 #include "ItemPacketsCommon.h"
@@ -31,7 +31,7 @@ namespace WorldPackets
         class AutoBankItem final : public ClientPacket
         {
         public:
-            AutoBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_ITEM, std::move(packet)) { }
+            explicit AutoBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -44,7 +44,7 @@ namespace WorldPackets
         class AutoStoreBankItem final : public ClientPacket
         {
         public:
-            AutoStoreBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_ITEM, std::move(packet)) { }
+            explicit AutoStoreBankItem(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_ITEM, std::move(packet)) { }
 
             void Read() override;
 
@@ -56,7 +56,7 @@ namespace WorldPackets
         class BuyBankSlot final : public ClientPacket
         {
         public:
-            BuyBankSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BANK_SLOT, std::move(packet)) { }
+            explicit BuyBankSlot(WorldPacket&& packet) : ClientPacket(CMSG_BUY_BANK_SLOT, std::move(packet)) { }
 
             void Read() override;
 
@@ -66,7 +66,7 @@ namespace WorldPackets
         class AutoBankReagent final : public ClientPacket
         {
         public:
-            AutoBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_REAGENT, std::move(packet)) { }
+            explicit AutoBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOBANK_REAGENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -78,7 +78,7 @@ namespace WorldPackets
         class AutoStoreBankReagent final : public ClientPacket
         {
         public:
-            AutoStoreBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_REAGENT, std::move(packet)) { }
+            explicit AutoStoreBankReagent(WorldPacket&& packet) : ClientPacket(CMSG_AUTOSTORE_BANK_REAGENT, std::move(packet)) { }
 
             void Read() override;
 
@@ -92,7 +92,7 @@ namespace WorldPackets
         class ReagentBank final : public ClientPacket
         {
         public:
-            ReagentBank(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
+            explicit ReagentBank(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 
@@ -111,4 +111,5 @@ namespace WorldPackets
         };
     }
 }
-#endif // BankPackets_h__
+
+#endif // TRINITYCORE_BANK_PACKETS_H

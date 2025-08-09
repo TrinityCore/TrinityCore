@@ -100,6 +100,11 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
 CreatureModel const CreatureModel::DefaultInvisibleModel(11686, 1.0f, 1.0f);
 CreatureModel const CreatureModel::DefaultVisibleModel(17519, 1.0f, 1.0f);
 
+CreatureTemplate::CreatureTemplate() = default;
+CreatureTemplate::CreatureTemplate(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate& CreatureTemplate::operator=(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate::~CreatureTemplate() = default;
+
 CreatureModel const* CreatureTemplate::GetModelByIdx(uint32 idx) const
 {
     return idx < Models.size() ? &Models[idx] : nullptr;
@@ -629,7 +634,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data ? data->spawnTrackingQuestObjectiveId : 0);
+    // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
+    if (data && data->spawnTrackingQuestObjectives.size() == 1)
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data->spawnTrackingQuestObjectives.front());
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -1389,9 +1396,9 @@ void Creature::SetTappedBy(Unit const* unit, bool withGroup)
     m_tapList.insert(player->GetGUID());
     if (withGroup)
         if (Group const* group = player->GetGroup())
-            for (auto const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr->GetSource()))
-                    m_tapList.insert(itr->GetSource()->GetGUID());
+            for (GroupReference const& itr : group->GetMembers())
+                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr.GetSource()))
+                    m_tapList.insert(itr.GetSource()->GetGUID());
 
     if (m_tapList.size() >= CREATURE_TAPPERS_SOFT_CAP)
         SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
@@ -3128,7 +3135,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMin = m_unitData->ScalingLevelMin;
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
-            int32 scalingFactionGroup = m_unitData->ScalingFactionGroup;
+            uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
             int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
             if (!targetLevel)
                 targetLevel = unitTarget->GetLevel();
@@ -3205,11 +3212,11 @@ SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Playe
     if (!player)
         return nullptr;
 
-    if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SPAWN_TYPE_CREATURE, GetSpawnId()))
+    if (CreatureData const* data = GetCreatureData())
     {
-        if (data->spawnTrackingQuestObjectiveId && data->spawnTrackingData)
+        if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
         {
-            SpawnTrackingState state = player->GetSpawnTrackingStateByObjective(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectiveId);
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives);
             return &data->spawnTrackingStates[AsUnderlyingType(state)];
         }
     }
@@ -3777,10 +3784,10 @@ void Creature::ForcePartyMembersIntoCombat()
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
     {
-        for (GroupReference const* ref = partyToForceIntoCombat->GetFirstMember(); ref != nullptr; ref = ref->next())
+        for (GroupReference const& ref : partyToForceIntoCombat->GetMembers())
         {
-            Player* player = ref->GetSource();
-            if (!player || !player->IsInWorld() || player->GetMap() != GetMap() || player->IsGameMaster())
+            Player* player = ref.GetSource();
+            if (!player->IsInMap(this) || player->IsGameMaster())
                 continue;
 
             EngageWithTarget(player);
@@ -3872,7 +3879,12 @@ void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Pl
     m_unitData->WriteCreate(*data, flags, this, target);
 
     if (m_vendorData)
+    {
+        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
+            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
+
         m_vendorData->WriteCreate(*data, flags, this, target);
+    }
 }
 
 void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -3947,8 +3959,6 @@ void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* pla
 
 void Creature::ClearUpdateMask(bool remove)
 {
-    if (m_vendorData)
-        m_values.ClearChangesMask(&Creature::m_vendorData);
-
+    m_values.ClearChangesMask(&Creature::m_vendorData);
     Unit::ClearUpdateMask(remove);
 }
