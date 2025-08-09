@@ -52,7 +52,7 @@ Pet::Pet(Player* owner, PetType type) :
 {
     ASSERT(GetOwner());
 
-    InitializeSummonInfo({ .SummonerGUID = GetOwner()->GetGUID()});
+    InitializeSummonInfo({ .SummonerGUID = GetOwner()->GetGUID() });
 
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
