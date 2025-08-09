@@ -1469,7 +1469,6 @@ class TC_GAME_API Unit : public WorldObject
         std::array<ObjectGuid, MAX_SUMMON_SLOT> m_SummonSlot;
         std::array<ObjectGuid, MAX_GAMEOBJECT_SLOT> m_ObjectSlot;
 
-        std::vector<SummonInfo*> _activeSummons;
         // Registers the SummonInfo API of a summoned creature to allow accessing it to allow safe accessing
         void RegisterSummon(SummonInfo* summon);
         // Unregisters the SummonInfo API of a summoned creature so it can no longer be accessed
@@ -2007,6 +2006,9 @@ class TC_GAME_API Unit : public WorldObject
         uint32 _healthRegenerationTimer;
         std::array<float, MAX_POWERS_PER_CLASS> _powerFraction;
         std::array<Powers, MAX_POWERS_PER_CLASS> _usedPowerTypes;
+
+        // SummonInfo API
+        std::vector<SummonInfo*> _activeSummons;
     public:
         // Returns an array that contains information about which power type is used at which power index. MAX_POWERS implies that a power at given index is not used.
         std::array<Powers, MAX_POWERS_PER_CLASS> const& GetUsedPowerTypes() const { return _usedPowerTypes; }
