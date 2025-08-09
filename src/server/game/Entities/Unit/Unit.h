@@ -91,6 +91,7 @@ class SpellCastTargets;
 class SpellEffectInfo;
 class SpellHistory;
 class SpellInfo;
+class SummonInfo;
 class Totem;
 class Transport;
 class TransportBase;
@@ -743,7 +744,7 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 HasUnitTypeMask(uint32 mask) const { return mask & m_unitTypeMask; }
         void AddUnitTypeMask(uint32 mask) { m_unitTypeMask |= mask; }
-        bool IsSummon() const   { return (m_unitTypeMask & UNIT_MASK_SUMMON) != 0; }
+        virtual bool IsSummon() const { return false; }
         bool IsGuardian() const { return (m_unitTypeMask & UNIT_MASK_GUARDIAN) != 0; }
         bool IsPet() const      { return (m_unitTypeMask & UNIT_MASK_PET) != 0; }
         bool IsHunterPet() const{ return (m_unitTypeMask & UNIT_MASK_HUNTER_PET) != 0; }
@@ -1487,6 +1488,11 @@ class TC_GAME_API Unit : public WorldObject
         std::array<ObjectGuid, MAX_SUMMON_SLOT> m_SummonSlot;
         std::array<ObjectGuid, MAX_GAMEOBJECT_SLOT> m_ObjectSlot;
 
+        // Registers the SummonInfo API of a summoned creature to allow accessing it to allow safe accessing
+        void RegisterSummon(SummonInfo* summon);
+        // Unregisters the SummonInfo API of a summoned creature so it can no longer be accessed
+        void UnregisterSummon(SummonInfo* summon);
+
         ShapeshiftForm GetShapeshiftForm() const { return ShapeshiftForm(*m_unitData->ShapeshiftForm); }
         void SetShapeshiftForm(ShapeshiftForm form);
         void CancelShapeshiftForm(bool onlyTravelShapeshiftForm = false, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT, bool force = false);
@@ -2023,6 +2029,9 @@ class TC_GAME_API Unit : public WorldObject
         PositionUpdateInfo _positionUpdateInfo;
 
         bool _isCombatDisallowed;
+
+        // SummonInfo API
+        std::vector<SummonInfo*> _activeSummons;
 };
 
 #endif
