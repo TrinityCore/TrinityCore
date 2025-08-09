@@ -1269,6 +1269,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
             return ERR_BATTLEGROUND_JOIN_FAILED;
         if (isMercenary != (member->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || member->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE)))
             return ERR_BATTLEGROUND_JOIN_MERCENARY;
+
+        memberscount++;
     }
 
     errorGuid = ObjectGuid::Empty;
