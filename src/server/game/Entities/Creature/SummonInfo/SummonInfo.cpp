@@ -35,7 +35,7 @@ void SummonInfo::InitializeSummonProperties(uint32 summonPropertiesId)
     SummonPropertiesEntry const* summonProperties = sSummonPropertiesStore.LookupEntry(summonPropertiesId);
     if (!summonProperties)
     {
-        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID().ToString(), summonPropertiesId);
+        TC_LOG_ERROR("entities.unit", "Creature {} has been summoned with a non-existing SummonProperties.db2 entry (RecId: {}). Possible dirty DB2 data or missing hotfix entry.", _summonedCreature->GetGUID(), summonPropertiesId);
         return;
     }
 
