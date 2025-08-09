@@ -108,7 +108,7 @@ struct at_orator_conversation_intro : AreaTriggerAI
 // 216619 - Orator Krix'vizk <The Fifth Strand>
 struct boss_orator_krix_vizk : public BossAI
 {
-    boss_orator_krix_vizk(Creature* creature) : BossAI(creature, DATA_ORATOR_KRIX_VIZK) { }
+    boss_orator_krix_vizk(Creature* creature) : BossAI(creature, DATA_ORATOR_KRIX_VIZK), _subjugateCount(1), _terrorizeCount(1), _energizeCount(0) { }
 
     void JustAppeared() override
     {
@@ -152,7 +152,11 @@ struct boss_orator_krix_vizk : public BossAI
 
     void Reset() override
     {
-        events.Reset();
+        _Reset();
+
+        _subjugateCount = 1;
+        _terrorizeCount = 1;
+        _energizeCount = 0;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -168,10 +172,10 @@ struct boss_orator_krix_vizk : public BossAI
 
         events.ScheduleEvent(EVENT_ENERGIZE, 1s);
         events.ScheduleEvent(EVENT_SUBJUGATE, 4500ms);
-        events.ScheduleEvent(EVENT_TERRORIZE, 8100ms);
+        events.ScheduleEvent(EVENT_TERRORIZE, 9400ms);
 
         if (IsMythic() || IsMythicPlus())
-            events.ScheduleEvent(EVENT_SHADOWS_OF_DOUBT, 15300ms);
+            events.ScheduleEvent(EVENT_SHADOWS_OF_DOUBT, 15200ms);
     }
 
     void UpdateAI(uint32 diff) override
@@ -192,14 +196,22 @@ struct boss_orator_krix_vizk : public BossAI
                 {
                     Talk(SAY_SUBJUGATE);
                     DoCastVictim(SPELL_SUBJUGATE);
-                    events.ScheduleEvent(EVENT_SUBJUGATE, 12800ms);
+                    _subjugateCount++;
+                    if (_subjugateCount % 2 == 0)
+                        events.ScheduleEvent(EVENT_SUBJUGATE, 17100ms);
+                    else
+                        events.ScheduleEvent(EVENT_SUBJUGATE, 12s);
                     break;
                 }
                 case EVENT_TERRORIZE:
                 {
                     Talk(SAY_TERRORIZE);
                     DoCast(SPELL_TERRORIZE_SELECTOR);
-                    events.ScheduleEvent(EVENT_TERRORIZE, 8100ms);
+                    _terrorizeCount++;
+                    if (_terrorizeCount % 2 == 0)
+                        events.ScheduleEvent(EVENT_TERRORIZE, 8100ms);
+                    else
+                        events.ScheduleEvent(EVENT_TERRORIZE, 21100ms);
                     break;
                 }
                 case EVENT_SHADOWS_OF_DOUBT:
@@ -219,7 +231,8 @@ struct boss_orator_krix_vizk : public BossAI
                     else
                     {
                         me->SetPower(POWER_ENERGY, me->GetPower(POWER_ENERGY) + 4);
-                        events.ScheduleEvent(EVENT_ENERGIZE, 1s);
+                        _energizeCount++;
+                        events.ScheduleEvent(EVENT_ENERGIZE, (_energizeCount % 2) ? 1200ms : 800ms);
                     }
                     break;
                 }
@@ -228,6 +241,11 @@ struct boss_orator_krix_vizk : public BossAI
             }
         }
     }
+
+private:
+    uint8 _subjugateCount;
+    uint8 _terrorizeCount;
+    uint8 _energizeCount;
 };
 
 // 434808 - Terrorize
@@ -238,10 +256,11 @@ class spell_orator_krix_vizk_terrorize_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_TERRORIZE });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_TERRORIZE, CastSpellExtraArgsInit{
-            .OriginalCastId = GetSpell()->m_originalCastId
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -259,11 +278,11 @@ class spell_orator_krix_vizk_shadows_of_doubt_selector : public SpellScript
         return ValidateSpellInfo({ SPELL_SHADOWS_OF_DOUBT });
     }
 
-    void HandleHitTarget(SpellEffIndex /*effIndex*/)
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
         GetCaster()->CastSpell(GetHitUnit(), SPELL_SHADOWS_OF_DOUBT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_originalCastId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -281,19 +300,16 @@ class spell_orator_krix_vizk_chains_of_oppression_periodic : public AuraScript
         return ValidateSpellInfo({ SPELL_CHAINS_OF_OPPRESSION_DAMAGE, SPELL_CHAINS_OF_OPPRESSION_CHARGE });
     }
 
-    void Tick(AuraEffect const* /*aurEff*/)
+    void Tick(AuraEffect const* /*aurEff*/) const
     {
         if (Unit* caster = GetCaster())
         {
             Unit* target = GetTarget();
+            CastSpellExtraArgs args;
+            args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
 
-            caster->CastSpell(target, SPELL_CHAINS_OF_OPPRESSION_DAMAGE, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-            });
-
-            target->CastSpell(caster, SPELL_CHAINS_OF_OPPRESSION_CHARGE, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-            });
+            caster->CastSpell(target, SPELL_CHAINS_OF_OPPRESSION_DAMAGE, args);
+            target->CastSpell(caster, SPELL_CHAINS_OF_OPPRESSION_CHARGE, args);
         }
     }
 
@@ -306,20 +322,30 @@ class spell_orator_krix_vizk_chains_of_oppression_periodic : public AuraScript
 // 448561 - Shadows of Doubt
 class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
 {
+    static constexpr uint8 MAX_SHADOW_OF_DOUBTS = 5;
+    static constexpr uint32 AT_CREATE_PROPERTIES = 200000; // ToDo: Change Id
+
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DOUBT });
     }
 
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
         {
             if (Unit* caster = GetCaster())
-                caster->CastSpell(GetTarget(), SPELL_DOUBT, CastSpellExtraArgsInit{
-                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                    .OriginalCastId = GetAura()->GetCastId()
-                });
+            {
+                caster->CastSpell(GetTarget(), SPELL_DOUBT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+                for (uint8 i = 0; i < MAX_SHADOW_OF_DOUBTS; ++i)
+                {
+                    Unit* target = GetTarget();
+                    float angle = target->GetOrientation() + float(M_PI) / 5.0f + i * float(M_PI) / 2.5f;
+                    Position dest(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
+                    AreaTrigger::CreateAreaTrigger({ AT_CREATE_PROPERTIES, true }, dest, -1, caster, target);
+                }
+            }
         }
     }
 
@@ -337,21 +363,19 @@ class spell_orator_krix_vizk_vociferous_indoctrination_periodic : public AuraScr
         return ValidateSpellInfo({ SPELL_VOCIFEROUS_INDOCTRINATION_DAMAGE, SPELL_LINGERING_INFLUENCE_AREATRIGGER });
     }
 
-    void Tick(AuraEffect const* /*aurEff*/)
+    void Tick(AuraEffect const* aurEff) const
     {
         if (Unit* caster = GetCaster())
             caster->CastSpell(GetTarget(), SPELL_VOCIFEROUS_INDOCTRINATION_DAMAGE, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .OriginalCastId = GetAura()->GetCastId()
+                .TriggeringAura = aurEff
             });
     }
 
-    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         if (Unit* caster = GetCaster())
-            GetTarget()->CastSpell(caster, SPELL_LINGERING_INFLUENCE_AREATRIGGER, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-            });
+            GetTarget()->CastSpell(caster, SPELL_LINGERING_INFLUENCE_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (Creature* creatureTarget = GetTarget()->ToCreature())
             creatureTarget->SetPower(POWER_ENERGY, 0);
@@ -375,7 +399,7 @@ struct at_orator_krix_vizk_chains_of_oppression : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, TRIGGERED_FULL_MASK);
+        at->GetCaster()->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -398,7 +422,7 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, TRIGGERED_FULL_MASK);
+        at->GetCaster()->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit) override
@@ -422,6 +446,40 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
     }
 };
 
+// ID - xxxx
+struct at_orator_krix_vizk_doubt : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        Position destPos = at->GetPosition();
+        at->MovePositionToFirstCollision(destPos, 200.0f, 0.0f);
+
+        PathGenerator path(at);
+        path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
+
+        at->InitSplines(path.GetPath());
+    }
+
+    void OnDestinationReached() override
+    {
+        at->Remove();
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_DOUBT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+};
+
 void AddSC_boss_orator_krix_vizk()
 {
     new GenericAreaTriggerEntityScript<at_orator_conversation_intro<CONVERSATION_ORATOR_INTRO_1, DATA_ORATOR_CONVO>>("at_orator_conversation_intro_1");
@@ -438,4 +496,5 @@ void AddSC_boss_orator_krix_vizk()
 
     RegisterAreaTriggerAI(at_orator_krix_vizk_chains_of_oppression);
     RegisterAreaTriggerAI(at_orator_krix_vizk_lingering_influence);
+    RegisterAreaTriggerAI(at_orator_krix_vizk_doubt);
 }
