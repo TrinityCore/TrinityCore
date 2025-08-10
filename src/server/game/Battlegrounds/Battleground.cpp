@@ -80,9 +80,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
 
     m_Map               = nullptr;
 
-    m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamIds[TEAM_HORDE]      = 0;
-
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
 
@@ -959,7 +956,7 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     if (isRated())
-        TC_LOG_DEBUG("bg.arena", "Arena match type: {} for Team1Id: {} - Team2Id: {} started.", GetArenaType(), m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
+        TC_LOG_DEBUG("bg.arena", "Arena match type: {} started.", GetArenaType());
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
