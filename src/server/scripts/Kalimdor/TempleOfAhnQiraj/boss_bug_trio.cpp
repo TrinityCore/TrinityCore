@@ -22,6 +22,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 
