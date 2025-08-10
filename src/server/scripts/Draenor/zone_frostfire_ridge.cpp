@@ -35,6 +35,7 @@ enum MasterSurveyorMisc
 
 Position const GarrisonLevelOneCreationPlayerPosition = { 5568.66f, 4635.45f, 146.61f, 5.079972743988037109f };
 
+// 233664 - Master Surveyor
 struct go_master_surveyor : public GameObjectAI
 {
     go_master_surveyor(GameObject* go) : GameObjectAI(go) { }
