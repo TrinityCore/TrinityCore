@@ -50,13 +50,13 @@ enum FankrissEvents
     EVENT_ENTANGLE
 };
 
-std::vector<uint32> SummonWormSpells = { SPELL_SUMMON_WORM_1, SPELL_SUMMON_WORM_2, SPELL_SUMMON_WORM_3 };
-std::vector<uint32> EntangleSpells = { SPELL_ENTANGLE_1, SPELL_ENTANGLE_2, SPELL_ENTANGLE_3 };
-
 // 15510 - Fankriss the Unyielding
 struct boss_fankriss : public BossAI
 {
     boss_fankriss(Creature* creature) : BossAI(creature, DATA_FRANKRIS), _wormsSpawnPerWave(0), _entanglePerWave(0) { }
+
+    std::vector<uint32> SummonWormSpells = { SPELL_SUMMON_WORM_1, SPELL_SUMMON_WORM_2, SPELL_SUMMON_WORM_3 };
+    std::vector<uint32> EntangleSpells = { SPELL_ENTANGLE_1, SPELL_ENTANGLE_2, SPELL_ENTANGLE_3 };
 
     void Reset() override
     {
