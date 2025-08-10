@@ -23,7 +23,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _innAreaTriggerId(0), _restFlagMask(0)
+RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _restFlagMask(0)
 {
     for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
         _restBonus[i] = 0;
@@ -63,25 +63,23 @@ void RestMgr::SetRestBonus(RestTypes restType, float restBonus)
     if (restBonus > rest_bonus_max)
         restBonus = rest_bonus_max;
 
+    uint32 oldBonus = uint32(_restBonus[restType]);
     _restBonus[restType] = restBonus;
 
-    uint32 oldBonus = uint32(_restBonus[restType]);
-    if (oldBonus == uint32(restBonus))
+    PlayerRestState oldRestState = static_cast<PlayerRestState>(*_player->m_activePlayerData->RestInfo[restType].StateID);
+    PlayerRestState newRestState = REST_STATE_NORMAL;
+
+    if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
+        newRestState = REST_STATE_RAF_LINKED;
+    else if (_restBonus[restType] >= 1)
+        newRestState = REST_STATE_RESTED;
+
+    if (oldBonus == uint32(restBonus) && oldRestState == newRestState)
         return;
 
     // update data for client
-    if (affectedByRaF && _player->GetsRecruitAFriendBonus(true) && (_player->GetSession()->IsARecruiter() || _player->GetSession()->GetRecruiterId() != 0))
-        _player->SetRestState(restType, REST_STATE_RAF_LINKED);
-    else
-    {
-        if (_restBonus[restType] > 10)
-            _player->SetRestState(restType, REST_STATE_RESTED);
-        else if (_restBonus[restType] <= 1)
-            _player->SetRestState(restType, REST_STATE_NOT_RAF_LINKED);
-    }
-
-    // RestTickUpdate
     _player->SetRestThreshold(restType, uint32(_restBonus[restType]));
+    _player->SetRestState(restType, newRestState);
 }
 
 void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
@@ -94,7 +92,7 @@ void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
     SetRestBonus(restType, totalRestBonus);
 }
 
-void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)
+void RestMgr::SetRestFlag(RestFlag restFlag)
 {
     uint32 oldRestMask = _restFlagMask;
     _restFlagMask |= restFlag;
@@ -104,9 +102,6 @@ void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)
         _restTime = GameTime::GetGameTime();
         _player->SetPlayerFlag(PLAYER_FLAGS_RESTING);
     }
-
-    if (triggerID)
-        _innAreaTriggerId = triggerID;
 }
 
 void RestMgr::RemoveRestFlag(RestFlag restFlag)
@@ -134,7 +129,7 @@ uint32 RestMgr::GetRestBonusFor(RestTypes restType, uint32 xp)
 
     SetRestBonus(restType, GetRestBonus(restType) - rested_loss);
 
-    TC_LOG_DEBUG("entities.player", "RestMgr::GetRestBonus: Player '%s' (%s) gain %u xp (+%u Rested Bonus). Rested points=%f", _player->GetGUID().ToString().c_str(), _player->GetName().c_str(), xp + rested_bonus, rested_bonus, GetRestBonus(restType));
+    TC_LOG_DEBUG("entities.player", "RestMgr::GetRestBonus: Player '{}' ({}) gain {} xp (+{} Rested Bonus). Rested points={}", _player->GetGUID().ToString(), _player->GetName(), xp + rested_bonus, rested_bonus, GetRestBonus(restType));
     return rested_bonus;
 }
 

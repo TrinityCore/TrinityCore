@@ -190,16 +190,12 @@ struct boss_tharon_ja : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 53242 - Clear Gift of Tharon'ja
 class spell_tharon_ja_clear_gift_of_tharon_ja : public SpellScript
 {
-    PrepareSpellScript(spell_tharon_ja_clear_gift_of_tharon_ja);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_GIFT_OF_THARON_JA });

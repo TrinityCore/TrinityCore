@@ -21,6 +21,10 @@
 #include "Common.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
+#include "Position.h"
+#include <variant>
+
+class Unit;
 
 #define SPEED_CHARGE 42.0f // assume it is 25 yard per 0.6 second
 
@@ -49,6 +53,21 @@ enum MovementGeneratorType : uint8
     MAX_MOTION_TYPE                          // SKIP
 };
 
+constexpr bool CanStopMovementForSpellCasting(MovementGeneratorType type)
+{
+    // MovementGenerators that don't check Unit::IsMovementPreventedByCasting
+    switch (type)
+    {
+        case HOME_MOTION_TYPE:
+        case FLIGHT_MOTION_TYPE:
+        case EFFECT_MOTION_TYPE:    // knockbacks, jumps, falling, land/takeoff transitions
+            return false;
+        default:
+            break;
+    }
+    return true;
+}
+
 enum MovementGeneratorMode : uint8
 {
     MOTION_MODE_DEFAULT = 0,
@@ -67,6 +86,19 @@ enum MovementSlot : uint8
     MOTION_SLOT_DEFAULT = 0,
     MOTION_SLOT_ACTIVE,
     MAX_MOTION_SLOT
+};
+
+enum class MovementWalkRunSpeedSelectionMode
+{
+    Default,
+    ForceRun,
+    ForceWalk
+};
+
+enum class MovementStopReason : uint8
+{
+    Finished,       // Movement finished either by arriving at location or successfully continuing it for requested duration
+    Interrupted
 };
 
 enum RotateDirection : uint8
@@ -122,6 +154,8 @@ struct JumpChargeParams
     Optional<uint32> ProgressCurveId;
     Optional<uint32> ParabolicCurveId;
 };
+
+using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*, float>;
 
 inline bool IsInvalidMovementGeneratorType(uint8 const type) { return type == MAX_DB_MOTION_TYPE || type >= MAX_MOTION_TYPE; }
 inline bool IsInvalidMovementSlot(uint8 const slot) { return slot >= MAX_MOTION_SLOT; }

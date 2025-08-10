@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TransmogrificationPackets_h__
-#define TransmogrificationPackets_h__
+#ifndef TRINITYCORE_TRANSMOGRIFICATION_PACKETS_H
+#define TRINITYCORE_TRANSMOGRIFICATION_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -42,7 +42,7 @@ namespace WorldPackets
                 MAX_TRANSMOGRIFY_ITEMS = 13
             };
 
-            TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
+            explicit TransmogrifyItems(WorldPacket&& packet) : ClientPacket(CMSG_TRANSMOGRIFY_ITEMS, std::move(packet)) { }
 
             void Read() override;
 
@@ -54,7 +54,7 @@ namespace WorldPackets
         class AccountTransmogUpdate final : public ServerPacket
         {
         public:
-            AccountTransmogUpdate() : ServerPacket(SMSG_ACCOUNT_TRANSMOG_UPDATE) { }
+            explicit AccountTransmogUpdate() : ServerPacket(SMSG_ACCOUNT_TRANSMOG_UPDATE) { }
 
             WorldPacket const* Write() override;
 
@@ -63,17 +63,7 @@ namespace WorldPackets
             std::vector<uint32> FavoriteAppearances;
             std::vector<uint32> NewAppearances;
         };
-
-        class TransmogrifyNPC final : public ServerPacket
-        {
-        public:
-            TransmogrifyNPC(ObjectGuid const& guid) : ServerPacket(SMSG_TRANSMOGRIFY_NPC, 16), Guid(guid) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid Guid;
-        };
     }
 }
 
-#endif // TransmogrificationPackets_h__
+#endif // TRINITYCORE_TRANSMOGRIFICATION_PACKETS_H

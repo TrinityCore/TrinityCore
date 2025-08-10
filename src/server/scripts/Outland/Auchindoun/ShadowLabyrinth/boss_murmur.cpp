@@ -25,11 +25,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
-enum Murmur
+enum Texts
 {
-    // Spell
+    EMOTE_SONIC_BOOM            = 0
+};
+
+enum Spells
+{
     SPELL_RESONANCE             = 33657,
     SPELL_MAGNETIC_PULL         = 33689,
     SPELL_SONIC_SHOCK           = 38797,
@@ -37,8 +42,11 @@ enum Murmur
     SPELL_SONIC_BOOM_CAST       = 33923,
     SPELL_SONIC_BOOM_EFFECT     = 33666,
     SPELL_MURMURS_TOUCH         = 33711,
-    // Text
-    EMOTE_SONIC_BOOM            = 0
+    SPELL_MURMURS_TOUCH_H       = 38794,
+
+    SPELL_MURMURS_TOUCH_DUMMY   = 33760,
+    SPELL_SHOCKWAVE             = 33686,
+    SPELL_SHOCKWAVE_KNOCK_BACK  = 33673
 };
 
 enum Events
@@ -140,16 +148,12 @@ struct boss_murmur : public BossAI
 
         if (!me->IsWithinMeleeRange(me->GetVictim()))
             me->GetThreatManager().ResetThreat(me->GetVictim());
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 33923, 38796 - Sonic Boom
 class spell_murmur_sonic_boom : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_sonic_boom);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SONIC_BOOM_EFFECT });
@@ -169,8 +173,6 @@ class spell_murmur_sonic_boom : public SpellScript
 // 33666, 38795 - Sonic Boom Effect
 class spell_murmur_sonic_boom_effect : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_sonic_boom_effect);
-
     void CalcDamage()
     {
         if (Unit* target = GetHitUnit())
@@ -201,8 +203,6 @@ class ThunderingStormCheck
 // 39365 - Thundering Storm
 class spell_murmur_thundering_storm : public SpellScript
 {
-    PrepareSpellScript(spell_murmur_thundering_storm);
-
     void FilterTarget(std::list<WorldObject*>& targets)
     {
         targets.remove_if(ThunderingStormCheck(GetCaster()));
@@ -214,10 +214,75 @@ class spell_murmur_thundering_storm : public SpellScript
     }
 };
 
+// 33711, 38794 - Murmur's Touch
+class spell_murmur_murmurs_touch : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_MURMURS_TOUCH_DUMMY,
+            SPELL_SHOCKWAVE,
+            SPELL_SHOCKWAVE_KNOCK_BACK
+        });
+    }
+
+    void OnPeriodic(AuraEffect const* aurEff)
+    {
+        Unit* target = GetTarget();
+
+        switch (GetId())
+        {
+            case SPELL_MURMURS_TOUCH:
+                switch (aurEff->GetTickNumber())
+                {
+                    case 7:
+                    case 10:
+                    case 12:
+                    case 13:
+                        target->CastSpell(target, SPELL_MURMURS_TOUCH_DUMMY, true);
+                        break;
+                    case 14:
+                        target->CastSpell(target, SPELL_MURMURS_TOUCH_DUMMY, true);
+                        target->CastSpell(target, SPELL_SHOCKWAVE, true);
+                        target->CastSpell(target, SPELL_SHOCKWAVE_KNOCK_BACK, true);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case SPELL_MURMURS_TOUCH_H:
+                switch (aurEff->GetTickNumber())
+                {
+                    case 3:
+                    case 6:
+                        target->CastSpell(target, SPELL_MURMURS_TOUCH_DUMMY, true);
+                        break;
+                    case 7:
+                        target->CastSpell(target, SPELL_MURMURS_TOUCH_DUMMY, true);
+                        target->CastSpell(target, SPELL_SHOCKWAVE, true);
+                        target->CastSpell(target, SPELL_SHOCKWAVE_KNOCK_BACK, true);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_murmur_murmurs_touch::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_boss_murmur()
 {
     RegisterShadowLabyrinthCreatureAI(boss_murmur);
     RegisterSpellScript(spell_murmur_sonic_boom);
     RegisterSpellScript(spell_murmur_sonic_boom_effect);
     RegisterSpellScript(spell_murmur_thundering_storm);
+    RegisterSpellScript(spell_murmur_murmurs_touch);
 }

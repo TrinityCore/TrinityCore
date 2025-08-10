@@ -85,8 +85,6 @@ public:
     void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
     void SaveToDB(CharacterDatabaseTransaction trans);
 
-    void ResetCriteria(CriteriaFailEvent failEvent, int32 failAsset, bool evenIfCriteriaComplete = false);
-
     void SendAllData(Player const* receiver) const override;
     void SendAchievementInfo(Player* receiver, uint32 achievementId = 0) const;
 
@@ -141,8 +139,6 @@ protected:
 
 private:
     Guild* _owner;
-
-        friend class UnitTestDataLoader;
 };
 
 class TC_GAME_API AchievementGlobalMgr

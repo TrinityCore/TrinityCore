@@ -20,21 +20,21 @@
 
 #include "Object.h"
 #include "GridObject.h"
-#include "Hash.h"
 
+class ConversationAI;
 class Unit;
 class SpellInfo;
 enum class ConversationActorType : uint32;
 
-class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversation>
+class TC_GAME_API Conversation final : public WorldObject, public GridObject<Conversation>
 {
     public:
         Conversation();
         ~Conversation();
 
     protected:
-        void BuildValuesCreate(ByteBuffer* data, Player const* target) const override;
-        void BuildValuesUpdate(ByteBuffer* data, Player const* target) const override;
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
     public:
@@ -60,27 +60,35 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Milliseconds GetDuration() const { return _duration; }
         uint32 GetTextureKitId() const { return _textureKitId; }
 
-        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
-        bool Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
+        static Conversation* CreateConversation(uint32 conversationEntry, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr, bool autoStart = true);
+        void Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry, Map* map, Unit* creator, Position const& pos, ObjectGuid privateObjectOwner, SpellInfo const* spellInfo = nullptr);
+        bool Start();
         void AddActor(int32 actorId, uint32 actorIdx, ObjectGuid const& actorGuid);
         void AddActor(int32 actorId, uint32 actorIdx, ConversationActorType type, uint32 creatureId, uint32 creatureDisplayInfoId);
 
-        ObjectGuid const& GetCreatorGuid() const { return _creatorGuid; }
-        ObjectGuid GetOwnerGUID() const override { return GetCreatorGuid(); }
+        ObjectGuid GetCreatorGUID() const override { return _creatorGuid; }
+        ObjectGuid GetOwnerGUID() const override { return GetCreatorGUID(); }
         uint32 GetFaction() const override { return 0; }
 
-        float GetStationaryX() const override { return _stationaryPosition.GetPositionX(); }
-        float GetStationaryY() const override { return _stationaryPosition.GetPositionY(); }
-        float GetStationaryZ() const override { return _stationaryPosition.GetPositionZ(); }
-        float GetStationaryO() const override { return _stationaryPosition.GetOrientation(); }
+        Position const& GetStationaryPosition() const override { return _stationaryPosition; }
         void RelocateStationaryPosition(Position const& pos) { _stationaryPosition.Relocate(pos); }
 
         Milliseconds const* GetLineStartTime(LocaleConstant locale, int32 lineId) const;
         Milliseconds GetLastLineEndTime(LocaleConstant locale) const;
+        static int32 GetLineDuration(LocaleConstant locale, int32 lineId);
+        Milliseconds GetLineEndTime(LocaleConstant locale, int32 lineId) const;
 
+        LocaleConstant GetPrivateObjectOwnerLocale() const;
+        Unit* GetActorUnit(uint32 actorIdx) const;
+        Creature* GetActorCreature(uint32 actorIdx) const;
+
+        void AI_Initialize();
+        void AI_Destroy();
+
+        ConversationAI* AI() { return _ai.get(); }
         uint32 GetScriptId() const;
 
-        UF::UpdateField<UF::ConversationData, 0, TYPEID_CONVERSATION> m_conversationData;
+        UF::UpdateField<UF::ConversationData, int32(WowCS::EntityFragment::CGObject), TYPEID_CONVERSATION> m_conversationData;
 
     private:
         Position _stationaryPosition;
@@ -88,8 +96,10 @@ class TC_GAME_API Conversation : public WorldObject, public GridObject<Conversat
         Milliseconds _duration;
         uint32 _textureKitId;
 
-        std::unordered_map<std::pair<LocaleConstant /*locale*/, int32 /*lineId*/>, Milliseconds /*startTime*/> _lineStartTimes;
+        std::unordered_map<int32 /*lineId*/, std::array<Milliseconds, TOTAL_LOCALES> /*startTime*/> _lineStartTimes;
         std::array<Milliseconds /*endTime*/, TOTAL_LOCALES> _lastLineEndTimes;
+
+        std::unique_ptr<ConversationAI> _ai;
 };
 
 #endif // TRINITYCORE_CONVERSATION_H

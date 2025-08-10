@@ -32,7 +32,7 @@ public:
     using reference = T&;
 
     DBStorageIterator() : _index(nullptr), _pos(0), _end(0) { }
-    DBStorageIterator(T** index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size)
+    DBStorageIterator(value_type const* index, uint32 size, uint32 pos = 0) : _index(index), _pos(pos), _end(size)
     {
         if (_pos < _end)
         {
@@ -41,11 +41,10 @@ public:
         }
     }
 
-    T const* operator->() { return _index[_pos]; }
-    T const* operator*() { return _index[_pos]; }
+    value_type const& operator->() const { return _index[_pos]; }
+    value_type const& operator*() const { return _index[_pos]; }
 
     bool operator==(DBStorageIterator const& right) const { /*ASSERT(_index == right._index, "Iterator belongs to a different container")*/ return _pos == right._pos; }
-    bool operator!=(DBStorageIterator const& right) const { return !(*this == right); }
 
     DBStorageIterator& operator++()
     {
@@ -67,7 +66,7 @@ public:
     }
 
 private:
-    T** _index;
+    value_type const* _index;
     uint32 _pos;
     uint32 _end;
 };

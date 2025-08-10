@@ -32,14 +32,13 @@ EndScriptData */
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Language.h"
-#include "MapManager.h"
+#include "Map.h"
 #include "ObjectMgr.h"
 #include "PhasingHandler.h"
 #include "Player.h"
 #include "RBAC.h"
 #include "SpellAuraEffects.h"
 #include "WorldSession.h"
-#include <sstream>
 
 using namespace Trinity::ChatCommands;
 
@@ -80,7 +79,7 @@ public:
         CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creatureId);
         if (!cInfo)
         {
-            handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, creatureId);
+            handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, *creatureId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -93,18 +92,18 @@ public:
         QueryResult result;
 
         uint32 creatureCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", creatureId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", creatureId);
         if (result)
             creatureCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM creature WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM creature WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), creatureId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{}' LIMIT {}",
                 creatureId, count);
 
         if (result)
@@ -120,28 +119,18 @@ public:
                 bool liveFound = false;
 
                 // Get map (only support base map from console)
-                Map* thisMap;
+                Map* thisMap = nullptr;
                 if (handler->GetSession())
                     thisMap = handler->GetSession()->GetPlayer()->GetMap();
-                else
-                    thisMap = sMapMgr->FindBaseNonInstanceMap(mapId);
 
                 // If map found, try to find active version of this creature
                 if (thisMap)
                 {
-                    auto const creBounds = thisMap->GetCreatureBySpawnIdStore().equal_range(guid);
-                    if (creBounds.first != creBounds.second)
-                    {
-                        for (std::unordered_multimap<ObjectGuid::LowType, Creature*>::const_iterator itr = creBounds.first; itr != creBounds.second;)
-                        {
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), cInfo->Name.c_str(), x, y, z, mapId, itr->second->GetGUID().ToString().c_str(), itr->second->IsAlive() ? "*" : " ");
-                            else
-                                handler->PSendSysMessage(LANG_CREATURE_LIST_CONSOLE, std::to_string(guid).c_str(), cInfo->Name.c_str(), x, y, z, mapId, itr->second->GetGUID().ToString().c_str(), itr->second->IsAlive() ? "*" : " ");
-                            ++itr;
-                        }
-                        liveFound = true;
-                    }
+                    auto const creBounds = Trinity::Containers::MapEqualRange(thisMap->GetCreatureBySpawnIdStore(), guid);
+                    for (auto& [spawnId, creature] : creBounds)
+                        handler->PSendSysMessage(LANG_CREATURE_LIST_CHAT, std::to_string(guid).c_str(), std::to_string(guid).c_str(), cInfo->Name.c_str(),
+                            x, y, z, mapId, creature->GetGUID().ToString().c_str(), creature->IsAlive() ? "*" : " ");
+                    liveFound = creBounds.begin() != creBounds.end();
                 }
 
                 if (!liveFound)
@@ -155,7 +144,7 @@ public:
             while (result->NextRow());
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_LISTCREATUREMESSAGE, creatureId, creatureCount);
+        handler->PSendSysMessage(LANG_COMMAND_LISTCREATUREMESSAGE, *creatureId, creatureCount);
 
         return true;
     }
@@ -360,7 +349,7 @@ public:
         GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(gameObjectId);
         if (!gInfo)
         {
-            handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, gameObjectId);
+            handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, *gameObjectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -373,18 +362,18 @@ public:
         QueryResult result;
 
         uint32 objectCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", gameObjectId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", gameObjectId);
         if (result)
             objectCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), gameObjectId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{}' LIMIT {}",
                 gameObjectId, count);
 
         if (result)
@@ -401,28 +390,18 @@ public:
                 bool liveFound = false;
 
                 // Get map (only support base map from console)
-                Map* thisMap;
+                Map* thisMap = nullptr;
                 if (handler->GetSession())
                     thisMap = handler->GetSession()->GetPlayer()->GetMap();
-                else
-                    thisMap = sMapMgr->FindBaseNonInstanceMap(mapId);
 
                 // If map found, try to find active version of this object
                 if (thisMap)
                 {
-                    auto const goBounds = thisMap->GetGameObjectBySpawnIdStore().equal_range(guid);
-                    if (goBounds.first != goBounds.second)
-                    {
-                        for (std::unordered_multimap<ObjectGuid::LowType, GameObject*>::const_iterator itr = goBounds.first; itr != goBounds.second;)
-                        {
-                            if (handler->GetSession())
-                                handler->PSendSysMessage(LANG_GO_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), gInfo->name.c_str(), x, y, z, mapId, itr->second->GetGUID().ToString().c_str(), itr->second->isSpawned() ? "*" : " ");
-                            else
-                                handler->PSendSysMessage(LANG_GO_LIST_CONSOLE, std::to_string(guid).c_str(), gInfo->name.c_str(), x, y, z, mapId, itr->second->GetGUID().ToString().c_str(), itr->second->isSpawned() ? "*" : " ");
-                            ++itr;
-                        }
-                        liveFound = true;
-                    }
+                    auto const goBounds = Trinity::Containers::MapEqualRange(thisMap->GetGameObjectBySpawnIdStore(), guid);
+                    for (auto& [spawnId, go] : goBounds)
+                        handler->PSendSysMessage(LANG_GO_LIST_CHAT, std::to_string(guid).c_str(), entry, std::to_string(guid).c_str(), gInfo->name.c_str(), x, y, z, mapId,
+                            go->GetGUID().ToString().c_str(), go->isSpawned() ? "*" : " ");
+                    liveFound = goBounds.begin() != goBounds.end();
                 }
 
                 if (!liveFound)
@@ -436,7 +415,7 @@ public:
             while (result->NextRow());
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_LISTOBJMESSAGE, gameObjectId, objectCount);
+        handler->PSendSysMessage(LANG_COMMAND_LISTOBJMESSAGE, *gameObjectId, objectCount);
 
         return true;
     }
@@ -483,10 +462,9 @@ public:
             if (!ShouldListAura(aura->GetSpellInfo(), spellId, namePart, handler->GetSessionDbcLocale()))
                 continue;
 
-            std::ostringstream ss_name;
-            ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
+            std::string ss_name = Trinity::StringFormat("|cffffffff|Hspell:{}|h[{}]|h|r", aura->GetId(), name);
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
+            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
                 (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
@@ -509,7 +487,7 @@ public:
                 if (!sizeLogged)
                 {
                     sizeLogged = true;
-                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(std::distance(auraList.begin(), auraList.end())).c_str(), i);
                 }
 
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, effect->GetId(), effect->GetEffIndex(), effect->GetAmount());
@@ -584,7 +562,7 @@ public:
                     if (hasItem == 1)
                     {
                         QueryResult result2;
-                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '%u'", messageId);
+                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '{}'", messageId);
                         if (result2)
                         {
                             do
@@ -607,10 +585,9 @@ public:
                                         if (handler->GetSession())
                                         {
                                             uint32 color = ItemQualityColors[itemTemplate->GetQuality()];
-                                            std::ostringstream itemStr;
-                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:" << handler->GetSession()->GetPlayer()->GetLevel()
-                                                << ":0:0:0:0:0|h[" << itemTemplate->GetName(handler->GetSessionDbcLocale()) << "]|h|r";
-                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
+                                            std::string itemStr = Trinity::StringFormat("|c{:X}|Hitem:{}:0:0:0:0:0:0:0:{}:0:0:0:0:0|h[{}]|h|r",
+                                                color, item_entry, handler->GetSession()->GetPlayer()->GetLevel(), itemTemplate->GetName(handler->GetSessionDbcLocale()));
+                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.c_str(), item_entry, item_guid, item_count);
                                         }
                                         else
                                             handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemTemplate->GetName(handler->GetSessionDbcLocale()), item_entry, item_guid, item_count);

@@ -19,6 +19,10 @@
 #define BATTLEFIELD_MGR_H_
 
 #include "Battlefield.h"
+#include "Hash.h"
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
 class Player;
 class ZoneScript;
@@ -27,22 +31,31 @@ class ZoneScript;
 class TC_GAME_API BattlefieldMgr
 {
     public:
+        BattlefieldMgr(BattlefieldMgr const&) = delete;
+        BattlefieldMgr(BattlefieldMgr&&) = delete;
+
+        BattlefieldMgr& operator=(BattlefieldMgr const&) = delete;
+        BattlefieldMgr& operator=(BattlefieldMgr&&) = delete;
+
         static BattlefieldMgr* instance();
 
         // create battlefield events
         void InitBattlefield();
+
+        void CreateBattlefieldsForMap(Map* map);
+
+        void DestroyBattlefieldsForMap(Map const* map);
 
         // called when a player enters an battlefield area
         void HandlePlayerEnterZone(Player* player, uint32 zoneId);
         // called when player leaves an battlefield area
         void HandlePlayerLeaveZone(Player* player, uint32 zoneId);
 
-        // return assigned battlefield
-        Battlefield* GetBattlefieldToZoneId(uint32 zoneId);
-        Battlefield* GetBattlefieldByBattleId(uint32 battleId);
-        Battlefield* GetBattlefieldByQueueId(uint64 queueId);
+        bool IsWorldPvpArea(uint32 zoneId) const;
 
-        ZoneScript* GetZoneScript(uint32 zoneId);
+        // return assigned battlefield
+        Battlefield* GetBattlefieldToZoneId(Map const* map, uint32 zoneId);
+        Battlefield* GetBattlefieldByBattleId(Map const* map, uint32 battleId);
 
         void AddZone(uint32 zoneId, Battlefield* bf);
 
@@ -52,14 +65,14 @@ class TC_GAME_API BattlefieldMgr
         BattlefieldMgr();
         ~BattlefieldMgr();
 
-        typedef std::vector<Battlefield*> BattlefieldSet;
-        typedef std::map<uint32 /*zoneId*/, Battlefield*> BattlefieldMap;
+        typedef std::unordered_map<Map const*, std::vector<std::unique_ptr<Battlefield>>> BattlefieldsMapByMap;
+        typedef std::unordered_map<std::pair<Map const*, uint32 /*zoneid*/>, Battlefield*> BattlefieldMapByZone;
         // contains all initiated battlefield events
         // used when initing / cleaning up
-        BattlefieldSet _battlefieldSet;
+        BattlefieldsMapByMap _battlefieldsByMap;
         // maps the zone ids to an battlefield event
         // used in player event handling
-        BattlefieldMap _battlefieldMap;
+        BattlefieldMapByZone _battlefieldsByZone;
         // update interval
         uint32 _updateTimer;
 };

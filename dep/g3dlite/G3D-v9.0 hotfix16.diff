@@ -1,0 +1,14 @@
+diff --git a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+index 06e6ff00a5e3..0898af795348 100644
+--- a/dep/g3dlite/source/FileSystem.cpp
++++ b/dep/g3dlite/source/FileSystem.cpp
+@@ -35,6 +35,9 @@
+ #   include <fnmatch.h>
+ #   include <unistd.h>
+ #   define _getcwd getcwd
++#   if defined(__DragonFly__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
++#     define stat64 stat
++#   endif
+ #   define _stat stat
+ #   define stricmp strcasecmp 
+ #   define strnicmp strncasecmp 

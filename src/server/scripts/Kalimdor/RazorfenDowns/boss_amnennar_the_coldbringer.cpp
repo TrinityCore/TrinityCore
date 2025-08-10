@@ -139,8 +139,6 @@ public:
                 DoCastVictim(SPELL_FROST_SPECTRES);
                 hp30Spectrals = true;
             }
-
-            DoMeleeAttackIfReady();
         }
 
     private:

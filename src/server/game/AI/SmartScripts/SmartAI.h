@@ -25,6 +25,8 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class MovementStopReason : uint8;
+
 enum SmartEscortState : uint8
 {
     SMART_ESCORT_NONE       = 0x00, // nothing in progress
@@ -49,8 +51,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         bool IsAIControlled() const;
 
         // Start moving to the desired MovePoint
-        void StartPath(bool run = false, uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 1);
-        bool LoadPath(uint32 entry);
+        void StartPath(uint32 pathId = 0, bool repeat = false, Unit* invoker = nullptr, uint32 nodeId = 0,
+            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+        WaypointPath const* LoadPath(uint32 entry);
         void PausePath(uint32 delay, bool forced = false);
         bool CanResumePath();
         void StopPath(uint32 DespawnTime = 0, uint32 quest = 0, bool fail = false);
@@ -68,12 +71,8 @@ class TC_GAME_API SmartAI : public CreatureAI
         {
             _escortState &= ~escortState;
         }
-        void SetAutoAttack(bool on)
-        {
-            _canAutoAttack = on;
-        }
         void SetCombatMove(bool on, bool stopMoving = false);
-        bool CanCombatMove()
+        bool CanCombatMove() const
         {
             return _canCombatMove;
         }
@@ -97,7 +96,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         void JustEngagedWith(Unit* enemy) override;
 
         // Called for reaction at stopping attack at no attackers or targets
-        void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER) override;
+        void EnterEvadeMode(EvadeReason why) override;
 
         // Called when the creature is killed
         void JustDied(Unit* killer) override;
@@ -159,6 +158,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         // called when the corpse of this creature gets removed
         void CorpseRemoved(uint32& respawnDelay) override;
 
+        // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing)
+        void OnDespawn() override;
+
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 
@@ -172,25 +174,23 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnCharmed(bool isNew) override;
 
         // Used in scripts to share variables
-        void DoAction(int32 param = 0) override;
+        void DoAction(int32 param) override;
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0) const override;
+        uint32 GetData(uint32 id) const override;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value) override { SetData(id, value, nullptr); }
         void SetData(uint32 id, uint32 value, Unit* invoker);
 
         // Used in scripts to share variables
-        void SetGUID(ObjectGuid const& guid, int32 id = 0) override;
+        void SetGUID(ObjectGuid const& guid, int32 id) override;
 
         // Used in scripts to share variables
-        ObjectGuid GetGUID(int32 id = 0) const override;
+        ObjectGuid GetGUID(int32 id) const override;
 
         // Makes the creature run/walk
         void SetRun(bool run = true);
-
-        void SetDisableGravity(bool disable = true);
 
         void SetEvadeDisabled(bool disable = true);
 
@@ -254,8 +254,7 @@ class TC_GAME_API SmartAI : public CreatureAI
         uint32 _escortState;
         uint32 _escortNPCFlags;
         uint32 _escortInvokerCheckTimer;
-        WaypointPath _path;
-        uint32 _currentWaypointNode;
+        uint32 _currentWaypointNodeId;
         bool _waypointReached;
         uint32 _waypointPauseTimer;
         bool _waypointPauseForced;
@@ -265,7 +264,6 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         bool _run;
         bool _evadeDisabled;
-        bool _canAutoAttack;
         bool _canCombatMove;
         uint32 _invincibilityHPLevel;
 
@@ -343,6 +341,7 @@ public:
     void OnInitialize() override;
     void OnUpdate(uint32 diff) override;
     void OnUnitEnter(Unit* unit) override;
+    void OnUnitExit(Unit* unit) override;
 
     SmartScript* GetScript() { return &mScript; }
     void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);

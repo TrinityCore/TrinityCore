@@ -21,12 +21,17 @@
 #include "forge_of_souls.h"
 #include "InstanceScript.h"
 #include "Map.h"
-#include "Player.h"
 
 BossBoundaryData const boundaries =
 {
-    { DATA_BRONJAHM,          new CircleBoundary(Position(5297.3f, 2506.45f), 100.96)                                                             },
+    { DATA_BRONJAHM,          new CircleBoundary(Position(5297.3f, 2506.45f), 100.96f)                                                            },
     { DATA_DEVOURER_OF_SOULS, new ParallelogramBoundary(Position(5663.56f, 2570.53f), Position(5724.39f, 2520.45f), Position(5570.36f, 2461.42f)) }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_BRONJAHM, {{ 2006 }} },
+    { DATA_DEVOURER_OF_SOULS, {{ 2007 }} }
 };
 
 class instance_forge_of_souls : public InstanceMapScript
@@ -41,14 +46,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadBossBoundaries(boundaries);
-
-                teamInInstance = 0;
-            }
-
-            void OnPlayerEnter(Player* player) override
-            {
-                if (!teamInInstance)
-                    teamInInstance = player->GetTeam();
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -66,23 +64,15 @@ class instance_forge_of_souls : public InstanceMapScript
 
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
-                if (!teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            teamInInstance = player->GetTeam();
-                }
-
                 uint32 entry = data->id;
                 switch (entry)
                 {
                     case NPC_SYLVANAS_PART1:
-                        return teamInInstance == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_JAINA_PART1 : NPC_SYLVANAS_PART1;
                     case NPC_LORALEN:
-                        return teamInInstance == ALLIANCE ? NPC_ELANDRA : NPC_LORALEN;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_ELANDRA : NPC_LORALEN;
                     case NPC_KALIRA:
-                        return teamInInstance == ALLIANCE ? NPC_KORELN : NPC_KALIRA;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_KORELN : NPC_KALIRA;
                     default:
                         return entry;
                 }
@@ -93,7 +83,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_TEAM_IN_INSTANCE:
-                        return teamInInstance;
+                        return instance->GetTeamInInstance();
                     default:
                         break;
                 }
@@ -119,8 +109,6 @@ class instance_forge_of_souls : public InstanceMapScript
         private:
             ObjectGuid bronjahm;
             ObjectGuid devourerOfSouls;
-
-            uint32 teamInInstance;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

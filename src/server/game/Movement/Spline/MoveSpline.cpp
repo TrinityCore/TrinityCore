@@ -29,22 +29,22 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     ASSERT(Initialized());
 
     float u = 1.0f;
-    int32 seg_time = spline.length(point_index, point_index + 1);
+    float seg_time = float(spline.length(point_index, point_index + 1));
     if (seg_time > 0)
-        u = (time_point - spline.length(point_index)) / (float)seg_time;
+        u = std::min(float(time_point - spline.length(point_index)) / seg_time, 1.0f);
 
     Location c;
     c.orientation = initialOrientation;
     spline.evaluate_percent(point_index, u, c);
 
-    if (splineflags.animation)
+    if (splineflags.Animation)
         ;// MoveSplineFlag::Animation disables falling or parabolic movement
-    else if (splineflags.parabolic)
+    else if (splineflags.Parabolic)
         computeParabolicElevation(time_point, c.z);
-    else if (splineflags.falling)
+    else if (splineflags.Falling)
         computeFallElevation(time_point, c.z);
 
-    if (splineflags.done && facing.type != MONSTER_MOVE_NORMAL)
+    if (splineflags.Done && facing.type != MONSTER_MOVE_NORMAL)
     {
         if (facing.type == MONSTER_MOVE_FACING_ANGLE)
             c.orientation = facing.angle;
@@ -52,16 +52,21 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
             c.orientation = std::atan2(facing.f.y - c.y, facing.f.x - c.x);
         //nothing to do for MoveSplineFlag::Final_Target flag
     }
+    else if (splineflags.Turning)
+    {
+        c.orientation = Position::NormalizeOrientation(turn->StartFacing + float(time_point) / float(IN_MILLISECONDS) * turn->RadsPerSec);
+    }
     else
     {
-        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling | MoveSplineFlag::Unknown_0x8))
+        if (!splineflags.HasFlag(MoveSplineFlagEnum::OrientationFixed | MoveSplineFlagEnum::Falling | MoveSplineFlagEnum::JumpOrientationFixed))
         {
             Vector3 hermite;
-            spline.evaluate_derivative(point_Idx, u, hermite);
-            c.orientation = std::atan2(hermite.y, hermite.x);
+            spline.evaluate_derivative(point_index, u, hermite);
+            if (hermite.x != 0.f || hermite.y != 0.f)
+                c.orientation = std::atan2(hermite.y, hermite.x);
         }
 
-        if (splineflags.backward)
+        if (splineflags.Backward)
             c.orientation = c.orientation - float(M_PI);
     }
     return c;
@@ -113,11 +118,6 @@ void MoveSpline::computeFallElevation(int32 time_point, float& el) const
     el = std::max(z_now, final_z);
 }
 
-inline uint32 computeDuration(float length, float velocity)
-{
-    return SecToMS(length / velocity);
-}
-
 struct FallInitializer
 {
     FallInitializer(float _start_elevation) : start_elevation(_start_elevation) { }
@@ -146,19 +146,19 @@ struct CommonInitializer
 
 void MoveSpline::init_spline(MoveSplineInitArgs const& args)
 {
-    static SplineBase::EvaluationMode const modes[2] = { SplineBase::ModeLinear, SplineBase::ModeCatmullrom };
-    if (args.flags.cyclic)
+    SplineBase::EvaluationMode mode = args.flags.isSmooth() ? SplineBase::ModeCatmullrom : SplineBase::ModeLinear;
+    if (args.flags.Cyclic)
     {
         uint32 cyclic_point = 0;
-        if (splineflags.enter_cycle)
+        if (splineflags.Enter_Cycle)
             cyclic_point = 1;   // shouldn't be modified, came from client
-        spline.init_cyclic_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], cyclic_point, args.initialOrientation);
+        spline.init_cyclic_spline(args.path.data(), args.path.size(), mode, cyclic_point, args.initialOrientation);
     }
     else
-        spline.init_spline(&args.path[0], args.path.size(), modes[args.flags.isSmooth()], args.initialOrientation);
+        spline.init_spline(args.path.data(), args.path.size(), mode, args.initialOrientation);
 
     // init spline timestamps
-    if (splineflags.falling)
+    if (splineflags.Falling)
     {
         FallInitializer init(spline.getPoint(spline.first()).z);
         spline.initLengths(init);
@@ -175,6 +175,13 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
         TC_LOG_ERROR("misc", "MoveSpline::init_spline: zero length spline, wrong input data?");
         spline.set_length(spline.last(), spline.isCyclic() ? 1000 : 1);
     }
+
+    if (turn)
+    {
+        MySpline::LengthType totalTurnTime = static_cast<MySpline::LengthType>(turn->TotalTurnRads / turn->RadsPerSec * float(IN_MILLISECONDS));
+        spline.set_length(spline.last(), std::max(spline.length(), totalTurnTime));
+    }
+
     point_Idx = spline.first();
 }
 
@@ -190,13 +197,14 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
     vertical_acceleration = 0.f;
     effect_start_time = 0;
     spell_effect_extra = args.spellEffectExtra;
+    turn = args.turnData;
     anim_tier = args.animTier;
     splineIsFacingOnly = args.path.size() == 2 && args.facing.type != MONSTER_MOVE_NORMAL && ((args.path[1] - args.path[0]).length() < 0.1f);
 
     velocity = args.velocity;
 
     // Check if its a stop spline
-    if (args.flags.done)
+    if (args.flags.Done)
     {
         spline.clear();
         return;
@@ -206,14 +214,18 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags & (MoveSplineFlag::Parabolic | MoveSplineFlag::Animation | MoveSplineFlag::FadeObject))
+    if (args.flags.HasFlag(MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::Animation | MoveSplineFlagEnum::FadeObject))
     {
-        effect_start_time = Duration() * args.time_perc;
-        if (args.flags.parabolic && effect_start_time < Duration())
+        int32 spline_duration = Duration();
+        effect_start_time = spline_duration * args.effect_start_time_percent + args.effect_start_time.count();
+        if (effect_start_time > spline_duration)
+            effect_start_time = spline_duration;
+
+        if (args.flags.Parabolic && effect_start_time < spline_duration)
         {
             if (args.parabolic_amplitude != 0.0f)
             {
-                float f_duration = MSToSec(Duration() - effect_start_time);
+                float f_duration = MSToSec(spline_duration - effect_start_time);
                 vertical_acceleration = args.parabolic_amplitude * 8.f / (f_duration * f_duration);
             }
             else if (args.vertical_acceleration != 0.0f)
@@ -228,53 +240,72 @@ MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
     vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), velocity(0.f),
     onTransport(false), splineIsFacingOnly(false)
 {
-    splineflags.done = true;
+    splineflags.Done = true;
 }
 
 /// ============================================================================================
 
-bool MoveSplineInitArgs::Validate(Unit* unit) const
+bool MoveSplineInitArgs::Validate(Unit const* unit)
 {
 #define CHECK(exp, verbose) \
-    if (!(exp))\
-    {\
-        if (unit)\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for %s", #exp, (verbose ? unit->GetDebugInfo() : unit->GetGUID().ToString()).c_str());\
-        else\
-            TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '%s' failed for cyclic spline continuation", #exp); \
-        return false;\
-    }
-    CHECK(path.size() > 1, true);
-    CHECK(velocity >= 0.01f, true);
-    CHECK(time_perc >= 0.f && time_perc <= 1.f, true);
-    CHECK(_checkPathLengths(), false);
+    if (!(exp)) return [&]{ \
+        TC_LOG_ERROR("misc.movesplineinitargs", "MoveSplineInitArgs::Validate: expression '{}' failed for {}", #exp, unit ? std::string_view(verbose) : "cyclic spline continuation"sv); \
+        return false; \
+    }()
+
+    CHECK(path.size() > 1, unit->GetDebugInfo());
+    CHECK(velocity >= 0.01f, unit->GetDebugInfo());
+    CHECK(effect_start_time_percent >= 0.f && effect_start_time_percent <= 1.f, unit->GetDebugInfo());
+    CHECK(_checkPathLengths(), unit->GetGUID().ToString());
     if (spellEffectExtra)
     {
-        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), true);
-        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), true);
+        CHECK(!spellEffectExtra->ProgressCurveId || sCurveStore.LookupEntry(spellEffectExtra->ProgressCurveId), unit->GetDebugInfo());
+        CHECK(!spellEffectExtra->ParabolicCurveId || sCurveStore.LookupEntry(spellEffectExtra->ParabolicCurveId), unit->GetDebugInfo());
     }
     return true;
 #undef CHECK
 }
 
 // check path lengths - why are we even starting such short movement?
-bool MoveSplineInitArgs::_checkPathLengths() const
+bool MoveSplineInitArgs::_checkPathLengths()
 {
-    if (path.size() > 2 || facing.type == MONSTER_MOVE_NORMAL)
-        for (uint32 i = 0; i < path.size() - 1; ++i)
+    constexpr float MIN_XY_OFFSET = -(1 << 11) / 4.0f;
+    constexpr float MIN_Z_OFFSET = -(1 << 10) / 4.0f;
+
+    // positive values have 1 less bit limit (if the highest bit was set, value would be sign extended into negative when decompressing)
+    constexpr float MAX_XY_OFFSET = (1 << 10) / 4.0f;
+    constexpr float MAX_Z_OFFSET = (1 << 9) / 4.0f;
+
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > MIN_XY_OFFSET && coord < MAX_XY_OFFSET; };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord > MIN_Z_OFFSET && coord < MAX_Z_OFFSET; };
+
+    if (path.size() > 2)
+    {
+        Vector3 middle = (path.front() + path.back()) / 2;
+        for (uint32 i = 1; i < path.size() - 1; ++i)
+        {
             if ((path[i + 1] - path[i]).length() < 0.1f)
                 return false;
+
+            // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
+            if (!flags.UncompressedPath)
+                if (!isValidPackedXYOffset(middle.x - path[i].x)
+                    || !isValidPackedXYOffset(middle.y - path[i].y)
+                    || !isValidPackedZOffset(middle.z - path[i].z))
+                    flags.UncompressedPath = true;
+        }
+    }
     return true;
 }
 
-MoveSplineInitArgs::MoveSplineInitArgs(size_t path_capacity /*= 16*/) : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), vertical_acceleration(0.0f), time_perc(0.f), splineId(0), initialOrientation(0.f),
+MoveSplineInitArgs::MoveSplineInitArgs() : path_Idx_offset(0), velocity(0.f),
+parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_time_percent(0.f), effect_start_time(0ms),
+splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {
-    path.reserve(path_capacity);
 }
 
-MoveSplineInitArgs::MoveSplineInitArgs(MoveSplineInitArgs&& args) = default;
+MoveSplineInitArgs::MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept = default;
 
 MoveSplineInitArgs::~MoveSplineInitArgs() = default;
 
@@ -312,37 +343,10 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
 
                 // Remove first point from the path after one full cycle.
                 // That point was the position of the unit prior to entering the cycle and it shouldn't be repeated with continuous cycles.
-                if (splineflags.enter_cycle)
+                if (splineflags.Enter_Cycle)
                 {
-                    splineflags.enter_cycle = false;
-
-                    MoveSplineInitArgs args{ (size_t)spline.getPointCount() };
-                    args.path.assign(spline.getPoints().begin() + spline.first() + 1, spline.getPoints().begin() + spline.last());
-                    args.facing = facing;
-                    args.flags = splineflags;
-                    args.path_Idx_offset = point_Idx_offset;
-                    // MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
-                        //args.parabolic_amplitude = ?;
-                        //args.time_perc = ?;
-                    args.splineId = m_Id;
-                    args.initialOrientation = initialOrientation;
-                    args.velocity = 1.0f; // Calculated below
-                    args.HasVelocity = true;
-                    args.TransformForTransport = onTransport;
-                    if (args.Validate(nullptr))
-                    {
-                        // New cycle should preserve previous cycle's duration for some weird reason, even though
-                        // the path is really different now. Blizzard is weird. Or this was just a simple oversight.
-                        // Since our splines precalculate length with velocity in mind, if we want to find the desired
-                        // velocity, we have to make a fake spline, calculate its duration and then compare it to the
-                        // desired duration, thus finding out how much the velocity has to be increased for them to match.
-                        MoveSpline tempSpline;
-                        tempSpline.Initialize(args);
-                        args.velocity = (float)tempSpline.Duration() / Duration();
-
-                        if (args.Validate(nullptr))
-                            init_spline(args);
-                    }
+                    splineflags.Enter_Cycle = false;
+                    reinit_spline_for_next_cycle();
                 }
             }
             else
@@ -357,29 +361,57 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
     return result;
 }
 
+void MoveSpline::reinit_spline_for_next_cycle()
+{
+    MoveSplineInitArgs args;
+    args.path.assign(spline.getPoints().begin() + spline.first() + 1, spline.getPoints().begin() + spline.last());
+    args.facing = facing;
+    args.flags = splineflags;
+    args.path_Idx_offset = point_Idx_offset;
+    args.splineId = m_Id;
+    args.initialOrientation = initialOrientation;
+    args.velocity = 1.0f; // Calculated below
+    args.HasVelocity = true;
+    args.TransformForTransport = onTransport;
+    if (args.Validate(nullptr))
+    {
+        // New cycle should preserve previous cycle's duration for some weird reason, even though
+        // the path is really different now. Blizzard is weird. Or this was just a simple oversight.
+        // Since our splines precalculate length with velocity in mind, if we want to find the desired
+        // velocity, we have to make a fake spline, calculate its duration and then compare it to the
+        // desired duration, thus finding out how much the velocity has to be increased for them to match.
+        MoveSpline tempSpline;
+        tempSpline.Initialize(args);
+        args.velocity = (float)tempSpline.Duration() / Duration();
+
+        if (args.Validate(nullptr))
+            init_spline(args);
+    }
+}
+
 std::string MoveSpline::ToString() const
 {
     std::stringstream str;
-    str << "MoveSpline" << std::endl;
-    str << "spline Id: " << GetId() << std::endl;
-    str << "flags: " << splineflags.ToString() << std::endl;
+    str << "MoveSpline\n";
+    str << "spline Id: " << GetId() << '\n';
+    str << "flags: " << splineflags.ToString() << '\n';
     if (facing.type == MONSTER_MOVE_FACING_ANGLE)
-        str << "facing  angle: " << facing.angle << std::endl;
+        str << "facing  angle: " << facing.angle << '\n';
     else if (facing.type == MONSTER_MOVE_FACING_TARGET)
-        str << "facing target: " << facing.target.ToString() << std::endl;
+        str << "facing target: " << facing.target.ToString() << '\n';
     else if (facing.type == MONSTER_MOVE_FACING_SPOT)
-        str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z << std::endl;
-    str << "time passed: " << time_passed << std::endl;
-    str << "total  time: " << Duration() << std::endl;
-    str << "spline point Id: " << point_Idx << std::endl;
-    str << "path  point  Id: " << currentPathIdx() << std::endl;
+        str << "facing  point: " << facing.f.x << " " << facing.f.y << " " << facing.f.z << '\n';
+    str << "time passed: " << time_passed << '\n';
+    str << "total  time: " << Duration() << '\n';
+    str << "spline point Id: " << point_Idx << '\n';
+    str << "path  point  Id: " << currentPathIdx() << '\n';
     str << spline.ToString();
-    return str.str();
+    return std::move(str).str();
 }
 
 void MoveSpline::_Finalize()
 {
-    splineflags.done = true;
+    splineflags.Done = true;
     point_Idx = spline.last() - 1;
     time_passed = Duration();
 }

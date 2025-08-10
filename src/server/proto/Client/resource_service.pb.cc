@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "resource_service.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,8 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
-#include "Errors.h"
 #include "BattlenetRpcErrorCodes.h"
 // @@protoc_insertion_point(includes)
 
@@ -30,6 +27,12 @@ namespace {
 const ::google::protobuf::Descriptor* ContentHandleRequest_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   ContentHandleRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetTitleIconsRequest_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetTitleIconsRequest_reflection_ = NULL;
+const ::google::protobuf::Descriptor* GetTitleIconsResponse_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  GetTitleIconsResponse_reflection_ = NULL;
 const ::google::protobuf::ServiceDescriptor* ResourcesService_descriptor_ = NULL;
 
 }  // namespace
@@ -57,6 +60,38 @@ void protobuf_AssignDesc_resource_5fservice_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ContentHandleRequest));
+  GetTitleIconsRequest_descriptor_ = file->message_type(1);
+  static const int GetTitleIconsRequest_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsRequest, title_ids_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsRequest, usage_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsRequest, version_),
+  };
+  GetTitleIconsRequest_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetTitleIconsRequest_descriptor_,
+      GetTitleIconsRequest::default_instance_,
+      GetTitleIconsRequest_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsRequest, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsRequest, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetTitleIconsRequest));
+  GetTitleIconsResponse_descriptor_ = file->message_type(2);
+  static const int GetTitleIconsResponse_offsets_[1] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsResponse, title_icon_content_handles_),
+  };
+  GetTitleIconsResponse_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      GetTitleIconsResponse_descriptor_,
+      GetTitleIconsResponse::default_instance_,
+      GetTitleIconsResponse_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsResponse, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(GetTitleIconsResponse, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(GetTitleIconsResponse));
   ResourcesService_descriptor_ = file->service(0);
 }
 
@@ -72,6 +107,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     ContentHandleRequest_descriptor_, &ContentHandleRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetTitleIconsRequest_descriptor_, &GetTitleIconsRequest::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    GetTitleIconsResponse_descriptor_, &GetTitleIconsResponse::default_instance());
 }
 
 }  // namespace
@@ -79,6 +118,10 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void protobuf_ShutdownFile_resource_5fservice_2eproto() {
   delete ContentHandleRequest::default_instance_;
   delete ContentHandleRequest_reflection_;
+  delete GetTitleIconsRequest::default_instance_;
+  delete GetTitleIconsRequest_reflection_;
+  delete GetTitleIconsResponse::default_instance_;
+  delete GetTitleIconsResponse_reflection_;
 }
 
 void protobuf_AddDesc_resource_5fservice_2eproto() {
@@ -94,16 +137,28 @@ void protobuf_AddDesc_resource_5fservice_2eproto() {
     "esources.v1\032\032content_handle_types.proto\032"
     "\017rpc_types.proto\"\\\n\024ContentHandleRequest"
     "\022\017\n\007program\030\001 \002(\007\022\016\n\006stream\030\002 \002(\007\022\033\n\007ver"
-    "sion\030\003 \001(\007:\n1701729619:\006\202\371+\002\020\0012\266\001\n\020Resou"
-    "rcesService\022h\n\020GetContentHandle\022/.bgs.pr"
-    "otocol.resources.v1.ContentHandleRequest"
-    "\032\033.bgs.protocol.ContentHandle\"\006\202\371+\002\010\001\0328\202"
-    "\371+.\n!bnet.protocol.resources.Resources*\t"
-    "resources\212\371+\002\020\001B\005H\001\200\001\000", 382);
+    "sion\030\003 \001(\007:\n1701729619:\006\202\371+\002\020\001\"M\n\024GetTit"
+    "leIconsRequest\022\025\n\ttitle_ids\030\001 \003(\rB\002\020\001\022\r\n"
+    "\005usage\030\002 \001(\r\022\017\n\007version\030\003 \001(\r\"a\n\025GetTitl"
+    "eIconsResponse\022H\n\032title_icon_content_han"
+    "dles\030\001 \003(\0132$.bgs.protocol.TitleIconConte"
+    "ntHandle2\262\002\n\020ResourcesService\022h\n\020GetCont"
+    "entHandle\022/.bgs.protocol.resources.v1.Co"
+    "ntentHandleRequest\032\033.bgs.protocol.Conten"
+    "tHandle\"\006\202\371+\002\010\001\022z\n\rGetTitleIcons\022/.bgs.p"
+    "rotocol.resources.v1.GetTitleIconsReques"
+    "t\0320.bgs.protocol.resources.v1.GetTitleIc"
+    "onsResponse\"\006\202\371+\002\010\002\0328\202\371+.\n!bnet.protocol"
+    ".resources.Resources*\tresources\212\371+\002\020\001B\005H"
+    "\002\200\001\000", 684);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "resource_service.proto", &protobuf_RegisterTypes);
   ContentHandleRequest::default_instance_ = new ContentHandleRequest();
+  GetTitleIconsRequest::default_instance_ = new GetTitleIconsRequest();
+  GetTitleIconsResponse::default_instance_ = new GetTitleIconsResponse();
   ContentHandleRequest::default_instance_->InitAsDefaultInstance();
+  GetTitleIconsRequest::default_instance_->InitAsDefaultInstance();
+  GetTitleIconsResponse::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_resource_5fservice_2eproto);
 }
 
@@ -176,241 +231,9 @@ ContentHandleRequest* ContentHandleRequest::New() const {
   return new ContentHandleRequest;
 }
 
-void ContentHandleRequest::Clear() {
-#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
-  &reinterpret_cast<ContentHandleRequest*>(16)->f) - \
-   reinterpret_cast<char*>(16))
-
-#define ZR_(first, last) do {                              \
-    size_t f = OFFSET_OF_FIELD_(first);                    \
-    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
-    ::memset(&first, 0, n);                                \
-  } while (0)
-
-  if (_has_bits_[0 / 32] & 7) {
-    ZR_(program_, stream_);
-    version_ = 1701729619u;
-  }
-
-#undef OFFSET_OF_FIELD_
-#undef ZR_
-
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool ContentHandleRequest::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.resources.v1.ContentHandleRequest)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required fixed32 program = 1;
-      case 1: {
-        if (tag == 13) {
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, &program_)));
-          set_has_program();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(21)) goto parse_stream;
-        break;
-      }
-
-      // required fixed32 stream = 2;
-      case 2: {
-        if (tag == 21) {
-         parse_stream:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, &stream_)));
-          set_has_stream();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(29)) goto parse_version;
-        break;
-      }
-
-      // optional fixed32 version = 3 [default = 1701729619];
-      case 3: {
-        if (tag == 29) {
-         parse_version:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_FIXED32>(
-                 input, &version_)));
-          set_has_version();
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.resources.v1.ContentHandleRequest)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.resources.v1.ContentHandleRequest)
-  return false;
-#undef DO_
-}
-
-void ContentHandleRequest::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.resources.v1.ContentHandleRequest)
-  // required fixed32 program = 1;
-  if (has_program()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(1, this->program(), output);
-  }
-
-  // required fixed32 stream = 2;
-  if (has_stream()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(2, this->stream(), output);
-  }
-
-  // optional fixed32 version = 3 [default = 1701729619];
-  if (has_version()) {
-    ::google::protobuf::internal::WireFormatLite::WriteFixed32(3, this->version(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.resources.v1.ContentHandleRequest)
-}
-
-::google::protobuf::uint8* ContentHandleRequest::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.resources.v1.ContentHandleRequest)
-  // required fixed32 program = 1;
-  if (has_program()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(1, this->program(), target);
-  }
-
-  // required fixed32 stream = 2;
-  if (has_stream()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(2, this->stream(), target);
-  }
-
-  // optional fixed32 version = 3 [default = 1701729619];
-  if (has_version()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteFixed32ToArray(3, this->version(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.resources.v1.ContentHandleRequest)
-  return target;
-}
-
-int ContentHandleRequest::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required fixed32 program = 1;
-    if (has_program()) {
-      total_size += 1 + 4;
-    }
-
-    // required fixed32 stream = 2;
-    if (has_stream()) {
-      total_size += 1 + 4;
-    }
-
-    // optional fixed32 version = 3 [default = 1701729619];
-    if (has_version()) {
-      total_size += 1 + 4;
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void ContentHandleRequest::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const ContentHandleRequest* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const ContentHandleRequest*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void ContentHandleRequest::MergeFrom(const ContentHandleRequest& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_program()) {
-      set_program(from.program());
-    }
-    if (from.has_stream()) {
-      set_stream(from.stream());
-    }
-    if (from.has_version()) {
-      set_version(from.version());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void ContentHandleRequest::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ContentHandleRequest::CopyFrom(const ContentHandleRequest& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ContentHandleRequest::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-  return true;
-}
-
 void ContentHandleRequest::Swap(ContentHandleRequest* other) {
   if (other != this) {
-    std::swap(program_, other->program_);
-    std::swap(stream_, other->stream_);
-    std::swap(version_, other->version_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata ContentHandleRequest::GetMetadata() const {
@@ -423,7 +246,153 @@ void ContentHandleRequest::Swap(ContentHandleRequest* other) {
 
 // ===================================================================
 
-ResourcesService::ResourcesService(bool use_original_hash) : service_hash_(use_original_hash ? OriginalHash::value : NameHash::value) {
+#ifndef _MSC_VER
+const int GetTitleIconsRequest::kTitleIdsFieldNumber;
+const int GetTitleIconsRequest::kUsageFieldNumber;
+const int GetTitleIconsRequest::kVersionFieldNumber;
+#endif  // !_MSC_VER
+
+GetTitleIconsRequest::GetTitleIconsRequest()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.resources.v1.GetTitleIconsRequest)
+}
+
+void GetTitleIconsRequest::InitAsDefaultInstance() {
+}
+
+GetTitleIconsRequest::GetTitleIconsRequest(const GetTitleIconsRequest& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.resources.v1.GetTitleIconsRequest)
+}
+
+void GetTitleIconsRequest::SharedCtor() {
+  _cached_size_ = 0;
+  usage_ = 0u;
+  version_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetTitleIconsRequest::~GetTitleIconsRequest() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.resources.v1.GetTitleIconsRequest)
+  SharedDtor();
+}
+
+void GetTitleIconsRequest::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void GetTitleIconsRequest::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetTitleIconsRequest::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetTitleIconsRequest_descriptor_;
+}
+
+const GetTitleIconsRequest& GetTitleIconsRequest::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_resource_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetTitleIconsRequest* GetTitleIconsRequest::default_instance_ = NULL;
+
+GetTitleIconsRequest* GetTitleIconsRequest::New() const {
+  return new GetTitleIconsRequest;
+}
+
+void GetTitleIconsRequest::Swap(GetTitleIconsRequest* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetTitleIconsRequest::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetTitleIconsRequest_descriptor_;
+  metadata.reflection = GetTitleIconsRequest_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int GetTitleIconsResponse::kTitleIconContentHandlesFieldNumber;
+#endif  // !_MSC_VER
+
+GetTitleIconsResponse::GetTitleIconsResponse()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.resources.v1.GetTitleIconsResponse)
+}
+
+void GetTitleIconsResponse::InitAsDefaultInstance() {
+}
+
+GetTitleIconsResponse::GetTitleIconsResponse(const GetTitleIconsResponse& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.resources.v1.GetTitleIconsResponse)
+}
+
+void GetTitleIconsResponse::SharedCtor() {
+  _cached_size_ = 0;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+GetTitleIconsResponse::~GetTitleIconsResponse() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.resources.v1.GetTitleIconsResponse)
+  SharedDtor();
+}
+
+void GetTitleIconsResponse::SharedDtor() {
+  if (this != default_instance_) {
+  }
+}
+
+void GetTitleIconsResponse::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* GetTitleIconsResponse::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return GetTitleIconsResponse_descriptor_;
+}
+
+const GetTitleIconsResponse& GetTitleIconsResponse::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_resource_5fservice_2eproto();
+  return *default_instance_;
+}
+
+GetTitleIconsResponse* GetTitleIconsResponse::default_instance_ = NULL;
+
+GetTitleIconsResponse* GetTitleIconsResponse::New() const {
+  return new GetTitleIconsResponse;
+}
+
+void GetTitleIconsResponse::Swap(GetTitleIconsResponse* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata GetTitleIconsResponse::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = GetTitleIconsResponse_descriptor_;
+  metadata.reflection = GetTitleIconsResponse_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+ResourcesService::ResourcesService(bool use_original_hash) : ServiceBase(use_original_hash ? OriginalHash::value : NameHash::value) {
 }
 
 ResourcesService::~ResourcesService() {
@@ -436,43 +405,57 @@ google::protobuf::ServiceDescriptor const* ResourcesService::descriptor() {
 
 void ResourcesService::CallServerMethod(uint32 token, uint32 methodId, MessageBuffer buffer) {
   switch(methodId & 0x3FFFFFFF) {
-    case 1: {
-      ::bgs::protocol::resources::v1::ContentHandleRequest request;
-      if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
-        TC_LOG_DEBUG("service.protobuf", "%s Failed to parse request for ResourcesService.GetContentHandle server method call.", GetCallerInfo().c_str());
-        SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
-        return;
-      }
-      TC_LOG_DEBUG("service.protobuf", "%s Client called server method ResourcesService.GetContentHandle(bgs.protocol.resources.v1.ContentHandleRequest{ %s }).",
-        GetCallerInfo().c_str(), request.ShortDebugString().c_str());
-      std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = [token, methodId](ServiceBase* service, uint32 status, ::google::protobuf::Message const* response)
-      {
-        ASSERT(response->GetDescriptor() == ::bgs::protocol::ContentHandle::descriptor());
-        ResourcesService* self = static_cast<ResourcesService*>(service);
-        TC_LOG_DEBUG("service.protobuf", "%s Client called server method ResourcesService.GetContentHandle() returned bgs.protocol.ContentHandle{ %s } status %u.",
-          self->GetCallerInfo().c_str(), response->ShortDebugString().c_str(), status);
-        if (!status)
-          self->SendResponse(self->service_hash_, methodId, token, response);
-        else
-          self->SendResponse(self->service_hash_, methodId, token, status);
-      };
-      ::bgs::protocol::ContentHandle response;
-      uint32 status = HandleGetContentHandle(&request, &response, continuation);
-      if (continuation)
-        continuation(this, status, &response);
+    case 1:
+      ParseAndHandleGetContentHandle(token, methodId, buffer);
       break;
-    }
+    case 2:
+      ParseAndHandleGetTitleIcons(token, methodId, buffer);
+      break;
     default:
-      TC_LOG_ERROR("service.protobuf", "Bad method id %u.", methodId);
+      LogInvalidMethod(methodId);
       SendResponse(service_hash_, methodId, token, ERROR_RPC_INVALID_METHOD);
       break;
     }
 }
 
-uint32 ResourcesService::HandleGetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, ::bgs::protocol::ContentHandle* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation) {
-  TC_LOG_ERROR("service.protobuf", "%s Client tried to call not implemented method ResourcesService.GetContentHandle({ %s })",
-    GetCallerInfo().c_str(), request->ShortDebugString().c_str());
+uint32 ResourcesService::HandleGetContentHandle(::bgs::protocol::resources::v1::ContentHandleRequest const* request, ::bgs::protocol::ContentHandle* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ResourcesService.GetContentHandle", request);
   return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+uint32 ResourcesService::HandleGetTitleIcons(::bgs::protocol::resources::v1::GetTitleIconsRequest const* request, ::bgs::protocol::resources::v1::GetTitleIconsResponse* /*response*/, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& /*continuation*/) {
+  LogUnimplementedServerMethod("ResourcesService.GetTitleIcons", request);
+  return ERROR_RPC_NOT_IMPLEMENTED;
+}
+
+void ResourcesService::ParseAndHandleGetContentHandle(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::resources::v1::ContentHandleRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ResourcesService.GetContentHandle");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ResourcesService.GetContentHandle", "bgs.protocol.resources.v1.ContentHandleRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ResourcesService.GetContentHandle", ::bgs::protocol::ContentHandle::descriptor());
+  ::bgs::protocol::ContentHandle response;
+  uint32 status = HandleGetContentHandle(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
+}
+
+void ResourcesService::ParseAndHandleGetTitleIcons(uint32 token, uint32 methodId, MessageBuffer& buffer) {
+  ::bgs::protocol::resources::v1::GetTitleIconsRequest request;
+  if (!request.ParseFromArray(buffer.GetReadPointer(), buffer.GetActiveSize())) {
+    LogFailedParsingRequest("ResourcesService.GetTitleIcons");
+    SendResponse(service_hash_, methodId, token, ERROR_RPC_MALFORMED_REQUEST);
+    return;
+  }
+  LogCallServerMethod("ResourcesService.GetTitleIcons", "bgs.protocol.resources.v1.GetTitleIconsRequest", &request);
+  std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)> continuation = CreateServerContinuation(token, methodId, "ResourcesService.GetTitleIcons", ::bgs::protocol::resources::v1::GetTitleIconsResponse::descriptor());
+  ::bgs::protocol::resources::v1::GetTitleIconsResponse response;
+  uint32 status = HandleGetTitleIcons(&request, &response, continuation);
+  if (continuation)
+    continuation(this, status, &response);
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -61,8 +61,7 @@ struct boss_moragg : public BossAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff,
-            std::bind(&BossAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff);
     }
 
     void ScheduleTasks() override
@@ -92,8 +91,6 @@ struct boss_moragg : public BossAI
 // 54442, 59524 - Ray of Suffering
 class spell_moragg_ray : public AuraScript
 {
-    PrepareAuraScript(spell_moragg_ray);
-
     void OnPeriodic(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
@@ -115,8 +112,6 @@ class spell_moragg_ray : public AuraScript
 // 54396 - Optic Link
 class spell_moragg_optic_link : public AuraScript
 {
-    PrepareAuraScript(spell_moragg_optic_link);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(

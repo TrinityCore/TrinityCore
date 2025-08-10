@@ -260,6 +260,8 @@ struct npc_tribuna_controller : public ScriptedAI
     }
 };
 
+static constexpr uint32 PATH_ESCORT_BRANN = 224562;
+
 struct npc_brann_hos : public EscortAI
 {
     npc_brann_hos(Creature* creature) : EscortAI(creature)
@@ -388,6 +390,7 @@ struct npc_brann_hos : public EscortAI
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         SetEscortPaused(false);
         uiStep = 1;
+        LoadPath(PATH_ESCORT_BRANN);
         Start();
     }
 
@@ -416,7 +419,6 @@ struct npc_brann_hos : public EscortAI
                         return;
                     bIsBattle = false;
                     Talk(SAY_ESCORT_START);
-                    SetRun(true);
                     JumpToNextStep(0);
                     break;
                 case 3:
@@ -670,8 +672,6 @@ struct npc_brann_hos : public EscortAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
@@ -689,6 +689,7 @@ struct npc_brann_hos : public EscortAI
 
     bool OnGossipHello(Player* player) override
     {
+        InitGossipMenuFor(player, GOSSIP_ITEM_START_MID);
         if (me->IsQuestGiver())
             player->PrepareQuestMenu(me->GetGUID());
 

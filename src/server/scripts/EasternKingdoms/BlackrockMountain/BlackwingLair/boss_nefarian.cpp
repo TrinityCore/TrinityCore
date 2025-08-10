@@ -86,8 +86,8 @@ enum Gossip
 
 enum Paths
 {
-    NEFARIUS_PATH_2            = 1379671,
-    NEFARIUS_PATH_3            = 1379672
+    NEFARIUS_PATH_2            = 11037368,
+    NEFARIUS_PATH_3            = 11037376
 };
 
 enum GameObjects
@@ -219,7 +219,7 @@ struct boss_victor_nefarius : public BossAI
         if (summon->GetEntry() != NPC_NEFARIAN)
         {
             summon->UpdateEntry(NPC_BONE_CONSTRUCT);
-            summon->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            summon->SetUninteractible(true);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetStandState(UNIT_STAND_STATE_DEAD);
         }
@@ -560,7 +560,7 @@ struct boss_nefarian : public BossAI
                 {
                     (*itr)->Respawn();
                     DoZoneInCombat((*itr));
-                    (*itr)->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    (*itr)->SetUninteractible(false);
                     (*itr)->SetReactState(REACT_AGGRESSIVE);
                     (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
                 }
@@ -568,8 +568,6 @@ struct boss_nefarian : public BossAI
             Phase3 = true;
             Talk(SAY_RAISE_SKELETONS);
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

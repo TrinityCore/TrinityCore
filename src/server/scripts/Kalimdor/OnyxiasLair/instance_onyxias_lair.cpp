@@ -31,10 +31,16 @@ EndScriptData */
 #include "Map.h"
 #include "onyxias_lair.h"
 #include "TemporarySummon.h"
+#include <queue>
 
 BossBoundaryData const boundaries =
 {
-    { DATA_ONYXIA, new CircleBoundary(Position(-34.3697f, -212.3296f), 100.0) }
+    { DATA_ONYXIA, new CircleBoundary(Position(-34.3697f, -212.3296f), 100.0f) }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_ONYXIA, {{ 1084 }} }
 };
 
 class instance_onyxias_lair : public InstanceMapScript
@@ -54,6 +60,7 @@ public:
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
             LoadBossBoundaries(boundaries);
+            LoadDungeonEncounterData(encounters);
 
             onyxiaLiftoffTimer = 0;
             manyWhelpsCounter = 0;

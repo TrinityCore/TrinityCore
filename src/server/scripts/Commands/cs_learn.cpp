@@ -135,8 +135,8 @@ public:
         Player* player = handler->GetPlayer();
         for (auto const& [id, quest] : sObjectMgr->GetQuestTemplates())
         {
-            if (quest.GetAllowableClasses() && player->SatisfyQuestClass(&quest, false))
-                player->LearnQuestRewardedSpells(&quest);
+            if (quest->GetAllowableClasses() && player->SatisfyQuestClass(quest.get(), false))
+                player->LearnQuestRewardedSpells(quest.get());
         }
         return true;
     }
@@ -184,7 +184,7 @@ public:
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 playerClass = player->GetClass();
+        uint8 playerClass = player->GetClass();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -192,10 +192,10 @@ public:
             if (!talentInfo)
                 continue;
 
-            if (playerClass != talentInfo->ClassID)
+            if (playerClass != uint8(talentInfo->ClassID))
                 continue;
 
-            if (talentInfo->SpecID && player->GetPrimarySpecialization() != talentInfo->SpecID)
+            if (talentInfo->SpecID && player->GetPrimarySpecialization() != ChrSpecialization(talentInfo->SpecID))
                 continue;
 
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellID, DIFFICULTY_NONE);
@@ -423,16 +423,12 @@ public:
     {
         uint32 classmask = player->GetClassMask();
 
-        for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+        std::vector<SkillLineAbilityEntry const*> const* skillLineAbilities = sDB2Manager.GetSkillLineAbilitiesBySkill(skillId);
+        if (!skillLineAbilities)
+            return;
+
+        for (SkillLineAbilityEntry const* skillLine : *skillLineAbilities)
         {
-            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
-            if (!skillLine)
-                continue;
-
-            // wrong skill
-            if (skillLine->SkillLine != int32(skillId))
-                continue;
-
             // not high rank
             if (skillLine->SupercedesSpell)
                 continue;

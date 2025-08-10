@@ -90,8 +90,6 @@ class boss_janalai : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

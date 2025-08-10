@@ -23,7 +23,7 @@
 uint32 const EncounterCount         = 23;
 
 #define BRSScriptName "instance_blackrock_spire"
-#define DataHeader    "BRS"
+#define DataHeader    "BRSv1"
 
 enum BRSDataTypes
 {

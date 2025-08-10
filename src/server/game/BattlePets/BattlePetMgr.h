@@ -39,7 +39,6 @@ enum BattlePetMisc
 };
 
 static constexpr uint16 MAX_BATTLE_PET_LEVEL = 25;
-static constexpr Milliseconds REVIVE_BATTLE_PETS_COOLDOWN = 180s;
 
 enum class BattlePetBreedQuality : uint8
 {
@@ -168,7 +167,7 @@ public:
     void RemovePet(ObjectGuid guid);
     void ClearFanfare(ObjectGuid guid);
     void ModifyName(ObjectGuid guid, std::string const& name, std::unique_ptr<DeclinedName> declinedName);
-    bool IsPetInSlot(ObjectGuid guid);
+    bool IsPetInSlot(ObjectGuid guid) const;
 
     uint8 GetPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;
     bool HasMaxPetCount(BattlePetSpeciesEntry const* battlePetSpecies, ObjectGuid ownerGuid) const;

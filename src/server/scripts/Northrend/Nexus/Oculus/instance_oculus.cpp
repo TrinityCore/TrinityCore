@@ -26,12 +26,19 @@
 #include "ScriptMgr.h"
 #include "PhasingHandler.h"
 #include "TemporarySummon.h"
-#include "WorldStatePackets.h"
 
 DoorData const doorData[] =
 {
-    { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    DOOR_TYPE_PASSAGE },
-    { 0,                    0,              DOOR_TYPE_ROOM }
+    { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    EncounterDoorBehavior::OpenWhenDone },
+    { 0,                    0,              EncounterDoorBehavior::OpenWhenNotInProgress }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DRAKOS, {{ 528, 529, 2016 }} },
+    { DATA_VAROS, {{ 530, 531, 2015 }} },
+    { DATA_UROM, {{ 532, 533, 2014 }} },
+    { DATA_EREGOS, {{ 534, 535, 2013 }} }
 };
 
 Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
@@ -50,6 +57,7 @@ class instance_oculus : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 CentrifugueConstructCounter = 0;
             }
@@ -149,20 +157,6 @@ class instance_oculus : public InstanceMapScript
                      if (!CentrifugueConstructCounter)
                         if (Creature* varos = instance->GetCreature(VarosGUID))
                             varos->RemoveAllAuras();
-                }
-            }
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                if (GetBossState(DATA_DRAKOS) == DONE && GetBossState(DATA_VAROS) != DONE)
-                {
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 1);
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, CentrifugueConstructCounter);
-                }
-                else
-                {
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW, 0);
-                    packet.Worldstates.emplace_back(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT, 0);
                 }
             }
 

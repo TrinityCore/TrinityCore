@@ -19,10 +19,10 @@
 #include "ByteBuffer.h"
 #include "Errors.h"
 #include "Hash.h"
-#include "Log.h"
-#include "Realm.h"
+#include "RealmList.h"
+#include "StringFormat.h"
 #include "Util.h"
-#include "World.h"
+#include <charconv>
 
 static_assert(sizeof(ObjectGuid) == sizeof(uint64) * 2, "ObjectGuid must be exactly 16 bytes");
 
@@ -30,426 +30,633 @@ namespace
 {
     struct ObjectGuidInfo
     {
-        std::string Names[AsUnderlyingType(HighGuid::Count)];
-        std::string(ObjectGuidInfo::*ClientFormatFunction[AsUnderlyingType(HighGuid::Count)])(char const* typeName, ObjectGuid guid);
-        ObjectGuid(ObjectGuidInfo::*ClientParseFunction[AsUnderlyingType(HighGuid::Count)])(HighGuid type, char const* guidString);
+        using FormatFunction = fmt::appender(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid);
+        using ParseFunction = ObjectGuid(HighGuid type, std::string_view guidString);
 
-        std::string Format(ObjectGuid guid)
+        std::string_view Names[AsUnderlyingType(HighGuid::Count)];
+        std::array<FormatFunction*, AsUnderlyingType(HighGuid::Count)> ClientFormatFunction;
+        std::array<ParseFunction*, AsUnderlyingType(HighGuid::Count)> ClientParseFunction;
+
+        static std::string Format(ObjectGuid const& guid)
         {
-            if (guid.GetHigh() >= HighGuid::Count)
-                return "Uniq-WOWGUID_TO_STRING_FAILED";
-
-            int32 type = AsUnderlyingType(guid.GetHigh());
-            if (!ClientFormatFunction[type])
-                return "Uniq-WOWGUID_TO_STRING_FAILED";
-
-            return (this->*ClientFormatFunction[type])(Names[type].c_str(), guid);
+            return Trinity::StringFormat("{}", guid);
         }
 
-        ObjectGuid Parse(std::string const& guidString)
+        ObjectGuid Parse(std::string_view guidString) const
         {
             std::size_t typeEnd = guidString.find('-');
             if (typeEnd == std::string::npos)
-                return ObjectGuid::FromStringFailed;
-
-            int32 type = 0;
-            for (; type < AsUnderlyingType(HighGuid::Count); ++type)
             {
-                if (Names[type].length() < typeEnd)
-                    continue;
-
-                if (guidString.compare(0, typeEnd, Names[type]) == 0)
-                    break;
+                if (guidString == "0000000000000000")
+                    return ObjectGuid::Empty;
+                return ObjectGuid::FromStringFailed;
             }
 
-            if (type >= AsUnderlyingType(HighGuid::Count))
-                return ObjectGuid::FromStringFailed;
+            std::string_view typeStr = guidString.substr(0, typeEnd);
+            guidString.remove_prefix(typeEnd + 1);
 
-            return (this->*ClientParseFunction[type])(HighGuid(type), &guidString[typeEnd + 1]);
+            // find correct parser for type name
+            for (int32 type = 0; type < AsUnderlyingType(HighGuid::Count); ++type)
+                if (typeStr == Names[type])
+                    return ClientParseFunction[type](HighGuid(type), guidString);
+
+            return ObjectGuid::FromStringFailed;
         }
 
-        std::string FormatNull(char const*, ObjectGuid)
+        struct FormatPadding { std::ptrdiff_t Value; constexpr operator std::ptrdiff_t() const { return Value; } };
+
+        template <std::ptrdiff_t Width>
+        static constexpr inline FormatPadding padding{ .Value = Width };
+        static constexpr inline FormatPadding no_padding{ .Value = 0 };
+
+        struct FormatBase { int32 Value; constexpr operator int32() const { return Value; } };
+
+        static constexpr inline FormatBase dec{ 10 };
+        static constexpr inline FormatBase hex{ 16 };
+
+        static fmt::appender AppendTypeName(fmt::format_context& ctx, std::string_view type)
         {
-            return "0000000000000000";
+            return std::ranges::copy(type, ctx.out()).out;
         }
 
-        ObjectGuid ParseNull(HighGuid, char const*)
+        template <FormatPadding Width, FormatBase Base>
+        static fmt::appender AppendComponent(fmt::format_context& ctx, uint64 component)
+        {
+            *ctx.out() = '-';
+
+            std::array<char, 20> buf;
+            auto [end, err] = std::to_chars(buf.data(), buf.data() + buf.size(), component, Base);
+
+            ASSERT(err == std::errc(), "Failed to convert guid part to string");
+
+            if constexpr (Width != 0)
+            {
+                if (std::ptrdiff_t written =  std::distance(buf.data(), end); written < Width)
+                    std::ranges::fill_n(ctx.out(), Width - written, '0');
+            }
+
+            if constexpr (Base > 10)
+                return std::ranges::transform(buf.data(), end, ctx.out(), charToUpper).out;
+            else
+                return std::ranges::copy(buf.data(), end, ctx.out()).out;
+        }
+
+        static fmt::appender AppendComponent(fmt::format_context& ctx, std::string_view component)
+        {
+            *ctx.out() = '-';
+            return std::ranges::copy(component, ctx.out()).out;
+        }
+
+        template <FormatBase Base, typename T>
+        static bool ParseComponent(std::string_view& input, T* component)
+        {
+            auto [end, err] = std::from_chars(input.data(), input.data() + input.length(), *component, Base);
+            if (err != std::errc())
+                return false;
+
+            input.remove_prefix(end - input.data());
+            if (!input.empty())
+            {
+                if (input[0] != '-')
+                    return false;
+
+                input.remove_prefix(1);
+            }
+
+            return true;
+        }
+
+        static bool ParseDone(std::string_view const& sv) { return sv.empty(); }
+
+        static fmt::appender FormatNull(fmt::format_context& ctx, std::string_view /*typeName*/, ObjectGuid const& /*guid*/)
+        {
+            return std::ranges::fill_n(ctx.out(), 16, '0');
+        }
+
+        static ObjectGuid ParseNull(HighGuid, std::string_view)
         {
             return ObjectGuid::Empty;
         }
 
-        std::string FormatUniq(char const* typeName, ObjectGuid guid)
+        static constexpr std::array<std::string_view, 20> UniqNames =
         {
-            constexpr char const* uniqNames[] =
-            {
-                nullptr,
-                "WOWGUID_UNIQUE_PROBED_DELETE",
-                "WOWGUID_UNIQUE_JAM_TEMP",
-                "WOWGUID_TO_STRING_FAILED",
-                "WOWGUID_FROM_STRING_FAILED",
-                "WOWGUID_UNIQUE_SERVER_SELF",
-                "WOWGUID_UNIQUE_MAGIC_SELF",
-                "WOWGUID_UNIQUE_MAGIC_PET",
-                "WOWGUID_UNIQUE_INVALID_TRANSPORT",
-                "WOWGUID_UNIQUE_AMMO_ID",
-                "WOWGUID_SPELL_TARGET_TRADE_ITEM",
-                "WOWGUID_SCRIPT_TARGET_INVALID",
-                "WOWGUID_SCRIPT_TARGET_NONE",
-                nullptr,
-                "WOWGUID_FAKE_MODERATOR",
-                nullptr,
-                nullptr,
-                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION"
-            };
+            "",
+            "WOWGUID_UNIQUE_PROBED_DELETE",
+            "WOWGUID_UNIQUE_JAM_TEMP",
+            "WOWGUID_TO_STRING_FAILED",
+            "WOWGUID_FROM_STRING_FAILED",
+            "WOWGUID_UNIQUE_SERVER_SELF",
+            "WOWGUID_UNIQUE_MAGIC_SELF",
+            "WOWGUID_UNIQUE_MAGIC_PET",
+            "WOWGUID_UNIQUE_INVALID_TRANSPORT",
+            "WOWGUID_UNIQUE_AMMO_ID",
+            "WOWGUID_SPELL_TARGET_TRADE_ITEM",
+            "WOWGUID_SCRIPT_TARGET_INVALID",
+            "WOWGUID_SCRIPT_TARGET_NONE",
+            "",
+            "WOWGUID_FAKE_MODERATOR",
+            "",
+            "",
+            "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION",
+            "",
+            "WOWGUID_PENDING_PERMANENT_CHARACTER_ASSIGNMENT"
+        };
 
+        static fmt::appender FormatUniq(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
+        {
             ObjectGuid::LowType id = guid.GetCounter();
-            if (id >= std::size(uniqNames))
+            if (id >= UniqNames.size() || UniqNames[id].empty())
                 id = 3;
 
-            return Trinity::StringFormat("%s-%s", typeName, uniqNames[id]);
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent(ctx, UniqNames[id]));
+            return ctx.out();
         }
 
-        ObjectGuid ParseUniq(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseUniq(HighGuid /*type*/, std::string_view guidString)
         {
-            constexpr char const* uniqNames[] =
+            for (std::size_t id = 0; id < UniqNames.size(); ++id)
             {
-                nullptr,
-                "WOWGUID_UNIQUE_PROBED_DELETE",
-                "WOWGUID_UNIQUE_JAM_TEMP",
-                "WOWGUID_TO_STRING_FAILED",
-                "WOWGUID_FROM_STRING_FAILED",
-                "WOWGUID_UNIQUE_SERVER_SELF",
-                "WOWGUID_UNIQUE_MAGIC_SELF",
-                "WOWGUID_UNIQUE_MAGIC_PET",
-                "WOWGUID_UNIQUE_INVALID_TRANSPORT",
-                "WOWGUID_UNIQUE_AMMO_ID",
-                "WOWGUID_SPELL_TARGET_TRADE_ITEM",
-                "WOWGUID_SCRIPT_TARGET_INVALID",
-                "WOWGUID_SCRIPT_TARGET_NONE",
-                nullptr,
-                "WOWGUID_FAKE_MODERATOR",
-                nullptr,
-                nullptr,
-                "WOWGUID_UNIQUE_ACCOUNT_OBJ_INITIALIZATION"
-            };
-
-            for (std::size_t id = 0; id < std::size(uniqNames); ++id)
-            {
-                if (!uniqNames[id])
+                if (UniqNames[id].empty())
                     continue;
 
-                if (strcmp(guidString, uniqNames[id]) == 0)
+                if (guidString == UniqNames[id])
                     return ObjectGuidFactory::CreateUniq(id);
             }
 
             return ObjectGuid::FromStringFailed;
         }
 
-        std::string FormatPlayer(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatPlayer(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%08llX", typeName, guid.GetRealmId(), guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<padding<8>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParsePlayer(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParsePlayer(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
             uint64 dbId = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%08" SCNx64, &realmId, &dbId) != 2)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<hex>(guidString, &dbId)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreatePlayer(realmId, dbId);
         }
 
-        std::string FormatItem(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatItem(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%016llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 18) & 0xFFFFFF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 18 & 0xFFFFFF));
+            ctx.advance_to(AppendComponent<padding<16>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseItem(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseItem(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
             uint32 arg1 = 0;
             uint64 dbId = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%016" SCNx64, &realmId, &arg1, &dbId) != 3)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<hex>(guidString, &dbId)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateItem(realmId, dbId);
         }
 
-        std::string FormatWorldObject(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatWorldObject(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%010llX", typeName, guid.GetSubType(), guid.GetRealmId(), guid.GetMapId(),
-                uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetEntry(), guid.GetCounter());
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetSubType()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetMapId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0) >> 40 & 0xFFFFFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetEntry()));
+            ctx.advance_to(AppendComponent<padding<10>, hex>(ctx, guid.GetCounter()));
+            return ctx.out();
         }
 
-        ObjectGuid ParseWorldObject(HighGuid type, char const* guidString)
+        static ObjectGuid ParseWorldObject(HighGuid type, std::string_view guidString)
         {
-            uint32 subType = 0;
+            uint8 subType = 0;
             uint32 realmId = 0;
-            uint32 mapId = 0;
+            uint16 mapId = 0;
             uint32 serverId = 0;
             uint32 id = 0;
             uint64 counter = UI64LIT(0);
-            if (std::sscanf(guidString, "%u-%u-%u-%u-%u-%010" SCNx64, &subType, &realmId, &mapId, &serverId, &id, &counter) != 6)
+
+            if (!ParseComponent<dec>(guidString, &subType)
+                || !ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &mapId)
+                || !ParseComponent<dec>(guidString, &serverId)
+                || !ParseComponent<dec>(guidString, &id)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateWorldObject(type, subType, realmId, mapId, serverId, id, counter);
         }
 
-        std::string FormatTransport(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatTransport(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%016llX", typeName, uint32(guid.GetRawValue(1) >> 38) & 0xFFFFF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetEntry()));
+            ctx.advance_to(AppendComponent<padding<16>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseTransport(HighGuid type, char const* guidString)
+        static ObjectGuid ParseTransport(HighGuid type, std::string_view guidString)
         {
             uint32 id = 0;
-            uint64 counter = UI64LIT(0);
+            uint32 counter = 0;
 
-            if (std::sscanf(guidString, "%u-%016" SCNx64, &id, &counter) != 2)
+            if (!ParseComponent<dec>(guidString, &id)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateTransport(type, counter);
         }
 
-        std::string FormatClientActor(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatClientActor(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 26) & 0xFFFFFF, uint32(guid.GetRawValue(0)));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 26 & 0xFFFFFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0) & 0xFFFFFFFF));
+            return ctx.out();
         }
 
-        ObjectGuid ParseClientActor(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseClientActor(HighGuid /*type*/, std::string_view guidString)
         {
-            uint32 ownerType = 0;
-            uint32 ownerId = 0;
+            uint16 ownerType = 0;
+            uint16 ownerId = 0;
             uint32 counter = 0;
 
-            if (std::sscanf(guidString, "%u-%u-%u", &ownerType, &ownerId, &counter) != 3)
+            if (!ParseComponent<dec>(guidString, &ownerType)
+                || !ParseComponent<dec>(guidString, &ownerId)
+                || !ParseComponent<dec>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateClientActor(ownerType, ownerId, counter);
         }
 
-        std::string FormatChatChannel(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatChatChannel(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             uint32 builtIn = (guid.GetRawValue(1) >> 25) & 0x1;
             uint32 trade = (guid.GetRawValue(1) >> 24) & 0x1;
             uint32 zoneId = (guid.GetRawValue(1) >> 10) & 0x3FFF;
             uint32 factionGroupMask = (guid.GetRawValue(1) >> 4) & 0x3F;
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%08llX", typeName, guid.GetRealmId(), builtIn, trade, zoneId, factionGroupMask, guid.GetRawValue(0));
+
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, builtIn));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, trade));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, zoneId));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, factionGroupMask));
+            ctx.advance_to(AppendComponent<padding<8>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseChatChannel(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseChatChannel(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
             uint32 builtIn = 0;
             uint32 trade = 0;
-            uint32 zoneId = 0;
-            uint32 factionGroupMask = 0;
+            uint16 zoneId = 0;
+            uint8 factionGroupMask = 0;
             uint64 id = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%u-%u-%u-%08" SCNx64, &realmId, &builtIn, &trade, &zoneId, &factionGroupMask, &id) != 6)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &builtIn)
+                || !ParseComponent<dec>(guidString, &trade)
+                || !ParseComponent<dec>(guidString, &zoneId)
+                || !ParseComponent<dec>(guidString, &factionGroupMask)
+                || !ParseComponent<hex>(guidString, &id)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateChatChannel(realmId, builtIn != 0, trade != 0, zoneId, factionGroupMask, id);
         }
 
-        std::string FormatGlobal(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatGlobal(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%llu-%012llX", typeName, guid.GetRawValue(1) & 0x3FFFFFFFFFFFFFF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) & 0x3FFFFFFFFFFFFFF));
+            ctx.advance_to(AppendComponent<padding<12>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseGlobal(HighGuid type, char const* guidString)
+        static ObjectGuid ParseGlobal(HighGuid type, std::string_view guidString)
         {
             uint64 dbIdHigh = UI64LIT(0);
             uint64 dbIdLow = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%" SCNu64 "-%012" SCNx64, &dbIdHigh, &dbIdLow) != 2)
+            if (!ParseComponent<dec>(guidString, &dbIdHigh)
+                || !ParseComponent<hex>(guidString, &dbIdLow)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateGlobal(type, dbIdHigh, dbIdLow);
         }
 
-        std::string FormatGuild(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatGuild(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%012llX", typeName, guid.GetRealmId(), guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<padding<12>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseGuild(HighGuid type, char const* guidString)
+        static ObjectGuid ParseGuild(HighGuid type, std::string_view guidString)
         {
             uint32 realmId = 0;
             uint64 dbId = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%012" SCNx64, &realmId, &dbId) != 2)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<hex>(guidString, &dbId)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateGuild(type, realmId, dbId);
         }
 
-        std::string FormatMobileSession(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatMobileSession(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%08llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 33) & 0x1FF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 33 & 0x1FF));
+            ctx.advance_to(AppendComponent<padding<8>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseMobileSession(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseMobileSession(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
-            uint32 arg1 = 0;
+            uint16 arg1 = 0;
             uint64 counter = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%08" SCNx64, &realmId, &arg1, &counter) != 3)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateMobileSession(realmId, arg1, counter);
         }
 
-        std::string FormatWebObj(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatWebObj(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%012llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 37) & 0x1F,
-                uint32(guid.GetRawValue(1) >> 35) & 0x3, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 37 & 0x1F));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 35 & 0x3));
+            ctx.advance_to(AppendComponent<padding<12>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseWebObj(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseWebObj(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
-            uint32 arg1 = 0;
-            uint32 arg2 = 0;
+            uint8 arg1 = 0;
+            uint8 arg2 = 0;
             uint64 counter = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%u-%012" SCNx64, &realmId, &arg1, &arg2, &counter) != 4)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<dec>(guidString, &arg2)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateWebObj(realmId, arg1, arg2, counter);
         }
 
-        std::string FormatLFGObject(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatLFGObject(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%u-%u-%u-%06llX", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, uint32(guid.GetRawValue(1) >> 50) & 0xF,
-                uint32(guid.GetRawValue(1) >> 46) & 0xF, uint32(guid.GetRawValue(1) >> 38) & 0xFF, uint32(guid.GetRawValue(1) >> 37) & 0x1,
-                uint32(guid.GetRawValue(1) >> 35) & 0x3, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 54 & 0xF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 50 & 0xF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 46 & 0xF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 38 & 0xFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 37 & 0x1));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 35 & 0x3));
+            ctx.advance_to(AppendComponent<padding<6>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseLFGObject(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseLFGObject(HighGuid /*type*/, std::string_view guidString)
         {
-            uint32 arg1 = 0;
-            uint32 arg2 = 0;
-            uint32 arg3 = 0;
-            uint32 arg4 = 0;
-            uint32 arg5 = 0;
-            uint32 arg6 = 0;
+            uint8 arg1 = 0;
+            uint8 arg2 = 0;
+            uint8 arg3 = 0;
+            uint8 arg4 = 0;
+            uint8 arg5 = 0;
+            uint8 arg6 = 0;
             uint64 counter = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%u-%u-%u-%u-%06" SCNx64, &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &counter) != 7)
+            if (!ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<dec>(guidString, &arg2)
+                || !ParseComponent<dec>(guidString, &arg3)
+                || !ParseComponent<dec>(guidString, &arg4)
+                || !ParseComponent<dec>(guidString, &arg5)
+                || !ParseComponent<dec>(guidString, &arg6)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateLFGObject(arg1, arg2, arg3, arg4, arg5 != 0, arg6, counter);
         }
 
-        std::string FormatLFGList(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatLFGList(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%06llX", typeName, uint32(guid.GetRawValue(1) >> 54) & 0xF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 54 & 0xF));
+            ctx.advance_to(AppendComponent<padding<6>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseLFGList(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseLFGList(HighGuid /*type*/, std::string_view guidString)
         {
-            uint32 arg1 = 0;
+            uint8 arg1 = 0;
             uint64 counter = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%06" SCNx64, &arg1, &counter) != 2)
+            if (!ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateLFGList(arg1, counter);
         }
 
-        std::string FormatClient(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatClient(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%012llX", typeName, guid.GetRealmId(), uint32(guid.GetRawValue(1) >> 10) & 0xFFFFFFFF, guid.GetRawValue(0));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 10 & 0xFFFFFFFF));
+            ctx.advance_to(AppendComponent<padding<12>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
         }
 
-        ObjectGuid ParseClient(HighGuid type, char const* guidString)
+        static ObjectGuid ParseClient(HighGuid type, std::string_view guidString)
         {
             uint32 realmId = 0;
             uint32 arg1 = 0;
             uint64 counter = UI64LIT(0);
 
-            if (std::sscanf(guidString, "%u-%u-%012" SCNx64, &realmId, &arg1, &counter) != 3)
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &arg1)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateClient(type, realmId, arg1, counter);
         }
 
-        std::string FormatClubFinder(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatClubFinder(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
             uint32 type = uint32(guid.GetRawValue(1) >> 33) & 0xFF;
             uint32 clubFinderId = uint32(guid.GetRawValue(1)) & 0xFFFFFFFF;
-            if (type == 1) // guild
-                return Trinity::StringFormat("%s-%u-%u-%u-%llu", typeName, type, clubFinderId, guid.GetRealmId(), guid.GetRawValue(0) /*guildId*/);
 
-            return Trinity::StringFormat("%s-%u-%u-%016llX", typeName, type, clubFinderId, guid.GetRawValue(0) /*clubId*/);
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, type));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, clubFinderId));
+            switch (type)
+            {
+                case 0: // club
+                    ctx.advance_to(AppendComponent<padding<16>, hex>(ctx, guid.GetRawValue(0))); // clubId
+                    break;
+                case 1: // guild
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0))); // guildId
+                    break;
+                default:
+                    break;
+            }
+
+            return ctx.out();
         }
 
-        ObjectGuid ParseClubFinder(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseClubFinder(HighGuid /*type*/, std::string_view guidString)
         {
-            uint32 type = 0;
-            uint32 consumed = 0;
-
-            if (std::sscanf(guidString, "%u-%n", &type, &consumed) != 1)
-                return ObjectGuid::FromStringFailed;
-
+            uint8 type = 0;
             uint32 clubFinderId = 0;
             uint32 realmId = 0;
             uint64 dbId = UI64LIT(0);
 
+            if (!ParseComponent<dec>(guidString, &type)
+                || !ParseComponent<dec>(guidString, &clubFinderId))
+                return ObjectGuid::FromStringFailed;
+
             switch (type)
             {
                 case 0: // club
-                    if (std::sscanf(guidString + consumed, "%u-%016" SCNx64, &clubFinderId, &dbId) != 2)
+                    if (!ParseComponent<hex>(guidString, &dbId))
                         return ObjectGuid::FromStringFailed;
                     break;
                 case 1: // guild
-                    if (std::sscanf(guidString + consumed, "%u-%u-%016" SCNx64, &clubFinderId, &realmId, &dbId) != 3)
+                    if (!ParseComponent<dec>(guidString, &realmId)
+                        || !ParseComponent<dec>(guidString, &dbId))
                         return ObjectGuid::FromStringFailed;
                     break;
                 default:
                     return ObjectGuid::FromStringFailed;
             }
 
+            if (!ParseDone(guidString))
+                return ObjectGuid::FromStringFailed;
+
             return ObjectGuidFactory::CreateClubFinder(realmId, type, clubFinderId, dbId);
         }
 
-        std::string FormatToolsClient(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatToolsClient(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%u-%u-%u-%010llX", typeName, guid.GetMapId(), uint32(guid.GetRawValue(0) >> 40) & 0xFFFFFF, guid.GetCounter());
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetMapId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0) >> 40 & 0xFFFFFF));
+            ctx.advance_to(AppendComponent<padding<10>, hex>(ctx, guid.GetCounter()));
+            return ctx.out();
         }
 
-        ObjectGuid ParseToolsClient(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseToolsClient(HighGuid /*type*/, std::string_view guidString)
         {
-            uint32 mapId = 0;
+            uint16 mapId = 0;
             uint32 serverId = 0;
             uint64 counter = UI64LIT(0);
-            if (std::sscanf(guidString, "%u-%u-%010" SCNx64, &mapId, &serverId, &counter) != 3)
+
+            if (!ParseComponent<dec>(guidString, &mapId)
+                || !ParseComponent<dec>(guidString, &serverId)
+                || !ParseComponent<hex>(guidString, &counter)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter);
         }
 
-        std::string FormatWorldLayer(char const* typeName, ObjectGuid guid)
+        static fmt::appender FormatWorldLayer(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
         {
-            return Trinity::StringFormat("%s-%X-%u-%u-%u", typeName, uint32((guid.GetRawValue(1) >> 10) & 0xFFFFFFFF), uint32(guid.GetRawValue(1) & 0x1FF),
-                uint32((guid.GetRawValue(0) >> 24) & 0xFF), uint32(guid.GetRawValue(0) & 0x7FFFFF));
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<padding<0>, hex>(ctx, guid.GetRawValue(1) >> 10 & 0xFFFFFFFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) & 0x1FF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0) >> 24 & 0xFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0) & 0x7FFFFF));
+            return ctx.out();
         }
 
-        ObjectGuid ParseWorldLayer(HighGuid /*type*/, char const* guidString)
+        static ObjectGuid ParseWorldLayer(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 arg1 = 0;
             uint16 arg2 = 0;
             uint8 arg3 = 0;
             uint32 arg4 = 0;
-            if (std::sscanf(guidString, "%x-%hu-%hhu-%u", &arg1, &arg2, &arg3, &arg4) != 4)
+
+            if (!ParseComponent<hex>(guidString, &arg1)
+                || !ParseComponent<dec>(guidString, &arg2)
+                || !ParseComponent<dec>(guidString, &arg3)
+                || !ParseComponent<dec>(guidString, &arg4)
+                || !ParseDone(guidString))
                 return ObjectGuid::FromStringFailed;
 
             return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4);
+        }
+
+        static fmt::appender FormatLMMLobby(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
+        {
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1) >> 26) & 0xFFFFFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1) >> 18) & 0xFF));
+            ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1) >> 10) & 0xFF));
+            ctx.advance_to(AppendComponent<padding<0>, hex>(ctx, guid.GetRawValue(0)));
+            return ctx.out();
+        }
+
+        static ObjectGuid ParseLMMLobby(HighGuid /*type*/, std::string_view guidString)
+        {
+            uint32 realmId = 0;
+            uint32 arg2 = 0;
+            uint8 arg3 = 0;
+            uint8 arg4 = 0;
+            uint64 arg5 = 0;
+
+            if (!ParseComponent<dec>(guidString, &realmId)
+                || !ParseComponent<dec>(guidString, &arg2)
+                || !ParseComponent<dec>(guidString, &arg3)
+                || !ParseComponent<dec>(guidString, &arg4)
+                || !ParseComponent<hex>(guidString, &arg5)
+                || !ParseDone(guidString))
+                return ObjectGuid::FromStringFailed;
+
+            return ObjectGuidFactory::CreateLMMLobby(realmId, arg2, arg3, arg4, arg5);
         }
 
         ObjectGuidInfo();
@@ -458,9 +665,9 @@ namespace
     ObjectGuidInfo::ObjectGuidInfo()
     {
 #define SET_GUID_INFO(type, format, parse) \
-            Names[AsUnderlyingType(HighGuid::type)] = #type;\
+            Names[AsUnderlyingType(HighGuid::type)] = #type ## sv;\
             ClientFormatFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::format;\
-            ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse;
+            ClientParseFunction[AsUnderlyingType(HighGuid::type)] = &ObjectGuidInfo::parse
 
         SET_GUID_INFO(Null, FormatNull, ParseNull);
         SET_GUID_INFO(Uniq, FormatUniq, ParseUniq);
@@ -515,30 +722,47 @@ namespace
         SET_GUID_INFO(ToolsClient, FormatToolsClient, ParseToolsClient);
         SET_GUID_INFO(WorldLayer, FormatWorldLayer, ParseWorldLayer);
         SET_GUID_INFO(ArenaTeam, FormatGuild, ParseGuild);
+        SET_GUID_INFO(LMMParty, FormatClient, ParseClient);
+        SET_GUID_INFO(LMMLobby, FormatLMMLobby, ParseLMMLobby);
 
 #undef SET_GUID_INFO
     }
 }
 
-char const* ObjectGuid::GetTypeName(HighGuid high)
+template <typename FormatContext>
+auto fmt::formatter<ObjectGuid>::format(ObjectGuid const& guid, FormatContext& ctx) const -> decltype(ctx.out())
+{
+    if (guid.GetHigh() >= HighGuid::Count)
+        return this->format(ObjectGuid::ToStringFailed, ctx);
+
+    int32 type = AsUnderlyingType(guid.GetHigh());
+    if (!Info.ClientFormatFunction[type])
+        return this->format(ObjectGuid::ToStringFailed, ctx);
+
+    return Info.ClientFormatFunction[type](ctx, Info.Names[type], guid);
+}
+
+template TC_GAME_API fmt::appender fmt::formatter<ObjectGuid>::format<fmt::format_context>(ObjectGuid const&, format_context&) const;
+
+std::string_view ObjectGuid::GetTypeName(HighGuid high)
 {
     if (high >= HighGuid::Count)
         return "<unknown>";
 
-    return Info.Names[uint32(high)].c_str();
+    return Info.Names[uint32(high)];
 }
 
 std::string ObjectGuid::ToString() const
 {
-    return Info.Format(*this);
+    return ObjectGuidInfo::Format(*this);
 }
 
 std::string ObjectGuid::ToHexString() const
 {
-    return Trinity::StringFormat("0x%016llX%016llX", _data[1], _data[0]);
+    return Trinity::StringFormat("0x{:016X}{:016X}", _data[1], _data[0]);
 }
 
-ObjectGuid ObjectGuid::FromString(std::string const& guidString)
+ObjectGuid ObjectGuid::FromString(std::string_view guidString)
 {
     return Info.Parse(guidString);
 }
@@ -551,17 +775,17 @@ std::size_t ObjectGuid::GetHash() const
     return hashVal;
 }
 
-std::vector<uint8> ObjectGuid::GetRawValue() const
+std::array<uint8, 16> ObjectGuid::GetRawValue() const
 {
-    std::vector<uint8> raw(16);
-    memcpy(raw.data(), this, sizeof(*this));
+    std::array<uint8, 16> raw;
+    memcpy(raw.data(), _data.data(), BytesSize);
     return raw;
 }
 
-void ObjectGuid::SetRawValue(std::vector<uint8> const& guid)
+void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)
 {
-    ASSERT(guid.size() == sizeof(*this));
-    memcpy(this, guid.data(), sizeof(*this));
+    ASSERT(rawBytes.size() == BytesSize, SZFMTD " == " SZFMTD, rawBytes.size(), BytesSize);
+    memcpy(_data.data(), rawBytes.data(), BytesSize);
 }
 
 static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
@@ -569,15 +793,15 @@ static inline uint32 GetRealmIdForObjectGuid(uint32 realmId)
     if (realmId)
         return realmId;
 
-    return realm.Id.Realm;
+    return sRealmList->GetCurrentRealmId().Realm;
 }
 
-ObjectGuid ObjectGuidFactory::CreateNull()
+constexpr ObjectGuid ObjectGuidFactory::CreateNull()
 {
     return ObjectGuid();
 }
 
-ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
+constexpr ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
 {
     return ObjectGuid(uint64(uint64(HighGuid::Uniq) << 58),
         id);
@@ -718,104 +942,55 @@ ObjectGuid ObjectGuidFactory::CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 a
         | uint64(arg4 & 0x7FFFFF)));
 }
 
-ObjectGuid const ObjectGuid::Empty = ObjectGuid();
+ObjectGuid ObjectGuidFactory::CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, ObjectGuid::LowType counter)
+{
+    return ObjectGuid(uint64((uint64(HighGuid::LMMLobby) << 58)
+        | (uint64(GetRealmIdForObjectGuid(realmId)) << 42)
+        | (uint64(arg2 & 0xFFFFFFFF) << 26)
+        | (uint64(arg3 & 0xFF) << 18)
+        | (uint64(arg4 & 0xFF) << 10)),
+        counter);
+}
+
+ObjectGuid const ObjectGuid::Empty = ObjectGuid::Create<HighGuid::Null>();
+ObjectGuid const ObjectGuid::ToStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(3));
 ObjectGuid const ObjectGuid::FromStringFailed = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(4));
 ObjectGuid const ObjectGuid::TradeItem = ObjectGuid::Create<HighGuid::Uniq>(UI64LIT(10));
 
 ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 {
-    uint8 lowMask = 0;
-    uint8 highMask = 0;
-    buf.FlushBits();    // flush any unwritten bits to make wpos return a meaningful value
-    std::size_t pos = buf.wpos();
-    buf << uint8(lowMask);
-    buf << uint8(highMask);
+    static constexpr std::size_t NumUInt64s = 2;
 
-    uint8 packed[8];
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[0], &lowMask, packed))
-        buf.append(packed, packedSize);
-    if (size_t packedSize = ByteBuffer::PackUInt64(guid._data[1], &highMask, packed))
-        buf.append(packed, packedSize);
+    std::array<uint8, NumUInt64s + ObjectGuid::BytesSize> bytes;
+    memset(bytes.data(), 0, NumUInt64s);
+    size_t packedSize = guid._data.size();
 
-    buf.put(pos, lowMask);
-    buf.put(pos + 1, highMask);
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+    {
+        for (uint32 b = 0; b < 8; ++b)
+        {
+            if (uint8 byte = uint8((guid._data[i] >> (b * 8)) & 0xFF))
+            {
+                bytes[packedSize++] = byte;
+                bytes[i] |= uint8(1 << b);
+            }
+        }
+    }
+
+    buf.append(bytes.data(), packedSize);
 
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    uint8 lowMask, highMask;
-    buf >> lowMask >> highMask;
-    buf.ReadPackedUInt64(lowMask, guid._data[0]);
-    buf.ReadPackedUInt64(highMask, guid._data[1]);
+    std::array<uint8, 2> mask;
+    buf.read(mask);
+
+    for (std::size_t i = 0; i < guid._data.size(); ++i)
+        for (uint32 b = 0; b < 8; ++b)
+            if (mask[i] & (uint8(1) << b))
+                guid._data[i] |= uint64(buf.read<uint8>()) << (b * 8);
+
     return buf;
 }
-
-void ObjectGuidGeneratorBase::HandleCounterOverflow(HighGuid high)
-{
-    TC_LOG_ERROR("misc", "%s guid overflow!! Can't continue, shutting down server. ", ObjectGuid::GetTypeName(high));
-    World::StopNow(ERROR_EXIT_CODE);
-}
-
-void ObjectGuidGeneratorBase::CheckGuidTrigger(ObjectGuid::LowType guidlow)
-{
-    if (!sWorld->IsGuidAlert() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDALERTLEVEL))
-        sWorld->TriggerGuidAlert();
-    else if (!sWorld->IsGuidWarning() && guidlow > sWorld->getIntConfig(CONFIG_RESPAWN_GUIDWARNLEVEL))
-        sWorld->TriggerGuidWarning();
-}
-
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Null>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Uniq>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Player>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Item>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldTransaction>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::StaticDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Transport>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Conversation>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Creature>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vehicle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Pet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GameObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AreaTrigger>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Corpse>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LootObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::SceneObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Scenario>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::DynamicDoor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientActor>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Vignette>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CallForHelp>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AIResource>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILock>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::AILockTicket>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ChatChannel>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Party>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Guild>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WowAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BNetAccount>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::GMTask>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::MobileSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::RaidGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Spell>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Mail>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WebObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGObject>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::LFGList>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserRouter>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PVPQueueGroup>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::PetBattle>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::UniqUserClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::BattlePet>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::CommerceObj>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientSession>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::Cast>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClientConnection>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ClubFinder>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ToolsClient>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::WorldLayer>;
-template class TC_GAME_API ObjectGuidGenerator<HighGuid::ArenaTeam>;

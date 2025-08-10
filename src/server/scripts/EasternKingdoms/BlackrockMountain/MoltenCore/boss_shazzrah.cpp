@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -103,16 +104,12 @@ struct boss_shazzrah : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 23138 - Gate of Shazzrah
 class spell_shazzrah_gate_dummy : public SpellScript
 {
-    PrepareSpellScript(spell_shazzrah_gate_dummy);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE });

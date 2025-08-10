@@ -26,6 +26,8 @@ AzeriteEmpoweredItem::AzeriteEmpoweredItem()
     m_objectType |= TYPEMASK_AZERITE_EMPOWERED_ITEM;
     m_objectTypeId = TYPEID_AZERITE_EMPOWERED_ITEM;
 
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteEmpoweredItem, false);
+
     m_azeritePowers = nullptr;
     m_maxTier = 0;
 }
@@ -142,35 +144,27 @@ void AzeriteEmpoweredItem::ClearSelectedAzeritePowers()
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteEmpoweredItem::m_azeriteEmpoweredItemData).ModifyValue(&UF::AzeriteEmpoweredItemData::Selections, i), 0);
 
     _bonusData.Initialize(GetTemplate());
-    for (int32 bonusListID : *m_itemData->BonusListIDs)
+    for (int32 bonusListID : GetBonusListIDs())
         _bonusData.AddBonusList(bonusListID);
 }
 
 int64 AzeriteEmpoweredItem::GetRespecCost() const
 {
     if (Player const* owner = GetOwner())
-        return int64(GOLD * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
+        return int64(float(GOLD) * sDB2Manager.GetCurveValueAt(CURVE_ID_AZERITE_EMPOWERED_ITEM_RESPEC_COST, float(owner->GetNumRespecs())));
 
     return MAX_MONEY_AMOUNT + 1;
 }
 
-void AzeriteEmpoweredItem::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     m_azeriteEmpoweredItemData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -181,8 +175,6 @@ void AzeriteEmpoweredItem::BuildValuesUpdate(ByteBuffer* data, Player const* tar
 
     if (m_values.HasChanged(TYPEID_AZERITE_EMPOWERED_ITEM))
         m_azeriteEmpoweredItemData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -201,9 +193,10 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
     if (requestedAzeriteEmpoweredItemMask.IsAnySet())
         valuesMask.Set(TYPEID_AZERITE_EMPOWERED_ITEM);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -217,7 +210,7 @@ void AzeriteEmpoweredItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, 
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void AzeriteEmpoweredItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
@@ -241,10 +234,5 @@ void AzeriteEmpoweredItem::InitAzeritePowerData()
 {
     m_azeritePowers = sDB2Manager.GetAzeritePowers(GetEntry());
     if (m_azeritePowers)
-    {
-        m_maxTier = (*std::max_element(m_azeritePowers->begin(), m_azeritePowers->end(), [](AzeritePowerSetMemberEntry const* a1, AzeritePowerSetMemberEntry const* a2)
-        {
-            return a1->Tier < a2->Tier;
-        }))->Tier;
-    }
+        m_maxTier = (*std::ranges::max_element(*m_azeritePowers, {}, &AzeritePowerSetMemberEntry::Tier))->Tier;
 }

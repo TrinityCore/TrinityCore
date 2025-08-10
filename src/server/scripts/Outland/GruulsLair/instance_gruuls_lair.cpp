@@ -22,9 +22,9 @@
 
 DoorData const doorData[] =
 {
-    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   DOOR_TYPE_PASSAGE },
-    { GO_GRUUL_DOOR,    DATA_GRUUL,     DOOR_TYPE_ROOM },
-    { 0,                0,              DOOR_TYPE_ROOM } // END
+    { GO_MAULGAR_DOOR,  DATA_MAULGAR,   EncounterDoorBehavior::OpenWhenDone },
+    { GO_GRUUL_DOOR,    DATA_GRUUL,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 MinionData const minionData[] =
@@ -35,6 +35,12 @@ MinionData const minionData[] =
     { NPC_KIGGLER_THE_CRAZED,   DATA_MAULGAR },
     { NPC_BLINDEYE_THE_SEER,    DATA_MAULGAR },
     { 0, 0 }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_MAULGAR, {{ 649 }} },
+    { DATA_GRUUL, {{ 650 }} }
 };
 
 class instance_gruuls_lair : public InstanceMapScript
@@ -50,6 +56,7 @@ class instance_gruuls_lair : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

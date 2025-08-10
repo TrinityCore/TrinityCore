@@ -30,13 +30,13 @@ npc_magwin
 EndContentData */
 
 #include "ScriptMgr.h"
-#include "CellImpl.h"
-#include "GameObjectAI.h"
-#include "GridNotifiersImpl.h"
+#include "GameObject.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 
@@ -257,8 +257,6 @@ public:
                 DoCastVictim(SPELL_DYNAMITE);
                 DynamiteTimer = 8000;
             } else DynamiteTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -336,7 +334,8 @@ enum Magwin
     EVENT_STAND                 = 3,
     EVENT_TALK_END              = 4,
     EVENT_COWLEN_TALK           = 5,
-    QUEST_A_CRY_FOR_HELP        = 9528
+    QUEST_A_CRY_FOR_HELP        = 9528,
+    PATH_ESCORT_MAGWIN          = 138498,
 };
 
 class npc_magwin : public CreatureScript
@@ -379,7 +378,6 @@ public:
                     case 28:
                         player->GroupEventHappens(QUEST_A_CRY_FOR_HELP, me);
                         _events.ScheduleEvent(EVENT_TALK_END, 2s);
-                        SetRun(true);
                         break;
                     case 29:
                         if (Creature* cowlen = me->FindNearestCreature(NPC_COWLEN, 50.0f, true))
@@ -406,7 +404,10 @@ public:
                         break;
                     case EVENT_START_ESCORT:
                         if (Player* player = ObjectAccessor::GetPlayer(*me, _player))
-                            EscortAI::Start(true, false, player->GetGUID());
+                        {
+                            LoadPath(PATH_ESCORT_MAGWIN);
+                            EscortAI::Start(true, player->GetGUID());
+                        }
                         _events.ScheduleEvent(EVENT_STAND, 2s);
                         break;
                     case EVENT_STAND: // Remove kneel standstate. Using a separate delayed event because it causes unwanted delay before starting waypoint movement.
@@ -570,14 +571,12 @@ public:
         void CompleteQuest()
         {
             float radius = 50.0f;
-            std::list<Player*> players;
-            Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
-            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
-            Cell::VisitWorldObjects(me, searcher, radius);
+            std::vector<Player*> players;
+            me->GetPlayerListInGrid(players, radius);
 
-            for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && (*itr)->HasAura(SPELL_TREE_DISGUISE))
-                    (*itr)->KilledMonsterCredit(NPC_SPARK);
+            for (Player* player : players)
+                if (player->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE && player->HasAura(SPELL_TREE_DISGUISE))
+                    player->KilledMonsterCredit(NPC_SPARK);
         }
 
         void DespawnNagaFlag(bool despawn)
@@ -618,8 +617,6 @@ public:
 // 29528 - Inoculate Nestlewood Owlkin
 class spell_inoculate_nestlewood : public AuraScript
 {
-    PrepareAuraScript(spell_inoculate_nestlewood);
-
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         if (GetTarget()->GetTypeId() != TYPEID_UNIT) // prevent error reports in case ignored player target
@@ -645,8 +642,6 @@ enum RedSnapperVeryTasty
 // 29866 - Cast Fishing Net
 class spell_azuremyst_isle_cast_fishing_net : public SpellScript
 {
-    PrepareSpellScript(spell_azuremyst_isle_cast_fishing_net);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FISHED_UP_RED_SNAPPER, SPELL_FISHED_UP_MURLOC });

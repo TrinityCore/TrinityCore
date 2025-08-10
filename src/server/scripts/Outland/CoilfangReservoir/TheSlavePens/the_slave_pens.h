@@ -27,22 +27,22 @@ uint32 const EncounterCount               = 3;
 
 enum SPDataTypes
 {
-    DATA_MENNU_THE_BETRAYER               = 1,
-    DATA_ROKMAR_THE_CRACKLER              = 2,
-    DATA_QUAGMIRRAN                       = 3,
-    DATA_AHUNE                            = 4,
-    DATA_AHUNE_BUNNY                      = 5,
-    DATA_FROZEN_CORE                      = 6,
-    DATA_FLAMECALLER_000                  = 7,
-    DATA_FLAMECALLER_001                  = 8,
-    DATA_FLAMECALLER_002                  = 9,
-    DATA_BONFIRE_BUNNY_000                = 10,
-    DATA_BONFIRE_BUNNY_001                = 11,
-    DATA_BONFIRE_BUNNY_002                = 12,
-    DATA_BEAM_BUNNY_000                   = 13,
-    DATA_BEAM_BUNNY_001                   = 14,
-    DATA_BEAM_BUNNY_002                   = 15,
-    DATA_LUMA_SKYMOTHER                   = 16
+    DATA_MENNU_THE_BETRAYER               = 0,
+    DATA_ROKMAR_THE_CRACKLER              = 1,
+    DATA_QUAGMIRRAN                       = 2,
+    DATA_AHUNE                            = 3,
+    DATA_AHUNE_BUNNY                      = 4,
+    DATA_FROZEN_CORE                      = 5,
+    DATA_FLAMECALLER_000                  = 6,
+    DATA_FLAMECALLER_001                  = 7,
+    DATA_FLAMECALLER_002                  = 8,
+    DATA_BONFIRE_BUNNY_000                = 9,
+    DATA_BONFIRE_BUNNY_001                = 10,
+    DATA_BONFIRE_BUNNY_002                = 11,
+    DATA_BEAM_BUNNY_000                   = 12,
+    DATA_BEAM_BUNNY_001                   = 13,
+    DATA_BEAM_BUNNY_002                   = 14,
+    DATA_LUMA_SKYMOTHER                   = 15
 };
 
 enum SPCreaturesIds

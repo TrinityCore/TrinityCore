@@ -37,7 +37,7 @@ Weather::Weather(uint32 zoneId, WeatherData const* weatherChances)
     m_type = WEATHER_TYPE_FINE;
     m_intensity = 0;
 
-    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone {} (change every {} minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -98,7 +98,7 @@ bool Weather::ReGenerate()
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    TC_LOG_INFO("misc", "Generating a change in {} weather for zone {}.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_intensity < 0.33333334f))                // Get fair
     {
@@ -174,16 +174,16 @@ bool Weather::ReGenerate()
     }
     else if (u < 90)
     {
-        m_intensity = (float)rand_norm() * 0.3333f;
+        m_intensity = rand_norm() * 0.3333f;
     }
     else
     {
         // Severe change, but how severe?
         rnd = urand(0, 99);
         if (rnd < 50)
-            m_intensity = (float)rand_norm() * 0.3333f + 0.3334f;
+            m_intensity = rand_norm() * 0.3333f + 0.3334f;
         else
-            m_intensity = (float)rand_norm() * 0.3333f + 0.6667f;
+            m_intensity = rand_norm() * 0.3333f + 0.6667f;
     }
 
     // return true only in case weather changes
@@ -265,7 +265,7 @@ bool Weather::UpdateWeather()
             break;
     }
 
-    TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
+    TC_LOG_INFO("misc", "Change the weather of zone {} to {}.", m_zone, wthstr);
     sScriptMgr->OnWeatherChange(this, state, m_intensity);
     return true;
 }

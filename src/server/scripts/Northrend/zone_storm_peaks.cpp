@@ -152,7 +152,7 @@ struct npc_freed_protodrake : public VehicleAI
                         if (Unit* passenger = vehicle->GetPassenger(0))
                         {
                             Talk(TEXT_EMOTE, passenger);
-                            me->GetMotionMaster()->MovePath(NPC_DRAKE, false);
+                            me->GetMotionMaster()->MovePath(NPC_DRAKE << 3, false);
                         }
                 }
                 else
@@ -181,6 +181,8 @@ struct npc_freed_protodrake : public VehicleAI
     }
 };
 
+static constexpr uint32 PATH_ESCORT_ICEFANG = 236818;
+
 struct npc_icefang : public EscortAI
 {
     npc_icefang(Creature* creature) : EscortAI(creature) { }
@@ -194,7 +196,10 @@ struct npc_icefang : public EscortAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (apply)
-                Start(false, true, who->GetGUID());
+            {
+                LoadPath(PATH_ESCORT_ICEFANG);
+                Start(false, who->GetGUID());
+            }
         }
     }
 
@@ -430,7 +435,7 @@ private:
 
 enum WildWyrm
 {
-    PATH_WILD_WYRM                      = 30275 * 10,
+    PATH_WILD_WYRM                      = (30275 * 10) << 3,
 
     // Phase 1
     SPELL_PLAYER_MOUNT_WYRM             = 56672,
@@ -521,6 +526,7 @@ struct npc_wild_wyrm : public VehicleAI
         InitSpellsForPhase();
 
         me->SetImmuneToPC(false);
+        me->SetCanMelee(true);
     }
 
     void DoAction(int32 action) override
@@ -560,6 +566,7 @@ struct npc_wild_wyrm : public VehicleAI
         _playerGuid = caster->GetGUID();
         DoCastAOE(SPELL_FULL_HEAL_MANA, true);
         me->SetImmuneToPC(true);
+        me->SetCanMelee(false);
 
         me->GetMotionMaster()->MovePoint(POINT_START_FIGHT, *caster);
     }
@@ -692,15 +699,14 @@ struct npc_wild_wyrm : public VehicleAI
     {
         if (!_playerGuid)
         {
-            if (UpdateVictim())
-                DoMeleeAttackIfReady();
+            UpdateVictim();
             return;
         }
 
         if (_playerCheckTimer <= diff)
         {
             if (!EvadeCheck())
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
 
             _playerCheckTimer = 1 * IN_MILLISECONDS;
         }
@@ -725,8 +731,8 @@ enum JokkumScriptcast
 {
     NPC_KINGJOKKUM                   = 30331,
     NPC_THORIM                       = 30390,
-    PATH_JOKKUM                      = 2072200,
-    PATH_JOKKUM_END                  = 2072201,
+    PATH_JOKKUM                      = 16577600,
+    PATH_JOKKUM_END                  = 16577608,
     SAY_HOLD_ON                      = 0,
     SAY_JOKKUM_1                     = 1,
     SAY_JOKKUM_2                     = 2,
@@ -777,7 +783,7 @@ struct npc_king_jokkum_vehicle : public VehicleAI
             playerGUID = who->GetGUID();
             Talk(SAY_HOLD_ON, who);
             me->CastSpell(who, SPELL_JOKKUM_KILL_CREDIT, true);
-            me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+            me->SetImmuneToNPC(true);
             me->GetMotionMaster()->MovePath(PATH_JOKKUM, false);
         }
     }
@@ -838,8 +844,6 @@ private:
 // 61319 - Jokkum Scriptcast
 class spell_jokkum_scriptcast : public AuraScript
 {
-    PrepareAuraScript(spell_jokkum_scriptcast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_JOKKUM_SUMMON });
@@ -860,8 +864,6 @@ class spell_jokkum_scriptcast : public AuraScript
 // 56650 - Player Cast Veranus Summon
 class spell_veranus_summon : public AuraScript
 {
-    PrepareAuraScript(spell_veranus_summon);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_VERANUS_AND_THORIM });
@@ -887,8 +889,6 @@ enum CloseRift
 // 56763 - Close Rift
 class spell_close_rift : public AuraScript
 {
-    PrepareAuraScript(spell_close_rift);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_DESPAWN_RIFT });
@@ -912,8 +912,6 @@ private:
 // 56689 - Grip
 class spell_grip : public AuraScript
 {
-    PrepareAuraScript(spell_grip);
-
     void DummyTick(AuraEffect const* /*aurEff*/)
     {
         ++_tickNumber;
@@ -970,8 +968,6 @@ class spell_grip : public AuraScript
 // 60533 - Grab On
 class spell_grab_on : public SpellScript
 {
-   PrepareSpellScript(spell_grab_on);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP, GetCaster()->GetGUID()))
@@ -989,8 +985,6 @@ class spell_grab_on : public SpellScript
 template <int8 StacksToLose>
 class spell_loosen_grip : public SpellScript
 {
-   PrepareSpellScript(spell_loosen_grip);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Aura* grip = GetCaster()->GetAura(SPELL_GRIP))
@@ -1006,8 +1000,6 @@ class spell_loosen_grip : public SpellScript
 // 60596 - Low Health Trigger
 class spell_low_health_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_low_health_trigger);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -1028,8 +1020,6 @@ class spell_low_health_trigger : public SpellScript
 // 60864 - Jaws of Death
 class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScript
 {
-    PrepareSpellScript(spell_jaws_of_death_claw_swipe_pct_damage);
-
     void HandleDamage(SpellEffIndex /*effIndex*/)
     {
         SetEffectValue(static_cast<int32>(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue())));
@@ -1044,8 +1034,6 @@ class spell_jaws_of_death_claw_swipe_pct_damage : public SpellScript
 // 56705 - Claw Swipe
 class spell_claw_swipe_check : public AuraScript
 {
-    PrepareAuraScript(spell_claw_swipe_check);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->GetAI()->DoAction(ACTION_CLAW_SWIPE_WARN);
@@ -1078,8 +1066,6 @@ class spell_claw_swipe_check : public AuraScript
 // 60587 - Fatal Strike
 class spell_fatal_strike : public SpellScript
 {
-    PrepareSpellScript(spell_fatal_strike);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FATAL_STRIKE_DAMAGE });
@@ -1109,8 +1095,6 @@ class spell_fatal_strike : public SpellScript
 // 56672 - Player Mount Wyrm
 class spell_player_mount_wyrm : public AuraScript
 {
-    PrepareAuraScript(spell_player_mount_wyrm);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FIGHT_WYRM });
@@ -1134,8 +1118,6 @@ class spell_player_mount_wyrm : public AuraScript
 // 55693 - Remove Collapsing Cave Aura
 class spell_storm_peaks_remove_collapsing_cave_aura : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_remove_collapsing_cave_aura);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -1166,8 +1148,6 @@ enum MountingHodirsHelm
 // 56278 - Read Pronouncement
 class spell_storm_peaks_read_pronouncement : public AuraScript
 {
-    PrepareAuraScript(spell_storm_peaks_read_pronouncement);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_PRONOUNCEMENT_1) &&
@@ -1205,8 +1185,6 @@ enum JormuttarIsSooFat
 // 56565 - Bear Flank Master
 class spell_storm_peaks_bear_flank_master : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_bear_flank_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_BEAR_FLANK, SPELL_BEAR_FLANK_FAIL });
@@ -1226,8 +1204,6 @@ class spell_storm_peaks_bear_flank_master : public SpellScript
 // 56569 - Bear Flank Fail
 class spell_storm_peaks_bear_flank_fail : public AuraScript
 {
-    PrepareAuraScript(spell_storm_peaks_bear_flank_fail);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sBroadcastTextStore.HasRecord(TEXT_CARVE_FAIL);
@@ -1263,8 +1239,6 @@ enum AmpleInspiration
 // 54581 - Mammoth Explosion Spell Spawner
 class spell_storm_peaks_mammoth_explosion_master : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_mammoth_explosion_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -1301,8 +1275,6 @@ class spell_storm_peaks_mammoth_explosion_master : public SpellScript
 // 54892 - Unstable Explosive Detonation
 class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
 {
-    PrepareSpellScript(spell_storm_peaks_unstable_explosive_detonation);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return sObjectMgr->GetItemTemplate(ITEM_EXPLOSIVE_DEVICE);
@@ -1317,6 +1289,36 @@ class spell_storm_peaks_unstable_explosive_detonation : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_storm_peaks_unstable_explosive_detonation::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 12915: Mending Fences
+######*/
+
+enum MendingFences
+{
+    SPELL_SUMMON_EARTHEN    = 55528
+};
+
+// 55512 - Call of Earth
+class spell_storm_peaks_call_of_earth : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_EARTHEN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        uint8 count = urand(2, 6);
+        for (uint8 i = 0; i < count; i++)
+            GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_EARTHEN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_call_of_earth::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
 
@@ -1348,4 +1350,5 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_storm_peaks_bear_flank_fail);
     RegisterSpellScript(spell_storm_peaks_mammoth_explosion_master);
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
+    RegisterSpellScript(spell_storm_peaks_call_of_earth);
 }

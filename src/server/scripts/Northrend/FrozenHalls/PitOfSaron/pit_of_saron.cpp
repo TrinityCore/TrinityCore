@@ -100,8 +100,6 @@ struct npc_ymirjar_flamebearer: public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -143,8 +141,6 @@ struct npc_iceborn_protodrake: public ScriptedAI
         }
         else
             _frostBreathCooldown -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -191,8 +187,6 @@ struct npc_geist_ambusher: public ScriptedAI
         }
         else
             _leapingFaceMaulCooldown -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -233,8 +227,6 @@ private:
 // 70827 - Ice Shards
 class spell_pos_ice_shards : public SpellScript
 {
-    PrepareSpellScript(spell_pos_ice_shards);
-
     bool Load() override
     {
         // This script should execute only in Pit of Saron

@@ -16,12 +16,10 @@
  */
 
 #include "WorldSession.h"
-#include "Containers.h"
-#include "DB2Stores.h"
 #include "GameTime.h"
 #include "HotfixPackets.h"
 #include "Log.h"
-#include "Realm.h"
+#include "MapUtils.h"
 #include "World.h"
 
 void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
@@ -50,7 +48,7 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
         }
         else
         {
-            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: %s requested non-existing entry %u in datastore: %u", GetPlayerInfo().c_str(), record.RecordID, dbQuery.TableHash);
+            TC_LOG_TRACE("network", "CMSG_DB_QUERY_BULK: {} requested non-existing entry {} in datastore: {}", GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
             dbReply.Timestamp = GameTime::GetGameTime();
         }
 
@@ -60,7 +58,18 @@ void WorldSession::HandleDBQueryBulk(WorldPackets::Hotfix::DBQueryBulk& dbQuery)
 
 void WorldSession::SendAvailableHotfixes()
 {
-    SendPacket(WorldPackets::Hotfix::AvailableHotfixes(realm.Id.GetAddress(), sDB2Manager.GetHotfixData()).Write());
+    WorldPackets::Hotfix::AvailableHotfixes availableHotfixes;
+    availableHotfixes.VirtualRealmAddress = GetVirtualRealmAddress();
+
+    for (auto const& [pushId, push] : sDB2Manager.GetHotfixData())
+    {
+        if (!(push.AvailableLocalesMask & (1 << GetSessionDbcLocale())))
+            continue;
+
+        availableHotfixes.Hotfixes.insert(push.Records.front().ID);
+    }
+
+    SendPacket(availableHotfixes.Write());
 }
 
 void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotfixQuery)
@@ -70,13 +79,14 @@ void WorldSession::HandleHotfixRequest(WorldPackets::Hotfix::HotfixRequest& hotf
     hotfixQueryResponse.Hotfixes.reserve(hotfixQuery.Hotfixes.size());
     for (int32 hotfixId : hotfixQuery.Hotfixes)
     {
-        if (std::vector<DB2Manager::HotfixRecord> const* hotfixRecords = Trinity::Containers::MapGetValuePtr(hotfixes, hotfixId))
+        if (DB2Manager::HotfixPush const* hotfixRecords = Trinity::Containers::MapGetValuePtr(hotfixes, hotfixId))
         {
-            for (DB2Manager::HotfixRecord const& hotfixRecord : *hotfixRecords)
+            for (DB2Manager::HotfixRecord const& hotfixRecord : hotfixRecords->Records)
             {
-                hotfixQueryResponse.Hotfixes.emplace_back();
+                if (!(hotfixRecord.AvailableLocalesMask & (1 << GetSessionDbcLocale())))
+                    continue;
 
-                WorldPackets::Hotfix::HotfixConnect::HotfixData& hotfixData = hotfixQueryResponse.Hotfixes.back();
+                WorldPackets::Hotfix::HotfixConnect::HotfixData& hotfixData = hotfixQueryResponse.Hotfixes.emplace_back();
                 hotfixData.Record = hotfixRecord;
                 if (hotfixRecord.HotfixStatus == DB2Manager::HotfixRecord::Status::Valid)
                 {

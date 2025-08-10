@@ -20,10 +20,8 @@
 
 #include "Define.h"
 
-struct TC_COMMON_API DB2MetaField
+struct DB2MetaField
 {
-    DB2MetaField(DBCFormer type, uint8 arraySize, bool isSigned);
-
     DBCFormer Type;
     uint8 ArraySize;
     bool IsSigned;
@@ -31,8 +29,6 @@ struct TC_COMMON_API DB2MetaField
 
 struct TC_COMMON_API DB2Meta
 {
-    DB2Meta(uint32 fileDataId, int32 indexField, uint32 fieldCount, uint32 fileFieldCount, uint32 layoutHash, DB2MetaField const* fields, int32 parentIndexField);
-
     bool HasIndexFieldInData() const;
 
     // Returns field index for data loaded in our structures (ID field is appended in the front if not present in db2 file data section)

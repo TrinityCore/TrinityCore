@@ -43,6 +43,8 @@ enum Sounds
     SOUND_ONDEATH       = 11018,
 };
 
+static constexpr uint32 PATH_ESCORT_KAZROGAL = 143106;
+
 class boss_kazrogal : public CreatureScript
 {
 public:
@@ -82,13 +84,13 @@ public:
             Initialize();
 
             if (IsEvent)
-                instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_KAZROGAL, NOT_STARTED);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
-                instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_KAZROGAL, IN_PROGRESS);
             Talk(SAY_ONAGGRO);
         }
 
@@ -111,7 +113,7 @@ public:
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
-                instance->SetData(DATA_KAZROGALEVENT, DONE);
+                instance->SetBossState(DATA_KAZROGAL, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }
 
@@ -124,15 +126,8 @@ public:
                 if (!go)
                 {
                     go = true;
-                    AddWaypoint(0, 5492.91f,    -2404.61f,    1462.63f);
-                    AddWaypoint(1, 5531.76f,    -2460.87f,    1469.55f);
-                    AddWaypoint(2, 5554.58f,    -2514.66f,    1476.12f);
-                    AddWaypoint(3, 5554.16f,    -2567.23f,    1479.90f);
-                    AddWaypoint(4, 5540.67f,    -2625.99f,    1480.89f);
-                    AddWaypoint(5, 5508.16f,    -2659.2f,    1480.15f);
-                    AddWaypoint(6, 5489.62f,    -2704.05f,    1482.18f);
-                    AddWaypoint(7, 5457.04f,    -2726.26f,    1485.10f);
-                    Start(false, true);
+                    LoadPath(PATH_ESCORT_KAZROGAL);
+                    Start(false);
                     SetDespawnAtEnd(false);
                 }
             }
@@ -163,8 +158,6 @@ public:
                 MarkTimer = MarkTimerBase;
                 Talk(SAY_MARK);
             } else MarkTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -189,8 +182,6 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
 
         class spell_mark_of_kazrogal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mark_of_kazrogal_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(MarkTargetFilter());
@@ -204,8 +195,6 @@ class spell_mark_of_kazrogal : public SpellScriptLoader
 
         class spell_mark_of_kazrogal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mark_of_kazrogal_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MARK_DAMAGE });

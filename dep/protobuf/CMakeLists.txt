@@ -74,10 +74,10 @@ target_link_libraries(protobuf
 if (BUILD_SHARED_LIBS)
   target_compile_definitions(protobuf
     PRIVATE
-      -DLIBPROTOBUF_EXPORTS
-      -DLIBPROTOC_EXPORTS
+      LIBPROTOBUF_EXPORTS
+      LIBPROTOC_EXPORTS
     PUBLIC
-      -DPROTOBUF_USE_DLLS)
+      PROTOBUF_USE_DLLS)
 endif()
 
 if (MSVC)
@@ -87,7 +87,7 @@ if (MSVC)
 
   target_compile_definitions(protobuf
     PRIVATE
-      -D_SCL_SECURE_NO_WARNINGS)
+      _SCL_SECURE_NO_WARNINGS)
 endif()
 
 set_target_properties(protobuf
@@ -105,4 +105,18 @@ if (BUILD_SHARED_LIBS)
       RUNTIME
         DESTINATION "${CMAKE_INSTALL_PREFIX}")
   endif()
+endif()
+
+# Generate precompiled header
+if(USE_COREPCH)
+  list(APPEND protobuf_PCH_HEADERS
+    <google/protobuf/descriptor.pb.h>
+    <google/protobuf/io/coded_stream.h>
+    <google/protobuf/wire_format.h>
+    <google/protobuf/stubs/hash.h>
+    <google/protobuf/stubs/strutil.h>
+    <algorithm>
+    <memory>)
+
+  add_cxx_pch(protobuf "${protobuf_PCH_HEADERS}")
 endif()

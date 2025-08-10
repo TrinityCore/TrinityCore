@@ -189,8 +189,6 @@ struct boss_exarch_maladaar : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -337,10 +335,7 @@ struct npc_stolen_soul : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -352,8 +347,6 @@ private:
 // 33326 - Stolen Soul Dispel
 class spell_exarch_maladaar_stolen_soul_dispel : public AuraScript
 {
-    PrepareAuraScript(spell_exarch_maladaar_stolen_soul_dispel);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_STOLEN_SOUL });

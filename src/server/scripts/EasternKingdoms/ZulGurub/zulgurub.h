@@ -23,7 +23,7 @@
 #define ZGScriptName "instance_zulgurub"
 #define DataHeader "ZG"
 
-uint32 const EncounterCount = 5;
+uint32 const EncounterCount = 9;
 
 enum ZGDataTypes
 {

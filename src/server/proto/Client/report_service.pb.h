@@ -76,19 +76,6 @@ class TC_PROTO_API SendReportRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SendReportRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SendReportRequest& from);
-  void MergeFrom(const SendReportRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -110,16 +97,26 @@ class TC_PROTO_API SendReportRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::report::v1::Report* release_report();
   inline void set_allocated_report(::bgs::protocol::report::v1::Report* report);
 
+  // optional uint32 program = 2;
+  inline bool has_program() const;
+  inline void clear_program();
+  static const int kProgramFieldNumber = 2;
+  inline ::google::protobuf::uint32 program() const;
+  inline void set_program(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v1.SendReportRequest)
  private:
   inline void set_has_report();
   inline void clear_has_report();
+  inline void set_has_program();
+  inline void clear_has_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::bgs::protocol::report::v1::Report* report_;
+  ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
@@ -157,19 +154,6 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SubmitReportRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SubmitReportRequest& from);
-  void MergeFrom(const SubmitReportRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -200,12 +184,21 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   inline ::bgs::protocol::report::v1::ReportType* release_report_type();
   inline void set_allocated_report_type(::bgs::protocol::report::v1::ReportType* report_type);
 
+  // optional uint32 program = 3;
+  inline bool has_program() const;
+  inline void clear_program();
+  static const int kProgramFieldNumber = 3;
+  inline ::google::protobuf::uint32 program() const;
+  inline void set_program(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.report.v1.SubmitReportRequest)
  private:
   inline void set_has_agent_id();
   inline void clear_has_agent_id();
   inline void set_has_report_type();
   inline void clear_has_report_type();
+  inline void set_has_program();
+  inline void clear_has_program();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -213,6 +206,7 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::bgs::protocol::account::v1::GameAccountHandle* agent_id_;
   ::bgs::protocol::report::v1::ReportType* report_type_;
+  ::google::protobuf::uint32 program_;
   friend void TC_PROTO_API protobuf_AddDesc_report_5fservice_2eproto();
   friend void protobuf_AssignDesc_report_5fservice_2eproto();
   friend void protobuf_ShutdownFile_report_5fservice_2eproto();
@@ -227,6 +221,10 @@ class TC_PROTO_API ReportService : public ServiceBase
  public:
 
   explicit ReportService(bool use_original_hash);
+  ReportService(ReportService const&) = delete;
+  ReportService(ReportService&&) = delete;
+  ReportService& operator=(ReportService const&) = delete;
+  ReportService& operator=(ReportService&&) = delete;
   virtual ~ReportService();
 
   typedef std::integral_constant<uint32, 0x7CAF61C9u> OriginalHash;
@@ -242,9 +240,8 @@ class TC_PROTO_API ReportService : public ServiceBase
   virtual uint32 HandleSubmitReport(::bgs::protocol::report::v1::SubmitReportRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReportService);
+  void ParseAndHandleSendReport(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleSubmitReport(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================
@@ -292,6 +289,30 @@ inline void SendReportRequest::set_allocated_report(::bgs::protocol::report::v1:
     clear_has_report();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.SendReportRequest.report)
+}
+
+// optional uint32 program = 2;
+inline bool SendReportRequest::has_program() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SendReportRequest::set_has_program() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SendReportRequest::clear_has_program() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SendReportRequest::clear_program() {
+  program_ = 0u;
+  clear_has_program();
+}
+inline ::google::protobuf::uint32 SendReportRequest::program() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.SendReportRequest.program)
+  return program_;
+}
+inline void SendReportRequest::set_program(::google::protobuf::uint32 value) {
+  set_has_program();
+  program_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.SendReportRequest.program)
 }
 
 // -------------------------------------------------------------------
@@ -378,6 +399,30 @@ inline void SubmitReportRequest::set_allocated_report_type(::bgs::protocol::repo
     clear_has_report_type();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.report.v1.SubmitReportRequest.report_type)
+}
+
+// optional uint32 program = 3;
+inline bool SubmitReportRequest::has_program() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void SubmitReportRequest::set_has_program() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void SubmitReportRequest::clear_has_program() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void SubmitReportRequest::clear_program() {
+  program_ = 0u;
+  clear_has_program();
+}
+inline ::google::protobuf::uint32 SubmitReportRequest::program() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.report.v1.SubmitReportRequest.program)
+  return program_;
+}
+inline void SubmitReportRequest::set_program(::google::protobuf::uint32 value) {
+  set_has_program();
+  program_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.report.v1.SubmitReportRequest.program)
 }
 
 // @@protoc_insertion_point(namespace_scope)

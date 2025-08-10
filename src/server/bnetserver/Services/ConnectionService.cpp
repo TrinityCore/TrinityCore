@@ -16,10 +16,9 @@
  */
 
 #include "ConnectionService.h"
-#include "Duration.h"
+#include "BattlenetRpcErrorCodes.h"
 #include "Session.h"
 #include "Util.h"
-#include "BattlenetRpcErrorCodes.h"
 
 Battlenet::Services::Connection::Connection(Session* session) : ConnectionService(session)
 {

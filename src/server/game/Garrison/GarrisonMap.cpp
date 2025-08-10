@@ -68,7 +68,7 @@ void GarrisonGridLoader::LoadN()
         }
     }
 
-    TC_LOG_DEBUG("maps", "%u GameObjects and %u Creatures loaded for grid %u on map %u", i_gameObjects, i_creatures, i_grid->GetGridId(), i_map->GetId());
+    TC_LOG_DEBUG("maps", "{} GameObjects and {} Creatures loaded for grid {} on map {}", i_gameObjects, i_creatures, i_grid->GetGridId(), i_map->GetId());
 }
 
 void GarrisonGridLoader::Visit(GameObjectMapType& m)
@@ -100,8 +100,8 @@ void GarrisonGridLoader::Visit(CreatureMapType& /*m*/)
 
 }
 
-GarrisonMap::GarrisonMap(uint32 id, time_t expiry, uint32 instanceId, Map* parent, ObjectGuid const& owner)
-    : Map(id, expiry, instanceId, DIFFICULTY_NORMAL, parent), _owner(owner), _loadingPlayer(nullptr)
+GarrisonMap::GarrisonMap(uint32 id, time_t expiry, uint32 instanceId, ObjectGuid const& owner)
+    : Map(id, expiry, instanceId, DIFFICULTY_NORMAL), _owner(owner), _loadingPlayer(nullptr)
 {
     GarrisonMap::InitVisibilityDistance();
 }
@@ -128,8 +128,8 @@ Garrison* GarrisonMap::GetGarrison()
 void GarrisonMap::InitVisibilityDistance()
 {
     //init visibility distance for instances
-    m_VisibleDistance = World::GetMaxVisibleDistanceInInstances();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInInstances();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE);
 }
 
 bool GarrisonMap::AddPlayerToMap(Player* player, bool initPlayer /*= true*/)

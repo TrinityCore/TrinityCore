@@ -30,7 +30,7 @@ enum PetType : uint8
 {
     SUMMON_PET              = 0,
     HUNTER_PET              = 1,
-    MAX_PET_TYPE            = 4
+    MAX_PET_TYPE
 };
 
 #define MAX_ACTIVE_PETS         5
@@ -57,6 +57,13 @@ constexpr bool IsStabledPetSlot(PetSaveMode slot)
 {
     return slot >= PET_SAVE_FIRST_STABLE_SLOT && slot < PET_SAVE_LAST_STABLE_SLOT;
 }
+
+enum PetStableFlags : uint8
+{
+    PET_STABLE_ACTIVE   = 0x1,
+    PET_STABLE_INACTIVE = 0x2,
+    PET_STABLE_FAVORITE = 0x8
+};
 
 enum PetSpellState
 {
@@ -110,7 +117,29 @@ enum class PetTameResult : uint8
     EliteTooHighLevel       = 14
 };
 
+enum class StableResult : uint8
+{
+    MaxSlots              = 0,
+    InsufficientFunds     = 1,                              // "you don't have enough money"
+    NotStableMaster       = 2,
+    InvalidSlot           = 3,                              // "That slot is locked"
+    NoPet                 = 4,
+    AlreadyStabled        = 5,
+    AlreadySummoned       = 6,
+    NotFound              = 7,
+    StableSuccess         = 8,                              // stable success
+    UnstableSuccess       = 9,                              // unstable/swap success
+    ReviveSuccess         = 10,
+    CantControlExotic     = 11,                             // "you are unable to control exotic creatures"
+    InternalError         = 12,                             // "Internal pet error"
+    CheckForLuaHack       = 13,
+    BuySlotSuccess        = 14,
+    FavoriteToggle        = 15,
+    PetRenamed            = 16
+};
+
 constexpr uint32 CALL_PET_SPELL_ID = 883;
+constexpr uint32 PET_SUMMONING_DISORIENTATION = 32752;
 
 class PetStable
 {

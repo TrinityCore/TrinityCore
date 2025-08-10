@@ -16,49 +16,57 @@
  */
 
 #include "TCSoap.h"
+#include "AccountMgr.h"
+#include "IpAddress.h"
+#include "Log.h"
+#include "Memory.h"
+#include "RealmList.h"
+#include "World.h"
 #include "soapH.h"
 #include "soapStub.h"
-#include "Realm.h"
-#include "World.h"
-#include "AccountMgr.h"
-#include "Log.h"
 
-void TCSoapThread(const std::string& host, uint16 port)
+std::thread* CreateSoapThread(const std::string& host, uint16 port)
 {
-    struct soap soap;
-    soap_init(&soap);
-    soap_set_imode(&soap, SOAP_C_UTFSTRING);
-    soap_set_omode(&soap, SOAP_C_UTFSTRING);
+    auto soap = Trinity::make_unique_ptr_with_deleter(new struct soap(), [](struct soap* soap)
+    {
+        soap_destroy(soap);
+        soap_end(soap);
+        soap_done(soap);
+        delete soap;
+    });
+
+    soap_init(soap.get());
+    soap_set_imode(soap.get(), SOAP_C_UTFSTRING);
+    soap_set_omode(soap.get(), SOAP_C_UTFSTRING);
 
 #if TRINITY_PLATFORM != TRINITY_PLATFORM_WINDOWS
-    soap.bind_flags = SO_REUSEADDR;
+    soap->bind_flags = SO_REUSEADDR;
 #endif
 
     // check every 3 seconds if world ended
-    soap.accept_timeout = 3;
-    soap.recv_timeout = 5;
-    soap.send_timeout = 5;
-    if (!soap_valid_socket(soap_bind(&soap, host.c_str(), port, 100)))
+    soap->accept_timeout = 3;
+    soap->recv_timeout = 5;
+    soap->send_timeout = 5;
+    if (!soap_valid_socket(soap_bind(soap.get(), host.c_str(), port, 100)))
     {
-        TC_LOG_ERROR("network.soap", "Couldn't bind to %s:%d", host.c_str(), port);
-        exit(-1);
+        TC_LOG_ERROR("network.soap", "Couldn't bind to {}:{}", host, port);
+        return nullptr;
     }
 
-    TC_LOG_INFO("network.soap", "Bound to http://%s:%d", host.c_str(), port);
+    TC_LOG_INFO("network.soap", "Bound to http://{}:{}", host, port);
 
-    while (!World::IsStopped())
+    return new std::thread([soap = std::move(soap)]
     {
-        if (!soap_valid_socket(soap_accept(&soap)))
-            continue;   // ran into an accept timeout
+        while (!World::IsStopped())
+        {
+            if (!soap_valid_socket(soap_accept(soap.get())))
+                continue;   // ran into an accept timeout
 
-        TC_LOG_DEBUG("network.soap", "Accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);
-        struct soap* thread_soap = soap_copy(&soap);// make a safe copy
-        process_message(thread_soap);
-    }
-
-    soap_destroy(&soap);
-    soap_end(&soap);
-    soap_done(&soap);
+            struct soap* thread_soap = soap_copy(soap.get());// make a safe copy
+            TC_LOG_DEBUG("network.soap", "Accepted connection from IP={}", Trinity::Net::make_address_v4(thread_soap->ip).to_string());
+            process_message(thread_soap);
+        }
+    });
 }
 
 void process_message(struct soap* soap_message)
@@ -87,26 +95,26 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     uint32 accountId = AccountMgr::GetId(soap->userid);
     if (!accountId)
     {
-        TC_LOG_INFO("network.soap", "Client used invalid username '%s'", soap->userid);
+        TC_LOG_INFO("network.soap", "Client used invalid username '{}'", soap->userid);
         return 401;
     }
 
     if (!AccountMgr::CheckPassword(accountId, soap->passwd))
     {
-        TC_LOG_INFO("network.soap", "Invalid password for account '%s'", soap->userid);
+        TC_LOG_INFO("network.soap", "Invalid password for account '{}'", soap->userid);
         return 401;
     }
 
-    if (AccountMgr::GetSecurity(accountId, realm.Id.Realm) < SEC_ADMINISTRATOR)
+    if (AccountMgr::GetSecurity(accountId, sRealmList->GetCurrentRealmId().Realm) < SEC_ADMINISTRATOR)
     {
-        TC_LOG_INFO("network.soap", "%s's gmlevel is too low", soap->userid);
+        TC_LOG_INFO("network.soap", "{}'s gmlevel is too low", soap->userid);
         return 403;
     }
 
     if (!command || !*command)
         return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
 
-    TC_LOG_INFO("network.soap", "Received command '%s'", command);
+    TC_LOG_INFO("network.soap", "Received command '{}'", command);
     SOAPCommand connection;
 
     // commands are executed in the world thread. We have to wait for them to be completed

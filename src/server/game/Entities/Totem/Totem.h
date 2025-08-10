@@ -27,18 +27,18 @@ enum TotemType
     TOTEM_STATUE     = 2 // copied straight from MaNGOS, may need more implementation to work
 };
 
-class TC_GAME_API Totem : public Minion
+class TC_GAME_API Totem final : public Minion
 {
     public:
         Totem(SummonPropertiesEntry const* properties, Unit* owner);
         virtual ~Totem() { }
-        void Update(uint32 time) override;
-        void InitStats(uint32 duration) override;
-        void InitSummon() override;
+        void Update(uint32 diff) override;
+        void InitStats(WorldObject* summoner, Milliseconds duration) override;
+        void InitSummon(WorldObject* summoner) override;
         void UnSummon(uint32 msTime = 0) override;
         uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
-        uint32 GetTotemDuration() const { return m_duration; }
-        void SetTotemDuration(uint32 duration) { m_duration = duration; }
+        Milliseconds GetTotemDuration() const { return m_duration; }
+        void SetTotemDuration(Milliseconds duration) { m_duration = duration; }
         TotemType GetTotemType() const { return m_type; }
 
         bool UpdateStats(Stats /*stat*/) override { return true; }
@@ -50,10 +50,10 @@ class TC_GAME_API Totem : public Minion
         void UpdateAttackPowerAndDamage(bool /*ranged*/) override { }
         void UpdateDamagePhysical(WeaponAttackType /*attType*/) override { }
 
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const override;
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
 
     protected:
         TotemType m_type;
-        uint32 m_duration;
+        Milliseconds m_duration;
 };
 #endif

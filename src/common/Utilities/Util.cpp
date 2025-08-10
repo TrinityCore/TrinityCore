@@ -18,24 +18,41 @@
 #include "Util.h"
 #include "Common.h"
 #include "Containers.h"
-#include "IpAddress.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
 #include <boost/core/demangle.hpp>
 #include <utf8.h>
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <cctype>
 #include <cstdarg>
 #include <ctime>
 
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-  #include <arpa/inet.h>
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include <Windows.h>
 #endif
+
+void Trinity::VerifyOsVersion()
+{
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    auto isWindowsBuildGreaterOrEqual = [](DWORD build)
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, build, 0, {0}, 0, 0, 0, 0 };
+        ULONGLONG conditionMask = 0;
+        VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, VER_GREATER_EQUAL);
+
+        return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, conditionMask);
+    };
+
+    if (!isWindowsBuildGreaterOrEqual(TRINITY_REQUIRED_WINDOWS_BUILD))
+    {
+        OSVERSIONINFOEX osvi = { sizeof(osvi), 0, 0, 0, 0, {0}, 0, 0, 0, 0 };
+        GetVersionEx((LPOSVERSIONINFO)&osvi);
+        ABORT_MSG("TrinityCore requires Windows 10 19H1 (1903) or Windows Server 2019 (1903) - require build number 10.0.%d but found %d.%d.%d",
+            TRINITY_REQUIRED_WINDOWS_BUILD, osvi.dwMajorVersion, osvi.dwMinorVersion, osvi.dwBuildNumber);
+    }
+#endif
+}
 
 std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, bool keepEmpty)
 {
@@ -58,8 +75,19 @@ std::vector<std::string_view> Trinity::Tokenize(std::string_view str, char sep, 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 struct tm* localtime_r(time_t const* time, struct tm *result)
 {
-    localtime_s(result, time);
+    if (localtime_s(result, time) != 0)
+        return nullptr;
     return result;
+}
+struct tm* gmtime_r(time_t const* time, struct tm* result)
+{
+    if (gmtime_s(result, time) != 0)
+        return nullptr;
+    return result;
+}
+time_t timegm(struct tm* tm)
+{
+    return _mkgmtime(tm);
 }
 #endif
 
@@ -68,15 +96,6 @@ tm TimeBreakdown(time_t time)
     tm timeLocal;
     localtime_r(&time, &timeLocal);
     return timeLocal;
-}
-
-time_t LocalTimeToUTCTime(time_t time)
-{
-#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
-    return time + _timezone;
-#else
-    return time + timezone;
-#endif
 }
 
 time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime)
@@ -104,95 +123,58 @@ std::string secsToTimeString(uint64 timeInSecs, TimeFormat timeFormat, bool hour
     if (timeFormat == TimeFormat::Numeric)
     {
         if (days)
-            return Trinity::StringFormat("%u:%02u:%02u:%02u", days, hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}:{:02}", days, hours, minutes, secs);
         else if (hours)
-            return Trinity::StringFormat("%u:%02u:%02u", hours, minutes, secs);
+            return Trinity::StringFormat("{}:{:02}:{:02}", hours, minutes, secs);
         else if (minutes)
-            return Trinity::StringFormat("%u:%02u", minutes, secs);
+            return Trinity::StringFormat("{}:{:02}", minutes, secs);
         else
-            return Trinity::StringFormat("0:%02u", secs);
+            return Trinity::StringFormat("0:{:02}", secs);
     }
 
-    std::ostringstream ss;
-    if (days)
+    std::string result;
+    if (timeFormat == TimeFormat::ShortText)
     {
-        ss << days;
-        switch (timeFormat)
+        std::back_insert_iterator<std::string> itr = std::back_inserter(result);
+        if (days)
+            Trinity::StringFormatTo(itr, "{}d", days);
+        if (hours || hoursOnly)
+            Trinity::StringFormatTo(itr, "{}h", hours);
+        if (!hoursOnly)
         {
-            case TimeFormat::ShortText:
-                ss << "d";
-                break;
-            case TimeFormat::FullText:
-                if (days == 1)
-                    ss << " Day ";
-                else
-                    ss << " Days ";
-                break;
-            default:
-                return "<Unknown time format>";
+            if (minutes)
+                Trinity::StringFormatTo(itr, "{}m", minutes);
+            if (secs || result.empty())
+                Trinity::StringFormatTo(itr, "{}s", secs);
         }
     }
-
-    if (hours || hoursOnly)
+    else if (timeFormat == TimeFormat::FullText)
     {
-        ss << hours;
-        switch (timeFormat)
+        auto formatTimeField = [](std::string& result, uint64 value, std::string_view label)
         {
-            case TimeFormat::ShortText:
-                ss << "h";
-                break;
-            case TimeFormat::FullText:
-                if (hours <= 1)
-                    ss << " Hour ";
-                else
-                    ss << " Hours ";
-                break;
-            default:
-                return "<Unknown time format>";
+            if (!result.empty())
+                result.append(1, ' ');
+            Trinity::StringFormatTo(std::back_inserter(result), "{} {}", value, label);
+            if (value != 1)
+                result.append(1, 's');
+        };
+        if (days)
+            formatTimeField(result, days, "Day");
+        if (hours || hoursOnly)
+            formatTimeField(result, hours, "Hour");
+        if (!hoursOnly)
+        {
+            if (minutes)
+                formatTimeField(result, minutes, "Minute");
+            if (secs || result.empty())
+                formatTimeField(result, secs, "Second");
         }
+        result.append(1, '.');
     }
-    if (!hoursOnly)
-    {
-        if (minutes)
-        {
-            ss << minutes;
-            switch (timeFormat)
-            {
-                case TimeFormat::ShortText:
-                    ss << "m";
-                    break;
-                case TimeFormat::FullText:
-                    if (minutes == 1)
-                        ss << " Minute ";
-                    else
-                        ss << " Minutes ";
-                    break;
-                default:
-                    return "<Unknown time format>";
-            }
-        }
+    else
+        result = "<Unknown time format>";
 
-        if (secs || (!days && !hours && !minutes))
-        {
-            ss << secs;
-            switch (timeFormat)
-            {
-                case TimeFormat::ShortText:
-                    ss << "s";
-                    break;
-                case TimeFormat::FullText:
-                    if (secs <= 1)
-                        ss << " Second.";
-                    else
-                        ss << " Seconds.";
-                    break;
-                default:
-                    return "<Unknown time format>";
-            }
-        }
-    }
-
-    return ss.str();
+    return result;
 }
 
 Optional<int64> MoneyStringToMoney(std::string const& moneyString)
@@ -279,7 +261,7 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    return Trinity::StringFormat("%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}", aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
 }
 
 std::string TimeToHumanReadable(time_t t)
@@ -289,17 +271,6 @@ std::string TimeToHumanReadable(time_t t)
     char buf[30];
     strftime(buf, 30, "%c", &time);
     return std::string(buf);
-}
-
-/// Check if the string is a valid ip address representation
-bool IsIPAddress(char const* ipaddress)
-{
-    if (!ipaddress)
-        return false;
-
-    boost::system::error_code error;
-    Trinity::Net::make_address(ipaddress, error);
-    return !error;
 }
 
 /// create PID file
@@ -458,10 +429,10 @@ bool WStrToUtf8(std::wstring_view wstr, std::string& utf8str)
     return true;
 }
 
-void wstrToUpper(std::wstring& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToUpper); }
-void wstrToLower(std::wstring& str) { std::transform(std::begin(str), std::end(str), std::begin(str), wcharToLower); }
-void strToUpper(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToUpper); }
-void strToLower(std::string& str) { std::transform(std::begin(str), std::end(str), std::begin(str), charToLower); }
+void wstrToUpper(std::wstring& str) { std::ranges::transform(str, std::begin(str), wcharToUpper); }
+void wstrToLower(std::wstring& str) { std::ranges::transform(str, std::begin(str), wcharToLower); }
+void strToUpper(std::string& str) { std::ranges::transform(str, std::begin(str), charToUpper); }
+void strToLower(std::string& str) { std::ranges::transform(str, std::begin(str), charToLower); }
 
 std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale)
 {
@@ -650,51 +621,55 @@ std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConsta
 
 std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension)
 {
+    std::wstring result = wname;
+
     // supported only Cyrillic cases
     if (wname.empty() || !isCyrillicCharacter(wname[0]) || declension > 5)
-        return wname;
+        return result;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
-    static std::wstring const a_End    = { wchar_t(0x0430)                  };
-    static std::wstring const o_End    = { wchar_t(0x043E)                  };
-    static std::wstring const ya_End   = { wchar_t(0x044F)                  };
-    static std::wstring const ie_End   = { wchar_t(0x0435)                  };
-    static std::wstring const i_End    = { wchar_t(0x0438)                  };
-    static std::wstring const yeru_End = { wchar_t(0x044B)                  };
-    static std::wstring const u_End    = { wchar_t(0x0443)                  };
-    static std::wstring const yu_End   = { wchar_t(0x044E)                  };
-    static std::wstring const oj_End   = { wchar_t(0x043E), wchar_t(0x0439) };
-    static std::wstring const ie_j_End = { wchar_t(0x0435), wchar_t(0x0439) };
-    static std::wstring const io_j_End = { wchar_t(0x0451), wchar_t(0x0439) };
-    static std::wstring const o_m_End  = { wchar_t(0x043E), wchar_t(0x043C) };
-    static std::wstring const io_m_End = { wchar_t(0x0451), wchar_t(0x043C) };
-    static std::wstring const ie_m_End = { wchar_t(0x0435), wchar_t(0x043C) };
-    static std::wstring const soft_End = { wchar_t(0x044C)                  };
-    static std::wstring const j_End    = { wchar_t(0x0439)                  };
+    static constexpr std::wstring_view a_End    = L"\x430";
+    static constexpr std::wstring_view o_End    = L"\x43E";
+    static constexpr std::wstring_view ya_End   = L"\x44F";
+    static constexpr std::wstring_view ie_End   = L"\x435";
+    static constexpr std::wstring_view i_End    = L"\x438";
+    static constexpr std::wstring_view yeru_End = L"\x44B";
+    static constexpr std::wstring_view u_End    = L"\x443";
+    static constexpr std::wstring_view yu_End   = L"\x44E";
+    static constexpr std::wstring_view oj_End   = L"\x43E\x439";
+    static constexpr std::wstring_view ie_j_End = L"\x435\x439";
+    static constexpr std::wstring_view io_j_End = L"\x451\x439";
+    static constexpr std::wstring_view o_m_End  = L"\x43E\x43C";
+    static constexpr std::wstring_view io_m_End = L"\x451\x43C";
+    static constexpr std::wstring_view ie_m_End = L"\x435\x43C";
+    static constexpr std::wstring_view soft_End = L"\x44C";
+    static constexpr std::wstring_view j_End    = L"\x439";
 
-    static std::array<std::array<std::wstring const*, 7>, 6> const dropEnds = {{
-        { &a_End,  &o_End,    &ya_End,   &ie_End,  &soft_End, &j_End,    nullptr },
-        { &a_End,  &ya_End,   &yeru_End, &i_End,   nullptr,   nullptr,   nullptr },
-        { &ie_End, &u_End,    &yu_End,   &i_End,   nullptr,   nullptr,   nullptr },
-        { &u_End,  &yu_End,   &o_End,    &ie_End,  &soft_End, &ya_End,   &a_End  },
-        { &oj_End, &io_j_End, &ie_j_End, &o_m_End, &io_m_End, &ie_m_End, &yu_End },
-        { &ie_End, &i_End,    nullptr,   nullptr,  nullptr,   nullptr,   nullptr }
+    static constexpr std::array<std::array<std::wstring_view, 7>, 6> dropEnds = {{
+        { a_End,  o_End,    ya_End,   ie_End,  soft_End, j_End,    {} },
+        { a_End,  ya_End,   yeru_End, i_End,   {},       {},       {} },
+        { ie_End, u_End,    yu_End,   i_End,   {},       {},       {} },
+        { u_End,  yu_End,   o_End,    ie_End,  soft_End, ya_End,   a_End  },
+        { oj_End, io_j_End, ie_j_End, o_m_End, io_m_End, ie_m_End, yu_End },
+        { ie_End, i_End,    {},       {},      {},       {},       {} }
     }};
 
     std::size_t const thisLen = wname.length();
-    std::array<std::wstring const*, 7> const& endings = dropEnds[declension];
-    for (auto itr = endings.begin(), end = endings.end(); (itr != end) && *itr; ++itr)
+    std::array<std::wstring_view, 7> const& endings = dropEnds[declension];
+    for (auto itr = endings.begin(), end = endings.end(); itr != end && !itr->empty(); ++itr)
     {
-        std::wstring const& ending = **itr;
-        std::size_t const endLen = ending.length();
-        if (!(endLen <= thisLen))
+        std::size_t const endLen = itr->length();
+        if (endLen > thisLen)
             continue;
 
-        if (wname.substr(thisLen-endLen, thisLen) == ending)
-            return wname.substr(0, thisLen-endLen);
+        if (wname.ends_with(*itr))
+        {
+            result.erase(thisLen - endLen);
+            break;
+        }
     }
 
-    return wname;
+    return result;
 }
 
 bool utf8ToConsole(std::string_view utf8str, std::string& conStr)
@@ -780,7 +755,7 @@ bool Utf8ToUpperOnlyLatin(std::string& utf8String)
     if (!Utf8toWStr(utf8String, wstr))
         return false;
 
-    std::transform(wstr.begin(), wstr.end(), wstr.begin(), wcharToUpperOnlyLatin);
+    std::ranges::transform(wstr, wstr.begin(), wcharToUpperOnlyLatin);
 
     return WStrToUtf8(wstr, utf8String);
 }
@@ -808,6 +783,7 @@ bool ReadWinConsole(std::string& str, size_t size /*= 256*/)
 bool WriteWinConsole(std::string_view str, bool error /*= false*/)
 {
     std::wstring wstr;
+    wstr.reserve(str.length());
     if (!Utf8toWStr(str, wstr))
         return false;
 
@@ -841,15 +817,13 @@ std::string Trinity::Impl::ByteArrayToHexStr(uint8 const* bytes, size_t arrayLen
         op = -1;
     }
 
-    std::ostringstream ss;
+    std::string result;
+    result.resize(arrayLen * 2);
+    auto inserter = result.data();
     for (int32 i = init; i != end; i += op)
-    {
-        char buffer[4];
-        sprintf(buffer, "%02X", bytes[i]);
-        ss << buffer;
-    }
+        inserter = Trinity::StringFormatTo(inserter, "{:02X}", bytes[i]);
 
-    return ss.str();
+    return result;
 }
 
 void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t outlen, bool reverse /*= false*/)
@@ -869,29 +843,36 @@ void Trinity::Impl::HexStrToByteArray(std::string_view str, uint8* out, size_t o
 
     uint32 j = 0;
     for (int32 i = init; i != end; i += 2 * op)
-    {
-        char buffer[3] = { str[i], str[i + 1], '\0' };
-        out[j++] = uint8(strtoul(buffer, nullptr, 16));
-    }
+        out[j++] = Trinity::StringTo<uint8>(str.substr(i, 2), 16).value_or(0);
 }
 
 bool StringEqualI(std::string_view a, std::string_view b)
 {
-    return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+    return std::ranges::equal(a, b, {}, charToLower, charToLower);
 }
 
 bool StringContainsStringI(std::string_view haystack, std::string_view needle)
 {
     return haystack.end() !=
-        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return std::tolower(c1) == std::tolower(c2); });
+        std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), [](char c1, char c2) { return charToLower(c1) == charToLower(c2); });
 }
 
 bool StringCompareLessI(std::string_view a, std::string_view b)
 {
-    return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+    return std::ranges::lexicographical_compare(a, b, {}, charToLower, charToLower);
 }
 
-std::string GetTypeName(std::type_info const& info)
+void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement)
+{
+    std::size_t pos = str->find(text, 0);
+    while (pos != std::string::npos)
+    {
+        str->replace(pos, text.length(), replacement);
+        pos = str->find(text, pos + replacement.length());
+    }
+}
+
+std::string Trinity::Impl::GetTypeName(std::type_info const& info)
 {
     return boost::core::demangle(info.name());
 }

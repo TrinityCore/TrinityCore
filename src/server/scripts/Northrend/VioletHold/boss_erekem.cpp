@@ -70,12 +70,6 @@ struct boss_erekem : public BossAI
         DoCast(me, SPELL_EARTH_SHIELD);
     }
 
-    void MovementInform(uint32 type, uint32 pointId) override
-    {
-        if (type == EFFECT_MOTION_TYPE && pointId == POINT_INTRO)
-            me->SetFacingTo(4.921828f);
-    }
-
     void JustReachedHome() override
     {
         BossAI::JustReachedHome();
@@ -172,8 +166,6 @@ struct boss_erekem : public BossAI
         {
             if (_phase == 1)
                 DoSpellAttackIfReady(SPELL_STORMSTRIKE);
-            else
-                DoMeleeAttackIfReady();
         });
     }
 
@@ -265,8 +257,7 @@ struct npc_erekem_guard : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        scheduler.Update(diff,
-            std::bind(&ScriptedAI::DoMeleeAttackIfReady, this));
+        scheduler.Update(diff);
     }
 
     void ScheduledTasks()

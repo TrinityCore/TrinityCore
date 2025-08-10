@@ -4,7 +4,6 @@
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
 #include "profanity_filter_config.pb.h"
 
-#include <algorithm>
 #include <utility>
 
 #include <google/protobuf/stubs/common.h>
@@ -15,7 +14,6 @@
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/wire_format.h>
-#include "Log.h"
 // @@protoc_insertion_point(includes)
 
 namespace bgs {
@@ -109,7 +107,7 @@ void protobuf_AddDesc_profanity_5ffilter_5fconfig_2eproto() {
     "tocol.profanity.v1\")\n\nWordFilter\022\014\n\004type"
     "\030\001 \002(\t\022\r\n\005regex\030\002 \002(\t\"E\n\013WordFilters\0226\n\007"
     "filters\030\001 \003(\0132%.bgs.protocol.profanity.v"
-    "1.WordFilterB\002H\001", 176);
+    "1.WordFilterB\002H\002", 176);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "profanity_filter_config.proto", &protobuf_RegisterTypes);
   WordFilter::default_instance_ = new WordFilter();
@@ -193,231 +191,9 @@ WordFilter* WordFilter::New() const {
   return new WordFilter;
 }
 
-void WordFilter::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_type()) {
-      if (type_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        type_->clear();
-      }
-    }
-    if (has_regex()) {
-      if (regex_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        regex_->clear();
-      }
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool WordFilter::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.profanity.v1.WordFilter)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string type = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_type()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->type().data(), this->type().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "type");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_regex;
-        break;
-      }
-
-      // required string regex = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_regex:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_regex()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->regex().data(), this->regex().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "regex");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.profanity.v1.WordFilter)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.profanity.v1.WordFilter)
-  return false;
-#undef DO_
-}
-
-void WordFilter::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.profanity.v1.WordFilter)
-  // required string type = 1;
-  if (has_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->type().data(), this->type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "type");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->type(), output);
-  }
-
-  // required string regex = 2;
-  if (has_regex()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->regex().data(), this->regex().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "regex");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->regex(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.profanity.v1.WordFilter)
-}
-
-::google::protobuf::uint8* WordFilter::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.profanity.v1.WordFilter)
-  // required string type = 1;
-  if (has_type()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->type().data(), this->type().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "type");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->type(), target);
-  }
-
-  // required string regex = 2;
-  if (has_regex()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->regex().data(), this->regex().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "regex");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->regex(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.profanity.v1.WordFilter)
-  return target;
-}
-
-int WordFilter::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string type = 1;
-    if (has_type()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->type());
-    }
-
-    // required string regex = 2;
-    if (has_regex()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->regex());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void WordFilter::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const WordFilter* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const WordFilter*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void WordFilter::MergeFrom(const WordFilter& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_type()) {
-      set_type(from.type());
-    }
-    if (from.has_regex()) {
-      set_regex(from.regex());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void WordFilter::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void WordFilter::CopyFrom(const WordFilter& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool WordFilter::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-  return true;
-}
-
 void WordFilter::Swap(WordFilter* other) {
   if (other != this) {
-    std::swap(type_, other->type_);
-    std::swap(regex_, other->regex_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata WordFilter::GetMetadata() const {
@@ -486,156 +262,9 @@ WordFilters* WordFilters::New() const {
   return new WordFilters;
 }
 
-void WordFilters::Clear() {
-  filters_.Clear();
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool WordFilters::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:bgs.protocol.profanity.v1.WordFilters)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated .bgs.protocol.profanity.v1.WordFilter filters = 1;
-      case 1: {
-        if (tag == 10) {
-         parse_filters:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
-                input, add_filters()));
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(10)) goto parse_filters;
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:bgs.protocol.profanity.v1.WordFilters)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:bgs.protocol.profanity.v1.WordFilters)
-  return false;
-#undef DO_
-}
-
-void WordFilters::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:bgs.protocol.profanity.v1.WordFilters)
-  // repeated .bgs.protocol.profanity.v1.WordFilter filters = 1;
-  for (int i = 0; i < this->filters_size(); i++) {
-    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      1, this->filters(i), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:bgs.protocol.profanity.v1.WordFilters)
-}
-
-::google::protobuf::uint8* WordFilters::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:bgs.protocol.profanity.v1.WordFilters)
-  // repeated .bgs.protocol.profanity.v1.WordFilter filters = 1;
-  for (int i = 0; i < this->filters_size(); i++) {
-    target = ::google::protobuf::internal::WireFormatLite::
-      WriteMessageNoVirtualToArray(
-        1, this->filters(i), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:bgs.protocol.profanity.v1.WordFilters)
-  return target;
-}
-
-int WordFilters::ByteSize() const {
-  int total_size = 0;
-
-  // repeated .bgs.protocol.profanity.v1.WordFilter filters = 1;
-  total_size += 1 * this->filters_size();
-  for (int i = 0; i < this->filters_size(); i++) {
-    total_size +=
-      ::google::protobuf::internal::WireFormatLite::MessageSizeNoVirtual(
-        this->filters(i));
-  }
-
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void WordFilters::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const WordFilters* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const WordFilters*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void WordFilters::MergeFrom(const WordFilters& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  filters_.MergeFrom(from.filters_);
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void WordFilters::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void WordFilters::CopyFrom(const WordFilters& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool WordFilters::IsInitialized() const {
-  if (!::google::protobuf::internal::AllAreInitialized(this->filters())) return false;
-  return true;
-}
-
 void WordFilters::Swap(WordFilters* other) {
   if (other != this) {
-    filters_.Swap(&other->filters_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
+    GetReflection()->Swap(this, other);}
 }
 
 ::google::protobuf::Metadata WordFilters::GetMetadata() const {

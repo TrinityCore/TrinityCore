@@ -70,19 +70,6 @@ class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ChannelId* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ChannelId& from);
-  void MergeFrom(const ChannelId& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -118,6 +105,13 @@ class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 id() const;
   inline void set_id(::google::protobuf::uint32 value);
 
+  // optional uint32 region = 4;
+  inline bool has_region() const;
+  inline void clear_region();
+  static const int kRegionFieldNumber = 4;
+  inline ::google::protobuf::uint32 region() const;
+  inline void set_region(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.channel.v1.ChannelId)
  private:
   inline void set_has_type();
@@ -126,6 +120,8 @@ class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
   inline void clear_has_host();
   inline void set_has_id();
   inline void clear_has_id();
+  inline void set_has_region();
+  inline void clear_has_region();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -134,6 +130,7 @@ class TC_PROTO_API ChannelId : public ::google::protobuf::Message {
   ::bgs::protocol::ProcessId* host_;
   ::google::protobuf::uint32 type_;
   ::google::protobuf::uint32 id_;
+  ::google::protobuf::uint32 region_;
   friend void TC_PROTO_API protobuf_AddDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   friend void protobuf_AssignDesc_api_2fclient_2fv1_2fchannel_5fid_2eproto();
   friend void protobuf_ShutdownFile_api_2fclient_2fv1_2fchannel_5fid_2eproto();
@@ -236,6 +233,30 @@ inline void ChannelId::set_id(::google::protobuf::uint32 value) {
   set_has_id();
   id_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelId.id)
+}
+
+// optional uint32 region = 4;
+inline bool ChannelId::has_region() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ChannelId::set_has_region() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ChannelId::clear_has_region() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ChannelId::clear_region() {
+  region_ = 0u;
+  clear_has_region();
+}
+inline ::google::protobuf::uint32 ChannelId::region() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.channel.v1.ChannelId.region)
+  return region_;
+}
+inline void ChannelId::set_region(::google::protobuf::uint32 value) {
+  set_has_region();
+  region_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.channel.v1.ChannelId.region)
 }
 
 // @@protoc_insertion_point(namespace_scope)

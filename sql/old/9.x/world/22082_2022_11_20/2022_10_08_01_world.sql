@@ -1,0 +1,27 @@
+SET @OGUID := 501777;
+
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+9;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 195256, 34, 717, 717, '1', 0, 0, 75.0807342529296875, -3.46844291687011718, -25.6062335968017578, 2.216565132141113281, 0, 0, 0.894933700561523437, 0.44619917869567871, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+1, 195256, 34, 717, 717, '1', 0, 0, 124.8732223510742187, -3.53060889244079589, -25.6062335968017578, 0.767943859100341796, 0, 0, 0.374606132507324218, 0.927184045314788818, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+2, 195256, 34, 717, 717, '1', 0, 0, 133.368682861328125, 4.94775390625, -25.6062335968017578, 3.769911527633666992, 0, 0, -0.95105648040771484, 0.309017121791839599, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+3, 195256, 34, 717, 717, '1', 0, 0, 75.0347747802734375, 4.980967998504638671, -25.6062335968017578, 3.874631166458129882, 0, 0, -0.93358039855957031, 0.358368009328842163, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+4, 195256, 34, 717, 717, '1', 0, 0, 147.2406158447265625, 89.62396240234375, -33.9395637512207031, 3.560472726821899414, 0, 0, -0.97814750671386718, 0.207912087440490722, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+5, 195256, 34, 717, 717, '1', 0, 0, 111.367950439453125, -88.3172607421875, -33.9395637512207031, 0.436331570148468017, 0, 0, 0.216439247131347656, 0.976296067237854003, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+6, 195256, 34, 717, 717, '1', 0, 0, 124.9492034912109375, 5.040185928344726562, -25.6062335968017578, 5.532694816589355468, 0, 0, -0.3665008544921875, 0.93041771650314331, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+7, 195256, 34, 717, 717, '1', 0, 0, 141.8401336669921875, 92.261383056640625, -33.9395637512207031, 4.904376029968261718, 0, 0, -0.636077880859375, 0.771624863147735595, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+8, 195256, 34, 717, 717, '1', 0, 0, 133.4145050048828125, -3.47149205207824707, -25.6062335968017578, 2.373644113540649414, 0, 0, 0.927183151245117187, 0.37460830807685852, 7200, 255, 1, 45745), -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+(@OGUID+9, 195256, 34, 717, 717, '1', 0, 0, 116.36749267578125, -90.6798171997070312, -33.9395637512207031, 1.902408957481384277, 0, 0, 0.814115524291992187, 0.580702960491180419, 7200, 255, 1, 45745); -- Standing, Exterior, Medium - Brewfest (Area: The Stockade - Difficulty: Normal)
+
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=24 AND `guid` BETWEEN @OGUID+0 AND @OGUID+9;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(24, @OGUID+0),
+(24, @OGUID+1),
+(24, @OGUID+2),
+(24, @OGUID+3),
+(24, @OGUID+4),
+(24, @OGUID+5),
+(24, @OGUID+6),
+(24, @OGUID+7),
+(24, @OGUID+8),
+(24, @OGUID+9);

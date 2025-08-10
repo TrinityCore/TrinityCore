@@ -114,8 +114,6 @@ struct boss_gatewatcher_iron_hand : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

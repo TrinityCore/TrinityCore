@@ -28,6 +28,9 @@
 
 #include "AreaTriggerAI.h"
 
+#include "Conversation.h"
+#include "ConversationAI.h"
+
 #include "ScriptMgr.h"
 
 namespace FactorySelector
@@ -94,8 +97,8 @@ namespace FactorySelector
         }
         catch (InvalidAIException const& e)
         {
-            TC_LOG_ERROR("entities.unit", "Exception trying to assign script '%s' to Creature (Entry: %u), this Creature will have a default AI. Exception message: %s",
-                creature->GetScriptName().c_str(), creature->GetEntry(), e.what());
+            TC_LOG_ERROR("entities.unit", "Exception trying to assign script '{}' to Creature (Entry: {}), this Creature will have a default AI. Exception message: {}",
+                creature->GetScriptName(), creature->GetEntry(), e.what());
         }
 
         return SelectFactory<CreatureAI>(creature)->Create(creature);
@@ -186,5 +189,29 @@ namespace FactorySelector
         }
 
         return GetNullAreaTriggerAIScriptId();
+    }
+
+    static uint32 GetNullConversationAIScriptId()
+    {
+        return sObjectMgr->GetScriptId("NullConversationAI", false);
+    }
+
+    ConversationAI* SelectConversationAI(Conversation* conversation)
+    {
+        if (ConversationAI* ai = sScriptMgr->GetConversationAI(conversation))
+            return ai;
+
+        return new NullConversationAI(conversation, GetNullConversationAIScriptId());
+    }
+
+    uint32 GetSelectedAIId(Conversation const* conversation)
+    {
+        if (uint32 id = conversation->GetScriptId())
+        {
+            if (sScriptMgr->CanCreateConversationAI(id))
+                return id;
+        }
+
+        return GetNullConversationAIScriptId();
     }
 }

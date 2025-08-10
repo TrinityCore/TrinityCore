@@ -1,0 +1,293 @@
+syntax = "proto2";
+
+import "api/client/v1/club_request.proto";
+package bgs.protocol.club.v1.client;
+
+option optimize_for = CODE_SIZE;
+option cc_generic_services = false;
+
+service ClubService {
+  option (.bgs.protocol.service_options) = {
+    descriptor_name: "bnet.protocol.club.v1.ClubService"
+    shard_name: "club"
+  };
+  option (.bgs.protocol.sdk_service_options) = {
+    outbound: true
+    use_client_id: true
+  };
+  rpc Subscribe(.bgs.protocol.club.v1.client.SubscribeRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 1
+    };
+  }
+  rpc Unsubscribe(.bgs.protocol.club.v1.client.UnsubscribeRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 2
+    };
+  }
+  rpc Create(.bgs.protocol.club.v1.client.CreateRequest) returns (.bgs.protocol.club.v1.client.CreateResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 3
+    };
+  }
+  rpc Destroy(.bgs.protocol.club.v1.client.DestroyRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 4
+    };
+  }
+  rpc GetDescription(.bgs.protocol.club.v1.client.GetDescriptionRequest) returns (.bgs.protocol.club.v1.client.GetDescriptionResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 5
+    };
+  }
+  rpc GetClubType(.bgs.protocol.club.v1.client.GetClubTypeRequest) returns (.bgs.protocol.club.v1.client.GetClubTypeResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 6
+    };
+  }
+  rpc UpdateClubState(.bgs.protocol.club.v1.client.UpdateClubStateRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 7
+    };
+  }
+  rpc UpdateClubSettings(.bgs.protocol.club.v1.client.UpdateClubSettingsRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 8
+    };
+  }
+  rpc Join(.bgs.protocol.club.v1.client.JoinRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 30
+    };
+  }
+  rpc Leave(.bgs.protocol.club.v1.client.LeaveRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 31
+    };
+  }
+  rpc Kick(.bgs.protocol.club.v1.client.KickRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 32
+    };
+  }
+  rpc GetMember(.bgs.protocol.club.v1.client.GetMemberRequest) returns (.bgs.protocol.club.v1.client.GetMemberResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 33
+    };
+  }
+  rpc GetMembers(.bgs.protocol.club.v1.client.GetMembersRequest) returns (.bgs.protocol.club.v1.client.GetMembersResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 34
+    };
+  }
+  rpc UpdateMemberState(.bgs.protocol.club.v1.client.UpdateMemberStateRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 35
+    };
+  }
+  rpc UpdateSubscriberState(.bgs.protocol.club.v1.client.UpdateSubscriberStateRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 36
+    };
+  }
+  rpc AssignRole(.bgs.protocol.club.v1.client.AssignRoleRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 37
+    };
+  }
+  rpc UnassignRole(.bgs.protocol.club.v1.client.UnassignRoleRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 38
+    };
+  }
+  rpc SendInvitation(.bgs.protocol.club.v1.client.SendInvitationRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 50
+    };
+  }
+  rpc AcceptInvitation(.bgs.protocol.club.v1.client.AcceptInvitationRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 51
+    };
+  }
+  rpc DeclineInvitation(.bgs.protocol.club.v1.client.DeclineInvitationRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 52
+    };
+  }
+  rpc RevokeInvitation(.bgs.protocol.club.v1.client.RevokeInvitationRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 53
+    };
+  }
+  rpc GetInvitation(.bgs.protocol.club.v1.client.GetInvitationRequest) returns (.bgs.protocol.club.v1.client.GetInvitationResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 54
+    };
+  }
+  rpc GetInvitations(.bgs.protocol.club.v1.client.GetInvitationsRequest) returns (.bgs.protocol.club.v1.client.GetInvitationsResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 55
+    };
+  }
+  rpc SendSuggestion(.bgs.protocol.club.v1.client.SendSuggestionRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 60
+    };
+  }
+  rpc AcceptSuggestion(.bgs.protocol.club.v1.client.AcceptSuggestionRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 61
+    };
+  }
+  rpc DeclineSuggestion(.bgs.protocol.club.v1.client.DeclineSuggestionRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 62
+    };
+  }
+  rpc GetSuggestion(.bgs.protocol.club.v1.client.GetSuggestionRequest) returns (.bgs.protocol.club.v1.client.GetSuggestionResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 63
+    };
+  }
+  rpc GetSuggestions(.bgs.protocol.club.v1.client.GetSuggestionsRequest) returns (.bgs.protocol.club.v1.client.GetSuggestionsResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 64
+    };
+  }
+  rpc CreateTicket(.bgs.protocol.club.v1.client.CreateTicketRequest) returns (.bgs.protocol.club.v1.client.CreateTicketResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 70
+    };
+  }
+  rpc DestroyTicket(.bgs.protocol.club.v1.client.DestroyTicketRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 71
+    };
+  }
+  rpc RedeemTicket(.bgs.protocol.club.v1.client.RedeemTicketRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 72
+    };
+  }
+  rpc GetTicket(.bgs.protocol.club.v1.client.GetTicketRequest) returns (.bgs.protocol.club.v1.client.GetTicketResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 73
+    };
+  }
+  rpc GetTickets(.bgs.protocol.club.v1.client.GetTicketsRequest) returns (.bgs.protocol.club.v1.client.GetTicketsResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 74
+    };
+  }
+  rpc AddBan(.bgs.protocol.club.v1.client.AddBanRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 80
+    };
+  }
+  rpc RemoveBan(.bgs.protocol.club.v1.client.RemoveBanRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 81
+    };
+  }
+  rpc GetBan(.bgs.protocol.club.v1.client.GetBanRequest) returns (.bgs.protocol.club.v1.client.GetBanResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 82
+    };
+  }
+  rpc GetBans(.bgs.protocol.club.v1.client.GetBansRequest) returns (.bgs.protocol.club.v1.client.GetBansResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 83
+    };
+  }
+  rpc SubscribeStream(.bgs.protocol.club.v1.client.SubscribeStreamRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 100
+    };
+  }
+  rpc UnsubscribeStream(.bgs.protocol.club.v1.client.UnsubscribeStreamRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 101
+    };
+  }
+  rpc CreateStream(.bgs.protocol.club.v1.client.CreateStreamRequest) returns (.bgs.protocol.club.v1.client.CreateStreamResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 102
+    };
+  }
+  rpc DestroyStream(.bgs.protocol.club.v1.client.DestroyStreamRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 103
+    };
+  }
+  rpc GetStream(.bgs.protocol.club.v1.client.GetStreamRequest) returns (.bgs.protocol.club.v1.client.GetStreamResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 104
+    };
+  }
+  rpc GetStreams(.bgs.protocol.club.v1.client.GetStreamsRequest) returns (.bgs.protocol.club.v1.client.GetStreamsResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 105
+    };
+  }
+  rpc UpdateStreamState(.bgs.protocol.club.v1.client.UpdateStreamStateRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 106
+    };
+  }
+  rpc SetStreamFocus(.bgs.protocol.club.v1.client.SetStreamFocusRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 107
+    };
+  }
+  rpc GetStreamVoiceToken(.bgs.protocol.club.v1.client.GetStreamVoiceTokenRequest) returns (.bgs.protocol.club.v1.client.GetStreamVoiceTokenResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 108
+    };
+  }
+  rpc KickFromStreamVoice(.bgs.protocol.club.v1.client.KickFromStreamVoiceRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 109
+    };
+  }
+  rpc CreateMessage(.bgs.protocol.club.v1.client.CreateMessageRequest) returns (.bgs.protocol.club.v1.client.CreateMessageResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 150
+    };
+  }
+  rpc DestroyMessage(.bgs.protocol.club.v1.client.DestroyMessageRequest) returns (.bgs.protocol.club.v1.client.DestroyMessageResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 151
+    };
+  }
+  rpc EditMessage(.bgs.protocol.club.v1.client.EditMessageRequest) returns (.bgs.protocol.club.v1.client.EditMessageResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 152
+    };
+  }
+  rpc SetMessagePinned(.bgs.protocol.club.v1.client.SetMessagePinnedRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 153
+    };
+  }
+  rpc SetTypingIndicator(.bgs.protocol.club.v1.client.SetTypingIndicatorRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 154
+    };
+  }
+  rpc AdvanceStreamViewTime(.bgs.protocol.club.v1.client.AdvanceStreamViewTimeRequest) returns (.bgs.protocol.NoData) {
+    option (.bgs.protocol.method_options) = {
+      id: 155
+    };
+  }
+  rpc GetStreamHistory(.bgs.protocol.club.v1.client.GetStreamHistoryRequest) returns (.bgs.protocol.club.v1.client.GetStreamHistoryResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 156
+    };
+  }
+  rpc GetStreamMessage(.bgs.protocol.club.v1.client.GetStreamMessageRequest) returns (.bgs.protocol.club.v1.client.GetStreamMessageResponse) {
+    option (.bgs.protocol.method_options) = {
+      id: 157
+    };
+  }
+}

@@ -22,22 +22,17 @@
 #include "ChatCommand.h"
 #include "ChatPackets.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
-#include "DB2Stores.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "Language.h"
-#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Optional.h"
 #include "Player.h"
-#include "Realm.h"
-#include "ScriptMgr.h"
+#include "RealmList.h"
+#include "StringConvert.h"
 #include "World.h"
 #include "WorldSession.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <sstream>
 
 Player* ChatHandler::GetPlayer() const { return m_session ? m_session->GetPlayer() : nullptr; }
 
@@ -98,7 +93,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = AccountMgr::GetSecurity(target_account, realm.Id.Realm);
+        target_sec = AccountMgr::GetSecurity(target_account, sRealmList->GetCurrentRealmId().Realm);
     else
         return true;                                        // caller must report error for (target == nullptr && target_account == 0)
 
@@ -115,19 +110,11 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
 
 void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
 {
-    std::string msg{ str };
+    std::string msg(str);
 
     // Replace every "|" with "||" in msg
-    if (escapeCharacters && msg.find('|') != std::string::npos)
-    {
-        std::vector<std::string_view> tokens = Trinity::Tokenize(msg, '|', true);
-        std::ostringstream stream;
-        for (size_t i = 0; i < tokens.size() - 1; ++i)
-            stream << tokens[i] << "||";
-        stream << tokens[tokens.size() - 1];
-
-        msg = stream.str();
-    }
+    if (escapeCharacters)
+        StringReplaceAll(&msg, "|"sv, "||"sv);
 
     WorldPackets::Chat::Chat packet;
     for (std::string_view line : Trinity::Tokenize(str, '\n', true))
@@ -160,6 +147,11 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
 void ChatHandler::SendSysMessage(uint32 entry)
 {
     SendSysMessage(GetTrinityString(entry));
+}
+
+std::string ChatHandler::StringVPrintf(std::string_view messageFormat, fmt::printf_args messageFormatArgs)
+{
+    return fmt::vsprintf<char>(messageFormat, messageFormatArgs);
 }
 
 bool ChatHandler::_ParseCommands(std::string_view text)
@@ -413,72 +405,6 @@ Creature* ChatHandler::GetCreatureFromPlayerMapByDbGuid(ObjectGuid::LowType lowg
     return creature;
 }
 
-enum SpellLinkType
-{
-    SPELL_LINK_SPELL   = 0,
-    SPELL_LINK_TALENT  = 1,
-    SPELL_LINK_ENCHANT = 2,
-    SPELL_LINK_TRADE   = 3,
-    SPELL_LINK_GLYPH   = 4
-};
-
-static char const* const spellKeys[] =
-{
-    "Hspell",                                               // normal spell
-    "Htalent",                                              // talent spell
-    "Henchant",                                             // enchanting recipe spell
-    "Htrade",                                               // profession/skill spell
-    "Hglyph",                                               // glyph
-    nullptr
-};
-
-uint32 ChatHandler::extractSpellIdFromLink(char* text)
-{
-    // number or [name] Shift-click form |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r
-    // number or [name] Shift-click form |color|Hglyph:glyph_slot_id:glyph_prop_id|h[%s]|h|r
-    // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
-    // number or [name] Shift-click form |color|Htalent:talent_id, rank|h[name]|h|r
-    // number or [name] Shift-click form |color|Htrade:spell_id, skill_id, max_value, cur_value|h[name]|h|r
-    int type = 0;
-    char* param1_str = nullptr;
-    char* idS = extractKeyFromLink(text, spellKeys, &type, &param1_str);
-    if (!idS)
-        return 0;
-
-    uint32 id = atoul(idS);
-
-    switch (type)
-    {
-        case SPELL_LINK_SPELL:
-            return id;
-        case SPELL_LINK_TALENT:
-        {
-            // talent
-            TalentEntry const* talentEntry = sTalentStore.LookupEntry(id);
-            if (!talentEntry)
-                return 0;
-
-            return talentEntry->SpellID;
-        }
-        case SPELL_LINK_ENCHANT:
-        case SPELL_LINK_TRADE:
-            return id;
-        case SPELL_LINK_GLYPH:
-        {
-            uint32 glyph_prop_id = param1_str ? atoul(param1_str) : 0;
-
-            GlyphPropertiesEntry const* glyphPropEntry = sGlyphPropertiesStore.LookupEntry(glyph_prop_id);
-            if (!glyphPropEntry)
-                return 0;
-
-            return glyphPropEntry->SpellID;
-        }
-    }
-
-    // unknown type?
-    return 0;
-}
-
 enum GuidLinkType
 {
     GUID_LINK_PLAYER     = 0,                              // must be first for selection in not link case
@@ -526,13 +452,13 @@ ObjectGuid::LowType ChatHandler::extractLowGuidFromLink(char* text, HighGuid& gu
         case GUID_LINK_CREATURE:
         {
             guidHigh = HighGuid::Creature;
-            ObjectGuid::LowType lowguid = atoull(idS);
+            ObjectGuid::LowType lowguid = Trinity::StringTo<ObjectGuid::LowType>(idS).value_or(UI64LIT(0));
             return lowguid;
         }
         case GUID_LINK_GAMEOBJECT:
         {
             guidHigh = HighGuid::GameObject;
-            ObjectGuid::LowType lowguid = atoull(idS);
+            ObjectGuid::LowType lowguid = Trinity::StringTo<ObjectGuid::LowType>(idS).value_or(UI64LIT(0));
             return lowguid;
         }
     }
@@ -670,7 +596,10 @@ LocaleConstant ChatHandler::GetSessionDbLocaleIndex() const
 
 std::string ChatHandler::playerLink(std::string const& name) const
 {
-    return m_session ? "|cffffffff|Hplayer:" + name + "|h[" + name + "]|h|r" : name;
+    if (m_session)
+        return Trinity::StringFormat("|cffffffff|Hplayer:{0}|h[{0}]|h|r", name);
+    else
+        return name;
 }
 
 std::string ChatHandler::GetNameLink(Player* chr) const
@@ -851,7 +780,8 @@ void AddonChannelCommandHandler::SendSysMessage(std::string_view str, bool escap
     msg.append(echo, 4);
     std::string body(str);
     if (escapeCharacters)
-        boost::replace_all(body, "|", "||");
+        StringReplaceAll(&body, "|"sv, "||"sv);
+
     size_t pos, lastpos;
     for (lastpos = 0, pos = body.find('\n', lastpos); pos != std::string::npos; lastpos = pos + 1, pos = body.find('\n', lastpos))
     {

@@ -54,6 +54,7 @@ struct FactionState
     uint32 ID;
     RepListID ReputationListID;
     int32 Standing;
+    int32 VisualStandingIncrease;
     EnumFlag<ReputationFlags> Flags = ReputationFlags::None;
     bool needSend;
     bool needSave;
@@ -109,15 +110,17 @@ class TC_GAME_API ReputationMgr
         std::string GetReputationRankName(FactionEntry const* factionEntry) const;;
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
+        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const;
 
-        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const
-        {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionId);
-            return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
-        }
-
+        bool IsParagonReputation(FactionEntry const* factionEntry) const;
         int32 GetParagonLevel(uint32 paragonFactionId) const;
         int32 GetParagonLevel(FactionEntry const* paragonFactionEntry) const;
+
+        bool HasMaximumRenownReputation(FactionEntry const* factionEntry) const;
+        bool IsRenownReputation(FactionEntry const* factionEntry) const;
+        int32 GetRenownLevel(FactionEntry const* renownFactionEntry) const;
+        int32 GetRenownLevelThreshold(FactionEntry const* renownFactionEntry) const;
+        int32 GetRenownMaxLevel(FactionEntry const* renownFactionEntry) const;
 
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
@@ -141,7 +144,6 @@ class TC_GAME_API ReputationMgr
 
     public:                                                 // senders
         void SendInitialReputations();
-        void SendForceReactions();
         void SendState(FactionState const* faction);
 
     private:                                                // internal helper functions
@@ -164,7 +166,7 @@ class TC_GAME_API ReputationMgr
         uint8 _honoredFactionCount :8;
         uint8 _reveredFactionCount :8;
         uint8 _exaltedFactionCount :8;
-        bool _sendFactionIncreased; //! Play visual effect on next SMSG_SET_FACTION_STANDING sent
+        bool _sendFactionIncreased; //!< Play visual effect on next SMSG_SET_FACTION_STANDING sent
 };
 
 #endif

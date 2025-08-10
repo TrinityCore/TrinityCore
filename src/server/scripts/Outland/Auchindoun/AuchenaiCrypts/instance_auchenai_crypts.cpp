@@ -19,6 +19,12 @@
 #include "auchenai_crypts.h"
 #include "InstanceScript.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SHIRRAK_THE_DEAD_WATCHER, {{ 1890 }} },
+    { DATA_EXARCH_MALADAAR, {{ 1889 }} }
+};
+
 class instance_auchenai_crypts : public InstanceMapScript
 {
     public:
@@ -30,6 +36,7 @@ class instance_auchenai_crypts : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
             }
         };
 

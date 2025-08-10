@@ -17,8 +17,9 @@
 
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
-#include "DatabaseEnv.h"
+#include "ConditionMgr.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Player.h"
@@ -30,6 +31,8 @@ AzeriteItem::AzeriteItem() : Item()
 {
     m_objectType |= TYPEMASK_AZERITE_ITEM;
     m_objectTypeId = TYPEID_AZERITE_ITEM;
+
+    m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteItem, false);
 
     SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::DEBUGknowledgeWeek), -1);
 }
@@ -171,13 +174,13 @@ void AzeriteItem::LoadAzeriteItemData(Player const* owner, AzeriteItemData& azer
             selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::AzeriteEssenceID, i).SetValue(selectedEssenceData.AzeriteEssenceId[i]);
         }
 
-        if (owner && owner->GetPrimarySpecialization() == selectedEssenceData.SpecializationId)
-            selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(1);
+        if (owner && owner->GetPrimarySpecialization() == ChrSpecialization(selectedEssenceData.SpecializationId))
+            selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(true);
     }
 
     // add selected essences for current spec
     if (owner && !GetSelectedAzeriteEssences())
-        CreateSelectedAzeriteEssences(owner->GetPrimarySpecialization());
+        CreateSelectedAzeriteEssences(AsUnderlyingType(owner->GetPrimarySpecialization()));
 
     if (needSave)
     {
@@ -294,10 +297,7 @@ GameObject const* AzeriteItem::FindHeartForge(Player const* owner)
 
 bool AzeriteItem::CanUseEssences() const
 {
-    if (PlayerConditionEntry const* condition = sPlayerConditionStore.LookupEntry(PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES))
-        return ConditionMgr::IsPlayerMeetingCondition(GetOwner(), condition);
-
-    return false;
+    return ConditionMgr::IsPlayerMeetingCondition(GetOwner(), PLAYER_CONDITION_ID_UNLOCKED_AZERITE_ESSENCES);
 }
 
 bool AzeriteItem::HasUnlockedEssenceSlot(uint8 slot) const
@@ -361,7 +361,7 @@ void AzeriteItem::SetSelectedAzeriteEssences(uint32 specializationId)
     int32 index = m_azeriteItemData->SelectedEssences.FindIndexIf([](UF::SelectedAzeriteEssences const& essences) { return essences.Enabled == 1; });
     if (index >= 0)
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences, index)
-            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), 0);
+            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), false);
 
     index = m_azeriteItemData->SelectedEssences.FindIndexIf([specializationId](UF::SelectedAzeriteEssences const& essences)
     {
@@ -370,7 +370,7 @@ void AzeriteItem::SetSelectedAzeriteEssences(uint32 specializationId)
 
     if (index >= 0)
         SetUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences, index)
-            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), 1);
+            .ModifyValue(&UF::SelectedAzeriteEssences::Enabled), true);
     else
         CreateSelectedAzeriteEssences(specializationId);
 }
@@ -379,7 +379,7 @@ void AzeriteItem::CreateSelectedAzeriteEssences(uint32 specializationId)
 {
     auto selectedEssences = AddDynamicUpdateFieldValue(m_values.ModifyValue(&AzeriteItem::m_azeriteItemData).ModifyValue(&UF::AzeriteItemData::SelectedEssences));
     selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::SpecializationID).SetValue(specializationId);
-    selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(1);
+    selectedEssences.ModifyValue(&UF::SelectedAzeriteEssences::Enabled).SetValue(true);
 }
 
 void AzeriteItem::SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId)
@@ -391,23 +391,15 @@ void AzeriteItem::SetSelectedAzeriteEssence(uint8 slot, uint32 azeriteEssenceId)
         .ModifyValue(&UF::SelectedAzeriteEssences::AzeriteEssenceID, slot), azeriteEssenceId);
 }
 
-void AzeriteItem::BuildValuesCreate(ByteBuffer* data, Player const* target) const
+void AzeriteItem::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
-    *data << uint8(flags);
     m_objectData->WriteCreate(*data, flags, this, target);
     m_itemData->WriteCreate(*data, flags, this, target);
     m_azeriteItemData->WriteCreate(*data, flags, this, target);
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
-void AzeriteItem::BuildValuesUpdate(ByteBuffer* data, Player const* target) const
+void AzeriteItem::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
 {
-    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(m_values.GetChangedObjectTypeMask());
 
     if (m_values.HasChanged(TYPEID_OBJECT))
@@ -418,8 +410,6 @@ void AzeriteItem::BuildValuesUpdate(ByteBuffer* data, Player const* target) cons
 
     if (m_values.HasChanged(TYPEID_AZERITE_ITEM))
         m_azeriteItemData->WriteUpdate(*data, flags, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void AzeriteItem::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
@@ -428,8 +418,6 @@ void AzeriteItem::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFla
     valuesMask.Set(TYPEID_ITEM);
     valuesMask.Set(TYPEID_AZERITE_ITEM);
 
-    std::size_t sizePos = data->wpos();
-    *data << uint32(0);
     *data << uint32(valuesMask.GetBlock(0));
 
     UF::ItemData::Mask mask;
@@ -439,8 +427,6 @@ void AzeriteItem::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFla
     UF::AzeriteItemData::Mask mask2;
     m_azeriteItemData->AppendAllowedFieldsMaskForFlag(mask2, flags);
     m_azeriteItemData->WriteUpdate(*data, mask2, true, this, target);
-
-    data->put<uint32>(sizePos, data->wpos() - sizePos - 4);
 }
 
 void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
@@ -461,9 +447,10 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
     if (azeriteItemMask.IsAnySet())
         valuesMask.Set(TYPEID_AZERITE_ITEM);
 
-    ByteBuffer buffer = PrepareValuesUpdateBuffer();
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
     std::size_t sizePos = buffer.wpos();
     buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
     buffer << uint32(valuesMask.GetBlock(0));
 
     if (valuesMask[TYPEID_OBJECT])
@@ -477,7 +464,7 @@ void AzeriteItem::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::Objec
 
     buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
 
-    data->AddUpdateBlock(buffer);
+    data->AddUpdateBlock();
 }
 
 void AzeriteItem::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const

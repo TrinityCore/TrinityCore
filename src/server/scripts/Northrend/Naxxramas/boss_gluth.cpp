@@ -47,13 +47,6 @@ enum Spells
     SPELL_INFECTED_WOUND                = 29307  // Used by the zombies on self.
 };
 
-Position const PosSummon[3] =
-{
-    { 3270.132f, -3169.948f, 297.5891f, 5.88176f },
-    { 3307.298f, -3183.449f, 297.5891f, 5.742133f },
-    { 3255.708f, -3135.677f, 297.5891f, 1.867502f }
-};
-
 enum Events
 {
     EVENT_WOUND                         = 1,
@@ -254,8 +247,6 @@ struct boss_gluth : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void MovementInform(uint32 /*type*/, uint32 id) override
@@ -290,8 +281,6 @@ private:
 // 28374, 54426 - Decimate
 class spell_gluth_decimate : public SpellScript
 {
-    PrepareSpellScript(spell_gluth_decimate);
-
     // handles the damaging effect of the decimate spell.
     void HandleScriptEffect(SpellEffIndex /* index */)
     {
@@ -333,8 +322,6 @@ class spell_gluth_decimate : public SpellScript
 // 28239, 28404 - Zombie Chow Search (single target and aoe zombie-kill spell) to heal Gluth on each target hit
 class spell_gluth_zombiechow_search : public SpellScript
 {
-    PrepareSpellScript(spell_gluth_zombiechow_search);
-
     void HealForEachTargetHit()
     {
         GetCaster()->ModifyHealth(int32(GetCaster()->CountPctFromMaxHealth(5)));
@@ -385,8 +372,6 @@ struct npc_zombie_chow : public ScriptedAI
                     me->StopMoving();
             }
         }
-        else if (state == STATE_ZOMBIE_NORMAL)
-            DoMeleeAttackIfReady();
     }
 
     void SetData(uint32 id, uint32 value) override
@@ -398,6 +383,7 @@ struct npc_zombie_chow : public ScriptedAI
             {
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AttackStop();
+                me->SetCanMelee(false);
                 me->SetTarget(ObjectGuid::Empty);
                 // at this point, the zombie should be non attacking and non moving.
 
@@ -414,6 +400,7 @@ struct npc_zombie_chow : public ScriptedAI
                 // and loose aggro behavior
                 me->SetReactState(ReactStates::REACT_PASSIVE);
                 me->AttackStop();
+                me->SetCanMelee(false);
                 me->SetTarget(ObjectGuid::Empty);
 
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true); // not sure if this is blizz-like but this is very convenient

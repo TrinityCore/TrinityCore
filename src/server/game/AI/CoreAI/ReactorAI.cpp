@@ -28,8 +28,5 @@ int32 ReactorAI::Permissible(Creature const* creature)
 
 void ReactorAI::UpdateAI(uint32 /*diff*/)
 {
-    if (!UpdateVictim())
-        return;
-
-    DoMeleeAttackIfReady();
+    UpdateVictim();
 }

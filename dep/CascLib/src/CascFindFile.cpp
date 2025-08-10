@@ -38,7 +38,7 @@ static void SupplyFakeFileName(PCASC_FIND_DATA pFindData, PCASC_CKEY_ENTRY pCKey
     // If there is a file data ID, create fake file name
     if(pFindData->dwFileDataId != CASC_INVALID_ID)
     {
-        CascStrPrintf(pFindData->szFileName, _countof(pFindData->szFileName), "FILE%08X.dat", pFindData->dwFileDataId);
+        CascStrPrintf(pFindData->szFileName, _countof(pFindData->szFileName), CASC_FILEID_FORMAT, pFindData->dwFileDataId);
         pFindData->NameType = CascNameDataId;
         return;
     }

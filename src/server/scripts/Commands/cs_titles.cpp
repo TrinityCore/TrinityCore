@@ -74,18 +74,18 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Trinity::StringFormat(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = ChatHandler::PGetParseString(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
         target->SetChosenTitle(titleInfo->MaskID);
 
-        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_CURRENT_RES, *titleId, titleNameStr.c_str(), tNameLink.c_str());
 
         return true;
     }
@@ -107,16 +107,16 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Trinity::StringFormat(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = ChatHandler::PGetParseString(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
         target->SetTitle(titleInfo);
-        handler->PSendSysMessage(LANG_TITLE_ADD_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_ADD_RES, *titleId, titleNameStr.c_str(), tNameLink.c_str());
 
         return true;
     }
@@ -138,7 +138,7 @@ public:
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(titleId);
         if (!titleInfo)
         {
-            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, titleId);
+            handler->PSendSysMessage(LANG_INVALID_TITLE_ID, *titleId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -146,9 +146,9 @@ public:
         target->SetTitle(titleInfo, true);
 
         std::string tNameLink = handler->GetNameLink(target);
-        std::string titleNameStr = Trinity::StringFormat(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
+        std::string titleNameStr = ChatHandler::PGetParseString(target->GetNativeGender() == GENDER_MALE ? titleInfo->Name[handler->GetSessionDbcLocale()] : titleInfo->Name1[handler->GetSessionDbcLocale()], target->GetName());
 
-        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, titleId, titleNameStr.c_str(), tNameLink.c_str());
+        handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, *titleId, titleNameStr.c_str(), tNameLink.c_str());
 
         if (!target->HasTitle(target->m_playerData->PlayerTitle))
         {

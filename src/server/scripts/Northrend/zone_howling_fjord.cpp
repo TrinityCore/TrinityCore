@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -99,8 +100,6 @@ struct npc_daegarn : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustSummoned(Creature* summon) override
@@ -218,8 +217,6 @@ enum SomeAssemblyRequired
 // 43393 - Ping Master
 class spell_fjord_mindless_abomination_ping_master : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_mindless_abomination_ping_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MINDLESS_ABOMINATION_CONTROL });
@@ -239,8 +236,6 @@ class spell_fjord_mindless_abomination_ping_master : public SpellScript
 // 42268 - Quest - Mindless Abomination Explosion FX Master
 class spell_fjord_mindless_abomination_explosion_fx_master : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_mindless_abomination_explosion_fx_master);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(
@@ -309,8 +304,6 @@ std::array<uint32, 11> const CocoonSummonSpells =
 // 43288 - Rivenwood Captives: Player Not On Quest
 class spell_fjord_rivenwood_captives_not_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_rivenwood_captives_not_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells);
@@ -330,8 +323,6 @@ class spell_fjord_rivenwood_captives_not_on_quest : public SpellScript
 // 43287 - Rivenwood Captives: Player On Quest
 class spell_fjord_rivenwood_captives_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_rivenwood_captives_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_SUMMON_FREED_MIST_WHISPER_SCOUT });
@@ -372,8 +363,6 @@ enum TheCleansing
 // 43365 - The Cleansing: Shrine Cast
 class spell_fjord_the_cleansing_shrine_cast : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_cleansing_shrine_cast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RECENT_MEDITATION, SPELL_CLEANSING_SOUL }) &&
@@ -411,8 +400,6 @@ class spell_fjord_the_cleansing_shrine_cast : public SpellScript
 // 43351 - Cleansing Soul
 class spell_fjord_the_cleansing_cleansing_soul : public AuraScript
 {
-    PrepareAuraScript(spell_fjord_the_cleansing_cleansing_soul);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_INNER_TURMOIL, SPELL_RECENT_MEDITATION });
@@ -441,8 +428,6 @@ class spell_fjord_the_cleansing_cleansing_soul : public AuraScript
 // 50217 - The Cleansing: Script Effect Player Cast Mirror Image
 class spell_fjord_the_cleansing_mirror_image_script_effect : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_cleansing_mirror_image_script_effect);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MIRROR_IMAGE_AURA });
@@ -462,8 +447,6 @@ class spell_fjord_the_cleansing_mirror_image_script_effect : public SpellScript
 // 50238 - The Cleansing: Your Inner Turmoil's On Death Cast on Master
 class spell_fjord_the_cleansing_on_death_cast_on_master : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_cleansing_on_death_cast_on_master);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -495,8 +478,6 @@ enum TheWayToHisHeart
 // 21014 - Anuniaq's Net
 class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_way_to_his_heart_anuniaq_net);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_CREATE_TASTY_REEF_FISH, SPELL_FISHED_UP_REEF_SHARK });
@@ -517,8 +498,6 @@ class spell_fjord_the_way_to_his_heart_anuniaq_net : public SpellScript
 // 44455 - The Way to His Heart...: Character Script Effect Reverse Cast
 class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_way_to_his_heart_reverse_cast);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -538,8 +517,6 @@ class spell_fjord_the_way_to_his_heart_reverse_cast : public SpellScript
 // 44462 - The Way to His Heart...: Cast Quest Complete on Master
 class spell_fjord_the_way_to_his_heart_quest_complete : public SpellScript
 {
-    PrepareSpellScript(spell_fjord_the_way_to_his_heart_quest_complete);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -339,8 +340,8 @@ Position const ArenaCenter = { 2134.77f, -262.307f };
 // used for lightning field calculation
 Position const LightningFieldCenter = { 2135.178f, -321.122f };
 
-CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4);
-CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0, true);
+CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4f);
+CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0f, true);
 
 CreatureBoundary const ArenaBoundaries =
 {
@@ -708,7 +709,7 @@ class boss_thorim : public CreatureScript
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetDisableGravity(false);
                             me->SetControlled(false, UNIT_STATE_ROOT);
-                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, me->GetOrientation(), 30.0f, 20.0f);
+                            me->GetMotionMaster()->MoveJump(2134.8f, -263.056f, 419.983f, 30.0f, 20.0f);
                             events.ScheduleEvent(EVENT_START_PERIODIC_CHARGE, 2s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_UNBALANCING_STRIKE, 15s, 0, PHASE_2);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 20s, 0, PHASE_2);
@@ -797,8 +798,6 @@ class boss_thorim : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             void DoAction(int32 action) override
@@ -951,6 +950,8 @@ struct npc_thorim_trashAI : public ScriptedAI
                 _info = &StaticThorimTrashInfo[i];
 
         ASSERT(_info);
+        if (_info->Type == DARK_RUNE_ACOLYTE)
+            me->SetCanMelee(false); // DoSpellAttackIfReady
     }
 
     struct AIHelper
@@ -1100,8 +1101,6 @@ struct npc_thorim_trashAI : public ScriptedAI
 
         if (_info->Type == DARK_RUNE_ACOLYTE)
             DoSpellAttackIfReady(SPELL_HOLY_SMITE);
-        else
-            DoMeleeAttackIfReady();
     }
 
     virtual void ExecuteEvent(uint32 eventId) = 0;
@@ -1148,11 +1147,6 @@ class npc_thorim_pre_phase : public CreatureScript
             {
                 if (Creature* thorim = _instance->GetCreature(DATA_THORIM))
                     thorim->AI()->DoAction(ACTION_INCREASE_PREADDS_COUNT);
-            }
-
-            bool ShouldSparWith(Unit const* target) const override
-            {
-                return !target->GetAffectingPlayer();
             }
 
             void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -1264,7 +1258,7 @@ class npc_thorim_arena_phase : public CreatureScript
 
             void EnterEvadeMode(EvadeReason why) override
             {
-                if (why != EVADE_REASON_NO_HOSTILES && why != EVADE_REASON_BOUNDARY)
+                if (why != EvadeReason::NoHostiles && why != EvadeReason::Boundary)
                     return;
 
                 // this should only happen if theres no alive player in the arena -> summon orb
@@ -1474,8 +1468,6 @@ class npc_runic_colossus : public CreatureScript
 
                 if (!UpdateVictim())
                     return;
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1559,8 +1551,6 @@ class npc_ancient_rune_giant : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-
-                DoMeleeAttackIfReady();
             }
         };
 
@@ -1680,8 +1670,6 @@ class spell_thorim_blizzard_effect : public SpellScriptLoader
 
         class spell_thorim_blizzard_effect_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_thorim_blizzard_effect_AuraScript);
-
             bool CheckAreaTarget(Unit* target)
             {
                 /// @todo: fix this for all dynobj auras
@@ -1721,8 +1709,6 @@ class spell_thorim_frostbolt_volley : public SpellScriptLoader
 
         class spell_thorim_frostbolt_volley_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_frostbolt_volley_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if([](WorldObject* object) -> bool
@@ -1757,8 +1743,6 @@ class spell_thorim_charge_orb : public SpellScriptLoader
 
         class spell_thorim_charge_orb_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_charge_orb_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_LIGHTNING_PILLAR_1 });
@@ -1803,8 +1787,6 @@ class spell_thorim_lightning_charge : public SpellScriptLoader
 
         class spell_thorim_lightning_charge_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_lightning_charge_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_LIGHTNING_CHARGE });
@@ -1843,8 +1825,6 @@ class spell_thorim_arena_leap : public SpellScriptLoader
 
         class spell_thorim_arena_leap_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_arena_leap_SpellScript);
-
             bool Load() override
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -1884,8 +1864,6 @@ class spell_thorim_stormhammer : public SpellScriptLoader
 
         class spell_thorim_stormhammer_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_stormhammer_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_STORMHAMMER_BOOMERANG, SPELL_DEAFENING_THUNDER });
@@ -1942,8 +1920,6 @@ class spell_thorim_stormhammer_sif : public SpellScriptLoader
 
         class spell_thorim_stormhammer_sif_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_stormhammer_sif_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_STORMHAMMER_BOOMERANG, SPELL_SIF_TRANSFORM });
@@ -1984,8 +1960,6 @@ class spell_thorim_stormhammer_boomerang : public SpellScriptLoader
 
         class spell_thorim_stormhammer_boomerang_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_stormhammer_boomerang_SpellScript);
-
             void RecoverHammer(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
@@ -2012,8 +1986,6 @@ class spell_thorim_runic_smash : public SpellScriptLoader
 
         class spell_thorim_runic_smash_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_thorim_runic_smash_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_RUNIC_SMASH });
@@ -2066,8 +2038,6 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
 
         class spell_thorim_activate_lightning_orb_periodic_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_thorim_activate_lightning_orb_periodic_AuraScript);
-
             InstanceScript* instance = nullptr;
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
@@ -2116,7 +2086,7 @@ class condition_thorim_arena_leap : public ConditionScript
 
         bool OnConditionCheck(Condition const* condition, ConditionSourceInfo& sourceInfo) override
         {
-            WorldObject* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
+            WorldObject const* target = sourceInfo.mConditionTargets[condition->ConditionTarget];
             InstanceScript* instance = target->GetInstanceScript();
 
             if (!instance)

@@ -82,19 +82,6 @@ class TC_PROTO_API SubmitReportRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SubmitReportRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SubmitReportRequest& from);
-  void MergeFrom(const SubmitReportRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -197,6 +184,10 @@ class TC_PROTO_API ReportService : public ServiceBase
  public:
 
   explicit ReportService(bool use_original_hash);
+  ReportService(ReportService const&) = delete;
+  ReportService(ReportService&&) = delete;
+  ReportService& operator=(ReportService const&) = delete;
+  ReportService& operator=(ReportService&&) = delete;
   virtual ~ReportService();
 
   typedef std::integral_constant<uint32, 0x3A4218FBu> OriginalHash;
@@ -211,9 +202,7 @@ class TC_PROTO_API ReportService : public ServiceBase
   virtual uint32 HandleSubmitReport(::bgs::protocol::report::v2::SubmitReportRequest const* request, ::bgs::protocol::NoData* response, std::function<void(ServiceBase*, uint32, ::google::protobuf::Message const*)>& continuation);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReportService);
+  void ParseAndHandleSubmitReport(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================

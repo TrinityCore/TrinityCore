@@ -44,8 +44,6 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "SpellAuraEffects.h"
-#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 /*#####
@@ -774,8 +772,6 @@ public:
                 hasTarget = false;
                 return;
             }
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -879,7 +875,7 @@ public:
                 Player* groupMember = nullptr;
 
                 uint8 GroupMemberCount = 0;
-                uint8 DeadMemberCount = 0;
+                //uint8 DeadMemberCount = 0;
                 uint8 FailedMemberCount = 0;
 
                 Group::MemberSlotList const& members = EventGroup->GetMemberSlots();
@@ -896,8 +892,8 @@ public:
                     }
                     ++GroupMemberCount;
 
-                    if (groupMember->isDead())
-                        ++DeadMemberCount;
+                    //if (groupMember->isDead())
+                    //    ++DeadMemberCount;
                 }
 
                 if (GroupMemberCount == FailedMemberCount || !player->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
@@ -1231,6 +1227,7 @@ class go_wind_stone : public GameObjectScript
                     {
                         case GOSSIP_ID_LESSER_WS:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_LESSER_WS);
                             if (rank >= 1) // 1 or 2 or 3
                                 AddGossipItemFor(player, GOSSIP_ID_LESSER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                             else
@@ -1252,6 +1249,7 @@ class go_wind_stone : public GameObjectScript
                         }
                         case GOSSIP_ID_WIND_STONE:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_WIND_STONE);
                             if (rank >= 2) // 2 or 3
                                 AddGossipItemFor(player, GOSSIP_ID_WIND_STONE, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
                             else
@@ -1273,6 +1271,7 @@ class go_wind_stone : public GameObjectScript
                         }
                         case GOSSIP_ID_GREATER_WS:
                         {
+                            InitGossipMenuFor(player, GOSSIP_ID_GREATER_WS);
                             if (rank == 3) // 3
                                 AddGossipItemFor(player, GOSSIP_ID_GREATER_WS, OPTION_ID_WS_RANDOM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                             else
@@ -1429,46 +1428,6 @@ class go_wind_stone : public GameObjectScript
         }
 };
 
-// 24745 - Summon Templar, Trigger
-// 24747 - Summon Templar Fire, Trigger
-// 24757 - Summon Templar Air, Trigger
-// 24759 - Summon Templar Earth, Trigger
-// 24761 - Summon Templar Water, Trigger
-// 24762 - Summon Duke, Trigger
-// 24766 - Summon Duke Fire, Trigger
-// 24769 - Summon Duke Air, Trigger
-// 24771 - Summon Duke Earth, Trigger
-// 24773 - Summon Duke Water, Trigger
-// 24785 - Summon Royal, Trigger
-// 24787 - Summon Royal Fire, Trigger
-// 24791 - Summon Royal Air, Trigger
-// 24792 - Summon Royal Earth, Trigger
-// 24793 - Summon Royal Water, Trigger
-// 46595 - Summon Ice Stone Lieutenant, Trigger
-class spell_silithus_summon_cultist_periodic : public AuraScript
-{
-    PrepareAuraScript(spell_silithus_summon_cultist_periodic);
-
-    bool Validate(SpellInfo const* spellInfo) override
-    {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
-    }
-
-    void PeriodicTick(AuraEffect const* aurEff)
-    {
-        PreventDefaultAction();
-
-        // All these spells trigger a spell that requires reagents; if the
-        // triggered spell is cast as "triggered", reagents are not consumed
-        GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgs(TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST)).SetTriggeringAura(aurEff));
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_silithus_summon_cultist_periodic::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-    }
-};
-
 void AddSC_silithus()
 {
     new go_crystalline_tear();
@@ -1476,5 +1435,4 @@ void AddSC_silithus()
     new npc_anachronos_the_ancient();
     new npc_qiraj_war_spawn();
     new go_wind_stone();
-    RegisterSpellScript(spell_silithus_summon_cultist_periodic);
 }

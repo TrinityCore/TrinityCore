@@ -58,6 +58,19 @@ namespace MMAP
     // contrib/extractor/system.cpp
     // src/game/Map.cpp
 
+    struct OffMeshData
+    {
+        uint32 MapId;
+        uint32 TileX;
+        uint32 TileY;
+        float From[3];
+        float To[3];
+        bool Bidirectional;
+        float Radius;
+        uint8 AreaId;
+        uint16 Flags;
+    };
+
     struct MeshData
     {
         G3D::Array<float> solidVerts;
@@ -83,16 +96,16 @@ namespace MMAP
 
             void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
             bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData);
-            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, char const* offMeshFilePath);
+            void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, std::vector<OffMeshData> const& offMeshConnections);
 
             bool usesLiquids() const { return !m_skipLiquid; }
 
             // vert and triangle methods
-            static void transform(std::vector<G3D::Vector3> &original, std::vector<G3D::Vector3> &transformed,
-                float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position);
-            static void copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest);
-            static void copyIndices(std::vector<VMAP::MeshTriangle> &source, G3D::Array<int> &dest, int offest, bool flip);
-            static void copyIndices(G3D::Array<int> &src, G3D::Array<int> &dest, int offset);
+            static void transform(std::vector<G3D::Vector3> const& source, std::vector<G3D::Vector3>& transformed,
+                float scale, G3D::Matrix3 const& rotation, G3D::Vector3 const& position);
+            static void copyVertices(std::vector<G3D::Vector3> const& source, G3D::Array<float>& dest);
+            static void copyIndices(std::vector<VMAP::MeshTriangle> const& source, G3D::Array<int>& dest, int offset, bool flip);
+            static void copyIndices(G3D::Array<int> const& source, G3D::Array<int>& dest, int offset);
             static void cleanVertices(G3D::Array<float> &verts, G3D::Array<int> &tris);
         private:
             /// Loads a portion of a map's terrain

@@ -173,10 +173,6 @@ class boss_ayamiss : public CreatureScript
                     events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
                     events.CancelEvent(EVENT_POISON_STINGER);
                 }
-                else
-                {
-                    DoMeleeAttackIfReady();
-                }
 
                 if (!_enraged && me->GetHealthPct() < 20.0f)
                 {

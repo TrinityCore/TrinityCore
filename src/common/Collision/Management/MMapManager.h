@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "Hash.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -29,7 +30,7 @@
 namespace MMAP
 {
     typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
-    typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+    typedef std::unordered_map<std::pair<uint32, uint32>, dtNavMeshQuery*> NavMeshQuerySet;
 
     // dummy struct to hold map's mmap data
     struct TC_COMMON_API MMapData
@@ -63,23 +64,19 @@ namespace MMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             bool loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
-            bool loadMapInstance(std::string const& basePath, uint32 mapId, uint32 instanceId);
+            bool loadMapInstance(std::string const& basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
-            bool unloadMapInstance(uint32 mapId, uint32 instanceId);
+            bool unloadMapInstance(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
-            dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
+            dtNavMeshQuery const* GetNavMeshQuery(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             dtNavMesh const* GetNavMesh(uint32 mapId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
         private:
             bool loadMapData(std::string const& basePath, uint32 mapId);
-            bool loadMapImpl(std::string const& basePath, uint32 mapId, int32 x, int32 y);
-            bool loadMapInstanceImpl(std::string const& basePath, uint32 mapId, uint32 instanceId);
-            bool unloadMapImpl(uint32 mapId, int32 x, int32 y);
-            bool unloadMapImpl(uint32 mapId);
             uint32 packTileID(int32 x, int32 y);
 
             MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;
@@ -87,7 +84,6 @@ namespace MMAP
             uint32 loadedTiles;
             bool thread_safe_environment;
 
-            std::unordered_map<uint32, std::vector<uint32>> childMapData;
             std::unordered_map<uint32, uint32> parentMapData;
     };
 }

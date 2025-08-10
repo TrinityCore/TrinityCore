@@ -26,36 +26,18 @@ void Realm::SetName(std::string name)
 {
     Name = name;
     NormalizedName = std::move(name);
-    NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+    std::erase_if(NormalizedName, [](char c) { return std::isspace(static_cast<unsigned char>(c)); });
 }
 
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
 {
-    boost::asio::ip::address realmIp;
+    if (auto addressIndex = Trinity::Net::SelectAddressForClient(clientAddr, Addresses))
+        return Addresses[*addressIndex];
 
-    // Attempt to send best address for client
-    if (clientAddr.is_loopback())
-    {
-        // Try guessing if realm is also connected locally
-        if (LocalAddress->is_loopback() || ExternalAddress->is_loopback())
-            realmIp = clientAddr;
-        else
-        {
-            // Assume that user connecting from the machine that bnetserver is located on
-            // has all realms available in his local network
-            realmIp = *LocalAddress;
-        }
-    }
-    else
-    {
-        if (clientAddr.is_v4() && Trinity::Net::IsInNetwork(LocalAddress->to_v4(), LocalSubnetMask->to_v4(), clientAddr.to_v4()))
-            realmIp = *LocalAddress;
-        else
-            realmIp = *ExternalAddress;
-    }
+    if (Addresses.size() > 1 && clientAddr.is_loopback())
+        return Addresses[1];
 
-    // Return external IP
-    return realmIp;
+    return Addresses[0];
 }
 
 uint32 Realm::GetConfigId() const
@@ -70,10 +52,10 @@ uint32 const Realm::ConfigIdByType[MAX_CLIENT_REALM_TYPE] =
 
 std::string Battlenet::RealmHandle::GetAddressString() const
 {
-    return Trinity::StringFormat("%u-%u-%u", Region, Site, Realm);
+    return Trinity::StringFormat("{}-{}-{}", Region, Site, Realm);
 }
 
 std::string Battlenet::RealmHandle::GetSubRegionAddress() const
 {
-    return Trinity::StringFormat("%u-%u-0", Region, Site);
+    return Trinity::StringFormat("{}-{}-0", Region, Site);
 }

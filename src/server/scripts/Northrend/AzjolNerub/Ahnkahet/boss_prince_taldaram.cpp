@@ -54,7 +54,9 @@ enum PrinceTaldaramMisc
 {
     DATA_EMBRACE_DMG                        = 20000,
     H_DATA_EMBRACE_DMG                      = 40000,
-    SUMMON_GROUP_CONTROLLERS                = 1
+    SUMMON_GROUP_CONTROLLERS                = 1,
+
+    DATA_FLAME_SPHERE_TARGET_GUID           = 0,
 };
 
 enum PrinceTaldaramYells
@@ -123,7 +125,7 @@ struct boss_prince_taldaram : public BossAI
             case NPC_FLAME_SPHERE_1:
             case NPC_FLAME_SPHERE_2:
             case NPC_FLAME_SPHERE_3:
-                summon->AI()->SetGUID(_flameSphereTargetGUID);
+                summon->AI()->SetGUID(_flameSphereTargetGUID, DATA_FLAME_SPHERE_TARGET_GUID);
                 break;
             case NPC_JEDOGA_CONTROLLER:
                 summon->CastSpell(me, SPELL_BEAM_VISUAL);
@@ -150,7 +152,7 @@ struct boss_prince_taldaram : public BossAI
         {
             if (me->GetThreatManager().IsThreatListEmpty(true))
             {
-                EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+                EnterEvadeMode(EvadeReason::NoHostiles);
                 return;
             }
         }
@@ -216,8 +218,6 @@ struct boss_prince_taldaram : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* /*doneBy*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -272,7 +272,7 @@ struct boss_prince_taldaram : public BossAI
 
     void RemovePrison()
     {
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         summons.DespawnEntry(NPC_JEDOGA_CONTROLLER);
         me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
         me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), PrinceTaldaramGroundPositionZ, me->GetOrientation());
@@ -309,8 +309,11 @@ struct npc_prince_taldaram_flame_sphere : public ScriptedAI
         _events.ScheduleEvent(EVENT_DESPAWN, 13s);
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_FLAME_SPHERE_TARGET_GUID)
+            return;
+
         _flameSphereTargetGUID = guid;
     }
 
@@ -410,8 +413,6 @@ struct go_prince_taldaram_sphere : public GameObjectAI
 // 55931 - Conjure Flame Sphere
 class spell_prince_taldaram_conjure_flame_sphere : public SpellScript
 {
-    PrepareSpellScript(spell_prince_taldaram_conjure_flame_sphere);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FLAME_SPHERE_SUMMON_1, SPELL_FLAME_SPHERE_SUMMON_2, SPELL_FLAME_SPHERE_SUMMON_3 });
@@ -438,8 +439,6 @@ class spell_prince_taldaram_conjure_flame_sphere : public SpellScript
 // 55895, 59511, 59512 - Flame Sphere Summon
 class spell_prince_taldaram_flame_sphere_summon : public SpellScript
 {
-    PrepareSpellScript(spell_prince_taldaram_flame_sphere_summon);
-
     void SetDest(SpellDestination& dest)
     {
         Position offset = { 0.0f, 0.0f, 5.5f, 0.0f };

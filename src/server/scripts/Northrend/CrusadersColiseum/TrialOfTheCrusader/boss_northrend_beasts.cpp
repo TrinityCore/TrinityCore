@@ -215,7 +215,6 @@ struct boss_northrend_beastsAI : public BossAI
         events.SetPhase(PHASE_EVENT);
         summons.DespawnAll();
         me->SetReactState(REACT_PASSIVE);
-        me->SetCombatPulseDelay(0);
         HandleInitialMovement();
     }
 
@@ -248,7 +247,6 @@ struct boss_northrend_beastsAI : public BossAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        me->SetCombatPulseDelay(5);
         me->setActive(true);
         ScheduleTasks();
         HandleInstanceProgress();
@@ -320,8 +318,6 @@ struct boss_northrend_beastsAI : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -358,10 +354,7 @@ struct boss_gormok : public boss_northrend_beastsAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Npc that should keep raid in combat while boss change
                 if (Creature* combatStalker = me->SummonCreature(NPC_BEASTS_COMBAT_STALKER, CombatStalkerPosition))
-                {
                     DoZoneInCombat(combatStalker);
-                    combatStalker->SetCombatPulseDelay(5);
-                }
                 DoZoneInCombat();
                 events.SetPhase(PHASE_COMBAT);
                 DoCastSelf(SPELL_TANKING_GORMOK, true);
@@ -380,7 +373,8 @@ struct boss_gormok : public boss_northrend_beastsAI
                     if (Unit* snobold = me->GetVehicleKit()->GetPassenger(i))
                     {
                         snobold->ExitVehicle();
-                        snobold->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        snobold->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        snobold->SetUninteractible(false);
                         snobold->GetAI()->DoAction(ACTION_DISABLE_FIRE_BOMB);
                         snobold->CastSpell(me, SPELL_JUMP_TO_HAND, true);
                         break;
@@ -442,6 +436,7 @@ struct npc_snobold_vassal : public ScriptedAI
                 break;
             case ACTION_ACTIVE_SNOBOLD:
                 _mountedOnPlayer = true;
+                me->SetCanMelee(true);
                 break;
             default:
                 break;
@@ -467,6 +462,7 @@ struct npc_snobold_vassal : public ScriptedAI
         if (gormok && gormok->IsAlive())
         {
             me->AttackStop();
+            me->SetCanMelee(false);
             _targetGUID.Clear();
             _mountedOnPlayer = false;
             _events.CancelEvent(EVENT_BATTER);
@@ -484,10 +480,12 @@ struct npc_snobold_vassal : public ScriptedAI
         }
         else
         {
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+            me->SetUninteractible(false);
             _events.CancelEvent(EVENT_CHECK_MOUNT);
             _events.CancelEvent(EVENT_FIRE_BOMB);
             me->AttackStop();
+            me->SetCanMelee(true);
             SetCombatMovement(true);
             _gormokDead = true;
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
@@ -548,10 +546,6 @@ struct npc_snobold_vassal : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        // do melee attack only if is in player back or if gormok is dead.
-        if (_mountedOnPlayer || _gormokDead)
-            DoMeleeAttackIfReady();
     }
 
 private:
@@ -666,6 +660,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     {
         Initialize();
         boss_northrend_beastsAI::Reset();
+        me->SetCanMelee(true);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -734,20 +729,18 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
     {
         me->SetReactState(REACT_PASSIVE);
         me->AttackStop();
+        me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
         if (wasMobile)
         {
-            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             DoCastSelf(SPELL_SUBMERGE);
             me->SetSpeedRate(MOVE_RUN, 8.0f);
             DoCastSelf(SPELL_GROUND_VISUAL_0, true);
             events.SetPhase(PHASE_SUBMERGED);
             events.ScheduleEvent(EVENT_EMERGE, 5s, 0, PHASE_SUBMERGED);
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
         else
         {
-            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
             DoCastSelf(SPELL_SUBMERGE_2);
             me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_1);
             me->SetSpeedRate(MOVE_RUN, 1.1111f);
@@ -755,8 +748,11 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             events.SetPhase(PHASE_SUBMERGED);
             me->SetControlled(false, UNIT_STATE_ROOT);
             events.ScheduleEvent(EVENT_EMERGE, 6s, 0, PHASE_SUBMERGED);
-            me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
         }
+
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(true);
+        me->SetCanMelee(false);
         me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionY() + frand(-40.0f, 40.0f), ToCCommonLoc[1].GetPositionZ() + me->GetCollisionHeight());
     }
 
@@ -768,7 +764,8 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         me->RemoveAurasDueToSpell(SPELL_GROUND_VISUAL_0);
         DoCastSelf(SPELL_EMERGE);
         DoCastAOE(SPELL_HATE_TO_ZERO, true);
-        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+        me->SetUninteractible(false);
         me->SetReactState(REACT_AGGRESSIVE);
         if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
             AttackStart(target);
@@ -778,6 +775,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
         {
             me->SetControlled(true, UNIT_STATE_ROOT);
             me->SetDisplayId(modelStationary);
+            me->SetCanMelee(false);
             DoCastSelf(SPELL_GROUND_VISUAL_1, true);
             events.SetPhase(PHASE_STATIONARY);
         }
@@ -786,6 +784,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
             if (Unit* target = me->GetVictim())
                 me->GetMotionMaster()->MoveChase(target);
             me->SetDisplayId(modelMobile);
+            me->SetCanMelee(true);
             events.SetPhase(PHASE_MOBILE);
         }
         wasMobile = !wasMobile;
@@ -801,6 +800,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 {
                     instance->DoCloseDoorOrButton(instance->GetGuidData(DATA_MAIN_GATE));
                     me->SetImmuneToPC(false);
+                    me->SetCanMelee(true);
                     events.SetPhase(PHASE_MOBILE);
                     me->SetReactState(REACT_AGGRESSIVE);
                     DoZoneInCombat();
@@ -864,9 +864,7 @@ struct boss_jormungarAI : public boss_northrend_beastsAI
                 return;
         }
 
-        if (events.IsInPhase(PHASE_MOBILE))
-            DoMeleeAttackIfReady();
-        else
+        if (!events.IsInPhase(PHASE_MOBILE))
             DoCastVictim(spitSpell);
     }
 
@@ -1065,8 +1063,6 @@ struct boss_icehowl : public boss_northrend_beastsAI
 // 66342 - Jump to Hand
 class spell_gormok_jump_to_hand : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_jump_to_hand);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
@@ -1096,8 +1092,6 @@ class spell_gormok_jump_to_hand : public AuraScript
 // 66245 - Ride Vehicle
 class spell_gormok_ride_player : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_ride_player);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -1118,8 +1112,6 @@ class spell_gormok_ride_player : public AuraScript
 // 66406 - Snobolled!
 class spell_gormok_snobolled : public AuraScript
 {
-    PrepareAuraScript(spell_gormok_snobolled);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RIDE_PLAYER });
@@ -1140,8 +1132,6 @@ class spell_gormok_snobolled : public AuraScript
 // 66823, 67618, 67619, 67620 - Paralytic Toxin
 class spell_jormungars_paralytic_toxin : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_paralytic_toxin);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_PARALYSIS });
@@ -1194,8 +1184,6 @@ class spell_jormungars_paralytic_toxin : public AuraScript
 // 66870, 67621, 67622, 67623 - Burning Bile
 class spell_jormungars_burning_bile : public SpellScript
 {
-    PrepareSpellScript(spell_jormungars_burning_bile);
-
     void HandleScriptEffect(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1211,18 +1199,16 @@ class spell_jormungars_burning_bile : public SpellScript
 // 66882 - Slime Pool
 class spell_jormungars_slime_pool : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_slime_pool);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
     }
 
     void PeriodicTick(AuraEffect const* aurEff)
     {
         PreventDefaultAction();
 
-        int32 const radius = static_cast<int32>(((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 10000.f * 2.f / 3.f);
+        float const radius = ((aurEff->GetTickNumber() / 60.f) * 0.9f + 0.1f) * 2.f / 3.f;
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_RADIUS_MOD, radius);
         GetTarget()->CastSpell(nullptr, aurEff->GetSpellEffectInfo().TriggerSpell, args);
@@ -1238,8 +1224,6 @@ class spell_jormungars_slime_pool : public AuraScript
    66823 - Paralytic Toxin */
 class spell_jormungars_snakes_spray : public SpellScript
 {
-    PrepareSpellScript(spell_jormungars_snakes_spray);
-
 public:
     spell_jormungars_snakes_spray(uint32 spellId) : SpellScript(), _spellId(spellId) { }
 
@@ -1265,8 +1249,6 @@ private:
 // 66830 - Paralysis
 class spell_jormungars_paralysis : public AuraScript
 {
-    PrepareAuraScript(spell_jormungars_paralysis);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())
@@ -1286,11 +1268,9 @@ class spell_jormungars_paralysis : public AuraScript
 // 66688 - Arctic Breath
 class spell_icehowl_arctic_breath : public SpellScript
 {
-    PrepareSpellScript(spell_icehowl_arctic_breath);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -1308,8 +1288,6 @@ class spell_icehowl_arctic_breath : public SpellScript
 // 66734 - Trample
 class spell_icehowl_trample : public SpellScript
 {
-    PrepareSpellScript(spell_icehowl_trample);
-
     void CheckTargets(std::list<WorldObject*>& targets)
     {
         Creature* caster = GetCaster()->ToCreature();
@@ -1331,8 +1309,6 @@ class spell_icehowl_trample : public SpellScript
 // 66683 - Massive Crash
 class spell_icehowl_massive_crash : public AuraScript
 {
-    PrepareAuraScript(spell_icehowl_massive_crash);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SURGE_OF_ADRENALINE });

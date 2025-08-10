@@ -147,8 +147,6 @@ public:
             }
             else
                 Revenge_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
         void DoAction(int32 /*param*/) override
@@ -179,6 +177,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, GOSSIP_BLY_MID);
             if (instance->GetData(EVENT_PYRAMID) == PYRAMID_KILLED_ALL_TROLLS)
             {
                 AddGossipItemFor(player, GOSSIP_BLY_MID, GOSSIP_BLY_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -326,7 +325,6 @@ public:
             else
             {
                 me->SetSheath(SHEATH_STATE_MELEE);
-                DoMeleeAttackIfReady();
             }
         }
 
@@ -374,6 +372,7 @@ public:
 
         bool OnGossipHello(Player* player) override
         {
+            InitGossipMenuFor(player, GOSSIP_WEEGLI_MID);
             switch (instance->GetData(EVENT_PYRAMID))
             {
                 case PYRAMID_KILLED_ALL_TROLLS:

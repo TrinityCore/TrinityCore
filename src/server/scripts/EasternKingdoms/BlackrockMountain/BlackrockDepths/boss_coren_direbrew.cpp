@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blackrock_depths.h"
+#include "Containers.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "Group.h"
@@ -206,7 +207,7 @@ struct boss_coren_direbrew : public BossAI
         _JustDied();
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.empty())
         {
             if (Group* group = players.begin()->GetSource()->GetGroup())
                 if (group->isLFGGroup())
@@ -278,8 +279,6 @@ struct boss_coren_direbrew : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -325,10 +324,7 @@ struct npc_coren_direbrew_sisters : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -433,8 +429,6 @@ public:
 // 47691 - Summon Mole Machine Target Picker
 class spell_direbrew_summon_mole_machine_target_picker : public SpellScript
 {
-    PrepareSpellScript(spell_direbrew_summon_mole_machine_target_picker);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MOLE_MACHINE_MINION_SUMMONER });
@@ -454,8 +448,6 @@ class spell_direbrew_summon_mole_machine_target_picker : public SpellScript
 // 47370 - Send Mug Target Picker
 class spell_send_mug_target_picker : public SpellScript
 {
-    PrepareSpellScript(spell_send_mug_target_picker);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
@@ -495,8 +487,6 @@ class spell_send_mug_target_picker : public SpellScript
 // 47344 - Request Second Mug
 class spell_request_second_mug : public SpellScript
 {
-    PrepareSpellScript(spell_request_second_mug);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SEND_SECOND_MUG });
@@ -516,8 +506,6 @@ class spell_request_second_mug : public SpellScript
 // 47369 - Send Mug Control Aura
 class spell_send_mug_control_aura : public AuraScript
 {
-    PrepareAuraScript(spell_send_mug_control_aura);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SEND_MUG_TARGET_PICKER });
@@ -537,8 +525,6 @@ class spell_send_mug_control_aura : public AuraScript
 // 50278 - Barreled Control Aura
 class spell_barreled_control_aura : public AuraScript
 {
-    PrepareAuraScript(spell_barreled_control_aura);
-
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         PreventDefaultAction();
@@ -554,8 +540,6 @@ class spell_barreled_control_aura : public AuraScript
 // 47407 - Direbrew's Disarm (precast)
 class spell_direbrew_disarm : public AuraScript
 {
-    PrepareAuraScript(spell_direbrew_disarm);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DIREBREW_DISARM, SPELL_DIREBREW_DISARM_GROW });

@@ -27,15 +27,15 @@
 
 DoorData const doorData[] =
 {
-    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               DOOR_TYPE_ROOM },
-    { 0,                         0,                            DOOR_TYPE_ROOM } // END
+    { GO_PORTCULLIS_RAZORGORE,    DATA_RAZORGORE_THE_UNTAMED,  EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_VAELASTRASZ,  DATA_VAELASTRAZ_THE_CORRUPT, EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_BROODLORD,    DATA_BROODLORD_LASHLAYER,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FIREMAW,                EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_EBONROC,                EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_THREEDRAGONS, DATA_FLAMEGOR,               EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_CHROMAGGUS,   DATA_CHROMAGGUS,             EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_NEFARIAN,     DATA_NEFARIAN,               EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                         0,                            EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =
@@ -56,6 +56,18 @@ ObjectData const gameObjectData[] =
 {
     { GO_CHROMAGGUS_DOOR,             DATA_GO_CHROMAGGUS_DOOR },
     { 0,                              0                       } //END
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_RAZORGORE_THE_UNTAMED, {{ 610 }} },
+    { DATA_VAELASTRAZ_THE_CORRUPT, {{ 611 }} },
+    { DATA_BROODLORD_LASHLAYER, {{ 612 }} },
+    { DATA_FIREMAW, {{ 613 }} },
+    { DATA_EBONROC, {{ 614 }} },
+    { DATA_FLAMEGOR, {{ 615 }} },
+    { DATA_CHROMAGGUS, {{ 616 }} },
+    { DATA_NEFARIAN, {{ 617 }} }
 };
 
 Position const SummonPosition[8] =
@@ -85,6 +97,7 @@ public:
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, gameObjectData);
+            LoadDungeonEncounterData(encounters);
 
             // Razorgore
             EggCount = 0;

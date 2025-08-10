@@ -47,6 +47,7 @@ class FloatFieldRestriction;
 class StringFieldRestriction;
 class EntityIdRestriction;
 class MessageFieldRestriction;
+class SDKFieldOptions;
 
 enum EntityIdRestriction_Kind {
   EntityIdRestriction_Kind_ANY = 0,
@@ -120,19 +121,6 @@ class TC_PROTO_API BGSFieldOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   BGSFieldOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const BGSFieldOptions& from);
-  void MergeFrom(const BGSFieldOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -256,19 +244,6 @@ class TC_PROTO_API FieldRestriction : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   FieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const FieldRestriction& from);
-  void MergeFrom(const FieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -432,19 +407,6 @@ class TC_PROTO_API RepeatedFieldRestriction : public ::google::protobuf::Message
   // implements Message ----------------------------------------------
 
   RepeatedFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const RepeatedFieldRestriction& from);
-  void MergeFrom(const RepeatedFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -598,19 +560,6 @@ class TC_PROTO_API SignedFieldRestriction : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SignedFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SignedFieldRestriction& from);
-  void MergeFrom(const SignedFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -692,19 +641,6 @@ class TC_PROTO_API UnsignedFieldRestriction : public ::google::protobuf::Message
   // implements Message ----------------------------------------------
 
   UnsignedFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const UnsignedFieldRestriction& from);
-  void MergeFrom(const UnsignedFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -786,19 +722,6 @@ class TC_PROTO_API FloatFieldRestriction : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   FloatFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const FloatFieldRestriction& from);
-  void MergeFrom(const FloatFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -880,19 +803,6 @@ class TC_PROTO_API StringFieldRestriction : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   StringFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StringFieldRestriction& from);
-  void MergeFrom(const StringFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -978,19 +888,6 @@ class TC_PROTO_API EntityIdRestriction : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   EntityIdRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const EntityIdRestriction& from);
-  void MergeFrom(const EntityIdRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1095,19 +992,6 @@ class TC_PROTO_API MessageFieldRestriction : public ::google::protobuf::Message 
   // implements Message ----------------------------------------------
 
   MessageFieldRestriction* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const MessageFieldRestriction& from);
-  void MergeFrom(const MessageFieldRestriction& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1144,6 +1028,72 @@ class TC_PROTO_API MessageFieldRestriction : public ::google::protobuf::Message 
   void InitAsDefaultInstance();
   static MessageFieldRestriction* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class TC_PROTO_API SDKFieldOptions : public ::google::protobuf::Message {
+ public:
+  SDKFieldOptions();
+  virtual ~SDKFieldOptions();
+
+  SDKFieldOptions(const SDKFieldOptions& from);
+
+  inline SDKFieldOptions& operator=(const SDKFieldOptions& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const SDKFieldOptions& default_instance();
+
+  void Swap(SDKFieldOptions* other);
+
+  // implements Message ----------------------------------------------
+
+  SDKFieldOptions* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional bool deprecated_32_bit = 4;
+  inline bool has_deprecated_32_bit() const;
+  inline void clear_deprecated_32_bit();
+  static const int kDeprecated32BitFieldNumber = 4;
+  inline bool deprecated_32_bit() const;
+  inline void set_deprecated_32_bit(bool value);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.SDKFieldOptions)
+ private:
+  inline void set_has_deprecated_32_bit();
+  inline void clear_has_deprecated_32_bit();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  bool deprecated_32_bit_;
+  friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
+  friend void protobuf_AssignDesc_global_5fextensions_2ffield_5foptions_2eproto();
+  friend void protobuf_ShutdownFile_global_5fextensions_2ffield_5foptions_2eproto();
+
+  void InitAsDefaultInstance();
+  static SDKFieldOptions* default_instance_;
+};
 // ===================================================================
 
 // ===================================================================
@@ -1156,6 +1106,10 @@ static const int kValidFieldNumber = 90001;
 TC_PROTO_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
     ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::FieldRestriction >, 11, false >
   valid;
+static const int kSdkFieldOptionsFieldNumber = 90002;
+TC_PROTO_API extern ::google::protobuf::internal::ExtensionIdentifier< ::google::protobuf::FieldOptions,
+    ::google::protobuf::internal::MessageTypeTraits< ::bgs::protocol::SDKFieldOptions >, 11, false >
+  sdk_field_options;
 
 // ===================================================================
 
@@ -2430,6 +2384,34 @@ inline void MessageFieldRestriction::set_needed(bool value) {
   set_has_needed();
   needed_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.MessageFieldRestriction.needed)
+}
+
+// -------------------------------------------------------------------
+
+// SDKFieldOptions
+
+// optional bool deprecated_32_bit = 4;
+inline bool SDKFieldOptions::has_deprecated_32_bit() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void SDKFieldOptions::set_has_deprecated_32_bit() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void SDKFieldOptions::clear_has_deprecated_32_bit() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void SDKFieldOptions::clear_deprecated_32_bit() {
+  deprecated_32_bit_ = false;
+  clear_has_deprecated_32_bit();
+}
+inline bool SDKFieldOptions::deprecated_32_bit() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKFieldOptions.deprecated_32_bit)
+  return deprecated_32_bit_;
+}
+inline void SDKFieldOptions::set_deprecated_32_bit(bool value) {
+  set_has_deprecated_32_bit();
+  deprecated_32_bit_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKFieldOptions.deprecated_32_bit)
 }
 
 // @@protoc_insertion_point(namespace_scope)

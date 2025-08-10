@@ -96,7 +96,7 @@ class MPSCQueueIntrusive
     using Atomic = std::atomic<T*>;
 
 public:
-    MPSCQueueIntrusive() : _dummyPtr(reinterpret_cast<T*>(_dummy.data())), _head(_dummyPtr), _tail(_dummyPtr)
+    MPSCQueueIntrusive() : _dummy(), _dummyPtr(reinterpret_cast<T*>(_dummy.data())), _head(_dummyPtr), _tail(_dummyPtr)
     {
         // _dummy is constructed from raw byte array and is intentionally left uninitialized (it might not be default constructible)
         // so we init only its IntrusiveLink here

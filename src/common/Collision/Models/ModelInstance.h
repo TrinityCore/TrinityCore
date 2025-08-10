@@ -18,12 +18,12 @@
 #ifndef _MODELINSTANCE_H_
 #define _MODELINSTANCE_H_
 
-#include <G3D/Matrix3.h>
-#include <G3D/Vector3.h>
-#include <G3D/AABox.h>
-#include <G3D/Ray.h>
-
 #include "Define.h"
+#include <memory>
+#include <G3D/AABox.h>
+#include <G3D/Matrix3.h>
+#include <G3D/Ray.h>
+#include <G3D/Vector3.h>
 
 namespace VMAP
 {
@@ -32,11 +32,10 @@ namespace VMAP
     struct LocationInfo;
     enum class ModelIgnoreFlags : uint32;
 
-    enum ModelFlags
+    enum ModelInstanceFlags
     {
-        MOD_M2 = 1,
-        MOD_HAS_BOUND = 1 << 1,
-        MOD_PARENT_SPAWN = 1 << 2
+        MOD_HAS_BOUND       = 1 << 0,
+        MOD_PARENT_SPAWN    = 1 << 1
     };
 
     struct ModelMinimalData
@@ -70,19 +69,21 @@ namespace VMAP
     class TC_COMMON_API ModelInstance : public ModelMinimalData
     {
         public:
-            ModelInstance() : iInvScale(0.0f), iModel(nullptr) { }
-            ModelInstance(ModelSpawn const& spawn, WorldModel* model);
+            ModelInstance() : iInvScale(0.0f), iModel(nullptr), referencingTiles(0) { }
+            ModelInstance(ModelSpawn const& spawn, std::shared_ptr<WorldModel> model);
             void setUnloaded() { iModel = nullptr; }
             bool intersectRay(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
-            void intersectPoint(G3D::Vector3 const& p, AreaInfo& info) const;
             bool GetLocationInfo(G3D::Vector3 const& p, LocationInfo& info) const;
             bool GetLiquidLevel(G3D::Vector3 const& p, LocationInfo& info, float& liqHeight) const;
-            G3D::Matrix3 const& GetInvRot() { return iInvRot; }
-            WorldModel* getWorldModel() { return iModel; }
+            G3D::Matrix3 const& GetInvRot() const { return iInvRot; }
+            WorldModel const* getWorldModel() const { return iModel.get(); }
+            void AddTileReference() { ++referencingTiles; }
+            uint32 RemoveTileReference() { return --referencingTiles; }
         protected:
             G3D::Matrix3 iInvRot;
             float iInvScale;
-            WorldModel* iModel;
+            std::shared_ptr<WorldModel> iModel;
+            uint32 referencingTiles;
     };
 } // namespace VMAP
 

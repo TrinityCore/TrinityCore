@@ -124,6 +124,8 @@ enum GrimstoneTexts
     SAY_TEXT6          = 5
 };
 
+static constexpr uint32 PATH_ESCORT_GRIMSTONE = 80770;
+
 /// @todo implement quest part of event (different end boss)
 class npc_grimstone : public CreatureScript
 {
@@ -226,7 +228,6 @@ public:
                     Event_Timer = 5000;
                     break;
                 case 5:
-                    instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
                     instance->SetData(TYPE_RING_OF_LAW, DONE);
                     TC_LOG_DEBUG("scripts", "npc_grimstone: event reached end and set complete.");
                     break;
@@ -287,7 +288,8 @@ public:
                     case 0:
                         Talk(SAY_TEXT5);
                         HandleGameObject(DATA_ARENA4, false);
-                        Start(false, false);
+                        LoadPath(PATH_ESCORT_GRIMSTONE);
+                        Start(false);
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
@@ -370,9 +372,9 @@ public:
         return GetBlackrockDepthsAI<npc_phalanxAI>(creature);
     }
 
-    struct npc_phalanxAI : public ScriptedAI
+    struct npc_phalanxAI : public BossAI
     {
-        npc_phalanxAI(Creature* creature) : ScriptedAI(creature)
+        npc_phalanxAI(Creature* creature) : BossAI(creature, BOSS_PHALANX)
         {
             Initialize();
         }
@@ -390,6 +392,7 @@ public:
 
         void Reset() override
         {
+            _Reset();
             Initialize();
         }
 
@@ -422,8 +425,6 @@ public:
                 DoCastVictim(SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 10000;
             } else MightyBlow_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 };
@@ -468,6 +469,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 
             bool OnGossipHello(Player* player) override
             {
+                InitGossipMenuFor(player, GOSSIP_ITEM_SHOW_ACCESS_MID);
                 if (me->IsQuestGiver())
                     player->PrepareQuestMenu(me->GetGUID());
 
@@ -478,7 +480,7 @@ class npc_lokhtos_darkbargainer : public CreatureScript
                     !player->HasItemCount(ITEM_THRORIUM_BROTHERHOOD_CONTRACT, 1, true) &&
                     player->HasItemCount(ITEM_SULFURON_INGOT))
                 {
-                    AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                    AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_ITEM_GET_CONTRACT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
                 }
 
                 if (player->GetReputationRank(59) < REP_FRIENDLY)
@@ -501,7 +503,8 @@ enum Rocknot
 {
     SAY_GOT_BEER       = 0,
     QUEST_ALE          = 4295,
-    SPELL_DRUNKEN_RAGE = 14872
+    SPELL_DRUNKEN_RAGE = 14872,
+    PATH_ESCORT_ROCKNOT = 76026
 };
 
 class npc_rocknot : public CreatureScript
@@ -617,7 +620,8 @@ public:
                     Talk(SAY_GOT_BEER);
                     DoCastSelf(SPELL_DRUNKEN_RAGE, false);
 
-                    Start(false, false);
+                    LoadPath(PATH_ESCORT_ROCKNOT);
+                    Start(false);
                 }
             }
         }

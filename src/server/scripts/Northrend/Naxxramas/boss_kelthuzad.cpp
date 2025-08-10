@@ -159,11 +159,11 @@ static inline Position const& GetRandomMinionSpawnPoint()
 // uniformly distribute on the circle
 static Position GetRandomPositionOnCircle(Position const& center, float radius)
 {
-    double angle = rand_norm() * 2.0 * M_PI;
-    double relDistance = rand_norm() + rand_norm();
+    float angle = float(M_PI * rand_norm() * 2.0);
+    float relDistance = rand_norm() + rand_norm();
     if (relDistance > 1)
         relDistance = 1 - relDistance;
-    return Position(center.GetPositionX() + std::sin(angle)*relDistance*radius, center.GetPositionY() + std::cos(angle)*relDistance*radius, center.GetPositionZ());
+    return Position(center.GetPositionX() + std::sin(angle) * relDistance * radius, center.GetPositionY() + std::cos(angle) * relDistance * radius, center.GetPositionZ());
 }
 
 class KelThuzadCharmedPlayerAI : public SimpleCharmedPlayerAI
@@ -223,7 +223,7 @@ struct boss_kelthuzad : public BossAI
                 return;
             _Reset();
             me->SetReactState(REACT_PASSIVE);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetImmuneToPC(true);
             _skeletonCount = 0;
             _bansheeCount = 0;
@@ -338,7 +338,7 @@ struct boss_kelthuzad : public BossAI
                             me->GetCreatureListWithEntryInGrid(skeletons, NPC_SKELETON2, 200.0f);
                             if (skeletons.empty())
                             { // prevent UB
-                                EnterEvadeMode(EVADE_REASON_OTHER);
+                                EnterEvadeMode(EvadeReason::Other);
                                 return;
                             }
                             std::list<Creature*>::iterator it = skeletons.begin();
@@ -428,7 +428,7 @@ struct boss_kelthuzad : public BossAI
                     case EVENT_PHASE_TWO:
                         me->CastStop();
                         events.SetPhase(PHASE_TWO);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         me->SetImmuneToPC(false);
                         ResetThreatList();
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -508,8 +508,6 @@ struct boss_kelthuzad : public BossAI
                 DoCastVictim(SPELL_FROSTBOLT_SINGLE);
                 _frostboltCooldown = 3 * IN_MILLISECONDS;
             }
-            else
-                DoMeleeAttackIfReady();
         }
 
         uint32 GetData(uint32 data) const override
@@ -594,7 +592,7 @@ struct npc_kelthuzad_minionAI : public ScriptedAI
         {
             ScriptedAI::EnterEvadeMode(why);
             if (Creature* kelThuzad = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_KELTHUZAD)))
-                kelThuzad->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+                kelThuzad->AI()->EnterEvadeMode(EvadeReason::Other);
         }
 
         void JustEngagedWith(Unit* who) override
@@ -691,8 +689,6 @@ struct npc_kelthuzad_skeleton : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -706,8 +702,6 @@ struct npc_kelthuzad_banshee : public npc_kelthuzad_minionAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -729,8 +723,6 @@ struct npc_kelthuzad_abomination : public npc_kelthuzad_minionAI
         }
         else
             _woundTimer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* killer) override
@@ -756,7 +748,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
                     me->SetVisible(false);
                     me->SetHomePosition(me->GetPosition());
                     DoZoneInCombat();
-                    me->SetCombatPulseDelay(5);
                     _visibilityTimer =  2 * IN_MILLISECONDS;
                     _bloodTapTimer   = 25 * IN_MILLISECONDS;
                     break;
@@ -789,7 +780,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
 
         void Reset() override
         {
-            me->SetCombatPulseDelay(0);
             ScriptedAI::Reset();
         }
 
@@ -817,8 +807,6 @@ struct npc_kelthuzad_guardian : public ScriptedAI
             }
             else
                 _bloodTapTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
 
     private:
@@ -856,8 +844,6 @@ private:
 // 28410 - Chains of Kel'Thuzad
 class spell_kelthuzad_chains : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_chains);
-
     void HandleApply(AuraEffect const* aurEff, AuraEffectHandleModes mode)
     {
         aurEff->HandleAuraModScale(GetTargetApplication(), mode, true);
@@ -878,8 +864,6 @@ class spell_kelthuzad_chains : public AuraScript
 // 27819 - Detonate Mana
 class spell_kelthuzad_detonate_mana : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_detonate_mana);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MANA_DETONATION_DAMAGE });
@@ -908,8 +892,6 @@ class spell_kelthuzad_detonate_mana : public AuraScript
 // 27808 - Frost Blast
 class spell_kelthuzad_frost_blast : public AuraScript
 {
-    PrepareAuraScript(spell_kelthuzad_frost_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FROST_BLAST_DMG });

@@ -24,8 +24,8 @@
 
 namespace VMAP
 {
-    const char VMAP_MAGIC[] = "VMAP_4.B";
-    const char RAW_VMAP_MAGIC[] = "VMAP04B";                // used in extracted vmap files with raw data
+    const char VMAP_MAGIC[] = "VMAP_4.D";
+    const char RAW_VMAP_MAGIC[] = "VMAP04D";                // used in extracted vmap files with raw data
     const char GAMEOBJECT_MODELS[] = "GameObjectModels.dtree";
 
     // defined in VMapManager2.cpp currently...

@@ -16,6 +16,7 @@
  */
 
 #include "NGrid.h"
+#include "GridDefines.h"
 #include "Random.h"
 
 GridInfo::GridInfo() : i_timer(0), vis_Update(0, irand(0, DEFAULT_VISIBILITY_NOTIFY_PERIOD)),
@@ -27,3 +28,9 @@ GridInfo::GridInfo(time_t expiry, bool unload /*= true */) : i_timer(expiry), vi
     i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload)
 {
 }
+
+template class Grid<WorldTypeMapContainer, GridTypeMapContainer>;
+template class NGrid<MAX_NUMBER_OF_CELLS, WorldTypeMapContainer, GridTypeMapContainer>;
+
+template struct TC_GAME_API TypeListContainer<GridRefManagerContainer, GameObject, Creature/*except pets*/, DynamicObject, Corpse/*Bones*/, AreaTrigger, SceneObject, Conversation>;
+template struct TC_GAME_API TypeListContainer<GridRefManagerContainer, Player, Creature/*pets*/, Corpse/*resurrectable*/, DynamicObject/*farsight target*/>;

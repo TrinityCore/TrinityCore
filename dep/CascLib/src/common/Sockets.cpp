@@ -13,27 +13,49 @@
 #include "../CascLib.h"
 #include "../CascCommon.h"
 
+#ifdef CASCLIB_PLATFORM_WINDOWS
+#include <ws2tcpip.h>
+#endif
+
 //-----------------------------------------------------------------------------
 // Local variables
 
+#define BUFFER_INITIAL_SIZE 0x8000
+
+#ifndef INVALID_SOCKET
+#define INVALID_SOCKET (SOCKET)(-1)             // Not defined in Linux
+#endif
+
 CASC_SOCKET_CACHE SocketCache;
+
+//-----------------------------------------------------------------------------
+// Conversion functions
+
+static SOCKET inline HandleToSocket(HANDLE sock)
+{
+    return (SOCKET)(intptr_t)(sock);
+}
+
+static HANDLE inline SocketToHandle(SOCKET sock)
+{
+    return (HANDLE)(intptr_t)(sock);
+}
 
 //-----------------------------------------------------------------------------
 // CASC_SOCKET functions
 
 // Guarantees that there is zero terminator after the response
-char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, size_t * PtrLength)
+char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, CASC_MIME_RESPONSE & MimeResponse)
 {
-    CASC_MIME_HTTP HttpInfo;
+    char * new_server_response = NULL;
     char * server_response = NULL;
     size_t total_received = 0;
-    size_t block_increment = 0x8000;
-    size_t buffer_size = block_increment;
+    size_t buffer_length = BUFFER_INITIAL_SIZE;
+    size_t buffer_delta = BUFFER_INITIAL_SIZE;
+    DWORD dwErrCode = ERROR_SUCCESS;
     int bytes_received = 0;
 
     // Pre-set the result length
-    if(PtrLength != NULL)
-        PtrLength[0] = 0;
     if(request_length == 0)
         request_length = strlen(request);
 
@@ -42,10 +64,10 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
 
     // Send the request to the remote host. On Linux, this call may send signal(SIGPIPE),
     // we need to prevend that by using the MSG_NOSIGNAL flag. On Windows, it fails normally.
-    while(send(sock, request, (int)request_length, MSG_NOSIGNAL) == SOCKET_ERROR)
+    while(send(HandleToSocket(sock), request, (int)request_length, MSG_NOSIGNAL) == SOCKET_ERROR)
     {
         // If the connection was closed by the remote host, we try to reconnect
-        if(ReconnectAfterShutdown(sock, remoteItem) == INVALID_SOCKET)
+        if(ReconnectAfterShutdown(sock, remoteItem) == SocketToHandle(INVALID_SOCKET))
         {
             SetCascError(ERROR_NETWORK_NOT_AVAILABLE);
             CascUnlock(Lock);
@@ -54,44 +76,88 @@ char * CASC_SOCKET::ReadResponse(const char * request, size_t request_length, si
     }
 
     // Allocate buffer for server response. Allocate one extra byte for zero terminator
-    if((server_response = CASC_ALLOC<char>(buffer_size + 1)) != NULL)
+    if((server_response = CASC_ALLOC_ZERO<char>(buffer_length + 1)) != NULL)
     {
+        // Keep working until the response parser says it's finished
         for(;;)
         {
             // Reallocate the buffer size, if needed
-            if(total_received == buffer_size)
+            if(total_received == buffer_length)
             {
-                if((server_response = CASC_REALLOC(char, server_response, buffer_size + block_increment + 1)) == NULL)
+                // Reallocate the buffer. Note that if this fails, the old buffer remains valid
+                if((new_server_response = CASC_REALLOC(server_response, buffer_length + buffer_delta + 1)) == NULL)
                 {
-                    SetCascError(ERROR_NOT_ENOUGH_MEMORY);
-                    CascUnlock(Lock);
-                    return NULL;
+                    dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+                    CASC_FREE(server_response);
+                    break;
                 }
-                buffer_size += block_increment;
+
+                // Setup the new buffer
+                server_response = new_server_response;
+                buffer_length += buffer_delta;
+                buffer_delta = BUFFER_INITIAL_SIZE;
             }
 
             // Receive the next part of the response, up to buffer size
             // Return value 0 means "connection closed", -1 means an error
-            bytes_received = recv(sock, server_response + total_received, (int)(buffer_size - total_received), 0);
+            bytes_received = recv(HandleToSocket(sock), server_response + total_received, (int)(buffer_length - total_received), 0);
             if(bytes_received <= 0)
+            {
+                MimeResponse.ParseResponse(server_response, total_received, true);
                 break;
+            }
+
+            // Verify buffer overflow
+            if((total_received + bytes_received) < total_received)
+            {
+                dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+                break;
+            }
 
             // Append the number of bytes received. Also terminate response with zero
             total_received += bytes_received;
             server_response[total_received] = 0;
 
-            // On a HTTP protocol, we need to check whether we received all data
-            if(HttpInfo.IsDataComplete(server_response, total_received))
+            // Parse the MIME response
+            if(MimeResponse.ParseResponse(server_response, total_received, false))
                 break;
+
+            // If we know the content length (HTTP only), we temporarily increment
+            // the buffer delta. This will make next reallocation to make buffer
+            // large enough to prevent abundant reallocations and memory memcpy's
+            if(MimeResponse.clength_presence == FieldPresencePresent && MimeResponse.content_length != CASC_INVALID_SIZE_T)
+            {
+                // Calculate the final length of the buffer, including the terminating EOLs
+                size_t content_end = MimeResponse.content_offset + MimeResponse.content_length + 2;
+
+                // Check for maximum file size
+                if(content_end > CASC_MAX_ONLINE_FILE_SIZE)
+                {
+                    dwErrCode = ERROR_NOT_ENOUGH_MEMORY;
+                    break;
+                }
+
+                // Estimate the total buffer size
+                if(content_end > buffer_length)
+                {
+                    buffer_delta = content_end - buffer_length;
+                }
+            }
         }
     }
 
     // Unlock the socket
     CascUnlock(Lock);
 
+    // Low memory condition: Delete the server response
+    if(dwErrCode != ERROR_SUCCESS)
+    {
+        CASC_FREE(server_response);
+        SetCascError(dwErrCode);
+        total_received = 0;
+    }
+
     // Give the result to the caller
-    if(PtrLength != NULL)
-        PtrLength[0] = total_received;
     return server_response;
 }
 
@@ -143,7 +209,7 @@ DWORD CASC_SOCKET::GetAddrInfoWrapper(const char * hostName, unsigned portNum, P
                 continue;
             }
 #endif
-            case EAI_AGAIN:             // Temporary error, try again
+            case (DWORD)EAI_AGAIN:             // Temporary error, try again
                 continue;
 
             default:                    // Any other result, incl. ERROR_SUCCESS
@@ -152,28 +218,28 @@ DWORD CASC_SOCKET::GetAddrInfoWrapper(const char * hostName, unsigned portNum, P
     }
 }
 
-SOCKET CASC_SOCKET::CreateAndConnect(addrinfo * remoteItem)
+HANDLE CASC_SOCKET::CreateAndConnect(PADDRINFO remoteItem)
 {
     SOCKET sock;
 
     // Create new socket
-    // On error, returns returns INVALID_SOCKET (-1) on Windows, -1 on Linux
+    // On error, returns returns INVALID_SOCKET (0 on Windows, -1 on Linux)
     if((sock = socket(remoteItem->ai_family, remoteItem->ai_socktype, remoteItem->ai_protocol)) > 0)
     {
         // Connect to the remote host
         // On error, returns SOCKET_ERROR (-1) on Windows, -1 on Linux
         if(connect(sock, remoteItem->ai_addr, (int)remoteItem->ai_addrlen) == 0)
-            return sock;
+            return SocketToHandle(sock);
 
-        // Failed. Close the socket and return 0
+        // Failed. Close the socket and return INVALID_SOCKET
         closesocket(sock);
         sock = INVALID_SOCKET;
     }
 
-    return sock;
+    return SocketToHandle(sock);
 }
 
-SOCKET CASC_SOCKET::ReconnectAfterShutdown(SOCKET & sock, addrinfo * remoteItem)
+HANDLE CASC_SOCKET::ReconnectAfterShutdown(HANDLE & sock, PADDRINFO remoteItem)
 {
     // Retrieve the error code related to previous socket operation
     switch(GetSockError())
@@ -182,8 +248,8 @@ SOCKET CASC_SOCKET::ReconnectAfterShutdown(SOCKET & sock, addrinfo * remoteItem)
         case WSAECONNRESET: // Windows
         {
             // Close the old socket
-            if(sock != INVALID_SOCKET)
-                closesocket(sock);
+            if(sock != SocketToHandle(INVALID_SOCKET))
+                closesocket(HandleToSocket(sock));
 
             // Attempt to reconnect
             sock = CreateAndConnect(remoteItem);
@@ -192,10 +258,10 @@ SOCKET CASC_SOCKET::ReconnectAfterShutdown(SOCKET & sock, addrinfo * remoteItem)
     }
 
     // Another problem
-    return INVALID_SOCKET;
+    return SocketToHandle(INVALID_SOCKET);
 }
 
-PCASC_SOCKET CASC_SOCKET::New(addrinfo * remoteList, addrinfo * remoteItem, const char * hostName, unsigned portNum, SOCKET sock)
+PCASC_SOCKET CASC_SOCKET::New(PADDRINFO remoteList, PADDRINFO remoteItem, const char * hostName, unsigned portNum, HANDLE sock)
 {
     PCASC_SOCKET pSocket;
     size_t length = strlen(hostName);
@@ -228,7 +294,7 @@ PCASC_SOCKET CASC_SOCKET::Connect(const char * hostName, unsigned portNum)
     addrinfo * remoteList;
     addrinfo * remoteItem;
     addrinfo hints = {0};
-    SOCKET sock;
+    HANDLE sock;
     int nErrCode;
 
     // Retrieve the information about the remote host
@@ -253,7 +319,7 @@ PCASC_SOCKET CASC_SOCKET::Connect(const char * hostName, unsigned portNum)
                 }
 
                 // Close the socket
-                closesocket(sock);
+                closesocket(HandleToSocket(sock));
             }
         }
 
@@ -276,7 +342,7 @@ void CASC_SOCKET::Delete()
 
     // Close the socket, if any
     if(sock != 0)
-        closesocket(sock);
+        closesocket(HandleToSocket(sock));
     sock = 0;
 
     // Free the lock
@@ -428,7 +494,7 @@ PCASC_SOCKET sockets_connect(const char * hostName, unsigned portNum)
         pSocket = CASC_SOCKET::Connect(hostName, portNum);
 
         // Insert it to the cache, if it's a HTTP connection
-        if(pSocket->portNum == CASC_PORT_HTTP)
+        if(pSocket != NULL && pSocket->portNum == CASC_PORT_HTTP)
             pSocket = SocketCache.InsertSocket(pSocket);
     }
 

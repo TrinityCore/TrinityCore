@@ -40,6 +40,8 @@ enum class TimeFormat : uint8
 
 namespace Trinity
 {
+    TC_COMMON_API void VerifyOsVersion();
+
     TC_COMMON_API std::vector<std::string_view> Tokenize(std::string_view str, char sep, bool keepEmpty);
 
     /* this would return string_view into temporary otherwise */
@@ -52,8 +54,11 @@ namespace Trinity
 
 TC_COMMON_API Optional<int64> MoneyStringToMoney(std::string const& moneyString);
 
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
 TC_COMMON_API struct tm* localtime_r(time_t const* time, struct tm *result);
-TC_COMMON_API time_t LocalTimeToUTCTime(time_t time);
+TC_COMMON_API struct tm* gmtime_r(time_t const* time, struct tm *result);
+TC_COMMON_API time_t timegm(struct tm* tm);
+#endif
 TC_COMMON_API time_t GetLocalHourTimestamp(time_t time, uint8 hour, bool onlyAfterTime = true);
 TC_COMMON_API tm TimeBreakdown(time_t t);
 
@@ -93,9 +98,6 @@ inline T RoundToInterval(T& num, T floor, T ceil)
 {
     return num = std::min(std::max(num, floor), ceil);
 }
-
-template <class T>
-inline T square(T x) { return x*x; }
 
 // UTF8 handling
 TC_COMMON_API bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr);
@@ -146,6 +148,27 @@ inline bool isExtendedLatinCharacter(wchar_t wchar)
     return false;
 }
 
+inline bool isLatin1Character(wchar_t wchar)
+{
+    if (isBasicLatinCharacter(wchar))
+        return true;
+    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00D8 && wchar <= 0x00DD)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER Y WITH ACUTE
+        return true;
+    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+        return true;
+    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+        return true;
+    if (wchar >= 0x00F8 && wchar <= 0x00FD)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER Y WITH ACUTE
+        return true;
+    if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
+        return true;
+    if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
+        return true;
+    return false;
+}
+
 inline bool isCyrillicCharacter(wchar_t wchar)
 {
     if (wchar >= 0x0410 && wchar <= 0x044F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC SMALL LETTER YA
@@ -155,23 +178,28 @@ inline bool isCyrillicCharacter(wchar_t wchar)
     return false;
 }
 
-inline bool isEastAsianCharacter(wchar_t wchar)
+inline bool isKoreanCharacter(wchar_t wchar)
 {
     if (wchar >= 0x1100 && wchar <= 0x11F9)                  // Hangul Jamo
         return true;
-    if (wchar >= 0x3041 && wchar <= 0x30FF)                  // Hiragana + Katakana
-        return true;
     if (wchar >= 0x3131 && wchar <= 0x318E)                  // Hangul Compatibility Jamo
-        return true;
-    if (wchar >= 0x31F0 && wchar <= 0x31FF)                  // Katakana Phonetic Ext.
-        return true;
-    if (wchar >= 0x3400 && wchar <= 0x4DB5)                  // CJK Ideographs Ext. A
-        return true;
-    if (wchar >= 0x4E00 && wchar <= 0x9FC3)                  // Unified CJK Ideographs
         return true;
     if (wchar >= 0xAC00 && wchar <= 0xD7A3)                  // Hangul Syllables
         return true;
     if (wchar >= 0xFF01 && wchar <= 0xFFEE)                  // Halfwidth forms
+        return true;
+    return false;
+}
+
+inline bool isChineseCharacter(wchar_t wchar)
+{
+    if (wchar >= 0x4E00 && wchar <= 0x9FFF)                  // Unified CJK Ideographs
+        return true;
+    if (wchar >= 0x3400 && wchar <= 0x4DBF)                  // CJK Ideographs Ext. A
+        return true;
+    if (wchar >= 0x3100 && wchar <= 0x312C)                  // Bopomofo
+        return true;
+    if (wchar >= 0xF900 && wchar <= 0xFAFF)                  // CJK Compatibility Ideographs
         return true;
     return false;
 }
@@ -224,72 +252,89 @@ inline bool isCyrillicString(std::wstring_view wstr, bool numericOrSpace)
     return true;
 }
 
-inline bool isEastAsianString(std::wstring_view wstr, bool numericOrSpace)
+inline bool isKoreanString(std::wstring_view wstr, bool numericOrSpace)
 {
     for (wchar_t c : wstr)
-        if (!isEastAsianCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
+        if (!isKoreanCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
             return false;
     return true;
 }
 
-inline wchar_t wcharToUpper(wchar_t wchar)
+inline bool isChineseString(std::wstring_view wstr, bool numericOrSpace)
 {
-    if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
-        return wchar_t(0x1E9E);
-    if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
+    for (wchar_t c : wstr)
+        if (!isChineseCharacter(c) && (!numericOrSpace || !isNumericOrSpace(c)))
+            return false;
+    return true;
+}
+
+struct WcharToUpper
+{
+    wchar_t operator()(wchar_t wchar) const
     {
-        if (wchar % 2 == 1)
-            return wchar_t(uint16(wchar)-0x0001);
+        if (wchar >= L'a' && wchar <= L'z')                      // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar == 0x00DF)                                     // LATIN SMALL LETTER SHARP S
+            return wchar_t(0x1E9E);
+        if (wchar >= 0x00E0 && wchar <= 0x00F6)                  // LATIN SMALL LETTER A WITH GRAVE - LATIN SMALL LETTER O WITH DIAERESIS
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar >= 0x00F8 && wchar <= 0x00FE)                  // LATIN SMALL LETTER O WITH STROKE - LATIN SMALL LETTER THORN
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar >= 0x0101 && wchar <= 0x012F)                  // LATIN SMALL LETTER A WITH MACRON - LATIN SMALL LETTER I WITH OGONEK (only %2=1)
+        {
+            if (wchar % 2 == 1)
+                return wchar_t(uint16(wchar) - 0x0001);
+        }
+        if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
+            return wchar_t(uint16(wchar) - 0x0020);
+        if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
+            return wchar_t(0x0401);
+        if (wchar == 0x0153)                                     // LATIN SMALL LIGATURE OE
+            return wchar_t(0x0152);
+        if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
+            return wchar_t(0x0178);
+
+        return wchar;
     }
-    if (wchar >= 0x0430 && wchar <= 0x044F)                  // CYRILLIC SMALL LETTER A - CYRILLIC SMALL LETTER YA
-        return wchar_t(uint16(wchar)-0x0020);
-    if (wchar == 0x0451)                                     // CYRILLIC SMALL LETTER IO
-        return wchar_t(0x0401);
-    if (wchar == 0x0153)                                     // LATIN SMALL LIGATURE OE
-        return wchar_t(0x0152);
-    if (wchar == 0x00FF)                                     // LATIN SMALL LETTER Y WITH DIAERESIS
-        return wchar_t(0x0178);
+} inline constexpr wcharToUpper;
 
-    return wchar;
-}
-
-inline wchar_t wcharToUpperOnlyLatin(wchar_t wchar)
+struct WcharToUpperOnlyLatin
 {
-    return isBasicLatinCharacter(wchar) ? wcharToUpper(wchar) : wchar;
-}
-
-inline wchar_t wcharToLower(wchar_t wchar)
-{
-    if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
-        return wchar_t(uint16(wchar)+0x0020);
-    if (wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
+    wchar_t operator()(wchar_t wchar) const
     {
-        if (wchar % 2 == 0)
-            return wchar_t(uint16(wchar)+0x0001);
+        return isBasicLatinCharacter(wchar) ? wcharToUpper(wchar) : wchar;
     }
-    if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
-        return wchar_t(0x00DF);
-    if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
-        return wchar_t(0x0451);
-    if (wchar == 0x0152)                                     // LATIN CAPITAL LIGATURE OE
-        return wchar_t(0x0153);
-    if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
-        return wchar_t(0x00FF);
-    if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
-        return wchar_t(uint16(wchar)+0x0020);
+} inline constexpr wcharToUpperOnlyLatin;
 
-    return wchar;
-}
+struct WcharToLower
+{
+    wchar_t operator()(wchar_t wchar) const
+    {
+        if (wchar >= L'A' && wchar <= L'Z')                      // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x00C0 && wchar <= 0x00D6)                  // LATIN CAPITAL LETTER A WITH GRAVE - LATIN CAPITAL LETTER O WITH DIAERESIS
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x00D8 && wchar <= 0x00DE)                  // LATIN CAPITAL LETTER O WITH STROKE - LATIN CAPITAL LETTER THORN
+            return wchar_t(uint16(wchar)+0x0020);
+        if (wchar >= 0x0100 && wchar <= 0x012E)                  // LATIN CAPITAL LETTER A WITH MACRON - LATIN CAPITAL LETTER I WITH OGONEK (only %2=0)
+        {
+            if (wchar % 2 == 0)
+                return wchar_t(uint16(wchar)+0x0001);
+        }
+        if (wchar == 0x1E9E)                                     // LATIN CAPITAL LETTER SHARP S
+            return wchar_t(0x00DF);
+        if (wchar == 0x0401)                                     // CYRILLIC CAPITAL LETTER IO
+            return wchar_t(0x0451);
+        if (wchar == 0x0152)                                     // LATIN CAPITAL LIGATURE OE
+            return wchar_t(0x0153);
+        if (wchar == 0x0178)                                     // LATIN CAPITAL LETTER Y WITH DIAERESIS
+            return wchar_t(0x00FF);
+        if (wchar >= 0x0410 && wchar <= 0x042F)                  // CYRILLIC CAPITAL LETTER A - CYRILLIC CAPITAL LETTER YA
+            return wchar_t(uint16(wchar)+0x0020);
+
+        return wchar;
+    }
+} inline constexpr wcharToLower;
 
 inline bool isLower(wchar_t wchar)
 {
@@ -309,13 +354,51 @@ inline bool isUpper(wchar_t wchar)
     return !isLower(wchar);
 }
 
-inline char charToUpper(char c) { return std::toupper(c); }
-inline char charToLower(char c) { return std::tolower(c); }
+struct CharToUpper
+{
+    char operator()(char c) const { return std::toupper(static_cast<unsigned char>(c)); }
+} inline constexpr charToUpper;
+
+struct CharToLower
+{
+    char operator()(char c) const { return std::tolower(static_cast<unsigned char>(c)); }
+} inline constexpr charToLower;
 
 TC_COMMON_API void wstrToUpper(std::wstring& str);
 TC_COMMON_API void wstrToLower(std::wstring& str);
 TC_COMMON_API void strToUpper(std::string& str);
 TC_COMMON_API void strToLower(std::string& str);
+
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end bound is known (for example std::array storage)
+ */
+template <typename Iterator>
+struct CStringBoundedSentinel
+{
+    Iterator End;
+    constexpr bool operator==(Iterator itr) const;
+};
+
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator
+ */
+struct CStringSentinel_T
+{
+    template <typename Iterator>
+    inline constexpr bool operator==(Iterator itr) const { return *itr == static_cast<std::iter_value_t<Iterator>>(0); }
+
+    /**
+     * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end of valid memory is known (for example std::array partially filled by the string)
+     */
+    template <typename Iterator>
+    inline constexpr CStringBoundedSentinel<Iterator> Checked(Iterator end) const { return { .End = end }; }
+} inline constexpr CStringSentinel;
+
+template <typename Iterator>
+inline constexpr bool CStringBoundedSentinel<Iterator>::operator==(Iterator itr) const
+{
+    return itr == End || itr == CStringSentinel;
+}
 
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale);
 
@@ -334,8 +417,6 @@ TC_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
 #endif
 
 TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string& str);
-
-TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
@@ -380,11 +461,6 @@ TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
 inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
-template <typename T>
-inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
-{
-    return StringContainsStringI(haystack.second, needle);
-}
 TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
 
 struct StringCompareLessI_T
@@ -392,9 +468,18 @@ struct StringCompareLessI_T
     bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
 };
 
+TC_COMMON_API void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement);
+
+[[nodiscard]] inline std::string StringReplaceAll(std::string_view str, std::string_view text, std::string_view replacement)
+{
+    std::string result(str);
+    StringReplaceAll(&result, text, replacement);
+    return result;
+}
+
 // simple class for not-modifyable list
 template <typename T>
-class HookList final
+class HookList
 {
     private:
         typedef std::vector<T> ContainerType;
@@ -407,7 +492,7 @@ class HookList final
 
         HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(std::move(t));
+            _container.emplace_back(std::move(t));
             return *this;
         }
 
@@ -477,7 +562,7 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 }
 
 template<typename Ret, typename T1, typename... T>
-Ret* Coalesce(T1* first, T*... rest)
+constexpr Ret* Coalesce(T1* first, T*... rest)
 {
     if constexpr (sizeof...(T) > 0)
         return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));
@@ -485,11 +570,24 @@ Ret* Coalesce(T1* first, T*... rest)
         return static_cast<Ret*>(first);
 }
 
-TC_COMMON_API std::string GetTypeName(std::type_info const&);
+namespace Trinity
+{
+namespace Impl
+{
+    TC_COMMON_API std::string GetTypeName(std::type_info const&);
+}
+
 template <typename T>
-std::string GetTypeName() { return GetTypeName(typeid(T)); }
+std::string GetTypeName() { return Impl::GetTypeName(typeid(T)); }
 template <typename T>
-std::enable_if_t<!std::is_same_v<std::decay_t<T>, std::type_info>, std::string> GetTypeName(T&& v) { return GetTypeName(typeid(v)); }
+std::string GetTypeName(T&& v)
+{
+    if constexpr (std::is_same_v<std::remove_cv_t<T>, std::type_info>)
+        return Impl::GetTypeName(v);
+    else
+        return Impl::GetTypeName(typeid(v));
+}
+}
 
 template<typename T>
 struct NonDefaultConstructible

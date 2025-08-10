@@ -28,9 +28,9 @@ BossBoundaryData const boundaries =
 
 DoorData const doorData[] =
 {
-    { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    DOOR_TYPE_PASSAGE },
-    { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           DOOR_TYPE_PASSAGE },
-    { 0,                            0,                          DOOR_TYPE_ROOM    } // END
+    { GO_SKADI_THE_RUTHLESS_DOOR,   DATA_SKADI_THE_RUTHLESS,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_KING_YMIRON_DOOR,          DATA_KING_YMIRON,           EncounterDoorBehavior::OpenWhenDone },
+    { 0,                            0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =
@@ -56,6 +56,14 @@ ObjectData const gameObjectData[] =
     { 0,                            0                           } //END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_SVALA_SORROWGRAVE, {{ 2030 }} },
+    { DATA_GORTOK_PALEHOOF, {{ 2027 }} },
+    { DATA_SKADI_THE_RUTHLESS, {{ 2029 }} },
+    { DATA_KING_YMIRON, {{ 2028 }} }
+};
+
 class instance_utgarde_pinnacle : public InstanceMapScript
 {
     public:
@@ -70,6 +78,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

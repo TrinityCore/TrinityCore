@@ -19,9 +19,8 @@
 #include "Config.h"
 #include "GameTime.h"
 #include "IpAddress.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "Timer.h"
-#include "World.h"
 #include "WorldPacket.h"
 
 #pragma pack(push, 1)
@@ -98,7 +97,10 @@ void PacketLog::Initialize()
             header.Signature[0] = 'P'; header.Signature[1] = 'K'; header.Signature[2] = 'T';
             header.FormatVersion = 0x0301;
             header.SnifferId = 'T';
-            header.Build = realm.Build;
+            if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+                header.Build = currentRealm->Build;
+            else
+                header.Build = 0;
             header.Locale[0] = 'e'; header.Locale[1] = 'n'; header.Locale[2] = 'U'; header.Locale[3] = 'S';
             std::memset(header.SessionKey, 0, sizeof(header.SessionKey));
             header.SniffStartUnixtime = GameTime::GetGameTime();
@@ -135,7 +137,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     header.OptionalData.SocketPort = port;
     std::size_t size = packet.size();
     if (direction == CLIENT_TO_SERVER)
-        size -= 2;
+        size -= 4;
 
     header.Length = size + sizeof(header.Opcode);
     header.Opcode = packet.GetOpcode();
@@ -143,9 +145,9 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     fwrite(&header, sizeof(header), 1, _file);
     if (size)
     {
-        uint8 const* data = packet.contents();
+        uint8 const* data = packet.data();
         if (direction == CLIENT_TO_SERVER)
-            data += 2;
+            data += 4;
         fwrite(data, 1, size, _file);
     }
 

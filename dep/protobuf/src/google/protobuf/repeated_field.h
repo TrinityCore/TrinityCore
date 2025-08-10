@@ -1250,13 +1250,11 @@ namespace internal {
 // This code based on net/proto/proto-array-internal.h by Jeffrey Yasskin
 // (jyasskin@google.com).
 template<typename Element>
-class RepeatedPtrIterator
-    : public std::iterator<
-          std::random_access_iterator_tag, Element> {
+class RepeatedPtrIterator {
  public:
   typedef RepeatedPtrIterator<Element> iterator;
-  typedef std::iterator<
-          std::random_access_iterator_tag, Element> superclass;
+
+  typedef std::random_access_iterator_tag iterator_category;
 
   // Shadow the value_type in std::iterator<> because const_iterator::value_type
   // needs to be T, not const T.
@@ -1264,9 +1262,9 @@ class RepeatedPtrIterator
 
   // Let the compiler know that these are type names, so we don't have to
   // write "typename" in front of them everywhere.
-  typedef typename superclass::reference reference;
-  typedef typename superclass::pointer pointer;
-  typedef typename superclass::difference_type difference_type;
+  typedef Element& reference;
+  typedef Element* pointer;
+  typedef std::ptrdiff_t difference_type;
 
   RepeatedPtrIterator() : it_(NULL) {}
   explicit RepeatedPtrIterator(void* const* it) : it_(it) {}
@@ -1346,12 +1344,11 @@ class RepeatedPtrIterator
 // referenced by the iterator.  It should either be "void *" for a mutable
 // iterator, or "const void *" for a constant iterator.
 template<typename Element, typename VoidPtr>
-class RepeatedPtrOverPtrsIterator
-    : public std::iterator<std::random_access_iterator_tag, Element*> {
+class RepeatedPtrOverPtrsIterator {
  public:
   typedef RepeatedPtrOverPtrsIterator<Element, VoidPtr> iterator;
-  typedef std::iterator<
-          std::random_access_iterator_tag, Element*> superclass;
+
+  typedef std::random_access_iterator_tag iterator_category;
 
   // Shadow the value_type in std::iterator<> because const_iterator::value_type
   // needs to be T, not const T.
@@ -1359,9 +1356,9 @@ class RepeatedPtrOverPtrsIterator
 
   // Let the compiler know that these are type names, so we don't have to
   // write "typename" in front of them everywhere.
-  typedef typename superclass::reference reference;
-  typedef typename superclass::pointer pointer;
-  typedef typename superclass::difference_type difference_type;
+  typedef Element*& reference;
+  typedef Element** pointer;
+  typedef std::ptrdiff_t difference_type;
 
   RepeatedPtrOverPtrsIterator() : it_(NULL) {}
   explicit RepeatedPtrOverPtrsIterator(VoidPtr* it) : it_(it) {}
@@ -1479,9 +1476,13 @@ RepeatedPtrField<Element>::pointer_end() const {
 
 namespace internal {
 // A back inserter for RepeatedField objects.
-template<typename T> class RepeatedFieldBackInsertIterator
-    : public std::iterator<std::output_iterator_tag, T> {
+template<typename T> class RepeatedFieldBackInsertIterator {
  public:
+  typedef std::output_iterator_tag iterator_category;
+  typedef T value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef T* pointer;
+  typedef T& reference;
   explicit RepeatedFieldBackInsertIterator(
       RepeatedField<T>* const mutable_field)
       : field_(mutable_field) {
@@ -1505,9 +1506,13 @@ template<typename T> class RepeatedFieldBackInsertIterator
 };
 
 // A back inserter for RepeatedPtrField objects.
-template<typename T> class RepeatedPtrFieldBackInsertIterator
-    : public std::iterator<std::output_iterator_tag, T> {
+template<typename T> class RepeatedPtrFieldBackInsertIterator {
  public:
+  typedef std::output_iterator_tag iterator_category;
+  typedef T value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef T* pointer;
+  typedef T& reference;
   RepeatedPtrFieldBackInsertIterator(
       RepeatedPtrField<T>* const mutable_field)
       : field_(mutable_field) {
@@ -1537,9 +1542,13 @@ template<typename T> class RepeatedPtrFieldBackInsertIterator
 
 // A back inserter for RepeatedPtrFields that inserts by transfering ownership
 // of a pointer.
-template<typename T> class AllocatedRepeatedPtrFieldBackInsertIterator
-    : public std::iterator<std::output_iterator_tag, T> {
+template<typename T> class AllocatedRepeatedPtrFieldBackInsertIterator {
  public:
+  typedef std::output_iterator_tag iterator_category;
+  typedef T value_type;
+  typedef std::ptrdiff_t difference_type;
+  typedef T* pointer;
+  typedef T& reference;
   explicit AllocatedRepeatedPtrFieldBackInsertIterator(
       RepeatedPtrField<T>* const mutable_field)
       : field_(mutable_field) {

@@ -29,12 +29,13 @@ EndScriptData */
 #include "Config.h"
 #include "Language.h"
 #include "Player.h"
-#include "Realm.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
 
 struct RBACCommandData
 {
+    RBACCommandData(rbac::RBACData* rbac_, bool needDelete_) : rbac(rbac_), needDelete(needDelete_) { }
     RBACCommandData(RBACCommandData const&) = delete;
     ~RBACCommandData()
     {
@@ -82,7 +83,8 @@ public:
         if (account.IsConnected())
             return { account.GetConnectedSession()->GetRBACData(), false };
 
-        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realm.Id.Realm, AccountMgr::GetSecurity(account.GetID(), realm.Id.Realm));
+        uint32 realmId = sRealmList->GetCurrentRealmId().Realm;
+        rbac::RBACData* rbac = new rbac::RBACData(account.GetID(), account.GetName(), realmId, AccountMgr::GetSecurity(account.GetID(), realmId));
         rbac->LoadFromDB();
 
         return { rbac, true };

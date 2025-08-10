@@ -50,9 +50,8 @@ enum OutdoorPvPZMSpells
 
 enum ZMCreatureTypes
 {
-    ZM_ALLIANCE_FIELD_SCOUT = 0,
-    ZM_HORDE_FIELD_SCOUT,
-    ZM_CREATURE_NUM
+    ZM_ALLIANCE_FIELD_SCOUT = 18581,
+    ZM_HORDE_FIELD_SCOUT    = 18564,
 };
 
 enum ZM_BeaconType
@@ -64,8 +63,6 @@ enum ZM_BeaconType
 
 enum OutdoorPvPZMWorldStates
 {
-    ZM_WORLDSTATE_UNK_1 = 2653,
-
     ZM_UI_TOWER_EAST_N = 2560,
     ZM_UI_TOWER_EAST_H = 2559,
     ZM_UI_TOWER_EAST_A = 2558,
@@ -96,19 +93,17 @@ enum ZM_TowerStateMask
     ZM_TOWERSTATE_H = 4
 };
 
-class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
+enum ZM_WorldEvents
 {
-    public:
-        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type);
+    ZM_EVENT_BEACON_EAST_PROGRESS_HORDE     = 11807,
+    ZM_EVENT_BEACON_EAST_PROGRESS_ALLIANCE  = 11806,
+    ZM_EVENT_BEACON_EAST_NEUTRAL_HORDE      = 11814,
+    ZM_EVENT_BEACON_EAST_NEUTRAL_ALLIANCE   = 11815,
 
-        void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
-
-        void UpdateTowerState();
-
-    protected:
-        ZM_BeaconType m_TowerType;
-        uint32 m_TowerState;
+    ZM_EVENT_BEACON_WEST_PROGRESS_HORDE     = 11805,
+    ZM_EVENT_BEACON_WEST_PROGRESS_ALLIANCE  = 11804,
+    ZM_EVENT_BEACON_WEST_NEUTRAL_HORDE      = 11808,
+    ZM_EVENT_BEACON_WEST_NEUTRAL_ALLIANCE   = 11809
 };
 
 enum ZM_GraveyardState
@@ -118,22 +113,61 @@ enum ZM_GraveyardState
     ZM_GRAVEYARD_H = 4
 };
 
+enum ZM_GameObjectEntries
+{
+    ZM_GO_ENTRY_BEACON_WEST = 182522,
+    ZM_GO_ENTRY_BEACON_EAST = 182523
+};
+
+class OutdoorPvPZM;
+
+class ZMControlZoneHandler : public OutdoorPvPControlZoneHandler
+{
+public:
+    ZMControlZoneHandler(OutdoorPvPZM* pvp, uint32 textBeaconTakenHorde, uint32 textBeaconTakenAlliance, uint32 worldstateNeutralUi, uint32 worldstateNeutralMap, uint32 worldstateHordeUi, uint32 worldstateHordeMap, uint32 worldstateAllianceUi, uint32 worldstateAllianceMap);
+
+    void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+    uint32 GetWorldStateNeutralUI() { return _worldstateNeutralUi; }
+    uint32 GetWorldStateNeutralMap() { return _worldstateNeutralMap; }
+    uint32 GetWorldStateHordeUI() { return _worldstateHordeUi; }
+    uint32 GetWorldStateHordeMap() { return _worldstateHordeMap; }
+    uint32 GetWorldStateAllianceUI() { return _worldstateAllianceUi; }
+    uint32 GetWorldStateAllianceMap() { return _worldstateAllianceMap; }
+
+    OutdoorPvPZM* GetOutdoorPvpZM();
+
+private:
+    uint32 _textBeaconTakenHorde;
+    uint32 _textBeaconTakenAlliance;
+    uint32 _worldstateNeutralUi;
+    uint32 _worldstateNeutralMap;
+    uint32 _worldstateHordeUi;
+    uint32 _worldstateHordeMap;
+    uint32 _worldstateAllianceUi;
+    uint32 _worldstateAllianceMap;
+};
+
 class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 {
     public:
         OPvPCapturePointZM_Graveyard(OutdoorPvP* pvp);
 
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void ChangeState() override { }
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         int32 HandleOpenGo(Player* player, GameObject* go) override;
-        bool HandleGossipOption(Player* player, Creature* creature, uint32 gossipid) override;
         bool HandleDropFlag(Player* player, uint32 spellId) override;
-        bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso) override;
 
         void UpdateTowerState();
         void SetBeaconState(uint32 controlling_team); // not good atm
         uint32 GetGraveyardState() const;
+
+        ObjectGuid GetFlagCarrierGUID() const { return m_FlagCarrierGUID; }
+        void SetFlagCarrierGUID(ObjectGuid guid) { m_FlagCarrierGUID = guid; }
 
     protected:
         uint32 m_BothControllingFaction;
@@ -145,13 +179,12 @@ class OPvPCapturePointZM_Graveyard : public OPvPCapturePoint
 class OutdoorPvPZM : public OutdoorPvP
 {
     public:
-        OutdoorPvPZM();
+        OutdoorPvPZM(Map* map);
 
         bool SetupOutdoorPvP() override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-        bool Update(uint32 diff) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
+        void Update(uint32 diff) override;
         void SendRemoveWorldStates(Player* player) override;
         void HandleKillImpl(Player* player, Unit* killed) override;
 
@@ -160,8 +193,10 @@ class OutdoorPvPZM : public OutdoorPvP
         uint32 GetHordeTowersControlled() const;
         void SetHordeTowersControlled(uint32 count);
 
+        OPvPCapturePointZM_Graveyard* GetGraveyard() { return m_Graveyard.get(); }
+
     private:
-        OPvPCapturePointZM_Graveyard* m_Graveyard;
+        std::unique_ptr<OPvPCapturePointZM_Graveyard> m_Graveyard;
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
 };

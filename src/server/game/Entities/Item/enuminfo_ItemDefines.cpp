@@ -115,7 +115,7 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
         case EQUIP_ERR_CANT_EQUIP_RATING: return { "EQUIP_ERR_CANT_EQUIP_RATING", "EQUIP_ERR_CANT_EQUIP_RATING", "You don't have the personal, team, or battleground rating required to buy that item" };
         case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM: return { "EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM", "EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM", "" };
         case EQUIP_ERR_NOT_SAME_ACCOUNT: return { "EQUIP_ERR_NOT_SAME_ACCOUNT", "EQUIP_ERR_NOT_SAME_ACCOUNT", "Account-bound items can only be given to your own characters." };
-        case EQUIP_NONE_3: return { "EQUIP_NONE_3", "EQUIP_NONE_3", "" };
+        case EQUIP_ERR_NONE: return { "EQUIP_ERR_NONE", "EQUIP_ERR_NONE", "" };
         case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS: return { "EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS", "EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS", "You can only carry %d %s" };
         case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS: return { "EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS", "EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS", "You can only equip %d |4item:items in the %s category" };
         case EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED: return { "EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED", "EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED", "Your level is too high to use that item" };
@@ -134,21 +134,40 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
         case EQUIP_ERR_CANT_BE_OBLITERATED: return { "EQUIP_ERR_CANT_BE_OBLITERATED", "EQUIP_ERR_CANT_BE_OBLITERATED", "You can't obliterate that item" };
         case EQUIP_ERR_GUILD_BANK_CONJURED_ITEM: return { "EQUIP_ERR_GUILD_BANK_CONJURED_ITEM", "EQUIP_ERR_GUILD_BANK_CONJURED_ITEM", "You cannot store conjured items in the guild bank" };
         case EQUIP_ERR_BAG_FULL_6: return { "EQUIP_ERR_BAG_FULL_6", "EQUIP_ERR_BAG_FULL_6", "That bag is full." };
-        case EQUIP_ERR_CANT_BE_SCRAPPED: return { "EQUIP_ERR_CANT_BE_SCRAPPED", "EQUIP_ERR_CANT_BE_SCRAPPED", "You can't scrap that item" };
         case EQUIP_ERR_BAG_FULL_7: return { "EQUIP_ERR_BAG_FULL_7", "EQUIP_ERR_BAG_FULL_7", "That bag is full." };
-        case EQUIP_ERR_NOT_IN_PET_BATTLE: return { "EQUIP_ERR_NOT_IN_PET_BATTLE", "EQUIP_ERR_NOT_IN_PET_BATTLE", "You cannot do that while in a pet battle" };
+        case EQUIP_ERR_CANT_BE_SCRAPPED: return { "EQUIP_ERR_CANT_BE_SCRAPPED", "EQUIP_ERR_CANT_BE_SCRAPPED", "You can't scrap that item" };
         case EQUIP_ERR_BAG_FULL_8: return { "EQUIP_ERR_BAG_FULL_8", "EQUIP_ERR_BAG_FULL_8", "That bag is full." };
+        case EQUIP_ERR_NOT_IN_PET_BATTLE: return { "EQUIP_ERR_NOT_IN_PET_BATTLE", "EQUIP_ERR_NOT_IN_PET_BATTLE", "You cannot do that while in a pet battle" };
+        case EQUIP_ERR_BAG_FULL_9: return { "EQUIP_ERR_BAG_FULL_9", "EQUIP_ERR_BAG_FULL_9", "That bag is full." };
         case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return { "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW", "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW", "You can't do that right now." };
         case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return { "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2", "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2", "You can't do that right now." };
         case EQUIP_ERR_NOT_IN_NPE: return { "EQUIP_ERR_NOT_IN_NPE", "EQUIP_ERR_NOT_IN_NPE", "Not available during the tutorial" };
         case EQUIP_ERR_ITEM_COOLDOWN: return { "EQUIP_ERR_ITEM_COOLDOWN", "EQUIP_ERR_ITEM_COOLDOWN", "Item is not ready yet." };
         case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return { "EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND", "EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND", "You can't do that in a rated battleground." };
+        case EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL: return { "EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL", "EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL", "" };
+        case EQUIP_ERR_CANT_BE_RECRAFTED: return { "EQUIP_ERR_CANT_BE_RECRAFTED", "EQUIP_ERR_CANT_BE_RECRAFTED", "You can't recraft that itemv" };
+        case EQUIP_ERR_REAGENTBAG_WRONG_SLOT: return { "EQUIP_ERR_REAGENTBAG_WRONG_SLOT", "EQUIP_ERR_REAGENTBAG_WRONG_SLOT", "Reagent Bags can only be placed in the reagent bag slot." };
+        case EQUIP_ERR_SLOT_ONLY_REAGENTBAG: return { "EQUIP_ERR_SLOT_ONLY_REAGENTBAG", "EQUIP_ERR_SLOT_ONLY_REAGENTBAG", "Only Reagent Bags can be placed in the reagent bag slot." };
+        case EQUIP_ERR_REAGENTBAG_ITEM_TYPE: return { "EQUIP_ERR_REAGENTBAG_ITEM_TYPE", "EQUIP_ERR_REAGENTBAG_ITEM_TYPE", "Only Reagents can be placed in Reagent Bags." };
+        case EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND: return { "EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND", "EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND", "Items that can be refunded can't be bulk sold." };
+        case EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK: return { "EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK", "EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK", "Soulbound items cannot be stored in the Warband Bank." };
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3: return { "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3", "EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3", "You can't do that right now." };
+        case EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK: return { "EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK", "EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK", "Your character cannot complete this action." };
+        case EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS: return { "EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS", "EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS", "You have already purchased the maximum amount of tabs." };
+        case EQUIP_ERR_NO_ACCOUNT_BANK_HERE: return { "EQUIP_ERR_NO_ACCOUNT_BANK_HERE", "EQUIP_ERR_NO_ACCOUNT_BANK_HERE", "You are too far away from a Warband Bank." };
+        case EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK: return { "EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK", "EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK", "Refundable items cannot be stored in the Warband Bank." };
+        case EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK: return { "EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK", "EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK", "You cannot place that in the Warband Bank." };
+        case EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK: return { "EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK", "EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK", "You cannot open this while it is in the Warband Bank." };
+        case EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK: return { "EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK", "EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK", "Items must be moved out of the Warband Bank to be deleted." };
+        case EQUIP_ERR_BANK_NOT_ACCESSIBLE: return { "EQUIP_ERR_BANK_NOT_ACCESSIBLE", "EQUIP_ERR_BANK_NOT_ACCESSIBLE", "This character does not have access to this bank." };
+        case EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM: return { "EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM", "EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM", "You can't trade an item from the Warband bank." };
+        case EQUIP_ERR_ACCOUNT_MONEY_LOCKED: return { "EQUIP_ERR_ACCOUNT_MONEY_LOCKED", "EQUIP_ERR_ACCOUNT_MONEY_LOCKED", "You cannot withdraw or deposit gold from the warband bank currently; please try again later." };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 112; }
+TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 131; }
 
 template <>
 TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index)
@@ -239,7 +258,7 @@ TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index
         case 81: return EQUIP_ERR_CANT_EQUIP_RATING;
         case 82: return EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM;
         case 83: return EQUIP_ERR_NOT_SAME_ACCOUNT;
-        case 84: return EQUIP_NONE_3;
+        case 84: return EQUIP_ERR_NONE;
         case 85: return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS;
         case 86: return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS;
         case 87: return EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED;
@@ -258,15 +277,34 @@ TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index
         case 100: return EQUIP_ERR_CANT_BE_OBLITERATED;
         case 101: return EQUIP_ERR_GUILD_BANK_CONJURED_ITEM;
         case 102: return EQUIP_ERR_BAG_FULL_6;
-        case 103: return EQUIP_ERR_CANT_BE_SCRAPPED;
-        case 104: return EQUIP_ERR_BAG_FULL_7;
-        case 105: return EQUIP_ERR_NOT_IN_PET_BATTLE;
-        case 106: return EQUIP_ERR_BAG_FULL_8;
-        case 107: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW;
-        case 108: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2;
-        case 109: return EQUIP_ERR_NOT_IN_NPE;
-        case 110: return EQUIP_ERR_ITEM_COOLDOWN;
-        case 111: return EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND;
+        case 103: return EQUIP_ERR_BAG_FULL_7;
+        case 104: return EQUIP_ERR_CANT_BE_SCRAPPED;
+        case 105: return EQUIP_ERR_BAG_FULL_8;
+        case 106: return EQUIP_ERR_NOT_IN_PET_BATTLE;
+        case 107: return EQUIP_ERR_BAG_FULL_9;
+        case 108: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW;
+        case 109: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2;
+        case 110: return EQUIP_ERR_NOT_IN_NPE;
+        case 111: return EQUIP_ERR_ITEM_COOLDOWN;
+        case 112: return EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND;
+        case 113: return EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL;
+        case 114: return EQUIP_ERR_CANT_BE_RECRAFTED;
+        case 115: return EQUIP_ERR_REAGENTBAG_WRONG_SLOT;
+        case 116: return EQUIP_ERR_SLOT_ONLY_REAGENTBAG;
+        case 117: return EQUIP_ERR_REAGENTBAG_ITEM_TYPE;
+        case 118: return EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND;
+        case 119: return EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK;
+        case 120: return EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3;
+        case 121: return EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK;
+        case 122: return EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS;
+        case 123: return EQUIP_ERR_NO_ACCOUNT_BANK_HERE;
+        case 124: return EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK;
+        case 125: return EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK;
+        case 126: return EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK;
+        case 127: return EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK;
+        case 128: return EQUIP_ERR_BANK_NOT_ACCESSIBLE;
+        case 129: return EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
+        case 130: return EQUIP_ERR_ACCOUNT_MONEY_LOCKED;
         default: throw std::out_of_range("index");
     }
 }
@@ -360,7 +398,7 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         case EQUIP_ERR_CANT_EQUIP_RATING: return 81;
         case EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM: return 82;
         case EQUIP_ERR_NOT_SAME_ACCOUNT: return 83;
-        case EQUIP_NONE_3: return 84;
+        case EQUIP_ERR_NONE: return 84;
         case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED_IS: return 85;
         case EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED_IS: return 86;
         case EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED: return 87;
@@ -379,15 +417,34 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         case EQUIP_ERR_CANT_BE_OBLITERATED: return 100;
         case EQUIP_ERR_GUILD_BANK_CONJURED_ITEM: return 101;
         case EQUIP_ERR_BAG_FULL_6: return 102;
-        case EQUIP_ERR_CANT_BE_SCRAPPED: return 103;
-        case EQUIP_ERR_BAG_FULL_7: return 104;
-        case EQUIP_ERR_NOT_IN_PET_BATTLE: return 105;
-        case EQUIP_ERR_BAG_FULL_8: return 106;
-        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return 107;
-        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return 108;
-        case EQUIP_ERR_NOT_IN_NPE: return 109;
-        case EQUIP_ERR_ITEM_COOLDOWN: return 110;
-        case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return 111;
+        case EQUIP_ERR_BAG_FULL_7: return 103;
+        case EQUIP_ERR_CANT_BE_SCRAPPED: return 104;
+        case EQUIP_ERR_BAG_FULL_8: return 105;
+        case EQUIP_ERR_NOT_IN_PET_BATTLE: return 106;
+        case EQUIP_ERR_BAG_FULL_9: return 107;
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW: return 108;
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_2: return 109;
+        case EQUIP_ERR_NOT_IN_NPE: return 110;
+        case EQUIP_ERR_ITEM_COOLDOWN: return 111;
+        case EQUIP_ERR_NOT_IN_RATED_BATTLEGROUND: return 112;
+        case EQUIP_ERR_EQUIPABLESPELLS_SLOTS_FULL: return 113;
+        case EQUIP_ERR_CANT_BE_RECRAFTED: return 114;
+        case EQUIP_ERR_REAGENTBAG_WRONG_SLOT: return 115;
+        case EQUIP_ERR_SLOT_ONLY_REAGENTBAG: return 116;
+        case EQUIP_ERR_REAGENTBAG_ITEM_TYPE: return 117;
+        case EQUIP_ERR_CANT_BULK_SELL_ITEM_WITH_REFUND: return 118;
+        case EQUIP_ERR_NO_SOULBOUND_ITEM_IN_ACCOUNT_BANK: return 119;
+        case EQUIP_ERR_CANT_DO_THAT_RIGHT_NOW_3: return 120;
+        case EQUIP_ERR_NO_ACCOUNT_INVENTORY_LOCK: return 121;
+        case EQUIP_ERR_TOO_MANY_ACCOUNT_BANK_TABS: return 122;
+        case EQUIP_ERR_NO_ACCOUNT_BANK_HERE: return 123;
+        case EQUIP_ERR_NO_REFUNDABLE_ITEM_IN_ACCOUNT_BANK: return 124;
+        case EQUIP_ERR_NO_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK: return 125;
+        case EQUIP_ERR_NO_OPEN_IMMEDIATE_CONTAINER_IN_ACCOUNT_BANK: return 126;
+        case EQUIP_ERR_CANT_DELETE_IN_ACCOUNT_BANK: return 127;
+        case EQUIP_ERR_BANK_NOT_ACCESSIBLE: return 128;
+        case EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM: return 129;
+        case EQUIP_ERR_ACCOUNT_MONEY_LOCKED: return 130;
         default: throw std::out_of_range("value");
     }
 }
@@ -467,12 +524,15 @@ TC_API_EXPORT EnumText EnumUtils<SellResult>::ToString(SellResult value)
         case SELL_ERR_UNK: return { "SELL_ERR_UNK", "SELL_ERR_UNK", "nothing appears..." };
         case SELL_ERR_ONLY_EMPTY_BAG: return { "SELL_ERR_ONLY_EMPTY_BAG", "SELL_ERR_ONLY_EMPTY_BAG", "You can only do that with empty bags." };
         case SELL_ERR_CANT_SELL_TO_THIS_MERCHANT: return { "SELL_ERR_CANT_SELL_TO_THIS_MERCHANT", "SELL_ERR_CANT_SELL_TO_THIS_MERCHANT", "You cannot sell items to this merchant." };
+        case SELL_ERR_MUST_REPAIR_DURABILITY: return { "SELL_ERR_MUST_REPAIR_DURABILITY", "SELL_ERR_MUST_REPAIR_DURABILITY", "You must repair that item's durability to use it." };
+        case SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE: return { "SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE", "SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE", "The merchant doesn't want that item. Bring it to the Scrapper to extract Titan Residuum." };
+        case SELL_ERR_INTERNAL_BAG_ERROR: return { "SELL_ERR_INTERNAL_BAG_ERROR", "SELL_ERR_INTERNAL_BAG_ERROR", "Internal Bag Error" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<SellResult>::Count() { return 7; }
+TC_API_EXPORT size_t EnumUtils<SellResult>::Count() { return 10; }
 
 template <>
 TC_API_EXPORT SellResult EnumUtils<SellResult>::FromIndex(size_t index)
@@ -486,6 +546,9 @@ TC_API_EXPORT SellResult EnumUtils<SellResult>::FromIndex(size_t index)
         case 4: return SELL_ERR_UNK;
         case 5: return SELL_ERR_ONLY_EMPTY_BAG;
         case 6: return SELL_ERR_CANT_SELL_TO_THIS_MERCHANT;
+        case 7: return SELL_ERR_MUST_REPAIR_DURABILITY;
+        case 8: return SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE;
+        case 9: return SELL_ERR_INTERNAL_BAG_ERROR;
         default: throw std::out_of_range("index");
     }
 }
@@ -502,6 +565,9 @@ TC_API_EXPORT size_t EnumUtils<SellResult>::ToIndex(SellResult value)
         case SELL_ERR_UNK: return 4;
         case SELL_ERR_ONLY_EMPTY_BAG: return 5;
         case SELL_ERR_CANT_SELL_TO_THIS_MERCHANT: return 6;
+        case SELL_ERR_MUST_REPAIR_DURABILITY: return 7;
+        case SELL_ERR_VENDOR_REFUSE_SCRAPPABLE_AZERITE: return 8;
+        case SELL_ERR_INTERNAL_BAG_ERROR: return 9;
         default: throw std::out_of_range("value");
     }
 }

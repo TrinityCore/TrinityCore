@@ -42,8 +42,9 @@ class SDKServiceOptions;
 
 enum BGSServiceOptions_ServiceType {
   BGSServiceOptions_ServiceType_SERVICE_TYPE_RPC = 0,
-  BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT = 1,
-  BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT_BROADCAST = 2
+  BGSServiceOptions_ServiceType_SERVICE_TYPE_RPC_DIRECT = 1,
+  BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT = 2,
+  BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT_BROADCAST = 3
 };
 TC_PROTO_API bool BGSServiceOptions_ServiceType_IsValid(int value);
 const BGSServiceOptions_ServiceType BGSServiceOptions_ServiceType_ServiceType_MIN = BGSServiceOptions_ServiceType_SERVICE_TYPE_RPC;
@@ -90,19 +91,6 @@ class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   BGSServiceOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const BGSServiceOptions& from);
-  void MergeFrom(const BGSServiceOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -115,6 +103,7 @@ class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
 
   typedef BGSServiceOptions_ServiceType ServiceType;
   static const ServiceType SERVICE_TYPE_RPC = BGSServiceOptions_ServiceType_SERVICE_TYPE_RPC;
+  static const ServiceType SERVICE_TYPE_RPC_DIRECT = BGSServiceOptions_ServiceType_SERVICE_TYPE_RPC_DIRECT;
   static const ServiceType SERVICE_TYPE_EVENT = BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT;
   static const ServiceType SERVICE_TYPE_EVENT_BROADCAST = BGSServiceOptions_ServiceType_SERVICE_TYPE_EVENT_BROADCAST;
   static inline bool ServiceType_IsValid(int value) {
@@ -197,6 +186,13 @@ class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
   inline ::std::string* release_api_type();
   inline void set_allocated_api_type(::std::string* api_type);
 
+  // optional bool is_global = 9;
+  inline bool has_is_global() const;
+  inline void clear_is_global();
+  static const int kIsGlobalFieldNumber = 9;
+  inline bool is_global() const;
+  inline void set_is_global(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.BGSServiceOptions)
  private:
   inline void set_has_descriptor_name();
@@ -211,6 +207,8 @@ class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
   inline void clear_has_type();
   inline void set_has_api_type();
   inline void clear_has_api_type();
+  inline void set_has_is_global();
+  inline void clear_has_is_global();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -219,9 +217,10 @@ class TC_PROTO_API BGSServiceOptions : public ::google::protobuf::Message {
   ::std::string* descriptor_name_;
   ::std::string* shard_name_;
   ::google::protobuf::uint32 version_;
-  bool resolve_client_instance_;
-  ::std::string* api_type_;
   int type_;
+  ::std::string* api_type_;
+  bool resolve_client_instance_;
+  bool is_global_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
@@ -259,19 +258,6 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   SDKServiceOptions* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const SDKServiceOptions& from);
-  void MergeFrom(const SDKServiceOptions& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -305,6 +291,20 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   inline bool use_client_id() const;
   inline void set_use_client_id(bool value);
 
+  // optional bool deprecated_32_bit = 4;
+  inline bool has_deprecated_32_bit() const;
+  inline void clear_deprecated_32_bit();
+  static const int kDeprecated32BitFieldNumber = 4;
+  inline bool deprecated_32_bit() const;
+  inline void set_deprecated_32_bit(bool value);
+
+  // optional bool obsolete = 5;
+  inline bool has_obsolete() const;
+  inline void clear_obsolete();
+  static const int kObsoleteFieldNumber = 5;
+  inline bool obsolete() const;
+  inline void set_obsolete(bool value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.SDKServiceOptions)
  private:
   inline void set_has_inbound();
@@ -313,6 +313,10 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   inline void clear_has_outbound();
   inline void set_has_use_client_id();
   inline void clear_has_use_client_id();
+  inline void set_has_deprecated_32_bit();
+  inline void clear_has_deprecated_32_bit();
+  inline void set_has_obsolete();
+  inline void clear_has_obsolete();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -321,6 +325,8 @@ class TC_PROTO_API SDKServiceOptions : public ::google::protobuf::Message {
   bool inbound_;
   bool outbound_;
   bool use_client_id_;
+  bool deprecated_32_bit_;
+  bool obsolete_;
   friend void TC_PROTO_API protobuf_AddDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_AssignDesc_global_5fextensions_2fservice_5foptions_2eproto();
   friend void protobuf_ShutdownFile_global_5fextensions_2fservice_5foptions_2eproto();
@@ -646,6 +652,30 @@ inline void BGSServiceOptions::set_allocated_api_type(::std::string* api_type) {
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.BGSServiceOptions.api_type)
 }
 
+// optional bool is_global = 9;
+inline bool BGSServiceOptions::has_is_global() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void BGSServiceOptions::set_has_is_global() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void BGSServiceOptions::clear_has_is_global() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void BGSServiceOptions::clear_is_global() {
+  is_global_ = false;
+  clear_has_is_global();
+}
+inline bool BGSServiceOptions::is_global() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.BGSServiceOptions.is_global)
+  return is_global_;
+}
+inline void BGSServiceOptions::set_is_global(bool value) {
+  set_has_is_global();
+  is_global_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.BGSServiceOptions.is_global)
+}
+
 // -------------------------------------------------------------------
 
 // SDKServiceOptions
@@ -720,6 +750,54 @@ inline void SDKServiceOptions::set_use_client_id(bool value) {
   set_has_use_client_id();
   use_client_id_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.use_client_id)
+}
+
+// optional bool deprecated_32_bit = 4;
+inline bool SDKServiceOptions::has_deprecated_32_bit() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void SDKServiceOptions::set_has_deprecated_32_bit() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void SDKServiceOptions::clear_has_deprecated_32_bit() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void SDKServiceOptions::clear_deprecated_32_bit() {
+  deprecated_32_bit_ = false;
+  clear_has_deprecated_32_bit();
+}
+inline bool SDKServiceOptions::deprecated_32_bit() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.deprecated_32_bit)
+  return deprecated_32_bit_;
+}
+inline void SDKServiceOptions::set_deprecated_32_bit(bool value) {
+  set_has_deprecated_32_bit();
+  deprecated_32_bit_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.deprecated_32_bit)
+}
+
+// optional bool obsolete = 5;
+inline bool SDKServiceOptions::has_obsolete() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void SDKServiceOptions::set_has_obsolete() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void SDKServiceOptions::clear_has_obsolete() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void SDKServiceOptions::clear_obsolete() {
+  obsolete_ = false;
+  clear_has_obsolete();
+}
+inline bool SDKServiceOptions::obsolete() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.SDKServiceOptions.obsolete)
+  return obsolete_;
+}
+inline void SDKServiceOptions::set_obsolete(bool value) {
+  set_has_obsolete();
+  obsolete_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.SDKServiceOptions.obsolete)
 }
 
 // @@protoc_insertion_point(namespace_scope)

@@ -165,8 +165,6 @@ class npc_coilfang_waterelemental : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:

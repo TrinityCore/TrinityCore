@@ -81,7 +81,6 @@ struct quartermaster_zigris : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 };
 

@@ -151,8 +151,6 @@ struct boss_anzu : public BossAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:

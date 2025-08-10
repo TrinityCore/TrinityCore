@@ -81,7 +81,7 @@ public:
         return true;
     }
 
-    static bool HandleEventInfoCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventInfoCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -92,7 +92,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[eventId];
+        GameEventData const& eventData = events[*eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -114,13 +114,13 @@ public:
         std::string occurenceStr = secsToTimeString(eventData.occurence * MINUTE);
         std::string lengthStr = secsToTimeString(eventData.length * MINUTE);
 
-        handler->PSendSysMessage(LANG_EVENT_INFO, eventId, eventData.description.c_str(), activeStr,
+        handler->PSendSysMessage(LANG_EVENT_INFO, *eventId, eventData.description.c_str(), activeStr,
             startTimeStr.c_str(), endTimeStr.c_str(), occurenceStr.c_str(), lengthStr.c_str(),
             nextStr.c_str());
         return true;
     }
 
-    static bool HandleEventStartCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventStartCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -131,7 +131,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[eventId];
+        GameEventData const& eventData = events[*eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -142,7 +142,7 @@ public:
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         if (activeEvents.find(eventId) != activeEvents.end())
         {
-            handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE, eventId);
+            handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE, *eventId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -151,7 +151,7 @@ public:
         return true;
     }
 
-    static bool HandleEventStopCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> const eventId)
+    static bool HandleEventStopCommand(ChatHandler* handler, Variant<Hyperlink<gameevent>, uint16> eventId)
     {
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
@@ -162,7 +162,7 @@ public:
             return false;
         }
 
-        GameEventData const& eventData = events[eventId];
+        GameEventData const& eventData = events[*eventId];
         if (!eventData.isValid())
         {
             handler->SendSysMessage(LANG_EVENT_NOT_EXIST);
@@ -174,7 +174,7 @@ public:
 
         if (activeEvents.find(eventId) == activeEvents.end())
         {
-            handler->PSendSysMessage(LANG_EVENT_NOT_ACTIVE, eventId);
+            handler->PSendSysMessage(LANG_EVENT_NOT_ACTIVE, *eventId);
             handler->SetSentErrorMessage(true);
             return false;
         }

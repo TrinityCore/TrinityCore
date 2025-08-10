@@ -19,7 +19,9 @@
 #define TRINITY_SPAWNDATA_H
 
 #include "DBCEnums.h"
+#include "Optional.h"
 #include "Position.h"
+#include <array>
 #include <vector>
 
 class AreaTrigger;
@@ -50,14 +52,16 @@ enum SpawnObjectTypeMask
 
 enum SpawnGroupFlags
 {
-    SPAWNGROUP_FLAG_NONE                = 0x00,
-    SPAWNGROUP_FLAG_SYSTEM              = 0x01,
-    SPAWNGROUP_FLAG_COMPATIBILITY_MODE  = 0x02,
-    SPAWNGROUP_FLAG_MANUAL_SPAWN        = 0x04,
-    SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE  = 0x08,
-    SPAWNGROUP_FLAG_ESCORTQUESTNPC      = 0x10,
+    SPAWNGROUP_FLAG_NONE                            = 0x00,
+    SPAWNGROUP_FLAG_SYSTEM                          = 0x01,
+    SPAWNGROUP_FLAG_COMPATIBILITY_MODE              = 0x02,
+    SPAWNGROUP_FLAG_MANUAL_SPAWN                    = 0x04,
+    SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE              = 0x08,
+    SPAWNGROUP_FLAG_ESCORTQUESTNPC                  = 0x10,
+    SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE    = 0x20,
 
-    SPAWNGROUP_FLAGS_ALL = (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_COMPATIBILITY_MODE | SPAWNGROUP_FLAG_MANUAL_SPAWN | SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE | SPAWNGROUP_FLAG_ESCORTQUESTNPC)
+    SPAWNGROUP_FLAGS_ALL = (SPAWNGROUP_FLAG_SYSTEM | SPAWNGROUP_FLAG_COMPATIBILITY_MODE | SPAWNGROUP_FLAG_MANUAL_SPAWN
+                            | SPAWNGROUP_FLAG_DYNAMIC_SPAWN_RATE | SPAWNGROUP_FLAG_ESCORTQUESTNPC | SPAWNGROUP_FLAG_DESPAWN_ON_CONDITION_FAILURE)
 };
 
 struct SpawnGroupTemplateData
@@ -66,6 +70,32 @@ struct SpawnGroupTemplateData
     std::string name;
     uint32 mapId;
     SpawnGroupFlags flags;
+};
+
+struct SpawnTrackingTemplateData
+{
+    uint32 SpawnTrackingId;
+    uint32 MapId;
+    uint32 PhaseId;
+    uint32 PhaseGroup;
+    uint8 PhaseUseFlags;
+};
+
+struct SpawnTrackingStateData
+{
+    bool Visible = true;
+    Optional<uint32> StateSpellVisualId;
+    Optional<uint16> StateAnimId;
+    Optional<uint16> StateAnimKitId;
+    std::vector<uint32> StateWorldEffects;
+};
+
+enum class SpawnTrackingState : uint8
+{
+    None        = 0,
+    Active      = 1,
+    Complete    = 2,
+    Max
 };
 
 namespace Trinity { namespace Impl {
@@ -92,6 +122,9 @@ struct SpawnMetadata
     uint32 mapId = MAPID_INVALID;
     bool dbData = true;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
+    SpawnTrackingTemplateData const* spawnTrackingData = nullptr;
+    std::vector<uint32> spawnTrackingQuestObjectives;
+    std::array<SpawnTrackingStateData, size_t(SpawnTrackingState::Max)> spawnTrackingStates;
 
     protected:
     SpawnMetadata(SpawnObjectType t) : type(t) {}
@@ -109,6 +142,7 @@ struct SpawnData : public SpawnMetadata
     int32 spawntimesecs = 0;
     std::vector<Difficulty> spawnDifficulties;
     uint32 scriptId = 0;
+    std::string StringId;
 
     protected:
     SpawnData(SpawnObjectType t) : SpawnMetadata(t) {}

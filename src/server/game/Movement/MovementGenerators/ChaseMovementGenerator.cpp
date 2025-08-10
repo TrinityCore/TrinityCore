@@ -24,7 +24,6 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Unit.h"
-#include "Util.h"
 
 static bool HasLostTarget(Unit* owner, Unit* target)
 {
@@ -44,10 +43,9 @@ static bool IsMutualChase(Unit* owner, Unit* target)
 
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
 {
-    float const distSq = owner->GetExactDistSq(target);
-    if (minDistance && distSq < square(*minDistance))
+    if (minDistance && owner->IsInDist(target, *minDistance))
         return false;
-    if (maxDistance && distSq > square(*maxDistance))
+    if (maxDistance && !owner->IsInDist(target, *maxDistance))
         return false;
     if (angle && !angle->IsAngleOkay(target->GetRelativeAngle(owner)))
         return false;
@@ -114,11 +112,15 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
 
     bool const mutualChase = IsMutualChase(owner, target);
     float const hitboxSum = owner->GetCombatReach() + target->GetCombatReach();
-    float const minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
-    float const minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
-    float const maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
-    float const maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
+    float minRange = _range ? _range->MinRange + hitboxSum : CONTACT_DISTANCE;
+    float minTarget = (_range ? _range->MinTolerance : 0.0f) + hitboxSum;
+    float maxRange = _range ? _range->MaxRange + hitboxSum : owner->GetMeleeRange(target); // melee range already includes hitboxes
+    float maxTarget = _range ? _range->MaxTolerance + hitboxSum : CONTACT_DISTANCE + hitboxSum;
     Optional<ChaseAngle> angle = mutualChase ? Optional<ChaseAngle>() : _angle;
+
+    if (Creature* cOwner = owner->ToCreature())
+        if (cOwner->IsIgnoringChaseRange())
+            minRange = minTarget = maxRange = maxTarget = 0.0f;
 
     // periodically check if we're already in the expected range...
     _rangeCheckTimer.Update(diff);

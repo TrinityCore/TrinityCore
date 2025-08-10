@@ -30,13 +30,26 @@ uint32 const DragonspireMobs[3] = { NPC_BLACKHAND_DREADWEAVER, NPC_BLACKHAND_SUM
 
 DoorData const doorData[] =
 {
-    { GO_DOORS,                  DATA_PYROGAURD_EMBERSEER,     DOOR_TYPE_ROOM },
-    { GO_EMBERSEER_OUT,          DATA_PYROGAURD_EMBERSEER,     DOOR_TYPE_PASSAGE },
-    { GO_DRAKKISATH_DOOR_1,      DATA_GENERAL_DRAKKISATH,      DOOR_TYPE_PASSAGE },
-    { GO_DRAKKISATH_DOOR_2,      DATA_GENERAL_DRAKKISATH,      DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_ACTIVE,      DATA_WARCHIEF_REND_BLACKHAND, DOOR_TYPE_PASSAGE },
-    { GO_PORTCULLIS_TOBOSSROOMS, DATA_WARCHIEF_REND_BLACKHAND, DOOR_TYPE_PASSAGE },
-    { 0,                         0,                            DOOR_TYPE_ROOM    }
+    { GO_DOORS,                  DATA_PYROGAURD_EMBERSEER,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EMBERSEER_OUT,          DATA_PYROGAURD_EMBERSEER,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_DRAKKISATH_DOOR_1,      DATA_GENERAL_DRAKKISATH,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_DRAKKISATH_DOOR_2,      DATA_GENERAL_DRAKKISATH,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_ACTIVE,      DATA_WARCHIEF_REND_BLACKHAND, EncounterDoorBehavior::OpenWhenDone },
+    { GO_PORTCULLIS_TOBOSSROOMS, DATA_WARCHIEF_REND_BLACKHAND, EncounterDoorBehavior::OpenWhenDone },
+    { 0,                         0,                            EncounterDoorBehavior::OpenWhenNotInProgress }
+};
+
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { DATA_HIGHLORD_OMOKK, { { 267 } } },
+    { DATA_SHADOW_HUNTER_VOSHGAJIN, { { 268 } } },
+    { DATA_WARMASTER_VOONE, { { 269 } } },
+    { DATA_MOTHER_SMOLDERWEB, { { 270 } } },
+    { DATA_UROK_DOOMHOWL, { { 271 } } },
+    { DATA_QUARTERMASTER_ZIGRIS, { { 272 } } },
+    { DATA_HALYCON, { { 274 } } },
+    { DATA_GIZRUL_THE_SLAVENER, { { 273 } } },
+    { DATA_OVERLORD_WYRMTHALAK, { { 275 } } },
 };
 
 enum EventIds
@@ -62,6 +75,7 @@ public:
         {
             SetHeaders(DataHeader);
             SetBossNumber(EncounterCount);
+            LoadDungeonEncounterData(Encounters);
             LoadDoorData(doorData);
         }
 

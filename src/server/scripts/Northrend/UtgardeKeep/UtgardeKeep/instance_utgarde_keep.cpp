@@ -20,13 +20,12 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
-#include <sstream>
 
 DoorData const doorData[] =
 {
-    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    DOOR_TYPE_PASSAGE },
-    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    DOOR_TYPE_PASSAGE },
-    { 0,                        0,              DOOR_TYPE_ROOM } // END
+    { GO_GIANT_PORTCULLIS_1,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_GIANT_PORTCULLIS_2,    DATA_INGVAR,    EncounterDoorBehavior::OpenWhenDone },
+    { 0,                        0,              EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 MinionData const minionData[] =
@@ -34,6 +33,13 @@ MinionData const minionData[] =
     { NPC_SKARVALD,     DATA_SKARVALD_DALRONN },
     { NPC_DALRONN,      DATA_SKARVALD_DALRONN },
     { 0,                0 }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_PRINCE_KELESETH, {{ 2026 }} },
+    { DATA_SKARVALD_DALRONN, {{ 2024 }} },
+    { DATA_INGVAR, {{ 2025 }} }
 };
 
 class instance_utgarde_keep : public InstanceMapScript
@@ -49,6 +55,7 @@ class instance_utgarde_keep : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 LoadMinionData(minionData);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -166,9 +173,6 @@ class instance_utgarde_keep : public InstanceMapScript
                         HandleGameObject(Forges[i].BellowGUID, data != NOT_STARTED);
                         HandleGameObject(Forges[i].FireGUID, data != NOT_STARTED);
                         Forges[i].Event = data;
-
-                        if (data == DONE)
-                            SaveToDB();
                         break;
                     }
                     default:
@@ -176,16 +180,11 @@ class instance_utgarde_keep : public InstanceMapScript
                 }
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                for (uint8 i = 0; i < 3; ++i)
-                    data << Forges[i].Event << ' ';
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                for (uint8 i = 0; i < 3; ++i)
-                    data >> Forges[i].Event;
+                if (GetBossState(DATA_PRINCE_KELESETH) == DONE)
+                    for (uint8 i = 0; i < 3; ++i)
+                        Forges[i].Event = DONE;
             }
 
         protected:

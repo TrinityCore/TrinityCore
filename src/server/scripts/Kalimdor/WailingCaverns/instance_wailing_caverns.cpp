@@ -25,12 +25,20 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
-#include "Log.h"
 #include "Map.h"
 #include "wailing_caverns.h"
-#include <sstream>
 
-#define MAX_ENCOUNTER   9
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { BOSS_LADY_ANACONDRA, {{ 585 } } },
+    { BOSS_LORD_COBRAHN, {{ 586 } } },
+    { BOSS_KRESH, {{ 587 } } },
+    { BOSS_LORD_PYTHAS, {{ 588 } } },
+    { BOSS_SKUM, {{ 589 } } },
+    { BOSS_LORD_SERPENTIS, {{ 590 } } },
+    { BOSS_VERDAN_THE_EVERLIVING, {{ 591 } } },
+    { BOSS_MUTANUS_THE_DEVOURER, {{ 592 } } },
+};
 
 class instance_wailing_caverns : public InstanceMapScript
 {
@@ -47,12 +55,11 @@ public:
         instance_wailing_caverns_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
 
             yelled = false;
         }
-
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         bool yelled;
         ObjectGuid NaralexGUID;
@@ -63,38 +70,51 @@ public:
                 NaralexGUID = creature->GetGUID();
         }
 
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+                case NPC_KRESH:                 SetBossState(BOSS_KRESH, DONE); break;
+                case NPC_SKUM:                  SetBossState(BOSS_SKUM, DONE); break;
+                case NPC_VERDAN_THE_EVERLIVING: SetBossState(BOSS_VERDAN_THE_EVERLIVING, DONE); break;
+                default:
+                    break;
+            }
+        }
+
         void SetData(uint32 type, uint32 data) override
         {
             switch (type)
             {
-                case TYPE_LORD_COBRAHN:         m_auiEncounter[0] = data;break;
-                case TYPE_LORD_PYTHAS:          m_auiEncounter[1] = data;break;
-                case TYPE_LADY_ANACONDRA:       m_auiEncounter[2] = data;break;
-                case TYPE_LORD_SERPENTIS:       m_auiEncounter[3] = data;break;
-                case TYPE_NARALEX_EVENT:        m_auiEncounter[4] = data;break;
-                case TYPE_NARALEX_PART1:        m_auiEncounter[5] = data;break;
-                case TYPE_NARALEX_PART2:        m_auiEncounter[6] = data;break;
-                case TYPE_NARALEX_PART3:        m_auiEncounter[7] = data;break;
-                case TYPE_MUTANUS_THE_DEVOURER: m_auiEncounter[8] = data;break;
+                case TYPE_LORD_COBRAHN:         SetBossState(BOSS_LORD_COBRAHN, EncounterState(data));break;
+                case TYPE_LORD_PYTHAS:          SetBossState(BOSS_LORD_PYTHAS, EncounterState(data));break;
+                case TYPE_LADY_ANACONDRA:       SetBossState(BOSS_LADY_ANACONDRA, EncounterState(data));break;
+                case TYPE_LORD_SERPENTIS:       SetBossState(BOSS_LORD_SERPENTIS, EncounterState(data));break;
+                case TYPE_NARALEX_EVENT:        SetBossState(4, EncounterState(data));break;
+                case TYPE_NARALEX_PART1:        SetBossState(5, EncounterState(data));break;
+                case TYPE_NARALEX_PART2:        SetBossState(6, EncounterState(data));break;
+                case TYPE_NARALEX_PART3:        SetBossState(7, EncounterState(data));break;
+                case TYPE_MUTANUS_THE_DEVOURER: SetBossState(BOSS_MUTANUS_THE_DEVOURER, EncounterState(data));break;
                 case TYPE_NARALEX_YELLED:       yelled = true;      break;
+                default:                        break;
             }
-            if (data == DONE)SaveToDB();
         }
 
         uint32 GetData(uint32 type) const override
         {
             switch (type)
             {
-                case TYPE_LORD_COBRAHN:         return m_auiEncounter[0];
-                case TYPE_LORD_PYTHAS:          return m_auiEncounter[1];
-                case TYPE_LADY_ANACONDRA:       return m_auiEncounter[2];
-                case TYPE_LORD_SERPENTIS:       return m_auiEncounter[3];
-                case TYPE_NARALEX_EVENT:        return m_auiEncounter[4];
-                case TYPE_NARALEX_PART1:        return m_auiEncounter[5];
-                case TYPE_NARALEX_PART2:        return m_auiEncounter[6];
-                case TYPE_NARALEX_PART3:        return m_auiEncounter[7];
-                case TYPE_MUTANUS_THE_DEVOURER: return m_auiEncounter[8];
+                case TYPE_LORD_COBRAHN:         return GetBossState(BOSS_LORD_COBRAHN);
+                case TYPE_LORD_PYTHAS:          return GetBossState(BOSS_LORD_PYTHAS);
+                case TYPE_LADY_ANACONDRA:       return GetBossState(BOSS_LADY_ANACONDRA);
+                case TYPE_LORD_SERPENTIS:       return GetBossState(BOSS_LORD_SERPENTIS);
+                case TYPE_NARALEX_EVENT:        return GetBossState(4);
+                case TYPE_NARALEX_PART1:        return GetBossState(5);
+                case TYPE_NARALEX_PART2:        return GetBossState(6);
+                case TYPE_NARALEX_PART3:        return GetBossState(7);
+                case TYPE_MUTANUS_THE_DEVOURER: return GetBossState(BOSS_MUTANUS_THE_DEVOURER);
                 case TYPE_NARALEX_YELLED:       return yelled;
+                default:                        break;
             }
             return 0;
         }
@@ -104,41 +124,6 @@ public:
             if (data == DATA_NARALEX)return NaralexGUID;
             return ObjectGuid::Empty;
         }
-
-        std::string GetSaveData() override
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
-                << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' '
-                << m_auiEncounter[6] << ' ' << m_auiEncounter[7] << ' ' << m_auiEncounter[8];
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(char const* in) override
-        {
-            if (!in)
-            {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
-            }
-
-            OUT_LOAD_INST_DATA(in);
-
-            std::istringstream loadStream(in);
-            loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3]
-            >> m_auiEncounter[4] >> m_auiEncounter[5] >> m_auiEncounter[6] >> m_auiEncounter[7] >> m_auiEncounter[8];
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] != DONE)
-                    m_auiEncounter[i] = NOT_STARTED;
-
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
     };
 
 };

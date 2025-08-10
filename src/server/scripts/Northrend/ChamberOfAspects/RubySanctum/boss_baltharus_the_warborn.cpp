@@ -218,8 +218,6 @@ struct boss_baltharus_the_warborn : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -298,16 +296,12 @@ struct npc_baltharus_the_warborn_clone : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
 // 74505 - Enervating Brand
 class spell_baltharus_enervating_brand_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_baltharus_enervating_brand_trigger);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SIPHONED_MIGHT });

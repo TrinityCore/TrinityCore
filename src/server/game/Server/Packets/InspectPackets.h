@@ -15,7 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#ifndef TRINITYCORE_INSPECT_PACKETS_H
+#define TRINITYCORE_INSPECT_PACKETS_H
 
 #include "Packet.h"
 #include "CharacterPackets.h"
@@ -24,6 +25,7 @@
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "TraitPacketsCommon.h"
 
 class Item;
 class Player;
@@ -35,7 +37,7 @@ namespace WorldPackets
         class Inspect final : public ClientPacket
         {
         public:
-            Inspect(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT, std::move(packet)) { }
+            explicit Inspect(WorldPacket&& packet) : ClientPacket(CMSG_INSPECT, std::move(packet)) { }
 
             void Read() override;
 
@@ -46,7 +48,7 @@ namespace WorldPackets
         {
             InspectEnchantData(uint32 id, uint8 index) : Id(id), Index(index) { }
 
-            uint32 Id   = 0;
+            uint32 Id = 0;
             uint8 Index = 0;
         };
 
@@ -95,38 +97,47 @@ namespace WorldPackets
 
         struct PVPBracketData
         {
-            int32 Rating           = 0;
-            int32 Rank             = 0;
-            int32 WeeklyPlayed     = 0;
-            int32 WeeklyWon        = 0;
-            int32 SeasonPlayed     = 0;
-            int32 SeasonWon        = 0;
+            int32 Rating = 0;
+            int32 RatingID = 0;
+            int32 Rank = 0;
+            int32 WeeklyPlayed = 0;
+            int32 WeeklyWon = 0;
+            int32 SeasonPlayed = 0;
+            int32 SeasonWon = 0;
             int32 WeeklyBestRating = 0;
+            int32 LastWeeksBestRating = 0;
+            int32 Tier = 0;
+            int32 WeeklyBestTier = 0;
             int32 SeasonBestRating = 0;
-            int32 PvpTierID        = 0;
-            int32 WeeklyBestWinPvpTierID = 0;
-            int32 Unused1          = 0;
-            int32 Unused2          = 0;
-            uint8 Bracket          = 0;
-            bool Disqualified      = false;
+            uint8 SeasonBestTierEnum = 0;
+            int32 RoundsSeasonPlayed = 0;
+            int32 RoundsSeasonWon = 0;
+            int32 RoundsWeeklyPlayed = 0;
+            int32 RoundsWeeklyWon = 0;
+            uint8 Bracket = 0;
+            bool Disqualified = false;
+        };
+
+        struct TraitInspectInfo
+        {
+            int32 PlayerLevel = 0;
+            int32 SpecID = 0;
+            Traits::TraitConfig ActiveCombatTraits;
         };
 
         class InspectResult final : public ServerPacket
         {
         public:
-            InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 45)
-            {
-                PvpTalents.fill(0);
-            }
+            explicit InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096) { }
 
             WorldPacket const* Write() override;
 
             PlayerModelDisplayInfo DisplayInfo;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
+            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents = { };
             Optional<InspectGuildData> GuildData;
-            std::array<PVPBracketData, 6> Bracket;
+            std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;
             int32 ItemLevel = 0;
             uint32 LifetimeHK = 0;
@@ -134,12 +145,13 @@ namespace WorldPackets
             uint16 TodayHK = 0;
             uint16 YesterdayHK = 0;
             uint8 LifetimeMaxRank = 0;
+            TraitInspectInfo TraitsInfo;
         };
 
         class QueryInspectAchievements final : public ClientPacket
         {
         public:
-            QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
+            explicit QueryInspectAchievements(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_INSPECT_ACHIEVEMENTS, std::move(packet)) { }
 
             void Read() override;
 
@@ -149,3 +161,5 @@ namespace WorldPackets
         /// RespondInspectAchievements in AchievementPackets
     }
 }
+
+#endif // TRINITYCORE_INSPECT_PACKETS_H

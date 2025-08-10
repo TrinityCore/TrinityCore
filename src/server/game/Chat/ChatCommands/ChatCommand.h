@@ -18,7 +18,6 @@
 #ifndef TRINITY_CHATCOMMAND_H
 #define TRINITY_CHATCOMMAND_H
 
-#include "advstd.h"
 #include "ChatCommandArgs.h"
 #include "ChatCommandTags.h"
 #include "Define.h"
@@ -92,9 +91,9 @@ namespace Trinity::Impl::ChatCommands
                 return result2;
             if (result1.HasErrorMessage() && result2.HasErrorMessage())
             {
-                return Trinity::StringFormat("%s \"%s\"\n%s \"%s\"",
-                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage().c_str(),
-                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage().c_str());
+                return Trinity::StringFormat("{} \"{}\"\n{} \"{}\"",
+                    GetTrinityString(handler, LANG_CMDPARSER_EITHER), result2.GetErrorMessage(),
+                    GetTrinityString(handler, LANG_CMDPARSER_OR), result1.GetErrorMessage());
             }
             else if (result1.HasErrorMessage())
                 return result1;
@@ -115,8 +114,10 @@ namespace Trinity::Impl::ChatCommands
     }
 
     template <typename T> struct HandlerToTuple { static_assert(Trinity::dependant_false_v<T>, "Invalid command handler signature"); };
-    template <typename... Ts> struct HandlerToTuple<bool(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, advstd::remove_cvref_t<Ts>...>; };
-    template <typename T> using TupleType = typename HandlerToTuple<T>::type;
+    template <typename... Ts> struct HandlerToTuple<bool(ChatHandler*, Ts...)> { using type = std::tuple<ChatHandler*, Ts...>; };
+
+    template <typename> struct ValueTupleType { };
+    template <typename... Ts> struct ValueTupleType<std::tuple<Ts...>> { using type = std::tuple<std::remove_cvref_t<Ts>...>; };
 
     struct CommandInvoker
     {
@@ -126,13 +127,14 @@ namespace Trinity::Impl::ChatCommands
         {
             _wrapper = [](void* handler, ChatHandler* chatHandler, std::string_view argsStr)
             {
-                using Tuple = TupleType<TypedHandler>;
+                using RefTuple = typename HandlerToTuple<TypedHandler>::type;
+                using ValueTuple = typename ValueTupleType<RefTuple>::type;
 
-                Tuple arguments;
+                ValueTuple arguments;
                 std::get<0>(arguments) = chatHandler;
-                ChatCommandResult result = ConsumeFromOffset<Tuple, 1>(arguments, chatHandler, argsStr);
+                ChatCommandResult result = ConsumeFromOffset<ValueTuple, 1>(arguments, chatHandler, argsStr);
                 if (result)
-                    return std::apply(reinterpret_cast<TypedHandler*>(handler), std::move(arguments));
+                    return Invoke<RefTuple>(reinterpret_cast<TypedHandler*>(handler), arguments, std::make_index_sequence<std::tuple_size_v<RefTuple>>{});
                 else
                 {
                     if (result.HasErrorMessage())
@@ -162,6 +164,13 @@ namespace Trinity::Impl::ChatCommands
         }
 
     private:
+        template <typename ReferenceTuple, typename TypedHandler, typename ValueTuple, std::size_t... I>
+        static constexpr bool Invoke(TypedHandler* handler, ValueTuple& arguments, std::index_sequence<I...>)
+        {
+            // Invoke command handler preserving original reference category of each argument
+            return std::invoke(handler, std::get<I>(advstd::forward_like<std::tuple_element_t<I, ReferenceTuple>>(arguments))...);
+        }
+
         using wrapper_func = bool(void*, ChatHandler*, std::string_view);
         wrapper_func* _wrapper;
         void* _handler;
@@ -228,8 +237,6 @@ namespace Trinity::ChatCommands
             Trinity::Impl::ChatCommands::CommandInvoker _invoker;
             TrinityStrings _help;
             Trinity::Impl::ChatCommands::CommandPermissions _permissions;
-
-            auto operator*() const { return std::tie(_invoker, _help, _permissions); }
         };
         using SubCommandEntry = std::reference_wrapper<std::vector<ChatCommandBuilder> const>;
 

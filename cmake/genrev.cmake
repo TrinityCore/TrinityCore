@@ -12,7 +12,7 @@
 # This is done EACH compile so they can be alerted about the consequences.
 
 if(NOT BUILDDIR)
-  # Workaround for funny MSVC behaviour - this segment is only used when using cmake gui
+  # Workaround for cmake script mode
   set(BUILDDIR ${CMAKE_BINARY_DIR})
 endif()
 
@@ -24,13 +24,6 @@ if(WITHOUT_GIT)
   string(TIMESTAMP rev_date_fallback "%Y-%m-%d %H:%M:%S" UTC)
 else()
   if(GIT_EXECUTABLE)
-    # Retrieve repository dirty status
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" diff-index --quiet HEAD --
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      RESULT_VARIABLE is_dirty
-    )
-
     # Create a revision-string that we can use
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" rev-parse --short=12 HEAD
@@ -40,58 +33,68 @@ else()
       ERROR_QUIET
     )
 
-    # Append dirty marker to commit hash
-    if(is_dirty)
-      set(rev_hash "${rev_hash}+")
-    endif()
-
-    # And grab the commits timestamp
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE rev_date
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-
-    # Also retrieve branch name
-    execute_process(
-      COMMAND "${GIT_EXECUTABLE}" symbolic-ref -q --short HEAD
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE rev_branch
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-      ERROR_QUIET
-    )
-
-    # when ran on CI, repository is put in detached HEAD state, attempt to scan for known local branches
-    if(NOT rev_branch)
+    if(rev_hash)
+      # Retrieve repository dirty status
       execute_process(
-        COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/heads "--format=%(refname:short)"
+        COMMAND "${GIT_EXECUTABLE}" diff-index --quiet HEAD --
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        RESULT_VARIABLE is_dirty
+        ERROR_QUIET
+      )
+
+      # Append dirty marker to commit hash
+      if(is_dirty)
+        set(rev_hash "${rev_hash}+")
+      endif()
+
+      # And grab the commits timestamp
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" show -s --format=%ci
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        OUTPUT_VARIABLE rev_date
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+      )
+
+      # Also retrieve branch name
+      execute_process(
+        COMMAND "${GIT_EXECUTABLE}" symbolic-ref -q --short HEAD
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
         OUTPUT_VARIABLE rev_branch
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_QUIET
       )
-    endif()
 
-    # if local branch scan didn't find anything, try remote branches
-    if(NOT rev_branch)
-      execute_process(
-        COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/remotes "--format=%(refname:short)"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        OUTPUT_VARIABLE rev_branch
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
-      )
-    endif()
+      # when ran on CI, repository is put in detached HEAD state, attempt to scan for known local branches
+      if(NOT rev_branch)
+        execute_process(
+          COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/heads "--format=%(refname:short)"
+          WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+          OUTPUT_VARIABLE rev_branch
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+        )
+      endif()
 
-    # give up finding a name for branch, use commit hash
-    if(NOT rev_branch)
-      set(rev_branch ${rev_hash})
-    endif()
+      # if local branch scan didn't find anything, try remote branches
+      if(NOT rev_branch)
+        execute_process(
+          COMMAND "${GIT_EXECUTABLE}" for-each-ref --points-at=HEAD refs/remotes "--format=%(refname:short)"
+          WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+          OUTPUT_VARIABLE rev_branch
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+        )
+      endif()
 
-    # normalize branch to single line (for-each-ref can output multiple lines if there are multiple branches on the same commit)
-    string(REGEX MATCH "^[^ \t\r\n]+" rev_branch ${rev_branch})
+      # give up finding a name for branch, use commit hash
+      if(NOT rev_branch)
+        set(rev_branch ${rev_hash})
+      endif()
+      
+      # normalize branch to single line (for-each-ref can output multiple lines if there are multiple branches on the same commit)
+      string(REGEX MATCH "^[^ \t\r\n]+" rev_branch ${rev_branch})
+    endif()
   endif()
 
   # Last minute check - ensure that we have a proper revision
@@ -119,12 +122,29 @@ set(rev_month ${CMAKE_MATCH_2})
 set(rev_day ${CMAKE_MATCH_3})
 
 # Create the actual revision_data.h file from the above params
-if(NOT "${rev_hash_cached}" STREQUAL "${rev_hash}" OR NOT "${rev_branch_cached}" STREQUAL "${rev_branch}" OR NOT EXISTS "${BUILDDIR}/revision_data.h")
-  configure_file(
-    "${CMAKE_SOURCE_DIR}/revision_data.h.in.cmake"
-    "${BUILDDIR}/revision_data.h"
-    @ONLY
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM QUERY OS_NAME)
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_DISTRO QUERY DISTRIB_INFO)
+cmake_host_system_information(RESULT TRINITY_BUILD_HOST_SYSTEM_RELEASE QUERY OS_RELEASE)
+# on windows OS_RELEASE contains sub-type string tag like "Professional" instead of a version number and OS_VERSION has only build number
+# so we grab that with Get-CimInstance powershell cmdlet
+if(WIN32)
+  execute_process(
+    COMMAND powershell -NoProfile -Command "$v=(Get-CimInstance -ClassName Win32_OperatingSystem); '{0} ({1})' -f $v.Caption, $v.Version"
+    OUTPUT_VARIABLE TRINITY_BUILD_HOST_SYSTEM_RELEASE
+	OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  set(rev_hash_cached "${rev_hash}" CACHE INTERNAL "Cached commit-hash")
-  set(rev_branch_cached "${rev_branch}" CACHE INTERNAL "Cached branch name")
+  # Remove "Microsoft Windows" from the result
+  string(REGEX REPLACE "^.* Windows " "" TRINITY_BUILD_HOST_SYSTEM_RELEASE ${TRINITY_BUILD_HOST_SYSTEM_RELEASE})
 endif()
+
+if(CMAKE_SCRIPT_MODE_FILE)
+  # hack for CMAKE_SYSTEM_PROCESSOR missing in script mode 
+  set(CMAKE_PLATFORM_INFO_DIR ${BUILDDIR}${CMAKE_FILES_DIRECTORY})
+  include(${CMAKE_ROOT}/Modules/CMakeDetermineSystem.cmake)
+endif()
+
+configure_file(
+  "${CMAKE_SOURCE_DIR}/revision_data.h.in.cmake"
+  "${BUILDDIR}/revision_data.h"
+  @ONLY
+)

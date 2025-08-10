@@ -18,14 +18,14 @@
 #ifndef _TILEASSEMBLER_H_
 #define _TILEASSEMBLER_H_
 
-#include <G3D/Vector3.h>
+#include "ModelInstance.h"
+#include "WorldModel.h"
 #include <G3D/Matrix3.h>
+#include <G3D/Vector3.h>
+#include <boost/filesystem/path.hpp>
 #include <deque>
 #include <map>
 #include <set>
-
-#include "ModelInstance.h"
-#include "WorldModel.h"
 
 namespace VMAP
 {
@@ -52,25 +52,13 @@ namespace VMAP
             void moveToBasePos(const G3D::Vector3& pBasePos) { iPos -= pBasePos; }
     };
 
-    struct TileSpawn
-    {
-        TileSpawn() : Id(0), Flags(0) { }
-        TileSpawn(uint32 id, uint32 flags) : Id(id), Flags(flags) { }
-
-        uint32 Id;
-        uint32 Flags;
-
-        bool operator<(TileSpawn const& right) const { return Id < right.Id; }
-    };
-
     struct MapSpawns
     {
-        MapSpawns() { }
-
-        uint32 MapId;
+        uint32 MapId = 0;
         std::map<uint32, ModelSpawn> UniqueEntries;
-        std::map<uint32 /*packedTileId*/, std::set<TileSpawn>> TileEntries;
-        std::map<uint32 /*packedTileId*/, std::set<TileSpawn>> ParentTileEntries;
+        std::set<std::string> SpawnedModelFiles;
+        std::map<uint32 /*packedTileId*/, std::set<uint32 /*Id*/>> TileEntries;
+        std::map<uint32 /*packedTileId*/, std::set<uint32 /*Id*/>> ParentTileEntries;
     };
 
     typedef std::deque<MapSpawns> MapData;
@@ -85,41 +73,41 @@ namespace VMAP
         uint32 liquidflags;
         std::vector<MeshTriangle> triangles;
         std::vector<G3D::Vector3> vertexArray;
-        class WmoLiquid* liquid;
+        std::unique_ptr<WmoLiquid> liquid;
 
         GroupModel_Raw() : mogpflags(0), GroupWMOID(0), liquidflags(0),
             liquid(nullptr) { }
-        ~GroupModel_Raw();
 
         bool Read(FILE* f);
     };
 
     struct WorldModel_Raw
     {
+        ModelFlags Flags;
         uint32 RootWMOID;
         std::vector<GroupModel_Raw> groupsArray;
 
-        bool Read(const char * path);
+        bool Read(boost::filesystem::path const& path);
     };
 
     class TileAssembler
     {
         private:
-            std::string iDestDir;
-            std::string iSrcDir;
-            MapData mapData;
+            boost::filesystem::path iSrcDir;
+            boost::filesystem::path iDestDir;
+            uint32 iThreads;
             std::set<std::string> spawnedModelFiles;
 
         public:
-            TileAssembler(const std::string& pSrcDirName, const std::string& pDestDirName);
-            virtual ~TileAssembler();
+            TileAssembler(std::string const& srcDirName, std::string const& destDirName, uint32 threads);
 
             bool convertWorld2();
-            bool readMapSpawns();
-            bool calculateTransformedBound(ModelSpawn &spawn);
+            bool convertMap(MapSpawns& data) const;
+            static bool readMapSpawns(FILE* dirf, MapSpawns* data);
+            bool calculateTransformedBound(ModelSpawn &spawn) const;
             void exportGameobjectModels();
 
-            bool convertRawFile(const std::string& pModelFilename);
+            bool convertRawFile(const std::string& pModelFilename) const;
     };
 
 }                                                           // VMAP

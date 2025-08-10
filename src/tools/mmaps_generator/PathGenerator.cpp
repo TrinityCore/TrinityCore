@@ -19,6 +19,7 @@
 #include "DB2FileLoader.h"
 #include "DB2FileSystemSource.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "Locales.h"
 #include "MapBuilder.h"
 #include "PathCommon.h"
 #include "Timer.h"
@@ -78,7 +79,7 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "vmaps", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'vmaps' directory is empty or does not exist\n");
         return false;
@@ -330,7 +331,7 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool sil
     DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
     try
     {
-        liquidDb2.Load(&liquidTypeSource, LiquidTypeLoadInfo::Instance());
+        liquidDb2.Load(&liquidTypeSource, &LiquidTypeLoadInfo::Instance);
         for (uint32 x = 0; x < liquidDb2.GetRecordCount(); ++x)
         {
             DB2Record record = liquidDb2.GetRecord(x);
@@ -358,7 +359,7 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
     DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
     try
     {
-        mapDb2.Load(&mapSource, MapLoadInfo::Instance());
+        mapDb2.Load(&mapSource, &MapLoadInfo::Instance);
         for (uint32 x = 0; x < mapDb2.GetRecordCount(); ++x)
         {
             DB2Record record = mapDb2.GetRecord(x);
@@ -392,6 +393,10 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
 
 int main(int argc, char** argv)
 {
+    Trinity::VerifyOsVersion();
+
+    Trinity::Locale::Init();
+
     Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
 
     unsigned int threads = std::thread::hardware_concurrency();
@@ -453,3 +458,9 @@ int main(int argc, char** argv)
         printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
     return 0;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

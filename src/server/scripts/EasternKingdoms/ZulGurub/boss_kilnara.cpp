@@ -83,8 +83,6 @@ struct boss_kilnara : public BossAI
             }
         }
     */
-
-        DoMeleeAttackIfReady();
     }
 };
 

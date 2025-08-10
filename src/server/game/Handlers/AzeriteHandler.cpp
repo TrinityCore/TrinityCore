@@ -20,6 +20,7 @@
 #include "AzeriteItem.h"
 #include "AzeritePackets.h"
 #include "DB2Stores.h"
+#include "NPCPackets.h"
 #include "Player.h"
 #include "SpellHistory.h"
 
@@ -160,7 +161,7 @@ void WorldSession::HandleAzeriteEssenceActivateEssence(WorldPackets::Azerite::Az
         }
     }
     else
-        azeriteItem->CreateSelectedAzeriteEssences(_player->GetPrimarySpecialization());
+        azeriteItem->CreateSelectedAzeriteEssences(AsUnderlyingType(_player->GetPrimarySpecialization()));
 
     azeriteItem->SetSelectedAzeriteEssence(azeriteEssenceActivateEssence.Slot, azeriteEssenceActivateEssence.AzeriteEssenceID);
 
@@ -232,4 +233,13 @@ void WorldSession::HandleAzeriteEmpoweredItemSelectPower(WorldPackets::Azerite::
     }
 
     azeriteEmpoweredItem->SetState(ITEM_CHANGED, _player);
+}
+
+void WorldSession::SendAzeriteRespecNPC(ObjectGuid npc)
+{
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = npc;
+    npcInteraction.InteractionType = PlayerInteractionType::AzeriteRespec;
+    npcInteraction.Success = true;
+    SendPacket(npcInteraction.Write());
 }

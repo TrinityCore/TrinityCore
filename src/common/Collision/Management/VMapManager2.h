@@ -18,17 +18,14 @@
 #ifndef _VMAPMANAGER2_H
 #define _VMAPMANAGER2_H
 
+#include "Define.h"
+#include "IVMapManager.h"
+#include <memory>
 #include <mutex>
 #include <unordered_map>
 #include <vector>
-#include "Define.h"
-#include "IVMapManager.h"
 
 //===========================================================
-
-#define MAP_FILENAME_EXTENSION2 ".vmtree"
-
-#define FILENAMEBUFFER_SIZE 500
 
 /**
 This is the main Class to manage loading and unloading of maps, line of sight, height calculation and so on.
@@ -52,7 +49,7 @@ namespace VMAP
     class WorldModel;
 
     typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
-    typedef std::unordered_map<std::string, ManagedModel*> ModelFileMap;
+    typedef std::unordered_map<std::string, std::weak_ptr<ManagedModel>> ModelFileMap;
 
     enum DisableTypes
     {
@@ -68,7 +65,6 @@ namespace VMAP
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
-            std::unordered_map<uint32, std::vector<uint32>> iChildMapData;
             std::unordered_map<uint32, uint32> iParentMapData;
             bool thread_safe_environment;
             // Mutex for iLoadedModelFiles
@@ -89,14 +85,11 @@ namespace VMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
 
-            int loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
-            LoadResult loadSingleMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
+            LoadResult loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
 
             void unloadMap(unsigned int mapId, int x, int y) override;
-            void unloadSingleMap(uint32 mapId, int x, int y);
 
             void unloadMap(unsigned int mapId) override;
-            void unloadSingleMap(uint32 mapId);
 
             bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) override ;
             /**
@@ -107,12 +100,10 @@ namespace VMAP
 
             bool processCommand(char* /*command*/) override { return false; } // for debug and extensions
 
-            bool getAreaInfo(uint32 mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const override;
-            bool GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const override;
-            void getAreaAndLiquidData(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const override;
+            bool getAreaAndLiquidData(uint32 mapId, float x, float y, float z, Optional<uint8> reqLiquidType, AreaAndLiquidData& data) const override;
 
-            WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
-            void releaseModelInstance(const std::string& filename);
+            std::shared_ptr<WorldModel> acquireModelInstance(std::string const& basepath, std::string const& filename);
+            void releaseModelInstance(std::string const& filename);
 
             // what's the use of this? o.O
             virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const override

@@ -169,7 +169,8 @@ struct boss_ymiron : public BossAI
             {
                 DoCast(ancestor, SPELL_CHANNEL_YMIRON_TO_SPIRIT);
                 ancestor->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                ancestor->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                ancestor->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                ancestor->SetUninteractible(true);
                 ancestor->SetDisableGravity(true);
                 ActiveAncestorGUID = ancestor->GetGUID();
             }
@@ -304,8 +305,6 @@ private:
 // 48292 - Dark Slash
 class spell_dark_slash : public SpellScript
 {
-    PrepareSpellScript(spell_dark_slash);
-
     void CalculateDamage()
     {
         // Slashes the target with darkness, dealing damage equal to half the target's current health.

@@ -22,6 +22,14 @@
 #include "Map.h"
 #include "ScriptedCreature.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_TROLLGORE, {{ 1974 }} },
+    { DATA_NOVOS, {{ 1976 }} },
+    { DATA_KING_DRED, {{ 1977 }} },
+    { DATA_THARON_JA, {{ 1975 }} }
+};
+
 class instance_drak_tharon_keep : public InstanceMapScript
 {
     public:
@@ -33,6 +41,7 @@ class instance_drak_tharon_keep : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

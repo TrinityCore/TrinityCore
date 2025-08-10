@@ -234,8 +234,6 @@ struct npc_tiger_matriarch : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -287,7 +285,7 @@ struct npc_troll_volunteer : public ScriptedAI
         }
         me->SetDisplayId(trollmodel[urand(0, 39)]);
         if (Player* player = me->GetOwner()->ToPlayer())
-            me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * float(M_PI) / 3.0f * 4.0f);
+            me->GetMotionMaster()->MoveFollow(player, 5.0f, (rand_norm() + 1.0f) * float(M_PI) / 3.0f * 4.0f);
     }
 
     void Reset() override
@@ -338,8 +336,6 @@ typedef npc_troll_volunteer VolunteerAI;
 // 75420 - Mounting Check
 class spell_mount_check : public AuraScript
 {
-    PrepareAuraScript(spell_mount_check);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MOUNTING_CHECK });
@@ -374,8 +370,6 @@ class spell_mount_check : public AuraScript
 // 75102 - Vol'jin's War Drums
 class spell_voljin_war_drums : public SpellScript
 {
-    PrepareSpellScript(spell_voljin_war_drums);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_MOTIVATE_1, SPELL_MOTIVATE_2 });

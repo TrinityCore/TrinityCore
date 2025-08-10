@@ -20,9 +20,8 @@
 #include "Log.h"
 #include "StringFormat.h"
 #include <google/protobuf/message.h>
-#include <rapidjson/writer.h>
 #include <rapidjson/reader.h>
-#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <stack>
 
 class Serializer
@@ -188,7 +187,7 @@ class Deserializer : public rapidjson::BaseReaderHandler<rapidjson::UTF8<>, Dese
 public:
     bool ReadMessage(std::string const& json, google::protobuf::Message* message);
 
-    bool Key(const Ch* str, rapidjson::SizeType length, bool copy);
+    bool Key(Ch const* str, rapidjson::SizeType length, bool copy);
     bool Null();
     bool Bool(bool b);
     bool Int(int32 i);
@@ -196,7 +195,7 @@ public:
     bool Int64(int64 i);
     bool Uint64(uint64 i);
     bool Double(double d);
-    bool String(const Ch* str, rapidjson::SizeType length, bool copy);
+    bool String(Ch const* str, rapidjson::SizeType length, bool copy);
     bool StartObject();
     bool EndObject(rapidjson::SizeType memberCount);
     bool StartArray();
@@ -215,23 +214,24 @@ private:
 
 bool Deserializer::ReadMessage(std::string const& json, google::protobuf::Message* message)
 {
-    rapidjson::StringStream ss(json.c_str());
+    rapidjson::MemoryStream ms(json.data(), json.length());
+    rapidjson::EncodedInputStream<rapidjson::UTF8<>, rapidjson::MemoryStream> is(ms);
 
     _objectState.push(message);
 
-    rapidjson::ParseResult result = _reader.Parse(ss, *this);
+    rapidjson::ParseResult result = _reader.Parse(is, *this);
 
     ASSERT(result.IsError() || (_objectState.empty() && _state.empty()));
 
     return !result.IsError() && _errors.empty();
 }
 
-bool Deserializer::Key(const Ch* str, rapidjson::SizeType /*length*/, bool /*copy*/)
+bool Deserializer::Key(Ch const* str, rapidjson::SizeType /*length*/, bool /*copy*/)
 {
     google::protobuf::FieldDescriptor const* field = _objectState.top()->GetDescriptor()->FindFieldByName(str);
     if (!field)
     {
-        _errors.push_back(Trinity::StringFormat("Message %s has no field %s.", _objectState.top()->GetTypeName().c_str(), str));
+        _errors.push_back(Trinity::StringFormat("Message {} has no field {}.", _objectState.top()->GetTypeName(), str));
         return false;
     }
 
@@ -293,7 +293,7 @@ bool Deserializer::Uint(uint32 i)
             break;
         }
         default:
-            _errors.push_back(Trinity::StringFormat("Expected field type to be uint32 or string but got %s instead.", _state.top()->cpp_type_name()));
+            _errors.push_back(Trinity::StringFormat("Expected field type to be uint32 or string but got {} instead.", _state.top()->cpp_type_name()));
             return false;
     }
 
@@ -331,14 +331,14 @@ bool Deserializer::Double(double d)
             SET_FIELD(message, field, Double, d);
             break;
         default:
-            _errors.push_back(Trinity::StringFormat("Expected field type to be float or double but got %s instead.", _state.top()->cpp_type_name()));
+            _errors.push_back(Trinity::StringFormat("Expected field type to be float or double but got {} instead.", _state.top()->cpp_type_name()));
             return false;
     }
 
     return true;
 }
 
-bool Deserializer::String(const Ch* str, rapidjson::SizeType /*length*/, bool /*copy*/)
+bool Deserializer::String(Ch const* str, rapidjson::SizeType /*length*/, bool /*copy*/)
 {
     google::protobuf::FieldDescriptor const* field = _state.top();
     google::protobuf::Message* message = _objectState.top();
@@ -349,7 +349,7 @@ bool Deserializer::String(const Ch* str, rapidjson::SizeType /*length*/, bool /*
             google::protobuf::EnumValueDescriptor const* enumValue = field->enum_type()->FindValueByName(str);
             if (!enumValue)
             {
-                _errors.push_back(Trinity::StringFormat("Field %s enum %s does not have a value named %s.", field->full_name().c_str(), field->enum_type()->full_name().c_str(), str));
+                _errors.push_back(Trinity::StringFormat("Field {} enum {} does not have a value named {}.", field->full_name(), field->enum_type()->full_name(), str));
                 return false;
             }
 
@@ -360,7 +360,7 @@ bool Deserializer::String(const Ch* str, rapidjson::SizeType /*length*/, bool /*
             SET_FIELD(message, field, String, str);
             break;
         default:
-            _errors.push_back(Trinity::StringFormat("Expected field type to be string or enum but got %s instead.", _state.top()->cpp_type_name()));
+            _errors.push_back(Trinity::StringFormat("Expected field type to be string or enum but got {} instead.", _state.top()->cpp_type_name()));
             return false;
     }
 
@@ -374,7 +374,7 @@ bool Deserializer::StartObject()
     {
         if (_state.top()->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
         {
-            _errors.push_back(Trinity::StringFormat("Expected field %s to be a message but got %s instead.", _state.top()->cpp_type_name()));
+            _errors.push_back(Trinity::StringFormat("Expected field {} to be a message but got {} instead.", _state.top()->name(), _state.top()->cpp_type_name()));
             return false;
         }
 
@@ -409,7 +409,7 @@ bool Deserializer::StartArray()
 
     if (_state.top()->is_repeated() ^ (_state.top()->type() != google::protobuf::FieldDescriptor::TYPE_BYTES))
     {
-        _errors.push_back(Trinity::StringFormat("Expected field %s type to be exactly an array OR bytes but it was both or none.", _state.top()->full_name().c_str()));
+        _errors.push_back(Trinity::StringFormat("Expected field {} type to be exactly an array OR bytes but it was both or none.", _state.top()->full_name()));
         return false;
     }
 
@@ -420,8 +420,8 @@ bool Deserializer::CheckType(google::protobuf::FieldDescriptor::CppType expected
 {
     if (_state.top()->cpp_type() != expectedType)
     {
-        _errors.push_back(Trinity::StringFormat("Expected field %s type to be %s but got %s instead.",
-            _state.top()->full_name().c_str(), google::protobuf::FieldDescriptor::CppTypeName(expectedType), _state.top()->cpp_type_name()));
+        _errors.push_back(Trinity::StringFormat("Expected field {} type to be {} but got {} instead.",
+            _state.top()->full_name(), google::protobuf::FieldDescriptor::CppTypeName(expectedType), _state.top()->cpp_type_name()));
         return false;
     }
 
@@ -449,7 +449,7 @@ bool JSON::Deserialize(std::string const& json, google::protobuf::Message* messa
     if (!deserializer.ReadMessage(json, message))
     {
         for (std::size_t i = 0; i < deserializer.GetErrors().size(); ++i)
-            TC_LOG_ERROR("json", "%s", deserializer.GetErrors()[i].c_str());
+            TC_LOG_ERROR("json", "{}", deserializer.GetErrors()[i]);
         return false;
     }
 

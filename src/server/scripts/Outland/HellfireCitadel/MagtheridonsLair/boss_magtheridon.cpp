@@ -244,7 +244,7 @@ struct boss_magtheridon : public BossAI
                     CombatStart();
                     break;
                 case EVENT_RELEASED:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetImmuneToPC(false);
                     DoZoneInCombat();
                     events.SetPhase(PHASE_2);
@@ -290,8 +290,6 @@ struct boss_magtheridon : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -347,7 +345,7 @@ struct npc_hellfire_channeler : public ScriptedAI
     {
         if (_instance->GetBossState(DATA_MAGTHERIDON) == IN_PROGRESS)
             if (Creature* magtheridon = _instance->GetCreature(DATA_MAGTHERIDON))
-                magtheridon->AI()->EnterEvadeMode(EVADE_REASON_OTHER);
+                magtheridon->AI()->EnterEvadeMode(EvadeReason::Other);
     }
 
     void UpdateAI(uint32 diff) override
@@ -399,8 +397,6 @@ struct npc_hellfire_channeler : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -452,8 +448,6 @@ struct go_manticron_cube : public GameObjectAI
 // 30541 - Blaze
 class spell_magtheridon_blaze_target : public SpellScript
 {
-    PrepareSpellScript(spell_magtheridon_blaze_target);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BLAZE });
@@ -473,8 +467,6 @@ class spell_magtheridon_blaze_target : public SpellScript
 // 30410 - Shadow Grasp
 class spell_magtheridon_shadow_grasp : public AuraScript
 {
-    PrepareAuraScript(spell_magtheridon_shadow_grasp);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MIND_EXHAUSTION });
@@ -496,8 +488,6 @@ class spell_magtheridon_shadow_grasp : public AuraScript
 // 30166 - Shadow Grasp (Visual Effect)
 class spell_magtheridon_shadow_grasp_visual : public AuraScript
 {
-    PrepareAuraScript(spell_magtheridon_shadow_grasp_visual);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(

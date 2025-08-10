@@ -237,8 +237,6 @@ private:
 // 54956, 59827 - Impaling Charge
 class spell_gal_darah_impaling_charge : public SpellScript
 {
-    PrepareSpellScript(spell_gal_darah_impaling_charge);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_IMPALING_CHARGE_CONTROL_VEHICLE });
@@ -269,8 +267,6 @@ class spell_gal_darah_impaling_charge : public SpellScript
 // 59823 - Stampede (Rhino Spirit Charge)
 class spell_gal_darah_stampede_charge : public SpellScript
 {
-    PrepareSpellScript(spell_gal_darah_stampede_charge);
-
     void OnHit(SpellEffIndex /*effIndex*/)
     {
         if (Creature* caster = GetCaster()->ToCreature())
@@ -286,8 +282,6 @@ class spell_gal_darah_stampede_charge : public SpellScript
 // 60022 - Clear Puncture
 class spell_gal_darah_clear_puncture : public SpellScript
 {
-    PrepareSpellScript(spell_gal_darah_clear_puncture);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PUNCTURE, SPELL_PUNCTURE_HEROIC });

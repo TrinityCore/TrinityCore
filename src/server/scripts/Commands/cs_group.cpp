@@ -22,6 +22,7 @@
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "Group.h"
 #include "GroupMgr.h"
 #include "Language.h"
 #include "LFG.h"
@@ -91,27 +92,24 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        for (GroupReference const& it : groupTarget->GetMembers())
         {
-            target = it->GetSource();
-            if (target)
+            target = it.GetSource();
+            uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+
+            if (level != oldlevel)
             {
-                uint8 oldlevel = static_cast<uint8>(target->GetLevel());
+                target->SetLevel(static_cast<uint8>(level));
+                target->InitTalentForLevel();
+                target->SetXP(0);
+            }
 
-                if (level != oldlevel)
-                {
-                    target->SetLevel(static_cast<uint8>(level));
-                    target->InitTalentForLevel();
-                    target->SetXP(0);
-                }
-
-                if (handler->needReportToTarget(target))
-                {
-                    if (oldlevel < static_cast<uint8>(level))
-                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), level);
-                    else                                                // if (oldlevel > newlevel)
-                        ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), level);
-                }
+            if (handler->needReportToTarget(target))
+            {
+                if (oldlevel < static_cast<uint8>(level))
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_UP, handler->GetNameLink().c_str(), level);
+                else                                                // if (oldlevel > newlevel)
+                    ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_LEVEL_DOWN, handler->GetNameLink().c_str(), level);
             }
         }
         return true;
@@ -127,15 +125,12 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
+        for (GroupReference const& it : groupTarget->GetMembers())
         {
-            Player* target = it->GetSource();
-            if (target)
-            {
-                target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
-                target->SpawnCorpseBones();
-                target->SaveToDB();
-            }
+            Player* target = it.GetSource();
+            target->ResurrectPlayer(target->GetSession()->HasPermission(rbac::RBAC_PERM_RESURRECT_WITH_FULL_HPS) ? 1.0f : 0.5f);
+            target->SpawnCorpseBones();
+            target->SaveToDB();
         }
 
         return true;
@@ -152,14 +147,8 @@ public:
         if (!groupTarget)
             return false;
 
-        for (GroupReference* it = groupTarget->GetFirstMember(); it != nullptr; it = it->next())
-        {
-            Player* target = it->GetSource();
-            if (target)
-            {
-                target->DurabilityRepairAll(false, 0, false);
-            }
-        }
+        for (GroupReference const& it : groupTarget->GetMembers())
+            it.GetSource()->DurabilityRepairAll(false, 0, false);
 
         return true;
     }
@@ -203,11 +192,11 @@ public:
             }
         }
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            Player* player = itr->GetSource();
+            Player* player = itr.GetSource();
 
-            if (!player || player == gmPlayer || !player->GetSession())
+            if (player == gmPlayer)
                 continue;
 
             // check online security
@@ -250,7 +239,7 @@ public:
             // before GM
             float x, y, z;
             gmPlayer->GetClosePoint(x, y, z, player->GetCombatReach());
-            player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation(), 0, gmPlayer->GetInstanceId());
+            player->TeleportTo(gmPlayer->GetMapId(), x, y, z, player->GetOrientation(), TELE_TO_NONE, gmPlayer->GetInstanceId());
         }
 
         return true;
@@ -430,40 +419,22 @@ public:
         return true;
     }
 
-    static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
+    static bool HandleGroupListCommand(ChatHandler* handler, PlayerIdentifier const& target)
     {
-        // Get ALL the variables!
-        Player* playerTarget;
-        ObjectGuid guidTarget;
-        std::string nameTarget;
-        std::string zoneName;
-        char const* onlineState = "";
-
-        // Parse the guid to uint32...
-        ObjectGuid parseGUID = ObjectGuid::Create<HighGuid::Player>(strtoull(args, nullptr, 10));
-
-        // ... and try to extract a player out of it.
-        if (sCharacterCache->GetCharacterNameByGuid(parseGUID, nameTarget))
-        {
-            playerTarget = ObjectAccessor::FindPlayer(parseGUID);
-            guidTarget = parseGUID;
-        }
-        // If not, we return false and end right away.
-        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
-            return false;
+        char const* zoneName = "<ERROR>";
+        char const* onlineState = "Offline";
 
         // Next, we need a group. So we define a group variable.
         Group* groupTarget = nullptr;
 
         // We try to extract a group from an online player.
-        if (playerTarget)
-            groupTarget = playerTarget->GetGroup();
-
-        // If not, we extract it from the SQL.
-        if (!groupTarget)
+        if (target.IsConnected())
+            groupTarget = target.GetConnectedPlayer()->GetGroup();
+        else
         {
+            // If not, we extract it from the SQL.
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
-            stmt->setUInt64(0, guidTarget.GetCounter());
+            stmt->setUInt64(0, target.GetGUID().GetCounter());
             PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
             if (resultGroup)
                 groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
@@ -472,7 +443,7 @@ public:
         // If both fails, players simply has no party. Return false.
         if (!groupTarget)
         {
-            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, target.GetName().c_str());
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -523,23 +494,17 @@ public:
                 phases = PhasingHandler::FormatPhases(p->GetPhaseShift());
 
                 AreaTableEntry const* area = sAreaTableStore.LookupEntry(p->GetAreaId());
-                if (area)
+                if (area && area->GetFlags().HasFlag(AreaFlags::IsSubzone))
                 {
                     AreaTableEntry const* zone = sAreaTableStore.LookupEntry(area->ParentAreaID);
                     if (zone)
                         zoneName = zone->AreaName[locale];
                 }
             }
-            else
-            {
-                // ... else, everything is set to offline or neutral values.
-                zoneName    = "<ERROR>";
-                onlineState = "Offline";
-            }
 
             // Now we can print those informations for every single member of each group!
             handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                zoneName.c_str(), phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
+                zoneName, phases.c_str(), slot.guid.ToString().c_str(), flags.c_str(),
                 lfg::GetRolesString(slot.roles).c_str());
         }
 

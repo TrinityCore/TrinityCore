@@ -17,22 +17,29 @@
 
 #include "RandomMovementGenerator.h"
 #include "Creature.h"
-#include "MovementDefines.h"
+#include "CreatureAI.h"
 #include "MoveSpline.h"
 #include "MoveSplineInit.h"
+#include "MovementDefines.h"
 #include "PathGenerator.h"
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::RandomMovementGenerator(float distance) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
+RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
     this->Flags = MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING;
     this->BaseUnitState = UNIT_STATE_ROAMING;
+    this->ScriptResult = std::move(scriptResult);
+    if (duration)
+        _duration.emplace(*duration);
 }
 
-template RandomMovementGenerator<Creature>::RandomMovementGenerator(float/* distance*/);
+template
+RandomMovementGenerator<Creature>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
 
 template<class T>
 MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() const
@@ -41,7 +48,7 @@ MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() con
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
+void RandomMovementGenerator<T>::Pause(uint32 timer)
 {
     if (timer)
     {
@@ -57,7 +64,7 @@ void RandomMovementGenerator<T>::Pause(uint32 timer /*= 0*/)
 }
 
 template<class T>
-void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
+void RandomMovementGenerator<T>::Resume(uint32 overrideTimer)
 {
     if (overrideTimer)
         _timer.Reset(overrideTimer);
@@ -121,8 +128,8 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
     }
 
     Position position(_reference);
-    float distance = frand(0.f, _wanderDistance);
-    float angle = frand(0.f, float(M_PI * 2));
+    float distance = _wanderDistance > 0.1f ? frand(0.1f, _wanderDistance) : _wanderDistance;
+    float angle = frand(0.f, static_cast<float>(M_PI * 2));
     owner->MovePositionToFirstCollision(position, distance, angle);
 
     // Check if the destination is in LOS
@@ -146,6 +153,13 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
                 /*|| (_path->GetPathType() & PATHFIND_FARFROMPOLY)*/)
     {
         _timer.Reset(100);
+        return;
+    }
+
+    if (_path->GetPathLength() < 0.1f)
+    {
+        // the path is too short for the spline system to be accepted. Let's try again soon.
+        _timer.Reset(500);
         return;
     }
 
@@ -200,6 +214,17 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED))
         return true;
 
+    if (_duration)
+    {
+        _duration->Update(diff);
+        if (_duration->Passed())
+        {
+            RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
+            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            return false;
+        }
+    }
+
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
@@ -231,7 +256,7 @@ template<class T>
 void RandomMovementGenerator<T>::DoFinalize(T*, bool, bool) { }
 
 template<>
-void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool/* movementInform*/)
+void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool movementInform)
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
@@ -242,4 +267,16 @@ void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active,
         // TODO: Research if this modification is needed, which most likely isnt
         owner->SetWalk(false);
     }
+
+    if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
+    {
+        SetScriptResult(MovementStopReason::Finished);
+        if (owner->IsAIEnabled())
+            owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
+    }
+}
+
+MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
+{
+    return new RandomMovementGenerator<Creature>();
 }

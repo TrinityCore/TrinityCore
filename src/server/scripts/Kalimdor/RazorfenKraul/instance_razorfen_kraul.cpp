@@ -26,9 +26,19 @@ EndScriptData */
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Unit.h"
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
+
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { BOSS_HUNTER_BONETUSK, { { 1656 } } },
+    { BOSS_ROOGUG, { { 438 } } },
+    { BOSS_WARLORD_RAMTUSK, { { 1659 } } },
+    { BOSS_GROYAT_THE_BLIND_HUNTER, { { 1660 } } },
+    { BOSS_CHARLGA_RAZORFLANK, { { 1661 } } },
+};
 
 class instance_razorfen_kraul : public InstanceMapScript
 {
@@ -45,11 +55,26 @@ public:
         instance_razorfen_kraul_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(Encounters);
             WardKeeperDeath = 0;
         }
 
         ObjectGuid DoorWardGUID;
         int WardKeeperDeath;
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            switch (unit->GetEntry())
+            {
+                case NPC_HUNTER_BONETUSK:           SetBossState(BOSS_HUNTER_BONETUSK, DONE); break;
+                case NPC_ROOGUG:                    SetBossState(BOSS_ROOGUG, DONE); break;
+                case NPC_WARLORD_RAMTUSK:           SetBossState(BOSS_WARLORD_RAMTUSK, DONE); break;
+                case NPC_GROYAT_THE_BLIND_HUNTER:   SetBossState(BOSS_GROYAT_THE_BLIND_HUNTER, DONE); break;
+                case NPC_CHARLGA_RAZORFLANK:        SetBossState(BOSS_CHARLGA_RAZORFLANK, DONE); break;
+                default:                            break;
+            }
+        }
 
         void OnGameObjectCreate(GameObject* go) override
         {

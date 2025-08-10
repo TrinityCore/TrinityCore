@@ -21,7 +21,7 @@
 #include "CreatureAIImpl.h"
 
 #define BFDScriptName "instance_blackfathom_deeps"
-#define DataHeader "BFD"
+#define DataHeader "BFDv1"
 
 uint32 const EncounterCount = 3;
 

@@ -40,7 +40,7 @@ DWORD CascDecompress(LPBYTE pbOutBuffer, PDWORD pcbOutBuffer, LPBYTE pbInBuffer,
     {
         // Call zlib to decompress the data
         nResult = inflate(&z, Z_NO_FLUSH);
-        if (nResult == Z_OK || nResult == Z_STREAM_END)
+        if(nResult == Z_OK || nResult == Z_STREAM_END)
         {
             // Give the size of the uncompressed data
             cbOutBuffer = z.total_out;

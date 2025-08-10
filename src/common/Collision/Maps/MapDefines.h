@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "EnumFlag.h"
+#include "Optional.h"
 #include <array>
 
 /// Represents a map magic value of 4 bytes (used in versions)
@@ -107,6 +108,14 @@ enum class map_liquidHeaderTypeFlags : uint8
 
 DEFINE_ENUM_FLAG(map_liquidHeaderTypeFlags);
 
+enum class LiquidMaterialFlags : int32
+{
+    Transparent = 0x1,
+    VisualOnly  = 0x2,
+};
+
+DEFINE_ENUM_FLAG(LiquidMaterialFlags);
+
 struct map_liquidHeader
 {
     u_map_magic liquidMagic;
@@ -118,6 +127,50 @@ struct map_liquidHeader
     uint8  width;
     uint8  height;
     float  liquidLevel;
+};
+
+enum ZLiquidStatus : uint32
+{
+    LIQUID_MAP_NO_WATER     = 0x00000000,
+    LIQUID_MAP_ABOVE_WATER  = 0x00000001,
+    LIQUID_MAP_WATER_WALK   = 0x00000002,
+    LIQUID_MAP_IN_WATER     = 0x00000004,
+    LIQUID_MAP_UNDER_WATER  = 0x00000008,
+    LIQUID_MAP_OCEAN_FLOOR  = 0x00000010
+};
+
+#define MAP_LIQUID_STATUS_SWIMMING (LIQUID_MAP_IN_WATER | LIQUID_MAP_UNDER_WATER)
+#define MAP_LIQUID_STATUS_IN_CONTACT (MAP_LIQUID_STATUS_SWIMMING | LIQUID_MAP_WATER_WALK)
+
+struct LiquidData
+{
+    EnumFlag<map_liquidHeaderTypeFlags> type_flags = map_liquidHeaderTypeFlags::NoWater;
+    uint32 entry;
+    float  level;
+    float  depth_level;
+};
+
+struct WmoLocation
+{
+    WmoLocation() = default;
+    WmoLocation(int32 groupId, int32 nameSetId, int32 rootId, uint32 uniqueId)
+        : GroupId(groupId), NameSetId(nameSetId), RootId(rootId), UniqueId(uniqueId) { }
+
+    int32 GroupId = 0;
+    int32 NameSetId = 0;
+    int32 RootId = 0;
+    uint32 UniqueId = 0;
+};
+
+struct PositionFullTerrainStatus
+{
+    PositionFullTerrainStatus() : areaId(0), floorZ(0.0f), outdoors(true), liquidStatus(LIQUID_MAP_NO_WATER) { }
+    uint32 areaId;
+    float floorZ;
+    bool outdoors;
+    ZLiquidStatus liquidStatus;
+    Optional<WmoLocation> wmoLocation;
+    Optional<LiquidData> liquidInfo;
 };
 
 #endif // MapDefines_h__

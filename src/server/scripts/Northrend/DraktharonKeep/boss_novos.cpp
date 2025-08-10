@@ -342,7 +342,7 @@ struct npc_crystal_channel_target : public ScriptedAI
         }
 
         if (summon)
-            summon->GetMotionMaster()->MovePath(summon->GetEntry() * 100, false);
+            summon->GetMotionMaster()->MovePath((summon->GetEntry() * 100) << 3, false);
 
         if (_spell == SPELL_SUMMON_CRYSTAL_HANDLER)
             Reset();
@@ -368,8 +368,6 @@ public:
 // 59910 - Summon Minions
 class spell_novos_summon_minions : public SpellScript
 {
-    PrepareSpellScript(spell_novos_summon_minions);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_COPY_OF_MINIONS });

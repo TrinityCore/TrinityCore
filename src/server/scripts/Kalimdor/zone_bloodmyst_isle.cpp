@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "MotionMaster.h"
@@ -200,10 +201,8 @@ public:
 
             if (Creature* legoso = me->FindNearestCreature(NPC_LEGOSO, SIZE_OF_GRIDS))
             {
-                Group* group = me->GetLootRecipientGroup();
-
                 if (killer->GetGUID() == legoso->GetGUID() ||
-                    (group && group->IsMember(killer->GetGUID())) ||
+                    (killer->IsPlayer() && me->isTappedBy(killer->ToPlayer())) ||
                     killer->GetGUID() == legoso->AI()->GetGUID(DATA_EVENT_STARTER_GUID))
                     legoso->AI()->DoAction(ACTION_LEGOSO_SIRONAS_KILLED);
             }
@@ -236,8 +235,6 @@ public:
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
 
         void DoAction(int32 param) override
@@ -285,6 +282,8 @@ public:
 ## npc_demolitionist_legoso
 ######*/
 
+static constexpr uint32 PATH_ESCORT_LEGOSO = 143858;
+
 class npc_demolitionist_legoso : public CreatureScript
 {
 public:
@@ -308,7 +307,8 @@ public:
             if (quest->GetQuestId() == QUEST_ENDING_THEIR_WORLD)
             {
                 SetGUID(player->GetGUID(), DATA_EVENT_STARTER_GUID);
-                Start(true, true, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_LEGOSO);
+                Start(true, player->GetGUID(), quest);
             }
         }
 
@@ -389,8 +389,6 @@ public:
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
             if (HasEscortState(STATE_ESCORT_NONE))
@@ -427,12 +425,12 @@ public:
                             break;
                         case PHASE_PLANT_FIRST_STAND: // plant first explosives stage 1 stand
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            _moveTimer = 0.5* IN_MILLISECONDS;
+                            _moveTimer = 0.5* AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_WORK;
                             break;
                         case PHASE_PLANT_FIRST_WORK: // plant first explosives stage 2 work
                             Talk(SAY_LEGOSO_4);
-                            _moveTimer = 17.5 * IN_MILLISECONDS;
+                            _moveTimer = 17.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_PLANT_FIRST_FINISH;
                             break;
                         case PHASE_PLANT_FIRST_FINISH: // plant first explosives finish
@@ -446,7 +444,7 @@ public:
                             // force runoff movement so he will not screw up next waypoint
                             me->GetMotionMaster()->MovePoint(WP_EXPLOSIVES_FIRST_RUNOFF, -1955.6f, -10669.8f, 110.65f, false);
                             Talk(SAY_LEGOSO_5);
-                            _moveTimer = 1.5 * IN_MILLISECONDS;
+                            _moveTimer = 1.5 * AsUnderlyingType(IN_MILLISECONDS);
                             _phase = PHASE_CONTINUE;
                             break;
                         case PHASE_PLANT_FIRST_TIMER_1: // first explosives detonate timer 1
@@ -652,7 +650,7 @@ public:
                     SetEscortPaused(true);
                     me->SetFacingToObject(player);
                     Talk(SAY_LEGOSO_1);
-                    _moveTimer = 2.5 * IN_MILLISECONDS;
+                    _moveTimer = 2.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_CONTINUE;
                     break;
                 case WP_EXPLOSIVES_FIRST_POINT:
@@ -672,7 +670,7 @@ public:
                     break;
                 case WP_DEBUG_1:
                     SetEscortPaused(true);
-                    _moveTimer = 0.5 * IN_MILLISECONDS;
+                    _moveTimer = 0.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_WP_26;
                     break;
                 case WP_SIRONAS_HILL:
@@ -699,12 +697,12 @@ public:
                 }
                 case WP_EXPLOSIVES_SECOND_BATTLEROAR:
                     SetEscortPaused(true);
-                    _moveTimer = 0.2 * IN_MILLISECONDS;
+                    _moveTimer = 0.2 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_MEET_SIRONAS_ROAR;
                     break;
                 case WP_EXPLOSIVES_SECOND_PLANT:
                     SetEscortPaused(true);
-                    _moveTimer = 0.5 * IN_MILLISECONDS;
+                    _moveTimer = 0.5 * AsUnderlyingType(IN_MILLISECONDS);
                     _phase = PHASE_PLANT_SECOND_KNEEL;
                     break;
                 case WP_EXPLOSIVES_SECOND_DETONATE:
@@ -773,8 +771,6 @@ uint32 const CocoonSummonSpells[10] =
 // 30950 - Free Webbed Creature
 class spell_free_webbed : public SpellScript
 {
-    PrepareSpellScript(spell_free_webbed);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells);
@@ -794,8 +790,6 @@ class spell_free_webbed : public SpellScript
 // 31009 - Free Webbed Creature
 class spell_free_webbed_on_quest : public SpellScript
 {
-    PrepareSpellScript(spell_free_webbed_on_quest);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(CocoonSummonSpells) && ValidateSpellInfo({ SPELL_FREE_WEBBED_11 });

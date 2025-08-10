@@ -32,7 +32,7 @@ class GameObject;
 class PlayerAI;
 class WorldObject;
 struct Position;
-enum class QuestGiverStatus : uint32;
+enum class QuestGiverStatus : uint64;
 
 typedef std::vector<AreaBoundary const*> CreatureBoundary;
 
@@ -67,17 +67,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, Milliseconds despawnTime = 30s, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        // EnumUtils: DESCRIBE THIS (in CreatureAI::)
-        enum EvadeReason
-        {
-            EVADE_REASON_NO_HOSTILES,       // the creature's threat list is empty
-            EVADE_REASON_BOUNDARY,          // the creature has moved outside its evade boundary
-            EVADE_REASON_NO_PATH,           // the creature was unable to reach its target for over 5 seconds
-            EVADE_REASON_SEQUENCE_BREAK,    // this is a boss and the pre-requisite encounters for engaging it are not defeated yet
-            EVADE_REASON_OTHER,             // anything else
-        };
-
-        explicit CreatureAI(Creature* creature, uint32 scriptId = {});
+        explicit CreatureAI(Creature* creature, uint32 scriptId = {}) noexcept;
 
         virtual ~CreatureAI();
 
@@ -97,7 +87,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void TriggerAlert(Unit const* who) const;
 
         // Called for reaction at stopping attack at no attackers or targets
-        virtual void EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
+        virtual void EnterEvadeMode(EvadeReason why = EvadeReason::Other);
 
         // Called for reaction whenever we start being in combat (overridden from base UnitAI)
         void JustEnteredCombat(Unit* /*who*/) override;
@@ -107,6 +97,9 @@ class TC_GAME_API CreatureAI : public UnitAI
 
         // Called for reaction when initially engaged - this will always happen _after_ JustEnteredCombat
         virtual void JustEngagedWith(Unit* /*who*/) { }
+
+        // Called when the creature reaches 0 health (or 1 if unkillable).
+        virtual void OnHealthDepleted(Unit* /*attacker*/, bool /*isKill*/) { }
 
         // Called when the creature is killed
         virtual void JustDied(Unit* /*killer*/) { }
@@ -165,7 +158,8 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() { }
 
-        void DoZoneInCombat(Creature* creature = nullptr);
+        void DoZoneInCombat() { DoZoneInCombat(me); }
+        static void DoZoneInCombat(Creature* creature);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) { }
@@ -179,7 +173,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         /// == Triggered Actions Requested ==================
 
         // Called when creature attack expected (if creature can and no have current victim)
-        //virtual void AttackStart(Unit*) { }
+        void AttackStart(Unit* victim) override;
 
         // Called at World update tick
         //virtual void UpdateAI(const uint32 /*diff*/) { }
@@ -198,7 +192,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         /// == Gossip system ================================
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual Optional<QuestGiverStatus> GetDialogStatus(Player* player);
+        virtual Optional<QuestGiverStatus> GetDialogStatus(Player const* player);
 
         // Called when a player opens a gossip dialog with the creature.
         virtual bool OnGossipHello(Player* /*player*/) { return false; }
@@ -250,7 +244,7 @@ class TC_GAME_API CreatureAI : public UnitAI
         void EngagementOver();
         virtual void MoveInLineOfSight(Unit* /*who*/);
 
-        bool _EnterEvadeMode(EvadeReason why = EVADE_REASON_OTHER);
+        bool _EnterEvadeMode(EvadeReason why = EvadeReason::Other);
 
         CreatureBoundary const* _boundary;
         bool _negateBoundary;

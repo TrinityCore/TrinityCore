@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
 #include "InstanceScript.h"
@@ -93,7 +94,7 @@ Position const FryeMovePos = { -196.2483f, 2197.224f, 79.9315f, 0.0f };
 
 struct boss_apothecary_hummel : public BossAI
 {
-    boss_apothecary_hummel(Creature* creature) : BossAI(creature, DATA_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
+    boss_apothecary_hummel(Creature* creature) : BossAI(creature, BOSS_APOTHECARY_HUMMEL), _deadCount(0), _isDead(false) { }
 
     bool OnGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
     {
@@ -148,7 +149,7 @@ struct boss_apothecary_hummel : public BossAI
                     _isDead = true;
                     me->RemoveAurasDueToSpell(SPELL_ALLURING_PERFUME);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH, true);
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     Talk(SAY_HUMMEL_DEATH);
                 }
             }
@@ -169,11 +170,11 @@ struct boss_apothecary_hummel : public BossAI
             Talk(SAY_HUMMEL_DEATH);
 
         events.Reset();
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-        instance->SetBossState(DATA_APOTHECARY_HUMMEL, DONE);
+        me->SetUninteractible(false);
+        instance->SetBossState(BOSS_APOTHECARY_HUMMEL, DONE);
 
         Map::PlayerList const& players = me->GetMap()->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.empty())
         {
             if (Group* group = players.begin()->GetSource()->GetGroup())
                 if (group->isLFGGroup())
@@ -255,8 +256,6 @@ struct boss_apothecary_hummel : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void OnQuestReward(Player* /*player*/, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
@@ -353,8 +352,6 @@ struct npc_apothecary_baxter : public npc_apothecary_genericAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -364,8 +361,6 @@ private:
 // 68965 - [DND] Lingering Fumes Targetting (starter)
 class spell_apothecary_lingering_fumes : public SpellScript
 {
-    PrepareSpellScript(spell_apothecary_lingering_fumes);
-
     void HandleAfterCast()
     {
         Unit* caster = GetCaster();
@@ -398,8 +393,6 @@ class spell_apothecary_lingering_fumes : public SpellScript
 // 68644 - [DND] Valentine Boss Validate Area
 class spell_apothecary_validate_area : public SpellScript
 {
-    PrepareSpellScript(spell_apothecary_validate_area);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_BUNNY_LOCKDOWN));
@@ -427,8 +420,6 @@ class spell_apothecary_validate_area : public SpellScript
 // 69038 - Throw Cologne
 class spell_apothecary_throw_cologne : public SpellScript
 {
-    PrepareSpellScript(spell_apothecary_throw_cologne);
-
     void HandleScript(SpellEffIndex /*effindex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_COLOGNE_SPILL, true);
@@ -443,8 +434,6 @@ class spell_apothecary_throw_cologne : public SpellScript
 // 68966 - Throw Perfume
 class spell_apothecary_throw_perfume : public SpellScript
 {
-    PrepareSpellScript(spell_apothecary_throw_perfume);
-
     void HandleScript(SpellEffIndex /*effindex*/)
     {
         GetHitUnit()->CastSpell(GetHitUnit(), SPELL_PERFUME_SPILL, true);
@@ -459,8 +448,6 @@ class spell_apothecary_throw_perfume : public SpellScript
 // 68798 - Concentrated Alluring Perfume Spill
 class spell_apothecary_perfume_spill : public AuraScript
 {
-    PrepareAuraScript(spell_apothecary_perfume_spill);
-
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_PERFUME_SPILL_DAMAGE, true);
@@ -475,8 +462,6 @@ class spell_apothecary_perfume_spill : public AuraScript
 // 68614 - Concentrated Irresistible Cologne Spill
 class spell_apothecary_cologne_spill : public AuraScript
 {
-    PrepareAuraScript(spell_apothecary_cologne_spill);
-
     void OnPeriodic(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(GetTarget(), SPELL_COLOGNE_SPILL_DAMAGE, true);

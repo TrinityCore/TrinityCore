@@ -30,11 +30,10 @@ enum OozeZap
 // 42489 - Cast Ooze Zap When Energized
 class spell_ooze_zap : public SpellScript
 {
-    PrepareSpellScript(spell_ooze_zap);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return spellInfo->GetEffects().size() > EFFECT_1 && ValidateSpellInfo({ SPELL_OOZE_ZAP });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } })
+            && ValidateSpellInfo({ SPELL_OOZE_ZAP });
     }
 
     SpellCastResult CheckRequirement()
@@ -65,8 +64,6 @@ class spell_ooze_zap : public SpellScript
 // 42485 - End of Ooze Channel
 class spell_ooze_zap_channel_end : public SpellScript
 {
-    PrepareSpellScript(spell_ooze_zap_channel_end);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_OOZE_CHANNEL_CREDIT });
@@ -89,8 +86,6 @@ class spell_ooze_zap_channel_end : public SpellScript
 // 42492 - Cast Energized
 class spell_energize_aoe : public SpellScript
 {
-    PrepareSpellScript(spell_energize_aoe);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_ENERGIZED });
@@ -135,8 +130,6 @@ enum RecoverTheCargo
 // 42287 - Salvage Wreckage
 class spell_dustwallow_marsh_salvage_wreckage : public SpellScript
 {
-    PrepareSpellScript(spell_dustwallow_marsh_salvage_wreckage);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_LOCKBOX, SPELL_SUMMON_BURROWER });

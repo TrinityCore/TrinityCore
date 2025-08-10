@@ -29,6 +29,7 @@ EndScriptData */
 #include "ChatCommand.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
+#include "IpAddress.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -161,6 +162,13 @@ public:
         return HandleBanHelper(BAN_IP, args, handler);
     }
 
+    static bool IsIPAddress(std::string const& text)
+    {
+        boost::system::error_code error;
+        Trinity::Net::make_address(text, error);
+        return !error;
+    }
+
     static bool HandleBanHelper(BanMode mode, char const* args, ChatHandler* handler)
     {
         if (!*args)
@@ -199,7 +207,7 @@ public:
                 }
                 break;
             case BAN_IP:
-                if (!IsIPAddress(nameOrIP.c_str()))
+                if (!IsIPAddress(nameOrIP))
                     return false;
                 break;
         }
@@ -278,7 +286,7 @@ public:
 
     static bool HandleBanInfoHelper(uint32 accountId, char const* accountName, ChatHandler* handler)
     {
-        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountId);
+        QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{}' ORDER BY bandate ASC", accountId);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOACCOUNTBAN, accountName);
@@ -360,22 +368,13 @@ public:
         return true;
     }
 
-    static bool HandleBanInfoIPCommand(ChatHandler* handler, char const* args)
+    static bool HandleBanInfoIPCommand(ChatHandler* handler, std::string& ip)
     {
-        if (!*args)
+        if (!IsIPAddress(ip))
             return false;
 
-        char* ipStr = strtok((char*)args, "");
-        if (!ipStr)
-            return false;
-
-        if (!IsIPAddress(ipStr))
-            return false;
-
-        std::string IP = ipStr;
-
-        LoginDatabase.EscapeString(IP);
-        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '%s'", IP.c_str());
+        LoginDatabase.EscapeString(ip);
+        QueryResult result = LoginDatabase.PQuery("SELECT ip, FROM_UNIXTIME(bandate), FROM_UNIXTIME(unbandate), unbandate-UNIX_TIMESTAMP(), banreason, bannedby, unbandate-bandate FROM ip_banned WHERE ip = '{}'", ip);
         if (!result)
         {
             handler->PSendSysMessage(LANG_BANINFO_NOIP);
@@ -436,7 +435,7 @@ public:
                 Field* fields = result->Fetch();
                 uint32 accountid = fields[0].GetUInt32();
 
-                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='%u' AND account_banned.id = account.id", accountid);
+                QueryResult banResult = LoginDatabase.PQuery("SELECT account.username FROM account, account_banned WHERE account_banned.id='{}' AND account_banned.id = account.id", accountid);
                 if (banResult)
                 {
                     Field* fields2 = banResult->Fetch();
@@ -467,7 +466,7 @@ public:
                     AccountMgr::GetName(accountId, accountName);
 
                 // No SQL injection. id is uint32.
-                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", accountId);
+                QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = {} ORDER BY unbandate", accountId);
                 if (banInfo)
                 {
                     Field* fields2 = banInfo->Fetch();
@@ -745,7 +744,7 @@ public:
                 }
                 break;
             case BAN_IP:
-                if (!IsIPAddress(nameOrIP.c_str()))
+                if (!IsIPAddress(nameOrIP))
                     return false;
                 break;
         }

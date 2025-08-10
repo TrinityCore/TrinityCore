@@ -32,8 +32,6 @@ enum UtgardeSpells
 // 59237 - Beast's Mark
 class spell_utgarde_pinnacle_beast_mark : public AuraScript
 {
-    PrepareAuraScript(spell_utgarde_pinnacle_beast_mark);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BEAST_MARK_DAMAGE_N, SPELL_BEAST_MARK_DAMAGE_H });

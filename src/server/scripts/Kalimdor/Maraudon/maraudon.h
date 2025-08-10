@@ -22,6 +22,28 @@
 
 #define MaraudonScriptName "instance_maraudon"
 
+enum MDBossIds
+{
+    BOSS_NOXXION                = 0,
+    BOSS_RAZORLASH              = 1,
+    BOSS_TINKERER_GIZLOCK       = 2,
+    BOSS_LORD_VYLETONGUE        = 3,
+    BOSS_CELEBRAS_THE_CURSED    = 4,
+    BOSS_LANDSLIDE              = 5,
+    BOSS_ROTGRIP                = 6,
+    BOSS_PRINCESS_THERADRAS     = 7,
+
+    MAX_ENCOUNTER
+};
+
+enum MDCreatureIds
+{
+    NPC_RAZORLASH           = 12258,
+    NPC_TINKERER_GIZLOCK    = 13601,
+    NPC_LORD_VYLETONGUE     = 12236,
+    NPC_ROTGRIP             = 13596,
+};
+
 template <class AI, class T>
 inline AI* GetMaraudonAI(T* obj)
 {
