@@ -237,11 +237,11 @@ class spell_mana_devourer_energy_void : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
-        Unit* target = GetTarget();
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
+        Unit* target = GetTarget();
         if (Aura* unstableMana = target->GetAura(SPELL_UNSTABLE_MANA))
             unstableMana->ModStackAmount(-1);
         else
