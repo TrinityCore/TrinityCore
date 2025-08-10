@@ -215,22 +215,12 @@ struct boss_brother_ironhull : public TidesageCouncilSharedAI
         me->SetPower(POWER_MANA, 0);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        TidesageCouncilSharedAI::EnterEvadeMode(why);
-    }
-
     void JustDied(Unit* killer) override
     {
         TidesageCouncilSharedAI::JustDied(killer);
 
         if (Creature* faye = instance->GetCreature(DATA_GALECALLER_FAYE))
             faye->AI()->Talk(SAY_BROTHER_DIES);
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        TidesageCouncilSharedAI::KilledUnit(victim);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -293,22 +283,12 @@ struct boss_galecaller_faye : public TidesageCouncilSharedAI
         me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA) / 2);
     }
 
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        TidesageCouncilSharedAI::EnterEvadeMode(why);
-    }
-
     void JustDied(Unit* killer) override
     {
         TidesageCouncilSharedAI::JustDied(killer);
 
         if (Creature* brother = instance->GetCreature(DATA_BROTHER_IRONHULL))
             brother->AI()->Talk(SAY_FAYE_DIES);
-    }
-
-    void KilledUnit(Unit* victim) override
-    {
-        TidesageCouncilSharedAI::KilledUnit(victim);
     }
 
     void JustEngagedWith(Unit* who) override
