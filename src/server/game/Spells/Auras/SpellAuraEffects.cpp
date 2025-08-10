@@ -4050,7 +4050,7 @@ void AuraEffect::HandleCancelEquipmentStats(AuraApplication const* aurApp, uint8
     }
 
     // apply / remove equiment set bonuses aswell
-    playerTarget->UpdateItemSetAuras(false, true, !apply);
+    UpdateItemSetAuras(playerTarget, false, true, !apply);
 }
 
 /********************************/

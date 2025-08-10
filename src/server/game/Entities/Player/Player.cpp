@@ -8388,9 +8388,12 @@ bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEf
     return true;
 }
 
-void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
+void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/, bool forced /*= false*/)
 {
     if (!item || item->GetTemplate()->HasFlag(ITEM_FLAG_LEGACY))
+        return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     for (ItemEffectEntry const* effectData : item->GetEffects())

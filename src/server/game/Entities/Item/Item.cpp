@@ -214,7 +214,7 @@ void RemoveItemsSetItem(Player* player, Item const* item)
 
 void UpdateItemSetAuras(Player* player, bool formChange, bool forced, bool apply)
 {
-    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
+    if (player->HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     // item set auras should always be applicable (if player fits conditions), except if SPELL_AURA_CANCEL_EQUIPMENT_STATS is applied

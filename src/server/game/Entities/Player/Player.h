@@ -3376,7 +3376,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item const* item);
 TC_GAME_API void RemoveItemsSetItem(Player* player, Item const* item);
-TC_GAME_API void UpdateItemSetAuras(Player* player, bool formChange, bool forced, bool apply);
+TC_GAME_API void UpdateItemSetAuras(Player* player, bool formChange, bool forced = false, bool apply = false);
 TC_GAME_API void DeleteItemSetEffects(ItemSetEffect* itemSetEffect);
 
 // Transforms a container of customization choices with continuous storage into iterator pair that does not depend on container
