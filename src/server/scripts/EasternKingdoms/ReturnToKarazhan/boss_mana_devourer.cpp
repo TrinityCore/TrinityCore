@@ -168,7 +168,8 @@ class spell_mana_devourer_coalesce_power : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_LOOSE_MANA_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_LOOSE_MANA_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -187,7 +188,8 @@ class spell_mana_devourer_energize : public AuraScript
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_MANA_DEVOURER_ENERGIZE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MANA_DEVOURER_ENERGIZE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
