@@ -211,9 +211,10 @@ class spell_mana_devourer_energy_discharge : public SpellScript
             float randomAngle = frand(0.0f, 2.0f * float(M_PI));
             float randomDist = frand(GetSpellInfo()->GetMinRange(), GetSpellInfo()->GetMaxRange());
 
-            Position pos(*GetCaster());
-            GetCaster()->MovePosition(pos, randomDist, randomAngle);
-            GetCaster()->CastSpell(pos, SPELL_ENGULFING_POWER, CastSpellExtraArgsInit{
+            Unit* caster = GetCaster();
+            Position pos = caster->GetPosition();
+            caster->MovePosition(pos, randomDist, randomAngle);
+            caster->CastSpell(pos, SPELL_ENGULFING_POWER, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
             });
@@ -222,7 +223,7 @@ class spell_mana_devourer_energy_discharge : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_mana_devourer_energy_discharge::HandleCast);
+        AfterCast += SpellCastFn(spell_mana_devourer_energy_discharge::HandleCast);
     }
 };
 
