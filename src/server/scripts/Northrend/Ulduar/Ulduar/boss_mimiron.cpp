@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
@@ -450,7 +451,7 @@ class boss_mimiron : public CreatureScript
                 DoCastAOE(SPELL_DESPAWN_ASSAULT_BOTS);
                 me->ExitVehicle();
                 // ExitVehicle() offset position is not implemented, so we make up for that with MoveJump()...
-                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), me->GetOrientation(), 10.f, 5.f);
+                me->GetMotionMaster()->MoveJump(me->GetPositionX() + (10.f * std::cos(me->GetOrientation())), me->GetPositionY() + (10.f * std::sin(me->GetOrientation())), me->GetPositionZ(), 10.f, 5.f);
                 events.ScheduleEvent(EVENT_OUTTRO_1, 7s);
             }
 
@@ -515,7 +516,8 @@ class boss_mimiron : public CreatureScript
                             {
                                 DoCast(mkii, SPELL_SEAT_7);
                                 mkii->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
-                                mkii->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                                mkii->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                                mkii->SetUninteractible(false);
                             }
                             events.ScheduleEvent(EVENT_INTRO_3, 2s);
                             break;
@@ -661,7 +663,7 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_OUTTRO_3:
                             DoCast(me, SPELL_TELEPORT_VISUAL);
-                            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                            me->SetUninteractible(true);
                             me->DespawnOrUnsummon(1s); // sniffs say 6 sec after, but it doesnt matter.
                             break;
                         default:
@@ -754,7 +756,8 @@ class boss_leviathan_mk_ii : public CreatureScript
                         break;
                     case DO_ASSEMBLED_COMBAT:
                         me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         events.SetPhase(PHASE_VOL7RON);
@@ -803,7 +806,7 @@ class boss_leviathan_mk_ii : public CreatureScript
                 switch (point)
                 {
                     case WP_MKII_P1_IDLE:
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                         DoCast(me, SPELL_HALF_HEAL);
 
                         if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -830,7 +833,8 @@ class boss_leviathan_mk_ii : public CreatureScript
             void Reset() override
             {
                 _Reset();
-                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                me->SetUninteractible(true);
                 me->SetReactState(REACT_PASSIVE);
                 _fireFighter = false;
                 _setupMine = true;
@@ -913,7 +917,6 @@ class boss_leviathan_mk_ii : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -990,8 +993,9 @@ class boss_vx_001 : public CreatureScript
                         events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX, 6s);
                         [[fallthrough]];
                     case DO_START_VX001:
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->SetImmuneToPC(false);
+                        me->SetUninteractible(false);
                         me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
                         me->SetEmoteState(EMOTE_ONESHOT_NONE); // Remove emotestate.
                         //me->SetHover(true); // Blizzard handles hover animation like this it seems.
@@ -1004,7 +1008,8 @@ class boss_vx_001 : public CreatureScript
                         break;
                     case DO_ASSEMBLED_COMBAT:
                         me->SetStandState(UNIT_STAND_STATE_STAND);
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUninteractible(false);
 
                         events.SetPhase(PHASE_VOL7RON);
                         events.ScheduleEvent(EVENT_ROCKET_STRIKE, 20s);
@@ -1173,8 +1178,9 @@ class boss_aerial_command_unit : public CreatureScript
                     case DO_START_AERIAL:
                         me->SetDisableGravity(false);
                         me->SetHover(true);
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                         me->SetImmuneToPC(false);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
 
                         events.SetPhase(PHASE_AERIAL_COMMAND_UNIT);
@@ -1193,7 +1199,8 @@ class boss_aerial_command_unit : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         break;
                     case DO_ASSEMBLED_COMBAT:
-                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUninteractible(false);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         events.SetPhase(PHASE_VOL7RON);
@@ -1227,7 +1234,7 @@ class boss_aerial_command_unit : public CreatureScript
                 if (type == POINT_MOTION_TYPE && point == WP_AERIAL_P4_POS)
                 {
                     me->SetFacingTo(VehicleRelocation[WP_AERIAL_P4_POS].GetOrientation());
-                    me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(true);
                     DoCastSelf(SPELL_CLEAR_ALL_DEBUFFS);
 
                     if (Creature* mimiron = instance->GetCreature(DATA_MIMIRON))
@@ -1329,8 +1336,6 @@ class npc_mimiron_assault_bot : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -1713,8 +1718,6 @@ class spell_mimiron_bomb_bot : public SpellScriptLoader
 
         class spell_mimiron_bomb_bot_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_bomb_bot_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitPlayer())
@@ -1727,7 +1730,8 @@ class spell_mimiron_bomb_bot : public SpellScriptLoader
             {
                 if (Creature* target = GetHitCreature())
                 {
-                    target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE | UNIT_FLAG_PACIFIED);
+                    target->SetUnitFlag(UNIT_FLAG_PACIFIED);
+                    target->SetUninteractible(true);
                     target->DespawnOrUnsummon(1s);
                 }
             }
@@ -1753,8 +1757,6 @@ class spell_mimiron_clear_fires : public SpellScriptLoader
 
         class spell_mimiron_clear_fires_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_clear_fires_SpellScript);
-
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitCreature())
@@ -1781,8 +1783,6 @@ class spell_mimiron_despawn_assault_bots : public SpellScriptLoader
 
         class spell_mimiron_despawn_assault_bots_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_despawn_assault_bots_SpellScript);
-
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitCreature())
@@ -1809,8 +1809,6 @@ class spell_mimiron_fire_search : public SpellScriptLoader
 
         class spell_mimiron_fire_search_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_fire_search_SpellScript);
-
         public:
             spell_mimiron_fire_search_SpellScript()
             {
@@ -1880,8 +1878,6 @@ class spell_mimiron_fire_search : public SpellScriptLoader
 // 64444 - Magnetic Core Summon
 class spell_mimiron_magnetic_core_summon : public SpellScript
 {
-    PrepareSpellScript(spell_mimiron_magnetic_core_summon);
-
     void ModDest(SpellDestination& dest)
     {
         Unit* caster = GetCaster();
@@ -1905,8 +1901,6 @@ class spell_mimiron_magnetic_core : public SpellScriptLoader
 
         class spell_mimiron_magnetic_core_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_magnetic_core_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if([](WorldObject* obj) { return obj->IsUnit() && (obj->ToUnit()->GetVehicleBase() || obj->ToUnit()->HasUnitFlag(UNIT_FLAG_NON_ATTACKABLE)); });
@@ -1925,8 +1919,6 @@ class spell_mimiron_magnetic_core : public SpellScriptLoader
 
         class spell_mimiron_magnetic_core_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_magnetic_core_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_MAGNETIC_CORE_VISUAL });
@@ -1978,8 +1970,6 @@ class spell_mimiron_napalm_shell : public SpellScriptLoader
 
         class spell_mimiron_napalm_shell_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_napalm_shell_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_NAPALM_SHELL, SPELL_NAPALM_SHELL_25 });
@@ -2027,8 +2017,6 @@ class spell_mimiron_plasma_blast : public SpellScriptLoader
 
         class spell_mimiron_plasma_blast_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_plasma_blast_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_PLASMA_BLAST });
@@ -2065,8 +2053,6 @@ class spell_mimiron_proximity_explosion : public SpellScriptLoader
 
         class spell_mimiron_proximity_explosion_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_proximity_explosion_SpellScript);
-
             void OnHit(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitPlayer())
@@ -2101,8 +2087,6 @@ class spell_mimiron_proximity_mines : public SpellScriptLoader
 
         class spell_mimiron_proximity_mines_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_proximity_mines_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_PROXIMITY_MINE });
@@ -2134,8 +2118,6 @@ class spell_mimiron_proximity_trigger : public SpellScriptLoader
 
         class spell_mimiron_proximity_trigger_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_proximity_trigger_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_PROXIMITY_MINE_EXPLOSION });
@@ -2175,8 +2157,6 @@ class spell_mimiron_rapid_burst : public SpellScriptLoader
 
         class spell_mimiron_rapid_burst_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_rapid_burst_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_RAPID_BURST_LEFT, SPELL_RAPID_BURST_RIGHT });
@@ -2215,8 +2195,6 @@ class spell_mimiron_rocket_strike : public SpellScriptLoader
 
         class spell_mimiron_rocket_strike_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_rocket_strike_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SCRIPT_EFFECT_ROCKET_STRIKE });
@@ -2264,8 +2242,6 @@ class spell_mimiron_rocket_strike_damage : public SpellScriptLoader
 
         class spell_mimiron_rocket_strike_damage_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_rocket_strike_damage_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_NOT_SO_FRIENDLY_FIRE });
@@ -2312,8 +2288,6 @@ class spell_mimiron_rocket_strike_target_select : public SpellScriptLoader
 
         class spell_mimiron_rocket_strike_target_select_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_rocket_strike_target_select_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_ROCKET_STRIKE });
@@ -2364,8 +2338,6 @@ class spell_mimiron_self_repair : public SpellScriptLoader
 
         class spell_mimiron_self_repair_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_self_repair_SpellScript);
-
             void HandleScript()
             {
                 if (GetCaster()->GetAI())
@@ -2392,8 +2364,6 @@ class spell_mimiron_summon_assault_bot : public SpellScriptLoader
 
         class spell_mimiron_summon_assault_bot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_summon_assault_bot_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT });
@@ -2429,8 +2399,6 @@ class spell_mimiron_summon_assault_bot_target : public SpellScriptLoader
 
         class spell_mimiron_summon_assault_bot_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_summon_assault_bot_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_ASSAULT_BOT_DUMMY });
@@ -2461,8 +2429,6 @@ class spell_mimiron_summon_fire_bot : public SpellScriptLoader
 
         class spell_mimiron_summon_fire_bot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_summon_fire_bot_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT });
@@ -2498,8 +2464,6 @@ class spell_mimiron_summon_fire_bot_target : public SpellScriptLoader
 
         class spell_mimiron_summon_fire_bot_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_summon_fire_bot_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_FIRE_BOT_DUMMY });
@@ -2530,8 +2494,6 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 
         class spell_mimiron_summon_flames_spread_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_summon_flames_spread_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
@@ -2567,8 +2529,6 @@ class spell_mimiron_summon_flames_spread : public SpellScriptLoader
 
         class spell_mimiron_summon_flames_spread_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_summon_flames_spread_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_FLAMES_SPREAD });
@@ -2602,8 +2562,6 @@ class spell_mimiron_summon_frost_bomb_target : public SpellScriptLoader
 
         class spell_mimiron_summon_frost_bomb_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_summon_frost_bomb_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_FROST_BOMB });
@@ -2651,8 +2609,6 @@ class spell_mimiron_summon_junk_bot : public SpellScriptLoader
 
         class spell_mimiron_summon_junk_bot_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_summon_junk_bot_AuraScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT });
@@ -2688,8 +2644,6 @@ class spell_mimiron_summon_junk_bot_target : public SpellScriptLoader
 
         class spell_mimiron_summon_junk_bot_target_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mimiron_summon_junk_bot_target_SpellScript);
-
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 return ValidateSpellInfo({ SPELL_SUMMON_JUNK_BOT_DUMMY });
@@ -2720,8 +2674,6 @@ class spell_mimiron_weld : public SpellScriptLoader
 
         class spell_mimiron_weld_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_mimiron_weld_AuraScript);
-
             void HandleTick(AuraEffect const* aurEff)
             {
                 Unit* caster = GetTarget();

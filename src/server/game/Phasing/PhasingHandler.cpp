@@ -20,8 +20,10 @@
 #include "ConditionMgr.h"
 #include "Creature.h"
 #include "DB2Stores.h"
+#include "DisableMgr.h"
 #include "Language.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
@@ -31,13 +33,18 @@
 #include "SpellAuraEffects.h"
 #include "TerrainMgr.h"
 #include "Vehicle.h"
-#include <boost/container/flat_set.hpp>
 #include <boost/container/small_vector.hpp>
 #include <sstream>
 
 namespace
 {
 PhaseShift const Empty;
+PhaseShift const AlwaysVisible = []
+{
+    PhaseShift phaseShift;
+    PhasingHandler::InitDbPhaseShift(phaseShift, PHASE_USE_FLAGS_ALWAYS_VISIBLE, 0, 0);
+    return phaseShift;
+}();
 
 inline PhaseFlags GetPhaseFlags(uint32 phaseId)
 {
@@ -78,14 +85,14 @@ public:
                         func(summon);
 
         if (Vehicle const* vehicle = unit->GetVehicleKit())
-            for (auto seat = vehicle->Seats.begin(); seat != vehicle->Seats.end(); ++seat)
-                if (Unit* passenger = ObjectAccessor::GetUnit(*unit, seat->second.Passenger.Guid); passenger && passenger != unit)
+            for (auto const& [_, seat] : vehicle->Seats)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*unit, seat.Passenger.Guid); passenger && passenger != unit)
                     if (_visited.insert(passenger).second)
                         func(passenger);
     }
 
 private:
-    boost::container::flat_set<WorldObject*, std::less<WorldObject*>, boost::container::small_vector<WorldObject*, 8>> _visited;
+    Trinity::Containers::FlatSet<WorldObject*, std::less<WorldObject*>, boost::container::small_vector<WorldObject*, 8>> _visited;
 };
 
 void PhasingHandler::AddPhase(WorldObject* object, uint32 phaseId, bool updateVisibility)
@@ -309,10 +316,13 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
         {
             for (PhaseAreaInfo const& phaseArea : *newAreaPhases)
             {
-                if (phaseArea.SubAreaExclusions.find(areaId) != phaseArea.SubAreaExclusions.end())
+                if (phaseArea.SubAreaExclusions.contains(areaId))
                     continue;
 
                 uint32 phaseId = phaseArea.PhaseInfo->Id;
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, phaseId, object))
+                    continue;
+
                 if (sConditionMgr->IsObjectMeetToConditions(srcInfo, phaseArea.Conditions))
                     phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), &phaseArea.Conditions);
                 else
@@ -361,7 +371,7 @@ void PhasingHandler::OnAreaChange(WorldObject* object)
     UpdateVisibilityIfNeeded(object, true, changed);
 }
 
-void PhasingHandler::OnConditionChange(WorldObject* object)
+bool PhasingHandler::OnConditionChange(WorldObject* object, bool updateVisibility /*= true*/)
 {
     PhaseShift& phaseShift = object->GetPhaseShift();
     PhaseShift& suppressedPhaseShift = object->GetSuppressedPhaseShift();
@@ -383,7 +393,7 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
 
     for (auto itr = suppressedPhaseShift.Phases.begin(); itr != suppressedPhaseShift.Phases.end();)
     {
-        if (sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
+        if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, itr->Id, object) && sConditionMgr->IsObjectMeetToConditions(srcInfo, *ASSERT_NOTNULL(itr->AreaConditions)))
         {
             changed = phaseShift.AddPhase(itr->Id, itr->Flags, itr->AreaConditions, itr->References) || changed;
             suppressedPhaseShift.ModifyPhasesReferences(itr, -itr->References);
@@ -473,7 +483,8 @@ void PhasingHandler::OnConditionChange(WorldObject* object)
             unit->RemoveNotOwnSingleTargetAuras(true);
     }
 
-    UpdateVisibilityIfNeeded(object, true, changed);
+    UpdateVisibilityIfNeeded(object, updateVisibility, changed);
+    return changed;
 }
 
 void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseShift)
@@ -482,15 +493,16 @@ void PhasingHandler::SendToPlayer(Player const* player, PhaseShift const& phaseS
     phaseShiftChange.Client = player->GetGUID();
     phaseShiftChange.Phaseshift.PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
     phaseShiftChange.Phaseshift.PersonalGUID = phaseShift.PersonalGuid;
-    phaseShiftChange.Phaseshift.Phases.reserve(phaseShift.Phases.size());
-    std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(phaseShiftChange.Phaseshift.Phases),
-        [](PhaseShift::PhaseRef const& phase) -> WorldPackets::Misc::PhaseShiftDataPhase { return { phase.Flags.AsUnderlyingType(), phase.Id }; });
-    phaseShiftChange.VisibleMapIDs.reserve(phaseShift.VisibleMapIds.size());
-    std::transform(phaseShift.VisibleMapIds.begin(), phaseShift.VisibleMapIds.end(), std::back_inserter(phaseShiftChange.VisibleMapIDs),
-        [](PhaseShift::VisibleMapIdContainer::value_type const& visibleMapId) { return visibleMapId.first; });
-    phaseShiftChange.UiMapPhaseIDs.reserve(phaseShift.UiMapPhaseIds.size());
-    std::transform(phaseShift.UiMapPhaseIds.begin(), phaseShift.UiMapPhaseIds.end(), std::back_inserter(phaseShiftChange.UiMapPhaseIDs),
-        [](PhaseShift::UiMapPhaseIdContainer::value_type const& uiWorldMapAreaIdSwap) { return uiWorldMapAreaIdSwap.first; });
+
+    phaseShiftChange.Phaseshift.Phases.resize(phaseShift.Phases.size());
+    std::ranges::transform(phaseShift.Phases, phaseShiftChange.Phaseshift.Phases.begin(),
+       [](PhaseShift::PhaseRef const& phase) { return WorldPackets::Misc::PhaseShiftDataPhase{ .PhaseFlags = phase.Flags.AsUnderlyingType(), .Id = phase.Id }; });
+
+    phaseShiftChange.VisibleMapIDs.resize(phaseShift.VisibleMapIds.size());
+    std::ranges::transform(phaseShift.VisibleMapIds, phaseShiftChange.VisibleMapIDs.begin(), Trinity::Containers::MapKey);
+
+    phaseShiftChange.UiMapPhaseIDs.resize(phaseShift.UiMapPhaseIds.size());
+    std::ranges::transform(phaseShift.UiMapPhaseIds, phaseShiftChange.UiMapPhaseIDs.begin(), Trinity::Containers::MapKey);
 
     player->SendDirectMessage(phaseShiftChange.Write());
 }
@@ -504,14 +516,19 @@ void PhasingHandler::FillPartyMemberPhase(WorldPackets::Party::PartyMemberPhaseS
 {
     partyMemberPhases->PhaseShiftFlags = phaseShift.Flags.AsUnderlyingType();
     partyMemberPhases->PersonalGUID = phaseShift.PersonalGuid;
-    partyMemberPhases->List.reserve(phaseShift.Phases.size());
-    std::transform(phaseShift.Phases.begin(), phaseShift.Phases.end(), std::back_inserter(partyMemberPhases->List),
-        [](PhaseShift::PhaseRef const& phase) -> WorldPackets::Party::PartyMemberPhase { return { phase.Flags.AsUnderlyingType(), phase.Id }; });
+    partyMemberPhases->List.resize(phaseShift.Phases.size());
+    std::ranges::transform(phaseShift.Phases, partyMemberPhases->List.begin(),
+        [](PhaseShift::PhaseRef const& phase) { return WorldPackets::Party::PartyMemberPhase{ .Flags = phase.Flags.AsUnderlyingType(), .Id = phase.Id }; });
 }
 
 PhaseShift const& PhasingHandler::GetEmptyPhaseShift()
 {
     return Empty;
+}
+
+PhaseShift const& PhasingHandler::GetAlwaysVisiblePhaseShift()
+{
+    return AlwaysVisible;
 }
 
 void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlags, uint16 phaseId, uint32 phaseGroupId)
@@ -527,9 +544,10 @@ void PhasingHandler::InitDbPhaseShift(PhaseShift& phaseShift, uint8 phaseUseFlag
 
     if (phaseId)
         phaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), nullptr);
-    else if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId))
-        for (uint32 phaseInGroup : *phasesInGroup)
-            phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
+    else if (phaseGroupId)
+        if (std::vector<uint32> const* phasesInGroup = sDB2Manager.GetPhasesForGroup(phaseGroupId))
+            for (uint32 phaseInGroup : *phasesInGroup)
+                phaseShift.AddPhase(phaseInGroup, GetPhaseFlags(phaseInGroup), nullptr);
 
     if (phaseShift.Phases.empty() || phaseShift.HasPhase(DEFAULT_PHASE))
     {
@@ -563,10 +581,10 @@ bool PhasingHandler::InDbPhaseShift(WorldObject const* object, uint8 phaseUseFla
     return object->GetPhaseShift().CanSee(phaseShift);
 }
 
-uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo const* terrain, float x, float y)
+uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, uint32 mapId, TerrainInfo const* terrain, float x, float y)
 {
     if (phaseShift.VisibleMapIds.empty())
-        return terrain->GetId();
+        return mapId;
 
     if (phaseShift.VisibleMapIds.size() == 1)
         return phaseShift.VisibleMapIds.begin()->first;
@@ -579,7 +597,7 @@ uint32 PhasingHandler::GetTerrainMapId(PhaseShift const& phaseShift, TerrainInfo
         if (terrain->HasChildTerrainGridFile(visibleMap.first, gx, gy))
             return visibleMap.first;
 
-    return terrain->GetId();
+    return mapId;
 }
 
 void PhasingHandler::SetAlwaysVisible(WorldObject* object, bool apply, bool updateVisibility)
@@ -630,6 +648,8 @@ void PhasingHandler::PrintToChat(ChatHandler* chat, WorldObject const* target)
                 phases << ' ' << '(' << cosmetic << ')';
             if (phase.Flags.HasFlag(PhaseFlags::Personal))
                 phases << ' ' << '(' << personal << ')';
+            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_PHASE_AREA, phase.Id, nullptr))
+                phases << " (Disabled)";
         }
 
         chat->PSendSysMessage(LANG_PHASESHIFT_PHASES, phases.str().c_str());
@@ -660,7 +680,7 @@ std::string PhasingHandler::FormatPhases(PhaseShift const& phaseShift)
     for (PhaseShift::PhaseRef const& phase : phaseShift.Phases)
         phases << phase.Id << ',';
 
-    return phases.str();
+    return std::move(phases).str();
 }
 
 bool PhasingHandler::IsPersonalPhase(uint32 phaseId)

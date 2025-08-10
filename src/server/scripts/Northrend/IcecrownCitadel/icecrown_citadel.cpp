@@ -17,6 +17,7 @@
 
 #include "icecrown_citadel.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GameObjectAI.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
@@ -378,7 +379,7 @@ struct npc_highlord_tirion_fordring_lh : public ScriptedAI
                 case EVENT_MURADIN_RUN:
                 case EVENT_SAURFANG_RUN:
                     if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
-                        factionNPC->GetMotionMaster()->MovePath(factionNPC->GetSpawnId() * 10, false);
+                        factionNPC->GetMotionMaster()->MovePath((factionNPC->GetSpawnId() * 10) << 3, false);
                     me->setActive(false);
                     _damnedKills = 3;
                     break;
@@ -498,8 +499,6 @@ struct npc_rotting_frost_giant : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -624,7 +623,7 @@ public:
 
     bool operator()(Creature* target) const
     {
-        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPath() || _owner->GetDistance(target) > 10.0f)
+        if (!target->IsAlive() || (_checkCasting && target->HasUnitState(UNIT_STATE_CASTING)) || target->GetWaypointPathId() || _owner->GetDistance(target) > 10.0f)
             return false;
 
         switch (target->GetEntry())
@@ -778,7 +777,7 @@ struct DarkFallenAI : public ScriptedAI
 
     void Reset() override
     {
-        IsDoingEmotes = me->GetWaypointPath() ? false : true;
+        IsDoingEmotes = me->GetWaypointPathId() ? false : true;
         Scheduler.CancelAll();
         Scheduler.SetValidator([this]
         {
@@ -847,8 +846,6 @@ struct DarkFallenAI : public ScriptedAI
 
         if (AttackSpellId)
             DoSpellAttackIfReady(AttackSpellId);
-        else
-            DoMeleeAttackIfReady();
     }
 
 protected:
@@ -883,7 +880,10 @@ struct npc_darkfallen_blood_knight : public DarkFallenAI
 
 struct npc_darkfallen_noble : public DarkFallenAI
 {
-    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_noble(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
@@ -933,8 +933,6 @@ struct npc_vampiric_fiend : public ScriptedAI
             return;
 
         _scheduler.Update(diff);
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -943,7 +941,10 @@ private:
 
 struct npc_darkfallen_archmage : public DarkFallenAI
 {
-    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature) { }
+    npc_darkfallen_archmage(Creature* creature) : DarkFallenAI(creature)
+    {
+        me->SetCanMelee(false); // DoSpellAttackIfReady
+    }
 
     void ScheduleSpells() override
     {
@@ -1102,8 +1103,6 @@ struct npc_icc_nerubar_broodkeeper : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1163,8 +1162,6 @@ private:
 // 70227 - Empowered Blood
 class spell_icc_empowered_blood : public AuraScript
 {
-    PrepareAuraScript(spell_icc_empowered_blood);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD_2 });
@@ -1190,8 +1187,6 @@ class spell_icc_empowered_blood : public AuraScript
 // 70304 - Empowered Blood
 class spell_icc_empowered_blood_3 : public AuraScript
 {
-    PrepareAuraScript(spell_icc_empowered_blood_3);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD_4 });
@@ -1217,8 +1212,6 @@ class spell_icc_empowered_blood_3 : public AuraScript
 // 70299 - Siphon Essence
 class spell_icc_siphon_essence : public AuraScript
 {
-    PrepareAuraScript(spell_icc_siphon_essence);
-
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_CANCEL && GetTarget()->IsAIEnabled())
@@ -1234,8 +1227,6 @@ class spell_icc_siphon_essence : public AuraScript
 // 70450 - Blood Mirror
 class spell_darkfallen_blood_mirror : public SpellScript
 {
-    PrepareSpellScript(spell_darkfallen_blood_mirror);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_BLOOD_MIRROR_2, SPELL_BLOOD_MIRROR_DAMAGE_SHARE });
@@ -1282,8 +1273,6 @@ private:
 // 70939 - Blood Queen Lana'thel - Clear all Status Ailments
 class spell_generic_remove_empowered_blood : public SpellScript
 {
-    PrepareSpellScript(spell_generic_remove_empowered_blood);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_EMPOWERED_BLOOD });
@@ -1303,14 +1292,12 @@ class spell_generic_remove_empowered_blood : public SpellScript
 // 70733 - Stoneform
 class spell_icc_stoneform : public AuraScript
 {
-    PrepareAuraScript(spell_icc_stoneform);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_PASSIVE);
-            target->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(true);
             target->SetImmuneToPC(true);
             target->SetEmoteState(EMOTE_STATE_CUSTOM_SPELL_02);
         }
@@ -1321,7 +1308,7 @@ class spell_icc_stoneform : public AuraScript
         if (Creature* target = GetTarget()->ToCreature())
         {
             target->SetReactState(REACT_AGGRESSIVE);
-            target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            target->SetUninteractible(false);
             target->SetImmuneToPC(false);
             target->SetEmoteState(EMOTE_ONESHOT_NONE);
         }
@@ -1337,8 +1324,6 @@ class spell_icc_stoneform : public AuraScript
 // 70536, 70545, 70546, 70547 - Spirit Alarm
 class spell_icc_spirit_alarm : public SpellScript
 {
-    PrepareSpellScript(spell_icc_spirit_alarm);
-
     void HandleEvent(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1389,8 +1374,6 @@ class spell_icc_spirit_alarm : public SpellScript
 // 72864 - Death Plague
 class spell_frost_giant_death_plague : public SpellScript
 {
-    PrepareSpellScript(spell_frost_giant_death_plague);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_RECENTLY_INFECTED, SPELL_DEATH_PLAGUE_KILL, SPELL_DEATH_PLAGUE });
@@ -1454,8 +1437,6 @@ private:
 // 72155, 72162 - Harvest Blight Specimen
 class spell_icc_harvest_blight_specimen : public SpellScript
 {
-    PrepareSpellScript(spell_icc_harvest_blight_specimen);
-
     void HandleScript(SpellEffIndex effIndex)
     {
         PreventHitDefaultEffect(effIndex);
@@ -1477,9 +1458,7 @@ class spell_icc_harvest_blight_specimen : public SpellScript
 // 72585 - Soul Missile
 class spell_icc_soul_missile : public SpellScript
 {
-    PrepareSpellScript(spell_icc_soul_missile);
-
-    void RelocateDest(SpellDestination& dest)
+    static void RelocateDest(SpellDestination& dest)
     {
         static Position const offset = { 0.0f, 0.0f, 200.0f, 0.0f };
         dest.RelocateOffset(offset);
@@ -1559,20 +1538,6 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         }
 };
 
-class at_icc_start_blood_quickening : public AreaTriggerScript
-{
-    public:
-        at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
-                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, IN_PROGRESS);
-            return true;
-        }
-};
-
 class at_icc_nerubar_broodkeeper : public OnlyOnceAreaTriggerScript
 {
     public:
@@ -1627,6 +1592,5 @@ void AddSC_icecrown_citadel()
     // AreaTriggers
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
-    new at_icc_start_blood_quickening();
     new at_icc_nerubar_broodkeeper();
 }

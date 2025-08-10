@@ -33,8 +33,6 @@ enum Spells
     SPELL_TELEPORT_DARNASSUS                                = 9268
 };
 
-const Position HomePosition = {-815.817f, -145.299f, -25.870f, 0};
-
 struct go_blackfathom_altar : public GameObjectAI
 {
     go_blackfathom_altar(GameObject* go) : GameObjectAI(go) { }
@@ -151,8 +149,6 @@ struct npc_blackfathom_deeps_event : public ScriptedAI
                     break;
             }
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -164,7 +160,9 @@ private:
 enum Morridune
 {
     SAY_MORRIDUNE_1 = 0,
-    SAY_MORRIDUNE_2 = 1
+    SAY_MORRIDUNE_2 = 1,
+
+    PATH_ESCORT_MORRIDUNE = 53834,
 };
 
 struct npc_morridune : public EscortAI
@@ -175,6 +173,7 @@ struct npc_morridune : public EscortAI
     {
         Talk(SAY_MORRIDUNE_1);
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+        LoadPath(PATH_ESCORT_MORRIDUNE);
         Start(false);
     }
 
@@ -206,8 +205,6 @@ public:
 
     class spell_subjugator_korul_darkness_calls_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_subjugator_korul_darkness_calls_SpellScript);
-
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             if (Unit* hitUnit = GetHitUnit())

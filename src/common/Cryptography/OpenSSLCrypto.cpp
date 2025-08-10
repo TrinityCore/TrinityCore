@@ -17,59 +17,29 @@
 
 #include "OpenSSLCrypto.h"
 #include <openssl/crypto.h>
+#include <openssl/provider.h>
+#include <cstdlib>
 
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x1010000fL
-#include <vector>
-#include <thread>
-#include <mutex>
+OSSL_PROVIDER* LegacyProvider;
 
-std::vector<std::mutex*> cryptoLocks;
-void ValgrindRandomSetup();
-
-static void lockingCallback(int mode, int type, char const* /*file*/, int /*line*/)
-{
-    if (mode & CRYPTO_LOCK)
-        cryptoLocks[type]->lock();
-    else
-        cryptoLocks[type]->unlock();
-}
-
-static void threadIdCallback(CRYPTO_THREADID * id)
-{
-    (void)id;
-    CRYPTO_THREADID_set_numeric(id, std::hash<std::thread::id>()(std::this_thread::get_id()));
-}
-
-void OpenSSLCrypto::threadsSetup()
+void OpenSSLCrypto::threadsSetup([[maybe_unused]] boost::filesystem::path const& providerModulePath)
 {
 #ifdef VALGRIND
     ValgrindRandomSetup();
 #endif
 
-    cryptoLocks.resize(CRYPTO_num_locks());
-    for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
-    {
-        cryptoLocks[i] = new std::mutex();
-    }
-
-    (void)&threadIdCallback;
-    CRYPTO_THREADID_set_callback(threadIdCallback);
-
-    (void)&lockingCallback;
-    CRYPTO_set_locking_callback(lockingCallback);
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    if (!std::getenv("OPENSSL_MODULES"))
+        OSSL_PROVIDER_set_default_search_path(nullptr, providerModulePath.string().c_str());
+#endif
+    LegacyProvider = OSSL_PROVIDER_try_load(nullptr, "legacy", 1);
 }
 
 void OpenSSLCrypto::threadsCleanup()
 {
-    CRYPTO_set_locking_callback(nullptr);
-    CRYPTO_THREADID_set_callback(nullptr);
-    for(int i = 0 ; i < CRYPTO_num_locks(); ++i)
-    {
-        delete cryptoLocks[i];
-    }
-    cryptoLocks.resize(0);
+    OSSL_PROVIDER_unload(LegacyProvider);
+    OSSL_PROVIDER_set_default_search_path(nullptr, nullptr);
 }
-#endif
 
 #ifdef VALGRIND
 #include <openssl/rand.h>

@@ -20,6 +20,7 @@
 
 #include "ChatCommandHelpers.h"
 #include "ChatCommandTags.h"
+#include "EnumFlag.h"
 #include "SmartEnum.h"
 #include "StringConvert.h"
 #include "StringFormat.h"
@@ -62,12 +63,12 @@ namespace Trinity::Impl::ChatCommands
             if (Optional<T> v = StringTo<T>(token, 0))
                 val = *v;
             else
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), Trinity::GetTypeName<T>().c_str());
 
             if constexpr (std::is_floating_point_v<T>)
             {
                 if (!std::isfinite(val))
-                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), GetTypeName<T>().c_str());
+                    return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(token), Trinity::GetTypeName<T>().c_str());
             }
 
             return tail;
@@ -138,7 +139,7 @@ namespace Trinity::Impl::ChatCommands
                 std::string_view title(text.Title);
                 std::string_view constant(text.Constant);
 
-                auto [constantIt, constantNew] = map.try_emplace(title, val);
+                auto [constantIt, constantNew] = map.try_emplace(constant, val);
                 if (!constantNew)
                     constantIt->second = std::nullopt;
 
@@ -188,19 +189,24 @@ namespace Trinity::Impl::ChatCommands
             }
 
             // Value not found. Try to parse arg as underlying type and cast it to enum type
-            using U = std::underlying_type_t<T>;
-            U uVal = 0;
-            if (ChatCommandResult next2 = ArgInfo<U>::TryConsume(uVal, handler, args))
+            do
             {
-                if (EnumUtils::IsValid<T>(uVal))
+                using U = std::underlying_type_t<T>;
+                U uVal = 0;
+                if (ChatCommandResult next2 = ArgInfo<U>::TryConsume(uVal, handler, args))
                 {
+                    // validate numeric value only if its not a flag to allow combined flags
+                    if constexpr (!EnumTraits::IsFlag<T>::value)
+                        if (!EnumUtils::IsValid<T>(uVal))
+                            break;
+
                     val = static_cast<T>(uVal);
                     return next2;
                 }
-            }
+            } while (false);
 
             if (next1)
-                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), GetTypeName<T>().c_str());
+                return FormatTrinityString(handler, LANG_CMDPARSER_STRING_VALUE_INVALID, STRING_VIEW_FMT_ARG(strVal), Trinity::GetTypeName<T>().c_str());
             else
                 return next1;
         }
@@ -273,9 +279,9 @@ namespace Trinity::Impl::ChatCommands
                     if (!nestedResult.HasErrorMessage())
                         return thisResult;
                     if (StringStartsWith(nestedResult.GetErrorMessage(), "\""))
-                        return Trinity::StringFormat("\"%s\"\n%s %s", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Trinity::StringFormat("\"{}\"\n{} {}", thisResult.GetErrorMessage(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                     else
-                        return Trinity::StringFormat("\"%s\"\n%s \"%s\"", thisResult.GetErrorMessage().c_str(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage().c_str());
+                        return Trinity::StringFormat("\"{}\"\n{} \"{}\"", thisResult.GetErrorMessage(), GetTrinityString(handler, LANG_CMDPARSER_OR), nestedResult.GetErrorMessage());
                 }
             }
             else
@@ -286,7 +292,7 @@ namespace Trinity::Impl::ChatCommands
         {
             ChatCommandResult result = TryAtIndex<0>(val, handler, args);
             if (result.HasErrorMessage() && (result.GetErrorMessage().find('\n') != std::string::npos))
-                return Trinity::StringFormat("%s %s", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage().c_str());
+                return Trinity::StringFormat("{} {}", GetTrinityString(handler, LANG_CMDPARSER_EITHER), result.GetErrorMessage());
             return result;
         }
     };
@@ -317,6 +323,13 @@ namespace Trinity::Impl::ChatCommands
     struct TC_GAME_API ArgInfo<ItemTemplate const*>
     {
         static ChatCommandResult TryConsume(ItemTemplate const*&, ChatHandler const*, std::string_view);
+    };
+
+    // Quest* from numeric id or link
+    template <>
+    struct TC_GAME_API ArgInfo<Quest const*>
+    {
+        static ChatCommandResult TryConsume(Quest const*&, ChatHandler const*, std::string_view);
     };
 
     // SpellInfo const* from spell id or link

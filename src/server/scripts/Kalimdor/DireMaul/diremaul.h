@@ -25,12 +25,32 @@
 
 enum DMDataTypes
 {
+    DATA_PUSILLIN                       = 0,
+    DATA_LETHTENDRIS                    = 1,
+    DATA_HYDROSPAWN                     = 2,
+    DATA_ZEVRIM_THORNHOOF               = 3,
+    DATA_ALZZIN_THE_WILDSHAPER          = 4,
+    DATA_TENDRIS_WARPWOOD               = 5,
+    DATA_MAGISTER_KALENDRIS             = 6,
+    DATA_TSU_ZEE                        = 7,
+    DATA_ILLYANNA_RAVENOAK              = 8,
+    DATA_IMMOLTHAR                      = 9,
+    DATA_PRINCE_TORTHELDRIN             = 10,
+    DATA_GUARD_MOLDAR                   = 11,
+    DATA_STOMPER_KREEG                  = 12,
+    DATA_GUARD_FENGUS                   = 13,
+    DATA_GUARD_SLIPKIK                  = 14,
+    DATA_CAPTAIN_KROMCRUSH              = 15,
+    DATA_KING_GORDOK                    = 16,
     DATA_CRYSTAL_01                     = 17,
     DATA_CRYSTAL_02                     = 18,
     DATA_CRYSTAL_03                     = 19,
     DATA_CRYSTAL_04                     = 20,
     DATA_CRYSTAL_05                     = 21,
-    DATA_FORCEFIELD                     = 22
+    DATA_FORCEFIELD                     = 22,
+    DATA_CHO_RUSH_THE_OBSERVER          = 23,
+
+    MAX_ENCOUNTER
 };
 
 enum DMCreatureIds
@@ -38,7 +58,8 @@ enum DMCreatureIds
     NPC_IMMOLTHAR                       = 11496,
     NPC_TORTHELDRIN                     = 11486,
     NPC_ARCANE_ABERRATION               = 11480,
-    NPC_MANA_REMNANT                    = 11483
+    NPC_MANA_REMNANT                    = 11483,
+    NPC_CHO_RUSH                        = 14324
 };
 
 enum DMGameobjectIds

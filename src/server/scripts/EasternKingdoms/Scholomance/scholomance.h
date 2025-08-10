@@ -21,9 +21,7 @@
 #include "CreatureAIImpl.h"
 
 #define ScholomanceScriptName "instance_scholomance"
-#define DataHeader "SC"
-
-uint32 const EncounterCount             = 8;
+#define DataHeader "SC_old"
 
 enum SCDataTypes
 {
@@ -34,12 +32,21 @@ enum SCDataTypes
     DATA_LOREKEEPERPOLKELT              = 4,
     DATA_THERAVENIAN                    = 5,
     DATA_DARKMASTERGANDLING             = 6,
-    DATA_KIRTONOS                       = 7
+    DATA_KIRTONOS                       = 7,
+    DATA_JANDICE_BAROV                  = 8,
+    DATA_RATTLEGORE                     = 9,
+    DATA_MARDUK_BLACKPOOL               = 10,
+    DATA_VECTUS                         = 11,
+    DATA_RAS_FROSTWHISPER               = 12,
+
+    MAX_ENCOUNTER
 };
 
 enum SCCreatureIds
 {
     NPC_DARKMASTER_GANDLING             = 1853,
+    NPC_MARDUK_BLACKPOOL                = 10433,
+    NPC_RATTLEGORE                      = 11622,
     NPC_BONE_MINION                     = 16119
 };
 

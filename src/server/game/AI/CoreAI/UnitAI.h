@@ -18,11 +18,12 @@
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
 
-#include "Containers.h"
 #include "Errors.h"
+#include "Hash.h"
 #include "ObjectGuid.h"
+#include "SharedDefines.h"
 #include "SpellDefines.h"
-#include "ThreatManager.h"
+#include "UnitAICommon.h"
 #include <unordered_map>
 
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
@@ -46,90 +47,6 @@ enum Difficulty : uint8;
 enum MovementGeneratorType : uint8;
 enum SpellEffIndex : uint8;
 
-// Selection method used by SelectTarget
-enum class SelectTargetMethod
-{
-    Random,      // just pick a random target
-    MaxThreat,   // prefer targets higher in the threat list
-    MinThreat,   // prefer targets lower in the threat list
-    MaxDistance, // prefer targets further from us
-    MinDistance  // prefer targets closer to us
-};
-
-// default predicate function to select target based on distance, player and/or aura criteria
-struct TC_GAME_API DefaultTargetSelector
-{
-    public:
-        // unit: the reference unit
-        // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
-        // playerOnly: self explaining
-        // withMainTank: allow current tank to be selected
-        // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-        DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, bool withMainTank, int32 aura);
-        bool operator()(Unit const* target) const;
-
-    private:
-        Unit const* _me;
-        float _dist;
-        bool _playerOnly;
-        Unit const* _exception;
-        int32 _aura;
-};
-
-// Target selector for spell casts checking range, auras and attributes
-/// @todo Add more checks from Spell::CheckCast
-struct TC_GAME_API SpellTargetSelector
-{
-    public:
-        SpellTargetSelector(Unit* caster, uint32 spellId);
-        bool operator()(Unit const* target) const;
-
-    private:
-        Unit const* _caster;
-        SpellInfo const* _spellInfo;
-};
-
-// Very simple target selector, will just skip main target
-// NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
-//       because tank will not be in the temporary list
-struct TC_GAME_API NonTankTargetSelector
-{
-    public:
-        NonTankTargetSelector(Unit* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
-        bool operator()(Unit const* target) const;
-
-    private:
-        Unit* _source;
-        bool _playerOnly;
-};
-
-// Simple selector for units using mana
-struct TC_GAME_API PowerUsersSelector
-{
-public:
-    PowerUsersSelector(Unit const* unit, Powers power, float dist, bool playerOnly) : _me(unit), _power(power), _dist(dist), _playerOnly(playerOnly) { }
-    bool operator()(Unit const* target) const;
-
-private:
-    Unit const* _me;
-    Powers const _power;
-    float const _dist;
-    bool const _playerOnly;
-};
-
-struct TC_GAME_API FarthestTargetSelector
-{
-public:
-    FarthestTargetSelector(Unit const* unit, float dist, bool playerOnly, bool inLos) : _me(unit), _dist(dist), _playerOnly(playerOnly), _inLos(inLos) {}
-    bool operator()(Unit const* target) const;
-
-    private:
-        Unit const* _me;
-        float _dist;
-        bool _playerOnly;
-        bool _inLos;
-};
-
 class TC_GAME_API UnitAI
 {
     protected:
@@ -139,7 +56,7 @@ class TC_GAME_API UnitAI
         virtual ~UnitAI() { }
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual void AttackStart(Unit* victim);
         virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI();
@@ -153,11 +70,11 @@ class TC_GAME_API UnitAI
         virtual void OnCharmed(bool isNew);
 
         // Pass parameters between AI
-        virtual void DoAction(int32 /*param*/) { }
-        virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
-        virtual void SetData(uint32 /*id*/, uint32 /*value*/) { }
-        virtual void SetGUID(ObjectGuid const& /*guid*/, int32 /*id*/ = 0) { }
-        virtual ObjectGuid GetGUID(int32 /*id*/ = 0) const { return ObjectGuid::Empty; }
+        virtual void DoAction([[maybe_unused]] int32 param) { }
+        virtual uint32 GetData([[maybe_unused]] uint32 id) const { return 0; }
+        virtual void SetData([[maybe_unused]] uint32 id, [[maybe_unused]] uint32 value) { }
+        virtual void SetGUID([[maybe_unused]] ObjectGuid const& guid, [[maybe_unused]] int32 id) { }
+        virtual ObjectGuid GetGUID([[maybe_unused]] int32 id) const { return ObjectGuid::Empty; }
 
         // Select the best target (in <targetType> order) from the threat list that fulfill the following:
         // - Not among the first <offset> entries in <targetType> order (or SelectTargetMethod::MaxThreat order,
@@ -176,30 +93,10 @@ class TC_GAME_API UnitAI
         template<class PREDICATE>
         Unit* SelectTarget(SelectTargetMethod targetType, uint32 offset, PREDICATE const& predicate)
         {
-            ThreatManager& mgr = GetThreatManager();
-            // shortcut: if we ignore the first <offset> elements, and there are at most <offset> elements, then we ignore ALL elements
-            if (mgr.GetThreatListSize() <= offset)
-                return nullptr;
-
             std::list<Unit*> targetList;
-            SelectTargetList(targetList, mgr.GetThreatListSize(), targetType, offset, predicate);
+            SelectTargetList(targetList, std::numeric_limits<uint32>::max(), targetType, offset, predicate);
 
-            // maybe nothing fulfills the predicate
-            if (targetList.empty())
-                return nullptr;
-
-            switch (targetType)
-            {
-                case SelectTargetMethod::MaxThreat:
-                case SelectTargetMethod::MinThreat:
-                case SelectTargetMethod::MaxDistance:
-                case SelectTargetMethod::MinDistance:
-                    return targetList.front();
-                case SelectTargetMethod::Random:
-                    return Trinity::Containers::SelectRandomContainerElement(targetList);
-                default:
-                    return nullptr;
-            }
+            return FinalizeTargetSelection(targetList, targetType);
         }
 
         // Select the best (up to) <num> targets (in <targetType> order) from the threat list that fulfill the following:
@@ -220,71 +117,13 @@ class TC_GAME_API UnitAI
         template <class PREDICATE>
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType, uint32 offset, PREDICATE const& predicate)
         {
-            targetList.clear();
-            ThreatManager& mgr = GetThreatManager();
-            // shortcut: we're gonna ignore the first <offset> elements, and there's at most <offset> elements, so we ignore them all - nothing to do here
-            if (mgr.GetThreatListSize() <= offset)
+            if (!PrepareTargetListSelection(targetList, targetType, offset))
                 return;
-
-            if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-            {
-                for (ThreatReference const* ref : mgr.GetUnsortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    targetList.push_back(ref->GetVictim());
-                }
-            }
-            else
-            {
-                Unit* currentVictim = mgr.GetCurrentVictim();
-                if (currentVictim)
-                    targetList.push_back(currentVictim);
-
-                for (ThreatReference const* ref : mgr.GetSortedThreatList())
-                {
-                    if (ref->IsOffline())
-                        continue;
-
-                    Unit* thisTarget = ref->GetVictim();
-                    if (thisTarget != currentVictim)
-                        targetList.push_back(thisTarget);
-                }
-            }
-
-            // shortcut: the list isn't gonna get any larger
-            if (targetList.size() <= offset)
-            {
-                targetList.clear();
-                return;
-            }
-
-            // right now, list is unsorted for DISTANCE types - re-sort by SelectTargetMethod::MaxDistance
-            if (targetType == SelectTargetMethod::MaxDistance || targetType == SelectTargetMethod::MinDistance)
-                SortByDistance(targetList, targetType == SelectTargetMethod::MinDistance);
-
-            // now the list is MAX sorted, reverse for MIN types
-            if (targetType == SelectTargetMethod::MinThreat)
-                targetList.reverse();
-
-            // ignore the first <offset> elements
-            while (offset)
-            {
-                targetList.pop_front();
-                --offset;
-            }
 
             // then finally filter by predicate
             targetList.remove_if([&predicate](Unit* target) { return !predicate(target); });
 
-            if (targetList.size() <= num)
-                return;
-
-            if (targetType == SelectTargetMethod::Random)
-                Trinity::Containers::RandomResize(targetList, num);
-            else
-                targetList.resize(num);
+            FinalizeTargetListSelection(targetList, num, targetType);
         }
 
         // Called when the unit enters combat
@@ -295,7 +134,7 @@ class TC_GAME_API UnitAI
         virtual void JustExitedCombat() { }
 
         // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing, player logging out etc.)
-        virtual void LeavingWorld() { }
+        virtual void OnDespawn() { }
 
         // Called at any Damage to any victim (before damage apply)
         virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
@@ -322,9 +161,6 @@ class TC_GAME_API UnitAI
         SpellCastResult DoCastVictim(uint32 spellId, CastSpellExtraArgs const& args = {});
         SpellCastResult DoCastAOE(uint32 spellId, CastSpellExtraArgs const& args = {}) { return DoCast(nullptr, spellId, args); }
 
-        virtual bool ShouldSparWith(Unit const* /*target*/) const { return false; }
-
-        void DoMeleeAttackIfReady();
         bool DoSpellAttackIfReady(uint32 spellId);
 
         static std::unordered_map<std::pair<uint32, Difficulty>, AISpellInfoType> AISpellInfo;
@@ -339,8 +175,9 @@ class TC_GAME_API UnitAI
         UnitAI(UnitAI const& right) = delete;
         UnitAI& operator=(UnitAI const& right) = delete;
 
-        ThreatManager& GetThreatManager();
-        void SortByDistance(std::list<Unit*>& list, bool ascending = true);
+        Unit* FinalizeTargetSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType);
+        bool PrepareTargetListSelection(std::list<Unit*>& targetList, SelectTargetMethod targetType, uint32 offset);
+        void FinalizeTargetListSelection(std::list<Unit*>& targetList, uint32 num, SelectTargetMethod targetType);
 };
 
 #endif

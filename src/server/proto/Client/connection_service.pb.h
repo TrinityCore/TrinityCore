@@ -23,9 +23,11 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>
 #include <google/protobuf/extension_set.h>
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include "content_handle_types.pb.h"
 #include "rpc_types.pb.h"
+#include "semantic_version.pb.h"
 #include "ServiceBase.h"
 #include "MessageBuffer.h"
 #include <functional>
@@ -42,6 +44,7 @@ void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
 void protobuf_AssignDesc_connection_5fservice_2eproto();
 void protobuf_ShutdownFile_connection_5fservice_2eproto();
 
+class ClientSdkVersionInfo;
 class ConnectRequest;
 class ConnectionMeteringContentHandles;
 class ConnectResponse;
@@ -54,7 +57,121 @@ class DisconnectRequest;
 class DisconnectNotification;
 class EncryptRequest;
 
+enum MeteringLevel {
+  METERING_LEVEL_LEGACY = 0,
+  METERING_LEVEL_CATEGORIZED = 1
+};
+TC_PROTO_API bool MeteringLevel_IsValid(int value);
+const MeteringLevel MeteringLevel_MIN = METERING_LEVEL_LEGACY;
+const MeteringLevel MeteringLevel_MAX = METERING_LEVEL_CATEGORIZED;
+const int MeteringLevel_ARRAYSIZE = MeteringLevel_MAX + 1;
+
+TC_PROTO_API const ::google::protobuf::EnumDescriptor* MeteringLevel_descriptor();
+inline const ::std::string& MeteringLevel_Name(MeteringLevel value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    MeteringLevel_descriptor(), value);
+}
+inline bool MeteringLevel_Parse(
+    const ::std::string& name, MeteringLevel* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<MeteringLevel>(
+    MeteringLevel_descriptor(), name, value);
+}
 // ===================================================================
+
+class TC_PROTO_API ClientSdkVersionInfo : public ::google::protobuf::Message {
+ public:
+  ClientSdkVersionInfo();
+  virtual ~ClientSdkVersionInfo();
+
+  ClientSdkVersionInfo(const ClientSdkVersionInfo& from);
+
+  inline ClientSdkVersionInfo& operator=(const ClientSdkVersionInfo& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ClientSdkVersionInfo& default_instance();
+
+  void Swap(ClientSdkVersionInfo* other);
+
+  // implements Message ----------------------------------------------
+
+  ClientSdkVersionInfo* New() const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // optional string sdk_name = 1;
+  inline bool has_sdk_name() const;
+  inline void clear_sdk_name();
+  static const int kSdkNameFieldNumber = 1;
+  inline const ::std::string& sdk_name() const;
+  inline void set_sdk_name(const ::std::string& value);
+  inline void set_sdk_name(const char* value);
+  inline void set_sdk_name(const char* value, size_t size);
+  inline ::std::string* mutable_sdk_name();
+  inline ::std::string* release_sdk_name();
+  inline void set_allocated_sdk_name(::std::string* sdk_name);
+
+  // optional .bgs.protocol.SemanticVersion sdk_version = 2;
+  inline bool has_sdk_version() const;
+  inline void clear_sdk_version();
+  static const int kSdkVersionFieldNumber = 2;
+  inline const ::bgs::protocol::SemanticVersion& sdk_version() const;
+  inline ::bgs::protocol::SemanticVersion* mutable_sdk_version();
+  inline ::bgs::protocol::SemanticVersion* release_sdk_version();
+  inline void set_allocated_sdk_version(::bgs::protocol::SemanticVersion* sdk_version);
+
+  // optional .bgs.protocol.SemanticVersion protocol_version = 3;
+  inline bool has_protocol_version() const;
+  inline void clear_protocol_version();
+  static const int kProtocolVersionFieldNumber = 3;
+  inline const ::bgs::protocol::SemanticVersion& protocol_version() const;
+  inline ::bgs::protocol::SemanticVersion* mutable_protocol_version();
+  inline ::bgs::protocol::SemanticVersion* release_protocol_version();
+  inline void set_allocated_protocol_version(::bgs::protocol::SemanticVersion* protocol_version);
+
+  // @@protoc_insertion_point(class_scope:bgs.protocol.connection.v1.ClientSdkVersionInfo)
+ private:
+  inline void set_has_sdk_name();
+  inline void clear_has_sdk_name();
+  inline void set_has_sdk_version();
+  inline void clear_has_sdk_version();
+  inline void set_has_protocol_version();
+  inline void clear_has_protocol_version();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* sdk_name_;
+  ::bgs::protocol::SemanticVersion* sdk_version_;
+  ::bgs::protocol::SemanticVersion* protocol_version_;
+  friend void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
+  friend void protobuf_AssignDesc_connection_5fservice_2eproto();
+  friend void protobuf_ShutdownFile_connection_5fservice_2eproto();
+
+  void InitAsDefaultInstance();
+  static ClientSdkVersionInfo* default_instance_;
+};
+// -------------------------------------------------------------------
 
 class TC_PROTO_API ConnectRequest : public ::google::protobuf::Message {
  public:
@@ -84,19 +201,6 @@ class TC_PROTO_API ConnectRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ConnectRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ConnectRequest& from);
-  void MergeFrom(const ConnectRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -134,6 +238,22 @@ class TC_PROTO_API ConnectRequest : public ::google::protobuf::Message {
   inline bool use_bindless_rpc() const;
   inline void set_use_bindless_rpc(bool value);
 
+  // optional .bgs.protocol.connection.v1.MeteringLevel metering_level = 4;
+  inline bool has_metering_level() const;
+  inline void clear_metering_level();
+  static const int kMeteringLevelFieldNumber = 4;
+  inline ::bgs::protocol::connection::v1::MeteringLevel metering_level() const;
+  inline void set_metering_level(::bgs::protocol::connection::v1::MeteringLevel value);
+
+  // optional .bgs.protocol.connection.v1.ClientSdkVersionInfo client_sdk_info = 5;
+  inline bool has_client_sdk_info() const;
+  inline void clear_client_sdk_info();
+  static const int kClientSdkInfoFieldNumber = 5;
+  inline const ::bgs::protocol::connection::v1::ClientSdkVersionInfo& client_sdk_info() const;
+  inline ::bgs::protocol::connection::v1::ClientSdkVersionInfo* mutable_client_sdk_info();
+  inline ::bgs::protocol::connection::v1::ClientSdkVersionInfo* release_client_sdk_info();
+  inline void set_allocated_client_sdk_info(::bgs::protocol::connection::v1::ClientSdkVersionInfo* client_sdk_info);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.connection.v1.ConnectRequest)
  private:
   inline void set_has_client_id();
@@ -142,6 +262,10 @@ class TC_PROTO_API ConnectRequest : public ::google::protobuf::Message {
   inline void clear_has_bind_request();
   inline void set_has_use_bindless_rpc();
   inline void clear_has_use_bindless_rpc();
+  inline void set_has_metering_level();
+  inline void clear_has_metering_level();
+  inline void set_has_client_sdk_info();
+  inline void clear_has_client_sdk_info();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -150,6 +274,8 @@ class TC_PROTO_API ConnectRequest : public ::google::protobuf::Message {
   ::bgs::protocol::ProcessId* client_id_;
   ::bgs::protocol::connection::v1::BindRequest* bind_request_;
   bool use_bindless_rpc_;
+  int metering_level_;
+  ::bgs::protocol::connection::v1::ClientSdkVersionInfo* client_sdk_info_;
   friend void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
   friend void protobuf_AssignDesc_connection_5fservice_2eproto();
   friend void protobuf_ShutdownFile_connection_5fservice_2eproto();
@@ -187,19 +313,6 @@ class TC_PROTO_API ConnectionMeteringContentHandles : public ::google::protobuf:
   // implements Message ----------------------------------------------
 
   ConnectionMeteringContentHandles* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ConnectionMeteringContentHandles& from);
-  void MergeFrom(const ConnectionMeteringContentHandles& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -269,19 +382,6 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   ConnectResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ConnectResponse& from);
-  void MergeFrom(const ConnectResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -360,6 +460,25 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   inline ::bgs::protocol::connection::v1::ConnectionMeteringContentHandles* release_binary_content_handle_array();
   inline void set_allocated_binary_content_handle_array(::bgs::protocol::connection::v1::ConnectionMeteringContentHandles* binary_content_handle_array);
 
+  // optional string ciid = 9;
+  inline bool has_ciid() const;
+  inline void clear_ciid();
+  static const int kCiidFieldNumber = 9;
+  inline const ::std::string& ciid() const;
+  inline void set_ciid(const ::std::string& value);
+  inline void set_ciid(const char* value);
+  inline void set_ciid(const char* value, size_t size);
+  inline ::std::string* mutable_ciid();
+  inline ::std::string* release_ciid();
+  inline void set_allocated_ciid(::std::string* ciid);
+
+  // optional uint32 connected_region = 10;
+  inline bool has_connected_region() const;
+  inline void clear_connected_region();
+  static const int kConnectedRegionFieldNumber = 10;
+  inline ::google::protobuf::uint32 connected_region() const;
+  inline void set_connected_region(::google::protobuf::uint32 value);
+
   // @@protoc_insertion_point(class_scope:bgs.protocol.connection.v1.ConnectResponse)
  private:
   inline void set_has_server_id();
@@ -378,6 +497,10 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   inline void clear_has_use_bindless_rpc();
   inline void set_has_binary_content_handle_array();
   inline void clear_has_binary_content_handle_array();
+  inline void set_has_ciid();
+  inline void clear_has_ciid();
+  inline void set_has_connected_region();
+  inline void clear_has_connected_region();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -391,6 +514,8 @@ class TC_PROTO_API ConnectResponse : public ::google::protobuf::Message {
   bool use_bindless_rpc_;
   ::google::protobuf::uint64 server_time_;
   ::bgs::protocol::connection::v1::ConnectionMeteringContentHandles* binary_content_handle_array_;
+  ::std::string* ciid_;
+  ::google::protobuf::uint32 connected_region_;
   friend void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
   friend void protobuf_AssignDesc_connection_5fservice_2eproto();
   friend void protobuf_ShutdownFile_connection_5fservice_2eproto();
@@ -428,19 +553,6 @@ class TC_PROTO_API BoundService : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   BoundService* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const BoundService& from);
-  void MergeFrom(const BoundService& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -517,19 +629,6 @@ class TC_PROTO_API BindRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   BindRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const BindRequest& from);
-  void MergeFrom(const BindRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -598,7 +697,6 @@ class TC_PROTO_API BindRequest : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > deprecated_imported_service_hash_;
-  mutable int _deprecated_imported_service_hash_cached_byte_size_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::connection::v1::BoundService > deprecated_exported_service_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::connection::v1::BoundService > exported_service_;
   ::google::protobuf::RepeatedPtrField< ::bgs::protocol::connection::v1::BoundService > imported_service_;
@@ -639,19 +737,6 @@ class TC_PROTO_API BindResponse : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   BindResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const BindResponse& from);
-  void MergeFrom(const BindResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -684,7 +769,6 @@ class TC_PROTO_API BindResponse : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedField< ::google::protobuf::uint32 > imported_service_id_;
-  mutable int _imported_service_id_cached_byte_size_;
   friend void TC_PROTO_API protobuf_AddDesc_connection_5fservice_2eproto();
   friend void protobuf_AssignDesc_connection_5fservice_2eproto();
   friend void protobuf_ShutdownFile_connection_5fservice_2eproto();
@@ -722,19 +806,6 @@ class TC_PROTO_API EchoRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   EchoRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const EchoRequest& from);
-  void MergeFrom(const EchoRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -853,19 +924,6 @@ class TC_PROTO_API EchoResponse : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   EchoResponse* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const EchoResponse& from);
-  void MergeFrom(const EchoResponse& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -947,19 +1005,6 @@ class TC_PROTO_API DisconnectRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   DisconnectRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const DisconnectRequest& from);
-  void MergeFrom(const DisconnectRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1026,19 +1071,6 @@ class TC_PROTO_API DisconnectNotification : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   DisconnectNotification* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const DisconnectNotification& from);
-  void MergeFrom(const DisconnectNotification& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1120,19 +1152,6 @@ class TC_PROTO_API EncryptRequest : public ::google::protobuf::Message {
   // implements Message ----------------------------------------------
 
   EncryptRequest* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const EncryptRequest& from);
-  void MergeFrom(const EncryptRequest& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
   int GetCachedSize() const { return _cached_size_; }
   private:
   void SharedCtor();
@@ -1166,6 +1185,10 @@ class TC_PROTO_API ConnectionService : public ServiceBase
  public:
 
   explicit ConnectionService(bool use_original_hash);
+  ConnectionService(ConnectionService const&) = delete;
+  ConnectionService(ConnectionService&&) = delete;
+  ConnectionService& operator=(ConnectionService const&) = delete;
+  ConnectionService& operator=(ConnectionService&&) = delete;
   virtual ~ConnectionService();
 
   typedef std::integral_constant<uint32, 0x65446991u> OriginalHash;
@@ -1195,14 +1218,180 @@ class TC_PROTO_API ConnectionService : public ServiceBase
   virtual uint32 HandleRequestDisconnect(::bgs::protocol::connection::v1::DisconnectRequest const* request);
 
  private:
-  uint32 service_hash_;
-
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ConnectionService);
+  void ParseAndHandleConnect(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleBind(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleEcho(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleForceDisconnect(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleKeepAlive(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleEncrypt(uint32 token, uint32 methodId, MessageBuffer& buffer);
+  void ParseAndHandleRequestDisconnect(uint32 token, uint32 methodId, MessageBuffer& buffer);
 };
 
 // ===================================================================
 
 // ===================================================================
+
+// ClientSdkVersionInfo
+
+// optional string sdk_name = 1;
+inline bool ClientSdkVersionInfo::has_sdk_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ClientSdkVersionInfo::set_has_sdk_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ClientSdkVersionInfo::clear_has_sdk_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ClientSdkVersionInfo::clear_sdk_name() {
+  if (sdk_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    sdk_name_->clear();
+  }
+  clear_has_sdk_name();
+}
+inline const ::std::string& ClientSdkVersionInfo::sdk_name() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+  return *sdk_name_;
+}
+inline void ClientSdkVersionInfo::set_sdk_name(const ::std::string& value) {
+  set_has_sdk_name();
+  if (sdk_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    sdk_name_ = new ::std::string;
+  }
+  sdk_name_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+}
+inline void ClientSdkVersionInfo::set_sdk_name(const char* value) {
+  set_has_sdk_name();
+  if (sdk_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    sdk_name_ = new ::std::string;
+  }
+  sdk_name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+}
+inline void ClientSdkVersionInfo::set_sdk_name(const char* value, size_t size) {
+  set_has_sdk_name();
+  if (sdk_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    sdk_name_ = new ::std::string;
+  }
+  sdk_name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+}
+inline ::std::string* ClientSdkVersionInfo::mutable_sdk_name() {
+  set_has_sdk_name();
+  if (sdk_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    sdk_name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+  return sdk_name_;
+}
+inline ::std::string* ClientSdkVersionInfo::release_sdk_name() {
+  clear_has_sdk_name();
+  if (sdk_name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = sdk_name_;
+    sdk_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ClientSdkVersionInfo::set_allocated_sdk_name(::std::string* sdk_name) {
+  if (sdk_name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete sdk_name_;
+  }
+  if (sdk_name) {
+    set_has_sdk_name();
+    sdk_name_ = sdk_name;
+  } else {
+    clear_has_sdk_name();
+    sdk_name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_name)
+}
+
+// optional .bgs.protocol.SemanticVersion sdk_version = 2;
+inline bool ClientSdkVersionInfo::has_sdk_version() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ClientSdkVersionInfo::set_has_sdk_version() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ClientSdkVersionInfo::clear_has_sdk_version() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ClientSdkVersionInfo::clear_sdk_version() {
+  if (sdk_version_ != NULL) sdk_version_->::bgs::protocol::SemanticVersion::Clear();
+  clear_has_sdk_version();
+}
+inline const ::bgs::protocol::SemanticVersion& ClientSdkVersionInfo::sdk_version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_version)
+  return sdk_version_ != NULL ? *sdk_version_ : *default_instance_->sdk_version_;
+}
+inline ::bgs::protocol::SemanticVersion* ClientSdkVersionInfo::mutable_sdk_version() {
+  set_has_sdk_version();
+  if (sdk_version_ == NULL) sdk_version_ = new ::bgs::protocol::SemanticVersion;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_version)
+  return sdk_version_;
+}
+inline ::bgs::protocol::SemanticVersion* ClientSdkVersionInfo::release_sdk_version() {
+  clear_has_sdk_version();
+  ::bgs::protocol::SemanticVersion* temp = sdk_version_;
+  sdk_version_ = NULL;
+  return temp;
+}
+inline void ClientSdkVersionInfo::set_allocated_sdk_version(::bgs::protocol::SemanticVersion* sdk_version) {
+  delete sdk_version_;
+  sdk_version_ = sdk_version;
+  if (sdk_version) {
+    set_has_sdk_version();
+  } else {
+    clear_has_sdk_version();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ClientSdkVersionInfo.sdk_version)
+}
+
+// optional .bgs.protocol.SemanticVersion protocol_version = 3;
+inline bool ClientSdkVersionInfo::has_protocol_version() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void ClientSdkVersionInfo::set_has_protocol_version() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void ClientSdkVersionInfo::clear_has_protocol_version() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void ClientSdkVersionInfo::clear_protocol_version() {
+  if (protocol_version_ != NULL) protocol_version_->::bgs::protocol::SemanticVersion::Clear();
+  clear_has_protocol_version();
+}
+inline const ::bgs::protocol::SemanticVersion& ClientSdkVersionInfo::protocol_version() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ClientSdkVersionInfo.protocol_version)
+  return protocol_version_ != NULL ? *protocol_version_ : *default_instance_->protocol_version_;
+}
+inline ::bgs::protocol::SemanticVersion* ClientSdkVersionInfo::mutable_protocol_version() {
+  set_has_protocol_version();
+  if (protocol_version_ == NULL) protocol_version_ = new ::bgs::protocol::SemanticVersion;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.connection.v1.ClientSdkVersionInfo.protocol_version)
+  return protocol_version_;
+}
+inline ::bgs::protocol::SemanticVersion* ClientSdkVersionInfo::release_protocol_version() {
+  clear_has_protocol_version();
+  ::bgs::protocol::SemanticVersion* temp = protocol_version_;
+  protocol_version_ = NULL;
+  return temp;
+}
+inline void ClientSdkVersionInfo::set_allocated_protocol_version(::bgs::protocol::SemanticVersion* protocol_version) {
+  delete protocol_version_;
+  protocol_version_ = protocol_version;
+  if (protocol_version) {
+    set_has_protocol_version();
+  } else {
+    clear_has_protocol_version();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ClientSdkVersionInfo.protocol_version)
+}
+
+// -------------------------------------------------------------------
 
 // ConnectRequest
 
@@ -1310,6 +1499,72 @@ inline void ConnectRequest::set_use_bindless_rpc(bool value) {
   set_has_use_bindless_rpc();
   use_bindless_rpc_ = value;
   // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ConnectRequest.use_bindless_rpc)
+}
+
+// optional .bgs.protocol.connection.v1.MeteringLevel metering_level = 4;
+inline bool ConnectRequest::has_metering_level() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ConnectRequest::set_has_metering_level() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ConnectRequest::clear_has_metering_level() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ConnectRequest::clear_metering_level() {
+  metering_level_ = 0;
+  clear_has_metering_level();
+}
+inline ::bgs::protocol::connection::v1::MeteringLevel ConnectRequest::metering_level() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ConnectRequest.metering_level)
+  return static_cast< ::bgs::protocol::connection::v1::MeteringLevel >(metering_level_);
+}
+inline void ConnectRequest::set_metering_level(::bgs::protocol::connection::v1::MeteringLevel value) {
+  assert(::bgs::protocol::connection::v1::MeteringLevel_IsValid(value));
+  set_has_metering_level();
+  metering_level_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ConnectRequest.metering_level)
+}
+
+// optional .bgs.protocol.connection.v1.ClientSdkVersionInfo client_sdk_info = 5;
+inline bool ConnectRequest::has_client_sdk_info() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void ConnectRequest::set_has_client_sdk_info() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void ConnectRequest::clear_has_client_sdk_info() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void ConnectRequest::clear_client_sdk_info() {
+  if (client_sdk_info_ != NULL) client_sdk_info_->::bgs::protocol::connection::v1::ClientSdkVersionInfo::Clear();
+  clear_has_client_sdk_info();
+}
+inline const ::bgs::protocol::connection::v1::ClientSdkVersionInfo& ConnectRequest::client_sdk_info() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ConnectRequest.client_sdk_info)
+  return client_sdk_info_ != NULL ? *client_sdk_info_ : *default_instance_->client_sdk_info_;
+}
+inline ::bgs::protocol::connection::v1::ClientSdkVersionInfo* ConnectRequest::mutable_client_sdk_info() {
+  set_has_client_sdk_info();
+  if (client_sdk_info_ == NULL) client_sdk_info_ = new ::bgs::protocol::connection::v1::ClientSdkVersionInfo;
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.connection.v1.ConnectRequest.client_sdk_info)
+  return client_sdk_info_;
+}
+inline ::bgs::protocol::connection::v1::ClientSdkVersionInfo* ConnectRequest::release_client_sdk_info() {
+  clear_has_client_sdk_info();
+  ::bgs::protocol::connection::v1::ClientSdkVersionInfo* temp = client_sdk_info_;
+  client_sdk_info_ = NULL;
+  return temp;
+}
+inline void ConnectRequest::set_allocated_client_sdk_info(::bgs::protocol::connection::v1::ClientSdkVersionInfo* client_sdk_info) {
+  delete client_sdk_info_;
+  client_sdk_info_ = client_sdk_info;
+  if (client_sdk_info) {
+    set_has_client_sdk_info();
+  } else {
+    clear_has_client_sdk_info();
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ConnectRequest.client_sdk_info)
 }
 
 // -------------------------------------------------------------------
@@ -1625,6 +1880,106 @@ inline void ConnectResponse::set_allocated_binary_content_handle_array(::bgs::pr
     clear_has_binary_content_handle_array();
   }
   // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ConnectResponse.binary_content_handle_array)
+}
+
+// optional string ciid = 9;
+inline bool ConnectResponse::has_ciid() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void ConnectResponse::set_has_ciid() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void ConnectResponse::clear_has_ciid() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void ConnectResponse::clear_ciid() {
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_->clear();
+  }
+  clear_has_ciid();
+}
+inline const ::std::string& ConnectResponse::ciid() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ConnectResponse.ciid)
+  return *ciid_;
+}
+inline void ConnectResponse::set_ciid(const ::std::string& value) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
+  }
+  ciid_->assign(value);
+  // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ConnectResponse.ciid)
+}
+inline void ConnectResponse::set_ciid(const char* value) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
+  }
+  ciid_->assign(value);
+  // @@protoc_insertion_point(field_set_char:bgs.protocol.connection.v1.ConnectResponse.ciid)
+}
+inline void ConnectResponse::set_ciid(const char* value, size_t size) {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
+  }
+  ciid_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:bgs.protocol.connection.v1.ConnectResponse.ciid)
+}
+inline ::std::string* ConnectResponse::mutable_ciid() {
+  set_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    ciid_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:bgs.protocol.connection.v1.ConnectResponse.ciid)
+  return ciid_;
+}
+inline ::std::string* ConnectResponse::release_ciid() {
+  clear_has_ciid();
+  if (ciid_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = ciid_;
+    ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void ConnectResponse::set_allocated_ciid(::std::string* ciid) {
+  if (ciid_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete ciid_;
+  }
+  if (ciid) {
+    set_has_ciid();
+    ciid_ = ciid;
+  } else {
+    clear_has_ciid();
+    ciid_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:bgs.protocol.connection.v1.ConnectResponse.ciid)
+}
+
+// optional uint32 connected_region = 10;
+inline bool ConnectResponse::has_connected_region() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void ConnectResponse::set_has_connected_region() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void ConnectResponse::clear_has_connected_region() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void ConnectResponse::clear_connected_region() {
+  connected_region_ = 0u;
+  clear_has_connected_region();
+}
+inline ::google::protobuf::uint32 ConnectResponse::connected_region() const {
+  // @@protoc_insertion_point(field_get:bgs.protocol.connection.v1.ConnectResponse.connected_region)
+  return connected_region_;
+}
+inline void ConnectResponse::set_connected_region(::google::protobuf::uint32 value) {
+  set_has_connected_region();
+  connected_region_ = value;
+  // @@protoc_insertion_point(field_set:bgs.protocol.connection.v1.ConnectResponse.connected_region)
 }
 
 // -------------------------------------------------------------------
@@ -2332,6 +2687,11 @@ inline void DisconnectNotification::set_allocated_reason(::std::string* reason) 
 #ifndef SWIG
 namespace google {
 namespace protobuf {
+template <> struct is_proto_enum< ::bgs::protocol::connection::v1::MeteringLevel> : ::google::protobuf::internal::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::bgs::protocol::connection::v1::MeteringLevel>() {
+  return ::bgs::protocol::connection::v1::MeteringLevel_descriptor();
+}
 }  // namespace google
 }  // namespace protobuf
 #endif  // SWIG

@@ -134,6 +134,8 @@ enum LfgJoinResult
     LFG_JOIN_ALREADY_USING_LFG_LIST                 = 0x3F, // You can't do that while using Premade Groups.
     LFG_JOIN_NOT_LEADER                             = 0x45, // You are not the party leader.
     LFG_JOIN_DEAD                                   = 0x49,
+    LFG_FARM_LIMIT                                  = 0x4D, // You or someone in your party has entered too many instances recently. Please wait awhile and try again.
+    LFG_NO_CROSS_FACTION_PARTIES                    = 0x4E, // Cross-faction groups can't queue for this instance
 
     LFG_JOIN_PARTY_NOT_MEET_REQS                    = 6,      // One or more party members do not meet the requirements for the chosen dungeons (FIXME)
 };
@@ -180,7 +182,7 @@ struct LfgJoinResultData
     LfgJoinResult result;
     LfgRoleCheckState state;
     LfgLockPartyMap lockmap;
-    std::vector<std::string const*> playersMissingRequirement;
+    std::vector<std::string_view> playersMissingRequirement;
 };
 
 // Data needed by SMSG_LFG_UPDATE_STATUS
@@ -306,6 +308,7 @@ struct LFGDungeonData
     bool seasonal;
     float x, y, z, o;
     uint16 requiredItemLevel;
+    uint32 finalDungeonEncounterId;
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }
@@ -329,6 +332,8 @@ class TC_GAME_API LFGMgr
         void Update(uint32 diff);
 
         // World.cpp
+        /// Check dungeon completion on encounter completion
+        void OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap);
         /// Finish the dungeon for the given group. All check are performed using internal lfg data
         void FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map const* currMap);
         /// Loads rewards for random dungeons
@@ -458,7 +463,7 @@ class TC_GAME_API LFGMgr
         void SetState(ObjectGuid guid, LfgState state);
         void SetVoteKick(ObjectGuid gguid, bool active);
         void RemovePlayerData(ObjectGuid guid);
-        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue);
+        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string_view>* playersMissingRequirement, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 
@@ -499,6 +504,11 @@ class TC_GAME_API LFGMgr
         LfgGroupDataContainer GroupsStore;                 /// Group data
 };
 
+inline int32 format_as(LFGMgrEnum e) { return e; }
+inline int32 format_as(LfgProposalState e) { return e; }
+inline uint8 format_as(LfgTeleportResult e) { return e; }
+inline int32 format_as(LfgJoinResult e) { return e; }
+inline int32 format_as(LfgRoleCheckState e) { return e; }
 } // namespace lfg
 
 #define sLFGMgr lfg::LFGMgr::instance()

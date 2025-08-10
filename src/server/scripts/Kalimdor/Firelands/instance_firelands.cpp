@@ -22,6 +22,17 @@
 #include "InstanceScript.h"
 #include "Map.h"
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_BETH_TILAC, {{ 1197 }} },
+    { DATA_LORD_RHYOLITH, {{ 1204 }} },
+    { DATA_SHANNOX, {{ 1205 }} },
+    { DATA_ALYSRAZOR, {{ 1206 }} },
+    { DATA_BALEROC, {{ 1200 }} },
+    { DATA_MAJORDOMO_STAGHELM, {{ 1185 }} },
+    { DATA_RAGNAROS, {{ 1203 }} }
+};
+
 class instance_firelands : public InstanceMapScript
 {
     public:
@@ -33,6 +44,7 @@ class instance_firelands : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override

@@ -29,8 +29,16 @@
 
 DoorData const doorData[] =
 {
-    { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    DOOR_TYPE_PASSAGE },
-    { 0,                    0,              DOOR_TYPE_ROOM }
+    { GO_DRAGON_CAGE_DOOR,  DATA_DRAKOS,    EncounterDoorBehavior::OpenWhenDone },
+    { 0,                    0,              EncounterDoorBehavior::OpenWhenNotInProgress }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_DRAKOS, {{ 528, 529, 2016 }} },
+    { DATA_VAROS, {{ 530, 531, 2015 }} },
+    { DATA_UROM, {{ 532, 533, 2014 }} },
+    { DATA_EREGOS, {{ 534, 535, 2013 }} }
 };
 
 Position const VerdisaMove       = { 949.188f, 1032.91f, 359.967f, 1.093027f  };
@@ -49,6 +57,7 @@ class instance_oculus : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadDungeonEncounterData(encounters);
 
                 CentrifugueConstructCounter = 0;
             }

@@ -61,9 +61,6 @@ enum Spells
     SPELL_RIDE_WG_VEHICLE                     = 60968,
 
     SPELL_VEHICLE_TELEPORT                    = 49759,
-
-    // Spirit guide
-    SPELL_CHANNEL_SPIRIT_HEAL                 = 22011,
 };
 
 enum CreatureIds
@@ -129,16 +126,16 @@ struct npc_wg_demolisher_engineer : public ScriptedAI
         if (CanBuild())
         {
             if (player->HasAura(SPELL_CORPORAL))
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             else if (player->HasAura(SPELL_LIEUTENANT))
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_DEMO2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_DEMO3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_DEMO1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_DEMO2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_DEMO3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
             }
         }
         else
-            AddGossipItemFor(player, GossipOptionIcon::None, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
+            AddGossipItemFor(player, GossipOptionNpc::None, GOSSIP_HELLO_DEMO4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 9);
 
         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
         return true;
@@ -192,12 +189,6 @@ struct npc_wg_spirit_guide : public ScriptedAI
 {
     npc_wg_spirit_guide(Creature* creature) : ScriptedAI(creature) { }
 
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!me->HasUnitState(UNIT_STATE_CASTING))
-            DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);
-    }
-
     bool OnGossipHello(Player* player) override
     {
         if (me->IsQuestGiver())
@@ -210,7 +201,7 @@ struct npc_wg_spirit_guide : public ScriptedAI
         GraveyardVect graveyard = wintergrasp->GetGraveyardVector();
         for (uint8 i = 0; i < graveyard.size(); i++)
             if (graveyard[i]->GetControlTeamId() == player->GetTeamId())
-                AddGossipItemFor(player, GossipOptionIcon::None, player->GetSession()->GetTrinityString(((BfGraveyardWG*)graveyard[i])->GetTextId()), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + i);
+                AddGossipItemFor(player, GossipOptionNpc::None, player->GetSession()->GetTrinityString(((BfGraveyardWG*)graveyard[i])->GetTextId()), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + i);
 
         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
         return true;
@@ -263,8 +254,6 @@ struct npc_wg_queue : public ScriptedAI
             FrostArmor_Timer = 180000;
         }
         else FrostArmor_Timer -= diff;
-
-        DoMeleeAttackIfReady();
     }
 
     bool OnGossipHello(Player* player) override
@@ -278,7 +267,7 @@ struct npc_wg_queue : public ScriptedAI
 
         if (wintergrasp->IsWarTime())
         {
-            AddGossipItemFor(player, GossipOptionIcon::None, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+            AddGossipItemFor(player, GossipOptionNpc::None, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
             SendGossipMenuFor(player, wintergrasp->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_WAR : WG_NPCQUEUE_TEXT_A_WAR, me->GetGUID());
         }
         else
@@ -287,7 +276,7 @@ struct npc_wg_queue : public ScriptedAI
             player->SendUpdateWorldState(4354, GameTime::GetGameTime() + timer);
             if (timer < 15 * MINUTE)
             {
-                AddGossipItemFor(player, GossipOptionIcon::None, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+                AddGossipItemFor(player, GossipOptionNpc::None, player->GetSession()->GetTrinityString(WG_NPCQUEUE_TEXTOPTION_JOIN), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                 SendGossipMenuFor(player, wintergrasp->GetDefenderTeam() ? WG_NPCQUEUE_TEXT_H_QUEUE : WG_NPCQUEUE_TEXT_A_QUEUE, me->GetGUID());
             }
             else
@@ -363,8 +352,6 @@ private:
    61409 - Build Siege Vehicle (Force) */
 class spell_wintergrasp_force_building : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_force_building);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -391,8 +378,6 @@ class spell_wintergrasp_force_building : public SpellScript
 // 61178 - Grab Passenger
 class spell_wintergrasp_grab_passenger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_grab_passenger);
-
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
         if (Player* target = GetHitPlayer())
@@ -437,8 +422,6 @@ enum WgTeleport
 // 54640 - Teleport
 class spell_wintergrasp_defender_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport);
-
     SpellCastResult CheckCast()
     {
         if (Player* target = GetExplTargetUnit()->ToPlayer())
@@ -458,8 +441,6 @@ class spell_wintergrasp_defender_teleport : public SpellScript
 // 54643 - Teleport
 class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_wintergrasp_defender_teleport_trigger);
-
     void HandleDummy(SpellEffIndex /*effindex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -480,11 +461,9 @@ class spell_wintergrasp_defender_teleport_trigger : public SpellScript
 // 59911 - Tenacity
 class spell_wintergrasp_tenacity_refresh : public AuraScript
 {
-    PrepareAuraScript(spell_wintergrasp_tenacity_refresh);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
-        if (spellInfo->GetEffects().size() <= EFFECT_2)
+        if (!ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } }))
             return false;
         uint32 triggeredSpellId = spellInfo->GetEffect(EFFECT_2).CalcValue();
         return !triggeredSpellId || ValidateSpellInfo({ triggeredSpellId });

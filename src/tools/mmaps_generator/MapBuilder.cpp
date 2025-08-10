@@ -16,16 +16,26 @@
  */
 
 #include "MapBuilder.h"
-#include "Containers.h"
 #include "IntermediateValues.h"
+#include "MapDefines.h"
 #include "MapTree.h"
+#include "MapUtils.h"
+#include "Memory.h"
 #include "MMapDefines.h"
 #include "ModelInstance.h"
 #include "PathCommon.h"
+#include "StringConvert.h"
 #include "StringFormat.h"
 #include <DetourNavMesh.h>
 #include <DetourNavMeshBuilder.h>
+#include <boost/filesystem/directory.hpp>
 #include <climits>
+
+namespace FileExtensions
+{
+static boost::filesystem::path tilelist = ".tilelist";
+static boost::filesystem::path vmtile = ".vmtile";
+}
 
 namespace MMAP
 {
@@ -60,7 +70,6 @@ namespace MMAP
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
         m_terrainBuilder     (nullptr),
         m_debugOutput        (debugOutput),
-        m_offMeshFilePath    (offMeshFilePath),
         m_threads            (threads),
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
@@ -83,6 +92,8 @@ namespace MMAP
         m_threads = std::max(1u, m_threads);
 
         discoverTiles();
+
+        ParseOffMeshConnectionsFile(offMeshFilePath);
     }
 
     /**************************************************************************/
@@ -96,12 +107,7 @@ namespace MMAP
             delete builder;
 
         m_tileBuilders.clear();
-
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-        {
-            (*it).m_tiles->clear();
-            delete (*it).m_tiles;
-        }
+        m_tiles.clear();
 
         delete m_terrainBuilder;
         delete m_rcContext;
@@ -110,99 +116,123 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::discoverTiles()
     {
-        std::vector<std::string> files;
-        uint32 mapID, tileX, tileY, tileID, count = 0;
-
-        printf("Discovering maps... ");
-        getDirContents(files, "maps");
-        for (uint32 i = 0; i < files.size(); ++i)
+        boost::filesystem::directory_iterator end;
+        for (auto itr = boost::filesystem::directory_iterator("maps"); itr != end; ++itr)
         {
-            mapID = uint32(atoi(files[i].substr(0, 4).c_str()));
-            if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
+            if (!boost::filesystem::is_regular_file(*itr))
+                continue;
+
+            if (itr->path().extension() != FileExtensions::tilelist)
+                continue;
+
+            Optional<uint32> mapId = Trinity::StringTo<uint32>(std::string_view(itr->path().filename().string()).substr(0, 4));
+            if (!mapId)
+                continue;
+
+            if (shouldSkipMap(*mapId))
+                continue;
+
+            if (auto tileList = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(itr->path().string().c_str(), "rb")))
             {
-                m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
-                count++;
+                u_map_magic mapMagic = { };
+                uint32 versionMagic = { };
+                uint32 build;
+                char tilesData[64 * 64] = { };
+                if (fread(mapMagic.data(), mapMagic.size(), 1, tileList.get()) == 1
+                    && mapMagic == MapMagic
+                    && fread(&versionMagic, sizeof(versionMagic), 1, tileList.get()) == 1
+                    && versionMagic == MapVersionMagic
+                    && fread(&build, sizeof(build), 1, tileList.get()) == 1
+                    && fread(std::data(tilesData), 64 * 64, 1, tileList.get()) == 1)
+                {
+                    Trinity::Containers::FlatSet<uint32>& tiles = m_tiles[*mapId];
+                    for (uint32 tileX = 0; tileX < 64; ++tileX)
+                        for (uint32 tileY = 0; tileY < 64; ++tileY)
+                            if (tilesData[tileX * 64 + tileY] == '1')
+                                if (tiles.insert(StaticMapTree::packTileID(tileX, tileY)).second)
+                                    ++m_totalTiles;
+                }
             }
         }
 
-        files.clear();
-        getDirContents(files, "vmaps", "*.vmtree");
-        for (uint32 i = 0; i < files.size(); ++i)
+        for (auto itr = boost::filesystem::directory_iterator("vmaps"); itr != end; ++itr)
         {
-            mapID = uint32(atoi(files[i].substr(0, 4).c_str()));
-            if (std::find(m_tiles.begin(), m_tiles.end(), mapID) == m_tiles.end())
+            if (!boost::filesystem::is_directory(*itr))
+                continue;
+
+            Optional<uint32> mapId = Trinity::StringTo<uint32>(itr->path().filename().string());
+            if (!mapId)
+                continue;
+
+            if (shouldSkipMap(*mapId))
+                continue;
+
+            Trinity::Containers::FlatSet<uint32>& tiles = m_tiles[*mapId];
+            for (auto fileItr = boost::filesystem::directory_iterator(*itr); fileItr != end; ++fileItr)
             {
-                m_tiles.emplace_back(MapTiles(mapID, new std::set<uint32>));
-                count++;
+                if (!boost::filesystem::is_regular_file(*fileItr))
+                    continue;
+
+                if (fileItr->path().extension() != FileExtensions::vmtile)
+                    continue;
+
+                std::string fileName = fileItr->path().filename().string();
+
+                uint32 tileX = Trinity::StringTo<uint32>(std::string_view(fileName).substr(8, 2)).value_or(0);
+                uint32 tileY = Trinity::StringTo<uint32>(std::string_view(fileName).substr(5, 2)).value_or(0);
+                uint32 tileID = StaticMapTree::packTileID(tileY, tileX);
+
+                if (tiles.insert(tileID).second)
+                    ++m_totalTiles;
             }
         }
-        printf("found %u.\n", count);
 
-        count = 0;
-        printf("Discovering tiles... ");
-        for (TileList::iterator itr = m_tiles.begin(); itr != m_tiles.end(); ++itr)
+        printf("Discovering maps... found %u.\n", uint32(m_tiles.size()));
+        printf("Discovering tiles... found %u.\n\n", m_totalTiles);
+    }
+
+    /**************************************************************************/
+    void MapBuilder::ParseOffMeshConnectionsFile(char const* offMeshFilePath)
+    {
+        // no meshfile input given?
+        if (offMeshFilePath == nullptr)
+            return;
+
+        auto fp = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(offMeshFilePath, "rb"));
+        if (!fp)
         {
-            std::set<uint32>* tiles = (*itr).m_tiles;
-            mapID = (*itr).m_mapId;
-
-            files.clear();
-            getDirContents(files, "vmaps", Trinity::StringFormat("%04u_*.vmtile", mapID));
-            for (uint32 i = 0; i < files.size(); ++i)
-            {
-                tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
-                tileY = uint32(atoi(files[i].substr(5, 2).c_str()));
-                tileID = StaticMapTree::packTileID(tileY, tileX);
-
-                tiles->insert(tileID);
-                count++;
-            }
-
-            files.clear();
-            getDirContents(files, "maps", Trinity::StringFormat("%04u*", mapID));
-            for (uint32 i = 0; i < files.size(); ++i)
-            {
-                tileY = uint32(atoi(files[i].substr(5, 2).c_str()));
-                tileX = uint32(atoi(files[i].substr(8, 2).c_str()));
-                tileID = StaticMapTree::packTileID(tileX, tileY);
-
-                if (tiles->insert(tileID).second)
-                    count++;
-            }
-
-            // make sure we process maps which don't have tiles
-            if (tiles->empty())
-            {
-                // convert coord bounds to grid bounds
-                uint32 minX, minY, maxX, maxY;
-                getGridBounds(mapID, minX, minY, maxX, maxY);
-
-                // add all tiles within bounds to tile list.
-                for (uint32 i = minX; i <= maxX; ++i)
-                    for (uint32 j = minY; j <= maxY; ++j)
-                        if (tiles->insert(StaticMapTree::packTileID(i, j)).second)
-                            count++;
-            }
+            printf(" loadOffMeshConnections:: input file %s not found!\n", offMeshFilePath);
+            return;
         }
-        printf("found %u.\n\n", count);
 
-        // Calculate tiles to process in total
-        for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
+        char buf[512] = { };
+        while (fgets(buf, 512, fp.get()))
         {
-            if (!shouldSkipMap(it->m_mapId))
-                m_totalTiles += it->m_tiles->size();
+            OffMeshData offMesh;
+            int32 scanned = sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f %hhu %hu", &offMesh.MapId, &offMesh.TileX, &offMesh.TileY,
+                &offMesh.From[0], &offMesh.From[1], &offMesh.From[2], &offMesh.To[0], &offMesh.To[1], &offMesh.To[2],
+                &offMesh.Radius, &offMesh.AreaId, &offMesh.Flags);
+            if (scanned < 10)
+                continue;
+
+            offMesh.Bidirectional = true;
+            if (scanned < 12)
+                offMesh.Flags = NAV_GROUND;
+
+            if (scanned < 11)
+                offMesh.AreaId = NAV_AREA_GROUND;
+
+            m_offMeshConnections.push_back(offMesh);
         }
     }
 
     /**************************************************************************/
-    std::set<uint32>* MapBuilder::getTileList(uint32 mapID)
+    std::span<uint32 const> MapBuilder::getTileList(uint32 mapID) const
     {
-        TileList::iterator itr = std::find(m_tiles.begin(), m_tiles.end(), mapID);
-        if (itr != m_tiles.end())
-            return (*itr).m_tiles;
+        if (Trinity::Containers::FlatSet<uint32> const* tiles = Trinity::Containers::MapGetValuePtr(m_tiles, mapID))
+            return *tiles;
 
-        std::set<uint32>* tiles = new std::set<uint32>();
-        m_tiles.emplace_back(MapTiles(mapID, tiles));
-        return tiles;
+        return { };
     }
 
     /**************************************************************************/
@@ -248,11 +278,8 @@ namespace MMAP
         else
         {
             // Build all maps if no map id has been specified
-            for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
-            {
-                if (!shouldSkipMap(it->m_mapId))
-                    buildMap(it->m_mapId);
-            }
+            for (auto& [mapId, _] : m_tiles)
+                buildMap(mapId);
         }
 
         while (!_queue.Empty())
@@ -271,48 +298,6 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::getGridBounds(uint32 mapID, uint32 &minX, uint32 &minY, uint32 &maxX, uint32 &maxY)
-    {
-        maxX = INT_MAX;
-        maxY = INT_MAX;
-        minX = INT_MIN;
-        minY = INT_MIN;
-
-        float bmin[3] = { 0, 0, 0 };
-        float bmax[3] = { 0, 0, 0 };
-        float lmin[3] = { 0, 0, 0 };
-        float lmax[3] = { 0, 0, 0 };
-        MeshData meshData;
-
-        // make sure we process maps which don't have tiles
-        // initialize the static tree, which loads WDT models
-        if (!m_terrainBuilder->loadVMap(mapID, 64, 64, meshData))
-            return;
-
-        // get the coord bounds of the model data
-        if (meshData.solidVerts.size() + meshData.liquidVerts.size() == 0)
-            return;
-
-        // get the coord bounds of the model data
-        if (meshData.solidVerts.size() && meshData.liquidVerts.size())
-        {
-            rcCalcBounds(meshData.solidVerts.getCArray(), meshData.solidVerts.size() / 3, bmin, bmax);
-            rcCalcBounds(meshData.liquidVerts.getCArray(), meshData.liquidVerts.size() / 3, lmin, lmax);
-            rcVmin(bmin, lmin);
-            rcVmax(bmax, lmax);
-        }
-        else if (meshData.solidVerts.size())
-            rcCalcBounds(meshData.solidVerts.getCArray(), meshData.solidVerts.size() / 3, bmin, bmax);
-        else
-            rcCalcBounds(meshData.liquidVerts.getCArray(), meshData.liquidVerts.size() / 3, lmin, lmax);
-
-        // convert coord bounds to grid bounds
-        maxX = 32 - bmin[0] / GRID_SIZE;
-        maxY = 32 - bmin[2] / GRID_SIZE;
-        minX = 32 - bmax[0] / GRID_SIZE;
-        minY = 32 - bmax[2] / GRID_SIZE;
-    }
-
     void MapBuilder::buildMeshFromFile(char* name)
     {
         FILE* file = fopen(name, "rb");
@@ -360,16 +345,15 @@ namespace MMAP
         }
 
         float* verts = new float[verticesCount];
-        int* inds = new int[indicesCount];
 
         if (fread(verts, sizeof(float), verticesCount, file) != verticesCount)
         {
             fclose(file);
             delete[] verts;
-            delete[] inds;
             return;
         }
 
+        int* inds = new int[indicesCount];
         if (fread(inds, sizeof(int), indicesCount, file) != indicesCount)
         {
             fclose(file);
@@ -424,28 +408,28 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
-        std::set<uint32>* tiles = getTileList(mapID);
+        std::span<uint32 const> tiles = getTileList(mapID);
 
-        if (!tiles->empty())
+        if (!tiles.empty())
         {
             // build navMesh
             dtNavMesh* navMesh = nullptr;
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
-                printf("[Map %04i] Failed creating navmesh!\n", mapID);
-                m_totalTilesProcessed += tiles->size();
+                printf("[Map %04u] Failed creating navmesh!\n", mapID);
+                m_totalTilesProcessed += tiles.size();
                 return;
             }
 
             // now start building mmtiles for each tile
-            printf("[Map %04i] We have %u tiles.                          \n", mapID, (unsigned int)tiles->size());
-            for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
+            printf("[Map %04u] We have %u tiles.                          \n", mapID, uint32(tiles.size()));
+            for (uint32 packedTile : tiles)
             {
                 uint32 tileX, tileY;
 
                 // unpack tile coords
-                StaticMapTree::unpackTileID((*it), tileX, tileY);
+                StaticMapTree::unpackTileID(packedTile, tileX, tileY);
 
                 TileInfo tileInfo;
                 tileInfo.m_mapId = mapID;
@@ -504,7 +488,7 @@ namespace MMAP
         float bmin[3], bmax[3];
         m_mapBuilder->getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
 
-        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_mapBuilder->m_offMeshFilePath);
+        m_terrainBuilder->loadOffMeshConnections(mapID, tileX, tileY, meshData, m_mapBuilder->m_offMeshConnections);
 
         // build navmesh tile
         buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
@@ -524,7 +508,7 @@ namespace MMAP
             parentMapId = sMapStore[parentMapId].ParentMapID;
         }
 
-        std::set<uint32>* tiles = getTileList(navMeshParamsMapId);
+        std::span<uint32 const> tiles = getTileList(navMeshParamsMapId);
 
         // old code for non-statically assigned bitmask sizes:
         ///*** calculate number of bits needed to store tiles & polys ***/
@@ -534,15 +518,15 @@ namespace MMAP
 
         int polyBits = DT_POLY_BITS;
 
-        int maxTiles = tiles->size();
+        int maxTiles = tiles.size();
         int maxPolysPerTile = 1 << polyBits;
 
         /***          calculate bounds of map         ***/
 
         uint32 tileXMin = 64, tileYMin = 64, tileXMax = 0, tileYMax = 0, tileX, tileY;
-        for (std::set<uint32>::iterator it = tiles->begin(); it != tiles->end(); ++it)
+        for (uint32 packedTile : tiles)
         {
-            StaticMapTree::unpackTileID(*it, tileX, tileY);
+            StaticMapTree::unpackTileID(packedTile, tileX, tileY);
 
             if (tileX > tileXMax)
                 tileXMax = tileX;
@@ -578,17 +562,14 @@ namespace MMAP
             return;
         }
 
-        char fileName[25];
-        sprintf(fileName, "mmaps/%04u.mmap", mapID);
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}.mmap", mapID);
 
-        FILE* file = fopen(fileName, "wb");
+        FILE* file = fopen(fileName.c_str(), "wb");
         if (!file)
         {
             dtFreeNavMesh(navMesh);
             navMesh = nullptr;
-            char message[1024];
-            sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
-            perror(message);
+            perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
             return;
         }
 
@@ -603,7 +584,7 @@ namespace MMAP
         dtNavMesh* navMesh)
     {
         // console output
-        std::string tileString = Trinity::StringFormat("[Map %04u] [%02i,%02i]: ", mapID, tileX, tileY);
+        std::string tileString = Trinity::StringFormat("[Map {:04}] [{:02},{:02}]: ", mapID, tileX, tileY);
         printf("%s Building movemap tiles...\n", tileString.c_str());
 
         IntermediateValues iv;
@@ -892,14 +873,11 @@ namespace MMAP
             }
 
             // file output
-            char fileName[255];
-            sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
-            FILE* file = fopen(fileName, "wb");
+            std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+            FILE* file = fopen(fileName.c_str(), "wb");
             if (!file)
             {
-                char message[1024];
-                sprintf(message, "[Map %04u] Failed to open %s for writing!\n", mapID, fileName);
-                perror(message);
+                perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
                 navMesh->removeTile(tileRef, nullptr, nullptr);
                 break;
             }
@@ -1036,9 +1014,8 @@ namespace MMAP
     /**************************************************************************/
     bool TileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        char fileName[255];
-        sprintf(fileName, "mmaps/%04u%02i%02i.mmtile", mapID, tileY, tileX);
-        FILE* file = fopen(fileName, "rb");
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        FILE* file = fopen(fileName.c_str(), "rb");
         if (!file)
             return false;
 

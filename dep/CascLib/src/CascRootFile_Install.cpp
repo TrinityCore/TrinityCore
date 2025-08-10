@@ -36,7 +36,7 @@ struct TRootHandler_Install : public TFileTreeRoot
         pbInstallFile += InHeader.HeaderLength;
 
         // Skip the tags
-        for (DWORD i = 0; i < InHeader.TagCount; i++)
+        for(DWORD i = 0; i < InHeader.TagCount; i++)
         {
             szString = (const char *)pbInstallFile;
             nBitmapLength = GetTagBitmapLength(pbInstallFile, pbInstallEnd, InHeader.EntryCount);
@@ -55,7 +55,7 @@ struct TRootHandler_Install : public TFileTreeRoot
             pbInstallFile += MD5_HASH_SIZE + sizeof(DWORD);
 
             // Insert the FileName+CKey to the file tree
-            if (pCKeyEntry != NULL)
+            if(pCKeyEntry != NULL)
                 FileTree.InsertByName(pCKeyEntry, szString);
             nFileCount--;
         }
@@ -72,11 +72,11 @@ DWORD CaptureInstallHeader(CASC_INSTALL_HEADER & InHeader, LPBYTE pbFileData, si
     PFILE_INSTALL_HEADER pFileHeader = (PFILE_INSTALL_HEADER)pbFileData;
 
     // Check the signature ('DL') and version
-    if (cbFileData < sizeof(FILE_INSTALL_HEADER) || pFileHeader->Magic != FILE_MAGIC_INSTALL || pFileHeader->Version != 1)
+    if(cbFileData < sizeof(FILE_INSTALL_HEADER) || pFileHeader->Magic != FILE_MAGIC_INSTALL || pFileHeader->Version != 1)
         return ERROR_BAD_FORMAT;
 
     // Note that we don't support CKey sizes greater than 0x10 in the INSTALL file
-    if (pFileHeader->EKeyLength > MD5_HASH_SIZE)
+    if(pFileHeader->EKeyLength > MD5_HASH_SIZE)
         return ERROR_BAD_FORMAT;
 
     // Capture the header version 1
@@ -90,22 +90,22 @@ DWORD CaptureInstallHeader(CASC_INSTALL_HEADER & InHeader, LPBYTE pbFileData, si
     return ERROR_SUCCESS;
 }
 
-DWORD RootHandler_CreateInstall(TCascStorage * hs, LPBYTE pbInstallFile, DWORD cbInstallFile)
+DWORD RootHandler_CreateInstall(TCascStorage * hs, CASC_BLOB & InstallFile)
 {
     CASC_INSTALL_HEADER InHeader;
     TRootHandler_Install * pRootHandler = NULL;
     DWORD dwErrCode = ERROR_BAD_FORMAT;
 
     // Capture the header of the DOWNLOAD file
-    dwErrCode = CaptureInstallHeader(InHeader, pbInstallFile, cbInstallFile);
-    if (dwErrCode == ERROR_SUCCESS)
+    dwErrCode = CaptureInstallHeader(InHeader, InstallFile.pbData, InstallFile.cbData);
+    if(dwErrCode == ERROR_SUCCESS)
     {
         // Allocate the root handler object
         pRootHandler = new TRootHandler_Install();
-        if (pRootHandler != NULL)
+        if(pRootHandler != NULL)
         {
             // Parse the entire install manifest
-            dwErrCode = pRootHandler->Load(hs, InHeader, pbInstallFile, pbInstallFile + cbInstallFile);
+            dwErrCode = pRootHandler->Load(hs, InHeader, InstallFile.pbData, InstallFile.End());
             hs->pRootHandler = pRootHandler;
         }
     }

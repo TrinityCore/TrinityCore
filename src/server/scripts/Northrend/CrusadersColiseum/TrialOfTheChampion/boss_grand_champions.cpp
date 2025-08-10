@@ -98,7 +98,7 @@ void AggroAllPlayers(Creature* temp)
 {
     Map::PlayerList const& PlList = temp->GetMap()->GetPlayers();
 
-    if (PlList.isEmpty())
+    if (PlList.empty())
             return;
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
@@ -187,28 +187,28 @@ public:
             switch (uiType)
             {
                 case 1:
-                    AddWaypoint(0, 747.36f, 634.07f, 411.572f);
-                    AddWaypoint(1, 780.43f, 607.15f, 411.82f);
-                    AddWaypoint(2, 785.99f, 599.41f, 411.92f);
-                    AddWaypoint(3, 778.44f, 601.64f, 411.79f);
+                    AddWaypoint(0, 747.36f, 634.07f, 411.572f, true);
+                    AddWaypoint(1, 780.43f, 607.15f, 411.82f, true);
+                    AddWaypoint(2, 785.99f, 599.41f, 411.92f, true);
+                    AddWaypoint(3, 778.44f, 601.64f, 411.79f, true);
                     uiWaypointPath = 1;
                     break;
                 case 2:
-                    AddWaypoint(0, 747.35f, 634.07f, 411.57f);
-                    AddWaypoint(1, 768.72f, 581.01f, 411.92f);
-                    AddWaypoint(2, 763.55f, 590.52f, 411.71f);
+                    AddWaypoint(0, 747.35f, 634.07f, 411.57f, true);
+                    AddWaypoint(1, 768.72f, 581.01f, 411.92f, true);
+                    AddWaypoint(2, 763.55f, 590.52f, 411.71f, true);
                     uiWaypointPath = 2;
                     break;
                 case 3:
-                    AddWaypoint(0, 747.35f, 634.07f, 411.57f);
-                    AddWaypoint(1, 784.02f, 645.33f, 412.39f);
-                    AddWaypoint(2, 775.67f, 641.91f, 411.91f);
+                    AddWaypoint(0, 747.35f, 634.07f, 411.57f, true);
+                    AddWaypoint(1, 784.02f, 645.33f, 412.39f, true);
+                    AddWaypoint(2, 775.67f, 641.91f, 411.91f, true);
                     uiWaypointPath = 3;
                     break;
             }
 
             if (uiType <= 3)
-                Start(false, true);
+                Start(false);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -254,7 +254,7 @@ public:
             if (uiChargeTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -281,7 +281,7 @@ public:
                 if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (!players.isEmpty())
+                    if (!players.empty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
@@ -296,8 +296,6 @@ public:
                 }
                 uiShieldBreakerTimer = 7000;
             }else uiShieldBreakerTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -401,7 +399,7 @@ public:
             if (uiInterceptTimer <= uiDiff)
             {
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                if (!players.isEmpty())
+                if (!players.empty())
                 {
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                     {
@@ -429,8 +427,6 @@ public:
                 DoCastVictim(SPELL_MORTAL_STRIKE);
                 uiMortalStrikeTimer = urand(8000, 12000);
             } else uiMortalStrikeTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -573,8 +569,6 @@ public:
                 DoCast(me, SPELL_HASTE);
                 uiHasteTimer = 22000;
             } else uiHasteTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -725,8 +719,6 @@ public:
 
                 uiHexMendingTimer = urand(20000, 25000);
             } else uiHexMendingTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -871,7 +863,7 @@ public:
                 else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
-                    if (!players.isEmpty())
+                    if (!players.empty())
                     {
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                         {
@@ -886,8 +878,6 @@ public:
                 }
                 bShoot = false;
             } else uiMultiShotTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -1012,8 +1002,6 @@ public:
                     DoCast(target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
-
-            DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) override

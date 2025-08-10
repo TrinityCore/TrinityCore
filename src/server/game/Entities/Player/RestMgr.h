@@ -19,6 +19,7 @@
 #define RestMgr_h__
 
 #include "Define.h"
+#include "Optional.h"
 #include <ctime>
 
 class Player;
@@ -40,11 +41,12 @@ enum PlayerRestInfoOffsets : uint8
     MAX_REST_INFO
 };
 
+// Exhaustion.db2 ids
 enum PlayerRestState : uint8
 {
-    REST_STATE_RESTED           = 0x01,
-    REST_STATE_NOT_RAF_LINKED   = 0x02,
-    REST_STATE_RAF_LINKED       = 0x06
+    REST_STATE_RESTED           = 1,
+    REST_STATE_NORMAL           = 2,
+    REST_STATE_RAF_LINKED       = 6
 };
 
 enum RestFlag : uint32
@@ -52,6 +54,12 @@ enum RestFlag : uint32
     REST_FLAG_IN_TAVERN         = 0x1,
     REST_FLAG_IN_CITY           = 0x2,
     REST_FLAG_IN_FACTION_AREA   = 0x4 // used with AREA_FLAG_REST_ZONE_*
+};
+
+struct InnAreaTrigger
+{
+    bool IsDBC = true;
+    uint32 AreaTriggerEntryId = 0;
 };
 
 class TC_GAME_API RestMgr
@@ -67,22 +75,24 @@ public:
     void AddRestBonus(RestTypes restType, float restBonus);
 
     bool HasRestFlag(RestFlag restFlag) const { return (_restFlagMask & restFlag) != 0; }
-    void SetRestFlag(RestFlag restFlag, uint32 triggerId = 0);
+    void SetRestFlag(RestFlag restFlag);
     void RemoveRestFlag(RestFlag restFlag);
 
     uint32 GetRestBonusFor(RestTypes restType, uint32 xp);
-    uint32 GetInnTriggerID() const { return _innAreaTriggerId; }
+    Optional<InnAreaTrigger> GetInnTrigger() const { return _innAreaTrigger; }
+    void SetInnTrigger(Optional<InnAreaTrigger> trigger) { _innAreaTrigger = trigger; }
 
     void Update(time_t now);
 
+    float CalcExtraPerSec(RestTypes restType, float bubble) const;
+
 protected:
     void LoadRestBonus(RestTypes restType, PlayerRestState state, float restBonus);
-    float CalcExtraPerSec(RestTypes restType, float bubble) const;
 
 private:
     Player* _player;
     time_t _restTime;
-    uint32 _innAreaTriggerId;
+    Optional<InnAreaTrigger> _innAreaTrigger;
     float _restBonus[REST_TYPE_MAX];
     uint32 _restFlagMask;
 };

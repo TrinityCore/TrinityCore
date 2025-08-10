@@ -138,6 +138,8 @@ TC_API_EXPORT EnumText EnumUtils<QuestPushReason>::ToString(QuestPushReason valu
         case QuestPushReason::RaceToRecipient: return { "RaceToRecipient", "RaceToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are the wrong race for that quest.\042" };
         case QuestPushReason::LowFaction: return { "LowFaction", "LowFaction", "\042%s's reputation is too low for that quest.\042" };
         case QuestPushReason::LowFactionToRecipient: return { "LowFactionToRecipient", "LowFactionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. Your reputation is too low for that quest.\042" };
+        case QuestPushReason::HighFaction: return { "HighFaction", "HighFaction", "\042%s's reputation is too high for that quest.\042" };
+        case QuestPushReason::HighFactionToRecipient: return { "HighFactionToRecipient", "HighFactionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. Your reputation is too high for that quest.\042" };
         case QuestPushReason::Expansion: return { "Expansion", "Expansion", "\042%s doesn't own the required expansion for that quest.\042" };
         case QuestPushReason::ExpansionToRecipient: return { "ExpansionToRecipient", "ExpansionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You do not own the required expansion for that quest.\042" };
         case QuestPushReason::NotGarrisonOwner: return { "NotGarrisonOwner", "NotGarrisonOwner", "\042%s must own a garrison to accept that quest.\042" };
@@ -148,12 +150,13 @@ TC_API_EXPORT EnumText EnumUtils<QuestPushReason>::ToString(QuestPushReason valu
         case QuestPushReason::NewPlayerExperienceToRecipient: return { "NewPlayerExperienceToRecipient", "NewPlayerExperienceToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You must complete Exile's Reach to accept that quest.\042" };
         case QuestPushReason::WrongFaction: return { "WrongFaction", "WrongFaction", "\042%s is the wrong faction for that quest.\042" };
         case QuestPushReason::WrongFactionToRecipient: return { "WrongFactionToRecipient", "WrongFactionToRecipient", "\042%s's attempt to share quest \042%s\042 failed. You are the wrong faction for that quest.\042" };
+        case QuestPushReason::CrossFactionRestricted: return { "CrossFactionRestricted", "CrossFactionRestricted", "\042Quests can't be shared in cross-faction groups.\042" };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<QuestPushReason>::Count() { return 42; }
+TC_API_EXPORT size_t EnumUtils<QuestPushReason>::Count() { return 45; }
 
 template <>
 TC_API_EXPORT QuestPushReason EnumUtils<QuestPushReason>::FromIndex(size_t index)
@@ -192,16 +195,19 @@ TC_API_EXPORT QuestPushReason EnumUtils<QuestPushReason>::FromIndex(size_t index
         case 29: return QuestPushReason::RaceToRecipient;
         case 30: return QuestPushReason::LowFaction;
         case 31: return QuestPushReason::LowFactionToRecipient;
-        case 32: return QuestPushReason::Expansion;
-        case 33: return QuestPushReason::ExpansionToRecipient;
-        case 34: return QuestPushReason::NotGarrisonOwner;
-        case 35: return QuestPushReason::NotGarrisonOwnerToRecipient;
-        case 36: return QuestPushReason::WrongCovenant;
-        case 37: return QuestPushReason::WrongCovenantToRecipient;
-        case 38: return QuestPushReason::NewPlayerExperience;
-        case 39: return QuestPushReason::NewPlayerExperienceToRecipient;
-        case 40: return QuestPushReason::WrongFaction;
-        case 41: return QuestPushReason::WrongFactionToRecipient;
+        case 32: return QuestPushReason::HighFaction;
+        case 33: return QuestPushReason::HighFactionToRecipient;
+        case 34: return QuestPushReason::Expansion;
+        case 35: return QuestPushReason::ExpansionToRecipient;
+        case 36: return QuestPushReason::NotGarrisonOwner;
+        case 37: return QuestPushReason::NotGarrisonOwnerToRecipient;
+        case 38: return QuestPushReason::WrongCovenant;
+        case 39: return QuestPushReason::WrongCovenantToRecipient;
+        case 40: return QuestPushReason::NewPlayerExperience;
+        case 41: return QuestPushReason::NewPlayerExperienceToRecipient;
+        case 42: return QuestPushReason::WrongFaction;
+        case 43: return QuestPushReason::WrongFactionToRecipient;
+        case 44: return QuestPushReason::CrossFactionRestricted;
         default: throw std::out_of_range("index");
     }
 }
@@ -243,16 +249,19 @@ TC_API_EXPORT size_t EnumUtils<QuestPushReason>::ToIndex(QuestPushReason value)
         case QuestPushReason::RaceToRecipient: return 29;
         case QuestPushReason::LowFaction: return 30;
         case QuestPushReason::LowFactionToRecipient: return 31;
-        case QuestPushReason::Expansion: return 32;
-        case QuestPushReason::ExpansionToRecipient: return 33;
-        case QuestPushReason::NotGarrisonOwner: return 34;
-        case QuestPushReason::NotGarrisonOwnerToRecipient: return 35;
-        case QuestPushReason::WrongCovenant: return 36;
-        case QuestPushReason::WrongCovenantToRecipient: return 37;
-        case QuestPushReason::NewPlayerExperience: return 38;
-        case QuestPushReason::NewPlayerExperienceToRecipient: return 39;
-        case QuestPushReason::WrongFaction: return 40;
-        case QuestPushReason::WrongFactionToRecipient: return 41;
+        case QuestPushReason::HighFaction: return 32;
+        case QuestPushReason::HighFactionToRecipient: return 33;
+        case QuestPushReason::Expansion: return 34;
+        case QuestPushReason::ExpansionToRecipient: return 35;
+        case QuestPushReason::NotGarrisonOwner: return 36;
+        case QuestPushReason::NotGarrisonOwnerToRecipient: return 37;
+        case QuestPushReason::WrongCovenant: return 38;
+        case QuestPushReason::WrongCovenantToRecipient: return 39;
+        case QuestPushReason::NewPlayerExperience: return 40;
+        case QuestPushReason::NewPlayerExperienceToRecipient: return 41;
+        case QuestPushReason::WrongFaction: return 42;
+        case QuestPushReason::WrongFactionToRecipient: return 43;
+        case QuestPushReason::CrossFactionRestricted: return 44;
         default: throw std::out_of_range("value");
     }
 }

@@ -202,8 +202,6 @@ public: npc_twilight_flame_caller() : CreatureScript("npc_twilight_flame_caller"
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -256,7 +254,7 @@ class npc_twilight_torturer : public CreatureScript
             void Reset() override
             {
                 Initialize();
-                if (!me->GetWaypointPath())
+                if (!me->GetWaypointPathId())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TT, 6s, 18s);
             }
 
@@ -313,8 +311,6 @@ class npc_twilight_torturer : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -356,7 +352,7 @@ class npc_twilight_sadist : public CreatureScript
             void Reset() override
             {
                 _combatPhase = false;
-                if (!me->GetWaypointPath())
+                if (!me->GetWaypointPathId())
                     _events.ScheduleEvent(EVENT_INFLICT_PAIN_TS, 6s, 18s);
             }
 
@@ -414,8 +410,6 @@ class npc_twilight_sadist : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -489,7 +483,6 @@ class npc_mad_prisoner : public CreatureScript
                             break;
                     }
                 }
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -559,8 +552,6 @@ class npc_crazed_mage : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -653,8 +644,6 @@ class npc_raz_the_crazed : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -717,8 +706,6 @@ class spell_chains_of_woe_1 : public SpellScriptLoader
 
         class spell_chains_of_woe_1_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chains_of_woe_1_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_1 });
@@ -752,8 +739,6 @@ class spell_chains_of_woe_4 : public SpellScriptLoader
 
         class spell_chains_of_woe_4_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_chains_of_woe_4_SpellScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_CHAINS_OF_WOE_4 });
@@ -795,8 +780,6 @@ class spell_nether_dragon_essence_1 : public SpellScriptLoader
 
         class spell_nether_dragon_essence_1_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_nether_dragon_essence_1_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo(
@@ -836,8 +819,6 @@ class spell_nether_dragon_essence_2 : public SpellScriptLoader
 
         class spell_nether_dragon_essence_2_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_nether_dragon_essence_2_SpellScript);
-
             void ModDestHeight(SpellDestination& dest)
             {
                 Position offset = { frand(-35.0f, 35.0f), frand(-25.0f, 25.0f), 0.0f, 0.0f };

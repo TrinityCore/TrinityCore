@@ -39,15 +39,15 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         std::string const dbString = sConfigMgr->GetStringDefault(name + "DatabaseInfo", "");
         if (dbString.empty())
         {
-            TC_LOG_ERROR(_logger, "Database %s not specified in configuration file!", name.c_str());
+            TC_LOG_ERROR(_logger, "Database {} not specified in configuration file!", name);
             return false;
         }
 
         uint8 const asyncThreads = uint8(sConfigMgr->GetIntDefault(name + "Database.WorkerThreads", 1));
         if (asyncThreads < 1 || asyncThreads > 32)
         {
-            TC_LOG_ERROR(_logger, "%s database: invalid number of worker threads specified. "
-                "Please pick a value between 1 and 32.", name.c_str());
+            TC_LOG_ERROR(_logger, "{} database: invalid number of worker threads specified. "
+                "Please pick a value between 1 and 32.", name);
             return false;
         }
 
@@ -67,8 +67,8 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
             // If the error wasn't handled quit
             if (error)
             {
-                TC_LOG_ERROR("sql.driver", "\nDatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
-                    "for specific errors. Read wiki at https://www.trinitycore.info/display/tc/TrinityCore+Home", name.c_str());
+                TC_LOG_ERROR("sql.driver", "\nDatabasePool {} NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
+                    "for specific errors. Read wiki at https://www.trinitycore.info/display/tc/TrinityCore+Home", name);
 
                 return false;
             }
@@ -88,7 +88,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         {
             if (!DBUpdater<T>::Populate(pool))
             {
-                TC_LOG_ERROR(_logger, "Could not populate the %s database, see log for details.", name.c_str());
+                TC_LOG_ERROR(_logger, "Could not populate the {} database, see log for details.", name);
                 return false;
             }
             return true;
@@ -98,7 +98,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
         {
             if (!DBUpdater<T>::Update(pool))
             {
-                TC_LOG_ERROR(_logger, "Could not update the %s database, see log for details.", name.c_str());
+                TC_LOG_ERROR(_logger, "Could not update the {} database, see log for details.", name);
                 return false;
             }
             return true;
@@ -109,7 +109,7 @@ DatabaseLoader& DatabaseLoader::AddDatabase(DatabaseWorkerPool<T>& pool, std::st
     {
         if (!pool.PrepareStatements())
         {
-            TC_LOG_ERROR(_logger, "Could not prepare statements of the %s database, see log for details.", name.c_str());
+            TC_LOG_ERROR(_logger, "Could not prepare statements of the {} database, see log for details.", name);
             return false;
         }
         return true;

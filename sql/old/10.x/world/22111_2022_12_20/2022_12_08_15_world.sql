@@ -1,0 +1,140 @@
+SET @CGUID := 396608;
+SET @OGUID := 250036;
+SET @EVENT := 26;
+
+-- Equipments
+DELETE FROM `creature_equip_template` WHERE `CreatureID`=34654;
+INSERT INTO `creature_equip_template` (`CreatureID`, `ID`, `ItemID1`, `AppearanceModID1`, `ItemVisual1`, `ItemID2`, `AppearanceModID2`, `ItemVisual2`, `ItemID3`, `AppearanceModID3`, `ItemVisual3`, `VerifiedBuild`) VALUES
+(34654, 1, 2202, 0, 0, 0, 0, 0, 0, 0, 0, 46741), -- Bountiful Feast Hostess
+(34654, 2, 2703, 0, 0, 0, 0, 0, 0, 0, 0, 46741); -- Bountiful Feast Hostess
+
+-- Creature spawns
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`, `VerifiedBuild`) VALUES
+-- Rebel Camp
+(@CGUID+0, 32823, 0, 33, 99, '0', 0, 0, 0, 0, -11329.845703125, -195.31597900390625, 75.2216644287109375, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Rebel Camp - Difficulty: 0) (Auras: )
+(@CGUID+1, 34653, 0, 33, 99, '0', 0, 0, 0, 0, -11321.1943359375, -196.446182250976562, 76.1610107421875, 5.689773082733154296, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table Hostess (Area: Rebel Camp - Difficulty: 0)
+-- Grom'gol Base Camp
+(@CGUID+2, 32823, 0, 33, 117, '0', 0, 0, 0, 0, -12372.9033203125, 156.4895782470703125, 2.94965219497680664, 0, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741), -- Bountiful Table (Area: Grom'gol Base Camp - Difficulty: 0) (Auras: )
+(@CGUID+3, 34654, 0, 33, 117, '0', 0, 0, 0, 0, -12367.8095703125, 162.876739501953125, 2.866048336029052734, 1.605702877044677734, 120, 0, 0, 19343, 0, 0, 0, 0, 0, 46741); -- Bountiful Feast Hostess (Area: Grom'gol Base Camp - Difficulty: 0)
+
+-- Gameobject spawns
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+51;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+-- Rebel Camp
+(@OGUID+0, 179968, 0, 33, 99, '0', 0, 0, -11326.0537109375, -200.541671752929687, 75.59375, 1.989672422409057617, 0, 0, 0.838669776916503906, 0.544640243053436279, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+1, 179968, 0, 33, 99, '0', 0, 0, -11323.2724609375, -196.510421752929687, 75.90277862548828125, 2.809975385665893554, 0, 0, 0.986285209655761718, 0.165049895644187927, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+2, 179968, 0, 33, 99, '0', 0, 0, -11323.30078125, -194.152786254882812, 75.8663177490234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+3, 179968, 0, 33, 99, '0', 0, 0, -11328.70703125, -200.986114501953125, 75.36631011962890625, 1.48352813720703125, 0, 0, 0.675589561462402343, 0.737277925014495849, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+4, 179968, 0, 33, 99, '0', 0, 0, -11332.5849609375, -190.993057250976562, 75.923614501953125, 2.076939344406127929, 0, 0, 0.861628532409667968, 0.50753939151763916, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+5, 179968, 0, 33, 99, '0', 0, 0, -11325.8173828125, -190.48785400390625, 75.3845977783203125, 4.1538848876953125, 0, 0, -0.8746194839477539, 0.484810054302215576, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+6, 179968, 0, 33, 99, '0', 0, 0, -11327.83203125, -189.84722900390625, 75.27777862548828125, 4.729844093322753906, 0, 0, -0.70090866088867187, 0.713251054286956787, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+7, 179968, 0, 33, 99, '0', 0, 0, -11334.501953125, -193.12847900390625, 75.48958587646484375, 6.09120035171508789, 0, 0, -0.09584522247314453, 0.995396256446838378, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+8, 179968, 0, 33, 99, '0', 0, 0, -11333.5361328125, -197.680557250976562, 74.98958587646484375, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+9, 179968, 0, 33, 99, '0', 0, 0, -11332.265625, -199.517364501953125, 75.0515899658203125, 1.029743075370788574, 0, 0, 0.492423057556152343, 0.870355963706970214, 120, 255, 1, 46741), -- Haystack 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+10, 180353, 0, 33, 99, '0', 0, 0, -11323.23828125, -195.267364501953125, 75.90625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+11, 180353, 0, 33, 99, '0', 0, 0, -11327.2548828125, -200.736114501953125, 75.486114501953125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+12, 180353, 0, 33, 99, '0', 0, 0, -11333.80078125, -191.902786254882812, 75.79514312744140625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+13, 180353, 0, 33, 99, '0', 0, 0, -11326.828125, -190.006942749023437, 75.2881927490234375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+14, 180353, 0, 33, 99, '0', 0, 0, -11333.158203125, -198.604171752929687, 74.99652862548828125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+15, 195164, 0, 33, 99, '0', 0, 0, -11323.4111328125, -196.652786254882812, 76.55747222900390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+16, 195164, 0, 33, 99, '0', 0, 0, -11325.9150390625, -200.423614501953125, 76.279693603515625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+17, 195164, 0, 33, 99, '0', 0, 0, -11328.7548828125, -200.916671752929687, 76.03430938720703125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+18, 195164, 0, 33, 99, '0', 0, 0, -11333.48828125, -197.635421752929687, 75.66684722900390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+19, 195164, 0, 33, 99, '0', 0, 0, -11334.404296875, -193.173614501953125, 76.1616363525390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+20, 195164, 0, 33, 99, '0', 0, 0, -11327.873046875, -189.94097900390625, 75.95503997802734375, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+21, 195164, 0, 33, 99, '0', 0, 0, -11332.3349609375, -199.447921752929687, 75.71488189697265625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+22, 195164, 0, 33, 99, '0', 0, 0, -11332.607421875, -191.038192749023437, 76.58872222900390625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+23, 195164, 0, 33, 99, '0', 0, 0, -11325.8798828125, -190.47222900390625, 76.0509796142578125, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+24, 195164, 0, 33, 99, '0', 0, 0, -11323.39453125, -194.180557250976562, 76.529693603515625, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Rebel Camp - Difficulty: 0)
+(@OGUID+25, 195664, 0, 33, 99, '0', 0, 0, -11329.7998046875, -195.315994262695312, 75.13829803466796875, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- [DND] Collision Thanksgiving Table Size (Area: Rebel Camp - Difficulty: 0)
+-- Grom'gol Base Camp
+(@OGUID+26, 179968, 0, 33, 117, '0', 0, 0, -12370.888671875, 161.9583282470703125, 2.784722089767456054, 4.729844093322753906, 0, 0, -0.70090866088867187, 0.713251054286956787, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+27, 179968, 0, 33, 117, '0', 0, 0, -12375.642578125, 160.8125, 2.821777105331420898, 2.076939344406127929, 0, 0, 0.861628532409667968, 0.50753939151763916, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+28, 179968, 0, 33, 117, '0', 0, 0, -12377.5595703125, 158.6770782470703125, 2.857639074325561523, 6.09120035171508789, 0, 0, -0.09584522247314453, 0.995396256446838378, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+29, 179968, 0, 33, 117, '0', 0, 0, -12368.875, 161.3177032470703125, 2.802083015441894531, 4.1538848876953125, 0, 0, -0.8746194839477539, 0.484810054302215576, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+30, 179968, 0, 33, 117, '0', 0, 0, -12376.59375, 154.125, 2.666666984558105468, 3.403396368026733398, 0, 0, -0.99144458770751953, 0.130528271198272705, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+31, 179968, 0, 33, 117, '0', 0, 0, -12366.330078125, 155.295135498046875, 3.296875, 2.809975385665893554, 0, 0, 0.986285209655761718, 0.165049895644187927, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+32, 179968, 0, 33, 117, '0', 0, 0, -12369.111328125, 151.263885498046875, 2.625974893569946289, 1.989672422409057617, 0, 0, 0.838669776916503906, 0.544640243053436279, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+33, 179968, 0, 33, 117, '0', 0, 0, -12375.3232421875, 152.2881927490234375, 2.504584074020385742, 1.029743075370788574, 0, 0, 0.492423057556152343, 0.870355963706970214, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+34, 179968, 0, 33, 117, '0', 0, 0, -12371.763671875, 150.8194427490234375, 2.431648015975952148, 1.48352813720703125, 0, 0, 0.675589561462402343, 0.737277925014495849, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+35, 179968, 0, 33, 117, '0', 0, 0, -12366.357421875, 157.6527862548828125, 3.190972089767456054, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Haystack 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+36, 180353, 0, 33, 117, '0', 0, 0, -12369.8857421875, 161.798614501953125, 2.786134958267211914, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+37, 180353, 0, 33, 117, '0', 0, 0, -12376.857421875, 159.9027862548828125, 2.852431058883666992, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+38, 180353, 0, 33, 117, '0', 0, 0, -12370.3134765625, 151.0694427490234375, 2.517360925674438476, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+39, 180353, 0, 33, 117, '0', 0, 0, -12366.294921875, 156.5381927490234375, 3.248264074325561523, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+40, 180353, 0, 33, 117, '0', 0, 0, -12376.2158203125, 153.201385498046875, 2.570055007934570312, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Freestanding Torch 01 (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+41, 195164, 0, 33, 117, '0', 0, 0, -12370.9306640625, 161.8645782470703125, 3.463037967681884765, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+42, 195164, 0, 33, 117, '0', 0, 0, -12368.97265625, 151.3819427490234375, 3.32444310188293457, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+43, 195164, 0, 33, 117, '0', 0, 0, -12366.451171875, 157.625, 3.853533029556274414, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+44, 195164, 0, 33, 117, '0', 0, 0, -12366.46875, 155.1527862548828125, 3.955962896347045898, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+45, 195164, 0, 33, 117, '0', 0, 0, -12376.544921875, 154.170135498046875, 3.353533029556274414, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+46, 195164, 0, 33, 117, '0', 0, 0, -12375.6630859375, 160.767364501953125, 3.501547098159790039, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+47, 195164, 0, 33, 117, '0', 0, 0, -12377.4619140625, 158.6319427490234375, 3.537559986114501953, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+48, 195164, 0, 33, 117, '0', 0, 0, -12368.9384765625, 161.3333282470703125, 3.48026895523071289, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+49, 195164, 0, 33, 117, '0', 0, 0, -12375.392578125, 152.357635498046875, 3.187550067901611328, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+50, 195164, 0, 33, 117, '0', 0, 0, -12371.8134765625, 150.888885498046875, 3.114584922790527343, 0, 0, 0, 0, 1, 120, 255, 1, 46741), -- Pumpkin (Area: Grom'gol Base Camp - Difficulty: 0)
+(@OGUID+51, 195664, 0, 33, 117, '0', 0, 0, -12372.900390625, 156.4900054931640625, 2.866319894790649414, 0, 0, 0, 0, 1, 120, 255, 1, 46741); -- [DND] Collision Thanksgiving Table Size (Area: Grom'gol Base Camp - Difficulty: 0)
+
+-- Event spawns
+DELETE FROM `game_event_creature` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(@EVENT, @CGUID+0), 
+(@EVENT, @CGUID+1),
+(@EVENT, @CGUID+2),
+(@EVENT, @CGUID+3);
+
+DELETE FROM `game_event_gameobject` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @OGUID+0 AND @OGUID+51;
+INSERT INTO `game_event_gameobject` (`eventEntry`, `guid`) VALUES
+(@EVENT, @OGUID+0),
+(@EVENT, @OGUID+1),
+(@EVENT, @OGUID+2),
+(@EVENT, @OGUID+3),
+(@EVENT, @OGUID+4),
+(@EVENT, @OGUID+5),
+(@EVENT, @OGUID+6),
+(@EVENT, @OGUID+7),
+(@EVENT, @OGUID+8),
+(@EVENT, @OGUID+9),
+(@EVENT, @OGUID+10),
+(@EVENT, @OGUID+11),
+(@EVENT, @OGUID+12),
+(@EVENT, @OGUID+13),
+(@EVENT, @OGUID+14),
+(@EVENT, @OGUID+15),
+(@EVENT, @OGUID+16),
+(@EVENT, @OGUID+17),
+(@EVENT, @OGUID+18),
+(@EVENT, @OGUID+19),
+(@EVENT, @OGUID+20),
+(@EVENT, @OGUID+21),
+(@EVENT, @OGUID+22),
+(@EVENT, @OGUID+23),
+(@EVENT, @OGUID+24),
+(@EVENT, @OGUID+25),
+(@EVENT, @OGUID+26),
+(@EVENT, @OGUID+27),
+(@EVENT, @OGUID+28),
+(@EVENT, @OGUID+29),
+(@EVENT, @OGUID+30),
+(@EVENT, @OGUID+31),
+(@EVENT, @OGUID+32),
+(@EVENT, @OGUID+33),
+(@EVENT, @OGUID+34),
+(@EVENT, @OGUID+35),
+(@EVENT, @OGUID+36),
+(@EVENT, @OGUID+37),
+(@EVENT, @OGUID+38),
+(@EVENT, @OGUID+39),
+(@EVENT, @OGUID+40),
+(@EVENT, @OGUID+41),
+(@EVENT, @OGUID+42),
+(@EVENT, @OGUID+43),
+(@EVENT, @OGUID+44),
+(@EVENT, @OGUID+45),
+(@EVENT, @OGUID+46),
+(@EVENT, @OGUID+47),
+(@EVENT, @OGUID+48),
+(@EVENT, @OGUID+49),
+(@EVENT, @OGUID+50),
+(@EVENT, @OGUID+51);

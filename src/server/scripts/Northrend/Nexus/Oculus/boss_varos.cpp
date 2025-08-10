@@ -148,8 +148,6 @@ struct boss_varos : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -196,14 +194,6 @@ struct npc_azure_ring_captain : public ScriptedAI
         }
     }
 
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
-
     void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE ||
@@ -243,8 +233,6 @@ private:
 // 50053 - Centrifuge Shield
 class spell_varos_centrifuge_shield : public AuraScript
 {
-    PrepareAuraScript(spell_varos_centrifuge_shield);
-
     bool Load() override
     {
         Unit* caster = GetCaster();
@@ -273,8 +261,6 @@ class spell_varos_centrifuge_shield : public AuraScript
 // 50785, 59372 - Energize Cores
 class spell_varos_energize_core_area_enemy : public SpellScript
 {
-    PrepareSpellScript(spell_varos_energize_core_area_enemy);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Creature* varos = GetCaster()->ToCreature();
@@ -308,8 +294,6 @@ class spell_varos_energize_core_area_enemy : public SpellScript
 // 61407, 62136 - Energize Cores
 class spell_varos_energize_core_area_entry : public SpellScript
 {
-    PrepareSpellScript(spell_varos_energize_core_area_entry);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Creature* varos = GetCaster()->ToCreature();

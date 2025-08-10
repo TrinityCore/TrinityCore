@@ -49,7 +49,7 @@ struct B32Impl
     return Trinity::Impl::GenericBaseEncoding<B32Impl>::Encode(data);
 }
 
-/*static*/ Optional<std::vector<uint8>> Trinity::Encoding::Base32::Decode(std::string const& data)
+/*static*/ Optional<std::vector<uint8>> Trinity::Encoding::Base32::Decode(std::string_view data)
 {
     return Trinity::Impl::GenericBaseEncoding<B32Impl>::Decode(data);
 }

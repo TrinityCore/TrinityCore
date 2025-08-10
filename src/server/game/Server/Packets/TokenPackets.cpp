@@ -16,40 +16,44 @@
  */
 
 #include "TokenPackets.h"
+#include "PacketOperators.h"
 
-void WorldPackets::Token::CommerceTokenGetLog::Read()
+namespace WorldPackets::Token
 {
-    _worldPacket >> UnkInt;
+void CommerceTokenGetLog::Read()
+{
+    _worldPacket >> ClientToken;
 }
 
-WorldPacket const* WorldPackets::Token::CommerceTokenGetLogResponse::Write()
+WorldPacket const* CommerceTokenGetLogResponse::Write()
 {
-    _worldPacket << UnkInt;
+    _worldPacket << ClientToken;
     _worldPacket << Result;
-    _worldPacket << uint32(AuctionableTokenAuctionableList.size());
-    for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokenAuctionableList)
+    _worldPacket << Size<uint32>(AuctionableTokens);
+    for (AuctionableTokenInfo const& auctionableTokenAuctionable : AuctionableTokens)
     {
-        _worldPacket << auctionableTokenAuctionable.UnkInt1;
-        _worldPacket << auctionableTokenAuctionable.UnkInt2;
-        _worldPacket << auctionableTokenAuctionable.BuyoutPrice;
-        _worldPacket << auctionableTokenAuctionable.Owner;
+        _worldPacket << auctionableTokenAuctionable.Id;
+        _worldPacket << auctionableTokenAuctionable.LastUpdate;
+        _worldPacket << auctionableTokenAuctionable.Price;
+        _worldPacket << auctionableTokenAuctionable.Status;
         _worldPacket << auctionableTokenAuctionable.DurationLeft;
     }
 
     return &_worldPacket;
 }
 
-void WorldPackets::Token::CommerceTokenGetMarketPrice::Read()
+void CommerceTokenGetMarketPrice::Read()
 {
-    _worldPacket >> UnkInt;
+    _worldPacket >> ClientToken;
 }
 
-WorldPacket const* WorldPackets::Token::CommerceTokenGetMarketPriceResponse::Write()
+WorldPacket const* CommerceTokenGetMarketPriceResponse::Write()
 {
-    _worldPacket << CurrentMarketPrice;
-    _worldPacket << UnkInt;
-    _worldPacket << Result;
-    _worldPacket << AuctionDuration;
+    _worldPacket << PriceGuarantee;
+    _worldPacket << ClientToken;
+    _worldPacket << ServerToken;
+    _worldPacket << PriceLockDurationSeconds;
 
     return &_worldPacket;
+}
 }

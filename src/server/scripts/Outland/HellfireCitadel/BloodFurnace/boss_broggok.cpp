@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "blood_furnace.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
@@ -118,7 +119,7 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_ACTIVATE_BROGGOK:
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(false);
                         DoZoneInCombat();
                         events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
                         events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
@@ -126,7 +127,7 @@ class boss_broggok : public CreatureScript
                         break;
                     case ACTION_RESET_BROGGOK:
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        me->SetUninteractible(true);
                         summons.DespawnAll();
                         instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
                         if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
@@ -193,8 +194,6 @@ struct BroggokPrisionersAI : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 protected:
@@ -281,11 +280,9 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
 
         class spell_broggok_poison_cloud_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_broggok_poison_cloud_AuraScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
+                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ spellInfo->GetEffect(EFFECT_0).TriggerSpell });
             }
 
             void PeriodicTick(AuraEffect const* aurEff)
@@ -295,7 +292,7 @@ class spell_broggok_poison_cloud : public SpellScriptLoader
                     return;
 
                 uint32 triggerSpell = aurEff->GetSpellEffectInfo().TriggerSpell;
-                int32 mod = int32(((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 10000 * 2 / 3);
+                float mod = ((float(aurEff->GetTickNumber()) / aurEff->GetTotalTicks()) * 0.9f + 0.1f) * 2 / 3;
                 GetTarget()->CastSpell(nullptr, triggerSpell, CastSpellExtraArgs(aurEff).AddSpellMod(SPELLVALUE_RADIUS_MOD, mod));
             }
 

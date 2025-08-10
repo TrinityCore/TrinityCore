@@ -77,8 +77,6 @@ struct boss_ebonroc : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 

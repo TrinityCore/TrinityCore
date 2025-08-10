@@ -1,0 +1,6 @@
+UPDATE `trinity_string` SET `content_default`='Map: %u-%s | Difficulty: %u-%s | InstanceID: %u | Expired: %s | Extended: %s | Time remaining: %s',`content_loc1`=NULL,`content_loc2`=NULL,`content_loc3`=NULL,`content_loc4`=NULL,`content_loc5`=NULL,`content_loc6`=NULL,`content_loc7`=NULL,`content_loc8`=NULL WHERE `entry`=5045; -- LANG_COMMAND_LIST_BIND_INFO
+UPDATE `trinity_string` SET `content_default`='Failed to unbind (lock in use by map) - Map: %u-%s | Difficulty: %u-%s | InstanceID: %u | Expired: %s | Extended: %s | Time remaining: %s',`content_loc1`=NULL,`content_loc2`=NULL,`content_loc3`=NULL,`content_loc4`=NULL,`content_loc5`=NULL,`content_loc6`=NULL,`content_loc7`=NULL,`content_loc8`=NULL WHERE `entry`=5047; -- LANG_COMMAND_INST_UNBIND_FAILED
+UPDATE `trinity_string` SET `content_default`='Unbinding - Map: %u-%s | Difficulty: %u-%s | InstanceID: %u | Expired: %s | Extended: %s | Time remaining: %s',`content_loc1`=NULL,`content_loc2`=NULL,`content_loc3`=NULL,`content_loc4`=NULL,`content_loc5`=NULL,`content_loc6`=NULL,`content_loc7`=NULL,`content_loc8`=NULL WHERE `entry`=5048; -- LANG_COMMAND_INST_UNBIND_UNBINDING
+DELETE FROM `trinity_string` WHERE `entry`=5054; -- LANG_COMMAND_INST_STAT_GROUPSBOUND
+
+DELETE FROM `command` WHERE `name`='instance savedata';

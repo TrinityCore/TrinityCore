@@ -19,28 +19,16 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include <variant>
 
 class ObjectGuid;
 class Unit;
 
+struct Position;
 enum class AnimTier : uint8;
 
 namespace Movement
 {
-
-    // Transforms coordinates from global to transport offsets
-    class TC_GAME_API TransportPathTransform
-    {
-    public:
-        TransportPathTransform(Unit* owner, bool transformForTransport)
-            : _owner(owner), _transformForTransport(transformForTransport) { }
-        Vector3 operator()(Vector3 input);
-
-    private:
-        Unit* _owner;
-        bool _transformForTransport;
-    };
-
     /*  Initializes and launches spline movement
      */
     class TC_GAME_API MoveSplineInit
@@ -75,18 +63,19 @@ namespace Movement
          * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
          * can't be combined with final animation
          */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift);
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimTier anim);
+        void SetAnimation(AnimTier anim, uint32 tierTransitionId = 0, Milliseconds transitionStartTime = 0ms);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
          * you can have only one final facing: previous will be overriden
          */
         void SetFacing(float angle);
-        void SetFacing(Vector3 const& point);
+        void SetFacing(Vector3 const& spot);
+        void SetFacing(float x, float y, float z);
         void SetFacing(Unit const* target);
 
         /* Initializes movement by path
@@ -142,9 +131,17 @@ namespace Movement
          */
         void SetBackward();
 
-        /* Fixes unit's model rotation. Disabled by default
+        /* Fixes unit's model rotation (plays knockback animation). Disabled by default
          */
         void SetOrientationFixed(bool enable);
+
+        /* Fixes unit's model rotation (plays jump animation). Disabled by default
+         */
+        void SetJumpOrientationFixed(bool enable);
+
+        /* Enables avoiding minor obstacles clientside (might cause visual position on client to not be accurate with the serverside one). Disabled by default
+         */
+        void SetSteering();
 
         /* Enables no-speed limit
          * if not set, the speed will be limited by certain flags to 50.0f, and otherwise 28.0f
@@ -160,6 +157,8 @@ namespace Movement
 
         void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
+        void SetTurning(float startFacing, float totalTurnRads, float radsPerSec);
+
         PointsArray& Path() { return args.path; }
 
         /* Disables transport coordinate transformations for cases where raw offsets are available
@@ -171,40 +170,45 @@ namespace Movement
         Unit*  unit;
     };
 
-    inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
+    inline void MoveSplineInit::SetFly() { args.flags.Flying = true; }
     inline void MoveSplineInit::SetWalk(bool enable) { args.walk = enable; }
-    inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
-    inline void MoveSplineInit::SetUncompressed() { args.flags.uncompressedPath = true; }
-    inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
+    inline void MoveSplineInit::SetSmooth() { args.flags.Catmullrom = true; }
+    inline void MoveSplineInit::SetUncompressed() { args.flags.UncompressedPath = true; }
+    inline void MoveSplineInit::SetCyclic() { args.flags.Cyclic = true; }
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
-    inline void MoveSplineInit::SetBackward() { args.flags.backward = true; }
-    inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
-    inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
-    inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
-    inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.unlimitedSpeed = true; }
+    inline void MoveSplineInit::SetBackward() { args.flags.Backward = true; }
+    inline void MoveSplineInit::SetTransportEnter() { args.flags.TransportEnter = true; }
+    inline void MoveSplineInit::SetTransportExit() { args.flags.TransportExit = true; }
+    inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.OrientationFixed = enable; }
+    inline void MoveSplineInit::SetJumpOrientationFixed(bool enable) { args.flags.JumpOrientationFixed = enable; }
+    inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
+    inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
-    inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)
+    inline void MoveSplineInit::SetParabolic(float amplitude, float start_time)
     {
-        args.time_perc = time_shift;
+        args.effect_start_time_percent = start_time;
         args.parabolic_amplitude = amplitude;
         args.vertical_acceleration = 0.0f;
-        args.flags.EnableParabolic();
+        args.flags.Parabolic = true;
     }
 
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float time_shift)
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time)
     {
-        args.time_perc = time_shift;
+        args.effect_start_time_percent = start_time;
         args.parabolic_amplitude = 0.0f;
         args.vertical_acceleration = vertical_acceleration;
-        args.flags.EnableParabolic();
+        args.flags.Parabolic = true;
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimTier anim)
+    inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, Milliseconds transitionStartTime /*= 0ms*/)
     {
-        args.time_perc = 0.f;
+        args.effect_start_time_percent = 0.f;
+        args.effect_start_time = transitionStartTime;
         args.animTier.emplace();
+        args.animTier->TierTransitionId = tierTransitionId;
         args.animTier->AnimTier = anim;
-        args.flags.EnableAnimation();
+        if (!tierTransitionId)
+            args.flags.Animation = true;
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
@@ -213,5 +217,28 @@ namespace Movement
     {
         args.spellEffectExtra = spellEffectExtraData;
     }
+
+    inline void MoveSplineInit::SetTurning(float startFacing, float totalTurnRads, float radsPerSec)
+    {
+        args.flags.Turning = true;
+
+        TurnData& turn = args.turnData.emplace();
+        turn.StartFacing = startFacing;
+        turn.TotalTurnRads = totalTurnRads;
+        turn.RadsPerSec = radsPerSec;
+    }
+
+    struct MoveSplineInitFacingVisitor
+    {
+        explicit MoveSplineInitFacingVisitor(MoveSplineInit& init) : _init(init) { }
+
+        void operator()(std::monostate) const { }
+        void operator()(Position const& point) const;
+        void operator()(Unit const* target) const { _init.SetFacing(target); }
+        void operator()(float angle) const { _init.SetFacing(angle); }
+
+        MoveSplineInit& _init;
+    };
 }
+
 #endif // TRINITYSERVER_MOVESPLINEINIT_H

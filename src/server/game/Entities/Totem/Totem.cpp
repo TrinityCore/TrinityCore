@@ -26,14 +26,12 @@
 #include "SpellMgr.h"
 #include "TotemPackets.h"
 
-Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false)
+Totem::Totem(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false), m_type(TOTEM_PASSIVE), m_duration(0ms)
 {
     m_unitTypeMask |= UNIT_MASK_TOTEM;
-    m_duration = 0;
-    m_type = TOTEM_PASSIVE;
 }
 
-void Totem::Update(uint32 time)
+void Totem::Update(uint32 diff)
 {
     if (!GetOwner()->IsAlive() || !IsAlive())
     {
@@ -41,27 +39,31 @@ void Totem::Update(uint32 time)
         return;
     }
 
-    if (m_duration <= time)
+    if (m_duration <= Milliseconds(diff))
     {
         UnSummon();                                         // remove self
         return;
     }
-    else
-        m_duration -= time;
 
-    Creature::Update(time);
+    m_duration -= Milliseconds(diff);
+
+    Creature::Update(diff);
 }
 
-void Totem::InitStats(uint32 duration)
+void Totem::InitStats(WorldObject* summoner, Milliseconds duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
     if (Player* owner = GetOwner()->ToPlayer())
     {
-        if (m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
+        int32 slot = m_Properties->Slot;
+        if (slot == SUMMON_SLOT_ANY_TOTEM)
+            slot = FindUsableTotemSlot(owner);
+
+        if (slot >= SUMMON_SLOT_TOTEM && slot < MAX_TOTEM_SLOT)
         {
             WorldPackets::Totem::TotemCreated data;
             data.Totem = GetGUID();
-            data.Slot = m_Properties->Slot - SUMMON_SLOT_TOTEM;
+            data.Slot = slot - SUMMON_SLOT_TOTEM;
             data.Duration = duration;
             data.SpellID = m_unitData->CreatedBySpell;
             owner->SendDirectMessage(data.Write());
@@ -71,11 +73,11 @@ void Totem::InitStats(uint32 duration)
         if (uint32 totemDisplayId = sSpellMgr->GetModelForTotem(m_unitData->CreatedBySpell, owner->GetRace()))
             SetDisplayId(totemDisplayId);
         else
-            TC_LOG_DEBUG("misc", "Totem with entry %u, owned by player %s, does not have a specialized model for spell %u and race %s. Set to default.",
-                         GetEntry(), owner->GetGUID().ToString().c_str(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
+            TC_LOG_DEBUG("misc", "Totem with entry {}, owned by player {}, does not have a specialized model for spell {} and race {}. Set to default.",
+                         GetEntry(), owner->GetGUID().ToString(), *m_unitData->CreatedBySpell, EnumUtils::ToTitle(Races(owner->GetRace())));
     }
 
-    Minion::InitStats(duration);
+    Minion::InitStats(summoner, duration);
 
     // Get spell cast by totem
     if (SpellInfo const* totemSpell = sSpellMgr->GetSpellInfo(GetSpell(), GetMap()->GetDifficultyID()))
@@ -85,7 +87,7 @@ void Totem::InitStats(uint32 duration)
     m_duration = duration;
 }
 
-void Totem::InitSummon()
+void Totem::InitSummon(WorldObject* /*summoner*/)
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
         CastSpell(this, GetSpell(), true);
@@ -99,7 +101,7 @@ void Totem::UnSummon(uint32 msTime)
 {
     if (msTime)
     {
-        m_Events.AddEvent(new ForcedUnsummonDelayEvent(*this), m_Events.CalculateTime(Milliseconds(msTime)));
+        m_Events.AddEventAtOffset(new ForcedDespawnDelayEvent(*this, 0s), Milliseconds(msTime));
         return;
     }
 
@@ -128,10 +130,10 @@ void Totem::UnSummon(uint32 msTime)
 
         if (Group* group = owner->GetGroup())
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* target = itr->GetSource();
-                if (target && target->IsInMap(owner) && group->SameSubGroup(owner, target))
+                Player* target = itr.GetSource();
+                if (target->IsInMap(owner) && group->SameSubGroup(owner, target))
                     target->RemoveAurasDueToSpell(GetSpell(), GetGUID());
             }
         }
@@ -140,7 +142,8 @@ void Totem::UnSummon(uint32 msTime)
     AddObjectToRemoveList();
 }
 
-bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster) const
+bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,
+    bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
     // immune to all positive spells, except of stoneclaw totem absorb and sentry totem bind sight
     // totems positive spells have unit_caster target
@@ -161,5 +164,5 @@ bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo c
             break;
     }
 
-    return Creature::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster);
+    return Creature::IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute);
 }

@@ -19,9 +19,9 @@
 #include "ByteBuffer.h"
 #include "DB2Stores.h"
 #include "GridDefines.h"
+#include "StringFormat.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
-#include <sstream>
 
 bool Position::operator==(Position const& a) const
 {
@@ -62,38 +62,109 @@ Position Position::GetPositionWithOffset(Position const& offset) const
     return ret;
 }
 
-bool Position::IsWithinBox(Position const& center, float xradius, float yradius, float zradius) const
+bool Position::IsWithinBox(Position const& boxOrigin, float length, float width, float height) const
 {
     // rotate the WorldObject position instead of rotating the whole cube, that way we can make a simplified
     // is-in-cube check and we have to calculate only one point instead of 4
 
     // 2PI = 360*, keep in mind that ingame orientation is counter-clockwise
-    double rotation = 2 * M_PI - center.GetOrientation();
+    double rotation = 2 * M_PI - boxOrigin.GetOrientation();
     double sinVal = std::sin(rotation);
     double cosVal = std::cos(rotation);
 
-    float BoxDistX = GetPositionX() - center.GetPositionX();
-    float BoxDistY = GetPositionY() - center.GetPositionY();
+    float BoxDistX = GetPositionX() - boxOrigin.GetPositionX();
+    float BoxDistY = GetPositionY() - boxOrigin.GetPositionY();
 
-    float rotX = float(center.GetPositionX() + BoxDistX * cosVal - BoxDistY*sinVal);
-    float rotY = float(center.GetPositionY() + BoxDistY * cosVal + BoxDistX*sinVal);
+    float rotX = float(boxOrigin.GetPositionX() + BoxDistX * cosVal - BoxDistY * sinVal);
+    float rotY = float(boxOrigin.GetPositionY() + BoxDistY * cosVal + BoxDistX * sinVal);
 
     // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-    float dz = GetPositionZ() - center.GetPositionZ();
-    float dx = rotX - center.GetPositionX();
-    float dy = rotY - center.GetPositionY();
-    if ((std::fabs(dx) > xradius) ||
-        (std::fabs(dy) > yradius) ||
-        (std::fabs(dz) > zradius))
+    float dz = GetPositionZ() - boxOrigin.GetPositionZ();
+    float dx = rotX - boxOrigin.GetPositionX();
+    float dy = rotY - boxOrigin.GetPositionY();
+    if ((std::fabs(dx) > length) ||
+        (std::fabs(dy) > width)  ||
+        (std::fabs(dz) > height))
         return false;
 
     return true;
 }
 
-bool Position::IsWithinDoubleVerticalCylinder(Position const* center, float radius, float height) const
+bool Position::IsWithinVerticalCylinder(Position const& cylinderOrigin, float radius, float height, bool isDoubleVertical) const
 {
-    float verticalDelta = GetPositionZ() - center->GetPositionZ();
-    return IsInDist2d(center, radius) && std::abs(verticalDelta) <= height;
+    float verticalDelta = GetPositionZ() - cylinderOrigin.GetPositionZ();
+    bool isValidPositionZ = isDoubleVertical ? std::abs(verticalDelta) <= height : 0 <= verticalDelta && verticalDelta <= height;
+
+    return isValidPositionZ && IsInDist2d(cylinderOrigin, radius);
+}
+
+bool Position::IsInPolygon2D(Position const& polygonOrigin, std::span<Position const> vertices) const
+{
+    float testX = GetPositionX();
+    float testY = GetPositionY();
+
+    //this method uses the ray tracing algorithm to determine if the point is in the polygon
+    bool locatedInPolygon = false;
+
+    for (std::size_t vertex = 0; vertex < vertices.size(); ++vertex)
+    {
+        std::size_t nextVertex;
+
+        //repeat loop for all sets of points
+        if (vertex == (vertices.size() - 1))
+        {
+            //if i is the last vertex, let j be the first vertex
+            nextVertex = 0;
+        }
+        else
+        {
+            //for all-else, let j=(i+1)th vertex
+            nextVertex = vertex + 1;
+        }
+
+        float vertX_i = polygonOrigin.GetPositionX() + vertices[vertex].GetPositionX();
+        float vertY_i = polygonOrigin.GetPositionY() + vertices[vertex].GetPositionY();
+        float vertX_j = polygonOrigin.GetPositionX() + vertices[nextVertex].GetPositionX();
+        float vertY_j = polygonOrigin.GetPositionY() + vertices[nextVertex].GetPositionY();
+
+        // following statement checks if testPoint.Y is below Y-coord of i-th vertex
+        bool belowLowY = vertY_i > testY;
+        // following statement checks if testPoint.Y is below Y-coord of i+1-th vertex
+        bool belowHighY = vertY_j > testY;
+
+        /* following statement is true if testPoint.Y satisfies either (only one is possible)
+        -->(i).Y < testPoint.Y < (i+1).Y        OR
+        -->(i).Y > testPoint.Y > (i+1).Y
+
+        (Note)
+        Both of the conditions indicate that a point is located within the edges of the Y-th coordinate
+        of the (i)-th and the (i+1)- th vertices of the polygon. If neither of the above
+        conditions is satisfied, then it is assured that a semi-infinite horizontal line draw
+        to the right from the testpoint will NOT cross the line that connects vertices i and i+1
+        of the polygon
+        */
+        bool withinYsEdges = belowLowY != belowHighY;
+
+        if (withinYsEdges)
+        {
+            // this is the slope of the line that connects vertices i and i+1 of the polygon
+            float slopeOfLine = (vertX_j - vertX_i) / (vertY_j - vertY_i);
+
+            // this looks up the x-coord of a point lying on the above line, given its y-coord
+            float pointOnLine = (slopeOfLine * (testY - vertY_i)) + vertX_i;
+
+            //checks to see if x-coord of testPoint is smaller than the point on the line with the same y-coord
+            bool isLeftToLine = testX < pointOnLine;
+
+            if (isLeftToLine)
+            {
+                //this statement changes true to false (and vice-versa)
+                locatedInPolygon = !locatedInPolygon;
+            }//end if (isLeftToLine)
+        }//end if (withinYsEdges
+    }
+
+    return locatedInPolygon;
 }
 
 bool Position::HasInArc(float arc, Position const* obj, float border) const
@@ -127,9 +198,7 @@ bool Position::HasInLine(Position const* pos, float objSize, float width) const
 
 std::string Position::ToString() const
 {
-    std::stringstream sstr;
-    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
-    return sstr.str();
+    return Trinity::StringFormat("X: {} Y: {} Z: {} O: {}", m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
 float Position::NormalizeOrientation(float o)
@@ -137,73 +206,72 @@ float Position::NormalizeOrientation(float o)
     // fmod only supports positive numbers. Thus we have
     // to emulate negative numbers
     if (o < 0)
-    {
-        float mod = o *-1;
-        mod = std::fmod(mod, 2.0f * static_cast<float>(M_PI));
-        mod = -mod + 2.0f * static_cast<float>(M_PI);
-        return mod;
-    }
+        return -std::fmod(-o, 2.0f * static_cast<float>(M_PI)) + 2.0f * static_cast<float>(M_PI);
+
     return std::fmod(o, 2.0f * static_cast<float>(M_PI));
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XY> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XY> const& streamer)
 {
-    float x, y;
-    buf >> x >> y;
-    streamer.Pos->Relocate(x, y);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZ> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZ> const& streamer)
 {
-    float x, y, z;
-    buf >> x >> y >> z;
-    streamer.Pos->Relocate(x, y, z);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::XYZO> const& streamer)
 {
-    buf << streamer.Pos->GetPositionX();
-    buf << streamer.Pos->GetPositionY();
-    buf << streamer.Pos->GetPositionZ();
-    buf << streamer.Pos->GetOrientation();
+    buf << float(streamer.Pos->GetPositionX());
+    buf << float(streamer.Pos->GetPositionY());
+    buf << float(streamer.Pos->GetPositionZ());
+    buf << float(streamer.Pos->GetOrientation());
     return buf;
 }
 
 ByteBuffer& operator>>(ByteBuffer& buf, Position::Streamer<Position::XYZO> const& streamer)
 {
-    float x, y, z, o;
-    buf >> x >> y >> z >> o;
-    streamer.Pos->Relocate(x, y, z, o);
+    buf >> streamer.Pos->m_positionX;
+    buf >> streamer.Pos->m_positionY;
+    buf >> streamer.Pos->m_positionZ;
+    streamer.Pos->SetOrientation(buf.read<float>());
     return buf;
 }
 
 ByteBuffer& operator<<(ByteBuffer& buf, Position::ConstStreamer<Position::PackedXYZ> const& streamer)
 {
-    buf.appendPackXYZ(streamer.Pos->GetPositionX(), streamer.Pos->GetPositionY(), streamer.Pos->GetPositionZ());
+    int32 packed = 0;
+    packed |= (int32(streamer.Pos->GetPositionX() / 0.25f) & 0x7FF);
+    packed |= (int32(streamer.Pos->GetPositionY() / 0.25f) & 0x7FF) << 11;
+    packed |= (int32(streamer.Pos->GetPositionZ() / 0.25f) & 0x3FF) << 22;
+    buf << int32(packed);
     return buf;
 }
 
 std::string WorldLocation::GetDebugInfo() const
 {
-    std::stringstream sstr;
     MapEntry const* mapEntry = sMapStore.LookupEntry(m_mapId);
-    sstr << "MapID: " << m_mapId << " Map name: '" << (mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>") <<"' " << Position::ToString();
-    return sstr.str();
+    return Trinity::StringFormat("MapID: {} Map name: '{}' {}",
+        m_mapId, mapEntry ? mapEntry->MapName[sWorld->GetDefaultDbcLocale()] : "<not found>", Position::ToString());
 }

@@ -126,7 +126,6 @@ struct boss_overlord_wyrmthalak : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 };
 

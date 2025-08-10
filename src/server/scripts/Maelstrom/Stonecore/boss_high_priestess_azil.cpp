@@ -292,8 +292,6 @@ class boss_high_priestess_azil : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -479,8 +477,6 @@ public:
 
     class spell_summon_wave_south_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_summon_wave_south_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_SUMMON_ADD_SOUTH });
@@ -513,8 +509,6 @@ public:
 
     class spell_summon_wave_west_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_summon_wave_west_SpellScript);
-
         bool Validate(SpellInfo const* /*spellInfo*/) override
         {
             return ValidateSpellInfo({ SPELL_SUMMON_ADD_WEST });
@@ -559,11 +553,9 @@ public:
 
     class spell_gravity_well_damage_nearby_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gravity_well_damage_nearby_SpellScript);
-
         void SetRadiusMod()
         {
-            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
+            GetSpell()->SetSpellValue({ SPELLVALUE_RADIUS_MOD, GetCaster()->GetObjectScale() * 2 / 3 });
         }
 
         void FilterTargets(std::list<WorldObject*>& unitList)
@@ -598,8 +590,6 @@ public:
 
     class spell_gravity_well_damage_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gravity_well_damage_SpellScript);
-
         void CalculateDamage(SpellEffIndex /*effIndex*/)
         {
             Unit* target = GetHitUnit();
@@ -634,11 +624,9 @@ public:
 
     class spell_gravity_well_pull_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_gravity_well_pull_SpellScript);
-
         void SetRadiusMod()
         {
-            GetSpell()->SetSpellValue(SPELLVALUE_RADIUS_MOD, int32(GetCaster()->GetObjectScale() * 10000 * 2 / 3));
+            GetSpell()->SetSpellValue({ SPELLVALUE_RADIUS_MOD, GetCaster()->GetObjectScale() * 2 / 3 });
         }
 
         void Register() override
@@ -661,8 +649,6 @@ public:
 
     class spell_seismic_shard_change_seat_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_seismic_shard_change_seat_SpellScript);
-
         void ExitVehicle()
         {
             GetCaster()->ExitVehicle();
@@ -688,8 +674,6 @@ public:
 
     class spell_seismic_shard_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_seismic_shard_SpellScript);
-
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Creature* target = GetHitUnit()->ToCreature();

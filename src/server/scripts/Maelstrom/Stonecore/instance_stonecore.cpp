@@ -46,6 +46,14 @@ ObjectData const creatureData[] =
     { 0, 0 } // END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_CORBORUS, {{ 1056 }} },
+    { DATA_SLABHIDE, {{ 1059 }} },
+    { DATA_OZRUK, {{ 1058 }} },
+    { DATA_HIGH_PRIESTESS_AZIL, {{ 1057 }} }
+};
+
 class instance_stonecore : public InstanceMapScript
 {
     public:
@@ -58,6 +66,7 @@ class instance_stonecore : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadObjectData(creatureData, nullptr);
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnGameObjectCreate(GameObject* go) override

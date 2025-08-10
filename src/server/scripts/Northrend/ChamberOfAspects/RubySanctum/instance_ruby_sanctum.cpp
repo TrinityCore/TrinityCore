@@ -28,19 +28,19 @@ Position const HalionControllerSpawnPos = { 3156.037f, 533.2656f, 72.97205f, 0.0
 
 BossBoundaryData const boundaries =
 {
-    { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0, 100.0) },
-    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 52.5)        }
+    { DATA_GENERAL_ZARITHRIAN, new EllipseBoundary(Position(3013.409f, 529.492f), 45.0f, 100.0f) },
+    { DATA_HALION,             new CircleBoundary(Position(3156.037f, 533.2656f), 52.5f)         }
 };
 
 DoorData const doorData[] =
 {
-    { GO_FIRE_FIELD,          DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_SAVIANA_RAGEFIRE,      DOOR_TYPE_PASSAGE },
-    { GO_FLAME_WALLS,         DATA_GENERAL_ZARITHRIAN,    DOOR_TYPE_ROOM    },
-    { GO_FLAME_RING,          DATA_HALION,                DOOR_TYPE_ROOM    },
-    { GO_TWILIGHT_FLAME_RING, DATA_HALION,                DOOR_TYPE_ROOM    },
-    { 0,                      0,                          DOOR_TYPE_ROOM    } // END
+    { GO_FIRE_FIELD,          DATA_BALTHARUS_THE_WARBORN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_BALTHARUS_THE_WARBORN, EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_SAVIANA_RAGEFIRE,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_FLAME_WALLS,         DATA_GENERAL_ZARITHRIAN,    EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_FLAME_RING,          DATA_HALION,                EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_TWILIGHT_FLAME_RING, DATA_HALION,                EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                      0,                          EncounterDoorBehavior::OpenWhenNotInProgress } // END
 };
 
 ObjectData const creatureData[] =
@@ -71,6 +71,14 @@ ObjectData const gameObjectData[] =
     { 0,                        0                           } //END
 };
 
+DungeonEncounterData const encounters[] =
+{
+    { DATA_BALTHARUS_THE_WARBORN, {{ 1147 }} },
+    { DATA_SAVIANA_RAGEFIRE, {{ 1149 }} },
+    { DATA_GENERAL_ZARITHRIAN, {{ 1148 }} },
+    { DATA_HALION, {{ 1150 }} }
+};
+
 class instance_ruby_sanctum : public InstanceMapScript
 {
     public:
@@ -85,6 +93,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
+                LoadDungeonEncounterData(encounters);
                 BaltharusSharedHealth = 0;
             }
 
@@ -175,7 +184,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                     if (Creature* zarithrian = GetCreature(DATA_GENERAL_ZARITHRIAN))
                     {
-                        zarithrian->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                        zarithrian->SetUninteractible(false);
                         zarithrian->SetImmuneToPC(false);
                     }
             }

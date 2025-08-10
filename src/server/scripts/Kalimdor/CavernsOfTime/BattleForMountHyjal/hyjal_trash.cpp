@@ -46,6 +46,12 @@ enum Spells
     SPELL_EXPLODING_SHOT    = 7896,
 };
 
+enum HyjalCreatureText
+{
+    TRASH_SAY_SLAY           = 0,
+    TRASH_SAY_DEATH          = 1,
+};
+
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
 {
     {5492.91f,    -2404.61f,    1462.63f},
@@ -188,7 +194,6 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : EscortAI(creature)
     useFlyPath = false;
     damageTaken = 0;
     memset(DummyTarget, 0, sizeof(DummyTarget));
-    Reset();
 }
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
@@ -220,56 +225,56 @@ void hyjal_trashAI::UpdateAI(uint32 /*diff*/)
                 switch (OverrunType)
                 {
                     case 0:
-                        AddWaypoint(4, AllianceOverrunWP[22][0]+irand(-3, 3), AllianceOverrunWP[22][1]+irand(-3, 3), AllianceOverrunWP[22][2]);
-                        AddWaypoint(5, AllianceOverrunWP[23][0]+irand(-3, 3), AllianceOverrunWP[23][1]+irand(-3, 3), AllianceOverrunWP[23][2]);
-                        AddWaypoint(6, AllianceOverrunWP[24][0]+irand(-3, 3), AllianceOverrunWP[24][1]+irand(-3, 3), AllianceOverrunWP[24][2]);
-                        AddWaypoint(7, AllianceOverrunWP[25][0]+irand(-3, 3), AllianceOverrunWP[25][1]+irand(-3, 3), AllianceOverrunWP[25][2]);
-                        AddWaypoint(8, AllianceOverrunWP[26][0]+irand(-3, 3), AllianceOverrunWP[26][1]+irand(-3, 3), AllianceOverrunWP[26][2]);
-                        AddWaypoint(9, AllianceOverrunWP[27][0]+irand(-3, 3), AllianceOverrunWP[27][1]+irand(-3, 3), AllianceOverrunWP[27][2]);
-                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3, 3), AllianceOverrunWP[28][1]+irand(-3, 3), AllianceOverrunWP[28][2]);
+                        AddWaypoint(4, AllianceOverrunWP[22][0]+irand(-3, 3), AllianceOverrunWP[22][1]+irand(-3, 3), AllianceOverrunWP[22][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[23][0]+irand(-3, 3), AllianceOverrunWP[23][1]+irand(-3, 3), AllianceOverrunWP[23][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[24][0]+irand(-3, 3), AllianceOverrunWP[24][1]+irand(-3, 3), AllianceOverrunWP[24][2], true);
+                        AddWaypoint(7, AllianceOverrunWP[25][0]+irand(-3, 3), AllianceOverrunWP[25][1]+irand(-3, 3), AllianceOverrunWP[25][2], true);
+                        AddWaypoint(8, AllianceOverrunWP[26][0]+irand(-3, 3), AllianceOverrunWP[26][1]+irand(-3, 3), AllianceOverrunWP[26][2], true);
+                        AddWaypoint(9, AllianceOverrunWP[27][0]+irand(-3, 3), AllianceOverrunWP[27][1]+irand(-3, 3), AllianceOverrunWP[27][2], true);
+                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3, 3), AllianceOverrunWP[28][1]+irand(-3, 3), AllianceOverrunWP[28][2], true);
 
-                        AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3, 3), AllianceOverrunWP[36][1]+irand(-3, 3), AllianceOverrunWP[36][2]);
-                        AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3, 3), AllianceOverrunWP[37][1]+irand(-3, 3), AllianceOverrunWP[37][2]);
-                        AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3, 3), AllianceOverrunWP[38][1]+irand(-3, 3), AllianceOverrunWP[38][2]);
-                        AddWaypoint(14, AllianceOverrunWP[39][0]+irand(-3, 3), AllianceOverrunWP[39][1]+irand(-3, 3), AllianceOverrunWP[39][2]);
-                        AddWaypoint(15, AllianceOverrunWP[40][0]+irand(-3, 3), AllianceOverrunWP[40][1]+irand(-3, 3), AllianceOverrunWP[40][2]);
-                        AddWaypoint(16, AllianceOverrunWP[41][0]+irand(-3, 3), AllianceOverrunWP[41][1]+irand(-3, 3), AllianceOverrunWP[41][2]);
-                        AddWaypoint(17, AllianceOverrunWP[42][0]+irand(-3, 3), AllianceOverrunWP[42][1]+irand(-3, 3), AllianceOverrunWP[42][2]);
-                        AddWaypoint(18, AllianceOverrunWP[43][0]+irand(-3, 3), AllianceOverrunWP[43][1]+irand(-3, 3), AllianceOverrunWP[43][2]);
+                        AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3, 3), AllianceOverrunWP[36][1]+irand(-3, 3), AllianceOverrunWP[36][2], true);
+                        AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3, 3), AllianceOverrunWP[37][1]+irand(-3, 3), AllianceOverrunWP[37][2], true);
+                        AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3, 3), AllianceOverrunWP[38][1]+irand(-3, 3), AllianceOverrunWP[38][2], true);
+                        AddWaypoint(14, AllianceOverrunWP[39][0]+irand(-3, 3), AllianceOverrunWP[39][1]+irand(-3, 3), AllianceOverrunWP[39][2], true);
+                        AddWaypoint(15, AllianceOverrunWP[40][0]+irand(-3, 3), AllianceOverrunWP[40][1]+irand(-3, 3), AllianceOverrunWP[40][2], true);
+                        AddWaypoint(16, AllianceOverrunWP[41][0]+irand(-3, 3), AllianceOverrunWP[41][1]+irand(-3, 3), AllianceOverrunWP[41][2], true);
+                        AddWaypoint(17, AllianceOverrunWP[42][0]+irand(-3, 3), AllianceOverrunWP[42][1]+irand(-3, 3), AllianceOverrunWP[42][2], true);
+                        AddWaypoint(18, AllianceOverrunWP[43][0]+irand(-3, 3), AllianceOverrunWP[43][1]+irand(-3, 3), AllianceOverrunWP[43][2], true);
                         me->SetHomePosition(AllianceOverrunWP[43][0]+irand(-3, 3), AllianceOverrunWP[43][1]+irand(-3, 3), AllianceOverrunWP[43][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 18;
-                        Start(true, true);
+                        Start(true);
                         break;
                      case 1:
-                        AddWaypoint(4, AllianceOverrunWP[22][0]+irand(-3, 3), AllianceOverrunWP[22][1]+irand(-3, 3), AllianceOverrunWP[22][2]);
-                        AddWaypoint(5, AllianceOverrunWP[23][0]+irand(-3, 3), AllianceOverrunWP[23][1]+irand(-3, 3), AllianceOverrunWP[23][2]);
-                        AddWaypoint(6, AllianceOverrunWP[24][0]+irand(-3, 3), AllianceOverrunWP[24][1]+irand(-3, 3), AllianceOverrunWP[24][2]);
-                        AddWaypoint(7, AllianceOverrunWP[25][0]+irand(-3, 3), AllianceOverrunWP[25][1]+irand(-3, 3), AllianceOverrunWP[25][2]);
-                        AddWaypoint(8, AllianceOverrunWP[26][0]+irand(-3, 3), AllianceOverrunWP[26][1]+irand(-3, 3), AllianceOverrunWP[26][2]);
-                        AddWaypoint(9, AllianceOverrunWP[27][0]+irand(-3, 3), AllianceOverrunWP[27][1]+irand(-3, 3), AllianceOverrunWP[27][2]);
-                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3, 3), AllianceOverrunWP[28][1]+irand(-3, 3), AllianceOverrunWP[28][2]);
+                        AddWaypoint(4, AllianceOverrunWP[22][0]+irand(-3, 3), AllianceOverrunWP[22][1]+irand(-3, 3), AllianceOverrunWP[22][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[23][0]+irand(-3, 3), AllianceOverrunWP[23][1]+irand(-3, 3), AllianceOverrunWP[23][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[24][0]+irand(-3, 3), AllianceOverrunWP[24][1]+irand(-3, 3), AllianceOverrunWP[24][2], true);
+                        AddWaypoint(7, AllianceOverrunWP[25][0]+irand(-3, 3), AllianceOverrunWP[25][1]+irand(-3, 3), AllianceOverrunWP[25][2], true);
+                        AddWaypoint(8, AllianceOverrunWP[26][0]+irand(-3, 3), AllianceOverrunWP[26][1]+irand(-3, 3), AllianceOverrunWP[26][2], true);
+                        AddWaypoint(9, AllianceOverrunWP[27][0]+irand(-3, 3), AllianceOverrunWP[27][1]+irand(-3, 3), AllianceOverrunWP[27][2], true);
+                        AddWaypoint(10, AllianceOverrunWP[28][0]+irand(-3, 3), AllianceOverrunWP[28][1]+irand(-3, 3), AllianceOverrunWP[28][2], true);
 
-                        AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3, 3), AllianceOverrunWP[36][1]+irand(-3, 3), AllianceOverrunWP[36][2]);
-                        AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3, 3), AllianceOverrunWP[37][1]+irand(-3, 3), AllianceOverrunWP[37][2]);
-                        AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3, 3), AllianceOverrunWP[38][1]+irand(-3, 3), AllianceOverrunWP[38][2]);
-                        AddWaypoint(14, AllianceOverrunWP[39][0]+irand(-3, 3), AllianceOverrunWP[39][1]+irand(-3, 3), AllianceOverrunWP[39][2]);
-                        AddWaypoint(15, AllianceOverrunWP[40][0]+irand(-3, 3), AllianceOverrunWP[40][1]+irand(-3, 3), AllianceOverrunWP[40][2]);
-                        AddWaypoint(16, AllianceOverrunWP[41][0]+irand(-3, 3), AllianceOverrunWP[41][1]+irand(-3, 3), AllianceOverrunWP[41][2]);
-                        AddWaypoint(17, AllianceOverrunWP[42][0]+irand(-3, 3), AllianceOverrunWP[42][1]+irand(-3, 3), AllianceOverrunWP[42][2]);
-                        AddWaypoint(18, AllianceOverrunWP[44][0]+irand(-3, 3), AllianceOverrunWP[44][1]+irand(-3, 3), AllianceOverrunWP[44][2]);
+                        AddWaypoint(11, AllianceOverrunWP[36][0]+irand(-3, 3), AllianceOverrunWP[36][1]+irand(-3, 3), AllianceOverrunWP[36][2], true);
+                        AddWaypoint(12, AllianceOverrunWP[37][0]+irand(-3, 3), AllianceOverrunWP[37][1]+irand(-3, 3), AllianceOverrunWP[37][2], true);
+                        AddWaypoint(13, AllianceOverrunWP[38][0]+irand(-3, 3), AllianceOverrunWP[38][1]+irand(-3, 3), AllianceOverrunWP[38][2], true);
+                        AddWaypoint(14, AllianceOverrunWP[39][0]+irand(-3, 3), AllianceOverrunWP[39][1]+irand(-3, 3), AllianceOverrunWP[39][2], true);
+                        AddWaypoint(15, AllianceOverrunWP[40][0]+irand(-3, 3), AllianceOverrunWP[40][1]+irand(-3, 3), AllianceOverrunWP[40][2], true);
+                        AddWaypoint(16, AllianceOverrunWP[41][0]+irand(-3, 3), AllianceOverrunWP[41][1]+irand(-3, 3), AllianceOverrunWP[41][2], true);
+                        AddWaypoint(17, AllianceOverrunWP[42][0]+irand(-3, 3), AllianceOverrunWP[42][1]+irand(-3, 3), AllianceOverrunWP[42][2], true);
+                        AddWaypoint(18, AllianceOverrunWP[44][0]+irand(-3, 3), AllianceOverrunWP[44][1]+irand(-3, 3), AllianceOverrunWP[44][2], true);
                         me->SetHomePosition(AllianceOverrunWP[44][0]+irand(-3, 3), AllianceOverrunWP[44][1]+irand(-3, 3), AllianceOverrunWP[44][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 18;
-                        Start(true, true);
+                        Start(true);
                         break;
                     default:
                         for (uint8 i = 22; i < 36; ++i)
-                            AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3, 3), AllianceOverrunWP[i][1]+irand(-3, 3), AllianceOverrunWP[i][2]);
+                            AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3, 3), AllianceOverrunWP[i][1]+irand(-3, 3), AllianceOverrunWP[i][2], true);
 
                         SetDespawnAtEnd(true);
                         LastOverronPos = 17;
-                        Start(true, true);
+                        Start(true);
                         break;
                 }
             }
@@ -280,68 +285,68 @@ void hyjal_trashAI::UpdateAI(uint32 /*diff*/)
                 switch (OverrunType)
                 {
                     case 0:
-                        AddWaypoint(4, AllianceOverrunWP[1][0]+irand(-3, 3), AllianceOverrunWP[1][1]+irand(-3, 3), AllianceOverrunWP[1][2]);
-                        AddWaypoint(5, AllianceOverrunWP[2][0]+irand(-3, 3), AllianceOverrunWP[2][1]+irand(-3, 3), AllianceOverrunWP[2][2]);
+                        AddWaypoint(4, AllianceOverrunWP[1][0]+irand(-3, 3), AllianceOverrunWP[1][1]+irand(-3, 3), AllianceOverrunWP[1][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[2][0]+irand(-3, 3), AllianceOverrunWP[2][1]+irand(-3, 3), AllianceOverrunWP[2][2], true);
                         me->SetHomePosition(AllianceOverrunWP[2][0]+irand(-3, 3), AllianceOverrunWP[2][1]+irand(-3, 3), AllianceOverrunWP[2][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 5;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 1:
-                        AddWaypoint(4, AllianceOverrunWP[3][0]+irand(-3, 3), AllianceOverrunWP[3][1]+irand(-3, 3), AllianceOverrunWP[3][2]);
-                        AddWaypoint(5, AllianceOverrunWP[4][0]+irand(-3, 3), AllianceOverrunWP[4][1]+irand(-3, 3), AllianceOverrunWP[4][2]);
-                        AddWaypoint(6, AllianceOverrunWP[5][0]+irand(-3, 3), AllianceOverrunWP[5][1]+irand(-3, 3), AllianceOverrunWP[5][2]);
+                        AddWaypoint(4, AllianceOverrunWP[3][0]+irand(-3, 3), AllianceOverrunWP[3][1]+irand(-3, 3), AllianceOverrunWP[3][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[4][0]+irand(-3, 3), AllianceOverrunWP[4][1]+irand(-3, 3), AllianceOverrunWP[4][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[5][0]+irand(-3, 3), AllianceOverrunWP[5][1]+irand(-3, 3), AllianceOverrunWP[5][2], true);
                         me->SetHomePosition(AllianceOverrunWP[5][0]+irand(-3, 3), AllianceOverrunWP[5][1]+irand(-3, 3), AllianceOverrunWP[5][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 6;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 2:
-                        AddWaypoint(4, AllianceOverrunWP[6][0]+irand(-3, 3), AllianceOverrunWP[6][1]+irand(-3, 3), AllianceOverrunWP[6][2]);
-                        AddWaypoint(5, AllianceOverrunWP[7][0]+irand(-3, 3), AllianceOverrunWP[7][1]+irand(-3, 3), AllianceOverrunWP[7][2]);
-                        AddWaypoint(6, AllianceOverrunWP[8][0]+irand(-3, 3), AllianceOverrunWP[8][1]+irand(-3, 3), AllianceOverrunWP[8][2]);
-                        AddWaypoint(7, AllianceOverrunWP[9][0]+irand(-3, 3), AllianceOverrunWP[9][1]+irand(-3, 3), AllianceOverrunWP[9][2]);
+                        AddWaypoint(4, AllianceOverrunWP[6][0]+irand(-3, 3), AllianceOverrunWP[6][1]+irand(-3, 3), AllianceOverrunWP[6][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[7][0]+irand(-3, 3), AllianceOverrunWP[7][1]+irand(-3, 3), AllianceOverrunWP[7][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[8][0]+irand(-3, 3), AllianceOverrunWP[8][1]+irand(-3, 3), AllianceOverrunWP[8][2], true);
+                        AddWaypoint(7, AllianceOverrunWP[9][0]+irand(-3, 3), AllianceOverrunWP[9][1]+irand(-3, 3), AllianceOverrunWP[9][2], true);
                         me->SetHomePosition(AllianceOverrunWP[9][0]+irand(-3, 3), AllianceOverrunWP[9][1]+irand(-3, 3), AllianceOverrunWP[9][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 7;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 3:
-                        AddWaypoint(4, AllianceOverrunWP[10][0]+irand(-3, 3), AllianceOverrunWP[10][1]+irand(-3, 3), AllianceOverrunWP[10][2]);
-                        AddWaypoint(5, AllianceOverrunWP[11][0]+irand(-3, 3), AllianceOverrunWP[11][1]+irand(-3, 3), AllianceOverrunWP[11][2]);
-                        AddWaypoint(6, AllianceOverrunWP[12][0]+irand(-3, 3), AllianceOverrunWP[12][1]+irand(-3, 3), AllianceOverrunWP[12][2]);
+                        AddWaypoint(4, AllianceOverrunWP[10][0]+irand(-3, 3), AllianceOverrunWP[10][1]+irand(-3, 3), AllianceOverrunWP[10][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[11][0]+irand(-3, 3), AllianceOverrunWP[11][1]+irand(-3, 3), AllianceOverrunWP[11][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[12][0]+irand(-3, 3), AllianceOverrunWP[12][1]+irand(-3, 3), AllianceOverrunWP[12][2], true);
                         me->SetHomePosition(AllianceOverrunWP[12][0]+irand(-3, 3), AllianceOverrunWP[12][1]+irand(-3, 3), AllianceOverrunWP[12][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 6;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 4:
-                        AddWaypoint(4, AllianceOverrunWP[13][0]+irand(-3, 3), AllianceOverrunWP[13][1]+irand(-3, 3), AllianceOverrunWP[13][2]);
-                        AddWaypoint(5, AllianceOverrunWP[14][0]+irand(-3, 3), AllianceOverrunWP[14][1]+irand(-3, 3), AllianceOverrunWP[14][2]);
-                        AddWaypoint(6, AllianceOverrunWP[15][0]+irand(-3, 3), AllianceOverrunWP[15][1]+irand(-3, 3), AllianceOverrunWP[15][2]);
+                        AddWaypoint(4, AllianceOverrunWP[13][0]+irand(-3, 3), AllianceOverrunWP[13][1]+irand(-3, 3), AllianceOverrunWP[13][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[14][0]+irand(-3, 3), AllianceOverrunWP[14][1]+irand(-3, 3), AllianceOverrunWP[14][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[15][0]+irand(-3, 3), AllianceOverrunWP[15][1]+irand(-3, 3), AllianceOverrunWP[15][2], true);
                         me->SetHomePosition(AllianceOverrunWP[15][0]+irand(-3, 3), AllianceOverrunWP[15][1]+irand(-3, 3), AllianceOverrunWP[15][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 6;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 5:
-                        AddWaypoint(4, AllianceOverrunWP[16][0]+irand(-3, 3), AllianceOverrunWP[16][1]+irand(-3, 3), AllianceOverrunWP[16][2]);
-                        AddWaypoint(5, AllianceOverrunWP[17][0]+irand(-3, 3), AllianceOverrunWP[17][1]+irand(-3, 3), AllianceOverrunWP[17][2]);
-                        AddWaypoint(6, AllianceOverrunWP[18][0]+irand(-3, 3), AllianceOverrunWP[18][1]+irand(-3, 3), AllianceOverrunWP[18][2]);
-                        AddWaypoint(7, AllianceOverrunWP[19][0]+irand(-3, 3), AllianceOverrunWP[19][1]+irand(-3, 3), AllianceOverrunWP[19][2]);
-                        AddWaypoint(8, AllianceOverrunWP[20][0]+irand(-3, 3), AllianceOverrunWP[20][1]+irand(-3, 3), AllianceOverrunWP[20][2]);
-                        AddWaypoint(9, AllianceOverrunWP[21][0]+irand(-3, 3), AllianceOverrunWP[21][1]+irand(-3, 3), AllianceOverrunWP[21][2]);
+                        AddWaypoint(4, AllianceOverrunWP[16][0]+irand(-3, 3), AllianceOverrunWP[16][1]+irand(-3, 3), AllianceOverrunWP[16][2], true);
+                        AddWaypoint(5, AllianceOverrunWP[17][0]+irand(-3, 3), AllianceOverrunWP[17][1]+irand(-3, 3), AllianceOverrunWP[17][2], true);
+                        AddWaypoint(6, AllianceOverrunWP[18][0]+irand(-3, 3), AllianceOverrunWP[18][1]+irand(-3, 3), AllianceOverrunWP[18][2], true);
+                        AddWaypoint(7, AllianceOverrunWP[19][0]+irand(-3, 3), AllianceOverrunWP[19][1]+irand(-3, 3), AllianceOverrunWP[19][2], true);
+                        AddWaypoint(8, AllianceOverrunWP[20][0]+irand(-3, 3), AllianceOverrunWP[20][1]+irand(-3, 3), AllianceOverrunWP[20][2], true);
+                        AddWaypoint(9, AllianceOverrunWP[21][0]+irand(-3, 3), AllianceOverrunWP[21][1]+irand(-3, 3), AllianceOverrunWP[21][2], true);
                         me->SetHomePosition(AllianceOverrunWP[21][0]+irand(-3, 3), AllianceOverrunWP[21][1]+irand(-3, 3), AllianceOverrunWP[21][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 9;
-                        Start(true, true);
+                        Start(true);
                         break;
                     default:
                         for (uint8 i = 22; i < 36; ++i)
-                            AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3, 3), AllianceOverrunWP[i][1]+irand(-3, 3), AllianceOverrunWP[i][2]);
+                            AddWaypoint(i-18, AllianceOverrunWP[i][0]+irand(-3, 3), AllianceOverrunWP[i][1]+irand(-3, 3), AllianceOverrunWP[i][2], true);
                         SetDespawnAtEnd(true);
                         LastOverronPos = 17;
-                        Start(true, true);
+                        Start(true);
                         break;
                 }
             }
@@ -355,43 +360,43 @@ void hyjal_trashAI::UpdateAI(uint32 /*diff*/)
                 switch (OverrunType)
                 {
                     case 0:
-                        AddWaypoint(5, HordeOverrunWP[16][0]+irand(-10, 10), HordeOverrunWP[16][1]+irand(-10, 10), HordeOverrunWP[16][2]);
-                        AddWaypoint(6, HordeOverrunWP[17][0]+irand(-10, 10), HordeOverrunWP[17][1]+irand(-10, 10), HordeOverrunWP[17][2]);
-                        AddWaypoint(7, HordeOverrunWP[18][0], HordeOverrunWP[18][1], HordeOverrunWP[18][2]);
-                        AddWaypoint(8, HordeOverrunWP[19][0], HordeOverrunWP[19][1], HordeOverrunWP[19][2]);
+                        AddWaypoint(5, HordeOverrunWP[16][0]+irand(-10, 10), HordeOverrunWP[16][1]+irand(-10, 10), HordeOverrunWP[16][2], true);
+                        AddWaypoint(6, HordeOverrunWP[17][0]+irand(-10, 10), HordeOverrunWP[17][1]+irand(-10, 10), HordeOverrunWP[17][2], true);
+                        AddWaypoint(7, HordeOverrunWP[18][0], HordeOverrunWP[18][1], HordeOverrunWP[18][2], true);
+                        AddWaypoint(8, HordeOverrunWP[19][0], HordeOverrunWP[19][1], HordeOverrunWP[19][2], true);
                         me->SetHomePosition(HordeOverrunWP[19][0], HordeOverrunWP[19][1], HordeOverrunWP[19][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 8;
-                        Start(true, true);
+                        Start(true);
                         break;
                     case 1:
-                        AddWaypoint(5, HordeOverrunWP[16][0]+irand(-10, 10), HordeOverrunWP[16][1]+irand(-10, 10), HordeOverrunWP[16][2]);
-                        AddWaypoint(6, HordeOverrunWP[17][0]+irand(-10, 10), HordeOverrunWP[17][1]+irand(-10, 10), HordeOverrunWP[17][2]);
-                        AddWaypoint(7, HordeOverrunWP[18][0], HordeOverrunWP[18][1], HordeOverrunWP[18][2]);
-                        AddWaypoint(8, HordeOverrunWP[20][0], HordeOverrunWP[20][1], HordeOverrunWP[20][2]);
+                        AddWaypoint(5, HordeOverrunWP[16][0]+irand(-10, 10), HordeOverrunWP[16][1]+irand(-10, 10), HordeOverrunWP[16][2], true);
+                        AddWaypoint(6, HordeOverrunWP[17][0]+irand(-10, 10), HordeOverrunWP[17][1]+irand(-10, 10), HordeOverrunWP[17][2], true);
+                        AddWaypoint(7, HordeOverrunWP[18][0], HordeOverrunWP[18][1], HordeOverrunWP[18][2], true);
+                        AddWaypoint(8, HordeOverrunWP[20][0], HordeOverrunWP[20][1], HordeOverrunWP[20][2], true);
                         me->SetHomePosition(HordeOverrunWP[20][0], HordeOverrunWP[20][1], HordeOverrunWP[20][2], 0);
                         SetDespawnAtEnd(false);
                         LastOverronPos = 8;
-                        Start(true, true);
+                        Start(true);
                         break;
                     default:
                         for (uint8 i = 0; i < 16; ++i)
-                            AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10, 10), HordeOverrunWP[i][1]+irand(-10, 10), HordeOverrunWP[i][2]);
+                            AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10, 10), HordeOverrunWP[i][1]+irand(-10, 10), HordeOverrunWP[i][2], true);
                         SetDespawnAtEnd(true);
                         LastOverronPos = 21;
-                        Start(true, true);
+                        Start(true);
                         break;
                 }
             }
             if (me->GetEntry() == ABOMINATION)
             {
                 for (uint8 i = 0; i < 6; ++i)
-                    AddWaypoint(i, HordeWPs[i][0]+irand(-10, 10), HordeWPs[i][1]+irand(-10, 10), HordeWPs[i][2]);
+                    AddWaypoint(i, HordeWPs[i][0]+irand(-10, 10), HordeWPs[i][1]+irand(-10, 10), HordeWPs[i][2], true);
                 for (uint8 i = 0; i < 16; ++i)
-                    AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10, 10), HordeOverrunWP[i][1]+irand(-10, 10), HordeOverrunWP[i][2]);
+                    AddWaypoint(i+6, HordeOverrunWP[i][0]+irand(-10, 10), HordeOverrunWP[i][1]+irand(-10, 10), HordeOverrunWP[i][2], true);
                 SetDespawnAtEnd(true);
                 LastOverronPos = 21;
-                Start(true, true);
+                Start(true);
             }
         }
     }
@@ -420,7 +425,7 @@ public:
             CanMove = false;
             Delay = rand32() % 30000;
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+            me->SetUninteractible(true);
             me->SetDisplayId(MODEL_INVIS);
             go = false;
             Initialize();
@@ -475,8 +480,6 @@ public:
             {
                 if (Creature* trigger = me->SummonCreature(NPC_WORLD_TRIGGER_TINY, me->GetPositionWithOffset({ 8.0f, 8.0f, frand(25.0f, 35.0f), 0.0f }), TEMPSUMMON_TIMED_DESPAWN, 1s))
                 {
-                    trigger->SetVisible(false);
-                    trigger->SetFaction(me->GetFaction());
                     trigger->SetDisableGravity(true);
                     trigger->CastSpell(me, SPELL_METEOR, true);
                 }
@@ -486,7 +489,7 @@ public:
                 if (spawnTimer <= diff)
                 {
                     me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetDisplayId(me->GetNativeDisplayId());
                     CanMove = true;
                     if (instance->GetData(DATA_ALLIANCE_RETREAT) && !instance->GetData(DATA_HORDE_RETREAT))
@@ -508,8 +511,8 @@ public:
                 if (!go)
                 {
                     go = true;
-                    AddWaypoint(0, HordeWPs[7][0]+irand(-3, 3),    HordeWPs[7][1]+irand(-3, 3),    HordeWPs[7][2]);//HordeWPs[7] infront of thrall
-                    Start(true, true);
+                    AddWaypoint(0, HordeWPs[7][0]+irand(-3, 3), HordeWPs[7][1]+irand(-3, 3), HordeWPs[7][2], true);//HordeWPs[7] infront of thrall
+                    Start(true);
                     SetDespawnAtEnd(false);
                 }
             }
@@ -526,7 +529,6 @@ public:
                 DoCastVictim(SPELL_FLAME_BUFFET, true);
                 FlameBuffetTimer = 7000;
             } else FlameBuffetTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -608,14 +610,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -629,7 +631,6 @@ public:
                 DoCastVictim(SPELL_KNOCKDOWN);
                 KnockDownTimer = 15000 + rand32() % 10000;
             } else KnockDownTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -712,14 +713,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -731,8 +732,6 @@ public:
             } else FrenzyTimer -= diff;
             if (!UpdateVictim())
                 return;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -806,6 +805,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) override
         {
+            Talk(TRASH_SAY_SLAY);
             switch (urand(0, 2))
             {
                 case 0:
@@ -824,6 +824,12 @@ public:
 
         void JustEngagedWith(Unit* /*who*/) override { }
 
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
+        }
+
         void UpdateAI(uint32 diff) override
         {
             hyjal_trashAI::UpdateAI(diff);
@@ -839,14 +845,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(true, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(true);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(true, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(true);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -860,8 +866,6 @@ public:
                 DoCastVictim(SPELL_SHADOW_BOLT);
                 ShadowBoltTimer = 20000 + rand32() % 10000;
             } else ShadowBoltTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -922,6 +926,17 @@ public:
             }
         }
 
+        void KilledUnit(Unit* /*victim*/) override
+        {
+            Talk(TRASH_SAY_SLAY);
+        }
+
+        void JustDied(Unit* killer) override
+        {
+            hyjal_trashAI::JustDied(killer);
+            Talk(TRASH_SAY_DEATH);
+        }
+
         void JustEngagedWith(Unit* /*who*/) override { }
 
         void UpdateAI(uint32 diff) override
@@ -937,14 +952,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -966,7 +981,6 @@ public:
                 DoCast(me, SPELL_ANTI_MAGIC_SHELL);
                 ShellTimer = 50000 + rand32() % 10000;
             } else ShellTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1038,14 +1052,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -1057,7 +1071,6 @@ public:
                 DoCastVictim(SPELL_WEB);
                 WebTimer = 20000 + rand32() % 5000;
             } else WebTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1129,14 +1142,14 @@ public:
                     if (instance->GetData(DATA_ALLIANCE_RETREAT))//2.alliance boss down, use horde WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }else//use alliance WPs
                     {
                         for (uint8 i = 0; i < 8; ++i)
-                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
-                        Start(false, true);
+                            AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2], true);
+                        Start(false);
                         SetDespawnAtEnd(false);
                     }
                 }
@@ -1148,7 +1161,6 @@ public:
                 DoCastVictim(SPELL_MANA_BURN);
                 ManaBurnTimer = 9000 + rand32() % 5000;
             } else ManaBurnTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 
@@ -1186,7 +1198,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1230,21 +1241,20 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
+
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
-                            AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
+                            AddWaypoint(i, FrostWyrmWPs[i][0], FrostWyrmWPs[i][1], FrostWyrmWPs[i][2], true);
                     }
                     else
                     {//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
-                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
+                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10), FlyPathWPs[i][1]+irand(-10, 10), FlyPathWPs[i][2], true);
                     }
+                    go = true;
+                    Start(false);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1316,7 +1326,6 @@ public:
         void Reset() override
         {
             Initialize();
-            me->SetDisableGravity(true);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -1356,19 +1365,17 @@ public:
             {
                 if (!go)
                 {
-                    go = true;
                     if (!useFlyPath)
                     {
                         for (uint8 i = 0; i < 3; ++i)
-                            AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
+                            AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2], true);
                     }else{//fly path FlyPathWPs
                         for (uint8 i = 0; i < 3; ++i)
-                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
-                        Start(false, true);
-                        SetDespawnAtEnd(false);
+                            AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10), FlyPathWPs[i][1]+irand(-10, 10), FlyPathWPs[i][2], true);
                     }
+                    go = true;
+                    Start(false);
+                    SetDespawnAtEnd(false);
                 }
             }
 
@@ -1496,7 +1503,6 @@ public:
                 me->CastSpell(me->GetVictim(), SPELL_EXPLODING_SHOT, args);
                 ExplodeTimer = 5000 + rand32() % 5000;
             } else ExplodeTimer -= diff;
-            DoMeleeAttackIfReady();
         }
     };
 

@@ -130,5 +130,5 @@ void ArenaTeamMgr::LoadArenaTeams()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u arena teams in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} arena teams in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }

@@ -328,8 +328,7 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
             "#define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION\n"
             "#include \"$basename$.pb.h\"\n"
             "\n"
-            "#include <algorithm>\n"    // for swap()
-            "#include <utility>\n"      // for move()
+            "#include <utility>\n"      // for swap() and move()
             "\n"
             "#include <google/protobuf/stubs/common.h>\n"
             "#include <google/protobuf/stubs/once.h>\n"
@@ -354,11 +353,9 @@ void BnetFileGenerator::GenerateSource(pb::io::Printer* printer)
                 "#include <google/protobuf/wire_format.h>\n");
     }
 
-    printer->Print("#include \"Log.h\"\n");
 
     if (file_->service_count() > 0)
     {
-        printer->Print("#include \"Errors.h\"\n");
         printer->Print("#include \"BattlenetRpcErrorCodes.h\"\n");
     }
 

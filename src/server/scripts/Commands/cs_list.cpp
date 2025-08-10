@@ -39,7 +39,6 @@ EndScriptData */
 #include "RBAC.h"
 #include "SpellAuraEffects.h"
 #include "WorldSession.h"
-#include <sstream>
 
 using namespace Trinity::ChatCommands;
 
@@ -80,7 +79,7 @@ public:
         CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(creatureId);
         if (!cInfo)
         {
-            handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, creatureId);
+            handler->PSendSysMessage(LANG_COMMAND_INVALIDCREATUREID, *creatureId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -93,18 +92,18 @@ public:
         QueryResult result;
 
         uint32 creatureCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='%u'", creatureId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM creature WHERE id='{}'", creatureId);
         if (result)
             creatureCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM creature WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM creature WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), creatureId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map FROM creature WHERE id = '{}' LIMIT {}",
                 creatureId, count);
 
         if (result)
@@ -145,7 +144,7 @@ public:
             while (result->NextRow());
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_LISTCREATUREMESSAGE, creatureId, creatureCount);
+        handler->PSendSysMessage(LANG_COMMAND_LISTCREATUREMESSAGE, *creatureId, creatureCount);
 
         return true;
     }
@@ -350,7 +349,7 @@ public:
         GameObjectTemplate const* gInfo = sObjectMgr->GetGameObjectTemplate(gameObjectId);
         if (!gInfo)
         {
-            handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, gameObjectId);
+            handler->PSendSysMessage(LANG_COMMAND_LISTOBJINVALIDID, *gameObjectId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -363,18 +362,18 @@ public:
         QueryResult result;
 
         uint32 objectCount = 0;
-        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='%u'", gameObjectId);
+        result = WorldDatabase.PQuery("SELECT COUNT(guid) FROM gameobject WHERE id='{}'", gameObjectId);
         if (result)
             objectCount = (*result)[0].GetUInt64();
 
         if (handler->GetSession())
         {
             Player* player = handler->GetSession()->GetPlayer();
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE id = '%u' ORDER BY order_ ASC LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id, (POW(position_x - '{}', 2) + POW(position_y - '{}', 2) + POW(position_z - '{}', 2)) AS order_ FROM gameobject WHERE id = '{}' ORDER BY order_ ASC LIMIT {}",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), gameObjectId, count);
         }
         else
-            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '%u' LIMIT %u",
+            result = WorldDatabase.PQuery("SELECT guid, position_x, position_y, position_z, map, id FROM gameobject WHERE id = '{}' LIMIT {}",
                 gameObjectId, count);
 
         if (result)
@@ -416,7 +415,7 @@ public:
             while (result->NextRow());
         }
 
-        handler->PSendSysMessage(LANG_COMMAND_LISTOBJMESSAGE, gameObjectId, objectCount);
+        handler->PSendSysMessage(LANG_COMMAND_LISTOBJMESSAGE, *gameObjectId, objectCount);
 
         return true;
     }
@@ -463,10 +462,9 @@ public:
             if (!ShouldListAura(aura->GetSpellInfo(), spellId, namePart, handler->GetSessionDbcLocale()))
                 continue;
 
-            std::ostringstream ss_name;
-            ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
+            std::string ss_name = Trinity::StringFormat("|cffffffff|Hspell:{}|h[{}]|h|r", aura->GetId(), name);
 
-            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.str().c_str() : name),
+            handler->PSendSysMessage(LANG_COMMAND_TARGET_AURADETAIL, aura->GetId(), (handler->GetSession() ? ss_name.c_str() : name),
                 aurApp->GetEffectMask(), aura->GetCharges(), aura->GetStackAmount(), aurApp->GetSlot(),
                 aura->GetDuration(), aura->GetMaxDuration(), (aura->IsPassive() ? passiveStr : ""),
                 (talent ? talentStr : ""), aura->GetCasterGUID().IsPlayer() ? "player" : "creature",
@@ -489,7 +487,7 @@ public:
                 if (!sizeLogged)
                 {
                     sizeLogged = true;
-                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(auraList.size()).c_str(), i);
+                    handler->PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, std::to_string(std::distance(auraList.begin(), auraList.end())).c_str(), i);
                 }
 
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, effect->GetId(), effect->GetEffIndex(), effect->GetAmount());
@@ -564,7 +562,7 @@ public:
                     if (hasItem == 1)
                     {
                         QueryResult result2;
-                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '%u'", messageId);
+                        result2 = CharacterDatabase.PQuery("SELECT item_guid FROM mail_items WHERE mail_id = '{}'", messageId);
                         if (result2)
                         {
                             do
@@ -587,10 +585,9 @@ public:
                                         if (handler->GetSession())
                                         {
                                             uint32 color = ItemQualityColors[itemTemplate->GetQuality()];
-                                            std::ostringstream itemStr;
-                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:" << handler->GetSession()->GetPlayer()->GetLevel()
-                                                << ":0:0:0:0:0|h[" << itemTemplate->GetName(handler->GetSessionDbcLocale()) << "]|h|r";
-                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
+                                            std::string itemStr = Trinity::StringFormat("|c{:X}|Hitem:{}:0:0:0:0:0:0:0:{}:0:0:0:0:0|h[{}]|h|r",
+                                                color, item_entry, handler->GetSession()->GetPlayer()->GetLevel(), itemTemplate->GetName(handler->GetSessionDbcLocale()));
+                                            handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.c_str(), item_entry, item_guid, item_count);
                                         }
                                         else
                                             handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemTemplate->GetName(handler->GetSessionDbcLocale()), item_entry, item_guid, item_count);

@@ -218,7 +218,7 @@ struct boss_krik_thir : public BossAI
             case ACTION_SILTHIK_DIED:
                 if (!_watchersActive) // something is wrong
                 {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     return;
                 }
                 if (!--_watchersActive) // if there are no watchers currently in combat...
@@ -235,7 +235,7 @@ struct boss_krik_thir : public BossAI
                 events.ScheduleEvent(EVENT_SEND_GROUP, 70s);
                 break;
             case ACTION_PET_EVADE:
-                EnterEvadeMode(EVADE_REASON_OTHER);
+                EnterEvadeMode(EvadeReason::Other);
                 break;
         }
     }
@@ -285,8 +285,6 @@ struct boss_krik_thir : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
@@ -339,7 +337,6 @@ struct npc_gatewatcher_petAI : public ScriptedAI
         }
         _JustEngagedWith();
         ScriptedAI::JustEngagedWith(who);
-        me->SetCombatPulseDelay(5);
     }
 
     void SetData(uint32 data, uint32 value) override
@@ -452,8 +449,6 @@ struct npc_watcher_gashra : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -519,8 +514,6 @@ struct npc_watcher_narjil : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -586,8 +579,6 @@ struct npc_watcher_silthik : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     private:
@@ -638,8 +629,6 @@ struct npc_anub_ar_warrior : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -689,8 +678,6 @@ struct npc_anub_ar_skirmisher : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
@@ -749,8 +736,6 @@ struct npc_anub_ar_shadowcaster : public npc_gatewatcher_petAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -807,8 +792,6 @@ struct npc_gatewatcher_web_wrap : public NullCreatureAI
 // 52343 - Krik'Thir Subboss Aggro Trigger
 class spell_gatewatcher_subboss_trigger : public SpellScript
 {
-    PrepareSpellScript(spell_gatewatcher_subboss_trigger);
-
     void HandleTargets(std::list<WorldObject*>& targetList)
     {
         // Remove any Watchers that are already in combat
@@ -849,8 +832,6 @@ class spell_gatewatcher_subboss_trigger : public SpellScript
 // 52536 - Fixate Trigger
 class spell_anub_ar_skirmisher_fixate : public SpellScript
 {
-    PrepareSpellScript(spell_anub_ar_skirmisher_fixate);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FIXATE_TRIGGERED });
@@ -871,8 +852,6 @@ class spell_anub_ar_skirmisher_fixate : public SpellScript
 // 52086 - Web Wrap
 class spell_gatewatcher_web_wrap : public AuraScript
 {
-    PrepareAuraScript(spell_gatewatcher_web_wrap);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_WEB_WRAP_WRAPPED });

@@ -147,7 +147,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                             uint32 deathTime = cBoss->AI()->GetData(DATA_DEATH_TIME);
                             if (!deathTime)
                             {
-                                TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman %s is reporting not dead", cBoss->GetName().c_str());
+                                TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman {} is reporting not dead", cBoss->GetName());
                                 return 0;
                             }
                             if (!minTime || deathTime < minTime)
@@ -157,7 +157,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                         }
                         else
                         {
-                            TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman with id %u is not present", uint32(boss));
+                            TC_LOG_WARN("scripts", "FourHorsemenAI: Checking for achievement credit but horseman with id {} is not present", uint32(boss));
                             return 0;
                         }
                     return (getMSTimeDiff(minTime, maxTime) <= 15 * IN_MILLISECONDS) ? 1 : 0;
@@ -177,7 +177,6 @@ struct boss_four_horsemen_baseAI : public BossAI
                 case ACTION_BEGIN_FIGHTING:
                     if (_ourMovementFinished)
                         break;
-                    me->SetCombatPulseDelay(5);
                     BeginFighting();
                     _ourMovementFinished = true;
                     break;
@@ -195,7 +194,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Checking if movement is finished but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Checking if movement is finished but horseman with id {} is not present", uint32(boss));
                     ResetEncounter();
                     return;
                 }
@@ -217,7 +216,7 @@ struct boss_four_horsemen_baseAI : public BossAI
             }
             instance->SetBossState(BOSS_HORSEMEN, IN_PROGRESS);
             Map::PlayerList const& players = me->GetMap()->GetPlayers();
-            if (players.isEmpty()) // sanity check
+            if (players.empty()) // sanity check
                 ResetEncounter();
 
             for (Horseman boss : horsemen)
@@ -252,7 +251,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter starting but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter starting but horseman with id {} is not present", uint32(boss));
                     ResetEncounter();
                     return;
                 }
@@ -269,7 +268,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 if (Creature* cBoss = getHorsemanHandle(boss))
                     cBoss->DespawnOrUnsummon(0s, 15s);
                 else
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id %u is not present", uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: Encounter resetting but horseman with id {} is not present", uint32(boss));
             }
         }
 
@@ -305,7 +304,6 @@ struct boss_four_horsemen_baseAI : public BossAI
             _ourMovementFinished = false;
             me->SetReactState(REACT_AGGRESSIVE);
             SetCombatMovement(false);
-            me->SetCombatPulseDelay(0);
             me->ResetLootMode();
             events.Reset();
             summons.DespawnAll();
@@ -340,7 +338,7 @@ struct boss_four_horsemen_baseAI : public BossAI
                 }
                 else
                 {
-                    TC_LOG_WARN("scripts", "FourHorsemenAI: %s died but horseman with id %u is not present", me->GetName().c_str(), uint32(boss));
+                    TC_LOG_WARN("scripts", "FourHorsemenAI: {} died but horseman with id {} is not present", me->GetName(), uint32(boss));
                     ResetEncounter();
                 }
             }
@@ -433,10 +431,6 @@ struct boss_four_horsemen_baron : public boss_four_horsemen_baseAI
                     break;
             }
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
@@ -498,10 +492,6 @@ struct boss_four_horsemen_thane : public boss_four_horsemen_baseAI
                     break;
             }
         }
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-        DoMeleeAttackIfReady();
     }
 
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
@@ -519,7 +509,11 @@ struct boss_four_horsemen_thane : public boss_four_horsemen_baseAI
 
 struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
 {
-    boss_four_horsemen_lady(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath) { }
+    boss_four_horsemen_lady(Creature* creature) : boss_four_horsemen_baseAI(creature, LADY, ladyPath)
+    {
+        me->SetCanMelee(false);
+    }
+
     void BeginFighting() override
     {
         events.ScheduleEvent(EVENT_BERSERK, 10min);
@@ -535,7 +529,7 @@ struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
             return;
         if (me->GetThreatManager().IsThreatListEmpty())
         {
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
             return;
         }
 
@@ -578,7 +572,11 @@ struct boss_four_horsemen_lady : public boss_four_horsemen_baseAI
 
 struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
 {
-    boss_four_horsemen_sir(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true) { }
+    boss_four_horsemen_sir(Creature* creature) : boss_four_horsemen_baseAI(creature, SIR, sirPath), _shouldSay(true)
+    {
+        me->SetCanMelee(false);
+    }
+
     void BeginFighting() override
     {
         events.ScheduleEvent(EVENT_BERSERK, 10min);
@@ -594,7 +592,7 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
             return;
         if (me->GetThreatManager().IsThreatListEmpty())
         {
-            EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+            EnterEvadeMode(EvadeReason::NoHostiles);
             return;
         }
 
@@ -653,8 +651,6 @@ struct boss_four_horsemen_sir : public boss_four_horsemen_baseAI
 // 28835 - Mark of Zeliek
 class spell_four_horsemen_mark : public AuraScript
 {
-    PrepareAuraScript(spell_four_horsemen_mark);
-
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* caster = GetCaster())

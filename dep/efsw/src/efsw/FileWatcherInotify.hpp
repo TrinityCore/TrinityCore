@@ -7,68 +7,79 @@
 
 #include <efsw/WatcherInotify.hpp>
 #include <map>
+#include <unordered_map>
+#include <vector>
 
-namespace efsw
-{
+namespace efsw {
 
 /// Implementation for Linux based on inotify.
 /// @class FileWatcherInotify
-class FileWatcherInotify : public FileWatcherImpl
-{
-	public:
-		/// type for a map from WatchID to WatchStruct pointer
-		typedef std::map<WatchID, WatcherInotify*> WatchMap;
+class FileWatcherInotify : public FileWatcherImpl {
+  public:
+	/// type for a map from WatchID to WatchStruct pointer
+	typedef std::map<WatchID, WatcherInotify*> WatchMap;
 
-		FileWatcherInotify( FileWatcher * parent );
+	FileWatcherInotify( FileWatcher* parent );
 
-		virtual ~FileWatcherInotify();
+	virtual ~FileWatcherInotify();
 
-		/// Add a directory watch
-		/// On error returns WatchID with Error type.
-		WatchID addWatch(const std::string& directory, FileWatchListener* watcher, bool recursive);
+	/// Add a directory watch
+	/// On error returns WatchID with Error type.
+	WatchID addWatch( const std::string& directory, FileWatchListener* watcher, bool recursive,
+					  const std::vector<WatcherOption>& options ) override;
 
-		/// Remove a directory watch. This is a brute force lazy search O(nlogn).
-		void removeWatch(const std::string& directory);
+	/// Remove a directory watch. This is a brute force lazy search O(nlogn).
+	void removeWatch( const std::string& directory ) override;
 
-		/// Remove a directory watch. This is a map lookup O(logn).
-		void removeWatch(WatchID watchid);
+	/// Remove a directory watch. This is a map lookup O(logn).
+	void removeWatch( WatchID watchid ) override;
 
-		/// Updates the watcher. Must be called often.
-		void watch();
+	/// Updates the watcher. Must be called often.
+	void watch() override;
 
-		/// Handles the action
-		void handleAction(Watcher * watch, const std::string& filename, unsigned long action, std::string oldFilename = "");
+	/// Handles the action
+	void handleAction( Watcher* watch, const std::string& filename, unsigned long action,
+					   std::string oldFilename = "" ) override;
 
-		/// @return Returns a list of the directories that are being watched
-		std::list<std::string> directories();
-	protected:
-		/// Map of WatchID to WatchStruct pointers
-		WatchMap mWatches;
+	/// @return Returns a list of the directories that are being watched
+	std::vector<std::string> directories() override;
 
-		/// User added watches
-		WatchMap mRealWatches;
+  protected:
+	/// Map of WatchID to WatchStruct pointers
+	WatchMap mWatches;
 
-		/// inotify file descriptor
-		int mFD;
+	/// User added watches
+	WatchMap mRealWatches;
 
-		Thread * mThread;
+	std::unordered_map<std::string, WatchID> mWatchesRef;
 
-		Mutex mWatchesLock;
+	/// inotify file descriptor
+	int mFD;
 
-		WatchID addWatch(const std::string& directory, FileWatchListener* watcher, bool recursive, WatcherInotify * parent = NULL );
+	Thread* mThread;
 
-		bool pathInWatches( const std::string& path );
-	private:
-		void run();
+	Mutex mWatchesLock;
+	Mutex mRealWatchesLock;
+	Mutex mInitLock;
+	bool mIsTakingAction;
+	std::vector<std::pair<WatcherInotify*, std::string>> mMovedOutsideWatches;
 
-		void removeWatchLocked(WatchID watchid);
+	WatchID addWatch( const std::string& directory, FileWatchListener* watcher, bool recursive,
+					  WatcherInotify* parent = NULL );
 
-		void checkForNewWatcher( Watcher* watch, std::string fpath );
+	bool pathInWatches( const std::string& path ) override;
 
-		Watcher * watcherContainsDirectory( std::string dir );
+  private:
+	void run();
+
+	void removeWatchLocked( WatchID watchid );
+
+	void checkForNewWatcher( Watcher* watch, std::string fpath );
+
+	Watcher* watcherContainsDirectory( std::string dir );
 };
 
-}
+} // namespace efsw
 
 #endif
 

@@ -21,6 +21,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "CreatureAIImpl.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
@@ -114,8 +115,6 @@ struct npc_pet_hunter_snake_trap : public ScriptedAI
             else
                 _spellTimer -= diff;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

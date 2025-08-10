@@ -17,14 +17,13 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "naxxramas.h"
-#include "TemporarySummon.h"
-#include <sstream>
 
 BossBoundaryData const boundaries =
 {
@@ -49,52 +48,52 @@ BossBoundaryData const boundaries =
     { BOSS_PATCHWERK, new CircleBoundary(Position(3130.8576f, -3210.36f), Position(3085.37f, -3219.85f), true) }, // entrance slime circle blocker
     { BOSS_GROBBULUS, new CircleBoundary(Position(3204.0f, -3241.4f), 240.0f) },
     { BOSS_GROBBULUS, new RectangleBoundary(3295.0f, 3340.0f, -3254.2f, -3230.18f, true) }, // entrance door blocker
-    { BOSS_GLUTH, new CircleBoundary(Position(3293.0f, -3142.0f), 80.0) },
+    { BOSS_GLUTH, new CircleBoundary(Position(3293.0f, -3142.0f), 80.0f) },
     { BOSS_GLUTH, new ParallelogramBoundary(Position(3401.0f, -3149.0f), Position(3261.0f, -3028.0f), Position(3320.0f, -3267.0f)) },
     { BOSS_GLUTH, new ZRangeBoundary(285.0f, 310.0f) },
     { BOSS_THADDIUS, new ParallelogramBoundary(Position(3478.3f, -3070.0f), Position(3370.0f, -2961.5f), Position(3580.0f, -2961.5f)) },
 
     /* Frostwyrm Lair */
-    { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0) },
-    { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0) }
+    { BOSS_SAPPHIRON, new CircleBoundary(Position(3517.627f, -5255.5f), 110.0f) },
+    { BOSS_KELTHUZAD, new CircleBoundary(Position(3716.0f, -5107.0f), 85.0f) }
 };
 
 DoorData const doorData[] =
 {
-    { GO_ROOM_ANUBREKHAN,       BOSS_ANUBREKHAN,    DOOR_TYPE_ROOM },
-    { GO_PASSAGE_ANUBREKHAN,    BOSS_ANUBREKHAN,    DOOR_TYPE_PASSAGE },
-    { GO_PASSAGE_FAERLINA,      BOSS_FAERLINA,      DOOR_TYPE_PASSAGE },
-    { GO_ROOM_MAEXXNA,          BOSS_FAERLINA,      DOOR_TYPE_PASSAGE },
-    { GO_ROOM_MAEXXNA,          BOSS_MAEXXNA,       DOOR_TYPE_ROOM },
-    { GO_ROOM_NOTH,             BOSS_NOTH,          DOOR_TYPE_ROOM },
-    { GO_PASSAGE_NOTH,          BOSS_NOTH,          DOOR_TYPE_PASSAGE },
-    { GO_ROOM_HEIGAN,           BOSS_NOTH,          DOOR_TYPE_PASSAGE },
-    { GO_ROOM_HEIGAN,           BOSS_HEIGAN,        DOOR_TYPE_ROOM },
-    { GO_PASSAGE_HEIGAN,        BOSS_HEIGAN,        DOOR_TYPE_PASSAGE },
-    { GO_ROOM_LOATHEB,          BOSS_HEIGAN,        DOOR_TYPE_PASSAGE },
-    { GO_ROOM_LOATHEB,          BOSS_LOATHEB,       DOOR_TYPE_ROOM },
-    { GO_ROOM_GROBBULUS,        BOSS_PATCHWERK,     DOOR_TYPE_PASSAGE },
-    { GO_ROOM_GROBBULUS,        BOSS_GROBBULUS,     DOOR_TYPE_ROOM },
-    { GO_PASSAGE_GLUTH,         BOSS_GLUTH,         DOOR_TYPE_PASSAGE },
-    { GO_ROOM_THADDIUS,         BOSS_GLUTH,         DOOR_TYPE_PASSAGE },
-    { GO_ROOM_THADDIUS,         BOSS_THADDIUS,      DOOR_TYPE_ROOM },
-    { GO_ROOM_GOTHIK,           BOSS_RAZUVIOUS,     DOOR_TYPE_PASSAGE },
-    { GO_ROOM_GOTHIK,           BOSS_GOTHIK,        DOOR_TYPE_ROOM },
-    { GO_PASSAGE_GOTHIK,        BOSS_GOTHIK,        DOOR_TYPE_PASSAGE },
-    { GO_ROOM_HORSEMEN,         BOSS_GOTHIK,        DOOR_TYPE_PASSAGE },
-    { GO_GOTHIK_GATE,           BOSS_GOTHIK,        DOOR_TYPE_ROOM },
-    { GO_ROOM_HORSEMEN,         BOSS_HORSEMEN,      DOOR_TYPE_ROOM },
-    { GO_PASSAGE_SAPPHIRON,     BOSS_SAPPHIRON,     DOOR_TYPE_PASSAGE },
-    { GO_ROOM_KELTHUZAD,        BOSS_KELTHUZAD,     DOOR_TYPE_ROOM },
-    { GO_ARAC_EYE_RAMP,         BOSS_MAEXXNA,       DOOR_TYPE_PASSAGE },
-    { GO_ARAC_EYE_RAMP_BOSS,    BOSS_MAEXXNA,       DOOR_TYPE_PASSAGE },
-    { GO_PLAG_EYE_RAMP,         BOSS_LOATHEB,       DOOR_TYPE_PASSAGE },
-    { GO_PLAG_EYE_RAMP_BOSS,    BOSS_LOATHEB,       DOOR_TYPE_PASSAGE },
-    { GO_MILI_EYE_RAMP,         BOSS_HORSEMEN,      DOOR_TYPE_PASSAGE },
-    { GO_MILI_EYE_RAMP_BOSS,    BOSS_HORSEMEN,      DOOR_TYPE_PASSAGE },
-    { GO_CONS_EYE_RAMP,         BOSS_THADDIUS,      DOOR_TYPE_PASSAGE },
-    { GO_CONS_EYE_RAMP_BOSS,    BOSS_THADDIUS,      DOOR_TYPE_PASSAGE },
-    { 0,                        0,                  DOOR_TYPE_ROOM }
+    { GO_ROOM_ANUBREKHAN,       BOSS_ANUBREKHAN,    EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_ANUBREKHAN,    BOSS_ANUBREKHAN,    EncounterDoorBehavior::OpenWhenDone },
+    { GO_PASSAGE_FAERLINA,      BOSS_FAERLINA,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_MAEXXNA,          BOSS_FAERLINA,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_MAEXXNA,          BOSS_MAEXXNA,       EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ROOM_NOTH,             BOSS_NOTH,          EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_NOTH,          BOSS_NOTH,          EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_HEIGAN,           BOSS_NOTH,          EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_HEIGAN,           BOSS_HEIGAN,        EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_HEIGAN,        BOSS_HEIGAN,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_LOATHEB,          BOSS_HEIGAN,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_LOATHEB,          BOSS_LOATHEB,       EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ROOM_GROBBULUS,        BOSS_PATCHWERK,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_GROBBULUS,        BOSS_GROBBULUS,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_GLUTH,         BOSS_GLUTH,         EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_THADDIUS,         BOSS_GLUTH,         EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_THADDIUS,         BOSS_THADDIUS,      EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ROOM_GOTHIK,           BOSS_RAZUVIOUS,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_GOTHIK,           BOSS_GOTHIK,        EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_GOTHIK,        BOSS_GOTHIK,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_HORSEMEN,         BOSS_GOTHIK,        EncounterDoorBehavior::OpenWhenDone },
+    { GO_GOTHIK_GATE,           BOSS_GOTHIK,        EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ROOM_HORSEMEN,         BOSS_HORSEMEN,      EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_PASSAGE_SAPPHIRON,     BOSS_SAPPHIRON,     EncounterDoorBehavior::OpenWhenDone },
+    { GO_ROOM_KELTHUZAD,        BOSS_KELTHUZAD,     EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_ARAC_EYE_RAMP,         BOSS_MAEXXNA,       EncounterDoorBehavior::OpenWhenDone },
+    { GO_ARAC_EYE_RAMP_BOSS,    BOSS_MAEXXNA,       EncounterDoorBehavior::OpenWhenDone },
+    { GO_PLAG_EYE_RAMP,         BOSS_LOATHEB,       EncounterDoorBehavior::OpenWhenDone },
+    { GO_PLAG_EYE_RAMP_BOSS,    BOSS_LOATHEB,       EncounterDoorBehavior::OpenWhenDone },
+    { GO_MILI_EYE_RAMP,         BOSS_HORSEMEN,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_MILI_EYE_RAMP_BOSS,    BOSS_HORSEMEN,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_CONS_EYE_RAMP,         BOSS_THADDIUS,      EncounterDoorBehavior::OpenWhenDone },
+    { GO_CONS_EYE_RAMP_BOSS,    BOSS_THADDIUS,      EncounterDoorBehavior::OpenWhenDone },
+    { 0,                        0,                  EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 ObjectData const objectData[] =
@@ -105,6 +104,25 @@ ObjectData const objectData[] =
     { GO_NAXX_PORTAL_MILITARY,  DATA_NAXX_PORTAL_MILITARY  },
     { GO_KELTHUZAD_THRONE,      DATA_KELTHUZAD_THRONE      },
     { 0,                        0,                         }
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { BOSS_ANUBREKHAN, {{ 1107 }} },
+    { BOSS_FAERLINA, {{  1110 }} },
+    { BOSS_MAEXXNA, {{ 1116 }} },
+    { BOSS_NOTH, {{ 1117 }} },
+    { BOSS_HEIGAN, {{ 1112 }} },
+    { BOSS_LOATHEB, {{ 1115 }} },
+    { BOSS_PATCHWERK, {{ 1118 }} },
+    { BOSS_GROBBULUS, {{ 1111 }} },
+    { BOSS_GLUTH, {{ 1108 }} },
+    { BOSS_THADDIUS, {{ 1120 }} },
+    { BOSS_RAZUVIOUS, {{ 1113 }} },
+    { BOSS_GOTHIK, {{ 1109 }} },
+    { BOSS_HORSEMEN, {{ 1121 }} },
+    { BOSS_SAPPHIRON, {{ 1119 }} },
+    { BOSS_KELTHUZAD, {{ 1114 }} }
 };
 
 class instance_naxxramas : public InstanceMapScript
@@ -121,11 +139,10 @@ class instance_naxxramas : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadDoorData(doorData);
                 LoadObjectData(nullptr, objectData);
+                LoadDungeonEncounterData(encounters);
 
                 hadSapphironBirth       = false;
                 CurrentWingTaunt        = SAY_KELTHUZAD_FIRST_WING_TAUNT;
-
-                playerDied              = false;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -250,12 +267,6 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) override
             {
-                if (!playerDied && unit->IsPlayer() && IsEncounterInProgress())
-                {
-                    playerDied = true;
-                    SaveToDB();
-                }
-
                 if (Creature* creature = unit->ToCreature())
                     if (creature->GetEntry() == NPC_BIGGLESWORTH)
                     {
@@ -544,24 +555,10 @@ class instance_naxxramas : public InstanceMapScript
                     case 13239: // Loatheb
                     case 13240: // Thaddius
                     case 7617:  // Kel'Thuzad
-                        if (AreAllEncountersDone() && !playerDied)
-                            return true;
                         return false;
                 }
 
                 return false;
-            }
-
-            void WriteSaveDataMore(std::ostringstream& data) override
-            {
-                data << uint32(playerDied ? 1 : 0);
-            }
-
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 tmpState;
-                data >> tmpState;
-                playerDied = tmpState != 0;
             }
 
         protected:
@@ -607,9 +604,6 @@ class instance_naxxramas : public InstanceMapScript
             ObjectGuid LichKingGUID;
             bool hadSapphironBirth;
             uint8 CurrentWingTaunt;
-
-            /* The Immortal / The Undying */
-            bool playerDied;
 
             EventMap events;
         };

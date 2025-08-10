@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshQuery.h"
+#include "Hash.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -29,7 +30,7 @@
 namespace MMAP
 {
     typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
-    typedef std::unordered_map<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+    typedef std::unordered_map<std::pair<uint32, uint32>, dtNavMeshQuery*> NavMeshQuerySet;
 
     // dummy struct to hold map's mmap data
     struct TC_COMMON_API MMapData
@@ -63,13 +64,13 @@ namespace MMAP
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             bool loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
-            bool loadMapInstance(std::string const& basePath, uint32 mapId, uint32 instanceId);
+            bool loadMapInstance(std::string const& basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
-            bool unloadMapInstance(uint32 mapId, uint32 instanceId);
+            bool unloadMapInstance(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
-            dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
+            dtNavMeshQuery const* GetNavMeshQuery(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             dtNavMesh const* GetNavMesh(uint32 mapId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }

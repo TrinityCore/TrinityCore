@@ -25,17 +25,16 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
-#include <sstream>
 
  // ToDo: Remove magic numbers of events
 
 BossBoundaryData const boundaries =
 {
-    { DATA_NORTHREND_BEASTS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_JARAXXUS,          new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_FACTION_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_TWIN_VALKIRIES,    new CircleBoundary(Position(563.26f, 139.6f), 75.0)        },
-    { DATA_ANUBARAK,          new EllipseBoundary(Position(746.0f, 135.0f), 100.0, 75.0) }
+    { DATA_NORTHREND_BEASTS,  new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_JARAXXUS,          new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_FACTION_CRUSADERS, new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_TWIN_VALKIRIES,    new CircleBoundary(Position(563.26f, 139.6f), 75.0f)         },
+    { DATA_ANUBARAK,          new EllipseBoundary(Position(746.0f, 135.0f), 100.0f, 75.0f) }
 };
 
 ObjectData const creatureData[] =
@@ -84,13 +83,22 @@ ObjectData const gameObjectData[] =
 
 DoorData const doorData[] =
 {
-    { GO_EAST_PORTCULLIS, DATA_NORTHREND_BEASTS,  DOOR_TYPE_ROOM },
-    { GO_EAST_PORTCULLIS, DATA_JARAXXUS,          DOOR_TYPE_ROOM },
-    { GO_EAST_PORTCULLIS, DATA_FACTION_CRUSADERS, DOOR_TYPE_ROOM },
-    { GO_EAST_PORTCULLIS, DATA_TWIN_VALKIRIES,    DOOR_TYPE_ROOM },
-    { GO_EAST_PORTCULLIS, DATA_LICH_KING,         DOOR_TYPE_ROOM },
-    { GO_WEB_DOOR,        DATA_ANUBARAK,          DOOR_TYPE_ROOM },
-    { 0,                  0,                      DOOR_TYPE_ROOM } // END
+    { GO_EAST_PORTCULLIS, DATA_NORTHREND_BEASTS,  EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EAST_PORTCULLIS, DATA_JARAXXUS,          EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EAST_PORTCULLIS, DATA_FACTION_CRUSADERS, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EAST_PORTCULLIS, DATA_TWIN_VALKIRIES,    EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_EAST_PORTCULLIS, DATA_LICH_KING,         EncounterDoorBehavior::OpenWhenNotInProgress },
+    { GO_WEB_DOOR,        DATA_ANUBARAK,          EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                  0,                      EncounterDoorBehavior::OpenWhenNotInProgress } // END
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_NORTHREND_BEASTS, {{ 1088 }} },
+    { DATA_JARAXXUS, {{ 1087 }} },
+    { DATA_FACTION_CRUSADERS, {{ 1086 }} },
+    { DATA_TWIN_VALKIRIES, {{ 1089 }} },
+    { DATA_ANUBARAK, {{ 1085 }} }
 };
 
 class instance_trial_of_the_crusader : public InstanceMapScript
@@ -107,18 +115,16 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 LoadBossBoundaries(boundaries);
                 LoadObjectData(creatureData, gameObjectData);
                 LoadDoorData(doorData);
-                TrialCounter = 50;
+                LoadDungeonEncounterData(encounters);
                 EventStage = 0;
                 NorthrendBeasts = NOT_STARTED;
                 NorthrendBeastsCount = 4;
-                Team = TEAM_OTHER;
                 EventTimer = 1000;
                 NotOneButTwoJormungarsTimer = 0;
                 ResilienceWillFixItTimer = 0;
                 SnoboldCount = 0;
                 MistressOfPainCount = 0;
                 PlayerDeathCount = 0;
-                NeedSave = false;
                 CrusadersSpecialState = false;
                 TributeToDedicatedInsanity = false; // NYI, set to true when implement it
                 DoUpdateWorldState(UPDATE_STATE_UI_SHOW, instance->IsHeroic() ? 1 : 0);
@@ -126,9 +132,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                if (Team == TEAM_OTHER)
-                    Team = player->GetTeam();
-
                 if (NorthrendBeasts == GORMOK_IN_PROGRESS)
                     player->CreateVehicleKit(PLAYER_VEHICLE_ID, 0);
             }
@@ -138,15 +141,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 InstanceScript::OnCreatureCreate(creature);
                 if (creature->GetEntry() == NPC_SNOBOLD_VASSAL)
                     snoboldGUIDS.push_back(creature->GetGUID());
-            }
-
-            // Summon prevention to heroic modes
-            uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
-            {
-                if (!TrialCounter)
-                    return 0;
-
-                return data->id;
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -241,46 +235,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case DONE:
                             {
                                 EventStage = 6000;
-                                uint32 tributeChest = 0;
-                                if (instance->GetDifficultyID() == DIFFICULTY_10_HC)
-                                {
-                                    if (TrialCounter >= 50)
-                                        tributeChest = GO_TRIBUTE_CHEST_10H_99;
-                                    else
-                                    {
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_10H_50;
-                                        else
-                                        {
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_25;
-                                        }
-                                    }
-                                }
-                                else if (instance->GetDifficultyID() == DIFFICULTY_25_HC)
-                                {
-                                    if (TrialCounter >= 50)
-                                        tributeChest = GO_TRIBUTE_CHEST_25H_99;
-                                    else
-                                    {
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_25H_50;
-                                        else
-                                        {
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_25;
-                                        }
-                                    }
-                                }
-
-                                if (tributeChest)
-                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
-                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData::fromEulerAnglesZYX(3.27f, 0.0f, 0.0f), 7_days))
-                                            chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
                             }
                             default:
@@ -293,29 +247,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
                 if (type < EncounterCount)
                 {
-                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type %u) %u = state %u;", type, GetBossState(type), state);
+                    TC_LOG_DEBUG("scripts", "[ToCr] BossState(type {}) {} = state {};", type, GetBossState(type), state);
                     if (state == FAIL)
                     {
-                        if (instance->IsHeroic())
-                        {
-                            --TrialCounter;
-                            // decrease attempt counter at wipe
-                            DoUpdateWorldState(UPDATE_STATE_UI_COUNT, TrialCounter);
-
-                            // if theres no more attemps allowed
-                            if (!TrialCounter)
-                            {
-                                if (Creature* anubarak = GetCreature(DATA_ANUBARAK))
-                                    anubarak->DespawnOrUnsummon();
-                            }
-                        }
-                        NeedSave = true;
                         EventStage = (type == DATA_NORTHREND_BEASTS ? 666 : 0);
                         state = NOT_STARTED;
                     }
-
-                    if (state == DONE || NeedSave)
-                        Save();
                 }
                 return true;
             }
@@ -354,10 +291,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case TYPE_COUNTER:
-                        TrialCounter = data;
-                        data = DONE;
-                        break;
                     case TYPE_EVENT:
                         EventStage = data;
                         data = NOT_STARTED;
@@ -440,10 +373,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_TEAM:
-                        return Team;
-                    case TYPE_COUNTER:
-                        return TrialCounter;
                     case TYPE_EVENT:
                         return EventStage;
                     case TYPE_NORTHREND_BEASTS:
@@ -563,60 +492,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            void Save()
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                    saveStream << GetBossState(i) << ' ';
-
-                saveStream << TrialCounter << ' '
-                    << PlayerDeathCount << ' '
-                    << uint32(TributeToDedicatedInsanity ? 1 : 0);
-                SaveDataBuffer = saveStream.str();
-
-                SaveToDB();
-                OUT_SAVE_INST_DATA_COMPLETE;
-                NeedSave = false;
-            }
-
-            std::string GetSaveData() override
-            {
-                return SaveDataBuffer;
-            }
-
-            void Load(char const* strIn) override
-            {
-                if (!strIn)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
-
-                OUT_LOAD_INST_DATA(strIn);
-
-                std::istringstream loadStream(strIn);
-
-                uint32 tmpState;
-                for (uint8 i = 0; i < EncounterCount; ++i)
-                {
-                    loadStream >> tmpState;
-                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                        tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
-                }
-
-                loadStream >> TrialCounter;
-                loadStream >> PlayerDeathCount;
-                loadStream >> tmpState;
-                TributeToDedicatedInsanity = tmpState != 0;
-                EventStage = 0;
-
-                OUT_LOAD_INST_DATA_COMPLETE;
-            }
-
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/) override
             {
                 switch (criteria_id)
@@ -633,7 +508,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case THREE_SIXTY_PAIN_SPIKE_25_PLAYER_HEROIC:
                         return MistressOfPainCount >= 2;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
-                        return false/*TrialCounter == 50 && TributeToDedicatedInsanity*/;
+                        return false; // no longer obtainable
                     default:
                         break;
                 }
@@ -642,14 +517,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             }
 
             protected:
-                uint32 TrialCounter;
                 uint32 EventStage;
                 uint32 EventTimer;
                 uint32 NorthrendBeasts;
-                uint32 Team;
-                bool NeedSave;
                 bool CrusadersSpecialState;
-                std::string SaveDataBuffer;
                 GuidVector snoboldGUIDS;
 
                 // Achievement stuff

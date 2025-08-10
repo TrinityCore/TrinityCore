@@ -22,8 +22,15 @@
 #include "DB2Stores.h"
 #include "Log.h"
 #include "Player.h"
+#include "RealmList.h"
 #include "World.h"
 #include "WorldSession.h"
+
+AreaTableEntry const* ChannelMgr::SpecialLinkedArea;
+
+ChannelMgr::ChannelMgr(Team team) : _team(team), _guidGenerator(HighGuid::ChatChannel)
+{
+}
 
 ChannelMgr::~ChannelMgr()
 {
@@ -36,6 +43,9 @@ ChannelMgr::~ChannelMgr()
 
 /*static*/ void ChannelMgr::LoadFromDB()
 {
+    SpecialLinkedArea = sAreaTableStore.AssertEntry(3459);
+    ASSERT(SpecialLinkedArea->GetFlags().HasFlag(AreaFlags::LinkedChatSpecialArea));
+
     if (!sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
     {
         TC_LOG_INFO("server.loading", ">> Loaded 0 custom chat channels. Custom channel saving is disabled.");
@@ -63,7 +73,7 @@ ChannelMgr::~ChannelMgr()
     {
         Field* fields = result->Fetch();
         std::string dbName = fields[0].GetString();
-        uint32 team = fields[1].GetUInt32();
+        Team team = Team(fields[1].GetUInt32());
         bool dbAnnounce = fields[2].GetBool();
         bool dbOwnership = fields[3].GetBool();
         std::string dbPass = fields[4].GetString();
@@ -72,7 +82,7 @@ ChannelMgr::~ChannelMgr()
         std::wstring channelName;
         if (!Utf8toWStr(dbName, channelName))
         {
-            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid utf8 sequence? Deleted.", dbName.c_str());
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid utf8 sequence? Deleted.", dbName);
             toDelete.push_back({ dbName, team });
             continue;
         }
@@ -80,7 +90,7 @@ ChannelMgr::~ChannelMgr()
         ChannelMgr* mgr = ForTeam(team);
         if (!mgr)
         {
-            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '%s' from database - invalid team %u. Deleted.", dbName.c_str(), team);
+            TC_LOG_ERROR("server.loading", "Failed to load custom chat channel '{}' from database - invalid team {}. Deleted.", dbName, team);
             toDelete.push_back({ dbName, team });
             continue;
         }
@@ -102,22 +112,29 @@ ChannelMgr::~ChannelMgr()
         CharacterDatabase.Execute(stmt);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u custom chat channels in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} custom chat channels in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-/*static*/ ChannelMgr* ChannelMgr::ForTeam(uint32 team)
+/*static*/ ChannelMgr* ChannelMgr::ForTeam(Team team)
 {
     static ChannelMgr allianceChannelMgr(ALLIANCE);
     static ChannelMgr hordeChannelMgr(HORDE);
+    static ChannelMgr neutralChannelMgr(PANDARIA_NEUTRAL);
 
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &allianceChannelMgr;        // cross-faction
+        return &neutralChannelMgr;         // cross-faction
 
-    if (team == ALLIANCE)
-        return &allianceChannelMgr;
-
-    if (team == HORDE)
-        return &hordeChannelMgr;
+    switch (team)
+    {
+        case HORDE:
+            return &hordeChannelMgr;
+        case ALLIANCE:
+            return &allianceChannelMgr;
+        case PANDARIA_NEUTRAL:
+            return &neutralChannelMgr;
+        default:
+            break;
+    }
 
     return nullptr;
 }
@@ -268,9 +285,15 @@ ObjectGuid ChannelMgr::CreateCustomChannelGuid()
 ObjectGuid ChannelMgr::CreateBuiltinChannelGuid(uint32 channelId, AreaTableEntry const* zoneEntry /*= nullptr*/) const
 {
     ChatChannelsEntry const* channelEntry = sChatChannelsStore.AssertEntry(channelId);
-    uint32 zoneId = zoneEntry ? zoneEntry->ID : 0;
-    if (channelEntry->Flags & (CHANNEL_DBC_FLAG_GLOBAL | CHANNEL_DBC_FLAG_CITY_ONLY))
-        zoneId = 0;
+    uint32 zoneId = 0;
+    if (zoneEntry && channelEntry->GetFlags().HasFlag(ChatChannelFlags::ZoneBased) && !channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel))
+        zoneId = zoneEntry->ID;
 
-    return ObjectGuid::Create<HighGuid::ChatChannel>(true, (channelEntry->Flags & CHANNEL_DBC_FLAG_CITY_ONLY2) != 0, zoneId, _team == ALLIANCE ? 3 : 5, channelId);
+    if (channelEntry->GetFlags().HasFlag(ChatChannelFlags::GlobalForTournament))
+        if (std::shared_ptr<Realm const> currentRealm = sRealmList->GetCurrentRealm())
+            if (Cfg_CategoriesEntry const* category = sCfgCategoriesStore.LookupEntry(currentRealm->Timezone))
+                if (category->GetFlags().HasFlag(CfgCategoriesFlags::Tournament))
+                    zoneId = 0;
+
+    return ObjectGuid::Create<HighGuid::ChatChannel>(true, channelEntry->GetFlags().HasFlag(ChatChannelFlags::LinkedChannel), zoneId, _team == ALLIANCE ? 3 : 5, channelId);
 }

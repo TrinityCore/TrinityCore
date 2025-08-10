@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "black_temple.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Map.h"
@@ -595,7 +596,7 @@ struct boss_illidan_stormrage : public BossAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetDisableGravity(true);
                 DoPlaySoundToSet(me, ILLIDAN_TAKEOFF_SOUND_ID);
@@ -625,7 +626,7 @@ struct boss_illidan_stormrage : public BossAI
                 summons.DoAction(ACTION_START_PHASE_4, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 events.ScheduleEvent(EVENT_SHADOW_PRISON_TEXT, Milliseconds(500), GROUP_PHASE_ALL);
                 break;
             case ACTION_ILLIDAN_CAGED:
@@ -638,7 +639,7 @@ struct boss_illidan_stormrage : public BossAI
                 events.Reset();
                 specialEvents.Reset();
                 DoCastSelf(SPELL_DEATH, true);
-                me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                me->SetUninteractible(true);
                 events.ScheduleEvent(EVENT_DEFEATED_TEXT, 4s);
                 break;
             default:
@@ -648,7 +649,7 @@ struct boss_illidan_stormrage : public BossAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetUninteractible(false);
         instance->SetBossState(DATA_ILLIDAN_STORMRAGE, DONE);
         events.Reset();
     }
@@ -698,7 +699,7 @@ struct boss_illidan_stormrage : public BossAI
                 if (player->IsAlive() && !player->IsGameMaster() && IsInBoundary(player))
                     return;
 
-        EnterEvadeMode(EVADE_REASON_NO_HOSTILES);
+        EnterEvadeMode(EvadeReason::NoHostiles);
     }
 
     void SummonMinions()
@@ -932,7 +933,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT, Seconds(3), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_3, GROUP_PHASE_3);
                     if (GameObject* musicController = instance->GetGameObject(DATA_ILLIDAN_MUSIC_CONTROLLER))
@@ -996,7 +997,7 @@ struct boss_illidan_stormrage : public BossAI
                     events.ScheduleEvent(EVENT_RESUME_COMBAT_PHASE_4, Seconds(13), GROUP_PHASE_ALL);
                     break;
                 case EVENT_RESUME_COMBAT_PHASE_4:
-                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    me->SetUninteractible(false);
                     me->SetReactState(REACT_AGGRESSIVE);
                     ScheduleEvents(GROUP_PHASE_4, GROUP_PHASE_4);
                     summons.DoAction(ACTION_RESUME_COMBAT, EntryCheckPredicate(NPC_PARASITIC_SHADOWFIEND));
@@ -1036,8 +1037,6 @@ struct boss_illidan_stormrage : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1358,8 +1357,6 @@ struct npc_akama_illidan : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1414,8 +1411,6 @@ struct npc_parasitic_shadowfiend : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1530,8 +1525,6 @@ struct npc_flame_of_azzinoth : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -1752,8 +1745,6 @@ struct npc_maiev : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -1847,8 +1838,6 @@ private:
 // 41077 - Akama Teleport
 class spell_illidan_akama_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_akama_teleport);
-
     void SetDest(SpellDestination& dest)
     {
         if (Creature* caster = GetCaster()->ToCreature())
@@ -1867,8 +1856,6 @@ class spell_illidan_akama_teleport : public SpellScript
 // 41268 - Quest - Black Temple - Akama - Door Open
 class spell_illidan_akama_door_channel : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_akama_door_channel);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_ARCANE_EXPLOSION });
@@ -1893,8 +1880,6 @@ class spell_illidan_akama_door_channel : public AuraScript
 // 40904 - Draw Soul
 class spell_illidan_draw_soul : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_draw_soul);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRAW_SOUL_HEAL });
@@ -1916,8 +1901,6 @@ class spell_illidan_draw_soul : public SpellScript
    41914 - Parasitic Shadowfiend */
 class spell_illidan_parasitic_shadowfiend : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_parasitic_shadowfiend);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_PARASITIC_SHADOWFIENDS });
@@ -1942,8 +1925,6 @@ class spell_illidan_parasitic_shadowfiend : public AuraScript
 // 41913 - Parasitic Shadowfiend Passive
 class spell_illidan_parasitic_shadowfiend_proc : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_parasitic_shadowfiend_proc);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PARASITIC_SHADOWFIEND, SPELL_PARASITIC_SHADOWFIEND_2 });
@@ -1964,8 +1945,6 @@ class spell_illidan_parasitic_shadowfiend_proc : public AuraScript
 // 41923 - Remove Parasitic Shadowfiends (SERVERSIDE)
 class spell_illidan_remove_parasitic_shadowfiend : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_remove_parasitic_shadowfiend);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PARASITIC_SHADOWFIEND, SPELL_PARASITIC_SHADOWFIEND_2 });
@@ -1987,8 +1966,6 @@ class spell_illidan_remove_parasitic_shadowfiend : public AuraScript
    39849 - Throw Glaive */
 class spell_illidan_throw_warglaive : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_throw_warglaive);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* target = GetHitUnit();
@@ -2004,8 +1981,6 @@ class spell_illidan_throw_warglaive : public SpellScript
 // 39857 - Tear of Azzinoth Summon Channel
 class spell_illidan_tear_of_azzinoth_channel : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_tear_of_azzinoth_channel);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_UNCAGED_WRATH });
@@ -2034,8 +2009,6 @@ class spell_illidan_tear_of_azzinoth_channel : public AuraScript
 // 40631 - Flame Blast
 class spell_illidan_flame_blast : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_flame_blast);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_BLAZE_SUMMON });
@@ -2057,8 +2030,6 @@ class spell_illidan_flame_blast : public SpellScript
 // 39873 - Glaive Returns
 class spell_illidan_return_glaives : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_return_glaives);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         GetHitUnit()->SendPlaySpellVisualKit(SPELL_GLAIVE_VISUAL_KIT, 0, 0);
@@ -2075,8 +2046,6 @@ class spell_illidan_return_glaives : public SpellScript
 // 40834 - Agonizing Flames
 class spell_illidan_agonizing_flames : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_agonizing_flames);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_AGONIZING_FLAMES });
@@ -2107,8 +2076,6 @@ class spell_illidan_agonizing_flames : public SpellScript
 // 40511 - Demon Transform 1
 class spell_illidan_demon_transform1 : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_demon_transform1);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DEMON_TRANSFORM_2 });
@@ -2130,8 +2097,6 @@ class spell_illidan_demon_transform1 : public AuraScript
 // 40398 - Demon Transform 2
 class spell_illidan_demon_transform2 : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_demon_transform2);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DEMON_FORM, SPELL_DEMON_TRANSFORM_3 });
@@ -2167,8 +2132,6 @@ class spell_illidan_demon_transform2 : public AuraScript
 // 41126 - Flame Burst
 class spell_illidan_flame_burst : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_flame_burst);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_FLAME_BURST_EFFECT });
@@ -2188,8 +2151,6 @@ class spell_illidan_flame_burst : public SpellScript
 // 41081 - Find Target
 class spell_illidan_find_target : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_find_target);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PARALYZE });
@@ -2227,8 +2188,6 @@ class spell_illidan_find_target : public SpellScript
 // 39908 - Eye Blast
 class spell_illidan_eye_blast : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_eye_blast);
-
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Creature* target = GetTarget()->ToCreature())
@@ -2244,8 +2203,6 @@ class spell_illidan_eye_blast : public AuraScript
 // 40761 - Cage Trap
 class spell_illidan_cage_trap : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_cage_trap);
-
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         Creature* target = GetHitCreature();
@@ -2272,8 +2229,6 @@ class spell_illidan_cage_trap : public SpellScript
 // 40760 - Cage Trap
 class spell_illidan_caged : public AuraScript
 {
-    PrepareAuraScript(spell_illidan_caged);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_CAGED_DEBUFF });
@@ -2296,8 +2251,6 @@ class spell_illidan_caged : public AuraScript
 // 40409 - Maiev Down
 class spell_maiev_down : public AuraScript
 {
-    PrepareAuraScript(spell_maiev_down);
-
     bool Load() override
     {
         return GetUnitOwner()->GetTypeId() == TYPEID_UNIT;
@@ -2305,12 +2258,12 @@ class spell_maiev_down : public AuraScript
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(true);
     }
 
     void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        GetTarget()->SetUninteractible(false);
         GetTarget()->GetAI()->DoAction(ACTION_MAIEV_DOWN_FADE);
     }
 
@@ -2324,8 +2277,6 @@ class spell_maiev_down : public AuraScript
 // 40693 - Cage Trap
 class spell_illidan_cage_teleport : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_cage_teleport);
-
     void SetDest(SpellDestination& dest)
     {
         Position offset = { 0.0f, 0.0f, GetCaster()->GetPositionZ(), 0.0f };
@@ -2341,8 +2292,6 @@ class spell_illidan_cage_teleport : public SpellScript
 // 41242 - Akama Despawn
 class spell_illidan_despawn_akama : public SpellScript
 {
-    PrepareSpellScript(spell_illidan_despawn_akama);
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Creature* target = GetHitCreature())

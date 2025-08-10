@@ -23,6 +23,13 @@
 #include "TaxiPackets.h"
 #include <sstream>
 
+PlayerTaxi::PlayerTaxi() = default;
+PlayerTaxi::PlayerTaxi(PlayerTaxi const& other) = default;
+PlayerTaxi::PlayerTaxi(PlayerTaxi&& other) noexcept = default;
+PlayerTaxi& PlayerTaxi::operator=(PlayerTaxi const& other) = default;
+PlayerTaxi& PlayerTaxi::operator=(PlayerTaxi&& other) noexcept = default;
+PlayerTaxi::~PlayerTaxi() = default;
+
 void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level)
 {
     // class specific initial known nodes
@@ -88,6 +95,8 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
     {
         case ALLIANCE: SetTaximaskNode(100); break;
         case HORDE:    SetTaximaskNode(99);  break;
+        default:
+            break;
     }
 
     // level dependent taxi hubs
@@ -192,6 +201,11 @@ std::string PlayerTaxi::SaveTaxiDestinationsToString()
         ss << m_TaxiDestinations[i] << ' ';
 
     return ss.str();
+}
+
+void PlayerTaxi::AddTaxiDestination(uint32 dest)
+{
+    m_TaxiDestinations.push_back(dest);
 }
 
 uint32 PlayerTaxi::GetCurrentTaxiPath() const

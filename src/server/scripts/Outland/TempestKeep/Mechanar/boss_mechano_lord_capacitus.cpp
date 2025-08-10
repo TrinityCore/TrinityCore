@@ -152,8 +152,6 @@ struct boss_mechano_lord_capacitus : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -161,8 +159,6 @@ struct boss_mechano_lord_capacitus : public BossAI
 // 39093 - Negative Charge
 class spell_capacitus_polarity_charge : public SpellScript
 {
-    PrepareSpellScript(spell_capacitus_polarity_charge);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo(
@@ -217,8 +213,6 @@ class spell_capacitus_polarity_charge : public SpellScript
 // 39096 - Polarity Shift
 class spell_capacitus_polarity_shift : public SpellScript
 {
-    PrepareSpellScript(spell_capacitus_polarity_shift);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_POSITIVE_POLARITY, SPELL_NEGATIVE_POLARITY });

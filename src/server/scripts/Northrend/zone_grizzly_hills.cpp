@@ -53,7 +53,8 @@ enum Floppy
     TEXT_EMOTE_WP1              = 9, // Mr. Floppy revives
     TEXT_EMOTE_AGGRO            = 10, // The Ravenous Worg chomps down on Mr. Floppy
     SAY_QUEST_ACCEPT            = 11, // Are you ready, Mr. Floppy? Stay close to me and watch out for those wolves!
-    SAY_QUEST_COMPLETE          = 12  // Thank you for helping me get back to the camp. Go tell Walter that I'm safe now!
+    SAY_QUEST_COMPLETE          = 12, // Thank you for helping me get back to the camp. Go tell Walter that I'm safe now!
+    PATH_ESCORT_EMILY           = 212706
 };
 
 // emily
@@ -186,7 +187,8 @@ struct npc_emily : public EscortAI
             if (Creature* Mrfloppy = GetClosestCreatureWithEntry(me, NPC_MRFLOPPY, 180.0f))
                 Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
-            Start(true, false, player->GetGUID());
+            LoadPath(PATH_ESCORT_EMILY);
+            Start(true, player->GetGUID());
         }
     }
 
@@ -340,7 +342,6 @@ struct npc_tallhorn_stag : public ScriptedAI
         }
         if (!UpdateVictim())
             return;
-        DoMeleeAttackIfReady();
     }
     private:
         uint8 _phase;
@@ -457,14 +458,6 @@ struct npc_wounded_skirmisher : public ScriptedAI
             }
         }
     }
-
-    void UpdateAI(uint32 /*diff*/) override
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
     private:
         Milliseconds _despawnTimer;
 };
@@ -548,7 +541,6 @@ struct npc_venture_co_straggler : public ScriptedAI
 
         if (!UpdateVictim())
             return;
-        DoMeleeAttackIfReady();
     }
 
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
@@ -710,8 +702,6 @@ enum ShredderDelivery
 
 class spell_shredder_delivery : public SpellScript
 {
-    PrepareSpellScript(spell_shredder_delivery);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -738,8 +728,6 @@ enum InfectedWorgenBite
 // 53094 - Infected Worgen Bite
 class spell_infected_worgen_bite : public AuraScript
 {
-    PrepareAuraScript(spell_infected_worgen_bite);
-
     void HandleAfterEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         Unit* target = GetTarget();
@@ -836,8 +824,6 @@ enum WarheadSpells
 // 49107 - Vehicle: Warhead Fuse
 class spell_vehicle_warhead_fuse : public SpellScript
 {
-    PrepareSpellScript(spell_vehicle_warhead_fuse);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_WARHEAD_Z_CHECK, SPELL_WARHEAD_SEEKING_LUMBERSHIP, SPELL_WARHEAD_FUSE });
@@ -867,8 +853,6 @@ enum WarheadDenonate
 // 49250 - Detonate
 class spell_warhead_detonate : public SpellScript
 {
-    PrepareSpellScript(spell_warhead_detonate);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PARACHUTE, SPELL_TORPEDO_EXPLOSION });
@@ -902,8 +886,6 @@ class spell_warhead_detonate : public SpellScript
 // 61678 - Z Check
 class spell_z_check : public AuraScript
 {
-    PrepareAuraScript(spell_z_check);
-
 public:
     spell_z_check()
     {
@@ -937,8 +919,6 @@ private:
 // 49181 - Warhead Fuse
 class spell_warhead_fuse : public AuraScript
 {
-    PrepareAuraScript(spell_warhead_fuse);
-
     void HandleOnEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         if (Unit* rocketUnit = GetTarget()->GetVehicleBase())

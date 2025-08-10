@@ -95,14 +95,14 @@ Position const CenterPoint = { 1293.8799f, 666.942f, 189.60754f, 0.0f };
 
 struct boss_sjonnir : public BossAI
 {
-    boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR),
+    boss_sjonnir(Creature* creature) : BossAI(creature, DATA_SJONNIR_THE_IRONSHAPER),
         _sludgesKilled(0), _summonsTroggs(false), _summonsOozes(false), _summonsDwarfs(false), _frenzied(false) { }
 
     void JustEngagedWith(Unit* who) override
     {
-        if (!instance->CheckRequiredBosses(DATA_SJONNIR, who->ToPlayer()))
+        if (!instance->CheckRequiredBosses(DATA_SJONNIR_THE_IRONSHAPER, who->ToPlayer()))
         {
-            EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
+            EnterEvadeMode(EvadeReason::SequenceBreak);
             return;
         }
 
@@ -247,8 +247,6 @@ struct boss_sjonnir : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -359,8 +357,9 @@ struct npc_iron_sludge : public ScriptedAI
         me->SetCorpseDelay(4, true);
         DoCastSelf(SPELL_IRON_SLUDGE_SPAWN_VISUAL);
 
-        if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SJONNIR)))
-            sjonnir->AI()->JustSummoned(me);
+        if (Creature* sjonnir = _instance->GetCreature(DATA_SJONNIR_THE_IRONSHAPER))
+            if (CreatureAI* ai = sjonnir->AI())
+                ai->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -374,8 +373,9 @@ struct npc_iron_sludge : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* sjonnir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_SJONNIR)))
-            sjonnir->AI()->DoAction(ACTION_SLUDGE_DEAD);
+        if (Creature* sjonnir = _instance->GetCreature(DATA_SJONNIR_THE_IRONSHAPER))
+            if (CreatureAI* ai = sjonnir->AI())
+                ai->DoAction(ACTION_SLUDGE_DEAD);
     }
 
     void UpdateAI(uint32 diff) override
@@ -383,10 +383,7 @@ struct npc_iron_sludge : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        _scheduler.Update(diff, [this]
-        {
-            DoMeleeAttackIfReady();
-        });
+        _scheduler.Update(diff);
     }
 
 private:
@@ -402,8 +399,6 @@ private:
    50824 - Summon Earthen Dwarf */
 class spell_sjonnir_periodic_summon : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_periodic_summon);
-
 public:
     spell_sjonnir_periodic_summon(uint32 leftPipeSpell, uint32 rightPipeSpell)
         : AuraScript(), _leftPipeSpell(leftPipeSpell), _rightPipeSpell(rightPipeSpell) { }
@@ -437,8 +432,6 @@ private:
 // 50777 - Iron Sludge Spawn Visual
 class spell_sjonnir_iron_sludge_spawn_visual : public AuraScript
 {
-    PrepareAuraScript(spell_sjonnir_iron_sludge_spawn_visual);
-
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
         // They're indeed passive but I'm not sure enough if it's handled by this aura or directly in script

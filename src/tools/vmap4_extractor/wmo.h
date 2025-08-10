@@ -124,7 +124,7 @@ private:
 public:
     // MOGP
 
-    char* MOPY;
+    std::unique_ptr<uint16[]> MPY2;
     std::unique_ptr<uint32[]> MOVX;
     float* MOVT;
     uint16* MOBA;
@@ -141,8 +141,11 @@ public:
     uint16 nBatchA;
     uint16 nBatchB;
     uint32 nBatchC, fogIdx, groupLiquid, groupWMOID;
+    uint32 mogpFlags2;
+    int16 parentOrFirstChildSplitGroupIndex;
+    int16 nextSplitChildGroupIndex;
 
-    int mopy_size, moba_size;
+    int moba_size;
     int LiquEx_size;
     unsigned int nVertices; // number when loaded
     int nTriangles; // number when loaded
@@ -151,6 +154,8 @@ public:
     std::vector<uint16> DoodadReferences;
 
     WMOGroup(std::string const& filename);
+    WMOGroup(WMOGroup&&) = default;
+    WMOGroup& operator=(WMOGroup&&) = default;
     ~WMOGroup();
 
     bool open(WMORoot* rootWMO);

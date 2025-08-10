@@ -116,7 +116,7 @@ bool WMORoot::open()
                 if (!DoodadData.FileDataIds[i])
                     continue;
 
-                std::string path = Trinity::StringFormat("FILE%08X.xxx", DoodadData.FileDataIds[i]);
+                std::string path = Trinity::StringFormat("FILE{:08X}.xxx", DoodadData.FileDataIds[i]);
                 if (ExtractSingleModel(path))
                     ValidDoodadNames.insert(i);
             }
@@ -200,14 +200,16 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE* pOutfile)
     fwrite(&nVectors,sizeof(nVectors), 1, pOutfile); // will be filled later
     fwrite(&nGroups, 4, 1, pOutfile);
     fwrite(&RootWMOID, 4, 1, pOutfile);
+    ModelFlags tcFlags = ModelFlags::None;
+    fwrite(&tcFlags, sizeof(ModelFlags), 1, pOutfile);
     return true;
 }
 
 WMOGroup::WMOGroup(const std::string &filename) :
-    filename(filename), MOPY(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
+    filename(filename), MPY2(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
     hlq(nullptr), LiquEx(nullptr), LiquBytes(nullptr), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
-    groupLiquid(0), groupWMOID(0), mopy_size(0), moba_size(0), LiquEx_size(0),
+    groupLiquid(0), groupWMOID(0), moba_size(0), LiquEx_size(0),
     nVertices(0), nTriangles(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
@@ -247,7 +249,10 @@ bool WMOGroup::open(WMORoot* rootWMO)
             f.read(&nBatchC, 4);
             f.read(&fogIdx, 4);
             f.read(&groupLiquid, 4);
-            f.read(&groupWMOID,4);
+            f.read(&groupWMOID, 4);
+            f.read(&mogpFlags2, 4);
+            f.read(&parentOrFirstChildSplitGroupIndex, 2);
+            f.read(&nextSplitChildGroupIndex, 2);
 
             // according to WoW.Dev Wiki:
             if (rootWMO->flags & 4)
@@ -257,15 +262,22 @@ bool WMOGroup::open(WMORoot* rootWMO)
             else
                 groupLiquid = GetLiquidTypeId(groupLiquid + 1);
 
-            if (groupLiquid)
+            if (groupLiquid && !IsLiquidIgnored(groupLiquid))
                 liquflags |= 2;
         }
         else if (!strcmp(fourcc,"MOPY"))
         {
-            MOPY = new char[size];
-            mopy_size = size;
+            MPY2 = std::make_unique<uint16[]>(size);
+            std::unique_ptr<uint8[]> MOPY = std::make_unique<uint8[]>(size);
             nTriangles = (int)size / 2;
-            f.read(MOPY, size);
+            f.read(MOPY.get(), size);
+            std::copy_n(MOPY.get(), size, MPY2.get());
+        }
+        else if (!strcmp(fourcc,"MPY2"))
+        {
+            MPY2 = std::make_unique<uint16[]>(size / 2);
+            nTriangles = (int)size / 4;
+            f.read(MPY2.get(), size);
         }
         else if (!strcmp(fourcc,"MOVI"))
         {
@@ -317,7 +329,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             // Determine legacy liquid type
             if (!groupLiquid)
             {
-                for (int i = 0; i < hlq->xtiles * hlq->ytiles; ++i)
+                for (int i = 0; i < nLiquBytes; ++i)
                 {
                     if ((LiquBytes[i] & 0xF) != 15)
                     {
@@ -326,6 +338,9 @@ bool WMOGroup::open(WMORoot* rootWMO)
                     }
                 }
             }
+
+            if (IsLiquidIgnored(groupLiquid))
+                liquflags = 0;
 
             /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
             llog << filename;
@@ -440,15 +455,15 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         delete [] MobaEx;
 
         //-------INDX------------------------------------
-        //-------MOPY--------
+        //-------MOPY/MPY2--------
         std::unique_ptr<uint32[]> MovxEx = std::make_unique<uint32[]>(nTriangles*3); // "worst case" size...
         std::unique_ptr<int32[]> IndexRenum = std::make_unique<int32[]>(nVertices);
         std::fill_n(IndexRenum.get(), nVertices, -1);
         for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            bool isRenderFace = (MOPY[2 * i] & WMO_MATERIAL_RENDER) && !(MOPY[2 * i] & WMO_MATERIAL_DETAIL);
-            bool isCollision = MOPY[2 * i] & WMO_MATERIAL_COLLISION || isRenderFace;
+            bool isRenderFace = (MPY2[2 * i] & WMO_MATERIAL_RENDER) && !(MPY2[2 * i] & WMO_MATERIAL_DETAIL);
+            bool isCollision = MPY2[2 * i] & WMO_MATERIAL_COLLISION || isRenderFace;
 
             if (!isCollision)
                 continue;
@@ -563,7 +578,6 @@ bool WMOGroup::ShouldSkip(WMORoot const* root) const
 
 WMOGroup::~WMOGroup()
 {
-    delete [] MOPY;
     delete [] MOVT;
     delete [] MOBA;
     delete hlq;
@@ -580,13 +594,12 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
 
     //-----------add_in _dir_file----------------
 
-    char tempname[512];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, WmoInstName);
-    FILE* input = fopen(tempname, "r+b");
+    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, WmoInstName);
+    FILE* input = fopen(tempname.c_str(), "r+b");
 
     if (!input)
     {
-        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname);
+        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname.c_str());
         return;
     }
 
@@ -612,14 +625,13 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
     float scale = 1.0f;
     if (mapObjDef.Flags & 0x4)
         scale = mapObjDef.Scale / 1024.0f;
-    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0);
+    uint32 uniqueId = GenerateUniqueObjectId(mapObjDef.UniqueId, 0, true);
     uint8 flags = MOD_HAS_BOUND;
     uint8 nameSet = mapObjDef.NameSet;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
 
-    //write mapID, Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
-    fwrite(&mapID, sizeof(uint32), 1, pDirfile);
+    //write Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&flags, sizeof(uint8), 1, pDirfile);
     fwrite(&nameSet, sizeof(uint8), 1, pDirfile);
     fwrite(&uniqueId, sizeof(uint32), 1, pDirfile);

@@ -54,26 +54,66 @@ enum TFWorldStates
     TF_UI_LOCKED_DISPLAY_ALLIANCE = 2767
 };
 
-enum TFTowerStates
+enum TFGameEvents
 {
-    TF_TOWERSTATE_N = 1,
-    TF_TOWERSTATE_H = 2,
-    TF_TOWERSTATE_A = 4
+    TF_EVENT_TOWER_NW_ALLIANCE_PROGRESS  = 12225,
+    TF_EVENT_TOWER_NW_HORDE_PROGRESS     = 12226,
+    TF_EVENT_TOWER_NW_NEUTRAL_ALLIANCE   = 12227,
+    TF_EVENT_TOWER_NW_NEUTRAL_HORDE      = 12228,
+
+    TF_EVENT_TOWER_NE_HORDE_PROGRESS     = 12486,
+    TF_EVENT_TOWER_NE_ALLIANCE_PROGRESS  = 12487,
+    TF_EVENT_TOWER_NE_NEUTRAL_HORDE      = 12488,
+    TF_EVENT_TOWER_NE_NEUTRAL_ALLIANCE   = 12489,
+
+    TF_EVENT_TOWER_N_NEUTRAL_HORDE       = 12490,
+    TF_EVENT_TOWER_N_NEUTRAL_ALLIANCE    = 12491,
+    TF_EVENT_TOWER_N_ALLIANCE_PROGRESS   = 12496,
+    TF_EVENT_TOWER_N_HORDE_PROGRESS      = 12497,
+
+    TF_EVENT_TOWER_SE_NEUTRAL_HORDE      = 12492,
+    TF_EVENT_TOWER_SE_NEUTRAL_ALLIANCE   = 12493,
+    TF_EVENT_TOWER_SE_ALLIANCE_PROGRESS  = 12498,
+    TF_EVENT_TOWER_SE_HORDE_PROGRESS     = 12499,
+
+    TF_EVENT_TOWER_S_NEUTRAL_HORDE       = 12494,
+    TF_EVENT_TOWER_S_NEUTRAL_ALLIANCE    = 12495,
+    TF_EVENT_TOWER_S_ALLIANCE_PROGRESS   = 12500,
+    TF_EVENT_TOWER_S_HORDE_PROGRESS      = 12501
 };
 
-class OPvPCapturePointTF : public OPvPCapturePoint
+enum TFGameObjects
 {
-    public:
-        OPvPCapturePointTF(OutdoorPvP* pvp, OutdoorPvPTF_TowerType type, GameObject* go);
+    TF_ENTRY_TOWER_NW   = 183104,
+    TF_ENTRY_TOWER_N    = 183411,
+    TF_ENTRY_TOWER_NE   = 183412,
+    TF_ENTRY_TOWER_SE   = 183413,
+    TF_ENTRY_TOWER_S    = 183414
+};
 
-        bool Update(uint32 diff) override;
-        void ChangeState() override;
+class OutdoorPvPTF;
 
-        void UpdateTowerState();
+class TFControlZoneHandler : public OutdoorPvPControlZoneHandler
+{
+public:
+    explicit TFControlZoneHandler(OutdoorPvPTF* pvp, uint32 worldstateHorde, uint32 worldstateAlliance, uint32 worldstateNeutral);
 
-    protected:
-        OutdoorPvPTF_TowerType m_TowerType;
-        uint32 m_TowerState;
+    void HandleProgressEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleProgressEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventHorde([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEventAlliance([[maybe_unused]] GameObject* controlZone) override;
+    void HandleNeutralEvent([[maybe_unused]] GameObject* controlZone) override;
+
+    uint32 GetWorldStateHorde() { return _worldstateHorde; }
+    uint32 GetWorldStateAlliance() { return _worldstateAlliance; }
+    uint32 GetWorldStateNeutral() { return _worldstateNeutral; }
+
+    OutdoorPvPTF* GetOutdoorPvPTF() const;
+
+private:
+    uint32 _worldstateHorde;
+    uint32 _worldstateAlliance;
+    uint32 _worldstateNeutral;
 };
 
 class OutdoorPvPTF : public OutdoorPvP
@@ -85,7 +125,7 @@ class OutdoorPvPTF : public OutdoorPvP
         void OnGameObjectCreate(GameObject* go) override;
         void HandlePlayerEnterZone(Player* player, uint32 zone) override;
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
-        bool Update(uint32 diff) override;
+        void Update(uint32 diff) override;
         void SendRemoveWorldStates(Player* player) override;
 
         uint32 GetAllianceTowersControlled() const;
@@ -94,6 +134,8 @@ class OutdoorPvPTF : public OutdoorPvP
         void SetHordeTowersControlled(uint32 count);
         bool IsLocked() const;
 
+        void ProcessEvent(WorldObject* obj, uint32 eventId, WorldObject* invoker) override;
+        void HandleCapture(TeamId team);
     private:
         bool m_IsLocked;
         uint32 m_LockTimer;
@@ -101,6 +143,8 @@ class OutdoorPvPTF : public OutdoorPvP
         uint32 m_AllianceTowersControlled;
         uint32 m_HordeTowersControlled;
         uint32 hours_left, second_digit, first_digit;
+        GuidUnorderedSet _controlZoneGUIDs;
+        std::unordered_map<uint32 /*control zone entry*/, std::unique_ptr<TFControlZoneHandler>> _controlZoneHandlers;
 };
 
 #endif

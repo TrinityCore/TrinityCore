@@ -222,6 +222,7 @@ struct boss_sapphiron : public BossAI
 
     void EnterPhaseGround(bool initial)
     {
+        me->SetCanMelee(true);
         me->SetReactState(REACT_AGGRESSIVE);
         events.ScheduleEvent(EVENT_CLEAVE, randtime(Seconds(5), Seconds(15)), 0, PHASE_GROUND);
         events.ScheduleEvent(EVENT_TAIL, randtime(Seconds(7), Seconds(10)), 0, PHASE_GROUND);
@@ -313,6 +314,7 @@ struct boss_sapphiron : public BossAI
                             events.SetPhase(PHASE_FLIGHT);
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
+                            me->SetCanMelee(false);
                             float x, y, z, o;
                             me->GetHomePosition(x, y, z, o);
                             me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -321,8 +323,6 @@ struct boss_sapphiron : public BossAI
                         break;
                 }
             }
-
-            DoMeleeAttackIfReady();
         }
         else
         {
@@ -489,8 +489,6 @@ struct go_sapphiron_birth : public GameObjectAI
 // 24780 - Dream Fog
 class spell_sapphiron_change_blizzard_target : public AuraScript
 {
-    PrepareAuraScript(spell_sapphiron_change_blizzard_target);
-
     void HandlePeriodic(AuraEffect const* /*eff*/)
     {
         TempSummon* me = GetTarget()->ToTempSummon();
@@ -519,8 +517,6 @@ class spell_sapphiron_change_blizzard_target : public AuraScript
 // 28522 - Icebolt
 class spell_sapphiron_icebolt : public AuraScript
 {
-    PrepareAuraScript(spell_sapphiron_icebolt);
-
     void HandleApply(AuraEffect const* /*eff*/, AuraEffectHandleModes /*mode*/)
     {
         GetTarget()->ApplySpellImmune(SPELL_ICEBOLT, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_FROST, true);
@@ -559,8 +555,6 @@ class spell_sapphiron_icebolt : public AuraScript
 // 28560 - Summon Blizzard
 class spell_sapphiron_summon_blizzard : public SpellScript
 {
-    PrepareSpellScript(spell_sapphiron_summon_blizzard);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_BLIZZARD });
@@ -595,8 +589,6 @@ class spell_sapphiron_summon_blizzard : public SpellScript
 // 29330 - Sapphiron's Wing Buffet Despawn
 class spell_sapphiron_wing_buffet_despawn_periodic : public AuraScript
 {
-    PrepareAuraScript(spell_sapphiron_wing_buffet_despawn_periodic);
-
     void PeriodicTick(AuraEffect const* /*aurEff*/)
     {
         Unit* target = GetTarget();
@@ -613,8 +605,6 @@ class spell_sapphiron_wing_buffet_despawn_periodic : public AuraScript
 // 29336 - Despawn Buffet
 class spell_sapphiron_despawn_buffet : public SpellScript
 {
-    PrepareSpellScript(spell_sapphiron_despawn_buffet);
-
     void HandleScriptEffect(SpellEffIndex /* effIndex */)
     {
         if (Creature* target = GetHitCreature())

@@ -60,11 +60,11 @@ enum Adds
 
 enum Misc
 {
-    NEFARIUS_PATH_1                 = 1379670,
-    NEFARIUS_PATH_2                 = 1379671,
-    NEFARIUS_PATH_3                 = 1379672,
-    REND_PATH_1                     = 1379680,
-    REND_PATH_2                     = 1379681,
+    NEFARIUS_PATH_1                 = 11037360,
+    NEFARIUS_PATH_2                 = 11037368,
+    NEFARIUS_PATH_3                 = 11037376,
+    REND_PATH_1                     = 11037440,
+    REND_PATH_2                     = 11037448,
 };
 
 /*
@@ -117,11 +117,11 @@ static Wave Wave6[]= // 27 sec
     { 10442, 210.8935f, -423.913f,  111.0125f, 5.969026f  },
     { 10442, 212.2642f, -430.7648f, 110.9807f, 5.934119f  }
 };
-*/
 
-Position const GythLoc =      { 211.762f,  -397.5885f, 111.1817f,  4.747295f   };
-Position const Teleport1Loc = { 194.2993f, -474.0814f, 121.4505f, -0.01225555f };
-Position const Teleport2Loc = { 216.485f,  -434.93f,   110.888f,  -0.01225555f };
+static constexpr Position GythLoc =      { 211.762f,  -397.5885f, 111.1817f, 4.747295f  };
+static constexpr Position Teleport1Loc = { 194.2993f, -474.0814f, 121.4505f, 6.27093f };
+static constexpr Position Teleport2Loc = { 216.485f,  -434.93f,   110.888f,  6.27093f };
+*/
 
 enum Events
 {
@@ -438,7 +438,6 @@ struct boss_rend_blackhand : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 
     private:

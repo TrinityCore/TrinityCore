@@ -22,14 +22,18 @@
 #include "LogCommon.h"
 #include <stdexcept>
 #include <string>
-#include <vector>
+#include <string_view>
 
 struct LogMessage;
 
 class TC_COMMON_API Appender
 {
     public:
-        Appender(uint8 _id, std::string const& name, LogLevel level = LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
+        Appender(uint8 _id, std::string name, LogLevel level = LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
+        Appender(Appender const&) = delete;
+        Appender(Appender&&) = delete;
+        Appender& operator=(Appender const&) = delete;
+        Appender& operator=(Appender&&) = delete;
         virtual ~Appender();
 
         uint8 getId() const;
@@ -40,7 +44,7 @@ class TC_COMMON_API Appender
 
         void setLogLevel(LogLevel);
         void write(LogMessage* message);
-        static char const* getLogLevelString(LogLevel level);
+        static std::string_view getLogLevelString(LogLevel level);
         virtual void setRealmId(uint32 /*realmId*/) { }
 
     private:

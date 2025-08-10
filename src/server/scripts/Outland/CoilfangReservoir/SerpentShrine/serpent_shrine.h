@@ -30,33 +30,37 @@ enum SSWaterEventState
     WATERSTATE_SCALDING = 2
 };
 
+enum SSBosses
+{
+    BOSS_HYDROSS_THE_UNSTABLE   = 0,
+    BOSS_THE_LURKER_BELOW       = 1,
+    BOSS_LEOTHERAS_THE_BLIND    = 2,
+    BOSS_FATHOM_LORD_KARATHRESS = 3,
+    BOSS_MOROGRIM_TIDEWALKER    = 4,
+    BOSS_LADY_VASHJ             = 5
+};
+
 enum SSDataTypes
 {
     DATA_CANSTARTPHASE3             = 1,
     DATA_CARIBDIS                   = 2,
-    DATA_HYDROSSTHEUNSTABLEEVENT    = 3,
-    DATA_KARATHRESS                 = 4,
-    DATA_KARATHRESSEVENT            = 5,
-    DATA_KARATHRESSEVENT_STARTER    = 6,
-    DATA_LADYVASHJ                  = 7,
-    DATA_LADYVASHJEVENT             = 8,
-    DATA_LEOTHERASTHEBLINDEVENT     = 9,
-    DATA_MOROGRIMTIDEWALKEREVENT    = 10,
-    DATA_SHARKKIS                   = 11,
-    DATA_SHIELDGENERATOR1           = 12,
-    DATA_SHIELDGENERATOR2           = 13,
-    DATA_SHIELDGENERATOR3           = 14,
-    DATA_SHIELDGENERATOR4           = 15,
-    DATA_THELURKERBELOW             = 16,
-    DATA_THELURKERBELOWEVENT        = 17,
-    DATA_TIDALVESS                  = 18,
-    DATA_FATHOMLORDKARATHRESSEVENT  = 19,
-    DATA_LEOTHERAS                  = 20,
-    DATA_LEOTHERAS_EVENT_STARTER    = 21,
-    DATA_CONTROL_CONSOLE            = 22,
-    DATA_STRANGE_POOL               = 23,
-    DATA_WATER                      = 24,
-    DATA_TRASH                      = 25,
+    DATA_KARATHRESS                 = 3,
+    DATA_KARATHRESSEVENT_STARTER    = 4,
+    DATA_LADYVASHJ                  = 5,
+    DATA_SHARKKIS                   = 6,
+    DATA_SHIELDGENERATOR1           = 7,
+    DATA_SHIELDGENERATOR2           = 8,
+    DATA_SHIELDGENERATOR3           = 9,
+    DATA_SHIELDGENERATOR4           = 10,
+    DATA_THELURKERBELOW             = 11,
+    DATA_TIDALVESS                  = 12,
+    DATA_FATHOMLORDKARATHRESSEVENT  = 13,
+    DATA_LEOTHERAS                  = 14,
+    DATA_LEOTHERAS_EVENT_STARTER    = 15,
+    DATA_CONTROL_CONSOLE            = 16,
+    DATA_STRANGE_POOL               = 17,
+    DATA_WATER                      = 18,
+    DATA_TRASH                      = 19,
 };
 
 template <class AI, class T>
@@ -64,5 +68,8 @@ inline AI* GetSerpentshrineCavernAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, SSCScriptName);
 }
+
+#define RegisterSerpentshrineCavernCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetSerpentshrineCavernAI)
+#define RegisterSerpentshrineCavernGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetSerpentshrineCavernAI)
 
 #endif

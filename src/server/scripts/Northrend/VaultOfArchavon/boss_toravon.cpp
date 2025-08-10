@@ -96,8 +96,6 @@ struct boss_toravon : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -137,8 +135,6 @@ struct npc_frozen_orb : public ScriptedAI
 // 46523 - Random Aggro
 class spell_toravon_random_aggro : public SpellScript
 {
-    PrepareSpellScript(spell_toravon_random_aggro);
-
     bool Load() override
     {
         return GetCaster()->GetTypeId() == TYPEID_UNIT;

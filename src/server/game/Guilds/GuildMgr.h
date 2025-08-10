@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "UniqueTrackablePtr.h"
 #include <unordered_map>
 #include <vector>
 
@@ -31,10 +32,13 @@ class TC_GAME_API GuildMgr
 private:
     GuildMgr();
     ~GuildMgr();
-    GuildMgr(GuildMgr const&) = delete;
-    GuildMgr& operator=(GuildMgr const&) = delete;
 
 public:
+    GuildMgr(GuildMgr const&) = delete;
+    GuildMgr(GuildMgr&&) = delete;
+    GuildMgr& operator=(GuildMgr const&) = delete;
+    GuildMgr& operator=(GuildMgr&&) = delete;
+
     static GuildMgr* instance();
 
     Guild* GetGuildByLeader(ObjectGuid guid) const;
@@ -60,7 +64,7 @@ public:
 
     void ResetTimes(bool week);
 protected:
-    typedef std::unordered_map<ObjectGuid::LowType, Guild*> GuildContainer;
+    typedef std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> GuildContainer;
     ObjectGuid::LowType NextGuildId;
     GuildContainer GuildStore;
     std::vector<GuildReward> GuildRewards;

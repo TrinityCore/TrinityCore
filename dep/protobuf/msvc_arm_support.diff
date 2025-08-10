@@ -1,0 +1,88 @@
+diff --git a/dep/protobuf/src/google/protobuf/stubs/atomicops.h b/dep/protobuf/src/google/protobuf/stubs/atomicops.h
+index 5bd3a1c23e..8b49f19fbb 100644
+--- a/dep/protobuf/src/google/protobuf/stubs/atomicops.h
++++ b/dep/protobuf/src/google/protobuf/stubs/atomicops.h
+@@ -124,7 +124,7 @@ Atomic32 Release_CompareAndSwap(volatile Atomic32* ptr,
+ #if defined(__MINGW32__) && defined(MemoryBarrier)
+ #undef MemoryBarrier
+ #endif
+-void MemoryBarrier();
++void (MemoryBarrier)();
+ void NoBarrier_Store(volatile Atomic32* ptr, Atomic32 value);
+ void Acquire_Store(volatile Atomic32* ptr, Atomic32 value);
+ void Release_Store(volatile Atomic32* ptr, Atomic32 value);
+@@ -172,7 +172,7 @@ Atomic64 Release_Load(volatile const Atomic64* ptr);
+ #if defined(GOOGLE_PROTOBUF_ARCH_IA32) || defined(GOOGLE_PROTOBUF_ARCH_X64)
+ #include <google/protobuf/stubs/atomicops_internals_x86_msvc.h>
+ #else
+-GOOGLE_PROTOBUF_ATOMICOPS_ERROR
++#include <google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h>
+ #endif
+ 
+ // Solaris
+diff --git a/dep/protobuf/src/google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h b/dep/protobuf/src/google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h
+index 7bc584eb21..9276436088 100644
+--- a/dep/protobuf/src/google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h
++++ b/dep/protobuf/src/google/protobuf/stubs/atomicops_internals_generic_c11_atomic.h
+@@ -52,7 +52,7 @@ typedef volatile std::atomic<Atomic32>* AtomicLocation32;
+ static_assert(sizeof(*(AtomicLocation32) nullptr) == sizeof(Atomic32),
+               "incompatible 32-bit atomic layout");
+ 
+-inline void MemoryBarrier() {
++inline void (MemoryBarrier)() {
+ #if defined(__GLIBCXX__)
+   // Work around libstdc++ bug 51038 where atomic_thread_fence was declared but
+   // not defined, leading to the linker complaining about undefined references.
+@@ -119,7 +119,7 @@ inline void NoBarrier_Store(volatile Atomic32* ptr, Atomic32 value) {
+ 
+ inline void Acquire_Store(volatile Atomic32* ptr, Atomic32 value) {
+   ((AtomicLocation32)ptr)->store(value, std::memory_order_relaxed);
+-  MemoryBarrier();
++  (MemoryBarrier)();
+ }
+ 
+ inline void Release_Store(volatile Atomic32* ptr, Atomic32 value) {
+@@ -135,7 +135,7 @@ inline Atomic32 Acquire_Load(volatile const Atomic32* ptr) {
+ }
+ 
+ inline Atomic32 Release_Load(volatile const Atomic32* ptr) {
+-  MemoryBarrier();
++  (MemoryBarrier)();
+   return ((AtomicLocation32)ptr)->load(std::memory_order_relaxed);
+ }
+ 
+@@ -202,7 +202,7 @@ inline void NoBarrier_Store(volatile Atomic64* ptr, Atomic64 value) {
+ 
+ inline void Acquire_Store(volatile Atomic64* ptr, Atomic64 value) {
+   ((AtomicLocation64)ptr)->store(value, std::memory_order_relaxed);
+-  MemoryBarrier();
++  (MemoryBarrier)();
+ }
+ 
+ inline void Release_Store(volatile Atomic64* ptr, Atomic64 value) {
+@@ -218,7 +218,7 @@ inline Atomic64 Acquire_Load(volatile const Atomic64* ptr) {
+ }
+ 
+ inline Atomic64 Release_Load(volatile const Atomic64* ptr) {
+-  MemoryBarrier();
++  (MemoryBarrier)();
+   return ((AtomicLocation64)ptr)->load(std::memory_order_relaxed);
+ }
+ 
+diff --git a/dep/protobuf/src/google/protobuf/stubs/platform_macros.h b/dep/protobuf/src/google/protobuf/stubs/platform_macros.h
+index 7956d076dc..86b87ad3d9 100644
+--- a/dep/protobuf/src/google/protobuf/stubs/platform_macros.h
++++ b/dep/protobuf/src/google/protobuf/stubs/platform_macros.h
+@@ -49,10 +49,10 @@
+ #elif defined(__QNX__)
+ #define GOOGLE_PROTOBUF_ARCH_ARM_QNX 1
+ #define GOOGLE_PROTOBUF_ARCH_32_BIT 1
+-#elif defined(__ARMEL__)
++#elif defined(_M_ARM) || defined(__ARMEL__)
+ #define GOOGLE_PROTOBUF_ARCH_ARM 1
+ #define GOOGLE_PROTOBUF_ARCH_32_BIT 1
+-#elif defined(__aarch64__)
++#elif defined(_M_ARM64) || defined(_M_HYBRID_X86_ARM64) || defined (_M_ARM64EC) || defined(__aarch64__)
+ #define GOOGLE_PROTOBUF_ARCH_AARCH64 1
+ #define GOOGLE_PROTOBUF_ARCH_64_BIT 1
+ #elif defined(__MIPSEL__)

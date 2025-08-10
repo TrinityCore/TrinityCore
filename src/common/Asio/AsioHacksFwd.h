@@ -38,6 +38,11 @@ namespace boost
         namespace ip
         {
             class address;
+            class address_v4;
+            class address_v6;
+
+            class network_v4;
+            class network_v6;
 
             class tcp;
 
@@ -55,8 +60,12 @@ namespace Trinity
     {
         class DeadlineTimer;
         class IoContext;
-        class Resolver;
         class Strand;
+    }
+
+    namespace Net
+    {
+        class Resolver;
     }
 }
 

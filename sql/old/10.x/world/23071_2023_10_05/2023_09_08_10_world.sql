@@ -1,0 +1,26 @@
+SET @TEL_ID := 2048;
+
+DELETE FROM `game_tele` WHERE `id` BETWEEN @TEL_ID+0 AND @TEL_ID+22;
+INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
+(@TEL_ID+0,-3704.08,-5082.55,6572.67,5.38704,2222,'TheMnemonicLocus'),
+(@TEL_ID+1,-1901.29,-3467.87,6623.85,4.67155,2222,'CourtOfElation'),
+(@TEL_ID+2,-1878,-2949.42,6594.47,1.57708,2222,'CitadelOfLoyalty'),
+(@TEL_ID+3,-1837.64,-3781.38,6578.92,5.2606,2222,'TerraceOfTheCollectors'),
+(@TEL_ID+4,-2334.16,-4336.77,6598.13,0.267826,2222,'Sagehaven'),
+(@TEL_ID+5,-1770.3,-4817.36,6592.61,5.90384,2222,'TheEternalForge'),
+(@TEL_ID+6,-1759.52,-5693.2,6826.23,5.50014,2222,'ElysianHold'),
+(@TEL_ID+7,-1575.37,-5877.23,6866.15,5.50014,2222,'ArchonsRise'),
+(@TEL_ID+8,-2805.16,-5627.93,6536.62,4.73987,2222,'TempleOfHumility'),
+(@TEL_ID+9,-2609.04,-5235.75,6636.4,5.56847,2222,'NemeasRetreat'),
+(@TEL_ID+10,-2716.89,-4868.55,6521.37,0.581182,2222,'FirstbornesBounty'),
+(@TEL_ID+11,-2681.87,-5098.99,6609.36,1.92185,2222,'ForgefireOutpost'),
+(@TEL_ID+12,-2430.71,-4700.21,6538.29,0.453144,2222,'IthysBasin'),
+(@TEL_ID+13,-2942.6,-4813.22,6689.19,4.68253,2222,'HerosRest'),
+(@TEL_ID+14,-3317.95,-4020.64,6565.1,4.71788,2222,'TempleOfCourage'),
+(@TEL_ID+15,-3316.33,-4242.34,6603.2,1.5763,2222,'XandriasVigil'),
+(@TEL_ID+16,-3685.78,-4547.53,6649.11,4.49877,2222,'AgthiasRepose'),
+(@TEL_ID+17,-4254.66,-3897.51,6563.64,4.46107,2222,'VestibuleOfEternity'),
+(@TEL_ID+18,-4101.47,-4644.04,6536,3.79034,2222,'AspirantsRest'),
+(@TEL_ID+19,-4135.49,-5104.73,6547.44,4.7281,2222,'TheTempleOfPurity'),
+(@TEL_ID+20,-4080.96,-5652.63,6527.25,5.23469,2222,'PuritysPinnacle'),
+(@TEL_ID+21,-4601.75,-4993.12,6530.88,3.11411,2222,'AspirantsCrucible');

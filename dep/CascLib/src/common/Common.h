@@ -59,18 +59,19 @@ typedef struct _CASC_EKEY_ENTRY
 // in the storage. Note that the file may be present under several file names.
 
 // Flags for CASC_CKEY_ENTRY::Flags
-#define CASC_CE_FILE_IS_LOCAL      0x00000001       // The file is available locally. Keep this flag to have value of 1
-#define CASC_CE_HAS_CKEY           0x00000002       // The CKey is present in the entry
-#define CASC_CE_HAS_EKEY           0x00000004       // The EKey is present, at least partial one
-#define CASC_CE_HAS_EKEY_PARTIAL   0x00000008       // The EKey is only partial, padded by zeros. Always used with CASC_CE_HAS_EKEY
-#define CASC_CE_IN_ENCODING        0x00000010       // Present in the ENCODING manifest
-#define CASC_CE_IN_DOWNLOAD        0x00000020       // Present in the DOWNLOAD manifest
-#define CASC_CE_IN_BUILD           0x00000040       // Present in the BUILD (text) manifest
-#define CASC_CE_IN_ARCHIVE         0x00000080       // File is stored in an archive (for online storages)
-#define CASC_CE_FOLDER_ENTRY       0x00000100       // This CKey entry is a folder
-#define CASC_CE_FILE_SPAN          0x00000200       // This CKey entry is a follow-up file span
-#define CASC_CE_FILE_PATCH         0x00000400       // The file is in PATCH subfolder in remote storage
-#define CASC_CE_PLAIN_DATA         0x00000800       // The file data is not BLTE encoded, but in plain format
+#define CASC_CE_FILE_IS_LOCAL      0x0001           // The file is available locally. Keep this flag to have value of 1
+#define CASC_CE_HAS_CKEY           0x0002           // The CKey is present in the entry
+#define CASC_CE_HAS_EKEY           0x0004           // The EKey is present, at least partial one
+#define CASC_CE_HAS_EKEY_PARTIAL   0x0008           // The EKey is only partial, padded by zeros. Always used with CASC_CE_HAS_EKEY
+#define CASC_CE_IN_ENCODING        0x0010           // Present in the ENCODING manifest
+#define CASC_CE_IN_DOWNLOAD        0x0020           // Present in the DOWNLOAD manifest
+#define CASC_CE_IN_BUILD           0x0040           // Present in the BUILD (text) manifest
+#define CASC_CE_IN_ARCHIVE         0x0080           // File is stored in an archive (for online storages)
+#define CASC_CE_FOLDER_ENTRY       0x0100           // This CKey entry is a folder
+#define CASC_CE_FILE_SPAN          0x0200           // This CKey entry is a follow-up file span
+#define CASC_CE_FILE_PATCH         0x0400           // The file is in PATCH subfolder in remote storage
+#define CASC_CE_PLAIN_DATA         0x0800           // The file data is not BLTE encoded, but in plain format
+#define CASC_CE_OPEN_CKEY_ONCE     0x1000           // Used by CascLib test program - only opens a file with given CKey once, regardless on how many file names does it have
 
 // In-memory representation of a single entry. 
 struct CASC_CKEY_ENTRY
@@ -112,10 +113,10 @@ struct CASC_CKEY_ENTRY
     ULONGLONG TagBitMask;                           // Bitmap for the tags. 0 ig tags are not supported
     DWORD ContentSize;                              // Content size of the file
     DWORD EncodedSize;                              // Encoded size of the file
-    DWORD Flags;                                    // See CASC_CE_XXX
-    USHORT RefCount;                                // This is the number of file names referencing this entry
+    DWORD RefCount;                                 // This is the number of file names referencing this entry
+    USHORT Flags;                                   // See CASC_CE_XXX
     BYTE SpanCount;                                 // Number of spans for the file
-    BYTE Priority;                                  // Download priority
+    BYTE Priority;                                  // Number of spans for the file
 };
 typedef CASC_CKEY_ENTRY *PCASC_CKEY_ENTRY;
 
@@ -124,7 +125,7 @@ typedef CASC_CKEY_ENTRY *PCASC_CKEY_ENTRY;
 
 extern unsigned char AsciiToLowerTable_Slash[256];
 extern unsigned char AsciiToUpperTable_BkSlash[256];
-extern unsigned char AsciiToHexTable[0x80];
+extern unsigned char AsciiToHexTable[128];
 extern unsigned char IntToHexChar[];
 
 //-----------------------------------------------------------------------------
@@ -140,7 +141,13 @@ extern unsigned char IntToHexChar[];
 //  - Memory freeing function must check for NULL pointer and do nothing if so
 //
 
-#define CASC_REALLOC(type, ptr, count) (type *)realloc(ptr, (count) * sizeof(type))
+template <typename T>
+T * CASC_REALLOC(T * old_ptr, size_t count)
+{
+    // Note: If realloc fails, then the old buffer remains unfreed!
+    // The caller needs to handle this
+    return (T *)realloc(old_ptr, count * sizeof(T));
+}
 
 template <typename T>
 T * CASC_ALLOC(size_t nCount)
@@ -177,7 +184,7 @@ inline DWORD Rol32(DWORD dwValue, DWORD dwRolCount)
 //-----------------------------------------------------------------------------
 // Big endian number manipulation
 
-inline DWORD ConvertBytesToInteger_2(LPBYTE ValueAsBytes)
+inline USHORT ConvertBytesToInteger_2(LPBYTE ValueAsBytes)
 {
     USHORT Value = 0;
 
@@ -301,9 +308,43 @@ LPBYTE CaptureInteger32_BE(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PDWORD PtrValue);
 LPBYTE CaptureByteArray(LPBYTE pbDataPtr, LPBYTE pbDataEnd, size_t nLength, LPBYTE pbOutput);
 LPBYTE CaptureContentKey(LPBYTE pbDataPtr, LPBYTE pbDataEnd, PCONTENT_KEY * PtrCKey);
 LPBYTE CaptureEncodedKey(LPBYTE pbEKey, LPBYTE pbData, BYTE EKeyLength);
-LPBYTE CaptureArray_(LPBYTE pbDataPtr, LPBYTE pbDataEnd, LPBYTE * PtrArray, size_t ItemSize, size_t ItemCount);
 
-#define CaptureArray(pbDataPtr, pbDataEnd, PtrArray, type, count) CaptureArray_(pbDataPtr, pbDataEnd, PtrArray, sizeof(type), count) 
+template <typename STRUCTURE>
+LPBYTE CaptureStructure(LPBYTE pbDataPtr, LPBYTE pbDataEnd, STRUCTURE ** lpStructure)
+{
+    if((pbDataPtr + sizeof(STRUCTURE)) <= pbDataEnd)
+    {
+        lpStructure[0] = (STRUCTURE *)(pbDataPtr);
+        return pbDataPtr + sizeof(STRUCTURE);
+    }
+    return NULL;
+}
+
+template <typename STRUCTURE>
+LPBYTE CaptureArray(LPBYTE pbDataPtr, LPBYTE pbDataEnd, STRUCTURE ** PtrArray, size_t nCount)
+{
+    size_t nTotalSize = nCount * sizeof(STRUCTURE);
+
+    if((pbDataPtr + nTotalSize) <= pbDataEnd)
+    {
+        PtrArray[0] = (STRUCTURE *)(pbDataPtr);
+        return pbDataPtr + nTotalSize;
+    }
+    return NULL;
+}
+
+template <typename STRUCTURE>
+LPBYTE CaptureArrayAsByte(LPBYTE pbDataPtr, LPBYTE pbDataEnd, LPBYTE * PtrArray, size_t nCount)
+{
+    size_t nTotalSize = nCount * sizeof(STRUCTURE);
+
+    if((pbDataPtr + nTotalSize) <= pbDataEnd)
+    {
+        PtrArray[0] = (LPBYTE)(pbDataPtr);
+        return pbDataPtr + nTotalSize;
+    }
+    return NULL;
+}
 
 //-----------------------------------------------------------------------------
 // String copying and conversion
@@ -316,7 +357,9 @@ void CascStrCopy(wchar_t * szTarget, size_t cchTarget, const wchar_t * szSource,
 //-----------------------------------------------------------------------------
 // Safe version of s(w)printf
 
+size_t CascStrPrintfV(char * buffer, size_t nCount, const char * format, va_list argList);
 size_t CascStrPrintf(char * buffer, size_t nCount, const char * format, ...);
+size_t CascStrPrintfV(wchar_t * buffer, size_t nCount, const wchar_t * format, va_list argList);
 size_t CascStrPrintf(wchar_t * buffer, size_t nCount, const wchar_t * format, ...);
 
 //-----------------------------------------------------------------------------
@@ -328,11 +371,6 @@ wchar_t * CascNewStr(const wchar_t * szString, size_t nCharsToReserve = 0);
 LPSTR  CascNewStrT2A(LPCTSTR szString, size_t nCharsToReserve = 0);
 LPTSTR CascNewStrA2T(LPCSTR szString, size_t nCharsToReserve = 0);
 
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, va_list argList);
-size_t CombinePath(LPTSTR szBuffer, size_t nMaxChars, ...);
-LPTSTR GetLastPathPart(LPTSTR szWorkPath);
-bool CutLastPathPart(LPTSTR szWorkPath);
-
 size_t NormalizeFileName_UpperBkSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 size_t NormalizeFileName_LowerSlash(char * szNormName, const char * szFileName, size_t cchMaxChars);
 
@@ -341,6 +379,12 @@ ULONGLONG CalcFileNameHash(const char * szFileName);
 
 //-----------------------------------------------------------------------------
 // String conversion functions
+
+template <typename xchar>
+bool IsHexadecimalDigit(xchar ch)
+{
+    return ((ch < sizeof(AsciiToHexTable)) && (AsciiToHexTable[ch] != 0xFF));
+}
 
 template <typename xchar, typename INTXX>
 DWORD ConvertStringToInt(const xchar * szString, size_t nMaxDigits, INTXX & RefValue, const xchar ** PtrStringEnd = NULL)
@@ -439,34 +483,75 @@ xchar * StringFromBinary(LPBYTE pbBinary, size_t cbBinary, xchar * szBuffer)
 //-----------------------------------------------------------------------------
 // Structures for data blobs
 
-struct QUERY_KEY
+struct CASC_BLOB
 {
-    QUERY_KEY()
+    CASC_BLOB()
+    {
+        Reset();
+    }
+
+    ~CASC_BLOB()
+    {
+        Free();
+    }
+
+    void MoveFrom(CASC_BLOB & Source)
+    {
+        // Free current data, if any
+        Free();
+
+        // Take the source data
+        pbData = Source.pbData;
+        cbData = Source.cbData;
+
+        // Reset the source data without freeing
+        Source.Reset();
+    }
+
+    DWORD SetData(const void * pv, size_t cb)
+    {
+        if(SetSize(cb) != ERROR_SUCCESS)
+            return ERROR_NOT_ENOUGH_MEMORY;
+
+        memcpy(pbData, pv, cb);
+        return ERROR_SUCCESS;
+    }
+
+    DWORD SetSize(size_t cb)
+    {
+        Free();
+
+        // Always leave one extra byte for NUL character
+        if((pbData = CASC_ALLOC<BYTE>(cb + 1)) == NULL)
+            return ERROR_NOT_ENOUGH_MEMORY;
+
+        cbData = cb;
+        return ERROR_SUCCESS;
+    }
+
+    void Reset()
     {
         pbData = NULL;
         cbData = 0;
     }
 
-    ~QUERY_KEY()
+    void Free()
     {
-        CASC_FREE(pbData);
+        if(pbData != NULL)
+            CASC_FREE(pbData);
+        pbData = NULL;
         cbData = 0;
     }
 
-    DWORD SetData(const void * pv, size_t cb)
+    LPBYTE End() const
     {
-        if((pbData = CASC_ALLOC<BYTE>(cb)) == NULL)
-            return ERROR_NOT_ENOUGH_MEMORY;
-
-        memcpy(pbData, pv, cb);
-        cbData = cb;
-        return ERROR_SUCCESS;
+        return pbData + cbData;
     }
 
     LPBYTE pbData;
     size_t cbData;
 };
-typedef QUERY_KEY *PQUERY_KEY;
+typedef CASC_BLOB *PCASC_BLOB;
 
 //-----------------------------------------------------------------------------
 // File name utilities
@@ -517,20 +602,10 @@ bool CascCheckWildCard(const char * szString, const char * szWildCard);
 //-----------------------------------------------------------------------------
 // Hashing functions
 
-ULONGLONG HashStringJenkins(const char * szFileName);
-
 bool CascIsValidMD5(LPBYTE pbMd5);
-void CascCalculateDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE md5_hash);
-bool CascVerifyDataBlockHash(void * pvDataBlock, DWORD cbDataBlock, LPBYTE expected_md5);
-
-//-----------------------------------------------------------------------------
-// Scanning a directory
-
-typedef bool (*INDEX_FILE_FOUND)(LPCTSTR szFileName, void * pvContext);
-
-bool DirectoryExists(LPCTSTR szDirectory);
-
-int ScanIndexDirectory(LPCTSTR szIndexPath, INDEX_FILE_FOUND pfnOnFileFound, void * pvContext);
+void CascHash_MD5(const void * pvDataBlock, size_t cbDataBlock, LPBYTE md5_hash);
+void CascHash_SHA1(const void * pvDataBlock, size_t cbDataBlock, LPBYTE sha1_hash);
+bool CascVerifyDataBlockHash(void * pvDataBlock, size_t cbDataBlock, LPBYTE expected_md5);
 
 //-----------------------------------------------------------------------------
 // Argument structure versioning

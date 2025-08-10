@@ -26,7 +26,7 @@ bool SQLQueryHolderBase::SetPreparedQueryImpl(size_t index, PreparedStatementBas
 {
     if (m_queries.size() <= index)
     {
-        TC_LOG_ERROR("sql.sql", "Query index (%u) out of range (size: %u) for prepared statement", uint32(index), (uint32)m_queries.size());
+        TC_LOG_ERROR("sql.sql", "Query index ({}) out of range (size: {}) for prepared statement", uint32(index), (uint32)m_queries.size());
         return false;
     }
 
@@ -72,16 +72,13 @@ void SQLQueryHolderBase::SetSize(size_t size)
     m_queries.resize(size);
 }
 
-SQLQueryHolderTask::~SQLQueryHolderTask() = default;
-
-bool SQLQueryHolderTask::Execute()
+bool SQLQueryHolderTask::Execute(MySQLConnection* conn, SQLQueryHolderBase* holder)
 {
     /// execute all queries in the holder and pass the results
-    for (size_t i = 0; i < m_holder->m_queries.size(); ++i)
-        if (PreparedStatementBase* stmt = m_holder->m_queries[i].first)
-            m_holder->SetPreparedResult(i, m_conn->Query(stmt));
+    for (size_t i = 0; i < holder->m_queries.size(); ++i)
+        if (PreparedStatementBase* stmt = holder->m_queries[i].first)
+            holder->SetPreparedResult(i, conn->Query(stmt));
 
-    m_result.set_value();
     return true;
 }
 

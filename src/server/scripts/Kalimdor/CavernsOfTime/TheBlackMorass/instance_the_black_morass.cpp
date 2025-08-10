@@ -125,7 +125,7 @@ public:
         //what other conditions to check?
         bool CanProgressEvent()
         {
-            if (instance->GetPlayers().isEmpty())
+            if (instance->GetPlayers().empty())
                 return false;
 
             return true;
@@ -188,7 +188,7 @@ public:
                         TC_LOG_DEBUG("scripts", "Instance The Black Morass: Event completed.");
                         Map::PlayerList const& players = instance->GetPlayers();
 
-                        if (!players.isEmpty())
+                        if (!players.empty())
                         {
                             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             {
@@ -250,7 +250,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            TC_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry %u.", entry);
+            TC_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry {}.", entry);
 
             Position pos = me->GetRandomNearPosition(10.0f);
 
@@ -273,7 +273,7 @@ public:
                 if (tmp >= _currentRiftId)
                     ++tmp;
 
-                TC_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
+                TC_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId {} (old locationId was {}).", tmp, _currentRiftId);
 
                 _currentRiftId = tmp;
 

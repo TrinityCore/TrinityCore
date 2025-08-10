@@ -477,8 +477,8 @@ enum UlduarAchievementData
 {
     // FL Achievement boolean
     DATA_UNBROKEN               = 29052906, // 2905, 2906 are achievement IDs,
-    MAX_HERALD_ARMOR_ITEMLEVEL  = 226,
-    MAX_HERALD_WEAPON_ITEMLEVEL = 232
+    MAX_HERALD_ARMOR_ITEMLEVEL  = 35,
+    MAX_HERALD_WEAPON_ITEMLEVEL = 35
 };
 
 enum UlduarSharedSpells
@@ -489,8 +489,6 @@ enum UlduarSharedSpells
 
 enum UlduarEvents
 {
-    EVENT_DESPAWN_ALGALON       = 1,
-    EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
     EVENT_DESPAWN_LEVIATHAN_VEHICLES = 7,
     EVENT_LEVIATHAN_BREAK_DOOR   = 8

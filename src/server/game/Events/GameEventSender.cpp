@@ -16,14 +16,14 @@
  */
 
 #include "GameEventSender.h"
-#include "Battleground.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "InstanceScript.h"
 #include "Map.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 #include "Util.h"
+#include "ZoneScript.h"
 
 void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* target)
 {
@@ -38,7 +38,8 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
     if (zoneScript)
         zoneScript->ProcessEvent(target, gameEventId, source);
 
-    Map* map = refForMapAndZoneScript->GetMap();
+    sScriptMgr->OnEventTrigger(target, source, gameEventId);
+
     if (GameObject* goTarget = Object::ToGameObject(target))
         if (GameObjectAI* goAI = goTarget->AI())
             goAI->EventInform(gameEventId);
@@ -46,6 +47,7 @@ void GameEvents::Trigger(uint32 gameEventId, WorldObject* source, WorldObject* t
     if (Player* sourcePlayer = Object::ToPlayer(source))
         TriggerForPlayer(gameEventId, sourcePlayer);
 
+    Map* map = refForMapAndZoneScript->GetMap();
     TriggerForMap(gameEventId, map, source, target);
 }
 
@@ -54,8 +56,8 @@ void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
     Map* map = source->GetMap();
     if (map->Instanceable())
     {
-        source->StartCriteriaTimer(CriteriaStartEvent::SendEvent, gameEventId);
-        source->ResetCriteria(CriteriaFailEvent::SendEvent, gameEventId);
+        source->FailCriteria(CriteriaFailEvent::SendEvent, gameEventId);
+        source->StartCriteria(CriteriaStartEvent::SendEvent, gameEventId);
     }
 
     source->UpdateCriteria(CriteriaType::PlayerTriggerGameEvent, gameEventId, 0, 0, source);
@@ -66,8 +68,5 @@ void GameEvents::TriggerForPlayer(uint32 gameEventId, Player* source)
 
 void GameEvents::TriggerForMap(uint32 gameEventId, Map* map, WorldObject* source, WorldObject* target)
 {
-    if (BattlegroundMap* bgMap = map->ToBattlegroundMap())
-        bgMap->GetBG()->ProcessEvent(target, gameEventId, source);
-
     map->ScriptsStart(sEventScripts, gameEventId, source, target);
 }

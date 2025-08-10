@@ -345,7 +345,7 @@ struct npc_time_rift : public ScriptedAI
         uint32 entry = 0;
 
         entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-        TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+        TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave {}, Entry {}).", mRiftWaveCount, entry);
 
         ++mRiftWaveCount;
 

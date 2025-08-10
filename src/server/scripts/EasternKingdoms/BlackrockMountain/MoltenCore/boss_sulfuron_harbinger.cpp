@@ -23,6 +23,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
 
@@ -118,8 +119,6 @@ struct boss_sulfuron : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -183,8 +182,6 @@ struct npc_flamewaker_priest : public ScriptedAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

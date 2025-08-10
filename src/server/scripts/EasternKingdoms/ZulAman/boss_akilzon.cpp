@@ -81,8 +81,6 @@ class boss_akilzon : public CreatureScript
                     }
                 }
                 */
-
-                DoMeleeAttackIfReady();
             }
         };
 

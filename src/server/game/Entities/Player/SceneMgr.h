@@ -19,8 +19,10 @@
 #define SceneMgr_h__
 
 #include "Common.h"
+#include "Optional.h"
 #include "SceneDefines.h"
 #include <map>
+#include <memory>
 #include <vector>
 
 class Player;
@@ -64,9 +66,10 @@ public:
     void RemoveSceneInstanceId(uint32 sceneInstanceID);
     void RemoveAurasDueToSceneId(uint32 sceneId);
 
-    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID);
-    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0);
+    SceneTemplate const* GetSceneTemplateFromInstanceId(uint32 sceneInstanceID) const;
+    uint32 GetActiveSceneCount(uint32 sceneScriptPackageId = 0) const;
     SceneTemplateByInstance const& GetSceneTemplateByInstanceMap() const { return _scenesByInstance; }
+    Optional<uint32> GetInstanceIdBySceneId(uint32 sceneId) const;
 
     uint32 GetNewStandaloneSceneInstanceID() { return ++_standaloneSceneInstanceID; }
 

@@ -1,0 +1,2 @@
+-- drops 106k lines, intended.
+DELETE FROM `creature_template_difficulty` WHERE `LevelScalingDeltaMin`=0 AND `LevelScalingDeltaMax`=0 AND `ContentTuningID`=0 AND `LootID`=0 AND `PickPocketLootID`=0 AND `SkinLootID`=0 AND `GoldMin`=0 AND `GoldMax`=0 AND `StaticFlags1`=0 AND `StaticFlags2`=0 AND `StaticFlags3`=0 AND `StaticFlags4`=0 AND `StaticFlags5`=0 AND `StaticFlags6`=0 AND `StaticFlags7`=0 AND `StaticFlags8`=0;

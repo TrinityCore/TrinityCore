@@ -72,8 +72,6 @@ struct boss_grilek : public BossAI
                 return;
         }
         */
-
-        DoMeleeAttackIfReady();
     }
 };
 

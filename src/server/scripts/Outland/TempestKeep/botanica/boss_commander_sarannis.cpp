@@ -143,8 +143,6 @@ struct boss_commander_sarannis : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:
@@ -154,8 +152,6 @@ private:
 // 34799 - Arcane Devastation
 class spell_commander_sarannis_arcane_devastation : public AuraScript
 {
-    PrepareAuraScript(spell_commander_sarannis_arcane_devastation);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_ARCANE_RESONANCE });
@@ -175,8 +171,6 @@ class spell_commander_sarannis_arcane_devastation : public AuraScript
 // 34803 - Summon Reinforcements
 class spell_commander_sarannis_summon_reinforcements : public SpellScript
 {
-    PrepareSpellScript(spell_commander_sarannis_summon_reinforcements);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(SummonReinforcementsSpells);

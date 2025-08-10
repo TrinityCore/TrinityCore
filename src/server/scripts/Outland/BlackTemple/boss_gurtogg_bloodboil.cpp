@@ -263,8 +263,6 @@ struct boss_gurtogg_bloodboil : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-
-        DoMeleeAttackIfReady();
     }
 
     void ChangePhase()
@@ -317,8 +315,6 @@ struct npc_fel_geyser : public PassiveAI
 // 42005 - Bloodboil
 class spell_gurtogg_bloodboil_bloodboil : public SpellScript
 {
-    PrepareSpellScript(spell_gurtogg_bloodboil_bloodboil);
-
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         if (targets.size() <= 5)
@@ -339,8 +335,6 @@ class spell_gurtogg_bloodboil_bloodboil : public SpellScript
 // 40618 - Insignificance
 class spell_gurtogg_bloodboil_insignificance : public SpellScript
 {
-    PrepareSpellScript(spell_gurtogg_bloodboil_insignificance);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_FEL_RAGE_TARGET });

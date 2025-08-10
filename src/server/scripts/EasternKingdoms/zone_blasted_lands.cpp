@@ -33,8 +33,6 @@ enum TeleportToRazelikh
 // 27686 - Teleport to Razelikh (GROUP)
 class spell_razelikh_teleport_group : public SpellScript
 {
-    PrepareSpellScript(spell_razelikh_teleport_group);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_TELEPORT_SINGLE, SPELL_TELEPORT_SINGLE_IN_GROUP });
@@ -46,10 +44,12 @@ class spell_razelikh_teleport_group : public SpellScript
         {
             if (Group* group = player->GetGroup())
             {
-                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                    if (Player* member = itr->GetSource())
-                        if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
-                            member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
+                for (GroupReference const& itr : group->GetMembers())
+                {
+                    Player* member = itr.GetSource();
+                    if (member->IsWithinDistInMap(player, 20.0f) && !member->isDead())
+                        member->CastSpell(member, SPELL_TELEPORT_SINGLE_IN_GROUP, true);
+                }
             }
             else
                 player->CastSpell(player, SPELL_TELEPORT_SINGLE, true);
@@ -62,7 +62,31 @@ class spell_razelikh_teleport_group : public SpellScript
     }
 };
 
+/*######
+## Quests 36881 and 34398: Warlords of Draenor: The Dark Portal
+######*/
+
+enum TeleportToTanaan
+{
+    SPELL_TELEPORT_TO_TANAAN = 167771,
+
+    MOVIE_INTO_THE_PORTAL    = 185
+};
+
+class player_teleport_to_tanaan : public PlayerScript
+{
+public:
+    player_teleport_to_tanaan() : PlayerScript("player_teleport_to_tanaan") { }
+
+    void OnMovieComplete(Player* player, uint32 movieId) override
+    {
+        if (movieId == MOVIE_INTO_THE_PORTAL)
+            player->CastSpell(player, SPELL_TELEPORT_TO_TANAAN, true);
+    }
+};
+
 void AddSC_blasted_lands()
 {
     RegisterSpellScript(spell_razelikh_teleport_group);
+    new player_teleport_to_tanaan();
 }

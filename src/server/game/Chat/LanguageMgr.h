@@ -30,10 +30,7 @@ struct LanguageDesc
     uint32 SpellId = 0;
     uint32 SkillId = 0;
 
-    friend bool operator==(LanguageDesc const& left, LanguageDesc const& right)
-    {
-        return left.SpellId == right.SpellId && left.SkillId == right.SkillId;
-    }
+    friend bool operator==(LanguageDesc const& left, LanguageDesc const& right) = default;
 };
 
 struct SpellEffectEntry;

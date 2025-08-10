@@ -16,15 +16,21 @@
  */
 
 #include "halls_of_reflection.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "PhasingHandler.h"
-#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Transport.h"
-#include <sstream>
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_FALRIC, {{ 1992 }} },
+    { DATA_MARWYN, {{ 1993 }} },
+    { DATA_THE_LICH_KING_ESCAPE, {{ 1990 }} }
+};
 
 Position const JainaSpawnPos           = { 5236.659f, 1929.894f, 707.7781f, 0.8726646f }; // Jaina Spawn Position
 Position const SylvanasSpawnPos        = { 5236.667f, 1929.906f, 707.7781f, 0.8377581f }; // Sylvanas Spawn Position (sniffed)
@@ -89,8 +95,8 @@ class instance_halls_of_reflection : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
+                LoadDungeonEncounterData(encounters);
 
-                _teamInInstance           = 0;
                 _waveCount                = 0;
                 _introState               = NOT_STARTED;
                 _frostswornGeneralState   = NOT_STARTED;
@@ -99,11 +105,8 @@ class instance_halls_of_reflection : public InstanceMapScript
                 events.Reset();
             }
 
-            void OnPlayerEnter(Player* player) override
+            void OnPlayerEnter(Player* /*player*/) override
             {
-                if (!_teamInInstance)
-                    _teamInInstance = player->GetTeam();
-
                 if (GetBossState(DATA_MARWYN) == DONE)
                 {
                     SpawnGunship();
@@ -203,26 +206,18 @@ class instance_halls_of_reflection : public InstanceMapScript
 
             uint32 GetGameObjectEntry(ObjectGuid::LowType /*guidLow*/, uint32 entry) override
             {
-                if (!_teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _teamInInstance = player->GetTeam();
-                }
-
                 switch (entry)
                 {
                     case GO_THE_CAPTAIN_CHEST_ALLIANCE_NORMAL:
                     case GO_THE_CAPTAIN_CHEST_ALLIANCE_HEROIC:
                     case GO_THE_SKYBREAKER_STAIRS:
-                        if (_teamInInstance == HORDE)
+                        if (instance->GetTeamInInstance() == HORDE)
                             return 0;
                         break;
                     case GO_THE_CAPTAIN_CHEST_HORDE_NORMAL:
                     case GO_THE_CAPTAIN_CHEST_HORDE_HEROIC:
                     case GO_ORGRIMS_HAMMER_STAIRS:
-                        if (_teamInInstance == ALLIANCE)
+                        if (instance->GetTeamInInstance() == ALLIANCE)
                             return 0;
                         break;
                     default:
@@ -376,29 +371,13 @@ class instance_halls_of_reflection : public InstanceMapScript
                 if (!GunshipGUID.IsEmpty())
                     return;
 
-                if (!_teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _teamInInstance = player->GetTeam();
-                }
-
-                if (Transport* gunship = sTransportMgr->CreateTransport(_teamInInstance == HORDE ? GO_ORGRIMS_HAMMER : GO_THE_SKYBREAKER, instance))
+                if (Transport* gunship = sTransportMgr->CreateTransport(instance->GetTeamInInstance() == HORDE ? GO_ORGRIMS_HAMMER : GO_THE_SKYBREAKER, instance))
                     gunship->EnableMovement(GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE);
             }
 
             void SpawnEscapeEvent()
             {
-                if (!_teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _teamInInstance = player->GetTeam();
-                }
-
-                if (_teamInInstance == ALLIANCE)
+                if (instance->GetTeamInInstance() == ALLIANCE)
                 {
                     instance->SummonCreature(NPC_JAINA_ESCAPE, JainaSpawnPos2);
                     instance->SummonCreature(NPC_THE_LICH_KING_ESCAPE, TheLichKingEscapePosition[1]);
@@ -419,7 +398,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         {
                             if (_introState == NOT_STARTED)
                             {
-                                if (_teamInInstance == ALLIANCE)
+                                if (instance->GetTeamInInstance() == ALLIANCE)
                                 {
                                     instance->SummonCreature(NPC_JAINA_INTRO, JainaSpawnPos);
                                     instance->SummonCreature(NPC_KORELN, KorelnOrLoralenSpawnPos);
@@ -457,8 +436,6 @@ class instance_halls_of_reflection : public InstanceMapScript
                     default:
                         break;
                 }
-
-                SaveToDB();
             }
 
             void SetGuidData(uint32 type, ObjectGuid data) override
@@ -530,7 +507,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                 {
                     // spawning all wave npcs at once
                     case EVENT_SPAWN_WAVES:
-                        _waveCount = 1;
+                        _waveCount = GetBossState(DATA_FALRIC) == DONE ? 6 : 1;
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
                         DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
                         {
@@ -544,7 +521,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                             possibilityList.push_back(NPC_WAVE_MAGE);
 
                             // iterate each wave
-                            for (uint8 i = 0; i < 8; ++i)
+                            for (uint8 i = GetBossState(DATA_FALRIC) == DONE ? 4 : 0; i < 8; ++i)
                             {
                                 tempList = possibilityList;
 
@@ -585,7 +562,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                                 if (Creature* temp = instance->GetCreature(guid))
                                 {
                                     temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, false);
-                                    temp->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                                    temp->SetUninteractible(false);
                                     temp->SetImmuneToAll(false);
                                     temp->AI()->DoZoneInCombat(temp);
                                 }
@@ -643,7 +620,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                         for (ObjectGuid guid : GunshipCannonGUIDs)
                         {
                             uint32 entry = guid.GetEntry();
-                            if ((entry == NPC_WORLD_TRIGGER && _teamInInstance == ALLIANCE) || (entry == NPC_GUNSHIP_CANNON_HORDE && _teamInInstance == HORDE))
+                            if ((entry == NPC_WORLD_TRIGGER && instance->GetTeamInInstance() == ALLIANCE) || (entry == NPC_GUNSHIP_CANNON_HORDE && instance->GetTeamInInstance() == HORDE))
                                 if (Creature* cannon = instance->GetCreature(guid))
                                     cannon->CastSpell(cannon, SPELL_GUNSHIP_CANNON_FIRE, true);
                         }
@@ -675,7 +652,7 @@ class instance_halls_of_reflection : public InstanceMapScript
                     case DATA_WAVE_COUNT:
                         return _waveCount;
                     case DATA_TEAM_IN_INSTANCE:
-                        return _teamInInstance;
+                        return instance->GetTeamInInstance();
                     case DATA_INTRO_EVENT:
                         return _introState;
                     case DATA_FROSTSWORN_GENERAL:
@@ -728,31 +705,16 @@ class instance_halls_of_reflection : public InstanceMapScript
                 return ObjectGuid::Empty;
             }
 
-            void WriteSaveDataMore(std::ostringstream& data) override
+            void AfterDataLoad() override
             {
-                data << _introState << ' ' << _frostswornGeneralState << ' ' << _quelDelarState;
-            }
+                if (GetBossState(DATA_FALRIC) == DONE)
+                {
+                    _introState = DONE;
+                    _quelDelarState = DONE;
+                }
 
-            void ReadSaveDataMore(std::istringstream& data) override
-            {
-                uint32 temp = 0;
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_INTRO_EVENT, DONE);
-                else
-                    SetData(DATA_INTRO_EVENT, NOT_STARTED);
-
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_FROSTSWORN_GENERAL, DONE);
-                else
-                    SetData(DATA_FROSTSWORN_GENERAL, NOT_STARTED);
-
-                data >> temp;
-                if (temp == DONE)
-                    SetData(DATA_QUEL_DELAR_EVENT, DONE);
-                else
-                    SetData(DATA_QUEL_DELAR_EVENT, NOT_STARTED);
+                if (GetBossState(DATA_THE_LICH_KING_ESCAPE) == DONE)
+                    _frostswornGeneralState = DONE;
             }
 
         private:
@@ -772,7 +734,6 @@ class instance_halls_of_reflection : public InstanceMapScript
             ObjectGuid ShadowThroneDoorGUID;
             ObjectGuid CaveInGUID;
 
-            uint32 _teamInInstance;
             uint32 _waveCount;
             uint32 _introState;
             uint32 _frostswornGeneralState;

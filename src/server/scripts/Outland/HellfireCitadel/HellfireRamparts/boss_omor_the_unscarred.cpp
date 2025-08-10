@@ -211,8 +211,6 @@ class boss_omor_the_unscarred : public CreatureScript
                 }
                 else
                     Shadowbolt_Timer -= diff;
-
-                DoMeleeAttackIfReady();
             }
 
             private:

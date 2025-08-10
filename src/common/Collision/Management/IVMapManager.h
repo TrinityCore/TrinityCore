@@ -47,17 +47,21 @@ namespace VMAP
     {
         struct AreaInfo
         {
-            AreaInfo(int32 _adtId, int32 _rootId, int32 _groupId, uint32 _flags) : adtId(_adtId), rootId(_rootId), groupId(_groupId), mogpFlags(_flags) { }
-            int32 const adtId;
-            int32 const rootId;
-            int32 const groupId;
-            uint32 const mogpFlags;
+            AreaInfo() = default;
+            AreaInfo(int32 _groupId, int32 _adtId, int32 _rootId, uint32 _mogpFlags, uint32 _uniqueId)
+                : groupId(_groupId), adtId(_adtId), rootId(_rootId), mogpFlags(_mogpFlags), uniqueId(_uniqueId) { }
+            int32 groupId = 0;
+            int32 adtId = 0;
+            int32 rootId = 0;
+            uint32 mogpFlags = 0;
+            uint32 uniqueId = 0;
         };
         struct LiquidInfo
         {
+            LiquidInfo() = default;
             LiquidInfo(uint32 _type, float _level) : type(_type), level(_level) { }
-            uint32 const type;
-            float const level;
+            uint32 type = 0;
+            float level = 0.0f;
         };
 
         float floorZ = VMAP_INVALID_HEIGHT;
@@ -111,14 +115,12 @@ namespace VMAP
             bool isMapLoadingEnabled() const { return(iEnableLineOfSightCalc || iEnableHeightCalc  ); }
 
             virtual std::string getDirFileName(unsigned int pMapId, int x, int y) const =0;
+
             /**
             Query world model area info.
             \param z gets adjusted to the ground height for which this are info is valid
             */
-            virtual bool getAreaInfo(uint32 mapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
-            virtual bool GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type, uint32& mogpFlags) const=0;
-            // get both area + liquid data in a single vmap lookup
-            virtual void getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, uint8 reqLiquidType, AreaAndLiquidData& data) const=0;
+            virtual bool getAreaAndLiquidData(unsigned int mapId, float x, float y, float z, Optional<uint8> reqLiquidType, AreaAndLiquidData& data) const = 0;
     };
 
 }

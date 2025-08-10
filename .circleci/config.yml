@@ -2,11 +2,11 @@ version: 2
 jobs:
   codestyle_and_sql:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:debian-12-builder
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
-      - image: circleci/mysql:8
+      - image: cimg/mysql:8.0
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -44,7 +44,7 @@ jobs:
             cat sql/updates/hotfixes/master/*.sql | mysql -h 127.0.0.1 -uroot hotfixes
   pch:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:debian-12-builder
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -56,14 +56,12 @@ jobs:
       - run:
           name: Setup
           command: |
-            mkdir bin
-            cd bin
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
-              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+              export CMAKE_BUILD_TYPE=Release
             else
-              cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install -DBUILD_TESTING=1
+              export CMAKE_BUILD_TYPE=Debug
             fi
-            cd ..
+            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DTOOLS=1 -DSCRIPTS=static -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install -DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib -DBUILD_TESTING=1
       - run:
           name: Build
           command: |
@@ -81,29 +79,29 @@ jobs:
             ./bnetserver --version
             ./worldserver --version
       - setup_remote_docker:
-          version: 19.03.13
+          version: default
       - run:
           name: Create docker images
           command: |
-            cd bin/check_install/bin
-            cp -r ../../../contrib/Docker/* .
-            cp -r ../../../sql ./sql
+            cd bin/check_install
+            cp -r ../../contrib/Docker/* .
+            cp -r ../../sql ./sql
             image_prefix=$(echo $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME | tr '[:upper:]' '[:lower:]')
             echo $image_prefix
             docker build --file Dockerfile --force-rm --tag $image_prefix:$CIRCLE_SHA1 --tag $image_prefix:$(echo $CIRCLE_BRANCH | tr '/' '-' | tr '[:upper:]' '[:lower:]') .
-            docker save $image_prefix | gzip > ../../../docker.tar.gz
+            docker save $image_prefix | gzip > ../../docker.tar.gz
             if [ "$DOCKERHUB_PUSH_IMAGES" == "TRUE" ]; then
-              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ]; then
+              if [ "$CIRCLE_BRANCH" == "3.3.5" ] || [ "$CIRCLE_BRANCH" == "master" ] || [ "$CIRCLE_BRANCH" == "wotlk_classic" ]; then
                 docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
                 echo "Pushing docker image to dockerhub"
-                docker push $image_prefix
+                docker push --all-tags $image_prefix
               fi
             fi
       - store_artifacts:
           path: docker.tar.gz
   nopch:
     docker:
-      - image: trinitycore/circle-ci:master-buildpacks-hirsute
+      - image: trinitycore/circle-ci:debian-12-builder
         auth:
           username: $DOCKERHUB_USERNAME
           password: $DOCKERHUB_PASSWORD
@@ -128,6 +126,7 @@ jobs:
             export CCACHE_MAXSIZE="1G"
             export CC="ccache clang"
             export CXX="ccache clang++"
+            export CMAKE_BUILD_TYPE=Debug
             export CCACHE_CPP2=yes
             export USE_CCACHE=1
             export PATH=/usr/lib/ccache:$PATH
@@ -136,10 +135,7 @@ jobs:
             ccache -s
             git config user.email "circleci@build.bot" && git config user.name "Circle CI"
             $CXX --version
-            mkdir bin
-            cd bin
-            cmake ../ -DWITH_WARNINGS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-Werror" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=check_install
-            cd ..
+            cmake -S . -B ./bin -DWITH_WARNINGS=1 -DWITH_WARNINGS_AS_ERRORS=1 -DWITH_COREDEBUG=0 -DUSE_COREPCH=0 -DUSE_SCRIPTPCH=0 -DTOOLS=1 -DSCRIPTS=dynamic -DSERVERS=1 -DNOJEM=0 -DCMAKE_C_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_CXX_FLAGS_DEBUG="-DNDEBUG" -DCMAKE_INSTALL_PREFIX=bin/check_install
       - run:
           name: Build
           command: |

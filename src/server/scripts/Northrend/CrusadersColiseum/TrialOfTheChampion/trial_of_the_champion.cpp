@@ -374,7 +374,7 @@ public:
         void AggroAllPlayers(Creature* temp)
         {
             Map::PlayerList const& PlList = me->GetMap()->GetPlayers();
-            if (PlList.isEmpty())
+            if (PlList.empty())
                 return;
 
             for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
@@ -467,11 +467,18 @@ public:
                 instance->GetBossState(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
                 instance->GetBossState(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
                 instance->GetBossState(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+            {
+                InitGossipMenuFor(player, GOSSIP_START_EVENT1_MID);
                 AddGossipItemFor(player, GOSSIP_START_EVENT1_MID, GOSSIP_START_EVENT1_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, player->GetGossipTextId(GOSSIP_START_EVENT1_MID, me), me->GetGUID());
+            }
             else
+            {
+                InitGossipMenuFor(player, GOSSIP_START_EVENT2_MID);
                 AddGossipItemFor(player, GOSSIP_START_EVENT2_MID, GOSSIP_START_EVENT2_OID, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                SendGossipMenuFor(player, player->GetGossipTextId(GOSSIP_START_EVENT2_MID, me), me->GetGUID());
+            }
 
-            SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
             return true;
         }
 

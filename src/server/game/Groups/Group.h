@@ -20,18 +20,18 @@
 
 #include "DBCEnums.h"
 #include "DatabaseEnvFwd.h"
+#include "GroupInstanceRefManager.h"
 #include "GroupRefManager.h"
-#include "Loot.h"
 #include "Object.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
 #include "Timer.h"
+#include "UniqueTrackablePtr.h"
 #include <map>
 
 class Battlefield;
 class Battleground;
 class Creature;
-class InstanceSave;
 class Map;
 class Player;
 class Unit;
@@ -39,16 +39,13 @@ class WorldObject;
 class WorldPacket;
 class WorldSession;
 
+struct BattlegroundTemplate;
 struct ItemDisenchantLootEntry;
 struct MapEntry;
 
-namespace WorldPackets
-{
-    namespace Loot
-    {
-        struct LootItemData;
-    }
-}
+enum class InstanceResetMethod : uint8;
+enum class InstanceResetResult : uint8;
+enum LootMethod : uint8;
 
 #define MAX_GROUP_SIZE      5
 #define MAX_RAID_SIZE       40
@@ -58,16 +55,6 @@ namespace WorldPackets
 #define RAID_MARKERS_COUNT  8
 
 #define READYCHECK_DURATION 35000
-
-enum RollVote
-{
-    PASS              = 0,
-    NEED              = 1,
-    GREED             = 2,
-    DISENCHANT        = 3,
-    NOT_EMITED_YET    = 4,
-    NOT_VALID         = 5
-};
 
 enum GroupMemberOnlineStatus
 {
@@ -104,7 +91,7 @@ enum GroupType
     GROUP_TYPE_WORLD_PVP    = 4
 };
 
-enum GroupFlags
+enum GroupFlags : uint16
 {
     GROUP_FLAG_NONE                 = 0x000,
     GROUP_FLAG_FAKE_RAID            = 0x001,
@@ -115,6 +102,8 @@ enum GroupFlags
     GROUP_FLAG_ONE_PERSON_PARTY     = 0x020, // Script_IsOnePersonParty()
     GROUP_FLAG_EVERYONE_ASSISTANT   = 0x040, // Script_IsEveryoneAssistant()
     GROUP_FLAG_GUILD_GROUP          = 0x100,
+    GROUP_FLAG_CROSS_FACTION        = 0x200,
+    GROUP_FLAG_RESTRICT_PINGS       = 0x400, // deprecated
 
     GROUP_MASK_BGRAID                = GROUP_FLAG_FAKE_RAID | GROUP_FLAG_RAID,
 };
@@ -171,39 +160,6 @@ enum GroupUpdatePetFlags
                             GROUP_UPDATE_FLAG_PET_CUR_HP | GROUP_UPDATE_FLAG_PET_MAX_HP | GROUP_UPDATE_FLAG_PET_AURAS // all pet flags
 };
 
-class Roll : public LootValidatorRef
-{
-    public:
-        explicit Roll(LootItem const& li);
-        ~Roll();
-        void setLoot(Loot* pLoot);
-        Loot* getLoot();
-        void targetObjectBuildLink() override;
-        void FillPacket(WorldPackets::Loot::LootItemData& lootItem) const;
-        ItemDisenchantLootEntry const* GetItemDisenchantLoot(Player const* player) const;
-
-        uint32 itemid;
-        ItemRandomBonusListId itemRandomBonusListId;
-        uint8 itemCount;
-        typedef std::map<ObjectGuid, RollVote> PlayerVote;
-        PlayerVote playerVote;                              //vote position correspond with player position (in group)
-        uint8 totalPlayersRolling;
-        uint8 totalNeed;
-        uint8 totalGreed;
-        uint8 totalPass;
-        uint8 itemSlot;
-        uint8 rollVoteMask;
-};
-
-struct InstanceGroupBind
-{
-    InstanceSave* save;
-    bool perm;
-    /* permanent InstanceGroupBinds exist if the leader has a permanent
-       PlayerInstanceBind for the same instance. */
-    InstanceGroupBind() : save(nullptr), perm(false) { }
-};
-
 struct RaidMarker
 {
     WorldLocation Location;
@@ -211,9 +167,36 @@ struct RaidMarker
 
     RaidMarker(uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty)
     {
-        Location.WorldRelocate(mapId, positionX, positionY, positionZ);
+        Location.WorldRelocate(mapId, positionX, positionY, positionZ, 0.0f);
         TransportGUID = transportGuid;
     }
+};
+
+enum class CountdownTimerType : int32
+{
+    Pvp             = 0,
+    ChallengeMode   = 1,
+    PlayerCountdown = 2
+};
+
+enum class PingSubjectType : uint8
+{
+    Attack          = 0,
+    Warning         = 1,
+    Assist          = 2,
+    OnMyWay         = 3,
+    AlertThreat     = 4,
+    AlertNotThreat  = 5,
+
+    Max
+};
+
+enum class RestrictPingsTo : int32
+{
+    None        = 0,
+    Lead        = 1,
+    Assist      = 2,
+    TankHealer  = 3,
 };
 
 /** request member stats checken **/
@@ -235,12 +218,29 @@ class TC_GAME_API Group
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
 
-        typedef std::unordered_map<Difficulty, std::unordered_map<uint32 /*mapId*/, InstanceGroupBind>> BoundInstancesMap;
+        class CountdownInfo
+        {
+        public:
+            CountdownInfo() : _startTime(0), _endTime(0) { }
+
+            Seconds GetTimeLeft() const;
+
+            Seconds GetTotalTime() const
+            {
+                return Seconds(_endTime - _startTime);
+            }
+
+            void StartCountdown(Seconds duration, Optional<time_t> startTime = { });
+            bool IsRunning() const;
+
+        private:
+            time_t _startTime;
+            time_t _endTime;
+        };
+
     protected:
         typedef MemberSlotList::iterator member_witerator;
         typedef std::set<Player*> InvitesList;
-
-        typedef std::vector<Roll*> Rolls;
 
     public:
         Group();
@@ -258,8 +258,7 @@ class TC_GAME_API Group
         bool AddLeaderInvite(Player* player);
         bool AddMember(Player* player);
         bool RemoveMember(ObjectGuid guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT, ObjectGuid kicker = ObjectGuid::Empty, const char* reason = nullptr);
-        void ChangeLeader(ObjectGuid guid, int8 partyIndex = 0);
-        static void ConvertLeaderInstancesToGroup(Player* player, Group* group, bool switchLeader);
+        void ChangeLeader(ObjectGuid guid);
         void SetLootMethod(LootMethod method);
         void SetLooterGuid(ObjectGuid guid);
         void SetMasterLooterGuid(ObjectGuid guid);
@@ -267,14 +266,16 @@ class TC_GAME_API Group
         void SetLootThreshold(ItemQualities threshold);
         void Disband(bool hideDestroy = false);
         void SetLfgRoles(ObjectGuid guid, uint8 roles);
-        uint8 GetLfgRoles(ObjectGuid guid);
+        uint8 GetLfgRoles(ObjectGuid guid) const;
         void SetEveryoneIsAssistant(bool apply);
+        RestrictPingsTo GetRestrictPings() const;
+        void SetRestrictPingsTo(RestrictPingsTo restrictTo);
 
         // Update
         void UpdateReadyCheck(uint32 diff);
 
         // Ready check
-        void StartReadyCheck(ObjectGuid starterGuid, int8 partyIndex, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
+        void StartReadyCheck(ObjectGuid starterGuid, Milliseconds duration = Milliseconds(READYCHECK_DURATION));
         void EndReadyCheck();
 
         bool IsReadyCheckStarted(void) const { return m_readyCheckStarted; }
@@ -290,7 +291,7 @@ class TC_GAME_API Group
         // Raid Markers
         void AddRaidMarker(uint8 markerId, uint32 mapId, float positionX, float positionY, float positionZ, ObjectGuid transportGuid = ObjectGuid::Empty);
         void DeleteRaidMarker(uint8 markerId);
-        void SendRaidMarkersChanged(WorldSession* session = nullptr, int8 partyIndex = 0);
+        void SendRaidMarkersChanged(WorldSession* session = nullptr) const;
 
         // properties accessories
         bool IsFull() const;
@@ -313,7 +314,7 @@ class TC_GAME_API Group
         // member manipulation methods
         bool IsMember(ObjectGuid guid) const;
         bool IsLeader(ObjectGuid guid) const;
-        ObjectGuid GetMemberGUID(const std::string& name);
+        ObjectGuid GetMemberGUID(std::string const& name) const;
         uint8 GetMemberFlags(ObjectGuid guid) const;
         bool IsAssistant(ObjectGuid guid) const
         {
@@ -328,9 +329,9 @@ class TC_GAME_API Group
         bool SameSubGroup(Player const* member1, Player const* member2) const;
         bool HasFreeSlotSubGroup(uint8 subgroup) const;
 
+        GroupRefManager& GetMembers() { return m_memberMgr; }
+        GroupRefManager const& GetMembers() const { return m_memberMgr; }
         MemberSlotList const& GetMemberSlots() const { return m_memberSlots; }
-        GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
-        GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return uint32(m_memberSlots.size()); }
         uint32 GetInviteeCount() const { return m_invitees.size(); }
         GroupFlags GetGroupFlags() const { return m_groupFlags; }
@@ -343,11 +344,11 @@ class TC_GAME_API Group
 
         void SetBattlegroundGroup(Battleground* bg);
         void SetBattlefieldGroup(Battlefield* bf);
-        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const;
+        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(BattlegroundTemplate const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot, ObjectGuid& errorGuid) const;
 
         void ChangeMembersGroup(ObjectGuid guid, uint8 group);
         void SwapMembersGroups(ObjectGuid firstGuid, ObjectGuid secondGuid);
-        void SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy, uint8 partyIndex);
+        void SetTargetIcon(uint8 symbol, ObjectGuid target, ObjectGuid changedBy);
         void SetGroupMemberFlag(ObjectGuid guid, bool apply, GroupMemberFlags flag);
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag);
 
@@ -358,65 +359,46 @@ class TC_GAME_API Group
         Difficulty GetDungeonDifficultyID() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficultyID() const { return m_raidDifficulty; }
         Difficulty GetLegacyRaidDifficultyID() const { return m_legacyRaidDifficulty; }
-        void ResetInstances(uint8 method, bool isRaid, bool isLegacy, Player* SendMsgTo);
+        void ResetInstances(InstanceResetMethod method, Player* notifyPlayer);
 
         // -no description-
-        //void SendInit(WorldSession* session);
-        void SendTargetIconList(WorldSession* session, int8 partyIndex = 0);
-        void SendUpdate();
-        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot* slot = nullptr);
+        void SendTargetIconList(WorldSession* session) const;
+        void SendUpdate() const;
+        void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot const* slot = nullptr) const;
         void SendUpdateDestroyGroupToPlayer(Player* player) const;
-        void UpdatePlayerOutOfRange(Player* player);
-
-        template<class Worker>
-        void BroadcastWorker(Worker& worker)
-        {
-            for (GroupReference* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
-                worker(itr->GetSource());
-        }
+        void UpdatePlayerOutOfRange(Player const* player) const;
 
         template<class Worker>
         void BroadcastWorker(Worker const& worker) const
         {
-            for (GroupReference const* itr = GetFirstMember(); itr != nullptr; itr = itr->next())
-                worker(itr->GetSource());
+            for (GroupReference const& itr : GetMembers())
+                worker(itr.GetSource());
         }
 
         void BroadcastPacket(WorldPacket const* packet, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignoredPlayer = ObjectGuid::Empty) const;
         void BroadcastAddonMessagePacket(WorldPacket const* packet, const std::string& prefix, bool ignorePlayersInBGRaid, int group = -1, ObjectGuid ignore = ObjectGuid::Empty) const;
 
-        /*********************************************************/
-        /***                   LOOT SYSTEM                     ***/
-        /*********************************************************/
-
-        bool isRollLootActive() const { return !RollId.empty(); }
-        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r) const;
-        void SendLootRoll(ObjectGuid playerGuid, int32 rollNumber, uint8 rollType, Roll const& roll, bool autoPass = false) const;
-        void SendLootRollWon(ObjectGuid winnerGuid, int32 rollNumber, uint8 rollType, Roll const& roll) const;
-        void SendLootAllPassed(Roll const& roll) const;
-        void SendLootRollsComplete(Roll const& roll) const;
-        void SendLooter(Creature* creature, Player* pLooter);
-        void GroupLoot(Loot* loot, WorldObject* pLootedObject);
-        void MasterLoot(Loot* loot, WorldObject* pLootedObject);
-        Rolls::iterator GetRoll(ObjectGuid lootObjectGuid, uint8 lootListId);
-        void CountTheRoll(Rolls::iterator roll, Map* allowedMap);
-        void CountRollVote(ObjectGuid playerGuid, ObjectGuid lootObjectGuid, uint8 lootListId, uint8 choice);
-        void EndRoll(Loot* loot, Map* allowedMap);
-
-        // related to disenchant rolls
-        void ResetMaxEnchantingLevel();
-
         void LinkMember(GroupReference* pRef);
         void DelinkMember(ObjectGuid guid);
 
-        InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
-        void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
-        InstanceGroupBind* GetBoundInstance(Player* player);
-        InstanceGroupBind* GetBoundInstance(Map* aMap);
-        InstanceGroupBind* GetBoundInstance(MapEntry const* mapEntry);
-        InstanceGroupBind* GetBoundInstance(Difficulty difficulty, uint32 mapId);
-        BoundInstancesMap::iterator GetBoundInstances(Difficulty difficulty);
-        BoundInstancesMap::iterator GetBoundInstanceEnd();
+        ObjectGuid GetRecentInstanceOwner(uint32 mapId) const
+        {
+            auto itr = m_recentInstances.find(mapId);
+            return itr != m_recentInstances.end() ? itr->second.first : m_leaderGuid;
+        }
+
+        uint32 GetRecentInstanceId(uint32 mapId) const
+        {
+            auto itr = m_recentInstances.find(mapId);
+            return itr != m_recentInstances.end() ? itr->second.second : 0;
+        }
+
+        void SetRecentInstance(uint32 mapId, ObjectGuid instanceOwner, uint32 instanceId)
+        {
+            m_recentInstances[mapId] = { instanceOwner, instanceId };
+        }
+
+        void LinkOwnedInstance(GroupInstanceReference* ref);
 
         void StartLeaderOfflineTimer();
         void StopLeaderOfflineTimer();
@@ -424,6 +406,11 @@ class TC_GAME_API Group
 
         // FG: evil hacks
         void BroadcastGroupUpdate(void);
+
+        void StartCountdown(CountdownTimerType timerType, Seconds duration, Optional<time_t> startTime = { });
+        CountdownInfo const* GetCountdownInfo(CountdownTimerType timerType) const;
+
+        Trinity::unique_weak_ptr<Group> GetWeakPtr() const { return m_scriptRef; }
 
     protected:
         bool _setMembersGroup(ObjectGuid guid, uint8 group);
@@ -454,11 +441,10 @@ class TC_GAME_API Group
         ItemQualities       m_lootThreshold;
         ObjectGuid          m_looterGuid;
         ObjectGuid          m_masterLooterGuid;
-        Rolls               RollId;
-        BoundInstancesMap   m_boundInstances;
+        std::unordered_map<uint32 /*mapId*/, std::pair<ObjectGuid /*instanceOwner*/, uint32 /*instanceId*/>> m_recentInstances;
+        GroupInstanceRefManager m_ownedInstancesMgr;
         uint8*              m_subGroupsCounts;
         ObjectGuid          m_guid;
-        uint32              m_maxEnchantingLevel;
         uint32              m_dbStoreId;                    // Represents the ID used in database (Can be reused by other groups if group was disbanded)
         bool                m_isLeaderOffline;
         TimeTracker         m_leaderOfflineTimer;
@@ -470,5 +456,12 @@ class TC_GAME_API Group
         // Raid markers
         std::array<std::unique_ptr<RaidMarker>, RAID_MARKERS_COUNT> m_markers;
         uint32              m_activeMarkers;
+
+        std::array<std::unique_ptr<CountdownInfo>, 3> m_countdowns;
+
+        RestrictPingsTo     m_pingRestriction;
+
+        struct NoopGroupDeleter { void operator()(Group*) const { /*noop - not managed*/ } };
+        Trinity::unique_trackable_ptr<Group> m_scriptRef;
 };
 #endif

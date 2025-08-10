@@ -43,6 +43,8 @@ enum Texts
     SAY_ONAGGRO         = 5,
 };
 
+static constexpr uint32 PATH_ESCORT_ANETHERON = 142466;
+
 class boss_anetheron : public CreatureScript
 {
 public:
@@ -82,13 +84,13 @@ public:
             Initialize();
 
             if (IsEvent)
-                instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
+                instance->SetBossState(DATA_ANETHERON, NOT_STARTED);
         }
 
         void JustEngagedWith(Unit* /*who*/) override
         {
             if (IsEvent)
-                instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_ANETHERON, IN_PROGRESS);
 
             Talk(SAY_ONAGGRO);
         }
@@ -113,7 +115,7 @@ public:
         {
             hyjal_trashAI::JustDied(killer);
             if (IsEvent)
-                instance->SetData(DATA_ANETHERONEVENT, DONE);
+                instance->SetBossState(DATA_ANETHERON, DONE);
             Talk(SAY_ONDEATH);
         }
 
@@ -126,15 +128,8 @@ public:
                 if (!go)
                 {
                     go = true;
-                    AddWaypoint(0, 4896.08f,    -1576.35f,    1333.65f);
-                    AddWaypoint(1, 4898.68f,    -1615.02f,    1329.48f);
-                    AddWaypoint(2, 4907.12f,    -1667.08f,    1321.00f);
-                    AddWaypoint(3, 4963.18f,    -1699.35f,    1340.51f);
-                    AddWaypoint(4, 4989.16f,    -1716.67f,    1335.74f);
-                    AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
-                    AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
-                    AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
-                    Start(false, true);
+                    LoadPath(PATH_ESCORT_ANETHERON);
+                    Start(false);
                     SetDespawnAtEnd(false);
                 }
             }
@@ -173,11 +168,8 @@ public:
                 InfernoTimer = 45000;
                 Talk(SAY_INFERNO);
             } else InfernoTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_towering_infernal : public CreatureScript
@@ -197,12 +189,10 @@ public:
             ImmolationTimer = 5000;
             CheckTimer = 5000;
             instance = creature->GetInstanceScript();
-            AnetheronGUID = instance->GetGuidData(DATA_ANETHERON);
         }
 
         uint32 ImmolationTimer;
         uint32 CheckTimer;
-        ObjectGuid AnetheronGUID;
         InstanceScript* instance;
 
         void Reset() override
@@ -235,14 +225,11 @@ public:
         {
             if (CheckTimer <= diff)
             {
-                if (!AnetheronGUID.IsEmpty())
+                Creature* boss = instance->GetCreature(DATA_ANETHERON);
+                if (!boss || boss->isDead())
                 {
-                    Creature* boss = ObjectAccessor::GetCreature(*me, AnetheronGUID);
-                    if (!boss || boss->isDead())
-                    {
-                        me->DespawnOrUnsummon();
-                        return;
-                    }
+                    me->DespawnOrUnsummon();
+                    return;
                 }
                 CheckTimer = 5000;
             } else CheckTimer -= diff;
@@ -256,11 +243,8 @@ public:
                 DoCast(me, SPELL_IMMOLATION);
                 ImmolationTimer = 5000;
             } else ImmolationTimer -= diff;
-
-            DoMeleeAttackIfReady();
         }
     };
-
 };
 
 // 38196 - Vampiric Aura
@@ -271,8 +255,6 @@ class spell_anetheron_vampiric_aura : public SpellScriptLoader
 
         class spell_anetheron_vampiric_aura_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_anetheron_vampiric_aura_AuraScript);
-
             bool Validate(SpellInfo const* /*spellInfo*/) override
             {
                 return ValidateSpellInfo({ SPELL_VAMPIRIC_AURA_HEAL });

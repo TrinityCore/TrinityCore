@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "DB2Stores.h"
 #include "FlightPathMovementGenerator.h"
+#include "GossipDef.h"
 #include "Log.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -48,7 +49,7 @@ void WorldSession::SendTaxiStatus(ObjectGuid guid)
     Creature* unit = ObjectAccessor::GetCreature(*player, guid);
     if (!unit || unit->IsHostileTo(player) || !unit->HasNpcFlag(UNIT_NPC_FLAG_FLIGHTMASTER))
     {
-        TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - %s not found or you can't interact with him.", guid.ToString().c_str());
+        TC_LOG_DEBUG("network", "WorldSession::SendTaxiStatus - {} not found or you can't interact with him.", guid.ToString());
         return;
     }
 
@@ -74,7 +75,7 @@ void WorldSession::HandleTaxiQueryAvailableNodesOpcode(WorldPackets::Taxi::TaxiQ
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(taxiQueryAvailableNodes.Unit, UNIT_NPC_FLAG_FLIGHTMASTER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleTaxiQueryAvailableNodes - %s not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleTaxiQueryAvailableNodes - {} not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString());
         return;
     }
     // remove fake death
@@ -96,11 +97,13 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     if (!curloc)
         return;
 
+    GetPlayer()->PlayerTalkClass->GetInteractionData().StartInteraction(unit->GetGUID(), PlayerInteractionType::TaxiNode);
+
     bool lastTaxiCheaterState = GetPlayer()->isTaxiCheater();
     if (unit->GetEntry() == 29480)
         GetPlayer()->SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
 
-    TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY %u ", curloc);
+    TC_LOG_DEBUG("network", "WORLD: CMSG_TAXINODE_STATUS_QUERY {} ", curloc);
 
     WorldPackets::Taxi::ShowTaxiNodes data;
     data.WindowInfo.emplace();
@@ -123,18 +126,6 @@ void WorldSession::SendTaxiMenu(Creature* unit)
     GetPlayer()->SetTaxiCheater(lastTaxiCheaterState);
 }
 
-void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
-{
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (mountDisplayId)
-        GetPlayer()->Mount(mountDisplayId);
-
-    GetPlayer()->GetMotionMaster()->MoveTaxiFlight(path, pathNode);
-}
-
 bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 {
     // find current node
@@ -145,13 +136,14 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 
     if (GetPlayer()->m_taxi.SetTaximaskNode(curloc))
     {
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(curloc).Write());
 
         WorldPackets::Taxi::TaxiNodeStatus data;
         data.Unit = unit->GetGUID();
         data.Status = TAXISTATUS_LEARNED;
         SendPacket(data.Write());
 
+        GetPlayer()->UpdateCriteria(CriteriaType::LearnTaxiNode, curloc);
         return true;
     }
     else
@@ -161,7 +153,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
 {
     if (GetPlayer()->m_taxi.SetTaximaskNode(nodeid))
-        SendPacket(WorldPackets::Taxi::NewTaxiPath().Write());
+        SendPacket(WorldPackets::Taxi::NewTaxiPath(nodeid).Write());
 }
 
 void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& activateTaxi)
@@ -169,7 +161,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(activateTaxi.Vendor, UNIT_NPC_FLAG_FLIGHTMASTER, UNIT_NPC_FLAG_2_NONE);
     if (!unit)
     {
-        TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - %s not found or you can't interact with it.", activateTaxi.Vendor.ToString().c_str());
+        TC_LOG_DEBUG("network", "WORLD: HandleActivateTaxiOpcode - {} not found or you can't interact with it.", activateTaxi.Vendor.ToString());
         SendActivateTaxiReply(ERR_TAXITOOFARAWAY);
         return;
     }
@@ -202,10 +194,7 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPackets::Taxi::ActivateTaxi& ac
                 DB2Manager::MountXDisplayContainer usableDisplays;
                 std::copy_if(mountDisplays->begin(), mountDisplays->end(), std::back_inserter(usableDisplays), [this](MountXDisplayEntry const* mountDisplay)
                 {
-                    if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(mountDisplay->PlayerConditionID))
-                        return sConditionMgr->IsPlayerMeetingCondition(GetPlayer(), playerCondition);
-
-                    return true;
+                    return ConditionMgr::IsPlayerMeetingCondition(GetPlayer(), mountDisplay->PlayerConditionID);
                 });
 
                 if (!usableDisplays.empty())

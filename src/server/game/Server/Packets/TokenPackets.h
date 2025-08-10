@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TokenPackets_h__
-#define TokenPackets_h__
+#ifndef TRINITYCORE_TOKEN_PACKETS_H
+#define TRINITYCORE_TOKEN_PACKETS_H
 
 #include "Packet.h"
 #include "PacketUtilities.h"
@@ -28,57 +28,57 @@ namespace WorldPackets
         class CommerceTokenGetLog final : public ClientPacket
         {
         public:
-            CommerceTokenGetLog(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_LOG, std::move(packet)) { }
+            explicit CommerceTokenGetLog(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_LOG, std::move(packet)) { }
 
             void Read() override;
 
-            uint32 UnkInt   = 0;
+            uint32 ClientToken   = 0;
         };
 
         class CommerceTokenGetLogResponse final : public ServerPacket
         {
         public:
-            CommerceTokenGetLogResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_LOG_RESPONSE, 12) { }
+            explicit CommerceTokenGetLogResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_LOG_RESPONSE, 12) { }
 
             WorldPacket const* Write() override;
 
             struct AuctionableTokenInfo
             {
-                uint64 UnkInt1      = 0;
-                Timestamp<> UnkInt2;
-                int32 Owner         = 0;
-                uint64 BuyoutPrice  = 0;
+                uint64 Id           = 0;
+                Timestamp<> LastUpdate;
+                int32 Status        = 0;
+                uint64 Price        = 0;
                 uint32 DurationLeft = 0;
             };
 
-            uint32 UnkInt           = 0; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
+            uint32 ClientToken      = 0;
             uint32 Result           = 0;
-            std::vector<AuctionableTokenInfo> AuctionableTokenAuctionableList;
+            std::vector<AuctionableTokenInfo> AuctionableTokens;
         };
 
         class CommerceTokenGetMarketPrice final : public ClientPacket
         {
         public:
-            CommerceTokenGetMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_MARKET_PRICE, std::move(packet)) { }
+            explicit CommerceTokenGetMarketPrice(WorldPacket&& packet) : ClientPacket(CMSG_COMMERCE_TOKEN_GET_MARKET_PRICE, std::move(packet)) { }
 
             void Read() override;
 
-            uint32 UnkInt = 0;
+            uint32 ClientToken = 0;
         };
 
         class CommerceTokenGetMarketPriceResponse final : public ServerPacket
         {
         public:
-            CommerceTokenGetMarketPriceResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_MARKET_PRICE_RESPONSE, 20) { }
+            explicit CommerceTokenGetMarketPriceResponse() : ServerPacket(SMSG_COMMERCE_TOKEN_GET_MARKET_PRICE_RESPONSE, 20) { }
 
             WorldPacket const* Write() override;
 
-            uint64 CurrentMarketPrice   = 0;
-            uint32 UnkInt               = 0; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE
-            uint32 Result               = 0;
-            uint32 AuctionDuration      = 0; // preset auction duration enum
+            uint64 PriceGuarantee       = 0;
+            uint32 ClientToken          = 0;
+            uint32 ServerToken          = 0;
+            uint32 PriceLockDurationSeconds = 0; // preset auction duration enum
         };
     }
 }
 
-#endif // TokenPackets_h__
+#endif // TRINITYCORE_TOKEN_PACKETS_H

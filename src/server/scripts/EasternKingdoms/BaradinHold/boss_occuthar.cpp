@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "baradin_hold.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
@@ -60,7 +61,7 @@ class boss_occuthar : public CreatureScript
 
         struct boss_occutharAI : public BossAI
         {
-            boss_occutharAI(Creature* creature) : BossAI(creature, DATA_OCCUTHAR),
+            boss_occutharAI(Creature* creature) : BossAI(creature, BOSS_OCCUTHAR),
                 _vehicle(me->GetVehicleKit())
             {
                 ASSERT(_vehicle);
@@ -139,8 +140,6 @@ class boss_occuthar : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -169,7 +168,7 @@ class npc_eyestalk : public CreatureScript
             void IsSummonedBy(WorldObject* /*summoner*/) override
             {
                 // player is the spellcaster so register summon manually
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_OCCUTHAR)))
+                if (Creature* occuthar =  _instance->GetCreature(BOSS_OCCUTHAR))
                     occuthar->AI()->JustSummoned(me);
             }
 
@@ -213,8 +212,6 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
 
         class spell_occuthar_focused_fire_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_occuthar_focused_fire_SpellScript);
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (targets.size() < 2)
@@ -249,11 +246,9 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
 
         class spell_occuthar_eyes_of_occuthar_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_occuthar_eyes_of_occuthar_SpellScript);
-
             bool Validate(SpellInfo const* spellInfo) override
             {
-                return !spellInfo->GetEffects().empty() && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+                return ValidateSpellEffect({ { spellInfo->Id, EFFECT_0 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
             }
 
             bool Load() override
@@ -295,8 +290,6 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
 
         class spell_occuthar_eyes_of_occuthar_vehicle_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_occuthar_eyes_of_occuthar_vehicle_SpellScript);
-
             bool Load() override
             {
                 return InstanceHasScript(GetCaster(), BHScriptName);
@@ -306,7 +299,7 @@ class spell_occuthar_eyes_of_occuthar_vehicle : public SpellScriptLoader
             {
                 Position pos = GetHitUnit()->GetPosition();
 
-                if (Creature* occuthar = ObjectAccessor::GetCreature(*GetCaster(), GetCaster()->GetInstanceScript()->GetGuidData(DATA_OCCUTHAR)))
+                if (Creature* occuthar = GetCaster()->GetInstanceScript()->GetCreature(BOSS_OCCUTHAR))
                 {
                     if (Creature* creature = occuthar->SummonCreature(NPC_EYE_OF_OCCUTHAR, pos))
                         creature->CastSpell(GetHitUnit(), SPELL_GAZE_OF_OCCUTHAR, false);
@@ -333,8 +326,6 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
 
         class spell_occuthar_occuthars_destruction_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_occuthar_occuthars_destruction_AuraScript);
-
             bool Load() override
             {
                 return GetCaster() && GetCaster()->GetTypeId() == TYPEID_UNIT;

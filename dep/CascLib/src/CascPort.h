@@ -13,9 +13,7 @@
 #define __CASCPORT_H__
 
 #ifndef __cplusplus
-  #define bool  char
-  #define true  1
-  #define false 0
+  #include <stdbool.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -23,10 +21,16 @@
 
 #if !defined(CASCLIB_PLATFORM_DEFINED) && (defined(_WIN32) || defined(_WIN64))
 
+  // Make sure that headers are only included once in newer SDKs
+  #if defined (_MSC_VER) && (_MSC_VER >= 1020)
+  #pragma once
+  #endif
+
   // In MSVC 8.0, there are some functions declared as deprecated.
   #define _CRT_SECURE_NO_DEPRECATE
   #define _CRT_NON_CONFORMING_SWPRINTFS
 
+  // Prevent duplicate symbols defined by Windows headers
   #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
   #endif
@@ -43,7 +47,6 @@
   #include <direct.h>
   #include <malloc.h>
   #include <windows.h>
-  #include <ws2tcpip.h>
   #include <strsafe.h>
 
   #define CASCLIB_PLATFORM_LITTLE_ENDIAN
@@ -90,16 +93,12 @@
   #include <netdb.h>
 
   // Support for PowerPC on Max OS X
-  #if (__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
+  #if(__ppc__ == 1) || (__POWERPC__ == 1) || (_ARCH_PPC == 1)
     #include <stdint.h>
     #include <CoreFoundation/CFByteOrder.h>
   #endif
 
   #define    PKEXPORT
-
-  #ifndef __SYS_ZLIB
-    #define    __SYS_ZLIB
-  #endif
 
   #ifndef __BIG_ENDIAN__
     #define CASCLIB_PLATFORM_LITTLE_ENDIAN
@@ -207,6 +206,7 @@
   #define _tremove  remove
   #define _taccess  access
   #define _access   access
+  #define _tfopen   fopen
 
   #define _stricmp  strcasecmp
   #define _strnicmp strncasecmp
@@ -229,46 +229,54 @@
 
 // Platform-specific error codes for UNIX-based platforms
 #if defined(CASCLIB_PLATFORM_MAC) || defined(CASCLIB_PLATFORM_LINUX)
-  #define ERROR_SUCCESS                  0
-  #define ERROR_FILE_NOT_FOUND           ENOENT
-  #define ERROR_PATH_NOT_FOUND           ENOENT
-  #define ERROR_ACCESS_DENIED            EPERM
-  #define ERROR_INVALID_HANDLE           EBADF
-  #define ERROR_NOT_ENOUGH_MEMORY        ENOMEM
-  #define ERROR_NOT_SUPPORTED            ENOTSUP
-  #define ERROR_INVALID_PARAMETER        EINVAL
-  #define ERROR_DISK_FULL                ENOSPC
-  #define ERROR_ALREADY_EXISTS           EEXIST
-  #define ERROR_INSUFFICIENT_BUFFER      ENOBUFS
-  #define ERROR_BAD_FORMAT               1000       // No such error code under Linux
-  #define ERROR_NO_MORE_FILES            1001       // No such error code under Linux
-  #define ERROR_HANDLE_EOF               1002       // No such error code under Linux
-  #define ERROR_CAN_NOT_COMPLETE         1003       // No such error code under Linux
-  #define ERROR_FILE_CORRUPT             1004       // No such error code under Linux
-  #define ERROR_FILE_ENCRYPTED           1005       // Returned by encrypted stream when can't find file key
-  #define ERROR_FILE_TOO_LARGE           1006       // No such error code under Linux
-  #define ERROR_ARITHMETIC_OVERFLOW      1007       // The string value is too large to fit in the given type
-  #define ERROR_NETWORK_NOT_AVAILABLE    1008       // Cannot connect to the internet
+  #define ERROR_SUCCESS                 0
+  #define ERROR_FILE_NOT_FOUND          ENOENT
+  #define ERROR_PATH_NOT_FOUND          ENOENT
+  #define ERROR_ACCESS_DENIED           EPERM
+  #define ERROR_INVALID_HANDLE          EBADF
+  #define ERROR_NOT_ENOUGH_MEMORY       ENOMEM
+  #define ERROR_NOT_SUPPORTED           ENOTSUP
+  #define ERROR_INVALID_PARAMETER       EINVAL
+  #define ERROR_DISK_FULL               ENOSPC
+  #define ERROR_ALREADY_EXISTS          EEXIST
+  #define ERROR_INSUFFICIENT_BUFFER     ENOBUFS
+  #define ERROR_BAD_FORMAT              1000        // No such error code under Linux
+  #define ERROR_NO_MORE_FILES           1001        // No such error code under Linux
+  #define ERROR_HANDLE_EOF              1002        // No such error code under Linux
+  #define ERROR_CAN_NOT_COMPLETE        1003        // No such error code under Linux
+  #define ERROR_FILE_CORRUPT            1004        // No such error code under Linux
+  #define ERROR_FILE_ENCRYPTED          1005        // Returned by encrypted stream when can't find file key
+  #define ERROR_FILE_TOO_LARGE          1006        // No such error code under Linux
+  #define ERROR_ARITHMETIC_OVERFLOW     1007        // The string value is too large to fit in the given type
+  #define ERROR_NETWORK_NOT_AVAILABLE   1008        // Cannot connect to the internet
 #endif
 
 #ifndef ERROR_FILE_INCOMPLETE
-#define ERROR_FILE_INCOMPLETE            1006       // The required file part is missing
+#define ERROR_FILE_INCOMPLETE           1006        // The required file part is missing
 #endif
 
 #ifndef ERROR_FILE_OFFLINE
-#define ERROR_FILE_OFFLINE               1007       // The file is not available in the local storage
+#define ERROR_FILE_OFFLINE              1007        // The file is not available in the local storage
 #endif
 
 #ifndef ERROR_BUFFER_OVERFLOW
-#define ERROR_BUFFER_OVERFLOW            1008
+#define ERROR_BUFFER_OVERFLOW           1008
 #endif
 
 #ifndef ERROR_CANCELLED
-#define ERROR_CANCELLED                  1009
+#define ERROR_CANCELLED                 1009
 #endif
 
 #ifndef ERROR_INDEX_PARSING_DONE
-#define ERROR_INDEX_PARSING_DONE         1010
+#define ERROR_INDEX_PARSING_DONE        1010
+#endif
+
+#ifndef ERROR_REPARSE_ROOT
+#define ERROR_REPARSE_ROOT              1011
+#endif
+
+#ifndef ERROR_CKEY_ALREADY_OPENED
+#define ERROR_CKEY_ALREADY_OPENED       1012        // The file with this CKey was already open since CascOpenStorage
 #endif
 
 #ifndef _countof

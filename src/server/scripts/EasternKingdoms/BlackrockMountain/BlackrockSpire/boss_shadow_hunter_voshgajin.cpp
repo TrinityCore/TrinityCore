@@ -88,7 +88,6 @@ struct boss_shadow_hunter_voshgajin : public BossAI
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
-        DoMeleeAttackIfReady();
     }
 };
 

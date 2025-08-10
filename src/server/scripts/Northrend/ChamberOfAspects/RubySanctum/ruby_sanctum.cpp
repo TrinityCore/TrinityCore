@@ -166,8 +166,6 @@ class at_baltharus_plateau : public OnlyOnceAreaTriggerScript
 // 75415 - Rallying Shout
 class spell_ruby_sanctum_rallying_shout : public SpellScript
 {
-    PrepareSpellScript(spell_ruby_sanctum_rallying_shout);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_RALLY });

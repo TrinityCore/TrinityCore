@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ItemPacketsCommon_h__
-#define ItemPacketsCommon_h__
+#ifndef TRINITYCORE_ITEM_PACKETS_COMMON_H
+#define TRINITYCORE_ITEM_PACKETS_COMMON_H
 
 #include "ItemDefines.h"
 #include "PacketUtilities.h"
@@ -44,19 +44,14 @@ namespace WorldPackets
             std::vector<int32> BonusListIDs;
 
             bool operator==(ItemBonuses const& r) const;
-            bool operator!=(ItemBonuses const& r) const { return !(*this == r); }
         };
 
         struct ItemMod
         {
-            ItemMod() = default;
-            ItemMod(int32 value, ItemModifier type) : Value(value), Type(type) { }
-
             int32 Value = 0;
             ItemModifier Type = MAX_ITEM_MODIFIERS;
 
-            bool operator==(ItemMod const& r) const;
-            bool operator!=(ItemMod const& r) const { return !(*this == r); }
+            friend bool operator==(ItemMod const& left, ItemMod const& right) = default;
         };
 
         struct ItemModList
@@ -64,7 +59,6 @@ namespace WorldPackets
             Array<ItemMod, MAX_ITEM_MODIFIERS> Values;
 
             bool operator==(ItemModList const& r) const;
-            bool operator!=(ItemModList const& r) const { return !(*this == r); }
         };
 
         struct ItemInstance
@@ -79,7 +73,15 @@ namespace WorldPackets
             ItemModList Modifications;
 
             bool operator==(ItemInstance const& r) const;
-            bool operator!=(ItemInstance const& r) const { return !(*this == r); }
+        };
+
+        struct ItemBonusKey
+        {
+            int32 ItemID = 0;
+            std::vector<int32> BonusListIDs;
+            std::vector<ItemMod> Modifications;
+
+            bool operator==(ItemBonusKey const& right) const;
         };
 
         struct ItemEnchantData
@@ -107,23 +109,27 @@ namespace WorldPackets
 
             std::vector<InvItem> Items;
         };
+
+        struct UiEventToast
+        {
+            int32 UiEventToastID = 0;
+            int32 Asset = 0;
+        };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemInstanceData);
+        ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemInstanceData);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance);
+        ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance);
+
+        ByteBuffer& operator<<(ByteBuffer& data, ItemBonusKey const& itemBonusKey);
+
+        ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
+
+        ByteBuffer& operator<<(ByteBuffer& data, UiEventToast const& uiEventToast);
     }
 }
 
-namespace WorldPackets
-{
-namespace Item
-{
-ByteBuffer& operator<<(ByteBuffer& data, ItemInstance const& itemInstance);
-ByteBuffer& operator>>(ByteBuffer& data, ItemInstance& itemInstance);
-
-ByteBuffer& operator<<(ByteBuffer& data, ItemEnchantData const& itemEnchantData);
-
-ByteBuffer& operator<<(ByteBuffer& data, ItemGemData const& itemGemInstanceData);
-ByteBuffer& operator>>(ByteBuffer& data, ItemGemData& itemGemInstanceData);
-
-ByteBuffer& operator>>(ByteBuffer& data, InvUpdate& invUpdate);
-}
-}
-
-#endif // ItemPacketsCommon_h__
+#endif // TRINITYCORE_ITEM_PACKETS_COMMON_H

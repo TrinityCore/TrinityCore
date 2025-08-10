@@ -18,7 +18,10 @@
 #ifndef _GROUPMGR_H
 #define _GROUPMGR_H
 
-#include "Group.h"
+#include "ObjectGuid.h"
+#include <map>
+
+class Group;
 
 class TC_GAME_API GroupMgr
 {
@@ -27,6 +30,11 @@ private:
     ~GroupMgr();
 
 public:
+    GroupMgr(GroupMgr const&) = delete;
+    GroupMgr(GroupMgr&&) = delete;
+    GroupMgr& operator=(GroupMgr const&) = delete;
+    GroupMgr& operator=(GroupMgr&&) = delete;
+
     static GroupMgr* instance();
 
     typedef std::map<ObjectGuid::LowType, Group*> GroupContainer;

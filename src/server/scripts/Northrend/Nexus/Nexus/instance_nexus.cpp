@@ -21,7 +21,15 @@
 #include "InstanceScript.h"
 #include "Map.h"
 #include "nexus.h"
-#include "Player.h"
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_COMMANDER, {{ 519 }} },
+    { DATA_MAGUS_TELESTRA, {{ 520, 521, 2010 }} },
+    { DATA_ANOMALUS, {{ 522, 523, 2009 }} },
+    { DATA_ORMOROK, {{ 524, 525, 2012 }} },
+    { DATA_KERISTRASZA, {{ 526, 527, 2011 }} }
+};
 
 class instance_nexus : public InstanceMapScript
 {
@@ -34,13 +42,7 @@ class instance_nexus : public InstanceMapScript
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
-                _teamInInstance = 0;
-            }
-
-            void OnPlayerEnter(Player* player) override
-            {
-                if (!_teamInInstance)
-                    _teamInInstance = player->GetTeam();
+                LoadDungeonEncounterData(encounters);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -68,29 +70,20 @@ class instance_nexus : public InstanceMapScript
 
             uint32 GetCreatureEntry(ObjectGuid::LowType /*guidLow*/, CreatureData const* data) override
             {
-                if (!_teamInInstance)
-                {
-                    Map::PlayerList const& players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->GetSource())
-                            _teamInInstance = player->GetTeam();
-                }
-
-                uint32 entry = data->id;
-                switch (entry)
+                switch (data->id)
                 {
                     case NPC_ALLIANCE_BERSERKER:
-                        return _teamInInstance == ALLIANCE ? NPC_HORDE_BERSERKER : NPC_ALLIANCE_BERSERKER;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_HORDE_BERSERKER : NPC_ALLIANCE_BERSERKER;
                     case NPC_ALLIANCE_RANGER:
-                        return _teamInInstance == ALLIANCE ? NPC_HORDE_RANGER : NPC_ALLIANCE_RANGER;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_HORDE_RANGER : NPC_ALLIANCE_RANGER;
                     case NPC_ALLIANCE_CLERIC:
-                        return _teamInInstance == ALLIANCE ? NPC_HORDE_CLERIC : NPC_ALLIANCE_CLERIC;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_HORDE_CLERIC : NPC_ALLIANCE_CLERIC;
                     case NPC_ALLIANCE_COMMANDER:
-                        return _teamInInstance == ALLIANCE ? NPC_HORDE_COMMANDER : NPC_ALLIANCE_COMMANDER;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_HORDE_COMMANDER : NPC_ALLIANCE_COMMANDER;
                     case NPC_COMMANDER_STOUTBEARD:
-                        return _teamInInstance == ALLIANCE ? NPC_COMMANDER_KOLURG : NPC_COMMANDER_STOUTBEARD;
+                        return instance->GetTeamInInstance() == ALLIANCE ? NPC_COMMANDER_KOLURG : NPC_COMMANDER_STOUTBEARD;
                     default:
-                        return entry;
+                        return data->id;
                 }
             }
 
@@ -180,7 +173,6 @@ class instance_nexus : public InstanceMapScript
             ObjectGuid AnomalusContainmentSphere;
             ObjectGuid OrmoroksContainmentSphere;
             ObjectGuid TelestrasContainmentSphere;
-            uint32 _teamInInstance;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

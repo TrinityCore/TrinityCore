@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "CellImpl.h"
+#include "Containers.h"
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
@@ -492,8 +493,6 @@ struct boss_sartharion : public BossAI
         {
             _isSoftEnraged = true;
         }
-
-        DoMeleeAttackIfReady();
     }
 
 private:

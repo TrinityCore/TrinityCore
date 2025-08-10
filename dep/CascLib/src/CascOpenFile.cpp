@@ -41,7 +41,7 @@ TCascFile::TCascFile(TCascStorage * ahs, PCASC_CKEY_ENTRY apCKeyEntry)
 TCascFile::~TCascFile()
 {
     // Free all stuff related to file spans
-    if (pFileSpan != NULL)
+    if(pFileSpan != NULL)
     {
         PCASC_FILE_SPAN pSpanPtr = pFileSpan;
 
@@ -409,6 +409,21 @@ bool WINAPI CascOpenFile(HANDLE hStorage, const void * pvFileName, DWORD dwLocal
             break;
     }
 
+    // Check opening unique file
+    if(dwOpenFlags & CASC_OPEN_CKEY_ONCE)
+    {
+        // Was the file already open since CascOpenStorage?
+        if(pCKeyEntry->Flags & CASC_CE_OPEN_CKEY_ONCE)
+        {
+            SetCascError(ERROR_CKEY_ALREADY_OPENED);
+            return false;
+        }
+        else
+        {
+            pCKeyEntry->Flags |= CASC_CE_OPEN_CKEY_ONCE;
+        }
+    }
+
     // Perform the open operation
     return OpenFileByCKeyEntry(hs, pCKeyEntry, dwOpenFlags, PtrFileHandle);
 }
@@ -430,7 +445,7 @@ bool WINAPI CascCloseFile(HANDLE hFile)
     TCascFile * hf;
 
     hf = TCascFile::IsValid(hFile);
-    if (hf != NULL)
+    if(hf != NULL)
     {
         delete hf;
         return true;

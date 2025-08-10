@@ -57,6 +57,11 @@ enum BlackheartEvents
     EVENT_WAR_STOMP
 };
 
+enum BlackheartPaths
+{
+    PATH_BLACKHEART_IDLE = 5354960,
+};
+
 class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
 {
     using SimpleCharmedPlayerAI::SimpleCharmedPlayerAI;
@@ -112,7 +117,7 @@ struct boss_blackheart_the_inciter : public BossAI
         else
         {
             if (!charmCount)
-                EnterEvadeMode(EVADE_REASON_OTHER); // sanity check
+                EnterEvadeMode(EvadeReason::Other); // sanity check
             --charmCount;
         }
         if (charmCount)
@@ -158,8 +163,17 @@ struct boss_blackheart_the_inciter : public BossAI
             if (me->HasReactState(REACT_PASSIVE) || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
         }
+    }
 
-        DoMeleeAttackIfReady();
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId != PATH_BLACKHEART_IDLE)
+            return;
+
+        if (waypointId == 2)
+            Talk(SAY_DEATH); // ?
+        else if (waypointId == 3)
+            Talk(SAY_AGGRO); // ?
     }
 };
 
@@ -206,8 +220,6 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
 // 33676 - Incite Chaos
 class spell_blackheart_incite_chaos : public SpellScript
 {
-    PrepareSpellScript(spell_blackheart_incite_chaos);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_INCITE_CHAOS_B });

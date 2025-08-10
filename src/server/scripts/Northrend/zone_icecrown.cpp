@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "CombatAI.h"
+#include "Containers.h"
+#include "DB2Stores.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -96,8 +98,6 @@ struct npc_argent_valiant : public ScriptedAI
             DoCastVictim(SPELL_SHIELD_BREAKER);
             uiShieldBreakerTimer = 10000;
         } else uiShieldBreakerTimer -= uiDiff;
-
-        DoMeleeAttackIfReady();
     }
 };
 
@@ -270,7 +270,7 @@ struct npc_tournament_training_dummy : ScriptedAI
             case EVENT_DUMMY_RESET:
                 if (UpdateVictim())
                 {
-                    EnterEvadeMode(EVADE_REASON_OTHER);
+                    EnterEvadeMode(EvadeReason::Other);
                     events.ScheduleEvent(EVENT_DUMMY_RESET, 10s);
                 }
                 break;
@@ -731,8 +731,6 @@ struct npc_frostbrood_skytalon : public VehicleAI
 // 55288 - It's All Fun and Games: The Ocular On Death
 class spell_icecrown_the_ocular_on_death : public SpellScript
 {
-    PrepareSpellScript(spell_icecrown_the_ocular_on_death);
-
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
@@ -757,8 +755,6 @@ class spell_icecrown_the_ocular_on_death : public SpellScript
 // 66411 - Summon Tualiq Proxy
 class spell_icecrown_summon_tualiq_proxy : public SpellScript
 {
-    PrepareSpellScript(spell_icecrown_summon_tualiq_proxy);
-
     void SetDest(SpellDestination& dest)
     {
         Position const offset = { 0.0f, 0.0f, 30.0f, 0.0f };
@@ -784,8 +780,6 @@ enum BreakfastOfChampions
 // 66512 - Pound Drum
 class spell_icecrown_pound_drum : public SpellScript
 {
-    PrepareSpellScript(spell_icecrown_pound_drum);
-
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_SUMMON_DEEP_JORMUNGAR, SPELL_STORMFORGED_MOLE_MACHINE });
@@ -825,8 +819,6 @@ std::array<uint32, 4> const ChumTheWaterSummonSpells =
 // 66741 - Chum the Water
 class spell_icecrown_chum_the_water : public SpellScript
 {
-    PrepareSpellScript(spell_icecrown_chum_the_water);
-
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo(ChumTheWaterSummonSpells);
@@ -844,6 +836,89 @@ class spell_icecrown_chum_the_water : public SpellScript
     }
 };
 
+/*######
+## Quest 13121: Through the Eye
+######*/
+
+enum ThroughTheEye
+{
+    SPELL_SUMMON_IMAGE_OF_VARDMADRA        = 57891,
+    SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST   = 57885,
+    SPELL_USING_THE_EYE_OF_THE_LK          = 57889,
+    TEXT_USING_THE_EYE_OF_THE_LK           = 31493
+};
+
+// 25732 - Through the Eye: Eye of the Lich King
+class spell_icecrown_through_the_eye_the_eye_of_the_lk : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_IMAGE_OF_VARDMADRA, SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST }) &&
+            sBroadcastTextStore.LookupEntry(TEXT_USING_THE_EYE_OF_THE_LK);
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Player* target = GetTarget()->ToPlayer())
+            target->Unit::Whisper(TEXT_USING_THE_EYE_OF_THE_LK, target, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SUMMON_IMAGE_OF_VARDMADRA, true);
+        target->CastSpell(target, SPELL_SUMMON_IMAGE_OF_SHADOW_CULTIST, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_icecrown_through_the_eye_the_eye_of_the_lk::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectApplyFn(spell_icecrown_through_the_eye_the_eye_of_the_lk::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 57884 - Through the Eye: Kill Credit to Master
+class spell_icecrown_through_the_eye_kill_credit_to_master : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_USING_THE_EYE_OF_THE_LK });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_USING_THE_EYE_OF_THE_LK);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_through_the_eye_kill_credit_to_master::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 13008: Scourge Tactics
+######*/
+
+// 56515 - Summon Freed Crusader
+class spell_icecrown_summon_freed_crusader : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_summon_freed_crusader::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -855,4 +930,7 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_summon_tualiq_proxy);
     RegisterSpellScript(spell_icecrown_pound_drum);
     RegisterSpellScript(spell_icecrown_chum_the_water);
+    RegisterSpellScript(spell_icecrown_through_the_eye_the_eye_of_the_lk);
+    RegisterSpellScript(spell_icecrown_through_the_eye_kill_credit_to_master);
+    RegisterSpellScript(spell_icecrown_summon_freed_crusader);
 }

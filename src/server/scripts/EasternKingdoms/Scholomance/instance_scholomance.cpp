@@ -19,7 +19,25 @@
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
+#include "Unit.h"
 #include "scholomance.h"
+
+static constexpr DungeonEncounterData Encounters[] =
+{
+    { DATA_DOCTORTHEOLENKRASTINOV, {{ 458 }} },
+    { DATA_INSTRUCTORMALICIA, {{ 457 }} },
+    { DATA_LADYILLUCIABAROV, {{ 462 }} },
+    { DATA_LORDALEXEIBAROV, {{ 461 }} },
+    { DATA_LOREKEEPERPOLKELT, {{ 459 }} },
+    { DATA_THERAVENIAN, {{ 460 }} },
+    { DATA_DARKMASTERGANDLING, {{ 463 }} },
+    { DATA_KIRTONOS, {{ 451 }} },
+    { DATA_JANDICE_BAROV, {{ 452 }} },
+    { DATA_RATTLEGORE, {{ 453 }} },
+    { DATA_MARDUK_BLACKPOOL, {{ 454 }} },
+    { DATA_VECTUS, {{ 455 }} },
+    { DATA_RAS_FROSTWHISPER, {{ 456 }} },
+};
 
 Position const GandlingLoc = { 180.7712f, -5.428603f, 75.57024f, 1.291544f };
 
@@ -38,7 +56,18 @@ class instance_scholomance : public InstanceMapScript
             instance_scholomance_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
-                SetBossNumber(EncounterCount);
+                SetBossNumber(MAX_ENCOUNTER);
+                LoadDungeonEncounterData(Encounters);
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                switch (unit->GetEntry())
+                {
+                    case NPC_RATTLEGORE:        SetBossState(DATA_RATTLEGORE, DONE); break;
+                    case NPC_MARDUK_BLACKPOOL:  SetBossState(DATA_MARDUK_BLACKPOOL, DONE); break;
+                    default: break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* go) override
@@ -161,7 +190,7 @@ class instance_scholomance : public InstanceMapScript
                     instance->SummonCreature(NPC_DARKMASTER_GANDLING, GandlingLoc);
             }
 
-            void ReadSaveDataMore(std::istringstream& /*data*/) override
+            void AfterDataLoad() override
             {
                 CheckToSpawnGandling();
             }

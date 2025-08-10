@@ -18,14 +18,17 @@
 #include "InspectPackets.h"
 #include "AzeriteItem.h"
 #include "Item.h"
+#include "PacketOperators.h"
 #include "Player.h"
 
-void WorldPackets::Inspect::Inspect::Read()
+namespace WorldPackets::Inspect
+{
+void Inspect::Read()
 {
     _worldPacket >> Target;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectEnchantData const& enchantData)
+ByteBuffer& operator<<(ByteBuffer& data, InspectEnchantData const& enchantData)
 {
     data << uint32(enchantData.Id);
     data << uint8(enchantData.Index);
@@ -33,49 +36,49 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectEnchantDa
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::AzeriteEssenceData const& azeriteEssenceData)
+ByteBuffer& operator<<(ByteBuffer& data, AzeriteEssenceData const& azeriteEssenceData)
 {
     data << uint32(azeriteEssenceData.Index);
     data << uint32(azeriteEssenceData.AzeriteEssenceID);
     data << uint32(azeriteEssenceData.Rank);
-    data.WriteBit(azeriteEssenceData.SlotUnlocked);
+    data << Bits<1>(azeriteEssenceData.SlotUnlocked);
     data.FlushBits();
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectItemData const& itemData)
+ByteBuffer& operator<<(ByteBuffer& data, InspectItemData const& itemData)
 {
     data << itemData.CreatorGUID;
     data << uint8(itemData.Index);
-    data << uint32(itemData.AzeritePowers.size());
-    data << uint32(itemData.AzeriteEssences.size());
+    data << Size<uint32>(itemData.AzeritePowers);
+    data << Size<uint32>(itemData.AzeriteEssences);
 
     if (!itemData.AzeritePowers.empty())
         data.append(itemData.AzeritePowers.data(), itemData.AzeritePowers.size());
 
     data << itemData.Item;
-    data.WriteBit(itemData.Usable);
-    data.WriteBits(itemData.Enchants.size(), 4);
-    data.WriteBits(itemData.Gems.size(), 2);
+    data << Bits<1>(itemData.Usable);
+    data << BitsSize<4>(itemData.Enchants);
+    data << BitsSize<2>(itemData.Gems);
     data.FlushBits();
 
-    for (WorldPackets::Inspect::AzeriteEssenceData const& azeriteEssenceData : itemData.AzeriteEssences)
+    for (AzeriteEssenceData const& azeriteEssenceData : itemData.AzeriteEssences)
         data << azeriteEssenceData;
 
-    for (WorldPackets::Inspect::InspectEnchantData const& enchantData : itemData.Enchants)
+    for (InspectEnchantData const& enchantData : itemData.Enchants)
         data << enchantData;
 
-    for (WorldPackets::Item::ItemGemData const& gem : itemData.Gems)
+    for (Item::ItemGemData const& gem : itemData.Gems)
         data << gem;
 
     return data;
 }
 
-void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* player)
+void PlayerModelDisplayInfo::Initialize(Player const* player)
 {
     GUID = player->GetGUID();
-    SpecializationID = player->GetPrimarySpecialization();
+    SpecializationID = AsUnderlyingType(player->GetPrimarySpecialization());
     Name = player->GetName();
     GenderID = player->GetNativeGender();
     Race = player->GetRace();
@@ -89,28 +92,28 @@ void WorldPackets::Inspect::PlayerModelDisplayInfo::Initialize(Player const* pla
             Items.emplace_back(item, i);
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PlayerModelDisplayInfo const& displayInfo)
+ByteBuffer& operator<<(ByteBuffer& data, PlayerModelDisplayInfo const& displayInfo)
 {
     data << displayInfo.GUID;
     data << int32(displayInfo.SpecializationID);
-    data << uint32(displayInfo.Items.size());
-    data.WriteBits(displayInfo.Name.length(), 6);
+    data << Size<uint32>(displayInfo.Items);
+    data << SizedString::BitsSize<6>(displayInfo.Name);
     data << uint8(displayInfo.GenderID);
     data << uint8(displayInfo.Race);
     data << uint8(displayInfo.ClassID);
-    data << uint32(displayInfo.Customizations.size());
-    data.WriteString(displayInfo.Name);
+    data << Size<uint32>(displayInfo.Customizations);
+    data << SizedString::Data(displayInfo.Name);
 
-    for (WorldPackets::Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
+    for (Character::ChrCustomizationChoice const& customization : displayInfo.Customizations)
         data << customization;
 
-    for (WorldPackets::Inspect::InspectItemData const& item : displayInfo.Items)
+    for (InspectItemData const& item : displayInfo.Items)
         data << item;
 
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectGuildData const& guildData)
+ByteBuffer& operator<<(ByteBuffer& data, InspectGuildData const& guildData)
 {
     data << guildData.GuildGUID;
     data << int32(guildData.NumGuildMembers);
@@ -119,9 +122,10 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::InspectGuildData
     return data;
 }
 
-ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData const& bracket)
+ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
 {
     data << uint8(bracket.Bracket);
+    data << int32(bracket.RatingID);
     data << int32(bracket.Rating);
     data << int32(bracket.Rank);
     data << int32(bracket.WeeklyPlayed);
@@ -129,18 +133,31 @@ ByteBuffer& operator<<(ByteBuffer& data, WorldPackets::Inspect::PVPBracketData c
     data << int32(bracket.SeasonPlayed);
     data << int32(bracket.SeasonWon);
     data << int32(bracket.WeeklyBestRating);
+    data << int32(bracket.LastWeeksBestRating);
+    data << int32(bracket.Tier);
+    data << int32(bracket.WeeklyBestTier);
     data << int32(bracket.SeasonBestRating);
-    data << int32(bracket.PvpTierID);
-    data << int32(bracket.WeeklyBestWinPvpTierID);
-    data << int32(bracket.Unused1);
-    data << int32(bracket.Unused2);
-    data.WriteBit(bracket.Disqualified);
+    data << uint8(bracket.SeasonBestTierEnum);
+    data << int32(bracket.RoundsSeasonPlayed);
+    data << int32(bracket.RoundsSeasonWon);
+    data << int32(bracket.RoundsWeeklyPlayed);
+    data << int32(bracket.RoundsWeeklyWon);
+    data << Bits<1>(bracket.Disqualified);
     data.FlushBits();
 
     return data;
 }
 
-WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint8 index)
+ByteBuffer& operator<<(ByteBuffer& data, TraitInspectInfo const& traits)
+{
+    data << int32(traits.PlayerLevel);
+    data << int32(traits.SpecID);
+    data << traits.ActiveCombatTraits;
+
+    return data;
+}
+
+InspectItemData::InspectItemData(::Item const* item, uint8 index)
 {
     CreatorGUID = item->GetCreator();
 
@@ -159,7 +176,7 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
         {
             Gems.emplace_back();
 
-            WorldPackets::Item::ItemGemData& gem = Gems.back();
+            Item::ItemGemData& gem = Gems.back();
             gem.Slot = i;
             gem.Item.Initialize(&gemData);
         }
@@ -174,7 +191,7 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
             {
                 AzeriteEssences.emplace_back();
 
-                WorldPackets::Inspect::AzeriteEssenceData& essence = AzeriteEssences.back();
+                AzeriteEssenceData& essence = AzeriteEssences.back();
                 essence.Index = slot;
                 essence.AzeriteEssenceID = essences->AzeriteEssenceID[slot];
                 if (essence.AzeriteEssenceID)
@@ -189,12 +206,12 @@ WorldPackets::Inspect::InspectItemData::InspectItemData(::Item const* item, uint
     }
 }
 
-WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
+WorldPacket const* InspectResult::Write()
 {
     _worldPacket << DisplayInfo;
-    _worldPacket << uint32(Glyphs.size());
-    _worldPacket << uint32(Talents.size());
-    _worldPacket << uint32(PvpTalents.size());
+    _worldPacket << Size<uint32>(Glyphs);
+    _worldPacket << Size<uint32>(Talents);
+    _worldPacket << Size<uint32>(PvpTalents);
     _worldPacket << int32(ItemLevel);
     _worldPacket << uint8(LifetimeMaxRank);
     _worldPacket << uint16(TodayHK);
@@ -208,8 +225,8 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
-    _worldPacket.WriteBit(GuildData.has_value());
-    _worldPacket.WriteBit(AzeriteLevel.has_value());
+    _worldPacket << OptionalInit(GuildData);
+    _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();
 
     for (PVPBracketData const& bracket : Bracket)
@@ -221,10 +238,13 @@ WorldPacket const* WorldPackets::Inspect::InspectResult::Write()
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
 
+    _worldPacket << TraitsInfo;
+
     return &_worldPacket;
 }
 
-void WorldPackets::Inspect::QueryInspectAchievements::Read()
+void QueryInspectAchievements::Read()
 {
     _worldPacket >> Guid;
+}
 }

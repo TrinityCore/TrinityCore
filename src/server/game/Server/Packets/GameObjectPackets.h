@@ -15,11 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GOPackets_h__
-#define GOPackets_h__
+#ifndef TRINITYCORE_GAME_OBJECT_PACKETS_H
+#define TRINITYCORE_GAME_OBJECT_PACKETS_H
 
+#include "ObjectGuid.h"
 #include "Packet.h"
-#include "GameObject.h"
+
+enum class PlayerInteractionType : int32;
 
 namespace WorldPackets
 {
@@ -28,7 +30,7 @@ namespace WorldPackets
         class GameObjUse final : public ClientPacket
         {
         public:
-            GameObjUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_USE, std::move(packet)) { }
+            explicit GameObjUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_USE, std::move(packet)) { }
 
             void Read() override;
 
@@ -38,7 +40,7 @@ namespace WorldPackets
         class GameObjReportUse final : public ClientPacket
         {
         public:
-            GameObjReportUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_REPORT_USE, std::move(packet)) { }
+            explicit GameObjReportUse(WorldPacket&& packet) : ClientPacket(CMSG_GAME_OBJ_REPORT_USE, std::move(packet)) { }
 
             void Read() override;
 
@@ -48,7 +50,7 @@ namespace WorldPackets
         class GameObjectDespawn final : public ServerPacket
         {
         public:
-            GameObjectDespawn() : ServerPacket(SMSG_GAME_OBJECT_DESPAWN, 16) { }
+            explicit GameObjectDespawn() : ServerPacket(SMSG_GAME_OBJECT_DESPAWN, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -58,7 +60,7 @@ namespace WorldPackets
         class PageText final : public ServerPacket
         {
         public:
-            PageText() : ServerPacket(SMSG_PAGE_TEXT, 16) { }
+            explicit PageText() : ServerPacket(SMSG_PAGE_TEXT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -68,7 +70,7 @@ namespace WorldPackets
         class GameObjectActivateAnimKit final : public ServerPacket
         {
         public:
-            GameObjectActivateAnimKit() : ServerPacket(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1) { }
+            explicit GameObjectActivateAnimKit() : ServerPacket(SMSG_GAME_OBJECT_ACTIVATE_ANIM_KIT, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -80,7 +82,7 @@ namespace WorldPackets
         class DestructibleBuildingDamage final : public ServerPacket
         {
         public:
-            DestructibleBuildingDamage() : ServerPacket(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 16 + 16 + 16 + 4 + 4) { }
+            explicit DestructibleBuildingDamage() : ServerPacket(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 16 + 16 + 16 + 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -94,7 +96,7 @@ namespace WorldPackets
         class FishNotHooked final : public ServerPacket
         {
         public:
-            FishNotHooked() : ServerPacket(SMSG_FISH_NOT_HOOKED, 0) { }
+            explicit FishNotHooked() : ServerPacket(SMSG_FISH_NOT_HOOKED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -102,7 +104,7 @@ namespace WorldPackets
         class FishEscaped final : public ServerPacket
         {
         public:
-            FishEscaped() : ServerPacket(SMSG_FISH_ESCAPED, 0) { }
+            explicit FishEscaped() : ServerPacket(SMSG_FISH_ESCAPED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -110,7 +112,7 @@ namespace WorldPackets
         class GameObjectCustomAnim final : public ServerPacket
         {
         public:
-            GameObjectCustomAnim() : ServerPacket(SMSG_GAME_OBJECT_CUSTOM_ANIM, 16 + 4 + 1) { }
+            explicit GameObjectCustomAnim() : ServerPacket(SMSG_GAME_OBJECT_CUSTOM_ANIM, 16 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -119,22 +121,10 @@ namespace WorldPackets
             bool PlayAsDespawn = false;
         };
 
-        class GameObjectUILink final : public ServerPacket
-        {
-        public:
-            GameObjectUILink() : ServerPacket(SMSG_GAME_OBJECT_UI_LINK, 16 + 4) { }
-
-            WorldPacket const* Write() override;
-
-            ObjectGuid ObjectGUID;
-            int32 UILink = 0;
-            int32 UIItemInteractionID = 0;
-        };
-
         class GameObjectPlaySpellVisual final : public ServerPacket
         {
         public:
-            GameObjectPlaySpellVisual() : ServerPacket(SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 16 + 16 + 4) { }
+            explicit GameObjectPlaySpellVisual() : ServerPacket(SMSG_GAME_OBJECT_PLAY_SPELL_VISUAL, 16 + 16 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -142,6 +132,39 @@ namespace WorldPackets
             ObjectGuid ActivatorGUID;
             int32 SpellVisualID = 0;
         };
+
+        class GameObjectSetStateLocal final : public ServerPacket
+        {
+        public:
+            explicit GameObjectSetStateLocal() : ServerPacket(SMSG_GAME_OBJECT_SET_STATE_LOCAL, 16 + 1) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            uint8 State = 0;
+        };
+
+        class GameObjectInteraction final : public ServerPacket
+        {
+        public:
+            explicit GameObjectInteraction() : ServerPacket(SMSG_GAME_OBJECT_INTERACTION, 16 + 4) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid ObjectGUID;
+            PlayerInteractionType InteractionType = {};
+        };
+
+        class GameObjectCloseInteraction final : public ServerPacket
+        {
+        public:
+            explicit GameObjectCloseInteraction() : ServerPacket(SMSG_GAME_OBJECT_CLOSE_INTERACTION, 4) { }
+
+            WorldPacket const* Write() override;
+
+            PlayerInteractionType InteractionType = {};
+        };
     }
 }
-#endif // GOPackets_h__
+
+#endif // TRINITYCORE_GAME_OBJECT_PACKETS_H

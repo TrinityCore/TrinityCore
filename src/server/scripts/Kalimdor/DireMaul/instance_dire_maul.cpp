@@ -57,8 +57,7 @@ gets instead the deserter debuff.
 // 14 - Guard Slip'kik
 // 15 - Captain Kromcrush
 // 16 - King Gordok
-
-uint8 const EncounterCount = 23;
+// 23 - Cho'Rush the Observer
 
 uint32 const CrystalMobs[2] = { NPC_ARCANE_ABERRATION, NPC_MANA_REMNANT };
 
@@ -66,6 +65,26 @@ enum Events
 {
     EVENT_CRYSTAL_CREATURE_STORE                = 1,
     EVENT_CRYSTAL_CREATURE_CHECK                = 2
+};
+
+DungeonEncounterData const encounters[] =
+{
+    { DATA_LETHTENDRIS, {{ 345 }} },
+    { DATA_HYDROSPAWN, {{ 344 }} },
+    { DATA_ZEVRIM_THORNHOOF, {{ 343 }} },
+    { DATA_ALZZIN_THE_WILDSHAPER, {{ 346 }} },
+    { DATA_TENDRIS_WARPWOOD, {{ 350 }} },
+    { DATA_MAGISTER_KALENDRIS, {{ 348 }} },
+    { DATA_ILLYANNA_RAVENOAK, {{ 347 }} },
+    { DATA_IMMOLTHAR, {{ 349 }} },
+    { DATA_PRINCE_TORTHELDRIN, {{ 361 }} },
+    { DATA_GUARD_MOLDAR, {{ 362 }} },
+    { DATA_STOMPER_KREEG, {{ 363 }} },
+    { DATA_GUARD_FENGUS, {{ 364 }} },
+    { DATA_GUARD_SLIPKIK, {{ 365 }} },
+    { DATA_CAPTAIN_KROMCRUSH, {{ 366 }} },
+    { DATA_CHO_RUSH_THE_OBSERVER, {{ 367 }} },
+    { DATA_KING_GORDOK, {{ 368 }} }
 };
 
 class instance_dire_maul : public InstanceMapScript
@@ -78,7 +97,8 @@ public:
         instance_dire_maul_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
         {
             SetHeaders(DataHeader);
-            SetBossNumber(EncounterCount);
+            SetBossNumber(MAX_ENCOUNTER);
+            LoadDungeonEncounterData(encounters);
         }
 
         void OnCreatureCreate(Creature* creature) override
@@ -95,6 +115,12 @@ public:
                 default:
                     break;
             }
+        }
+
+        void OnUnitDeath(Unit* unit) override
+        {
+            if (unit->GetEntry() == NPC_CHO_RUSH)
+                SetBossState(DATA_CHO_RUSH_THE_OBSERVER, DONE);
         }
 
         void OnGameObjectCreate(GameObject* go) override
