@@ -301,7 +301,7 @@ class spell_rokmora_razor_shards : public SpellScript
 
     void Register() override
     {
-        OnCast += SpellCastFn(spell_rokmora_razor_shards::HandleCast);
+        AfterCast += SpellCastFn(spell_rokmora_razor_shards::HandleCast);
     }
 };
 

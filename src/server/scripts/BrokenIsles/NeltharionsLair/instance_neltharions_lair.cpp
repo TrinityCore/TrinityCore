@@ -20,6 +20,11 @@
 #include "ScriptMgr.h"
 #include "neltharions_lair.h"
 
+BossBoundaryData const boundaries =
+{
+    { DATA_ROKMORA, new RectangleBoundary(2855.4377f, 2953.1074f, 1360.5552f, 1438.9974f) }
+};
+
 ObjectData const creatureData[] =
 {
     { BOSS_ROKMORA,               DATA_ROKMORA               },
@@ -56,6 +61,7 @@ class instance_neltharions_lair : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
                 LoadDoorData(doorData);
+                LoadBossBoundaries(boundaries);
                 LoadDungeonEncounterData(encounters);
 
                 _rokmoraIntroState = NOT_STARTED;
