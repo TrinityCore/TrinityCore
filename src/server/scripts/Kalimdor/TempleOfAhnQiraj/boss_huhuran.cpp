@@ -54,12 +54,12 @@ enum HuhuranEvents
 // 15509 - Princess Huhuran
 struct boss_huhuran : public BossAI
 {
-    boss_huhuran(Creature* creature) : BossAI(creature, DATA_HUHURAN), _berserk(false) { }
+    boss_huhuran(Creature* creature) : BossAI(creature, DATA_HUHURAN), _berserkTriggered(false) { }
 
     void Reset() override
     {
         _Reset();
-        _berserk = false;
+        _berserkTriggered = false;
     }
 
     void JustEngagedWith(Unit* who) override
@@ -74,9 +74,9 @@ struct boss_huhuran : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!_berserk && me->HealthBelowPctDamaged(30, damage))
+        if (!_berserkTriggered && me->HealthBelowPctDamaged(30, damage))
         {
-            _berserk = true;
+            _berserkTriggered = true;
             events.CancelEvent(EVENT_ENRAGE);
             events.ScheduleEvent(EVENT_BERSERK, 0s);
         }
@@ -143,7 +143,7 @@ struct boss_huhuran : public BossAI
     }
 
 private:
-    bool _berserk;
+    bool _berserkTriggered;
 };
 
 // 26180 - Wyvern Sting
