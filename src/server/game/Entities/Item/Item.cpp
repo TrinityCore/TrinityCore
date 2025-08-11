@@ -154,7 +154,7 @@ void AddItemsSetItem(Player* player, Item const* item)
             eff->SetBonuses.insert(itemSetSpell);
             // spell cast only if fit form requirement, in other case will cast at form change
             if (!itemSetSpell->ChrSpecID || ChrSpecialization(itemSetSpell->ChrSpecID) == player->GetPrimarySpecialization())
-                player->ApplyEquipSpell(spellInfo, nullptr, true);
+                player->ApplyEquipSpell(spellInfo, nullptr, !player->HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS)); // item set auras should always be applicable (if player fits conditions), except if SPELL_AURA_CANCEL_EQUIPMENT_STATS is applied
         }
     }
 }
@@ -212,8 +212,14 @@ void RemoveItemsSetItem(Player* player, Item const* item)
     }
 }
 
-void UpdateItemSetAuras(Player* player, bool formChange)
+void UpdateItemSetAuras(Player* player, bool formChange, bool forced, bool apply)
 {
+    if (player->HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
+        return;
+
+    // item set auras should always be applicable (if player fits conditions), except if SPELL_AURA_CANCEL_EQUIPMENT_STATS is applied
+    bool canBenefitFromSetBonuses = forced ? apply : true;
+
     // item set bonuses not dependent from item broken state
     for (ItemSetEffect* eff : player->ItemSetEff)
     {
@@ -228,8 +234,9 @@ void UpdateItemSetAuras(Player* player, bool formChange)
                 player->ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
             else
             {
+                // add / remove auras fitting current item equipped & shapeshift form
                 player->ApplyEquipSpell(spellInfo, nullptr, false, formChange); // remove spells that not fit to form - removal is skipped if shapeshift condition is satisfied
-                player->ApplyEquipSpell(spellInfo, nullptr, true, formChange);  // add spells that fit form but not active
+                player->ApplyEquipSpell(spellInfo, nullptr, canBenefitFromSetBonuses, formChange);  // add spells that fit form but not active
             }
         }
     }

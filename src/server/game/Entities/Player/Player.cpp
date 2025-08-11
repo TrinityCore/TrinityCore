@@ -7925,11 +7925,23 @@ void Player::_ApplyItemMods(Item* item, uint8 slot, bool apply, bool updateItemA
     TC_LOG_DEBUG("entities.player.items", "Player::_ApplyItemMods: completed");
 }
 
-void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
+void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply, bool forced)
 {
     ItemTemplate const* proto = item->GetTemplate();
     if (slot >= REAGENT_BAG_SLOT_END || !proto)
         return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
+    {
+        WeaponAttackType attType = BASE_ATTACK;
+        if (slot == EQUIPMENT_SLOT_MAINHAND && (proto->GetInventoryType() == INVTYPE_RANGED || proto->GetInventoryType() == INVTYPE_RANGEDRIGHT))
+            attType = RANGED_ATTACK;
+        else if (slot == EQUIPMENT_SLOT_OFFHAND)
+            attType = OFF_ATTACK;
+        if (attType != MAX_ATTACK)
+            _ApplyWeaponDamage(slot, item, apply);
+        return;
+    }
 
     uint32 itemLevel = item->GetItemLevel(this);
     float combatRatingMultiplier = 1.0f;
@@ -8176,7 +8188,12 @@ void Player::_ApplyItemBonuses(Item* item, uint8 slot, bool apply)
 
     WeaponAttackType attType = Player::GetAttackBySlot(slot, proto->GetInventoryType());
     if (attType != MAX_ATTACK)
-        _ApplyWeaponDamage(slot, item, apply);
+    {
+        if (forced)
+            UpdateDamagePhysical(attType);
+        else
+            _ApplyWeaponDamage(slot, item, apply);
+    }
 }
 
 void Player::_ApplyWeaponDamage(uint8 slot, Item* item, bool apply)
@@ -8359,9 +8376,12 @@ bool Player::CheckAttackFitToAuraRequirement(WeaponAttackType attackType, AuraEf
     return true;
 }
 
-void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/)
+void Player::ApplyItemEquipSpell(Item* item, bool apply, bool formChange /*= false*/, bool forced /*= false*/)
 {
     if (!item || item->GetTemplate()->HasFlag(ITEM_FLAG_LEGACY))
+        return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     for (ItemEffectEntry const* effectData : item->GetEffects())
@@ -13457,13 +13477,13 @@ void Player::AddEnchantmentDuration(Item* item, EnchantmentSlot slot, uint32 dur
     }
 }
 
-void Player::ApplyEnchantment(Item* item, bool apply)
+void Player::ApplyEnchantment(Item* item, bool apply, bool forced)
 {
     for (uint32 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
-        ApplyEnchantment(item, EnchantmentSlot(slot), apply);
+        ApplyEnchantment(item, EnchantmentSlot(slot), apply, true, false, forced);
 }
 
-void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition)
+void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool apply_dur, bool ignore_condition, bool forced)
 {
     if (!item || !item->IsEquipped())
         return;
@@ -13486,6 +13506,9 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
         return;
 
     if (pEnchant->RequiredSkillID > 0 && pEnchant->RequiredSkillRank > GetSkillValue(pEnchant->RequiredSkillID))
+        return;
+
+    if (HasAuraType(SPELL_AURA_CANCEL_EQUIPMENT_STATS) && !forced)
         return;
 
     // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
@@ -31391,4 +31414,24 @@ bool Player::CanExecutePendingSpellCastRequest()
         return false;
 
     return true;
+}
+
+Item* Player::GetFirstMatchingItemInInventoryOrEquipment(uint32 entry) const
+{
+    // inventory items
+    for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+        if (Item* item = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (item->GetEntry() == entry)
+                return item;
+
+    for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+        if (Bag* bag = GetBagByPos(i))
+        {
+            for (uint32 j = 0; j < bag->GetBagSize(); j++)
+                if (Item* item = bag->GetItemByPos(j))
+                    if (item->GetEntry() == entry)
+                        return item;
+        }
+
+    return nullptr;
 }
