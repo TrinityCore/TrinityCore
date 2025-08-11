@@ -1854,6 +1854,32 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} uses incorrect TempSummonType {}, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
                 return false;
             }
+
+            if (e.action.summonCreature.createdBySpell != 0)
+            {
+                if (!IsSpellValid(e, e.action.summonCreature.createdBySpell))
+                    return false;
+
+                bool propertiesFound = false;
+                for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE)->GetEffects())
+                {
+                    if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
+                    {
+                        if (SummonPropertiesEntry const* summonProps = sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
+                        {
+                            propertiesFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!propertiesFound)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Spell {} is not a summon creature spell.",
+                                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.createdBySpell);
+                    return false;
+                }
+            }
             break;
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
