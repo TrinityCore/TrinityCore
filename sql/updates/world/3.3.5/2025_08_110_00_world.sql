@@ -13,3 +13,5 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `creature_text` WHERE `CreatureID` = 15348;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (15348,0,0,"%s goes into a frenzy!",16,0,100,0,0,0,2384,0,"Kurinnaxx EMOTE_FRENZY");
+
+UPDATE `creature_text` SET `TextRange` = 3 WHERE `CreatureID` = 15339 AND `GroupID` = 5;

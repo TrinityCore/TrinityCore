@@ -21,7 +21,6 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
-#include "CreatureTextMgr.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
@@ -98,7 +97,7 @@ struct boss_kurinnaxx : public BossAI
     {
         _JustDied();
         if (Creature* ossirian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OSSIRIAN)))
-            sCreatureTextMgr->SendChat(ossirian, SAY_KURINAXX_DEATH, nullptr, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+            ossirian->AI()->Talk(SAY_KURINAXX_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
