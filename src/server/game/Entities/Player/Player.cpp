@@ -14988,12 +14988,6 @@ uint32 Player::GetQuestMoneyReward(Quest const* quest) const
 
 uint32 Player::GetQuestXPReward(Quest const* quest)
 {
-    bool rewarded = IsQuestRewarded(quest->GetQuestId()) && !quest->IsDFQuest();
-
-    // Not give XP in case already completed once repeatable quest
-    if (rewarded)
-        return 0;
-
     uint32 XP = quest->XPValue(this) * sWorld->getRate(RATE_XP_QUEST);
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
