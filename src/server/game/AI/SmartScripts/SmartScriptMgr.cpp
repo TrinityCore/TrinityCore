@@ -1865,7 +1865,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 {
                     if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
                     {
-                        if (SummonPropertiesEntry const* summonProps = sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
+                        if (sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
                         {
                             propertiesFound = true;
                             break;
