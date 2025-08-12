@@ -38,6 +38,7 @@ namespace WorldPackets
             uint32 SpecID = 0;
             std::vector<uint16> TalentIDs;
             std::vector<PvPTalent> PvPTalents;
+            std::vector<uint32> GlyphIDs;
         };
 
         struct TalentInfoUpdate
@@ -45,6 +46,30 @@ namespace WorldPackets
             uint8 ActiveGroup = 0;
             uint32 PrimarySpecialization = 0;
             std::vector<TalentGroupInfo> TalentGroups;
+        };
+
+        struct ClassicTalentEntry
+        {
+            int32 TalentID = 0;
+            int32 Rank = 0;
+        };
+
+        struct ClassicTalentGroupInfo
+        {
+            uint8 NumTalents = 0;
+            std::vector<ClassicTalentEntry> Talents;
+            uint8 NumGlyphs = 0;
+            std::vector<uint16> GlyphIDs;
+            int8 Role = 0;
+            int32 PrimarySpecialization = 0;
+        };
+
+        struct ClassicTalentInfoUpdate
+        {
+            int32 UnspentTalentPoints = 0;
+            uint8 ActiveGroup = 0;
+            bool IsPetTalents = false;
+            std::vector<ClassicTalentGroupInfo> Talents;
         };
 
         class UpdateTalentData final : public ServerPacket
@@ -141,6 +166,8 @@ namespace WorldPackets
             int32 SpellID = 0;
             std::vector<PvPTalent> Talents;
         };
+
+        ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentInfoUpdate const& talentInfoInfo);
     }
 }
 

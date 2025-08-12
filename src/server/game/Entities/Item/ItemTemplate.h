@@ -811,6 +811,9 @@ enum ItemIdConstants
     ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308,   // Purple Ribboned Holiday Gift
     ITEM_EMPTY_WRAPPER                           = 21830,   // Empty Wrapper
     ITEM_WRAPPED_GIFT                            = 21831,   // Wrappered Gift
+
+    ITEM_ACCOUNT_BANK_TAB_BAG                    = 208392,  // Account Bank Tab Bag (DNT)
+    ITEM_CHARACTER_BANK_TAB_BAG                  = 242709,  // Character Bank Tab Bag (DNT)
 };
 
 class Player;

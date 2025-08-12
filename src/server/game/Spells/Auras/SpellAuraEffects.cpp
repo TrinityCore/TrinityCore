@@ -712,7 +712,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //640
     &AuraEffect::HandleNULL,                                      //641
     &AuraEffect::HandleNULL,                                      //642
-    &AuraEffect::HandleNULL,                                      //642 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //644
+    &AuraEffect::HandleNULL,                                      //645
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :

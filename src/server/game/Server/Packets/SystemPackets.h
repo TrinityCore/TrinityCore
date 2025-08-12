@@ -119,9 +119,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             bool VoiceEnabled                        = false;
-            bool BrowserEnabled                      = false;
             bool BpayStoreAvailable                  = false;
-            bool BpayStoreEnabled                    = false;
             Optional<SessionAlertConfig> SessionAlert;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             uint32 CfgRealmID                            = 0;
@@ -211,7 +209,6 @@ namespace WorldPackets
             bool BpayStoreAvailable                  = false; // NYI
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
-            bool BpayStoreEnabled                    = false;
             bool CommerceServerEnabled               = false; // NYI
             bool VeteranTokenRedeemWillKick          = false; // NYI
             bool WorldTokenRedeemWillKick            = false; // NYI
@@ -244,7 +241,6 @@ namespace WorldPackets
             uint32 CommercePricePollTimeSeconds      = 0;     // NYI
             int64 RedeemForBalanceAmount             = 0;     // NYI
             int32 MaxCharactersOnThisRealm           = 0;
-            uint32 BpayStorePurchaseTimeout          = 0;     // NYI
             int32 ActiveBoostType                    = 0;     // NYI
             int32 TrialBoostType                     = 0;     // NYI
             int32 MinimumExpansionLevel              = 0;

@@ -182,10 +182,6 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_AZERITE_EMPOWERED, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_VOID_STORAGE);
-    stmt->setUInt64(0, lowGuid);
-    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE, stmt);
-
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_MAILS, stmt);
@@ -352,6 +348,10 @@ bool LoginQueryHolder::Initialize()
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PLAYER_DATA_FLAGS_CHARACTER);
     stmt->setUInt64(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_DATA_FLAGS, stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_BANK_TAB_SETTINGS);
+    stmt->setUInt64(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_BANK_TAB_SETTINGS, stmt);
 
     return res;
 }
@@ -1504,7 +1504,6 @@ void WorldSession::SendFeatureSystemStatus()
     features.CfgRealmRecID = 0;
     features.CommercePricePollTimeSeconds = 300;
     features.VoiceEnabled = false;
-    features.BrowserEnabled = false; // Has to be false, otherwise client will crash if "Customer Support" is opened
 
     // Enable guilds only.
     // This is required to restore old guild channel behavior for GMs.

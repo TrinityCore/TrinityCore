@@ -318,9 +318,9 @@ ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineTurnData const& turnData)
 ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineAnimTierTransition const& animTierTransition)
 {
     data << int32(animTierTransition.TierTransitionID);
+    data << uint8(animTierTransition.AnimTier);
     data << uint32(animTierTransition.StartTime);
     data << uint32(animTierTransition.EndTime);
-    data << uint8(animTierTransition.AnimTier);
 
     return data;
 }
@@ -518,9 +518,9 @@ void CommonMovement::WriteCreateObjectSplineDataBlock(::Movement::MoveSpline con
         if (moveSpline.anim_tier)
         {
             data << int32(moveSpline.anim_tier->TierTransitionId);
+            data << uint8(moveSpline.anim_tier->AnimTier);
             data << uint32(moveSpline.effect_start_time);
             data << uint32(0);
-            data << uint8(moveSpline.anim_tier->AnimTier);
         }
 
         //if (HasUnknown901)
