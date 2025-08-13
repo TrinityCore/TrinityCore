@@ -3111,15 +3111,18 @@ Unit* WorldObject::GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spel
             if (spellInfo->CheckExplicitTarget(this, magnet) == SPELL_CAST_OK && IsValidAttackTarget(magnet, spellInfo))
             {
                 /// @todo handle this charge drop by proc in cast phase on explicit target
+                // 10ms of delay by default so the player sees the spell animation before it gets redirected if the spell is instant
+                uint32 delay = 10;
                 if (spellInfo->Speed > 0.0f)
                 {
                     // Set up missile speed based delay
-                    uint32 delay = uint32(std::floor(std::max<float>(victim->GetDistance(this), 5.0f) / spellInfo->Speed * 1000.0f));
+                    float dist = GetDistance(magnet->GetPositionX(), magnet->GetPositionY(), magnet->GetPositionZ());
+                    delay = uint32(std::floor(std::max(dist, 5.0f) / spellInfo->Speed * 1000.0f));
                     // Schedule charge drop
                     aurEff->GetBase()->DropChargeDelayed(delay, AURA_REMOVE_BY_EXPIRE);
                 }
                 else
-                    aurEff->GetBase()->DropCharge(AURA_REMOVE_BY_EXPIRE);
+                    aurEff->GetBase()->DropChargeDelayed(delay, AURA_REMOVE_BY_EXPIRE);
 
                 return magnet;
             }
