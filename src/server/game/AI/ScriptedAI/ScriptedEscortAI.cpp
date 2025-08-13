@@ -303,7 +303,7 @@ void EscortAI::Start(bool isActiveAttacker /* = true*/, bool run /* = false */, 
 
     if (_path.nodes.empty())
     {
-        TC_LOG_ERROR("scripts.ai.escortai", "EscortAI::Start: (script: {}) is set to return home after waypoint end and instant respawn at waypoint end. Creature will never despawn ({})", me->GetScriptName(), me->GetGUID().ToString());
+        TC_LOG_ERROR("scripts.ai.escortai", "EscortAI::Start: (script: {}) starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {}) ({})", me->GetScriptName(), quest ? quest->GetQuestId() : 0, me->GetGUID());
         return;
     }
 

@@ -41,6 +41,7 @@ enum HungarfenSpells
     SPELL_GROW                       = 31698
 };
 
+// 17770 - Hungarfen
 struct boss_hungarfen : public BossAI
 {
     boss_hungarfen(Creature* creature) : BossAI(creature, DATA_HUNGARFEN), _roared(false) { }
@@ -112,6 +113,7 @@ private:
     bool _roared;
 };
 
+// 17990 - Underbog Mushroom
 struct npc_underbog_mushroom : public ScriptedAI
 {
     npc_underbog_mushroom(Creature* creature) : ScriptedAI(creature), _counter(0) { }
