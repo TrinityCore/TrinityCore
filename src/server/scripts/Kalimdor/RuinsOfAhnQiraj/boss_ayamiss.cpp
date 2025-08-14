@@ -395,7 +395,7 @@ class spell_ayamiss_swarmer_start_loop : public SpellScript
     }
 };
 
-// 25830 - Hive'Zara Swarmer Teleport Trigger 
+// 25830 - Hive'Zara Swarmer Teleport Trigger
 class spell_ayamiss_swarmer_teleport_trigger : public SpellScript
 {
     PrepareSpellScript(spell_ayamiss_swarmer_teleport_trigger);
