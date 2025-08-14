@@ -27,6 +27,7 @@
 #include "RealmList.h"
 #include "SystemPackets.h"
 #include "Timezone.h"
+#include "Util.h"
 #include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)

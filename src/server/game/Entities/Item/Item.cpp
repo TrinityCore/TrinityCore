@@ -2000,30 +2000,7 @@ bool Item::IsValidTransmogrificationTarget() const
     if (proto->HasFlag(ITEM_FLAG2_NO_ALTER_ITEM_VISUAL))
         return false;
 
-    if (!HasStats())
-        return false;
-
     return true;
-}
-
-bool Item::HasStats() const
-{
-    ItemTemplate const* proto = GetTemplate();
-    Player const* owner = GetOwner();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetStatPercentEditor(i)) != 0)
-            return true;
-
-    return false;
-}
-
-bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
-{
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->StatPercentEditor[i] != 0)
-            return true;
-
-    return false;
 }
 
 enum class ItemTransmogrificationWeaponCategory : uint8
@@ -2035,7 +2012,6 @@ enum class ItemTransmogrificationWeaponCategory : uint8
     // One-handed
     AXE_MACE_SWORD_1H,
     DAGGER,
-    FIST,
 
     INVALID
 };
@@ -2060,11 +2036,10 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
             case ITEM_SUBCLASS_WEAPON_MACE:
             case ITEM_SUBCLASS_WEAPON_SWORD:
             case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
                 return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
             case ITEM_SUBCLASS_WEAPON_DAGGER:
                 return ItemTransmogrificationWeaponCategory::DAGGER;
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                return ItemTransmogrificationWeaponCategory::FIST;
             default:
                 break;
         }
