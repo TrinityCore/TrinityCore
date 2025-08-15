@@ -44,7 +44,6 @@ endif()
 find_package(Boost ${BOOST_REQUIRED_VERSION}
   REQUIRED
   COMPONENTS 
-    system
     filesystem
     program_options
     regex
