@@ -3475,20 +3475,10 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveMode removeMo
     ASSERT(!aurApp->GetEffectMask());
 
     // Remove totem at next update if totem loses its aura
-    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+    if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && IsTotem())
     {
-        Totem* totem = nullptr;
-
-        if (GetTypeId() == TYPEID_UNIT && IsTotem())
-            totem = ToTotem();
-        else if (WorldObject* auraOwner = aura->GetOwner())
-        {
-            if (auraOwner->GetTypeId() == TYPEID_UNIT && auraOwner->ToUnit()->IsTotem())
-                totem = auraOwner->ToUnit()->ToTotem();
-        }
-
-        if (totem && totem->GetSpell() == aura->GetId() && totem->GetTotemType() == TOTEM_PASSIVE)
-            totem->setDeathState(JUST_DIED);
+        if (ToTotem()->GetSpell() == aura->GetId() && ToTotem()->GetTotemType() == TOTEM_PASSIVE)
+            ToTotem()->setDeathState(JUST_DIED);
     }
 
     // Remove aurastates only if needed and were not found

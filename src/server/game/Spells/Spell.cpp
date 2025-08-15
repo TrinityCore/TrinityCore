@@ -8370,7 +8370,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
             case TARGET_CHECK_PARTY:
                 if (!refUnit)
                     return false;
-                if (unitTarget->IsTotem())
+                if (unitTarget->IsTotem() && !(unitTarget->GetOwner() && refUnit->IsInPartyWith(unitTarget->GetOwner())))
                     return false;
                 // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
                 if (!target->IsCorpse() && !_caster->IsValidAssistTarget(unitTarget, _spellInfo))
