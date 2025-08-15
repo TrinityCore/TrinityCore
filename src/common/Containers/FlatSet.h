@@ -17,6 +17,7 @@
 #ifndef TRINITYCORE_FLAT_SET_H
 #define TRINITYCORE_FLAT_SET_H
 
+#include <algorithm>
 #include <functional>
 #include <vector>
 
