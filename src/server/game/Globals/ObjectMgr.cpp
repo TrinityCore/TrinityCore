@@ -6870,7 +6870,8 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveyard(WorldLocation const& lo
     {
         if (z > -500)
         {
-            TC_LOG_ERROR("misc", "ZoneId not found for map {} coords ({}, {}, {})", MapId, x, y, z);
+            TC_LOG_ERROR("misc", "ZoneId not found for map {} coords ({}, {}, {}), object name: {} {}", MapId, x, y, z,
+                conditionObject ? std::string_view(conditionObject->GetName()) : "", Object::GetGUID(conditionObject));
             return GetDefaultGraveyard(team);
         }
     }
