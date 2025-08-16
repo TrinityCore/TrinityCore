@@ -70,7 +70,9 @@ enum AyamissSpells
     SPELL_SWARMER_TELEPORT_5    = 25828,
 
     // Hive'Zara Larva
-    SPELL_FEED                  = 25721
+    SPELL_FEED                  = 25721,
+    SPELL_LARVA_AGGRO_EFFECT    = 25724,    // NYI, most likely related to Paralyze
+    SPELL_LARVA_FEAR_EFFECT     = 25726     // NYI, most likely related to Paralyze
 };
 
 enum AyamissEvents
@@ -278,7 +280,7 @@ struct npc_hive_zara_larva : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->GetMotionMaster()->MovePoint(POINT_ALTAR, AltarPos);
+        me->GetMotionMaster()->MovePoint(POINT_ALTAR, AltarPos, true, 3.724058866500854492f);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -287,12 +289,8 @@ struct npc_hive_zara_larva : public ScriptedAI
             return;
 
         if (id == POINT_ALTAR)
-        {
-            me->SetFacingTo(3.724058866500854492f);
-
             if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
                 DoCast(target, SPELL_FEED);
-        }
     }
 
 private:
