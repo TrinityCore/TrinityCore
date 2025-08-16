@@ -155,7 +155,12 @@ struct TidesageCouncilSharedAI : public BossAI
         for (uint32 bossesData : TidesageData)
         {
             if (Creature* council = instance->GetCreature(bossesData))
+            {
+                if (!council->IsAlive() || council->IsInCombat())
+                    continue;
+
                 council->AI()->DoZoneInCombat();
+            }
         }
 
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
@@ -452,7 +457,7 @@ struct at_tidesage_council_swiftness_ward_boss : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        if (unit->GetEntry() != BOSS_BROTHER_IRONHULL || unit->GetEntry() != BOSS_GALECALLER_FAYE)
+        if (unit->GetEntry() != BOSS_BROTHER_IRONHULL && unit->GetEntry() != BOSS_GALECALLER_FAYE)
             return;
 
         Unit* caster = at->GetCaster();
