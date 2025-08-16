@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	8.0.42-0ubuntu0.22.04.1
+-- Server version	8.0.42-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -600,9 +600,9 @@ DROP TABLE IF EXISTS `character_bank_tab_settings`;
 CREATE TABLE `character_bank_tab_settings` (
   `characterGuid` bigint unsigned NOT NULL,
   `tabId` tinyint unsigned NOT NULL,
-  `name` varchar(16) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `icon` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `description` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icon` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `depositFlags` int DEFAULT '0',
   PRIMARY KEY (`characterGuid`,`tabId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -3821,7 +3821,8 @@ INSERT INTO `updates` VALUES
 ('2025_05_31_00_characters.sql','C240EB5C4008B6AA0514802A18D7DD875680DE82','ARCHIVED','2025-05-31 19:45:56',0),
 ('2025_06_27_00_characters.sql','35088BA5BA4BD3B7FAAD6FD4FAE38E52A5B71CD8','ARCHIVED','2025-06-27 14:22:08',0),
 ('2025_07_21_00_characters.sql','056A99B9AA90186E5B3177BF54C86607B6518BE9','ARCHIVED','2025-07-21 22:51:05',0),
-('2025_08_13_00_characters.sql','9C2321777E6C34F18799C8967B1CA0C44F17DA18','RELEASED','2025-08-12 20:17:45',0);
+('2025_08_13_00_characters.sql','9C2321777E6C34F18799C8967B1CA0C44F17DA18','ARCHIVED','2025-08-12 20:17:45',0),
+('2025_08_16_00_characters.sql','8DF6284B6C7BEDAB599F7E4802FF8BCD80613A92','ARCHIVED','2025-08-16 14:58:22',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3949,4 +3950,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-21 22:51:07
+-- Dump completed on 2025-08-16 14:58:24
