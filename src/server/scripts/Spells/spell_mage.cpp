@@ -769,7 +769,7 @@ class spell_mage_firestarter_dots : public AuraScript
 // 108853 - Fire Blast
 class spell_mage_fire_blast : public SpellScript
 {
-    void CalcCritChance(Unit const* /*victim*/, float& critChance) const
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
     {
         critChance = 100.0f;
     }
@@ -1196,7 +1196,7 @@ class spell_mage_improved_scorch : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
     }
 
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
     }
@@ -1387,7 +1387,7 @@ class spell_mage_molten_fury : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
     }
 
-    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
             eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{

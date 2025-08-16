@@ -474,7 +474,7 @@ class spell_sporecaller_zancha_boundless_rot : public SpellScript
 {
     static constexpr Position CenterPosition = { 1032.9444f, 1058.2899f, 33.330894f };
 
-    static void SetDest(SpellDestination& dest)
+    static void SetDest(SpellScript const&, SpellDestination& dest)
     {
         dest.Relocate(CenterPosition);
     }

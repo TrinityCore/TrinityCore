@@ -175,7 +175,7 @@ class spell_hun_aspect_of_the_fox : public SpellScript
         return !GetCaster()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_FOX);
     }
 
-    static void HandleCastWhileWalking(WorldObject*& target)
+    static void HandleCastWhileWalking(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -214,7 +214,7 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
 // 204089 - Bullseye
 class spell_hun_bullseye : public AuraScript
 {
-    static bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount());
     }
@@ -537,12 +537,12 @@ class spell_hun_manhunter : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_GREVIOUS_INJURY });
     }
 
-    static bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->IsPlayer();
     }
 
-    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_GREVIOUS_INJURY, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -917,7 +917,7 @@ class spell_hun_scouts_instincts : public SpellScript
         return !GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS);
     }
 
-    static void HandleMinSpeed(WorldObject*& target)
+    static void HandleMinSpeed(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }

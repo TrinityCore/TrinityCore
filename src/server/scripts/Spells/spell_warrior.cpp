@@ -118,7 +118,7 @@ static void ApplyWhirlwindCleaveAura(Player* caster, Difficulty difficulty, Spel
 // 392536 - Ashen Juggernaut
 class spell_warr_ashen_juggernaut : public AuraScript
 {
-    static bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         // should only proc on primary target
         return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();
@@ -423,7 +423,7 @@ class spell_warr_devastator : public AuraScript
 // 184361 - Enrage
 class spell_warr_enrage_proc : public AuraScript
 {
-    static bool CheckRampageProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    static bool CheckRampageProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x0, 0x0, 0x8000000 }))  // Rampage
@@ -432,7 +432,7 @@ class spell_warr_enrage_proc : public AuraScript
         return true;
     }
 
-    static bool CheckBloodthirstProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckBloodthirstProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
         if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
@@ -462,7 +462,7 @@ class spell_warr_enrage_proc : public AuraScript
 // 260798 - Execute (Arms, Protection)
 class spell_warr_execute_damage : public SpellScript
 {
-    static void CalculateExecuteDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
+    static void CalculateExecuteDamage(SpellScript const&, SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*damageOrHealing*/, int32 const& /*flatMod*/, float& pctMod)
     {
         // tooltip has 2 multiplier hardcoded in it $damage=${2.0*$260798s1}
         pctMod *= 2.0f;
@@ -490,7 +490,7 @@ class spell_warr_frenzied_enrage : public SpellScript
         return !GetCaster()->HasAura(SPELL_WARRIOR_FRENZIED_ENRAGE);
     }
 
-    static void HandleFrenziedEnrage(WorldObject*& target)
+    static void HandleFrenziedEnrage(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -575,7 +575,7 @@ class spell_warr_powerful_enrage : public SpellScript
         return !GetCaster()->HasAura(SPELL_WARRIOR_POWERFUL_ENRAGE);
     }
 
-    static void HandlePowerfulEnrage(WorldObject*& target)
+    static void HandlePowerfulEnrage(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -776,7 +776,7 @@ class spell_warr_intimidating_shout : public SpellScript
         unitList.remove(GetExplTargetWorldObject());
     }
 
-    static void ClearTargets(std::list<WorldObject*>& unitList)
+    static void ClearTargets(SpellScript const&, std::list<WorldObject*>& unitList)
     {
         // This is used in effect 3, which is an AOE Root effect.
         // This doesn't seem to be a thing anymore, so we clear the targets list here.
@@ -1113,7 +1113,7 @@ class spell_warr_strategist : public AuraScript
             && ValidateSpellEffect({ { SPELL_WARRIOR_STRATEGIST, EFFECT_0 } });
     }
 
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*procEvent*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
@@ -1135,7 +1135,7 @@ class spell_warr_strategist : public AuraScript
 // 280776 - Sudden Death
 class spell_warr_sudden_death : public AuraScript
 {
-    static bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         // should only proc on primary target
         return eventInfo.GetActionTarget() == eventInfo.GetProcSpell()->m_targets.GetUnitTarget();

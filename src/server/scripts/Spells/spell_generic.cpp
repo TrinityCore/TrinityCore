@@ -5578,7 +5578,7 @@ class spell_gen_no_npc_damage_below_override : public AuraScript
 public:
     spell_gen_no_npc_damage_below_override(float healthPct) : _healthPct(healthPct) {}
 
-    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }
