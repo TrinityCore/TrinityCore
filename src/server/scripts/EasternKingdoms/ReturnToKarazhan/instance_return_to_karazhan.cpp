@@ -29,7 +29,8 @@ ObjectData const creatureData[] =
 {
     { BOSS_MAIDEN_OF_VIRTUE_RTK, DATA_MAIDEN_OF_VIRTUE_RTK },
     { BOSS_THE_CURATOR_RTK,      DATA_THE_CURATOR_RTK      },
-    { 0,                     0                     }  // END
+    { BOSS_MANA_DEVOURER,        DATA_MANA_DEVOURER        },
+    { 0,                         0                         }  // END
 };
 
 DoorData const doorData[] =
