@@ -72,6 +72,20 @@ ArenaScript::ArenaScript(BattlegroundMap* map) : BattlegroundScript(map)
 
 }
 
+void ArenaScript::OnStart()
+{
+    Scheduler.Schedule(90s, [&](TaskContext)
+    {
+        OnShadowSightEnabled();
+    });
+}
+
+void ArenaScript::OnUpdate(uint32 diff)
+{
+    BattlegroundScript::OnUpdate(diff);
+    Scheduler.Update(diff);
+}
+
 GameObject* ArenaScript::CreateObject(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, GOState goState) const
 {
     QuaternionData rot(rotation0, rotation1, rotation2, rotation3);
