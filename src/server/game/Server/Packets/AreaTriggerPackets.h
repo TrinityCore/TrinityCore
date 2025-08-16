@@ -19,34 +19,13 @@
 #define TRINITYCORE_AREA_TRIGGER_PACKETS_H
 
 #include "Packet.h"
-#include "AreaTriggerTemplate.h"
 #include "CombatLogPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "Optional.h"
-
-namespace Movement
-{
-template<class index_type>
-class Spline;
-}
 
 namespace WorldPackets
 {
     namespace AreaTrigger
     {
-        struct AreaTriggerSplineInfo
-        {
-            uint32 TimeToTarget = 0;
-            uint32 ElapsedTimeForMovement = 0;
-            ::Movement::Spline<float>* Points = nullptr;
-        };
-
-        struct AreaTriggerMovementScriptInfo
-        {
-            uint32 SpellScriptID = 0;
-            TaggedPosition<Position::XYZ> Center;
-        };
-
         class AreaTrigger final : public ClientPacket
         {
         public:
@@ -78,20 +57,6 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class AreaTriggerRePath final : public ServerPacket
-        {
-        public:
-            explicit AreaTriggerRePath() : ServerPacket(SMSG_AREA_TRIGGER_RE_PATH, 17) { }
-
-            WorldPacket const* Write() override;
-
-            Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
-            Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
-            Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
-            ObjectGuid TriggerGUID;
-            ObjectGuid Unused_1100;
-        };
-
         class AreaTriggerPlaySpellVisual final : public ServerPacket
         {
         public:
@@ -114,9 +79,6 @@ namespace WorldPackets
             Spells::SpellCastVisual Visual;
             ObjectGuid TargetGUID;
         };
-
-        void WriteAreaTriggerSpline(ByteBuffer& data, uint32 timeToTarget, uint32 elapsedTimeForMovement, ::Movement::Spline<float> const& areaTriggerSpline);
-        ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement);
     }
 }
 
