@@ -119,7 +119,8 @@ struct boss_mana_devourer : public BossAI
             {
                 case EVENT_ARCANE_BOMB:
                 {
-                    DoCastSelf(SPELL_ARCANE_BOMB);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                        DoCast(target, SPELL_ARCANE_BOMB);
                     events.Repeat(13700ms);
                     break;
                 }
