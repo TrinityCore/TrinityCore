@@ -456,6 +456,7 @@ struct CreatureDifficulty
     int32 CreatureDifficultyID;
     uint32 TypeFlags;
     uint32 TypeFlags2;
+    uint32 TypeFlags3;
     uint32 LootID;
     uint32 PickPocketLootID;
     uint32 SkinLootID;
