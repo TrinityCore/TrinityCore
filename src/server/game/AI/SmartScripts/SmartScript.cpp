@@ -1180,7 +1180,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 Creature* creatureTarget = target->ToCreature();
-                if (creatureTarget)
+                if (!creatureTarget)
                     continue;
 
                 if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && creatureTarget->IsCharmed())

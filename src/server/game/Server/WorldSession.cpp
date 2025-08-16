@@ -22,6 +22,7 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AuthenticationPackets.h"
+#include "Bag.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
@@ -1525,7 +1526,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) co
         case CMSG_QUEST_GIVER_REQUEST_REWARD:           //   0               1
         case CMSG_COMPLETE_CINEMATIC:                   //   0               1
         case CMSG_BANKER_ACTIVATE:                      //   0               1
-        case CMSG_BUY_BANK_SLOT:                        //   0               1
+        case CMSG_BUY_ACCOUNT_BANK_TAB:                 //   0               1
         case CMSG_OPT_OUT_OF_LOOT:                      //   0               1
         case CMSG_DUEL_RESPONSE:                        //   0               1
         case CMSG_CALENDAR_COMPLAIN:                    //   0               1
@@ -1722,7 +1723,11 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) co
 
         case CMSG_GET_ITEM_PURCHASE_DATA:               // not profiled
         {
-            maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
+            maxPacketCounterAllowed = PLAYER_SLOTS_COUNT + MAX_BAG_SIZE * (
+                (INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START)
+                + (REAGENT_BAG_SLOT_END - REAGENT_BAG_SLOT_START)
+                + (BANK_SLOT_BAG_END - BANK_SLOT_BAG_START)
+                + (ACCOUNT_BANK_SLOT_BAG_END - ACCOUNT_BANK_SLOT_BAG_START));
             break;
         }
         case CMSG_HOTFIX_REQUEST:                       // not profiled
