@@ -115,7 +115,7 @@ struct boss_amnennar_the_coldbringer : public BossAI
     void EnterEvadeMode(EvadeReason why) override
     {
         DoCastSelf(SPELL_BANISH_FROST_SPECTRES, true);
-        ScriptedAI::EnterEvadeMode(why);
+        BossAI::EnterEvadeMode(why);
     }
 
     void JustDied(Unit* /*killer*/) override
