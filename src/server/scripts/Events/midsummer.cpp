@@ -490,6 +490,57 @@ public:
     explicit spell_midsummer_cleansing_flames(CleansingFlames triggeredSpell) : _triggeredSpell(triggeredSpell) { }
 };
 
+enum StampOutBonfire
+{
+    SPELL_STAMP_OUT_BONFIRE_EVENT     = 45443,
+    SPELL_STAMP_OUT_BONFIRE_ART_KIT   = 46903,
+    SPELL_STAMP_OUT_BONFIRE_DUMMY     = 45437
+};
+
+// 45458 - Holiday - Midsummer, Stamp Out Bonfire, Quest Complete
+class spell_midsummer_stamp_out_bonfire_quest_complete : public AuraScript
+{
+    PrepareAuraScript(spell_midsummer_stamp_out_bonfire_quest_complete);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STAMP_OUT_BONFIRE_EVENT });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_STAMP_OUT_BONFIRE_EVENT, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_midsummer_stamp_out_bonfire_quest_complete::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 45443 - Stamp Out Bonfire, Event
+class spell_midsummer_stamp_out_bonfire_event : public SpellScript
+{
+    PrepareSpellScript(spell_midsummer_stamp_out_bonfire_event);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_STAMP_OUT_BONFIRE_ART_KIT, SPELL_STAMP_OUT_BONFIRE_DUMMY });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_STAMP_OUT_BONFIRE_ART_KIT, true);
+        caster->CastSpell(caster, SPELL_STAMP_OUT_BONFIRE_DUMMY, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_midsummer_stamp_out_bonfire_event::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_event_midsummer()
 {
     RegisterSpellScript(spell_midsummer_braziers_hit);
@@ -511,4 +562,6 @@ void AddSC_event_midsummer()
     RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_undercity", SPELL_CREATE_FLAME_OF_THE_UNDERCITY);
     RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_silvermoon", SPELL_CREATE_FLAME_OF_SILVERMOON);
     RegisterSpellScriptWithArgs(spell_midsummer_cleansing_flames, "spell_midsummer_cleansing_flames_the_exodar", SPELL_CREATE_FLAME_OF_THE_EXODAR);
+    RegisterSpellScript(spell_midsummer_stamp_out_bonfire_quest_complete);
+    RegisterSpellScript(spell_midsummer_stamp_out_bonfire_event);
 }

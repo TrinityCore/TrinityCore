@@ -665,6 +665,64 @@ class spell_azuremyst_isle_cast_fishing_net : public SpellScript
     }
 };
 
+/*######
+## Quest 9542: Totem of Vark
+######*/
+
+enum TotemOfVark
+{
+    SPELL_SHADOW_OF_THE_FOREST_SI_DND     = 32213
+};
+
+// 30447 - Shadow of the Forest
+class spell_azuremyst_isle_shadow_of_the_forest_creature : public AuraScript
+{
+    PrepareAuraScript(spell_azuremyst_isle_shadow_of_the_forest_creature);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_THE_FOREST_SI_DND });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_OF_THE_FOREST_SI_DND, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_azuremyst_isle_shadow_of_the_forest_creature::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 30448 - Shadow of the Forest
+class spell_azuremyst_isle_shadow_of_the_forest_player : public AuraScript
+{
+    PrepareAuraScript(spell_azuremyst_isle_shadow_of_the_forest_player);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHADOW_OF_THE_FOREST_SI_DND });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_SHADOW_OF_THE_FOREST_SI_DND, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_SHADOW_OF_THE_FOREST_SI_DND);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_azuremyst_isle_shadow_of_the_forest_player::AfterApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_azuremyst_isle_shadow_of_the_forest_player::AfterRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_azuremyst_isle()
 {
     new npc_draenei_survivor();
@@ -674,4 +732,6 @@ void AddSC_azuremyst_isle()
     new npc_geezle();
     RegisterSpellScript(spell_inoculate_nestlewood);
     RegisterSpellScript(spell_azuremyst_isle_cast_fishing_net);
+    RegisterSpellScript(spell_azuremyst_isle_shadow_of_the_forest_creature);
+    RegisterSpellScript(spell_azuremyst_isle_shadow_of_the_forest_player);
 }
