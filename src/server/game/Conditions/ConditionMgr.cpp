@@ -26,13 +26,14 @@
 #include "LootMgr.h"
 #include "Map.h"
 #include "ObjectMgr.h"
-#include "Player.h"
 #include "Pet.h"
+#include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
 
 char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX] =
 {
@@ -407,7 +408,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_WORLD_STATE:
         {
-            condMeets = ConditionValue2 == sWorld->getWorldState(ConditionValue1);
+            condMeets = sWorldStateMgr->GetValue(ConditionValue1, object->GetMap()) == int32(ConditionValue2);
             break;
         }
         case CONDITION_PHASEMASK:
@@ -2252,7 +2253,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
         }
         case CONDITION_WORLD_STATE:
         {
-            if (!sWorld->getWorldState(cond->ConditionValue1))
+            if (!sWorldStateMgr->GetWorldStateTemplate(cond->ConditionValue1))
             {
                 TC_LOG_ERROR("sql.sql", "{} has non existing world state in value1 ({}), skipped.", cond->ToString(true), cond->ConditionValue1);
                 return false;
