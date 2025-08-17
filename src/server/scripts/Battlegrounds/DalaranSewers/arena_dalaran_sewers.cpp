@@ -277,14 +277,14 @@ class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public Au
         Unit* target = GetTarget();
 
         SpellInfo const* triggerInfo = sSpellMgr->GetSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell, GetCastDifficulty());
-        int32 const flushSpell = triggerInfo->GetEffect(EFFECT_0).CalcValue(); // flushSpell is the spell i'm validating in ValidateSpellInfo
-        uint32 targetAuraState = sSpellMgr->GetSpellInfo(flushSpell, GetCastDifficulty())->TargetAuraState;
+        int32 const flushSpell = triggerInfo->GetEffect(EFFECT_0).CalcValue();
+        uint32 targetAuraSpell = sSpellMgr->GetSpellInfo(flushSpell, GetCastDifficulty())->TargetAuraSpell;
 
         std::vector<Player*> playerList;
         target->GetPlayerListInGrid(playerList, 40.0f);
-        bool const anyValidTargets = std::ranges::any_of(playerList, [targetAuraState](Player const* player)
+        bool const anyValidTargets = std::ranges::any_of(playerList, [targetAuraSpell](Player const* player)
         {
-            return player->HasAura(targetAuraState);
+            return player->HasAura(targetAuraSpell);
         });
 
         if (!anyValidTargets)
