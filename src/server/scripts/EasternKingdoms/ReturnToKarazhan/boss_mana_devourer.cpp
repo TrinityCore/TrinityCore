@@ -263,18 +263,28 @@ struct at_mana_devourer_loose_mana : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
-    void OnInitialize() override
+    void OnCreate(Spell const* /*creatingSpell*/) override
     {
-        if (Unit* caster = at->GetCaster())
+        _scheduler.Schedule(500ms, [this](TaskContext task)
         {
-            at->SetOrientation(caster->GetOrientation());
+            if (Unit* caster = at->GetCaster())
+            {
+                at->SetOrientation(caster->GetOrientation());
 
-            Position destPos = caster->GetPosition();
-            PathGenerator path(at);
-            path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
+                Position destPos = caster->GetPosition();
+                PathGenerator path(at);
+                path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-            at->InitSplines(path.GetPath());
-        }
+                at->InitSplines(path.GetPath());
+            }
+
+            task.Repeat(500ms);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -286,6 +296,9 @@ struct at_mana_devourer_loose_mana : AreaTriggerAI
 
         at->Remove();
     }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 227523 - Energy Void
