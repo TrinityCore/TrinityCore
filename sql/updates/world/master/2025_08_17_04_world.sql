@@ -31,7 +31,7 @@ DELETE FROM `phase_area` WHERE `PhaseId` = 25628;
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (15781, 25628, 'See Om''talad in Tazavesh');
 
-DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 24888 AND `SourceEntry` = 0);
+DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId`=26 AND `SourceGroup` = 25628 AND `SourceEntry` = 0);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUE
 (26, 25628, 0, 0, 0, 47, 0, 87290, 64, 0, 1, 'Apply Phase 25628 if Quest 87290 is not rewarded');
 
