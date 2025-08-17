@@ -43,7 +43,7 @@ INSERT INTO `phase_name` (`ID`, `Name`) VALUES
 (24618, 'Cosmetic - See Ruya after cosmetic event'),
 (24881, 'Cosmetic - See Shahata after cosmetic event'),
 (24639, 'Cosmetic - See Shahata and Ruya near to Om''fennad'),
-(25282, 'Cosmetic - See Omtaha near Naakroa'),
+(25282, 'Cosmetic - See Omtaha near Naakroa'),
 (25280, 'Cosmetic - See Omtaha in Naakroa'),
 (25281, 'Cosmetic - see Omtaha before unbind in Naakroa'),
 (25269, 'Cosmetic - See Arcane Infusor Barriere in Naakroa'),
