@@ -279,13 +279,13 @@ class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public Au
 
         SpellInfo const* triggerInfo = sSpellMgr->GetSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell, GetCastDifficulty());
         int32 const flushSpell = triggerInfo->GetEffect(EFFECT_0).CalcValue();
-        uint32 targetAuraSpell = sSpellMgr->GetSpellInfo(flushSpell, GetCastDifficulty())->TargetAuraSpell;
+        SpellInfo const* flushInfo = sSpellMgr->GetSpellInfo(flushSpell, GetCastDifficulty());
 
         std::vector<Player*> playerList;
         target->GetPlayerListInGrid(playerList, 40.0f);
-        bool const anyValidTargets = std::ranges::any_of(playerList, [targetAuraSpell](Player const* player)
+        bool const anyValidTargets = std::ranges::any_of(playerList, [flushInfo, caster = target](Player const* player)
         {
-            return player->HasAura(targetAuraSpell);
+            return flushInfo->CheckTarget(caster, player) == SPELL_CAST_OK;
         });
 
         if (!anyValidTargets)
