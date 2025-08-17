@@ -937,12 +937,15 @@ class spell_hellfire_peninsula_absorb_eye_of_grillok : public AuraScript
     {
         PreventDefaultAction();
 
-        /// @todo: This is wrong, target should cast spell on caster but that doesn't work
         if (Unit* caster = GetCaster())
-            caster->CastSpell(caster, SPELL_EYE_OF_GRILLOK, aurEff);
+            GetTarget()->CastSpell(caster, SPELL_EYE_OF_GRILLOK, aurEff);
 
         if (Creature* target = GetTarget()->ToCreature())
-            target->DespawnOrUnsummon();
+        {
+            /// @todo: This is a hack, in flight missiles of spells of despawned creatures get cancelled - delay despawning by the duration of SPELL_EYE_OF_GRILLOK aura
+            target->SetVisible(false);
+            target->DespawnOrUnsummon(5s);
+        }
     }
 
     void Register() override
