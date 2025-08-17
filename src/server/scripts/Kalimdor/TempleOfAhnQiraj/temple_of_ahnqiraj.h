@@ -89,4 +89,6 @@ inline AI* GetAQ40AI(T* obj)
     return GetInstanceAI<AI>(obj, AQ40ScriptName);
 }
 
+#define RegisterAQ40CreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetAQ40AI)
+
 #endif
