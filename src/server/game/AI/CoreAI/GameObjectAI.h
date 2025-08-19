@@ -73,6 +73,9 @@ class TC_GAME_API GameObjectAI
         // prevents achievement tracking if returning true
         virtual bool OnReportUse(Player* /*player*/) { return false; }
 
+        // Called when internal heartbeat timer is passed (every 5 seconds by default)
+        virtual void OnHeartbeat() { }
+
         virtual void Destroyed(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
         virtual void Damaged(WorldObject* /*attacker*/, uint32 /*eventId*/) { }
 

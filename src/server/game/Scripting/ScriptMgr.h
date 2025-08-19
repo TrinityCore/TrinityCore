@@ -721,6 +721,8 @@ class TC_GAME_API PlayerScript : public ScriptObject
         // Called when a player completes a movie
         virtual void OnMovieComplete(Player* player, uint32 movieId);
 
+        // Called when unit internal heartbeat timer is passed (every 5 seconds by default)
+        virtual void OnHeartbeat(Player* /*player*/) { }
 };
 
 class TC_GAME_API AccountScript : public ScriptObject
@@ -1036,6 +1038,7 @@ class TC_GAME_API ScriptMgr
         void OnQuestStatusChange(Player* player, uint32 questId);
         void OnMovieComplete(Player* player, uint32 movieId);
         void OnPlayerRepop(Player* player);
+        void OnHeartbeat(Player* player);
 
     public: /* AccountScript */
 
