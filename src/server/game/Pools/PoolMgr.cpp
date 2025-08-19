@@ -255,66 +255,69 @@ void PoolGroup<Pool>::RemoveOneRelation(uint32 child_pool_id)
 template <class T>
 void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
 {
-    int count = limit - spawns.GetActiveObjectCount(poolId);
-
-    // If triggered from some object respawn this object is still marked as spawned
-    // and also counted into m_SpawnedPoolAmount so we need increase count to be
-    // spawned by 1
+    // First clear the object that triggered the respawn, if any.
+    // DespawnObject is responsible for decrementing the active object counter.
     if (triggerFrom)
-        ++count;
+        DespawnObject(spawns, triggerFrom);
 
-    if (count > 0)
+    int32 count = limit - spawns.GetActiveObjectCount(poolId);
+    if (count <= 0)
+        return;
+
+    PoolObjectList candidates;
+    candidates.reserve(EqualChanced.size() + ExplicitlyChanced.size());
+
+    // Add all not already active candidates.
+    for (PoolObject& obj : EqualChanced)
+        if (!spawns.IsActiveObject<T>(obj.guid))
+            candidates.push_back(obj);
+
+    for (PoolObject& obj : ExplicitlyChanced)
+        if (!spawns.IsActiveObject<T>(obj.guid))
+            candidates.push_back(obj);
+
+    if (candidates.empty())
+        return;
+
+    PoolObjectList rolledObjects;
+    rolledObjects.reserve(count);
+
+    // Attempt to select one object based on explicit chance.
+    if (!ExplicitlyChanced.empty())
     {
-        PoolObjectList rolledObjects;
-        rolledObjects.reserve(count);
-
-        // roll objects to be spawned
-        if (!ExplicitlyChanced.empty())
+        float roll = (float)rand_chance();
+        for (PoolObject& candidate : candidates)
         {
-            float roll = (float)rand_chance();
-
-            for (PoolObject& obj : ExplicitlyChanced)
+            if (candidate.chance > 0)
             {
-                roll -= obj.chance;
-                // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
-                // so this need explicit check for this case
-                if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
+                roll -= candidate.chance;
+                if (roll < 0)
                 {
-                    rolledObjects.push_back(obj);
-                    break;
+                    rolledObjects.push_back(candidate);
+                    std::swap(candidate, candidates.back());
+                    candidates.pop_back();
+                    break; // We only roll for one chanced object.
                 }
-            }
-        }
-
-        if (!EqualChanced.empty() && rolledObjects.empty())
-        {
-            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
-            {
-                return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
-            });
-
-            Trinity::Containers::RandomResize(rolledObjects, count);
-        }
-
-        // try to spawn rolled objects
-        for (PoolObject& obj : rolledObjects)
-        {
-            if (obj.guid == triggerFrom)
-            {
-                ReSpawn1Object(&obj);
-                triggerFrom = 0;
-            }
-            else
-            {
-                spawns.ActivateObject<T>(obj.guid, poolId);
-                Spawn1Object(&obj);
             }
         }
     }
 
-    // One spawn one despawn no count increase
-    if (triggerFrom)
-        DespawnObject(spawns, triggerFrom);
+    // Fill the remaining slots with random selections from the rest of the candidates.
+    uint32 remainingCount = count - rolledObjects.size();
+    if (remainingCount > 0 && !candidates.empty())
+    {
+        if (candidates.size() > remainingCount)
+            Trinity::Containers::RandomResize(candidates, remainingCount);
+
+        rolledObjects.insert(rolledObjects.end(), candidates.begin(), candidates.end());
+    }
+
+    // Spawn all the objects we've selected.
+    for (PoolObject& objToSpawn : rolledObjects)
+    {
+        spawns.ActivateObject<T>(objToSpawn.guid, poolId);
+        Spawn1Object(&objToSpawn);
+    }
 }
 
 // Method that is actualy doing the spawn job on 1 creature
