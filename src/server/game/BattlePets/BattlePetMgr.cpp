@@ -453,17 +453,16 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     if (!battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
         return;
 
-    BattlePet pet;
-    pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+
+    BattlePet& pet = _pets[guid.GetCounter()];
+    pet.PacketInfo.Guid = guid;
     pet.PacketInfo.Species = species;
     pet.PacketInfo.CreatureID = battlePetSpecies->CreatureID;
     pet.PacketInfo.DisplayID = display;
     pet.PacketInfo.Level = level;
-    pet.PacketInfo.Exp = 0;
-    pet.PacketInfo.Flags = 0;
     pet.PacketInfo.Breed = breed;
     pet.PacketInfo.Quality = AsUnderlyingType(quality);
-    pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
 
@@ -476,8 +475,6 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     }
 
     pet.SaveInfo = BATTLE_PET_NEW;
-
-    _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
 
     std::array<std::reference_wrapper<BattlePet const>, 1> updates = { pet };
     SendUpdates(updates, true);
