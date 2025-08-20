@@ -18,8 +18,6 @@
 #include "BattlegroundRL.h"
 #include "Log.h"
 #include "Player.h"
-#include "WorldPacket.h"
-#include "WorldStatePackets.h"
 
 BattlegroundRL::BattlegroundRL()
 {
@@ -77,13 +75,6 @@ void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
             Battleground::HandleAreaTrigger(player, trigger);
             break;
     }
-}
-
-void BattlegroundRL::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(3002, 1); // BATTELGROUND_RUINS_OF_LORDAERNON_SHOW
-
-    Arena::FillInitialWorldStates(packet);
 }
 
 bool BattlegroundRL::SetupBattleground()
