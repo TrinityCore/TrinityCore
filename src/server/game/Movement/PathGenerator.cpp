@@ -622,8 +622,20 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
 void PathGenerator::NormalizePath()
 {
-    for (uint32 i = 0; i < _pathPoints.size(); ++i)
-        _source->UpdateAllowedPositionZ(_pathPoints[i].x, _pathPoints[i].y, _pathPoints[i].z);
+    constexpr float MAX_Z_DELTA_THRESHOLD = 4.0f;
+    bool isPlayer = _source->GetTypeId() == TYPEID_PLAYER;
+
+    for (G3D::Vector3& pathPoint : _pathPoints)
+    {
+        float previousZ = pathPoint.z;
+
+        _source->UpdateAllowedPositionZ(pathPoint.x, pathPoint.y, pathPoint.z);
+
+        if (!isPlayer && (std::abs(pathPoint.z - previousZ) > MAX_Z_DELTA_THRESHOLD))
+        {
+            pathPoint.z = previousZ;
+        }
+    }
 }
 
 void PathGenerator::BuildShortcut()
