@@ -749,6 +749,94 @@ class spell_fjord_failed_mix_concoction_2 : public SpellScript
     }
 };
 
+/*######
+## Quest 11448: The Explorers' League Outpost
+######*/
+
+enum TheExplorersLeagueOutpost
+{
+    SPELL_TAXI_TO_EXPLORERS_LEAGUE     = 44280
+};
+
+// 51221 - Taxi to Explorers' League Outpost
+class spell_fjord_taxi_to_explorers_league_outpost : public AuraScript
+{
+    PrepareAuraScript(spell_fjord_taxi_to_explorers_league_outpost);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_TAXI_TO_EXPLORERS_LEAGUE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_TAXI_TO_EXPLORERS_LEAGUE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_taxi_to_explorers_league_outpost::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 11323, 11325: In Worg's Clothing
+######*/
+
+enum InWorgsClothing
+{
+    SPELL_WORG_DISGUISE_DUMMY     = 68347,
+    SPELL_WORG_DISGUISE           = 43369
+};
+
+// 43369 - Worg Disguise
+class spell_fjord_worg_disguise : public AuraScript
+{
+    PrepareAuraScript(spell_fjord_worg_disguise);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WORG_DISGUISE_DUMMY });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_WORG_DISGUISE_DUMMY);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_WORG_DISGUISE_DUMMY);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_fjord_worg_disguise::AfterApply, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_worg_disguise::AfterRemove, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 68347 - Worg Disguise
+class spell_fjord_worg_disguise_dummy : public AuraScript
+{
+    PrepareAuraScript(spell_fjord_worg_disguise_dummy);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WORG_DISGUISE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_WORG_DISGUISE);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fjord_worg_disguise_dummy::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -769,4 +857,7 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_mixing_vrykul_blood);
     RegisterSpellScript(spell_fjord_failed_mix_concoction_1);
     RegisterSpellScript(spell_fjord_failed_mix_concoction_2);
+    RegisterSpellScript(spell_fjord_taxi_to_explorers_league_outpost);
+    RegisterSpellScript(spell_fjord_worg_disguise);
+    RegisterSpellScript(spell_fjord_worg_disguise_dummy);
 }
