@@ -123,10 +123,11 @@ namespace Trinity::Impl::ChatCommands
 
     TC_GAME_API void SendErrorMessageToHandler(ChatHandler* handler, std::string_view str);
     TC_GAME_API char const* GetTrinityString(ChatHandler const* handler, TrinityStrings which);
+    TC_GAME_API std::string FormatTrinityString(std::string_view messageFormat, fmt::printf_args messageFormatArgs);
     template <typename... Ts>
     std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
     {
-        return fmt::sprintf(GetTrinityString(handler, which), std::forward<Ts>(args)...);
+        return FormatTrinityString(GetTrinityString(handler, which), fmt::make_printf_args(std::forward<Ts>(args)...));
     }
 }
 

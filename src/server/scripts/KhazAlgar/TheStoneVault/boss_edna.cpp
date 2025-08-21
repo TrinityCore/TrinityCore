@@ -383,7 +383,7 @@ class spell_edna_skarden_spawn_rp_periodic : public AuraScript
 // 451728 - Skarden Spawn RP
 class spell_edna_skarden_spawn_rp : public SpellScript
 {
-    static void SetDest(SpellDestination& dest)
+    static void SetDest(SpellScript const&, SpellDestination& dest)
     {
         dest.Relocate(Trinity::Containers::SelectRandomContainerElement(SkardenSpawnPositions));
     }

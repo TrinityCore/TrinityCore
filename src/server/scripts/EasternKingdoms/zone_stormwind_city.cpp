@@ -28,6 +28,9 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "SpellAuras.h"
+#include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "Spell.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
@@ -79,6 +82,8 @@ enum NationOfKulTirasData
     SPELL_JAINA_TELEPORT                = 40163,
     SPELL_SKIP_KULTIRAS_INTRO           = 279998,
     SPELL_SKIP_TOLDAGOR_TELEPORT        = 247285,
+    SPELL_BORALUS_TRANSITION            = 240872,
+    SPELL_BORALUS_TRANSITION_MOVIE      = 240873,
 
     CONVERSATION_JAINA_LEAVE_COUNCIL    = 4896,
 
@@ -203,7 +208,7 @@ struct npc_jaina_proudmoore_tides_of_war : public ScriptedAI
             if (gossipListId == GOSSIP_OPTION_START_KULTIRAS_INTRO)
             {
                 CloseGossipMenuFor(player);
-                // @TODO: script start of TolDagor intro
+                player->CastSpell(nullptr, SPELL_BORALUS_TRANSITION, false);
             }
             else if (gossipListId == GOSSIP_OPTION_SKIP_KULTIRAS_INTRO)
             {
@@ -338,6 +343,26 @@ class spell_kultiras_skip_intro : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_kultiras_skip_intro::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 240876 - Stormwind Harbor to Boralus transition
+class spell_stormwind_harbor_to_boralus_transition : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+    }
+
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, aurEff->GetAmount(), false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_stormwind_harbor_to_boralus_transition::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -658,6 +683,7 @@ void AddSC_stormwind_city()
     // Spells
     RegisterSpellScript(spell_despawn_sailor_memory);
     RegisterSpellScript(spell_kultiras_skip_intro);
+    RegisterSpellScript(spell_stormwind_harbor_to_boralus_transition);
     RegisterSpellAndAuraScriptPair(spell_the_kings_command_movie_aura, spell_the_kings_command_movie_aura_aura);
     RegisterSpellScript(spell_admiral_rogers_script_effect);
     RegisterSpellScript(spell_teleport_prep_alliance);

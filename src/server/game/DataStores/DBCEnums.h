@@ -191,7 +191,7 @@ enum class AreaTriggerActionSetFlag : uint32
     CreatorsPartyOnly               = 0x0100,
     DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
     CanAffectUninteractible         = 0x0400,
-    DontDespawnWithCreator          = 0x0800, /*NYI*/
+    DontDespawnWithCreator          = 0x0800,
     CanAffectBeastmaster            = 0x1000, // Can affect GMs
     RequiresLineOfSight             = 0x2000  /*NYI*/
 };
@@ -269,6 +269,12 @@ enum class BattlePetSpeciesFlags : int32
 };
 
 DEFINE_ENUM_FLAG(BattlePetSpeciesFlags);
+
+enum class BattlemasterType : int32
+{
+    Battleground    = 0,
+    Arena           = 1,
+};
 
 enum class BattlemasterListFlags : uint32
 {
@@ -441,7 +447,7 @@ enum class ContentTuningCalcType : int32
 enum class ContentTuningFlag : int32
 {
     DisabledForItem = 0x04,
-    Horde           = 0x8,
+    Horde           = 0x08,
     Alliance        = 0x10
 };
 
@@ -785,11 +791,11 @@ enum class CriteriaType : int16
 
     CompleteQuestsCountOnAccount                   = 257, /*NYI*/
 
-    WarbandBankTabPurchased                        = 260, /*NYI*/
+    BankTabPurchased                               = 260, // Bank Tab Purchased in {#BankType}
     ReachRenownLevel                               = 261,
     LearnTaxiNode                                  = 262,
 
-    Count                                          = 264
+    Count                                          = 270
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -885,14 +891,15 @@ DEFINE_ENUM_FLAG(CurrencyTypesFlags);
 
 enum class CurrencyTypesFlagsB : uint32
 {
-    UseTotalEarnedForEarned             = 0x01,
-    ShowQuestXPGainInTooltip            = 0x02, // NYI
-    NoNotificationMailOnOfflineProgress = 0x04, // NYI
-    BattlenetVirtualCurrency            = 0x08, // NYI
-    FutureCurrencyFlag                  = 0x10, // NYI
-    DontDisplayIfZero                   = 0x20, // NYI
-    ScaleMaxQuantityBySeasonWeeks       = 0x40, // NYI
-    ScaleMaxQuantityByWeeksSinceStart   = 0x80, // NYI
+    UseTotalEarnedForEarned             = 0x0001,
+    ShowQuestXPGainInTooltip            = 0x0002, // NYI
+    NoNotificationMailOnOfflineProgress = 0x0004, // NYI
+    BattlenetVirtualCurrency            = 0x0008, // NYI
+    FutureCurrencyFlag                  = 0x0010, // NYI
+    DontDisplayIfZero                   = 0x0020, // NYI
+    ScaleMaxQuantityBySeasonWeeks       = 0x0040, // NYI
+    ScaleMaxQuantityByWeeksSinceStart   = 0x0080, // NYI
+    ForceMaxQuantityOnConversion        = 0x0100, // NYI
 };
 
 DEFINE_ENUM_FLAG(CurrencyTypesFlagsB);
@@ -1009,6 +1016,107 @@ enum class FriendshipReputationFlags : int32
 
 DEFINE_ENUM_FLAG(FriendshipReputationFlags);
 
+enum class GameRule : int32
+{
+    NoDebuffLimit                           = 1,
+    CharNameReservationEnabled              = 2,
+    MaxCharReservationsPerRealm             = 3,
+    MaxAccountCharReservationsPerContentset = 4,
+    EtaRealmLaunchTime                      = 5,
+    TrivialGroupXPPercent                   = 7,
+    CharReservationsPerRealmReopenThreshold = 8,
+    DisablePct                              = 9,
+    HardcoreRuleset                         = 10,
+    ReplaceAbsentGmSeconds                  = 11,
+    ReplaceGmRankLastOnlineSeconds          = 12,
+    GameMode                                = 13,
+    CharacterlessLogin                      = 14,
+    NoMultiboxing                           = 15,
+    VanillaNpcKnockback                     = 16,
+    Runecarving                             = 17,
+    TalentRespecCostMin                     = 18,
+    TalentRespecCostMax                     = 19,
+    TalentRespecCostStep                    = 20,
+    VanillaRageGenerationModifier           = 21,
+    SelfFoundAllowed                        = 22,
+    DisableHonorDecay                       = 23,
+    MaxLootDropLevel                        = 25,
+    MicrobarScale                           = 26,
+    MaxUnitNameDistance                     = 27,
+    MaxNameplateDistance                    = 28,
+    UserAddonsDisabled                      = 29,
+    UserScriptsDisabled                     = 30,
+    NonPlayerNameplateScale                 = 31,
+    ForcedPartyFrameScale                   = 32,
+    CustomActionbarOverlayHeightOffset      = 33,
+    ForcedChatLanguage                      = 34,
+    LandingPageFactionID                    = 35,
+    CollectionsPanelDisabled                = 36,
+    CharacterPanelDisabled                  = 37,
+    SpellbookPanelDisabled                  = 38,
+    TalentsPanelDisabled                    = 39,
+    AchievementsPanelDisabled               = 40,
+    CommunitiesPanelDisabled                = 41,
+    EncounterJournalDisabled                = 42,
+    FinderPanelDisabled                     = 43,
+    StoreDisabled                           = 44,
+    HelpPanelDisabled                       = 45,
+    GuildsDisabled                          = 46,
+    QuestLogMicrobuttonDisabled             = 47,
+    MapPlunderstormCircle                   = 48,
+    AfterDeathSpectatingUI                  = 49,
+    FrontEndChat                            = 50,
+    UniversalNameplateOcclusion             = 51,
+    FastAreaTriggerTick                     = 52,
+    AllPlayersAreFastMovers                 = 53,
+    IgnoreChrclassDisabledFlag              = 54,
+    CharacterCreateUseFixedBackgroundModel  = 55,
+    ForceAlteredFormsOn                     = 56,
+    PlayerNameplateDifficultyIcon           = 57,
+    PlayerNameplateAlternateHealthColor     = 58,
+    AlwaysAllowAlliedRaces                  = 59,
+    ActionbarIconIntroDisabled              = 60,
+    ReleaseSpiritGhostDisabled              = 61,
+    DeleteItemConfirmationDisabled          = 62,
+    ChatLinkLevelToastsDisabled             = 63,
+    BagsUIDisabled                          = 64,
+    PetBattlesDisabled                      = 65,
+    PerksProgramActivityTrackingDisabled    = 66,
+    MaximizeWorldMapDisabled                = 67,
+    WorldMapTrackingOptionsDisabled         = 68,
+    WorldMapTrackingPinDisabled             = 69,
+    WorldMapHelpPlateDisabled               = 70,
+    QuestLogPanelDisabled                   = 71,
+    QuestLogSuperTrackingDisabled           = 72,
+    TutorialFrameDisabled                   = 73,
+    IngameMailNotificationDisabled          = 74,
+    IngameCalendarDisabled                  = 75,
+    IngameTrackingDisabled                  = 76,
+    IngameWhoListDisabled                   = 77,
+    RaceAlteredFormsDisabled                = 78,
+    IngameFriendsListDisabled               = 79,
+    MacrosDisabled                          = 80,
+    CompactRaidFrameManagerDisabled         = 81,
+    EditModeDisabled                        = 82,
+    InstanceDifficultyBannerDisabled        = 83,
+    FullCharacterCreateDisabled             = 84,
+    TargetFrameBuffsDisabled                = 85,
+    UnitFramePvPContextualDisabled          = 86,
+    BlockWhileSheathedAllowed               = 88,
+    VanillaAccountMailInstant               = 91,
+    ClearMailOnRealmTransfer                = 92,
+    PremadeGroupFinderStyle                 = 93,
+    PlunderstormAreaSelection               = 94,
+    GroupFinderCapabilities                 = 98,
+    WorldMapLegendDisabled                  = 99,
+    WorldMapFrameStrata                     = 100,
+    MerchantFilterDisabled                  = 101,
+    SummoningStones                         = 108,
+    TransmogEnabled                         = 109,
+    MailGameRule                            = 132,
+    LootMethodStyle                         = 157,
+};
+
 enum class GlobalCurve : int32
 {
     CritDiminishing = 0,
@@ -1027,6 +1135,14 @@ enum class GlobalCurve : int32
     ContentTuningPvpItemLevelHealthScaling = 13,
     ContentTuningPvpLevelDamageScaling = 14,
     ContentTuningPvpItemLevelDamageScaling = 15,
+
+    ArmorItemLevelDiminishing = 18,
+
+    ChallengeModeHealth = 21,
+    ChallengeModeDamage = 22,
+    MythicPlusEndOfRunGearSequenceLevel = 23,
+
+    SpellAreaEffectWarningRadius = 26,  // ground spell effect warning circle radius (based on spell radius)
 };
 
 #define MAX_ITEM_PROTO_FLAGS 5
@@ -1814,8 +1930,8 @@ enum class ModifierTreeType : int32
     PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
     PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
     PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
-    PlayerDataFlagAccountIsSet                                          = 378, /*NYI*/ // Player {PlayerDataFlagAccount} is set
-    PlayerDataFlagCharacterIsSet                                        = 379, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
+    PlayerDataFlagAccountIsSet                                          = 378, // Player {PlayerDataFlagAccount} is set
+    PlayerDataFlagCharacterIsSet                                        = 379, // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 
     PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
@@ -1826,9 +1942,16 @@ enum class ModifierTreeType : int32
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
     PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
-    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
-    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
+    PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
     PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
+    PlayerTitle                                                         = 393, // Player is currently using "{ChrTitles}" title
+
+    PlayerWeeklyCurrencyIsRelOpFromMax                                  = 397, /*NYI*/ // Player weekly {CurrencyTypes} is {RelOp} {#Amount} from currency weekly limit
+
+    PlayerIsInGuild                                                     = 404, // Player is in a guild
+
+    PlayerAvgItemLevelRelOp                                             = 415, /*NYI*/ // Player average item level {AvgItemLevelCategory} is {RelOp} {#Amount}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1924,6 +2047,12 @@ enum class PlayerConditionLfgStatus : uint8
     GearDiff                = 8
 };
 
+enum class PlayerDataElementType : int32
+{
+    Int64   = 0,
+    Float   = 1
+};
+
 enum class PlayerInteractionType : int32
 {
     None                        = 0,
@@ -1996,6 +2125,14 @@ enum class PlayerInteractionType : int32
     CharacterBanker             = 67,
     AccountBanker               = 68,
     ProfessionRespec            = 69,
+    PlaceholderType71           = 70,
+    PlaceholderType72           = 71,
+    PlaceholderType73           = 72,
+    PlaceholderType74           = 73,
+    PlaceholderType75           = 74,
+    PlaceholderType76           = 75,
+    GuildRename                 = 76,
+    PlaceholderType77           = 77,
 };
 
 enum class PowerTypeFlags : int16
@@ -2057,11 +2194,13 @@ enum class SkillLineFlags : uint16
 
 DEFINE_ENUM_FLAG(SkillLineFlags);
 
-enum AbilytyLearnType
+enum class SkillLineAbilityAcquireMethod : int32
 {
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_VALUE  = 1, // Spell state will update depending on skill value
-    SKILL_LINE_ABILITY_LEARNED_ON_SKILL_LEARN  = 2, // Spell will be learned/removed together with entire skill
-    SKILL_LINE_ABILITY_REWARDED_FROM_QUEST     = 4  // Learned as quest reward, also re-learned if missing
+    Learned                     = 0,
+    AutomaticSkillRank          = 1, // Spell state will update depending on skill value
+    AutomaticCharLevel          = 2, // Spell will be learned/removed together with entire skill
+    NeverLearned                = 3,
+    LearnedOrAutomaticCharLevel = 4,
 };
 
 enum class SkillLineAbilityFlags
@@ -2085,7 +2224,8 @@ enum SpellCategoryFlags
 {
     SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
     SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08
+    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08,
+    SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE            = 0x40
 };
 
 enum class SpellEffectAttributes
@@ -2111,8 +2251,8 @@ enum class SpellEffectAttributes
     AreaEffectsUseTargetRadius              = 0x00020000, /*NYI*/
     TeleportWithVehicle                     = 0x00040000, /*NYI*/
     ScalePointsByChallengeModeDamageScaler  = 0x00080000, /*NYI*/
-    DontFailSpellOnTargetingFailure         = 0x00100000, /*NYI*/
-    IgnoreDuringCooldownTimeRateCalculation = 0x00800000, /*NYI*/
+    DontFailSpellOnTargetingFailure         = 0x00100000,
+    IgnoreDuringCooldownTimeRateCalculation = 0x00800000,
     DamageOnlyAbsorbShields                 = 0x04000000, /*NYI*/ // Effects with this attribute only reduce absorbs on targets hit without actually dealing damage
 };
 
@@ -2298,7 +2438,7 @@ enum class SummonPropertiesFlags : uint32
 DEFINE_ENUM_FLAG(SummonPropertiesFlags);
 
 #define MAX_TALENT_TIERS 7
-#define MAX_TALENT_COLUMNS 3
+#define MAX_TALENT_COLUMNS 4
 #define MAX_PVP_TALENT_SLOTS 4
 
 enum class TaxiNodeFlags : int32
