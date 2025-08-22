@@ -2322,7 +2322,7 @@ class spell_dru_ursocs_fury : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_URSOCS_FURY_SHIELD });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         DamageInfo* damageInfo = eventInfo.GetDamageInfo();
         if (!damageInfo || !damageInfo->GetDamage())
