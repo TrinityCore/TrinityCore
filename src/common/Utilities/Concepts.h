@@ -19,15 +19,11 @@
 #define TRINITYCORE_CONCEPTS_H
 
 #include <concepts>
-#include <functional> // std::invoke
 
 namespace Trinity
 {
 template <typename Callable, typename R, typename... Args>
-concept invocable_r = requires(Callable && callable, Args&&... args)
-{
-    { std::invoke(static_cast<Callable&&>(callable), static_cast<Args&&>(args)...) } -> std::convertible_to<R>;
-};
+concept invocable_r = std::is_invocable_r_v<R, Callable, Args...>;
 }
 
 #endif // TRINITYCORE_CONCEPTS_H

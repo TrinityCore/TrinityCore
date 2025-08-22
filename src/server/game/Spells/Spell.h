@@ -238,12 +238,12 @@ struct SpellValue
 
 enum SpellState
 {
-    SPELL_STATE_NULL      = 0,
-    SPELL_STATE_PREPARING = 1,
-    SPELL_STATE_CASTING   = 2,
-    SPELL_STATE_FINISHED  = 3,
-    SPELL_STATE_IDLE      = 4,
-    SPELL_STATE_DELAYED   = 5
+    SPELL_STATE_NULL        = 0,
+    SPELL_STATE_PREPARING   = 1,
+    SPELL_STATE_LAUNCHED    = 2,
+    SPELL_STATE_CHANNELING  = 3,
+    SPELL_STATE_FINISHED    = 4,
+    SPELL_STATE_IDLE        = 5,
 };
 
 enum SpellEffectHandleMode
@@ -313,6 +313,7 @@ class TC_GAME_API Spell
         void EffectLearnPetSpell();
         void EffectWeaponDmg();
         void EffectForceCast();
+        void EffectForceCast2();
         void EffectTriggerSpell();
         void EffectTriggerMissileSpell();
         void EffectThreat();
@@ -442,6 +443,10 @@ class TC_GAME_API Spell
         void EffectTeleportGraveyard();
         void EffectUpdateInteractions();
         void EffectLearnWarbandScene();
+        void EffectSetPlayerDataElementAccount();
+        void EffectSetPlayerDataElementCharacter();
+        void EffectSetPlayerDataFlagAccount();
+        void EffectSetPlayerDataFlagCharacter();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 
@@ -524,8 +529,8 @@ class TC_GAME_API Spell
 
         void Delayed();
         void DelayedChannel();
-        uint32 getState() const { return m_spellState; }
-        void setState(uint32 state) { m_spellState = state; }
+        SpellState getState() const { return m_spellState; }
+        void setState(SpellState state) { m_spellState = state; }
 
         void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
 
@@ -627,6 +632,7 @@ class TC_GAME_API Spell
 
         int32 GetCastTime() const { return m_casttime; }
         int32 GetRemainingCastTime() const { return m_timer; }
+        int32 GetChannelDuration() const { return m_channelDuration; }
         bool IsAutoRepeat() const { return m_autoRepeat; }
         void SetAutoRepeat(bool rep) { m_autoRepeat = rep; }
         void ReSetTimer() { m_timer = m_casttime > 0 ? m_casttime : 0; }
@@ -677,8 +683,7 @@ class TC_GAME_API Spell
 
         void CleanupTargetList();
 
-        void SetSpellValue(SpellValueMod mod, int32 value);
-        void SetSpellValue(SpellValueModFloat mod, float value);
+        void SetSpellValue(CastSpellExtraArgsInit::SpellValueOverride const& value);
 
         Spell** m_selfContainer;                            // pointer to our spell container (if applicable)
 
@@ -703,13 +708,13 @@ class TC_GAME_API Spell
 
         static bool CanIncreaseRangeByMovement(Unit const* unit);
 
+        std::pair<float, float> GetMinMaxRange(bool strict) const;
+
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
         void _cast(bool skipCheck = false);
-
-        std::pair<float, float> GetMinMaxRange(bool strict) const;
 
         WorldObject* const m_caster;
 
@@ -725,20 +730,10 @@ class TC_GAME_API Spell
 
         std::vector<SpellPowerCost> m_powerCost;            // Calculated spell cost initialized only in Spell::prepare
         int32 m_casttime;                                   // Calculated spell cast time initialized only in Spell::prepare
-        int32 m_channeledDuration;                          // Calculated channeled spell duration in order to calculate correct pushback.
+        int32 m_channelDuration;                            // Calculated channeled spell duration in order to calculate correct pushback.
         bool m_canReflect;                                  // can reflect this spell?
         bool m_autoRepeat;
         uint8 m_runesState;
-
-        struct EmpowerData
-        {
-            Milliseconds MinHoldTime = 0ms;
-            std::vector<Milliseconds> StageDurations;
-            int32 CompletedStages = 0;
-            bool IsReleasedByClient = false;
-            bool IsReleased = false;
-        };
-        std::unique_ptr<EmpowerData> m_empower;
 
         uint8 m_delayAtDamageCount;
         bool IsDelayableNoMore()
@@ -749,6 +744,16 @@ class TC_GAME_API Spell
             ++m_delayAtDamageCount;
             return false;
         }
+
+        struct EmpowerData
+        {
+            Milliseconds MinHoldTime = 0ms;
+            std::vector<Milliseconds> StageDurations;
+            int32 CompletedStages = 0;
+            bool IsReleasedByClient = false;
+            bool IsReleased = false;
+        };
+        std::unique_ptr<EmpowerData> m_empower;
 
         // Delayed spells system
         uint64 m_delayStart;                                // time of spell delay start, filled by event handler, zero = just started
@@ -949,7 +954,7 @@ class TC_GAME_API Spell
         SpellCastResult CanOpenLock(SpellEffectInfo const& effect, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
 
-        uint32 m_spellState;
+        SpellState m_spellState;
         int32 m_timer;
 
         SpellEvent* _spellEvent;

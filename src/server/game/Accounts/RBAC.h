@@ -709,7 +709,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_PET_LEVEL                              = 838,
     RBAC_PERM_COMMAND_SERVER_SHUTDOWN_FORCE                  = 839,
     RBAC_PERM_COMMAND_SERVER_RESTART_FORCE                   = 840,
-    RBAC_PERM_COMMAND_NEARGRAVEYARD                          = 841,
+    // 841 previously used, do not reuse
     RBAC_PERM_COMMAND_RELOAD_CHARACTER_TEMPLATE              = 842,
     RBAC_PERM_COMMAND_RELOAD_QUEST_GREETING                  = 843,
     RBAC_PERM_COMMAND_SCENE                                  = 844,
@@ -771,8 +771,12 @@ typedef std::set<uint32> RBACPermissionContainer;
 class TC_GAME_API RBACPermission
 {
     public:
-        RBACPermission(uint32 id = 0, std::string const& name = ""):
-            _id(id), _name(name), _perms() { }
+        RBACPermission(uint32 id = 0, std::string const& name = "");
+        RBACPermission(RBACPermission const& other);
+        RBACPermission(RBACPermission&& other) noexcept;
+        RBACPermission& operator=(RBACPermission const& right);
+        RBACPermission& operator=(RBACPermission&& right) noexcept;
+        ~RBACPermission();
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -806,9 +810,12 @@ class TC_GAME_API RBACPermission
 class TC_GAME_API RBACData
 {
     public:
-        RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
-            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel),
-            _grantedPerms(), _deniedPerms(), _globalPerms() { }
+        RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255);
+        RBACData(RBACData const& other);
+        RBACData(RBACData&& other) noexcept;
+        RBACData& operator=(RBACData const& right);
+        RBACData& operator=(RBACData&& right) noexcept;
+        ~RBACData();
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -833,7 +840,7 @@ class TC_GAME_API RBACData
          */
         bool HasPermission(uint32 permission) const
         {
-            return _globalPerms.find(permission) != _globalPerms.end();
+            return _globalPerms.contains(permission);
         }
 
         // Functions enabled to be used by command system
@@ -956,13 +963,13 @@ class TC_GAME_API RBACData
         /// Checks if a permission is granted
         bool HasGrantedPermission(uint32 permissionId) const
         {
-            return _grantedPerms.find(permissionId) != _grantedPerms.end();
+            return _grantedPerms.contains(permissionId);
         }
 
         /// Checks if a permission is denied
         bool HasDeniedPermission(uint32 permissionId) const
         {
-            return _deniedPerms.find(permissionId) != _deniedPerms.end();
+            return _deniedPerms.contains(permissionId);
         }
 
         /// Adds a new granted permission

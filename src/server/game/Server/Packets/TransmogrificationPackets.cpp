@@ -16,8 +16,11 @@
  */
 
 #include "TransmogrificationPackets.h"
+#include "PacketOperators.h"
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Transmogrification::TransmogrifyItem& transmogItem)
+namespace WorldPackets::Transmogrification
+{
+ByteBuffer& operator>>(ByteBuffer& data, TransmogrifyItem& transmogItem)
 {
     data >> transmogItem.ItemModifiedAppearanceID;
     data >> transmogItem.Slot;
@@ -27,22 +30,22 @@ ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Transmogrification::Trans
     return data;
 }
 
-void WorldPackets::Transmogrification::TransmogrifyItems::Read()
+void TransmogrifyItems::Read()
 {
-    Items.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(Items);
     _worldPacket >> Npc;
     for (TransmogrifyItem& item : Items)
         _worldPacket >> item;
 
-    CurrentSpecOnly = _worldPacket.ReadBit();
+    _worldPacket >> Bits<1>(CurrentSpecOnly);
 }
 
-WorldPacket const* WorldPackets::Transmogrification::AccountTransmogUpdate::Write()
+WorldPacket const* AccountTransmogUpdate::Write()
 {
-    _worldPacket.WriteBit(IsFullUpdate);
-    _worldPacket.WriteBit(IsSetFavorite);
-    _worldPacket << uint32(FavoriteAppearances.size());
-    _worldPacket << uint32(NewAppearances.size());
+    _worldPacket << Bits<1>(IsFullUpdate);
+    _worldPacket << Bits<1>(IsSetFavorite);
+    _worldPacket << Size<uint32>(FavoriteAppearances);
+    _worldPacket << Size<uint32>(NewAppearances);
     if (!FavoriteAppearances.empty())
         _worldPacket.append(FavoriteAppearances.data(), FavoriteAppearances.size());
 
@@ -50,4 +53,5 @@ WorldPacket const* WorldPackets::Transmogrification::AccountTransmogUpdate::Writ
         _worldPacket.append(NewAppearances.data(), NewAppearances.size());
 
     return &_worldPacket;
+}
 }

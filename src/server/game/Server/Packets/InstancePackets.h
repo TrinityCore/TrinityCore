@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef InstancePackets_h__
-#define InstancePackets_h__
+#ifndef TRINITYCORE_INSTANCE_PACKETS_H
+#define TRINITYCORE_INSTANCE_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -28,7 +28,7 @@ namespace WorldPackets
         class UpdateLastInstance final : public ServerPacket
         {
         public:
-            UpdateLastInstance() : ServerPacket(SMSG_UPDATE_LAST_INSTANCE, 4) { }
+            explicit UpdateLastInstance() : ServerPacket(SMSG_UPDATE_LAST_INSTANCE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -39,7 +39,7 @@ namespace WorldPackets
         class UpdateInstanceOwnership final : public ServerPacket
         {
         public:
-            UpdateInstanceOwnership() : ServerPacket(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4) { }
+            explicit UpdateInstanceOwnership() : ServerPacket(SMSG_UPDATE_INSTANCE_OWNERSHIP, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -62,7 +62,7 @@ namespace WorldPackets
         class InstanceInfo final : public ServerPacket
         {
         public:
-            InstanceInfo() : ServerPacket(SMSG_INSTANCE_INFO, 4) { }
+            explicit InstanceInfo() : ServerPacket(SMSG_INSTANCE_INFO, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -72,7 +72,7 @@ namespace WorldPackets
         class ResetInstances final : public ClientPacket
         {
         public:
-            ResetInstances(WorldPacket&& packet) : ClientPacket(CMSG_RESET_INSTANCES, std::move(packet)) { }
+            explicit ResetInstances(WorldPacket&& packet) : ClientPacket(CMSG_RESET_INSTANCES, std::move(packet)) { }
 
             void Read() override { }
         };
@@ -80,7 +80,7 @@ namespace WorldPackets
         class InstanceReset final : public ServerPacket
         {
         public:
-            InstanceReset() : ServerPacket(SMSG_INSTANCE_RESET, 4) { }
+            explicit InstanceReset() : ServerPacket(SMSG_INSTANCE_RESET, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -90,7 +90,7 @@ namespace WorldPackets
         class InstanceResetFailed final : public ServerPacket
         {
         public:
-            InstanceResetFailed() : ServerPacket(SMSG_INSTANCE_RESET_FAILED, 4 + 1) { }
+            explicit InstanceResetFailed() : ServerPacket(SMSG_INSTANCE_RESET_FAILED, 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -101,7 +101,7 @@ namespace WorldPackets
         class ResetFailedNotify final : public ServerPacket
         {
         public:
-            ResetFailedNotify() : ServerPacket(SMSG_RESET_FAILED_NOTIFY, 0) { }
+            explicit ResetFailedNotify() : ServerPacket(SMSG_RESET_FAILED_NOTIFY, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -109,7 +109,7 @@ namespace WorldPackets
         class InstanceSaveCreated final : public ServerPacket
         {
         public:
-            InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 1) { }
+            explicit InstanceSaveCreated() : ServerPacket(SMSG_INSTANCE_SAVE_CREATED, 1) { }
 
             WorldPacket const* Write() override;
 
@@ -119,7 +119,7 @@ namespace WorldPackets
         class InstanceLockResponse final : public ClientPacket
         {
         public:
-            InstanceLockResponse(WorldPacket&& packet) : ClientPacket(CMSG_INSTANCE_LOCK_RESPONSE, std::move(packet)) { }
+            explicit InstanceLockResponse(WorldPacket&& packet) : ClientPacket(CMSG_INSTANCE_LOCK_RESPONSE, std::move(packet)) { }
 
             void Read() override;
 
@@ -129,7 +129,7 @@ namespace WorldPackets
         class RaidGroupOnly final : public ServerPacket
         {
         public:
-            RaidGroupOnly() : ServerPacket(SMSG_RAID_GROUP_ONLY, 4 + 4) { }
+            explicit RaidGroupOnly() : ServerPacket(SMSG_RAID_GROUP_ONLY, 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -140,7 +140,7 @@ namespace WorldPackets
         class PendingRaidLock final : public ServerPacket
         {
         public:
-            PendingRaidLock() : ServerPacket(SMSG_PENDING_RAID_LOCK, 4 + 4) { }
+            explicit PendingRaidLock() : ServerPacket(SMSG_PENDING_RAID_LOCK, 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -153,7 +153,7 @@ namespace WorldPackets
         class RaidInstanceMessage final : public ServerPacket
         {
         public:
-            RaidInstanceMessage() : ServerPacket(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 + 4 + 4 + 1) { }
+            explicit RaidInstanceMessage() : ServerPacket(SMSG_RAID_INSTANCE_MESSAGE, 1 + 4 + 4 + 4 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -169,7 +169,7 @@ namespace WorldPackets
         class InstanceEncounterEngageUnit final : public ServerPacket
         {
         public:
-            InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 1) { }
+            explicit InstanceEncounterEngageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_ENGAGE_UNIT, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -180,7 +180,7 @@ namespace WorldPackets
         class InstanceEncounterDisengageUnit final : public ServerPacket
         {
         public:
-            InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16) { }
+            explicit InstanceEncounterDisengageUnit() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_DISENGAGE_UNIT, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -190,7 +190,7 @@ namespace WorldPackets
         class InstanceEncounterChangePriority final : public ServerPacket
         {
         public:
-            InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 16 + 1) { }
+            explicit InstanceEncounterChangePriority() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_CHANGE_PRIORITY, 16 + 1) { }
 
             WorldPacket const* Write() override;
 
@@ -201,7 +201,7 @@ namespace WorldPackets
         class InstanceEncounterTimerStart final : public ServerPacket
         {
         public:
-            InstanceEncounterTimerStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4) { }
+            explicit InstanceEncounterTimerStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_TIMER_START, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -211,7 +211,7 @@ namespace WorldPackets
         class InstanceEncounterObjectiveStart final : public ServerPacket
         {
         public:
-            InstanceEncounterObjectiveStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4) { }
+            explicit InstanceEncounterObjectiveStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_START, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -221,7 +221,7 @@ namespace WorldPackets
         class InstanceEncounterObjectiveUpdate final : public ServerPacket
         {
         public:
-            InstanceEncounterObjectiveUpdate() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 + 4) { }
+            explicit InstanceEncounterObjectiveUpdate() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_UPDATE, 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -232,7 +232,7 @@ namespace WorldPackets
         class InstanceEncounterObjectiveComplete final : public ServerPacket
         {
         public:
-            InstanceEncounterObjectiveComplete() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4) { }
+            explicit InstanceEncounterObjectiveComplete() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_OBJECTIVE_COMPLETE, 4) { }
 
             WorldPacket const* Write() override;
 
@@ -242,7 +242,7 @@ namespace WorldPackets
         class InstanceEncounterPhaseShiftChanged final : public ServerPacket
         {
         public:
-            InstanceEncounterPhaseShiftChanged() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0) { }
+            explicit InstanceEncounterPhaseShiftChanged() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_PHASE_SHIFT_CHANGED, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -250,7 +250,7 @@ namespace WorldPackets
         class InstanceEncounterStart final : public ServerPacket
         {
         public:
-            InstanceEncounterStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_START, 16) { }
+            explicit InstanceEncounterStart() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_START, 16) { }
 
             WorldPacket const* Write() override;
 
@@ -264,7 +264,7 @@ namespace WorldPackets
         class InstanceEncounterEnd final : public ServerPacket
         {
         public:
-            InstanceEncounterEnd() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_END, 0) { }
+            explicit InstanceEncounterEnd() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_END, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -272,7 +272,7 @@ namespace WorldPackets
         class InstanceEncounterInCombatResurrection final : public ServerPacket
         {
         public:
-            InstanceEncounterInCombatResurrection() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0) { }
+            explicit InstanceEncounterInCombatResurrection() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_IN_COMBAT_RESURRECTION, 0) { }
 
             WorldPacket const* Write() override { return &_worldPacket; }
         };
@@ -280,7 +280,7 @@ namespace WorldPackets
         class InstanceEncounterGainCombatResurrectionCharge final : public ServerPacket
         {
         public:
-            InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 + 4) { }
+            explicit InstanceEncounterGainCombatResurrectionCharge() : ServerPacket(SMSG_INSTANCE_ENCOUNTER_GAIN_COMBAT_RESURRECTION_CHARGE, 4 + 4) { }
 
             WorldPacket const* Write() override;
 
@@ -291,7 +291,7 @@ namespace WorldPackets
         class BossKill final : public ServerPacket
         {
         public:
-            BossKill() : ServerPacket(SMSG_BOSS_KILL, 4) { }
+            explicit BossKill() : ServerPacket(SMSG_BOSS_KILL, 4) { }
 
             WorldPacket const* Write() override;
             uint32 DungeonEncounterID = 0;
@@ -299,4 +299,4 @@ namespace WorldPackets
     }
 }
 
-#endif // InstancePackets_h__
+#endif // TRINITYCORE_INSTANCE_PACKETS_H

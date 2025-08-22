@@ -27,7 +27,6 @@
 #include "DisableMgr.h"
 #include "GridNotifiers.h"
 #include "Group.h"
-#include "IpAddress.h"
 #include "IPLocation.h"
 #include "Item.h"
 #include "ItemBonusMgr.h"
@@ -1973,8 +1972,6 @@ public:
 
             target->GetSession()->m_muteTime = 0;
         }
-
-        using namespace std::string_view_literals;
 
         LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);

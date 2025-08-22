@@ -456,6 +456,7 @@ struct CreatureDifficulty
     int32 CreatureDifficultyID;
     uint32 TypeFlags;
     uint32 TypeFlags2;
+    uint32 TypeFlags3;
     uint32 LootID;
     uint32 PickPocketLootID;
     uint32 SkinLootID;
@@ -558,6 +559,13 @@ struct TC_GAME_API CreatureTemplate
 
     void InitializeQueryData();
     WorldPacket BuildQueryData(LocaleConstant loc, Difficulty difficulty) const;
+
+    CreatureTemplate();
+    CreatureTemplate(CreatureTemplate const& other) = delete;
+    CreatureTemplate(CreatureTemplate&& other) noexcept;
+    CreatureTemplate& operator=(CreatureTemplate const& other) = delete;
+    CreatureTemplate& operator=(CreatureTemplate&& other) noexcept;
+    ~CreatureTemplate();
 };
 
 // Defines base stats for creatures (used to calculate HP/mana/armor/attackpower/rangedattackpower/all damage).
