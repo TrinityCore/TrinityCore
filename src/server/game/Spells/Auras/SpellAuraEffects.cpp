@@ -712,7 +712,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //640
     &AuraEffect::HandleNULL,                                      //641
     &AuraEffect::HandleNULL,                                      //642
-    &AuraEffect::HandleNULL,                                      //642 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //644
+    &AuraEffect::HandleNULL,                                      //645
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
@@ -758,13 +760,10 @@ void AuraEffect::GetApplicationList(Container& applicationContainer) const
 
 int32 AuraEffect::CalculateAmount(Unit* caster)
 {
-    // default amount calculation
-    int32 amount = 0;
+    Unit* unitOwner = GetBase()->GetOwner()->ToUnit();
 
-    if (!m_spellInfo->HasAttribute(SPELL_ATTR8_MASTERY_AFFECTS_POINTS) || G3D::fuzzyEq(GetSpellEffectInfo().BonusCoefficient, 0.0f))
-        amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, GetBase()->GetOwner()->ToUnit(), nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
-    else if (caster && caster->GetTypeId() == TYPEID_PLAYER)
-        amount = int32(caster->ToPlayer()->m_activePlayerData->Mastery * GetSpellEffectInfo().BonusCoefficient);
+    // default amount calculation
+    int32 amount = GetSpellEffectInfo().CalcValue(caster, &m_baseAmount, unitOwner, nullptr, GetBase()->GetCastItemId(), GetBase()->GetCastItemLevel());
 
     // custom amount calculations go here
     switch (GetAuraType())
@@ -779,7 +778,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             m_canBeRecalculated = false;
             if (!m_spellInfo->ProcFlags)
                 break;
-            amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
+            amount = int32(unitOwner->CountPctFromMaxHealth(10));
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
         case SPELL_AURA_MANA_SHIELD:
@@ -791,7 +790,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (MountEntry const* mountEntry = sDB2Manager.GetMount(GetId()))
                 mountType = mountEntry->MountTypeID;
 
-            if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(mountType))
+            if (MountCapabilityEntry const* mountCapability = unitOwner->GetMountCapability(mountType))
                 amount = mountCapability->ID;
             break;
         }
@@ -806,7 +805,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
 
     if (GetSpellInfo()->HasAttribute(SPELL_ATTR10_ROLLING_PERIODIC))
     {
-        Unit::AuraEffectList const& periodicAuras = GetBase()->GetUnitOwner()->GetAuraEffectsByType(GetAuraType());
+        Unit::AuraEffectList const& periodicAuras = unitOwner->GetAuraEffectsByType(GetAuraType());
         if (uint32 totalTicks = GetTotalTicks())
         {
             amount = std::accumulate(std::begin(periodicAuras), std::end(periodicAuras), amount, [&](int32 val, AuraEffect const* aurEff)
@@ -1206,7 +1205,7 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply, AuraEffect const* trigg
         // only passive and permament auras-active auras should have amount set on spellcast and not be affected
         // if aura is cast by others, it will not be affected
         if ((!aura->IsPassive() && !aura->IsPermanent() && !GetSpellInfo()->IsUpdatingTemporaryAuraValuesBySpellMod())
-            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
+            || aura->GetCasterGUID() != guid || !aura->GetSpellInfo()->IsAffectedBySpellMods() || !aura->GetSpellInfo()->IsAffectedBySpellMod(m_spellmod))
             continue;
 
         if (recalculateEffectIndex)
@@ -2493,6 +2492,16 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         target->UpdateDamagePhysical(attType);
 }
 
+static void InterruptSpellsWithPreventionTypeOnAuraApply(Unit* target, SpellPreventionType preventionType)
+{
+    // Stop cast only spells vs PreventionType
+    for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+        if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
+            if (spell->m_spellInfo->PreventionType & preventionType)
+                // Stop spells on prepare or casting state
+                target->InterruptSpell(CurrentSpellTypes(i), false);
+}
+
 void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -2505,12 +2514,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
         target->SetSilencedSchoolMask(SpellSchoolMask(GetMiscValue()));
 
         // call functions which may have additional effects after changing state of unit
-        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
-        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
-            if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
-                if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_SILENCE)
-                    // Stop spells on prepare or casting state
-                    target->InterruptSpell(CurrentSpellTypes(i), false);
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_SILENCE);
     }
     else
     {
@@ -2533,7 +2537,12 @@ void AuraEffect::HandleAuraModPacify(AuraApplication const* aurApp, uint8 mode, 
     Unit* target = aurApp->GetTarget();
 
     if (apply)
+    {
         target->SetUnitFlag(UNIT_FLAG_PACIFIED);
+
+        // call functions which may have additional effects after changing state of unit
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_PACIFY);
+    }
     else
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -2581,12 +2590,7 @@ void AuraEffect::HandleAuraModNoActions(AuraApplication const* aurApp, uint8 mod
         target->SetUnitFlag2(UNIT_FLAG2_NO_ACTIONS);
 
         // call functions which may have additional effects after chainging state of unit
-        // Stop cast only spells vs PreventionType & SPELL_PREVENTION_TYPE_SILENCE
-        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
-            if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
-                if (spell->m_spellInfo->PreventionType & SPELL_PREVENTION_TYPE_NO_ACTIONS)
-                    // Stop spells on prepare or casting state
-                    target->InterruptSpell(CurrentSpellTypes(i), false);
+        InterruptSpellsWithPreventionTypeOnAuraApply(target, SPELL_PREVENTION_TYPE_NO_ACTIONS);
     }
     else
     {
@@ -5795,6 +5799,8 @@ void AuraEffect::HandlePeriodicHealthLeechAuraTick(Unit* target, Unit* caster) c
     TC_LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} health leech of {} for {} dmg inflicted by {} abs is {}",
         GetCasterGUID().ToString(), target->GetGUID().ToString(), damage, GetId(), absorb);
 
+    Unit::DealDamageMods(caster, target, damage, &absorb);
+
     // SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
     SpellNonMeleeDamage log(caster, target, GetSpellInfo(), GetBase()->GetSpellVisual(), GetSpellInfo()->GetSchoolMask(), GetBase()->GetCastId());
     log.damage = damage;
@@ -6000,12 +6006,20 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
         return;
     }
 
-    // don't regen when permanent aura target has full power
-    if (GetBase()->IsPermanent() && target->GetPower(powerType) == target->GetMaxPower(powerType))
-        return;
+    // don't regen when permanent aura and limit is already reached
+    if (GetBase()->IsPermanent())
+    {
+        if (GetAmount() >= 0)
+        {
+            if (target->GetPower(powerType) >= target->GetMaxPower(powerType))
+                return;
+        }
+        else
+            if (target->GetPower(powerType) <= target->GetMinPower(powerType))
+                return;
+    }
 
-    // ignore negative values (can be result apply spellmods to aura damage
-    uint32 amount = std::max(GetAmount(), 0) * target->GetMaxPower(powerType) /100;
+    int32 amount = GetAmount() * target->GetMaxPower(powerType) / 100;
     TC_LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
         GetCasterGUID().ToString(), target->GetGUID().ToString(), amount, GetId());
 
@@ -6013,7 +6027,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     int32 gain = target->ModifyPower(powerType, amount);
 
     if (caster)
-        target->GetThreatManager().ForwardThreatForAssistingMe(caster, float(gain)*0.5f, GetSpellInfo(), true);
+        target->GetThreatManager().ForwardThreatForAssistingMe(caster, std::abs(float(gain) * 0.5f), GetSpellInfo(), true);
 
     target->SendPeriodicAuraLog(&pInfo);
 }

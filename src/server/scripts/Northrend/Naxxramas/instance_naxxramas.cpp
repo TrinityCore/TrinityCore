@@ -17,14 +17,13 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "CreatureAI.h"
 #include "EventMap.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "naxxramas.h"
-#include "TemporarySummon.h"
-#include <sstream>
 
 BossBoundaryData const boundaries =
 {

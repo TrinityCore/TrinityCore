@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "CellImpl.h"
 #include "Containers.h"
@@ -33,6 +35,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 
 enum DruidSpells
 {
@@ -59,6 +62,8 @@ enum DruidSpells
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_DREAMSTATE                     = 450346,
+    SPELL_DRUID_DREAM_OF_CENARIUS              = 372152,
+    SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN     = 372523,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -104,8 +109,11 @@ enum DruidSpells
     SPELL_DRUID_INFUSION                       = 37238,
     SPELL_DRUID_LANGUISH                       = 71023,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL           = 33778,
+    SPELL_DRUID_LUNAR_BEAM_HEAL                = 204069,
+    SPELL_DRUID_LUNAR_BEAM_DAMAGE              = 414613,
     SPELL_DRUID_LUNAR_INSPIRATION_OVERRIDE     = 155627,
     SPELL_DRUID_MANGLE                         = 33917,
+    SPELL_DRUID_MANGLE_TALENT                  = 231064,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
@@ -467,6 +475,40 @@ class spell_dru_dash : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+    }
+};
+
+// 372119 - Dream of Cenarius (Guardian)
+class spell_dru_dream_of_cenarius_guardian : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_DREAM_OF_CENARIUS, SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN });
+    }
+
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        if (GetUnitOwner()->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN))
+            return false;
+
+        return roll_chance_f(GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/) const
+    {
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args;
+        args.SetTriggeringAura(aurEff);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS, args);
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_dream_of_cenarius_guardian::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_dream_of_cenarius_guardian::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1262,6 +1304,33 @@ class spell_dru_lifebloom : public AuraScript
     }
 };
 
+// 204066 - Lunar Beam
+struct at_dru_lunar_beam : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(500ms, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+            {
+                caster->CastSpell(caster, SPELL_DRUID_LUNAR_BEAM_HEAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(at->GetPosition(), SPELL_DRUID_LUNAR_BEAM_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 155580 - Lunar Inspiration
 class spell_dru_lunar_inspiration : public AuraScript
 {
@@ -1295,7 +1364,7 @@ class spell_dru_luxuriant_soil : public AuraScript
         return ValidateSpellInfo({ SPELL_DRUID_REJUVENATION });
     }
 
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
@@ -1322,6 +1391,32 @@ class spell_dru_luxuriant_soil : public AuraScript
     {
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_luxuriant_soil::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_dru_luxuriant_soil::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 33917 - Mangle
+class spell_dru_mangle : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MANGLE_TALENT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_MANGLE_TALENT);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (victim->HasAuraState(AURA_STATE_BLEED))
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dru_mangle::CalculateDamage);
     }
 };
 
@@ -1479,12 +1574,12 @@ class spell_dru_power_of_the_archdruid : public AuraScript
         return ValidateSpellEffect({ { SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0 } });
     }
 
-    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetActor()->HasAuraEffect(SPELL_DRUID_POWER_OF_THE_ARCHDRUID, EFFECT_0);
     }
 
-    static void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* druid = eventInfo.GetActor();
         Unit const* procTarget = eventInfo.GetActionTarget();
@@ -2361,6 +2456,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
+    RegisterSpellScript(spell_dru_dream_of_cenarius_guardian);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
@@ -2384,8 +2480,10 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_innervate);
     RegisterSpellScript(spell_dru_item_t6_trinket);
     RegisterSpellScript(spell_dru_lifebloom);
+    RegisterAreaTriggerAI(at_dru_lunar_beam);
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
+    RegisterSpellScript(spell_dru_mangle);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_natures_grace);
     RegisterSpellScript(spell_dru_natures_grace_eclipse);

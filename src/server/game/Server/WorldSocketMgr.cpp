@@ -22,21 +22,16 @@
 #include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
-{
-    sWorldSocketMgr.OnSocketOpen(std::move(sock), threadIndex);
-}
-
-class WorldSocketThread : public NetworkThread<WorldSocket>
+class WorldSocketThread : public Trinity::Net::NetworkThread<WorldSocket>
 {
 public:
-    void SocketAdded(std::shared_ptr<WorldSocket> sock) override
+    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override
     {
         sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
         sScriptMgr->OnSocketOpen(sock);
     }
 
-    void SocketRemoved(std::shared_ptr<WorldSocket> sock) override
+    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override
     {
         sScriptMgr->OnSocketClose(sock);
     }
@@ -75,7 +70,10 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
+    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
+    {
+        OnSocketOpen(std::move(sock), threadIndex);
+    });
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -88,7 +86,7 @@ void WorldSocketMgr::StopNetwork()
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -117,7 +115,7 @@ void WorldSocketMgr::OnSocketOpen(boost::asio::ip::tcp::socket&& sock, uint32 th
     BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
 }
 
-NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
+Trinity::Net::NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
 {
     return new WorldSocketThread[GetNetworkThreadCount()];
 }
