@@ -385,7 +385,7 @@ private:
 // 258388 - Ritual
 class spell_priestess_alun_za_ritual : public SpellScript
 {
-    static void SetDest(SpellDestination& dest)
+    static void SetDest(SpellScript const&, SpellDestination& dest)
     {
         dest.Relocate(Trinity::Containers::SelectRandomContainerElement(RitualPosition));
     }
@@ -421,7 +421,7 @@ class spell_priestess_alun_za_agitate : public SpellScript
         });
     }
 
-    static void SelectTarget(std::list<WorldObject*>& targets)
+    static void SelectTarget(SpellScript const&, std::list<WorldObject*>& targets)
     {
         targets.resize(1);
     }
@@ -479,7 +479,7 @@ class spell_priestess_alun_za_molten_gold_selector : public SpellScript
 // 255592 - Tainted Blood
 class spell_priestess_alun_za_tainted_blood : public SpellScript
 {
-    static void FilterTargets(std::list<WorldObject*>& targets)
+    static void FilterTargets(SpellScript const&, std::list<WorldObject*>& targets)
     {
         Trinity::Containers::RandomResize(targets, 1);
     }
@@ -607,7 +607,7 @@ class spell_priestess_alun_za_transfusion_damage : public SpellScript
 // 259209 - Summon Spirit of Gold
 class spell_priestess_alun_za_spirit_of_gold : public SpellScript
 {
-    static void SetDest(SpellDestination& dest)
+    static void SetDest(SpellScript const&, SpellDestination& dest)
     {
         dest.Relocate(SpiritOfGoldSpawnPosition);
     }

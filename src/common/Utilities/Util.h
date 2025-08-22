@@ -99,9 +99,6 @@ inline T RoundToInterval(T& num, T floor, T ceil)
     return num = std::min(std::max(num, floor), ceil);
 }
 
-template <class T>
-inline T square(T x) { return x*x; }
-
 // UTF8 handling
 TC_COMMON_API bool Utf8toWStr(std::string_view utf8str, std::wstring& wstr);
 
@@ -372,6 +369,37 @@ TC_COMMON_API void wstrToLower(std::wstring& str);
 TC_COMMON_API void strToUpper(std::string& str);
 TC_COMMON_API void strToLower(std::string& str);
 
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end bound is known (for example std::array storage)
+ */
+template <typename Iterator>
+struct CStringBoundedSentinel
+{
+    Iterator End;
+    constexpr bool operator==(Iterator itr) const;
+};
+
+/**
+ * End sentinel for std::ranges algorithms to use a char const* as begin iterator
+ */
+struct CStringSentinel_T
+{
+    template <typename Iterator>
+    inline constexpr bool operator==(Iterator itr) const { return *itr == static_cast<std::iter_value_t<Iterator>>(0); }
+
+    /**
+     * End sentinel for std::ranges algorithms to use a char const* as begin iterator where end of valid memory is known (for example std::array partially filled by the string)
+     */
+    template <typename Iterator>
+    inline constexpr CStringBoundedSentinel<Iterator> Checked(Iterator end) const { return { .End = end }; }
+} inline constexpr CStringSentinel;
+
+template <typename Iterator>
+inline constexpr bool CStringBoundedSentinel<Iterator>::operator==(Iterator itr) const
+{
+    return itr == End || itr == CStringSentinel;
+}
+
 TC_COMMON_API std::wstring wstrCaseAccentInsensitiveParse(std::wstring_view wstr, LocaleConstant locale);
 
 TC_COMMON_API std::wstring GetMainPartOfName(std::wstring const& wname, uint32 declension);
@@ -389,8 +417,6 @@ TC_COMMON_API bool WriteWinConsole(std::string_view str, bool error = false);
 #endif
 
 TC_COMMON_API Optional<std::size_t> RemoveCRLF(std::string& str);
-
-TC_COMMON_API bool IsIPAddress(char const* ipaddress);
 
 TC_COMMON_API uint32 CreatePIDFile(std::string const& filename);
 TC_COMMON_API uint32 GetPID();
@@ -435,11 +461,6 @@ TC_COMMON_API bool StringEqualI(std::string_view str1, std::string_view str2);
 inline bool StringStartsWith(std::string_view haystack, std::string_view needle) { return (haystack.substr(0, needle.length()) == needle); }
 inline bool StringStartsWithI(std::string_view haystack, std::string_view needle) { return StringEqualI(haystack.substr(0, needle.length()), needle); }
 TC_COMMON_API bool StringContainsStringI(std::string_view haystack, std::string_view needle);
-template <typename T>
-inline bool ValueContainsStringI(std::pair<T, std::string_view> const& haystack, std::string_view needle)
-{
-    return StringContainsStringI(haystack.second, needle);
-}
 TC_COMMON_API bool StringCompareLessI(std::string_view a, std::string_view b);
 
 struct StringCompareLessI_T
@@ -447,9 +468,18 @@ struct StringCompareLessI_T
     bool operator()(std::string_view a, std::string_view b) const { return StringCompareLessI(a, b); }
 };
 
+TC_COMMON_API void StringReplaceAll(std::string* str, std::string_view text, std::string_view replacement);
+
+[[nodiscard]] inline std::string StringReplaceAll(std::string_view str, std::string_view text, std::string_view replacement)
+{
+    std::string result(str);
+    StringReplaceAll(&result, text, replacement);
+    return result;
+}
+
 // simple class for not-modifyable list
 template <typename T>
-class HookList final
+class HookList
 {
     private:
         typedef std::vector<T> ContainerType;
@@ -462,7 +492,7 @@ class HookList final
 
         HookList<T>& operator+=(T&& t)
         {
-            _container.push_back(std::move(t));
+            _container.emplace_back(std::move(t));
             return *this;
         }
 
@@ -532,7 +562,7 @@ constexpr typename std::underlying_type<E>::type AsUnderlyingType(E enumValue)
 }
 
 template<typename Ret, typename T1, typename... T>
-Ret* Coalesce(T1* first, T*... rest)
+constexpr Ret* Coalesce(T1* first, T*... rest)
 {
     if constexpr (sizeof...(T) > 0)
         return (first ? static_cast<Ret*>(first) : Coalesce<Ret>(rest...));

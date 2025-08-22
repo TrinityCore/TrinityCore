@@ -32,6 +32,7 @@
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 
 enum MageSpells
@@ -62,18 +63,28 @@ enum MageSpells
     SPELL_MAGE_FEEL_THE_BURN                     = 383391,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_FIRE_BLAST                        = 108853,
-    SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
     SPELL_MAGE_FIRESTARTER                       = 205026,
+    SPELL_MAGE_FLAME_PATCH_AREATRIGGER           = 205470,
+    SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
+    SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
+    SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_IMPROVED_COMBUSTION               = 383967,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 383608,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
     SPELL_MAGE_MANA_SURGE                        = 37445,
     SPELL_MAGE_MASTER_OF_TIME                    = 342249,
+    SPELL_MAGE_METEOR_AREATRIGGER                = 177345,
+    SPELL_MAGE_METEOR_BURN_DAMAGE                = 155158,
+    SPELL_MAGE_METEOR_MISSILE                    = 153564,
+    SPELL_MAGE_MOLTEN_FURY                       = 458910,
+    SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -81,10 +92,12 @@ enum MageSpells
     SPELL_MAGE_RING_OF_FROST_DUMMY               = 91264,
     SPELL_MAGE_RING_OF_FROST_FREEZE              = 82691,
     SPELL_MAGE_RING_OF_FROST_SUMMON              = 113724,
+    SPELL_MAGE_SCALD                             = 450746,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_SHIMMER                           = 212653,
     SPELL_MAGE_SLOW                              = 31589,
+    SPELL_MAGE_SPONTANEOUS_COMBUSTION            = 451875,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_SUPERNOVA                         = 157980,
     SPELL_MAGE_TEMPEST_BARRIER_ABSORB            = 382290,
@@ -753,6 +766,20 @@ class spell_mage_firestarter_dots : public AuraScript
     }
 };
 
+// 108853 - Fire Blast
+class spell_mage_fire_blast : public SpellScript
+{
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
+    {
+        critChance = 100.0f;
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_fire_blast::CalcCritChance);
+    }
+};
+
 // 205029 - Flame On
 class spell_mage_flame_on : public AuraScript
 {
@@ -773,6 +800,58 @@ class spell_mage_flame_on : public AuraScript
    {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_flame_on::CalculateAmount, EFFECT_1, SPELL_AURA_CHARGE_RECOVERY_MULTIPLIER);
    }
+};
+
+// 205037 - Flame Patch (attached to 2120 - Flamestrike)
+class spell_mage_flame_patch : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAME_PATCH_TALENT, SPELL_MAGE_FLAME_PATCH_AREATRIGGER });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_FLAME_PATCH_TALENT);
+    }
+
+    void HandleFlamePatch() const
+    {
+        GetCaster()->CastSpell(GetExplTargetDest()->GetPosition(), SPELL_MAGE_FLAME_PATCH_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_flame_patch::HandleFlamePatch);
+    }
+};
+
+// 205470 - Flame Patch
+// Id - 6122
+struct at_mage_flame_patch : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            if (Unit* caster = at->GetCaster())
+                caster->CastSpell(at->GetPosition(), SPELL_MAGE_FLAME_PATCH_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
 };
 
 // 44614 - Flurry
@@ -1079,6 +1158,64 @@ class spell_mage_imp_mana_gems : public AuraScript
     }
 };
 
+// 383967 - Improved Combustion (attached to 190319 - Combustion)
+class spell_mage_improved_combustion : public AuraScript
+{
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_MAGE_IMPROVED_COMBUSTION);
+    }
+
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_2))
+        {
+            int32 critRating = GetUnitOwner()->ToPlayer()->m_activePlayerData->CombatRatings[CR_CRIT_SPELL];
+            amount = CalculatePct(critRating, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_1))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_improved_combustion::CalcAmount, EFFECT_1, SPELL_AURA_MOD_RATING);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_improved_combustion::UpdatePeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 383604 - Improved Scorch
+class spell_mage_improved_scorch : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IMPROVED_SCORCH, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_improved_scorch::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_improved_scorch::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1463 - Incanter's Flow
 class spell_mage_incanters_flow : public AuraScript
 {
@@ -1185,6 +1322,85 @@ class spell_mage_living_bomb_periodic : public AuraScript
     void Register() override
     {
         AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_periodic::AfterRemove, EFFECT_2, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 153561 - Meteor
+class spell_mage_meteor : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_METEOR_AREATRIGGER });
+    }
+
+    void EffectHit(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_MAGE_METEOR_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_mage_meteor::EffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 177345 - Meteor
+// Id - 3467
+struct at_mage_meteor : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->CastSpell(at->GetPosition(), SPELL_MAGE_METEOR_MISSILE);
+    }
+};
+
+// 175396 - Meteor Burn
+// Id - 1712
+struct at_mage_meteor_burn : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, SPELL_MAGE_METEOR_BURN_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void OnUnitExit(Unit* unit) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_MAGE_METEOR_BURN_DAMAGE, at->GetCasterGuid());
+    }
+};
+
+// 457803 - Molten Fury
+class spell_mage_molten_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
+            eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+        else
+            eventInfo.GetActionTarget()->RemoveAurasDueToSpell(SPELL_MAGE_MOLTEN_FURY, eventInfo.GetActor()->GetGUID());
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_molten_fury::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1433,6 +1649,60 @@ class spell_mage_ring_of_frost_freeze_AuraScript : public AuraScript
     }
 };
 
+// 450746 - Scald (attached to 2948 - Scorch)
+class spell_mage_scald : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SCALD })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_SCALD);
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
+            return;
+
+        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_SCALD, EFFECT_0))
+            AddPct(pctMod, aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_mage_scald::CalculateDamage);
+    }
+};
+
+// 451875 - Spontaneous Combustion (attached to 190319 - Combustion)
+class spell_mage_spontaneous_combustion : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_SPONTANEOUS_COMBUSTION, SPELL_MAGE_FIRE_BLAST, SPELL_MAGE_PHOENIX_FLAMES });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_MAGE_SPONTANEOUS_COMBUSTION);
+    }
+
+    void HandleCharges() const
+    {
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_FIRE_BLAST, DIFFICULTY_NONE)->ChargeCategoryId);
+        GetCaster()->GetSpellHistory()->ResetCharges(sSpellMgr->AssertSpellInfo(SPELL_MAGE_PHOENIX_FLAMES, DIFFICULTY_NONE)->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_mage_spontaneous_combustion::HandleCharges);
+    }
+};
+
 // 157980 - Supernova
 class spell_mage_supernova : public SpellScript
 {
@@ -1563,7 +1833,10 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_fingers_of_frost);
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
+    RegisterSpellScript(spell_mage_fire_blast);
     RegisterSpellScript(spell_mage_flame_on);
+    RegisterSpellScript(spell_mage_flame_patch);
+    RegisterAreaTriggerAI(at_mage_flame_patch);
     RegisterSpellScript(spell_mage_flurry);
     RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
@@ -1574,16 +1847,24 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterSpellScript(spell_mage_ignite);
     RegisterSpellScript(spell_mage_imp_mana_gems);
+    RegisterSpellScript(spell_mage_improved_combustion);
+    RegisterSpellScript(spell_mage_improved_scorch);
     RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
     RegisterSpellScript(spell_mage_living_bomb_periodic);
+    RegisterSpellScript(spell_mage_meteor);
+    RegisterAreaTriggerAI(at_mage_meteor);
+    RegisterAreaTriggerAI(at_mage_meteor_burn);
+    RegisterSpellScript(spell_mage_molten_fury);
     RegisterSpellScript(spell_mage_polymorph_visual);
     RegisterSpellScript(spell_mage_prismatic_barrier);
     RegisterSpellScript(spell_mage_radiant_spark);
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
+    RegisterSpellScript(spell_mage_scald);
+    RegisterSpellScript(spell_mage_spontaneous_combustion);
     RegisterSpellScript(spell_mage_supernova);
     RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);

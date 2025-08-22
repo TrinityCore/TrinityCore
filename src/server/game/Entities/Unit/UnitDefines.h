@@ -517,10 +517,10 @@ enum class AttackSwingErr : uint8
 
 #define MAX_DECLINED_NAME_CASES 5
 
-struct TC_GAME_API DeclinedName
+struct DeclinedName
 {
     DeclinedName() = default;
-    DeclinedName(UF::DeclinedNames const& uf);
+    TC_GAME_API DeclinedName(UF::DeclinedNames const& uf);
 
     std::string name[MAX_DECLINED_NAME_CASES];
 };

@@ -24,7 +24,6 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "TemporarySummon.h"
-#include <sstream>
 
 /*
 0  - Selin Fireheart
