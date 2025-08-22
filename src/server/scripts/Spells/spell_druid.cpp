@@ -2311,7 +2311,7 @@ class spell_dru_umbral_inspiration : public AuraScript
         return GetUnitOwner()->HasAura(SPELL_DRUID_UMBRAL_INSPIRATION_TALENT);
     }
 
-    void HandleAfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_DRUID_UMBRAL_INSPIRATION_AURA, CastSpellExtraArgsInit{
@@ -2322,7 +2322,7 @@ class spell_dru_umbral_inspiration : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_dru_umbral_inspiration::HandleAfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(spell_dru_umbral_inspiration::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
