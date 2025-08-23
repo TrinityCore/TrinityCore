@@ -16,29 +16,13 @@
  */
 
 #include "SocialPackets.h"
-#include "PacketUtilities.h"
-#include "SocialMgr.h"
-#include "World.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Social
 {
 void SendContactList::Read()
 {
     _worldPacket >> Flags;
-}
-
-ContactInfo::ContactInfo(ObjectGuid const& guid, FriendInfo const& friendInfo)
-{
-    Guid = guid;
-    WowAccountGuid = friendInfo.WowAccountGuid;
-    VirtualRealmAddr = GetVirtualRealmAddress();
-    NativeRealmAddr = GetVirtualRealmAddress();
-    TypeFlags = friendInfo.Flags;
-    Notes = friendInfo.Note;
-    Status = friendInfo.Status;
-    AreaID = friendInfo.Area;
-    Level = friendInfo.Level;
-    ClassID = friendInfo.Class;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, ContactInfo const& contact)
@@ -70,19 +54,6 @@ WorldPacket const* ContactList::Write()
         _worldPacket << contact;
 
     return &_worldPacket;
-}
-
-void FriendStatus::Initialize(ObjectGuid const& guid, FriendsResult result, FriendInfo const& friendInfo)
-{
-    VirtualRealmAddress = GetVirtualRealmAddress();
-    Notes = friendInfo.Note;
-    ClassID = friendInfo.Class;
-    Status = friendInfo.Status;
-    Guid = guid;
-    WowAccountGuid = friendInfo.WowAccountGuid;
-    Level = friendInfo.Level;
-    AreaID = friendInfo.Area;
-    FriendResult = result;
 }
 
 WorldPacket const* FriendStatus::Write()
@@ -143,7 +114,7 @@ void DelIgnore::Read()
     _worldPacket >> Player;
 }
 
-WorldPacket const* WorldPackets::Social::SocialContractRequestResponse::Write()
+WorldPacket const* SocialContractRequestResponse::Write()
 {
     _worldPacket << Bits<1>(ShowSocialContract);
     _worldPacket.FlushBits();

@@ -24,7 +24,6 @@
 #include "MoveSplineInit.h"
 #include "PathGenerator.h"
 #include "Unit.h"
-#include "Util.h"
 
 static bool HasLostTarget(Unit* owner, Unit* target)
 {
@@ -44,10 +43,9 @@ static bool IsMutualChase(Unit* owner, Unit* target)
 
 static bool PositionOkay(Unit* owner, Unit* target, Optional<float> minDistance, Optional<float> maxDistance, Optional<ChaseAngle> angle)
 {
-    float const distSq = owner->GetExactDistSq(target);
-    if (minDistance && distSq < square(*minDistance))
+    if (minDistance && owner->IsInDist(target, *minDistance))
         return false;
-    if (maxDistance && distSq > square(*maxDistance))
+    if (maxDistance && !owner->IsInDist(target, *maxDistance))
         return false;
     if (angle && !angle->IsAngleOkay(target->GetRelativeAngle(owner)))
         return false;

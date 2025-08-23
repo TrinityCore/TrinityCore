@@ -130,10 +130,10 @@ void Totem::UnSummon(uint32 msTime)
 
         if (Group* group = owner->GetGroup())
         {
-            for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+            for (GroupReference const& itr : group->GetMembers())
             {
-                Player* target = itr->GetSource();
-                if (target && target->IsInMap(owner) && group->SameSubGroup(owner, target))
+                Player* target = itr.GetSource();
+                if (target->IsInMap(owner) && group->SameSubGroup(owner, target))
                     target->RemoveAurasDueToSpell(GetSpell(), GetGUID());
             }
         }

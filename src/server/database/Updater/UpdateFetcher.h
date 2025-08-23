@@ -18,7 +18,7 @@
 #ifndef UpdateFetcher_h__
 #define UpdateFetcher_h__
 
-#include "Define.h"
+#include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include <functional>
 #include <set>
@@ -87,17 +87,17 @@ private:
 
         uint64 const timestamp;
 
-        static inline State StateConvert(std::string const& state)
+        static inline State StateConvert(std::string_view const& state)
         {
-            return (state == "RELEASED") ? RELEASED : ARCHIVED;
+            return (state == "RELEASED"sv) ? RELEASED : ARCHIVED;
         }
 
-        static inline std::string StateConvert(State const state)
+        static inline std::string_view StateConvert(State const state)
         {
-            return (state == RELEASED) ? "RELEASED" : "ARCHIVED";
+            return (state == RELEASED) ? "RELEASED"sv : "ARCHIVED"sv;
         }
 
-        std::string GetStateAsString() const
+        std::string_view GetStateAsString() const
         {
             return StateConvert(state);
         }
@@ -109,7 +109,16 @@ private:
 
     struct PathCompare
     {
-        bool operator()(LocaleFileEntry const& left, LocaleFileEntry const& right) const;
+        static std::string MakeComparisonObject(LocaleFileEntry const& arg);
+        static std::string const& MakeComparisonObject(std::string const& arg) { return arg; }
+
+        template<typename L, typename R>
+        bool operator()(L const& left, R const& right) const
+        {
+            return PathCompare::MakeComparisonObject(left) < PathCompare::MakeComparisonObject(right);
+        }
+
+        using is_transparent = int;
     };
 
     typedef std::set<LocaleFileEntry, PathCompare> LocaleFileStorage;

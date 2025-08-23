@@ -51,7 +51,7 @@ struct MetricData
 {
     std::string Category;
     SystemTimePoint Timestamp;
-    MetricDataType Type;
+    MetricDataType Type = METRIC_DATA_VALUE;
 
     // LogValue-specific fields
     Optional<std::variant<std::array<MetricTag, 2>, std::vector<MetricTag>>> Tags;
@@ -105,6 +105,10 @@ private:
 public:
     Metric();
     ~Metric();
+    Metric(Metric const&) = delete;
+    Metric(Metric&&) = delete;
+    Metric& operator=(Metric const&) = delete;
+    Metric& operator=(Metric&&) = delete;
     static Metric* instance();
 
     void Initialize(std::string const& realmName, Trinity::Asio::IoContext& ioContext, std::function<void()> overallStatusLogger);

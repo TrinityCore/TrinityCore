@@ -322,6 +322,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
                 SendTradeStatus(info);
                 return;
             }
+
+            if (Player::IsAccountBankPos(item->GetSlot(), item->GetBagSlot()))
+            {
+                info.Status = TRADE_STATUS_FAILED;
+                info.BagResult = EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
+                SendTradeStatus(info);
+                return;
+            }
         }
 
         if (Item* item = his_trade->GetItem(TradeSlots(i)))
@@ -338,6 +346,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPackets::Trade::AcceptTrade& acc
             //    his_trade->SetAccepted(false, true);
             //    return;
             //}
+
+            if (Player::IsAccountBankPos(item->GetSlot(), item->GetBagSlot()))
+            {
+                info.Status = TRADE_STATUS_FAILED;
+                info.BagResult = EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
+                SendTradeStatus(info);
+                return;
+            }
         }
     }
 

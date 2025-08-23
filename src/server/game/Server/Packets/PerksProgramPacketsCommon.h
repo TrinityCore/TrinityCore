@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PerksPorgramPacketsCommon_h__
-#define PerksPorgramPacketsCommon_h__
+#ifndef TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H
+#define TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H
 
 #include "PacketUtilities.h"
 
@@ -42,4 +42,4 @@ struct PerksVendorItem
 ByteBuffer& operator<<(ByteBuffer& data, PerksVendorItem const& perksVendorItem);
 }
 
-#endif // PerksPorgramPacketsCommon_h__
+#endif // TRINITYCORE_PERKS_PROGRAM_PACKETS_COMMON_H

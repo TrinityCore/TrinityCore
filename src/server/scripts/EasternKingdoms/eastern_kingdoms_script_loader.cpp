@@ -181,6 +181,7 @@ void AddSC_boss_venoxis();
 void AddSC_boss_wushoolay();
 void AddSC_boss_zanzil();
 void AddSC_instance_zulgurub();
+void AddSC_abyssal_depths();
 //void AddSC_alterac_mountains();
 //void AddSC_arathi_highlands();
 void AddSC_blasted_lands();
@@ -202,6 +203,11 @@ void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
 //void AddSC_western_plaguelands();
+
+// Return to Karazhan
+void AddSC_instance_return_to_karazhan();
+void AddSC_boss_maiden_of_virtue_rtk();
+void AddSC_boss_the_curator_rtk();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -373,6 +379,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_zanzil();
     AddSC_instance_zulgurub();
 
+    AddSC_abyssal_depths();
     //AddSC_alterac_mountains();
     //AddSC_arathi_highlands();
     AddSC_blasted_lands();
@@ -394,4 +401,9 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+
+    // Return to Karazhan
+    AddSC_instance_return_to_karazhan();
+    AddSC_boss_maiden_of_virtue_rtk();
+    AddSC_boss_the_curator_rtk();
 }

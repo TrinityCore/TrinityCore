@@ -16,6 +16,7 @@
  */
 
 #include "PerksProgramPacketsCommon.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::PerksProgram
 {
