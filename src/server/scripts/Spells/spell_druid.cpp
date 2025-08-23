@@ -62,6 +62,8 @@ enum DruidSpells
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
     SPELL_DRUID_DREAMSTATE                     = 450346,
+    SPELL_DRUID_DREAM_OF_CENARIUS              = 372152,
+    SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN     = 372523,
     SPELL_DRUID_EARTHWARDEN_AURA               = 203975,
     SPELL_DRUID_ECLIPSE_DUMMY                  = 79577,
     SPELL_DRUID_ECLIPSE_LUNAR_AURA             = 48518,
@@ -139,6 +141,7 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_URSOCS_FURY_SHIELD             = 372505,
     SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
 };
@@ -472,6 +475,40 @@ class spell_dru_dash : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+    }
+};
+
+// 372119 - Dream of Cenarius (Guardian)
+class spell_dru_dream_of_cenarius_guardian : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_DREAM_OF_CENARIUS, SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN });
+    }
+
+    bool CheckEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        if (GetUnitOwner()->HasAura(SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN))
+            return false;
+
+        return roll_chance_f(GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK));
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*procInfo*/) const
+    {
+        Unit* target = GetTarget();
+        CastSpellExtraArgs args;
+        args.SetTriggeringAura(aurEff);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS, args);
+        target->CastSpell(target, SPELL_DRUID_DREAM_OF_CENARIUS_COOLDOWN, args);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_dru_dream_of_cenarius_guardian::CheckEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dru_dream_of_cenarius_guardian::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2277,6 +2314,35 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 377210 - Ursoc's Fury
+class spell_dru_ursocs_fury : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_URSOCS_FURY_SHIELD });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (!damageInfo || !damageInfo->GetDamage())
+            return;
+
+        Unit* caster = eventInfo.GetActor();
+        int32 amount = CalculatePct(damageInfo->GetDamage(), aurEff->GetAmount());
+
+        caster->CastSpell(caster, SPELL_DRUID_URSOCS_FURY_SHIELD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_ursocs_fury::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 48438 - Wild Growth
 class spell_dru_wild_growth : public SpellScript
 {
@@ -2390,6 +2456,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_celestial_alignment);
     RegisterSpellScript(spell_dru_cultivation);
     RegisterSpellScript(spell_dru_dash);
+    RegisterSpellScript(spell_dru_dream_of_cenarius_guardian);
     RegisterSpellScript(spell_dru_earthwarden);
     RegisterSpellScript(spell_dru_eclipse_aura);
     RegisterSpellScript(spell_dru_eclipse_dummy);
@@ -2450,6 +2517,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_ursocs_fury);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
     RegisterSpellScript(spell_dru_yseras_gift);
     RegisterSpellScript(spell_dru_yseras_gift_group_heal);
