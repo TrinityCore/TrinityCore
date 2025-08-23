@@ -350,7 +350,10 @@ enum class QuestTagType
     FactionAssault,
     Islands,
     Threat,
-    CovenantCalling
+    CovenantCalling,
+    DragonRiderRacing,
+    CapStoneWorldQuest,
+    WorldBoss
 };
 
 enum QuestObjectiveType
