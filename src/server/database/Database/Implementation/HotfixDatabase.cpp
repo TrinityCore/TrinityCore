@@ -304,6 +304,19 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CFG_CATEGORIES, "SELECT MAX(ID) + 1 FROM cfg_categories", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_CFG_CATEGORIES, "SELECT ID, Name_lang FROM cfg_categories_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
+    // Campaign.db2
+    PrepareStatement(HOTFIX_SEL_CAMPAIGN, "SELECT ID, Title, Description, UiTextureKitID, RewardQuestID, Prerequisite, Field_9_0_1_35755_007, "
+        "Completed, OnlyStallIf, UiQuestDetailsThemeID, Flags, DisplayPriority, Field_10_0_2_45779_012, Field_10_0_2_46144_013 FROM campaign"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CAMPAIGN, "SELECT MAX(ID) + 1 FROM campaign", CONNECTION_SYNCH);
+    PREPARE_LOCALE_STMT(HOTFIX_SEL_CAMPAIGN, "SELECT ID, Title_lang, Description_lang FROM campaign_locale WHERE (`VerifiedBuild` > 0) = ?"
+        " AND locale = ?", CONNECTION_SYNCH);
+
+    // CampaignXQuestLine.db2
+    PrepareStatement(HOTFIX_SEL_CAMPAIGN_X_QUEST_LINE, "SELECT ID, CampaignID, QuestLineID, OrderIndex FROM campaign_x_quest_line"
+        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_CAMPAIGN_X_QUEST_LINE, "SELECT MAX(ID) + 1 FROM campaign_x_quest_line", CONNECTION_SYNCH);
+
     // CfgRegions.db2
     PrepareStatement(HOTFIX_SEL_CFG_REGIONS, "SELECT ID, Tag, RegionID, Raidorigin, RegionGroupMask, ChallengeOrigin, TimeEventRegionGroupID"
         " FROM cfg_regions WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);

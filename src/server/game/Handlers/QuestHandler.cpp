@@ -841,6 +841,25 @@ void WorldSession::HandleUiMapQuestLinesRequest(WorldPackets::Quest::UiMapQuestL
                 }
             }
 
+            bool campaignOk = true;
+            if (CampaignXQuestLineEntry const* cxql = sDB2Manager.GetCampaignForQuestLine(questLineId))
+            {
+                if (CampaignEntry const* campaign = sDB2Manager.GetCampaign(cxql->CampaignID))
+                {
+                    if (campaign->Prerequisite > 0 && !_player->MeetPlayerCondition(campaign->Prerequisite))
+                        campaignOk = false;
+
+                    if (campaign->Completed > 0 && _player->MeetPlayerCondition(campaign->Completed))
+                        campaignOk = false;
+
+                    if (campaign->OnlyStallIf > 0 && _player->MeetPlayerCondition(campaign->OnlyStallIf))
+                        campaignOk = false;
+
+                    if (campaign->RewardQuestID > 0 && _player->GetQuestRewardStatus(campaign->RewardQuestID))
+                        campaignOk = false;
+                }
+            }
+
             if (!isQuestLineCompleted)
                 response.QuestLineIDs.push_back(questLineId);
         }

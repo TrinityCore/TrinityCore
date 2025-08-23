@@ -85,6 +85,8 @@ DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("Battlema
 DB2Storage<BattlemasterListXMapEntry>           sBattlemasterListXMapStore("BattlemasterListXMap.db2", &BattlemasterListXMapLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
+DB2Storage<CampaignEntry>                       sCampaignStore("Campaign.db2", &CampaignLoadInfo::Instance);
+DB2Storage<CampaignXQuestLineEntry>             sCampaignXQuestLineStore("CampaignXQuestLine.db2", &CampaignXQuestLineLoadInfo::Instance);
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
 DB2Storage<ChallengeModeItemBonusOverrideEntry> sChallengeModeItemBonusOverrideStore("ChallengeModeItemBonusOverride.db2", &ChallengeModeItemBonusOverrideLoadInfo::Instance);
@@ -476,6 +478,8 @@ namespace
     std::unordered_map<uint32 /*chrCustomizationOptionId*/, std::vector<ChrCustomizationChoiceEntry const*>> _chrCustomizationChoicesByOption;
     std::unordered_map<std::pair<uint8, uint8>, ChrModelEntry const*> _chrModelsByRaceAndGender;
     std::map<std::tuple<uint8 /*race*/, uint8/*gender*/, uint8/*shapeshift*/>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts;
+    std::unordered_map<uint32, CampaignXQuestLineEntry const*> _campaignByQuestLine;
+    std::unordered_map<uint32, CampaignEntry const*> _campaigns;
     std::unordered_map<std::pair<uint8 /*race*/, uint8/*gender*/>, std::vector<ChrCustomizationOptionEntry const*>> _chrCustomizationOptionsByRaceAndGender;
     std::unordered_map<uint32 /*chrCustomizationReqId*/, std::vector<std::pair<uint32 /*chrCustomizationOptionId*/, std::vector<uint32>>>> _chrCustomizationRequiredChoices;
     ChrSpecializationByIndexContainer _chrSpecializationsByIndex;
@@ -711,6 +715,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlemasterListXMapStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
+    LOAD_DB2(sCampaignStore);
+    LOAD_DB2(sCampaignXQuestLineStore);
     LOAD_DB2(sCfgCategoriesStore);
     LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sChallengeModeItemBonusOverrideStore);
@@ -1130,6 +1136,9 @@ void DB2Manager::IndexLoadedStores()
     _broadcastTextDurations.reserve(sBroadcastTextDurationStore.GetNumRows());
     for (BroadcastTextDurationEntry const* broadcastTextDuration : sBroadcastTextDurationStore)
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
+
+    for (CampaignXQuestLineEntry const* entry : sCampaignXQuestLineStore)
+        _campaignByQuestLine[entry->QuestLineID] = entry;
 
     for (CharBaseInfoEntry const* charBaseInfo : sCharBaseInfoStore)
         _charBaseInfoByRaceAndClass[{ charBaseInfo->RaceID, charBaseInfo->ClassID }] = charBaseInfo;
@@ -2113,6 +2122,22 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
 int32 const* DB2Manager::GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
 {
     return Trinity::Containers::MapGetValuePtr(_broadcastTextDurations, { broadcastTextId, WowLocaleToCascLocaleBit[locale] });
+}
+
+CampaignXQuestLineEntry const* DB2Manager::GetCampaignForQuestLine(uint32 questLineId) const
+{
+    auto itr = _campaignByQuestLine.find(questLineId);
+    if (itr != _campaignByQuestLine.end())
+        return itr->second;
+    return nullptr;
+}
+
+CampaignEntry const* DB2Manager::GetCampaign(uint32 campaignId) const
+{
+    auto itr = _campaigns.find(campaignId);
+    if (itr != _campaigns.end())
+        return itr->second;
+    return nullptr;
 }
 
 CharBaseInfoEntry const* DB2Manager::GetCharBaseInfo(Races race, Classes class_)
