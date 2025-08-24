@@ -520,6 +520,7 @@ namespace
     std::unordered_map<uint32, uint8> _pvpItemBonus;
     PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
     std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
+    std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestXLine;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -1519,6 +1520,14 @@ void DB2Manager::IndexLoadedStores()
             std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
     }
 
+    {
+        for (QuestLineXQuestEntry const* entry : sQuestLineXQuestStore)
+            _questsByQuestXLine[entry->QuestID].push_back(entry);
+
+        for (auto& [questId, questEntries] : _questsByQuestXLine)
+            std::ranges::sort(questEntries, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
+    }
+
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
     {
         if (questPackageItem->DisplayType != QUEST_PACKAGE_FILTER_UNMATCHED)
@@ -2122,6 +2131,17 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
 int32 const* DB2Manager::GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
 {
     return Trinity::Containers::MapGetValuePtr(_broadcastTextDurations, { broadcastTextId, WowLocaleToCascLocaleBit[locale] });
+}
+
+QuestLineXQuestEntry const* DB2Manager::GetQuestLineXQuestForQuest(uint32 questId) const
+{
+    for (auto const& [questLineId, quests] : _questsByQuestXLine)
+    {
+        for (QuestLineXQuestEntry const* questLineXQuest : quests)
+            if (questLineXQuest->QuestID == questId)
+                return questLineXQuest;
+    }
+    return nullptr;
 }
 
 CampaignXQuestLineEntry const* DB2Manager::GetCampaignForQuestLine(uint32 questLineId) const
