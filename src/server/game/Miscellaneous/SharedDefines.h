@@ -4756,7 +4756,7 @@ enum LockKeyType
     LOCK_KEY_SPELL = 3,
 };
 
-// LockType.dbc (11.2.5.62687)
+// LockType.dbc (10.0.5.48069)
 enum LockType
 {
     LOCKTYPE_LOCKPICKING                    = 1,
@@ -4831,20 +4831,7 @@ enum LockType
     LOCKTYPE_DRAGON_ISLES_SKINNING_25       = 181,
     LOCKTYPE_DRAGON_ISLES_TAILORING_25      = 182,
     LOCKTYPE_OPEN_KNEELING_PLANT            = 186,
-    LOCKTYPE_DRAGON_ISLES_MINING            = 188,
-    LOCKTYPE_KHAZ_ALGAR_MINING              = 193,
-    LOCKTYPE_KHAZ_ALGAR_HERBALISM           = 194,
-    LOCKTYPE_KHAZ_ALGAR_ALCHEMY_25          = 195,
-    LOCKTYPE_KHAZ_ALGAR_BLACKSMITHING_25    = 196,
-    LOCKTYPE_KHAZ_ALGAR_ENCHANTING_25       = 197,
-    LOCKTYPE_KHAZ_ALGAR_ENGINEERING_25      = 198,
-    LOCKTYPE_KHAZ_ALGAR_HERBALISM_25        = 199,
-    LOCKTYPE_KHAZ_ALGAR_INSCRIPTION_25      = 200,
-    LOCKTYPE_KHAZ_ALGAR_JEWELCRAFTING_25    = 201,
-    LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25   = 202,
-    LOCKTYPE_KHAZ_ALGAR_MINING_25           = 203,
-    LOCKTYPE_KHAZ_ALGAR_SKINNING_25         = 204,
-    LOCKTYPE_KHAZ_ALGAR_TAILORING_25        = 205
+    LOCKTYPE_DRAGON_ISLES_MINING            = 188
 };
 
 // this is important type for npcs!
@@ -5386,7 +5373,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (11.2.5.62687)
+// QuestInfo.dbc (9.0.2.37176)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5457,22 +5444,10 @@ enum QuestInfo
     QUEST_INFO_THREAT_EMISSARY_QUEST                = 270,
     QUEST_INFO_CALLING_QUEST                        = 271,
     QUEST_INFO_VENTHYR_PARTY_QUEST                  = 272,
-    QUEST_INFO_MAW_SOUL_SPAWN_TRACKER               = 273,
-    QUEST_INFO_PVP_ELITE_WORLDQUEST                 = 278,
-    QUEST_INFO_FORBIDDEN_REACH_ENVOY_TASK           = 279,
-    QUEST_INFO_DRAGONRIDER_RACING                   = 281,
-    QUEST_INFO_IMPORTANT_QUEST                      = 282,
-    QUEST_INFO_BONUS_OBJECTIVE_WITH_COMPLETION_TOAST = 283,
-    QUEST_INFO_META_QUEST                           = 284,
-    QUEST_INFO_CAPSTONE_WORLD_QUEST                 = 286,
-    QUEST_INFO_CAPSTONE_BLOCKER                     = 287,
-    QUEST_INFO_DELVE                                = 288,
-    QUEST_INFO_WORLD_BOSS                           = 289,
-    QUEST_INFO_HIDDEN                               = 291,
-    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292
+    QUEST_INFO_MAW_SOUL_SPAWN_TRACKER               = 273
 };
 
-// QuestSort.dbc (11.2.5.62687)
+// QuestSort.dbc (9.0.2.37176)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
@@ -5620,44 +5595,6 @@ enum QuestSort
     QUEST_SORT_COVENANT_ASSAULTS                = 604,
     QUEST_SORT_PROTOFORM_SYNTHESIS              = 606,
     QUEST_SORT_CH_6_SYMBOL_TRACKING             = 607,
-    QUEST_SORT_TEMPEST_UNLEASHED                = 608,
-    QUEST_SORT_DRAGONSCALE_EXPEDITION           = 609,
-    QUEST_SORT_PRIMALIST_STORM                  = 610,
-    QUEST_SORT_ISKAARA_TUSKARR                  = 611,
-    QUEST_SORT_MARUUK_CENTAUR                   = 612,
-    QUEST_SORT_VALDRAKKEN_ACCORD                = 613,
-    QUEST_SORT_EVOKER                           = 614,
-    QUEST_SORT_TRADINGPOST                      = 615,
-    QUEST_SORT_ENGINE_OF_INNOVATION             = 616,
-    QUEST_SORT_ARTISANS_CONSORTIUM              = 617,
-    QUEST_SORT_SUFUSSION_CAMPS                  = 618,
-    QUEST_SORT_ENVOY_TASKS                      = 620,
-    QUEST_SORT_RESEARCHERS_UNDER_FIRE           = 622,
-    QUEST_SORT_AZEROTHIAN_ARCHIVES              = 623,
-    QUEST_SORT_TRIAL_OF_STYLE                   = 624,
-    QUEST_SORT_SYSTEMS                          = 625,
-    QUEST_SORT_TIME_RIFTS                       = 626,
-    QUEST_SORT_LITTLE_SCALES_DAYCARE            = 627,
-    QUEST_SORT_DREAMSURGE                       = 628,
-    QUEST_SORT_DREAM_WARDENS                    = 629,
-    QUEST_SORT_GILNEAS_RECLAMATION              = 630,
-    QUEST_SORT_KALIMDOR_CUP                     = 631,
-    QUEST_SORT_EASTERN_KINGDOMS_CUP             = 632,
-    QUEST_SORT_OUTLAND_CUP                      = 633,
-    QUEST_SORT_NORTHREND_CUP                    = 634,
-    QUEST_SORT_PANDARIA_CUP                     = 635,
-    QUEST_SORT_BROKEN_ISLES_CUP                 = 636,
-    QUEST_SORT_THE_HARBRINGER                   = 637,
-    QUEST_SORT_HEARTHSTONE_ANNIVERSARY          = 638,
-    QUEST_SORT_TIMERUNNING                      = 639,
-    QUEST_SORT_EARTHEN                          = 640,
-    QUEST_SORT_UPGRADE_SYSTEM                   = 642,
-    QUEST_SORT_WARBANDS                         = 643,
-    QUEST_SORT_META_QUESTS                      = 645,
-    QUEST_SORT_SECRETS_OF_AZEROTH               = 646,
-    QUEST_SORT_LOREWALKING                      = 647,
-    QUEST_SORT_DASTARDLY_DUOS                   = 651,
-    QUEST_SORT_DELVES                           = 652,
 };
 
 constexpr uint8 ClassByQuestSort(int32 QuestSort)
@@ -5679,7 +5616,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (11.2.5.62687)
+// SkillLine.db2 (10.0.5.48069)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -6040,26 +5977,7 @@ enum SkillType
     SKILL_DRAGON_ISLES_SKINNING                     = 2834,
     SKILL_CRAFTING                                  = 2846,
     SKILL_TUSKARR_FISHING_GEAR                      = 2847,
-    SKILL_PET_LESSER_DRAGONKIN                      = 2850,
-    SKILL_LANG_FURBOLG                              = 2855,
-    SKILL_SHIPMENT_PROTOTYPE                        = 2870,
-    SKILL_KHAZ_ALGAR_ALCHEMY                        = 2871,
-    SKILL_KHAZ_ALGAR_BLACKSMITHING                  = 2872,
-    SKILL_KHAZ_ALGAR_COOCKING                       = 2873,
-    SKILL_KHAZ_ALGAR_ENCHANTING                     = 2874,
-    SKILL_KHAZ_ALGAR_ENGINEERING                    = 2875,
-    SKILL_KHAZ_ALGAR_FISHING                        = 2876,
-    SKILL_KHAZ_ALGAR_HERBALISM                      = 2877,
-    SKILL_KHAZ_ALGAR_INSCRIPTION                    = 2878,
-    SKILL_KHAZ_ALGAR_JEWELCRAFTING                  = 2879,
-    SKILL_KHAZ_ALGAR_LEATHERWORKING                 = 2880,
-    SKILL_KHAZ_ALGAR_MINING                         = 2881,
-    SKILL_KHAZ_ALGAR_SKINNING                       = 2882,
-    SKILL_KHAZ_ALGAR_TAILORING                      = 2883,
-    SKILL_LANG_EARTHEN                              = 2884,
-    SKILL_SUPPLY_SHIPMENTS                          = 2886,
-    SKILL_RACIAL_EARTHEN                            = 2895,
-    SKILL_ALL_WARBANDS                              = 2902
+    SKILL_PET_LESSER_DRAGONKIN                      = 2850
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
@@ -6114,18 +6032,6 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_DRAGON_ISLES_TAILORING_25:      return SKILL_DRAGON_ISLES_TAILORING;
         case LOCKTYPE_DRAGON_ISLES_MINING:
         case LOCKTYPE_DRAGON_ISLES_MINING_25:         return SKILL_DRAGON_ISLES_MINING;
-        case LOCKTYPE_KHAZ_ALGAR_MINING:
-        case LOCKTYPE_KHAZ_ALGAR_MINING_25:           return SKILL_KHAZ_ALGAR_MINING;
-        case LOCKTYPE_KHAZ_ALGAR_HERBALISM:
-        case LOCKTYPE_KHAZ_ALGAR_HERBALISM_25:        return SKILL_KHAZ_ALGAR_HERBALISM;
-        case LOCKTYPE_KHAZ_ALGAR_ALCHEMY_25:          return SKILL_KHAZ_ALGAR_ALCHEMY;
-        case LOCKTYPE_KHAZ_ALGAR_BLACKSMITHING_25:    return SKILL_KHAZ_ALGAR_BLACKSMITHING;
-        case LOCKTYPE_KHAZ_ALGAR_ENCHANTING_25:       return SKILL_KHAZ_ALGAR_ENCHANTING;
-        case LOCKTYPE_KHAZ_ALGAR_ENGINEERING_25:      return SKILL_KHAZ_ALGAR_ENGINEERING;
-        case LOCKTYPE_KHAZ_ALGAR_INSCRIPTION_25:      return SKILL_KHAZ_ALGAR_INSCRIPTION;
-        case LOCKTYPE_KHAZ_ALGAR_JEWELCRAFTING_25:    return SKILL_KHAZ_ALGAR_JEWELCRAFTING;
-        case LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25:   return SKILL_KHAZ_ALGAR_LEATHERWORKING;
-        case LOCKTYPE_KHAZ_ALGAR_SKINNING_25:         return SKILL_KHAZ_ALGAR_SKINNING;
         default: break;
     }
     return SKILL_NONE;
@@ -6163,7 +6069,7 @@ enum SkillCategory
     SKILL_CATEGORY_GENERIC       = 12
 };
 
-// TotemCategory.db2 (11.2.5.62687)
+// TotemCategory.db2 (9.0.2.37176)
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD                   = 1,
@@ -6210,8 +6116,6 @@ enum TotemCategory
     TC_UNLEASHED_VOID_FOCUS                 = 357,
     TC_MASTERCRAFT                          = 358,
     TC_VIRTUOSO_ENGRAVING_SET               = 359,
-    TC_ENGINEERING_MULTITOOL                = 362,
-    TC_GNOMISH_ARMY_EVERYTHING              = 369
 };
 
 enum UnitDynFlags
