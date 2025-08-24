@@ -20,13 +20,13 @@
  * SAY_INTRO is NYI, Zul'jin should say it when player opens Malacrass' door
  * Berserk requires additional research. Is it really used?
  * SPELL_ENERGY_STORM doesn't get removed on phase end
- * Lynx Rush implementation requires sniff verification
  * Damage of spell 43150 doesn't increase
  * SPELL_OVERPOWER should be used after the target dodges (?)
  */
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -260,14 +260,12 @@ struct boss_zuljin : public BossAI
 
             if (_currentRushCount != _rushCounter)
             {
-                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
-                    DoCast(target, SPELL_LYNX_RUSH_DAMAGE);
+                DoCastSelf(SPELL_LYNX_RUSH, true);
             }
             else
             {
                 _rushCounter = urand(4, 10);
                 _currentRushCount = 0;
-                me->RemoveAurasDueToSpell(SPELL_LYNX_RUSH);
             }
         }
 
@@ -413,7 +411,9 @@ struct boss_zuljin : public BossAI
                     events.Repeat(15s, 20s);
                     break;
                 case EVENT_LYNX_RUSH:
-                    DoCastSelf(SPELL_LYNX_RUSH);
+                    // For unknown reason Lynx Rush sequence works only if init spell was casted as triggered, but make sure we don't use it if Claw Rage is active
+                    if (!me->HasAura(SPELL_CLAW_RAGE))
+                        DoCastSelf(SPELL_LYNX_RUSH, true);
                     events.Repeat(20s, 25s);
                     break;
 
@@ -699,19 +699,11 @@ class spell_zuljin_lynx_rush : public SpellScript
         return ValidateSpellInfo({ SPELL_LYNX_RUSH_DAMAGE });
     }
 
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        if (targets.empty())
-            return;
-
-        WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
-        targets.clear();
-        targets.push_back(target);
-    }
-
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_LYNX_RUSH_DAMAGE);
+        if (Creature* caster = GetCaster()->ToCreature())
+            if (Unit* target = caster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 80.0f, true))
+                caster->CastSpell(target, SPELL_LYNX_RUSH_DAMAGE, true);
     }
 
     void Register() override
