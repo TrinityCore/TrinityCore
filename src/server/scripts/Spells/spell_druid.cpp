@@ -1700,26 +1700,60 @@ class spell_dru_savage_roar_aura : public AuraScript
     }
 };
 
-// 164815 - Sunfire
-// 164812 - Moonfire
+// 202342 - Shooting Stars
 class spell_dru_shooting_stars : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS, SPELL_DRUID_SHOOTING_STARS_DAMAGE });
+        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS_DAMAGE })
+            && ValidateSpellEffect({ { SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_MOONFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE)
+            && sSpellMgr->AssertSpellInfo(SPELL_DRUID_SUNFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE);
     }
 
-    void OnTick(AuraEffect const* /*aurEff*/)
+    void OnTick(AuraEffect const* aurEff) const
     {
-        if (Unit* caster = GetCaster())
-            if (AuraEffect const* shootingStars = caster->GetAuraEffect(SPELL_DRUID_SHOOTING_STARS, EFFECT_0))
-                if (roll_chance_i(shootingStars->GetAmount()))
-                    caster->CastSpell(GetTarget(), SPELL_DRUID_SHOOTING_STARS_DAMAGE, true);
+        Unit* caster = GetTarget();
+        std::vector<Unit*> moonfires;
+        std::vector<Unit*> sunfires;
+        auto work = [&, druid = caster->GetGUID()](Unit* target)
+        {
+            if (target->HasAuraEffect(SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1, druid))
+                moonfires.push_back(target);
+
+            if (target->HasAuraEffect(SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1, druid))
+                sunfires.push_back(target);
+        };
+        Trinity::UnitWorker worker(caster, work);
+        Cell::VisitAllObjects(caster, worker, 100.0f);
+
+        ProcessDoT(aurEff, caster, moonfires);
+        ProcessDoT(aurEff, caster, sunfires);
+    }
+
+    static void ProcessDoT(AuraEffect const* aurEff, Unit* caster, std::vector<Unit*>& targets)
+    {
+        if (targets.empty())
+            return;
+
+        float chance = float(aurEff->GetAmount()) * std::sqrt(float(targets.size()));
+        float procs;
+        if (roll_chance_f(std::modf(chance / 100.0f, &procs) * 100.0f))
+            procs += 1.0f;
+
+        if (procs <= 0.0f)
+            return;
+
+        Trinity::Containers::RandomResize(targets, procs);
+        for (Unit* target : targets)
+            caster->CastSpell(target, SPELL_DRUID_SHOOTING_STARS_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_shooting_stars::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_shooting_stars::OnTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
