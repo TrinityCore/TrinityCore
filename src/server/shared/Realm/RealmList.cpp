@@ -68,7 +68,7 @@ void RealmList::Initialize(Trinity::Asio::IoContext& ioContext, uint32 updateInt
 {
     _updateInterval = updateInterval;
     _updateTimer = std::make_unique<Trinity::Asio::DeadlineTimer>(ioContext);
-    _resolver = std::make_unique<Trinity::Asio::Resolver>(ioContext);
+    _resolver = std::make_unique<Trinity::Net::Resolver>(ioContext);
 
     ClientBuild::LoadBuildInfo();
     // Get the content of the realmlist table in the database
@@ -124,16 +124,16 @@ void RealmList::UpdateRealms()
 
             for (std::size_t i = 0; i < 4; ++i)
             {
-                if (fields[2 + i].IsNull())
-                    continue;
-
-                for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(fields[2 + i].GetStringView(), ""))
+                if (Optional<std::string_view> addressStr = fields[2 + i].GetStringViewOrNull())
                 {
-                    boost::asio::ip::address address = endpoint.address();
-                    if (advstd::ranges::contains(addresses, address))
-                        continue;
+                    for (boost::asio::ip::tcp::endpoint const& endpoint : _resolver->ResolveAll(*addressStr, ""))
+                    {
+                        boost::asio::ip::address address = endpoint.address();
+                        if (advstd::ranges::contains(addresses, address))
+                            continue;
 
-                    addresses.push_back(std::move(address));
+                        addresses.push_back(std::move(address));
+                    }
                 }
             }
 

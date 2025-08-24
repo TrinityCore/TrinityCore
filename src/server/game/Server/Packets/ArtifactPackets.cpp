@@ -16,37 +16,40 @@
  */
 
 #include "ArtifactPackets.h"
+#include "PacketOperators.h"
 
-ByteBuffer& operator>>(ByteBuffer& data, WorldPackets::Artifact::ArtifactAddPower::ArtifactPowerChoice& artifactPowerChoice)
+namespace WorldPackets::Artifact
+{
+ByteBuffer& operator>>(ByteBuffer& data, ArtifactPowerChoice& artifactPowerChoice)
 {
     data >> artifactPowerChoice.ArtifactPowerID;
     data >> artifactPowerChoice.Rank;
     return data;
 }
 
-void WorldPackets::Artifact::ArtifactAddPower::Read()
+void ArtifactAddPower::Read()
 {
     _worldPacket >> ArtifactGUID;
     _worldPacket >> ForgeGUID;
-    PowerChoices.resize(_worldPacket.read<uint32>());
+    _worldPacket >> Size<uint32>(PowerChoices);
     for (ArtifactPowerChoice& artifactPowerChoice : PowerChoices)
         _worldPacket >> artifactPowerChoice;
 }
 
-void WorldPackets::Artifact::ArtifactSetAppearance::Read()
+void ArtifactSetAppearance::Read()
 {
     _worldPacket >> ArtifactGUID;
     _worldPacket >> ForgeGUID;
     _worldPacket >> ArtifactAppearanceID;
 }
 
-void WorldPackets::Artifact::ConfirmArtifactRespec::Read()
+void ConfirmArtifactRespec::Read()
 {
     _worldPacket >> ArtifactGUID;
     _worldPacket >> NpcGUID;
 }
 
-WorldPacket const* WorldPackets::Artifact::OpenArtifactForge::Write()
+WorldPacket const* OpenArtifactForge::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << ForgeGUID;
@@ -54,7 +57,7 @@ WorldPacket const* WorldPackets::Artifact::OpenArtifactForge::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactRespecPrompt::Write()
+WorldPacket const* ArtifactRespecPrompt::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << NpcGUID;
@@ -62,10 +65,11 @@ WorldPacket const* WorldPackets::Artifact::ArtifactRespecPrompt::Write()
     return &_worldPacket;
 }
 
-WorldPacket const* WorldPackets::Artifact::ArtifactXpGain::Write()
+WorldPacket const* ArtifactXpGain::Write()
 {
     _worldPacket << ArtifactGUID;
     _worldPacket << uint64(Amount);
 
     return &_worldPacket;
+}
 }

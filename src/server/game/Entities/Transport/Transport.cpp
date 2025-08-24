@@ -207,7 +207,7 @@ void Transport::Update(uint32 diff)
     size_t eventToTriggerIndex = _eventsToTrigger->find_first();
     if (eventToTriggerIndex != boost::dynamic_bitset<uint8>::npos)
     {
-        while (eventToTriggerIndex < _transportInfo->Events.size() && _transportInfo->Events[eventToTriggerIndex].Timestamp < timer)
+        while (eventToTriggerIndex < _transportInfo->Events.size() && _transportInfo->Events[eventToTriggerIndex].Timestamp <= timer)
         {
             if (TransportPathLeg const* leg = _transportInfo->GetLegForTime(_transportInfo->Events[eventToTriggerIndex].Timestamp))
                 if (leg->MapId == GetMapId())
@@ -712,11 +712,7 @@ void Transport::UpdatePassengerPositions(PassengerSet const& passengers)
 
 void Transport::BuildUpdate(UpdateDataMapType& data_map)
 {
-    Map::PlayerList const& players = GetMap()->GetPlayers();
-    if (players.isEmpty())
-        return;
-
-    for (MapReference const& playerReference : players)
+    for (MapReference const& playerReference : GetMap()->GetPlayers())
         if (playerReference.GetSource()->InSamePhase(this))
             BuildFieldsUpdate(playerReference.GetSource(), data_map);
 

@@ -56,7 +56,7 @@ jobs:
         & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
 
     - name: Download and install Boost
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@v2
       id: install-boost
       with:
         boost_version: 1.84.0

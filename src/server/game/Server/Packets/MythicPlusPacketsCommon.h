@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MythicPlusPacketsCommon_h__
-#define MythicPlusPacketsCommon_h__
+#ifndef TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H
+#define TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H
 
 #include "ObjectGuid.h"
 #include "PacketUtilities.h"
@@ -68,6 +68,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
+            int32 Unknown_1120 = 0;
             std::array<int32, 4> KeystoneAffixIDs;
         };
 
@@ -105,4 +106,4 @@ namespace WorldPackets
     }
 }
 
-#endif // MythicPlusPacketsCommon_h__
+#endif // TRINITYCORE_MYTHIC_PLUS_PACKETS_COMMON_H

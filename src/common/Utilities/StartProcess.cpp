@@ -15,23 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+// compatibility for booost 1.74 (no boost/process/v1/) and 1.88 (no boost/process/)
+#if __has_include(<boost/process/v1/args.hpp>)
+#define BOOST_PROCESS_V1_HEADER(header) <boost/process/v1/header>
+#define BOOST_PROCESS_VERSION 1
+#else
+#define BOOST_PROCESS_V1_HEADER(header) <boost/process/header>
+#endif
+
 #include "StartProcess.h"
 #include "Errors.h"
 #include "Log.h"
 #include "Memory.h"
 #include "Optional.h"
-#ifndef BOOST_ALLOW_DEPRECATED_HEADERS
-#define BOOST_ALLOW_DEPRECATED_HEADERS
-#include <boost/process/args.hpp>
-#include <boost/process/child.hpp>
-#include <boost/process/env.hpp>
-#include <boost/process/error.hpp>
-#include <boost/process/exe.hpp>
-#include <boost/process/io.hpp>
-#include <boost/process/pipe.hpp>
-#include <boost/process/search_path.hpp>
-#undef BOOST_ALLOW_DEPRECATED_HEADERS
-#endif
+#include BOOST_PROCESS_V1_HEADER(args.hpp)
+#include BOOST_PROCESS_V1_HEADER(child.hpp)
+#include BOOST_PROCESS_V1_HEADER(env.hpp)
+#include BOOST_PROCESS_V1_HEADER(error.hpp)
+#include BOOST_PROCESS_V1_HEADER(exe.hpp)
+#include BOOST_PROCESS_V1_HEADER(io.hpp)
+#include BOOST_PROCESS_V1_HEADER(pipe.hpp)
+#include BOOST_PROCESS_V1_HEADER(search_path.hpp)
 #include <fmt/ranges.h>
 
 namespace bp = boost::process;
