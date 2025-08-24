@@ -283,7 +283,6 @@ struct boss_zuljin : public BossAI
     {
         if (action == ACTION_CLEAR_FIXATE)
         {
-            // This requires additional research since this is purely guessed
             if (Player* target = ObjectAccessor::GetPlayer(*me, _clawRageVictimGUID))
                 me->GetThreatManager().AddThreat(target, -50000000.0f, nullptr, true, true);
         }
