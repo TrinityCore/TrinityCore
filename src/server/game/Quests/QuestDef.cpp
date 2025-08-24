@@ -508,6 +508,33 @@ bool Quest::IsMeta() const
     return false;
 }
 
+bool Quest::IsCampaign() const
+{
+    QuestLineXQuestEntry const* questLineEntry = nullptr;
+
+    for (auto const* entry : sQuestLineXQuestStore)
+    {
+        if (entry->QuestID == GetQuestId())
+        {
+            questLineEntry = entry;
+            break;
+        }
+    }
+
+    if (!questLineEntry)
+        return false;
+
+    uint32 questLineId = questLineEntry->QuestLineID;
+
+    for (auto const* campaignEntry : sCampaignXQuestLineStore)
+    {
+        if (campaignEntry->QuestLineID == questLineId)
+            return true;
+    }
+
+    return false;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
