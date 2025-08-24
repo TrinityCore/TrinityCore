@@ -1615,6 +1615,16 @@ void GameEventMgr::SendWorldStateUpdate(Player* player, uint16 event_id)
     }
 }
 
+void GameEventMgr::AddActiveEvent(uint16 event_id)
+{
+    m_ActiveEvents.insert(event_id);
+}
+
+void GameEventMgr::RemoveActiveEvent(uint16 event_id)
+{
+    m_ActiveEvents.erase(event_id);
+}
+
 class GameEventAIHookWorker
 {
 public:

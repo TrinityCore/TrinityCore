@@ -114,7 +114,7 @@ InstanceMap* MapManager::CreateInstance(uint32 mapId, uint32 instanceId, Instanc
         map->TrySetOwningGroup(group);
 
     map->CreateInstanceData();
-    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenario(map, team));
+    map->SetInstanceScenario(sScenarioMgr->CreateInstanceScenarioForTeam(map, team));
     map->InitSpawnGroupState();
 
     if (sWorld->getBoolConfig(CONFIG_INSTANCEMAP_LOAD_GRIDS))
@@ -411,7 +411,7 @@ uint32 MapManager::GetNumInstances() const
 uint32 MapManager::GetNumPlayersInInstances() const
 {
     std::shared_lock<std::shared_mutex> lock(_mapsLock);
-    return std::accumulate(i_maps.begin(), i_maps.end(), 0u, [](uint32 total, MapMapType::value_type const& value) { return total + (value.second->IsDungeon() ? value.second->GetPlayers().getSize() : 0); });
+    return std::accumulate(i_maps.begin(), i_maps.end(), 0u, [](uint32 total, MapMapType::value_type const& value) { return total + (value.second->IsDungeon() ? value.second->GetPlayers().size() : 0); });
 }
 
 void MapManager::InitInstanceIds()

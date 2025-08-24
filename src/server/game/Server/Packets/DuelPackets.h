@@ -96,7 +96,7 @@ namespace WorldPackets
             bool ToTheDeath = false;
         };
 
-        class DuelResponse : public ClientPacket
+        class DuelResponse final : public ClientPacket
         {
         public:
             explicit DuelResponse(WorldPacket&& packet) : ClientPacket(CMSG_DUEL_RESPONSE, std::move(packet)) { }

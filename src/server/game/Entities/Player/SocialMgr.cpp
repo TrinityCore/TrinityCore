@@ -24,6 +24,13 @@
 #include "World.h"
 #include "WorldSession.h"
 
+PlayerSocial::PlayerSocial() = default;
+PlayerSocial::PlayerSocial(PlayerSocial const&) = default;
+PlayerSocial::PlayerSocial(PlayerSocial&&) noexcept = default;
+PlayerSocial& PlayerSocial::operator=(PlayerSocial const&) = default;
+PlayerSocial& PlayerSocial::operator=(PlayerSocial&&) noexcept = default;
+PlayerSocial::~PlayerSocial() = default;
+
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {
     uint32 counter = 0;
@@ -200,6 +207,9 @@ bool PlayerSocial::HasIgnore(ObjectGuid const& ignoreGuid, ObjectGuid const& ign
 {
     return _HasContact(ignoreGuid, SOCIAL_FLAG_IGNORED) || _ignoredAccounts.find(ignoreAccountGuid) != _ignoredAccounts.end();
 }
+
+SocialMgr::SocialMgr() = default;
+SocialMgr::~SocialMgr() = default;
 
 SocialMgr* SocialMgr::instance()
 {

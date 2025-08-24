@@ -941,6 +941,8 @@ void MotionMaster::MoveCirclePath(float x, float y, float z, float radius, bool 
         Position const& pos = { x, y, z, 0.0f };
         float angle = pos.GetAbsoluteAngle(_owner->GetPositionX(), _owner->GetPositionY());
 
+        init.Path().reserve(stepCount + 1);
+
         // add the owner's current position as starting point as it gets removed after entering the cycle
         init.Path().emplace_back(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ());
 

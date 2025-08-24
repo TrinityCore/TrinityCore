@@ -23,7 +23,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _innAreaTriggerId(0), _restFlagMask(0)
+RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _restFlagMask(0)
 {
     for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
         _restBonus[i] = 0;

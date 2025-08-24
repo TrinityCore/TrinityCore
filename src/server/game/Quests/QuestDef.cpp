@@ -48,9 +48,9 @@
     (ManagedWorldStateID)(QuestSessionBonus)(LogTitle)(LogDescription)(QuestDescription)(AreaDescription)(PortraitGiverText)(PortraitGiverName)\
     (PortraitTurnInText)(PortraitTurnInName)(QuestCompletionLog)
 
-DEFINE_FIELD_ACCESSOR_CACHE(Quest::QuestTemplateQueryResult, ResultSet, QUEST_TEMPLATE_FIELDS);
+DEFINE_FIELD_ACCESSOR_CACHE(Quest::, QuestTemplateQueryResult, ResultSet, QUEST_TEMPLATE_FIELDS);
 
-Quest::Quest(QueryResult const& questRecord) : Quest(QuestTemplateQueryResult{ .Result = *questRecord })
+Quest::Quest(QueryResult const& questRecord) : Quest(*questRecord)
 {
 }
 
@@ -286,16 +286,11 @@ void Quest::LoadQuestObjective(Field* fields)
     if (hasCompletionEffect)
     {
         obj.CompletionEffect = new QuestObjectiveAction();
-        if (!fields[10].IsNull())
-            obj.CompletionEffect->GameEventId = fields[10].GetUInt32();
-        if (!fields[11].IsNull())
-            obj.CompletionEffect->SpellId = fields[11].GetUInt32();
-        if (!fields[12].IsNull())
-            obj.CompletionEffect->ConversationId = fields[12].GetUInt32();
-        if (!fields[13].IsNull())
-            obj.CompletionEffect->UpdatePhaseShift = fields[13].GetBool();
-        if (!fields[14].IsNull())
-            obj.CompletionEffect->UpdateZoneAuras = fields[14].GetBool();
+        obj.CompletionEffect->GameEventId = fields[10].GetUInt32OrNull();
+        obj.CompletionEffect->SpellId = fields[11].GetUInt32OrNull();
+        obj.CompletionEffect->ConversationId = fields[12].GetUInt32OrNull();
+        obj.CompletionEffect->UpdatePhaseShift = fields[13].GetBool();
+        obj.CompletionEffect->UpdateZoneAuras = fields[14].GetBool();
     }
 
     _usedQuestObjectiveTypes[obj.Type] = true;

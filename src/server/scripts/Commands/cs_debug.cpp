@@ -1186,7 +1186,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra)
+    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, Optional<uint32> moveFlags, Optional<uint32> moveFlagsExtra, Optional<uint32> moveFlagsExtra2)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1199,12 +1199,13 @@ public:
         }
         else
         {
-            /// @fixme: port master's HandleDebugMoveflagsCommand; flags need different handling
+            target->SetUnitMovementFlags(*moveFlags);
 
             if (moveFlagsExtra)
-            {
                 target->SetExtraUnitMovementFlags(*moveFlagsExtra);
-            }
+
+            if (moveFlagsExtra2)
+                target->SetExtraUnitMovementFlags2(*moveFlagsExtra2);
 
             if (target->GetTypeId() != TYPEID_PLAYER)
                 target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
@@ -1716,37 +1717,40 @@ public:
     class CreatureCountWorker
     {
     public:
-        CreatureCountWorker() { }
-
-        void Visit(std::unordered_map<ObjectGuid, Creature*>& creatureMap)
+        void Visit(std::unordered_map<ObjectGuid, Creature*> const& creatureMap)
         {
-            for (auto const& p : creatureMap)
-            {
-                uint32& count = creatureIds[p.second->GetEntry()];
-                ++count;
-            }
+            for (auto const& [_, creature] : creatureMap)
+                ++creatureCountsById[creature->GetEntry()];
         }
 
         template<class T>
-        void Visit(std::unordered_map<ObjectGuid, T*>&) { }
+        static void Visit(std::unordered_map<ObjectGuid, T*> const&) { }
 
-        std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(uint32 count)
+        std::vector<std::pair<uint32, uint32>> GetTopCreatureCount(std::size_t count) const
         {
-            auto comp = [](std::pair<uint32, uint32> const& a, std::pair<uint32, uint32> const& b)
-            {
-                return a.second > b.second;
-            };
-            std::set<std::pair<uint32, uint32>, decltype(comp)> set(creatureIds.begin(), creatureIds.end(), comp);
+            count = std::min(count, creatureCountsById.size());
+            std::vector<std::pair<uint32, uint32>> result;
+            if (!count)
+                return result;
 
-            count = std::min(count, uint32(set.size()));
-            std::vector<std::pair<uint32, uint32>> result(count);
-            std::copy_n(set.begin(), count, result.begin());
+            result.reserve(count + 1);
+
+            for (auto const& [creatureId, creatureCount] : creatureCountsById)
+            {
+                if (result.size() >= count && result.back().second > creatureCount)
+                    continue;
+
+                auto where = std::ranges::lower_bound(result, creatureCount, std::ranges::greater(), Trinity::TupleElement<1>);
+                result.emplace(where, creatureId, creatureCount);
+                if (result.size() > count)
+                    result.pop_back();
+            }
 
             return result;
         }
 
     private:
-        std::unordered_map<uint32, uint32> creatureIds;
+        std::unordered_map<uint32, uint32> creatureCountsById;
     };
 
     static void HandleDebugObjectCountMap(ChatHandler* handler, Map* map)
@@ -1763,8 +1767,8 @@ public:
 
         handler->PSendSysMessage("Top Creatures count:");
 
-        for (auto&& p : worker.GetTopCreatureCount(5))
-            handler->PSendSysMessage("Entry: %u Count: %u", p.first, p.second);
+        for (auto const& [creatureId, count] : worker.GetTopCreatureCount(5))
+            handler->PSendSysMessage("Entry: %u Count: %u", creatureId, count);
     }
 
     static bool HandleDebugBecomePersonalClone(ChatHandler* handler)
