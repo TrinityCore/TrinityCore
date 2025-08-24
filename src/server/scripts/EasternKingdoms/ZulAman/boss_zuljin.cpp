@@ -247,7 +247,7 @@ struct boss_zuljin : public BossAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_SHAPE_OF_THE_BEAR || spellInfo->Id == SPELL_SHAPE_OF_THE_EAGLE || 
+        if (spellInfo->Id == SPELL_SHAPE_OF_THE_BEAR || spellInfo->Id == SPELL_SHAPE_OF_THE_EAGLE ||
             spellInfo->Id == SPELL_SHAPE_OF_THE_LYNX || spellInfo->Id == SPELL_SHAPE_OF_THE_DRAGONHAWK)
             events.ScheduleEvent(EVENT_TRANSITION_4, 0s);
     }
