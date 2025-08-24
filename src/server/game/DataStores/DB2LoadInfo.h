@@ -845,7 +845,6 @@ struct CampaignXQuestLineLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &CampaignXQuestLineMeta::Instance, HOTFIX_SEL_CAMPAIGN_X_QUEST_LINE };
 };
 
-
 struct CfgCategoriesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[7] =
