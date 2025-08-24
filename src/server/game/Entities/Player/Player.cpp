@@ -16056,8 +16056,6 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     result |= QuestGiverStatus::RepeatableReward;
                 else if (quest->IsCampaign())
                     result |= QuestGiverStatus::JourneyReward;
-                else if (quest->GetQuestTag() == QuestTagType::Normal)
-                    result |= QuestGiverStatus::JourneyReward;
                 else
                     result |= QuestGiverStatus::Reward;
                 break;
