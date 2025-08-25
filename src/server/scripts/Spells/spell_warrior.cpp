@@ -142,17 +142,17 @@ class spell_warr_anger_management_proc : public AuraScript
         return player->GetPrimarySpecialization() == spec;
     }
 
-    static bool CheckArmsProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckArmsProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorArms);
     }
 
-    static bool CheckFuryProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckFuryProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorFury);
     }
 
-    static bool CheckProtectionProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckProtectionProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorProtection);
     }
