@@ -304,7 +304,7 @@ public:
 
     static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
     {
-        auto const& guildStore = sGuildMgr->GetGuildStore();
+		std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> const& guildStore = sGuildMgr->GetGuildStore();
 
         handler->SendSysMessage(LANG_GUILD_LIST_TITLE);
         handler->PSendSysMessage(LANG_GUILD_LIST_HEADER,
@@ -315,14 +315,9 @@ public:
             handler->GetTrinityString(LANG_GUILD_LIST_COL_MEMBERS),
             handler->GetTrinityString(LANG_GUILD_LIST_COL_BANK_G));
 
-        constexpr uint64 COPPER_PER_GOLD = 10000ULL;
-
-        for (auto const& pair : guildStore)
+		for (auto const& [id, guildPtr] : guildStore)
         {
-            uint32 id   = pair.first;
-            Guild* g    = pair.second.get();
-            if (!g)
-                continue;
+			Guild* g = guildPtr.get();
 
             std::string gmName;
             if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
@@ -332,7 +327,7 @@ public:
             if (time_t created = g->GetCreatedDate())
                 dateStr = TimeToTimestampStr(created);
 
-            uint64 bankGold     = g->GetBankMoney() / COPPER_PER_GOLD;
+			uint64 bankGold     = g->GetBankMoney() / GOLD;
 
             handler->PSendSysMessage(LANG_GUILD_LIST_ROW,
                 id,
@@ -344,7 +339,7 @@ public:
             );
         }
 
-		handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, guildStore.size());
+        handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, guildStore.size());
         return true;
     }
 };
