@@ -302,44 +302,34 @@ public:
         return true;
     }
 
-    static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
+    static bool HandleGuildListCommand(ChatHandler* handler)
     {
-        std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> const& guildStore = sGuildMgr->GetGuildStore();
+        std::string_view titleAndSummaryColor = handler->IsConsole() ? ""sv : "|cff00ff00"sv;
+        std::string_view tableHeaderColor = handler->IsConsole() ? ""sv : "|cff00ffff"sv;
+        std::string_view resetColor = handler->IsConsole() ? ""sv : "|r"sv;
 
-        handler->SendSysMessage(LANG_GUILD_LIST_TITLE);
-        handler->PSendSysMessage(LANG_GUILD_LIST_HEADER,
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_ID),
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_NAME),
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_GM),
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_CREATED),
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_MEMBERS),
-            handler->GetTrinityString(LANG_GUILD_LIST_COL_BANK_G));
+        handler->PSendSysMessage(LANG_GUILD_LIST_TITLE, titleAndSummaryColor, resetColor);
+        handler->PSendSysMessage(LANG_GUILD_LIST_HEADER, tableHeaderColor, resetColor);
 
-        for (auto const& [id, guildPtr] : guildStore)
+        GuildMgr::GuildContainer const& guildStore = sGuildMgr->GetGuildStore();
+
+        for (auto const& [id, g] : guildStore)
         {
-            Guild* g = guildPtr.get();
-
             std::string gmName;
             if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
                 gmName = "---";
-
-            std::string dateStr = "---";
-            if (time_t created = g->GetCreatedDate())
-                dateStr = TimeToTimestampStr(created);
-
-            uint64 bankGold     = g->GetBankMoney() / GOLD;
 
             handler->PSendSysMessage(LANG_GUILD_LIST_ROW,
                 id,
                 g->GetName().c_str(),
                 gmName.c_str(),
-                dateStr.c_str(),
+                TimeToTimestampStr(g->GetCreatedDate()).c_str(),
                 g->GetMembersCount(),
-                bankGold
+                g->GetBankMoney() / GOLD
             );
         }
 
-        handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, guildStore.size());
+        handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, titleAndSummaryColor, guildStore.size(), resetColor);
         return true;
     }
 };
