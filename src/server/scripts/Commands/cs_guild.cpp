@@ -33,8 +33,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
-#include "Define.h"         //  MONEY_COPPER_PER_GOLD
-#include <inttypes.h>      // PRIu64
+#include "Util.h"
 #include <iomanip>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
@@ -58,7 +57,7 @@ public:
             { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "" },
             { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "" },
             { "info",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildInfoCommand,             "" },
-            { "list",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildListCommand,             "" }, // Use same RBAC that .guil info
+            { "list",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildListCommand,             "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -305,12 +304,18 @@ public:
 
     static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
     {
-        auto const& guildStore = sGuildMgr->GetGuildStore();   // map<uint32, unique_trackable_ptr<Guild>>
+        auto const& guildStore = sGuildMgr->GetGuildStore();
 
-        handler->SendSysMessage("|cff00ff00=== Guild list ===|r");
-        handler->SendSysMessage("|cff00ffffID | Name | GM | Created | Members | Lv | Bank(g)|r");
+        handler->SendSysMessage(LANG_GUILD_LIST_TITLE);
+        handler->PSendSysMessage(LANG_GUILD_LIST_HEADER,
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_ID),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_NAME),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_GM),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_CREATED),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_MEMBERS),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_BANK_G));
 
-        constexpr uint64 COPPER_PER_GOLD = 10000ULL;           //  1 gold = 10 000 copper
+        constexpr uint64 COPPER_PER_GOLD = 10000ULL;
 
         for (auto const& pair : guildStore)
         {
@@ -319,41 +324,27 @@ public:
             if (!g)
                 continue;
 
-            /* ----- GM name ----- */
             std::string gmName;
             if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
                 gmName = "---";
 
-            /* ----- creation date (yyyy-mm-dd) ----- */
-            char dateBuf[11] = "---";
+            std::string dateStr = "---";
             if (time_t created = g->GetCreatedDate())
-            {
-                tm tmBuf;
-    #ifdef _MSC_VER
-                localtime_s(&tmBuf, &created);
-    #else
-                localtime_r(&created, &tmBuf);
-    #endif
-                strftime(dateBuf, sizeof(dateBuf), "%Y-%m-%d", &tmBuf);
-            }
+                dateStr = TimeToTimestampStr(created);
 
-            /* ----- bank gold ----- */
             uint64 bankGold     = g->GetBankMoney() / COPPER_PER_GOLD;
-            std::string goldStr = std::to_string(bankGold);
 
-            /* ----- output ----- */
-            handler->PSendSysMessage(
-                "|cffffff00%u|r | %s | %s | %s | %u | %u | %s",
+            handler->PSendSysMessage(LANG_GUILD_LIST_ROW,
                 id,
                 g->GetName().c_str(),
                 gmName.c_str(),
-                dateBuf,
+                dateStr.c_str(),
                 g->GetMembersCount(),
-                g->GetLevel(),
-                goldStr.c_str());
+                bankGold
+            );
         }
 
-        handler->PSendSysMessage("|cff00ff00Total guilds: %zu|r", guildStore.size());
+		handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, guildStore.size());
         return true;
     }
 };

@@ -995,7 +995,20 @@ enum TrinityStrings
     LANG_ACCOUNT_BNET_UNLINKED            = 1216,
     LANG_ACCOUNT_BNET_NOT_LINKED          = 1217,
     LANG_DISALLOW_TICKETS_CONFIG          = 1218,
-    // 1219-1499 - free
+	
+    // Guild list (.guild list)
+    LANG_GUILD_LIST_TITLE                 = 1219,
+    LANG_GUILD_LIST_HEADER                = 1220,
+    LANG_GUILD_LIST_ROW                   = 1221,
+    LANG_GUILD_LIST_TOTAL                 = 1222,
+    // localized column labels
+    LANG_GUILD_LIST_COL_ID                = 1223,
+    LANG_GUILD_LIST_COL_NAME              = 1224,
+    LANG_GUILD_LIST_COL_GM                = 1225,
+    LANG_GUILD_LIST_COL_CREATED           = 1226,
+    LANG_GUILD_LIST_COL_MEMBERS           = 1227,
+    LANG_GUILD_LIST_COL_BANK_G            = 1228,
+    // 1229-1499 - free
 
     // Command argument parsers
     LANG_CMDPARSER_EITHER                 = 1500,
