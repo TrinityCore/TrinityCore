@@ -16,6 +16,24 @@
  */
 
 #include "ServiceDispatcher.h"
+#include "AccountService.h"
+#include "AuthenticationService.h"
+#include "ConnectionService.h"
+#include "GameUtilitiesService.h"
+#include "Log.h"
+#include "Session.h"
+#include "api/client/v1/block_list_listener.pb.h"
+#include "api/client/v1/block_list_service.pb.h"
+#include "api/client/v1/club_membership_service.pb.h"
+#include "api/client/v1/club_service.pb.h"
+#include "api/client/v2/notification_service.pb.h"
+#include "api/client/v2/report_service.pb.h"
+#include "api/client/v2/whisper_service.pb.h"
+#include "friends_service.pb.h"
+#include "notification_service.pb.h"
+#include "presence_service.pb.h"
+#include "report_service.pb.h"
+#include "resource_service.pb.h"
 
 Battlenet::ServiceDispatcher::ServiceDispatcher()
 {

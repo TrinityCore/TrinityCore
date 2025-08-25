@@ -396,8 +396,6 @@ class TC_GAME_API Item : public Object
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
         bool IsValidTransmogrificationTarget() const;
-        bool HasStats() const;
-        static bool HasStats(WorldPackets::Item::ItemInstance const& itemInstance, BonusData const* bonus);
         static bool CanTransmogrifyItemWithItem(Item const* item, ItemModifiedAppearanceEntry const* itemModifiedAppearance);
         uint32 GetBuyPrice(Player const* owner, bool& standardPrice) const;
         static uint32 GetBuyPrice(ItemTemplate const* proto, uint32 quality, uint32 itemLevel, bool& standardPrice);

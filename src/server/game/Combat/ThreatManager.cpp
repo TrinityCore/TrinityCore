@@ -663,6 +663,11 @@ void ThreatManager::ProcessAIUpdates()
             ai->JustStartedThreateningMe(ref->GetVictim());
 }
 
+void ThreatManager::RegisterForAIUpdate(ObjectGuid const& guid)
+{
+    _needsAIUpdate.push_back(guid);
+}
+
 // returns true if a is LOWER on the threat list than b
 /*static*/ bool ThreatManager::CompareReferencesLT(ThreatReference const* a, ThreatReference const* b, float aWeight)
 {

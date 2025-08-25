@@ -36,6 +36,49 @@ ByteBuffer& operator<<(ByteBuffer& data, PvPTalent const& pvpTalent)
     return data;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentEntry const& talentEntry)
+{
+    data << int32(talentEntry.TalentID);
+    data << int32(talentEntry.Rank);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentGroupInfo const& talentGroupInfo)
+{
+    data << uint8(talentGroupInfo.NumTalents);
+    data << Size<uint32>(talentGroupInfo.Talents);
+
+    data << uint8(talentGroupInfo.NumGlyphs);
+    data << Size<uint32>(talentGroupInfo.GlyphIDs);
+
+    data << int8(talentGroupInfo.Role);
+    data << int32(talentGroupInfo.PrimarySpecialization);
+
+    for (ClassicTalentEntry const& talentEntry : talentGroupInfo.Talents)
+        data << talentEntry;
+
+    if (!talentGroupInfo.GlyphIDs.empty())
+        data.append(talentGroupInfo.GlyphIDs.data(), talentGroupInfo.GlyphIDs.size());
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentInfoUpdate const& talentInfoUpdate)
+{
+    data << int32(talentInfoUpdate.UnspentTalentPoints);
+    data << uint8(talentInfoUpdate.ActiveGroup);
+    data << Size<uint32>(talentInfoUpdate.Talents);
+
+    for (ClassicTalentGroupInfo const& talents : talentInfoUpdate.Talents)
+        data << talents;
+
+    data << Bits<1>(talentInfoUpdate.IsPetTalents);
+    data.FlushBits();
+
+    return data;
+}
+
 WorldPacket const* UpdateTalentData::Write()
 {
     _worldPacket << uint8(Info.ActiveGroup);
@@ -47,12 +90,16 @@ WorldPacket const* UpdateTalentData::Write()
         _worldPacket << uint32(talentGroupInfo.SpecID);
         _worldPacket << Size<uint32>(talentGroupInfo.TalentIDs);
         _worldPacket << Size<uint32>(talentGroupInfo.PvPTalents);
+        _worldPacket << Size<uint32>(talentGroupInfo.GlyphIDs);
 
         for (uint16 talent : talentGroupInfo.TalentIDs)
             _worldPacket << uint16(talent);
 
         for (PvPTalent talent : talentGroupInfo.PvPTalents)
             _worldPacket << talent;
+
+        for (uint32 talent : talentGroupInfo.GlyphIDs)
+            _worldPacket << uint16(talent);
     }
 
     return &_worldPacket;
