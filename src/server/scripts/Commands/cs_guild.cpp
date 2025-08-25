@@ -304,7 +304,7 @@ public:
 
     static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
     {
-		std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> const& guildStore = sGuildMgr->GetGuildStore();
+        std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> const& guildStore = sGuildMgr->GetGuildStore();
 
         handler->SendSysMessage(LANG_GUILD_LIST_TITLE);
         handler->PSendSysMessage(LANG_GUILD_LIST_HEADER,
@@ -315,9 +315,9 @@ public:
             handler->GetTrinityString(LANG_GUILD_LIST_COL_MEMBERS),
             handler->GetTrinityString(LANG_GUILD_LIST_COL_BANK_G));
 
-		for (auto const& [id, guildPtr] : guildStore)
+        for (auto const& [id, guildPtr] : guildStore)
         {
-			Guild* g = guildPtr.get();
+            Guild* g = guildPtr.get();
 
             std::string gmName;
             if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
@@ -327,7 +327,7 @@ public:
             if (time_t created = g->GetCreatedDate())
                 dateStr = TimeToTimestampStr(created);
 
-			uint64 bankGold     = g->GetBankMoney() / GOLD;
+            uint64 bankGold     = g->GetBankMoney() / GOLD;
 
             handler->PSendSysMessage(LANG_GUILD_LIST_ROW,
                 id,
