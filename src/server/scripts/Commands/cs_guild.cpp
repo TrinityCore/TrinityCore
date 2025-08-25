@@ -33,6 +33,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "RBAC.h"
+#include "Util.h"
 #include <iomanip>
 
 #if TRINITY_COMPILER == TRINITY_COMPILER_GNU
@@ -56,6 +57,7 @@ public:
             { "rank",     rbac::RBAC_PERM_COMMAND_GUILD_RANK,     true, &HandleGuildRankCommand,             "" },
             { "rename",   rbac::RBAC_PERM_COMMAND_GUILD_RENAME,   true, &HandleGuildRenameCommand,           "" },
             { "info",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildInfoCommand,             "" },
+            { "list",     rbac::RBAC_PERM_COMMAND_GUILD_INFO,     true, &HandleGuildListCommand,             "" },
         };
         static std::vector<ChatCommand> commandTable =
         {
@@ -297,6 +299,47 @@ public:
         handler->PSendSysMessage(LANG_GUILD_INFO_LEVEL, guild->GetLevel()); // Level
         handler->PSendSysMessage(LANG_GUILD_INFO_MOTD, guild->GetMOTD().c_str()); // Message of the Day
         handler->PSendSysMessage(LANG_GUILD_INFO_EXTRA_INFO, guild->GetInfo().c_str()); // Extra Information
+        return true;
+    }
+
+    static bool HandleGuildListCommand(ChatHandler* handler, char const* /*args*/)
+    {
+        std::unordered_map<ObjectGuid::LowType, Trinity::unique_trackable_ptr<Guild>> const& guildStore = sGuildMgr->GetGuildStore();
+
+        handler->SendSysMessage(LANG_GUILD_LIST_TITLE);
+        handler->PSendSysMessage(LANG_GUILD_LIST_HEADER,
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_ID),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_NAME),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_GM),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_CREATED),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_MEMBERS),
+            handler->GetTrinityString(LANG_GUILD_LIST_COL_BANK_G));
+
+        for (auto const& [id, guildPtr] : guildStore)
+        {
+            Guild* g = guildPtr.get();
+
+            std::string gmName;
+            if (!sCharacterCache->GetCharacterNameByGuid(g->GetLeaderGUID(), gmName))
+                gmName = "---";
+
+            std::string dateStr = "---";
+            if (time_t created = g->GetCreatedDate())
+                dateStr = TimeToTimestampStr(created);
+
+            uint64 bankGold     = g->GetBankMoney() / GOLD;
+
+            handler->PSendSysMessage(LANG_GUILD_LIST_ROW,
+                id,
+                g->GetName().c_str(),
+                gmName.c_str(),
+                dateStr.c_str(),
+                g->GetMembersCount(),
+                bankGold
+            );
+        }
+
+        handler->PSendSysMessage(LANG_GUILD_LIST_TOTAL, guildStore.size());
         return true;
     }
 };
