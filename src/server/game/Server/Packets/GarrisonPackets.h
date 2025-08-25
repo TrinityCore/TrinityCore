@@ -73,9 +73,9 @@ namespace WorldPackets
 
         struct GarrisonBuildingInfo
         {
+            Timestamp<> TimeBuilt;
             uint32 GarrPlotInstanceID = 0;
             uint32 GarrBuildingID = 0;
-            Timestamp<> TimeBuilt;
             uint32 CurrentGarSpecID = 0;
             Timestamp<> TimeSpecCooldown = time_t(2288912640);   // 06/07/1906 18:35:44 - another in the series of magic blizz dates
             bool Active = false;

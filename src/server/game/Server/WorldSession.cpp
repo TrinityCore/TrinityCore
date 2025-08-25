@@ -22,13 +22,16 @@
 #include "WorldSession.h"
 #include "AccountMgr.h"
 #include "AuthenticationPackets.h"
+#include "Bag.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundMgr.h"
 #include "BattlenetPackets.h"
 #include "CharacterPackets.h"
 #include "ChatPackets.h"
 #include "ClientConfigPackets.h"
+#include "Containers.h"
 #include "DatabaseEnv.h"
+#include "DB2Stores.h"
 #include "GameTime.h"
 #include "Group.h"
 #include "Guild.h"
@@ -44,6 +47,7 @@
 #include "PacketUtilities.h"
 #include "Player.h"
 #include "QueryHolder.h"
+#include "QueryResultStructured.h"
 #include "Random.h"
 #include "RBAC.h"
 #include "RealmList.h"
@@ -972,6 +976,159 @@ void WorldSession::SaveTutorialsData(CharacterDatabaseTransaction trans)
     _tutorialsChanged &= ~TUTORIALS_FLAG_CHANGED;
 }
 
+void WorldSession::LoadPlayerDataAccount(PreparedQueryResult const& elementsResult, PreparedQueryResult const& flagsResult)
+{
+    if (elementsResult)
+    {
+        do
+        {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(PreparedResultSet, (playerDataElementAccountId)(floatValue)(int64Value)) fields { *elementsResult };
+
+            PlayerDataElementAccountEntry const* entry = sPlayerDataElementAccountStore.LookupEntry(fields.playerDataElementAccountId().GetUInt32());
+            if (!entry)
+                continue;
+
+            PlayerDataAccount::Element& element = _playerDataAccount.Elements.emplace_back();
+            element.Id = entry->ID;
+            element.NeedSave = false;
+
+            switch (entry->GetType())
+            {
+                case PlayerDataElementType::Int64:
+                    element.Int64Value = fields.int64Value().GetInt64();
+                    break;
+                case PlayerDataElementType::Float:
+                    element.FloatValue = fields.floatValue().GetFloat();
+                    break;
+                default:
+                    break;
+            }
+        } while (elementsResult->NextRow());
+    }
+
+    if (flagsResult)
+    {
+        do
+        {
+            DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(PreparedResultSet, (storageIndex)(mask)) fields { *flagsResult };
+
+            Trinity::Containers::EnsureWritableVectorIndex(_playerDataAccount.Flags, fields.storageIndex().GetUInt32()) = { .Value = fields.mask().GetUInt64(), .NeedSave = false };
+        } while (flagsResult->NextRow());
+    }
+}
+
+void WorldSession::SavePlayerDataAccount(LoginDatabaseTransaction const& transaction)
+{
+    LoginDatabasePreparedStatement* stmt;
+    for (PlayerDataAccount::Element& element : _playerDataAccount.Elements)
+    {
+        if (!element.NeedSave)
+            continue;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT);
+        stmt->setUInt32(0, GetBattlenetAccountId());
+        stmt->setUInt32(1, element.Id);
+        transaction->Append(stmt);
+
+        element.NeedSave = false;
+
+        PlayerDataElementAccountEntry const* entry = sPlayerDataElementAccountStore.LookupEntry(element.Id);
+        if (!entry)
+            continue;
+
+        switch (entry->GetType())
+        {
+            case PlayerDataElementType::Int64:
+                if (!element.Int64Value)
+                    continue;
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT);
+                stmt->setUInt32(0, GetBattlenetAccountId());
+                stmt->setUInt32(1, element.Id);
+                stmt->setNull(2);
+                stmt->setInt64(3, element.Int64Value);
+                transaction->Append(stmt);
+                break;
+            case PlayerDataElementType::Float:
+                if (!element.FloatValue)
+                    continue;
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT);
+                stmt->setUInt32(0, GetBattlenetAccountId());
+                stmt->setUInt32(1, element.Id);
+                stmt->setFloat(2, element.FloatValue);
+                stmt->setNull(3);
+                transaction->Append(stmt);
+                break;
+        }
+    }
+
+    for (std::size_t i = 0; i < _playerDataAccount.Flags.size(); ++i)
+    {
+        PlayerDataAccount::Flag& flag = _playerDataAccount.Flags[i];
+        if (!flag.NeedSave)
+            continue;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_BNET_PLAYER_DATA_FLAGS_ACCOUNT);
+        stmt->setUInt32(0, GetBattlenetAccountId());
+        stmt->setUInt32(1, i);
+        transaction->Append(stmt);
+
+        flag.NeedSave = false;
+
+        if (!flag.Value)
+            continue;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_BNET_PLAYER_DATA_FLAGS_ACCOUNT);
+        stmt->setUInt32(0, GetBattlenetAccountId());
+        stmt->setUInt32(1, i);
+        stmt->setUInt64(2, flag.Value);
+        transaction->Append(stmt);
+    }
+}
+
+void WorldSession::SetPlayerDataElementAccount(uint32 dataElementId, float value)
+{
+    auto elementItr = std::ranges::find(_playerDataAccount.Elements, dataElementId, &PlayerDataAccount::Element::Id);
+    if (elementItr == _playerDataAccount.Elements.end())
+    {
+        elementItr = _playerDataAccount.Elements.emplace(_playerDataAccount.Elements.end());
+        elementItr->Id = dataElementId;
+    }
+
+    elementItr->NeedSave = true;
+    elementItr->FloatValue = value;
+}
+
+void WorldSession::SetPlayerDataElementAccount(uint32 dataElementId, int64 value)
+{
+    auto elementItr = std::ranges::find(_playerDataAccount.Elements, dataElementId, &PlayerDataAccount::Element::Id);
+    if (elementItr == _playerDataAccount.Elements.end())
+    {
+        elementItr = _playerDataAccount.Elements.emplace(_playerDataAccount.Elements.end());
+        elementItr->Id = dataElementId;
+    }
+
+    elementItr->NeedSave = true;
+    elementItr->Int64Value = value;
+}
+
+void WorldSession::SetPlayerDataFlagAccount(uint32 dataFlagId, bool on)
+{
+    PlayerDataFlagAccountEntry const* entry = sPlayerDataFlagAccountStore.LookupEntry(dataFlagId);
+    if (!entry)
+        return;
+
+    uint32 fieldOffset = entry->StorageIndex / PLAYER_DATA_FLAG_VALUE_BITS;
+    uint64 flagValue = UI64LIT(1) << (entry->StorageIndex % PLAYER_DATA_FLAG_VALUE_BITS);
+
+    PlayerDataAccount::Flag& flag = Trinity::Containers::EnsureWritableVectorIndex(_playerDataAccount.Flags, fieldOffset);
+    if (on)
+        flag.Value |= flagValue;
+    else
+        flag.Value &= ~flagValue;
+
+    flag.NeedSave = true;
+}
+
 bool WorldSession::IsAddonRegistered(std::string_view prefix) const
 {
     if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
@@ -1118,6 +1275,8 @@ public:
         ITEM_FAVORITE_APPEARANCES,
         TRANSMOG_ILLUSIONS,
         WARBAND_SCENES,
+        PLAYER_DATA_ELEMENTS_ACCOUNT,
+        PLAYER_DATA_FLAGS_ACCOUNT,
 
         MAX_QUERIES
     };
@@ -1168,6 +1327,14 @@ public:
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_WARBAND_SCENES);
         stmt->setUInt32(0, battlenetAccountId);
         ok = SetPreparedQuery(WARBAND_SCENES, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(PLAYER_DATA_ELEMENTS_ACCOUNT, stmt) && ok;
+
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_PLAYER_DATA_FLAGS_ACCOUNT);
+        stmt->setUInt32(0, battlenetAccountId);
+        ok = SetPreparedQuery(PLAYER_DATA_FLAGS_ACCOUNT, stmt) && ok;
 
         return ok;
     }
@@ -1222,6 +1389,7 @@ void WorldSession::InitializeSessionCallback(LoginDatabaseQueryHolder const& hol
     _collectionMgr->LoadAccountItemAppearances(holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_APPEARANCES), holder.GetPreparedResult(AccountInfoQueryHolder::ITEM_FAVORITE_APPEARANCES));
     _collectionMgr->LoadAccountTransmogIllusions(holder.GetPreparedResult(AccountInfoQueryHolder::TRANSMOG_ILLUSIONS));
     _collectionMgr->LoadAccountWarbandScenes(holder.GetPreparedResult(AccountInfoQueryHolder::WARBAND_SCENES));
+    LoadPlayerDataAccount(holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_ELEMENTS_ACCOUNT), holder.GetPreparedResult(AccountInfoQueryHolder::PLAYER_DATA_FLAGS_ACCOUNT));
 
     if (!m_inQueue)
         SendAuthResponse(ERROR_OK, false);
@@ -1358,7 +1526,7 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) co
         case CMSG_QUEST_GIVER_REQUEST_REWARD:           //   0               1
         case CMSG_COMPLETE_CINEMATIC:                   //   0               1
         case CMSG_BANKER_ACTIVATE:                      //   0               1
-        case CMSG_BUY_BANK_SLOT:                        //   0               1
+        case CMSG_BUY_ACCOUNT_BANK_TAB:                 //   0               1
         case CMSG_OPT_OUT_OF_LOOT:                      //   0               1
         case CMSG_DUEL_RESPONSE:                        //   0               1
         case CMSG_CALENDAR_COMPLAIN:                    //   0               1
@@ -1555,7 +1723,11 @@ uint32 WorldSession::DosProtection::GetMaxPacketCounterAllowed(uint32 opcode) co
 
         case CMSG_GET_ITEM_PURCHASE_DATA:               // not profiled
         {
-            maxPacketCounterAllowed = PLAYER_SLOTS_COUNT;
+            maxPacketCounterAllowed = PLAYER_SLOTS_COUNT + MAX_BAG_SIZE * (
+                (INVENTORY_SLOT_BAG_END - INVENTORY_SLOT_BAG_START)
+                + (REAGENT_BAG_SLOT_END - REAGENT_BAG_SLOT_START)
+                + (BANK_SLOT_BAG_END - BANK_SLOT_BAG_START)
+                + (ACCOUNT_BANK_SLOT_BAG_END - ACCOUNT_BANK_SLOT_BAG_START));
             break;
         }
         case CMSG_HOTFIX_REQUEST:                       // not profiled

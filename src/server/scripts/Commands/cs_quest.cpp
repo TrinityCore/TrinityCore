@@ -117,25 +117,20 @@ public:
 
         if (oldStatus != QUEST_STATUS_NONE)
         {
+            player->RemoveActiveQuest(quest->GetQuestId(), false);
+
             // remove all quest entries for 'entry' from quest log
-            for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+            if (oldStatus != QUEST_STATUS_REWARDED)
             {
-                uint32 logQuest = player->GetQuestSlotQuestId(slot);
-                if (logQuest == quest->GetQuestId())
+                // we ignore unequippable quest items in this case, its' still be equipped
+                player->TakeQuestSourceItem(quest->GetQuestId(), false);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
                 {
-                    player->SetQuestSlot(slot, 0);
-
-                    // we ignore unequippable quest items in this case, its' still be equipped
-                    player->TakeQuestSourceItem(logQuest, false);
-
-                    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-                    {
-                        player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                        player->UpdatePvPState();
-                    }
+                    player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+                    player->UpdatePvPState();
                 }
             }
-            player->RemoveActiveQuest(quest->GetQuestId(), false);
             player->RemoveRewardedQuest(quest->GetQuestId());
             player->DespawnPersonalSummonsForQuest(quest->GetQuestId());
 

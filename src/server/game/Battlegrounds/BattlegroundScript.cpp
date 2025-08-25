@@ -27,7 +27,7 @@
 #include "ScriptMgr.h"
 #include "WorldStateMgr.h"
 
-BattlegroundScript::BattlegroundScript(BattlegroundMap* map) : battlegroundMap(map), battleground(map->GetBG())
+BattlegroundScript::BattlegroundScript(BattlegroundMap* map) noexcept : battlegroundMap(map), battleground(map->GetBG())
 {
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
     BattlegroundScriptTemplate const* scriptTemplate = sBattlegroundMgr->FindBattlegroundScriptTemplate(battlegroundMap->GetId(), battlegroundMap->GetBG()->GetTypeID());

@@ -170,7 +170,7 @@ namespace Trinity
         template <std::random_access_iterator Iterator>
         inline void RandomShuffle(Iterator begin, Iterator end)
         {
-            std::ranges::shuffle(begin, end, RandomEngine::Instance());
+            std::ranges::shuffle(begin, end, RandomEngine());
         }
 
         /**

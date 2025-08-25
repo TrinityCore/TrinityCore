@@ -396,7 +396,7 @@ class spell_rog_deepening_shadows : public AuraScript
         return ValidateSpellInfo({ SPELL_ROGUE_SHADOW_DANCE });
     }
 
-    static bool CheckProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procEvent)
+    static bool CheckProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& procEvent)
     {
         if (Spell const* procSpell = procEvent.GetProcSpell())
             return procSpell->GetPowerTypeCostAmount(POWER_COMBO_POINTS) > 0;

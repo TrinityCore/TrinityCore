@@ -65,26 +65,29 @@ struct TypeListContainer
     template <typename ObjectType>
     static constexpr bool TypeExists = std::disjunction_v<std::is_same<ObjectType, Types>...>;
 
+    template <typename ObjectType>
+    using ValueType = typename UnderlyingContainer<ObjectType>::ValueType;
+
     template <typename ObjectType> requires TypeExists<ObjectType>
-    bool Insert(ObjectType* object)
+    bool Insert(ValueType<ObjectType> object)
     {
         return UnderlyingContainer<ObjectType>::Insert(Data.template FindContainer<ObjectType>(), object);
     }
 
     template <typename ObjectType> requires TypeExists<ObjectType>
-    bool Remove(ObjectType* object)
+    bool Remove(ValueType<ObjectType> object)
     {
         return UnderlyingContainer<ObjectType>::Remove(Data.template FindContainer<ObjectType>(), object);
     }
 
     template <typename ObjectType> requires TypeExists<ObjectType>
-    bool Size() const
+    std::size_t Size() const
     {
         return UnderlyingContainer<ObjectType>::Size(Data.template FindContainer<ObjectType>());
     }
 
     template <typename ObjectType> requires TypeExists<ObjectType> && requires { typename UnderlyingContainer<ObjectType>::KeyType; }
-    ObjectType* Find(typename UnderlyingContainer<ObjectType>::KeyType const& key) const
+    ValueType<ObjectType> Find(typename UnderlyingContainer<ObjectType>::KeyType const& key) const
     {
         return UnderlyingContainer<ObjectType>::Find(Data.template FindContainer<ObjectType>(), key);
     }
