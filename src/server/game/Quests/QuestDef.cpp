@@ -508,6 +508,17 @@ bool Quest::IsMeta() const
     return false;
 }
 
+bool Quest::IsCampaign() const
+{
+    QuestLineXQuestEntry const* questLineEntry = sDB2Manager.GetQuestLineXQuestForQuest(GetQuestId());
+    if (!questLineEntry)
+        return false;
+
+    uint32 questLineId = questLineEntry->QuestLineID;
+
+    return sDB2Manager.GetCampaignForQuestLine(questLineId) != nullptr;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();

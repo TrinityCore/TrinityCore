@@ -570,6 +570,32 @@ struct BroadcastTextDurationEntry
     uint32 BroadcastTextID;
 };
 
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Field_9_0_1_35755_007;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 Field_10_0_2_45779_012;
+    int32 Field_10_0_2_46144_013;
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_CategoriesEntry
 {
     uint32 ID;
