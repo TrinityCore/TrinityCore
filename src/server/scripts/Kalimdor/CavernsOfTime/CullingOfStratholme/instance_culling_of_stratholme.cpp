@@ -28,7 +28,6 @@
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include <array>
-#include <sstream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>

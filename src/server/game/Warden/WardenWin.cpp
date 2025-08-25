@@ -366,7 +366,7 @@ void WardenWin::RequestChecks()
     }
 
     // Encrypt with warden RC4 key
-    EncryptData(buff.contents(), buff.size());
+    EncryptData(buff.data(), buff.size());
 
     WorldPacket pkt(SMSG_WARDEN3_DATA, buff.size());
     pkt.append(buff);
@@ -395,7 +395,7 @@ void WardenWin::HandleCheckResult(ByteBuffer &buff)
         return;
     }
 
-    if (!IsValidCheckSum(Checksum, buff.contents() + buff.rpos(), Length))
+    if (!IsValidCheckSum(Checksum, buff.data() + buff.rpos(), Length))
     {
         buff.rfinish();
         char const* penalty = ApplyPenalty(nullptr);

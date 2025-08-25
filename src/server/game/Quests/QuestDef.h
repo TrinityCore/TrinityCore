@@ -21,6 +21,7 @@
 #include "Common.h"
 #include "DatabaseEnvFwd.h"
 #include "EnumFlag.h"
+#include "Hash.h"
 #include "LootItemType.h"
 #include "Optional.h"
 #include "RaceMask.h"
@@ -401,14 +402,17 @@ enum QuestObjectiveFlags2
 
 enum class QuestCompleteSpellType : uint32
 {
-    LegacyBehavior  = 0,
-    Follower        = 1,
-    Tradeskill      = 2,
-    Ability         = 3,
-    Aura            = 4,
-    Spell           = 5,
-    Unlock          = 6,
-    Companion       = 7,
+    LegacyBehavior      = 0,
+    Follower            = 1,
+    Tradeskill          = 2,
+    Ability             = 3,
+    Aura                = 4,
+    Spell               = 5,
+    Unlock              = 6,
+    Companion           = 7,
+    QuestlineUnlock     = 8,
+    QuestlineReward     = 9,
+    QuestlineUnlockPart = 10,
     Max
 };
 
@@ -572,9 +576,15 @@ class TC_GAME_API Quest
     friend class ObjectMgr;
     friend class Player;
     friend class PlayerMenu;
+    struct QuestTemplateQueryResult;
     public:
         // Loading data. All queries are in ObjectMgr::LoadQuests()
-        explicit Quest(Field* questRecord);
+        explicit Quest(QueryResult const& questRecord);
+        explicit Quest(QuestTemplateQueryResult const& questRecord);
+        Quest(Quest const&) = delete;
+        Quest(Quest&&) = delete;
+        Quest& operator=(Quest const&) = delete;
+        Quest& operator=(Quest&&) = delete;
         ~Quest();
         void LoadRewardDisplaySpell(Field* fields);
         void LoadRewardChoiceItems(Field* fields);
@@ -691,6 +701,7 @@ class TC_GAME_API Quest
         uint32 GetFlags() const { return _flags; }
         uint32 GetFlagsEx() const { return _flagsEx; }
         uint32 GetFlagsEx2() const { return _flagsEx2; }
+        uint32 GetFlagsEx3() const { return _flagsEx3; }
         uint32 GetSpecialFlags() const { return _specialFlags; }
         uint32 GetScriptId() const { return _scriptId; }
         uint32 GetAreaGroupID() const { return _areaGroupID; }
@@ -742,7 +753,6 @@ class TC_GAME_API Quest
 
         uint32 GetRewChoiceItemsCount() const { return _rewChoiceItemsCount; }
         uint32 GetRewItemsCount() const { return _rewItemsCount; }
-        uint32 GetRewCurrencyCount() const { return _rewCurrencyCount; }
 
         void SetEventIdForQuest(uint16 eventId) { _eventIdForQuest = eventId; }
         uint16 GetEventIdForQuest() const { return _eventIdForQuest; }
@@ -762,10 +772,9 @@ class TC_GAME_API Quest
         std::array<WorldPacket, TOTAL_LOCALES> QueryData;
 
     private:
-        uint32 _rewChoiceItemsCount = 0;
         uint32 _rewItemsCount = 0;
+        uint32 _rewChoiceItemsCount = 0;
         uint16 _eventIdForQuest = 0;
-        uint32 _rewCurrencyCount = 0;
 
         // wdb data (quest query response)
         uint32 _id = 0;
@@ -791,6 +800,7 @@ class TC_GAME_API Quest
         uint32 _flags = 0;
         uint32 _flagsEx = 0;
         uint32 _flagsEx2 = 0;
+        uint32 _flagsEx3 = 0;
         uint32 _poiContinent = 0;
         float _poix = 0.f;
         float _poiy = 0.f;

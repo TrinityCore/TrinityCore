@@ -145,7 +145,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction, boost:
     fwrite(&header, sizeof(header), 1, _file);
     if (size)
     {
-        uint8 const* data = packet.contents();
+        uint8 const* data = packet.data();
         if (direction == CLIENT_TO_SERVER)
             data += 4;
         fwrite(data, 1, size, _file);

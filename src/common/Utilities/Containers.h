@@ -170,7 +170,7 @@ namespace Trinity
         template <std::random_access_iterator Iterator>
         inline void RandomShuffle(Iterator begin, Iterator end)
         {
-            std::ranges::shuffle(begin, end, RandomEngine::Instance());
+            std::ranges::shuffle(begin, end, RandomEngine());
         }
 
         /**
@@ -239,7 +239,7 @@ namespace Trinity
                     ++first1;
                 else if (*first2 < *first1)
                     ++first2;
-                else if (!std::invoke(std::forward<Predicate>(equalPred), *first1, *first2))
+                else if (!std::forward<Predicate>(equalPred)(*first1, *first2))
                     ++first1, ++first2;
                 else
                     return true;
@@ -259,7 +259,7 @@ namespace Trinity
                     if (!p(*rpos))
                     {
                         if (rpos != wpos)
-                            std::swap(*rpos, *wpos);
+                            std::ranges::swap(*rpos, *wpos);
                         ++wpos;
                     }
                 }

@@ -18,13 +18,6 @@
 #define TRINITY_SPELLAURADEFINES_H
 
 #include "Define.h"
-#include "ObjectGuid.h"
-
-class Item;
-class SpellInfo;
-class Unit;
-class WorldObject;
-enum Difficulty : uint8;
 
 #define MAX_AURAS 300
 
@@ -735,6 +728,8 @@ enum AuraType : uint32
     SPELL_AURA_641                                          = 641,
     SPELL_AURA_642                                          = 642,
     SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT                 = 643, // NYI
+    SPELL_AURA_644                                          = 644,
+    SPELL_AURA_645                                          = 645,
 
     TOTAL_AURAS
 };
@@ -791,43 +786,6 @@ enum ShapeshiftForm
     FORM_WISP_FORM_2                = 40,
     FORM_SOULSHAPE                  = 41,
     FORM_FORGEBORNE_REVERIES        = 42
-};
-
-struct TC_GAME_API AuraCreateInfo
-{
-    friend class Aura;
-    friend class UnitAura;
-    friend class DynObjAura;
-
-    AuraCreateInfo(ObjectGuid castId, SpellInfo const* spellInfo, Difficulty castDifficulty, uint32 auraEffMask, WorldObject* owner);
-
-    AuraCreateInfo& SetCasterGUID(ObjectGuid const& guid) { CasterGUID = guid; return *this; }
-    AuraCreateInfo& SetCaster(Unit* caster) { Caster = caster; return *this; }
-    AuraCreateInfo& SetBaseAmount(int32 const* bp) { BaseAmount = bp; return *this; }
-    AuraCreateInfo& SetCastItem(ObjectGuid const& guid, uint32 itemId, int32 itemLevel) { CastItemGUID = guid; CastItemId = itemId; CastItemLevel = itemLevel; return *this; }
-    AuraCreateInfo& SetPeriodicReset(bool reset) { ResetPeriodicTimer = reset; return *this; }
-    AuraCreateInfo& SetOwnerEffectMask(uint32 effMask) { _targetEffectMask = effMask; return *this; }
-
-    SpellInfo const* GetSpellInfo() const { return _spellInfo; }
-    uint32 GetAuraEffectMask() const { return _auraEffectMask; }
-
-    ObjectGuid CasterGUID;
-    Unit* Caster = nullptr;
-    int32 const* BaseAmount = nullptr;
-    ObjectGuid CastItemGUID;
-    uint32 CastItemId = 0;
-    int32 CastItemLevel = -1;
-    bool* IsRefresh = nullptr;
-    bool ResetPeriodicTimer = true;
-
-private:
-    ObjectGuid _castId;
-    SpellInfo const* _spellInfo = nullptr;
-    Difficulty _castDifficulty = Difficulty(0);
-    uint32 _auraEffectMask = 0;
-    WorldObject* _owner = nullptr;
-
-    uint32 _targetEffectMask = 0;
 };
 
 #endif

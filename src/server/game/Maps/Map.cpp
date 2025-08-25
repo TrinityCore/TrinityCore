@@ -135,7 +135,7 @@ void Map::DeleteStateMachine()
 Map::Map(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode) :
 _creatureToMoveLock(false), _gameObjectsToMoveLock(false), _dynamicObjectsToMoveLock(false), _areaTriggersToMoveLock(false),
 i_mapEntry(sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
-m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
+m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE), m_mapRefIter(m_mapRefManager.end()),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
 m_activeNonPlayersIter(m_activeNonPlayers.end()), _transportsUpdateIter(_transports.end()),
 i_gridExpiry(expiry), m_terrain(sTerrainMgr.LoadTerrain(id)), m_forceEnabledNavMeshFilterFlags(0), m_forceDisabledNavMeshFilterFlags(0),
@@ -171,8 +171,8 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
 void Map::InitVisibilityDistance()
 {
     //init visibility for continents
-    m_VisibleDistance = World::GetMaxVisibleDistanceOnContinents();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodOnContinents();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_CONTINENT);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_CONTINENT);
 }
 
 // Template specialization of utility methods
@@ -811,7 +811,7 @@ void Map::Update(uint32 t_diff)
     MoveAllGameObjectsInMoveList();
     MoveAllAreaTriggersInMoveList();
 
-    if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
+    if (!m_mapRefManager.empty() || !m_activeNonPlayers.empty())
         ProcessRelocationNotifies(t_diff);
 
     sScriptMgr->OnMapUpdate(this, t_diff);
@@ -1577,7 +1577,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
         if (!unloadAll)
         {
             //pets, possessed creatures (must be active), transport passengers
-            if (ngrid.GetWorldObjectCountInNGrid<Creature>())
+            if (ngrid.HasWorldObjectsInNGrid<Creature>())
                 return false;
 
             if (ActiveObjectsNearGrid(ngrid))
@@ -1853,6 +1853,9 @@ void Map::SendInitSelf(Player* player)
     WorldPacket packet;
     data.BuildPacket(&packet);
     player->SendDirectMessage(&packet);
+
+    // client will respond to SMSG_UPDATE_OBJECT that contains ThisIsYou = true with CMSG_MOVE_INIT_ACTIVE_MOVER_COMPLETE
+    player->GetSession()->RegisterTimeSync(WorldSession::SPECIAL_INIT_ACTIVE_MOVER_TIME_SYNC_COUNTER);
 }
 
 void Map::SendInitTransports(Player* player)
@@ -2707,9 +2710,19 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
     return false;
 }
 
+void Map::AddWorldObject(WorldObject* obj)
+{
+    i_worldObjects.insert(obj);
+}
+
+void Map::RemoveWorldObject(WorldObject* obj)
+{
+    i_worldObjects.erase(obj);
+}
+
 void Map::AddToActive(WorldObject* obj)
 {
-    AddToActiveHelper(obj);
+    m_activeNonPlayers.insert(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())
@@ -2748,7 +2761,19 @@ void Map::AddToActive(WorldObject* obj)
 
 void Map::RemoveFromActive(WorldObject* obj)
 {
-    RemoveFromActiveHelper(obj);
+    // Map::Update for active object in proccess
+    if (m_activeNonPlayersIter != m_activeNonPlayers.end())
+    {
+        ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
+        if (itr != m_activeNonPlayers.end())
+        {
+            if (itr == m_activeNonPlayersIter)
+                ++m_activeNonPlayersIter;
+            m_activeNonPlayers.erase(itr);
+        }
+    }
+    else
+        m_activeNonPlayers.erase(obj);
 
     Optional<Position> respawnLocation;
     switch (obj->GetTypeId())
@@ -2806,7 +2831,7 @@ template TC_GAME_API void Map::RemoveFromMap(Conversation*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, Difficulty SpawnMode, TeamId InstanceTeam, InstanceLock* instanceLock,
     Optional<uint32> lfgDungeonsId)
   : Map(id, expiry, InstanceId, SpawnMode),
-    i_data(nullptr), i_script_id(0), i_scenario(nullptr), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
+    i_data(nullptr), i_script_id(0), i_instanceLock(instanceLock), i_lfgDungeonsId(lfgDungeonsId)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -2831,14 +2856,13 @@ InstanceMap::~InstanceMap()
         i_instanceLock->SetInUse(false);
 
     delete i_data;
-    delete i_scenario;
 }
 
 void InstanceMap::InitVisibilityDistance()
 {
     //init visibility distance for instances
-    m_VisibleDistance = World::GetMaxVisibleDistanceInInstances();
-    m_VisibilityNotifyPeriod = World::GetVisibilityNotifyPeriodInInstances();
+    m_VisibleDistance = sWorld->getFloatConfig(CONFIG_MAX_VISIBILITY_DISTANCE_INSTANCE);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(CONFIG_VISIBILITY_NOTIFY_PERIOD_INSTANCE);
 }
 
 /*
@@ -2953,7 +2977,7 @@ void InstanceMap::RemovePlayerFromMap(Player* player, bool remove)
         i_data->OnPlayerLeave(player);
 
     // if last player set unload timer
-    if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
+    if (!m_unloadTimer && m_mapRefManager.size() == 1)
         m_unloadTimer = (i_instanceLock && i_instanceLock->IsExpired()) ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
 
     if (i_scenario)
@@ -3076,6 +3100,23 @@ InstanceResetResult InstanceMap::Reset(InstanceResetMethod method)
 std::string const& InstanceMap::GetScriptName() const
 {
     return sObjectMgr->GetScriptName(i_script_id);
+}
+
+void InstanceMap::SetInstanceScenario(InstanceScenario* scenario)
+{
+    i_scenario.reset(); // sends exit packets to all players
+
+    if (scenario)
+    {
+        i_scenario.reset(scenario);
+
+        scenario->LoadInstanceData();
+
+        DoOnPlayers([scenario](Player* player)
+        {
+            scenario->OnPlayerEnter(player);
+        });
+    }
 }
 
 void InstanceMap::UpdateInstanceLock(UpdateBossStateSaveDataEvent const& updateSaveDataEvent)
@@ -3382,8 +3423,8 @@ BattlegroundMap::~BattlegroundMap()
 void BattlegroundMap::InitVisibilityDistance()
 {
     //init visibility distance for BG/Arenas
-    m_VisibleDistance        = IsBattleArena() ? World::GetMaxVisibleDistanceInArenas() : World::GetMaxVisibleDistanceInBG();
-    m_VisibilityNotifyPeriod = IsBattleArena() ? World::GetVisibilityNotifyPeriodInArenas() : World::GetVisibilityNotifyPeriodInBG();
+    m_VisibleDistance        = sWorld->getFloatConfig(IsBattleArena() ? CONFIG_MAX_VISIBILITY_DISTANCE_ARENA : CONFIG_MAX_VISIBILITY_DISTANCE_BATTLEGROUND);
+    m_VisibilityNotifyPeriod = sWorld->getIntConfig(IsBattleArena() ? CONFIG_VISIBILITY_NOTIFY_PERIOD_ARENA : CONFIG_VISIBILITY_NOTIFY_PERIOD_BATTLEGROUND);
 }
 
 std::string const& BattlegroundMap::GetScriptName() const
@@ -3557,7 +3598,7 @@ AreaTrigger* Map::GetAreaTriggerBySpawnId(ObjectGuid::LowType spawnId) const
 void Map::UpdateIteratorBack(Player* player)
 {
     if (&*m_mapRefIter == &player->GetMapRef())
-        m_mapRefIter = m_mapRefIter->nocheck_prev();
+        --m_mapRefIter;
 }
 
 void Map::SaveRespawnTime(SpawnObjectType type, ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 gridId, CharacterDatabaseTransaction dbTrans, bool startup)
@@ -3927,7 +3968,7 @@ void Map::SetZoneMusic(uint32 zoneId, uint32 musicId)
     _zoneDynamicInfo[zoneId].MusicId = musicId;
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::PlayMusic playMusic(musicId);
         playMusic.Write();
@@ -3978,7 +4019,7 @@ void Map::SetZoneWeather(uint32 zoneId, WeatherState weatherId, float intensity)
     info.Intensity = intensity;
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::Weather weather(weatherId, intensity);
         weather.Write();
@@ -4009,7 +4050,7 @@ void Map::SetZoneOverrideLight(uint32 zoneId, uint32 areaLightId, uint32 overrid
     }
 
     Map::PlayerList const& players = GetPlayers();
-    if (!players.isEmpty())
+    if (!players.empty())
     {
         WorldPackets::Misc::OverrideLight overrideLight;
         overrideLight.AreaLightID = areaLightId;

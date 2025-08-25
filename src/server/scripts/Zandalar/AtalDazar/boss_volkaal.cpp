@@ -402,8 +402,8 @@ class spell_volkaal_rapid_decay : public AuraScript
 
         float range = 100.0f;
         Player* player = nullptr;
-        Trinity::AnyPlayerInObjectRangeCheck check(caster, range);
-        Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, player, check);
+        Trinity::AnyUnitInObjectRangeCheck check(caster, range);
+        Trinity::PlayerSearcher searcher(caster, player, check);
         Cell::VisitWorldObjects(caster, searcher, range);
 
         CastSpellExtraArgs args;
