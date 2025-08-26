@@ -459,8 +459,8 @@ public:
     uint32 GetRequiredAzeriteLevelForAzeritePowerTier(uint32 azeriteUnlockSetId, ItemContext context, uint32 tier) const;
     static char const* GetBroadcastTextValue(BroadcastTextEntry const* broadcastText, LocaleConstant locale = DEFAULT_LOCALE, uint8 gender = GENDER_MALE, bool forceGender = false);
     int32 const* GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale = DEFAULT_LOCALE) const;
-    QuestLineXQuestEntry const* GetQuestLineXQuestForQuest(uint32 questId) const;
-    CampaignXQuestLineEntry const* GetCampaignForQuestLine(uint32 questLineId) const;
+    std::vector<QuestLineXQuestEntry const*> const* GetQuestLineXQuestsForQuest(uint32 questId) const;
+    std::vector<CampaignXQuestLineEntry const*> const* GetCampaignsForQuestLine(uint32 questLineId) const;
     CampaignEntry const* GetCampaign(uint32 campaignId) const;
     static CharBaseInfoEntry const* GetCharBaseInfo(Races race, Classes class_);
     ChrClassUIDisplayEntry const* GetUiDisplayForClass(Classes unitClass) const;

@@ -510,13 +510,15 @@ bool Quest::IsMeta() const
 
 bool Quest::IsCampaign() const
 {
-    QuestLineXQuestEntry const* questLineEntry = sDB2Manager.GetQuestLineXQuestForQuest(GetQuestId());
-    if (!questLineEntry)
-        return false;
-
-    uint32 questLineId = questLineEntry->QuestLineID;
-
-    return sDB2Manager.GetCampaignForQuestLine(questLineId) != nullptr;
+    if (auto const* questLineEntries = sDB2Manager.GetQuestLineXQuestsForQuest(GetQuestId()))
+    {
+        for (QuestLineXQuestEntry const* questLineEntry : *questLineEntries)
+        {
+            if (sDB2Manager.GetCampaignsForQuestLine(questLineEntry->QuestLineID))
+                return true;
+        }
+    }
+    return false;
 }
 
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
