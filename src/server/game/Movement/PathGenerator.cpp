@@ -623,7 +623,21 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 void PathGenerator::NormalizePath()
 {
     constexpr float MAX_Z_DELTA_THRESHOLD = 4.0f;
-    bool isPlayer = _source->GetTypeId() == TYPEID_PLAYER;
+
+    bool shouldRespectThreshold = [this]
+    {
+        Unit const* sourceUnit = _source->ToUnit();
+        if (!sourceUnit)
+            return false;
+
+        if (sourceUnit->IsFlying() || sourceUnit->IsInWater())
+            return false;
+
+        if (!(_type & PATHFIND_NORMAL))
+            return false;
+
+        return true;
+    }();
 
     for (G3D::Vector3& pathPoint : _pathPoints)
     {
@@ -631,7 +645,7 @@ void PathGenerator::NormalizePath()
 
         _source->UpdateAllowedPositionZ(pathPoint.x, pathPoint.y, pathPoint.z);
 
-        if (!isPlayer && (std::abs(pathPoint.z - previousZ) > MAX_Z_DELTA_THRESHOLD))
+        if (shouldRespectThreshold && (std::abs(pathPoint.z - previousZ) > MAX_Z_DELTA_THRESHOLD))
         {
             pathPoint.z = previousZ;
         }
