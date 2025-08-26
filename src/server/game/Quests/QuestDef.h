@@ -31,6 +31,7 @@
 #include <bitset>
 #include <unordered_set>
 #include <vector>
+#include "Player.h"
 
 class Player;
 enum Difficulty : uint8;
@@ -609,7 +610,7 @@ class TC_GAME_API Quest
         Optional<QuestTagType> GetQuestTag() const;
         bool IsImportant() const;
         bool IsMeta() const;
-        bool IsCampaign() const;
+        bool IsCampaign(Player const* _player) const;
 
         bool HasFlag(QuestFlags flag) const { return (_flags & uint32(flag)) != 0; }
         bool HasFlagEx(QuestFlagsEx flag) const { return (_flagsEx & uint32(flag)) != 0; }

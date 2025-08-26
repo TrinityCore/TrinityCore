@@ -472,7 +472,7 @@ namespace
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::unordered_map<std::pair<uint32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
-    std::unordered_map<uint32, std::vector<CampaignXQuestLineEntry const*>> _campaignsByQuestLine;
+    std::unordered_map<uint32 /*questLineId*/, CampaignXQuestLineEntry const*> _campaignsByQuestLine;
     std::unordered_map<uint32, CampaignEntry const*> _campaigns;
     std::unordered_map<std::pair<uint8, uint8>, CharBaseInfoEntry const*> _charBaseInfoByRaceAndClass;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
@@ -1139,7 +1139,7 @@ void DB2Manager::IndexLoadedStores()
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
 
     for (CampaignXQuestLineEntry const* entry : sCampaignXQuestLineStore)
-        _campaignsByQuestLine[entry->QuestLineID].push_back(entry);
+        _campaignsByQuestLine[entry->QuestLineID] = entry;
 
     for (CharBaseInfoEntry const* charBaseInfo : sCharBaseInfoStore)
         _charBaseInfoByRaceAndClass[{ charBaseInfo->RaceID, charBaseInfo->ClassID }] = charBaseInfo;
@@ -1523,11 +1523,16 @@ void DB2Manager::IndexLoadedStores()
             std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
     }
 
+    for (CampaignXQuestLineEntry const* campaignXquestLine : sCampaignXQuestLineStore)
     {
-        for (CampaignXQuestLineEntry const* campaignXquestLine : sCampaignXQuestLineStore)
-            _campaignsByQuestLine[campaignXquestLine->QuestLineID].push_back(campaignXquestLine);
-        for (auto& [campaignXQuestLineId, campaignXquestLines] : _campaignsByQuestLine)
-            std::ranges::sort(campaignXquestLines, std::ranges::less(), &CampaignXQuestLineEntry::OrderIndex);
+        auto it = _campaignsByQuestLine.find(campaignXquestLine->QuestLineID);
+        if (it == _campaignsByQuestLine.end() || campaignXquestLine->OrderIndex < it->second->OrderIndex)
+            _campaignsByQuestLine[campaignXquestLine->QuestLineID] = campaignXquestLine;
+    }
+
+    {
+        for (CampaignEntry const* campaign : sCampaignStore)
+            _campaigns[campaign->ID] = campaign;
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -2140,9 +2145,12 @@ std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestLineXQuestsF
     return Trinity::Containers::MapGetValuePtr(_questLinesByQuest, questId);
 }
 
-std::vector<CampaignXQuestLineEntry const*> const* DB2Manager::GetCampaignsForQuestLine(uint32 questLineId) const
+CampaignXQuestLineEntry const* DB2Manager::GetCampaignForQuestLine(uint32 questLineId) const
 {
-    return Trinity::Containers::MapGetValuePtr(_campaignsByQuestLine, questLineId);
+    auto itr = _campaignsByQuestLine.find(questLineId);
+    if (itr != _campaignsByQuestLine.end())
+        return itr->second;
+    return nullptr;
 }
 
 CampaignEntry const* DB2Manager::GetCampaign(uint32 campaignId) const
