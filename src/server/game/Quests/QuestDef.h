@@ -31,7 +31,6 @@
 #include <bitset>
 #include <unordered_set>
 #include <vector>
-#include "Player.h"
 
 class Player;
 enum Difficulty : uint8;
