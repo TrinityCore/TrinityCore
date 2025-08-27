@@ -308,6 +308,13 @@ private:
         return IsOpen();
     }
 
+    void QueuedBufferWriteDone()
+    {
+        _writeQueue.pop();
+        if (_openState == OpenState_Closing && _writeQueue.empty())
+            CloseSocket();
+    }
+
 #ifdef TC_SOCKET_USE_IOCP
 
     void WriteHandler(boost::system::error_code const& error, std::size_t transferedBytes)
@@ -317,12 +324,10 @@ private:
             _isWritingAsync = false;
             _writeQueue.front().ReadCompleted(transferedBytes);
             if (!_writeQueue.front().GetActiveSize())
-                _writeQueue.pop();
+                QueuedBufferWriteDone();
 
             if (!_writeQueue.empty())
                 AsyncProcessQueue();
-            else if (_openState == OpenState_Closing)
-                CloseSocket();
         }
         else
             CloseSocket();
@@ -353,16 +358,12 @@ private:
             if (error == boost::asio::error::would_block || error == boost::asio::error::try_again)
                 return AsyncProcessQueue();
 
-            _writeQueue.pop();
-            if (_openState == OpenState_Closing && _writeQueue.empty())
-                CloseSocket();
+            QueuedBufferWriteDone();
             return false;
         }
         else if (bytesSent == 0)
         {
-            _writeQueue.pop();
-            if (_openState == OpenState_Closing && _writeQueue.empty())
-                CloseSocket();
+            QueuedBufferWriteDone();
             return false;
         }
         else if (bytesSent < bytesToSend) // now n > 0
@@ -371,9 +372,7 @@ private:
             return AsyncProcessQueue();
         }
 
-        _writeQueue.pop();
-        if (_openState == OpenState_Closing && _writeQueue.empty())
-            CloseSocket();
+        QueuedBufferWriteDone();
         return !_writeQueue.empty();
     }
 
