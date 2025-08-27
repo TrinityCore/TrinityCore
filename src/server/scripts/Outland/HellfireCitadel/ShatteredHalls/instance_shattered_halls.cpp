@@ -40,6 +40,13 @@ DoorData const doorData[] =
     { 0,                               0,               DOOR_TYPE_ROOM }
 };
 
+ObjectData const creatureData[] =
+{
+    { NPC_LEFT_HEAD,             DATA_LEFT_HEAD  },
+    { NPC_RIGHT_HEAD,            DATA_RIGHT_HEAD },
+    { 0,                         0               } // END
+};
+
 class instance_shattered_halls : public InstanceMapScript
 {
     public:
@@ -57,6 +64,7 @@ class instance_shattered_halls : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
+                LoadObjectData(creatureData, nullptr);
                 executionTimer = 0;
                 executed = 0;
                 _team = 0;
@@ -95,6 +103,8 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature) override
             {
+                InstanceScript::OnCreatureCreate(creature);
+
                 if (!_team)
                 {
                     Map::PlayerList const& players = instance->GetPlayers();

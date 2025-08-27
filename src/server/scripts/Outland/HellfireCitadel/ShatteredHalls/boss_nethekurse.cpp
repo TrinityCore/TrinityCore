@@ -77,325 +77,292 @@ enum Events
 // Grand Warlock Nethekurse
 // ########################################################
 
-class boss_grand_warlock_nethekurse : public CreatureScript
+struct boss_grand_warlock_nethekurse : public BossAI
 {
-    public:
-        boss_grand_warlock_nethekurse() : CreatureScript("boss_grand_warlock_nethekurse") { }
+    boss_grand_warlock_nethekurse(Creature* creature) : BossAI(creature, DATA_NETHEKURSE)
+    {
+        Initialize();
+    }
 
-        struct boss_grand_warlock_nethekurseAI : public BossAI
+    void Initialize()
+    {
+        IsIntroEvent = false;
+        IntroOnce = false;
+        IsMainEvent = false;
+        //HasTaunted = false;
+        SpinOnce = false;
+        Phase = false;
+
+        PeonEngagedCount = 0;
+        PeonKilledCount = 0;
+
+        IntroEvent_Timer = 90000;    // how long before getting bored and kills his minions?
+        DeathCoil_Timer = 20000;
+        ShadowFissure_Timer = 8000;
+        Cleave_Timer = 5000;
+    }
+
+    void Reset() override
+    {
+        _Reset();
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+
+        Initialize();
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DIE);
+    }
+
+    void SetData(uint32 data, uint32 value) override
+    {
+        if (data != SETDATA_DATA)
+            return;
+
+        switch (value)
         {
-            boss_grand_warlock_nethekurseAI(Creature* creature) : BossAI(creature, DATA_NETHEKURSE)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                IsIntroEvent = false;
-                IntroOnce = false;
-                IsMainEvent = false;
-                //HasTaunted = false;
-                SpinOnce = false;
-                Phase = false;
-
-                PeonEngagedCount = 0;
-                PeonKilledCount = 0;
-
-                IntroEvent_Timer = 90000;    // how long before getting bored and kills his minions?
-                DeathCoil_Timer = 20000;
-                ShadowFissure_Timer = 8000;
-                Cleave_Timer = 5000;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-
-                Initialize();
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                _JustDied();
-                Talk(SAY_DIE);
-            }
-
-            void SetData(uint32 data, uint32 value) override
-            {
-                if (data != SETDATA_DATA)
+            case SETDATA_PEON_AGGRO:
+                if (PeonEngagedCount >= 4)
                     return;
 
-                switch (value)
-                {
-                    case SETDATA_PEON_AGGRO:
-                        if (PeonEngagedCount >= 4)
-                            return;
-
-                        Talk(SAY_PEON_ATTACKED);
-                        ++PeonEngagedCount;
-                        break;
-                    case SETDATA_PEON_DEATH:
-                        if (PeonKilledCount >= 4)
-                            return;
-
-                        Talk(SAY_PEON_DIES);
-                        ++PeonKilledCount;
-
-                        if (PeonKilledCount == 4)
-                        {
-                            IsIntroEvent = false;
-                            IsMainEvent = true;
-                            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            void DoTauntPeons()
-            {
-                Talk(SAY_TAUNT);
-
-                /// @todo kill the peons first
-                IsIntroEvent = false;
-                PeonEngagedCount = 4;
-                PeonKilledCount = 4;
-                IsMainEvent = true;
-                me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            void AttackStart(Unit* who) override
-            {
-                if (IsIntroEvent || !IsMainEvent)
+                Talk(SAY_PEON_ATTACKED);
+                ++PeonEngagedCount;
+                break;
+            case SETDATA_PEON_DEATH:
+                if (PeonKilledCount >= 4)
                     return;
 
-                if (me->Attack(who, true))
+                Talk(SAY_PEON_DIES);
+                ++PeonKilledCount;
+
+                if (PeonKilledCount == 4)
                 {
-                    if (Phase)
-                        DoStartNoMovement(who);
-                    else
-                        DoStartMovement(who);
+                    IsIntroEvent = false;
+                    IsMainEvent = true;
+                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 }
-            }
-
-            void MoveInLineOfSight(Unit* who) override
-            {
-                if (!IntroOnce && me->IsWithinDistInMap(who, 30.0f))
-                {
-                    if (who->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    Talk(SAY_INTRO);
-                    IntroOnce = true;
-                    IsIntroEvent = true;
-
-                    instance->SetBossState(DATA_NETHEKURSE, IN_PROGRESS);
-                }
-
-                if (IsIntroEvent || !IsMainEvent)
-                    return;
-
-                ScriptedAI::MoveInLineOfSight(who);
-            }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                Talk(SAY_AGGRO);
-            }
-
-            void JustSummoned(Creature* summoned) override
-            {
-                //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
-                summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
-                summoned->CastSpell(summoned, SPELL_CONSUMPTION, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
-            }
-
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_SLAY);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (IsIntroEvent)
-                {
-                    if (instance->GetBossState(DATA_NETHEKURSE) == IN_PROGRESS)
-                    {
-                        if (IntroEvent_Timer <= diff)
-                            DoTauntPeons();
-                        else
-                            IntroEvent_Timer -= diff;
-                    }
-                }
-
-                if (!UpdateVictim())
-                    return;
-
-                if (!IsMainEvent)
-                    return;
-
-                if (Phase)
-                {
-                    if (!SpinOnce)
-                    {
-                        DoCastVictim(SPELL_DARK_SPIN);
-                        SpinOnce = true;
-                    }
-
-                    if (Cleave_Timer <= diff)
-                    {
-                        DoCastVictim(SPELL_SHADOW_CLEAVE);
-                        Cleave_Timer = 6000 + rand32() % 2500;
-                    }
-                    else
-                        Cleave_Timer -= diff;
-                }
-                else
-                {
-                    if (ShadowFissure_Timer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                            DoCast(target, SPELL_SHADOW_FISSURE);
-                        ShadowFissure_Timer = urand(7500, 15000);
-                    }
-                    else
-                        ShadowFissure_Timer -= diff;
-
-                    if (DeathCoil_Timer <= diff)
-                    {
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
-                            DoCast(target, SPELL_DEATH_COIL);
-                        DeathCoil_Timer = urand(15000, 20000);
-                    }
-                    else
-                        DeathCoil_Timer -= diff;
-
-                    if (!HealthAbovePct(20))
-                        Phase = true;
-
-                    DoMeleeAttackIfReady();
-                }
-            }
-
-            private:
-                uint32 PeonEngagedCount;
-                uint32 PeonKilledCount;
-                uint32 IntroEvent_Timer;
-                uint32 DeathCoil_Timer;
-                uint32 ShadowFissure_Timer;
-                uint32 Cleave_Timer;
-                bool IntroOnce;
-                bool IsIntroEvent;
-                bool IsMainEvent;
-                bool SpinOnce;
-                //bool HasTaunted;
-                bool Phase;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShatteredHallsAI<boss_grand_warlock_nethekurseAI>(creature);
+                break;
+            default:
+                break;
         }
+    }
+
+    void DoTauntPeons()
+    {
+        Talk(SAY_TAUNT);
+
+        /// @todo kill the peons first
+        IsIntroEvent = false;
+        PeonEngagedCount = 4;
+        PeonKilledCount = 4;
+        IsMainEvent = true;
+        me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+    }
+
+    void AttackStart(Unit* who) override
+    {
+        if (IsIntroEvent || !IsMainEvent)
+            return;
+
+        if (me->Attack(who, true))
+        {
+            if (Phase)
+                DoStartNoMovement(who);
+            else
+                DoStartMovement(who);
+        }
+    }
+
+    void MoveInLineOfSight(Unit* who) override
+    {
+        if (!IntroOnce && me->IsWithinDistInMap(who, 30.0f))
+        {
+            if (who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Talk(SAY_INTRO);
+            IntroOnce = true;
+            IsIntroEvent = true;
+
+            instance->SetBossState(DATA_NETHEKURSE, IN_PROGRESS);
+        }
+
+        if (IsIntroEvent || !IsMainEvent)
+            return;
+
+        ScriptedAI::MoveInLineOfSight(who);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+    }
+
+    void JustSummoned(Creature* summoned) override
+    {
+        //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
+        summoned->CastSpell(summoned, SPELL_TEMPORARY_VISUAL, true);
+        summoned->CastSpell(summoned, SPELL_CONSUMPTION, CastSpellExtraArgs().SetOriginalCaster(me->GetGUID()));
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (IsIntroEvent)
+        {
+            if (instance->GetBossState(DATA_NETHEKURSE) == IN_PROGRESS)
+            {
+                if (IntroEvent_Timer <= diff)
+                    DoTauntPeons();
+                else
+                    IntroEvent_Timer -= diff;
+            }
+        }
+
+        if (!UpdateVictim())
+            return;
+
+        if (!IsMainEvent)
+            return;
+
+        if (Phase)
+        {
+            if (!SpinOnce)
+            {
+                DoCastVictim(SPELL_DARK_SPIN);
+                SpinOnce = true;
+            }
+
+            if (Cleave_Timer <= diff)
+            {
+                DoCastVictim(SPELL_SHADOW_CLEAVE);
+                Cleave_Timer = 6000 + rand32() % 2500;
+            }
+            else
+                Cleave_Timer -= diff;
+        }
+        else
+        {
+            if (ShadowFissure_Timer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_SHADOW_FISSURE);
+                ShadowFissure_Timer = urand(7500, 15000);
+            }
+            else
+                ShadowFissure_Timer -= diff;
+
+            if (DeathCoil_Timer <= diff)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_DEATH_COIL);
+                DeathCoil_Timer = urand(15000, 20000);
+            }
+            else
+                DeathCoil_Timer -= diff;
+
+            if (!HealthAbovePct(20))
+                Phase = true;
+
+            DoMeleeAttackIfReady();
+        }
+    }
+
+    private:
+        uint32 PeonEngagedCount;
+        uint32 PeonKilledCount;
+        uint32 IntroEvent_Timer;
+        uint32 DeathCoil_Timer;
+        uint32 ShadowFissure_Timer;
+        uint32 Cleave_Timer;
+        bool IntroOnce;
+        bool IsIntroEvent;
+        bool IsMainEvent;
+        bool SpinOnce;
+        //bool HasTaunted;
+        bool Phase;
 };
 
 // ########################################################
 // Fel Orc Convert
 // ########################################################
 
-class npc_fel_orc_convert : public CreatureScript
+struct npc_fel_orc_convert : public ScriptedAI
 {
-    public:
-        npc_fel_orc_convert() : CreatureScript("npc_fel_orc_convert") { }
+    npc_fel_orc_convert(Creature* creature) : ScriptedAI(creature)
+    {
+        instance = creature->GetInstanceScript();
+    }
 
-        struct npc_fel_orc_convertAI : public ScriptedAI
+    void Reset() override
+    {
+        me->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
+    }
+
+    void MoveInLineOfSight(Unit* /*who*/) override { }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        events.ScheduleEvent(EVENT_HEMORRHAGE, 3s);
+
+        if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
+            if (me->IsWithinDist(Kurse, 45.0f))
+                Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
+            return;
+
+        if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
+            Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
         {
-            npc_fel_orc_convertAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            void Reset() override
-            {
-                me->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/) override { }
-
-            void JustEngagedWith(Unit* /*who*/) override
-            {
-                events.ScheduleEvent(EVENT_HEMORRHAGE, 3s);
-
-                if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
-                    if (me->IsWithinDist(Kurse, 45.0f))
-                        Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_AGGRO);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                if (instance->GetBossState(DATA_NETHEKURSE) != IN_PROGRESS)
-                    return;
-
-                if (Creature* Kurse = ObjectAccessor::GetCreature(*me, instance->GetGuidData(NPC_GRAND_WARLOCK_NETHEKURSE)))
-                    Kurse->AI()->SetData(SETDATA_DATA, SETDATA_PEON_DEATH);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (events.ExecuteEvent() == EVENT_HEMORRHAGE)
-                {
-                    DoCastVictim(SPELL_HEMORRHAGE);
-                    events.ScheduleEvent(EVENT_HEMORRHAGE, 15s);
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            private:
-                InstanceScript* instance;
-                EventMap events;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShatteredHallsAI<npc_fel_orc_convertAI>(creature);
+            DoCastVictim(SPELL_HEMORRHAGE);
+            events.ScheduleEvent(EVENT_HEMORRHAGE, 15s);
         }
+
+        DoMeleeAttackIfReady();
+    }
+
+    private:
+        InstanceScript* instance;
+        EventMap events;
 };
 
 // ########################################################
 // Lesser Shadow Fissure
 // ########################################################
 
-class npc_lesser_shadow_fissure : public CreatureScript
+struct npc_lesser_shadow_fissure : public ScriptedAI
 {
-    public:
-        npc_lesser_shadow_fissure() : CreatureScript("npc_lesser_shadow_fissure") { }
+    npc_lesser_shadow_fissure(Creature* creature) : ScriptedAI(creature) { }
 
-        struct npc_lesser_shadow_fissureAI : public ScriptedAI
-        {
-            npc_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) { }
-
-            void Reset() override { }
-            void MoveInLineOfSight(Unit* /*who*/) override { }
-            void AttackStart(Unit* /*who*/) override { }
-            void JustEngagedWith(Unit* /*who*/) override { }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetShatteredHallsAI<npc_lesser_shadow_fissureAI>(creature);
-        }
+    void Reset() override { }
+    void MoveInLineOfSight(Unit* /*who*/) override { }
+    void AttackStart(Unit* /*who*/) override { }
+    void JustEngagedWith(Unit* /*who*/) override { }
 };
 
 void AddSC_boss_grand_warlock_nethekurse()
 {
-    new boss_grand_warlock_nethekurse();
-    new npc_fel_orc_convert();
-    new npc_lesser_shadow_fissure();
+    RegisterShatteredHallsCreatureAI(boss_grand_warlock_nethekurse);
+    RegisterShatteredHallsCreatureAI(npc_fel_orc_convert);
+    RegisterShatteredHallsCreatureAI(npc_lesser_shadow_fissure);
 }
