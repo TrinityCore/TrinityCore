@@ -16,6 +16,7 @@
  */
 
 #include "CalendarPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Calendar
 {

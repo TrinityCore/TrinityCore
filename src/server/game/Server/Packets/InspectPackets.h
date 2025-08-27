@@ -25,6 +25,7 @@
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "TalentPackets.h"
 #include "TraitPacketsCommon.h"
 
 class Item;
@@ -120,25 +121,22 @@ namespace WorldPackets
 
         struct TraitInspectInfo
         {
-            int32 Level = 0;
-            int32 ChrSpecializationID = 0;
-            Traits::TraitConfig Config;
+            int32 PlayerLevel = 0;
+            int32 SpecID = 0;
+            Traits::TraitConfig ActiveCombatTraits;
         };
 
         class InspectResult final : public ServerPacket
         {
         public:
-            explicit InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096)
-            {
-                PvpTalents.fill(0);
-            }
+            explicit InspectResult() : ServerPacket(SMSG_INSPECT_RESULT, 4096) { }
 
             WorldPacket const* Write() override;
 
             PlayerModelDisplayInfo DisplayInfo;
             std::vector<uint16> Glyphs;
             std::vector<uint16> Talents;
-            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents;
+            std::array<uint16, MAX_PVP_TALENT_SLOTS> PvpTalents = { };
             Optional<InspectGuildData> GuildData;
             std::array<PVPBracketData, 9> Bracket;
             Optional<int32> AzeriteLevel;
@@ -148,7 +146,8 @@ namespace WorldPackets
             uint16 TodayHK = 0;
             uint16 YesterdayHK = 0;
             uint8 LifetimeMaxRank = 0;
-            TraitInspectInfo TalentTraits;
+            Talent::ClassicTalentInfoUpdate TalentInfo;
+            TraitInspectInfo TraitsInfo;
         };
 
         class QueryInspectAchievements final : public ClientPacket

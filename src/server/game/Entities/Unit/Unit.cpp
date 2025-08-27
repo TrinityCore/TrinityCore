@@ -722,6 +722,16 @@ void Unit::RemoveVisibleAura(AuraApplication* aurApp)
     UpdateAuraForGroup();
 }
 
+void Unit::SetVisibleAuraUpdate(AuraApplication* aurApp)
+{
+    m_visibleAurasToUpdate.insert(aurApp);
+}
+
+void Unit::RemoveVisibleAuraUpdate(AuraApplication* aurApp)
+{
+    m_visibleAurasToUpdate.erase(aurApp);
+}
+
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = SpellAuraInterruptFlags::None;
@@ -3020,6 +3030,28 @@ void Unit::_UpdateAutoRepeatSpell()
     }
 }
 
+void Unit::AddChannelObject(ObjectGuid guid)
+{
+    AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects)) = guid;
+}
+
+void Unit::SetChannelObject(uint32 slot, ObjectGuid guid)
+{
+    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects, slot), guid);
+}
+
+void Unit::RemoveChannelObject(ObjectGuid guid)
+{
+    int32 index = m_unitData->ChannelObjects.FindIndex(guid);
+    if (index >= 0)
+        RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects), index);
+}
+
+void Unit::ClearChannelObjects()
+{
+    ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelObjects));
+}
+
 void Unit::SetCurrentCastSpell(Spell* pSpell)
 {
     ASSERT(pSpell);                                         // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
@@ -3524,10 +3556,14 @@ void Unit::_ApplyAura(AuraApplication* aurApp, uint32 effMask)
     aura->HandleAuraSpecificMods(aurApp, caster, true, false);
 
     // apply effects of the aura
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (AuraEffect const* aurEff : aura->GetAuraEffects())
     {
-        if (effMask & 1 << i && (!aurApp->GetRemoveMode()))
-            aurApp->_HandleEffect(i, true);
+        if (effMask & 1 << aurEff->GetEffIndex())
+        {
+            aurApp->_HandleEffect(aurEff->GetEffIndex(), true);
+            if (aurApp->GetRemoveMode())
+                break;
+        }
     }
 
     if (Player* player = ToPlayer())
@@ -3593,11 +3629,9 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator& i, AuraRemoveMode removeMo
     aura->_UnapplyForTarget(this, caster, aurApp);
 
     // remove effects of the spell - needs to be done after removing aura from lists
-    for (uint8 itr = 0; itr < MAX_SPELL_EFFECTS; ++itr)
-    {
-        if (aurApp->HasEffect(itr))
-            aurApp->_HandleEffect(itr, false);
-    }
+    for (AuraEffect const* aurEff : aura->GetAuraEffects())
+        if (aurApp->HasEffect(aurEff->GetEffIndex()))
+            aurApp->_HandleEffect(aurEff->GetEffIndex(), false);
 
     // all effect mustn't be applied
     ASSERT(!aurApp->GetEffectMask());
@@ -3809,10 +3843,10 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
     if (aurApp->GetRemoveMode())
     {
         // remove remaining effects of an aura
-        for (uint8 itr = 0; itr < MAX_SPELL_EFFECTS; ++itr)
+        for (AuraEffect const* aurEff : aurApp->GetBase()->GetAuraEffects())
         {
-            if (aurApp->HasEffect(itr))
-                aurApp->_HandleEffect(itr, false);
+            if (aurApp->HasEffect(aurEff->GetEffIndex()))
+                aurApp->_HandleEffect(aurEff->GetEffIndex(), false);
         }
         return;
     }
@@ -3985,26 +4019,19 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
         {
-            int32 damage[MAX_SPELL_EFFECTS];
-            int32 baseDamage[MAX_SPELL_EFFECTS];
-            uint32 effMask = 0;
-            uint32 recalculateMask = 0;
+            std::array<int32, MAX_SPELL_EFFECTS> damage = { };
+            std::array<int32, MAX_SPELL_EFFECTS> baseDamage = { };
+            std::bitset<MAX_SPELL_EFFECTS> effMask;
+            std::bitset<MAX_SPELL_EFFECTS> recalculateMask;
             Unit* caster = aura->GetCaster();
-            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (AuraEffect const* aurEff : aura->GetAuraEffects())
             {
-                if (aura->GetEffect(i))
-                {
-                    baseDamage[i] = aura->GetEffect(i)->GetBaseAmount();
-                    damage[i] = aura->GetEffect(i)->GetAmount();
-                    effMask |= 1 << i;
-                    if (aura->GetEffect(i)->CanBeRecalculated())
-                        recalculateMask |= 1 << i;
-                }
-                else
-                {
-                    baseDamage[i] = 0;
-                    damage[i] = 0;
-                }
+                SpellEffIndex i = aurEff->GetEffIndex();
+                baseDamage[i] = aurEff->GetBaseAmount();
+                damage[i] = aurEff->GetAmount();
+                effMask[i] = true;
+                if (aurEff->CanBeRecalculated())
+                    recalculateMask[i] = true;
             }
 
             bool stealCharge = aura->GetSpellInfo()->HasAttribute(SPELL_ATTR7_DISPEL_REMOVES_CHARGES);
@@ -4027,10 +4054,10 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                     if (aura->IsSingleTarget())
                         aura->UnregisterSingleTarget();
 
-                    AuraCreateInfo createInfo(aura->GetCastId(), aura->GetSpellInfo(), aura->GetCastDifficulty(), effMask, unitStealer);
+                    AuraCreateInfo createInfo(aura->GetCastId(), aura->GetSpellInfo(), aura->GetCastDifficulty(), effMask.to_ulong(), unitStealer);
                     createInfo
                         .SetCasterGUID(aura->GetCasterGUID())
-                        .SetBaseAmount(baseDamage)
+                        .SetBaseAmount(baseDamage.data())
                         .SetStackAmount(stolenCharges);
 
                     if (Aura* newAura = Aura::TryRefreshStackOrCreate(createInfo))
@@ -4044,7 +4071,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, ObjectGuid casterGUID, W
                             caster->GetSingleCastAuras().push_front(aura);
                         }
                         // FIXME: using aura->GetMaxDuration() maybe not blizzlike but it fixes stealing of spells like Innervate
-                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), recalculateMask, &damage[0]);
+                        newAura->SetLoadedState(aura->GetMaxDuration(), int32(dur), stealCharge ? stolenCharges : aura->GetCharges(), recalculateMask.to_ulong(), damage.data());
                         newAura->ApplyForTargets();
                     }
                 }
@@ -5542,7 +5569,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     data.SpellID = aura->GetId();
     data.LogData.Initialize(this);
 
-    WorldPackets::CombatLog::SpellPeriodicAuraLog::SpellLogEffect spellLogEffect;
+    WorldPackets::CombatLog::PeriodicAuraLogEffect& spellLogEffect = data.Effects.emplace_back();
     spellLogEffect.Effect = aura->GetAuraType();
     spellLogEffect.Amount = info->damage;
     spellLogEffect.OriginalDamage = info->originalDamage;
@@ -5557,8 +5584,6 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* info)
     if (Unit* caster = ObjectAccessor::GetUnit(*this, aura->GetCasterGUID()))
         if (contentTuningParams.GenerateDataForUnits(caster, this))
             spellLogEffect.ContentTuning = contentTuningParams;
-
-    data.Effects.push_back(spellLogEffect);
 
     SendCombatLogMessage(&data);
 }
@@ -6619,18 +6644,18 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     // reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
     nearMembers.reserve(group->GetMembersCount() * 2);
 
-    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-        if (Player* Target = itr->GetSource())
-        {
-            // IsHostileTo check duel and controlled by enemy
-            if (Target != this && IsWithinDistInMap(Target, radius) && Target->IsAlive() && !IsHostileTo(Target))
-                nearMembers.push_back(Target);
+    for (GroupReference const& itr : group->GetMembers())
+    {
+        Player* Target = itr.GetSource();
+        // IsHostileTo check duel and controlled by enemy
+        if (Target != this && IsWithinDistInMap(Target, radius) && Target->IsAlive() && !IsHostileTo(Target))
+            nearMembers.push_back(Target);
 
         // Push player's pet to vector
         if (Unit* pet = Target->GetGuardianPet())
             if (pet != this && IsWithinDistInMap(pet, radius) && pet->IsAlive() && !IsHostileTo(pet))
                 nearMembers.push_back(pet);
-        }
+    }
 
     if (nearMembers.empty())
         return nullptr;
@@ -8955,6 +8980,16 @@ void Unit::UpdateAdvFlyingSpeed(AdvFlyingRateTypeRange speedType, bool clientUpd
         selfpacket.SpeedMax = max;
         playerMover->GetSession()->SendPacket(selfpacket.Write());
     }
+}
+
+void Unit::FollowerAdded(AbstractFollower* f)
+{
+    m_followingMe.insert(f);
+}
+
+void Unit::FollowerRemoved(AbstractFollower* f)
+{
+    m_followingMe.erase(f);
 }
 
 void Unit::RemoveAllFollowers()
@@ -11985,12 +12020,12 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
     {
         uint8 subgroup = owner->ToPlayer()->GetSubGroup();
 
-        for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+        for (GroupReference const& itr : group->GetMembers())
         {
-            Player* Target = itr->GetSource();
+            Player* Target = itr.GetSource();
 
             // IsHostileTo check duel and controlled by enemy
-            if (Target && Target->IsInMap(owner) && Target->GetSubGroup() == subgroup && !IsHostileTo(Target))
+            if (Target->IsInMap(owner) && Target->GetSubGroup() == subgroup && !IsHostileTo(Target))
             {
                 if (Target->IsAlive())
                     TagUnitMap.push_back(Target);
@@ -12510,7 +12545,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
         }
         else    // This can happen during Player::_LoadAuras
         {
-            int32 bp[MAX_SPELL_EFFECTS] = { };
+            std::array<int32, MAX_SPELL_EFFECTS> bp = { };
             for (SpellEffectInfo const& spellEffectInfo : spellEntry->GetEffects())
                 bp[spellEffectInfo.EffectIndex] = int32(spellEffectInfo.BasePoints);
 
@@ -12519,7 +12554,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId, uint32 spellId, TriggerC
             AuraCreateInfo createInfo(ObjectGuid::Create<HighGuid::Cast>(SPELL_CAST_SOURCE_NORMAL, GetMapId(), spellEntry->Id, GetMap()->GenerateLowGuid<HighGuid::Cast>()), spellEntry, GetMap()->GetDifficultyID(), MAX_EFFECT_MASK, this);
             createInfo
                 .SetCaster(clicker)
-                .SetBaseAmount(bp)
+                .SetBaseAmount(bp.data())
                 .SetCasterGUID(origCasterGUID);
 
             Aura::TryRefreshStackOrCreate(createInfo);
@@ -13187,15 +13222,18 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         SendMessageToSet(packet.Write(), true);
     }
 
-    if (IsAlive())
+    if (!GetVehicle())
     {
-        if (IsGravityDisabled() || IsHovering())
-            SetPlayHoverAnim(true);
-        else
-            SetPlayHoverAnim(false);
+        if (IsAlive())
+        {
+            if (IsGravityDisabled() || IsHovering())
+                SetPlayHoverAnim(true);
+            else
+                SetPlayHoverAnim(false);
+        }
+        else if (IsPlayer()) // To update player who dies while flying/hovering
+            SetPlayHoverAnim(false, false);
     }
-    else if (IsPlayer()) // To update player who dies while flying/hovering
-        SetPlayHoverAnim(false, false);
 
     if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
     {
@@ -13960,8 +13998,10 @@ bool Unit::IsHighestExclusiveAuraEffect(SpellInfo const* spellInfo, AuraType aur
         {
             int64 diff = int64(abs(effectAmount)) - int64(abs(existingAurEff->GetAmount()));
             if (!diff)
-                for (int32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                    diff += int64((auraEffectMask & (1 << i)) >> i) - int64((existingAurEff->GetBase()->GetEffectMask() & (1 << i)) >> i);
+            {
+                // treat the aura with more effects as stronger
+                diff = std::popcount(auraEffectMask) - std::popcount(existingAurEff->GetBase()->GetEffectMask());
+            }
 
             if (diff > 0)
             {
@@ -14220,6 +14260,23 @@ float Unit::GetCollisionHeight() const
 
     float const collisionHeight = scaleMod * modelData->CollisionHeight * modelData->ModelScale * displayInfo->CreatureModelScale;
     return collisionHeight == 0.0f ? DEFAULT_COLLISION_HEIGHT : collisionHeight;
+}
+
+void Unit::AddWorldEffect(int32 worldEffectId)
+{
+    AddDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects)) = worldEffectId;
+}
+
+void Unit::RemoveWorldEffect(int32 worldEffectId)
+{
+    int32 index = m_unitData->WorldEffects.FindIndex(worldEffectId);
+    if (index >= 0)
+        RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects), index);
+}
+
+void Unit::ClearWorldEffects()
+{
+    ClearDynamicUpdateFieldValues(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::WorldEffects));
 }
 
 void Unit::SetVignette(uint32 vignetteId)

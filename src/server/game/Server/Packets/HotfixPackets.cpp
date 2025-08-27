@@ -16,6 +16,7 @@
  */
 
 #include "HotfixPackets.h"
+#include "PacketOperators.h"
 #include "PacketUtilities.h"
 
 namespace WorldPackets::Hotfix
@@ -94,7 +95,7 @@ void HotfixRequest::Read()
 
     uint32 hotfixCount = _worldPacket.read<uint32>();
     if (hotfixCount > sDB2Manager.GetHotfixCount())
-        throw PacketArrayMaxCapacityException(hotfixCount, sDB2Manager.GetHotfixCount());
+        OnInvalidArraySize(hotfixCount, sDB2Manager.GetHotfixCount());
 
     Hotfixes.resize(hotfixCount);
     for (int32& hotfixId : Hotfixes)

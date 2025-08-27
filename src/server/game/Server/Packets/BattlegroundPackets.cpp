@@ -16,6 +16,7 @@
  */
 
 #include "BattlegroundPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Battleground
 {
@@ -417,7 +418,7 @@ WorldPacket const* PVPMatchSetState::Write()
 
 WorldPacket const* PVPMatchComplete::Write()
 {
-    _worldPacket << uint8(Winner);
+    _worldPacket << int32(Winner);
     _worldPacket << Duration;
     _worldPacket << OptionalInit(LogData);
     _worldPacket << Bits<2>(SoloShuffleStatus);

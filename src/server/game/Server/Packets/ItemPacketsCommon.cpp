@@ -18,7 +18,7 @@
 #include "ItemPacketsCommon.h"
 #include "Item.h"
 #include "Loot.h"
-#include "Player.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Item
 {
@@ -78,24 +78,6 @@ void ItemInstance::Initialize(::LootItem const& lootItem)
     }
 }
 
-void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
-{
-    ItemID = voidItem->ItemEntry;
-
-    if (voidItem->FixedScalingLevel)
-        Modifications.Values.push_back({ .Value = int32(voidItem->FixedScalingLevel), .Type = ITEM_MODIFIER_TIMEWALKER_LEVEL });
-
-    if (voidItem->ArtifactKnowledgeLevel)
-        Modifications.Values.push_back({ .Value = int32(voidItem->ArtifactKnowledgeLevel), .Type = ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL });
-
-    if (!voidItem->BonusListIDs.empty())
-    {
-        ItemBonus.emplace();
-        ItemBonus->Context = voidItem->Context;
-        ItemBonus->BonusListIDs = voidItem->BonusListIDs;
-    }
-}
-
 bool ItemInstance::operator==(ItemInstance const& r) const
 {
     if (ItemID != r.ItemID)
@@ -140,7 +122,7 @@ ByteBuffer& operator>>(ByteBuffer& data, ItemBonuses& itemBonusInstanceData)
     uint32 bonusListIdSize;
     data >> bonusListIdSize;
     if (bonusListIdSize > 32)
-        throw PacketArrayMaxCapacityException(bonusListIdSize, 32);
+        OnInvalidArraySize(bonusListIdSize, 32);
 
     itemBonusInstanceData.BonusListIDs.resize(bonusListIdSize);
 

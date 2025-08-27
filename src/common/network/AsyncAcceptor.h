@@ -39,7 +39,7 @@ class AsyncAcceptor
 public:
     AsyncAcceptor(Asio::IoContext& ioContext, std::string const& bindIp, uint16 port) :
         _acceptor(ioContext), _endpoint(make_address(bindIp), port),
-        _socket(ioContext), _closed(false), _socketFactory([this] { return DefeaultSocketFactory(); })
+        _socket(ioContext), _closed(false), _socketFactory([this] { return DefaultSocketFactory(); })
     {
     }
 
@@ -98,14 +98,14 @@ public:
         _acceptor.bind(_endpoint, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Could not bind to {}:{} {}", _endpoint.address().to_string(), _endpoint.port(), errorCode.message());
+            TC_LOG_INFO("network", "Could not bind to {}:{} {}", _endpoint.address(), _endpoint.port(), errorCode.message());
             return false;
         }
 
         _acceptor.listen(TRINITY_MAX_LISTEN_CONNECTIONS, errorCode);
         if (errorCode)
         {
-            TC_LOG_INFO("network", "Failed to start listening on {}:{} {}", _endpoint.address().to_string(), _endpoint.port(), errorCode.message());
+            TC_LOG_INFO("network", "Failed to start listening on {}:{} {}", _endpoint.address(), _endpoint.port(), errorCode.message());
             return false;
         }
 
@@ -124,7 +124,7 @@ public:
     void SetSocketFactory(std::function<std::pair<IoContextTcpSocket*, uint32>()> func) { _socketFactory = std::move(func); }
 
 private:
-    std::pair<IoContextTcpSocket*, uint32> DefeaultSocketFactory() { return std::make_pair(&_socket, 0); }
+    std::pair<IoContextTcpSocket*, uint32> DefaultSocketFactory() { return std::make_pair(&_socket, 0); }
 
     boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, IoContextTcpSocket::executor_type> _acceptor;
     boost::asio::ip::tcp::endpoint _endpoint;

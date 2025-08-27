@@ -19,27 +19,13 @@
 #define TRINITYCORE_AREA_TRIGGER_PACKETS_H
 
 #include "Packet.h"
-#include "AreaTriggerTemplate.h"
+#include "CombatLogPacketsCommon.h"
 #include "ObjectGuid.h"
-#include "Optional.h"
 
 namespace WorldPackets
 {
     namespace AreaTrigger
     {
-        struct AreaTriggerSplineInfo
-        {
-            uint32 TimeToTarget = 0;
-            uint32 ElapsedTimeForMovement = 0;
-            std::vector<TaggedPosition<Position::XYZ>> Points;
-        };
-
-        struct AreaTriggerMovementScriptInfo
-        {
-            uint32 SpellScriptID = 0;
-            TaggedPosition<Position::XYZ> Center;
-        };
-
         class AreaTrigger final : public ClientPacket
         {
         public:
@@ -71,20 +57,6 @@ namespace WorldPackets
             WorldPacket const* Write() override { return &_worldPacket; }
         };
 
-        class AreaTriggerRePath final : public ServerPacket
-        {
-        public:
-            explicit AreaTriggerRePath() : ServerPacket(SMSG_AREA_TRIGGER_RE_PATH, 17) { }
-
-            WorldPacket const* Write() override;
-
-            Optional<AreaTriggerSplineInfo> AreaTriggerSpline;
-            Optional<AreaTriggerOrbitInfo> AreaTriggerOrbit;
-            Optional<AreaTriggerMovementScriptInfo> AreaTriggerMovementScript;
-            ObjectGuid TriggerGUID;
-            ObjectGuid Unused_1100;
-        };
-
         class AreaTriggerPlaySpellVisual final : public ServerPacket
         {
         public:
@@ -96,7 +68,17 @@ namespace WorldPackets
             uint32 SpellVisualID = 0;
         };
 
-        ByteBuffer& operator<<(ByteBuffer& data, AreaTriggerOrbitInfo const& areaTriggerCircularMovement);
+        class UpdateAreaTriggerVisual final : public ClientPacket
+        {
+        public:
+            explicit UpdateAreaTriggerVisual(WorldPacket&& packet) : ClientPacket(CMSG_UPDATE_AREA_TRIGGER_VISUAL, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 SpellID = 0;
+            Spells::SpellCastVisual Visual;
+            ObjectGuid TargetGUID;
+        };
     }
 }
 

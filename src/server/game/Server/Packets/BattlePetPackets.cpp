@@ -16,6 +16,7 @@
  */
 
 #include "BattlePetPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::BattlePet
 {
@@ -155,13 +156,15 @@ WorldPacket const* QueryBattlePetNameResponse::Write()
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             _worldPacket << SizedString::BitsSize<7>(DeclinedNames.name[i]);
 
+        _worldPacket.FlushBits();
+
         for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             _worldPacket << SizedString::Data(DeclinedNames.name[i]);
 
         _worldPacket << SizedString::Data(Name);
     }
-
-    _worldPacket.FlushBits();
+    else
+        _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

@@ -21,6 +21,7 @@
 #include "DB2Stores.h"
 #include "Language.h"
 #include "Log.h"
+#include "MapUtils.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ReputationPackets.h"
@@ -225,6 +226,11 @@ ReputationRank const* ReputationMgr::GetForcedRankIfAny(FactionTemplateEntry con
     return GetForcedRankIfAny(factionTemplateEntry->Faction);
 }
 
+ReputationRank const* ReputationMgr::GetForcedRankIfAny(uint32 factionId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_forcedReactions, factionId);
+}
+
 bool ReputationMgr::IsParagonReputation(FactionEntry const* factionEntry) const
 {
     if (sDB2Manager.GetParagonReputation(factionEntry->ID))
@@ -338,7 +344,7 @@ void ReputationMgr::SendState(FactionState const* faction)
     };
 
     if (faction)
-        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction));
+        setFactionStanding.Faction.emplace_back(int32(faction->ReputationListID), getStandingForPacket(faction), faction->ID);
 
     for (auto& [reputationIndex, state] : _factions)
     {
@@ -346,7 +352,7 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             state.needSend = false;
             if (!faction || state.ReputationListID != faction->ReputationListID)
-                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state));
+                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state), faction->ID);
         }
     }
 

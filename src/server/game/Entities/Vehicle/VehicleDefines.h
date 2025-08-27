@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_VEHICLEDEFINES_H
-#define __TRINITY_VEHICLEDEFINES_H
+#ifndef TRINITYCORE_VEHICLE_DEFINES_H
+#define TRINITYCORE_VEHICLE_DEFINES_H
 
 #include "Define.h"
 #include "Duration.h"
-#include <vector>
+#include "EnumFlag.h"
 #include <map>
+#include <vector>
 
 class Map;
 class WorldObject;
@@ -86,6 +87,14 @@ enum class VehicleExitParameters
     VehicleExitParamMax
 };
 
+enum class VehicleCustomFlags : uint32
+{
+    None                        = 0x0,
+    DontForceParachuteOnExit    = 0x1
+};
+
+DEFINE_ENUM_FLAG(VehicleCustomFlags);
+
 struct PassengerInfo
 {
     ObjectGuid Guid;
@@ -145,6 +154,7 @@ struct VehicleTemplate
 {
     Milliseconds DespawnDelay = Milliseconds::zero();
     Optional<float> Pitch;
+    EnumFlag<VehicleCustomFlags> CustomFlags = VehicleCustomFlags::None;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;

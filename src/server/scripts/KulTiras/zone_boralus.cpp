@@ -771,6 +771,82 @@ struct at_boralus_sanctum_of_the_sages_conversation : AreaTriggerAI
     }
 };
 
+enum DaughterOfTheSeaData
+{
+    NPC_JAINA_PROUDMOORE_BEFORE_AUDIENCE    = 120922,
+
+    SPELL_PLAY_SCENE_JAINA_PROCESSION       = 270608,
+    SPELL_OBJ_COMPLETE_KATHERINES_COURT     = 241525,
+    SPELL_WAKE_UP_IN_TOL_DAGOR              = 270081
+};
+
+// 281460 - Teleport Off Ship
+class spell_boralus_teleport_off_ship : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PLAY_SCENE_JAINA_PROCESSION });
+    }
+
+    void HandleHitSummoner(SpellEffIndex /*effIndex*/)
+    {
+        if (Player* player = GetHitUnit()->ToPlayer())
+            player->CastSpell(player, SPELL_PLAY_SCENE_JAINA_PROCESSION, false);
+    }
+
+    void HandleHitJaina(SpellEffIndex /*effIndex*/)
+    {
+        if (Creature* summon = GetHitCreature())
+        {
+            if (summon->GetEntry() == NPC_JAINA_PROUDMOORE_BEFORE_AUDIENCE)
+                summon->DespawnOrUnsummon(2s);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_boralus_teleport_off_ship::HandleHitSummoner, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_boralus_teleport_off_ship::HandleHitJaina, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1954 - Play Scene: Jainas Procession
+class scene_boralus_jainas_procession : public SceneScript
+{
+public:
+    scene_boralus_jainas_procession() : SceneScript("scene_boralus_jainas_procession") {}
+
+    void OnSceneComplete(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_OBJ_COMPLETE_KATHERINES_COURT, true);
+    }
+
+    void OnSceneCancel(Player* player, uint32 /*sceneInstanceID*/, SceneTemplate const* /*sceneTemplate*/) override
+    {
+        player->CastSpell(player, SPELL_OBJ_COMPLETE_KATHERINES_COURT, true);
+    }
+};
+
+// 241526 - Teleport to Tol Dagor
+class spell_boralus_teleport_to_tol_dagor : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WAKE_UP_IN_TOL_DAGOR });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, SPELL_WAKE_UP_IN_TOL_DAGOR, false);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_boralus_teleport_to_tol_dagor::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_zone_boralus()
 {
     // Creature
@@ -791,6 +867,7 @@ void AddSC_zone_boralus()
 
     // Scene
     new scene_boralus_client_scene_cyrus_and_genn();
+    new scene_boralus_jainas_procession();
 
     // AreaTrigger
     RegisterAreaTriggerAI(at_boralus_old_knight_enter_harbormasters_office);
@@ -805,4 +882,6 @@ void AddSC_zone_boralus()
 
     // Spells
     RegisterSpellScript(spell_boralus_find_cyrus_objective_complete);
+    RegisterSpellScript(spell_boralus_teleport_off_ship);
+    RegisterSpellScript(spell_boralus_teleport_to_tol_dagor);
 }

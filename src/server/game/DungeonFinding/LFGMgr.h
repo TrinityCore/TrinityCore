@@ -182,7 +182,7 @@ struct LfgJoinResultData
     LfgJoinResult result;
     LfgRoleCheckState state;
     LfgLockPartyMap lockmap;
-    std::vector<std::string const*> playersMissingRequirement;
+    std::vector<std::string_view> playersMissingRequirement;
 };
 
 // Data needed by SMSG_LFG_UPDATE_STATUS
@@ -333,7 +333,7 @@ class TC_GAME_API LFGMgr
 
         // World.cpp
         /// Check dungeon completion on encounter completion
-        void OnDungeonEncounterDone(ObjectGuid gguid, std::array<uint32, 4> const& dungeonEncounterId, Map const* currMap);
+        void OnDungeonEncounterDone(ObjectGuid gguid, std::span<uint32 const> dungeonEncounters, Map const* currMap);
         /// Finish the dungeon for the given group. All check are performed using internal lfg data
         void FinishDungeon(ObjectGuid gguid, uint32 dungeonId, Map const* currMap);
         /// Loads rewards for random dungeons
@@ -463,7 +463,7 @@ class TC_GAME_API LFGMgr
         void SetState(ObjectGuid guid, LfgState state);
         void SetVoteKick(ObjectGuid gguid, bool active);
         void RemovePlayerData(ObjectGuid guid);
-        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string const*>* playersMissingRequirement, bool isContinue);
+        void GetCompatibleDungeons(LfgDungeonSet* dungeons, GuidSet const& players, LfgLockPartyMap* lockMap, std::vector<std::string_view>* playersMissingRequirement, bool isContinue);
         void _SaveToDB(ObjectGuid guid, uint32 db_guid);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 

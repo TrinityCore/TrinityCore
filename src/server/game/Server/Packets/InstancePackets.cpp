@@ -16,7 +16,7 @@
  */
 
 #include "InstancePackets.h"
-#include "PacketUtilities.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Instance
 {
@@ -36,9 +36,9 @@ WorldPacket const* UpdateInstanceOwnership::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, InstanceLock const& lockInfos)
 {
+    data << uint64(lockInfos.InstanceID);
     data << uint32(lockInfos.MapID);
     data << uint32(lockInfos.DifficultyID);
-    data << uint64(lockInfos.InstanceID);
     data << uint32(lockInfos.TimeRemaining);
     data << uint32(lockInfos.CompletedMask);
 
@@ -114,10 +114,12 @@ WorldPacket const* RaidInstanceMessage::Write()
     _worldPacket << uint32(MapID);
     _worldPacket << uint32(DifficultyID);
     _worldPacket << int32(TimeLeft);
-    _worldPacket << BitsSize<8>(WarningMessage);
+    _worldPacket << SizedString::BitsSize<8>(WarningMessage);
     _worldPacket << Bits<1>(Locked);
     _worldPacket << Bits<1>(Extended);
     _worldPacket.FlushBits();
+
+    _worldPacket << SizedString::Data(WarningMessage);
 
     return &_worldPacket;
 }

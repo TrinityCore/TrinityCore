@@ -16,6 +16,7 @@
  */
 
 #include "ItemPackets.h"
+#include "PacketOperators.h"
 
 namespace WorldPackets::Item
 {
@@ -378,13 +379,6 @@ void RemoveNewItem::Read()
 }
 
 void ChangeBagSlotFlag::Read()
-{
-    _worldPacket >> BagIndex;
-    _worldPacket >> As<uint32>(FlagToChange);
-    _worldPacket >> Bits<1>(On);
-}
-
-void ChangeBankBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
     _worldPacket >> As<uint32>(FlagToChange);

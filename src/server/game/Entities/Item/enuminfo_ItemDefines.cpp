@@ -162,12 +162,14 @@ TC_API_EXPORT EnumText EnumUtils<InventoryResult>::ToString(InventoryResult valu
         case EQUIP_ERR_BANK_NOT_ACCESSIBLE: return { "EQUIP_ERR_BANK_NOT_ACCESSIBLE", "EQUIP_ERR_BANK_NOT_ACCESSIBLE", "This character does not have access to this bank." };
         case EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM: return { "EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM", "EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM", "You can't trade an item from the Warband bank." };
         case EQUIP_ERR_ACCOUNT_MONEY_LOCKED: return { "EQUIP_ERR_ACCOUNT_MONEY_LOCKED", "EQUIP_ERR_ACCOUNT_MONEY_LOCKED", "You cannot withdraw or deposit gold from the warband bank currently; please try again later." };
+        case EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE: return { "EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE", "EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE", "This character does not have access to this bank." };
+        case EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED: return { "EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED", "EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED", "Your character's bank has not been converted. Please try again later." };
         default: throw std::out_of_range("value");
     }
 }
 
 template <>
-TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 131; }
+TC_API_EXPORT size_t EnumUtils<InventoryResult>::Count() { return 133; }
 
 template <>
 TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index)
@@ -305,6 +307,8 @@ TC_API_EXPORT InventoryResult EnumUtils<InventoryResult>::FromIndex(size_t index
         case 128: return EQUIP_ERR_BANK_NOT_ACCESSIBLE;
         case 129: return EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM;
         case 130: return EQUIP_ERR_ACCOUNT_MONEY_LOCKED;
+        case 131: return EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE;
+        case 132: return EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED;
         default: throw std::out_of_range("index");
     }
 }
@@ -445,6 +449,8 @@ TC_API_EXPORT size_t EnumUtils<InventoryResult>::ToIndex(InventoryResult value)
         case EQUIP_ERR_BANK_NOT_ACCESSIBLE: return 128;
         case EQUIP_ERR_CANT_TRADE_ACCOUNT_ITEM: return 129;
         case EQUIP_ERR_ACCOUNT_MONEY_LOCKED: return 130;
+        case EQUIP_ERR_CHARACTER_BANK_NOT_ACCESSIBLE: return 131;
+        case EQUIP_ERR_CHARACTER_BANK_NOT_CONVERTED: return 132;
         default: throw std::out_of_range("value");
     }
 }

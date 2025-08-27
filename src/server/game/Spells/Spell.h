@@ -443,6 +443,10 @@ class TC_GAME_API Spell
         void EffectTeleportGraveyard();
         void EffectUpdateInteractions();
         void EffectLearnWarbandScene();
+        void EffectSetPlayerDataElementAccount();
+        void EffectSetPlayerDataElementCharacter();
+        void EffectSetPlayerDataFlagAccount();
+        void EffectSetPlayerDataFlagCharacter();
 
         typedef std::unordered_set<Aura*> UsedSpellMods;
 

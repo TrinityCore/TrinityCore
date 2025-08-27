@@ -526,7 +526,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Winner = 0;
+            int32 Winner = 0;
             WorldPackets::Duration<Seconds> Duration;
             Optional<PVPMatchStatistics> LogData;
             uint32 SoloShuffleStatus = 0;

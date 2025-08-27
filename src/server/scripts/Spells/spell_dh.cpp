@@ -137,6 +137,7 @@ enum DemonHunterSpells
     SPELL_DH_ILLIDANS_GRASP                        = 205630,
     SPELL_DH_ILLIDANS_GRASP_DAMAGE                 = 208618,
     SPELL_DH_ILLIDANS_GRASP_JUMP_DEST              = 208175,
+    SPELL_DH_IMMOLATION_AURA                       = 258920,
     SPELL_DH_INNER_DEMON_BUFF                      = 390145,
     SPELL_DH_INNER_DEMON_DAMAGE                    = 390137,
     SPELL_DH_INNER_DEMON_TALENT                    = 389693,
@@ -186,6 +187,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_CHAINS_SNARE                 = 204843,
     SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_VISUAL                = 208673,
+    SPELL_DH_SIGIL_OF_FLAME                        = 204596,
     SPELL_DH_SIGIL_OF_FLAME_AOE                    = 204598,
     SPELL_DH_SIGIL_OF_FLAME_FLAME_CRASH            = 228973,
     SPELL_DH_SIGIL_OF_FLAME_VISUAL                 = 208710,
@@ -208,6 +210,7 @@ enum DemonHunterSpells
     SPELL_DH_TACTICAL_RETREAT_TALENT               = 389688,
     SPELL_DH_THROW_GLAIVE                          = 185123,
     SPELL_DH_UNCONTAINED_FEL                       = 209261,
+    SPELL_DH_VENGEANCE_DEMON_HUNTER                = 212613,
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
@@ -314,6 +317,28 @@ class spell_dh_chaos_strike : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_dh_chaos_strike::HandleEffectProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
+// 344862 - Chaos Strike
+class spell_dh_chaos_strike_initial : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_CHAOS_STRIKE });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_CHAOS_STRIKE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_chaos_strike_initial::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -506,6 +531,31 @@ class spell_dh_collective_anguish_eye_beam : public AuraScript
     void Register() override
     {
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_collective_anguish_eye_beam::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
+// 320413 - Critical Chaos
+class spell_dh_critical_chaos : public AuraScript
+{
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
+        {
+            float critChanceDone = GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK);
+            amount = CalculatePct(critChanceDone, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_0))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_critical_chaos::CalcAmount, EFFECT_0, SPELL_AURA_ADD_FLAT_MODIFIER);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_critical_chaos::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -752,7 +802,9 @@ class spell_dh_demonic : public SpellScript
         SpellCastTargets targets;
         targets.SetUnitTarget(caster);
 
-        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR, ObjectGuid::Empty, GetSpell()->m_castId);
+        Spell* spell = new Spell(caster, sSpellMgr->AssertSpellInfo(_transformSpellId, DIFFICULTY_NONE),
+            TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            ObjectGuid::Empty, GetSpell()->m_castId);
         spell->m_SpellVisual.SpellXSpellVisualID = 0;
         spell->m_SpellVisual.ScriptVisualID = 0;
         spell->SetSpellValue({ SPELLVALUE_DURATION, duration });
@@ -1655,16 +1707,43 @@ class spell_dh_vengeful_retreat_damage : public SpellScript
     }
 };
 
+// 452409 - Violent Transformation
+class spell_dh_violent_transformation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_VENGEANCE_DEMON_HUNTER, SPELL_DH_FEL_DEVASTATION, SPELL_DH_IMMOLATION_AURA });
+    }
+
+    void HandleOnProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_SIGIL_OF_FLAME, GetCastDifficulty())->ChargeCategoryId);
+
+        if (target->HasAura(SPELL_DH_VENGEANCE_DEMON_HUNTER))
+            target->GetSpellHistory()->ResetCooldown(SPELL_DH_FEL_DEVASTATION, true);
+        else
+            target->GetSpellHistory()->RestoreCharge(sSpellMgr->AssertSpellInfo(SPELL_DH_IMMOLATION_AURA, GetCastDifficulty())->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_violent_transformation::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_army_unto_oneself);
     RegisterSpellScript(spell_dh_calcified_spikes);
     RegisterSpellScript(spell_dh_calcified_spikes_periodic);
     RegisterSpellScript(spell_dh_chaos_strike);
+    RegisterSpellScript(spell_dh_chaos_strike_initial);
     RegisterSpellScript(spell_dh_chaos_theory);
     RegisterSpellScript(spell_dh_chaos_theory_drop_charge);
     RegisterSpellScript(spell_dh_chaotic_transformation);
     RegisterSpellScript(spell_dh_charred_warblades);
+    RegisterSpellScript(spell_dh_critical_chaos);
     RegisterSpellScript(spell_dh_collective_anguish);
     RegisterSpellScript(spell_dh_collective_anguish_eye_beam);
     RegisterSpellScript(spell_dh_cycle_of_hatred);
@@ -1699,6 +1778,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
+    RegisterSpellScript(spell_dh_violent_transformation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>>("areatrigger_dh_sigil_of_chains");

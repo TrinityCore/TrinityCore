@@ -811,6 +811,9 @@ enum ItemIdConstants
     ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308,   // Purple Ribboned Holiday Gift
     ITEM_EMPTY_WRAPPER                           = 21830,   // Empty Wrapper
     ITEM_WRAPPED_GIFT                            = 21831,   // Wrappered Gift
+
+    ITEM_ACCOUNT_BANK_TAB_BAG                    = 208392,  // Account Bank Tab Bag (DNT)
+    ITEM_CHARACTER_BANK_TAB_BAG                  = 242709,  // Character Bank Tab Bag (DNT)
 };
 
 class Player;
@@ -910,10 +913,20 @@ struct TC_GAME_API ItemTemplate
 
     bool IsRangedWeapon() const
     {
-        return IsWeapon() &&
-               (GetSubClass() == ITEM_SUBCLASS_WEAPON_BOW ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_GUN ||
-               GetSubClass() == ITEM_SUBCLASS_WEAPON_CROSSBOW);
+        if (!IsWeapon())
+            return false;
+
+        switch (ItemSubclassWeapon(GetSubClass()))
+        {
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 
     inline bool HasFlag(ItemFlags flag) const { return (ExtendedData->Flags[0] & flag) != 0; }
