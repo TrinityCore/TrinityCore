@@ -40,8 +40,6 @@ enum AQTDataTypes
     // Others
     DATA_KRI                = 9,
     DATA_VEM                = 10,
-    DATA_VEMISDEAD          = 11,
-    DATA_VEM_DEATH          = 12,
     DATA_VEKLOR             = 13,
     DATA_VEKLORISDEAD       = 14,
     DATA_VEKLOR_DEATH       = 15,
