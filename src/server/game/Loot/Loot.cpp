@@ -884,10 +884,12 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         if (loot_type == LOOT_CORPSE)
             roundRobinPlayer = lootOwner->GetGUID();
 
-        for (GroupReference const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-            if (Player* player = itr->GetSource())    // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
-                if (player->IsAtGroupRewardDistance(lootOwner))
-                    FillNotNormalLootFor(player);
+        for (GroupReference const& itr : group->GetMembers())
+        {
+            Player* member = itr.GetSource(); // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
+            if (member->IsAtGroupRewardDistance(lootOwner))
+                FillNotNormalLootFor(member);
+        }
 
         for (LootItem& item : items)
         {

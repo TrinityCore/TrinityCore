@@ -453,17 +453,16 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
     if (!battlePetSpecies->GetFlags().HasFlag(BattlePetSpeciesFlags::WellKnown)) // Not learnable
         return;
 
-    BattlePet pet;
-    pet.PacketInfo.Guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::BattlePet>(sObjectMgr->GetGenerator<HighGuid::BattlePet>().Generate());
+
+    BattlePet& pet = _pets[guid.GetCounter()];
+    pet.PacketInfo.Guid = guid;
     pet.PacketInfo.Species = species;
     pet.PacketInfo.CreatureID = battlePetSpecies->CreatureID;
     pet.PacketInfo.DisplayID = display;
     pet.PacketInfo.Level = level;
-    pet.PacketInfo.Exp = 0;
-    pet.PacketInfo.Flags = 0;
     pet.PacketInfo.Breed = breed;
     pet.PacketInfo.Quality = AsUnderlyingType(quality);
-    pet.PacketInfo.Name = "";
     pet.CalculateStats();
     pet.PacketInfo.Health = pet.PacketInfo.MaxHealth;
 
@@ -477,11 +476,8 @@ void BattlePetMgr::AddPet(uint32 species, uint32 display, uint16 breed, BattlePe
 
     pet.SaveInfo = BATTLE_PET_NEW;
 
-    _pets[pet.PacketInfo.Guid.GetCounter()] = std::move(pet);
-
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(pet));
-    SendUpdates(std::move(updates), true);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { pet };
+    SendUpdates(updates, true);
 
     player->UpdateCriteria(CriteriaType::UniquePetsOwned);
     player->UpdateCriteria(CriteriaType::LearnedNewPet, species);
@@ -687,9 +683,8 @@ void BattlePetMgr::ChangeBattlePetQuality(ObjectGuid guid, BattlePetBreedQuality
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 
     // UF::PlayerData::CurrentBattlePetBreedQuality isn't updated (Intended)
     // _owner->GetPlayer()->SetCurrentBattlePetBreedQuality(qualityValue);
@@ -750,9 +745,8 @@ void BattlePetMgr::GrantBattlePetExperience(ObjectGuid guid, uint16 xp, BattlePe
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
@@ -789,29 +783,31 @@ void BattlePetMgr::GrantBattlePetLevel(ObjectGuid guid, uint16 grantedLevels)
     if (pet->SaveInfo != BATTLE_PET_NEW)
         pet->SaveInfo = BATTLE_PET_CHANGED;
 
-    std::vector<std::reference_wrapper<BattlePet>> updates;
-    updates.push_back(std::ref(*pet));
-    SendUpdates(std::move(updates), false);
+    std::array<std::reference_wrapper<BattlePet const>, 1> updates = { *pet };
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::HealBattlePetsPct(uint8 pct)
 {
     // TODO: After each Pet Battle, any injured companion will automatically
     // regain 50 % of the damage that was taken during combat
-    std::vector<std::reference_wrapper<BattlePet>> updates;
+    std::vector<std::reference_wrapper<BattlePet const>> updates;
 
-    for (auto& pet : _pets)
-        if (pet.second.PacketInfo.Health != pet.second.PacketInfo.MaxHealth)
-        {
-            pet.second.PacketInfo.Health += CalculatePct(pet.second.PacketInfo.MaxHealth, pct);
-            // don't allow Health to be greater than MaxHealth
-            pet.second.PacketInfo.Health = std::min(pet.second.PacketInfo.Health, pet.second.PacketInfo.MaxHealth);
-            if (pet.second.SaveInfo != BATTLE_PET_NEW)
-                pet.second.SaveInfo = BATTLE_PET_CHANGED;
-            updates.push_back(std::ref(pet.second));
-        }
+    for (auto& [_, pet] : _pets)
+    {
+        if (pet.PacketInfo.Health == pet.PacketInfo.MaxHealth)
+            continue;
 
-    SendUpdates(std::move(updates), false);
+        pet.PacketInfo.Health += CalculatePct(pet.PacketInfo.MaxHealth, pct);
+        // don't allow Health to be greater than MaxHealth
+        pet.PacketInfo.Health = std::min(pet.PacketInfo.Health, pet.PacketInfo.MaxHealth);
+        if (pet.SaveInfo != BATTLE_PET_NEW)
+            pet.SaveInfo = BATTLE_PET_CHANGED;
+
+        updates.push_back(pet);
+    }
+
+    SendUpdates(updates, false);
 }
 
 void BattlePetMgr::UpdateBattlePetData(ObjectGuid guid)
@@ -885,12 +881,10 @@ void BattlePetMgr::SendJournal()
     _owner->SendPacket(battlePetJournal.Write());
 }
 
-void BattlePetMgr::SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded)
+void BattlePetMgr::SendUpdates(std::span<std::reference_wrapper<BattlePet const> const> pets, bool petAdded)
 {
     WorldPackets::BattlePet::BattlePetUpdates updates;
-    for (BattlePet& pet : pets)
-        updates.Pets.push_back(std::ref(pet.PacketInfo));
-
+    std::ranges::transform(pets, std::back_inserter(updates.Pets), &BattlePet::PacketInfo);
     updates.PetAdded = petAdded;
     _owner->SendPacket(updates.Write());
 }

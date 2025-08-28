@@ -1205,6 +1205,11 @@ void World::LoadConfigSettings(bool reload)
     if (m_int_configs[CONFIG_PACKET_SPOOF_BANMODE] == BAN_CHARACTER)
         m_int_configs[CONFIG_PACKET_SPOOF_BANMODE] = BAN_ACCOUNT;
 
+    _gameRules =
+    {
+        { .Rule = ::GameRule::TransmogEnabled, .Value = true }
+    };
+
     if (reload)
     {
         sSupportMgr->SetSupportSystemStatus(m_bool_configs[CONFIG_SUPPORT_ENABLED]);

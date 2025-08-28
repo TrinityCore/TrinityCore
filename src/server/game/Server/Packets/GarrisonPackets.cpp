@@ -49,9 +49,9 @@ ByteBuffer& operator<<(ByteBuffer& data, GarrisonPlotInfo const& plotInfo)
 
 ByteBuffer& operator<<(ByteBuffer& data, GarrisonBuildingInfo const& buildingInfo)
 {
+    data << buildingInfo.TimeBuilt;
     data << uint32(buildingInfo.GarrPlotInstanceID);
     data << uint32(buildingInfo.GarrBuildingID);
-    data << buildingInfo.TimeBuilt;
     data << uint32(buildingInfo.CurrentGarSpecID);
     data << buildingInfo.TimeSpecCooldown;
     data << Bits<1>(buildingInfo.Active);
