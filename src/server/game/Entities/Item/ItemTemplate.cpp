@@ -20,7 +20,7 @@
 #include "Player.h"
 #include "World.h"
 
-int32 const SocketColorToGemTypeMask[30] =
+int32 const SocketColorToGemTypeMask[31] =
 {
     0,
     SOCKET_COLOR_META,
@@ -51,7 +51,8 @@ int32 const SocketColorToGemTypeMask[30] =
     SOCKET_COLOR_FRAGRANCE,
     SOCKET_COLOR_SINGING_THUNDER,
     SOCKET_COLOR_SINGING_SEA,
-    SOCKET_COLOR_SINGING_WIND
+    SOCKET_COLOR_SINGING_WIND,
+    SOCKET_COLOR_FIBER
 };
 
 char const* ItemTemplate::GetName(LocaleConstant locale) const
@@ -106,7 +107,7 @@ uint32 ItemTemplate::GetSkill() const
 
     static constexpr uint32 ItemArmorSkills[MAX_ITEM_SUBCLASS_ARMOR] =
     {
-        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0
+        0, SKILL_CLOTH, SKILL_LEATHER, SKILL_MAIL, SKILL_PLATE_MAIL, 0, SKILL_SHIELD, 0, 0, 0, 0, 0
     };
 
     static constexpr uint32 ItemProfessionSkills[MAX_ITEM_SUBCLASS_PROFESSION] =

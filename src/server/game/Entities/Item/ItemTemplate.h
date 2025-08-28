@@ -379,9 +379,10 @@ enum SocketColor
     SOCKET_COLOR_SINGING_THUNDER                = 0x08000000,
     SOCKET_COLOR_SINGING_SEA                    = 0x10000000,
     SOCKET_COLOR_SINGING_WIND                   = 0x20000000,
+    SOCKET_COLOR_FIBER                          = 0x40000000,
 };
 
-extern int32 const SocketColorToGemTypeMask[30];
+extern int32 const SocketColorToGemTypeMask[31];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
