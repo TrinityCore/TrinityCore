@@ -425,6 +425,11 @@ class spell_warr_devastator : public AuraScript
 // 184361 - Enrage
 class spell_warr_enrage_proc : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_TALENT, SPELL_WARRIOR_FRESH_MEAT_DEBUFF });
+    }
+
     static bool CheckRampageProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -434,10 +439,16 @@ class spell_warr_enrage_proc : public AuraScript
         return true;
     }
 
+    static bool IsBloodthirst(SpellInfo const* spellInfo)
+    {
+        // Bloodthirst/Bloodbath
+        return spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 });
+    }
+
     static bool CheckBloodthirstProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
+        if (!spellInfo || !IsBloodthirst(spellInfo))
             return false;
 
         // Fresh Meat talent handling
@@ -479,20 +490,15 @@ class spell_warr_enrage_proc : public AuraScript
             if (!procSpell)
                 return;
 
-            if (!procSpell->GetSpellInfo()->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 })) // Bloodthirst/Bloodbath
+            if (!IsBloodthirst(procSpell->GetSpellInfo()))
                 return;
 
             if (Unit* bloodthirstTarget = procSpell->m_targets.GetUnitTarget())
-            {
                 if (!bloodthirstTarget->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, auraTarget->GetGUID()))
-                {
                     auraTarget->CastSpell(bloodthirstTarget, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
                         .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
                     });
-                }
-            }
         }
-
     }
 
     void Register() override
@@ -600,21 +606,6 @@ class spell_warr_frenzy_rampage : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_frenzy_rampage::HandleAfterCast, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 316044 - Fresh Meat
-class spell_warr_fresh_meat_aura_dummy : public AuraScript
-{
-    void OnOwnerOutOfCombat(bool isNowInCombat)
-    {
-        if (!isNowInCombat)
-            Remove();
-    }
-
-    void Register() override
-    {
-        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_warr_fresh_meat_aura_dummy::OnOwnerOutOfCombat);
     }
 };
 
@@ -1471,7 +1462,6 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
-    RegisterSpellScript(spell_warr_fresh_meat_aura_dummy);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_jump);
