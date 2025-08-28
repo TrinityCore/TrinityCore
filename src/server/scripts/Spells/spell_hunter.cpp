@@ -45,6 +45,8 @@ enum HunterSpells
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
     SPELL_HUNTER_EMERGENCY_SALVE_DISPEL             = 459521,
+    SPELL_HUNTER_ENTRAPMENT_TALENT                  = 393344,
+    SPELL_HUNTER_ENTRAPMENT_ROOT                    = 393456,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
@@ -1162,11 +1164,22 @@ struct areatrigger_hun_tar_trap : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->HasAura(SPELL_HUNTER_ENTRAPMENT_TALENT))
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_ENTRAPMENT_ROOT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
+        {
             if (caster->IsValidAttackTarget(unit))
                 caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
     }
 
     void OnUnitExit(Unit* unit) override
