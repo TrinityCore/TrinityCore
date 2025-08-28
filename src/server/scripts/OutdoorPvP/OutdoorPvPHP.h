@@ -61,7 +61,6 @@ class OPvPCapturePointHP : public OPvPCapturePoint
         OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
         void ChangeState() override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
 
     private:
         OutdoorPvPHPTowerType m_TowerType;
@@ -78,7 +77,6 @@ class OutdoorPvPHP : public OutdoorPvP
         void HandlePlayerLeaveZone(Player* player, uint32 zone) override;
 
         bool Update(uint32 diff) override;
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         void SendRemoveWorldStates(Player* player) override;
         void HandleKillImpl(Player* player, Unit* killed) override;
 
