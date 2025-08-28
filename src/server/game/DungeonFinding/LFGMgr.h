@@ -309,6 +309,7 @@ struct LFGDungeonData
     float x, y, z, o;
     uint16 requiredItemLevel;
     uint32 finalDungeonEncounterId;
+    uint32 reuiredPlayerCondition;
 
     // Helpers
     uint32 Entry() const { return id + (type << 24); }

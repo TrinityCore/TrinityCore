@@ -382,6 +382,7 @@ DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("Transmog
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", &TransmogSetItemLoadInfo::Instance);
 DB2Storage<TransportAnimationEntry>             sTransportAnimationStore("TransportAnimation.db2", &TransportAnimationLoadInfo::Instance);
 DB2Storage<TransportRotationEntry>              sTransportRotationStore("TransportRotation.db2", &TransportRotationLoadInfo::Instance);
+DB2Storage<UIChromieTimeExpansionInfoEntry>     sUIChromieTimeExpansionInfoStore("UIChromieTimeExpansionInfo.db2", &UiChromieTimeExpansionInfoLoadInfo::Instance);
 DB2Storage<UiMapEntry>                          sUiMapStore("UiMap.db2", &UiMapLoadInfo::Instance);
 DB2Storage<UiMapAssignmentEntry>                sUiMapAssignmentStore("UiMapAssignment.db2", &UiMapAssignmentLoadInfo::Instance);
 DB2Storage<UiMapLinkEntry>                      sUiMapLinkStore("UiMapLink.db2", &UiMapLinkLoadInfo::Instance);
@@ -539,6 +540,7 @@ namespace
     std::unordered_map<uint32, TransmogIllusionEntry const*> _transmogIllusionsByEnchantmentId;
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
     std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
+    std::unordered_map<uint32, UIChromieTimeExpansionInfoEntry const*> _chromieTimeExpansionInfo;
     std::unordered_map<int32, UiMapBounds> _uiMapBounds;
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByMap[MAX_UI_MAP_SYSTEM];
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByArea[MAX_UI_MAP_SYSTEM];
@@ -1013,6 +1015,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTransmogSetItemStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
+    LOAD_DB2(sUIChromieTimeExpansionInfoStore);
     LOAD_DB2(sUiMapStore);
     LOAD_DB2(sUiMapAssignmentStore);
     LOAD_DB2(sUiMapLinkStore);
@@ -1622,6 +1625,9 @@ void DB2Manager::IndexLoadedStores()
         _transmogSetsByItemModifiedAppearance[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
         _transmogSetItemsByTransmogSet[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
     }
+
+    for (UIChromieTimeExpansionInfoEntry const* uiChromieTimeExpansion : sUIChromieTimeExpansionInfoStore)
+        _chromieTimeExpansionInfo.emplace(uiChromieTimeExpansion->ID, uiChromieTimeExpansion);
 
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> uiMapAssignmentByUiMap;
     for (UiMapAssignmentEntry const* uiMapAssignment : sUiMapAssignmentStore)
