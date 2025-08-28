@@ -50,6 +50,8 @@ enum WarriorSpells
     SPELL_WARRIOR_FRENZIED_ENRAGE                   = 383848,
     SPELL_WARRIOR_FRENZY_TALENT                     = 335077,
     SPELL_WARRIOR_FRENZY_BUFF                       = 335082,
+    SPELL_WARRIOR_FRESH_MEAT_DEBUFF                 = 316044,
+    SPELL_WARRIOR_FRESH_MEAT_TALENT                 = 215568,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -423,6 +425,11 @@ class spell_warr_devastator : public AuraScript
 // 184361 - Enrage
 class spell_warr_enrage_proc : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_FRESH_MEAT_TALENT, SPELL_WARRIOR_FRESH_MEAT_DEBUFF });
+    }
+
     static bool CheckRampageProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
@@ -432,11 +439,35 @@ class spell_warr_enrage_proc : public AuraScript
         return true;
     }
 
+    static bool IsBloodthirst(SpellInfo const* spellInfo)
+    {
+        // Bloodthirst/Bloodbath
+        return spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 });
+    }
+
     static bool CheckBloodthirstProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         SpellInfo const* spellInfo = eventInfo.GetSpellInfo();
-        if (!spellInfo || !spellInfo->IsAffected(SPELLFAMILY_WARRIOR, { 0x0, 0x400 }))  // Bloodthirst/Bloodbath
+        if (!spellInfo || !IsBloodthirst(spellInfo))
             return false;
+
+        // Fresh Meat talent handling
+        if (Unit const* actor = eventInfo.GetActor())
+        {
+            if (actor->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
+            {
+                Spell const* procSpell = eventInfo.GetProcSpell();
+                if (!procSpell)
+                    return false;
+
+                Unit const* target = procSpell->m_targets.GetUnitTarget();
+                if (!target)
+                    return false;
+
+                if (!target->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, actor->GetGUID()))
+                    return true;
+            }
+        }
 
         return roll_chance_i(aurEff->GetAmount());
     }
@@ -445,10 +476,29 @@ class spell_warr_enrage_proc : public AuraScript
     {
         PreventDefaultAction();
 
-        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+        Unit* auraTarget = GetTarget();
+
+        auraTarget->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = eventInfo.GetProcSpell()
         });
+
+        // Fresh Meat talent handling
+        if (auraTarget->HasAura(SPELL_WARRIOR_FRESH_MEAT_TALENT))
+        {
+            Spell const* procSpell = eventInfo.GetProcSpell();
+            if (!procSpell)
+                return;
+
+            if (!IsBloodthirst(procSpell->GetSpellInfo()))
+                return;
+
+            if (Unit* bloodthirstTarget = procSpell->m_targets.GetUnitTarget())
+                if (!bloodthirstTarget->HasAura(SPELL_WARRIOR_FRESH_MEAT_DEBUFF, auraTarget->GetGUID()))
+                    auraTarget->CastSpell(bloodthirstTarget, SPELL_WARRIOR_FRESH_MEAT_DEBUFF, CastSpellExtraArgsInit{
+                        .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+                    });
+        }
     }
 
     void Register() override
