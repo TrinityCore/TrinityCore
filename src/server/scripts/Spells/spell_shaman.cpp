@@ -93,6 +93,7 @@ enum ShamanSpells
     SPELL_SHAMAN_HAILSTORM_BUFF                 = 334196,
     SPELL_SHAMAN_HAILSTORM_TALENT               = 334195,
     SPELL_SHAMAN_HEALING_RAIN_VISUAL            = 147490,
+    SPELL_SHAMAN_HEALING_RAIN                   = 73920,
     SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ICE_STRIKE_OVERRIDE_AURA       = 466469,
     SPELL_SHAMAN_ICE_STRIKE_PROC                = 466467,
@@ -609,6 +610,11 @@ class spell_sha_deluge : public SpellScript
     }
 };
 
+namespace HealingRain
+{
+Position GetHealingRainPosition(Aura const* healingRain);
+}
+
 // 200075 - Deluge (attached to 73920 - Healing Rain)
 class spell_sha_deluge_healing_rain : public AuraScript
 {
@@ -624,7 +630,7 @@ class spell_sha_deluge_healing_rain : public AuraScript
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
-        GetCaster()->CastSpell(GetCaster()->GetPosition(), SPELL_SHAMAN_DELUGE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->CastSpell(HealingRain::GetHealingRainPosition(GetAura()), SPELL_SHAMAN_DELUGE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -1306,6 +1312,8 @@ public:
         _dest = summon->GetPosition();
     }
 
+    Position GetPosition() const { return _dest; }
+
 private:
     void HandleEffectPeriodic(AuraEffect const* aurEff) const
     {
@@ -1330,6 +1338,14 @@ private:
     ObjectGuid _visualDummy;
     Position _dest;
 };
+
+Position HealingRain::GetHealingRainPosition(Aura const* healingRain)
+{
+    if (spell_sha_healing_rain_aura const* script = healingRain->GetScript<spell_sha_healing_rain_aura>())
+        return script->GetPosition();
+
+    return healingRain->GetUnitOwner()->GetPosition();
+}
 
 // 73920 - Healing Rain
 class spell_sha_healing_rain : public SpellScript
