@@ -138,7 +138,7 @@ class spell_warr_anger_management_proc : public AuraScript
         if (!procSpell)
             return false;
 
-        if (procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) == 0)
+        if (procSpell->GetPowerTypeCostAmount(POWER_RAGE) <= 0)
             return false;
 
         return player->GetPrimarySpecialization() == spec;
@@ -146,7 +146,14 @@ class spell_warr_anger_management_proc : public AuraScript
 
     static bool CheckArmsProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorArms);
+        if (!ValidateProc(aurEff, eventInfo, ChrSpecialization::WarriorArms))
+            return false;
+
+        // exclude non-attacks such as Ignore Pain
+        if (!eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_WARRIOR, { 0x100, 0x0, 0x0, 0x0 }))
+            return false;
+
+        return true;
     }
 
     static bool CheckFuryProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -173,23 +180,19 @@ class spell_warr_anger_management_proc : public AuraScript
         });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, std::array<int32, 3> const& spellIds) const
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo, std::span<int32 const> spellIds) const
     {
-        int32 const rageCost = eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) / 10; // db values are 10x the actual rage cost
-        float const multiplier  = static_cast<float>(rageCost) / static_cast<float>(aurEff->GetAmount());
-        Milliseconds const cooldownMod = -Milliseconds(static_cast<int32>(multiplier * CooldownReduction.count()));
+        int32 rageCost = *eventInfo.GetProcSpell()->GetPowerTypeCostAmount(POWER_RAGE) / 10; // db values are 10x the actual rage cost
+        float multiplier  = static_cast<float>(rageCost) / static_cast<float>(aurEff->GetAmount());
+        Milliseconds cooldownMod = -duration_cast<Milliseconds>(multiplier * CooldownReduction);
 
-        for (int32 const spellId : spellIds)
-            if (spellId > 0)
-                GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, cooldownMod);
+        for (int32 spellId : spellIds)
+            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, cooldownMod);
     }
 
     void OnProcArms(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        if (GetTarget()->HasSpell(SPELL_WARRIOR_WARBREAKER))
-            HandleProc(aurEff, eventInfo, ArmsWarbreakerSpellIds);
-        else
-            HandleProc(aurEff, eventInfo, ArmsColossusSmashSpellIds);
+        HandleProc(aurEff, eventInfo, ArmsSpellIds);
     }
 
     void OnProcFury(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
@@ -213,11 +216,10 @@ class spell_warr_anger_management_proc : public AuraScript
         OnEffectProc += AuraEffectProcFn(spell_warr_anger_management_proc::OnProcFury, EFFECT_2, SPELL_AURA_DUMMY);
     }
 
-    static constexpr Milliseconds CooldownReduction = 1000ms;
-    static constexpr std::array<int32, 3> ArmsColossusSmashSpellIds = { SPELL_WARRIOR_COLOSSUS_SMASH, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
-    static constexpr std::array<int32, 3> ArmsWarbreakerSpellIds = { SPELL_WARRIOR_WARBREAKER, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
+    static constexpr FloatMilliseconds CooldownReduction = 1s;
+    static constexpr std::array<int32, 4> ArmsSpellIds = { SPELL_WARRIOR_COLOSSUS_SMASH, SPELL_WARRIOR_WARBREAKER, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
     static constexpr std::array<int32, 3> FurySpellIds = { SPELL_WARRIOR_RECKLESSNESS, SPELL_WARRIOR_BLADESTORM, SPELL_WARRIOR_RAVAGER };
-    static constexpr std::array<int32, 3> ProtectionSpellIds = { SPELL_WARRIOR_AVATAR, SPELL_WARRIOR_SHIELD_WALL, 0 };
+    static constexpr std::array<int32, 2> ProtectionSpellIds = { SPELL_WARRIOR_AVATAR, SPELL_WARRIOR_SHIELD_WALL };
 };
 
 // 392536 - Ashen Juggernaut
