@@ -54,6 +54,8 @@ enum ShamanSpells
     SPELL_SHAMAN_CRASH_LIGHTNING                = 187874,
     SPELL_SHAMAN_CRASH_LIGHTNING_CLEAVE         = 187878,
     SPELL_SHAMAN_CRASH_LIGHTNING_DAMAGE_BUFF    = 333964,
+    SPELL_SHAMAN_DELUGE_AURA                    = 200075,
+    SPELL_SHAMAN_DELUGE_TALENT                  = 200076,
     SPELL_SHAMAN_DOOM_WINDS_DAMAGE              = 469270,
     SPELL_SHAMAN_DOOM_WINDS_LEGENDARY_COOLDOWN  = 335904,
     SPELL_SHAMAN_EARTHQUAKE                     = 61882,
@@ -91,6 +93,7 @@ enum ShamanSpells
     SPELL_SHAMAN_HAILSTORM_BUFF                 = 334196,
     SPELL_SHAMAN_HAILSTORM_TALENT               = 334195,
     SPELL_SHAMAN_HEALING_RAIN_VISUAL            = 147490,
+    SPELL_SHAMAN_HEALING_RAIN                   = 73920,
     SPELL_SHAMAN_HEALING_RAIN_HEAL              = 73921,
     SPELL_SHAMAN_ICE_STRIKE_OVERRIDE_AURA       = 466469,
     SPELL_SHAMAN_ICE_STRIKE_PROC                = 466467,
@@ -582,6 +585,57 @@ class spell_sha_crash_lightning : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_sha_crash_lightning::TriggerCleaveBuff, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 200076 - Deluge (attached to 77472 - Healing Wave, 8004 - Healing Surge and 1064 - Chain Heal
+class spell_sha_deluge : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_RIPTIDE, SPELL_SHAMAN_DELUGE_AURA })
+            && ValidateSpellEffect({ { SPELL_SHAMAN_DELUGE_TALENT, EFFECT_0 } });
+    }
+
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect const* deluge = GetCaster()->GetAuraEffect(SPELL_SHAMAN_DELUGE_TALENT, EFFECT_0))
+            if (victim->GetAura(SPELL_SHAMAN_RIPTIDE, GetCaster()->GetGUID()) || victim->GetAura(SPELL_SHAMAN_DELUGE_AURA, GetCaster()->GetGUID()))
+                AddPct(pctMod, deluge->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_sha_deluge::CalculateHealingBonus);
+    }
+};
+
+namespace HealingRain
+{
+Position GetHealingRainPosition(Aura const* healingRain);
+}
+
+// 200075 - Deluge (attached to 73920 - Healing Rain)
+class spell_sha_deluge_healing_rain : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SHAMAN_DELUGE_TALENT, SPELL_SHAMAN_DELUGE_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_SHAMAN_DELUGE_TALENT);
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        GetCaster()->CastSpell(HealingRain::GetHealingRainPosition(GetAura()), SPELL_SHAMAN_DELUGE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_deluge_healing_rain::HandleEffectPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1258,6 +1312,8 @@ public:
         _dest = summon->GetPosition();
     }
 
+    Position GetPosition() const { return _dest; }
+
 private:
     void HandleEffectPeriodic(AuraEffect const* aurEff) const
     {
@@ -1282,6 +1338,14 @@ private:
     ObjectGuid _visualDummy;
     Position _dest;
 };
+
+Position HealingRain::GetHealingRainPosition(Aura const* healingRain)
+{
+    if (spell_sha_healing_rain_aura const* script = healingRain->GetScript<spell_sha_healing_rain_aura>())
+        return script->GetPosition();
+
+    return healingRain->GetUnitOwner()->GetPosition();
+}
 
 // 73920 - Healing Rain
 class spell_sha_healing_rain : public SpellScript
@@ -3361,6 +3425,8 @@ void AddSC_shaman_spell_scripts()
     RegisterSpellScriptWithArgs(spell_sha_delayed_stormstrike_mod_charge_drop_proc, "spell_sha_converging_storms_buff");
     RegisterSpellScript(spell_sha_crash_lightning);
     RegisterSpellScript(spell_sha_deeply_rooted_elements);
+    RegisterSpellScript(spell_sha_deluge);
+    RegisterSpellScript(spell_sha_deluge_healing_rain);
     RegisterSpellScript(spell_sha_doom_winds);
     RegisterSpellScript(spell_sha_doom_winds_legendary);
     RegisterSpellScript(spell_sha_downpour);

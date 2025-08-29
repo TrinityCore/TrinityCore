@@ -141,6 +141,9 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_UMBRAL_EMBRACE                 = 393763,
+    SPELL_DRUID_UMBRAL_INSPIRATION_TALENT      = 450418,
+    SPELL_DRUID_UMBRAL_INSPIRATION_AURA        = 450419,
     SPELL_DRUID_URSOCS_FURY_SHIELD             = 372505,
     SPELL_DRUID_YSERAS_GIFT_HEAL_PARTY         = 145110,
     SPELL_DRUID_YSERAS_GIFT_HEAL_SELF          = 145109
@@ -2348,6 +2351,79 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 393763 - Umbral Embrace
+class spell_dru_umbral_embrace : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_LUNAR_AURA, SPELL_DRUID_ECLIPSE_SOLAR_AURA });
+    }
+
+    static bool CheckEclipse(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_AURA) || eventInfo.GetActor()->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_AURA);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_umbral_embrace::CheckEclipse);
+    }
+};
+
+// 393763 - Umbral Embrace (attached to 190984 - Wrath and 194153 - Starfire)
+class spell_dru_umbral_embrace_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ECLIPSE_LUNAR_AURA, SPELL_DRUID_ECLIPSE_SOLAR_AURA })
+            && ValidateSpellEffect({ { SPELL_DRUID_UMBRAL_EMBRACE, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DRUID_ECLIPSE_LUNAR_AURA) || GetCaster()->HasAura(SPELL_DRUID_ECLIPSE_SOLAR_AURA);
+    }
+
+    void HandleDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect const* umbralEmbrace = GetCaster()->GetAuraEffect(SPELL_DRUID_UMBRAL_EMBRACE, EFFECT_0))
+            AddPct(pctMod, umbralEmbrace->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dru_umbral_embrace_damage::HandleDamage);
+    }
+};
+
+// Called by 393763 - Umbral Embrace
+class spell_dru_umbral_inspiration : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_UMBRAL_INSPIRATION_TALENT, SPELL_DRUID_UMBRAL_INSPIRATION_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DRUID_UMBRAL_INSPIRATION_TALENT);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DRUID_UMBRAL_INSPIRATION_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dru_umbral_inspiration::HandleProc, EFFECT_2, SPELL_AURA_DUMMY);
+    }
+};
+
 // 377210 - Ursoc's Fury
 class spell_dru_ursocs_fury : public AuraScript
 {
@@ -2551,6 +2627,9 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_umbral_embrace);
+    RegisterSpellScript(spell_dru_umbral_embrace_damage);
+    RegisterSpellScript(spell_dru_umbral_inspiration);
     RegisterSpellScript(spell_dru_ursocs_fury);
     RegisterSpellAndAuraScriptPair(spell_dru_wild_growth, spell_dru_wild_growth_aura);
     RegisterSpellScript(spell_dru_yseras_gift);
