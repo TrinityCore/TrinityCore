@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerAI.h"
 #include "Containers.h"
 #include "Conversation.h"
 #include "ConversationAI.h"
@@ -89,10 +91,37 @@ class spell_drustvar_dismiss_tradewind : public SpellScript
     }
 };
 
+enum ShootWickermanData
+{
+    NPC_DRUSTVAR_CHARGING_FAMILIAR  = 137841,
+    SPELL_DRUSTVAR_SHOOT_WICKERMAN  = 255416
+};
+
+// XXX - Areatrigger
+struct at_drustvar_timbered_strand_shoot_wickerman : AreaTriggerAI
+{
+    at_drustvar_timbered_strand_shoot_wickerman(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsCreature() || unit->GetEntry() != NPC_DRUSTVAR_CHARGING_FAMILIAR)
+            return;
+
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_DRUSTVAR_SHOOT_WICKERMAN, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+    }
+};
+
 void AddSC_zone_drustvar()
 {
     // Conversation
     RegisterConversationAI(conversation_drustvar_really_big_problem_complete);
+
+    // Areatrigger
+    RegisterAreaTriggerAI(at_drustvar_timbered_strand_shoot_wickerman);
 
     // Spells
     RegisterSpellScript(spell_drustvar_dismiss_tradewind);
