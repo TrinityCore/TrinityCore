@@ -23,7 +23,9 @@ jobs:
       run: |
         brew update
         brew uninstall openssl@1.1
-        brew install mysql openssl readline cmake boost coreutils ninja
+        for pkg in mysql openssl readline cmake boost coreutils ninja; do
+          brew ls --versions $pkg || brew install $pkg
+        done
         brew config
 
     - name: Check some deps
