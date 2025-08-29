@@ -252,8 +252,7 @@ void SpellHistory::HandleCooldowns(SpellInfo const* spellInfo, uint32 itemId, Sp
     if (spell && spell->IsIgnoringCooldowns())
         return;
 
-    if (ConsumeCharge(spellInfo->ChargeCategoryId))
-        return;
+    ConsumeCharge(spellInfo->ChargeCategoryId);
 
     if (_owner->HasAuraTypeWithAffectMask(SPELL_AURA_IGNORE_SPELL_COOLDOWN, spellInfo))
         return;
@@ -594,7 +593,7 @@ void SpellHistory::AddCooldown(uint32 spellId, uint32 itemId, TimePoint cooldown
 void SpellHistory::ModifySpellCooldown(uint32 spellId, Duration cooldownMod, bool withoutCategoryCooldown)
 {
     auto itr = _spellCooldowns.find(spellId);
-    if (!cooldownMod.count() || itr == _spellCooldowns.end())
+    if (itr == _spellCooldowns.end())
         return;
 
     ModifySpellCooldown(itr, cooldownMod, withoutCategoryCooldown);
@@ -665,10 +664,8 @@ void SpellHistory::ModifyCooldown(SpellInfo const* spellInfo, Duration cooldownM
     if (!cooldownMod.count())
         return;
 
-    if (GetChargeRecoveryTime(spellInfo->ChargeCategoryId) > 0 && GetMaxCharges(spellInfo->ChargeCategoryId) > 0)
-        ModifyChargeRecoveryTime(spellInfo->ChargeCategoryId, cooldownMod);
-    else
-        ModifySpellCooldown(spellInfo->Id, cooldownMod, withoutCategoryCooldown);
+    ModifyChargeRecoveryTime(spellInfo->ChargeCategoryId, cooldownMod);
+    ModifySpellCooldown(spellInfo->Id, cooldownMod, withoutCategoryCooldown);
 }
 
 void SpellHistory::ResetCooldown(uint32 spellId, bool update /*= false*/)
@@ -851,29 +848,26 @@ bool SpellHistory::IsSchoolLocked(SpellSchoolMask schoolMask) const
     return false;
 }
 
-bool SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
+void SpellHistory::ConsumeCharge(uint32 chargeCategoryId)
 {
     if (!sSpellCategoryStore.LookupEntry(chargeCategoryId))
-        return false;
+        return;
 
     int32 chargeRecovery = GetChargeRecoveryTime(chargeCategoryId);
-    if (chargeRecovery > 0 && GetMaxCharges(chargeCategoryId) > 0)
-    {
-        if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_IGNORE_SPELL_CHARGE_COOLDOWN, chargeCategoryId))
-            return true;
+    if (chargeRecovery <= 0 || GetMaxCharges(chargeCategoryId) <= 0)
+        return;
 
-        TimePoint recoveryStart;
-        std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
-        if (charges.empty())
-            recoveryStart = time_point_cast<Duration>(GameTime::GetTime<Clock>());
-        else
-            recoveryStart = charges.back().RechargeEnd;
+    if (_owner->HasAuraTypeWithMiscvalue(SPELL_AURA_IGNORE_SPELL_CHARGE_COOLDOWN, chargeCategoryId))
+        return;
 
-        charges.emplace_back(recoveryStart, Milliseconds(chargeRecovery));
-        return true;
-    }
+    TimePoint recoveryStart;
+    std::deque<ChargeEntry>& charges = _categoryCharges[chargeCategoryId];
+    if (charges.empty())
+        recoveryStart = time_point_cast<Duration>(GameTime::GetTime<Clock>());
+    else
+        recoveryStart = charges.back().RechargeEnd;
 
-    return false;
+    charges.emplace_back(recoveryStart, Milliseconds(chargeRecovery));
 }
 
 void SpellHistory::ModifyChargeRecoveryTime(uint32 chargeCategoryId, Duration cooldownMod)
