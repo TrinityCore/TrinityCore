@@ -15,56 +15,88 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Magmadar
-SD%Complete: 75
-SDComment: Conflag on ground nyi
-SDCategory: Molten Core
-EndScriptData */
+/*
+ * Lava Bomb requires additional research. Both spells can target mana-users. Doesn't look like they're used randomly. Only one spell is used every 12-15 seconds.
+ Looks like the spell boss uses depends on HP PCT but exact PCT is unknown. That should be double-checked
+ */
 
 #include "ScriptMgr.h"
 #include "molten_core.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
-enum Texts
+enum MagmadarTexts
 {
-    EMOTE_FRENZY        = 0
+    EMOTE_FRENZY                = 0,
+    EMOTE_EXHAUSTED             = 1
 };
 
-enum Spells
+enum MagmadarSpells
 {
-    SPELL_FRENZY        = 19451,
-    SPELL_MAGMA_SPIT    = 19449,
-    SPELL_PANIC         = 19408,
-    SPELL_LAVA_BOMB     = 19428,
+    SPELL_MAGMA_SPIT            = 19449,
+
+    SPELL_FRENZY                = 19451,
+    SPELL_PANIC                 = 19408,
+    SPELL_LAVA_BOMB_1           = 19411,
+    SPELL_LAVA_BOMB_2           = 20474,
+
+    SPELL_SUMMON_LAVA_BOMB_1    = 20494,
+    SPELL_SUMMON_LAVA_BOMB_2    = 20495
 };
 
-enum Events
+enum MagmadarEvents
 {
-    EVENT_FRENZY        = 1,
-    EVENT_PANIC         = 2,
-    EVENT_LAVA_BOMB     = 3,
+    EVENT_FRENZY                = 1,
+    EVENT_PANIC,
+    EVENT_LAVA_BOMB_1,
+    EVENT_LAVA_BOMB_2,
+
+    EVENT_EXHAUSTED
 };
 
+// 11982 - Magmadar
 struct boss_magmadar : public BossAI
 {
-    boss_magmadar(Creature* creature) : BossAI(creature, BOSS_MAGMADAR)
-    {
-    }
+    boss_magmadar(Creature* creature) : BossAI(creature, BOSS_MAGMADAR), _lavaBombSwitched(false), _isExhausted(false) { }
 
     void Reset() override
     {
-        BossAI::Reset();
-        DoCast(me, SPELL_MAGMA_SPIT, true);
+        _Reset();
+        _lavaBombSwitched = false;
+        _isExhausted = false;
+        DoCastSelf(SPELL_MAGMA_SPIT);
     }
 
-    void JustEngagedWith(Unit* victim) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(victim);
-        events.ScheduleEvent(EVENT_FRENZY, 30s);
-        events.ScheduleEvent(EVENT_PANIC, 20s);
-        events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_FRENZY, 5s, 10s);
+        events.ScheduleEvent(EVENT_PANIC, 5s, 10s);
+        events.ScheduleEvent(EVENT_LAVA_BOMB_1, 10s, 15s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_lavaBombSwitched && me->HealthBelowPctDamaged(60, damage))
+        {
+            _lavaBombSwitched = true;
+            events.CancelEvent(EVENT_LAVA_BOMB_1);
+            events.ScheduleEvent(EVENT_LAVA_BOMB_2, 10s, 15s);
+        }
+
+        if (!_isExhausted && me->HealthBelowPctDamaged(2, damage))
+        {
+            _isExhausted = true;
+            events.ScheduleEvent(EVENT_EXHAUSTED, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FRENZY)
+            Talk(EMOTE_FRENZY);
     }
 
     void UpdateAI(uint32 diff) override
@@ -82,18 +114,26 @@ struct boss_magmadar : public BossAI
             switch (eventId)
             {
                 case EVENT_FRENZY:
-                    Talk(EMOTE_FRENZY);
-                    DoCast(me, SPELL_FRENZY);
-                    events.ScheduleEvent(EVENT_FRENZY, 15s);
+                    DoCastSelf(SPELL_FRENZY);
+                    events.Repeat(15s, 20s);
                     break;
                 case EVENT_PANIC:
-                    DoCastVictim(SPELL_PANIC);
-                    events.ScheduleEvent(EVENT_PANIC, 35s);
+                    DoCastSelf(SPELL_PANIC);
+                    events.Repeat(30s, 35s);
                     break;
-                case EVENT_LAVA_BOMB:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_LAVA_BOMB))
-                        DoCast(target, SPELL_LAVA_BOMB);
-                    events.ScheduleEvent(EVENT_LAVA_BOMB, 12s);
+                case EVENT_LAVA_BOMB_1:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_LAVA_BOMB_1);
+                    events.Repeat(12s, 15s);
+                    break;
+                case EVENT_LAVA_BOMB_2:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_LAVA_BOMB_2);
+                    events.Repeat(12s, 15s);
+                    break;
+
+                case EVENT_EXHAUSTED:
+                    Talk(EMOTE_EXHAUSTED);
                     break;
                 default:
                     break;
@@ -105,9 +145,45 @@ struct boss_magmadar : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _lavaBombSwitched;
+    bool _isExhausted;
+};
+
+// 19411, 20474 - Lava Bomb
+class spell_magmadar_lava_bomb : public SpellScript
+{
+    PrepareSpellScript(spell_magmadar_lava_bomb);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_LAVA_BOMB_1, SPELL_SUMMON_LAVA_BOMB_2 });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        switch (GetSpellInfo()->Id)
+        {
+            case SPELL_LAVA_BOMB_1:
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_LAVA_BOMB_1, true);
+                break;
+            case SPELL_LAVA_BOMB_2:
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_SUMMON_LAVA_BOMB_2, true);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_magmadar_lava_bomb::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_magmadar()
 {
     RegisterMoltenCoreCreatureAI(boss_magmadar);
+    RegisterSpellScript(spell_magmadar_lava_bomb);
 }
