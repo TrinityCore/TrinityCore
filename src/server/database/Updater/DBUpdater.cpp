@@ -382,6 +382,13 @@ void DBUpdater<T>::ApplyFile(DatabaseWorkerPool<T>& pool, std::string const& hos
 
 #endif
 
+#if !defined(MARIADB_VERSION_ID) && MYSQL_VERSION_ID >= 90400
+
+    // Needed to execute the SQL file through CLI, as using `SOURCE` is disabled by default.
+    args.emplace_back("--commands=ON");
+
+#endif
+
     // Execute sql file
     args.emplace_back("-e");
     args.emplace_back(Trinity::StringFormat("BEGIN; SOURCE {}; COMMIT;", path.generic_string()));
