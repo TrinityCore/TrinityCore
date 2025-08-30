@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 set(MYSQL_MIN_VERSION_MySQL 8.0.34)
-set(MYSQL_MIN_VERSION_MariaDB 10.4)
+set(MYSQL_MIN_VERSION_MariaDB 10.6.3)
 find_package(MySQL COMPONENTS lib)
 
 add_library(mysql INTERFACE)
