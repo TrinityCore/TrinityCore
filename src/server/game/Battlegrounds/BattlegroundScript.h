@@ -19,6 +19,7 @@
 #define TRINITY_BATTLEGROUND_SCRIPT_H
 
 #include "SharedDefines.h"
+#include "TaskScheduler.h"
 #include "ZoneScript.h"
 
 #ifdef TRINITY_API_USE_DYNAMIC_LINKING
@@ -69,9 +70,16 @@ public:
     explicit ArenaScript(BattlegroundMap* map);
     ~ArenaScript() override = default;
 
+    virtual void OnStart() override;
+    virtual void OnUpdate(uint32 diff) override;
+
+    virtual void OnShadowSightEnabled() { }
+
 protected:
     GameObject* CreateObject(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, GOState goState = GO_STATE_READY) const;
     Creature* CreateCreature(uint32 entry, float x, float y, float z, float o) const;
+
+    TaskScheduler Scheduler;
 };
 
 #endif // TRINITY_BATTLEGROUND_SCRIPT_H
