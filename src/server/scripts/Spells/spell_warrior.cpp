@@ -58,6 +58,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
+    SPELL_WARRIOR_GUSHING_WOUND                     = 385042,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
     SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
@@ -395,6 +396,27 @@ class spell_warr_charge_effect : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_warr_charge_effect::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
+};
+
+// 383959 - Cold Steel, Hot Blood
+class spell_warr_cold_steel_hot_blood_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_GUSHING_WOUND });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_WARRIOR_GUSHING_WOUND, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warr_cold_steel_hot_blood_proc::HandleProc);
     }
 };
 
@@ -1559,6 +1581,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
+    RegisterSpellScript(spell_warr_cold_steel_hot_blood_proc);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_deft_experience);
