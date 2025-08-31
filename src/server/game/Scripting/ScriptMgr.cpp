@@ -39,6 +39,7 @@
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "Player.h"
+#include "PlayerChoice.h"
 #include "ScriptReloadMgr.h"
 #include "ScriptSystem.h"
 #include "SmartAI.h"
@@ -140,6 +141,10 @@ struct is_script_database_bound<WorldStateScript>
 
 template<>
 struct is_script_database_bound<EventScript>
+    : std::true_type { };
+
+template<>
+struct is_script_database_bound<PlayerChoiceScript>
     : std::true_type { };
 
 enum Spells
@@ -2150,9 +2155,13 @@ void ScriptMgr::OnMovieComplete(Player* player, uint32 movieId)
     FOREACH_SCRIPT(PlayerScript)->OnMovieComplete(player, movieId);
 }
 
-void ScriptMgr::OnPlayerChoiceResponse(Player* player, uint32 choiceId, uint32 responseId)
+void ScriptMgr::OnPlayerChoiceResponse(WorldObject* object, Player* player, PlayerChoice const* choice, PlayerChoiceResponse const* response, uint16 clientIdentifier)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnPlayerChoiceResponse(player, choiceId, responseId);
+    ASSERT(choice);
+    ASSERT(response);
+
+    GET_SCRIPT(PlayerChoiceScript, choice->ScriptId, tmpscript);
+    tmpscript->OnResponse(object, player, choice, response, clientIdentifier);
 }
 
 // Account
@@ -3020,10 +3029,6 @@ void PlayerScript::OnMovieComplete(Player* /*player*/, uint32 /*movieId*/)
 {
 }
 
-void PlayerScript::OnPlayerChoiceResponse(Player* /*player*/, uint32 /*choiceId*/, uint32 /*responseId*/)
-{
-}
-
 AccountScript::AccountScript(char const* name) noexcept
     : ScriptObject(name)
 {
@@ -3232,6 +3237,18 @@ void EventScript::OnTrigger(WorldObject* /*object*/, WorldObject* /*invoker*/, u
 {
 }
 
+PlayerChoiceScript::PlayerChoiceScript(char const* name) noexcept
+    : ScriptObject(name)
+{
+    ScriptRegistry<PlayerChoiceScript>::Instance()->AddScript(this);
+}
+
+PlayerChoiceScript::~PlayerChoiceScript() = default;
+
+void PlayerChoiceScript::OnResponse(WorldObject* /*object*/, Player* /*player*/, PlayerChoice const* /*choice*/, PlayerChoiceResponse const* /*response*/, uint16 /*clientIdentifier*/)
+{
+}
+
 // Specialize for each script type class like so:
 template class TC_GAME_API ScriptRegistry<SpellScriptLoader>;
 template class TC_GAME_API ScriptRegistry<ServerScript>;
@@ -3266,3 +3283,4 @@ template class TC_GAME_API ScriptRegistry<SceneScript>;
 template class TC_GAME_API ScriptRegistry<QuestScript>;
 template class TC_GAME_API ScriptRegistry<WorldStateScript>;
 template class TC_GAME_API ScriptRegistry<EventScript>;
+template class TC_GAME_API ScriptRegistry<PlayerChoiceScript>;

@@ -18,6 +18,7 @@
  // This is where scripts' loading functions should be declared:
 void AddSC_assault_on_the_dark_portal();
 void AddSC_draenor_shadowmoon_valley();
+void AddSC_frostfire_ridge();
 void AddSC_garrison_generic();
 
 // Auchindoun
@@ -30,6 +31,7 @@ void AddDraenorScripts()
 {
     AddSC_assault_on_the_dark_portal();
     AddSC_draenor_shadowmoon_valley();
+    AddSC_frostfire_ridge();
     AddSC_garrison_generic();
 
     // Auchindoun

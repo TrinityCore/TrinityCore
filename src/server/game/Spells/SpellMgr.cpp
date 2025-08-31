@@ -1206,8 +1206,8 @@ void SpellMgr::LoadSpellTargetPositions()
         }
 
         SpellEffectInfo const& spellEffectInfo = spellInfo->GetEffect(effIndex);
-        if (!fields[7].IsNull())
-            st.SetOrientation(fields[7].GetFloat());
+        if (Optional<float> orientiation = fields[7].GetFloatOrNull())
+            st.SetOrientation(*orientiation);
         else
         {
             // target facing is in degrees for 6484 & 9268...
@@ -4042,6 +4042,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     });
 
+    // Summon Faol in Tirisfal
+    ApplySpellFix({ 202112 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
+        });
+    });
+
     //
     // VIOLET HOLD SPELLS
     //
@@ -4736,6 +4745,24 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF MAW OF SOULS SPELLS
 
     //
+    // BLACK ROOK HOLD SPELLS
+    //
+
+    // Soul Echoes
+    ApplySpellFix({ 194981 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // Vision Range (AOI)
+    });
+
+    // Soulgorge
+    ApplySpellFix({ 196930 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(7); // 10 yd
+    });
+
+    // ENDOF BLACK ROOK HOLD SPELLS
+
+    //
     // ANTORUS THE BURNING THRONE SPELLS
     //
 
@@ -5385,6 +5412,30 @@ void SpellMgr::LoadSpellInfoTargetCaps()
     ApplySpellFix({ 385060, 385061, 385062 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_LoadSqrtTargetLimit(5, 0, 385059, EFFECT_5, {}, {});
+    });
+
+    // Flame Patch
+    ApplySpellFix({ 205472 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_1, {}, {});
+    });
+
+    // Flamestrike
+    ApplySpellFix({ 2120 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, EFFECT_2, {}, {});
+    });
+
+    // Meteor
+    ApplySpellFix({ 351140 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(8, 0, {}, {}, {}, {});
+    });
+
+    // Whirlwind
+    ApplySpellFix({ 199667, 44949, 199852, 199851 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 190411, EFFECT_2, {}, {});
     });
 
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
