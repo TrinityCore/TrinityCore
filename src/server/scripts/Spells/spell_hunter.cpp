@@ -62,6 +62,7 @@ enum HunterSpells
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_DAMAGE     = 336904,
+    SPELL_HUNTER_LOCK_AND_LOAD                      = 194594,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA           = 137016,
     SPELL_HUNTER_MASTER_MARKSMAN                    = 269576,
@@ -80,6 +81,8 @@ enum HunterSpells
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
     SPELL_HUNTER_REJUVENATING_WIND_HEAL             = 385540,
     SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
+    SPELL_HUNTER_SHRAPNEL_SHOT_TALENT               = 473520,
+    SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF               = 474310,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
@@ -1006,6 +1009,30 @@ class spell_hun_scrappy : public AuraScript
     }
 };
 
+// 473520 - Shrapnel Shot
+class spell_hun_shrapnel_shot : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    {
+        if (!roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_shrapnel_shot::HandleProc);
+    }
+};
+
 // 56641 - Steady Shot
 class spell_hun_steady_shot : public SpellScript
 {
@@ -1349,6 +1376,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
+    RegisterSpellScript(spell_hun_shrapnel_shot);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_streamline);
     RegisterSpellScript(spell_hun_surging_shots);
