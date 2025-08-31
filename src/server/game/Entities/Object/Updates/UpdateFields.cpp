@@ -3475,8 +3475,8 @@ bool SpellFlatModByLabel::operator==(SpellFlatModByLabel const& right) const
 
 void CompletedProject::WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const
 {
-    data << uint32(ProjectID);
     data << int64(FirstCompleted);
+    data << uint32(ProjectID);
     data << uint32(CompletionCount);
 }
 
@@ -3493,11 +3493,11 @@ void CompletedProject::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Pla
     {
         if (changesMask[1])
         {
-            data << uint32(ProjectID);
+            data << int64(FirstCompleted);
         }
         if (changesMask[2])
         {
-            data << int64(FirstCompleted);
+            data << uint32(ProjectID);
         }
         if (changesMask[3])
         {
@@ -7839,7 +7839,7 @@ void AreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fi
     {
         ShapeData.Get<UF::AreaTriggerBox>()->WriteCreate(data, owner, receiver);
     }
-    if (ShapeType == 3)
+    if (ShapeType == 2 || ShapeType == 3 || ShapeType == 5 || ShapeType == 6)
     {
         ShapeData.Get<UF::AreaTriggerPolygon>()->WriteCreate(data, owner, receiver);
     }
@@ -8022,7 +8022,7 @@ void AreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, boo
             {
                 ShapeData.Get<UF::AreaTriggerBox>()->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }
-            if (ShapeType == 3)
+            if (ShapeType == 2 || ShapeType == 3 || ShapeType == 5 || ShapeType == 6)
             {
                 ShapeData.Get<UF::AreaTriggerPolygon>()->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
             }

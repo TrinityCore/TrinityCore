@@ -3545,6 +3545,15 @@ void ObjectMgr::LoadVehicleTemplate()
         vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
         vehicleTemplate.CustomFlags = VehicleCustomFlags(fields[3].GetInt32());
 
+        if (vehicleTemplate.DespawnDelay < 0ms)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has negative despawnDelayMs ({}).`. Ignoring",
+                creatureId, vehicleTemplate.DespawnDelay.count());
+            vehicleTemplate.DespawnDelay = 1ms;
+        }
+        else if (vehicleTemplate.DespawnDelay == 0ms)
+            vehicleTemplate.DespawnDelay = 1ms;
+
         if (vehicleTemplate.Pitch)
         {
             if (VehicleEntry const* vehicle = sVehicleStore.LookupEntry(creatureInfo->VehicleId))

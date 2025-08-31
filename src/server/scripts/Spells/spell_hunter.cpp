@@ -62,6 +62,7 @@ enum HunterSpells
     SPELL_HUNTER_LATENT_POISON_INJECTORS_DAMAGE     = 336904,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA           = 137016,
+    SPELL_HUNTER_MASTER_MARKSMAN                    = 269576,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -557,6 +558,34 @@ class spell_hun_manhunter : public AuraScript
     }
 };
 
+// 260309 - Master Marksman
+class spell_hun_master_marksman : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_MASTER_MARKSMAN });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_MASTER_MARKSMAN, DIFFICULTY_NONE)->GetMaxTicks();
+        if (!ticks)
+            return;
+
+        int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / ticks;
+
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_MASTER_MARKSMAN, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, damage } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_master_marksman::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 53271 - Masters Call
 class spell_hun_masters_call : public SpellScript
 {
@@ -690,6 +719,31 @@ class spell_hun_multi_shot : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_hun_multi_shot::HandleOnHit);
+    }
+};
+
+// 459783 - Penetrating Shots
+class spell_hun_penetrating_shots : public AuraScript
+{
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
+        {
+            float critChanceDone = GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK);
+            amount = CalculatePct(critChanceDone, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_0))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_penetrating_shots::CalcAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_DAMAGE_BONUS);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_penetrating_shots::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -1266,10 +1320,12 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_latent_poison_injectors_damage);
     RegisterSpellScript(spell_hun_latent_poison_injectors_trigger);
     RegisterSpellScript(spell_hun_manhunter);
+    RegisterSpellScript(spell_hun_master_marksman);
     RegisterSpellScript(spell_hun_masters_call);
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_multi_shot);
+    RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_precise_shots);

@@ -739,8 +739,8 @@ struct SpellFlatModByLabel : public IsUpdateFieldStructureTag
 
 struct CompletedProject : public IsUpdateFieldStructureTag, public HasChangesMask<4>
 {
-    UpdateField<uint32, 0, 1> ProjectID;
-    UpdateField<int64, 0, 2> FirstCompleted;
+    UpdateField<int64, 0, 1> FirstCompleted;
+    UpdateField<uint32, 0, 2> ProjectID;
     UpdateField<uint32, 0, 3> CompletionCount;
 
     void WriteCreate(ByteBuffer& data, Player const* owner, Player const* receiver) const;

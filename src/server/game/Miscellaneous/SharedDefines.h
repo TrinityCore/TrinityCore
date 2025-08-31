@@ -1184,52 +1184,56 @@ enum CharacterRestrictionFlags : uint32
     CHARACTER_RESTRICTION_FLAG_EXPANSION_TRIAL      = 0x00080000,
 };
 
-// Languages.db2 (9.2.0.42423)
+// Languages.db2 (11.2.5.62687)
 enum Language
 {
-    LANG_UNIVERSAL          = 0,
-    LANG_ORCISH             = 1,
-    LANG_DARNASSIAN         = 2,
-    LANG_TAURAHE            = 3,
-    LANG_DWARVISH           = 6,
-    LANG_COMMON             = 7,
-    LANG_DEMONIC            = 8,
-    LANG_TITAN              = 9,
-    LANG_THALASSIAN         = 10,
-    LANG_DRACONIC           = 11,
-    LANG_KALIMAG            = 12,
-    LANG_GNOMISH            = 13,
-    LANG_TROLL              = 14,
-    LANG_GUTTERSPEAK        = 33,
-    LANG_DRAENEI            = 35,
-    LANG_ZOMBIE             = 36,
-    LANG_GNOMISH_BINARY     = 37,
-    LANG_GOBLIN_BINARY      = 38,
-    LANG_WORGEN             = 39,
-    LANG_GOBLIN             = 40,
-    LANG_PANDAREN_NEUTRAL   = 42,
-    LANG_PANDAREN_ALLIANCE  = 43,
-    LANG_PANDAREN_HORDE     = 44,
-    LANG_SPRITE             = 168,
-    LANG_SHATH_YAR          = 178,
-    LANG_NERGLISH           = 179,
-    LANG_MOONKIN            = 180,
-    LANG_SHALASSIAN         = 181,
-    LANG_THALASSIAN_2       = 182,
-    LANG_ADDON              = 183,
-    LANG_ADDON_LOGGED       = 184,
-    LANG_VULPERA            = 285,
-    LANG_COMPLEX_CIPHER     = 287,
-    LANG_BASIC_CYPHER       = 288,
-    LANG_METRIAL            = 290,
-    LANG_ALTONIAN           = 291,
-    LANG_SOPRANIAN          = 292,
-    LANG_AEALIC             = 293,
-    LANG_DEALIC             = 294,
-    LANG_TREBELIM           = 295,
-    LANG_BASSALIM           = 296,
-    LANG_EMBEDDED_LANGUAGES = 297,
-    LANG_UNKNOWABLE         = 298,
+    LANG_UNIVERSAL            = 0,
+    LANG_ORCISH               = 1,
+    LANG_DARNASSIAN           = 2,
+    LANG_TAURAHE              = 3,
+    LANG_DWARVISH             = 6,
+    LANG_COMMON               = 7,
+    LANG_DEMONIC              = 8,
+    LANG_TITAN                = 9,
+    LANG_THALASSIAN           = 10,
+    LANG_DRACONIC             = 11,
+    LANG_KALIMAG              = 12,
+    LANG_GNOMISH              = 13,
+    LANG_TROLL                = 14,
+    LANG_GUTTERSPEAK          = 33,
+    LANG_DRAENEI              = 35,
+    LANG_ZOMBIE               = 36,
+    LANG_GNOMISH_BINARY       = 37,
+    LANG_GOBLIN_BINARY        = 38,
+    LANG_WORGEN               = 39,
+    LANG_GOBLIN               = 40,
+    LANG_PANDAREN_NEUTRAL     = 42,
+    LANG_PANDAREN_ALLIANCE    = 43,
+    LANG_PANDAREN_HORDE       = 44,
+    LANG_SPRITE               = 168,
+    LANG_SHATH_YAR            = 178,
+    LANG_NERGLISH             = 179,
+    LANG_MOONKIN              = 180,
+    LANG_SHALASSIAN           = 181,
+    LANG_THALASSIAN_2         = 182,
+    LANG_ADDON                = 183,
+    LANG_ADDON_LOGGED         = 184,
+    LANG_VULPERA              = 285,
+    LANG_COMPLEX_CIPHER       = 287,
+    LANG_BASIC_CYPHER         = 288,
+    LANG_METRIAL              = 290,
+    LANG_ALTONIAN             = 291,
+    LANG_SOPRANIAN            = 292,
+    LANG_AEALIC               = 293,
+    LANG_DEALIC               = 294,
+    LANG_TREBELIM             = 295,
+    LANG_BASSALIM             = 296,
+    LANG_EMBEDDED_LANGUAGES   = 297,
+    LANG_UNKNOWABLE           = 298,
+    LANG_FURBOLG              = 303,
+    LANG_EARTHEN              = 304,
+    LANG_NERUBIAN             = 307,
+    LANG_TONGUES_OF_SANCTUARY = 308,
 };
 
 enum TeamId
@@ -3224,7 +3228,7 @@ enum GameObjectDestructibleState
     GO_DESTRUCTIBLE_REBUILDING  = 3
 };
 
-// EmotesText.db2 (9.2.0.42423)
+// EmotesText.db2 (11.2.5.62687)
 enum TextEmotes
 {
     TEXT_EMOTE_AGREE                = 1,
@@ -3493,6 +3497,8 @@ enum TextEmotes
     TEXT_EMOTE_HUZZAH               = 624,
     TEXT_EMOTE_IMPRESSED            = 625,
     TEXT_EMOTE_MAGNIFICENT          = 626,
+    TEXT_EMOTE_QUACK                = 627,
+    TEXT_EMOTE_LEAN                 = 628,
 };
 
 // Emotes.db2 (10.1.5.50232)
@@ -3919,6 +3925,45 @@ enum Emote : uint32
     EMOTE_ONESHOT_WATHREATEN                     = 1015,
     EMOTE_ARTOFFLOOP                             = 1016,
     EMOTE_STATE_READYSPELLOMNI_NOSHEATH          = 1017,
+    EMOTE_ONESHOT_ATTACKUNARMED_VAR1             = 1019,
+    EMOTE_STATE_SIT_CHAIR_MED_EAT_LOOP           = 1021,
+    EMOTE_ONESHOT_TALK_FRUSTRATED                = 1022,
+    EMOTE_STATE_WALEAN03                         = 1023,
+    EMOTE_STATE_SHOVEL_WITH_SHOVEL               = 1024,
+    EMOTE_STATE_HOLD                             = 1027,
+    EMOTE_STATE_WA2HIDLE                         = 1029,
+    EMOTE_ONESHOT_FLYATTACKUNARMED_VAR0          = 1031,
+    EMOTE_STATE_BARTENDEMOTETALK                 = 1033,
+    EMOTE_STATE_TALK_SUBDUED                     = 1034,
+    EMOTE_STATE_READYWEAPON                      = 1035,
+    EMOTE_STATE_READYWEAPON_ALLOW_MOVEMENT       = 1036,
+    EMOTE_ONESHOT_FLYCOMBATCRITICAL              = 1040,
+    EMOTE_ONESHOT_FLYBATTLEROAR                  = 1041,
+    EMOTE_STATE_WORK_HAMMER_SOUND                = 1043,
+    EMOTE_STATE_WORK_HAMMER                      = 1044,
+    EMOTE_STATE_TALK_EXCLAMATION                 = 1048,
+    EMOTE_STATE_MOUNT_CROUCH                     = 1049,
+    EMOTE_STATE_WORK_HERBALISM_SCYTE             = 1050,
+    EMOTE_STATE_WORK_COOK_FRYING_PAN             = 1051,
+    EMOTE_STATE_WORK_LEATHERWORKING_KNIFE        = 1052,
+    EMOTE_STATE_STAND_VAR1                       = 1054,
+    EMOTE_STATE_STAND_VAR2                       = 1055,
+    EMOTE_STATE_STAND_VAR3                       = 1056,
+    EMOTE_STATE_STAND_VAR4                       = 1057,
+    EMOTE_STATE_BARSERVERSTAND                   = 1058,
+    EMOTE_ONESHOT_BARSERVER_EMOTETALK            = 1059,
+    EMOTE_STATE_STAND_VAR4_FORCEVARIANTTEST      = 1060,
+    EMOTE_WADARTTARGETSTAND                      = 1062,
+    EMOTE_ONESHOT_THOUSANDFISTS                  = 1068,
+    EMOTE_ONESHOT_OFFER_START                    = 1069,
+    EMOTE_ONESHOT_OFFER_END                      = 1070,
+    EMOTE_STATE_OFFER_LOOP                       = 1071,
+    EMOTE_ONESHOT_DANCE_VAR2                     = 1075,
+    EMOTE_STATE_KNEEL_INTERACT_INTERRUPT         = 1081,
+    EMOTE_STATE_WA2HIDLE_UNSHEATH                = 1082,
+    EMOTE_STATE_LEAN                             = 1084,
+    EMOTE_ONESHOT_WALEAN01_VAR1                  = 1093,
+    EMOTE_ONESHOT_WALEAN01_VAR0                  = 1094,
 };
 
 // AnimationData.db2 (6.0.2.18988)
@@ -4756,7 +4801,7 @@ enum LockKeyType
     LOCK_KEY_SPELL = 3,
 };
 
-// LockType.dbc (10.0.5.48069)
+// LockType.dbc (11.2.5.62687)
 enum LockType
 {
     LOCKTYPE_LOCKPICKING                    = 1,
@@ -4831,7 +4876,20 @@ enum LockType
     LOCKTYPE_DRAGON_ISLES_SKINNING_25       = 181,
     LOCKTYPE_DRAGON_ISLES_TAILORING_25      = 182,
     LOCKTYPE_OPEN_KNEELING_PLANT            = 186,
-    LOCKTYPE_DRAGON_ISLES_MINING            = 188
+    LOCKTYPE_DRAGON_ISLES_MINING            = 188,
+    LOCKTYPE_KHAZ_ALGAR_MINING              = 193,
+    LOCKTYPE_KHAZ_ALGAR_HERBALISM           = 194,
+    LOCKTYPE_KHAZ_ALGAR_ALCHEMY_25          = 195,
+    LOCKTYPE_KHAZ_ALGAR_BLACKSMITHING_25    = 196,
+    LOCKTYPE_KHAZ_ALGAR_ENCHANTING_25       = 197,
+    LOCKTYPE_KHAZ_ALGAR_ENGINEERING_25      = 198,
+    LOCKTYPE_KHAZ_ALGAR_HERBALISM_25        = 199,
+    LOCKTYPE_KHAZ_ALGAR_INSCRIPTION_25      = 200,
+    LOCKTYPE_KHAZ_ALGAR_JEWELCRAFTING_25    = 201,
+    LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25   = 202,
+    LOCKTYPE_KHAZ_ALGAR_MINING_25           = 203,
+    LOCKTYPE_KHAZ_ALGAR_SKINNING_25         = 204,
+    LOCKTYPE_KHAZ_ALGAR_TAILORING_25        = 205
 };
 
 // this is important type for npcs!
@@ -4864,7 +4922,7 @@ uint32 const CREATURE_TYPEMASK_DEMON_OR_UNDEAD = (1 << (CREATURE_TYPE_DEMON-1)) 
 uint32 const CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD = (1 << (CREATURE_TYPE_HUMANOID-1)) | (1 << (CREATURE_TYPE_UNDEAD-1));
 uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_MECHANICAL-1)) | (1 << (CREATURE_TYPE_ELEMENTAL-1));
 
-// CreatureFamily.dbc (9.0.2.37176)
+// CreatureFamily.dbc (11.2.5.62687)
 enum CreatureFamily
 {
     CREATURE_FAMILY_NONE                = 0,
@@ -4950,7 +5008,8 @@ enum CreatureFamily
     CREATURE_FAMILY_CAMEL               = 298,
     CREATURE_FAMILY_COURSER             = 299,
     CREATURE_FAMILY_MAMMOTH             = 300,
-    CREATURE_FAMILY_INCUBUS             = 302
+    CREATURE_FAMILY_INCUBUS             = 302,
+    CREATURE_FAMILY_LESSER_DRAGONKIN    = 303
 };
 
 enum CreatureTypeFlags
@@ -5373,7 +5432,7 @@ enum QuestType
     QUEST_TYPE_TASK_IN_PROGRESS     = 5
 };
 
-// QuestInfo.dbc (9.0.2.37176)
+// QuestInfo.dbc (11.2.5.62687)
 enum QuestInfo
 {
     QUEST_INFO_GROUP                                = 1,
@@ -5444,10 +5503,22 @@ enum QuestInfo
     QUEST_INFO_THREAT_EMISSARY_QUEST                = 270,
     QUEST_INFO_CALLING_QUEST                        = 271,
     QUEST_INFO_VENTHYR_PARTY_QUEST                  = 272,
-    QUEST_INFO_MAW_SOUL_SPAWN_TRACKER               = 273
+    QUEST_INFO_MAW_SOUL_SPAWN_TRACKER               = 273,
+    QUEST_INFO_PVP_ELITE_WORLDQUEST                 = 278,
+    QUEST_INFO_FORBIDDEN_REACH_ENVOY_TASK           = 279,
+    QUEST_INFO_DRAGONRIDER_RACING                   = 281,
+    QUEST_INFO_IMPORTANT_QUEST                      = 282,
+    QUEST_INFO_BONUS_OBJECTIVE_WITH_COMPLETION_TOAST = 283,
+    QUEST_INFO_META_QUEST                           = 284,
+    QUEST_INFO_CAPSTONE_WORLD_QUEST                 = 286,
+    QUEST_INFO_CAPSTONE_BLOCKER                     = 287,
+    QUEST_INFO_DELVE                                = 288,
+    QUEST_INFO_WORLD_BOSS                           = 289,
+    QUEST_INFO_HIDDEN                               = 291,
+    QUEST_INFO_IMPORTANT_QUEST_NO_ABANDON           = 292
 };
 
-// QuestSort.dbc (9.0.2.37176)
+// QuestSort.dbc (11.2.5.62687)
 enum QuestSort
 {
     QUEST_SORT_EPIC                             = 1,
@@ -5595,6 +5666,44 @@ enum QuestSort
     QUEST_SORT_COVENANT_ASSAULTS                = 604,
     QUEST_SORT_PROTOFORM_SYNTHESIS              = 606,
     QUEST_SORT_CH_6_SYMBOL_TRACKING             = 607,
+    QUEST_SORT_TEMPEST_UNLEASHED                = 608,
+    QUEST_SORT_DRAGONSCALE_EXPEDITION           = 609,
+    QUEST_SORT_PRIMALIST_STORM                  = 610,
+    QUEST_SORT_ISKAARA_TUSKARR                  = 611,
+    QUEST_SORT_MARUUK_CENTAUR                   = 612,
+    QUEST_SORT_VALDRAKKEN_ACCORD                = 613,
+    QUEST_SORT_EVOKER                           = 614,
+    QUEST_SORT_TRADINGPOST                      = 615,
+    QUEST_SORT_ENGINE_OF_INNOVATION             = 616,
+    QUEST_SORT_ARTISANS_CONSORTIUM              = 617,
+    QUEST_SORT_SUFUSSION_CAMPS                  = 618,
+    QUEST_SORT_ENVOY_TASKS                      = 620,
+    QUEST_SORT_RESEARCHERS_UNDER_FIRE           = 622,
+    QUEST_SORT_AZEROTHIAN_ARCHIVES              = 623,
+    QUEST_SORT_TRIAL_OF_STYLE                   = 624,
+    QUEST_SORT_SYSTEMS                          = 625,
+    QUEST_SORT_TIME_RIFTS                       = 626,
+    QUEST_SORT_LITTLE_SCALES_DAYCARE            = 627,
+    QUEST_SORT_DREAMSURGE                       = 628,
+    QUEST_SORT_DREAM_WARDENS                    = 629,
+    QUEST_SORT_GILNEAS_RECLAMATION              = 630,
+    QUEST_SORT_KALIMDOR_CUP                     = 631,
+    QUEST_SORT_EASTERN_KINGDOMS_CUP             = 632,
+    QUEST_SORT_OUTLAND_CUP                      = 633,
+    QUEST_SORT_NORTHREND_CUP                    = 634,
+    QUEST_SORT_PANDARIA_CUP                     = 635,
+    QUEST_SORT_BROKEN_ISLES_CUP                 = 636,
+    QUEST_SORT_THE_HARBRINGER                   = 637,
+    QUEST_SORT_HEARTHSTONE_ANNIVERSARY          = 638,
+    QUEST_SORT_TIMERUNNING                      = 639,
+    QUEST_SORT_EARTHEN                          = 640,
+    QUEST_SORT_UPGRADE_SYSTEM                   = 642,
+    QUEST_SORT_WARBANDS                         = 643,
+    QUEST_SORT_META_QUESTS                      = 645,
+    QUEST_SORT_SECRETS_OF_AZEROTH               = 646,
+    QUEST_SORT_LOREWALKING                      = 647,
+    QUEST_SORT_DASTARDLY_DUOS                   = 651,
+    QUEST_SORT_DELVES                           = 652,
 };
 
 constexpr uint8 ClassByQuestSort(int32 QuestSort)
@@ -5616,7 +5725,7 @@ constexpr uint8 ClassByQuestSort(int32 QuestSort)
     return 0;
 }
 
-// SkillLine.db2 (10.0.5.48069)
+// SkillLine.db2 (11.2.5.62687)
 enum SkillType
 {
     SKILL_NONE                                      = 0,
@@ -5977,7 +6086,26 @@ enum SkillType
     SKILL_DRAGON_ISLES_SKINNING                     = 2834,
     SKILL_CRAFTING                                  = 2846,
     SKILL_TUSKARR_FISHING_GEAR                      = 2847,
-    SKILL_PET_LESSER_DRAGONKIN                      = 2850
+    SKILL_PET_LESSER_DRAGONKIN                      = 2850,
+    SKILL_LANG_FURBOLG                              = 2855,
+    SKILL_SHIPMENT_PROTOTYPE                        = 2870,
+    SKILL_KHAZ_ALGAR_ALCHEMY                        = 2871,
+    SKILL_KHAZ_ALGAR_BLACKSMITHING                  = 2872,
+    SKILL_KHAZ_ALGAR_COOCKING                       = 2873,
+    SKILL_KHAZ_ALGAR_ENCHANTING                     = 2874,
+    SKILL_KHAZ_ALGAR_ENGINEERING                    = 2875,
+    SKILL_KHAZ_ALGAR_FISHING                        = 2876,
+    SKILL_KHAZ_ALGAR_HERBALISM                      = 2877,
+    SKILL_KHAZ_ALGAR_INSCRIPTION                    = 2878,
+    SKILL_KHAZ_ALGAR_JEWELCRAFTING                  = 2879,
+    SKILL_KHAZ_ALGAR_LEATHERWORKING                 = 2880,
+    SKILL_KHAZ_ALGAR_MINING                         = 2881,
+    SKILL_KHAZ_ALGAR_SKINNING                       = 2882,
+    SKILL_KHAZ_ALGAR_TAILORING                      = 2883,
+    SKILL_LANG_EARTHEN                              = 2884,
+    SKILL_SUPPLY_SHIPMENTS                          = 2886,
+    SKILL_RACIAL_EARTHEN                            = 2895,
+    SKILL_ALL_WARBANDS                              = 2902
 };
 
 constexpr SkillType SkillByLockType(LockType locktype)
@@ -6032,6 +6160,18 @@ constexpr SkillType SkillByLockType(LockType locktype)
         case LOCKTYPE_DRAGON_ISLES_TAILORING_25:      return SKILL_DRAGON_ISLES_TAILORING;
         case LOCKTYPE_DRAGON_ISLES_MINING:
         case LOCKTYPE_DRAGON_ISLES_MINING_25:         return SKILL_DRAGON_ISLES_MINING;
+        case LOCKTYPE_KHAZ_ALGAR_MINING:
+        case LOCKTYPE_KHAZ_ALGAR_MINING_25:           return SKILL_KHAZ_ALGAR_MINING;
+        case LOCKTYPE_KHAZ_ALGAR_HERBALISM:
+        case LOCKTYPE_KHAZ_ALGAR_HERBALISM_25:        return SKILL_KHAZ_ALGAR_HERBALISM;
+        case LOCKTYPE_KHAZ_ALGAR_ALCHEMY_25:          return SKILL_KHAZ_ALGAR_ALCHEMY;
+        case LOCKTYPE_KHAZ_ALGAR_BLACKSMITHING_25:    return SKILL_KHAZ_ALGAR_BLACKSMITHING;
+        case LOCKTYPE_KHAZ_ALGAR_ENCHANTING_25:       return SKILL_KHAZ_ALGAR_ENCHANTING;
+        case LOCKTYPE_KHAZ_ALGAR_ENGINEERING_25:      return SKILL_KHAZ_ALGAR_ENGINEERING;
+        case LOCKTYPE_KHAZ_ALGAR_INSCRIPTION_25:      return SKILL_KHAZ_ALGAR_INSCRIPTION;
+        case LOCKTYPE_KHAZ_ALGAR_JEWELCRAFTING_25:    return SKILL_KHAZ_ALGAR_JEWELCRAFTING;
+        case LOCKTYPE_KHAZ_ALGAR_LEATHERWORKING_25:   return SKILL_KHAZ_ALGAR_LEATHERWORKING;
+        case LOCKTYPE_KHAZ_ALGAR_SKINNING_25:         return SKILL_KHAZ_ALGAR_SKINNING;
         default: break;
     }
     return SKILL_NONE;
@@ -6069,7 +6209,7 @@ enum SkillCategory
     SKILL_CATEGORY_GENERIC       = 12
 };
 
-// TotemCategory.db2 (9.0.2.37176)
+// TotemCategory.db2 (11.2.5.62687)
 enum TotemCategory
 {
     TC_SKINNING_SKIFE_OLD                   = 1,
@@ -6116,6 +6256,8 @@ enum TotemCategory
     TC_UNLEASHED_VOID_FOCUS                 = 357,
     TC_MASTERCRAFT                          = 358,
     TC_VIRTUOSO_ENGRAVING_SET               = 359,
+    TC_ENGINEERING_MULTITOOL                = 362,
+    TC_GNOMISH_ARMY_EVERYTHING              = 369
 };
 
 enum UnitDynFlags

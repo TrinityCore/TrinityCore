@@ -182,7 +182,7 @@ public:
     bool IsSchoolLocked(SpellSchoolMask schoolMask) const;
 
     // Charges
-    bool ConsumeCharge(uint32 chargeCategoryId);
+    void ConsumeCharge(uint32 chargeCategoryId);
     void ModifyChargeRecoveryTime(uint32 chargeCategoryId, Duration cooldownMod);
     void UpdateChargeRecoveryRate(uint32 chargeCategoryId, float modChange, bool apply);
     void RestoreCharge(uint32 chargeCategoryId);
