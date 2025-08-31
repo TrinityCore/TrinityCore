@@ -15,9 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Timers requires update
+/*
+ * Timers requires update
  * Distillers should respawn at some point, probably in case of wipe
- * All distillers should cast SPELL_QUIET_SUICIDE when encounter is finished */
+ */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
@@ -99,6 +100,7 @@ struct boss_warlord_kalithresh : public BossAI
         events.ScheduleEvent(EVENT_RAGE, 10s, 20s);
     }
 
+    /// @todo: Handle this with GameObject 184106 (Coilfang Steamvaults - Kalithresh Event - Trigger 000)
     void MoveInLineOfSight(Unit* who) override
     {
         if (!_introDone && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 50.0f))
@@ -145,6 +147,12 @@ struct boss_warlord_kalithresh : public BossAI
     {
         Talk(SAY_DEATH);
         _JustDied();
+
+        std::vector<Creature*> distillers;
+        GetCreatureListWithEntryInGrid(distillers, me, NPC_NAGA_DISTILLER, 250.0f);
+        for (Creature* distiller : distillers)
+            if (distiller->IsAlive())
+                distiller->CastSpell(distiller, SPELL_QUIET_SUICIDE, true);
     }
 
     void UpdateAI(uint32 diff) override
@@ -221,7 +229,7 @@ struct npc_naga_distiller : public ScriptedAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (Creature* kalithresh = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_WARLORD_KALITHRESH)))
+        if (Creature* kalithresh = _instance->GetCreature(DATA_WARLORD_KALITHRESH))
             kalithresh->AI()->DoAction(ACTION_DISTILLER_DEAD);
     }
 
