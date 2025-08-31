@@ -272,8 +272,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
         TC_LOG_INFO("server.loading", ">> Loaded 0 AreaTrigger create properties. DB table `areatrigger_create_properties` is empty.");
     }
 
-    //                                                                  0                              1         2           3             4                5             6        7                 8
-    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT AreaTriggerCreatePropertiesId, IsCustom, StartDelay, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `areatrigger_create_properties_orbit`"))
+    //                                                                  0                              1         2                     3             4                5             6        7                 8
+    if (QueryResult circularMovementInfos = WorldDatabase.Query("SELECT AreaTriggerCreatePropertiesId, IsCustom, ExtraTimeForBlending, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `areatrigger_create_properties_orbit`"))
     {
         do
         {
@@ -289,7 +289,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             createProperties->OrbitInfo.emplace();
 
-            createProperties->OrbitInfo->StartDelay       = circularMovementInfoFields[2].GetUInt32();
+            createProperties->OrbitInfo->ExtraTimeForBlending = circularMovementInfoFields[2].GetInt32();
 
 #define VALIDATE_AND_SET_FLOAT(Float, Value) \
             createProperties->OrbitInfo->Float = Value; \

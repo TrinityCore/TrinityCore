@@ -25,6 +25,7 @@
 #include "ObjectGuid.h"
 #include "RaceMask.h"
 #include "SharedDefines.h"
+#include "TalentPackets.h"
 #include "TraitPacketsCommon.h"
 
 class Item;
@@ -145,6 +146,7 @@ namespace WorldPackets
             uint16 TodayHK = 0;
             uint16 YesterdayHK = 0;
             uint8 LifetimeMaxRank = 0;
+            Talent::ClassicTalentInfoUpdate TalentInfo;
             TraitInspectInfo TraitsInfo;
         };
 
