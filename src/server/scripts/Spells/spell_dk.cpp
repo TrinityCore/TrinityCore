@@ -1262,7 +1262,7 @@ private:
     Optional<SpellEffIndex> _healthLimitEffectIndex;
 };
 
-// Called by 49576 - Death Grip
+// Called by 383312 Abomination Limb and 49576 - Death Grip
 // 454822 - Subduing Grasp
 class spell_dk_subduing_grasp : public SpellScript
 {
