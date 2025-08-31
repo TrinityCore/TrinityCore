@@ -1,6 +1,7 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_cold_steel_hot_blood_proc';
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_bloodthirst_cold_steel_hot_blood';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(383959, 'spell_warr_cold_steel_hot_blood_proc');
+(23881, 'spell_warr_bloodthirst_cold_steel_hot_blood'),
+(335096, 'spell_warr_bloodthirst_cold_steel_hot_blood');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (383959);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES

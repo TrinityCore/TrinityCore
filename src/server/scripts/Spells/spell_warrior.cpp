@@ -43,6 +43,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
+    SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_AURA         = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
@@ -279,6 +280,36 @@ class spell_warr_bloodthirst : public SpellScript
     }
 };
 
+// 23881 - Bloodthirst
+// 335096 - Bloodbath
+class spell_warr_bloodthirst_cold_steel_hot_blood : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_GUSHING_WOUND, SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_AURA });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_AURA);
+    }
+
+    void CastGushingWound(SpellEffIndex /*effIndex*/) const
+    {
+        if (!IsHitCrit())
+            return;
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_GUSHING_WOUND, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_cold_steel_hot_blood::CastGushingWound, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 384036 - Brutal Vitality
 class spell_warr_brutal_vitality : public AuraScript
 {
@@ -396,27 +427,6 @@ class spell_warr_charge_effect : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_warr_charge_effect::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
-    }
-};
-
-// 383959 - Cold Steel, Hot Blood
-class spell_warr_cold_steel_hot_blood_proc : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_GUSHING_WOUND });
-    }
-
-    void HandleProc(ProcEventInfo const& eventInfo) const
-    {
-        GetTarget()->CastSpell(eventInfo.GetActionTarget(), SPELL_WARRIOR_GUSHING_WOUND, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
-        });
-    }
-
-    void Register() override
-    {
-        OnProc += AuraProcFn(spell_warr_cold_steel_hot_blood_proc::HandleProc);
     }
 };
 
@@ -1577,11 +1587,11 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_ashen_juggernaut);
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
+    RegisterSpellScript(spell_warr_bloodthirst_cold_steel_hot_blood);
     RegisterSpellScript(spell_warr_brutal_vitality);
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
-    RegisterSpellScript(spell_warr_cold_steel_hot_blood_proc);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_deft_experience);
