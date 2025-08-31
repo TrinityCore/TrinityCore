@@ -728,6 +728,8 @@ enum AuraType : uint32
     SPELL_AURA_641                                          = 641,
     SPELL_AURA_642                                          = 642,
     SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT                 = 643, // NYI
+    SPELL_AURA_644                                          = 644,
+    SPELL_AURA_645                                          = 645,
 
     TOTAL_AURAS
 };

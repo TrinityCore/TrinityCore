@@ -90,6 +90,13 @@ namespace WorldPackets
             uint32 Duration = 0;
         };
 
+        struct MonsterSplineTurnData
+        {
+            float StartFacing = 0.0f;
+            float TotalTurnRads = 0.0f;
+            float RadsPerSec = 0.0f;
+        };
+
         struct MonsterSplineAnimTierTransition
         {
             int32 TierTransitionID = 0;
@@ -127,6 +134,7 @@ namespace WorldPackets
             Optional<MonsterSplineFilter> SplineFilter;
             Optional<MonsterSplineSpellEffectExtraData> SpellEffectExtraData;
             Optional<MonsterSplineJumpExtraData> JumpExtraData;
+            Optional<MonsterSplineTurnData> TurnData;
             Optional<MonsterSplineAnimTierTransition> AnimTierTransition;
             Optional<MonsterSplineUnknown901> Unknown901;
             float FaceDirection         = 0.0f;
@@ -138,6 +146,7 @@ namespace WorldPackets
         {
             uint32 ID = 0;
             bool CrzTeleport = false;
+            bool StopUseFaceDirection = false;
             uint8 StopSplineStyle = 0;    // Determines how far from spline destination the mover is allowed to stop in place 0, 0, 3.0, 2.76, numeric_limits<float>::max, 1.1, float(INT_MAX); default before this field existed was distance 3.0 (index 2)
             MovementSpline Move;
         };

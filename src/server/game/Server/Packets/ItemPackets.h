@@ -513,14 +513,6 @@ namespace WorldPackets
             void Read() override { }
         };
 
-        class SortReagentBankBags final : public ClientPacket
-        {
-        public:
-            explicit SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
         class BagCleanupFinished final : public ServerPacket
         {
         public:

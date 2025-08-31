@@ -712,7 +712,9 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //640
     &AuraEffect::HandleNULL,                                      //641
     &AuraEffect::HandleNULL,                                      //642
-    &AuraEffect::HandleNULL,                                      //642 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
+    &AuraEffect::HandleNULL,                                      //644
+    &AuraEffect::HandleNULL,                                      //645
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :
@@ -6004,12 +6006,20 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
         return;
     }
 
-    // don't regen when permanent aura target has full power
-    if (GetBase()->IsPermanent() && target->GetPower(powerType) == target->GetMaxPower(powerType))
-        return;
+    // don't regen when permanent aura and limit is already reached
+    if (GetBase()->IsPermanent())
+    {
+        if (GetAmount() >= 0)
+        {
+            if (target->GetPower(powerType) >= target->GetMaxPower(powerType))
+                return;
+        }
+        else
+            if (target->GetPower(powerType) <= target->GetMinPower(powerType))
+                return;
+    }
 
-    // ignore negative values (can be result apply spellmods to aura damage
-    uint32 amount = std::max(GetAmount(), 0) * target->GetMaxPower(powerType) /100;
+    int32 amount = GetAmount() * target->GetMaxPower(powerType) / 100;
     TC_LOG_DEBUG("spells.aura.effect", "PeriodicTick: {} energize {} for {} dmg inflicted by {}",
         GetCasterGUID().ToString(), target->GetGUID().ToString(), amount, GetId());
 
@@ -6017,7 +6027,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     int32 gain = target->ModifyPower(powerType, amount);
 
     if (caster)
-        target->GetThreatManager().ForwardThreatForAssistingMe(caster, float(gain)*0.5f, GetSpellInfo(), true);
+        target->GetThreatManager().ForwardThreatForAssistingMe(caster, std::abs(float(gain) * 0.5f), GetSpellInfo(), true);
 
     target->SendPeriodicAuraLog(&pInfo);
 }

@@ -36,9 +36,9 @@ WorldPacket const* UpdateInstanceOwnership::Write()
 
 ByteBuffer& operator<<(ByteBuffer& data, InstanceLock const& lockInfos)
 {
+    data << uint64(lockInfos.InstanceID);
     data << uint32(lockInfos.MapID);
     data << uint32(lockInfos.DifficultyID);
-    data << uint64(lockInfos.InstanceID);
     data << uint32(lockInfos.TimeRemaining);
     data << uint32(lockInfos.CompletedMask);
 

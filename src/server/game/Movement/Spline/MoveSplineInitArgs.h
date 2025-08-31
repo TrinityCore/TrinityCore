@@ -54,6 +54,13 @@ namespace Movement
         uint32 ParabolicCurveId = 0;
     };
 
+    struct TurnData
+    {
+        float StartFacing = 0.0f;
+        float TotalTurnRads = 0.0f;
+        float RadsPerSec = 0.0f;
+    };
+
     struct AnimTierTransition
     {
         uint32 TierTransitionId = 0;
@@ -62,7 +69,7 @@ namespace Movement
 
     struct MoveSplineInitArgs
     {
-        explicit MoveSplineInitArgs(size_t path_capacity = 16);
+        explicit MoveSplineInitArgs();
         MoveSplineInitArgs(MoveSplineInitArgs&& args) noexcept;
         ~MoveSplineInitArgs();
 
@@ -78,6 +85,7 @@ namespace Movement
         uint32 splineId;
         float initialOrientation;
         Optional<SpellEffectExtraData> spellEffectExtra;
+        Optional<TurnData> turnData;
         Optional<AnimTierTransition> animTier;
         bool walk;
         bool HasVelocity;

@@ -42,7 +42,8 @@ enum AreaTriggerActionTypes
     AREATRIGGER_ACTION_CAST        = 0,
     AREATRIGGER_ACTION_ADDAURA     = 1,
     AREATRIGGER_ACTION_TELEPORT    = 2,
-    AREATRIGGER_ACTION_MAX         = 3
+    AREATRIGGER_ACTION_TAVERN      = 3,
+    AREATRIGGER_ACTION_MAX         = 4
 };
 
 enum AreaTriggerActionUserTypes
@@ -192,9 +193,7 @@ struct AreaTriggerOrbitInfo
     Optional<TaggedPosition<Position::XYZ>> Center;
     bool CounterClockwise = false;
     bool CanLoop = false;
-    uint32 TimeToTarget = 0;
-    int32 ElapsedTimeForMovement = 0;
-    uint32 StartDelay = 0;
+    int32 ExtraTimeForBlending = 0;
     float Radius = 0.0f;
     float BlendFromRadius = 0.0f;
     float InitialAngle = 0.0f;
