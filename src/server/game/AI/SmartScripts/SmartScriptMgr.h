@@ -608,7 +608,10 @@ enum SMART_ACTION
     SMART_ACTION_COMPLETE_QUEST                     = 152,    // QuestId. Regular quests with objectives can't be completed with this action (only quests with QUEST_FLAGS_COMPLETION_EVENT, QUEST_FLAGS_COMPLETION_AREA_TRIGGER or QUEST_FLAGS_TRACKING_EVENT)
     SMART_ACTION_CREDIT_QUEST_OBJECTIVE_TALK_TO     = 153,
     SMART_ACTION_DESTROY_CONVERSATION               = 154,    // conversation_template.id, isPrivate, range
-    SMART_ACTION_END                                = 155
+    SMART_ACTION_ENTER_VEHICLE                      = 155,    // seat id
+    SMART_ACTION_BOARD_PASSENGER                    = 156,    // seat id
+    SMART_ACTION_EXIT_VEHICLE                       = 157,
+    SMART_ACTION_END                                = 158
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -1242,6 +1245,11 @@ struct SmartAction
         {
             uint32 actionId;
         } doAction;
+
+        struct
+        {
+            uint32 seatId;
+        } enterVehicle;
 
         struct
         {

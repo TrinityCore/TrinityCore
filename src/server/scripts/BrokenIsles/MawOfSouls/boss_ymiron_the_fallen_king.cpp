@@ -553,8 +553,7 @@ struct at_ymiron_the_fallen_king_bane : AreaTriggerAI
         AreaTriggerOrbitInfo orbitInfo;
         orbitInfo.CounterClockwise = false;
         orbitInfo.CanLoop = true;
-        orbitInfo.ElapsedTimeForMovement = 0;
-        orbitInfo.StartDelay = 0;
+        orbitInfo.ExtraTimeForBlending = 0;
         orbitInfo.Radius = radius;
         orbitInfo.BlendFromRadius = radius;
         orbitInfo.InitialAngle = angle;

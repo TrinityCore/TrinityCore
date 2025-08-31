@@ -430,6 +430,10 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
     &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
+    &Spell::EffectNULL,                                     //342 SPELL_EFFECT_342
+    &Spell::EffectNULL,                                     //343 SPELL_EFFECT_343
+    &Spell::EffectNULL,                                     //344 SPELL_EFFECT_344
+    &Spell::EffectNULL,                                     //345 SPELL_EFFECT_ASSIST_ACTION
 };
 
 void Spell::EffectNULL()
@@ -4068,26 +4072,21 @@ void Spell::EffectQuestClear()
     if (oldStatus == QUEST_STATUS_NONE)
         return;
 
+    player->RemoveActiveQuest(quest_id, false);
+
     // remove all quest entries for 'entry' from quest log
-    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    if (oldStatus != QUEST_STATUS_REWARDED)
     {
-        uint32 logQuest = player->GetQuestSlotQuestId(slot);
-        if (logQuest == quest_id)
+        // we ignore unequippable quest items in this case, it's still be equipped
+        player->TakeQuestSourceItem(quest_id, false);
+
+        if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
         {
-            player->SetQuestSlot(slot, 0);
-
-            // we ignore unequippable quest items in this case, it's still be equipped
-            player->TakeQuestSourceItem(logQuest, false);
-
-            if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
-            {
-                player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
-                player->UpdatePvPState();
-            }
+            player->pvpInfo.IsHostile = player->pvpInfo.IsInHostileArea || player->HasPvPForcingQuest();
+            player->UpdatePvPState();
         }
     }
 
-    player->RemoveActiveQuest(quest_id, false);
     player->RemoveRewardedQuest(quest_id);
     player->DespawnPersonalSummonsForQuest(quest_id);
 

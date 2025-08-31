@@ -1180,7 +1180,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (WorldObject* target : targets)
             {
                 Creature* creatureTarget = target->ToCreature();
-                if (creatureTarget)
+                if (!creatureTarget)
                     continue;
 
                 if (!(e.event.event_flags & SMART_EVENT_FLAG_WHILE_CHARMED) && creatureTarget->IsCharmed())
@@ -2601,6 +2601,47 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             Trinity::ConversationWorker worker(PhasingHandler::GetAlwaysVisiblePhaseShift(), work);
             Cell::VisitGridObjects(GetBaseObject(), worker, float(e.action.destroyConversation.range));
+            break;
+        }
+        case SMART_ACTION_ENTER_VEHICLE:
+        {
+            if (!me)
+                break;
+
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = target->ToUnit())
+                {
+                    me->EnterVehicle(unitTarget, (uint8)e.action.enterVehicle.seatId);
+                    break;
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_BOARD_PASSENGER:
+        {
+            if (!me)
+                break;
+
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = target->ToUnit())
+                {
+                    unitTarget->EnterVehicle(me, (uint8)e.action.enterVehicle.seatId);
+                    break;
+                }
+            }
+            break;
+        }
+        case SMART_ACTION_EXIT_VEHICLE:
+        {
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = target->ToUnit())
+                {
+                    unitTarget->ExitVehicle();
+                }
+            }
             break;
         }
         default:

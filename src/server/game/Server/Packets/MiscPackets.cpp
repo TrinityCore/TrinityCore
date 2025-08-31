@@ -182,6 +182,7 @@ WorldPacket const* TriggerMovie::Write()
 
     return &_worldPacket;
 }
+
 WorldPacket const* TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
@@ -330,7 +331,7 @@ WorldPacket const* StandStateUpdate::Write()
 WorldPacket const* SetAnimTier::Write()
 {
     _worldPacket << Unit;
-    _worldPacket << Bits<3>(Tier);
+    _worldPacket << uint8(Tier);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

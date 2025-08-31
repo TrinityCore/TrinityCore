@@ -141,9 +141,6 @@ void AddItemsSetItem(Player* player, Item const* item)
             if (itemSetSpell->Threshold > eff->EquippedItems.size())
                 continue;
 
-            if (eff->SetBonuses.count(itemSetSpell))
-                continue;
-
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
             if (!spellInfo)
             {
@@ -151,10 +148,17 @@ void AddItemsSetItem(Player* player, Item const* item)
                 continue;
             }
 
-            eff->SetBonuses.insert(itemSetSpell);
+            if (!eff->SetBonuses.insert(itemSetSpell).second)
+                continue;
+
             // spell cast only if fit form requirement, in other case will cast at form change
-            if (!itemSetSpell->ChrSpecID || ChrSpecialization(itemSetSpell->ChrSpecID) == player->GetPrimarySpecialization())
-                player->ApplyEquipSpell(spellInfo, nullptr, true);
+            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                continue;
+
+            if (itemSetSpell->TraitSubTreeID && int32(itemSetSpell->TraitSubTreeID) != player->m_playerData->CurrentCombatTraitConfigSubTreeID)
+                continue;
+
+            player->ApplyEquipSpell(spellInfo, nullptr, true);
         }
     }
 }
@@ -196,11 +200,10 @@ void RemoveItemsSetItem(Player* player, Item const* item)
             if (itemSetSpell->Threshold <= eff->EquippedItems.size())
                 continue;
 
-            if (!eff->SetBonuses.count(itemSetSpell))
+            if (!eff->SetBonuses.erase(itemSetSpell))
                 continue;
 
             player->ApplyEquipSpell(sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE), nullptr, false);
-            eff->SetBonuses.erase(itemSetSpell);
         }
     }
 
@@ -224,7 +227,8 @@ void UpdateItemSetAuras(Player* player, bool formChange)
         {
             SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(itemSetSpell->SpellID, DIFFICULTY_NONE);
 
-            if (itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+            if ((itemSetSpell->ChrSpecID && ChrSpecialization(itemSetSpell->ChrSpecID) != player->GetPrimarySpecialization())
+                || (itemSetSpell->TraitSubTreeID && int32(itemSetSpell->TraitSubTreeID) != player->m_playerData->CurrentCombatTraitConfigSubTreeID))
                 player->ApplyEquipSpell(spellInfo, nullptr, false, false);  // item set aura is not for current spec
             else
             {
@@ -1996,30 +2000,7 @@ bool Item::IsValidTransmogrificationTarget() const
     if (proto->HasFlag(ITEM_FLAG2_NO_ALTER_ITEM_VISUAL))
         return false;
 
-    if (!HasStats())
-        return false;
-
     return true;
-}
-
-bool Item::HasStats() const
-{
-    ItemTemplate const* proto = GetTemplate();
-    Player const* owner = GetOwner();
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if ((owner ? GetItemStatValue(i, owner) : proto->GetStatPercentEditor(i)) != 0)
-            return true;
-
-    return false;
-}
-
-bool Item::HasStats(WorldPackets::Item::ItemInstance const& /*itemInstance*/, BonusData const* bonus)
-{
-    for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (bonus->StatPercentEditor[i] != 0)
-            return true;
-
-    return false;
 }
 
 enum class ItemTransmogrificationWeaponCategory : uint8
@@ -2031,7 +2012,6 @@ enum class ItemTransmogrificationWeaponCategory : uint8
     // One-handed
     AXE_MACE_SWORD_1H,
     DAGGER,
-    FIST,
 
     INVALID
 };
@@ -2056,11 +2036,10 @@ static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(
             case ITEM_SUBCLASS_WEAPON_MACE:
             case ITEM_SUBCLASS_WEAPON_SWORD:
             case ITEM_SUBCLASS_WEAPON_WARGLAIVES:
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
                 return ItemTransmogrificationWeaponCategory::AXE_MACE_SWORD_1H;
             case ITEM_SUBCLASS_WEAPON_DAGGER:
                 return ItemTransmogrificationWeaponCategory::DAGGER;
-            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
-                return ItemTransmogrificationWeaponCategory::FIST;
             default:
                 break;
         }
