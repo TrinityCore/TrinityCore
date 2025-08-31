@@ -1690,15 +1690,14 @@ class spell_mage_scorch : public SpellScript
 
     void CalcCritChance(Unit const* victim, float& critChance)
     {
-        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_SCORCH, EFFECT_1))
-            if (victim->GetHealthPct() < aurEff->GetAmount())
-                critChance = 100.0f;
+        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            critChance = 100.0f;
     }
 
     void HandleFreneticSpeed(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue())
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
             caster->CastSpell(caster, SPELL_MAGE_FRENETIC_SPEED, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
