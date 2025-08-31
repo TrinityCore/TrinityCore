@@ -60,6 +60,7 @@ enum HunterSpells
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_DAMAGE     = 336904,
+    SPELL_HUNTER_LOCK_AND_LOAD                      = 194594,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA           = 137016,
     SPELL_HUNTER_MASTER_MARKSMAN                    = 269576,
@@ -1006,30 +1007,27 @@ class spell_hun_scrappy : public AuraScript
     }
 };
 
-// 473520 - Shrapnel Shot (attached to 212680 - Explosive Shot)
-class spell_hun_shrapnel_shot : public SpellScript
+// 473520 - Shrapnel Shot
+class spell_hun_shrapnel_shot : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo ({ SPELL_HUNTER_SHRAPNEL_SHOT_TALENT, SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF });
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
     }
 
-    bool Load() override
+    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
     {
-        return GetCaster()->HasAura(SPELL_HUNTER_SHRAPNEL_SHOT_TALENT);
-    }
+        if (!roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
+            return;
 
-    void HandleDummy(SpellEffIndex /*effIndex*/) const
-    {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell()
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_hun_shrapnel_shot::HandleDummy, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnProc += AuraProcFn(spell_hun_shrapnel_shot::HandleProc);
     }
 };
 
