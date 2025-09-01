@@ -882,6 +882,8 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
         DoActions(unit);
 
         _ai->OnUnitEnter(unit);
+
+        unit->EnterAreaTrigger(GetEntry(), GetGUID());
     }
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
@@ -898,6 +900,8 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
                 if (GetTemplate()->ActionSetId)
                     player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
             }
+
+            leavingUnit->ExitAreaTrigger(GetEntry(), GetGUID());
 
             UndoActions(leavingUnit);
 
