@@ -43,6 +43,7 @@ enum WarriorSpells
     SPELL_WARRIOR_CHARGE_DROP_FIRE_PERIODIC         = 126661,
     SPELL_WARRIOR_CHARGE_EFFECT                     = 198337,
     SPELL_WARRIOR_CHARGE_ROOT_EFFECT                = 105771,
+    SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT       = 383959,
     SPELL_WARRIOR_COLOSSUS_SMASH                    = 167105,
     SPELL_WARRIOR_COLOSSUS_SMASH_AURA               = 208086,
     SPELL_WARRIOR_CRITICAL_THINKING_ENERGIZE        = 392776,
@@ -58,6 +59,7 @@ enum WarriorSpells
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP_BUFF         = 133278,
+    SPELL_WARRIOR_GUSHING_WOUND                     = 385042,
     SPELL_WARRIOR_HEROIC_LEAP_JUMP                  = 178368,
     SPELL_WARRIOR_IGNORE_PAIN                       = 190456,
     SPELL_WARRIOR_IMPROVED_RAGING_BLOW              = 383854,
@@ -395,6 +397,36 @@ class spell_warr_charge_effect : public SpellScript
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_warr_charge_effect::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+    }
+};
+
+// 23881 - Bloodthirst
+// 335096 - Bloodbath
+class spell_warr_cold_steel_hot_blood_bloodthirst : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_GUSHING_WOUND, SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_COLD_STEEL_HOT_BLOOD_TALENT);
+    }
+
+    void CastGushingWound(SpellEffIndex /*effIndex*/) const
+    {
+        if (!IsHitCrit())
+            return;
+
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_GUSHING_WOUND, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_cold_steel_hot_blood_bloodthirst::CastGushingWound, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1559,6 +1591,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
+    RegisterSpellScript(spell_warr_cold_steel_hot_blood_bloodthirst);
     RegisterSpellScript(spell_warr_colossus_smash);
     RegisterSpellScript(spell_warr_critical_thinking);
     RegisterSpellScript(spell_warr_deft_experience);
