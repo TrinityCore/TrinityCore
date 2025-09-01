@@ -1432,7 +1432,7 @@ class spell_warr_tenderize : public AuraScript
     void Register() override
     {
         OnProc += AuraProcFn(spell_warr_tenderize::HandleProc);
-        AfterEffectProc += AuraEffectProcFn(spell_warr_tenderize::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_tenderize::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
