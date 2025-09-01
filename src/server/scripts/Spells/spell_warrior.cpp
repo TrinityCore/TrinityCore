@@ -86,6 +86,8 @@ enum WarriorSpells
     SPELL_WARRIOR_SHIELD_WALL                       = 871,
     SPELL_WARRIOR_SHOCKWAVE                         = 46968,
     SPELL_WARRIOR_SHOCKWAVE_STUN                    = 132168,
+    SPELL_WARRIOR_SLAUGHTERING_STRIKES              = 388004,
+    SPELL_WARRIOR_SLAUGHTERING_STRIKES_BUFF         = 393931,
     SPELL_WARRIOR_STOICISM                          = 70845,
     SPELL_WARRIOR_STORM_BOLT_STUN                   = 132169,
     SPELL_WARRIOR_STORM_BOLTS                       = 436162,
@@ -1398,6 +1400,42 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
+// 388933 - Tenderize
+class spell_warr_tenderize : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_ENRAGE, SPELL_WARRIOR_SLAUGHTERING_STRIKES_BUFF, SPELL_WARRIOR_SLAUGHTERING_STRIKES });
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        GetTarget()->CastSpell(nullptr, SPELL_WARRIOR_ENRAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell()
+        });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        Unit* target = GetTarget();
+        if (!target->HasAura(SPELL_WARRIOR_SLAUGHTERING_STRIKES))
+            return;
+
+        target->CastSpell(nullptr, SPELL_WARRIOR_SLAUGHTERING_STRIKES_BUFF, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, aurEff->GetAmount() } }
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warr_tenderize::HandleProc);
+        OnEffectProc += AuraEffectProcFn(spell_warr_tenderize::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 394329 - Titanic Rage
 class spell_warr_titanic_rage : public AuraScript
 {
@@ -1624,6 +1662,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
+    RegisterSpellScript(spell_warr_tenderize);
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
     RegisterSpellScript(spell_warr_t3_prot_8p_bonus);
