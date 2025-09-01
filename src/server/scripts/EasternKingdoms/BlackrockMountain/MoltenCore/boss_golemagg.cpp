@@ -15,67 +15,83 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Golemagg
-SD%Complete: 90
-SDComment: Timers need to be confirmed, Golemagg's Trust need to be checked
-SDCategory: Molten Core
-EndScriptData */
-
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "molten_core.h"
-#include "ObjectAccessor.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 
-enum Texts
+enum GolemaggTexts
 {
-    EMOTE_LOWHP             = 0,
+    EMOTE_LOW_HEALTH        = 0
 };
 
-enum Spells
+enum GolemaggSpells
 {
     // Golemagg
-    SPELL_MAGMASPLASH       = 13879,
+    SPELL_DOUBLE_ATTACK     = 18943,
+    SPELL_GOLEMAGGS_TRUST   = 20556,
+    SPELL_MAGMA_SPLASH      = 13879,
+
     SPELL_PYROBLAST         = 20228,
     SPELL_EARTHQUAKE        = 19798,
-    SPELL_ENRAGE            = 19953,
-    SPELL_GOLEMAGG_TRUST    = 20553,
 
     // Core Rager
-    SPELL_MANGLE            = 19820
+    SPELL_THRASH            = 12787,
+    SPELL_MANGLE            = 19820,
+    SPELL_FULL_HEAL         = 17683,
+    SPELL_QUIET_SUICIDE     = 3617
 };
 
-enum Events
+enum GolemaggEvents
 {
-    EVENT_PYROBLAST     = 1,
-    EVENT_EARTHQUAKE    = 2,
+    EVENT_PYROBLAST         = 1,
+    EVENT_EARTHQUAKE
 };
 
+enum GolemaggMisc
+{
+    NPC_CORE_RAGER          = 11672,
+    ACTION_QUIET_SUICIDE    = 0
+};
+
+// 11988 - Golemagg the Incinerator
 struct boss_golemagg : public BossAI
 {
-    boss_golemagg(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR) { }
+    boss_golemagg(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR), _isPerformingEarthquake(false) { }
 
     void Reset() override
     {
-        BossAI::Reset();
-        DoCast(me, SPELL_MAGMASPLASH, true);
+        _Reset();
+        _isPerformingEarthquake = false;
+        DoCastSelf(SPELL_DOUBLE_ATTACK);
+        DoCastSelf(SPELL_GOLEMAGGS_TRUST);
+        DoCastSelf(SPELL_MAGMA_SPLASH);
     }
 
-    void JustEngagedWith(Unit* victim) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(victim);
-        events.ScheduleEvent(EVENT_PYROBLAST, 7s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_PYROBLAST, 5s, 10s);
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (!HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
-            return;
+        if (!_isPerformingEarthquake && me->HealthBelowPctDamaged(10, damage))
+        {
+            _isPerformingEarthquake = true;
+            events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
+        }
+    }
 
-        DoCast(me, SPELL_ENRAGE, true);
-        events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+
+        std::vector<Creature*> ragers;
+        GetCreatureListWithEntryInGrid(ragers, me, NPC_CORE_RAGER, 250.0f);
+        for (Creature* rager : ragers)
+            rager->AI()->DoAction(ACTION_QUIET_SUICIDE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -95,11 +111,11 @@ struct boss_golemagg : public BossAI
                 case EVENT_PYROBLAST:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_PYROBLAST);
-                    events.ScheduleEvent(EVENT_PYROBLAST, 7s);
+                    events.Repeat(3s, 13s);
                     break;
                 case EVENT_EARTHQUAKE:
-                    DoCastVictim(SPELL_EARTHQUAKE);
-                    events.ScheduleEvent(EVENT_EARTHQUAKE, 3s);
+                    DoCastSelf(SPELL_EARTHQUAKE);
+                    events.Repeat(3s);
                     break;
                 default:
                     break;
@@ -111,42 +127,51 @@ struct boss_golemagg : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _isPerformingEarthquake;
 };
 
+// 11672 - Core Rager
 struct npc_core_rager : public ScriptedAI
 {
-    npc_core_rager(Creature* creature) : ScriptedAI(creature)
-    {
-        _instance = creature->GetInstanceScript();
-    }
+    npc_core_rager(Creature* creature) : ScriptedAI(creature) { }
 
     void Reset() override
     {
         _scheduler.CancelAll();
+        DoCastSelf(SPELL_THRASH);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _scheduler.Schedule(7s, [this](TaskContext task) // These times are probably wrong
+        _scheduler.Schedule(5s, 15s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_MANGLE);
-            task.Repeat(10s);
+            task.Repeat(10s, 20s);
         });
     }
 
-    void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DoAction(int32 action) override
     {
-        if (HealthAbovePct(50) || !_instance)
-            return;
+        if (action == ACTION_QUIET_SUICIDE)
+            DoCastSelf(SPELL_QUIET_SUICIDE);
+    }
 
-        if (Creature* pGolemagg = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(BOSS_GOLEMAGG_THE_INCINERATOR)))
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FULL_HEAL)
+            Talk(EMOTE_LOW_HEALTH);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (me->HealthBelowPctDamaged(50, damage))
         {
-            if (pGolemagg->IsAlive())
+            _scheduler.Schedule(0s, [this](TaskContext /*task*/)
             {
-                me->AddAura(SPELL_GOLEMAGG_TRUST, me);
-                Talk(EMOTE_LOWHP);
-                me->SetFullHealth();
-            }
+                DoCastSelf(SPELL_FULL_HEAL);
+            });
         }
     }
 
@@ -162,7 +187,6 @@ struct npc_core_rager : public ScriptedAI
     }
 
 private:
-    InstanceScript* _instance;
     TaskScheduler _scheduler;
 };
 
