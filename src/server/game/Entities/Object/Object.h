@@ -93,7 +93,6 @@ struct CreateObjectBits
     bool Vehicle : 1;
     bool AnimKit : 1;
     bool Rotation : 1;
-    bool AreaTrigger : 1;
     bool GameObject : 1;
     bool SmoothPhasing : 1;
     bool ThisIsYou : 1;

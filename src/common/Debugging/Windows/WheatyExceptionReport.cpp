@@ -7,8 +7,9 @@
 #include "Errors.h"
 #include "GitRevision.h"
 #include "Memory.h"
-#include <stdexcept>
 #include <algorithm>
+#include <charconv>
+#include <stdexcept>
 #include <utility>
 
 #ifdef __clang__
@@ -16,12 +17,11 @@
 #define _ThrowInfo ThrowInfo
 #endif
 
+#include <comdef.h>
 #include <ehdata.h>
 #include <rttidata.h>
-#include <tlhelp32.h>
 #include <tchar.h>
-
-#include <comdef.h>
+#include <tlhelp32.h>
 #include <WbemIdl.h>
 
 #define CrashFolder _T("Crashes")

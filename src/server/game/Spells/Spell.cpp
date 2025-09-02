@@ -5284,6 +5284,7 @@ void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result)
         unitCaster->ClearChannelObjects();
         unitCaster->SetChannelSpellId(0);
         unitCaster->SetChannelVisual({});
+        unitCaster->SetChannelSpellData(0, 0);
         unitCaster->SetSpellEmpowerStage(-1);
     }
 
@@ -5365,6 +5366,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     unitCaster->SetChannelSpellId(m_spellInfo->Id);
     unitCaster->SetChannelVisual(m_SpellVisual);
+    unitCaster->SetChannelSpellData(GameTime::GetGameTimeMS(), duration);
 
     auto setImmunitiesAndHealPrediction = [&](Optional<WorldPackets::Spells::SpellChannelStartInterruptImmunities>& interruptImmunities, Optional<WorldPackets::Spells::SpellTargetedHealPrediction>& healPrediction)
     {
@@ -6464,18 +6466,22 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                 if (!playerCaster || !playerCaster->GetPetStable())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                Pet* pet = playerCaster->GetPet();
-                if (pet && pet->IsAlive())
-                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
-
-                PetStable const* petStable = playerCaster->GetPetStable();
-                auto deadPetItr = std::find_if(petStable->ActivePets.begin(), petStable->ActivePets.end(), [](Optional<PetStable::PetInfo> const& petInfo)
+                if (Pet* pet = playerCaster->GetPet())
                 {
-                    return petInfo && !petInfo->Health;
-                });
+                    if (pet->IsAlive())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                }
+                else
+                {
+                    PetStable const* petStable = playerCaster->GetPetStable();
+                    auto deadPetItr = std::ranges::find_if(petStable->ActivePets, [](Optional<PetStable::PetInfo> const& petInfo)
+                    {
+                        return petInfo && !petInfo->Health;
+                    });
 
-                if (deadPetItr == petStable->ActivePets.end())
-                    return SPELL_FAILED_BAD_TARGETS;
+                    if (deadPetItr == petStable->ActivePets.end())
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
 
                 break;
             }

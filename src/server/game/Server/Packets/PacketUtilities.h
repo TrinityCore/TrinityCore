@@ -147,6 +147,21 @@ namespace WorldPackets
 
     [[noreturn]] void OnInvalidArraySize(std::size_t requestedSize, std::size_t sizeLimit);
 
+    template <typename T, std::size_t N, bool IsLarge>
+    struct ArrayAllocatorTraits
+    {
+        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
+        using resource_type = typename allocator_type::arena_type;
+    };
+
+    // don't store elements inline when size is large
+    template <typename T, std::size_t N>
+    struct ArrayAllocatorTraits<T, N, true>
+    {
+        using allocator_type = std::allocator<T>;
+        using resource_type = std::allocator<T>;
+    };
+
     /**
      * Utility class for automated prevention of loop counter spoofing in client packets
      */
@@ -154,8 +169,9 @@ namespace WorldPackets
     class Array
     {
     public:
-        using allocator_type = short_alloc::short_alloc<T, (N * sizeof(T) + (alignof(std::max_align_t) - 1)) & ~(alignof(std::max_align_t) - 1)>;
-        using arena_type = typename allocator_type::arena_type;
+        using allocator_traits = ArrayAllocatorTraits<T, N, (sizeof(T) * N > 0x1000)>;
+        using allocator_type = typename allocator_traits::allocator_type;
+        using allocator_resource_type = typename allocator_traits::resource_type;
 
         using storage_type = std::vector<T, allocator_type>;
 
@@ -170,7 +186,7 @@ namespace WorldPackets
         using iterator = typename storage_type::iterator;
         using const_iterator = typename storage_type::const_iterator;
 
-        Array() : _storage(_data) { }
+        Array() : _storage(_allocatorResource) { }
 
         Array(Array const& other) : Array()
         {
@@ -253,7 +269,7 @@ namespace WorldPackets
         }
 
     private:
-        arena_type _data;
+        allocator_resource_type _allocatorResource;
         storage_type _storage;
     };
 

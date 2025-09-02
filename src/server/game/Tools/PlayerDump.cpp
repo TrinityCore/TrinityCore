@@ -127,7 +127,6 @@ DumpTable const DumpTables[] =
     { "character_spell_cooldown",         DTT_CHAR_TABLE },
     { "character_talent",                 DTT_CHAR_TABLE },
     { "character_transmog_outfits",       DTT_CHAR_TRANSMOG },
-    /// @todo: character_void_storage
     { "mail",                             DTT_MAIL       },
     { "mail_items",                       DTT_MAIL_ITEM  }, // must be after mail
     { "pet_aura",                         DTT_PET_TABLE  }, // must be after character_pet

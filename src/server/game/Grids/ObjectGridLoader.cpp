@@ -232,9 +232,9 @@ void PersonalPhaseGridLoader::Load(uint32 phaseId)
 template<class T>
 void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 {
-    while (!m.isEmpty())
+    while (!m.empty())
     {
-        T *obj = m.getFirst()->GetSource();
+        T* obj = m.front()->GetSource();
         //Some creatures may summon other temp summons in CleanupsBeforeDelete()
         //So we need this even after cleaner (maybe we can remove cleaner)
         //Example: Flame Leviathan Turret 33139 is summoned when a creature is deleted

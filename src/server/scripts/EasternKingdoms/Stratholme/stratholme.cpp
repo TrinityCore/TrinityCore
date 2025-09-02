@@ -67,10 +67,10 @@ class go_gauntlet_gate : public GameObjectScript
 
                 if (Group* group = player->GetGroup())
                 {
-                    for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
+                    for (GroupReference const& itr : group->GetMembers())
                     {
-                        Player* pGroupie = itr->GetSource();
-                        if (!pGroupie || !pGroupie->IsInMap(player))
+                        Player* pGroupie = itr.GetSource();
+                        if (!pGroupie->IsInMap(player))
                             continue;
 
                         if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
