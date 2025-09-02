@@ -41,6 +41,13 @@ enum TunkEvents
     EVENT_SEISMIC_SLAM
 };
 
+enum TunkTexts
+{
+    SAY_WARNING_SEISMIC_SLAM = 0,
+    SAY_WARNING_INTERRUPT    = 1
+};
+
+// 157300 - Tunk
 struct boss_tunk : public BossAI
 {
     boss_tunk(Creature* creature) : BossAI(creature, DATA_TUNK) { }
@@ -65,6 +72,17 @@ struct boss_tunk : public BossAI
 
         events.ScheduleEvent(EVENT_INTERRUPTING_SHOUT, 7s);
         events.ScheduleEvent(EVENT_SEISMIC_SLAM, 14s);
+    }
+
+    void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
+    {
+        if (!target->IsPlayer())
+            return;
+
+        if (spellInfo->Id == SPELL_SEISMIC_SLAM_DAMAGE)
+            Talk(SAY_WARNING_SEISMIC_SLAM, target);
+        else if (spellInfo->Id == SPELL_INTERRUPTING_SHOUT) // should be when successful interrupts a spell
+            Talk(SAY_WARNING_INTERRUPT, target);
     }
 
     void UpdateAI(uint32 diff) override

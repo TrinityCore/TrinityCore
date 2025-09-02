@@ -15,3 +15,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_tunk' WHERE `entry`=157300;
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_tunk_seismic_slam_selector';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (308454, 'spell_tunk_seismic_slam_selector');
+
+DELETE FROM `creature_text` WHERE `CreatureID`=157300;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(157300, 0, 0, '|TINTERFACE\\ICONS\\Ability_Earthen_Pillar.blp:20|t Avoid Tunk\'s |cFFFF0404|Hspell:308463|h[Seismic Slam]|h|r by moving to the left or right!', 42, 0, 100, 0, 0, 0, 0, 0, 'Tunk to Player'), -- Missing BroadcastTextId
+(157300, 1, 0, '|TINTERFACE\\ICONS\\WARRIOR_DISRUPTINGSHOUT.BLP:20|t Some spells can interrupt your casting. Stop casting to avoid being interrupted by |cFFFF0404|Hspell:321240|h[Interrupting Shout]|h|r!', 42, 0, 100, 0, 0, 0, 0, 0, 'Tunk to Player'); -- Missing BroadcastTextId
