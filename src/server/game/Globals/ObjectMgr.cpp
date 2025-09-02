@@ -226,7 +226,6 @@ ObjectMgr::ObjectMgr():
     _hiPetNumber(1),
     _creatureSpawnId(1),
     _gameObjectSpawnId(1),
-    _voidItemId(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
 }
@@ -923,11 +922,11 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
 
     //                                               0      1             2                     3                     4                5
     QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID, HealthScalingExpansion, "
-    //   6               7             8              9               10                    11         12
-        "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, "
-    //   13      14                15          16       17
+    //   6               7             8              9               10                    11         12          13
+        "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, TypeFlags3, "
+    //   14      15                16          17       18
         "LootID, PickPocketLootID, SkinLootID, GoldMin, GoldMax,"
-    //   18            19            20            21            22            23            24            25
+    //   19            20            21            22            23            24            25            26
         "StaticFlags1, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, StaticFlags6, StaticFlags7, StaticFlags8 "
         "FROM creature_template_difficulty ORDER BY Entry");
 
@@ -964,14 +963,15 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
         creatureDifficulty.CreatureDifficultyID   = fields[10].GetInt32();
         creatureDifficulty.TypeFlags              = fields[11].GetUInt32();
         creatureDifficulty.TypeFlags2             = fields[12].GetUInt32();
-        creatureDifficulty.LootID                 = fields[13].GetUInt32();
-        creatureDifficulty.PickPocketLootID       = fields[14].GetUInt32();
-        creatureDifficulty.SkinLootID             = fields[15].GetUInt32();
-        creatureDifficulty.GoldMin                = fields[16].GetUInt32();
-        creatureDifficulty.GoldMax                = fields[17].GetUInt32();
-        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[18].GetUInt32()), CreatureStaticFlags2(fields[19].GetUInt32()),
-            CreatureStaticFlags3(fields[20].GetUInt32()), CreatureStaticFlags4(fields[21].GetUInt32()), CreatureStaticFlags5(fields[22].GetUInt32()),
-            CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
+        creatureDifficulty.TypeFlags3             = fields[13].GetUInt32();
+        creatureDifficulty.LootID                 = fields[14].GetUInt32();
+        creatureDifficulty.PickPocketLootID       = fields[15].GetUInt32();
+        creatureDifficulty.SkinLootID             = fields[16].GetUInt32();
+        creatureDifficulty.GoldMin                = fields[17].GetUInt32();
+        creatureDifficulty.GoldMax                = fields[18].GetUInt32();
+        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[19].GetUInt32()), CreatureStaticFlags2(fields[20].GetUInt32()),
+            CreatureStaticFlags3(fields[21].GetUInt32()), CreatureStaticFlags4(fields[22].GetUInt32()), CreatureStaticFlags5(fields[23].GetUInt32()),
+            CreatureStaticFlags6(fields[24].GetUInt32()), CreatureStaticFlags7(fields[25].GetUInt32()),  CreatureStaticFlags8(fields[26].GetUInt32()));
 
         // TODO: Check if this still applies
         creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
@@ -3544,6 +3544,15 @@ void ObjectMgr::LoadVehicleTemplate()
         vehicleTemplate.DespawnDelay = Milliseconds(fields[1].GetInt32());
         vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
         vehicleTemplate.CustomFlags = VehicleCustomFlags(fields[3].GetInt32());
+
+        if (vehicleTemplate.DespawnDelay < 0ms)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has negative despawnDelayMs ({}).`. Ignoring",
+                creatureId, vehicleTemplate.DespawnDelay.count());
+            vehicleTemplate.DespawnDelay = 1ms;
+        }
+        else if (vehicleTemplate.DespawnDelay == 0ms)
+            vehicleTemplate.DespawnDelay = 1ms;
 
         if (vehicleTemplate.Pitch)
         {
@@ -7448,10 +7457,6 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 
-    result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
-    if (result)
-        _voidItemId = (*result)[0].GetUInt64()+1;
-
     result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
     if (result)
         _creatureSpawnId = (*result)[0].GetUInt64() + 1;
@@ -7504,16 +7509,6 @@ uint32 ObjectMgr::GeneratePetNumber()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _hiPetNumber++;
-}
-
-uint64 ObjectMgr::GenerateVoidStorageItemId()
-{
-    if (_voidItemId >= uint64(0xFFFFFFFFFFFFFFFELL))
-    {
-        TC_LOG_ERROR("misc", "_voidItemId overflow!! Can't continue, shutting down server. ");
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return _voidItemId++;
 }
 
 uint64 ObjectMgr::GenerateCreatureSpawnId()

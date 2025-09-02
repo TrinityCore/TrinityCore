@@ -83,7 +83,7 @@ namespace WorldPackets
             int32 CreatureDifficultyID = 0;
             int32 WidgetSetID = 0;
             int32 WidgetSetUnitConditionID = 0;
-            std::array<uint32, 2> Flags = { };
+            std::array<uint32, 3> Flags = { };
             std::array<uint32, 2> ProxyCreatureID = { };
             std::array<std::string, 4> Name = { };
             std::array<std::string, 4> NameAlt = { };

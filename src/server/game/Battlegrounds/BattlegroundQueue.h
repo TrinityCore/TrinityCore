@@ -39,7 +39,6 @@ struct GroupQueueInfo                                       // stores informatio
 {
     std::map<ObjectGuid, PlayerQueueInfo*> Players;         // player queue info map
     ::Team  Team;                                           // Player team (ALLIANCE/HORDE)
-    uint32  ArenaTeamId;                                    // team id if rated match
     uint32  JoinTime;                                       // time when group was added
     uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
     uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
@@ -79,7 +78,7 @@ class TC_GAME_API BattlegroundQueue
         bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
         bool CheckNormalMatch(BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
         bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo* AddGroup(Player const* leader, Group const* group, Team team, PVPDifficultyEntry const*  bracketEntry, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 ArenaTeamId = 0);
+        GroupQueueInfo* AddGroup(Player const* leader, Group const* group, Team team, PVPDifficultyEntry const*  bracketEntry, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating);
         void RemovePlayer(ObjectGuid guid, bool decreaseInvitedCount);
         bool IsPlayerInvited(ObjectGuid pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(ObjectGuid guid, GroupQueueInfo* ginfo);

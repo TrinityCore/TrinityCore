@@ -68,6 +68,7 @@ namespace WorldPackets
             int32 Season = 0;
             std::vector<MythicPlusMember> Members;
             float RunScore = 0.0f;
+            int32 Unknown_1120 = 0;
             std::array<int32, 4> KeystoneAffixIDs;
         };
 

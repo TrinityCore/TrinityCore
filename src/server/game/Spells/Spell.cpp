@@ -5284,6 +5284,7 @@ void Spell::SendChannelUpdate(uint32 time, Optional<SpellCastResult> result)
         unitCaster->ClearChannelObjects();
         unitCaster->SetChannelSpellId(0);
         unitCaster->SetChannelVisual({});
+        unitCaster->SetChannelSpellData(0, 0);
         unitCaster->SetSpellEmpowerStage(-1);
     }
 
@@ -5365,6 +5366,7 @@ void Spell::SendChannelStart(uint32 duration)
 
     unitCaster->SetChannelSpellId(m_spellInfo->Id);
     unitCaster->SetChannelVisual(m_SpellVisual);
+    unitCaster->SetChannelSpellData(GameTime::GetGameTimeMS(), duration);
 
     auto setImmunitiesAndHealPrediction = [&](Optional<WorldPackets::Spells::SpellChannelStartInterruptImmunities>& interruptImmunities, Optional<WorldPackets::Spells::SpellTargetedHealPrediction>& healPrediction)
     {

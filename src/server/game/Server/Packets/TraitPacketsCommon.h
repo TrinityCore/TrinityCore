@@ -41,6 +41,7 @@ struct TraitEntry
     int32 TraitNodeEntryID = 0;
     int32 Rank = 0;
     int32 GrantedRanks = 0;
+    int32 BonusRanks = 0;
 };
 
 struct TraitSubTreeCache

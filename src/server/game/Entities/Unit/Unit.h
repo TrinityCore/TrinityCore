@@ -1433,6 +1433,12 @@ class TC_GAME_API Unit : public WorldObject
         void SetChannelObject(uint32 slot, ObjectGuid guid);
         void RemoveChannelObject(ObjectGuid guid);
         void ClearChannelObjects();
+        void SetChannelSpellData(uint32 startTimeMs, uint32 durationMs)
+        {
+            auto channelData = m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelData);
+            SetUpdateFieldValue(channelData.ModifyValue(&UF::UnitChannel::StartTimeMs), startTimeMs);
+            SetUpdateFieldValue(channelData.ModifyValue(&UF::UnitChannel::Duration), durationMs);
+        }
         int8 GetSpellEmpowerStage() const { return m_unitData->SpellEmpowerStage; }
         void SetSpellEmpowerStage(int8 stage) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SpellEmpowerStage), stage); }
 

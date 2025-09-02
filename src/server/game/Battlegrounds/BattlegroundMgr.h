@@ -118,7 +118,7 @@ class TC_GAME_API BattlegroundMgr
         void LoadBattlegroundTemplates();
         void DeleteAllBattlegrounds();
 
-        void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
+        static void SendToBattleground(Player* player, Battleground const* battleground);
 
         /* Battleground queues */
         static bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId);

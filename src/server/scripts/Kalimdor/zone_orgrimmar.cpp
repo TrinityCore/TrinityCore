@@ -45,7 +45,7 @@ class spell_art_of_war_movie_aura : public SpellScript
     {
         GetHitUnit()->CastSpell(nullptr, Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
