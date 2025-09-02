@@ -765,7 +765,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PlayerChoiceResponseMawPower const& pla
 {
     data << int32(playerChoiceResponseMawPower.Unused901_1);
     data << int32(playerChoiceResponseMawPower.TypeArtFileID);
-    data << int32(playerChoiceResponseMawPower.Unused901_2);
+    data << int32(playerChoiceResponseMawPower.BorderUiTextureAtlasMemberID);
     data << int32(playerChoiceResponseMawPower.SpellID);
     data << int32(playerChoiceResponseMawPower.MaxStacks);
     data << OptionalInit(playerChoiceResponseMawPower.Rarity);
@@ -828,14 +828,14 @@ WorldPacket const* DisplayPlayerChoice::Write()
     _worldPacket << uint32(SoundKitID);
     _worldPacket << uint32(CloseUISoundKitID);
     _worldPacket << uint8(NumRerolls);
-    _worldPacket << Duration;
+    _worldPacket << ExpireTime;
     _worldPacket << SizedString::BitsSize<8>(Question);
     _worldPacket << SizedString::BitsSize<8>(PendingChoiceText);
     _worldPacket << Bits<1>(InfiniteRange);
     _worldPacket << Bits<1>(HideWarboardHeader);
     _worldPacket << Bits<1>(KeepOpenAfterChoice);
-    _worldPacket << Bits<1>(Unknown_1115_1);
-    _worldPacket << Bits<1>(Unknown_1115_2);
+    _worldPacket << Bits<1>(ShowChoicesAsList);
+    _worldPacket << Bits<1>(ForceDontShowChoicesAsList);
     _worldPacket.FlushBits();
 
     for (PlayerChoiceResponse const& response : Responses)

@@ -64,7 +64,7 @@ inline bool roll_chance_i(int chance)
 /*
 * Wrapper satisfying UniformRandomNumberGenerator concept for use in <random> algorithms
 */
-class TC_COMMON_API RandomEngine
+class RandomEngine
 {
 public:
     typedef uint32 result_type;
@@ -72,8 +72,6 @@ public:
     static constexpr result_type min() { return std::numeric_limits<result_type>::min(); }
     static constexpr result_type max() { return std::numeric_limits<result_type>::max(); }
     result_type operator()() const { return rand32(); }
-
-    static RandomEngine& Instance();
 };
 
 #endif // Random_h__

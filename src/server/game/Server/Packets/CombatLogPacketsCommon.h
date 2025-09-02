@@ -57,9 +57,12 @@ namespace WorldPackets
             {
                 TYPE_CREATURE_TO_PLAYER_DAMAGE          = 1,
                 TYPE_PLAYER_TO_CREATURE_DAMAGE          = 2,
-                TYPE_CREATURE_TO_CREATURE_DAMAGE        = 4,
-                TYPE_PLAYER_TO_PLAYER_SANDBOX_SCALING   = 7, // NYI
-                TYPE_PLAYER_TO_PLAYER_EXPECTED_STAT     = 8,
+                TYPE_CREATURE_TO_PLAYER_HEALING         = 3,
+                TYPE_PLAYER_TO_CREATURE_HEALING         = 4,
+                TYPE_CREATURE_TO_CREATURE_DAMAGE        = 5,
+                TYPE_CREATURE_TO_CREATURE_HEALING       = 6,
+                TYPE_PLAYER_TO_PLAYER_DAMAGE            = 7, // NYI
+                TYPE_PLAYER_TO_PLAYER_HEALING           = 8,
             };
 
             enum ContentTuningFlags : uint32
@@ -72,14 +75,17 @@ namespace WorldPackets
             int16 PlayerLevelDelta = 0;
             float PlayerItemLevel = 0;
             float TargetItemLevel = 0;
-            uint32 ScalingHealthItemLevelCurveID = 0;
+            int32 ScalingHealthItemLevelCurveID = 0;
+            int32 Unused1117 = 0;
+            int32 ScalingHealthPrimaryStatCurveID = 0;
             uint8 TargetLevel = 0;
             uint8 Expansion = 0;
             int8 TargetScalingLevelDelta = 0;
             uint32 Flags = NO_LEVEL_SCALING | NO_ITEM_LEVEL_SCALING;
             int32 PlayerContentTuningID = 0;
             int32 TargetContentTuningID = 0;
-            int32 Unused927 = 0;
+            int32 TargetHealingContentTuningID = 0; // direct heal only, not periodic
+            float PlayerPrimaryStatToExpectedRatio = 1.0f;
 
             template<class T, class U>
             bool GenerateDataForUnits(T* attacker, U* target);

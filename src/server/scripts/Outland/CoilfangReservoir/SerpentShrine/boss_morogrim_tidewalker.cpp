@@ -142,7 +142,7 @@ struct boss_morogrim_tidewalker : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        Playercount = me->GetMap()->GetPlayers().getSize();
+        Playercount = me->GetMap()->GetPlayers().size();
         Talk(SAY_AGGRO);
         _JustEngagedWith(who);
     }

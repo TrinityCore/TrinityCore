@@ -48,7 +48,7 @@ TC_API_EXPORT EnumText EnumUtils<MoveSplineFlagEnum>::ToString(MoveSplineFlagEnu
         case MoveSplineFlagEnum::Catmullrom: return { "Catmullrom", "Catmullrom", "Used Catmullrom interpolation mode" };
         case MoveSplineFlagEnum::Cyclic: return { "Cyclic", "Cyclic", "Movement by cycled spline" };
         case MoveSplineFlagEnum::Enter_Cycle: return { "Enter_Cycle", "Enter_Cycle", "Everytimes appears with cyclic flag in monster move packet, erases first spline vertex after first cycle done" };
-        case MoveSplineFlagEnum::Frozen: return { "Frozen", "Frozen", "Will never arrive" };
+        case MoveSplineFlagEnum::Turning: return { "Turning", "Turning", "Turns in place" };
         case MoveSplineFlagEnum::TransportEnter: return { "TransportEnter", "TransportEnter", "" };
         case MoveSplineFlagEnum::TransportExit: return { "TransportExit", "TransportExit", "" };
         case MoveSplineFlagEnum::Unknown_0x20000: return { "Unknown_0x20000", "Unknown_0x20000", "NOT VERIFIED" };
@@ -93,7 +93,7 @@ TC_API_EXPORT MoveSplineFlagEnum EnumUtils<MoveSplineFlagEnum>::FromIndex(size_t
         case 12: return MoveSplineFlagEnum::Catmullrom;
         case 13: return MoveSplineFlagEnum::Cyclic;
         case 14: return MoveSplineFlagEnum::Enter_Cycle;
-        case 15: return MoveSplineFlagEnum::Frozen;
+        case 15: return MoveSplineFlagEnum::Turning;
         case 16: return MoveSplineFlagEnum::TransportEnter;
         case 17: return MoveSplineFlagEnum::TransportExit;
         case 18: return MoveSplineFlagEnum::Unknown_0x20000;
@@ -135,7 +135,7 @@ TC_API_EXPORT size_t EnumUtils<MoveSplineFlagEnum>::ToIndex(MoveSplineFlagEnum v
         case MoveSplineFlagEnum::Catmullrom: return 12;
         case MoveSplineFlagEnum::Cyclic: return 13;
         case MoveSplineFlagEnum::Enter_Cycle: return 14;
-        case MoveSplineFlagEnum::Frozen: return 15;
+        case MoveSplineFlagEnum::Turning: return 15;
         case MoveSplineFlagEnum::TransportEnter: return 16;
         case MoveSplineFlagEnum::TransportExit: return 17;
         case MoveSplineFlagEnum::Unknown_0x20000: return 18;

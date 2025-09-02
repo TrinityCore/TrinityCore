@@ -517,12 +517,11 @@ void RequestGuildPartyState::Read()
 
 WorldPacket const* GuildPartyState::Write()
 {
-    _worldPacket << Bits<1>(InGuildParty);
-    _worldPacket.FlushBits();
-
     _worldPacket << int32(NumMembers);
     _worldPacket << int32(NumRequired);
     _worldPacket << float(GuildXPEarnedMult);
+    _worldPacket << Bits<1>(InGuildParty);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }
