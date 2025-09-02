@@ -10100,6 +10100,7 @@ void Unit::RemoveFromWorld()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         RemoveAllAreaTriggers(AreaTriggerRemoveReason::UnitDespawn);
+        ExitAllAreaTriggers(); // exit all areatriggers the unit is in
 
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
