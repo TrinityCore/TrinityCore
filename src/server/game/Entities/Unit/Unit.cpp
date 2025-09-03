@@ -5499,6 +5499,23 @@ void Unit::RemoveAllAreaTriggers(AreaTriggerRemoveReason reason /*= AreaTriggerR
     }
 }
 
+void Unit::EnterAreaTrigger(AreaTrigger* areaTrigger)
+{
+    m_insideAreaTriggers.push_back(areaTrigger);
+}
+
+void Unit::ExitAreaTrigger(AreaTrigger* areaTrigger)
+{
+    std::erase(m_insideAreaTriggers, areaTrigger);
+}
+
+void Unit::ExitAllAreaTriggers()
+{
+    AreaTriggerList atList = std::move(m_insideAreaTriggers);
+    for (AreaTrigger* at : atList)
+        at->HandleUnitExit(this);
+}
+
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
@@ -10083,6 +10100,7 @@ void Unit::RemoveFromWorld()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         RemoveAllAreaTriggers(AreaTriggerRemoveReason::UnitDespawn);
+        ExitAllAreaTriggers(); // exit all areatriggers the unit is in
 
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
