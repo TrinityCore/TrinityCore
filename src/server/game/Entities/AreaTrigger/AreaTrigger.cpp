@@ -835,43 +835,61 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     // Handle after _insideUnits have been reinserted so we can use GetInsideUnits() in hooks
     for (Unit* unit : enteringUnits)
-    {
-        if (Player* player = unit->ToPlayer())
-        {
-            if (player->isDebugAreaTriggers)
-                ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
-
-            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_ENTER, GetEntry(), 1);
-
-            if (GetTemplate()->ActionSetId)
-                player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
-        }
-
-        DoActions(unit);
-
-        _ai->OnUnitEnter(unit);
-    }
+        HandleUnitEnter(unit);
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
-    {
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
-        {
-            if (Player* player = leavingUnit->ToPlayer())
-            {
-                if (player->isDebugAreaTriggers)
-                    ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
+            HandleUnitExitInternal(leavingUnit);
 
-                player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+    if (IsStaticSpawn())
+        setActive(!_insideUnits.empty());
+}
 
-                if (GetTemplate()->ActionSetId)
-                    player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
-            }
+void AreaTrigger::HandleUnitEnter(Unit* unit)
+{
+    if (Player* player = unit->ToPlayer())
+    {
+        if (player->isDebugAreaTriggers)
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_ENTERED, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
-            UndoActions(leavingUnit);
+        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_ENTER, GetEntry(), 1);
 
-            _ai->OnUnitExit(leavingUnit);
-        }
+        if (GetTemplate()->ActionSetId)
+            player->UpdateCriteria(CriteriaType::EnterAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
     }
+
+    DoActions(unit);
+
+    _ai->OnUnitEnter(unit);
+    unit->EnterAreaTrigger(this);
+}
+
+void AreaTrigger::HandleUnitExitInternal(Unit* unit)
+{
+    if (Player* player = unit->ToPlayer())
+    {
+        if (player->isDebugAreaTriggers)
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
+
+        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+
+        if (GetTemplate()->ActionSetId)
+            player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+    }
+
+    UndoActions(unit);
+
+    _ai->OnUnitExit(unit);
+    unit->ExitAreaTrigger(this);
+}
+
+void AreaTrigger::HandleUnitExit(Unit* unit)
+{
+    _insideUnits.erase(unit->GetGUID());
+
+    HandleUnitExitInternal(unit);
+
+    UpdateHasPlayersFlag();
 }
 
 AreaTriggerTemplate const* AreaTrigger::GetTemplate() const
