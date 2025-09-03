@@ -21839,6 +21839,9 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
 
     pet->CombatStop();
 
+    // exit areatriggers before saving to remove auras applied by them
+    pet->ExitAllAreaTriggers();
+
     // only if current pet in slot
     pet->SavePetToDB(mode);
 
