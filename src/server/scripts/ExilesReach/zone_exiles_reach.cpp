@@ -4647,8 +4647,8 @@ struct at_briarpatch_to_plains : AreaTriggerAI
         std::vector<WorldObject*> objs;
 
         Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck check(player->GetGUID(), conversationId);
-        Trinity::WorldObjectListSearcher<Trinity::ObjectEntryAndPrivateOwnerIfExistsCheck> checker(nullptr, objs, check, GRID_MAP_TYPE_MASK_CONVERSATION);
-        Cell::VisitGridObjects(player, checker, 100.0f);
+        Trinity::ConversationListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), objs, check);
+        Cell::VisitGridObjects(player, searcher, 100.0f);
 
         if (objs.empty())
             Conversation::CreateConversation(conversationId, player, *player, player->GetGUID(), nullptr);

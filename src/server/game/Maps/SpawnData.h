@@ -123,7 +123,7 @@ struct SpawnMetadata
     bool dbData = true;
     SpawnGroupTemplateData const* spawnGroupData = nullptr;
     SpawnTrackingTemplateData const* spawnTrackingData = nullptr;
-    uint32 spawnTrackingQuestObjectiveId = 0;
+    std::vector<uint32> spawnTrackingQuestObjectives;
     std::array<SpawnTrackingStateData, size_t(SpawnTrackingState::Max)> spawnTrackingStates;
 
     protected:

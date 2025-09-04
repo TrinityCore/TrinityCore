@@ -93,7 +93,6 @@ struct CreateObjectBits
     bool Vehicle : 1;
     bool AnimKit : 1;
     bool Rotation : 1;
-    bool AreaTrigger : 1;
     bool GameObject : 1;
     bool SmoothPhasing : 1;
     bool ThisIsYou : 1;
@@ -143,7 +142,7 @@ namespace UF
     };
 
     template<typename T>
-    inline bool SetUpdateFieldValue(UpdateFieldSetter<T>& setter, typename UpdateFieldSetter<T>::value_type&& value)
+    inline bool SetUpdateFieldValue(UpdateFieldPrivateSetter<T>& setter, typename UpdateFieldPrivateSetter<T>::value_type&& value)
     {
         return setter.SetValue(std::move(value));
     }
@@ -304,7 +303,7 @@ class TC_GAME_API Object
         UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
         template<typename T>
-        void ForceUpdateFieldChange(UF::UpdateFieldSetter<T> const& /*setter*/)
+        void ForceUpdateFieldChange(UF::UpdateFieldPrivateSetter<T> const& /*setter*/)
         {
             AddToObjectUpdateIfNeeded();
         }
@@ -323,21 +322,21 @@ class TC_GAME_API Object
         void _Create(ObjectGuid const& guid);
 
         template<typename T>
-        void SetUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
+        void SetUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
         {
             if (UF::SetUpdateFieldValue(setter, std::move(value)))
                 AddToObjectUpdateIfNeeded();
         }
 
         template<typename T>
-        void SetUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
+        void SetUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
         {
             static_assert(std::is_integral<T>::value, "SetUpdateFieldFlagValue must be used with integral types");
             SetUpdateFieldValue(setter, setter.GetValue() | flag);
         }
 
         template<typename T>
-        void RemoveUpdateFieldFlagValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type flag)
+        void RemoveUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
         {
             static_assert(std::is_integral<T>::value, "RemoveUpdateFieldFlagValue must be used with integral types");
             SetUpdateFieldValue(setter, setter.GetValue() & ~flag);
@@ -380,14 +379,14 @@ class TC_GAME_API Object
 
         // stat system helpers
         template<typename T>
-        void SetUpdateFieldStatValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type value)
+        void SetUpdateFieldStatValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
             SetUpdateFieldValue(setter, std::max(value, T(0)));
         }
 
         template<typename T>
-        void ApplyModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, typename UF::UpdateFieldSetter<T>::value_type mod, bool apply)
+        void ApplyModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type mod, bool apply)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
 
@@ -401,7 +400,7 @@ class TC_GAME_API Object
         }
 
         template<typename T>
-        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldSetter<T> setter, float percent, bool apply)
+        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, float percent, bool apply)
         {
             static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
 

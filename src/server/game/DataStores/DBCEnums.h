@@ -791,11 +791,11 @@ enum class CriteriaType : int16
 
     CompleteQuestsCountOnAccount                   = 257, /*NYI*/
 
-    WarbandBankTabPurchased                        = 260, /*NYI*/
+    BankTabPurchased                               = 260, // Bank Tab Purchased in {#BankType}
     ReachRenownLevel                               = 261,
     LearnTaxiNode                                  = 262,
 
-    Count                                          = 264
+    Count                                          = 270
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1015,6 +1015,107 @@ enum class FriendshipReputationFlags : int32
 };
 
 DEFINE_ENUM_FLAG(FriendshipReputationFlags);
+
+enum class GameRule : int32
+{
+    NoDebuffLimit                           = 1,
+    CharNameReservationEnabled              = 2,
+    MaxCharReservationsPerRealm             = 3,
+    MaxAccountCharReservationsPerContentset = 4,
+    EtaRealmLaunchTime                      = 5,
+    TrivialGroupXPPercent                   = 7,
+    CharReservationsPerRealmReopenThreshold = 8,
+    DisablePct                              = 9,
+    HardcoreRuleset                         = 10,
+    ReplaceAbsentGmSeconds                  = 11,
+    ReplaceGmRankLastOnlineSeconds          = 12,
+    GameMode                                = 13,
+    CharacterlessLogin                      = 14,
+    NoMultiboxing                           = 15,
+    VanillaNpcKnockback                     = 16,
+    Runecarving                             = 17,
+    TalentRespecCostMin                     = 18,
+    TalentRespecCostMax                     = 19,
+    TalentRespecCostStep                    = 20,
+    VanillaRageGenerationModifier           = 21,
+    SelfFoundAllowed                        = 22,
+    DisableHonorDecay                       = 23,
+    MaxLootDropLevel                        = 25,
+    MicrobarScale                           = 26,
+    MaxUnitNameDistance                     = 27,
+    MaxNameplateDistance                    = 28,
+    UserAddonsDisabled                      = 29,
+    UserScriptsDisabled                     = 30,
+    NonPlayerNameplateScale                 = 31,
+    ForcedPartyFrameScale                   = 32,
+    CustomActionbarOverlayHeightOffset      = 33,
+    ForcedChatLanguage                      = 34,
+    LandingPageFactionID                    = 35,
+    CollectionsPanelDisabled                = 36,
+    CharacterPanelDisabled                  = 37,
+    SpellbookPanelDisabled                  = 38,
+    TalentsPanelDisabled                    = 39,
+    AchievementsPanelDisabled               = 40,
+    CommunitiesPanelDisabled                = 41,
+    EncounterJournalDisabled                = 42,
+    FinderPanelDisabled                     = 43,
+    StoreDisabled                           = 44,
+    HelpPanelDisabled                       = 45,
+    GuildsDisabled                          = 46,
+    QuestLogMicrobuttonDisabled             = 47,
+    MapPlunderstormCircle                   = 48,
+    AfterDeathSpectatingUI                  = 49,
+    FrontEndChat                            = 50,
+    UniversalNameplateOcclusion             = 51,
+    FastAreaTriggerTick                     = 52,
+    AllPlayersAreFastMovers                 = 53,
+    IgnoreChrclassDisabledFlag              = 54,
+    CharacterCreateUseFixedBackgroundModel  = 55,
+    ForceAlteredFormsOn                     = 56,
+    PlayerNameplateDifficultyIcon           = 57,
+    PlayerNameplateAlternateHealthColor     = 58,
+    AlwaysAllowAlliedRaces                  = 59,
+    ActionbarIconIntroDisabled              = 60,
+    ReleaseSpiritGhostDisabled              = 61,
+    DeleteItemConfirmationDisabled          = 62,
+    ChatLinkLevelToastsDisabled             = 63,
+    BagsUIDisabled                          = 64,
+    PetBattlesDisabled                      = 65,
+    PerksProgramActivityTrackingDisabled    = 66,
+    MaximizeWorldMapDisabled                = 67,
+    WorldMapTrackingOptionsDisabled         = 68,
+    WorldMapTrackingPinDisabled             = 69,
+    WorldMapHelpPlateDisabled               = 70,
+    QuestLogPanelDisabled                   = 71,
+    QuestLogSuperTrackingDisabled           = 72,
+    TutorialFrameDisabled                   = 73,
+    IngameMailNotificationDisabled          = 74,
+    IngameCalendarDisabled                  = 75,
+    IngameTrackingDisabled                  = 76,
+    IngameWhoListDisabled                   = 77,
+    RaceAlteredFormsDisabled                = 78,
+    IngameFriendsListDisabled               = 79,
+    MacrosDisabled                          = 80,
+    CompactRaidFrameManagerDisabled         = 81,
+    EditModeDisabled                        = 82,
+    InstanceDifficultyBannerDisabled        = 83,
+    FullCharacterCreateDisabled             = 84,
+    TargetFrameBuffsDisabled                = 85,
+    UnitFramePvPContextualDisabled          = 86,
+    BlockWhileSheathedAllowed               = 88,
+    VanillaAccountMailInstant               = 91,
+    ClearMailOnRealmTransfer                = 92,
+    PremadeGroupFinderStyle                 = 93,
+    PlunderstormAreaSelection               = 94,
+    GroupFinderCapabilities                 = 98,
+    WorldMapLegendDisabled                  = 99,
+    WorldMapFrameStrata                     = 100,
+    MerchantFilterDisabled                  = 101,
+    SummoningStones                         = 108,
+    TransmogEnabled                         = 109,
+    MailGameRule                            = 132,
+    LootMethodStyle                         = 157,
+};
 
 enum class GlobalCurve : int32
 {
@@ -1829,8 +1930,8 @@ enum class ModifierTreeType : int32
     PlayerWeaponHighWatermarkAboveOrEqual                               = 375, /*NYI*/
     PlayerHeadHighWatermarkAboveOrEqual                                 = 376, /*NYI*/
     PlayerHasDisplayedCurrencyLessThan                                  = 377, /*NYI*/ // Player has {CurrencyTypes} less than {#Amount} (value visible in ui is taken into account, not raw value)
-    PlayerDataFlagAccountIsSet                                          = 378, /*NYI*/ // Player {PlayerDataFlagAccount} is set
-    PlayerDataFlagCharacterIsSet                                        = 379, /*NYI*/ // Player {PlayerDataFlagCharacter} is set
+    PlayerDataFlagAccountIsSet                                          = 378, // Player {PlayerDataFlagAccount} is set
+    PlayerDataFlagCharacterIsSet                                        = 379, // Player {PlayerDataFlagCharacter} is set
     PlayerIsOnMapWithExpansion                                          = 380, // Player is on map that has {ExpansionID}
 
     PlayerHasCompletedQuestOnAccount                                    = 382, /*NYI*/ // Player has previously completed quest "{QuestV2}" on account
@@ -1841,12 +1942,16 @@ enum class ModifierTreeType : int32
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
     PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
-    PlayerDataElementCharacterEqual                                     = 390, /*NYI*/ // Player {PlayerDataElementCharacter} is greater than {#Amount}
-    PlayerDataElementAccountEqual                                       = 391, /*NYI*/ // Player {PlayerDataElementAccount} is greater than {#Amount}
+    PlayerDataElementCharacterBetween                                   = 390, // Player {PlayerDataElementCharacter} is between {#Amount} and {#Amount2}
+    PlayerDataElementAccountBetween                                     = 391, // Player {PlayerDataElementAccount} is between {#Amount} and {#Amount2}
     PlayerHasCompletedQuestOrIsReadyToTurnIn                            = 392, // Player has previously completed quest "{QuestV2}" or is ready to turn it in
     PlayerTitle                                                         = 393, // Player is currently using "{ChrTitles}" title
 
+    PlayerWeeklyCurrencyIsRelOpFromMax                                  = 397, /*NYI*/ // Player weekly {CurrencyTypes} is {RelOp} {#Amount} from currency weekly limit
+
     PlayerIsInGuild                                                     = 404, // Player is in a guild
+
+    PlayerAvgItemLevelRelOp                                             = 415, /*NYI*/ // Player average item level {AvgItemLevelCategory} is {RelOp} {#Amount}
 };
 
 enum class ModifierTreeOperator : int8
@@ -1940,6 +2045,12 @@ enum class PlayerConditionLfgStatus : uint8
     VoteKickCount           = 6,
     BootCount               = 7,
     GearDiff                = 8
+};
+
+enum class PlayerDataElementType : int32
+{
+    Int64   = 0,
+    Float   = 1
 };
 
 enum class PlayerInteractionType : int32

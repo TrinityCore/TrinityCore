@@ -150,9 +150,9 @@ ByteBuffer& operator<<(ByteBuffer& data, PVPBracketData const& bracket)
 
 ByteBuffer& operator<<(ByteBuffer& data, TraitInspectInfo const& traits)
 {
-    data << int32(traits.Level);
-    data << int32(traits.ChrSpecializationID);
-    data << traits.Config;
+    data << int32(traits.PlayerLevel);
+    data << int32(traits.SpecID);
+    data << traits.ActiveCombatTraits;
 
     return data;
 }
@@ -225,6 +225,8 @@ WorldPacket const* InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
+    _worldPacket << TalentInfo;
+
     _worldPacket << OptionalInit(GuildData);
     _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();
@@ -238,7 +240,7 @@ WorldPacket const* InspectResult::Write()
     if (AzeriteLevel)
         _worldPacket << int32(*AzeriteLevel);
 
-    _worldPacket << TalentTraits;
+    _worldPacket << TraitsInfo;
 
     return &_worldPacket;
 }

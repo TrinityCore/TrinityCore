@@ -60,10 +60,9 @@ void EscortAI::JustDied(Unit* /*killer*/)
     {
         if (Group* group = player->GetGroup())
         {
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                if (Player* member = groupRef->GetSource())
-                    if (member->IsInMap(player))
-                        member->FailQuest(_escortQuest->GetQuestId());
+            for (GroupReference const& groupRef : group->GetMembers())
+                if (groupRef.GetSource()->IsInMap(player))
+                    groupRef.GetSource()->FailQuest(_escortQuest->GetQuestId());
         }
         else
             player->FailQuest(_escortQuest->GetQuestId());
@@ -417,10 +416,9 @@ bool EscortAI::IsPlayerOrGroupInRange()
     {
         if (Group* group = player->GetGroup())
         {
-            for (GroupReference* groupRef = group->GetFirstMember(); groupRef != nullptr; groupRef = groupRef->next())
-                if (Player* member = groupRef->GetSource())
-                    if (me->IsWithinDistInMap(member, GetMaxPlayerDistance()))
-                        return true;
+            for (GroupReference const& groupRef : group->GetMembers())
+                if (me->IsWithinDistInMap(groupRef.GetSource(), GetMaxPlayerDistance()))
+                    return true;
         }
         else if (me->IsWithinDistInMap(player, GetMaxPlayerDistance()))
             return true;

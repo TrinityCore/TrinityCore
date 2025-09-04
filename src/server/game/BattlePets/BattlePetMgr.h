@@ -193,7 +193,7 @@ public:
     void DismissPet();
 
     void SendJournal();
-    void SendUpdates(std::vector<std::reference_wrapper<BattlePet>> pets, bool petAdded);
+    void SendUpdates(std::span<std::reference_wrapper<BattlePet const> const> pets, bool petAdded);
     void SendError(BattlePetError error, uint32 creatureId);
 
     void SendJournalLockStatus();
