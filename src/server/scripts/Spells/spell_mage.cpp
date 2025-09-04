@@ -1850,7 +1850,8 @@ class spell_mage_wildfire : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_TALENT, SPELL_MAGE_WILDFIRE_CASTER_CRIT });
+        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_CASTER_CRIT })
+            && ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2 } });
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
@@ -1877,7 +1878,8 @@ class spell_mage_wildfire_area : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_TALENT, SPELL_MAGE_WILDFIRE_AREA_CRIT });
+        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_AREA_CRIT })
+            && ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3 } });
     }
 
     void AreaCrit(SpellEffIndex effIndex)
