@@ -958,7 +958,7 @@ class spell_mage_heat_shimmer : public AuraScript
 
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_MAGE_HEAT_SHIMMER, TRIGGERED_IGNORE_CAST_IN_PROGRESS || TRIGGERED_DONT_REPORT_CAST_ERROR);
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_MAGE_HEAT_SHIMMER);
     }
 
     void Register() override
