@@ -71,6 +71,7 @@ enum MageSpells
     SPELL_MAGE_FRENETIC_SPEED                    = 236060,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
+    SPELL_MAGE_HEAT_SHIMMER                      = 458964,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
@@ -942,6 +943,50 @@ class spell_mage_frostbolt : public SpellScript
     }
 };
 
+// 457735 - Heat Shimmer
+class spell_mage_heat_shimmer : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_MAGE_HEAT_SHIMMER, TRIGGERED_IGNORE_CAST_IN_PROGRESS || TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_heat_shimmer::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_heat_shimmer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 2948 - Scorch
+class spell_mage_heat_shimmer_remove : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HEAT_SHIMMER });
+    }
+
+    void HandleHit() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_MAGE_HEAT_SHIMMER);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_mage_heat_shimmer_remove::HandleHit);
+    }
+};
+
 // 386737 - Hyper Impact
 class spell_mage_hyper_impact : public AuraScript
 {
@@ -1655,7 +1700,7 @@ class spell_mage_scald : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_SCALD })
+        return ValidateSpellInfo({ SPELL_MAGE_SCALD, SPELL_MAGE_HEAT_SHIMMER })
             && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
@@ -1666,7 +1711,7 @@ class spell_mage_scald : public SpellScript
 
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
-        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())))
+        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())) || !GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
             return;
 
         if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_SCALD, EFFECT_0))
@@ -1684,19 +1729,19 @@ class spell_mage_scorch : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_FRENETIC_SPEED });
+        return ValidateSpellInfo({ SPELL_MAGE_FRENETIC_SPEED, SPELL_MAGE_HEAT_SHIMMER });
     }
 
     void CalcCritChance(Unit const* victim, float& critChance)
     {
-        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()) || GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
             critChance = 100.0f;
     }
 
     void HandleFreneticSpeed(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()) || GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
             caster->CastSpell(caster, SPELL_MAGE_FRENETIC_SPEED, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
@@ -1872,6 +1917,8 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_flurry);
     RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
+    RegisterSpellScript(spell_mage_heat_shimmer);
+    RegisterSpellScript(spell_mage_heat_shimmer_remove);
     RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
