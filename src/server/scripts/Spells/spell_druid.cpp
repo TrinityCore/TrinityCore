@@ -753,7 +753,6 @@ class spell_dru_efflorescence_heal : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        // Efflorescence became a smart heal which prioritizes players and their pets in their group before any unit outside their group.
         Trinity::SelectRandomInjuredTargets(targets, 3, true, GetCaster());
     }
 
@@ -2542,7 +2541,7 @@ class spell_dru_yseras_gift : public AuraScript
 // 145110 - Ysera's Gift (heal)
 class spell_dru_yseras_gift_group_heal : public SpellScript
 {
-    void SelectTargets(std::list<WorldObject*>& targets)
+    static void SelectTargets(SpellScript const&, std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 1, true);
     }
