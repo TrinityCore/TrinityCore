@@ -1,4 +1,4 @@
-FROM trinitycore/circle-ci:debian-12-runner
+FROM trinitycore/circle-ci:debian-13-runner
 
 #Setup
 WORKDIR /home/circleci
