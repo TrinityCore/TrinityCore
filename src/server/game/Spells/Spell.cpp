@@ -9632,6 +9632,69 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     targets.resize(maxTargets);
     std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
+
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& rules)
+{
+    if (targets.size() <= maxTargets)
+        return;
+
+    std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
+
+    // score each target based on how many rules they satisfy.
+    for (WorldObject* object : targets)
+    {
+        Unit* unit = object ? object->ToUnit() : nullptr;
+        if (!unit)
+            continue;
+
+        int32 score = 0;
+
+        for (PriorityRules const& rule : rules)
+        {
+            if (rule.condition(unit))
+                score += rule.weight;
+        }
+
+        prioritizedTargets.emplace_back(object, score);
+    }
+
+    // the higher the value, the higher the priority is.
+    std::ranges::sort(prioritizedTargets, [](const std::pair<WorldObject*, int32>& left, const std::pair<WorldObject*, int32>& right)
+    {
+        return left.second > right.second;
+    });
+
+    size_t cutOff = std::min(maxTargets, prioritizedTargets.size());
+
+    // if there are ties at the cutoff, shuffle them to avoid selection bias.
+    if (cutOff < prioritizedTargets.size())
+    {
+        int32 tieScore = prioritizedTargets[cutOff - 1].second;
+
+        auto const isTieScore = [tieScore](const std::pair<WorldObject*, int32>& entry)
+            { return entry.second == tieScore; };
+
+        // scan backwards to include tied entries before the cutoff.
+        std::ptrdiff_t tieStart = static_cast<std::ptrdiff_t>(cutOff - 1);
+        while (tieStart > 0 && isTieScore(prioritizedTargets[tieStart - 1]))
+            --tieStart;
+
+        // scan forward to include tied entries after the cutoff.
+        std::ptrdiff_t tieEnd = static_cast<std::ptrdiff_t>(cutOff);
+        while (tieEnd < static_cast<std::ptrdiff_t>(prioritizedTargets.size()) && isTieScore(prioritizedTargets[tieEnd]))
+            ++tieEnd;
+
+        // shuffle only the tied range to randomize final selection.
+        Containers::RandomShuffle(
+            std::ranges::next(prioritizedTargets.begin(), tieStart),
+            std::ranges::next(prioritizedTargets.begin(), tieEnd));
+    }
+
+    targets.clear();
+
+    for (size_t i = 0; i < cutOff; ++i)
+        targets.push_back(prioritizedTargets[i].first);
+}
 } //namespace Trinity
 
 CastSpellTargetArg::CastSpellTargetArg(WorldObject* target)
