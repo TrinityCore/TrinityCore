@@ -2119,9 +2119,9 @@ class spell_pri_power_word_radiance : public SpellScript
         Unit* explTarget = GetExplTargetUnit();
 
         // we must add one since explicit target is always chosen.
-        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
+        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(caster) + 1;
 
-        SortTargetsWithPriorityRules(targets, maxTargets, GetRadianceRules(caster, explTarget));
+        Trinity::SortTargetsWithPriorityRules(targets, maxTargets, GetRadianceRules(caster, explTarget));
 
         for (WorldObject const* target : targets)
         {
@@ -2139,16 +2139,16 @@ class spell_pri_power_word_radiance : public SpellScript
                 GetHitUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
     }
 
-    static std::vector<Trinity::PriorityRules> GetRadianceRules(Unit const* caster, Unit const* explTarget)
+    static std::array<Trinity::TargetPriorityRule, 5> GetRadianceRules(Unit const* caster, Unit const* explTarget)
     {
-        return Trinity::CreatePriorityRules
-        ({
-            { .weight = 1,  .condition = [caster](Unit const* target) { return target->IsInRaidWith(caster); }},
-            { .weight = 2,  .condition = [](Unit const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); }},
-            { .weight = 4,  .condition = [](Unit const* target) { return !target->IsFullHealth(); }},
-            { .weight = 8,  .condition = [caster](Unit const* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()); }},
-            { .weight = 16, .condition = [explTarget](Unit const* target) { return target == explTarget; }}
-        });
+        return
+        {
+            [explTarget](WorldObject const* target) { return target == explTarget; },
+            [caster](Unit const* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()); },
+            [](Unit const* target) { return !target->IsFullHealth(); },
+            [](WorldObject const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); },
+            [caster](Unit const* target) { return target->IsInRaidWith(caster); }
+        };
     }
 
     void Register() override
