@@ -961,7 +961,7 @@ std::string Condition::ToString(bool ext /*= false*/) const
     return std::move(ss).str();
 }
 
-ConditionMgr::ConditionMgr() { }
+ConditionMgr::ConditionMgr() = default;
 
 ConditionMgr::~ConditionMgr()
 {
@@ -2139,6 +2139,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 {
     switch (cond->ConditionType)
     {
+        case CONDITION_NONE:
+        {
+            if (!cond->ScriptId)
+            {
+                TC_LOG_ERROR("sql.sql", "{} must have a `ScriptName` in `condition` table, ignoring.", cond->ToString(true));
+                return false;
+            }
+            break;
+        }
         case CONDITION_AURA:
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE);
