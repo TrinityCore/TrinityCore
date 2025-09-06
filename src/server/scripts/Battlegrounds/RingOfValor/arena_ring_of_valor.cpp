@@ -21,7 +21,6 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
 struct arena_ring_of_valor : ArenaScript
 {
@@ -70,8 +69,6 @@ struct arena_ring_of_valor : ArenaScript
     {
         if (battleground->GetStatus() != STATUS_IN_PROGRESS)
             return;
-
-        _scheduler.Update(diff);
 
         if (_timer < diff)
         {
@@ -152,12 +149,6 @@ struct arena_ring_of_valor : ArenaScript
         // Should be false at first, TogglePillarCollision will do it.
         _pillarCollision = true;
         TogglePillarCollision();
-
-        _scheduler.Schedule(1min, [&](TaskContext)
-        {
-            CreateObject(BG_RV_OBJECT_TYPE_BUFF_1, 735.551819f, -284.794678f, 28.276682f, 0.034906f, 0.0f, 0.0f, 0.0f, 0.0f);
-            CreateObject(BG_RV_OBJECT_TYPE_BUFF_2, 791.224487f, -284.794464f, 28.276682f, 2.600535f, 0.0f, 0.0f, 0.0f, 0.0f);
-        });
     }
 
     void TogglePillarCollision()
@@ -279,6 +270,11 @@ struct arena_ring_of_valor : ArenaScript
         }
     }
 
+    void OnShadowSightEnabled() override
+    {
+        CreateObject(BG_RV_OBJECT_TYPE_BUFF_1, 735.551819f, -284.794678f, 28.276682f, 0.034906f, 0.0f, 0.0f, 0.0f, 0.0f);
+        CreateObject(BG_RV_OBJECT_TYPE_BUFF_2, 791.224487f, -284.794464f, 28.276682f, 2.600535f, 0.0f, 0.0f, 0.0f, 0.0f);
+    }
 private:
     GuidVector _elevatorGUIDs;
     GuidVector _gearGUIDs;
@@ -289,7 +285,6 @@ private:
     GuidVector _pillarSmallGUIDs;
     GuidVector _pillarBigGUIDs;
     GuidVector _pulleyGUIDs;
-    TaskScheduler _scheduler;
 
     uint32 _timer;
     uint32 _state;

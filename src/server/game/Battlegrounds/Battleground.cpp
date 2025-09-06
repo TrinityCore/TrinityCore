@@ -106,6 +106,8 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
     StartMessageIds[BG_STARTING_EVENT_SECOND] = BG_TEXT_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = BG_TEXT_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = BG_TEXT_BATTLE_HAS_BEGUN;
+
+    _shadowSightEnabled = false;
 }
 
 Battleground::Battleground(Battleground const&) = default;
@@ -168,6 +170,15 @@ void Battleground::Update(uint32 diff)
             // after 47 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
+                if (!_shadowSightEnabled && GetElapsedTime() >= static_cast<uint32>(90 * IN_MILLISECONDS + StartDelayTimes[BG_STARTING_EVENT_FIRST]))
+                {
+                    if (ArenaScript* as = dynamic_cast<ArenaScript*>(GetBgMap()->GetBattlegroundScript()))
+                    {
+                        as->OnShadowSightEnabled();
+                        _shadowSightEnabled = true;
+                    }
+                }
+
                 if (GetElapsedTime() >= 47 * MINUTE*IN_MILLISECONDS)
                 {
                     EndBattleground(TEAM_OTHER);

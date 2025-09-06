@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
 struct arena_nagrand : ArenaScript
 {
@@ -35,11 +34,6 @@ struct arena_nagrand : ArenaScript
     };
 
     explicit arena_nagrand(BattlegroundMap* map) : ArenaScript(map) { }
-
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
 
     void OnInit() override
     {
@@ -59,18 +53,18 @@ struct arena_nagrand : ArenaScript
                 door->DespawnOrUnsummon(5s);
             }
         }
-
-        _scheduler.Schedule(1min, [&](TaskContext)
-        {
-            CreateObject(BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
-            CreateObject(BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);
-        });
     }
 
     void AddDoor(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, GOState goState = GO_STATE_READY)
     {
         if (GameObject const* go = CreateObject(entry, x, y, z, o, rotation0, rotation1, rotation2, rotation3, goState))
             _doorGUIDs.emplace_back(go->GetGUID());
+    }
+
+    void OnShadowSightEnabled() override
+    {
+        CreateObject(BG_NA_OBJECT_TYPE_BUFF_1, 4009.189941f, 2895.250000f, 13.052700f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
+        CreateObject(BG_NA_OBJECT_TYPE_BUFF_2, 4103.330078f, 2946.350098f, 13.051300f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);
     }
 
 private:
