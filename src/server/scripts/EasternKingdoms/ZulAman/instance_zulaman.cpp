@@ -74,14 +74,18 @@ static DoorData const doorData[] =
 
 static ObjectData const creatureData[] =
 {
-    { NPC_HARRISON_JONES, NPC_HARRISON_JONES },
-    { NPC_NALORAKK,       BOSS_NALORAKK      },
-    { NPC_AKILZON,        BOSS_AKILZON       },
-    { NPC_JANALAI,        BOSS_JANALAI       },
-    { NPC_HALAZZI,        BOSS_HALAZZI       },
-    { NPC_HEXLORD,        BOSS_HEXLORD       },
-    { NPC_ZULJIN,         BOSS_ZULJIN        },
-    { 0,                  0                  } // END
+    { NPC_HARRISON_JONES,     NPC_HARRISON_JONES     },
+    { NPC_NALORAKK,           BOSS_NALORAKK          },
+    { NPC_AKILZON,            BOSS_AKILZON           },
+    { NPC_JANALAI,            BOSS_JANALAI           },
+    { NPC_HALAZZI,            BOSS_HALAZZI           },
+    { NPC_HEXLORD,            BOSS_HEXLORD           },
+    { NPC_ZULJIN,             BOSS_ZULJIN            },
+    { NPC_BEAR_SPIRIT,        DATA_BEAR_SPIRIT       },
+    { NPC_EAGLE_SPIRIT,       DATA_EAGLE_SPIRIT      },
+    { NPC_LYNX_SPIRIT,        DATA_LYNX_SPIRIT       },
+    { NPC_DRAGONHAWK_SPIRIT,  DATA_DRAGONHAWK_SPIRIT },
+    { 0,                      0                      } // END
 
 };
 
