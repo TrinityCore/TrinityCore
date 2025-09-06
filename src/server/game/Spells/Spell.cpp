@@ -9633,67 +9633,41 @@ void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTarg
     std::ranges::transform(tempTargets.begin(), tempTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
 
-void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::vector<PriorityRules> const& rules)
+void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::span<TargetPriorityRule const> rules)
 {
     if (targets.size() <= maxTargets)
         return;
 
-    std::vector<std::pair<WorldObject*, int32>> prioritizedTargets;
+    std::vector<std::pair<WorldObject*, int32>> prioritizedTargets(targets.size());
 
     // score each target based on how many rules they satisfy.
-    for (WorldObject* object : targets)
+    std::ranges::transform(targets, prioritizedTargets.begin(), [&](WorldObject* target)
     {
-        Unit* unit = object ? object->ToUnit() : nullptr;
-        if (!unit)
-            continue;
-
         int32 score = 0;
+        for (std::size_t i = 0; i < rules.size(); ++i)
+            if (rules[i].Rule(target))
+                score |= 1 << (rules.size() - 1 - i);
 
-        for (PriorityRules const& rule : rules)
-        {
-            if (rule.condition(unit))
-                score += rule.weight;
-        }
-
-        prioritizedTargets.emplace_back(object, score);
-    }
-
-    // the higher the value, the higher the priority is.
-    std::ranges::sort(prioritizedTargets, [](const std::pair<WorldObject*, int32>& left, const std::pair<WorldObject*, int32>& right)
-    {
-        return left.second > right.second;
+        return std::make_pair(target, score);
     });
 
-    size_t cutOff = std::min(maxTargets, prioritizedTargets.size());
+    // the higher the value, the higher the priority is.
+    std::ranges::sort(prioritizedTargets, std::ranges::greater(), Trinity::TupleElement<1>);
+
+    int32 tieScore = prioritizedTargets[maxTargets - 1].second;
 
     // if there are ties at the cutoff, shuffle them to avoid selection bias.
-    if (cutOff < prioritizedTargets.size())
+    if (prioritizedTargets[maxTargets].second == tieScore)
     {
-        int32 tieScore = prioritizedTargets[cutOff - 1].second;
-
-        auto const isTieScore = [tieScore](const std::pair<WorldObject*, int32>& entry)
-            { return entry.second == tieScore; };
-
-        // scan backwards to include tied entries before the cutoff.
-        std::ptrdiff_t tieStart = static_cast<std::ptrdiff_t>(cutOff - 1);
-        while (tieStart > 0 && isTieScore(prioritizedTargets[tieStart - 1]))
-            --tieStart;
-
-        // scan forward to include tied entries after the cutoff.
-        std::ptrdiff_t tieEnd = static_cast<std::ptrdiff_t>(cutOff);
-        while (tieEnd < static_cast<std::ptrdiff_t>(prioritizedTargets.size()) && isTieScore(prioritizedTargets[tieEnd]))
-            ++tieEnd;
+        auto toShuffle = std::equal_range(prioritizedTargets.begin(), prioritizedTargets.end(), std::pair<WorldObject*, int32>(nullptr, tieScore),
+            [](std::pair<WorldObject*, int32> const& target1, std::pair<WorldObject*, int32> const& target2) { return target1.second > target2.second; });
 
         // shuffle only the tied range to randomize final selection.
-        Containers::RandomShuffle(
-            std::ranges::next(prioritizedTargets.begin(), tieStart),
-            std::ranges::next(prioritizedTargets.begin(), tieEnd));
+        Containers::RandomShuffle(toShuffle.first, toShuffle.second);
     }
 
-    targets.clear();
-
-    for (size_t i = 0; i < cutOff; ++i)
-        targets.push_back(prioritizedTargets[i].first);
+    targets.resize(maxTargets);
+    std::ranges::transform(prioritizedTargets.begin(), prioritizedTargets.begin() + maxTargets, targets.begin(), Trinity::TupleElement<0>);
 }
 } //namespace Trinity
 
