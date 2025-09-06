@@ -15,53 +15,69 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Baron_Geddon
-SD%Complete: 100
-SDComment:
-SDCategory: Molten Core
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
-#include "ObjectMgr.h"
 
-enum Emotes
+enum GeddonTexts
 {
     EMOTE_SERVICE       = 0
 };
 
-enum Spells
+enum GeddonSpells
 {
     SPELL_INFERNO       = 19695,
-    SPELL_INFERNO_DMG   = 19698,
     SPELL_IGNITE_MANA   = 19659,
     SPELL_LIVING_BOMB   = 20475,
     SPELL_ARMAGEDDON    = 20478,
+
+    SPELL_INFERNO_DMG   = 19698
 };
 
-enum Events
+enum GeddonEvents
 {
     EVENT_INFERNO       = 1,
-    EVENT_IGNITE_MANA   = 2,
-    EVENT_LIVING_BOMB   = 3,
+    EVENT_IGNITE_MANA,
+    EVENT_LIVING_BOMB,
+    EVENT_ARMAGEDDON
 };
 
+// 12056 - Baron Geddon
 struct boss_baron_geddon : public BossAI
 {
-    boss_baron_geddon(Creature* creature) : BossAI(creature, BOSS_BARON_GEDDON)
+    boss_baron_geddon(Creature* creature) : BossAI(creature, BOSS_BARON_GEDDON), _performedArmageddon(false) { }
+
+    void Reset() override
     {
+        _Reset();
+        _performedArmageddon = false;
     }
 
-    void JustEngagedWith(Unit* victim) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(victim);
-        events.ScheduleEvent(EVENT_INFERNO, 45s);
-        events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
-        events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_INFERNO, 15s, 20s);
+        events.ScheduleEvent(EVENT_IGNITE_MANA, 5s, 20s);
+        events.ScheduleEvent(EVENT_LIVING_BOMB, 15s, 35s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_performedArmageddon && me->HealthBelowPctDamaged(2, damage))
+        {
+            _performedArmageddon = true;
+            events.ScheduleEvent(EVENT_ARMAGEDDON, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_ARMAGEDDON)
+            Talk(EMOTE_SERVICE);
     }
 
     void UpdateAI(uint32 diff) override
@@ -71,15 +87,6 @@ struct boss_baron_geddon : public BossAI
 
         events.Update(diff);
 
-        // If we are <2% hp cast Armageddon
-        if (!HealthAbovePct(2))
-        {
-            me->InterruptNonMeleeSpells(true);
-            DoCast(me, SPELL_ARMAGEDDON);
-            Talk(EMOTE_SERVICE);
-            return;
-        }
-
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
@@ -88,18 +95,20 @@ struct boss_baron_geddon : public BossAI
             switch (eventId)
             {
                 case EVENT_INFERNO:
-                    DoCast(me, SPELL_INFERNO);
-                    events.ScheduleEvent(EVENT_INFERNO, 45s);
+                    DoCastSelf(SPELL_INFERNO);
+                    events.Repeat(20s, 35s);
                     break;
                 case EVENT_IGNITE_MANA:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_IGNITE_MANA))
-                        DoCast(target, SPELL_IGNITE_MANA);
-                    events.ScheduleEvent(EVENT_IGNITE_MANA, 30s);
+                    DoCastSelf(SPELL_IGNITE_MANA);
+                    events.Repeat(25s, 40s);
                     break;
                 case EVENT_LIVING_BOMB:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         DoCast(target, SPELL_LIVING_BOMB);
-                    events.ScheduleEvent(EVENT_LIVING_BOMB, 35s);
+                    events.Repeat(10s, 20s);
+                    break;
+                case EVENT_ARMAGEDDON:
+                    DoCastSelf(SPELL_ARMAGEDDON);
                     break;
                 default:
                     break;
@@ -111,12 +120,20 @@ struct boss_baron_geddon : public BossAI
 
         DoMeleeAttackIfReady();
     }
+
+private:
+    bool _performedArmageddon;
 };
 
 // 19695 - Inferno
 class spell_baron_geddon_inferno : public AuraScript
 {
     PrepareAuraScript(spell_baron_geddon_inferno);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_INFERNO_DMG });
+    }
 
     void OnPeriodic(AuraEffect const* aurEff)
     {
