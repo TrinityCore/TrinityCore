@@ -551,6 +551,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     AURA_SCRIPT_HOOK_DISPEL,
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
+    AURA_SCRIPT_HOOK_TARGET_HEARTBEAT,
     // Spell Proc Hooks
     AURA_SCRIPT_HOOK_CHECK_PROC,
     AURA_SCRIPT_HOOK_CHECK_EFFECT_PROC,
@@ -584,6 +585,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         typedef void(CLASSNAME::*AuraEffectCalcSpellModFnType)(AuraEffect const*, SpellModifier* &); \
         typedef void(CLASSNAME::*AuraEffectAbsorbFnType)(AuraEffect*, DamageInfo &, uint32 &); \
         typedef void(CLASSNAME::*AuraEffectSplitFnType)(AuraEffect*, DamageInfo &, uint32 &); \
+        typedef void(CLASSNAME::*AuraTargetHeartbeatFnType)(); \
         typedef bool(CLASSNAME::*AuraCheckProcFnType)(ProcEventInfo&); \
         typedef bool(CLASSNAME::*AuraCheckEffectProcFnType)(AuraEffect const*, ProcEventInfo&); \
         typedef void(CLASSNAME::*AuraProcFnType)(ProcEventInfo&); \
@@ -687,6 +689,14 @@ class TC_GAME_API AuraScript : public _SpellScript
             private:
                 AuraEffectSplitFnType pEffectHandlerScript;
         };
+        class TC_GAME_API AuraTargetHeartbeatHandler
+        {
+            public:
+                AuraTargetHeartbeatHandler(AuraTargetHeartbeatFnType handlerScript);
+                void Call(AuraScript* auraScript);
+            private:
+                AuraTargetHeartbeatFnType _HandlerScript;
+        };
         class TC_GAME_API CheckProcHandler
         {
             public:
@@ -732,6 +742,7 @@ class TC_GAME_API AuraScript : public _SpellScript
         class EffectAbsorbFunction : public AuraScript::EffectAbsorbHandler { public: explicit EffectAbsorbFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectAbsorbHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class EffectManaShieldFunction : public AuraScript::EffectManaShieldHandler { public: explicit EffectManaShieldFunction(AuraEffectAbsorbFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectManaShieldHandler((AuraScript::AuraEffectAbsorbFnType)_pEffectHandlerScript, _effIndex) { } }; \
         class EffectSplitFunction : public AuraScript::EffectSplitHandler { public: explicit EffectSplitFunction(AuraEffectSplitFnType _pEffectHandlerScript, uint8 _effIndex) : AuraScript::EffectSplitHandler((AuraScript::AuraEffectSplitFnType)_pEffectHandlerScript, _effIndex) { } }; \
+        class AuraTargetHeartbeatHandlerFunction : public AuraScript::AuraTargetHeartbeatHandler { public: explicit AuraTargetHeartbeatHandlerFunction(AuraTargetHeartbeatFnType handlerScript) : AuraScript::AuraTargetHeartbeatHandler((AuraScript::AuraTargetHeartbeatFnType)handlerScript) { } }; \
         class CheckProcHandlerFunction : public AuraScript::CheckProcHandler { public: explicit CheckProcHandlerFunction(AuraCheckProcFnType handlerScript) : AuraScript::CheckProcHandler((AuraScript::AuraCheckProcFnType)handlerScript) { } }; \
         class CheckEffectProcHandlerFunction : public AuraScript::CheckEffectProcHandler { public: explicit CheckEffectProcHandlerFunction(AuraCheckEffectProcFnType handlerScript, uint8 effIndex, uint16 effName) : AuraScript::CheckEffectProcHandler((AuraScript::AuraCheckEffectProcFnType)handlerScript, effIndex, effName) { } }; \
         class AuraProcHandlerFunction : public AuraScript::AuraProcHandler { public: explicit AuraProcHandlerFunction(AuraProcFnType handlerScript) : AuraScript::AuraProcHandler((AuraScript::AuraProcFnType)handlerScript) { } }; \
@@ -865,6 +876,12 @@ class TC_GAME_API AuraScript : public _SpellScript
         // where function is: void function(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& splitAmount);
         HookList<EffectSplitHandler> OnEffectSplit;
         #define AuraEffectSplitFn(F, I) EffectSplitFunction(&F, I)
+
+        // executed when unit owner internal heartbeat-timer passed (every 5 seconds by default)
+        // example: OnTargetHeartbeat += AuraTargetHeartbeatFn(class::function);
+        // where function is: void function();
+        HookList<AuraTargetHeartbeatHandler> OnTargetHeartbeat;
+        #define AuraTargetHeartbeatFn(F) AuraTargetHeartbeatHandlerFunction(&F)
 
         // executed when aura checks if it can proc
         // example: DoCheckProc += AuraCheckProcFn(class::function);

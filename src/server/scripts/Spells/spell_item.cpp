@@ -823,46 +823,23 @@ class spell_item_deviate_fish : public SpellScript
     }
 };
 
-class PartyTimeEmoteEvent : public BasicEvent
-{
-public:
-    PartyTimeEmoteEvent(Player* player) : _player(player) { }
-
-    bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-    {
-        if (!_player->HasAura(SPELL_PARTY_TIME))
-            return true;
-
-        if (_player->isMoving())
-            _player->HandleEmoteCommand(RAND(EMOTE_ONESHOT_APPLAUD, EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_CHICKEN));
-        else
-            _player->HandleEmoteCommand(RAND(EMOTE_ONESHOT_APPLAUD, EMOTE_ONESHOT_DANCESPECIAL, EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_CHICKEN));
-
-        _player->m_Events.AddEventAtOffset(this, RAND(5s, 10s, 15s));
-
-        return false; // do not delete re-added event in EventProcessor::Update
-    }
-
-private:
-    Player* _player;
-};
-
 class spell_item_party_time : public AuraScript
 {
     PrepareAuraScript(spell_item_party_time);
 
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
     {
-        Player* player = GetOwner()->ToPlayer();
-        if (!player)
-            return;
+        PreventDefaultAction();
 
-        player->m_Events.AddEventAtOffset(new PartyTimeEmoteEvent(player), RAND(5s, 10s, 15s));
+        if (GetTarget()->isMoving())
+            GetTarget()->HandleEmoteCommand(RAND(EMOTE_ONESHOT_APPLAUD, EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_CHICKEN));
+        else
+            GetTarget()->HandleEmoteCommand(RAND(EMOTE_ONESHOT_APPLAUD, EMOTE_ONESHOT_DANCESPECIAL, EMOTE_ONESHOT_LAUGH, EMOTE_ONESHOT_CHEER, EMOTE_ONESHOT_CHICKEN));
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_item_party_time::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(spell_item_party_time::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
