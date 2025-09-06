@@ -340,8 +340,8 @@ Position const ArenaCenter = { 2134.77f, -262.307f };
 // used for lightning field calculation
 Position const LightningFieldCenter = { 2135.178f, -321.122f };
 
-CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4);
-CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0, true);
+CircleBoundary const ArenaFloorCircle(ArenaCenter, 45.4f);
+CircleBoundary const InvertedBalconyCircle(LightningFieldCenter, 32.0f, true);
 
 CreatureBoundary const ArenaBoundaries =
 {

@@ -51,7 +51,7 @@ bool WDTFile::init(uint32 mapId)
     uint32 size;
 
     std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, mapId);
-    auto dirfile = Trinity::make_unique_ptr_with_deleter(fopen(dirname.c_str(), "ab"), &::fclose);
+    auto dirfile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(dirname.c_str(), "ab"));
     if (!dirfile)
     {
         printf("Can't open dirfile!'%s'\n", dirname.c_str());

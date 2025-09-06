@@ -80,9 +80,6 @@ Battleground::Battleground(BattlegroundTemplate const* battlegroundTemplate) : _
 
     m_Map               = nullptr;
 
-    m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
-    m_ArenaTeamIds[TEAM_HORDE]      = 0;
-
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
 
@@ -868,7 +865,7 @@ void Battleground::RemovePlayerAtLeave(ObjectGuid guid, bool Transport, bool Sen
             if (SendPacket && bgQueueTypeId)
             {
                 WorldPackets::Battleground::BattlefieldStatusNone battlefieldStatus;
-                sBattlegroundMgr->BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(*bgQueueTypeId), player->GetBattlegroundQueueJoinTime(*bgQueueTypeId));
+                BattlegroundMgr::BuildBattlegroundStatusNone(&battlefieldStatus, player, player->GetBattlegroundQueueIndex(*bgQueueTypeId), player->GetBattlegroundQueueJoinTime(*bgQueueTypeId));
                 player->SendDirectMessage(battlefieldStatus.Write());
             }
 
@@ -955,7 +952,7 @@ void Battleground::StartBattleground()
     sBattlegroundMgr->AddBattleground(this);
 
     if (m_IsRated)
-        TC_LOG_DEBUG("bg.arena", "Arena match type: {} for Team1Id: {} - Team2Id: {} started.", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE]);
+        TC_LOG_DEBUG("bg.arena", "Arena match type: {} started.", m_ArenaType);
 }
 
 void Battleground::TeleportPlayerToExploitLocation(Player* player)
@@ -1380,6 +1377,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
 
         UpdatePlayerScore(killer, SCORE_HONORABLE_KILLS, 1);
         UpdatePlayerScore(killer, SCORE_KILLING_BLOWS, 1);
+        killer->UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, victim);
 
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
@@ -1388,7 +1386,10 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
                 continue;
 
             if (itr->second.Team == killerTeam && creditedPlayer->IsAtGroupRewardDistance(victim))
+            {
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
+                creditedPlayer->UpdateCriteria(CriteriaType::KillPlayer, 1, 0, 0, victim);
+            }
         }
     }
 

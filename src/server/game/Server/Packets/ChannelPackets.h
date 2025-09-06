@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ChannelPackets_h__
-#define ChannelPackets_h__
+#ifndef TRINITYCORE_CHANNEL_PACKETS_H
+#define TRINITYCORE_CHANNEL_PACKETS_H
 
 #include "Packet.h"
 #include "ObjectGuid.h"
@@ -38,7 +38,7 @@ namespace WorldPackets
                 uint8 Flags;     ///< @see enum ChannelMemberFlags
             };
 
-            ChannelListResponse() : ServerPacket(SMSG_CHANNEL_LIST) { }
+            explicit ChannelListResponse() : ServerPacket(SMSG_CHANNEL_LIST) { }
 
             WorldPacket const* Write() override;
 
@@ -51,7 +51,7 @@ namespace WorldPackets
         class TC_GAME_API ChannelNotify final : public ServerPacket
         {
         public:
-            ChannelNotify() : ServerPacket(SMSG_CHANNEL_NOTIFY, 80) { }
+            explicit ChannelNotify() : ServerPacket(SMSG_CHANNEL_NOTIFY, 80) { }
 
             WorldPacket const* Write() override;
 
@@ -71,7 +71,7 @@ namespace WorldPackets
         class ChannelNotifyJoined final : public ServerPacket
         {
         public:
-            ChannelNotifyJoined() : ServerPacket(SMSG_CHANNEL_NOTIFY_JOINED, 50) { }
+            explicit ChannelNotifyJoined() : ServerPacket(SMSG_CHANNEL_NOTIFY_JOINED, 50) { }
 
             WorldPacket const* Write() override;
 
@@ -81,12 +81,13 @@ namespace WorldPackets
             uint32 _ChannelFlags = 0; ///< @see enum ChannelFlags
             std::string _Channel;     ///< Channel Name
             ObjectGuid ChannelGUID;
+            uint8 Unknown1107 = 0;
         };
 
         class ChannelNotifyLeft final : public ServerPacket
         {
-            public:
-            ChannelNotifyLeft() : ServerPacket(SMSG_CHANNEL_NOTIFY_LEFT, 30) { }
+        public:
+                explicit ChannelNotifyLeft() : ServerPacket(SMSG_CHANNEL_NOTIFY_LEFT, 30) { }
 
             WorldPacket const* Write() override;
 
@@ -98,7 +99,7 @@ namespace WorldPackets
         class UserlistAdd final : public ServerPacket
         {
         public:
-            UserlistAdd() : ServerPacket(SMSG_USERLIST_ADD, 30) { }
+            explicit UserlistAdd() : ServerPacket(SMSG_USERLIST_ADD, 30) { }
 
             WorldPacket const* Write() override;
 
@@ -112,7 +113,7 @@ namespace WorldPackets
         class UserlistRemove final : public ServerPacket
         {
         public:
-            UserlistRemove() : ServerPacket(SMSG_USERLIST_REMOVE, 30) { }
+            explicit UserlistRemove() : ServerPacket(SMSG_USERLIST_REMOVE, 30) { }
 
             WorldPacket const* Write() override;
 
@@ -125,7 +126,7 @@ namespace WorldPackets
         class UserlistUpdate final : public ServerPacket
         {
         public:
-            UserlistUpdate() : ServerPacket(SMSG_USERLIST_UPDATE, 30) { }
+            explicit UserlistUpdate() : ServerPacket(SMSG_USERLIST_UPDATE, 30) { }
 
             WorldPacket const* Write() override;
 
@@ -139,7 +140,7 @@ namespace WorldPackets
         class ChannelCommand final : public ClientPacket
         {
         public:
-            ChannelCommand(WorldPacket&& packet);
+            explicit ChannelCommand(WorldPacket&& packet);
 
             void Read() override;
 
@@ -149,7 +150,7 @@ namespace WorldPackets
         class ChannelPlayerCommand final : public ClientPacket
         {
         public:
-            ChannelPlayerCommand(WorldPacket&& packet);
+            explicit ChannelPlayerCommand(WorldPacket&& packet);
 
             void Read() override;
 
@@ -160,7 +161,7 @@ namespace WorldPackets
         class ChannelPassword final : public ClientPacket
         {
         public:
-            ChannelPassword(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CHANNEL_PASSWORD, std::move(packet)) { }
+            explicit ChannelPassword(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_CHANNEL_PASSWORD, std::move(packet)) { }
 
             void Read() override;
 
@@ -171,7 +172,7 @@ namespace WorldPackets
         class JoinChannel final : public ClientPacket
         {
         public:
-            JoinChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_JOIN_CHANNEL, std::move(packet)) { }
+            explicit JoinChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_JOIN_CHANNEL, std::move(packet)) { }
 
             void Read() override;
 
@@ -185,7 +186,7 @@ namespace WorldPackets
         class LeaveChannel final : public ClientPacket
         {
         public:
-            LeaveChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_LEAVE_CHANNEL, std::move(packet)) { }
+            explicit LeaveChannel(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_LEAVE_CHANNEL, std::move(packet)) { }
 
             void Read() override;
 
@@ -195,4 +196,4 @@ namespace WorldPackets
     }
 }
 
-#endif // ChannelPackets_h__
+#endif // TRINITYCORE_CHANNEL_PACKETS_H

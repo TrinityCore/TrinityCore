@@ -23,7 +23,7 @@
 #include "World.h"
 #include "WorldSession.h"
 
-RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _innAreaTriggerId(0), _restFlagMask(0)
+RestMgr::RestMgr(Player* player) : _player(player), _restTime(0), _restFlagMask(0)
 {
     for (uint8 i = REST_TYPE_XP; i < REST_TYPE_MAX; i++)
         _restBonus[i] = 0;
@@ -92,7 +92,7 @@ void RestMgr::AddRestBonus(RestTypes restType, float restBonus)
     SetRestBonus(restType, totalRestBonus);
 }
 
-void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)
+void RestMgr::SetRestFlag(RestFlag restFlag)
 {
     uint32 oldRestMask = _restFlagMask;
     _restFlagMask |= restFlag;
@@ -102,9 +102,6 @@ void RestMgr::SetRestFlag(RestFlag restFlag, uint32 triggerID)
         _restTime = GameTime::GetGameTime();
         _player->SetPlayerFlag(PLAYER_FLAGS_RESTING);
     }
-
-    if (triggerID)
-        _innAreaTriggerId = triggerID;
 }
 
 void RestMgr::RemoveRestFlag(RestFlag restFlag)

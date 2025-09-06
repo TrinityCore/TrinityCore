@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "StringConvert.h"
 #include "World.h"
-#include <boost/algorithm/string/find.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -128,7 +127,6 @@ DumpTable const DumpTables[] =
     { "character_spell_cooldown",         DTT_CHAR_TABLE },
     { "character_talent",                 DTT_CHAR_TABLE },
     { "character_transmog_outfits",       DTT_CHAR_TRANSMOG },
-    /// @todo: character_void_storage
     { "mail",                             DTT_MAIL       },
     { "mail_items",                       DTT_MAIL_ITEM  }, // must be after mail
     { "pet_aura",                         DTT_PET_TABLE  }, // must be after character_pet
@@ -303,7 +301,7 @@ void PlayerDump::InitializeTables()
 
             TableField f;
             f.FieldName = columnName;
-            f.IsBinaryField = !boost::ifind_first(typeName, "binary").empty() || !boost::ifind_first(typeName, "blob").empty();
+            f.IsBinaryField = StringContainsStringI(typeName, "binary"sv) || StringContainsStringI(typeName, "blob"sv);
 
             bool toUpperResult = Utf8ToUpperOnlyLatin(columnName);
             ASSERT(toUpperResult);
@@ -640,7 +638,7 @@ inline void AppendTableDump(StringTransaction& trans, TableStruct const& tableSt
                 }
                 else
                 {
-                    std::vector<uint8> b(fields[i].GetBinary());
+                    std::span<uint8 const> b = fields[i].GetBinaryView();
 
                     if (!b.empty())
                         ss << "0x" << ByteArrayToHexStr(b);
@@ -793,6 +791,8 @@ bool PlayerDumpWriter::AppendTable(StringTransaction& trans, ObjectGuid::LowType
     AppendTableDump(trans, tableStruct, result);
     return true;
 }
+
+PlayerDumpWriter::PlayerDumpWriter() = default;
 
 bool PlayerDumpWriter::GetDump(ObjectGuid::LowType guid, std::string& dump)
 {

@@ -24,8 +24,8 @@
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureGroups.h"
-#include "DatabaseEnv.h"
 #include "DB2Stores.h"
+#include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
 #include "GameTime.h"
@@ -36,6 +36,7 @@
 #include "Loot.h"
 #include "LootMgr.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
@@ -98,6 +99,11 @@ VendorItem const* VendorItemData::FindItemCostPair(uint32 item_id, uint32 extend
 
 CreatureModel const CreatureModel::DefaultInvisibleModel(11686, 1.0f, 1.0f);
 CreatureModel const CreatureModel::DefaultVisibleModel(17519, 1.0f, 1.0f);
+
+CreatureTemplate::CreatureTemplate() = default;
+CreatureTemplate::CreatureTemplate(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate& CreatureTemplate::operator=(CreatureTemplate&& other) noexcept = default;
+CreatureTemplate::~CreatureTemplate() = default;
 
 CreatureModel const* CreatureTemplate::GetModelByIdx(uint32 idx) const
 {
@@ -189,6 +195,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
+    stats.Flags[2] = creatureDifficulty->TypeFlags3;
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
@@ -267,6 +274,7 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            TypeFlags3 = 0;
             LootID = 0;
             PickPocketLootID = 0;
             SkinLootID = 0;
@@ -315,7 +323,7 @@ Creature::Creature(bool isWorldObject) : Unit(isWorldObject), MapObject(), m_Pla
     m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_cannotReachTarget(false), m_cannotReachTimer(0),
     m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL), m_originalEntry(0), m_homePosition(), m_transportHomePosition(),
     m_creatureInfo(nullptr), m_creatureData(nullptr), m_creatureDifficulty(nullptr), m_stringIds(), _waypointPathId(0), _currentWaypointNodeInfo(0, 0),
-    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _lastDamagedTime(0),
+    m_formation(nullptr), m_triggerJustAppeared(true), m_respawnCompatibilityMode(false), _aggroGracePeriodExpired(false), _lastDamagedTime(0),
     _regenerateHealth(true), _creatureImmunitiesId(0), _gossipMenuId(0), _sparringHealthPct(0)
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
@@ -339,7 +347,7 @@ void Creature::AddToWorld()
     ///- Register the creature for guid lookup
     if (!IsInWorld())
     {
-        GetMap()->GetObjectsStore().Insert<Creature>(GetGUID(), this);
+        GetMap()->GetObjectsStore().Insert<Creature>(this);
         if (m_spawnId)
             GetMap()->GetCreatureBySpawnIdStore().insert(std::make_pair(m_spawnId, this));
 
@@ -368,7 +376,7 @@ void Creature::RemoveFromWorld()
 
         if (m_spawnId)
             Trinity::Containers::MultimapErasePair(GetMap()->GetCreatureBySpawnIdStore(), m_spawnId, this);
-        GetMap()->GetObjectsStore().Remove<Creature>(GetGUID());
+        GetMap()->GetObjectsStore().Remove<Creature>(this);
     }
 }
 
@@ -606,8 +614,16 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
         npcFlags |= sGameEventMgr->GetNPCFlag(this);
 
+    if (IsVendor() && !(npcFlags & UNIT_NPC_FLAG_VENDOR_MASK))
+        SetVendor(UNIT_NPC_FLAG_VENDOR_MASK, false);
+
     ReplaceAllNpcFlags(NPCFlags(npcFlags & 0xFFFFFFFF));
     ReplaceAllNpcFlags2(NPCFlags2(npcFlags >> 32));
+
+    if (npcFlags & UNIT_NPC_FLAG_VENDOR_MASK)
+        SetVendor(NPCFlags(npcFlags & UNIT_NPC_FLAG_VENDOR_MASK), true);
+
+    SetPetitioner((npcFlags & UNIT_NPC_FLAG_PETITIONER) != 0);
 
     // if unit is in combat, keep this flag
     unitFlags &= ~UNIT_FLAG_IN_COMBAT;
@@ -620,7 +636,9 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
 
     ReplaceAllDynamicFlags(UNIT_DYNFLAG_NONE);
 
-    SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateAnimID), sDB2Manager.GetEmptyAnimStateID());
+    // Set StateWorldEffectsQuestObjectiveID if there is only one linked objective for this creature
+    if (data && data->spawnTrackingQuestObjectives.size() == 1)
+        SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::StateWorldEffectsQuestObjectiveID), data->spawnTrackingQuestObjectives.front());
 
     SetCanDualWield(cInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
@@ -921,6 +939,16 @@ void Creature::Heartbeat()
 
     // Creatures with CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT periodically force party members into combat
     ForcePartyMembersIntoCombat();
+
+    // creatures should only attack surroundings initially after heartbeat has passed or until attacked
+    if (!_aggroGracePeriodExpired)
+    {
+        _aggroGracePeriodExpired = true;
+
+        // trigger MoveInLineOfSight
+        Trinity::CreatureAggroGracePeriodExpiredNotifier notifier(*this);
+        Cell::VisitAllObjects(this, notifier, GetVisibilityRange());
+    }
 }
 
 void Creature::Regenerate(Powers power)
@@ -1370,9 +1398,9 @@ void Creature::SetTappedBy(Unit const* unit, bool withGroup)
     m_tapList.insert(player->GetGUID());
     if (withGroup)
         if (Group const* group = player->GetGroup())
-            for (auto const* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next())
-                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr->GetSource()))
-                    m_tapList.insert(itr->GetSource()->GetGUID());
+            for (GroupReference const& itr : group->GetMembers())
+                if (GetMap()->IsRaid() || group->SameSubGroup(player, itr.GetSource()))
+                    m_tapList.insert(itr.GetSource()->GetGUID());
 
     if (m_tapList.size() >= CREATURE_TAPPERS_SOFT_CAP)
         SetDynamicFlag(UNIT_DYNFLAG_TAPPED);
@@ -2327,6 +2355,7 @@ void Creature::Respawn(bool force)
                 ai->Reset();
 
             m_triggerJustAppeared = true;
+            _aggroGracePeriodExpired = false;
 
             uint32 poolid = GetCreatureData() ? GetCreatureData()->poolId : 0;
             if (poolid)
@@ -3108,7 +3137,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMin = m_unitData->ScalingLevelMin;
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
-            int32 scalingFactionGroup = m_unitData->ScalingFactionGroup;
+            uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
             int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
             if (!targetLevel)
                 targetLevel = unitTarget->GetLevel();
@@ -3178,6 +3207,23 @@ void Creature::SetScriptStringId(std::string id)
         m_scriptStringId.reset();
         m_stringIds[AsUnderlyingType(StringIdType::Script)] = nullptr;
     }
+}
+
+SpawnTrackingStateData const* Creature::GetSpawnTrackingStateDataForPlayer(Player const* player) const
+{
+    if (!player)
+        return nullptr;
+
+    if (CreatureData const* data = GetCreatureData())
+    {
+        if (data->spawnTrackingData && !data->spawnTrackingQuestObjectives.empty())
+        {
+            SpawnTrackingState state = player->GetSpawnTrackingStateByObjectives(data->spawnTrackingData->SpawnTrackingId, data->spawnTrackingQuestObjectives);
+            return &data->spawnTrackingStates[AsUnderlyingType(state)];
+        }
+    }
+
+    return nullptr;
 }
 
 VendorItemData const* Creature::GetVendorItems() const
@@ -3255,6 +3301,52 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
     return vCount->count;
 }
 
+void Creature::SetVendor(NPCFlags flags, bool apply)
+{
+    flags &= UNIT_NPC_FLAG_VENDOR_MASK;
+    VendorDataTypeFlags vendorFlags = static_cast<VendorDataTypeFlags>(AsUnderlyingType(flags) >> 7);
+    if (apply)
+    {
+        if (!m_vendorData)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+
+        SetNpcFlag(flags);
+        SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
+    }
+    else if (m_vendorData)
+    {
+        RemoveNpcFlag(flags);
+        RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(vendorFlags));
+        if (!m_vendorData->Flags)
+        {
+            RemoveOptionalUpdateFieldValue(m_values.ModifyValue(&Creature::m_vendorData));
+            m_entityFragments.Remove(WowCS::EntityFragment::FVendor_C);
+        }
+    }
+}
+
+void Creature::SetPetitioner(bool apply)
+{
+    if (apply)
+    {
+        if (!m_vendorData)
+            m_entityFragments.Add(WowCS::EntityFragment::FVendor_C, IsInWorld());
+
+        SetNpcFlag(UNIT_NPC_FLAG_PETITIONER);
+        SetUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
+    }
+    else if (m_vendorData)
+    {
+        RemoveNpcFlag(UNIT_NPC_FLAG_PETITIONER);
+        RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Creature::m_vendorData, 0).ModifyValue(&UF::VendorData::Flags), AsUnderlyingType(VendorDataTypeFlags::Petition));
+        if (!m_vendorData->Flags)
+        {
+            RemoveOptionalUpdateFieldValue(m_values.ModifyValue(&Creature::m_vendorData));
+            m_entityFragments.Remove(WowCS::EntityFragment::FVendor_C);
+        }
+    }
+}
+
 // overwrite WorldObject function for proper name localization
 std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
 {
@@ -3264,6 +3356,16 @@ std::string Creature::GetNameForLocaleIdx(LocaleConstant locale) const
                 return cl->Name[locale];
 
     return GetName();
+}
+
+bool Creature::HasLabel(int32 cretureLabel) const
+{
+    return advstd::ranges::contains(GetLabels(), cretureLabel);
+}
+
+std::span<int32 const> Creature::GetLabels() const
+{
+    return sDB2Manager.GetCreatureLabels(GetCreatureDifficulty()->CreatureDifficultyID);
 }
 
 uint8 Creature::GetPetAutoSpellSize() const
@@ -3608,6 +3710,8 @@ void Creature::AtEngage(Unit* target)
 {
     Unit::AtEngage(target);
 
+    _aggroGracePeriodExpired = true;
+
     GetThreatManager().ResetUpdateTimer();
 
     if (!HasFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT))
@@ -3682,10 +3786,10 @@ void Creature::ForcePartyMembersIntoCombat()
 
     for (Group const* partyToForceIntoCombat : partiesToForceIntoCombat)
     {
-        for (GroupReference const* ref = partyToForceIntoCombat->GetFirstMember(); ref != nullptr; ref = ref->next())
+        for (GroupReference const& ref : partyToForceIntoCombat->GetMembers())
         {
-            Player* player = ref->GetSource();
-            if (!player || !player->IsInWorld() || player->GetMap() != GetMap() || player->IsGameMaster())
+            Player* player = ref.GetSource();
+            if (!player->IsInMap(this) || player->IsGameMaster())
                 continue;
 
             EngageWithTarget(player);
@@ -3769,4 +3873,94 @@ void Creature::InitializeInteractSpellId()
         SetInteractSpellId(clickBounds.begin()->second.spellId);
     else
         SetInteractSpellId(0);
+}
+
+void Creature::BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+{
+    m_objectData->WriteCreate(*data, flags, this, target);
+    m_unitData->WriteCreate(*data, flags, this, target);
+
+    if (m_vendorData)
+    {
+        if constexpr (WowCS::IsIndirectFragment(WowCS::EntityFragment::FVendor_C))
+            *data << uint8(1);  // IndirectFragmentActive: FVendor_C
+
+        m_vendorData->WriteCreate(*data, flags, this, target);
+    }
+}
+
+void Creature::BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+{
+    if (m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::CGObject))
+    {
+        *data << uint32(m_values.GetChangedObjectTypeMask());
+
+        if (m_values.HasChanged(TYPEID_OBJECT))
+            m_objectData->WriteUpdate(*data, flags, this, target);
+
+        if (m_values.HasChanged(TYPEID_UNIT))
+            m_unitData->WriteUpdate(*data, flags, this, target);
+    }
+
+    if (m_vendorData && m_entityFragments.ContentsChangedMask & m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment::FVendor_C))
+        m_vendorData->WriteUpdate(*data, flags, this, target);
+}
+
+void Creature::BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const
+{
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    valuesMask.Set(TYPEID_UNIT);
+
+    *data << uint32(valuesMask.GetBlock(0));
+
+    UF::UnitData::Mask mask;
+    m_unitData->AppendAllowedFieldsMaskForFlag(mask, flags);
+    m_unitData->WriteUpdate(*data, mask, true, this, target);
+}
+
+void Creature::BuildValuesUpdateForPlayerWithMask(UpdateData* data, UF::ObjectData::Mask const& requestedObjectMask,
+    UF::UnitData::Mask const& requestedUnitMask, Player const* target) const
+{
+    UF::UpdateFieldFlag flags = GetUpdateFieldFlagsFor(target);
+    UpdateMask<NUM_CLIENT_OBJECT_TYPES> valuesMask;
+    if (requestedObjectMask.IsAnySet())
+        valuesMask.Set(TYPEID_OBJECT);
+
+    UF::UnitData::Mask unitMask = requestedUnitMask;
+    m_unitData->FilterDisallowedFieldsMaskForFlag(unitMask, flags);
+    if (unitMask.IsAnySet())
+        valuesMask.Set(TYPEID_UNIT);
+
+    ByteBuffer& buffer = PrepareValuesUpdateBuffer(data);
+    std::size_t sizePos = buffer.wpos();
+    buffer << uint32(0);
+    BuildEntityFragmentsForValuesUpdateForPlayerWithMask(&buffer, flags);
+    buffer << uint32(valuesMask.GetBlock(0));
+
+    if (valuesMask[TYPEID_OBJECT])
+        m_objectData->WriteUpdate(buffer, requestedObjectMask, true, this, target);
+
+    if (valuesMask[TYPEID_UNIT])
+        m_unitData->WriteUpdate(buffer, unitMask, true, this, target);
+
+    buffer.put<uint32>(sizePos, buffer.wpos() - sizePos - 4);
+
+    data->AddUpdateBlock();
+}
+
+void Creature::ValuesUpdateForPlayerWithMaskSender::operator()(Player const* player) const
+{
+    UpdateData udata(Owner->GetMapId());
+    WorldPacket packet;
+
+    Owner->BuildValuesUpdateForPlayerWithMask(&udata, ObjectMask.GetChangesMask(), UnitMask.GetChangesMask(), player);
+
+    udata.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
+void Creature::ClearUpdateMask(bool remove)
+{
+    m_values.ClearChangesMask(&Creature::m_vendorData);
+    Unit::ClearUpdateMask(remove);
 }

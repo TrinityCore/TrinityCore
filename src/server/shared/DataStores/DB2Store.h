@@ -76,7 +76,7 @@ class DB2Storage : public DB2StorageBase
     static_assert(std::is_standard_layout_v<T>, "T in DB2Storage must have standard layout.");
 
 public:
-    using iterator = DBStorageIterator<T>;
+    using iterator = DBStorageIterator<T const*>;
 
     using DB2StorageBase::DB2StorageBase;
 

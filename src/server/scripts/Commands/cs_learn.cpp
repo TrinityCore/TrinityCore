@@ -184,7 +184,7 @@ public:
     static bool HandleLearnAllTalentsCommand(ChatHandler* handler)
     {
         Player* player = handler->GetSession()->GetPlayer();
-        uint32 playerClass = player->GetClass();
+        uint8 playerClass = player->GetClass();
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
@@ -192,7 +192,7 @@ public:
             if (!talentInfo)
                 continue;
 
-            if (playerClass != talentInfo->ClassID)
+            if (playerClass != uint8(talentInfo->ClassID))
                 continue;
 
             if (talentInfo->SpecID && player->GetPrimarySpecialization() != ChrSpecialization(talentInfo->SpecID))

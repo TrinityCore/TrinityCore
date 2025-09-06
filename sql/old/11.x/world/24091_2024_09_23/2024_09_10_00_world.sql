@@ -1,0 +1,318 @@
+SET @CGUID := 10001928;
+SET @OGUID := 10000408;
+
+SET @NPCTEXTID := 600022;
+
+-- Creature
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+34;
+INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
+(@CGUID+0, 219159, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2642.753662109375, -2455.806396484375, 220.700653076171875, 4.747298717498779296, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Displaced Rogue (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+1, 229379, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2638.163330078125, -2510.25341796875, 224.032440185546875, 0.523597896099090576, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Villager (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+2, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2597.942626953125, -2497.53466796875, 224.0318450927734375, 0.767943859100341796, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+3, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2667.10302734375, -2458.556640625, 217.7221832275390625, 3.961898565292358398, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+4, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2665.050048828125, -2463.874267578125, 217.720611572265625, 0.855210542678833007, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+5, 215658, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2586.124267578125, -2486.819580078125, 229.375152587890625, 4.432986259460449218, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Swift Cloudrook (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+6, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2668.774658203125, -2460.086181640625, 217.7205963134765625, 3.961898565292358398, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+7, 219142, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2648.689208984375, -2524.890625, 219.554351806640625, 3.784248590469360351, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Worker (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+8, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2643.833251953125, -2508.064208984375, 224.013397216796875, 3.351046562194824218, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+9, 229379, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2650.537353515625, -2560.1962890625, 219.6702117919921875, 0.068307951092720031, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Villager (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+10, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2611.271728515625, -2513.8369140625, 224.309112548828125, 0.530712604522705078, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+11, 219142, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2648.239501953125, -2450.79345703125, 220.800567626953125, 2.428165912628173828, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Worker (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 442720 - Holding Mead Mug [DNT])
+(@CGUID+12, 215520, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2657.598876953125, -2454.0244140625, 217.7437591552734375, 5.534945011138916015, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Edothir (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+13, 215658, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2581.237060546875, -2486.795166015625, 229.762481689453125, 4.658831596374511718, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Swift Cloudrook (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+14, 219103, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2660.5791015625, -2448.529541015625, 217.7437591552734375, 2.389594793319702148, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Kronzon (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+15, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2650.3203125, -2500.954833984375, 224.11517333984375, 3.35821390151977539, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+16, 229379, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2716.315185546875, -2407.76904296875, 231.0989532470703125, 2.709892034530639648, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Villager (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+17, 219382, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2652.174560546875, -2505.864501953125, 224.1815643310546875, 0.173868194222450256, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Trader (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+18, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2619.889892578125, -2475.55029296875, 224.032440185546875, 3.874631166458129882, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+19, 219142, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2642.896484375, -2462.29150390625, 220.697967529296875, 1.605701684951782226, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Worker (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+20, 219382, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2653.927978515625, -2505.517333984375, 224.1815643310546875, 3.369142532348632812, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Trader (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+21, 226237, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2661.124267578125, -2466.31591796875, 217.779754638671875, 6.12844085693359375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Dalaran Survivor (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 457527 - Hold Teacup [DNT])
+(@CGUID+22, 229379, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2714.67626953125, -2408.810791015625, 231.0989532470703125, 2.198801279067993164, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Villager (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 435518 - Conversation Aura: Talk/Laugh/Exclaim [DNT])
+(@CGUID+23, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2661.4501953125, -2454.235107421875, 217.6656494140625, 3.502751588821411132, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+24, 219104, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2658.0556640625, -2461.296875, 217.7437591552734375, 4.590868473052978515, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Athodas (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+25, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2615.662353515625, -2475.255126953125, 224.032440185546875, 5.462882041931152343, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+26, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2620.80029296875, -2477.569580078125, 224.11517333984375, 3.358214139938354492, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+27, 219142, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2656.154541015625, -2448.223876953125, 221.0782012939453125, 2.758987903594970703, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Worker (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 436791 - Holding Mead Mug [DNT])
+(@CGUID+28, 212369, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2583.747314453125, -2471.442626953125, 228.7820281982421875, 5.711666584014892578, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Breem (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+29, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2643.81396484375, -2451.7197265625, 220.708099365234375, 0.820303261280059814, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+30, 219142, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2648.19921875, -2447.240478515625, 220.717193603515625, 3.961898565292358398, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Worker (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+31, 212370, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2650.278564453125, -2472.663330078125, 224.1600189208984375, 4.002952098846435546, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Ronesh (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 442720 - Holding Mead Mug [DNT])
+(@CGUID+32, 219126, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2649.599853515625, -2499.098876953125, 224.032440185546875, 3.883358240127563476, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Oathsworn Citizen (Area: Dornogal - Difficulty: 0) CreateObject1
+(@CGUID+33, 219382, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2583.42626953125, -2542.350830078125, 200.3091278076171875, 3.620921611785888671, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461), -- Unbound Trader (Area: Dornogal - Difficulty: 0) CreateObject1 (Auras: 435518 - Conversation Aura: Talk/Laugh/Exclaim [DNT])
+(@CGUID+34, 229927, 2552, 14771, 14771, '0', 0, 0, 0, 0, 2581.393310546875, -2542.8994140625, 200.3091278076171875, 0.246975168585777282, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 56461); -- Unbound Crafter (Area: Dornogal - Difficulty: 0) CreateObject1
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+34;
+INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(@CGUID+0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Displaced Rogue
+(@CGUID+1, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Unbound Villager
+(@CGUID+2, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+3, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+4, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+5, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Swift Cloudrook
+(@CGUID+6, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+7, 0, 0, 0, 3, 0, 1, 0, 415, 0, 0, 0, 0, ''), -- Oathsworn Worker
+(@CGUID+8, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Oathsworn Citizen - 436791 - Holding Mead Mug [DNT]
+(@CGUID+9, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Unbound Villager - 436791 - Holding Mead Mug [DNT]
+(@CGUID+10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+11, 0, 0, 0, 0, 0, 1, 0, 886, 0, 0, 0, 0, '442720'), -- Oathsworn Worker - 442720 - Holding Mead Mug [DNT]
+(@CGUID+13, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Swift Cloudrook
+(@CGUID+14, 0, 0, 0, 0, 0, 1, 0, 569, 0, 0, 0, 0, ''), -- Kronzon
+(@CGUID+15, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Oathsworn Citizen - 436791 - Holding Mead Mug [DNT]
+(@CGUID+18, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Oathsworn Citizen - 436791 - Holding Mead Mug [DNT]
+(@CGUID+19, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Worker
+(@CGUID+21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '457527'), -- Dalaran Survivor - 457527 - Hold Teacup [DNT]
+(@CGUID+22, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '435518'), -- Unbound Villager - 435518 - Conversation Aura: Talk/Laugh/Exclaim [DNT]
+(@CGUID+24, 0, 0, 0, 0, 0, 1, 0, 569, 0, 0, 0, 0, ''), -- Athodas
+(@CGUID+25, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Oathsworn Citizen - 436791 - Holding Mead Mug [DNT]
+(@CGUID+26, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '436791'), -- Oathsworn Citizen - 436791 - Holding Mead Mug [DNT]
+(@CGUID+27, 0, 0, 0, 0, 0, 1, 0, 720, 0, 0, 0, 0, '436791'), -- Oathsworn Worker - 436791 - Holding Mead Mug [DNT]
+(@CGUID+29, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+30, 0, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Worker
+(@CGUID+32, 0, 0, 4, 0, 0, 1, 0, 0, 0, 0, 0, 0, ''), -- Oathsworn Citizen
+(@CGUID+33, 0, 0, 0, 0, 0, 1, 0, 0, 2085, 0, 0, 0, '435518'); -- Unbound Trader - 435518 - Conversation Aura: Talk/Laugh/Exclaim [DNT]
+
+-- GameObject
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+66;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
+(@OGUID+0, 428879, 2552, 14771, 14771, '0', 0, 0, 2733.1416015625, -2445.515625, 231.0150299072265625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+1, 446222, 2552, 14771, 14771, '0', 0, 0, 2671.779296875, -2401.174072265625, 205.9116668701171875, 0.855210542678833007, 0, 0, 0.414692878723144531, 0.909961462020874023, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+2, 428905, 2552, 14771, 14771, '0', 0, 0, 2638.163330078125, -2510.25341796875, 224.032440185546875, 0.523597896099090576, 0, 0, 0.258818626403808593, 0.965925931930541992, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+3, 465705, 2552, 14771, 14771, '0', 0, 0, 2657.137939453125, -2465.86572265625, 217.9629974365234375, 3.354072332382202148, 0, 0, -0.99436187744140625, 0.106039971113204956, 120, 255, 1, 56461), -- Cooking Fire (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+4, 446223, 2552, 14771, 14771, '0', 0, 0, 2720.120361328125, -2445.610595703125, 208.84490966796875, 1.047197580337524414, 0, 0, 0.5, 0.866025388240814208, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+5, 428906, 2552, 14771, 14771, '0', 0, 0, 2649.599853515625, -2499.098876953125, 224.032440185546875, 3.883358240127563476, 0, 0, -0.9320077896118164, 0.36243826150894165, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+6, 459312, 2552, 14771, 14771, '0', 0, 0, 2657.684814453125, -2458.169189453125, 217.682525634765625, 2.385606288909912109, 0, 0, 0.929407119750976562, 0.369056075811386108, 120, 255, 1, 56461), -- Stool (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+7, 446216, 2552, 14771, 14771, '0', 0, 0, 2671.701904296875, -2454.278076171875, 218.3751068115234375, 0.881389737129211425, 0, 0, 0.426568031311035156, 0.904455482959747314, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+8, 428907, 2552, 14771, 14771, '0', 0, 0, 2615.662353515625, -2475.255126953125, 224.032440185546875, 5.462882041931152343, 0, 0, -0.39874839782714843, 0.917060375213623046, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+9, 446207, 2552, 14771, 14771, '0', 0, 0, 2669.58447265625, -2452.29296875, 218.3751068115234375, 0.532324969768524169, 0, 0, 0.263031005859375, 0.96478736400604248, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+10, 459313, 2552, 14771, 14771, '0', 0, 0, 2656.756103515625, -2459.176513671875, 217.682525634765625, 2.410152435302734375, 0, 0, 0.933866500854492187, 0.357621848583221435, 120, 255, 1, 56461), -- Stool (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+11, 446217, 2552, 14771, 14771, '0', 0, 0, 2663.3125, -2462.295166015625, 217.7224884033203125, 0.837757468223571777, 0, 0, 0.406736373901367187, 0.913545548915863037, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+12, 459314, 2552, 14771, 14771, '0', 0, 0, 2659.45458984375, -2456.3125, 217.682525634765625, 2.391041040420532226, 0, 0, 0.930406570434570312, 0.36652916669845581, 120, 255, 1, 56461), -- Stool (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+13, 446218, 2552, 14771, 14771, '0', 0, 0, 2680.16357421875, -2468.65283203125, 218.409271240234375, 3.586656570434570312, 0, 0, -0.975341796875, 0.220699742436408996, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+14, 446228, 2552, 14771, 14771, '0', 0, 0, 2675.9677734375, -2396.797119140625, 205.954132080078125, 3.682650327682495117, 0, 0, -0.96362972259521484, 0.26724100112915039, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+15, 459315, 2552, 14771, 14771, '0', 0, 0, 2660.357421875, -2455.33837890625, 217.682525634765625, 2.393041849136352539, 0, 0, 0.930772781372070312, 0.365598201751708984, 120, 255, 1, 56461), -- Stool (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+16, 446219, 2552, 14771, 14771, '0', 0, 0, 2665.427490234375, -2457.114501953125, 217.7717742919921875, 4.127707481384277343, 0, 0, -0.880889892578125, 0.473321229219436645, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+17, 446229, 2552, 14771, 14771, '0', 0, 0, 2674.639892578125, -2474.702392578125, 218.4207611083984375, 0.837757468223571777, 0, 0, 0.406736373901367187, 0.913545548915863037, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+18, 446230, 2552, 14771, 14771, '0', 0, 0, 2656.2001953125, -2439.456787109375, 220.71710205078125, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+19, 428913, 2552, 14771, 14771, '0', 0, 0, 2619.654541015625, -2479.557373046875, 224.032440185546875, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+20, 428880, 2552, 14771, 14771, '0', 0, 0, 2729.6015625, -2437.578125, 231.0150299072265625, 6.230826377868652343, 0, 0, -0.02617645263671875, 0.999657332897186279, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+21, 446231, 2552, 14771, 14771, '0', 0, 0, 2644.1796875, -2452.060791015625, 220.708099365234375, 0.820303261280059814, 0, 0, 0.398748397827148437, 0.917060375213623046, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+22, 428881, 2552, 14771, 14771, '0', 0, 0, 2771.317626953125, -2393.875, 231.01513671875, 4.712389945983886718, 0, 0, -0.70710659027099609, 0.707106947898864746, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+23, 446224, 2552, 14771, 14771, '0', 0, 0, 2670.486328125, -2461.813232421875, 217.72064208984375, 3.490667104721069335, 0, 0, -0.98480701446533203, 0.173652306199073791, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+24, 446225, 2552, 14771, 14771, '0', 0, 0, 2676.4326171875, -2468.461181640625, 218.375, 4.825837135314941406, 0, 0, -0.66588115692138671, 0.746057868003845214, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+25, 446226, 2552, 14771, 14771, '0', 0, 0, 2674.217529296875, -2470.836669921875, 218.3749237060546875, 6.065019607543945312, 0, 0, -0.10886669158935546, 0.994056344032287597, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+26, 429002, 2552, 14771, 14771, '0', 0, 0, 2624.8837890625, -2486.0087890625, 223.8976593017578125, 5.5065155029296875, 0, 0, -0.3786478042602539, 0.925540864467620849, 120, 255, 1, 56461), -- Mailbox (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+27, 428892, 2552, 14771, 14771, '0', 0, 0, 2598.037353515625, -2493.522705078125, 224.0318450927734375, 5.480334281921386718, 0, 0, -0.39073085784912109, 0.920504987239837646, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+28, 446227, 2552, 14771, 14771, '0', 0, 0, 2667.09326171875, -2465.560546875, 217.7205963134765625, 1.117009282112121582, 0, 0, 0.529918670654296875, 0.84804844856262207, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+29, 428970, 2552, 14771, 14771, '0', 0, 0, 2759.802001953125, -2341.991455078125, 266.9361572265625, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+30, 428893, 2552, 14771, 14771, '0', 0, 0, 2597.942626953125, -2497.53466796875, 224.0318450927734375, 0.767943859100341796, 0, 0, 0.374606132507324218, 0.927184045314788818, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+31, 428948, 2552, 14771, 14771, '0', 0, 0, 2778.671142578125, -2428.3125, 231.013885498046875, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+32, 428895, 2552, 14771, 14771, '0', 0, 0, 2645.27783203125, -2499.59033203125, 224.032440185546875, 5.480334281921386718, 0, 0, -0.39073085784912109, 0.920504987239837646, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+33, 428949, 2552, 14771, 14771, '0', 0, 0, 2748.09375, -2445.442626953125, 231.015625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+34, 428950, 2552, 14771, 14771, '0', 0, 0, 2778.75, -2414.65966796875, 231.015625, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+35, 446232, 2552, 14771, 14771, '0', 0, 0, 2643.25341796875, -2455.7890625, 220.700653076171875, 4.747298717498779296, 0, 0, -0.6946573257446289, 0.719340801239013671, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+36, 428951, 2552, 14771, 14771, '0', 0, 0, 2788.028564453125, -2415.1650390625, 239.3368072509765625, 0, 0, 0, 0, 1, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+37, 428900, 2552, 14771, 14771, '0', 0, 0, 2619.889892578125, -2475.55029296875, 224.032440185546875, 3.874631166458129882, 0, 0, -0.93358039855957031, 0.358368009328842163, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+38, 428901, 2552, 14771, 14771, '0', 0, 0, 2602.359375, -2493.032958984375, 224.0318450927734375, 3.883358240127563476, 0, 0, -0.9320077896118164, 0.36243826150894165, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+39, 428858, 2552, 14771, 14771, '0', 0, 0, 2759.8046875, -2331.96875, 266.9361572265625, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+40, 428902, 2552, 14771, 14771, '0', 0, 0, 2680.25, -2533.3525390625, 221.13043212890625, 1.518436193466186523, 0, 0, 0.6883544921875, 0.725374460220336914, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+41, 446212, 2552, 14771, 14771, '0', 0, 0, 2669.941650390625, -2448.155517578125, 218.43145751953125, 5.523968696594238281, 0, 0, -0.37055683135986328, 0.928809821605682373, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+42, 428903, 2552, 14771, 14771, '0', 0, 0, 2602.100830078125, -2497.520751953125, 224.0318450927734375, 2.460912704467773437, 0, 0, 0.942641258239746093, 0.333807557821273803, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+43, 446213, 2552, 14771, 14771, '0', 0, 0, 2651.922607421875, -2444.089599609375, 220.7171630859375, 0.820303261280059814, 0, 0, 0.398748397827148437, 0.917060375213623046, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+44, 428896, 2552, 14771, 14771, '0', 0, 0, 2649.341064453125, -2503.5869140625, 224.032440185546875, 2.460912704467773437, 0, 0, 0.942641258239746093, 0.333807557821273803, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+45, 446214, 2552, 14771, 14771, '0', 0, 0, 2667.10302734375, -2458.556640625, 217.7221832275390625, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+46, 428990, 2552, 14771, 14771, '0', 0, 0, 2727.6796875, -2323.751708984375, 266.648681640625, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Mailbox (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+47, 428897, 2552, 14771, 14771, '0', 0, 0, 2643.833251953125, -2508.064208984375, 224.013397216796875, 3.351046562194824218, 0, 0, -0.99452114105224609, 0.104535527527332305, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+48, 446215, 2552, 14771, 14771, '0', 0, 0, 2724.09716796875, -2441.42626953125, 208.86956787109375, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+49, 446208, 2552, 14771, 14771, '0', 0, 0, 2676.38232421875, -2453.995849609375, 218.452392578125, 2.871063947677612304, 0, 0, 0.990865707397460937, 0.134852290153503417, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+50, 446209, 2552, 14771, 14771, '0', 0, 0, 2665.050048828125, -2463.874267578125, 217.720611572265625, 0.855210542678833007, 0, 0, 0.414692878723144531, 0.909961462020874023, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+51, 429738, 2552, 14771, 14771, '0', 0, 0, 2527.146728515625, -2463.366455078125, 200.2139434814453125, 3.90954136848449707, 0, 0, -0.92718315124511718, 0.37460830807685852, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+52, 428952, 2552, 14771, 14771, '0', 0, 0, 2788.0712890625, -2430.302001953125, 239.2948455810546875, 0, 0, 0, 0, 1, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+53, 446210, 2552, 14771, 14771, '0', 0, 0, 2648.56494140625, -2447.58154296875, 220.717193603515625, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+54, 428909, 2552, 14771, 14771, '0', 0, 0, 2681.579833984375, -2533.314208984375, 221.13043212890625, 1.553341388702392578, 0, 0, 0.700908660888671875, 0.713251054286956787, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+55, 428876, 2552, 14771, 14771, '0', 0, 0, 2718.225830078125, -2425.522705078125, 231.0150299072265625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+56, 446211, 2552, 14771, 14771, '0', 0, 0, 2643.396240234375, -2462.274169921875, 220.697967529296875, 1.605701684951782226, 0, 0, 0.719339370727539062, 0.694658815860748291, 120, 255, 1, 56461), -- Booth (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+57, 428954, 2552, 14771, 14771, '0', 0, 0, 2761.807373046875, -2445.46875, 231.015625, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+58, 428877, 2552, 14771, 14771, '0', 0, 0, 2760.064208984375, -2382.34716796875, 231.0146484375, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+59, 446220, 2552, 14771, 14771, '0', 0, 0, 2661.786376953125, -2460.643798828125, 217.7240447998046875, 0.357791841030120849, 0, 0, 0.177943229675292968, 0.984040737152099609, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+60, 428911, 2552, 14771, 14771, '0', 0, 0, 2614.96435546875, -2479.69091796875, 224.032440185546875, 0.706858277320861816, 0, 0, 0.346117019653320312, 0.938191354274749755, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+61, 428878, 2552, 14771, 14771, '0', 0, 0, 2778.9296875, -2400.220458984375, 231.01513671875, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461), -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+62, 446221, 2552, 14771, 14771, '0', 0, 0, 2668.774658203125, -2460.086181640625, 217.7205963134765625, 3.961898565292358398, 0, 0, -0.91705989837646484, 0.398749500513076782, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+63, 428904, 2552, 14771, 14771, '0', 0, 0, 2645.18310546875, -2503.6025390625, 224.032440185546875, 0.767943859100341796, 0, 0, 0.374606132507324218, 0.927184045314788818, 120, 255, 1, 56461), -- Chair (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+64, 428764, 2552, 14771, 14771, '0', 0, 0, 2657.91845703125, -2462.538330078125, 218.4468841552734375, 0, 0, 0, 0, 1, 120, 255, 1, 56461), -- Ore Bucket [DNT] (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+65, 421632, 2552, 14771, 14771, '0', 0, 0, 2728.1640625, -2335.765625, 286.339080810546875, 1.637253880500793457, 0, 0, 0.730208396911621093, 0.683224499225616455, 120, 255, 1, 56461), -- Letter (Area: Dornogal - Difficulty: 0) CreateObject1
+(@OGUID+66, 428863, 2552, 14771, 14771, '0', 0, 0, 2759.447998046875, -2300.10595703125, 266.95574951171875, 3.141592741012573242, 0, 0, -1, 0, 120, 255, 1, 56461); -- Bench (Area: Dornogal - Difficulty: 0) CreateObject1
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+66;
+INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
+(@OGUID+1, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+3, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Cooking Fire
+(@OGUID+4, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+6, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Stool
+(@OGUID+7, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+9, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+10, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Stool
+(@OGUID+11, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+12, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Stool
+(@OGUID+13, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+14, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+15, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Stool
+(@OGUID+16, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+17, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+18, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+21, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+23, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+24, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+25, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+28, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+35, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+41, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+43, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+45, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+48, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+49, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+50, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+53, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+56, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Booth
+(@OGUID+59, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0), -- Chair
+(@OGUID+62, 0, 0, 0.398749440908432006, 0.917059898376464843, 0, 0); -- Chair
+
+-- Template Addon
+DELETE FROM `creature_template_addon` WHERE `entry` IN (212370, 212369);
+INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
+(212370, 0, 0, 0, 0, 0, 1, 0, 0, 16425, 0, 0, 0, '442720'), -- 212370 (Ronesh) - Holding Mead Mug [DNT]
+(212369, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, ''); -- 212369 (Breem)
+
+-- Template
+UPDATE `creature_template` SET `faction`=3407, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=219346; -- Oathsworn Dignitary
+UPDATE `creature_template` SET `faction`=3364, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=227759; -- Arathi Stalwart
+UPDATE `creature_template` SET `faction`=188, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=143820; -- Kunchong Hatchling
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=226743; -- Nargut
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=226742; -- Rhukah
+UPDATE `creature_template` SET `faction`=190, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67110912, `unit_flags3`=1090519040 WHERE `entry`=227038; -- Scouting Map
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=220826; -- Coral Kobyss Helm
+UPDATE `creature_template` SET `faction`=35, `npcflag`=3, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=228605; -- Elise Starseeker
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=220828; -- Bronzebeard Hat
+UPDATE `creature_template` SET `faction`=35, `npcflag`=129, `BaseAttackTime`=2000, `unit_flags`=256, `unit_flags2`=2048 WHERE `entry`=208070; -- Sir Finley Mrrgglton
+UPDATE `creature_template` SET `faction`=35, `npcflag`=1, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=226749; -- Abohba
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=220827; -- Candelabra Kobold Hel
+UPDATE `creature_template` SET `faction`=3408, `speed_run`=1.428571462631225585, `BaseAttackTime`=2000, `unit_flags`=64, `unit_flags2`=2048, `unit_flags3`=8388608 WHERE `entry`=219187; -- Dornogal Preserver
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=220797; -- Poisonous Fungarian Helm
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=220829; -- Rulk'Nerub Backpiece
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=220944; -- Expedition Scout
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=33555200, `unit_flags2`=2048, `unit_flags3`=16777216 WHERE `entry`=227517; -- Mereldar Bunny
+UPDATE `creature_template` SET `faction`=35, `npcflag`=67, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=206017; -- Brann Bronzebeard
+UPDATE `creature_template` SET `faction`=35, `npcflag`=129, `BaseAttackTime`=2000, `unit_flags`=256, `unit_flags2`=2048, `unit_flags3`=1073741824 WHERE `entry`=226250; -- Reno Jackson
+UPDATE `creature_template` SET `faction`=35, `npcflag`=281474976710657, `speed_walk`=1.60000002384185791, `speed_run`=1.285714268684387207, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=67127296, `unit_flags3`=1090519040 WHERE `entry`=223858; -- Explorers' League Supplies
+UPDATE `creature_template` SET `faction`=3407, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=219188; -- Oathsworn Citizen
+UPDATE `creature_template` SET `faction`=35, `npcflag`=1, `speed_run`=1, `BaseAttackTime`=2000, `unit_flags2`=2048 WHERE `entry`=227675; -- Delver's Guide
+UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=768, `unit_flags2`=2048 WHERE `entry`=227318; -- Sunreaver Sorcerer
+
+-- Gossip
+DELETE FROM `creature_template_gossip` WHERE (`CreatureID`=215520 AND `MenuID`=34903) OR (`CreatureID`=212370 AND `MenuID`=33871);
+INSERT INTO `creature_template_gossip` (`CreatureID`, `MenuID`, `VerifiedBuild`) VALUES
+(215520, 34903, 56461), -- Edothir
+(212370, 33871, 56461); -- Ronesh
+
+DELETE FROM `npc_text` WHERE `ID` BETWEEN @NPCTEXTID+0 AND @NPCTEXTID+1;
+INSERT INTO `npc_text` (`ID`, `Probability0`, `Probability1`, `Probability2`, `Probability3`, `Probability4`, `Probability5`, `Probability6`, `Probability7`, `BroadcastTextId0`, `BroadcastTextId1`, `BroadcastTextId2`, `BroadcastTextId3`, `BroadcastTextId4`, `BroadcastTextId5`, `BroadcastTextId6`, `BroadcastTextId7`, `VerifiedBuild`) VALUES
+(@NPCTEXTID+0, 1, 0, 0, 0, 0, 0, 0, 0, 263723, 0, 0, 0, 0, 0, 0, 0, 56461), -- 215520 (Edothir)
+(@NPCTEXTID+1, 1, 0, 0, 0, 0, 0, 0, 0, 256778, 0, 0, 0, 0, 0, 0, 0, 56461); -- 212370 (Ronesh)
+
+DELETE FROM `gossip_menu` WHERE (`MenuID`=34903 AND `TextID`=@NPCTEXTID+0) OR (`MenuID`=33871 AND `TextID`=@NPCTEXTID+1);
+INSERT INTO `gossip_menu` (`MenuID`, `TextID`, `VerifiedBuild`) VALUES
+(34903, @NPCTEXTID+0, 56461), -- 215520 (Edothir)
+(33871, @NPCTEXTID+1, 56461); -- 212370 (Ronesh)
+
+DELETE FROM `gossip_menu_option` WHERE (`MenuID`=33871 AND `OptionID` IN (0,2));
+INSERT INTO `gossip_menu_option` (`MenuID`, `GossipOptionID`, `OptionID`, `OptionNpc`, `OptionText`, `OptionBroadcastTextID`, `Language`, `Flags`, `ActionMenuID`, `ActionPoiID`, `GossipNpcOptionID`, `BoxCoded`, `BoxMoney`, `BoxText`, `BoxBroadcastTextID`, `SpellID`, `OverrideIconID`, `VerifiedBuild`) VALUES
+(33871, 120914, 0, 5, 'Make this inn your home.', 2822, 0, 0, 0, 0, 56678, 0, 0, NULL, 0, NULL, NULL, 56461), -- OptionBroadcastTextID: 2822 - 162070
+(33871, 121503, 2, 1, 'I want to browse your goods.', 3370, 0, 0, 0, 0, NULL, 0, 0, NULL, 0, NULL, NULL, 56461);
+
+-- Trainer
+DELETE FROM `creature_trainer` WHERE (`CreatureID`=219104 AND `MenuID`=0 AND `OptionID`=0);
+INSERT INTO `creature_trainer` (`CreatureID`, `TrainerID`, `MenuID`, `OptionID`) VALUES
+(219104, 1116, 0, 0);
+
+DELETE FROM `trainer` WHERE `Id`=1116;
+INSERT INTO `trainer` (`Id`, `Type`, `Greeting`, `VerifiedBuild`) VALUES
+(1116, 2, 'Hello, friend!', 56461);
+
+DELETE FROM `trainer_spell` WHERE (`TrainerId`=1116 AND `SpellId` IN (264633,445110,445116,445107,445106,445105,445104,445103,445102,445101,445100,445099,445098,445097,445096,445095,445094,445093,445092,445091,445090,445089,445088,445087,445086,445085,445084,445083,445082,423345));
+INSERT INTO `trainer_spell` (`TrainerId`, `SpellId`, `MoneyCost`, `ReqSkillLine`, `ReqSkillRank`, `ReqAbility1`, `ReqAbility2`, `ReqAbility3`, `ReqLevel`, `VerifiedBuild`) VALUES
+(1116, 264633, 10, 0, 0, 0, 0, 0, 5, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445110, 2470000, 2873, 55, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445116, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445107, 2185000, 2873, 45, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445106, 2185000, 2873, 45, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445105, 2185000, 2873, 45, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445104, 2185000, 2873, 45, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445103, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445102, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445101, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445100, 2850000, 2873, 65, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445099, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445098, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445097, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445096, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445095, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445094, 1520000, 2873, 25, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445093, 1900000, 2873, 35, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445092, 1900000, 2873, 35, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445091, 1900000, 2873, 35, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445090, 1900000, 2873, 35, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445089, 1330000, 2873, 15, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445088, 1330000, 2873, 15, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445087, 1330000, 2873, 15, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445086, 1330000, 2873, 15, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445085, 570000, 2873, 1, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445084, 570000, 2873, 1, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445083, 570000, 2873, 1, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 445082, 570000, 2873, 1, 423333, 0, 0, 0, 56461), -- No Faction found! MoneyCost not recalculated!
+(1116, 423345, 950000, 185, 1, 0, 0, 0, 68, 56461); -- No Faction found! MoneyCost not recalculated!
+
+-- Vendor
+DELETE FROM `npc_vendor` WHERE (`entry`=219103 AND `item`=222701 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222700 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222699 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222697 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222696 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222695 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=224762 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=219103 AND `item`=222739 AND `ExtendedCost`=9345 AND `type`=1) OR (`entry`=219103 AND `item`=222738 AND `ExtendedCost`=9344 AND `type`=1) OR (`entry`=212370 AND `item`=227327 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227326 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227325 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227301 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227302 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227273 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227272 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227317 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227318 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227310 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=212370 AND `item`=227309 AND `ExtendedCost`=0 AND `type`=1);
+INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
+(219103, 10, 222701, 0, 0, 1, 0, 0, 56461), -- Clumped Flour
+(219103, 9, 222700, 0, 0, 1, 0, 0, 56461), -- Granulated Spices
+(219103, 8, 222699, 0, 0, 1, 0, 0, 56461), -- Khaz Algar Tomato
+(219103, 7, 222697, 0, 0, 1, 0, 0, 56461), -- Coreway Dust
+(219103, 6, 222696, 0, 0, 1, 0, 0, 56461), -- Crunchy Peppers
+(219103, 5, 222695, 0, 0, 1, 0, 0, 56461), -- Twined Herbs
+(219103, 4, 224762, 0, 0, 1, 0, 0, 56461), -- Delver's Waterskin
+(219103, 2, 222739, 0, 9345, 1, 0, 0, 56461), -- Spiced Meat Stock
+(219103, 1, 222738, 0, 9344, 1, 0, 0, 56461), -- Portioned Steak
+(212370, 13, 227327, 0, 0, 1, 0, 0, 56461), -- Rocky Road
+(212370, 12, 227326, 0, 0, 1, 0, 0, 56461), -- Chalcocite Lava Cake
+(212370, 11, 227325, 0, 0, 1, 0, 0, 56461), -- Stone Soup
+(212370, 10, 227301, 0, 0, 1, 0, 0, 56461), -- Crystal Tots
+(212370, 9, 227302, 0, 0, 1, 0, 0, 56461), -- Granite Salad
+(212370, 8, 227273, 0, 0, 1, 0, 0, 56461), -- Iron Poppers
+(212370, 7, 227272, 0, 0, 1, 0, 0, 56461), -- Rock Lobster
+(212370, 6, 227317, 0, 0, 1, 0, 0, 56461), -- Lava Cola
+(212370, 5, 227318, 0, 0, 1, 0, 0, 56461), -- Quicksilver Sipper
+(212370, 4, 227310, 0, 0, 1, 0, 0, 56461), -- Magmalaid
+(212370, 3, 227309, 0, 0, 1, 0, 0, 56461); -- Titanshake
+
+-- Difficulty
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=219346 AND `DifficultyID`=0); -- 219346 (Oathsworn Dignitary) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=227759 AND `DifficultyID`=0); -- 227759 (Arathi Stalwart) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=226743 AND `DifficultyID`=0); -- 226743 (Nargut) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=226742 AND `DifficultyID`=0); -- 226742 (Rhukah) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2832, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=227038 AND `DifficultyID`=0); -- 227038 (Scouting Map) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=181, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=220826 AND `DifficultyID`=0); -- 220826 (Coral Kobyss Helm) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2677, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=228605 AND `DifficultyID`=0); -- 228605 (Elise Starseeker) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=181, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=220828 AND `DifficultyID`=0); -- 220828 (Bronzebeard Hat) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2677, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=208070 AND `DifficultyID`=0); -- 208070 (Sir Finley Mrrgglton) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=226749 AND `DifficultyID`=0); -- 226749 (Abohba) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=181, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=220827 AND `DifficultyID`=0); -- 220827 (Candelabra Kobold Helm) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=1, `LevelScalingDeltaMax`=1, `ContentTuningID`=2803, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=219187 AND `DifficultyID`=0); -- 219187 (Dornogal Preserver) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=181, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=220797 AND `DifficultyID`=0); -- 220797 (Poisonous Fungarian Helm) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=181, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=220829 AND `DifficultyID`=0); -- 220829 (Rulk'Nerub Backpiece) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2677, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=220944 AND `DifficultyID`=0); -- 220944 (Expedition Scout) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=864, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=227517 AND `DifficultyID`=0); -- 227517 (Mereldar Bunny) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2734, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=206017 AND `DifficultyID`=0); -- 206017 (Brann Bronzebeard) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2677, `StaticFlags1`=805306624, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=226250 AND `DifficultyID`=0); -- 226250 (Reno Jackson) - Sessile, CanSwim, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2145, `StaticFlags1`=536871168, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=223858 AND `DifficultyID`=0); -- 223858 (Explorers' League Supplies) - Sessile, Floating - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=219188 AND `DifficultyID`=0); -- 219188 (Oathsworn Citizen) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2734, `StaticFlags1`=268435456, `StaticFlags3`=33554432, `VerifiedBuild`=56461 WHERE (`Entry`=227675 AND `DifficultyID`=0); -- 227675 (Delver's Guide) - CanSwim - CannotTurn
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=2797, `StaticFlags1`=268435456, `VerifiedBuild`=56461 WHERE (`Entry`=227318 AND `DifficultyID`=0); -- 227318 (Sunreaver Sorcerer) - CanSwim

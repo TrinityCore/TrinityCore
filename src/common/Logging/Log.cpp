@@ -19,7 +19,6 @@
 #include "AppenderConsole.h"
 #include "AppenderFile.h"
 #include "Config.h"
-#include "Duration.h"
 #include "Errors.h"
 #include "LogMessage.h"
 #include "LogOperation.h"
@@ -27,11 +26,9 @@
 #include "Strand.h"
 #include "StringConvert.h"
 #include "Util.h"
-#include <sstream>
 
-Log::Log() : AppenderId(0), lowestLogLevel(LOG_LEVEL_FATAL), _ioContext(nullptr), _strand(nullptr)
+Log::Log() : AppenderId(0), lowestLogLevel(LOG_LEVEL_FATAL), m_logsTimestamp('_' + GetTimestampStr()), _ioContext(nullptr), _strand(nullptr)
 {
-    m_logsTimestamp = "_" + GetTimestampStr();
     RegisterAppender<AppenderConsole>();
     RegisterAppender<AppenderFile>();
 }
@@ -216,12 +213,11 @@ void Log::ReadLoggersFromConfig()
 
 void Log::RegisterAppender(uint8 index, AppenderCreatorFn appenderCreateFn)
 {
-    auto itr = appenderFactory.find(index);
-    ASSERT(itr == appenderFactory.end());
-    appenderFactory[index] = appenderCreateFn;
+    [[maybe_unused]] bool isNewAppender = appenderFactory.try_emplace(index, appenderCreateFn).second;
+    ASSERT(isNewAppender);
 }
 
-void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
+void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel level, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const noexcept
 {
     if (_ioContext)
         Trinity::Asio::post(*_strand, LogOperation(logger, new LogMessage(level, filter, Trinity::StringVFormat(messageFormat, messageFormatArgs))));
@@ -232,7 +228,7 @@ void Log::OutMessageImpl(Logger const* logger, std::string_view filter, LogLevel
     }
 }
 
-void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const
+void Log::OutCommandImpl(uint32 account, Trinity::FormatStringView messageFormat, Trinity::FormatArgs messageFormatArgs) const noexcept
 {
     Logger const* logger = GetLoggerByType("commands.gm");
 
@@ -264,28 +260,7 @@ Logger const* Log::GetLoggerByType(std::string_view type) const
 
 std::string Log::GetTimestampStr()
 {
-    time_t tt = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-    std::tm aTm;
-    localtime_r(&tt, &aTm);
-
-    //       YYYY   year
-    //       MM     month (2 digits 01-12)
-    //       DD     day (2 digits 01-31)
-    //       HH     hour (2 digits 00-23)
-    //       MM     minutes (2 digits 00-59)
-    //       SS     seconds (2 digits 00-59)
-    try
-    {
-        return Trinity::StringFormat("{:04}-{:02}-{:02}_{:02}-{:02}-{:02}",
-            aTm.tm_year + 1900, aTm.tm_mon + 1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
-    }
-    catch (std::exception const& ex)
-    {
-        fprintf(stderr, "Failed to initialize timestamp part of log filename! %s", ex.what());
-        fflush(stderr);
-        ABORT();
-    }
+    return TimeToTimestampStr(time(nullptr));
 }
 
 bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /* = true */)
@@ -321,7 +296,7 @@ bool Log::SetLogLevel(std::string const& name, int32 newLeveli, bool isLogger /*
     return true;
 }
 
-void Log::OutCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name) const
+void Log::OutCharDump(std::string const& str, uint32 accountId, uint64 guid, std::string const& name) const noexcept
 {
     if (!ShouldLog("entities.player.dump", LOG_LEVEL_INFO))
         return;
@@ -352,7 +327,7 @@ void Log::Close()
     appenders.clear();
 }
 
-bool Log::ShouldLog(std::string_view type, LogLevel level) const
+bool Log::ShouldLog(std::string_view type, LogLevel level) const noexcept
 {
     // TODO: Use cache to store "Type.sub1.sub2": "Type" equivalence, should
     // Speed up in cases where requesting "Type.sub1.sub2" but only configured
@@ -370,7 +345,7 @@ bool Log::ShouldLog(std::string_view type, LogLevel level) const
     return logLevel != LOG_LEVEL_DISABLED && logLevel <= level;
 }
 
-Logger const* Log::GetEnabledLogger(std::string_view type, LogLevel level) const
+Logger const* Log::GetEnabledLogger(std::string_view type, LogLevel level) const noexcept
 {
     // Don't even look for a logger if the LogLevel is lower than lowest log levels across all loggers
     if (level < lowestLogLevel)
@@ -384,7 +359,7 @@ Logger const* Log::GetEnabledLogger(std::string_view type, LogLevel level) const
     return logLevel != LOG_LEVEL_DISABLED && logLevel <= level ? logger : nullptr;
 }
 
-Log* Log::instance()
+Log* Log::instance() noexcept
 {
     static Log instance;
     return &instance;

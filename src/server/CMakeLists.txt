@@ -8,13 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(WIN32)
-  list(APPEND sources_windows
-    ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.cpp
-    ${CMAKE_SOURCE_DIR}/src/common/Platform/ServiceWin32.h
-  )
-endif(WIN32)
-
 add_subdirectory(database)
 add_subdirectory(proto)
 add_subdirectory(shared)

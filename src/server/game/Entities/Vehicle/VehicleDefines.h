@@ -15,13 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TRINITY_VEHICLEDEFINES_H
-#define __TRINITY_VEHICLEDEFINES_H
+#ifndef TRINITYCORE_VEHICLE_DEFINES_H
+#define TRINITYCORE_VEHICLE_DEFINES_H
 
 #include "Define.h"
 #include "Duration.h"
-#include <vector>
+#include "EnumFlag.h"
 #include <map>
+#include <vector>
 
 class Map;
 class WorldObject;
@@ -86,6 +87,14 @@ enum class VehicleExitParameters
     VehicleExitParamMax
 };
 
+enum class VehicleCustomFlags : uint32
+{
+    None                        = 0x0,
+    DontForceParachuteOnExit    = 0x1
+};
+
+DEFINE_ENUM_FLAG(VehicleCustomFlags);
+
 struct PassengerInfo
 {
     ObjectGuid Guid;
@@ -131,18 +140,21 @@ struct VehicleSeat
 
 struct VehicleAccessory
 {
-    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
-        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType) { }
+    VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime, Optional<uint32> rideSpellID) :
+        AccessoryEntry(entry), IsMinion(isMinion), SummonTime(summonTime), SeatId(seatId), SummonedType(summonType), RideSpellID(rideSpellID) { }
     uint32 AccessoryEntry;
     bool IsMinion;
     uint32 SummonTime;
     int8 SeatId;
     uint8 SummonedType;
+    Optional<uint32> RideSpellID;
 };
 
 struct VehicleTemplate
 {
     Milliseconds DespawnDelay = Milliseconds::zero();
+    Optional<float> Pitch;
+    EnumFlag<VehicleCustomFlags> CustomFlags = VehicleCustomFlags::None;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;

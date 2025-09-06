@@ -70,7 +70,7 @@ public:
                 {
                     _tapped = true;
                     _playerGUID = caster->GetGUID();
-                    me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
+                    me->SetImmuneToNPC(true);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     _events.ScheduleEvent(EVENT_TURN_TO_PLAYER, Seconds(2));
                 }

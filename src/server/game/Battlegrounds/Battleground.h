@@ -393,9 +393,6 @@ class TC_GAME_API Battleground
         virtual void CheckWinConditions() { }
 
         // used for rated arena battles
-        void SetArenaTeamIdForTeam(Team team, uint32 ArenaTeamId) { m_ArenaTeamIds[GetTeamIndexByTeamId(team)] = ArenaTeamId; }
-        uint32 GetArenaTeamIdForTeam(Team team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(team)]; }
-        uint32 GetArenaTeamIdByIndex(TeamId teamId) const { return m_ArenaTeamIds[teamId]; }
         void SetArenaMatchmakerRating(Team team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(team)] = MMR; }
         uint32 GetArenaMatchmakerRating(Team team) const          { return m_ArenaTeamMMR[GetTeamIndexByTeamId(team)]; }
 
@@ -442,7 +439,7 @@ class TC_GAME_API Battleground
 
         BattlegroundPlayer const* GetBattlegroundPlayerData(ObjectGuid const& playerGuid) const
         {
-            auto const& itr = m_Players.find(playerGuid);
+            auto itr = m_Players.find(playerGuid);
             if (itr == m_Players.end())
                 return nullptr;
 
@@ -553,9 +550,6 @@ class TC_GAME_API Battleground
 
         // Players count by team
         uint32 m_PlayersCount[PVP_TEAMS_COUNT];
-
-        // Arena team ids by team
-        uint32 m_ArenaTeamIds[PVP_TEAMS_COUNT];
 
         uint32 m_ArenaTeamMMR[PVP_TEAMS_COUNT];
 

@@ -116,7 +116,8 @@ enum Data
 {
     DATA_CRUSHER_PACK_ID = 1,
     DATA_HADRONOX_ENTERED_COMBAT,
-    DATA_HADRONOX_WEBBED_DOORS
+    DATA_HADRONOX_WEBBED_DOORS,
+    DATA_ANUBAR_GUID,
 };
 
 enum Creatures
@@ -264,8 +265,11 @@ struct boss_hadronox : public BossAI
                 nerubian->DespawnOrUnsummon();
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*id*/) override
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
+        if (id != DATA_ANUBAR_GUID)
+            return;
+
         _anubar.push_back(guid);
     }
 
@@ -664,7 +668,7 @@ struct npc_hadronox_foeAI : public ScriptedAI
     {
         ScriptedAI::InitializeAI();
         if (Creature* hadronox = _instance->GetCreature(DATA_HADRONOX))
-            hadronox->AI()->SetGUID(me->GetGUID());
+            hadronox->AI()->SetGUID(me->GetGUID(), DATA_ANUBAR_GUID);
     }
 
     void MovementInform(uint32 type, uint32 id) override

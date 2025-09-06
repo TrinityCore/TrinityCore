@@ -88,12 +88,13 @@ enum Action
     ACTION_REVIVE               = 1
 };
 
-enum Misc
+enum MandokirMisc
 {
     POINT_START_REVIVE          = 1,
 
     DATA_OHGANOT_SO_FAST        = 5762,
 
+    DATA_REVIVE_GUID            = 0,
 };
 
 enum SummonGroups
@@ -198,7 +199,7 @@ struct boss_mandokir : public BossAI
                 {
                     if (Creature* chainedSpirit = ObjectAccessor::GetCreature(*me, (*itr)->GetGUID()))
                     {
-                        chainedSpirit->AI()->SetGUID(_reviveGUID);
+                        chainedSpirit->AI()->SetGUID(_reviveGUID, DATA_REVIVE_GUID);
                         chainedSpirit->AI()->DoAction(ACTION_REVIVE);
                         _reviveGUID.Clear();
                     }
@@ -219,7 +220,7 @@ struct boss_mandokir : public BossAI
         return 0;
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
+    void SetGUID(ObjectGuid const& guid, int32 /*type*/) override
     {
         _reviveGUID = guid;
     }
@@ -343,7 +344,7 @@ struct npc_chained_spirit : public ScriptedAI
         _revivePlayerGUID.Clear();
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 /*type = 0 */) override
+    void SetGUID(ObjectGuid const& guid, int32 /*type*/) override
     {
         _revivePlayerGUID = guid;
     }
@@ -383,7 +384,7 @@ struct npc_chained_spirit : public ScriptedAI
 
         if (Creature* mandokir = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_MANDOKIR)))
         {
-            mandokir->GetAI()->SetGUID(target->GetGUID());
+            mandokir->GetAI()->SetGUID(target->GetGUID(), DATA_REVIVE_GUID);
             mandokir->GetAI()->DoAction(ACTION_START_REVIVE);
         }
 

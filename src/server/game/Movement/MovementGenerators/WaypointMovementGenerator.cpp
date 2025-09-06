@@ -41,7 +41,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(uint32 pathId, bo
     : PathMovementBase(PathType(std::in_place_type<WaypointPath const*>)), _pathId(pathId), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false)
+    _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -59,7 +59,7 @@ WaypointMovementGenerator<Creature>::WaypointMovementGenerator(WaypointPath cons
     : PathMovementBase(std::make_unique<WaypointPath>(path)), _pathId(0), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
-    _moveTimer(0), _nextMoveTime(0), _isReturningToStart(false)
+    _moveTimer(0), _nextMoveTime(0), _waypointTransitionSplinePointsIndex(0), _isReturningToStart(false)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_NORMAL;
@@ -218,7 +218,7 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
     }
 
     // if it's moving
-    if (!UpdateMoveTimer(diff))
+    if (!UpdateMoveTimer(diff) && !owner->movespline->Finalized())
     {
         // set home position at place (every MotionMaster::UpdateMotion)
         if (owner->GetTransGUID().IsEmpty())
@@ -227,10 +227,11 @@ bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
         // handle switching points in continuous segments
         if (IsExactSplinePath())
         {
-            if (_waypointTransitionSplinePoints.size() > 1 && owner->movespline->currentPathIdx() >= _waypointTransitionSplinePoints.front())
+            if (_waypointTransitionSplinePointsIndex < _waypointTransitionSplinePoints.size()
+                && owner->movespline->currentPathIdx() >= _waypointTransitionSplinePoints[_waypointTransitionSplinePointsIndex])
             {
                 OnArrived(owner);
-                _waypointTransitionSplinePoints.erase(_waypointTransitionSplinePoints.begin());
+                ++_waypointTransitionSplinePointsIndex;
                 if (ComputeNextNode())
                     if (CreatureAI* ai = owner->AI())
                         ai->WaypointStarted(path->Nodes[_currentNode].Id, path->Id);
@@ -363,13 +364,14 @@ void CreateSingularPointPath(Unit const* owner, WaypointPath const* path, uint32
     waypointTransitionSplinePoints->push_back(points->size() - 1);
 }
 
-void CreateMergedPath(Unit const* owner, WaypointPath const* path, uint32 previousNode, uint32 currentNode, bool isReturningToStart, bool generatePath,
+void CreateMergedPath(Unit const* owner, WaypointPath const* path, uint32 previousNode, uint32 currentNode,
+    bool isReturningToStart, bool generatePath, bool isCyclic,
     Movement::PointsArray* points, std::vector<int32>* waypointTransitionSplinePoints, WaypointNode const** lastWaypointOnPath)
 {
     std::span<WaypointNode const> segment = [&]
     {
         // find the continuous segment that our destination waypoint is on
-        auto segmentItr = std::ranges::find_if(path->ContinuousSegments, [&](std::pair<std::size_t, std::size_t> segmentRange)
+        auto segmentItr = std::ranges::find_if(path->ContinuousSegments, [&](std::pair<std::size_t, std::size_t> const& segmentRange)
         {
             auto isInSegmentRange = [&](uint32 node) { return node >= segmentRange.first && node < segmentRange.first + segmentRange.second; };
             return isInSegmentRange(currentNode) && isInSegmentRange(previousNode);
@@ -422,6 +424,15 @@ void CreateMergedPath(Unit const* owner, WaypointPath const* path, uint32 previo
             ++itr;
         }
     };
+
+    if (isCyclic)
+    {
+        // create new cyclic path starting at current node
+        std::vector<WaypointNode> cyclicPath = path->Nodes;
+        std::rotate(cyclicPath.begin(), cyclicPath.begin() + currentNode, cyclicPath.end());
+        fillPath(cyclicPath.begin(), cyclicPath.end());
+        return;
+    }
 
     if (!isReturningToStart)
         fillPath(segment.begin(), segment.end());
@@ -503,17 +514,34 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     ASSERT(_currentNode < path->Nodes.size(), "WaypointMovementGenerator::StartMove: tried to reference a node id (%u) which is not included in path (%u)", _currentNode, path->Id);
     WaypointNode const* lastWaypointForSegment = &path->Nodes[_currentNode];
 
+    bool isCyclic = IsCyclic();
     Movement::PointsArray points;
 
     if (IsExactSplinePath())
-        CreateMergedPath(owner, path, previousNode, _currentNode, _isReturningToStart, false,
+        CreateMergedPath(owner, path, previousNode, _currentNode, _isReturningToStart, false, isCyclic,
             &points, &_waypointTransitionSplinePoints, &lastWaypointForSegment);
     else
         CreateSingularPointPath(owner, path, _currentNode, _generatePath, &points, &_waypointTransitionSplinePoints);
 
+    _waypointTransitionSplinePointsIndex = 0;
+
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
+
+    if (isCyclic)
+    {
+        bool isFirstCycle = relaunch || owner->movespline->Finalized() || !owner->movespline->isCyclic();
+        if (!isFirstCycle)
+        {
+            for (int32& point : _waypointTransitionSplinePoints)
+                --point;
+
+            // cyclic paths are using identical duration to first cycle with EnterCycle
+            _moveTimer.Reset(Milliseconds(owner->movespline->Duration()));
+            return;
+        }
+    }
 
     Movement::MoveSplineInit init(owner);
 
@@ -567,7 +595,10 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
     if (_speed)
         init.SetVelocity(*_speed);
 
-    if (IsExactSplinePath() && points.size() > 2 && owner->CanFly())
+    if (isCyclic)
+        init.SetCyclic();
+
+    if (IsExactSplinePath() && (points.size() > 2 && owner->CanFly()))
         init.SetSmooth();
 
     Milliseconds duration(init.Launch());
@@ -631,6 +662,14 @@ bool WaypointMovementGenerator<Creature>::IsExactSplinePath() const
         return *_exactSplinePath;
 
     return GetPath()->Flags.HasFlag(WaypointPathFlags::ExactSplinePath);
+}
+
+bool WaypointMovementGenerator<Creature>::IsCyclic() const
+{
+    return !IsFollowingPathBackwardsFromEndToStart()
+        && IsExactSplinePath()
+        && _repeating
+        && GetPath()->ContinuousSegments.size() == 1;
 }
 
 std::string WaypointMovementGenerator<Creature>::GetDebugInfo() const

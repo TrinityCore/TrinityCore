@@ -29,8 +29,6 @@
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
 
-using VMAP::ModelInstance;
-
 namespace {
 
 int CHECK_TREE_PERIOD = 200;
@@ -47,7 +45,7 @@ template<> struct PositionTrait< GameObjectModel> {
 
 template<> struct BoundsTrait< GameObjectModel> {
     static void getBounds(GameObjectModel const& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(GameObjectModel const* g, G3D::AABox& out) { out = g->getBounds();}
+    void operator()(GameObjectModel const* g, G3D::AABox& out) const { getBounds(*g, out); }
 };
 
 /*

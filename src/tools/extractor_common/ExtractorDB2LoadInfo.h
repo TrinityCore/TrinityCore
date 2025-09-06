@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ExtractorDB2LoadInfo_h__
-#define ExtractorDB2LoadInfo_h__
+#ifndef TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H
+#define TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H
 
 #include "DB2FileLoader.h"
 #include "DB2Meta.h"
@@ -25,25 +25,34 @@ struct CinematicCameraLoadInfo
 {
     static constexpr DB2MetaField MetaFields[5] =
     {
-        { FT_FLOAT, 3, true },
-        { FT_INT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  3, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1294214, -1, 5, 5, 0x8BFD752B, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1294214,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0x8BFD752B,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[8] =
     {
-        { false, FT_INT, "ID" },
-        { false, FT_FLOAT, "OriginX" },
-        { false, FT_FLOAT, "OriginY" },
-        { false, FT_FLOAT, "OriginZ" },
-        { false, FT_INT, "SoundID" },
-        { false, FT_FLOAT, "OriginFacing" },
-        { false, FT_INT, "FileDataID" },
-        { false, FT_INT, "ConversationID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OriginX" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OriginY" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OriginZ" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SoundID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OriginFacing" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "FileDataID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ConversationID" },
     };
 
     static constexpr DB2FileLoadInfo Instance{ Fields, 8, & MetaInstance };
@@ -53,36 +62,45 @@ struct GameobjectDisplayInfoLoadInfo
 {
     static constexpr DB2MetaField MetaFields[9] =
     {
-        { FT_FLOAT, 6, true },
-        { FT_INT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_SHORT, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  6, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1266277, -1, 9, 9, 0xD85414D1, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1266277,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 9,
+        .FileFieldCount     = 9,
+        .LayoutHash         = 0xD85414D1,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[15] =
     {
-        { false, FT_INT, "ID" },
-        { false, FT_FLOAT, "GeoBoxMinX" },
-        { false, FT_FLOAT, "GeoBoxMinY" },
-        { false, FT_FLOAT, "GeoBoxMinZ" },
-        { false, FT_FLOAT, "GeoBoxMaxX" },
-        { false, FT_FLOAT, "GeoBoxMaxY" },
-        { false, FT_FLOAT, "GeoBoxMaxZ" },
-        { true, FT_INT, "FileDataID" },
-        { true, FT_SHORT, "ObjectEffectPackageID" },
-        { false, FT_FLOAT, "OverrideLootEffectScale" },
-        { false, FT_FLOAT, "OverrideNameScale" },
-        { true, FT_INT, "AlternateDisplayType" },
-        { true, FT_INT, "ClientCreatureDisplayInfoID" },
-        { true, FT_INT, "ClientItemID" },
-        { false, FT_SHORT, "Unknown1100" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMinX" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMinY" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMinZ" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMaxX" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMaxY" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "GeoBoxMaxZ" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "FileDataID" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "ObjectEffectPackageID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OverrideLootEffectScale" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "OverrideNameScale" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "AlternateDisplayType" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ClientCreatureDisplayInfoID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ClientItemID" },
+        { .IsSigned = false, .Type = FT_SHORT, .Name = "Unknown1100" },
     };
 
     static constexpr DB2FileLoadInfo Instance{ Fields, 15, &MetaInstance };
@@ -92,17 +110,26 @@ struct LiquidMaterialLoadInfo
 {
     static constexpr DB2MetaField MetaFields[2] =
     {
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1132538, -1, 2, 2, 0x01033D2A, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1132538,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 2,
+        .FileFieldCount     = 2,
+        .LayoutHash         = 0x98E5D7AA,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[3] =
     {
-        { false, FT_INT, "ID" },
-        { true, FT_BYTE, "Flags" },
-        { true, FT_BYTE, "LVF" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "LVF" },
     };
 
     static constexpr DB2FileLoadInfo Instance{ Fields, 3, &MetaInstance };
@@ -112,14 +139,23 @@ struct LiquidObjectLoadInfo
 {
     static constexpr DB2MetaField MetaFields[5] =
     {
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1308058, -1, 5, 5, 0xCB0D39E8, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1308058,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 5,
+        .FileFieldCount     = 5,
+        .LayoutHash         = 0xCB0D39E8,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[6] =
     {
@@ -131,96 +167,105 @@ struct LiquidObjectLoadInfo
         { false, FT_BYTE, "Reflection" },
     };
 
-    static constexpr DB2FileLoadInfo Instance{ Fields, 3, & MetaInstance };
+    static constexpr DB2FileLoadInfo Instance{ Fields, 6, &MetaInstance };
 };
 
 struct LiquidTypeLoadInfo
 {
     static constexpr DB2MetaField MetaFields[21] =
     {
-        { FT_STRING_NOT_LOCALIZED, 1, true },
-        { FT_STRING_NOT_LOCALIZED, 6, true },
-        { FT_SHORT, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, false },
-        { FT_INT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, false },
-        { FT_INT, 1, true },
-        { FT_BYTE, 6, false },
-        { FT_INT, 2, true },
-        { FT_FLOAT, 18, true },
-        { FT_INT, 4, false },
-        { FT_FLOAT, 4, true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  6, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  6, .IsSigned = false },
+        { .Type = FT_INT,                  .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize = 18, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  4, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  4, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1371380, -1, 21, 21, 0x95DB15B6, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1371380,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 21,
+        .FileFieldCount     = 21,
+        .LayoutHash         = 0x4397CEE6,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[56] =
     {
-        { false, FT_INT, "ID" },
-        { false, FT_STRING_NOT_LOCALIZED, "Name" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture1" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture2" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture3" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture4" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture5" },
-        { false, FT_STRING_NOT_LOCALIZED, "Texture6" },
-        { false, FT_SHORT, "Flags" },
-        { false, FT_BYTE, "SoundBank" },
-        { false, FT_INT, "SoundID" },
-        { false, FT_INT, "SpellID" },
-        { false, FT_FLOAT, "MaxDarkenDepth" },
-        { false, FT_FLOAT, "FogDarkenIntensity" },
-        { false, FT_FLOAT, "AmbDarkenIntensity" },
-        { false, FT_FLOAT, "DirDarkenIntensity" },
-        { false, FT_SHORT, "LightID" },
-        { false, FT_FLOAT, "ParticleScale" },
-        { false, FT_BYTE, "ParticleMovement" },
-        { false, FT_BYTE, "ParticleTexSlots" },
-        { false, FT_BYTE, "MaterialID" },
-        { true, FT_INT, "MinimapStaticCol" },
-        { false, FT_BYTE, "FrameCountTexture1" },
-        { false, FT_BYTE, "FrameCountTexture2" },
-        { false, FT_BYTE, "FrameCountTexture3" },
-        { false, FT_BYTE, "FrameCountTexture4" },
-        { false, FT_BYTE, "FrameCountTexture5" },
-        { false, FT_BYTE, "FrameCountTexture6" },
-        { true, FT_INT, "Color1" },
-        { true, FT_INT, "Color2" },
-        { false, FT_FLOAT, "Float1" },
-        { false, FT_FLOAT, "Float2" },
-        { false, FT_FLOAT, "Float3" },
-        { false, FT_FLOAT, "Float4" },
-        { false, FT_FLOAT, "Float5" },
-        { false, FT_FLOAT, "Float6" },
-        { false, FT_FLOAT, "Float7" },
-        { false, FT_FLOAT, "Float8" },
-        { false, FT_FLOAT, "Float9" },
-        { false, FT_FLOAT, "Float10" },
-        { false, FT_FLOAT, "Float11" },
-        { false, FT_FLOAT, "Float12" },
-        { false, FT_FLOAT, "Float13" },
-        { false, FT_FLOAT, "Float14" },
-        { false, FT_FLOAT, "Float15" },
-        { false, FT_FLOAT, "Float16" },
-        { false, FT_FLOAT, "Float17" },
-        { false, FT_FLOAT, "Float18" },
-        { false, FT_INT, "Int1" },
-        { false, FT_INT, "Int2" },
-        { false, FT_INT, "Int3" },
-        { false, FT_INT, "Int4" },
-        { false, FT_FLOAT, "Coefficient1" },
-        { false, FT_FLOAT, "Coefficient2" },
-        { false, FT_FLOAT, "Coefficient3" },
-        { false, FT_FLOAT, "Coefficient4" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture1" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture2" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture3" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture4" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture5" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Texture6" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "SoundBank" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SoundID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "SpellID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "MaxDarkenDepth" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "FogDarkenIntensity" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "AmbDarkenIntensity" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "DirDarkenIntensity" },
+        { .IsSigned = false, .Type = FT_SHORT, .Name = "LightID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "ParticleScale" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "ParticleMovement" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "ParticleTexSlots" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "MaterialID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "MinimapStaticCol" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture1" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture2" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture3" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture4" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture5" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "FrameCountTexture6" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Color1" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Color2" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float1" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float2" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float3" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float4" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float5" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float6" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float7" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float8" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float9" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float10" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float11" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float12" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float13" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float14" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float15" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float16" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float17" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Float18" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Int1" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Int2" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Int3" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "Int4" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Coefficient1" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Coefficient2" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Coefficient3" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Coefficient4" },
     };
 
     static constexpr DB2FileLoadInfo Instance{ Fields, 56, &MetaInstance };
@@ -230,69 +275,78 @@ struct MapLoadInfo
 {
     static constexpr DB2MetaField MetaFields[25] =
     {
-        { FT_STRING_NOT_LOCALIZED, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_STRING, 1, true },
-        { FT_FLOAT, 2, true },
-        { FT_BYTE, 1, false },
-        { FT_BYTE, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_SHORT, 1, false },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_FLOAT, 1, true },
-        { FT_SHORT, 1, true },
-        { FT_BYTE, 1, false },
-        { FT_SHORT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 1, true },
-        { FT_INT, 3, true },
+        { .Type = FT_STRING_NOT_LOCALIZED, .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_STRING,               .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_FLOAT,                .ArraySize =  2, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_FLOAT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_BYTE,                 .ArraySize =  1, .IsSigned = false },
+        { .Type = FT_SHORT,                .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  1, .IsSigned =  true },
+        { .Type = FT_INT,                  .ArraySize =  3, .IsSigned =  true },
     };
 
-    static constexpr DB2Meta MetaInstance{ 1349477, -1, 25, 25, 0xE0196C63, MetaFields, -1 };
+    static constexpr DB2Meta MetaInstance =
+    {
+        .FileDataId         = 1349477,
+        .IndexField         = -1,
+        .ParentIndexField   = -1,
+        .FieldCount         = 25,
+        .FileFieldCount     = 25,
+        .LayoutHash         = 0x75863E23,
+        .Fields             = MetaFields
+    };
 
     static constexpr DB2FieldMeta Fields[29] =
     {
-        { false, FT_INT, "ID" },
-        { false, FT_STRING_NOT_LOCALIZED, "Directory" },
-        { false, FT_STRING, "MapName" },
-        { false, FT_STRING, "MapDescription0" },
-        { false, FT_STRING, "MapDescription1" },
-        { false, FT_STRING, "PvpShortDescription" },
-        { false, FT_STRING, "PvpLongDescription" },
-        { false, FT_FLOAT, "CorpseX" },
-        { false, FT_FLOAT, "CorpseY" },
-        { false, FT_BYTE, "MapType" },
-        { true, FT_BYTE, "InstanceType" },
-        { false, FT_BYTE, "ExpansionID" },
-        { false, FT_SHORT, "AreaTableID" },
-        { true, FT_SHORT, "LoadingScreenID" },
-        { true, FT_SHORT, "TimeOfDayOverride" },
-        { true, FT_SHORT, "ParentMapID" },
-        { true, FT_SHORT, "CosmeticParentMapID" },
-        { false, FT_BYTE, "TimeOffset" },
-        { false, FT_FLOAT, "MinimapIconScale" },
-        { true, FT_SHORT, "CorpseMapID" },
-        { false, FT_BYTE, "MaxPlayers" },
-        { true, FT_SHORT, "WindSettingsID" },
-        { true, FT_INT, "ZmpFileDataID" },
-        { true, FT_INT, "WdtFileDataID" },
-        { true, FT_INT, "NavigationMaxDistance" },
-        { true, FT_INT, "PreloadFileDataID" },
-        { true, FT_INT, "Flags1" },
-        { true, FT_INT, "Flags2" },
-        { true, FT_INT, "Flags3" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING_NOT_LOCALIZED, .Name = "Directory" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "MapName" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "MapDescription0" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "MapDescription1" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "PvpShortDescription" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "PvpLongDescription" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "CorpseX" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "CorpseY" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "MapType" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "InstanceType" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "ExpansionID" },
+        { .IsSigned = false, .Type = FT_SHORT, .Name = "AreaTableID" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "LoadingScreenID" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "TimeOfDayOverride" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "ParentMapID" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "CosmeticParentMapID" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "TimeOffset" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "MinimapIconScale" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "CorpseMapID" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "MaxPlayers" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "WindSettingsID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ZmpFileDataID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "WdtFileDataID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "NavigationMaxDistance" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "PreloadFileDataID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags1" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags2" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags3" },
     };
 
     static constexpr DB2FileLoadInfo Instance{ Fields, 29, &MetaInstance };
 };
 
-#endif // ExtractorDB2LoadInfo_h__
+#endif // TRINITYCORE_EXTRACTOR_DB2_LOAD_INFO_H

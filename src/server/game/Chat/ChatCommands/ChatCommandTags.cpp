@@ -29,6 +29,21 @@
 
 using namespace Trinity::Impl::ChatCommands;
 
+ChatCommandResult Trinity::Impl::ChatCommands::TryConsumExactSequencee(std::string_view sequence, ChatHandler const* handler, std::string_view args)
+{
+    if (args.empty())
+        return std::nullopt;
+    std::string_view start = args.substr(0, sequence.length());
+    if (StringEqualI(start, sequence))
+    {
+        auto [remainingToken, tail] = Trinity::Impl::ChatCommands::tokenize(args.substr(sequence.length()));
+        if (remainingToken.empty()) // if this is not empty, then we did not consume the full token
+            return tail;
+        start = args.substr(0, sequence.length() + remainingToken.length());
+    }
+    return Trinity::Impl::ChatCommands::FormatTrinityString(handler, LANG_CMDPARSER_EXACT_SEQ_MISMATCH, STRING_VIEW_FMT_ARG(sequence), STRING_VIEW_FMT_ARG(start));
+}
+
 ChatCommandResult Trinity::ChatCommands::QuotedString::TryConsume(ChatHandler const* handler, std::string_view args)
 {
     if (args.empty())

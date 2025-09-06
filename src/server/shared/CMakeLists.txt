@@ -36,23 +36,21 @@ target_include_directories(shared
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-set_target_properties(shared
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED)
-
 target_link_libraries(shared
   PRIVATE
     trinity-core-interface
   PUBLIC
     database
+    network
     rapidjson
     proto
     zlib)
 
 set_target_properties(shared
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_SHARED
+    FOLDER "server")
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)

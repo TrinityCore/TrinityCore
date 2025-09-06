@@ -297,7 +297,7 @@ bool RsaSignature::LoadKeyFromFile(std::string const& fileName)
         _key = nullptr;
     }
 
-    auto keyBIO = make_unique_ptr_with_deleter(BIO_new_file(fileName.c_str(), "r"), &BIO_free);
+    auto keyBIO = make_unique_ptr_with_deleter<&BIO_free>(BIO_new_file(fileName.c_str(), "r"));
     if (!keyBIO)
         return false;
 
@@ -316,9 +316,9 @@ bool RsaSignature::LoadKeyFromString(std::string const& keyPem)
         _key = nullptr;
     }
 
-    auto keyBIO = make_unique_ptr_with_deleter(BIO_new_mem_buf(
+    auto keyBIO = make_unique_ptr_with_deleter<&BIO_free>(BIO_new_mem_buf(
         const_cast<char*>(keyPem.c_str()) /*api hack - this function assumes memory is readonly but lacks const modifier*/,
-        keyPem.length() + 1), &BIO_free);
+        keyPem.length() + 1));
     if (!keyBIO)
         return false;
 
@@ -333,7 +333,7 @@ bool RsaSignature::Sign(uint8 const* message, std::size_t messageLength, DigestG
 {
     std::unique_ptr<EVP_MD, DigestGenerator::EVP_MD_Deleter> digestGenerator = generator.GetGenerator();
 
-    auto keyCtx = make_unique_ptr_with_deleter(EVP_PKEY_CTX_new_from_pkey(generator.GetLib(), _key, nullptr), &EVP_PKEY_CTX_free);
+    auto keyCtx = make_unique_ptr_with_deleter<&EVP_PKEY_CTX_free>(EVP_PKEY_CTX_new_from_pkey(generator.GetLib(), _key, nullptr));
     EVP_MD_CTX_set_pkey_ctx(_ctx, keyCtx.get());
 
     std::unique_ptr<OSSL_PARAM[]> params = generator.GetParams();

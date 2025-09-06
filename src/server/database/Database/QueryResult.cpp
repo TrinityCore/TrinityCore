@@ -389,7 +389,7 @@ void InitializeDatabaseFieldMetadata(QueryResultFieldMetadata* meta, MySQLField 
     meta->TypeName = FieldTypeToString(field->type, field->flags);
     meta->Index = fieldIndex;
     meta->Type = MysqlTypeToFieldType(field->type, field->flags);
-    meta->Converter = binaryProtocol ? BinaryValueConverters[AsUnderlyingType(meta->Type)].get() : FromStringValueConverters[AsUnderlyingType(meta->Type)].get();
+    meta->Converter = binaryProtocol ? BinaryValueConverters[std::ptrdiff_t(meta->Type)].get() : FromStringValueConverters[std::ptrdiff_t(meta->Type)].get();
 }
 }
 
@@ -400,10 +400,14 @@ _result(result),
 _fields(fields)
 {
     _fieldMetadata.resize(_fieldCount);
+    _fieldIndexByAlias.reserve(_fieldCount);
     _currentRow = new Field[_fieldCount];
     for (uint32 i = 0; i < _fieldCount; i++)
     {
         InitializeDatabaseFieldMetadata(&_fieldMetadata[i], &_fields[i], i, false);
+        auto [itr, success] = _fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, _fieldMetadata[i].Alias }, i);
+        ASSERT(success, "Duplicate column alias %s in query for column %s.%s, conflicts with column %s.%s",
+            _fieldMetadata[i].Alias, _fieldMetadata[i].TableName, _fieldMetadata[i].Name, _fieldMetadata[itr->second].TableName, _fieldMetadata[itr->second].Name);
         _currentRow[i].SetMetadata(&_fieldMetadata[i]);
     }
 }
@@ -452,6 +456,7 @@ m_metadataResult(result)
     //- This is where we prepare the buffer based on metadata
     MySQLField* field = reinterpret_cast<MySQLField*>(mysql_fetch_fields(m_metadataResult));
     m_fieldMetadata.resize(m_fieldCount);
+    m_fieldIndexByAlias.reserve(m_fieldCount);
     std::size_t rowSize = 0;
     for (uint32 i = 0; i < m_fieldCount; ++i)
     {
@@ -459,6 +464,9 @@ m_metadataResult(result)
         rowSize += size;
 
         InitializeDatabaseFieldMetadata(&m_fieldMetadata[i], &field[i], i, true);
+        auto [itr, success] = m_fieldIndexByAlias.try_emplace({ Trinity::DB::FieldLookupByAliasKey::RuntimeInit, m_fieldMetadata[i].Alias }, i);
+        ASSERT(success, "Duplicate column alias %s in query for column %s.%s, conflicts with column %s.%s",
+            m_fieldMetadata[i].Alias, m_fieldMetadata[i].TableName, m_fieldMetadata[i].Name, m_fieldMetadata[itr->second].TableName, m_fieldMetadata[itr->second].Name);
 
         m_rBind[i].buffer_type = field[i].type;
         m_rBind[i].buffer_length = size;
@@ -631,10 +639,24 @@ Field const& ResultSet::operator[](std::size_t index) const
     return _currentRow[index];
 }
 
+Field const& ResultSet::operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    auto itr = _fieldIndexByAlias.find(alias);
+    ASSERT(itr != _fieldIndexByAlias.end());
+    return _currentRow[itr->second];
+}
+
 QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(std::size_t index) const
 {
     ASSERT(index < std::size_t(_fieldCount));
     return _fieldMetadata[index];
+}
+
+QueryResultFieldMetadata const& ResultSet::GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    auto itr = _fieldIndexByAlias.find(alias);
+    ASSERT(itr != _fieldIndexByAlias.end());
+    return _fieldMetadata[itr->second];
 }
 
 Field* PreparedResultSet::Fetch() const
@@ -650,8 +672,23 @@ Field const& PreparedResultSet::operator[](std::size_t index) const
     return m_rows[std::size_t(m_rowPosition) * m_fieldCount + index];
 }
 
+Field const& PreparedResultSet::operator[](Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    ASSERT(m_rowPosition < m_rowCount);
+    auto itr = m_fieldIndexByAlias.find(alias);
+    ASSERT(itr != m_fieldIndexByAlias.end());
+    return m_rows[std::size_t(m_rowPosition) * m_fieldCount + itr->second];
+}
+
 QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(std::size_t index) const
 {
     ASSERT(index < std::size_t(m_fieldCount));
     return m_fieldMetadata[index];
+}
+
+QueryResultFieldMetadata const& PreparedResultSet::GetFieldMetadata(Trinity::DB::FieldLookupByAliasKey const& alias) const
+{
+    auto itr = m_fieldIndexByAlias.find(alias);
+    ASSERT(itr != m_fieldIndexByAlias.end());
+    return m_fieldMetadata[itr->second];
 }

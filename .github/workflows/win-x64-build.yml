@@ -12,7 +12,7 @@ jobs:
       MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
       OPENSSL_ROOT_DIR: C:/libs/openssl
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set reusable strings
       id: strings
@@ -56,7 +56,7 @@ jobs:
         & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
 
     - name: Download and install Boost
-      uses: MarkusJx/install-boost@v2.4.5
+      uses: MarkusJx/install-boost@6d8df42f57de83c5b326b5b83e7b35d650030103
       id: install-boost
       with:
         boost_version: 1.84.0
@@ -71,12 +71,10 @@ jobs:
 
     - name: Configure CMake
       env:
-        CFLAGS: /WX
-        CXXFLAGS: /WX
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
       run: >
         cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
-        -DTOOLS=ON
+        -DWITH_WARNINGS_AS_ERRORS=ON -DTOOLS=ON
 
     - name: Build
       run: |

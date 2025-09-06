@@ -26,7 +26,7 @@ void Realm::SetName(std::string name)
 {
     Name = name;
     NormalizedName = std::move(name);
-    NormalizedName.erase(std::remove_if(NormalizedName.begin(), NormalizedName.end(), ::isspace), NormalizedName.end());
+    std::erase_if(NormalizedName, [](char c) { return std::isspace(static_cast<unsigned char>(c)); });
 }
 
 boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address const& clientAddr) const
@@ -34,7 +34,7 @@ boost::asio::ip::address Realm::GetAddressForClient(boost::asio::ip::address con
     if (auto addressIndex = Trinity::Net::SelectAddressForClient(clientAddr, Addresses))
         return Addresses[*addressIndex];
 
-    if (clientAddr.is_loopback())
+    if (Addresses.size() > 1 && clientAddr.is_loopback())
         return Addresses[1];
 
     return Addresses[0];

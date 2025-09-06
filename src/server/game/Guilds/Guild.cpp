@@ -52,11 +52,13 @@ uint32 const EMBLEM_PRICE = 10 * GOLD;
 
 inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
-    // these prices are in gold units, not copper
-    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
-    ASSERT(tabId < GUILD_BANK_MAX_TABS);
+    auto bankTab = std::ranges::find(sBankTabStore, std::pair(BankType::Guild, int8(tabId)),
+        [](BankTabEntry const* bankTab) { return std::pair(BankType(bankTab->BankType), bankTab->OrderIndex); });
 
-    return tabPrices[tabId];
+    if (bankTab != sBankTabStore.end())
+        return bankTab->Cost;
+
+    return 0;
 }
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string_view param)
@@ -1644,6 +1646,9 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (!member)
         return;
 
+    if (GetLeaderGUID() != player->GetGUID())
+        return;
+
     if (_GetPurchasedTabsSize() >= GUILD_BANK_MAX_TABS)
         return;
 
@@ -1653,18 +1658,19 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (tabId >= GUILD_BANK_MAX_TABS)
         return;
 
-    // Do not get money for bank tabs that the GM bought, we had to buy them already.
-    // This is just a speedup check, GetGuildBankTabPrice will return 0.
-    if (tabId < GUILD_BANK_MAX_TABS - 2) // 7th tab is actually the 6th
-    {
-        int64 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
-        if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
-            return;
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-        player->ModifyMoney(-tabCost);
-    }
+    // Remove money from bank
+    uint64 tabCost = GetGuildBankTabPrice(tabId);
+    if (tabCost && !_ModifyBankMoney(trans, tabCost, false))                   // Should not happen, this is checked by client
+        return;
 
-    _CreateNewBankTab();
+    // Log guild bank event
+    _LogBankEvent(trans, GUILD_BANK_LOG_BUY_TAB, tabId, player->GetGUID().GetCounter(), tabCost);
+
+    _CreateNewBankTab(trans);
+
+    CharacterDatabase.CommitTransaction(trans);
 
     WorldPackets::Guild::GuildEventTabAdded packet;
     BroadcastPacket(packet.Write());
@@ -3145,12 +3151,10 @@ void Guild::_DeleteMemberFromDB(CharacterDatabaseTransaction trans, ObjectGuid::
 }
 
 // Private methods
-void Guild::_CreateNewBankTab()
+void Guild::_CreateNewBankTab(CharacterDatabaseTransaction trans)
 {
     uint8 tabId = _GetPurchasedTabsSize();                      // Next free id
     m_bankTabs.emplace_back(m_id, tabId);
-
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_BANK_TAB);
     stmt->setUInt64(0, m_id);
@@ -3163,10 +3167,8 @@ void Guild::_CreateNewBankTab()
     trans->Append(stmt);
 
     ++tabId;
-    for (auto itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
-        (*itr).CreateMissingTabsIfNeeded(tabId, trans, false);
-
-    CharacterDatabase.CommitTransaction(trans);
+    for (RankInfo& rank : m_ranks)
+        rank.CreateMissingTabsIfNeeded(tabId, trans, false);
 }
 
 void Guild::_CreateDefaultGuildRanks(CharacterDatabaseTransaction trans, LocaleConstant loc)
@@ -3634,6 +3636,12 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
     if (!member) // Shouldn't happen, just in case
         return;
 
+    // HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
+    // but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
+    // tab content with only data for that change
+    if (!fullUpdate && tabId < _GetPurchasedTabsSize())
+        fullUpdate = true;
+
     WorldPackets::Guild::GuildBankQueryResults packet;
 
     packet.Money = m_bankMoney;
@@ -3675,7 +3683,7 @@ void Guild::SendBankList(WorldSession* session, uint8 tabId, bool fullUpdate) co
                     WorldPackets::Guild::GuildBankItemInfo& itemInfo = packet.ItemInfo.emplace_back();
 
                     itemInfo.Slot = int32(slotId);
-                    itemInfo.Item.ItemID = tabItem->GetEntry();
+                    itemInfo.Item.Initialize(tabItem);
                     itemInfo.Count = int32(tabItem->GetCount());
                     itemInfo.Charges = int32(abs(tabItem->GetSpellCharges()));
                     itemInfo.EnchantmentID = int32(tabItem->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
