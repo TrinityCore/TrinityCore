@@ -153,6 +153,7 @@ struct JumpChargeParams
     Optional<uint32> SpellVisualId;
     Optional<uint32> ProgressCurveId;
     Optional<uint32> ParabolicCurveId;
+    Optional<uint32> TriggerSpellId;
 };
 
 using MovementFacingTarget = std::variant<std::monostate, Position, Unit const*, float>;
