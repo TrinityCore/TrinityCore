@@ -20,7 +20,6 @@
 #include "GameObject.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
 struct arena_blades_edge : ArenaScript
 {
@@ -35,11 +34,6 @@ struct arena_blades_edge : ArenaScript
     };
 
     explicit arena_blades_edge(BattlegroundMap* map) : ArenaScript(map) { }
-
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
 
     void OnInit() override
     {
@@ -59,12 +53,6 @@ struct arena_blades_edge : ArenaScript
                 door->DespawnOrUnsummon(5s);
             }
         }
-
-        _scheduler.Schedule(1min, [&](TaskContext)
-        {
-            CreateObject(BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
-            CreateObject(BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);
-        });
     }
 
     void AddDoor(uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, GOState goState = GO_STATE_READY)
@@ -73,9 +61,14 @@ struct arena_blades_edge : ArenaScript
             _doorGUIDs.emplace_back(go->GetGUID());
     }
 
+    void OnShadowSightEnabled() override
+    {
+        CreateObject(BG_BE_OBJECT_TYPE_BUFF_1, 6249.042f, 275.3239f, 11.22033f, -1.448624f, 0, 0, 0.6626201f, -0.7489557f);
+        CreateObject(BG_BE_OBJECT_TYPE_BUFF_2, 6228.26f, 249.566f, 11.21812f, -0.06981307f, 0, 0, 0.03489945f, -0.9993908f);
+    }
+
 private:
     GuidVector _doorGUIDs;
-    TaskScheduler _scheduler;
 };
 
 void AddSC_arena_blades_edge()

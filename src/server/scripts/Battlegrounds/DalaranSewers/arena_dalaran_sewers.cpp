@@ -25,7 +25,6 @@
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
 struct arena_dalaran_sewers : ArenaScript
 {
@@ -87,7 +86,6 @@ struct arena_dalaran_sewers : ArenaScript
             return;
 
         _events.Update(diff);
-        _scheduler.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -171,11 +169,6 @@ struct arena_dalaran_sewers : ArenaScript
             }
         }
 
-        _scheduler.Schedule(1min, [&](TaskContext)
-        {
-            CreateObject(BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f);
-            CreateObject(BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f);
-        });
         _events.ScheduleEvent(BG_DS_EVENT_WATERFALL_WARNING, BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX);
         _pipeKnockBackTimer = BG_DS_PIPE_KNOCKBACK_FIRST_DELAY;
 
@@ -211,13 +204,18 @@ struct arena_dalaran_sewers : ArenaScript
         return ArenaScript::GetData(dataId);
     }
 
+    void OnShadowSightEnabled() override
+    {
+        CreateObject(BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f);
+        CreateObject(BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f);
+    }
+
 private:
     GuidVector _doorGUIDs;
     ObjectGuid _water1GUID;
     ObjectGuid _water2GUID;
     ObjectGuid _waterfallCreatureGUID;
     GuidVector _pipeCreatureGUIDs;
-    TaskScheduler _scheduler;
     EventMap _events;
 
     uint32 _pipeKnockBackTimer;

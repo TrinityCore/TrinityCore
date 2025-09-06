@@ -567,5 +567,7 @@ class TC_GAME_API Battleground
         time_t _preparationStartTime;
 
         Trinity::unique_weak_ptr<Battleground> m_weakRef;
+
+        bool _shadowSightEnabled;
 };
 #endif
