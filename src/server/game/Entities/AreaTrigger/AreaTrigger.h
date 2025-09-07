@@ -131,6 +131,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void RemoveAreaTriggerFlag(AreaTriggerFieldFlags flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::Flags), uint32(flag)); }
         void ReplaceAllAreaTriggerFlags(AreaTriggerFieldFlags flag) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::Flags), uint32(flag)); }
 
+        float CalcCurrentScale() const;
         void SetOverrideScaleCurve(float overrideScale);
         void SetOverrideScaleCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideScaleCurve();
@@ -199,8 +200,6 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
     protected:
         void _UpdateDuration(int32 newDuration);
-
-        float CalcCurrentScale() const;
 
         float GetProgress() const;
 
