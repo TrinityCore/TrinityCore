@@ -5066,6 +5066,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx4 &= ~SPELL_ATTR4_USE_FACING_FROM_SPELL;
     });
 
+    // Rappelling Rope
+    ApplySpellFix({ 130960 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeaveWorld;
+    });
+
     // ENDOF JADE FOREST SPELLS
     //
 

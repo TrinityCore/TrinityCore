@@ -3545,6 +3545,15 @@ void ObjectMgr::LoadVehicleTemplate()
         vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
         vehicleTemplate.CustomFlags = VehicleCustomFlags(fields[3].GetInt32());
 
+        if (vehicleTemplate.DespawnDelay < 0ms)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has negative despawnDelayMs ({}).`. Ignoring",
+                creatureId, vehicleTemplate.DespawnDelay.count());
+            vehicleTemplate.DespawnDelay = 1ms;
+        }
+        else if (vehicleTemplate.DespawnDelay == 0ms)
+            vehicleTemplate.DespawnDelay = 1ms;
+
         if (vehicleTemplate.Pitch)
         {
             if (VehicleEntry const* vehicle = sVehicleStore.LookupEntry(creatureInfo->VehicleId))
@@ -12018,8 +12027,8 @@ void ObjectMgr::LoadJumpChargeParams()
     // need for reload case
     _jumpChargeParams.clear();
 
-    //                                               0   1      2                            3            4              5                6
-    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+    //                                               0   1      2                            3            4              5                6                 7
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
     if (!result)
     {
         return;
@@ -12036,6 +12045,7 @@ void ObjectMgr::LoadJumpChargeParams()
         Optional<int32> spellVisualId = fields[4].GetInt32OrNull();
         Optional<int32> progressCurveId = fields[5].GetInt32OrNull();
         Optional<int32> parabolicCurveId = fields[6].GetInt32OrNull();
+        Optional<int32> triggerSpellId = fields[7].GetInt32OrNull();
 
         if (speed <= 0.0f)
         {
@@ -12072,6 +12082,13 @@ void ObjectMgr::LoadJumpChargeParams()
             parabolicCurveId.reset();
         }
 
+        if (triggerSpellId && !sSpellMgr->GetSpellInfo(*triggerSpellId, DIFFICULTY_NONE))
+        {
+            TC_LOG_DEBUG("sql.sql", "Table `jump_charge_params` references non-existing trigger spell id: {} for id {}, ignored.",
+                *triggerSpellId, id);
+            triggerSpellId.reset();
+        }
+
         JumpChargeParams& params = _jumpChargeParams[id];
         params.Speed = speed;
         params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
@@ -12079,6 +12096,7 @@ void ObjectMgr::LoadJumpChargeParams()
         params.SpellVisualId = spellVisualId;
         params.ProgressCurveId = progressCurveId;
         params.ParabolicCurveId = parabolicCurveId;
+        params.TriggerSpellId = triggerSpellId;
 
     } while (result->NextRow());
 
