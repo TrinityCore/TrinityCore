@@ -862,18 +862,10 @@ class spell_warr_heroic_leap : public SpellScript
                 playerCaster->GetSpellHistory()->ResetCooldown(SPELL_WARRIOR_TAUNT);
     }
 
-    void HandleHit(SpellEffIndex /*effIndex*/) const
-    {
-        if (WorldLocation const* dest = GetHitDest())
-            GetCaster()->CastSpell(*dest, SPELL_WARRIOR_HEROIC_LEAP_DAMAGE, true);
-    }
-
     void Register() override
     {
         OnCast += SpellCastFn(spell_warr_heroic_leap::HandleCast);
         OnCheckCast += SpellCheckCastFn(spell_warr_heroic_leap::CheckElevation);
-        // this is a hack, requires https://github.com/TrinityCore/TrinityCore/pull/30210 and UPDATE `jump_charge_params` SET `triggerSpellId`=52174 WHERE `id`=17;
-        OnEffectHit += SpellEffectFn(spell_warr_heroic_leap::HandleHit, EFFECT_1, SPELL_EFFECT_JUMP_CHARGE);
     }
 };
 
