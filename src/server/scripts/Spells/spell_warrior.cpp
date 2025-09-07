@@ -881,10 +881,16 @@ class spell_warr_heroic_leap_damage : public SpellScript
         });
     }
 
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_WARRIOR_BOUNDING_STRIDE_AURA);
+    }
+
     void HandleCast() const
     {
-        if (GetCaster()->HasAura(SPELL_WARRIOR_BOUNDING_STRIDE_AURA))
-            GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BOUNDING_STRIDE, CastSpellExtraArgs(GetSpell()));
+        GetCaster()->CastSpell(GetCaster(), SPELL_WARRIOR_BOUNDING_STRIDE, CastSpellExtraArgsInit{
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
