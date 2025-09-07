@@ -1363,25 +1363,31 @@ void Guild::HandleSetEmblem(WorldSession* session, EmblemInfo const& emblemInfo)
     }
 }
 
-void Guild::HandleSetLeader(WorldSession* session, std::string_view name)
+void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string_view name)
 {
     Player* player = session->GetPlayer();
-    // Only leader can assign new leader
-    if (!_IsLeader(player))
-        SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
-    // Old leader must be a member of guild
-    else if (Member* pOldLeader = GetMember(player->GetGUID()))
-    {
-        // New leader must be a member of guild
-        if (Member* pNewLeader = GetMember(name))
-        {
-            _SetLeaderGUID(*pNewLeader);
 
-            CharacterDatabaseTransaction trans(nullptr);
-            pOldLeader->ChangeRank(trans, GR_OFFICER);
-            _BroadcastEvent(GE_LEADER_CHANGED, ObjectGuid::Empty, player->GetName(), pNewLeader->GetName());
-        }
+    Member* oldGuildMaster = GetMember(GetLeaderGUID());
+    ASSERT(oldGuildMaster);
+
+    if (!_IsLeader(player))
+    {
+        SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
+        return;
     }
+
+    Member* newGuildMaster = GetMember(name);
+    if (!newGuildMaster)
+        return;
+
+    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
+
+    _SetLeader(trans, *newGuildMaster);
+    oldGuildMaster->ChangeRank(trans, GR_OFFICER);
+
+    _BroadcastEvent(GE_LEADER_CHANGED, ObjectGuid::Empty, player->GetName(), newGuildMaster->GetName());
+
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Guild::HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string_view name, std::string_view icon)
@@ -2095,15 +2101,15 @@ bool Guild::Validate()
     // Repair the structure of the guild.
     // If the guildmaster doesn't exist or isn't member of the guild
     // attempt to promote another member.
-    Member* pLeader = GetMember(m_leaderGuid);
-    if (!pLeader)
+    Member* leader = GetMember(m_leaderGuid);
+    if (!leader)
     {
         CharacterDatabaseTransaction dummy(nullptr);
         if (DeleteMember(dummy, m_leaderGuid))
             return false;
     }
-    else if (!pLeader->IsRank(GR_GUILDMASTER))
-        _SetLeaderGUID(*pLeader);
+    else if (!leader->IsRank(GR_GUILDMASTER))
+        _SetLeader(trans, *leader);
 
     // Check config if multiple guildmasters are allowed
     if (!sConfigMgr->GetBoolDefault("Guild.AllowMultipleGuildMaster", false))
@@ -2271,9 +2277,9 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     {
         Member* oldLeader = nullptr;
         Member* newLeader = nullptr;
-        for (auto& [guid, member] : m_members)
+        for (auto& [memberGuid, member] : m_members)
         {
-            if (guid == lowguid)
+            if (memberGuid == lowguid)
                 oldLeader = &member;
             else if (!newLeader || newLeader->GetRankId() > member.GetRankId())
                 newLeader = &member;
@@ -2285,7 +2291,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
             return true;
         }
 
-        _SetLeaderGUID(*newLeader);
+        _SetLeader(trans, *newLeader);
 
         // If player not online data in data field will be loaded from guild tabs no need to update it !!
         if (Player* newLeaderPlayer = newLeader->FindPlayer())
@@ -2524,18 +2530,22 @@ bool Guild::_ModifyBankMoney(CharacterDatabaseTransaction trans, uint64 amount, 
     return true;
 }
 
-void Guild::_SetLeaderGUID(Member& pLeader)
+void Guild::_SetLeader(CharacterDatabaseTransaction trans, Member& leader)
 {
-    CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
-    m_leaderGuid = pLeader.GetGUID();
-    pLeader.ChangeRank(trans, GR_GUILDMASTER);
+    bool isInTransaction = bool(trans);
+    if (!isInTransaction)
+        trans = CharacterDatabase.BeginTransaction();
+
+    m_leaderGuid = leader.GetGUID();
+    leader.ChangeRank(trans, GR_GUILDMASTER);
 
     CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GUILD_LEADER);
     stmt->setUInt32(0, m_leaderGuid.GetCounter());
     stmt->setUInt32(1, m_id);
     trans->Append(stmt);
 
-    CharacterDatabase.CommitTransaction(trans);
+    if (!isInTransaction)
+        CharacterDatabase.CommitTransaction(trans);
 }
 
 void Guild::_SetRankBankMoneyPerDay(uint8 rankId, uint32 moneyPerDay)
