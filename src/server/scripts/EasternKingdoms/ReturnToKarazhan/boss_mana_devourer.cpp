@@ -307,18 +307,74 @@ struct at_mana_devourer_energy_void : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
+    uint32 GetInsidePlayersCount()
+    {
+        return std::ranges::count_if(at->GetInsideUnits(), [this](ObjectGuid const& guid)
+        {
+            Player* player = ObjectAccessor::GetPlayer(*at, guid);
+            if (!player || !player->IsAlive() || player->IsGameMaster())
+                return false;
+            return true;
+        });
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (!unit->IsPlayer())
             return;
 
         unit->CastSpell(unit, SPELL_ENERGY_VOID_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        if (_shrinkPeriodicActive)
+            return;
+
+        _shrinkPeriodicActive = true;
+
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            at->SetTimeToTargetScale(1000);
+
+            float currentScale = std::min(at->CalcCurrentScale(), 0.9f);
+            float targetScale = currentScale - (0.1f * GetInsidePlayersCount());
+
+            UpdateSize(currentScale, targetScale);
+
+            if (targetScale <= 0.01f)
+                at->Remove();
+
+            task.Repeat(1s);
+        });
+    }
+
+    void UpdateSize(float currentScale, float targetScale) const
+    {
+        std::array<DBCPosition2D, 2> points =
+        { {
+            { 0.0f, currentScale },
+            { 1.0f, targetScale }
+        } };
+        at->SetOverrideScaleCurve(points);
     }
 
     void OnUnitExit(Unit* unit) override
     {
         unit->RemoveAurasDueToSpell(SPELL_ENERGY_VOID_DAMAGE);
+
+        if (!GetInsidePlayersCount())
+        {
+            _scheduler.CancelAll();
+            _shrinkPeriodicActive = false;
+        }
     }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+    bool _shrinkPeriodicActive = false;
 };
 
 void AddSC_boss_mana_devourer()
