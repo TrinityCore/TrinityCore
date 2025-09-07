@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "InstanceScript.h"
+#include "ObjectAccessor.h"
 #include "PathGenerator.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
