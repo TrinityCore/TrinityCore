@@ -79,22 +79,6 @@ SmartScript& SmartScript::operator=(SmartScript const& other) = default;
 SmartScript& SmartScript::operator=(SmartScript&& other) noexcept = default;
 SmartScript::~SmartScript() = default;
 
-static SummonPropertiesEntry const* FindSummonPropertiesBySpellId(uint32 spellId)
-{
-    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE))
-    {
-        for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
-        {
-            if (spellEffectInfo.Effect == SpellEffectName::SPELL_EFFECT_SUMMON)
-            {
-                if (SummonPropertiesEntry const* summonProps = sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
-                    return summonProps;
-            }
-        }
-    }
-    return nullptr;
-}
-
 bool SmartScript::IsSmart(Creature* c, bool silent) const
 {
     if (!c)
@@ -1278,17 +1262,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.action.summonCreature.storedTargetId)
                 ClearTargetList(e.action.summonCreature.storedTargetId);
 
-            SummonPropertiesEntry const* summonProperties = FindSummonPropertiesBySpellId(e.action.summonCreature.createdBySpell);
+            SummonPropertiesEntry const* summonProperties = [&]() -> SummonPropertiesEntry const*
+            {
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE))
+                    for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
+                        if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
+                            if (SummonPropertiesEntry const* summonProps = sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
+                                return summonProps;
+
+                return nullptr;
+            }();
 
             auto DoSummon = [&](float x, float y, float z, float o, Unit* attackTarget)
             {
                 for (uint32 counter = 0; counter < spawnsCount; counter++)
                 {
-                    if (TempSummon* summon = summoner->GetMap()->SummonCreature(e.action.summonCreature.creature, {x, y, z, o}, summonProperties, Milliseconds(e.action.summonCreature.duration), summoner, e.action.summonCreature.createdBySpell, 0, privateObjectOwner))
+                    if (TempSummon* summon = summoner->GetMap()->SummonCreature(e.action.summonCreature.creature, { x, y, z, o }, summonProperties, Milliseconds(e.action.summonCreature.duration), summoner, e.action.summonCreature.createdBySpell, 0, privateObjectOwner))
                     {
                         summon->SetTempSummonType((TempSummonType)e.action.summonCreature.type);
                         if (e.action.summonCreature.storedTargetId)
-                            AddToStoredTargetList({summon}, e.action.summonCreature.storedTargetId);
+                            AddToStoredTargetList({ summon }, e.action.summonCreature.storedTargetId);
                         if (attackInvoker && attackTarget)
                             summon->AI()->AttackStart(attackTarget);
                     }
@@ -1309,7 +1302,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.GetTargetType() != SMART_TARGET_POSITION)
                 break;
 
-            DoSummon(x, y, z, o, unit);
+            DoSummon(e.target.x, e.target.y, e.target.z, e.target.o, unit);
             break;
         }
         case SMART_ACTION_SUMMON_GO:
@@ -1327,8 +1320,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 QuaternionData rot = QuaternionData::fromEulerAnglesZYX(pos.GetOrientation(), 0.f, 0.f);
                 GameObject* summon = summoner->SummonGameObject(e.action.summonGO.entry, pos, rot, Seconds(e.action.summonGO.despawnTime), GOSummonType(e.action.summonGO.summonType));
                 if (e.action.summonGO.storedTargetId && summon)
-                    AddToStoredTargetList({summon}, e.action.summonGO.storedTargetId);
-
+                    AddToStoredTargetList({ summon }, e.action.summonGO.storedTargetId);
             }
 
             if (e.GetTargetType() != SMART_TARGET_POSITION)
@@ -1337,7 +1329,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             QuaternionData rot = QuaternionData::fromEulerAnglesZYX(e.target.o, 0.f, 0.f);
             GameObject* summon = summoner->SummonGameObject(e.action.summonGO.entry, Position(e.target.x, e.target.y, e.target.z, e.target.o), rot, Seconds(e.action.summonGO.despawnTime), GOSummonType(e.action.summonGO.summonType));
             if (e.action.summonGO.storedTargetId && summon)
-                AddToStoredTargetList({summon}, e.action.summonGO.storedTargetId);
+                AddToStoredTargetList({ summon }, e.action.summonGO.storedTargetId);
             break;
         }
         case SMART_ACTION_KILL_UNIT:
@@ -2076,11 +2068,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     summon->AI()->AttackStart(unit);
 
             if (e.action.creatureGroup.storedTargetId)
-            {
-                ClearTargetList(e.action.creatureGroup.storedTargetId);
-                for (TempSummon* summon : summonList)
-                    AddToStoredTargetList({summon}, e.action.creatureGroup.storedTargetId);
-            }
+                StoreTargetList({ summonList.begin(), summonList.end() }, e.action.creatureGroup.storedTargetId);
             break;
         }
         case SMART_ACTION_SET_POWER:

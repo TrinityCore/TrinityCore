@@ -1863,23 +1863,16 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsSpellValid(e, e.action.summonCreature.createdBySpell))
                     return false;
 
-                bool propertiesFound = false;
-                for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE)->GetEffects())
+                bool propertiesFound = std::ranges::any_of(sSpellMgr->AssertSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE)->GetEffects(),
+                    [](SpellEffectInfo const& spellEffectInfo)
                 {
-                    if (spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON))
-                    {
-                        if (sSummonPropertiesStore.LookupEntry(spellEffectInfo.MiscValueB))
-                        {
-                            propertiesFound = true;
-                            break;
-                        }
-                    }
-                }
+                    return spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON) && sSummonPropertiesStore.HasRecord(spellEffectInfo.MiscValueB);
+                });
 
                 if (!propertiesFound)
                 {
                     TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Spell {} is not a summon creature spell.",
-                                 e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.createdBySpell);
+                        e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.createdBySpell);
                     return false;
                 }
             }
