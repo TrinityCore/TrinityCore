@@ -72,6 +72,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MythicPlusRun const& mythicPlusRun)
     data.append(mythicPlusRun.KeystoneAffixIDs.data(), mythicPlusRun.KeystoneAffixIDs.size());
     data << Size<uint32>(mythicPlusRun.Members);
     data << float(mythicPlusRun.RunScore);
+    data << int32(mythicPlusRun.Unknown_1120);
     for (MythicPlusMember const& member : mythicPlusRun.Members)
         data << member;
 

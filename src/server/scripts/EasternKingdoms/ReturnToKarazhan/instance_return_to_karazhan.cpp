@@ -28,7 +28,14 @@ BossBoundaryData const boundaries =
 ObjectData const creatureData[] =
 {
     { BOSS_MAIDEN_OF_VIRTUE_RTK, DATA_MAIDEN_OF_VIRTUE_RTK },
+    { BOSS_THE_CURATOR_RTK,      DATA_THE_CURATOR_RTK      },
     { 0,                     0                     }  // END
+};
+
+DoorData const doorData[] =
+{
+    { GO_STRANGE_WALL, DATA_THE_CURATOR_RTK, EncounterDoorBehavior::OpenWhenDone          },
+    { 0,               0,                    EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =
@@ -37,7 +44,7 @@ DungeonEncounterData const encounters[] =
     { DATA_MAIDEN_OF_VIRTUE_RTK, {{ 1954 }} },
     { DATA_MOROES,               {{ 1961 }} },
     { DATA_ATTUMEN_THE_HUNTSMAN, {{ 1960 }} },
-    { DATA_THE_CURATOR,          {{ 1964 }} },
+    { DATA_THE_CURATOR_RTK,      {{ 1964 }} },
     { DATA_SHADE_OF_MEDIVH,      {{ 1965 }} },
     { DATA_MANA_DEVOURER,        {{ 1959 }} },
     { DATA_VIZADUUM_THE_WATCHER, {{ 2017 }} },
@@ -57,6 +64,7 @@ class instance_return_to_karazhan : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
                 LoadBossBoundaries(boundaries);
+                LoadDoorData(doorData);
                 LoadDungeonEncounterData(encounters);
             }
         };

@@ -68,12 +68,14 @@ enum MageSpells
     SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
     SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
     SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
+    SPELL_MAGE_FRENETIC_SPEED                    = 236060,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
     SPELL_MAGE_IMPROVED_COMBUSTION               = 383967,
+    SPELL_MAGE_IMPROVED_SCORCH                   = 383608,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
     SPELL_MAGE_LIVING_BOMB_EXPLOSION             = 44461,
     SPELL_MAGE_LIVING_BOMB_PERIODIC              = 217694,
@@ -768,7 +770,7 @@ class spell_mage_firestarter_dots : public AuraScript
 // 108853 - Fire Blast
 class spell_mage_fire_blast : public SpellScript
 {
-    void CalcCritChance(Unit const* /*victim*/, float& critChance) const
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
     {
         critChance = 100.0f;
     }
@@ -1187,6 +1189,34 @@ class spell_mage_improved_combustion : public AuraScript
     }
 };
 
+// 383604 - Improved Scorch
+class spell_mage_improved_scorch : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_IMPROVED_SCORCH, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_improved_scorch::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_mage_improved_scorch::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1463 - Incanter's Flow
 class spell_mage_incanters_flow : public AuraScript
 {
@@ -1358,7 +1388,7 @@ class spell_mage_molten_fury : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
     }
 
-    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
             eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
@@ -1649,6 +1679,37 @@ class spell_mage_scald : public SpellScript
     }
 };
 
+// 2948 - Scorch
+class spell_mage_scorch : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FRENETIC_SPEED });
+    }
+
+    void CalcCritChance(Unit const* victim, float& critChance)
+    {
+        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            critChance = 100.0f;
+    }
+
+    void HandleFreneticSpeed(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            caster->CastSpell(caster, SPELL_MAGE_FRENETIC_SPEED, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_scorch::CalcCritChance);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_scorch::HandleFreneticSpeed, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 451875 - Spontaneous Combustion (attached to 190319 - Combustion)
 class spell_mage_spontaneous_combustion : public SpellScript
 {
@@ -1819,6 +1880,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ignite);
     RegisterSpellScript(spell_mage_imp_mana_gems);
     RegisterSpellScript(spell_mage_improved_combustion);
+    RegisterSpellScript(spell_mage_improved_scorch);
     RegisterSpellScript(spell_mage_incanters_flow);
     RegisterSpellScript(spell_mage_living_bomb);
     RegisterSpellScript(spell_mage_living_bomb_explosion);
@@ -1834,6 +1896,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_scald);
+    RegisterSpellScript(spell_mage_scorch);
     RegisterSpellScript(spell_mage_spontaneous_combustion);
     RegisterSpellScript(spell_mage_supernova);
     RegisterSpellScript(spell_mage_tempest_barrier);

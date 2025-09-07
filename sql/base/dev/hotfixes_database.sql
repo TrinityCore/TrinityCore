@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: hotfixes
 -- ------------------------------------------------------
--- Server version	8.0.42-0ubuntu0.22.04.1
+-- Server version	8.0.42-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -269,7 +269,7 @@ DROP TABLE IF EXISTS `animation_data`;
 CREATE TABLE `animation_data` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Fallback` smallint unsigned NOT NULL DEFAULT '0',
-  `BehaviorTier` tinyint unsigned NOT NULL DEFAULT '0',
+  `BehaviorTier` tinyint NOT NULL DEFAULT '0',
   `BehaviorID` smallint NOT NULL DEFAULT '0',
   `Flags1` int NOT NULL DEFAULT '0',
   `Flags2` int NOT NULL DEFAULT '0',
@@ -1044,15 +1044,23 @@ CREATE TABLE `azerite_unlock_mapping` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `bank_bag_slot_prices`
+-- Table structure for table `bank_tab`
 --
 
-DROP TABLE IF EXISTS `bank_bag_slot_prices`;
+DROP TABLE IF EXISTS `bank_tab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `bank_bag_slot_prices` (
+CREATE TABLE `bank_tab` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `Cost` int unsigned NOT NULL DEFAULT '0',
+  `Cost` bigint unsigned NOT NULL DEFAULT '0',
+  `BankType` tinyint unsigned NOT NULL DEFAULT '0',
+  `OrderIndex` tinyint NOT NULL DEFAULT '0',
+  `PlayerConditionID` int NOT NULL DEFAULT '0',
+  `PurchasePromptTitle` int NOT NULL DEFAULT '0',
+  `PurchasePromptBody` int NOT NULL DEFAULT '0',
+  `PurchasePromptConfirmation` int NOT NULL DEFAULT '0',
+  `TabCleanupConfirmation` int NOT NULL DEFAULT '0',
+  `TabNameEditBoxHeader` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1069,7 +1077,7 @@ CREATE TABLE `banned_addons` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Version` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1290,7 +1298,7 @@ CREATE TABLE `battlemaster_list` (
   `GameType` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ShortDescription` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `LongDescription` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `InstanceType` tinyint NOT NULL DEFAULT '0',
+  `PvpType` int NOT NULL DEFAULT '0',
   `MinLevel` tinyint NOT NULL DEFAULT '0',
   `MaxLevel` tinyint NOT NULL DEFAULT '0',
   `RatedPlayers` tinyint NOT NULL DEFAULT '0',
@@ -1489,6 +1497,7 @@ CREATE TABLE `cfg_regions` (
   `Raidorigin` int unsigned NOT NULL DEFAULT '0',
   `RegionGroupMask` tinyint unsigned NOT NULL DEFAULT '0',
   `ChallengeOrigin` int unsigned NOT NULL DEFAULT '0',
+  `TimeEventRegionGroupID` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1543,7 +1552,7 @@ CREATE TABLE `char_titles` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Name1` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `MaskID` smallint NOT NULL DEFAULT '0',
-  `Flags` tinyint NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1698,6 +1707,7 @@ CREATE TABLE `chr_classes` (
   `IconFileDataID` int unsigned NOT NULL DEFAULT '0',
   `LowResScreenFileDataID` int unsigned NOT NULL DEFAULT '0',
   `Flags` int NOT NULL DEFAULT '0',
+  `StartingLevel` int NOT NULL DEFAULT '0',
   `SpellTextureBlobFileDataID` int unsigned NOT NULL DEFAULT '0',
   `ArmorTypeMask` int unsigned NOT NULL DEFAULT '0',
   `CharStartKitUnknown901` int NOT NULL DEFAULT '0',
@@ -1712,6 +1722,7 @@ CREATE TABLE `chr_classes` (
   `CinematicSequenceID` smallint unsigned NOT NULL DEFAULT '0',
   `DefaultSpec` smallint unsigned NOT NULL DEFAULT '0',
   `ID` tinyint unsigned NOT NULL DEFAULT '0',
+  `HasStrengthBonus` tinyint unsigned NOT NULL DEFAULT '0',
   `PrimaryStatPriority` tinyint NOT NULL DEFAULT '0',
   `DisplayPower` tinyint NOT NULL DEFAULT '0',
   `RangedAttackPowerPerAgility` tinyint unsigned NOT NULL DEFAULT '0',
@@ -1722,6 +1733,8 @@ CREATE TABLE `chr_classes` (
   `ClassColorG` tinyint unsigned NOT NULL DEFAULT '0',
   `ClassColorB` tinyint unsigned NOT NULL DEFAULT '0',
   `RolesMask` tinyint unsigned NOT NULL DEFAULT '0',
+  `DamageBonusStat` tinyint unsigned NOT NULL DEFAULT '0',
+  `HasRelicSlot` tinyint unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -2310,6 +2323,8 @@ CREATE TABLE `content_tuning` (
   `ExpansionID` int NOT NULL DEFAULT '0',
   `HealthItemLevelCurveID` int NOT NULL DEFAULT '0',
   `DamageItemLevelCurveID` int NOT NULL DEFAULT '0',
+  `HealthPrimaryStatCurveID` int NOT NULL DEFAULT '0',
+  `DamagePrimaryStatCurveID` int NOT NULL DEFAULT '0',
   `MinLevel` int NOT NULL DEFAULT '0',
   `MaxLevel` int NOT NULL DEFAULT '0',
   `MinLevelType` int NOT NULL DEFAULT '0',
@@ -2555,6 +2570,7 @@ CREATE TABLE `creature_family` (
   `MaxScaleLevel` tinyint NOT NULL DEFAULT '0',
   `PetFoodMask` smallint NOT NULL DEFAULT '0',
   `PetTalentType` tinyint NOT NULL DEFAULT '0',
+  `CategoryEnumID` int NOT NULL DEFAULT '0',
   `IconFileID` int NOT NULL DEFAULT '0',
   `SkillLine1` smallint NOT NULL DEFAULT '0',
   `SkillLine2` smallint NOT NULL DEFAULT '0',
@@ -3201,6 +3217,7 @@ CREATE TABLE `expected_stat` (
   `PlayerSecondaryStat` float NOT NULL DEFAULT '0',
   `ArmorConstant` float NOT NULL DEFAULT '0',
   `CreatureSpellDamage` float NOT NULL DEFAULT '0',
+  `ContentSetID` int NOT NULL DEFAULT '0',
   `Lvl` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -4539,7 +4556,7 @@ DROP TABLE IF EXISTS `item`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `item` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `ClassID` tinyint unsigned NOT NULL DEFAULT '0',
+  `ClassID` int NOT NULL DEFAULT '0',
   `SubclassID` tinyint unsigned NOT NULL DEFAULT '0',
   `Material` tinyint unsigned NOT NULL DEFAULT '0',
   `InventoryType` tinyint NOT NULL DEFAULT '0',
@@ -5407,6 +5424,7 @@ CREATE TABLE `item_set_spell` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `ChrSpecID` smallint unsigned NOT NULL DEFAULT '0',
   `SpellID` int unsigned NOT NULL DEFAULT '0',
+  `TraitSubTreeID` smallint unsigned NOT NULL DEFAULT '0',
   `Threshold` tinyint unsigned NOT NULL DEFAULT '0',
   `ItemSetID` int unsigned NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -6320,12 +6338,24 @@ CREATE TABLE `map_challenge_mode` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
   `MapID` smallint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `ExpansionLevel` int unsigned NOT NULL DEFAULT '0',
   `RequiredWorldStateID` int NOT NULL DEFAULT '0',
   `CriteriaCount1` smallint NOT NULL DEFAULT '0',
   `CriteriaCount2` smallint NOT NULL DEFAULT '0',
   `CriteriaCount3` smallint NOT NULL DEFAULT '0',
+  `FirstRewardQuestID1` int NOT NULL DEFAULT '0',
+  `FirstRewardQuestID2` int NOT NULL DEFAULT '0',
+  `FirstRewardQuestID3` int NOT NULL DEFAULT '0',
+  `FirstRewardQuestID4` int NOT NULL DEFAULT '0',
+  `FirstRewardQuestID5` int NOT NULL DEFAULT '0',
+  `FirstRewardQuestID6` int NOT NULL DEFAULT '0',
+  `RewardQuestID1` int NOT NULL DEFAULT '0',
+  `RewardQuestID2` int NOT NULL DEFAULT '0',
+  `RewardQuestID3` int NOT NULL DEFAULT '0',
+  `RewardQuestID4` int NOT NULL DEFAULT '0',
+  `RewardQuestID5` int NOT NULL DEFAULT '0',
+  `RewardQuestID6` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -6896,8 +6926,8 @@ DROP TABLE IF EXISTS `perks_activity`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `perks_activity` (
-  `ActivityName` text COLLATE utf8mb4_unicode_ci,
-  `Description` text COLLATE utf8mb4_unicode_ci,
+  `ActivityName` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `ID` int unsigned NOT NULL DEFAULT '0',
   `CriteriaTreeID` int NOT NULL DEFAULT '0',
   `ThresholdContributionAmount` int NOT NULL DEFAULT '0',
@@ -6917,9 +6947,9 @@ DROP TABLE IF EXISTS `perks_activity_locale`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `perks_activity_locale` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `locale` varchar(4) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ActivityName_lang` text COLLATE utf8mb4_unicode_ci,
-  `Description_lang` text COLLATE utf8mb4_unicode_ci,
+  `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ActivityName_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `Description_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -6995,7 +7025,7 @@ CREATE TABLE `player_condition` (
   `CurrentCompletedQuestLogic` int unsigned NOT NULL DEFAULT '0',
   `SpellLogic` int unsigned NOT NULL DEFAULT '0',
   `ItemLogic` int unsigned NOT NULL DEFAULT '0',
-  `ItemFlags` tinyint unsigned NOT NULL DEFAULT '0',
+  `ItemFlags` int NOT NULL DEFAULT '0',
   `AuraSpellLogic` int unsigned NOT NULL DEFAULT '0',
   `WorldStateExpressionID` smallint unsigned NOT NULL DEFAULT '0',
   `WeatherID` int NOT NULL DEFAULT '0',
@@ -7167,6 +7197,70 @@ CREATE TABLE `player_condition_locale` (
  PARTITION ruRU VALUES IN ('ruRU') ENGINE = InnoDB,
  PARTITION zhCN VALUES IN ('zhCN') ENGINE = InnoDB,
  PARTITION zhTW VALUES IN ('zhTW') ENGINE = InnoDB) */;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `player_data_element_account`
+--
+
+DROP TABLE IF EXISTS `player_data_element_account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_data_element_account` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `StorageIndex` int NOT NULL DEFAULT '0',
+  `Type` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `player_data_element_character`
+--
+
+DROP TABLE IF EXISTS `player_data_element_character`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_data_element_character` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `StorageIndex` int NOT NULL DEFAULT '0',
+  `Type` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `player_data_flag_account`
+--
+
+DROP TABLE IF EXISTS `player_data_flag_account`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_data_flag_account` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `StorageIndex` int NOT NULL DEFAULT '0',
+  `Unknown1107` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `player_data_flag_character`
+--
+
+DROP TABLE IF EXISTS `player_data_flag_character`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `player_data_flag_character` (
+  `ID` int unsigned NOT NULL DEFAULT '0',
+  `StorageIndex` int NOT NULL DEFAULT '0',
+  `Unknown1107` int NOT NULL DEFAULT '0',
+  `VerifiedBuild` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`,`VerifiedBuild`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7669,7 +7763,7 @@ DROP TABLE IF EXISTS `quest_v2`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_v2` (
   `ID` int unsigned NOT NULL DEFAULT '0',
-  `UniqueBitFlag` smallint unsigned NOT NULL DEFAULT '0',
+  `UniqueBitFlag` int NOT NULL DEFAULT '0',
   `UiQuestDetailsTheme` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
@@ -8394,8 +8488,8 @@ CREATE TABLE `spell_category` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Flags` int NOT NULL DEFAULT '0',
-  `UsesPerWeek` tinyint unsigned NOT NULL DEFAULT '0',
-  `MaxCharges` tinyint NOT NULL DEFAULT '0',
+  `UsesPerWeek` int NOT NULL DEFAULT '0',
+  `MaxCharges` int NOT NULL DEFAULT '0',
   `ChargeRecoveryTime` int NOT NULL DEFAULT '0',
   `TypeMask` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -8579,7 +8673,7 @@ DROP TABLE IF EXISTS `spell_equipped_items`;
 CREATE TABLE `spell_equipped_items` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `SpellID` int NOT NULL DEFAULT '0',
-  `EquippedItemClass` tinyint NOT NULL DEFAULT '0',
+  `EquippedItemClass` int NOT NULL DEFAULT '0',
   `EquippedItemInvTypes` int NOT NULL DEFAULT '0',
   `EquippedItemSubclass` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9349,6 +9443,10 @@ CREATE TABLE `spell_visual_kit` (
   `FallbackSpellVisualKitId` int NOT NULL DEFAULT '0',
   `DelayMin` smallint unsigned NOT NULL DEFAULT '0',
   `DelayMax` smallint unsigned NOT NULL DEFAULT '0',
+  `MinimumSpellVisualDensityFilterType` int NOT NULL DEFAULT '0',
+  `MinimumSpellVisualDensityFilterParam` int NOT NULL DEFAULT '0',
+  `ReducedSpellVisualDensityFilterType` int NOT NULL DEFAULT '0',
+  `ReducedSpellVisualDensityFilterParam` int NOT NULL DEFAULT '0',
   `Flags1` int NOT NULL DEFAULT '0',
   `Flags2` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
@@ -9479,7 +9577,7 @@ CREATE TABLE `talent` (
   `ID` int unsigned NOT NULL DEFAULT '0',
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `TierID` tinyint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `ColumnIndex` tinyint unsigned NOT NULL DEFAULT '0',
   `TabID` smallint unsigned NOT NULL DEFAULT '0',
   `ClassID` tinyint NOT NULL DEFAULT '0',
@@ -10679,7 +10777,7 @@ CREATE TABLE `unit_power_bar` (
   `RegenerationPeace` float NOT NULL DEFAULT '0',
   `RegenerationCombat` float NOT NULL DEFAULT '0',
   `BarType` tinyint unsigned NOT NULL DEFAULT '0',
-  `Flags` smallint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `StartInset` float NOT NULL DEFAULT '0',
   `EndInset` float NOT NULL DEFAULT '0',
   `FileDataID1` int NOT NULL DEFAULT '0',
@@ -10943,7 +11041,6 @@ DROP TABLE IF EXISTS `warband_scene`;
 CREATE TABLE `warband_scene` (
   `Name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Source` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `PositionX` float NOT NULL DEFAULT '0',
   `PositionY` float NOT NULL DEFAULT '0',
   `PositionZ` float NOT NULL DEFAULT '0',
@@ -10959,7 +11056,6 @@ CREATE TABLE `warband_scene` (
   `Quality` tinyint NOT NULL DEFAULT '0',
   `TextureKit` int NOT NULL DEFAULT '0',
   `DefaultScenePriority` int NOT NULL DEFAULT '0',
-  `SourceType` tinyint NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -10977,7 +11073,6 @@ CREATE TABLE `warband_scene_locale` (
   `locale` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Name_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Description_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `Source_lang` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`locale`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -11016,7 +11111,7 @@ CREATE TABLE `wmo_area_table` (
   `IntroSound` smallint unsigned NOT NULL DEFAULT '0',
   `UwIntroSound` smallint unsigned NOT NULL DEFAULT '0',
   `AreaTableID` smallint unsigned NOT NULL DEFAULT '0',
-  `Flags` tinyint unsigned NOT NULL DEFAULT '0',
+  `Flags` int NOT NULL DEFAULT '0',
   `VerifiedBuild` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`,`VerifiedBuild`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -11126,4 +11221,4 @@ CREATE TABLE `world_state_expression` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-31 19:46:02
+-- Dump completed on 2025-08-16 14:58:29
