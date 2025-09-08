@@ -39,6 +39,17 @@ struct npc_pet_pri_lightwell : public PassiveAI
         DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
     }
 
+    void InitializeAI() override
+    {
+        if (WorldObject* summoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summonerUnit = summoner->ToUnit())
+            {
+                uint32 hp = uint32(summonerUnit->GetMaxHealth() * 0.23f);
+                me->SetMaxHealth(hp);
+                me->SetHealth(hp);
+            }
+    }
+
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         if (!me->IsAlive())
