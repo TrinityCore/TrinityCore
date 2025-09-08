@@ -117,7 +117,7 @@ class TC_GAME_API ChatHandler
         bool extractPlayerTarget(char* args, Player** player, ObjectGuid* player_guid = nullptr, std::string* player_name = nullptr);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
-        std::string GetNameLink(Player* chr) const;
+        std::string GetNameLink(Player const* chr) const;
 
         GameObject* GetNearbyGameObject();
         GameObject* GetObjectFromPlayerMapByDbGuid(ObjectGuid::LowType lowguid);

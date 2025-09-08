@@ -67,17 +67,6 @@ struct boss_high_botanist_freywinn : public BossAI
         events.ScheduleEvent(EVENT_TREE_FORM, 30s);
     }
 
-    void KilledUnit(Unit* /*victim*/) override
-    {
-        Talk(SAY_SLAY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        Talk(SAY_DEATH);
-    }
-
     // Do not despawn them
     void JustSummoned(Creature* summon) override
     {
@@ -99,6 +88,17 @@ struct boss_high_botanist_freywinn : public BossAI
                 me->RemoveAurasDueToSpell(SPELL_TREE_FORM);
             }
         }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override

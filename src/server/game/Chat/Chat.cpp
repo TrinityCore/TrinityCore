@@ -694,7 +694,7 @@ int ChatHandler::GetSessionDbLocaleIndex() const
     return m_session->GetSessionDbLocaleIndex();
 }
 
-std::string ChatHandler::GetNameLink(Player* chr) const
+std::string ChatHandler::GetNameLink(Player const* chr) const
 {
     return playerLink(chr->GetName());
 }

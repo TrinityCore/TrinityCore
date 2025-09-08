@@ -21,36 +21,54 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
+#include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 
 enum BroggokTexts
 {
-    SAY_AGGRO                     = 0
+    SAY_INTRO                        = 0,
+    SAY_AGGRO                        = 1
 };
 
 enum BroggokSpells
 {
-    SPELL_SLIME_SPRAY             = 30913,
-    SPELL_POISON_CLOUD            = 30916,
-    SPELL_POISON_BOLT             = 30917,
-    SPELL_POISON_CLOUD_PASSIVE    = 30914,
-    SPELL_SUMMON_INCOMBAT_TRIGGER = 26837,
+    SPELL_SLIME_SPRAY                = 30913,
+    SPELL_POISON_BOLT                = 30917,
+    SPELL_POISON_CLOUD               = 30916,
+
+    SPELL_SUMMON_INCOMBAT_TRIGGER    = 26837,
+    SPELL_DESPAWN_INCOMBAT_TRIGGER   = 26838,
+
+    // Cloud
+    SPELL_POISON_CLOUD_PASSIVE       = 30914,
 
     // Prisioners
-    SPELL_STOMP                   = 31900,
-    SPELL_CONCUSSION_BLOW         = 22427,
-    SPELL_FRENZY                  = 8269,
-    SPELL_CHARGE                  = 22120
+    SPELL_STOMP                      = 31900,
+    SPELL_CONCUSSION_BLOW            = 22427,
+    SPELL_FRENZY                     = 8269,
+    SPELL_CHARGE                     = 22120
 };
 
 enum BroggokEvents
 {
-    EVENT_SLIME_SPRAY             = 1,
+    EVENT_SLIME_SPRAY                = 1,
     EVENT_POISON_BOLT,
     EVENT_POISON_CLOUD,
+
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+
+    EVENT_ACTIVATE_1,
+    EVENT_ACTIVATE_2
+};
+
+enum BroggokMisc
+{
+    PATH_ROOM                        = 1381150,
+    NPC_BROGGOK_POISON_CLOUD         = 17662,
+    NPC_INCOMBAT_TRIGGER             = 16006
 };
 
 // 17380 - Broggok
@@ -67,11 +85,11 @@ struct boss_broggok : public BossAI
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        Talk(SAY_AGGRO);
+        DoCastSelf(SPELL_DESPAWN_INCOMBAT_TRIGGER);
 
-        events.ScheduleEvent(EVENT_SLIME_SPRAY, 10s);
-        events.ScheduleEvent(EVENT_POISON_BOLT, 7s);
-        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s);
+        events.ScheduleEvent(EVENT_SLIME_SPRAY, 8s, 12s);
+        events.ScheduleEvent(EVENT_POISON_BOLT, 2s, 10s);
+        events.ScheduleEvent(EVENT_POISON_CLOUD, 5s, 10s);
     }
 
     void JustSummoned(Creature* summoned) override
@@ -90,22 +108,29 @@ struct boss_broggok : public BossAI
         }
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        summons.DespawnEntry(NPC_BROGGOK_POISON_CLOUD);
+        DoCastSelf(SPELL_DESPAWN_INCOMBAT_TRIGGER, true);
+        instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
+        _DespawnAtEvade();
+    }
+
     void DoAction(int32 action) override
     {
         switch (action)
         {
             case ACTION_PREPARE_BROGGOK:
-                DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
+                events.ScheduleEvent(EVENT_INTRO_1, 0s);
                 break;
             case ACTION_ACTIVATE_BROGGOK:
-                me->SetReactState(REACT_AGGRESSIVE);
-                me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                DoZoneInCombat();
+                events.ScheduleEvent(EVENT_ACTIVATE_1, 0s);
                 break;
             case ACTION_RESET_BROGGOK:
                 me->SetReactState(REACT_PASSIVE);
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-                summons.DespawnAll();
+                summons.DespawnEntry(NPC_BROGGOK_POISON_CLOUD);
+                DoCastSelf(SPELL_DESPAWN_INCOMBAT_TRIGGER);
                 instance->SetBossState(DATA_BROGGOK, NOT_STARTED);
                 if (GameObject * lever = instance->GetGameObject(DATA_BROGGOK_LEVER))
                 {
@@ -118,24 +143,73 @@ struct boss_broggok : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId) override
+    void UpdateAI(uint32 diff) override
     {
-        switch (eventId)
+        if (!UpdateVictim())
         {
-            case EVENT_SLIME_SPRAY:
-                DoCastVictim(SPELL_SLIME_SPRAY);
-                events.Repeat(4s, 12s);
-                break;
-            case EVENT_POISON_BOLT:
-                DoCastVictim(SPELL_POISON_BOLT);
-                events.Repeat(4s, 12s);
-                break;
-            case EVENT_POISON_CLOUD:
-                DoCastSelf(SPELL_POISON_CLOUD);
-                events.Repeat(20s);
-                break;
-            default:
-                break;
+            UpdateOutOfCombatEvents(diff);
+            return;
+        }
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_SLIME_SPRAY:
+                    DoCastSelf(SPELL_SLIME_SPRAY);
+                    events.Repeat(4s, 12s);
+                    break;
+                case EVENT_POISON_BOLT:
+                    DoCastSelf(SPELL_POISON_BOLT);
+                    events.Repeat(4s, 12s);
+                    break;
+                case EVENT_POISON_CLOUD:
+                    DoCastSelf(SPELL_POISON_CLOUD);
+                    events.Repeat(20s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+    void UpdateOutOfCombatEvents(uint32 diff)
+    {
+        events.Update(diff);
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_INTRO_1:
+                    DoCastSelf(SPELL_SUMMON_INCOMBAT_TRIGGER);
+                    events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                    break;
+                case EVENT_INTRO_2:
+                    Talk(SAY_INTRO);
+                    break;
+                case EVENT_ACTIVATE_1:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+                    events.ScheduleEvent(EVENT_ACTIVATE_2, 4s);
+                    break;
+                case EVENT_ACTIVATE_2:
+                    Talk(SAY_AGGRO);
+                    me->GetMotionMaster()->MovePath(PATH_ROOM, false);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 };
@@ -154,10 +228,10 @@ struct BroggokPrisionersAI : public ScriptedAI
     void Reset() override
     {
         scheduler.CancelAll();
-        scheduler.Schedule(1s, 5s, [this](TaskContext emote)
+        scheduler.Schedule(1s, 5s, [this](TaskContext task)
         {
             me->HandleEmoteCommand(Trinity::Containers::SelectRandomContainerElement(PrisionersEmotes));
-            emote.Repeat(6s, 9s);
+            task.Repeat(6s, 9s);
         });
     }
 
@@ -202,17 +276,18 @@ struct npc_nascent_fel_orc : public BroggokPrisionersAI
 
     void ScheduleEvents() override
     {
-        scheduler.Schedule(15s, [this](TaskContext concussionBlow)
-        {
-            DoCastVictim(SPELL_CONCUSSION_BLOW);
-            concussionBlow.Repeat(8s, 11s);
-        }).Schedule(7s, [this](TaskContext stomp)
-        {
-            DoCastVictim(SPELL_STOMP);
-            stomp.Repeat(16s, 21s);
-        });
+        scheduler
+            .Schedule(15s, [this](TaskContext task)
+            {
+                DoCastVictim(SPELL_CONCUSSION_BLOW);
+                task.Repeat(8s, 11s);
+            })
+            .Schedule(7s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_STOMP);
+                task.Repeat(16s, 21s);
+            });
     }
-
 };
 
 // 17429 - Fel Orc Neophyte
@@ -222,17 +297,19 @@ struct npc_fel_orc_neophyte : public BroggokPrisionersAI
 
     void ScheduleEvents() override
     {
-        scheduler.Schedule(5s, [this](TaskContext charge)
-        {
-            DoCastVictim(SPELL_CHARGE);
-            charge.Repeat(20s);
-        }).Schedule(1s, [this](TaskContext frenzy)
-        {
-            DoCastSelf(SPELL_FRENZY);
-            frenzy.Repeat(12s, 13s);
-        });
+        scheduler
+            .Schedule(5s, [this](TaskContext task)
+            {
+                if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                    DoCast(target, SPELL_CHARGE);
+                task.Repeat(20s);
+            })
+            .Schedule(1s, [this](TaskContext task)
+            {
+                DoCastSelf(SPELL_FRENZY);
+                task.Repeat(12s, 13s);
+            });
     }
-
 };
 
 // 181982 - Cell Door Lever

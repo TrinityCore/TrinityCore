@@ -1735,7 +1735,50 @@ class spell_borean_tundra_arcane_prisoner_rescue : public SpellScript
 
 enum WeaknessToLightning
 {
-    SPELL_POWER_OF_THE_STORM    = 46424
+    SPELL_POWER_OF_THE_STORM_ITEM      = 46432,
+    SPELL_POWER_OF_THE_STORM           = 46424
+};
+
+// 46444 - Weakness to Lightning: Cast on Master Script Effect
+class spell_borean_tundra_weakness_to_lightning_cast_on_master : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_0).CalcValue()) });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cast_on_master::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 46446 - Weakness to Lightning: Cancel Power of the Storm Aura
+class spell_borean_tundra_weakness_to_lightning_cancel_aura : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWER_OF_THE_STORM_ITEM });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_POWER_OF_THE_STORM_ITEM);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_weakness_to_lightning_cancel_aura::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 // 46550 - Weakness to Lightning: On Quest Complete
@@ -1790,6 +1833,77 @@ class spell_borean_tundra_signal_alliance : public SpellScript
     }
 };
 
+/*######
+## Quest 11730: Master and Servant
+######*/
+
+enum MasterAndServant
+{
+    SPELL_SUMMON_SCAVENGEBOT_004A8  = 46063,
+    SPELL_SUMMON_SENTRYBOT_57K      = 46068,
+    SPELL_SUMMON_DEFENDOTANK_66D    = 46058,
+    SPELL_SUMMON_SCAVENGEBOT_005B6  = 46066,
+    SPELL_SUMMON_55D_COLLECTATRON   = 46034,
+    SPELL_ROBOT_KILL_CREDIT         = 46027,
+    NPC_SCAVENGEBOT_004A8           = 25752,
+    NPC_SENTRYBOT_57K               = 25753,
+    NPC_DEFENDOTANK_66D             = 25758,
+    NPC_SCAVENGEBOT_005B6           = 25792,
+    NPC_55D_COLLECTATRON            = 25793
+};
+
+// 46023 - The Ultrasonic Screwdriver
+class spell_borean_tundra_ultrasonic_screwdriver : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
+
+    bool Load() override
+    {
+        return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+    }
+
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_SCAVENGEBOT_004A8,
+            SPELL_SUMMON_SENTRYBOT_57K,
+            SPELL_SUMMON_DEFENDOTANK_66D,
+            SPELL_SUMMON_SCAVENGEBOT_005B6,
+            SPELL_SUMMON_55D_COLLECTATRON,
+            SPELL_ROBOT_KILL_CREDIT
+        });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Item* castItem = GetCastItem();
+        Unit* caster = GetCaster();
+        if (Creature* target = GetHitCreature())
+        {
+            uint32 spellId = 0;
+            switch (target->GetEntry())
+            {
+                case NPC_SCAVENGEBOT_004A8: spellId = SPELL_SUMMON_SCAVENGEBOT_004A8;    break;
+                case NPC_SENTRYBOT_57K:     spellId = SPELL_SUMMON_SENTRYBOT_57K;        break;
+                case NPC_DEFENDOTANK_66D:   spellId = SPELL_SUMMON_DEFENDOTANK_66D;      break;
+                case NPC_SCAVENGEBOT_005B6: spellId = SPELL_SUMMON_SCAVENGEBOT_005B6;    break;
+                case NPC_55D_COLLECTATRON:  spellId = SPELL_SUMMON_55D_COLLECTATRON;     break;
+                default:
+                    return;
+            }
+            caster->CastSpell(caster, spellId, castItem);
+            caster->CastSpell(caster, SPELL_ROBOT_KILL_CREDIT, true);
+            target->DespawnOrUnsummon();
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_ultrasonic_screwdriver::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1817,6 +1931,9 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_neural_needle);
     RegisterSpellScript(spell_borean_tundra_prototype_neural_needle);
     RegisterSpellScript(spell_borean_tundra_arcane_prisoner_rescue);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cast_on_master);
+    RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_cancel_aura);
     RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
     RegisterSpellScript(spell_borean_tundra_signal_alliance);
+    RegisterSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
 }
