@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
