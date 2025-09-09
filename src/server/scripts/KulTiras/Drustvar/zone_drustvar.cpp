@@ -28,6 +28,7 @@
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
+#include "TemporarySummon.h"
 
 enum ReallyBigProblemData
 {
