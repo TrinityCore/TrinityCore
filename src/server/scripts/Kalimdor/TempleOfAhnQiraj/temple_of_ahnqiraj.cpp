@@ -16,10 +16,11 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "SpellScript.h"
 #include "Unit.h"
 
-enum Spells
+enum AQ40TeleportSpells
 {
     SPELL_TELEPORT_TO_TWIN_EMPS_EFFECT        = 29181,
     SPELL_TELEPORT_TO_FINAL_CHAMBER_EFFECT    = 29190
@@ -67,8 +68,39 @@ class spell_temple_of_ahnqiraj_teleport_to_final_chamber : public SpellScript
     }
 };
 
+enum AQ40Itch
+{
+    SPELL_VEKNISS_CATALYST        = 26078
+};
+
+// 26077 - Itch
+class spell_temple_of_ahnqiraj_itch : public AuraScript
+{
+    PrepareAuraScript(spell_temple_of_ahnqiraj_itch);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VEKNISS_CATALYST });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_VEKNISS_CATALYST, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_temple_of_ahnqiraj_itch::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_temple_of_ahnqiraj()
 {
     RegisterSpellScript(spell_temple_of_ahnqiraj_teleport_to_twin_emperors);
     RegisterSpellScript(spell_temple_of_ahnqiraj_teleport_to_final_chamber);
+    RegisterSpellScript(spell_temple_of_ahnqiraj_itch);
 }

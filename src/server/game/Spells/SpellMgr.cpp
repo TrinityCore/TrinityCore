@@ -3173,7 +3173,9 @@ void SpellMgr::LoadSpellInfoCorrections()
     ApplySpellFix({
         42818, // Headless Horseman - Wisp Flight Port
         42821, // Headless Horseman - Wisp Flight Missile
-        17678  // Despawn Spectral Combatants
+        17678, // Despawn Spectral Combatants
+        720,   // Entangle
+        731    // Entangle
     }, [](SpellInfo* spellInfo)
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(6); // 100 yards
