@@ -19,30 +19,30 @@
 #define __TRINITY_REPUTATION_MGR_H
 
 #include "Common.h"
-#include "SharedDefines.h"
+#include "EnumFlag.h"
 #include "Language.h"
+#include "DatabaseEnvFwd.h"
 #include "DBCStructure.h"
-#include "QueryResult.h"
+#include "SharedDefines.h"
+#include <set>
 #include <map>
 
-static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
+TC_GAME_API extern uint32 const ReputationRankStrIndex[MAX_REPUTATION_RANK];
+
+enum class ReputationFlags : uint8
 {
-    LANG_REP_HATED,    LANG_REP_HOSTILE, LANG_REP_UNFRIENDLY, LANG_REP_NEUTRAL,
-    LANG_REP_FRIENDLY, LANG_REP_HONORED, LANG_REP_REVERED,    LANG_REP_EXALTED
+    None                        = 0x0000,
+    Visible                     = 0x0001,                   // makes visible in client (set or can be set at interaction with target of this faction)
+    AtWar                       = 0x0002,                   // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
+    Hidden                      = 0x0004,                   // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
+    Header                      = 0x0008,                   // Display as header in UI
+    Peaceful                    = 0x0010,
+    Inactive                    = 0x0020,                   // player controlled (CMSG_SET_FACTION_INACTIVE)
+    ShowPropagated              = 0x0040,
+    HeaderShowsBar              = 0x0080                    // Header has its own reputation bar
 };
 
-enum FactionFlags
-{
-    FACTION_FLAG_NONE               = 0x00,                 // no faction flag
-    FACTION_FLAG_VISIBLE            = 0x01,                 // makes visible in client (set or can be set at interaction with target of this faction)
-    FACTION_FLAG_AT_WAR             = 0x02,                 // enable AtWar-button in client. player controlled (except opposition team always war state), Flag only set on initial creation
-    FACTION_FLAG_HIDDEN             = 0x04,                 // hidden faction from reputation pane in client (player can gain reputation, but this update not sent to client)
-    FACTION_FLAG_INVISIBLE_FORCED   = 0x08,                 // always overwrite FACTION_FLAG_VISIBLE and hide faction in rep.list, used for hide opposite team factions
-    FACTION_FLAG_PEACE_FORCED       = 0x10,                 // always overwrite FACTION_FLAG_AT_WAR, used for prevent war with own team factions
-    FACTION_FLAG_INACTIVE           = 0x20,                 // player controlled, state stored in characters.data (CMSG_SET_FACTION_INACTIVE)
-    FACTION_FLAG_RIVAL              = 0x40,                 // flag for the two competing outland factions
-    FACTION_FLAG_SPECIAL            = 0x80                  // horde and alliance home cities and their northrend allies have this flag
-};
+DEFINE_ENUM_FLAG(ReputationFlags);
 
 typedef uint32 RepListID;
 struct FactionState
@@ -50,7 +50,7 @@ struct FactionState
     uint32 ID;
     RepListID ReputationListID;
     int32 Standing;
-    uint8 Flags;
+    EnumFlag<ReputationFlags> Flags = ReputationFlags::None;
     bool needSend;
     bool needSave;
 };
@@ -70,11 +70,11 @@ class TC_GAME_API ReputationMgr
         void SaveToDB(CharacterDatabaseTransaction trans);
         void LoadFromDB(PreparedQueryResult result);
     public:                                                 // statics
-        static const int32 PointsInRank[MAX_REPUTATION_RANK];
+        static std::set<int32> const ReputationRankThresholds;
         static const int32 Reputation_Cap;
         static const int32 Reputation_Bottom;
 
-        static ReputationRank ReputationToRank(int32 standing);
+        static ReputationRank ReputationToRank(FactionEntry const* factionEntry, int32 standing);
     public:                                                 // accessors
         uint8 GetVisibleFactionCount() const { return _visibleFactionCount; }
         uint8 GetHonoredFactionCount() const { return _honoredFactionCount; }
@@ -83,10 +83,7 @@ class TC_GAME_API ReputationMgr
 
         FactionStateList const& GetStateList() const { return _factions; }
 
-        FactionState const* GetState(FactionEntry const* factionEntry) const
-        {
-            return factionEntry->CanHaveReputation() ? GetState(factionEntry->ReputationIndex) : nullptr;
-        }
+        FactionState const* GetState(FactionEntry const* factionEntry) const;
 
         FactionState const* GetState(RepListID id) const
         {
@@ -101,19 +98,15 @@ class TC_GAME_API ReputationMgr
         int32 GetReputation(uint32 faction_id) const;
         int32 GetReputation(FactionEntry const* factionEntry) const;
         int32 GetBaseReputation(FactionEntry const* factionEntry) const;
+        int32 GetMinReputation(FactionEntry const* factionEntry) const;
+        int32 GetMaxReputation(FactionEntry const* factionEntry) const;
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
-        uint32 GetReputationRankStrIndex(FactionEntry const* factionEntry) const
-        {
-            return ReputationRankStrIndex[GetRank(factionEntry)];
-        };
+        std::string GetReputationRankName(FactionEntry const* factionEntry) const;;
 
-        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
-        {
-            ForcedReactions::const_iterator forceItr = _forcedReactions.find(factionTemplateEntry->Faction);
-            return forceItr != _forcedReactions.end() ? &forceItr->second : nullptr;
-        }
+        ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const;
+        ReputationRank const* GetForcedRankIfAny(uint32 factionId) const;
 
     public:                                                 // modifiers
         bool SetReputation(FactionEntry const* factionEntry, int32 standing)
@@ -142,13 +135,15 @@ class TC_GAME_API ReputationMgr
 
     private:                                                // internal helper functions
         void Initialize();
-        uint32 GetDefaultStateFlags(FactionEntry const* factionEntry) const;
+        ReputationFlags GetDefaultStateFlags(FactionEntry const* factionEntry) const;
         bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental, bool spillOverOnly);
         void SetVisible(FactionState* faction);
         void SetAtWar(FactionState* faction, bool atWar) const;
         void SetInactive(FactionState* faction, bool inactive) const;
         void SendVisible(FactionState const* faction) const;
         void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank);
+        int32 GetFactionDataIndexForRaceAndClass(FactionEntry const* factionEntry) const;
+
     private:
         Player* _player;
         FactionStateList _factions;

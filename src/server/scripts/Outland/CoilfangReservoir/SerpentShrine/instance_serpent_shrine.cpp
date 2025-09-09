@@ -232,8 +232,6 @@ class instance_serpent_shrine : public InstanceMapScript
 
             void SetGuidData(uint32 type, ObjectGuid data) override
             {
-                if (type == DATA_KARATHRESSEVENT_STARTER)
-                    KarathressEvent_Starter = data;
                 if (type == DATA_LEOTHERAS_EVENT_STARTER)
                     LeotherasEventStarter = data;
             }
@@ -254,8 +252,6 @@ class instance_serpent_shrine : public InstanceMapScript
                         return LadyVashj;
                     case DATA_KARATHRESS:
                         return Karathress;
-                    case DATA_KARATHRESSEVENT_STARTER:
-                        return KarathressEvent_Starter;
                     case DATA_LEOTHERAS:
                         return LeotherasTheBlind;
                     case DATA_LEOTHERAS_EVENT_STARTER:
@@ -366,7 +362,6 @@ class instance_serpent_shrine : public InstanceMapScript
             ObjectGuid Caribdis;
             ObjectGuid LadyVashj;
             ObjectGuid Karathress;
-            ObjectGuid KarathressEvent_Starter;
             ObjectGuid LeotherasTheBlind;
             ObjectGuid LeotherasEventStarter;
 

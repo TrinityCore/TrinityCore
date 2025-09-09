@@ -18,6 +18,7 @@
 #include "vmapexport.h"
 #include "Errors.h"
 #include "model.h"
+#include "StringFormat.h"
 #include "wmo.h"
 #include "adtfile.h"
 #include "mpq_libmpq.h"
@@ -140,9 +141,8 @@ Vec3D fixCoordSystem(Vec3D const& v)
 
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE* pDirfile)
 {
-    char tempname[1036];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
-    FILE* input = fopen(tempname, "r+b");
+    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
+    FILE* input = fopen(tempname.c_str(), "r+b");
 
     if (!input)
         return;
@@ -199,24 +199,15 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
 
         WMO::MODD const& doodad = doodadData.Spawns[doodadIndex];
 
-        char ModelInstName[1024];
-        sprintf(ModelInstName, "%s", GetPlainName(&doodadData.Paths[doodad.NameIndex]));
-        uint32 nlen = strlen(ModelInstName);
-        fixnamen(ModelInstName, nlen);
-        fixname2(ModelInstName, nlen);
-        if (nlen > 3)
-        {
-            char const* extension = &ModelInstName[nlen - 4];
-            if (!strcmp(extension, ".mdx") || !strcmp(extension, ".mdl"))
-            {
-                ModelInstName[nlen - 2] = '2';
-                ModelInstName[nlen - 1] = '\0';
-            }
-        }
+        std::string ModelInstName = GetPlainName(&doodadData.Paths[doodad.NameIndex]);
+        uint32 nlen = ModelInstName.length();
+        fixnamen(ModelInstName.data(), nlen);
+        fixname2(ModelInstName.data(), nlen);
+        if (ModelInstName.ends_with(".mdx") || ModelInstName.ends_with(".mdl"))
+            ModelInstName.replace(ModelInstName.length() - 2, 2, "2");
 
-        char tempname[1036];
-        sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
-        FILE* input = fopen(tempname, "r+b");
+        std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
+        FILE* input = fopen(tempname.c_str(), "r+b");
         if (!input)
             continue;
 
@@ -259,6 +250,6 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, u
         fwrite(&rotation, sizeof(Vec3D), 1, pDirfile);
         fwrite(&doodad.Scale, sizeof(float), 1, pDirfile);
         fwrite(&nlen, sizeof(uint32), 1, pDirfile);
-        fwrite(ModelInstName, sizeof(char), nlen, pDirfile);
+        fwrite(ModelInstName.c_str(), sizeof(char), nlen, pDirfile);
     }
 }

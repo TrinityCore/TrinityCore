@@ -17,18 +17,16 @@
 
 #include "vmapexport.h"
 #include "adtfile.h"
-#include "vec3d.h"
+#include "Errors.h"
 #include "mpq_libmpq.h"
-
+#include "StringFormat.h"
+#include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
 #include <fstream>
 #include <map>
 #include <cstdio>
 #include <cstdlib>
-#include "Errors.h"
-#undef min
-#undef max
 
 WMORoot::WMORoot(std::string const& filename)
     : filename(filename), color(0), nTextures(0), nGroups(0), nPortals(0), nLights(0),
@@ -533,14 +531,12 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, uin
 
     //-----------add_in _dir_file----------------
 
-    char tempname[512];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, WmoInstName);
-    FILE *input;
-    input = fopen(tempname, "r+b");
+    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, WmoInstName);
+    FILE* input = fopen(tempname.c_str(), "r+b");
 
     if (!input)
     {
-        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname);
+        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname.c_str());
         return;
     }
 
