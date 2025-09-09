@@ -93,8 +93,91 @@ class spell_drustvar_dismiss_tradewind : public SpellScript
 
 enum ShootWickermanData
 {
-    NPC_DRUSTVAR_CHARGING_FAMILIAR  = 137841,
-    SPELL_DRUSTVAR_SHOOT_WICKERMAN  = 255416
+    // Creature
+    NPC_DRUSTVAR_CHARGING_FAMILIAR      = 137841,
+    NPC_FLETCHERS_HOLLOW_CONSCRIPT      = 126478,
+
+    // Actions
+    ACTION_SPAWN_CHARGING_FAMILIAR      = 0,
+
+    // Spells
+    SPELL_DRUSTVAR_SHOOT_WICKERMAN      = 255416,
+    SPELL_DRUSTVAR_SHADOW_DISSOLVE_IN   = 237758
+};
+
+struct ChargingFamiliarData
+{
+    Position SpawnPos;
+    uint32 PathID;
+};
+
+ChargingFamiliarData ChargingFamiliarDatas[] = {
+    { { -1107.751708984375f, 1306.234375f, 4.272790431976318359f, 5.828217506408691406f }, 13784100 },
+    { { -1110.071166992187f, 1309.272583f, 4.426310539245605468f, 5.856356143951416015f }, 13784101 },
+    { { -1115.628540039062f, 1270.461791f, 11.99121379852294921f, 4.980997085571289062f }, 13784102 },
+    { { -1021.048583984375f, 1227.489624f, 7.336474418640136718f, 1.443549275398254394f }, 13784103 },
+    { { -1107.543457031250f, 1310.699707f, 4.048464298248291015f, 5.869964599609375356f }, 13784104 },
+    { { -1116.659790039062f, 1267.369750f, 12.42689323425292968f, 5.907102108001708984f }, 13784105 },
+    { { -1107.930541992187f, 1318.392333f, 4.017061710357666015f, 5.871676445007324218f }, 13784106 },
+    { { -1004.663208007812f, 1240.963500f, 6.007450103759765625f, 2.687578678131103515f }, 13784107 },
+    { { -1109.645874023437f, 1314.925415f, 4.456899166107177734f, 5.855425834655761718f }, 13784108 },
+    { { -1014.447875976562f, 1231.609375f, 7.548688411712646484f, 2.091593265533447265f }, 13784109 },
+    { { -1104.810791015625f, 1313.993041f, 3.400579452514648437f, 5.872215747833251953f }, 13784110 },
+    { { -1116.729125976562f, 1263.534790f, 12.73228836059570312f, 5.952130794525146484f }, 13784111 },
+    { { -1099.619750976562f, 1317.060791f, 2.314694643020629882f, 5.868431091308593750f }, 13784112 },
+};
+
+// 126478 - Fletchers Hollow Conscript
+struct npc_drustvar_shoot_wickerman_controller : public ScriptedAI
+{
+    npc_drustvar_shoot_wickerman_controller(Creature* creature) : ScriptedAI(creature) {}
+
+    void SpawnChargingFamiliar()
+    {
+        ChargingFamiliarData const& data = Trinity::Containers::SelectRandomContainerElement(ChargingFamiliarDatas);
+        if (Creature* familiar = me->SummonCreature(NPC_DRUSTVAR_CHARGING_FAMILIAR, data.SpawnPos))
+            familiar->GetMotionMaster()->MovePath(data.PathID, false);
+    }
+
+    void JustAppeared() override
+    {
+        for (uint8 i = 0; i < 2; i++)
+            SpawnChargingFamiliar();
+    }
+
+    void DoAction(int32 param) override
+    {
+        if (param == ACTION_SPAWN_CHARGING_FAMILIAR)
+        {
+            SpawnChargingFamiliar();
+        }
+    }
+};
+
+// 137841 - Charging Familair
+struct npc_drustvar_charging_familiar : public ScriptedAI
+{
+    npc_drustvar_charging_familiar(Creature* creature) : ScriptedAI(creature) {}
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_DRUSTVAR_SHADOW_DISSOLVE_IN);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        if (Creature* controller = me->FindNearestCreatureWithOptions(50.0f, { .CreatureId = NPC_FLETCHERS_HOLLOW_CONSCRIPT, .StringId = "ShootWickermanController" }))
+            controller->AI()->DoAction(ACTION_SPAWN_CHARGING_FAMILIAR);
+        me->DespawnOrUnsummon(5s);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_DRUSTVAR_SHOOT_WICKERMAN)
+        {
+            me->KillSelf();
+        }
+    }
 };
 
 // XXX - Areatrigger
@@ -117,6 +200,10 @@ struct at_drustvar_timbered_strand_shoot_wickerman : AreaTriggerAI
 
 void AddSC_zone_drustvar()
 {
+    // Creature
+    RegisterCreatureAI(npc_drustvar_shoot_wickerman_controller);
+    RegisterCreatureAI(npc_drustvar_charging_familiar);
+
     // Conversation
     RegisterConversationAI(conversation_drustvar_really_big_problem_complete);
 

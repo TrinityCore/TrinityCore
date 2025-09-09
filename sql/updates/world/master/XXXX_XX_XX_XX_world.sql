@@ -5,15 +5,10 @@ SET @ATID := 11500000;
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+122;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
-(@CGUID+0, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1021.048583984375, 1227.4896240234375, 7.336474418640136718, 1.443549275398254394, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+1, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1014.4478759765625, 1231.609375, 7.548688411712646484, 2.091593265533447265, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+2, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1004.6632080078125, 1240.9635009765625, 6.007450103759765625, 2.687578678131103515, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
 (@CGUID+3, 126151, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1020.3870849609375, 1221.982666015625, 7.634742259979248046, 0.703608155250549316, 120, 6, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Curseformed Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+4, 126151, 1643, 8721, 9170, '0', 0, 0, 0, 0, -983.44097900390625, 1178.095458984375, 7.858855724334716796, 4.287909984588623046, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Curseformed Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+5, 126151, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1040.21875, 1198.546875, 5.367901802062988281, 0.095402948558330535, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Curseformed Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+6, 126151, 1643, 8721, 9170, '0', 0, 0, 0, 0, -955.47052001953125, 1212.6492919921875, 6.110913276672363281, 1.060926198959350585, 120, 6, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Curseformed Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (possible waypoints or random movement)
-(@CGUID+7, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1099.6197509765625, 1317.060791015625, 2.314694643020629882, 5.86843109130859375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+8, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1104.810791015625, 1313.9930419921875, 3.400579452514648437, 5.872215747833251953, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
 (@CGUID+9, 128937, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1012.373291015625, 1236.857666015625, 6.793526649475097656, 3.041042327880859375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Scavenging Raven (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+10, 128937, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1011.02081298828125, 1232.49658203125, 10.24453163146972656, 1.600046396255493164, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Scavenging Raven (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: 258247 - Perched)
 (@CGUID+11, 130127, 1643, 8721, 9170, '0', 0, 0, 0, 0, -949.748291015625, 1187.0521240234375, 9.037817955017089843, 5.145512580871582031, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Forest Viper (Area: Timbered Strand - Difficulty: 0) CreateObject2
@@ -99,14 +94,6 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+91, 128942, 1643, 8721, 0, '0', 0, 0, 0, 0, -1061.2882080078125, 1118.6302490234375, 0.360938340425491333, 0.494472831487655639, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Mudfisher Crab (Area: 0 - Difficulty: 0) CreateObject2
 (@CGUID+92, 127822, 1643, 8721, 0, '0', 0, 0, 0, 0, -1057.109375, 1107.703125, 2.372127056121826171, 5.613190174102783203, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Alpine Goat (Area: 0 - Difficulty: 0) CreateObject2
 (@CGUID+93, 126695, 1643, 8721, 0, '0', 0, 0, 0, 0, -1104.1510009765625, 1106.63720703125, 35.39870071411132812, 0.739183008670806884, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Baleful Raven (Area: 0 - Difficulty: 0) CreateObject2
-(@CGUID+94, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1110.0711669921875, 1309.2725830078125, 4.426310539245605468, 5.856356143951416015, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+95, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1115.6285400390625, 1270.4617919921875, 11.99121379852294921, 4.980997085571289062, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+96, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1107.54345703125, 1310.69970703125, 4.048464298248291015, 5.869964599609375, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+97, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1116.6597900390625, 1267.3697509765625, 12.42689323425292968, 5.907102108001708984, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+98, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1109.6458740234375, 1314.9254150390625, 4.456899166107177734, 5.855425834655761718, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+99, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1116.7291259765625, 1263.5347900390625, 12.73228836059570312, 5.952130794525146484, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+100, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1107.751708984375, 1306.234375, 4.272790431976318359, 5.828217506408691406, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
-(@CGUID+101, 137841, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1107.9305419921875, 1318.392333984375, 4.017061710357666015, 5.871676445007324218, 120, 0, 0, 0, NULL, NULL, NULL, NULL, 61967), -- Charging Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2 (Auras: )
 (@CGUID+102, 126151, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1093.046875, 1248.7117919921875, 11.78514957427978515, 3.743628740310668945, 120, 6, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Curseformed Familiar (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+103, 130127, 1643, 8721, 9170, '0', 0, 0, 0, 0, -1011.576416015625, 1284.90283203125, 3.402704238891601562, 1.145603895187377929, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Forest Viper (Area: Timbered Strand - Difficulty: 0) CreateObject2
 (@CGUID+104, 128942, 1643, 8721, 9170, '0', 0, 0, 0, 0, -983.015625, 1302.4132080078125, -0.30267390608787536, 4.380178451538085937, 120, 4, 0, 1, NULL, NULL, NULL, NULL, 61967), -- Mudfisher Crab (Area: Timbered Strand - Difficulty: 0) CreateObject2
@@ -159,6 +146,9 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (11845, 0, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 15, 15, 0, 0, 0, 0, 0, 0, 'at_drustvar_timbered_strand_shoot_wickerman', 0);
 
 -- Template
+UPDATE `creature` SET `ScriptName` = 'npc_drustvar_shoot_wickerman_controller', `StringId` = 'ShootWickermanController' WHERE `guid` = @CGUID+114;
+UPDATE `creature_template` SET `ScriptName` = 'npc_drustvar_charging_familiar' WHERE `entry` = 137841;
+
 UPDATE `gameobject_template` SET `ContentTuningId`=187, `VerifiedBuild`=61967 WHERE `entry`=273814; -- Bladed Charm
 UPDATE `gameobject_template` SET `ContentTuningId`=187, `VerifiedBuild`=61967 WHERE `entry`=296627; -- Bonfire
 UPDATE `gameobject_template` SET `ContentTuningId`=705, `VerifiedBuild`=61967 WHERE `entry`=291223; -- Small Treasure Chest
@@ -250,58 +240,6 @@ UPDATE `creature` SET `StringId` = 'ChannelPerched' WHERE `guid` IN (@CGUID+10, 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 128937 AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
 (22, 1, 128937, 0, 0, 58, 1, 0, 0, 0, 'ChannelPerched', 0, 'Object has StringID ChannelPerched');
-
- -- Charging Familiar smart ai
-SET @ENTRY := 137841;
-UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
-DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
-(@ENTRY, 0, 0, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784100, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 1, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784101, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784101, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 2, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784102, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784102, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 3, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784103, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784103, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 4, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784104, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784104, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 5, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784105, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784105, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 6, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784106, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784106, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 7, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784107, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784107, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 8, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784108, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784108, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 9, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784109, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784109, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 10, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784110, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784110, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 11, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784111, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784111, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 12, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 53, 0, 13784112, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Start path #13784112, walk, do not repeat, Passive', ''),
-(@ENTRY, 0, 13, 0, 11, 0, 100, 0, 0, 0, 0, 0, 0, 85, 237758, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On respawn - Self: Cast spell 237758 on self', ''),
-(@ENTRY, 0, 14, 0, 8, 0, 100, 0, 255416, 0, 0, 0, 0, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'On spell  255416 hit - Self: Die', ''),
-(@ENTRY, 0, 15, 0, 6, 0, 100, 0, 0, 0, 0, 0, 0, 41, 5000, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On death - Self: Despawn in 5 s', '');
-
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath1' WHERE `guid` = @CGUID+100;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath2' WHERE `guid` = @CGUID+94;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath3' WHERE `guid` = @CGUID+95;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath4' WHERE `guid` = @CGUID+0;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath5' WHERE `guid` = @CGUID+96;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath6' WHERE `guid` = @CGUID+97;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath7' WHERE `guid` = @CGUID+101;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath8' WHERE `guid` = @CGUID+2;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath9' WHERE `guid` = @CGUID+98;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath10' WHERE `guid` = @CGUID+1;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath11' WHERE `guid` = @CGUID+8;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath12' WHERE `guid` = @CGUID+99;
-UPDATE `creature` SET `StringId` = 'ChargingFamiliarPath13' WHERE `guid` = @CGUID+7;
-
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 137841 AND `SourceId` = 0;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
-(22, 1, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath1', 0, 'Object has StringID ChargingFamiliarPath1'),
-(22, 2, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath2', 0, 'Object has StringID ChargingFamiliarPath2'),
-(22, 3, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath3', 0, 'Object has StringID ChargingFamiliarPath3'),
-(22, 4, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath4', 0, 'Object has StringID ChargingFamiliarPath4'),
-(22, 5, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath5', 0, 'Object has StringID ChargingFamiliarPath5'),
-(22, 6, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath6', 0, 'Object has StringID ChargingFamiliarPath6'),
-(22, 7, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath7', 0, 'Object has StringID ChargingFamiliarPath7'),
-(22, 8, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath8', 0, 'Object has StringID ChargingFamiliarPath8'),
-(22, 9, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath9', 0, 'Object has StringID ChargingFamiliarPath9'),
-(22, 10, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath10', 0, 'Object has StringID ChargingFamiliarPath10'),
-(22, 11, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath11', 0, 'Object has StringID ChargingFamiliarPath11'),
-(22, 12, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath12', 0, 'Object has StringID ChargingFamiliarPath12'),
-(22, 13, 137841, 0, 0, 58, 1, 0, 0, 0, 'ChargingFamiliarPath13', 0, 'Object has StringID ChargingFamiliarPath13');
 
 -- Path for Scavenging Raven
 SET @MOVERGUID := @CGUID+43;
@@ -538,7 +476,7 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `SheathState`) VALUES
 (@MOVERGUID, @PATH, 1);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+100
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -566,7 +504,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 16, -1063.7285, 1284.7012, 6.06653, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+94
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -598,7 +536,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 20, -1061.459, 1287.14, 6.357631, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+95
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 2;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -630,7 +568,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 20, -1065.2048, 1270.8004, 7.9386816, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+0
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 3;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -671,7 +609,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 29, -1038.541, 1266.667, 4.272814, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+96
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 4;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -702,7 +640,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 19, -1059.375, 1289.583, 6.1688924, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+97
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 5;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -732,7 +670,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 18, -1062.6337, 1267.8594, 7.822101, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+101
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 6;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -757,7 +695,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 13, -1060.27, 1297.55, 4.842248, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+2
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 7;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -792,7 +730,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 23, -1033.61, 1269.63, 3.8520648, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+98
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 8;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -825,7 +763,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 21, -1058.51, 1291.6, 6.0553017, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+1
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 9;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -864,7 +802,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 27, -1036.32, 1269.62, 4.543865, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+8
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 10;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -889,7 +827,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 13, -1060.57, 1294.72, 5.0478086, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+99
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 11;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
@@ -921,7 +859,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 20, -1062.7014, 1261.2969, 6.453865, NULL, 0);
 
 -- Path for Charging Familiar
-SET @ENTRY := 137841; -- CGUID+7
+SET @ENTRY := 137841;
 SET @PATHOFFSET := 12;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
