@@ -4783,7 +4783,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     // DRUSTVAR SPELLS
     //
 
-    // Shoot Wickermann
+    // Shoot Wickerman
     ApplySpellFix({ 255416 }, [](SpellInfo* spellInfo)
     {
         spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
