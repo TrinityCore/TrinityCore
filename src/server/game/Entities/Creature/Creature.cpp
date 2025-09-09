@@ -195,6 +195,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
+    stats.Flags[2] = creatureDifficulty->TypeFlags3;
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
@@ -273,6 +274,7 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            TypeFlags3 = 0;
             LootID = 0;
             PickPocketLootID = 0;
             SkinLootID = 0;

@@ -1366,7 +1366,6 @@ class TC_GAME_API ObjectMgr
         uint64 GenerateEquipmentSetGuid();
         uint64 GenerateMailID();
         uint32 GeneratePetNumber();
-        uint64 GenerateVoidStorageItemId();
         ObjectGuid::LowType GenerateCreatureSpawnId();
         ObjectGuid::LowType GenerateGameObjectSpawnId();
 
@@ -1701,7 +1700,6 @@ class TC_GAME_API ObjectMgr
         std::atomic<uint32> _hiPetNumber;
         ObjectGuid::LowType _creatureSpawnId;
         ObjectGuid::LowType _gameObjectSpawnId;
-        uint64 _voidItemId;
 
         // first free low guid for selected guid type
         ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);

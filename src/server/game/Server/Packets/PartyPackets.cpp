@@ -458,6 +458,23 @@ WorldPacket const* GroupNewLeader::Write()
     return &_worldPacket;
 }
 
+ByteBuffer& operator<<(ByteBuffer& data, LeaverInfo const& leaverInfo)
+{
+    data << leaverInfo.BnetAccountGUID;
+    data << float(leaverInfo.LeaveScore);
+    data << uint32(leaverInfo.SeasonID);
+    data << uint32(leaverInfo.TotalLeaves);
+    data << uint32(leaverInfo.TotalSuccesses);
+    data << int32(leaverInfo.ConsecutiveSuccesses);
+    data << leaverInfo.LastPenaltyTime;
+    data << leaverInfo.LeaverExpirationTime;
+    data << int32(leaverInfo.Unknown_1120);
+    data << Bits<1>(leaverInfo.LeaverStatus);
+    data.FlushBits();
+
+    return data;
+}
+
 ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
 {
     data << SizedString::BitsSize<6>(playerInfo.Name);
@@ -465,6 +482,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
     data << Bits<1>(playerInfo.Connected);
     data << Bits<1>(playerInfo.VoiceChatSilenced);
     data << Bits<1>(playerInfo.FromSocialQueue);
+    data << playerInfo.Leaver;
     data << playerInfo.GUID;
     data << uint8(playerInfo.Subgroup);
     data << uint8(playerInfo.Flags);
@@ -473,6 +491,22 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
     data << uint8(playerInfo.FactionGroup);
     data << SizedString::Data(playerInfo.Name);
     data << SizedCString::Data(playerInfo.VoiceStateID);
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, ChallengeModeData const& challengeMode)
+{
+    data << int32(challengeMode.Unknown_1120_1);
+    data << int32(challengeMode.Unknown_1120_2);
+    data << uint64(challengeMode.Unknown_1120_3);
+    data << int64(challengeMode.Unknown_1120_4);
+    data << challengeMode.KeystoneOwnerGUID;
+    data << challengeMode.LeaverGUID;
+    data << Bits<1>(challengeMode.IsActive);
+    data << Bits<1>(challengeMode.HasRestrictions);
+    data << Bits<1>(challengeMode.CanVoteAbandon);
+    data.FlushBits();
 
     return data;
 }
@@ -524,6 +558,7 @@ WorldPacket const* PartyUpdate::Write()
     _worldPacket << uint8(LeaderFactionGroup);
     _worldPacket << int32(PingRestriction);
     _worldPacket << Size<uint32>(PlayerList);
+    _worldPacket << OptionalInit(ChallengeMode);
     _worldPacket << OptionalInit(LfgInfos);
     _worldPacket << OptionalInit(LootSettings);
     _worldPacket << OptionalInit(DifficultySettings);
@@ -537,6 +572,9 @@ WorldPacket const* PartyUpdate::Write()
 
     if (DifficultySettings)
         _worldPacket << *DifficultySettings;
+
+    if (ChallengeMode)
+        _worldPacket << *ChallengeMode;
 
     if (LfgInfos)
         _worldPacket << *LfgInfos;

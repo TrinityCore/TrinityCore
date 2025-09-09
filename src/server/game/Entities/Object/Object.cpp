@@ -16,8 +16,6 @@
  */
 
 #include "Object.h"
-#include "AreaTriggerPackets.h"
-#include "AreaTriggerTemplate.h"
 #include "BattlefieldMgr.h"
 #include "CellImpl.h"
 #include "CinematicMgr.h"
@@ -46,7 +44,6 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellPackets.h"
-#include "StringConvert.h"
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "Transport.h"
@@ -310,6 +307,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     data->WriteBit(flags.NoBirthAnim);
     data->WriteBit(flags.EnablePortals);
     data->WriteBit(flags.PlayHoverAnim);
+    data->WriteBit(flags.ThisIsYou);
     data->WriteBit(flags.MovementUpdate);
     data->WriteBit(flags.MovementTransport);
     data->WriteBit(flags.Stationary);
@@ -318,10 +316,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     data->WriteBit(flags.Vehicle);
     data->WriteBit(flags.AnimKit);
     data->WriteBit(flags.Rotation);
-    data->WriteBit(flags.AreaTrigger);
     data->WriteBit(flags.GameObject);
     data->WriteBit(flags.SmoothPhasing);
-    data->WriteBit(flags.ThisIsYou);
     data->WriteBit(flags.SceneObject);
     data->WriteBit(flags.ActivePlayer);
     data->WriteBit(flags.Conversation);
@@ -329,7 +325,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.MovementUpdate)
     {
-        Unit const* unit = ToUnit();
+        Unit const* unit = static_cast<Unit const*>(this);
         bool HasFallDirection = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
         bool HasFall = HasFallDirection || unit->m_movementInfo.jump.fallTime != 0;
         bool HasSpline = unit->IsSplineEnabled();
@@ -470,14 +466,17 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     }
 
     if (flags.CombatVictim)
-        *data << ToUnit()->GetVictim()->GetGUID();                      // CombatVictim
+    {
+        Unit const* unit = static_cast<Unit const*>(this);
+        *data << unit->GetVictim()->GetGUID();                          // CombatVictim
+    }
 
     if (flags.ServerTime)
         *data << uint32(GameTime::GetGameTimeMS());
 
     if (flags.Vehicle)
     {
-        Unit const* unit = ToUnit();
+        Unit const* unit = static_cast<Unit const*>(this);
         *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->ID);   // RecID
         *data << float(unit->GetOrientation());                         // InitialRawFacing
     }
@@ -491,7 +490,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     }
 
     if (flags.Rotation)
-        *data << uint64(ToGameObject()->GetPackedLocalRotation());      // Rotation
+    {
+        GameObject const* gameObject = static_cast<GameObject const*>(this);
+        *data << uint64(gameObject->GetPackedLocalRotation());          // Rotation
+    }
 
     if (PauseTimes && !PauseTimes->empty())
         data->append(PauseTimes->data(), PauseTimes->size());
@@ -502,144 +504,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         *data << self->m_movementInfo.transport;
     }
 
-    if (flags.AreaTrigger)
-    {
-        AreaTrigger const* areaTrigger = static_cast<AreaTrigger const*>(this);
-        AreaTriggerCreateProperties const* createProperties = areaTrigger->GetCreateProperties();
-        AreaTriggerShapeInfo const& shape = areaTrigger->GetShape();
-
-        *data << uint32(areaTrigger->GetTimeSinceCreated());
-
-        *data << areaTrigger->GetRollPitchYaw().PositionXYZStream();
-
-        switch (shape.Type)
-        {
-            case AreaTriggerShapeType::Sphere:
-                *data << int8(0);
-                *data << float(shape.SphereDatas.Radius);
-                *data << float(shape.SphereDatas.RadiusTarget);
-                break;
-            case AreaTriggerShapeType::Box:
-                *data << int8(1);
-                *data << float(shape.BoxDatas.Extents[0]);
-                *data << float(shape.BoxDatas.Extents[1]);
-                *data << float(shape.BoxDatas.Extents[2]);
-                *data << float(shape.BoxDatas.ExtentsTarget[0]);
-                *data << float(shape.BoxDatas.ExtentsTarget[1]);
-                *data << float(shape.BoxDatas.ExtentsTarget[2]);
-                break;
-            case AreaTriggerShapeType::Polygon:
-                *data << int8(3);
-                *data << int32(shape.PolygonVertices.size());
-                *data << int32(shape.PolygonVerticesTarget.size());
-                *data << float(shape.PolygonDatas.Height);
-                *data << float(shape.PolygonDatas.HeightTarget);
-
-                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVertices)
-                    *data << vertice;
-
-                for (TaggedPosition<Position::XY> const& vertice : shape.PolygonVerticesTarget)
-                    *data << vertice;
-                break;
-            case AreaTriggerShapeType::Cylinder:
-                *data << int8(4);
-                *data << float(shape.CylinderDatas.Radius);
-                *data << float(shape.CylinderDatas.RadiusTarget);
-                *data << float(shape.CylinderDatas.Height);
-                *data << float(shape.CylinderDatas.HeightTarget);
-                *data << float(shape.CylinderDatas.LocationZOffset);
-                *data << float(shape.CylinderDatas.LocationZOffsetTarget);
-                break;
-            case AreaTriggerShapeType::Disk:
-                *data << int8(7);
-                *data << float(shape.DiskDatas.InnerRadius);
-                *data << float(shape.DiskDatas.InnerRadiusTarget);
-                *data << float(shape.DiskDatas.OuterRadius);
-                *data << float(shape.DiskDatas.OuterRadiusTarget);
-                *data << float(shape.DiskDatas.Height);
-                *data << float(shape.DiskDatas.HeightTarget);
-                *data << float(shape.DiskDatas.LocationZOffset);
-                *data << float(shape.DiskDatas.LocationZOffsetTarget);
-                break;
-            case AreaTriggerShapeType::BoundedPlane:
-                *data << int8(8);
-                *data << float(shape.BoundedPlaneDatas.Extents[0]);
-                *data << float(shape.BoundedPlaneDatas.Extents[1]);
-                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[0]);
-                *data << float(shape.BoundedPlaneDatas.ExtentsTarget[1]);
-                break;
-            default:
-                break;
-        }
-
-        bool hasAbsoluteOrientation = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAbsoluteOrientation);
-        bool hasDynamicShape        = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape);
-        bool hasAttached            = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached);
-        bool hasFaceMovementDir     = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir);
-        bool hasFollowsTerrain      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain);
-        bool hasAlwaysExterior      = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::AlwaysExterior);
-        bool hasUnknown1025         = false;
-        bool hasTargetRollPitchYaw  = createProperties && createProperties->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasTargetRollPitchYaw);
-        bool hasScaleCurveID        = createProperties && createProperties->ScaleCurveId != 0;
-        bool hasMorphCurveID        = createProperties && createProperties->MorphCurveId != 0;
-        bool hasFacingCurveID       = createProperties && createProperties->FacingCurveId != 0;
-        bool hasMoveCurveID         = createProperties && createProperties->MoveCurveId != 0;
-        bool hasMovementScript      = false;
-        bool hasPositionalSoundKitID= false;
-
-        data->WriteBit(hasAbsoluteOrientation);
-        data->WriteBit(hasDynamicShape);
-        data->WriteBit(hasAttached);
-        data->WriteBit(hasFaceMovementDir);
-        data->WriteBit(hasFollowsTerrain);
-        data->WriteBit(hasAlwaysExterior);
-        data->WriteBit(hasUnknown1025);
-        data->WriteBit(hasTargetRollPitchYaw);
-        data->WriteBit(hasScaleCurveID);
-        data->WriteBit(hasMorphCurveID);
-        data->WriteBit(hasFacingCurveID);
-        data->WriteBit(hasMoveCurveID);
-        data->WriteBit(hasPositionalSoundKitID);
-        data->WriteBit(areaTrigger->HasSplines());
-        data->WriteBit(areaTrigger->HasOrbit());
-        data->WriteBit(hasMovementScript);
-
-        data->FlushBits();
-
-        if (areaTrigger->HasSplines())
-            WorldPackets::AreaTrigger::WriteAreaTriggerSpline(*data, areaTrigger->GetTimeToTarget(), areaTrigger->GetElapsedTimeForMovement(), areaTrigger->GetSpline());
-
-        if (hasTargetRollPitchYaw)
-            *data << areaTrigger->GetTargetRollPitchYaw().PositionXYZStream();
-
-        if (hasScaleCurveID)
-            *data << uint32(createProperties->ScaleCurveId);
-
-        if (hasMorphCurveID)
-            *data << uint32(createProperties->MorphCurveId);
-
-        if (hasFacingCurveID)
-            *data << uint32(createProperties->FacingCurveId);
-
-        if (hasMoveCurveID)
-            *data << uint32(createProperties->MoveCurveId);
-
-        if (hasPositionalSoundKitID)
-            *data << uint32(0);
-
-        //if (hasMovementScript)
-        //    *data << *areaTrigger->GetMovementScript(); // AreaTriggerMovementScriptInfo
-
-        if (areaTrigger->HasOrbit())
-        {
-            using WorldPackets::AreaTrigger::operator<<;
-            *data << areaTrigger->GetOrbit();
-        }
-    }
-
     if (flags.GameObject)
     {
-        GameObject const* gameObject = ToGameObject();
+        GameObject const* gameObject = static_cast<GameObject const*>(this);
         Transport const* transport = gameObject->ToTransport();
 
         bool bit8 = false;
@@ -794,10 +661,10 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.ActivePlayer)
     {
-        Player const* player = ToPlayer();
+        Player const* player = static_cast<Player const*>(this);
 
         bool HasSceneInstanceIDs = !player->GetSceneMgr().GetSceneTemplateByInstanceMap().empty();
-        bool HasRuneState = ToUnit()->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
+        bool HasRuneState = player->GetPowerIndex(POWER_RUNES) != MAX_POWERS;
 
         data->WriteBit(HasSceneInstanceIDs);
         data->WriteBit(HasRuneState);
@@ -805,8 +672,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         if (HasSceneInstanceIDs)
         {
             *data << uint32(player->GetSceneMgr().GetSceneTemplateByInstanceMap().size());
-            for (auto const& itr : player->GetSceneMgr().GetSceneTemplateByInstanceMap())
-                *data << uint32(itr.first);
+            for (auto const& [sceneInstanceId, _] : player->GetSceneMgr().GetSceneTemplateByInstanceMap())
+                *data << uint32(sceneInstanceId);
         }
         if (HasRuneState)
         {
@@ -823,7 +690,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
 
     if (flags.Conversation)
     {
-        Conversation const* self = ToConversation();
+        Conversation const* self = static_cast<Conversation const*>(this);
         if (data->WriteBit(self->GetTextureKitId() != 0))
             *data << uint32(self->GetTextureKitId());
 
@@ -3739,28 +3606,82 @@ void WorldObject::PlayObjectSound(int32 soundKitId, ObjectGuid targetObjectGUID,
         SendMessageToSet(pkt.Write(), true);
 }
 
+template <std::invocable<Player*> Work>
+struct WorldObjectVisibleChangeVisitor
+{
+    Work& work;
+
+    explicit WorldObjectVisibleChangeVisitor(Work& work_) : work(work_) { }
+
+    void Visit(PlayerMapType& m) const
+    {
+        for (GridReference<Player>& ref : m)
+        {
+            Player* source = ref.GetSource();
+
+            work(source);
+
+            for (Player* viewer : source->GetSharedVisionList())
+                work(viewer);
+        }
+    }
+
+    void Visit(CreatureMapType& m) const
+    {
+        for (GridReference<Creature>& ref : m)
+            for (Player* viewer : ref.GetSource()->GetSharedVisionList())
+                work(viewer);
+    }
+
+    void Visit(DynamicObjectMapType& m) const
+    {
+        for (GridReference<DynamicObject>& ref : m)
+        {
+            DynamicObject* source = ref.GetSource();
+            ObjectGuid guid = source->GetCasterGUID();
+
+            if (guid.IsPlayer())
+            {
+                //GetCaster() will be nullptr if DynObj is in removelist
+                if (Player* caster = ObjectAccessor::GetPlayer(*source, guid))
+                    if (*caster->m_activePlayerData->FarsightObject == source->GetGUID())
+                        work(caster);
+            }
+        }
+    }
+
+    template <class SKIP>
+    static void Visit(GridRefManager<SKIP> const&) { }
+};
+
+struct WorldObjectClientDestroyWork
+{
+    WorldObject* object;
+
+    void operator()(Player* player) const
+    {
+        if (player == object)
+            return;
+
+        if (!player->HaveAtClient(object))
+            return;
+
+        if (Unit const* unit = object->ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
+            return;
+
+        object->DestroyForPlayer(player);
+        player->m_clientGUIDs.erase(object->GetGUID());
+    }
+};
+
 void WorldObject::DestroyForNearbyPlayers()
 {
     if (!IsInWorld())
         return;
 
-    auto destroyer = [this](Player* player)
-    {
-        if (player == this)
-            return;
-
-        if (!player->HaveAtClient(this))
-            return;
-
-        if (Unit const* unit = ToUnit(); unit && unit->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
-            return;
-
-        DestroyForPlayer(player);
-        player->m_clientGUIDs.erase(GetGUID());
-    };
-
-    Trinity::PlayerDistWorker worker(this, GetVisibilityRange(), destroyer);
-    Cell::VisitWorldObjects(this, worker, GetVisibilityRange());
+    WorldObjectClientDestroyWork destroyer{ .object = this };
+    WorldObjectVisibleChangeVisitor visitor(destroyer);
+    Cell::VisitWorldObjects(this, visitor, GetVisibilityRange());
 }
 
 void WorldObject::UpdateObjectVisibility(bool /*forced*/)
@@ -3775,77 +3696,23 @@ struct WorldObjectChangeAccumulator
 {
     UpdateDataMapType& i_updateDatas;
     WorldObject& i_object;
-    GuidSet plr_list;
+    GuidUnorderedSet plr_list;
     WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) { }
-    void Visit(PlayerMapType &m)
-    {
-        Player* source = nullptr;
-        for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
 
-            BuildPacket(source);
-
-            if (!source->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
-                for (; it != source->GetSharedVisionList().end(); ++it)
-                    BuildPacket(*it);
-            }
-        }
-    }
-
-    void Visit(CreatureMapType &m)
-    {
-        Creature* source = nullptr;
-        for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
-            if (!source->GetSharedVisionList().empty())
-            {
-                SharedVisionList::const_iterator it = source->GetSharedVisionList().begin();
-                for (; it != source->GetSharedVisionList().end(); ++it)
-                    BuildPacket(*it);
-            }
-        }
-    }
-
-    void Visit(DynamicObjectMapType &m)
-    {
-        DynamicObject* source = nullptr;
-        for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-        {
-            source = iter->GetSource();
-            ObjectGuid guid = source->GetCasterGUID();
-
-            if (guid.IsPlayer())
-            {
-                //Caster may be nullptr if DynObj is in removelist
-                if (Player* caster = ObjectAccessor::FindPlayer(guid))
-                    if (*caster->m_activePlayerData->FarsightObject == source->GetGUID())
-                        BuildPacket(caster);
-            }
-        }
-    }
-
-    void BuildPacket(Player* player)
+    void operator()(Player* player)
     {
         // Only send update once to a player
-        if (plr_list.find(player->GetGUID()) == plr_list.end() && player->HaveAtClient(&i_object))
-        {
+        if (player->HaveAtClient(&i_object) && plr_list.insert(player->GetGUID()).second)
             i_object.BuildFieldsUpdate(player, i_updateDatas);
-            plr_list.insert(player->GetGUID());
-        }
     }
-
-    template<class SKIP> void Visit(GridRefManager<SKIP> &) { }
 };
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
     WorldObjectChangeAccumulator notifier(*this, data_map);
+    WorldObjectVisibleChangeVisitor visitor(notifier);
     //we must build packets for all visible players
-    Cell::VisitWorldObjects(this, notifier, GetVisibilityRange());
+    Cell::VisitWorldObjects(this, visitor, GetVisibilityRange());
 
     ClearUpdateMask(false);
 }

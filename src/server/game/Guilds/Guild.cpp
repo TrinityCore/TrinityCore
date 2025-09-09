@@ -52,11 +52,13 @@ uint32 const EMBLEM_PRICE = 10 * GOLD;
 
 inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
-    // these prices are in gold units, not copper
-    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
-    ASSERT(tabId < GUILD_BANK_MAX_TABS);
+    auto bankTab = std::ranges::find(sBankTabStore, std::pair(BankType::Guild, int8(tabId)),
+        [](BankTabEntry const* bankTab) { return std::pair(BankType(bankTab->BankType), bankTab->OrderIndex); });
 
-    return tabPrices[tabId];
+    if (bankTab != sBankTabStore.end())
+        return bankTab->Cost;
+
+    return 0;
 }
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string_view param)
@@ -1659,7 +1661,7 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Remove money from bank
-    uint64 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
+    uint64 tabCost = GetGuildBankTabPrice(tabId);
     if (tabCost && !_ModifyBankMoney(trans, tabCost, false))                   // Should not happen, this is checked by client
         return;
 
