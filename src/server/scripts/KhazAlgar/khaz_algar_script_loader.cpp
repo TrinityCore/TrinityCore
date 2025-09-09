@@ -32,6 +32,10 @@ void AddSC_boss_skarmorak();
 void AddSC_instance_nerubar_palace();
 void AddSC_boss_ulgrax_the_devourer();
 
+// City of Threads
+void AddSC_instance_city_of_threads();
+void AddSC_boss_orator_krix_vizk();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKhazAlgarScripts()
@@ -50,4 +54,8 @@ void AddKhazAlgarScripts()
     // Nerub'ar Palace
     AddSC_instance_nerubar_palace();
     AddSC_boss_ulgrax_the_devourer();
+
+    // City of Threads
+    AddSC_instance_city_of_threads();
+    AddSC_boss_orator_krix_vizk();
 }
