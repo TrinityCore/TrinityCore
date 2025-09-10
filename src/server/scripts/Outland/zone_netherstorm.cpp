@@ -1037,7 +1037,7 @@ public:
             if (Player* player = ObjectAccessor::GetPlayer(*me, _questStarterGUID))
                 Talk(NPC_SAEED_SAY_4, player);
             else
-            Talk(NPC_SAEED_SAY_4);
+            Talk(NPC_SAEED_SAY_2);
             _currentGossipState = 1;
             SetEscortPaused(true);
             _escortPaused = true;
