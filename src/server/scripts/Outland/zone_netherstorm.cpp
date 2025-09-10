@@ -951,9 +951,7 @@ public:
                 if (Creature* target = me->FindNearestCreature(NPC_DIMENSIONS, 100.0f, true))
                 {
                     target->RemoveAurasDueToSpell(SPELL_DIMENSIONS_TRANSFORM);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
-                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    target->SetImmuneToAll(false);
                     Talk(NPC_SAEED_SAY_4);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->Attack(target, true);
