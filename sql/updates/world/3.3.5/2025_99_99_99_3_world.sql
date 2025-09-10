@@ -101,7 +101,6 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 12, 0, 0, 0, 100, 0, 3000, 4000, 7000, 10000, 11, 37500, 64, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Every 7 - 10 seconds (3 - 4s initially) (IC) - Self: Cast spell  Schattenspirale (37500) with flags combat move on Random hostile'),
 (@ENTRY, 0, 13, 0, 0, 0, 100, 0, 5000, 7000, 10000, 16000, 11, 37412, 0, 0, 0, 0, 0, 5, 50, 1, 0, 0, 0, 0, 0, 'Every 10 - 16 seconds (5 - 7s initially) (IC) - Self: Cast spell  Schattengewölbe (37412) on Random hostile');
 
-
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 19554 AND `SourceId` = 0;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
 (22, 12, 19554, 0, 0, 1, 1, 37450, 0, 0, 0, 'Object has aura of spell Dimensius füttern (37450), effect EFFECT_0'),
@@ -124,10 +123,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Once - Self: Talk 0 to invoker'),
 (@ENTRY, 0, 4, 0, 6, 0, 100, 0, 0, 0, 0, 0, 63, 1, 1, 0, 0, 0, 0, 19, 19554, 30, 0, 0, 0, 0, 0, 'On death - Closest alive creature Dimensius the All-Devouring (19554) in 30 yards: Add 1 to counter_1');
 
-
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 21780 AND `SourceId` = 0;
-
-
+    
 -- =========================================================
 -- SpellScript Names
 -- =========================================================
