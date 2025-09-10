@@ -19,7 +19,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (21783, 0, 0, 'We are victorious! Dimensius is no more! Report back to the Professor, hero.', 12, 0, 100, 0, 0, 0, 18649, 0, 'Protectorate Regenerator');
 
 -- =========================================================
--- Creature Text: Dimensius the All-Devouring
+-- Creature Text: Dimensius
 -- =========================================================
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 19554;
@@ -27,6 +27,14 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (19554, 0, 0, 'You only hasten the inevitable. In time, all will be devoured!', 14, 0, 100, 0, 0, 0, 18602, 1, 'Dimensius the All-Devouring'),
 (19554, 1, 0, 'Time only has meaning to mortals, insect. Dimensius is infinite!', 14, 0, 100, 0, 0, 0, 18647, 1, 'Dimensius the All-Devouring'),
 (19554, 2, 0, 'I hunger! Feed me the power of this forge, my children!', 14, 0, 100, 0, 0, 0, 19420, 1, 'Dimensius the All-Devouring');
+
+-- =========================================================
+-- Creature Text: Spawn of Dimensius
+-- =========================================================
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 21780;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(21780, 0, 0, '%s begins channeling power into Dimensius.', 41, 0, 100, 0, 0, 0, 19694, 0, 'Spawn of Dimensius');
 
 -- =========================================================
 -- Waypoints: Captain SAEED (20985)
@@ -75,24 +83,30 @@ UPDATE `creature_template` SET AIName='', ScriptName='npc_captain_saeed' WHERE e
 -- =========================================================
 
 SET @ENTRY := 19554;
-UPDATE `creature_template` SET AIName='SmartAI', ScriptName='' WHERE entry=@ENTRY;
-DELETE FROM `smart_scripts` WHERE source_type=0 AND entryOrGuid=@ENTRY;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,1,25,0,100,0,0,0,0,0,63,1,0,1,0,0,0,1,0,0,0,0,0,0,0,'On reset - Self: Set script counter_1 to 0'),
-(@ENTRY,0,1,2,61,0,100,0,0,0,0,0,11,35939,2,0,0,0,0,1,0,0,0,0,0,0,0,'On reset - Self: Cast spell 35939 with flags triggered on Self'),
-(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,103,1,0,0,0,0,0,1,0,0,0,0,0,0,0,'On reset - Self: Set rooted'),
-(@ENTRY,0,3,0,4,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'On aggro - Self: Talk 0 to invoker'),
-(@ENTRY,0,4,0,0,0,100,0,2000,3000,5000,10000,11,37425,0,0,0,0,0,1,0,0,0,0,0,0,0,'Every 5-10s (2-3s init) - Self: Cast 37425'),
-(@ENTRY,0,5,0,0,0,100,0,3000,4000,7000,10000,11,37500,64,0,0,0,0,5,0,0,0,0,0,0,0,'Every 7-10s (3-4s init) - Self: Cast 37500 on Random hostile'),
-(@ENTRY,0,6,0,0,0,100,0,5000,7000,10000,16000,11,37412,0,0,0,0,0,5,50,1,0,0,0,0,0,'Every 10-16s (5-7s init) - Self: Cast 37412 on Random hostile'),
-(@ENTRY,0,7,8,2,0,100,1,0,75,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,'When HP 0-75% (once) - Talk 2'),
-(@ENTRY,0,8,9,61,0,100,0,0,0,0,0,12,21780,4,30000,0,0,0,1,0,0,0,28,0,0,0,'When HP 0-75% (once) - Summon Spawn 21780 offset 28,0,0,0'),
-(@ENTRY,0,9,10,61,0,100,0,0,0,0,0,12,21780,4,30000,0,0,0,1,0,0,0,-28,0,0,0,'When HP 0-75% (once) - Summon Spawn 21780 offset -28,0,0,0'),
-(@ENTRY,0,10,11,61,0,100,0,0,0,0,0,12,21780,4,30000,0,0,0,1,0,0,0,0,28,0,0,'When HP 0-75% (once) - Summon Spawn 21780 offset 0,28,0,0'),
-(@ENTRY,0,11,0,61,0,100,0,0,0,0,0,12,21780,4,30000,0,0,0,1,0,0,0,0,-28,0,0,'When HP 0-75% (once) - Summon Spawn 21780 offset 0,-28,0,0'),
-(@ENTRY,0,12,13,6,0,100,0,0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,'On death - Talk 1'),
-(@ENTRY,0,13,0,61,0,100,0,0,0,0,0,41,0,0,0,0,0,0,11,21780,100,0,0,0,0,0,0,'On death - Despawn Spawn 21780'),
-(@ENTRY,0,14,0,77,0,100,0,1,4,0,0,28,0,0,1,0,0,0,1,0,0,0,0,0,0,0,'On counter_1=4 - Remove all auras');
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 1, 25, 0, 100, 0, 0, 0, 0, 0, 11, 35939, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On reset - Self: Cast spell  Dimensius Transform (35939) with flags triggered on Self'),
+(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 63, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On reset - Self: Set script counter_1 to 0'),
+(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On reset - Self: Set rooted'),
+(@ENTRY, 0, 3, 0, 4, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On aggro - Self: Talk 0 to invoker'),
+(@ENTRY, 0, 4, 0, 6, 0, 100, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On death - Self: Talk 1 to invoker'),
+(@ENTRY, 0, 5, 6, 2, 0, 100, 1, 0, 75, 0, 0, 1, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'When health between 0%-75%% (once) - Self: Talk 2 to invoker'),
+(@ENTRY, 0, 6, 7, 61, 0, 100, 0, 0, 0, 0, 0, 12, 21780, 4, 30000, 0, 0, 0, 1, 0, 0, 0, 28, 0, 0, 0, 'When health between 0%-75%% (once) - Self: Summon creature Spawn of Dimensius (21780) at Self\'s position, moved by offset (28, 0, 0, 0) as summon type timed despawn out of combat with duration 30 seconds'),
+(@ENTRY, 0, 7, 8, 61, 0, 100, 0, 0, 0, 0, 0, 12, 21780, 4, 30000, 0, 0, 0, 1, 0, 0, 0, -28, 0, 0, 0, 'When health between 0%-75%% (once) - Self: Summon creature Spawn of Dimensius (21780) at Self\'s position, moved by offset (-28, 0, 0, 0) as summon type timed despawn out of combat with duration 30 seconds'),
+(@ENTRY, 0, 8, 9, 61, 0, 100, 0, 0, 0, 0, 0, 12, 21780, 4, 30000, 0, 0, 0, 1, 0, 0, 0, 0, 28, 0, 0, 'When health between 0%-75%% (once) - Self: Summon creature Spawn of Dimensius (21780) at Self\'s position, moved by offset (0, 28, 0, 0) as summon type timed despawn out of combat with duration 30 seconds'),
+(@ENTRY, 0, 9, 0, 61, 0, 100, 0, 0, 0, 0, 0, 12, 21780, 4, 30000, 0, 0, 0, 1, 0, 0, 0, 0, -28, 0, 0, 'When health between 0%-75%% (once) - Self: Summon creature Spawn of Dimensius (21780) at Self\'s position, moved by offset (0, -28, 0, 0) as summon type timed despawn out of combat with duration 30 seconds'),
+(@ENTRY, 0, 10, 0, 77, 0, 100, 0, 1, 4, 0, 0, 28, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On counter 1 set to 4 - Self: Remove all auras'),
+(@ENTRY, 0, 11, 0, 0, 0, 100, 0, 2000, 3000, 5000, 10000, 11, 37425, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Every 5 - 10 seconds (2 - 3s initially) (IC) - Self: Cast spell  Logic Tick (Dimensius) (37425) on Self'),
+(@ENTRY, 0, 12, 0, 0, 0, 100, 0, 3000, 4000, 7000, 10000, 11, 37500, 64, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Every 7 - 10 seconds (3 - 4s initially) (IC) - Self: Cast spell  Schattenspirale (37500) with flags combat move on Random hostile'),
+(@ENTRY, 0, 13, 0, 0, 0, 100, 0, 5000, 7000, 10000, 16000, 11, 37412, 0, 0, 0, 0, 0, 5, 50, 1, 0, 0, 0, 0, 0, 'Every 10 - 16 seconds (5 - 7s initially) (IC) - Self: Cast spell  Schattengewölbe (37412) on Random hostile');
+
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 19554 AND `SourceId` = 0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `Comment`) VALUES 
+(22, 12, 19554, 0, 0, 1, 1, 37450, 0, 0, 0, 'Object has aura of spell Dimensius füttern (37450), effect EFFECT_0'),
+(22, 13, 19554, 0, 0, 1, 1, 37450, 0, 0, 1, 'Object has not aura of spell Dimensius füttern (37450), effect EFFECT_0'),
+(22, 14, 19554, 0, 0, 1, 1, 37450, 0, 0, 1, 'Object has not aura of spell Dimensius füttern (37450), effect EFFECT_0');
 
 UPDATE `creature_template` SET mechanic_immune_mask=650870782 WHERE entry=19554;
 
@@ -101,21 +115,18 @@ UPDATE `creature_template` SET mechanic_immune_mask=650870782 WHERE entry=19554;
 -- =========================================================
 
 SET @ENTRY := 21780;
-UPDATE `creature_template` SET AIName='SmartAI', ScriptName='' WHERE entry=@ENTRY;
-DELETE FROM `smart_scripts` WHERE source_type=0 AND entryOrGuid=@ENTRY;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(@ENTRY,0,0,0,37,0,100,0,0,0,0,0,8,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'On AI init - Set react state Passive'),
-(@ENTRY,0,1,2,60,0,100,257,0,0,0,0,11,37450,2,0,0,0,0,19,19554,50,0,0,0,0,0,0,'Once - Cast 37450 on closest Dimensius in 50y'),
-(@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Once - Talk 0'),
-(@ENTRY,0,3,0,6,0,100,0,0,0,0,0,63,1,1,0,0,0,0,19,19554,80,0,0,0,0,0,0,'On death - Add 1 to Dimensius counter_1');
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(@ENTRY, 0, 0, 1, 37, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On AI initialize - Self: Set react state to Passive'),
+(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 103, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On AI initialize - Self: Set rooted'),
+(@ENTRY, 0, 2, 3, 60, 0, 100, 257, 0, 0, 0, 0, 11, 37450, 2, 0, 0, 0, 0, 19, 19554, 50, 0, 0, 0, 0, 0, 'Once - Self: Cast spell  Dimensius füttern (37450) with flags triggered on Closest alive creature Dimensius the All-Devouring (19554) in 50 yards'),
+(@ENTRY, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Once - Self: Talk 0 to invoker'),
+(@ENTRY, 0, 4, 0, 6, 0, 100, 0, 0, 0, 0, 0, 63, 1, 1, 0, 0, 0, 0, 19, 19554, 30, 0, 0, 0, 0, 0, 'On death - Closest alive creature Dimensius the All-Devouring (19554) in 30 yards: Add 1 to counter_1');
 
--- =========================================================
--- Conditions
--- =========================================================
 
-DELETE FROM `conditions` WHERE (SourceTypeOrReferenceId,SourceEntry) IN ((22,21780),(22,19554));
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`Comment`) VALUES
-(22,5,19554,0,0,29,1,21780,100,0,0,'Spawn 21780 within 100y');
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 21780 AND `SourceId` = 0;
+
 
 -- =========================================================
 -- SpellScript Names
