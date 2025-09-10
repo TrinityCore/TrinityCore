@@ -1035,7 +1035,7 @@ public:
         case WAYPOINT_16:
         {
             if (Player* player = ObjectAccessor::GetPlayer(*me, _questStarterGUID))
-                Talk(NPC_SAEED_SAY_4, player);
+                Talk(NPC_SAEED_SAY_2, player);
             else
             Talk(NPC_SAEED_SAY_2);
             _currentGossipState = 1;
