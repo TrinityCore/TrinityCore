@@ -33,6 +33,12 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "EventMap.h"
+#include "MotionMaster.h"
+#include "WorldSession.h"
+#include "Group.h"
 
 /*######
 ## npc_commander_dawnforge
@@ -576,6 +582,573 @@ class spell_netherstorm_socrethars_stone : public SpellScript
     }
 };
 
+/*
+Support the Escort Quest Dimensius the All-Devouring
+*/
+
+enum Dimensius_the_All_Devouring
+{
+    NPC_SAEED_SAY_1                         = 0,
+    NPC_SAEED_SAY_2                         = 1,
+    NPC_SAEED_SAY_3                         = 2,
+    NPC_SAEED_SAY_4                         = 3,
+    NPC_FOLLOWER_SAY                        = 0,            /*Protectorate Regenerator SAY after reached WP19*/
+
+    EVENT_ATTACK_DIMENSIONS                 = 1,            /*Starts the Final Escort Waypoint to the BOSS*/
+    EVENT_DESPAWN_WP19                      = 2,            /*Delays despawn to cast spell*/
+    EVENT_START_EMOTE_FOLLOW                = 3,            /*Handle Emote Command bevor starts follow (Blizzlike)*/
+    EVENT_CAST_VISUAL_TELEPORT_SPELL        = 51347,        /*Cast Saeed and follor bevore despawn (Blizzlike)*/
+
+    QUEST_DIMENSIONS_THE_ALL_DEVOURING      = 10439,        /*QUEST ID*/
+
+    SPELL_DIMENSIONS_TRANSFORM              = 35939,        /*comes from Triniticore spell_dbc and used in the SAI Script from Dimensions and remove the Aura from the Boss*/
+    SPELL_DIMENSIONS_SHADOW_RAIN_1          = 37396,
+    SPELL_DIMENSIONS_SHADOW_RAIN_2          = 37397,
+    SPELL_DIMENSIONS_SHADOW_RAIN_3          = 37399,
+    SPELL_DIMENSIONS_SHADOW_RAIN_4          = 37405,
+    SPELL_DIMENSIONS_SHADOW_RAIN_5          = 37409,
+
+    NPC_SAEED_KILLCREDIT                    = 20985,        /*Give The Killcredit after Speaking with SAEED*/
+    NPC_SAEED_FOLLOWER_1                    = 21783,
+    NPC_SAEED_FOLLOWER_2                    = 20984,
+    NPC_SAEED_FOLLOWER_3                    = 21805,
+    NPC_DIMENSIONS                          = 19554,        /*Final Boss Entry ID*/
+
+    TRINITY_STRING_TEXT_1                   = 30000,        /*Escort Start Button Text*/
+    TRINITY_STRING_TEXT_2                   = 30001,        /*Escort Final Stage Button Text*/
+
+    DATA_GOSSIP_STATE                       = 1,            /*Switch between NPC GOSSIP TEXT*/
+    TEXT_NPC_SAEED_START_FIGHT              = 10232,        /*GOSSIP NPC TEXT Waypoint 16*/
+    TEXT_NPC_SAEED_DEFAULT                  = 10229,        /*GOSSIP NPC TEXT FIRST SPEEKING WITH SAEED*/
+
+    WAYPOINT_16                             = 16,
+    WAYPOINT_18                             = 18,
+    WAYPOINT_19                             = 19,
+
+    ACTION_FOLLOW_LEADER                    = 1
+};
+
+struct npc_saeed_follower : public ScriptedAI
+{
+    npc_saeed_follower(Creature* creature) : ScriptedAI(creature), _leaderGuid(), _index(0), _total(0), _followLeaderCalled(false)  { }
+
+public:
+    static ObjectGuid talkingFollowerGuid;
+
+    void Reset() override
+    {
+        _followLeaderCalled = false;
+        me->setActive(true);
+        me->SetFaction(me->GetCreatureTemplate()->faction);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void SetLeaderGuid(ObjectGuid guid, uint32 i, uint32 t)
+    {
+        _leaderGuid = guid;
+        _index = i;
+        _total = t;
+
+        if (Creature* leader = ObjectAccessor::GetCreature(*me, _leaderGuid))
+            me->SetHomePosition(leader->GetPosition());
+
+        if (me->GetEntry() == NPC_SAEED_FOLLOWER_1 && talkingFollowerGuid.IsEmpty())
+            talkingFollowerGuid = me->GetGUID();
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_FOLLOW_LEADER)
+        {
+            me->SetFaction(250);
+            me->SetReactState(REACT_AGGRESSIVE);
+            FollowLeader();
+        }
+    }
+
+    void FollowLeader(Unit* who = nullptr)
+    {
+        if (Creature* leader = ObjectAccessor::GetCreature(*me, _leaderGuid))
+        {
+            if (!who)
+            {
+                float radius = 3.0f;
+                float leaderOri = leader->GetOrientation();
+                float angle = 2.0f * M_PI * float(_index) / float(_total);
+                float finalAngle = leaderOri + angle;
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveFollow(leader, radius, finalAngle);
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            }
+            else
+            {
+                me->AI()->AttackStart(who);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (_leaderGuid.IsEmpty())
+            return;
+
+        Creature* leader = ObjectAccessor::GetCreature(*me, _leaderGuid);
+        if (!leader || !leader->IsAlive())
+        {
+            me->DespawnOrUnsummon(1s, 5s);
+            return;
+        }
+
+        me->SetHomePosition(leader->GetHomePosition());
+
+        if (leader->GetVictim())
+        {
+            if (!UpdateVictim())
+                AttackStart(leader->GetVictim());
+
+            DoMeleeAttackIfReady();
+            _followLeaderCalled = false;
+        }
+        else
+        {
+            if (!_followLeaderCalled)
+            {
+                FollowLeader();
+                _followLeaderCalled = true;
+            }
+        }
+    }
+
+private:
+    ObjectGuid _leaderGuid;
+    uint32 _index;
+    uint32 _total;
+    bool _followLeaderCalled;
+};
+
+ObjectGuid npc_saeed_follower::talkingFollowerGuid;
+
+CreatureAI* GetAI_npc_saeed_follower(Creature* creature)
+{
+    return new npc_saeed_follower(creature);
+}
+
+struct npc_captain_saeed : public EscortAI
+{
+    npc_captain_saeed(Creature* creature)
+        : EscortAI(creature),
+        _lastReachedWaypoint(0),
+        _playersWithKillCredit(),
+        _questStarterGUID(),
+        _playerAwayTime(0),
+        _currentGossipState(0),
+        _escortPaused(false),
+        _pausedByPlayer(false),
+        _pausedByEvent(false),
+        _attackScheduled(false)
+    {}
+
+public:
+    bool OnGossipHello(Player* player) override
+    {
+        uint32 gossipText = GetData(DATA_GOSSIP_STATE) == 1 ? TEXT_NPC_SAEED_START_FIGHT : TEXT_NPC_SAEED_DEFAULT;
+
+        if (_questStarterGUID.IsEmpty() && player->GetQuestStatus(QUEST_DIMENSIONS_THE_ALL_DEVOURING) == QUEST_STATUS_INCOMPLETE)
+            _questStarterGUID = player->GetGUID();
+
+        ClearGossipMenuFor(player);
+
+        if (player->GetGUID() != _questStarterGUID)
+        {
+            SendGossipMenuFor(player, gossipText, me->GetGUID());
+            return true;
+        }
+
+        if (_pausedByPlayer)
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(TRINITY_STRING_TEXT_2), 0, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, gossipText, me->GetGUID());
+            return true;
+        }
+
+        if (player->GetQuestStatus(QUEST_DIMENSIONS_THE_ALL_DEVOURING) != QUEST_STATUS_INCOMPLETE)
+        {
+            SendGossipMenuFor(player, gossipText, me->GetGUID());
+            return true;
+        }
+
+        if (!_playersWithKillCredit.contains(player->GetGUID()))
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, player->GetSession()->GetTrinityString(TRINITY_STRING_TEXT_1), 0, GOSSIP_ACTION_INFO_DEF);
+        SendGossipMenuFor(player, gossipText, me->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
+    {
+        uint32 action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
+        CloseGossipMenuFor(player);
+
+        if (player->GetGUID() != _questStarterGUID)
+            return true;
+
+        switch (action)
+        {
+        case GOSSIP_ACTION_INFO_DEF:
+        {
+            _playersWithKillCredit.clear();
+
+            if (Group* group = player->GetGroup())
+            {
+                for (GroupReference* ref = group->GetFirstMember(); ref; ref = ref->next())
+                {
+                    if (Player* member = ref->GetSource())
+                    {
+                        if (member->GetQuestStatus(QUEST_DIMENSIONS_THE_ALL_DEVOURING) == QUEST_STATUS_INCOMPLETE)
+                        {
+                            member->KilledMonsterCredit(NPC_SAEED_KILLCREDIT);
+                            _playersWithKillCredit.insert(member->GetGUID());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                player->KilledMonsterCredit(NPC_SAEED_KILLCREDIT);
+                _playersWithKillCredit.insert(player->GetGUID());
+            }
+            Talk(NPC_SAEED_SAY_1);
+            Start(true, true, player->GetGUID());
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFaction(250);
+            me->SetReactState(REACT_AGGRESSIVE);
+            StartEscortFollowers();
+            break;
+        }
+
+        case GOSSIP_ACTION_INFO_DEF + 1:
+        {
+            if (_pausedByPlayer)
+            {
+                _pausedByPlayer = false;
+                _escortPaused = false;
+                SetEscortPaused(false);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            }
+            break;
+        }
+
+        default:
+            break;
+        }
+
+        return true;
+    }
+
+    void SetData(const uint32 id, uint32 value) override
+    {
+        if (id == DATA_GOSSIP_STATE)
+            _currentGossipState = value;
+    }
+
+    uint32 GetData(uint32 id) const override
+    {
+        if (id == DATA_GOSSIP_STATE)
+            return _currentGossipState;
+        return 0;
+    }
+
+    void StartEscortFollowers()
+    {
+        uint32 const followerEntries[] = { NPC_SAEED_FOLLOWER_1, NPC_SAEED_FOLLOWER_2, NPC_SAEED_FOLLOWER_3 };
+
+        _followers.clear();
+
+        for (uint32 entry : followerEntries)
+        {
+            std::list<Creature*> tempList;
+            me->GetCreatureListWithEntryInGrid(tempList, entry, 30.0f);
+
+            for (Creature* cr : tempList)
+            {
+                if (cr && cr->IsAlive())
+                    _followers.push_back(cr);
+            }
+        }
+        /*This is required so that everyone performs the emote and only starts running 3 seconds later. Blizzlike behavior*/
+        for (Creature* cr : _followers)
+            if (cr)
+                cr->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+
+        _events.ScheduleEvent(EVENT_START_EMOTE_FOLLOW, 3s);
+    }
+
+    void EscortDespawn()
+    {
+        uint32 const followerEntries[] = { NPC_SAEED_FOLLOWER_1, NPC_SAEED_FOLLOWER_2, NPC_SAEED_FOLLOWER_3 };
+
+        for (uint32 entry : followerEntries)
+        {
+            std::list<Creature*> tempList;
+            me->GetCreatureListWithEntryInGrid(tempList, entry, 30.0f);
+            for (Creature* follower : tempList)
+            {
+                if (follower && follower->IsAlive())
+                    follower->CastSpell(follower, EVENT_CAST_VISUAL_TELEPORT_SPELL, false);
+            }
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        EscortAI::UpdateAI(diff);
+
+        _events.Update(diff);
+        while (uint32 ev = _events.ExecuteEvent())
+        {
+            switch (ev)
+            {
+            case EVENT_START_EMOTE_FOLLOW:
+            {
+                size_t total = _followers.size();
+                size_t i = 0;
+
+                for (Creature* cr : _followers)
+                {
+                    if (cr && cr->IsAlive())
+                    {
+                        if (npc_saeed_follower* ai = dynamic_cast<npc_saeed_follower*>(cr->AI()))
+                        {
+                            ai->SetLeaderGuid(me->GetGUID(), i, total);
+                            ai->DoAction(ACTION_FOLLOW_LEADER);
+                            ++i;
+                        }
+                    }
+                }
+                break;
+            }
+
+            case EVENT_DESPAWN_WP19:
+            {
+                EscortDespawn();
+                DoCastSelf(EVENT_CAST_VISUAL_TELEPORT_SPELL, false);
+
+                for (Creature* follower : _followers)
+                {
+                    if (follower && follower->IsAlive())
+                        follower->DespawnOrUnsummon(1s, 5s);
+                }
+                _followers.clear();
+
+                me->DespawnOrUnsummon(1s, 5s);
+                break;
+            }
+
+            case EVENT_ATTACK_DIMENSIONS:
+            {
+                _attackScheduled = false;
+                _pausedByEvent = false;
+
+                if (Creature* target = me->FindNearestCreature(NPC_DIMENSIONS, 100.0f, true))
+                {
+                    target->RemoveAurasDueToSpell(SPELL_DIMENSIONS_TRANSFORM);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
+                    target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
+                    Talk(NPC_SAEED_SAY_2);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->Attack(target, true);
+                    me->GetMotionMaster()->MoveChase(target);
+                }
+
+                if (_escortPaused)
+                {
+                    SetEscortPaused(false);
+                    _escortPaused = false;
+                }
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+
+        std::set<ObjectGuid>::iterator it = _playersWithKillCredit.begin();
+        while (it != _playersWithKillCredit.end())
+        {
+            Player* p = ObjectAccessor::FindPlayer(*it);
+            if (!p || p->GetQuestStatus(QUEST_DIMENSIONS_THE_ALL_DEVOURING) != QUEST_STATUS_INCOMPLETE)
+                it = _playersWithKillCredit.erase(it);
+            else
+                ++it;
+        }
+        
+        Player* player = GetPlayerForEscort();
+        if (!player)
+            return;
+
+        if (_questStarterGUID.IsEmpty())
+            _questStarterGUID = player->GetGUID();
+
+        if (_lastReachedWaypoint < 18)
+        {
+            if (me->GetDistance(player) > 20.0f)
+            {
+                if (!_escortPaused)
+                {
+                    SetEscortPaused(true);
+                    _escortPaused = true;
+                    _playerAwayTime = 0;
+                }
+                else
+                {
+                    _playerAwayTime += diff;
+                    if (_playerAwayTime >= 20000)
+                        me->DespawnOrUnsummon(1s, 5s);
+                }
+            }
+            else
+            {
+                if (_escortPaused && !_pausedByPlayer && !_pausedByEvent)
+                {
+                    SetEscortPaused(false);
+                    _escortPaused = false;
+                }
+                _playerAwayTime = 0;
+            }
+        }
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+    {
+        me->SetHomePosition(me->GetPosition());
+        _lastReachedWaypoint = waypointId;
+
+        Player* player = GetPlayerForEscort();
+        if (!player)
+            return;
+
+        if (_questStarterGUID.IsEmpty())
+            _questStarterGUID = player->GetGUID();
+
+        switch (waypointId)
+        {
+        case WAYPOINT_16:
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _questStarterGUID))
+                Talk(NPC_SAEED_SAY_4, player);
+            else
+            Talk(NPC_SAEED_SAY_4);
+            _currentGossipState = 1;
+            SetEscortPaused(true);
+            _escortPaused = true;
+            _pausedByPlayer = true;
+            _pausedByEvent = false;
+            _attackScheduled = false;
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            break;
+        }
+
+        case WAYPOINT_18:
+        {
+            Talk(NPC_SAEED_SAY_3);
+            SetEscortPaused(true);
+            _escortPaused = true;
+            _pausedByPlayer = false;
+            _pausedByEvent = true;
+            _attackScheduled = true;
+            _events.ScheduleEvent(EVENT_ATTACK_DIMENSIONS, 10s);
+            break;
+        }
+
+        case WAYPOINT_19:
+        {
+            if (Creature* follower = ObjectAccessor::GetCreature(*me, npc_saeed_follower::talkingFollowerGuid))
+                follower->AI()->Talk(NPC_FOLLOWER_SAY);
+
+            SetEscortPaused(true);
+            _escortPaused = true;
+            _events.ScheduleEvent(EVENT_DESPAWN_WP19, 5s);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        for (auto guid : _playersWithKillCredit)
+        {
+            if (Player* player = ObjectAccessor::FindPlayer(guid))
+                player->FailQuest(QUEST_DIMENSIONS_THE_ALL_DEVOURING);
+        }
+
+        for (Creature* follower : _followers)
+        {
+            if (follower && follower->IsAlive())
+                follower->DespawnOrUnsummon(1s, 5s);
+        }
+        _followers.clear();
+        me->SetRespawnTime(5);
+        me->Respawn();
+    }
+
+    void Reset() override
+    {
+        _lastReachedWaypoint = 0;
+        _playerAwayTime = 0;
+        _escortPaused = false;
+        _pausedByPlayer = false;
+        _pausedByEvent = false;
+        _attackScheduled = false;
+        _currentGossipState = 0;
+        _playersWithKillCredit.clear();
+        me->SetHomePosition(me->GetPosition());
+        me->SetReactState(REACT_PASSIVE);
+        me->SetFaction(me->GetCreatureTemplate()->faction);
+        me->setActive(true);
+    }
+private:
+    std::list<Creature*> _followers;
+    std::vector<ObjectGuid> _followerGUIDs;
+    uint32 _lastReachedWaypoint;
+    std::set<ObjectGuid> _playersWithKillCredit;
+    ObjectGuid _questStarterGUID;
+    uint32 _playerAwayTime;
+    uint32 _currentGossipState;
+    bool _escortPaused;
+    bool _pausedByPlayer;
+    bool _pausedByEvent;
+    bool _attackScheduled;
+
+    EventMap _events;
+};
+
+CreatureAI* GetAI_npc_captain_saeed(Creature* creature)
+{
+    return new npc_captain_saeed(creature);
+}
+
+/*Controll the SCRIPT EFFECT Spell 37425 Logic Tick (Dimensius) and used in the SAI Script from Dimensions*/
+class spell_37425_logic_tick : public SpellScript
+{
+    PrepareSpellScript(spell_37425_logic_tick);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        uint32 spells[5] = { SPELL_DIMENSIONS_SHADOW_RAIN_1, SPELL_DIMENSIONS_SHADOW_RAIN_2, SPELL_DIMENSIONS_SHADOW_RAIN_3, SPELL_DIMENSIONS_SHADOW_RAIN_4, SPELL_DIMENSIONS_SHADOW_RAIN_5 };
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(caster, spells[urand(0, 4)], true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_37425_logic_tick::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_netherstorm()
 {
     new npc_commander_dawnforge();
@@ -583,4 +1156,7 @@ void AddSC_netherstorm()
     new npc_phase_hunter();
     RegisterSpellScript(spell_netherstorm_detonate_teleporter);
     RegisterSpellScript(spell_netherstorm_socrethars_stone);
+    RegisterCreatureAI(npc_captain_saeed);
+    RegisterCreatureAI(npc_saeed_follower);
+    RegisterSpellScript(spell_37425_logic_tick);
 }
