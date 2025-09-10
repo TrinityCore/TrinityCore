@@ -1050,7 +1050,7 @@ public:
 
         case WAYPOINT_18:
         {
-            Talk(NPC_SAEED_SAY_3);
+            Talk(NPC_SAEED_SAY_4);
             SetEscortPaused(true);
             _escortPaused = true;
             _pausedByPlayer = false;
