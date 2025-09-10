@@ -954,7 +954,7 @@ public:
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                     target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_UNINTERACTIBLE);
-                    Talk(NPC_SAEED_SAY_2);
+                    Talk(NPC_SAEED_SAY_4);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->Attack(target, true);
                     me->GetMotionMaster()->MoveChase(target);
@@ -1050,7 +1050,7 @@ public:
 
         case WAYPOINT_18:
         {
-            Talk(NPC_SAEED_SAY_4);
+            Talk(NPC_SAEED_SAY_3);
             SetEscortPaused(true);
             _escortPaused = true;
             _pausedByPlayer = false;
