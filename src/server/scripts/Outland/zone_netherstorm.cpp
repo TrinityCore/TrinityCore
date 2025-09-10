@@ -982,7 +982,6 @@ public:
             else
                 ++it;
         }
-        
         Player* player = GetPlayerForEscort();
         if (!player)
             return;
