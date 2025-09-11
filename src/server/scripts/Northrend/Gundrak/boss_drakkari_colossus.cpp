@@ -67,8 +67,7 @@ enum DrakkariColossusPhases
 
 enum DrakkariColossusData
 {
-    DATA_COLOSSUS_PHASE = 1,
-    DATA_INTRO_DONE     = 2
+    DATA_COLOSSUS_PHASE = 1
 };
 
 enum DrakkariColossusPoints
@@ -122,6 +121,8 @@ struct boss_drakkari_colossus : public BossAI
         switch (action)
         {
             case ACTION_UNFREEZE_COLOSSUS:
+                if (!introDone)
+                    introDone = true;
 
                 if (me->GetReactState() == REACT_AGGRESSIVE)
                     return;
@@ -166,16 +167,8 @@ struct boss_drakkari_colossus : public BossAI
     {
        if (data == DATA_COLOSSUS_PHASE)
            return phase;
-       else if (data == DATA_INTRO_DONE)
-           return introDone;
 
        return 0;
-    }
-
-    void SetData(uint32 type, uint32 data) override
-    {
-        if (type == DATA_INTRO_DONE)
-            introDone = data != 0;
     }
 
     void UpdateAI(uint32 diff) override
@@ -332,7 +325,7 @@ struct npc_living_mojo : public ScriptedAI
 {
     npc_living_mojo(Creature* creature) : ScriptedAI(creature)
     {
-        instance = creature->GetInstanceScript();
+        _instance = creature->GetInstanceScript();
     }
 
     void Reset() override
@@ -342,6 +335,25 @@ struct npc_living_mojo : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
+        if (Creature* colossus = _instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+        {
+            // we do this crap to see if the creature is one of the creatures that sorround the boss
+            Position homePosition = me->GetHomePosition();
+            float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
+            if (distance < 12.0f)
+            {
+                me->SetReactState(REACT_PASSIVE);
+                std::list<Creature*> mojosList;
+                colossus->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
+                if (!mojosList.empty())
+                {
+                    for (auto itr = mojosList.begin(); itr != mojosList.end(); ++itr)
+                        (*itr)->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
+                }
+                return;
+            }
+        }
+
         _scheduler.Schedule(2s, [this](TaskContext task)
         {
             DoCastVictim(SPELL_MOJO_WAVE);
@@ -358,45 +370,10 @@ struct npc_living_mojo : public ScriptedAI
     {
         if (type == POINT_MOTION_TYPE && id == POINT_COLOSSUS)
         {
-            if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-            {
+            if (Creature* colossus = _instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                 colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
-                if (!colossus->AI()->GetData(DATA_INTRO_DONE))
-                    colossus->AI()->SetData(DATA_INTRO_DONE, true);
-                DoZoneInCombat(colossus);
-                me->DespawnOrUnsummon();
-            }
-        }
-    }
 
-    void AttackStart(Unit* attacker) override
-    {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-            return;
-
-        // we do this checks to see if the creature is one of the creatures that sorround the boss
-        if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-        {
-            Position homePosition = me->GetHomePosition();
-
-            float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
-
-            if (distance < 12.0f)
-            {
-                std::list<Creature*> mojosList;
-                colossus->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
-                if (!mojosList.empty())
-                {
-                    for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
-                    {
-                        if (Creature* mojo = *itr)
-                            mojo->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition().GetPositionX(), colossus->GetHomePosition().GetPositionY(), colossus->GetHomePosition().GetPositionZ());
-                    }
-                }
-                me->SetReactState(REACT_PASSIVE);
-            }
-            else
-                ScriptedAI::AttackStart(attacker);
+            me->DespawnOrUnsummon();
         }
     }
 
@@ -413,7 +390,7 @@ struct npc_living_mojo : public ScriptedAI
     }
 
 private:
-    InstanceScript* instance;
+    InstanceScript* _instance;
     TaskScheduler _scheduler;
 };
 
