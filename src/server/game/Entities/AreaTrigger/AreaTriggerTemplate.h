@@ -251,6 +251,7 @@ public:
     AreaTriggerShapeInfo Shape;
 
     float Speed = 1.0f;
+    bool SpeedIsTime = false;
     using SplineInfo = std::vector<Position>;
     std::variant<std::monostate, SplineInfo, AreaTriggerOrbitInfo> Movement;
 

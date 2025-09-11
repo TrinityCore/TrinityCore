@@ -169,13 +169,13 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
     }
 
     if (QueryResult areatriggerCreateProperties = WorldDatabase.Query("SELECT Id, IsCustom, AreaTriggerId, IsAreatriggerCustom, Flags, "
-        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, "
+        "MoveCurveId, ScaleCurveId, MorphCurveId, FacingCurveId, AnimId, AnimKitId, DecalPropertiesId, SpellForVisuals, TimeToTargetScale, Speed, SpeedIsTime, "
         "Shape, ShapeData0, ShapeData1, ShapeData2, ShapeData3, ShapeData4, ShapeData5, ShapeData6, ShapeData7, ScriptName FROM `areatrigger_create_properties`"))
     {
         do
         {
             DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (Id)(IsCustom)(AreaTriggerId)(IsAreatriggerCustom)(Flags)
-                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)(TimeToTargetScale)(Speed)
+                (MoveCurveId)(ScaleCurveId)(MorphCurveId)(FacingCurveId)(AnimId)(AnimKitId)(DecalPropertiesId)(SpellForVisuals)(TimeToTargetScale)(Speed)(SpeedIsTime)
                 (Shape)(ShapeData0)(ShapeData1)(ShapeData2)(ShapeData3)(ShapeData4)(ShapeData5)(ShapeData6)(ShapeData7)(ScriptName)
             ) fields { *areatriggerCreateProperties };
 
@@ -238,6 +238,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
             createProperties.TimeToTargetScale     = fields.TimeToTargetScale().GetUInt32();
             createProperties.Speed                 = fields.Speed().GetFloat();
+            createProperties.SpeedIsTime           = fields.SpeedIsTime().GetBool();
 
             std::array<float, MAX_AREATRIGGER_ENTITY_DATA> shapeData =
             {

@@ -180,13 +180,13 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         void SetShape(AreaTriggerShapeInfo const& shape);
         float GetMaxSearchRadius() const;
-        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {});
-        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {});
+        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
         bool HasSplines() const { return _spline != nullptr; }
         ::Movement::Spline<float> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const;
 
-        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {});
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
         bool HasOrbit() const { return m_areaTriggerData->PathData.Is<UF::AreaTriggerOrbit>(); }
         UF::AreaTriggerOrbit const& GetOrbit() const { return *m_areaTriggerData->PathData.Get<UF::AreaTriggerOrbit>(); }
 

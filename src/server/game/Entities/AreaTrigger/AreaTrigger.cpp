@@ -252,10 +252,10 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             else
                 orbit.Center = pos;
 
-            this->InitOrbit(orbit, GetCreateProperties()->Speed);
+            this->InitOrbit(orbit, {}, GetCreateProperties()->SpeedIsTime);
         }
         else if constexpr (std::is_same_v<MovementType, AreaTriggerCreateProperties::SplineInfo>)
-            this->InitSplineOffsets(movement);
+            this->InitSplineOffsets(movement, {}, GetCreateProperties()->SpeedIsTime);
         else if constexpr (std::is_same_v<MovementType, std::monostate>)
             this->SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
         else
@@ -1195,7 +1195,7 @@ void AreaTrigger::UndoActions(Unit* unit)
     }
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1214,10 +1214,10 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Option
         rotatedPoints[i].z += offset.GetPositionZ();
     }
 
-    InitSplines(rotatedPoints, overrideSpeed);
+    InitSplines(rotatedPoints, overrideSpeed, speedIsTimeInSeconds);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     if (splinePoints.size() < 2)
         return;
@@ -1230,7 +1230,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = spline->length() / speed * float(IN_MILLISECONDS);
+    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : spline->length() / speed) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
@@ -1256,7 +1256,7 @@ uint32 AreaTrigger::GetElapsedTimeForMovement() const
     return 0;
 }
 
-void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed)
+void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     // Circular movement requires either a center position or an attached unit
     ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
@@ -1265,7 +1265,7 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) * static_cast<float>(IN_MILLISECONDS) / speed);
+    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) / speed)) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
