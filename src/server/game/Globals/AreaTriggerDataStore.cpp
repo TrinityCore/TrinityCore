@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
 #include "Timer.h"
+#include "Types.h"
 #include <cmath>
 
 template <>
@@ -204,7 +205,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #define VALIDATE_AND_SET_CURVE(Curve, Value) \
             createProperties.Curve = Value; \
-            if (createProperties.Curve && !sCurveStore.LookupEntry(createProperties.Curve)) \
+            if (createProperties.Curve && !sCurveStore.HasRecord(createProperties.Curve)) \
             { \
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed AreaTrigger (Id: {}, IsCustom: {}) for AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid " #Curve " ({}), set to 0!", \
                     areaTriggerId.Id, uint32(areaTriggerId.IsCustom), createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties.Curve); \
@@ -261,7 +262,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 createProperties.Shape.PolygonVerticesTarget.clear();
             }
 
-            createProperties.SplinePoints          = std::move(splinesByCreateProperties[createProperties.Id]);
+            if (std::vector<Position>* spline = Trinity::Containers::MapGetValuePtr(splinesByCreateProperties, createProperties.Id))
+                createProperties.Movement = std::move(*spline);
 
             _areaTriggerCreateProperties[createProperties.Id] = createProperties;
         }
@@ -287,17 +289,17 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            createProperties->OrbitInfo.emplace();
+            AreaTriggerOrbitInfo& orbit = createProperties->Movement.emplace<AreaTriggerOrbitInfo>();
 
-            createProperties->OrbitInfo->ExtraTimeForBlending = circularMovementInfoFields[2].GetInt32();
+            orbit.ExtraTimeForBlending = circularMovementInfoFields[2].GetInt32();
 
 #define VALIDATE_AND_SET_FLOAT(Float, Value) \
-            createProperties->OrbitInfo->Float = Value; \
-            if (!std::isfinite(createProperties->OrbitInfo->Float)) \
+            orbit.Float = Value; \
+            if (!std::isfinite(orbit.Float)) \
             { \
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {}, IsCustom: {}) with invalid " #Float " ({}), set to 0!", \
-                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), createProperties->OrbitInfo->Float); \
-                createProperties->OrbitInfo->Float = 0.0f; \
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), orbit.Float); \
+                orbit.Float = 0.0f; \
             }
 
             VALIDATE_AND_SET_FLOAT(Radius,          circularMovementInfoFields[3].GetFloat());
@@ -307,8 +309,8 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
 
 #undef VALIDATE_AND_SET_FLOAT
 
-            createProperties->OrbitInfo->CounterClockwise = circularMovementInfoFields[7].GetBool();
-            createProperties->OrbitInfo->CanLoop          = circularMovementInfoFields[8].GetBool();
+            orbit.CounterClockwise = circularMovementInfoFields[7].GetBool();
+            orbit.CanLoop          = circularMovementInfoFields[8].GetBool();
         }
         while (circularMovementInfos->NextRow());
     }
@@ -368,17 +370,22 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
                 continue;
             }
 
-            if (createProperties->OrbitInfo)
+            if (!std::holds_alternative<std::monostate>(createProperties->Movement))
             {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with orbit info",
-                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom));
-                continue;
-            }
+                std::string_view movementType = std::visit([&]<typename MovementType>(MovementType const&)
+                {
+                    if constexpr (std::is_same_v<MovementType, AreaTriggerCreateProperties::SplineInfo>)
+                        return "spline"sv;
+                    else if constexpr (std::is_same_v<MovementType, AreaTriggerOrbitInfo>)
+                        return "orbit"sv;
+                    else if constexpr (std::is_same_v<MovementType, std::monostate>)
+                        return ""sv;
+                    else
+                        static_assert(Trinity::dependant_false_v<MovementType>, "Unsupported movement type");
+                }, createProperties->Movement);
 
-            if (createProperties->HasSplines())
-            {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with splines",
-                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom));
+                TC_LOG_ERROR("sql.sql", "Table `areatrigger` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with {}",
+                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom), movementType);
                 continue;
             }
 

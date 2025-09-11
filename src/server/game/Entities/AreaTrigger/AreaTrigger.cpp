@@ -176,8 +176,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (IsServerSide())
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), 24); // Blue decal, for .debug areatrigger visibility
 
-    AreaTriggerScaleCurveTemplate const extraScaleCurve = IsStaticSpawn() ? AreaTriggerScaleCurveTemplate() : *GetCreateProperties()->ExtraScale;
-    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), extraScaleCurve);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), 1.0f);
 
     if (caster)
     {
@@ -188,7 +187,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             modOwner->GetSpellModValues(spellInfo, SpellModOp::Radius, spell, *m_areaTriggerData->BoundsRadius2D, &flat, &multiplier);
             if (multiplier != 1.0f)
             {
-                AreaTriggerScaleCurveTemplate overrideScale;
+                ScaleCurveData overrideScale;
                 overrideScale.Curve = multiplier;
                 SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), overrideScale);
             }
@@ -243,22 +242,25 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     UpdateShape();
 
-    if (GetCreateProperties()->OrbitInfo)
+    std::visit([&]<typename MovementType>(MovementType const& movement)
     {
-        AreaTriggerOrbitInfo orbit = *GetCreateProperties()->OrbitInfo;
-        if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
-            orbit.PathTarget = target->GetGUID();
-        else
-            orbit.Center = pos;
+        if constexpr (std::is_same_v<MovementType, AreaTriggerOrbitInfo>)
+        {
+            AreaTriggerOrbitInfo orbit = movement;
+            if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
+                orbit.PathTarget = target->GetGUID();
+            else
+                orbit.Center = pos;
 
-        InitOrbit(orbit, GetCreateProperties()->Speed);
-    }
-    else if (GetCreateProperties()->HasSplines())
-    {
-        InitSplineOffsets(GetCreateProperties()->SplinePoints);
-    }
-    else
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+            this->InitOrbit(orbit, GetCreateProperties()->Speed);
+        }
+        else if constexpr (std::is_same_v<MovementType, AreaTriggerCreateProperties::SplineInfo>)
+            this->InitSplineOffsets(movement);
+        else if constexpr (std::is_same_v<MovementType, std::monostate>)
+            this->SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+        else
+            static_assert(Trinity::dependant_false_v<MovementType>, "Unsupported movement type");
+    }, GetCreateProperties()->Movement);
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::Facing), _stationaryPosition.GetOrientation());
 
@@ -551,7 +553,7 @@ float AreaTrigger::GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, uint32 t
 
 void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, float constantValue)
 {
-    AreaTriggerScaleCurveTemplate curveTemplate;
+    ScaleCurveData curveTemplate;
     curveTemplate.Curve = constantValue;
     SetScaleCurve(scaleCurveMutator, curveTemplate);
 }
@@ -559,13 +561,10 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
 void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, std::array<DBCPosition2D, 2> const& points,
     Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
 {
-    AreaTriggerScaleCurvePointsTemplate curve;
-    curve.Mode = interpolation;
-    curve.Points = points;
-
-    AreaTriggerScaleCurveTemplate curveTemplate;
+    ScaleCurveData curveTemplate;
     curveTemplate.StartTimeOffset = startTimeOffset.value_or(GetTimeSinceCreated());
-    curveTemplate.Curve = curve;
+    curveTemplate.Mode = interpolation;
+    curveTemplate.Curve = points;
 
     SetScaleCurve(scaleCurveMutator, curveTemplate);
 }
@@ -575,7 +574,7 @@ void AreaTrigger::ClearScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, fals
     SetScaleCurve(scaleCurveMutator, {});
 }
 
-void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve)
+void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<ScaleCurveData> const& curve)
 {
     if (!curve)
     {
@@ -602,10 +601,10 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
         for (std::size_t i = 0; i < UF::size<decltype(UF::ScaleCurve::Points)>(); ++i)
             SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
     }
-    else if (AreaTriggerScaleCurvePointsTemplate const* curvePoints = std::get_if<AreaTriggerScaleCurvePointsTemplate>(&curve->Curve))
+    else if (ScaleCurveData::Points const* curvePoints = std::get_if<ScaleCurveData::Points>(&curve->Curve))
     {
-        CurveInterpolationMode mode = curvePoints->Mode;
-        if (curvePoints->Points[1].X < curvePoints->Points[0].X)
+        CurveInterpolationMode mode = curve->Mode;
+        if ((*curvePoints)[1].X < (*curvePoints)[0].X)
             mode = CurveInterpolationMode::Constant;
 
         switch (mode)
@@ -631,9 +630,9 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
         uint32 packedCurve = (uint32(mode) << 1) | (pointCount << 24);
         SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::ParameterCurve), packedCurve);
 
-        for (std::size_t i = 0; i < curvePoints->Points.size(); ++i)
+        for (std::size_t i = 0; i < curvePoints->size(); ++i)
         {
-            point.Relocate(curvePoints->Points[i].X, curvePoints->Points[i].Y);
+            point.Relocate((*curvePoints)[i].X, (*curvePoints)[i].Y);
             SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
         }
     }

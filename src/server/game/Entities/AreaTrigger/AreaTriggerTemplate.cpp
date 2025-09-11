@@ -20,14 +20,6 @@
 #include <cstring>
 #include <cmath>
 
-AreaTriggerScaleCurvePointsTemplate::AreaTriggerScaleCurvePointsTemplate() : Mode(CurveInterpolationMode::Linear), Points()
-{
-}
-
-AreaTriggerScaleCurveTemplate::AreaTriggerScaleCurveTemplate() : StartTimeOffset(0), Curve(1.0f)
-{
-}
-
 AreaTriggerShapeInfo::AreaTriggerShapeInfo()
 {
     Type = AreaTriggerShapeType::Max;
@@ -77,8 +69,3 @@ AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
 AreaTriggerCreateProperties::AreaTriggerCreateProperties() = default;
 AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;
-
-bool AreaTriggerCreateProperties::HasSplines() const
-{
-    return SplinePoints.size() >= 2;
-}

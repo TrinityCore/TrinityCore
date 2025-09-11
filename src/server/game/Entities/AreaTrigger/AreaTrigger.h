@@ -203,13 +203,22 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         float GetProgress() const;
 
+        struct ScaleCurveData
+        {
+            uint32 StartTimeOffset = 0;
+            CurveInterpolationMode Mode = CurveInterpolationMode::Linear;
+
+            using Points = std::array<DBCPosition2D, 2>;
+            std::variant<float, Points> Curve;
+        };
+
         float GetScaleCurveProgress(UF::ScaleCurve const& scaleCurve, uint32 timeTo) const;
         float GetScaleCurveValueAtProgress(UF::ScaleCurve const& scaleCurve, float x) const;
         float GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, uint32 timeTo) const;
         void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, float constantValue);
         void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation);
         void ClearScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator);
-        void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve);
+        void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<ScaleCurveData> const& curve);
 
         void UpdateTargetList();
         void SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D);

@@ -93,22 +93,6 @@ struct AreaTriggerAction
     AreaTriggerActionUserTypes TargetType;
 };
 
-struct AreaTriggerScaleCurvePointsTemplate
-{
-    AreaTriggerScaleCurvePointsTemplate();
-
-    CurveInterpolationMode Mode;
-    std::array<DBCPosition2D, 2> Points;
-};
-
-struct AreaTriggerScaleCurveTemplate
-{
-    AreaTriggerScaleCurveTemplate();
-
-    uint32 StartTimeOffset;
-    std::variant<float, AreaTriggerScaleCurvePointsTemplate> Curve;
-};
-
 struct AreaTriggerShapeInfo
 {
     AreaTriggerShapeInfo();
@@ -219,8 +203,6 @@ public:
     AreaTriggerCreateProperties();
     ~AreaTriggerCreateProperties();
 
-    bool HasSplines() const;
-
     AreaTriggerCreatePropertiesId Id = { .Id = 0, .IsCustom = false };
     AreaTriggerTemplate const* Template = nullptr;
     EnumFlag<AreaTriggerCreatePropertiesFlag> Flags = AreaTriggerCreatePropertiesFlag::None;
@@ -239,14 +221,11 @@ public:
 
     uint32 TimeToTargetScale = 0;
 
-    Optional<AreaTriggerScaleCurveTemplate> OverrideScale;
-    Optional<AreaTriggerScaleCurveTemplate> ExtraScale = Optional<AreaTriggerScaleCurveTemplate>(std::in_place);
-
     AreaTriggerShapeInfo Shape;
 
     float Speed = 1.0f;
-    std::vector<Position> SplinePoints;
-    Optional<AreaTriggerOrbitInfo> OrbitInfo;
+    using SplineInfo = std::vector<Position>;
+    std::variant<std::monostate, SplineInfo, AreaTriggerOrbitInfo> Movement;
 
     uint32 ScriptId = 0;
 };
