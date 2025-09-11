@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "GameEventMgr.h"
+#include "GossipDef.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -34,7 +35,7 @@
 
 bool BattlegroundTemplate::IsArena() const
 {
-    return BattlemasterEntry->InstanceType == MAP_ARENA;
+    return BattlemasterEntry->GetType() == BattlemasterType::Arena;
 }
 
 uint16 BattlegroundTemplate::GetMinPlayersPerTeam() const
@@ -452,6 +453,8 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     if (!bgTemplate)
         return;
 
+    player->PlayerTalkClass->GetInteractionData().StartInteraction(guid, PlayerInteractionType::BattleMaster);
+
     WorldPackets::Battleground::BattlefieldList battlefieldList;
     battlefieldList.BattlemasterGuid = guid;
     battlefieldList.BattlemasterListID = bgTypeId;
@@ -462,19 +465,20 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     player->SendDirectMessage(battlefieldList.Write());
 }
 
-void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
+/*static*/ void BattlegroundMgr::SendToBattleground(Player* player, Battleground const* battleground)
 {
-    if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
+    if (!battleground)
     {
-        uint32 mapid = bg->GetMapId();
-        Team team = player->GetBGTeam();
-
-        WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
-        TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), bgTypeId);
-        player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
+        TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Battleground not found while trying to teleport player {}", player->GetName());
+        return;
     }
-    else
-        TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance {} (bgType {}) not found while trying to teleport player {}", instanceId, bgTypeId, player->GetName());
+
+    uint32 mapid = battleground->GetMapId();
+    Team team = player->GetBGTeam();
+
+    WorldSafeLocsEntry const* pos = battleground->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
+    TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), battleground->GetTypeID());
+    player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
@@ -518,13 +522,13 @@ bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
     switch (BattlegroundQueueIdType(bgQueueTypeId.Type))
     {
         case BattlegroundQueueIdType::Battleground:
-            if (battlemasterList->InstanceType != MAP_BATTLEGROUND)
+            if (battlemasterList->GetType() != BattlemasterType::Battleground)
                 return false;
             if (bgQueueTypeId.TeamSize)
                 return false;
             break;
         case BattlegroundQueueIdType::Arena:
-            if (battlemasterList->InstanceType != MAP_ARENA)
+            if (battlemasterList->GetType() != BattlemasterType::Arena)
                 return false;
             if (!bgQueueTypeId.Rated)
                 return false;
@@ -536,7 +540,7 @@ bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
                 return false;
             break;
         case BattlegroundQueueIdType::ArenaSkirmish:
-            if (battlemasterList->InstanceType != MAP_ARENA)
+            if (battlemasterList->GetType() != BattlemasterType::Arena)
                 return false;
             if (!bgQueueTypeId.Rated)
                 return false;

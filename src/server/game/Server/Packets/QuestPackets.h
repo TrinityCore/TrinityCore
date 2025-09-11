@@ -730,7 +730,7 @@ namespace WorldPackets
             int32 Unused901_1 = 0;
             int32 TypeArtFileID = 0;
             Optional<int32> Rarity;
-            int32 Unused901_2 = 0;
+            int32 BorderUiTextureAtlasMemberID = 0;
             int32 SpellID = 0;
             int32 MaxStacks = 0;
         };
@@ -770,15 +770,15 @@ namespace WorldPackets
             uint32 SoundKitID = 0;
             uint32 CloseUISoundKitID = 0;
             uint8 NumRerolls = 0;
-            WorldPackets::Duration<Seconds> Duration;
+            WorldPackets::Timestamp<> ExpireTime;
             std::string_view Question;
             std::string_view PendingChoiceText;
             std::vector<PlayerChoiceResponse> Responses;
             bool InfiniteRange = false;
             bool HideWarboardHeader = false;
             bool KeepOpenAfterChoice = false;
-            bool Unknown_1115_1 = false;
-            bool Unknown_1115_2 = false;
+            bool ShowChoicesAsList = false;
+            bool ForceDontShowChoicesAsList = false;
         };
 
         class ChoiceResponse final : public ClientPacket

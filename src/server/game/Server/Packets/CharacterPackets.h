@@ -532,9 +532,9 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            bool OnCooldown    = false; ///<
             uint32 MaxCooldown     = 0; ///< Max. cooldown until next free character restoration. Displayed in undelete confirm message. (in sec)
             uint32 CurrentCooldown = 0; ///< Current cooldown until next free character restoration. (in sec)
+            bool OnCooldown    = false; ///<
         };
 
         class PlayerLogin final : public ClientPacket

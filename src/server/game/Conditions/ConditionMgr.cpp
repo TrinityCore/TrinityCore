@@ -21,6 +21,7 @@
 #include "AreaTriggerDataStore.h"
 #include "BattlePetMgr.h"
 #include "BattlegroundScript.h"
+#include "CollectionMgr.h"
 #include "Containers.h"
 #include "ConversationDataStore.h"
 #include "DB2Stores.h"
@@ -42,6 +43,7 @@
 #include "Pet.h"
 #include "PhasingHandler.h"
 #include "Player.h"
+#include "PlayerChoice.h"
 #include "RaceMask.h"
 #include "RealmList.h"
 #include "ReputationMgr.h"
@@ -94,7 +96,8 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
     "Object Visibility (by ID)",
     "Spawn Group",
     "Player Condition",
-    "Skill Line Ability"
+    "Skill Line Ability",
+    "Player Choice Response"
 };
 
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
@@ -958,7 +961,7 @@ std::string Condition::ToString(bool ext /*= false*/) const
     return std::move(ss).str();
 }
 
-ConditionMgr::ConditionMgr() { }
+ConditionMgr::ConditionMgr() = default;
 
 ConditionMgr::~ConditionMgr()
 {
@@ -1099,7 +1102,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType)
             sourceType == CONDITION_SOURCE_TYPE_AREATRIGGER ||
             sourceType == CONDITION_SOURCE_TYPE_TRAINER_SPELL ||
             sourceType == CONDITION_SOURCE_TYPE_OBJECT_ID_VISIBILITY ||
-            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_CONDITION);
+            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_CONDITION ||
+            sourceType == CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType)
@@ -1223,6 +1227,17 @@ bool ConditionMgr::IsObjectMeetingVendorItemConditions(uint32 creatureId, uint32
         TC_LOG_DEBUG("condition", "GetConditionsForNpcVendor: found conditions for creature entry {} item {}", creatureId, itemId);
         ConditionSourceInfo sourceInfo(player, vendor);
         return IsObjectMeetToConditions(sourceInfo, *itr->second);
+    }
+    return true;
+}
+
+bool ConditionMgr::IsObjectMeetingPlayerChoiceResponseConditions(uint32 playerChoiceId, int32 playerChoiceResponseId, Player const* player) const
+{
+    auto itr = ConditionStore[CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE].find({ .SourceGroup = playerChoiceId, .SourceEntry = playerChoiceResponseId, .SourceId = 0 });
+    if (itr != ConditionStore[CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE].end())
+    {
+        TC_LOG_DEBUG("condition", "GetConditionsForNpcVendor: found conditions for creature entry {} item {}", playerChoiceId, playerChoiceResponseId);
+        return IsObjectMeetToConditions(player, *itr->second);
     }
     return true;
 }
@@ -2092,6 +2107,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond) const
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_PLAYER_CHOICE_RESPONSE:
+        {
+            PlayerChoice const* playerChoice = sObjectMgr->GetPlayerChoice(cond->SourceGroup);
+            if (!playerChoice)
+            {
+                TC_LOG_ERROR("sql.sql", "{} SourceGroup in `condition` table, does not exist in `playerchoice`, ignoring.", cond->ToString());
+                return false;
+            }
+            if (!playerChoice->GetResponse(cond->SourceEntry))
+            {
+                TC_LOG_ERROR("sql.sql", "{} SourceEntry in `condition` table, does not exist in `playerchoice_response`, ignoring.", cond->ToString());
+                return false;
+            }
+            break;
+        }
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
@@ -2109,6 +2139,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 {
     switch (cond->ConditionType)
     {
+        case CONDITION_NONE:
+        {
+            if (!cond->ScriptId)
+            {
+                TC_LOG_ERROR("sql.sql", "{} must have a `ScriptName` in `condition` table, ignoring.", cond->ToString(true));
+                return false;
+            }
+            break;
+        }
         case CONDITION_AURA:
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE);
@@ -3062,8 +3101,32 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         std::array<bool, std::tuple_size_v<decltype(condition->ItemID)>> results;
         results.fill(true);
         for (std::size_t i = 0; i < condition->ItemID.size(); ++i)
+        {
             if (condition->ItemID[i])
-                results[i] = player->GetItemCount(condition->ItemID[i], condition->ItemFlags != 0) >= condition->ItemCount[i];
+            {
+                EnumFlag<ItemSearchLocation> where = ItemSearchLocation::Equipment;
+                if ((condition->ItemFlags & 1) != 0)    // include banks
+                    where |= ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank | ItemSearchLocation::AccountBank;
+                if ((condition->ItemFlags & 2) == 0)    // ignore inventory
+                    where |= ItemSearchLocation::Inventory;
+
+                uint32 foundCount = 0;
+                results[i] = !player->ForEachItem(where, [&](Item const* item)
+                {
+                    if (item->GetEntry() == uint32(condition->ItemID[i]))
+                    {
+                        foundCount += item->GetCount();
+                        if (foundCount >= condition->ItemCount[i])
+                            return ItemSearchCallbackResult::Stop;
+                    }
+
+                    return ItemSearchCallbackResult::Continue;
+                });
+
+                if (!results[i] && condition->ItemCount[i] == 1 && sDB2Manager.IsToyItem(condition->ItemID[i]))
+                    results[i] = player->GetSession()->GetCollectionMgr()->HasToy(condition->ItemID[i]);
+            }
+        }
 
         if (!PlayerConditionLogic(condition->ItemLogic, results))
             return false;

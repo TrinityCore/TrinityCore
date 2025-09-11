@@ -182,6 +182,7 @@ WorldPacket const* TriggerMovie::Write()
 
     return &_worldPacket;
 }
+
 WorldPacket const* TriggerCinematic::Write()
 {
     _worldPacket << uint32(CinematicID);
@@ -235,8 +236,8 @@ void SetDungeonDifficulty::Read()
 
 void SetRaidDifficulty::Read()
 {
-    _worldPacket >> DifficultyID;
     _worldPacket >> Legacy;
+    _worldPacket >> DifficultyID;
 }
 
 WorldPacket const* DungeonDifficultySet::Write()
@@ -248,8 +249,8 @@ WorldPacket const* DungeonDifficultySet::Write()
 
 WorldPacket const* RaidDifficultySet::Write()
 {
+    _worldPacket << int32(Legacy);
     _worldPacket << int32(DifficultyID);
-    _worldPacket << uint8(Legacy);
 
     return &_worldPacket;
 }
@@ -330,7 +331,7 @@ WorldPacket const* StandStateUpdate::Write()
 WorldPacket const* SetAnimTier::Write()
 {
     _worldPacket << Unit;
-    _worldPacket << Bits<3>(Tier);
+    _worldPacket << uint8(Tier);
     _worldPacket.FlushBits();
 
     return &_worldPacket;

@@ -3041,12 +3041,9 @@ class spell_gen_running_wild : public SpellScript
         return ValidateSpellInfo({ SPELL_ALTERED_FORM });
     }
 
-    bool Load() override
+    void OnPrecast() override
     {
-        // Definitely not a good thing, but currently the only way to do something at cast start
-        // Should be replaced as soon as possible with a new hook: BeforeCastStart
         GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
-        return false;
     }
 
     void Register() override
@@ -5581,7 +5578,7 @@ class spell_gen_no_npc_damage_below_override : public AuraScript
 public:
     spell_gen_no_npc_damage_below_override(float healthPct) : _healthPct(healthPct) {}
 
-    static void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
     {
         amount = -1;
     }
