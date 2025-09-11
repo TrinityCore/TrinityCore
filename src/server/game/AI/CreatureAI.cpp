@@ -37,8 +37,10 @@
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
-SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/) : _owner(owner), _startCombat(startCombat), _summonerGuid(summoner->GetGUID())
+SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/) : _owner(owner), _startCombat(startCombat)
 {
+    if (summoner)
+        _summonerGuid = summoner->GetGUID();
 }
 
 bool SetAggresiveStateEvent::Execute(uint64 /*time*/, uint32 /*diff*/)

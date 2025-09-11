@@ -85,7 +85,7 @@ class SetAggresiveStateEvent : public BasicEvent
     private:
         Creature* _owner;
         bool const _startCombat;
-        ObjectGuid const _summonerGuid;
+        ObjectGuid _summonerGuid;
 };
 
 class TC_GAME_API CreatureAI : public UnitAI
