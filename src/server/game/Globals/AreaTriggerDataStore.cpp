@@ -196,7 +196,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                 continue;
             }
 
-            if (shape >= AreaTriggerShapeType::Max)
+            if (shape == AreaTriggerShapeType::Unk || shape >= AreaTriggerShapeType::Max)
             {
                 TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties` has listed AreaTriggerCreatePropertiesId (Id: {}, IsCustom: {}) with invalid shape {}.",
                     createPropertiesId.Id, uint32(createPropertiesId.IsCustom), uint32(shape));
@@ -237,30 +237,53 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             createProperties.TimeToTargetScale     = fields[13].GetUInt32();
             createProperties.Speed                 = fields[14].GetFloat();
 
-            createProperties.Shape.Type = shape;
+            std::array<float, MAX_AREATRIGGER_ENTITY_DATA> shapeData = { };
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
-                createProperties.Shape.DefaultDatas.Data[i] = fields[16 + i].GetFloat();
+                shapeData[i] = fields[16 + i].GetFloat();
+
+            switch (shape)
+            {
+                case AreaTriggerShapeType::Sphere:
+                    createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Sphere>(shapeData);
+                    break;
+                case AreaTriggerShapeType::Box:
+                    createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Box>(shapeData);
+                    break;
+                case AreaTriggerShapeType::Polygon:
+                {
+                    AreaTriggerShapeInfo::Polygon& polygon = createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Polygon>(shapeData);
+                    if (polygon.Height <= 0.0f)
+                    {
+                        polygon.Height = 1.0f;
+                        if (polygon.HeightTarget <= 0.0f)
+                            polygon.HeightTarget = 1.0f;
+                    }
+                    if (std::vector<TaggedPosition<Position::XY>>* vertices = Trinity::Containers::MapGetValuePtr(verticesByCreateProperties, createProperties.Id))
+                        polygon.PolygonVertices = std::move(*vertices);
+                    if (std::vector<TaggedPosition<Position::XY>>* vertices = Trinity::Containers::MapGetValuePtr(verticesTargetByCreateProperties, createProperties.Id))
+                        polygon.PolygonVerticesTarget = std::move(*vertices);
+                    if (!polygon.PolygonVerticesTarget.empty() && polygon.PolygonVertices.size() != polygon.PolygonVerticesTarget.size())
+                    {
+                        TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has invalid target vertices, either all or none vertices must have a corresponding target vertex (AreaTriggerCreatePropertiesId: (Id: {}, IsCustom: {})).",
+                            createPropertiesId.Id, uint32(createPropertiesId.IsCustom));
+                        polygon.PolygonVerticesTarget.clear();
+                    }
+                    break;
+                }
+                case AreaTriggerShapeType::Cylinder:
+                    createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Cylinder>(shapeData);
+                    break;
+                case AreaTriggerShapeType::Disk:
+                    createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::Disk>(shapeData);
+                    break;
+                case AreaTriggerShapeType::BoundedPlane:
+                    createProperties.Shape.Data.emplace<AreaTriggerShapeInfo::BoundedPlane>(shapeData);
+                    break;
+                default:
+                    break;
+            }
 
             createProperties.ScriptId = sObjectMgr->GetScriptId(fields[24].GetString());
-
-            if (shape == AreaTriggerShapeType::Polygon)
-            {
-                if (createProperties.Shape.PolygonDatas.Height <= 0.0f)
-                {
-                    createProperties.Shape.PolygonDatas.Height = 1.0f;
-                    if (createProperties.Shape.PolygonDatas.HeightTarget <= 0.0f)
-                        createProperties.Shape.PolygonDatas.HeightTarget = 1.0f;
-                }
-            }
-
-            createProperties.Shape.PolygonVertices       = std::move(verticesByCreateProperties[createProperties.Id]);
-            createProperties.Shape.PolygonVerticesTarget = std::move(verticesTargetByCreateProperties[createProperties.Id]);
-            if (!createProperties.Shape.PolygonVerticesTarget.empty() && createProperties.Shape.PolygonVertices.size() != createProperties.Shape.PolygonVerticesTarget.size())
-            {
-                TC_LOG_ERROR("sql.sql", "Table `areatrigger_create_properties_polygon_vertex` has invalid target vertices, either all or none vertices must have a corresponding target vertex (AreaTriggerCreatePropertiesId: (Id: {}, IsCustom: {})).",
-                    createPropertiesId.Id, uint32(createPropertiesId.IsCustom));
-                createProperties.Shape.PolygonVerticesTarget.clear();
-            }
 
             if (std::vector<Position>* spline = Trinity::Containers::MapGetValuePtr(splinesByCreateProperties, createProperties.Id))
                 createProperties.Movement = std::move(*spline);

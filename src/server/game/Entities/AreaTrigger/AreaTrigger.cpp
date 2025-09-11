@@ -962,79 +962,73 @@ uint32 AreaTrigger::GetFaction() const
 
 void AreaTrigger::SetShape(AreaTriggerShapeInfo const& shape)
 {
-    auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
-
-    switch (shape.Type)
+    std::visit([this]<typename ShapeType>(ShapeType const& shapeData)
     {
-        case AreaTriggerShapeType::Sphere:
+        auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+
+        if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Sphere>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 0);
             auto sphere = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerSphere>);
-            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::Radius), shape.SphereDatas.Radius);
-            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::RadiusTarget), shape.SphereDatas.RadiusTarget);
-            break;
+            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::Radius), shapeData.Radius);
+            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::RadiusTarget), shapeData.RadiusTarget);
         }
-        case AreaTriggerShapeType::Box:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Box>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 1);
             auto box = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerBox>);
-            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::Extents), { shape.BoxDatas.Extents[0], shape.BoxDatas.Extents[1], shape.BoxDatas.Extents[2] });
-            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::ExtentsTarget), { shape.BoxDatas.ExtentsTarget[0], shape.BoxDatas.ExtentsTarget[1], shape.BoxDatas.ExtentsTarget[2] });
-            break;
+            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::Extents), shapeData.Extents);
+            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::ExtentsTarget), shapeData.ExtentsTarget);
         }
-        case AreaTriggerShapeType::Polygon:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Polygon>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 3);
             auto polygon = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerPolygon>);
             auto vertices = polygon.ModifyValue(&UF::AreaTriggerPolygon::Vertices);
             ClearDynamicUpdateFieldValues(vertices);
-            for (TaggedPosition<XY> const& vertex : shape.PolygonVertices)
+            for (TaggedPosition<XY> const& vertex : shapeData.PolygonVertices)
                 AddDynamicUpdateFieldValue(vertices) = vertex;
             auto verticesTarget = polygon.ModifyValue(&UF::AreaTriggerPolygon::VerticesTarget);
             ClearDynamicUpdateFieldValues(verticesTarget);
-            for (TaggedPosition<XY> const& vertex : shape.PolygonVerticesTarget)
+            for (TaggedPosition<XY> const& vertex : shapeData.PolygonVerticesTarget)
                 AddDynamicUpdateFieldValue(verticesTarget) = vertex;
-            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::Height), shape.PolygonDatas.Height);
-            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::HeightTarget), shape.PolygonDatas.HeightTarget);
-            break;
+            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::Height), shapeData.Height);
+            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::HeightTarget), shapeData.HeightTarget);
         }
-        case AreaTriggerShapeType::Cylinder:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Cylinder>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 4);
             auto cylinder = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerCylinder>);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Radius), shape.CylinderDatas.Radius);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::RadiusTarget), shape.CylinderDatas.RadiusTarget);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Height), shape.CylinderDatas.Height);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::HeightTarget), shape.CylinderDatas.HeightTarget);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffset), shape.CylinderDatas.LocationZOffset);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffsetTarget), shape.CylinderDatas.LocationZOffsetTarget);
-            break;
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Radius), shapeData.Radius);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::RadiusTarget), shapeData.RadiusTarget);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Height), shapeData.Height);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::HeightTarget), shapeData.HeightTarget);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffset), shapeData.LocationZOffset);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffsetTarget), shapeData.LocationZOffsetTarget);
         }
-        case AreaTriggerShapeType::Disk:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Disk>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 7);
             auto disk = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerDisk>);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadius), shape.DiskDatas.InnerRadius);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadiusTarget), shape.DiskDatas.InnerRadiusTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadius), shape.DiskDatas.OuterRadius);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadiusTarget), shape.DiskDatas.OuterRadiusTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::Height), shape.DiskDatas.Height);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::HeightTarget), shape.DiskDatas.HeightTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffset), shape.DiskDatas.LocationZOffset);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffsetTarget), shape.DiskDatas.LocationZOffsetTarget);
-            break;
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadius), shapeData.InnerRadius);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadiusTarget), shapeData.InnerRadiusTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadius), shapeData.OuterRadius);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadiusTarget), shapeData.OuterRadiusTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::Height), shapeData.Height);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::HeightTarget), shapeData.HeightTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffset), shapeData.LocationZOffset);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffsetTarget), shapeData.LocationZOffsetTarget);
         }
-        case AreaTriggerShapeType::BoundedPlane:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::BoundedPlane>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 8);
             auto boundedPlane = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerBoundedPlane>);
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::Extents), { shape.BoundedPlaneDatas.Extents[0], shape.BoundedPlaneDatas.Extents[1] });
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTarget), { shape.BoundedPlaneDatas.ExtentsTarget[0], shape.BoundedPlaneDatas.ExtentsTarget[1] });
-            break;
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::Extents), shapeData.Extents);
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTarget), shapeData.ExtentsTarget);
         }
-        default:
-            break;
-    }
+        else
+            static_assert(Trinity::dependant_false_v<ShapeType>, "Unsupported shape type");
+    }, shape.Data);
 }
 
 float AreaTrigger::GetMaxSearchRadius() const
