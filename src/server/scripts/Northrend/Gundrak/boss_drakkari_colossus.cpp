@@ -26,14 +26,14 @@
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
 
-enum Texts
+enum DrakkariColossusTexts
 {
     // Drakkari Elemental
     EMOTE_MOJO                                    = 0,
     EMOTE_ACTIVATE_ALTAR                          = 1
 };
 
-enum Spells
+enum DrakkariColossusSpells
 {
     SPELL_EMERGE                                  = 54850,
     SPELL_ELEMENTAL_SPAWN_EFFECT                  = 54888,
@@ -47,32 +47,33 @@ enum Spells
     SPELL_MOJO_WAVE                               = 55626,
 };
 
-enum ColossusEvents
+enum DrakkariColossusEvents
 {
     EVENT_MIGHTY_BLOW   = 1,
+    EVENT_SURGE
 };
 
-enum ColossusActions
+enum DrakkariColossusActions
 {
     ACTION_UNFREEZE_COLOSSUS = 1,
 };
 
-enum ColossusPhases
+enum DrakkariColossusPhases
 {
     COLOSSUS_PHASE_NORMAL                   = 1,
     COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON   = 2,
     COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON  = 3
 };
 
-enum ColossusData
+enum DrakkariColossusData
 {
     DATA_COLOSSUS_PHASE = 1,
     DATA_INTRO_DONE     = 2
 };
 
-enum ElementalEvents
+enum DrakkariColossusPoints
 {
-    EVENT_SURGE = 1
+    POINT_COLOSSUS = 1
 };
 
 struct boss_drakkari_colossus : public BossAI
@@ -355,10 +356,7 @@ struct npc_living_mojo : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id) override
     {
-        if (type != POINT_MOTION_TYPE)
-            return;
-
-        if (id == 1)
+        if (type == POINT_MOTION_TYPE && id == POINT_COLOSSUS)
         {
             if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
@@ -392,7 +390,7 @@ struct npc_living_mojo : public ScriptedAI
                     for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
                     {
                         if (Creature* mojo = *itr)
-                            mojo->GetMotionMaster()->MovePoint(1, colossus->GetHomePosition().GetPositionX(), colossus->GetHomePosition().GetPositionY(), colossus->GetHomePosition().GetPositionZ());
+                            mojo->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition().GetPositionX(), colossus->GetHomePosition().GetPositionY(), colossus->GetHomePosition().GetPositionZ());
                     }
                 }
                 me->SetReactState(REACT_PASSIVE);
