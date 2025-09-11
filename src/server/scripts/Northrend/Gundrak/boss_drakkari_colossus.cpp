@@ -148,7 +148,6 @@ struct boss_drakkari_colossus : public BossAI
         {
             if (me->HealthBelowPctDamaged(events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? 5 : 50, damage))
             {
-                damage = 0;
                 events.SetPhase((events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON : COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON));
 
                 // Freeze Colossus
