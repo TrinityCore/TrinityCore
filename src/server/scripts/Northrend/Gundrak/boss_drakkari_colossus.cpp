@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum DrakkariColossusTexts
 {
@@ -262,7 +263,6 @@ struct boss_drakkari_elemental : public ScriptedAI
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
                     {
                         DoStopAttack();
-                        DoCast(SPELL_SURGE_VISUAL);
                         if (DoCast(target, SPELL_SURGE) == SpellCastResult::SPELL_CAST_OK)
                             events.ScheduleEvent(EVENT_SURGE_FINISH, 5s);
                         else
@@ -421,9 +421,31 @@ private:
     TaskScheduler _scheduler;
 };
 
+// 54801 - Surge
+class spell_drakkari_colossus_surge : public SpellScript
+{
+    PrepareSpellScript(spell_drakkari_colossus_surge);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SURGE_VISUAL });
+    }
+
+    void HandleVisual(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SURGE_VISUAL, true);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_drakkari_colossus_surge::HandleVisual, EFFECT_1, SPELL_EFFECT_CHARGE_DEST);
+    }
+};
+
 void AddSC_boss_drakkari_colossus()
 {
     RegisterGundrakCreatureAI(boss_drakkari_colossus);
     RegisterGundrakCreatureAI(boss_drakkari_elemental);
     RegisterGundrakCreatureAI(npc_living_mojo);
+    RegisterSpellScript(spell_drakkari_colossus_surge);
 }
