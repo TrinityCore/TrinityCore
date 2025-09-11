@@ -1986,6 +1986,7 @@ enum FelLordCazaData
     SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE   = 196876,
     SPELL_FEL_LORD_CAZA_THROW_AXE_KNOCKBACK = 196955,
     SPELL_FEL_LORD_CAZA_DIES                = 210101,
+    SPELL_FEL_LORD_CAZA_KILL_CREDIT         = 210104,
     SPELL_FEL_LORD_CAZA_TAKING_POWER        = 210105,
     SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA   = 197471, // Serverside
 
@@ -2014,6 +2015,12 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
     {
         Talk(SAY_FEL_LORD_CAZA_DEATH);
         DoCastSelf(SPELL_FEL_LORD_CAZA_DIES);
+
+        for (ObjectGuid tapperGUID : me->GetTapList())
+        {
+            if (Player* tapper = ObjectAccessor::GetPlayer(*me, tapperGUID))
+                tapper->CastSpell(tapper, SPELL_FEL_LORD_CAZA_KILL_CREDIT, false);
+        }
     }
 
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
