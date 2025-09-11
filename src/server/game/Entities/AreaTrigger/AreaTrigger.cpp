@@ -96,7 +96,7 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-        HandleUnitEnterExit({});
+        HandleUnitEnterExit({}, AreaTriggerExitMode::ByExpire);
 
         WorldObject::RemoveFromWorld();
 
@@ -851,7 +851,7 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
     });
 }
 
-void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
+void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitMode exitMode)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
 
@@ -871,7 +871,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
-            HandleUnitExitInternal(leavingUnit);
+            HandleUnitExitInternal(leavingUnit, exitMode);
 
     UpdateHasPlayersFlag();
 
@@ -898,22 +898,29 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     unit->EnterAreaTrigger(this);
 }
 
-void AreaTrigger::HandleUnitExitInternal(Unit* unit)
+void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitMode exitMode)
 {
+    bool canTriggerOnExit = !(exitMode == AreaTriggerExitMode::ByExpire && HasActionSetFlag(AreaTriggerActionSetFlag::DontRunOnLeaveWhenExpiring));
+
     if (Player* player = unit->ToPlayer())
     {
         if (player->isDebugAreaTriggers)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
-        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+        if (canTriggerOnExit)
+        {
+            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
 
-        if (GetTemplate()->ActionSetId)
-            player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+            if (GetTemplate()->ActionSetId)
+                player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+        }
     }
 
     UndoActions(unit);
 
-    _ai->OnUnitExit(unit);
+    if (canTriggerOnExit)
+        _ai->OnUnitExit(unit);
+
     unit->ExitAreaTrigger(this);
 }
 
