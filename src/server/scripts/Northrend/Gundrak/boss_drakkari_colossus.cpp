@@ -72,11 +72,6 @@ enum ColossusData
     DATA_INTRO_DONE     = 2
 };
 
-enum ElementalActions
-{
-    ACTION_RETURN_TO_COLOSSUS = 1
-};
-
 enum ElementalEvents
 {
     EVENT_SURGE = 1
@@ -281,20 +276,6 @@ struct boss_drakkari_elemental : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-   void DoAction(int32 action) override
-    {
-        switch (action)
-        {
-            case ACTION_RETURN_TO_COLOSSUS:
-                Talk(EMOTE_MOJO);
-                DoCast(SPELL_SURGE_VISUAL);
-                if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
-                    // what if the elemental is more than 80 yards from drakkari colossus ?
-                    DoCast(colossus, SPELL_MERGE, true);
-                break;
-        }
-   }
-
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (HealthBelowPct(50))
@@ -319,8 +300,12 @@ struct boss_drakkari_elemental : public ScriptedAI
                         me->GetMotionMaster()->MovePoint(0, colossus->GetPositionX(), colossus->GetPositionY(), colossus->GetPositionZ());
                         return;
                     }*/
-                    DoAction(ACTION_RETURN_TO_COLOSSUS);
-                }
+                    Talk(EMOTE_MOJO);
+                    DoCast(SPELL_SURGE_VISUAL);
+                    if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+                        // what if the elemental is more than 80 yards from drakkari colossus ?
+                        DoCast(colossus, SPELL_MERGE, true);
+                    }
             }
         }
     }
@@ -373,20 +358,6 @@ struct npc_living_mojo : public ScriptedAI
         });
     }
 
-    void MoveMojos(Creature* boss)
-    {
-        std::list<Creature*> mojosList;
-        boss->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
-        if (!mojosList.empty())
-        {
-            for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
-            {
-                if (Creature* mojo = *itr)
-                    mojo->GetMotionMaster()->MovePoint(1, boss->GetHomePosition().GetPositionX(), boss->GetHomePosition().GetPositionY(), boss->GetHomePosition().GetPositionZ());
-            }
-        }
-    }
-
     void MovementInform(uint32 type, uint32 id) override
     {
         if (type != POINT_MOTION_TYPE)
@@ -419,7 +390,16 @@ struct npc_living_mojo : public ScriptedAI
 
             if (distance < 12.0f)
             {
-                MoveMojos(colossus);
+                std::list<Creature*> mojosList;
+                colossus->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
+                if (!mojosList.empty())
+                {
+                    for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
+                    {
+                        if (Creature* mojo = *itr)
+                            mojo->GetMotionMaster()->MovePoint(1, colossus->GetHomePosition().GetPositionX(), colossus->GetHomePosition().GetPositionY(), colossus->GetHomePosition().GetPositionZ());
+                    }
+                }
                 me->SetReactState(REACT_PASSIVE);
             }
             else
