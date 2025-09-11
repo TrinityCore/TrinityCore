@@ -60,9 +60,9 @@ enum DrakkariColossusActions
 
 enum DrakkariColossusPhases
 {
-    COLOSSUS_PHASE_NORMAL                   = 1,
-    COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON   = 2,
-    COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON  = 3
+    COLOSSUS_PHASE_NORMAL,
+    COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON,
+    COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON
 };
 
 enum DrakkariColossusData
@@ -79,41 +79,28 @@ struct boss_drakkari_colossus : public BossAI
 {
     boss_drakkari_colossus(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS)
     {
-        Initialize();
-        me->SetReactState(REACT_PASSIVE);
         introDone = false;
-    }
-
-    void Initialize()
-    {
-        phase = COLOSSUS_PHASE_NORMAL;
     }
 
     void Reset() override
     {
         _Reset();
 
-        if (GetData(DATA_INTRO_DONE))
+        if (introDone)
         {
             me->SetReactState(REACT_AGGRESSIVE);
             me->SetImmuneToPC(false);
             me->RemoveAura(SPELL_FREEZE_ANIM);
         }
-
-        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
-
-        Initialize();
+        else
+            me->SetReactState(REACT_PASSIVE);
     }
 
     void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(who);
         me->RemoveAura(SPELL_FREEZE_ANIM);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
+        _JustEngagedWith(who);
+        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
     }
 
     void DoAction(int32 action) override
@@ -130,9 +117,9 @@ struct boss_drakkari_colossus : public BossAI
                 me->SetImmuneToPC(false);
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAura(SPELL_FREEZE_ANIM);
-
-                DoZoneInCombat();
-
+                events.RescheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
+                if (Unit* victim = me->SelectVictim())
+                    AttackStart(victim);
                 break;
         }
     }
@@ -140,24 +127,26 @@ struct boss_drakkari_colossus : public BossAI
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (me->IsImmuneToPC())
-            damage = 0;
-
-        if (phase == COLOSSUS_PHASE_NORMAL || phase == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
         {
-            if (HealthBelowPct(phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
+            damage = 0;
+            return;
+        }
+
+        if (events.IsInPhase(COLOSSUS_PHASE_NORMAL) || events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON))
+        {
+            if (me->HealthBelowPctDamaged(events.IsInPhase(COLOSSUS_PHASE_NORMAL) ? 50 : 5, damage))
             {
                 damage = 0;
-                phase = (phase == COLOSSUS_PHASE_NORMAL ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON);
+                events.SetPhase((events.IsInPhase(COLOSSUS_PHASE_NORMAL) ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON));
 
                 // Freeze Colossus
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveIdle();
-
                 me->SetReactState(REACT_PASSIVE);
+                DoStopAttack();
+                me->DoNotReacquireSpellFocusTarget();
                 me->SetImmuneToPC(true);
+                me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+                
                 DoCast(me, SPELL_FREEZE_ANIM);
-
-                // Summon Elemental
                 DoCast(SPELL_EMERGE);
             }
         }
@@ -166,7 +155,7 @@ struct boss_drakkari_colossus : public BossAI
     uint32 GetData(uint32 data) const override
     {
        if (data == DATA_COLOSSUS_PHASE)
-           return phase;
+           return events.GetPhaseMask();
 
        return 0;
     }
@@ -181,7 +170,7 @@ struct boss_drakkari_colossus : public BossAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = events.ExecuteEvent())
+        if (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
@@ -195,20 +184,18 @@ struct boss_drakkari_colossus : public BossAI
                 return;
         }
 
-        if (me->GetReactState() == REACT_AGGRESSIVE)
-            DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
     }
 
     void JustSummoned(Creature* summon) override
     {
-        DoZoneInCombat(summon);
+        BossAI::JustSummoned(summon);
 
-        if (phase == COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON)
+        if (events.IsInPhase(COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON))
             summon->SetHealth(summon->GetMaxHealth() / 2);
     }
 
 private:
-    uint8 phase;
     bool introDone;
 };
 
