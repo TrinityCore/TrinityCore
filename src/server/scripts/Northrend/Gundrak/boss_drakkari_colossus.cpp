@@ -50,7 +50,8 @@ enum DrakkariColossusSpells
 enum DrakkariColossusEvents
 {
     EVENT_MIGHTY_BLOW   = 1,
-    EVENT_SURGE
+    EVENT_SURGE,
+    EVENT_SURGE_FINISH
 };
 
 enum DrakkariColossusActions
@@ -203,16 +204,26 @@ struct boss_drakkari_elemental : public ScriptedAI
 {
     boss_drakkari_elemental(Creature* creature) : ScriptedAI(creature)
     {
-        DoCast(me, SPELL_ELEMENTAL_SPAWN_EFFECT);
         instance = creature->GetInstanceScript();
+    }
+
+    void InitializeAI() override
+    {
+        me->SetReactState(REACT_PASSIVE);
+        ScriptedAI::InitializeAI();
+        DoCastSelf(SPELL_ELEMENTAL_SPAWN_EFFECT);
+        SetAggressiveStateAfter(2s);
     }
 
     void Reset() override
     {
         events.Reset();
-        events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
+    }
 
+    void JustEngagedWith(Unit* who)
+    {
         me->AddAura(SPELL_MOJO_VOLLEY, me);
+        events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
     }
 
     void JustDied(Unit* killer) override
@@ -233,16 +244,24 @@ struct boss_drakkari_elemental : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-        while (uint32 eventId = events.ExecuteEvent())
+        if (uint32 eventId = events.ExecuteEvent())
         {
             switch (eventId)
             {
                 case EVENT_SURGE:
-                    DoCast(SPELL_SURGE_VISUAL);
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 0.0f, true))
-                        DoCast(target, SPELL_SURGE);
-                    events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
+                    {
+                        DoStopAttack();
+                        DoCast(SPELL_SURGE_VISUAL);
+                        if (DoCast(target, SPELL_SURGE) == SpellCastResult::SPELL_CAST_OK)
+                            events.ScheduleEvent(EVENT_SURGE_FINISH, 2s);
+                        else
+                            events.ScheduleEvent(EVENT_SURGE_FINISH, 0s);
+                    }
                     break;
+                case EVENT_SURGE_FINISH:
+                    if (Unit* victim = me->SelectVictim())
+                        AttackStart(victim);
             }
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -254,7 +273,7 @@ struct boss_drakkari_elemental : public ScriptedAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
-        if (HealthBelowPct(50))
+        if (me->HealthBelowPctDamaged(50, damage))
         {
             if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
