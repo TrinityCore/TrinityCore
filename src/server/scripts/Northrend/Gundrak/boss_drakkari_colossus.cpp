@@ -300,7 +300,7 @@ struct boss_drakkari_elemental : public ScriptedAI
                     if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                         // what if the elemental is more than 80 yards from drakkari colossus ?
                         DoCast(colossus, SPELL_MERGE, true);
-                    }
+                }
             }
         }
     }
