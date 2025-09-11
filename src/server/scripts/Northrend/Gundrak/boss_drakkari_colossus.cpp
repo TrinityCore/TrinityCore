@@ -264,7 +264,7 @@ struct boss_drakkari_elemental : public ScriptedAI
                         DoStopAttack();
                         DoCast(SPELL_SURGE_VISUAL);
                         if (DoCast(target, SPELL_SURGE) == SpellCastResult::SPELL_CAST_OK)
-                            events.ScheduleEvent(EVENT_SURGE_FINISH, 2s);
+                            events.ScheduleEvent(EVENT_SURGE_FINISH, 5s);
                         else
                             events.ScheduleEvent(EVENT_SURGE_FINISH, 0s);
                     }
@@ -307,6 +307,9 @@ struct boss_drakkari_elemental : public ScriptedAI
                         return;
                     }*/
                     Talk(EMOTE_MOJO);
+                    me->SetReactState(REACT_PASSIVE);
+                    DoStopAttack();
+                    me->DoNotReacquireSpellFocusTarget();
                     DoCast(SPELL_SURGE_VISUAL);
                     if (Creature* colossus = instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
                         // what if the elemental is more than 80 yards from drakkari colossus ?
@@ -331,6 +334,12 @@ struct boss_drakkari_elemental : public ScriptedAI
                 me->DespawnOrUnsummon();
             }
         }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE && id == EVENT_CHARGE && events.HasEventScheduled(EVENT_SURGE_FINISH))
+            events.RescheduleEvent(EVENT_SURGE_FINISH, 0s);
     }
 
 private:
