@@ -268,6 +268,7 @@ struct boss_drakkari_elemental : public ScriptedAI
                         else
                             events.ScheduleEvent(EVENT_SURGE_FINISH, 0s);
                     }
+                    events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
                     break;
                 case EVENT_SURGE_FINISH:
                     if (Unit* victim = me->SelectVictim())
