@@ -20,6 +20,7 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "Containers.h"
+#include "CommonHelpers.h"
 #include "DBCStores.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -487,6 +488,13 @@ void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO
 void ScriptedAI::SetCombatMovement(bool allowMovement)
 {
     _isCombatMovementAllowed = allowMovement;
+}
+
+void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = nullptr*/, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner->GetGUID()), who->m_Events.CalculateTime(timer));
 }
 
 // BossAI - for instanced bosses
