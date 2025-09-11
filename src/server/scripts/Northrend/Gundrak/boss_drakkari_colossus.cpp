@@ -143,12 +143,12 @@ struct boss_drakkari_colossus : public BossAI
             return;
         }
 
-        if (events.IsInPhase(COLOSSUS_PHASE_NORMAL) || events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON))
+        if (!events.IsInPhase(COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON))
         {
-            if (me->HealthBelowPctDamaged(events.IsInPhase(COLOSSUS_PHASE_NORMAL) ? 50 : 5, damage))
+            if (me->HealthBelowPctDamaged(events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? 5 : 50, damage))
             {
                 damage = 0;
-                events.SetPhase((events.IsInPhase(COLOSSUS_PHASE_NORMAL) ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON));
+                events.SetPhase((events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON : COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON));
 
                 // Freeze Colossus
                 me->SetReactState(REACT_PASSIVE);
