@@ -94,7 +94,17 @@ struct boss_drakkari_colossus : public BossAI
             me->RemoveAura(SPELL_FREEZE_ANIM);
         }
         else
-            me->SetReactState(REACT_PASSIVE);
+        {
+            std::list<Creature*> mojosList;
+            me->GetCreatureListWithEntryInGrid(mojosList, NPC_LIVING_MOJO, 12.0f);
+            if (!mojosList.empty())
+                me->SetReactState(REACT_PASSIVE);
+            else
+            {
+                me->SetImmuneToPC(false);
+                me->RemoveAura(SPELL_FREEZE_ANIM);
+            }
+        }
     }
 
     void JustEngagedWith(Unit* who) override
@@ -146,8 +156,8 @@ struct boss_drakkari_colossus : public BossAI
                 me->DoNotReacquireSpellFocusTarget();
                 me->SetImmuneToPC(true);
                 me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
-                
-                DoCast(me, SPELL_FREEZE_ANIM);
+
+                DoCastSelf(SPELL_FREEZE_ANIM);
                 DoCast(SPELL_EMERGE);
             }
         }
@@ -350,7 +360,7 @@ struct npc_living_mojo : public ScriptedAI
             {
                 me->SetReactState(REACT_PASSIVE);
                 std::list<Creature*> mojosList;
-                colossus->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
+                colossus->GetCreatureListWithEntryInGrid(mojosList, NPC_LIVING_MOJO, 12.0f);
                 if (!mojosList.empty())
                 {
                     for (auto itr = mojosList.begin(); itr != mojosList.end(); ++itr)
