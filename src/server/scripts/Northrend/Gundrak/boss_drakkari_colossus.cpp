@@ -155,7 +155,7 @@ struct boss_drakkari_colossus : public BossAI
                 DoStopAttack();
                 me->DoNotReacquireSpellFocusTarget();
                 me->SetImmuneToPC(true);
-                me->GetMotionMaster()->Clear(MOTION_SLOT_ACTIVE);
+                me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
 
                 DoCastSelf(SPELL_FREEZE_ANIM);
                 DoCast(SPELL_EMERGE);
@@ -308,6 +308,7 @@ struct boss_drakkari_elemental : public ScriptedAI
                     }*/
                     Talk(EMOTE_MOJO);
                     me->SetReactState(REACT_PASSIVE);
+                    me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
                     DoStopAttack();
                     me->DoNotReacquireSpellFocusTarget();
                     DoCast(SPELL_SURGE_VISUAL);
