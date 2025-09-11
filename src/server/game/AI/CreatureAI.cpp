@@ -49,10 +49,13 @@ bool SetAggresiveStateEvent::Execute(uint64 /*time*/, uint32 /*diff*/)
     if (_startCombat)
     {
         if (Unit* currentVictim = _owner->SelectVictim())
-            _owner->AI()->AttackStart(currentVictim);
+        {
+            if (_owner->IsAIEnabled())
+                _owner->AI()->AttackStart(currentVictim);
+        }
         else if (_summonerGuid)
             if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
-                if (summoner->IsEngaged())
+                if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
                     if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                         _owner->AI()->AttackStart(target);
     }
