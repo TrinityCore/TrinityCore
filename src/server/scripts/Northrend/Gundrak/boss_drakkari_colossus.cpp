@@ -19,11 +19,11 @@
  * Comment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
  */
 
-#include "ScriptMgr.h"
 #include "gundrak.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellInfo.h"
 
 enum Texts
@@ -54,9 +54,7 @@ enum ColossusEvents
 
 enum ColossusActions
 {
-    ACTION_SUMMON_ELEMENTAL     = 1,
-    ACTION_FREEZE_COLOSSUS      = 2,
-    ACTION_UNFREEZE_COLOSSUS    = 3,
+    ACTION_UNFREEZE_COLOSSUS = 1,
 };
 
 enum ColossusPhases
@@ -122,17 +120,6 @@ struct boss_drakkari_colossus : public BossAI
     {
         switch (action)
         {
-            case ACTION_SUMMON_ELEMENTAL:
-                DoCast(SPELL_EMERGE);
-                break;
-            case ACTION_FREEZE_COLOSSUS:
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveIdle();
-
-                me->SetReactState(REACT_PASSIVE);
-                me->SetImmuneToPC(true);
-                DoCast(me, SPELL_FREEZE_ANIM);
-                break;
             case ACTION_UNFREEZE_COLOSSUS:
 
                 if (me->GetReactState() == REACT_AGGRESSIVE)
@@ -153,15 +140,23 @@ struct boss_drakkari_colossus : public BossAI
         if (me->IsImmuneToPC())
             damage = 0;
 
-        if (phase == COLOSSUS_PHASE_NORMAL ||
-            phase == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
+        if (phase == COLOSSUS_PHASE_NORMAL || phase == COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
         {
             if (HealthBelowPct(phase == COLOSSUS_PHASE_NORMAL ? 50 : 5))
             {
                 damage = 0;
                 phase = (phase == COLOSSUS_PHASE_NORMAL ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON);
-                DoAction(ACTION_FREEZE_COLOSSUS);
-                DoAction(ACTION_SUMMON_ELEMENTAL);
+
+                // Freeze Colossus
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveIdle();
+
+                me->SetReactState(REACT_PASSIVE);
+                me->SetImmuneToPC(true);
+                DoCast(me, SPELL_FREEZE_ANIM);
+
+                // Summon Elemental
+                DoCast(SPELL_EMERGE);
             }
         }
     }
