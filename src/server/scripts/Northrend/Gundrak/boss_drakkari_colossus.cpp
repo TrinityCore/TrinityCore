@@ -230,7 +230,7 @@ struct boss_drakkari_elemental : public ScriptedAI
         events.Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void JustEngagedWith(Unit* /*who*/) override
     {
         me->AddAura(SPELL_MOJO_VOLLEY, me);
         events.ScheduleEvent(EVENT_SURGE, 5s, 15s);
