@@ -75,6 +75,19 @@ enum SCEquip
     EQUIP_UNEQUIP   = 0
 };
 
+class SetAggresiveStateEvent : public BasicEvent
+{
+    public:
+        SetAggresiveStateEvent(Creature* owner, bool startCombat = true, Creature* summoner = nullptr);
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override;
+
+    private:
+        Creature* _owner;
+        bool const _startCombat;
+        ObjectGuid const _summonerGuid;
+};
+
 class TC_GAME_API CreatureAI : public UnitAI
 {
     protected:

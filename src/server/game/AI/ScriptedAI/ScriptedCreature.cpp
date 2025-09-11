@@ -489,6 +489,11 @@ void ScriptedAI::SetCombatMovement(bool allowMovement)
     _isCombatMovementAllowed = allowMovement;
 }
 
+void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/)
+{
+    me->m_Events.AddEvent(new SetAggresiveStateEvent(me, startCombat, summoner), me->m_Events.CalculateTime(timer));
+}
+
 // BossAI - for instanced bosses
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature), instance(creature->GetInstanceScript()), summons(creature), _bossId(bossId)
 {
