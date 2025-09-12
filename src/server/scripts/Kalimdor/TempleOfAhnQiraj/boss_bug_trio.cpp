@@ -18,7 +18,6 @@
 /*
  * Timers requires to be revisited
  * Devour is NYI
- * Respawn of bosses is NYI (in case of wipe)
  */
 
 #include "ScriptMgr.h"
@@ -71,6 +70,14 @@ enum BugTrioEvents
     EVENT_DISPEL
 };
 
+static void RespawnDeadBugs(InstanceScript* instance)
+{
+    for (uint32 type : { DATA_KRI, DATA_VEM, DATA_YAUJ })
+        if (Creature* bug = instance->GetCreature(type))
+            if (bug->isDead())
+                bug->DespawnOrUnsummon(1ms, 1s);
+}
+
 // 15511 - Lord Kri
 struct boss_kri : public BossAI
 {
@@ -90,6 +97,7 @@ struct boss_kri : public BossAI
     {
         _JustReachedHome();
         DoCastSelf(SPELL_DESPAWN_BROOD, true);
+        RespawnDeadBugs(instance);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -159,6 +167,7 @@ struct boss_vem : public BossAI
     {
         _JustReachedHome();
         DoCastSelf(SPELL_DESPAWN_BROOD, true);
+        RespawnDeadBugs(instance);
     }
 
     void JustDied(Unit* /*killer*/) override
@@ -223,6 +232,12 @@ struct boss_yauj : public BossAI
         events.ScheduleEvent(EVENT_FEAR, 10s, 15s);
         events.ScheduleEvent(EVENT_RAVAGE, 10s, 20s);
         events.ScheduleEvent(EVENT_DISPEL, 10s, 30s);
+    }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        RespawnDeadBugs(instance);
     }
 
     void JustDied(Unit* /*killer*/) override

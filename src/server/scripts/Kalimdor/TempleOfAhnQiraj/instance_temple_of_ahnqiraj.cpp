@@ -31,6 +31,7 @@ ObjectData const creatureData[] =
 {
     { NPC_VEM,       DATA_VEM       },
     { NPC_KRI,       DATA_KRI       },
+    { NPC_YAUJ,      DATA_YAUJ      },
     { NPC_VEKLOR,    DATA_VEKLOR    },
     { NPC_VEKNILASH, DATA_VEKNILASH },
     { NPC_VISCIDUS,  DATA_VISCIDUS  },

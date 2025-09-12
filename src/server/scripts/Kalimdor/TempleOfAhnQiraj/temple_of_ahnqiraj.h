@@ -40,6 +40,7 @@ enum AQTDataTypes
     // Others
     DATA_KRI                = 9,
     DATA_VEM                = 10,
+    DATA_YAUJ               = 11,
     DATA_VEKLOR             = 13,
     DATA_VEKLORISDEAD       = 14,
     DATA_VEKLOR_DEATH       = 15,
@@ -69,6 +70,7 @@ enum AQTCreatures
     NPC_SKERAM              = 15263,
     NPC_VEM                 = 15544,
     NPC_KRI                 = 15511,
+    NPC_YAUJ                = 15543,
     NPC_VEKLOR              = 15276,
     NPC_VEKNILASH           = 15275,
     NPC_SARTURA             = 15516
