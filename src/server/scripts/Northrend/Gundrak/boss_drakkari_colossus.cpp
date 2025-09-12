@@ -93,7 +93,7 @@ struct boss_drakkari_colossus : public BossAI
     {
         _Reset();
 
-        instance->instance->SpawnGroupSpawn(SPAWN_GROUP_MOJO, true, true);
+        instance->instance->SpawnGroupSpawn(SPAWN_GROUP_MOJO, true);
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -118,6 +118,8 @@ struct boss_drakkari_colossus : public BossAI
                 events.RescheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
                 if (Unit* victim = me->SelectVictim())
                     AttackStart(victim);
+                else
+                    DoZoneInCombat();
                 break;
         }
     }
@@ -351,7 +353,10 @@ struct npc_living_mojo : public ScriptedAI
         {
             if (Creature* colossus = _instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
-                me->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
+                for (auto& pair : sObjectMgr->GetSpawnMetadataForGroup(SPAWN_GROUP_MOJO))
+                    if (Creature* mojo = _instance->instance->GetCreatureBySpawnId(pair.second->spawnId))
+                        if (mojo->GetMotionMaster()->GetCurrentMovementGeneratorType()) == MovementGeneratorType::IDLE_MOTION_TYPE)
+                            mojo->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
                 return;
             }
             else
