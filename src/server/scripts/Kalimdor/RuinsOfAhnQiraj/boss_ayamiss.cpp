@@ -15,294 +15,411 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ * Initial movement for swarmers is NYI (SwarmerLoopSpells)
+ * SPELL_DESPAWN_SWARMERS is NYI, seems like used in combat after SPELL_SWARMERS_SWARM, not just as regular cleanup spell in case of wipe \ death.
+   Seems like targets only alive units
+ * What's the purpose of world triggers spawned in the room? The one spawned near altar enters in combat
+ * What's the purpose of Script Effect of SPELL_SUMMON_LARVA_1 & SPELL_SUMMON_LARVA_2?
+ */
+
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
+#include "SpellScript.h"
 
-enum Spells
+enum AyamissTexts
 {
-    SPELL_STINGER_SPRAY         =  25749,
-    SPELL_POISON_STINGER        =  25748,
-    SPELL_PARALYZE              =  25725,
-    SPELL_TRASH                 =  3391,
-    SPELL_FRENZY                =  8269,
-    SPELL_LASH                  =  25852,
-    SPELL_FEED                  =  25721
+    EMOTE_FRENZY                = 0
 };
 
-enum Events
+enum AyamissSpells
+{
+    SPELL_STINGER_SPRAY         = 25749,
+    SPELL_POISON_STINGER        = 25748,
+    SPELL_PARALYZE              = 25725,
+    SPELL_THRASH                = 3391,
+    SPELL_LASH                  = 25852,
+    SPELL_FRENZY                = 8269,
+
+    SPELL_SUMMON_LARVA_1        = 26538,
+    SPELL_SUMMON_LARVA_2        = 26539,
+    SPELL_SUMMON_SWARMER        = 25708,
+    SPELL_DESPAWN_SWARMERS      = 25842,
+    SPELL_SWARMERS_SWARM        = 25844,
+
+    // Hive'Zara Swarmer
+    SPELL_SWARMER_START_LOOP    = 25711,
+    SPELL_SWARMER_TELE_TRIGGER  = 25830,
+
+    SPELL_SWARMER_LOOP_1        = 25833,
+    SPELL_SWARMER_LOOP_2        = 25834,
+    SPELL_SWARMER_LOOP_3        = 25835,
+
+    SPELL_SWARMER_TELEPORT_1    = 25709,
+    SPELL_SWARMER_TELEPORT_2    = 25825,
+    SPELL_SWARMER_TELEPORT_3    = 25826,
+    SPELL_SWARMER_TELEPORT_4    = 25827,
+    SPELL_SWARMER_TELEPORT_5    = 25828,
+
+    // Hive'Zara Larva
+    SPELL_FEED                  = 25721,
+    SPELL_LARVA_AGGRO_EFFECT    = 25724,    // NYI, most likely related to Paralyze
+    SPELL_LARVA_FEAR_EFFECT     = 25726     // NYI, most likely related to Paralyze
+};
+
+enum AyamissEvents
 {
     EVENT_STINGER_SPRAY         = 1,
-    EVENT_POISON_STINGER        = 2,
-    EVENT_SUMMON_SWARMER        = 3,
-    EVENT_SWARMER_ATTACK        = 4,
-    EVENT_PARALYZE              = 5,
-    EVENT_LASH                  = 6,
-    EVENT_TRASH                 = 7
+    EVENT_POISON_STINGER,
+    EVENT_SUMMON_SWARMER,
+    EVENT_SWARMERS_SWARM,
+    EVENT_PARALYZE,
+    EVENT_LASH,
+    EVENT_THRASH,
+    EVENT_FRENZY
 };
 
-enum Emotes
-{
-    EMOTE_FRENZY                =  0
-};
-
-enum Phases
+enum AyamissPhases
 {
     PHASE_AIR                   = 0,
     PHASE_GROUND                = 1
 };
 
-enum Points
+enum AyamissPoints
 {
     POINT_AIR                   = 0,
     POINT_GROUND                = 1,
-    POINT_PARALYZE              = 2
+    POINT_ALTAR                 = 2,
+    POINT_SWARMER               = 3
 };
 
-const Position AyamissAirPos =  { -9689.292f, 1547.912f, 48.02729f, 0.0f };
-const Position AltarPos =       { -9717.18f, 1517.72f, 27.4677f, 0.0f };
-/// @todo These below are probably incorrect, taken from SD2
-const Position SwarmerPos =     { -9647.352f, 1578.062f, 55.32f, 0.0f };
-const Position LarvaPos[2] =
+const Position AyamissAirPos    = { -9689.292f, 1547.9122f, 48.027287f, 0.0f };
+const Position AyamissGroundPos = { -9689.981f, 1548.2961f, 33.277330f, 0.0f };
+const Position AltarPos         = { -9715.510f, 1518.8200f, 27.467716f, 0.0f };
+const Position SwarmerPos       = { -9647.352f, 1578.0620f, 55.320000f, 0.0f };
+
+std::array<uint32, 3> const SwarmerLoopSpells =
 {
-    { -9674.4707f, 1528.4133f, 22.457f, 0.0f },
-    { -9701.6005f, 1566.9993f, 24.118f, 0.0f }
+    SPELL_SWARMER_LOOP_1, SPELL_SWARMER_LOOP_2, SPELL_SWARMER_LOOP_3
 };
 
-class boss_ayamiss : public CreatureScript
+std::array<uint32, 5> const SwarmerTeleportSpells =
 {
-    public:
-        boss_ayamiss() : CreatureScript("boss_ayamiss") { }
+    SPELL_SWARMER_TELEPORT_1, SPELL_SWARMER_TELEPORT_2, SPELL_SWARMER_TELEPORT_3, SPELL_SWARMER_TELEPORT_4, SPELL_SWARMER_TELEPORT_5
+};
 
-        struct boss_ayamissAI : public BossAI
+// 15369 - Ayamiss the Hunter
+struct boss_ayamiss : public BossAI
+{
+    boss_ayamiss(Creature* creature) : BossAI(creature, DATA_AYAMISS), _frenzied(false), _phase(PHASE_AIR) { }
+
+    void Reset() override
+    {
+        _Reset();
+        _frenzied = false;
+        _phase = PHASE_AIR;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
+        events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
+        events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
+        events.ScheduleEvent(EVENT_SWARMERS_SWARM, 1min);
+        events.ScheduleEvent(EVENT_PARALYZE, 10s, 15s);
+
+        me->SetReactState(REACT_PASSIVE);
+        me->SetHover(true);
+        me->SetDisableGravity(true);
+        me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase == PHASE_AIR && me->HealthBelowPctDamaged(70, damage))
         {
-            boss_ayamissAI(Creature* creature) : BossAI(creature, DATA_AYAMISS)
+            me->SetReactState(REACT_PASSIVE);
+            _phase = PHASE_GROUND;
+            me->GetMotionMaster()->MovePoint(POINT_GROUND, AyamissGroundPos);
+        }
+
+        if (!_frenzied && me->HealthBelowPctDamaged(20, damage))
+        {
+            _frenzied = true;
+            events.ScheduleEvent(EVENT_FRENZY, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FRENZY)
+            Talk(EMOTE_FRENZY);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type == POINT_MOTION_TYPE)
+        {
+            switch (id)
             {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                _phase = PHASE_AIR;
-                _enraged = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-                SetCombatMovement(false);
-            }
-
-            void JustSummoned(Creature* who) override
-            {
-                switch (who->GetEntry())
-                {
-                    case NPC_SWARMER:
-                        _swarmers.push_back(who->GetGUID());
-                        break;
-                    case NPC_LARVA:
-                        who->GetMotionMaster()->MovePoint(POINT_PARALYZE, AltarPos);
-                        break;
-                    case NPC_HORNET:
-                        if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                            who->AI()->AttackStart(target);
-                        break;
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type == POINT_MOTION_TYPE)
-                {
-                    switch (id)
-                    {
-                        case POINT_AIR:
-                            me->AddUnitState(UNIT_STATE_ROOT);
-                            break;
-                        case POINT_GROUND:
-                            me->ClearUnitState(UNIT_STATE_ROOT);
-                            break;
-                    }
-                }
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                me->ClearUnitState(UNIT_STATE_ROOT);
-                BossAI::EnterEvadeMode(why);
-            }
-
-            void JustEngagedWith(Unit* attacker) override
-            {
-                BossAI::JustEngagedWith(attacker);
-
-                events.ScheduleEvent(EVENT_STINGER_SPRAY, 20s, 30s);
-                events.ScheduleEvent(EVENT_POISON_STINGER, 5s);
-                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
-                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
-                events.ScheduleEvent(EVENT_PARALYZE, 15s);
-
-                me->SetCanFly(true);
-                me->SetDisableGravity(true);
-                me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (_phase == PHASE_AIR && me->GetHealthPct() < 70.0f)
-                {
-                    _phase = PHASE_GROUND;
+                case POINT_AIR:
+                    SetCombatMovement(false);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    break;
+                case POINT_GROUND:
                     SetCombatMovement(true);
-                    me->SetCanFly(false);
-                    if (me->GetVictim())
-                    {
-                        Position VictimPos = me->EnsureVictim()->GetPosition();
-                        me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
-                    }
+                    me->SetHover(false);
+                    me->SetDisableGravity(false);
+                    me->SetReactState(REACT_AGGRESSIVE);
                     ResetThreatList();
                     events.ScheduleEvent(EVENT_LASH, 5s, 8s);
-                    events.ScheduleEvent(EVENT_TRASH, 3s, 6s);
+                    events.ScheduleEvent(EVENT_THRASH, 3s, 6s);
                     events.CancelEvent(EVENT_POISON_STINGER);
-                }
-                else
-                {
-                    DoMeleeAttackIfReady();
-                }
-
-                if (!_enraged && me->GetHealthPct() < 20.0f)
-                {
-                    DoCast(me, SPELL_FRENZY);
-                    Talk(EMOTE_FRENZY);
-                    _enraged = true;
-                }
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_STINGER_SPRAY:
-                            DoCast(me, SPELL_STINGER_SPRAY);
-                            events.ScheduleEvent(EVENT_STINGER_SPRAY, 15s, 20s);
-                            break;
-                        case EVENT_POISON_STINGER:
-                            DoCastVictim(SPELL_POISON_STINGER);
-                            events.ScheduleEvent(EVENT_POISON_STINGER, 2s, 3s);
-                            break;
-                        case EVENT_PARALYZE:
-                            if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
-                            {
-                                DoCast(target, SPELL_PARALYZE);
-                                instance->SetGuidData(DATA_PARALYZED, target->GetGUID());
-                                uint8 Index = urand(0, 1);
-                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30s);
-                            }
-                            events.ScheduleEvent(EVENT_PARALYZE, 15s);
-                            break;
-                        case EVENT_SWARMER_ATTACK:
-                            for (GuidList::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
-                                if (Creature* swarmer = ObjectAccessor::GetCreature(*me, *i))
-                                    if (Unit* target = SelectTarget(SelectTargetMethod::Random))
-                                        swarmer->AI()->AttackStart(target);
-
-                            _swarmers.clear();
-                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 1min);
-                            break;
-                        case EVENT_SUMMON_SWARMER:
-                        {
-                            Position Pos = me->GetRandomPoint(SwarmerPos, 80.0f);
-                            me->SummonCreature(NPC_SWARMER, Pos);
-                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5s);
-                            break;
-                        }
-                        case EVENT_TRASH:
-                            DoCastVictim(SPELL_TRASH);
-                            events.ScheduleEvent(EVENT_TRASH, 5s, 7s);
-                            break;
-                        case EVENT_LASH:
-                            DoCastVictim(SPELL_LASH);
-                            events.ScheduleEvent(EVENT_LASH, 8s, 15s);
-                            break;
-                    }
-                }
+                    break;
             }
-        private:
-            GuidList _swarmers;
-            uint8 _phase;
-            bool _enraged;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAQ20AI<boss_ayamissAI>(creature);
         }
+    }
+
+    // Do not despawn swarmers and larva
+    void JustSummoned(Creature* /*summon*/) override { }
+
+    void JustReachedHome() override
+    {
+        _JustReachedHome();
+        SetCombatMovement(true);
+        me->SetHover(false);
+        me->SetDisableGravity(false);
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_STINGER_SPRAY:
+                    DoCastSelf(SPELL_STINGER_SPRAY);
+                    events.Repeat(15s, 20s);
+                    break;
+                case EVENT_POISON_STINGER:
+                    DoCastVictim(SPELL_POISON_STINGER);
+                    events.Repeat(2s, 3s);
+                    break;
+                case EVENT_SUMMON_SWARMER:
+                    DoCastSelf(SPELL_SUMMON_SWARMER);
+                    events.Repeat(5s);
+                    break;
+                case EVENT_SWARMERS_SWARM:
+                    DoCastSelf(SPELL_SWARMERS_SWARM);
+                    events.Repeat(1min);
+                    break;
+                case EVENT_PARALYZE:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
+                    {
+                        DoCast(target, SPELL_PARALYZE);
+                        instance->SetGuidData(DATA_PARALYZED, target->GetGUID());
+                    }
+                    events.Repeat(12s, 18s);
+                    break;
+                case EVENT_THRASH:
+                    DoCastSelf(SPELL_THRASH);
+                    events.Repeat(5s, 7s);
+                    break;
+                case EVENT_LASH:
+                    DoCastVictim(SPELL_LASH);
+                    events.Repeat(8s, 15s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _frenzied;
+    uint8 _phase;
 };
 
-class npc_hive_zara_larva : public CreatureScript
+// 15555 - Hive'Zara Larva
+struct npc_hive_zara_larva : public ScriptedAI
 {
-    public:
-        npc_hive_zara_larva() : CreatureScript("npc_hive_zara_larva") { }
+    npc_hive_zara_larva(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_hive_zara_larvaAI : public ScriptedAI
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(3, true);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustAppeared() override
+    {
+        me->GetMotionMaster()->MovePoint(POINT_ALTAR, AltarPos, true, 3.724058866500854492f);
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_ALTAR)
+            if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
+                DoCast(target, SPELL_FEED);
+    }
+
+private:
+    InstanceScript* _instance;
+};
+
+// 15546 - Hive'Zara Swarmer
+struct npc_hive_zara_swarmer : public ScriptedAI
+{
+    npc_hive_zara_swarmer(Creature* creature) : ScriptedAI(creature) { }
+
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(3, true);
+    }
+
+    void JustAppeared() override
+    {
+        DoCastSelf(SPELL_SWARMER_START_LOOP);
+        DoCastSelf(SPELL_SWARMER_TELE_TRIGGER);
+
+        /// @todo: Temporary, replace with splines
+        Position pos = me->GetRandomPoint(SwarmerPos, 40.0f);
+        pos.m_positionZ = 55.0f;
+        me->GetMotionMaster()->MovePoint(POINT_SWARMER, pos);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
         {
-            npc_hive_zara_larvaAI(Creature* creature) : ScriptedAI(creature)
-            {
-                _instance = me->GetInstanceScript();
-            }
-
-            void MovementInform(uint32 type, uint32 id) override
-            {
-                if (type == POINT_MOTION_TYPE)
-                    if (id == POINT_PARALYZE)
-                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetGuidData(DATA_PARALYZED)))
-                            DoCast(target, SPELL_FEED); // Omnomnom
-            }
-
-            void MoveInLineOfSight(Unit* who) override
-
-            {
-                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
-                    return;
-
-                ScriptedAI::MoveInLineOfSight(who);
-            }
-
-            void AttackStart(Unit* victim) override
-            {
-                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
-                    return;
-
-                ScriptedAI::AttackStart(victim);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
-                    return;
-
-                ScriptedAI::UpdateAI(diff);
-            }
-        private:
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAQ20AI<npc_hive_zara_larvaAI>(creature);
+            case SPELL_DESPAWN_SWARMERS:
+                me->SetReactState(REACT_PASSIVE);
+                me->DespawnOrUnsummon(2s);
+                break;
+            case SPELL_SWARMERS_SWARM:
+                me->SetDisableGravity(false);
+                me->GetMotionMaster()->MoveFall();
+                DoZoneInCombat();
+                break;
+            case SPELL_SWARMER_LOOP_1:
+                break;
+            case SPELL_SWARMER_LOOP_2:
+                break;
+            case SPELL_SWARMER_LOOP_3:
+                break;
+            default:
+                break;
         }
+    }
+
+    void UpdateAI(uint32 /*diff*/) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+// 25725 - Paralyze
+class spell_ayamiss_paralyze : public SpellScript
+{
+    PrepareSpellScript(spell_ayamiss_paralyze);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_LARVA_1, SPELL_SUMMON_LARVA_2 });
+    }
+
+    void HandleAfterHit()
+    {
+        GetCaster()->CastSpell(GetCaster(), RAND(SPELL_SUMMON_LARVA_1, SPELL_SUMMON_LARVA_2), true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_ayamiss_paralyze::HandleAfterHit);
+    }
+};
+
+// 25711 - Hive'Zara Swarmer Start Loop
+class spell_ayamiss_swarmer_start_loop : public SpellScript
+{
+    PrepareSpellScript(spell_ayamiss_swarmer_start_loop);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SwarmerLoopSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(SwarmerLoopSpells));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_ayamiss_swarmer_start_loop::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 25830 - Hive'Zara Swarmer Teleport Trigger
+class spell_ayamiss_swarmer_teleport_trigger : public SpellScript
+{
+    PrepareSpellScript(spell_ayamiss_swarmer_teleport_trigger);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(SwarmerTeleportSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(SwarmerTeleportSpells));
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_ayamiss_swarmer_teleport_trigger::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
 };
 
 void AddSC_boss_ayamiss()
 {
-    new boss_ayamiss();
-    new npc_hive_zara_larva();
+    RegisterAQ20CreatureAI(boss_ayamiss);
+    RegisterAQ20CreatureAI(npc_hive_zara_larva);
+    RegisterAQ20CreatureAI(npc_hive_zara_swarmer);
+    RegisterSpellScript(spell_ayamiss_paralyze);
+    RegisterSpellScript(spell_ayamiss_swarmer_start_loop);
+    RegisterSpellScript(spell_ayamiss_swarmer_teleport_trigger);
 }
