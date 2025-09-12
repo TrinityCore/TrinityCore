@@ -22,6 +22,7 @@
 #include "gundrak.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
+#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellInfo.h"
@@ -77,35 +78,23 @@ enum DrakkariColossusPoints
     POINT_COLOSSUS = 1
 };
 
+enum DrakkariColossusSpawnGroups
+{
+    SPAWN_GROUP_MOJO = 328
+};
+
 struct boss_drakkari_colossus : public BossAI
 {
     boss_drakkari_colossus(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS)
     {
-        introDone = false;
     }
 
     void Reset() override
     {
         _Reset();
 
-        if (introDone)
-        {
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->SetImmuneToPC(false);
-            me->RemoveAura(SPELL_FREEZE_ANIM);
-        }
-        else
-        {
-            std::list<Creature*> mojosList;
-            me->GetCreatureListWithEntryInGrid(mojosList, NPC_LIVING_MOJO, 12.0f);
-            if (!mojosList.empty())
-                me->SetReactState(REACT_PASSIVE);
-            else
-            {
-                me->SetImmuneToPC(false);
-                me->RemoveAura(SPELL_FREEZE_ANIM);
-            }
-        }
+        instance->instance->SpawnGroupSpawn(SPAWN_GROUP_MOJO, true, true);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -120,9 +109,6 @@ struct boss_drakkari_colossus : public BossAI
         switch (action)
         {
             case ACTION_UNFREEZE_COLOSSUS:
-                if (!introDone)
-                    introDone = true;
-
                 if (me->GetReactState() == REACT_AGGRESSIVE)
                     return;
 
@@ -205,9 +191,6 @@ struct boss_drakkari_colossus : public BossAI
         if (events.IsInPhase(COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON))
             summon->SetHealth(summon->GetMaxHealth() / 2);
     }
-
-private:
-    bool introDone;
 };
 
 struct boss_drakkari_elemental : public ScriptedAI
@@ -352,6 +335,9 @@ struct npc_living_mojo : public ScriptedAI
     npc_living_mojo(Creature* creature) : ScriptedAI(creature)
     {
         _instance = creature->GetInstanceScript();
+        if (SpawnMetadata const* data = sObjectMgr->GetSpawnMetadata(SpawnObjectType::SPAWN_TYPE_CREATURE, me->GetSpawnId()))
+            if (data->spawnGroupData && data->spawnGroupData->groupId == SPAWN_GROUP_MOJO)
+                me->SetReactState(REACT_PASSIVE);
     }
 
     void Reset() override
@@ -361,23 +347,15 @@ struct npc_living_mojo : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        if (Creature* colossus = _instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
+        if (me->HasReactState(REACT_PASSIVE))
         {
-            // we do this crap to see if the creature is one of the creatures that sorround the boss
-            Position homePosition = me->GetHomePosition();
-            float distance = homePosition.GetExactDist(&colossus->GetHomePosition());
-            if (distance < 12.0f)
+            if (Creature* colossus = _instance->GetCreature(DATA_DRAKKARI_COLOSSUS))
             {
-                me->SetReactState(REACT_PASSIVE);
-                std::list<Creature*> mojosList;
-                colossus->GetCreatureListWithEntryInGrid(mojosList, NPC_LIVING_MOJO, 12.0f);
-                if (!mojosList.empty())
-                {
-                    for (auto itr = mojosList.begin(); itr != mojosList.end(); ++itr)
-                        (*itr)->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
-                }
+                me->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
                 return;
             }
+            else
+                me->SetReactState(REACT_AGGRESSIVE);
         }
 
         _scheduler.Schedule(2s, [this](TaskContext task)
