@@ -176,8 +176,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (IsServerSide())
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), 24); // Blue decal, for .debug areatrigger visibility
 
-    AreaTriggerScaleCurveTemplate const extraScaleCurve = IsStaticSpawn() ? AreaTriggerScaleCurveTemplate() : *GetCreateProperties()->ExtraScale;
-    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), extraScaleCurve);
+    SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), 1.0f);
 
     if (caster)
     {
@@ -188,7 +187,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             modOwner->GetSpellModValues(spellInfo, SpellModOp::Radius, spell, *m_areaTriggerData->BoundsRadius2D, &flat, &multiplier);
             if (multiplier != 1.0f)
             {
-                AreaTriggerScaleCurveTemplate overrideScale;
+                ScaleCurveData overrideScale;
                 overrideScale.Curve = multiplier;
                 SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::OverrideScaleCurve), overrideScale);
             }
@@ -243,22 +242,25 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     UpdateShape();
 
-    if (GetCreateProperties()->OrbitInfo)
+    std::visit([&]<typename MovementType>(MovementType const& movement)
     {
-        AreaTriggerOrbitInfo orbit = *GetCreateProperties()->OrbitInfo;
-        if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
-            orbit.PathTarget = target->GetGUID();
-        else
-            orbit.Center = pos;
+        if constexpr (std::is_same_v<MovementType, AreaTriggerOrbitInfo>)
+        {
+            AreaTriggerOrbitInfo orbit = movement;
+            if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
+                orbit.PathTarget = target->GetGUID();
+            else
+                orbit.Center = pos;
 
-        InitOrbit(orbit, GetCreateProperties()->Speed);
-    }
-    else if (GetCreateProperties()->HasSplines())
-    {
-        InitSplineOffsets(GetCreateProperties()->SplinePoints);
-    }
-    else
-        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+            this->InitOrbit(orbit, {}, GetCreateProperties()->SpeedIsTime);
+        }
+        else if constexpr (std::is_same_v<MovementType, AreaTriggerCreateProperties::SplineInfo>)
+            this->InitSplineOffsets(movement, {}, GetCreateProperties()->SpeedIsTime);
+        else if constexpr (std::is_same_v<MovementType, std::monostate>)
+            this->SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+        else
+            static_assert(Trinity::dependant_false_v<MovementType>, "Unsupported movement type");
+    }, GetCreateProperties()->Movement);
 
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::Facing), _stationaryPosition.GetOrientation());
 
@@ -551,7 +553,7 @@ float AreaTrigger::GetScaleCurveValue(UF::ScaleCurve const& scaleCurve, uint32 t
 
 void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, float constantValue)
 {
-    AreaTriggerScaleCurveTemplate curveTemplate;
+    ScaleCurveData curveTemplate;
     curveTemplate.Curve = constantValue;
     SetScaleCurve(scaleCurveMutator, curveTemplate);
 }
@@ -559,13 +561,10 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
 void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, std::array<DBCPosition2D, 2> const& points,
     Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation)
 {
-    AreaTriggerScaleCurvePointsTemplate curve;
-    curve.Mode = interpolation;
-    curve.Points = points;
-
-    AreaTriggerScaleCurveTemplate curveTemplate;
+    ScaleCurveData curveTemplate;
     curveTemplate.StartTimeOffset = startTimeOffset.value_or(GetTimeSinceCreated());
-    curveTemplate.Curve = curve;
+    curveTemplate.Mode = interpolation;
+    curveTemplate.Curve = points;
 
     SetScaleCurve(scaleCurveMutator, curveTemplate);
 }
@@ -575,7 +574,7 @@ void AreaTrigger::ClearScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, fals
     SetScaleCurve(scaleCurveMutator, {});
 }
 
-void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve)
+void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<ScaleCurveData> const& curve)
 {
     if (!curve)
     {
@@ -602,10 +601,10 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
         for (std::size_t i = 0; i < UF::size<decltype(UF::ScaleCurve::Points)>(); ++i)
             SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
     }
-    else if (AreaTriggerScaleCurvePointsTemplate const* curvePoints = std::get_if<AreaTriggerScaleCurvePointsTemplate>(&curve->Curve))
+    else if (ScaleCurveData::Points const* curvePoints = std::get_if<ScaleCurveData::Points>(&curve->Curve))
     {
-        CurveInterpolationMode mode = curvePoints->Mode;
-        if (curvePoints->Points[1].X < curvePoints->Points[0].X)
+        CurveInterpolationMode mode = curve->Mode;
+        if ((*curvePoints)[1].X < (*curvePoints)[0].X)
             mode = CurveInterpolationMode::Constant;
 
         switch (mode)
@@ -631,9 +630,9 @@ void AreaTrigger::SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false>
         uint32 packedCurve = (uint32(mode) << 1) | (pointCount << 24);
         SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::ParameterCurve), packedCurve);
 
-        for (std::size_t i = 0; i < curvePoints->Points.size(); ++i)
+        for (std::size_t i = 0; i < curvePoints->size(); ++i)
         {
-            point.Relocate(curvePoints->Points[i].X, curvePoints->Points[i].Y);
+            point.Relocate((*curvePoints)[i].X, (*curvePoints)[i].Y);
             SetUpdateFieldValue(scaleCurveMutator.ModifyValue(&UF::ScaleCurve::Points, i), point);
         }
     }
@@ -963,79 +962,73 @@ uint32 AreaTrigger::GetFaction() const
 
 void AreaTrigger::SetShape(AreaTriggerShapeInfo const& shape)
 {
-    auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
-
-    switch (shape.Type)
+    std::visit([this]<typename ShapeType>(ShapeType const& shapeData)
     {
-        case AreaTriggerShapeType::Sphere:
+        auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
+
+        if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Sphere>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 0);
             auto sphere = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerSphere>);
-            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::Radius), shape.SphereDatas.Radius);
-            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::RadiusTarget), shape.SphereDatas.RadiusTarget);
-            break;
+            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::Radius), shapeData.Radius);
+            SetUpdateFieldValue(sphere.ModifyValue(&UF::AreaTriggerSphere::RadiusTarget), shapeData.RadiusTarget);
         }
-        case AreaTriggerShapeType::Box:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Box>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 1);
             auto box = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerBox>);
-            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::Extents), { shape.BoxDatas.Extents[0], shape.BoxDatas.Extents[1], shape.BoxDatas.Extents[2] });
-            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::ExtentsTarget), { shape.BoxDatas.ExtentsTarget[0], shape.BoxDatas.ExtentsTarget[1], shape.BoxDatas.ExtentsTarget[2] });
-            break;
+            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::Extents), shapeData.Extents);
+            SetUpdateFieldValue(box.ModifyValue(&UF::AreaTriggerBox::ExtentsTarget), shapeData.ExtentsTarget);
         }
-        case AreaTriggerShapeType::Polygon:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Polygon>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 3);
             auto polygon = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerPolygon>);
             auto vertices = polygon.ModifyValue(&UF::AreaTriggerPolygon::Vertices);
             ClearDynamicUpdateFieldValues(vertices);
-            for (TaggedPosition<XY> const& vertex : shape.PolygonVertices)
+            for (TaggedPosition<XY> const& vertex : shapeData.PolygonVertices)
                 AddDynamicUpdateFieldValue(vertices) = vertex;
             auto verticesTarget = polygon.ModifyValue(&UF::AreaTriggerPolygon::VerticesTarget);
             ClearDynamicUpdateFieldValues(verticesTarget);
-            for (TaggedPosition<XY> const& vertex : shape.PolygonVerticesTarget)
+            for (TaggedPosition<XY> const& vertex : shapeData.PolygonVerticesTarget)
                 AddDynamicUpdateFieldValue(verticesTarget) = vertex;
-            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::Height), shape.PolygonDatas.Height);
-            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::HeightTarget), shape.PolygonDatas.HeightTarget);
-            break;
+            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::Height), shapeData.Height);
+            SetUpdateFieldValue(polygon.ModifyValue(&UF::AreaTriggerPolygon::HeightTarget), shapeData.HeightTarget);
         }
-        case AreaTriggerShapeType::Cylinder:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Cylinder>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 4);
             auto cylinder = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerCylinder>);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Radius), shape.CylinderDatas.Radius);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::RadiusTarget), shape.CylinderDatas.RadiusTarget);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Height), shape.CylinderDatas.Height);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::HeightTarget), shape.CylinderDatas.HeightTarget);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffset), shape.CylinderDatas.LocationZOffset);
-            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffsetTarget), shape.CylinderDatas.LocationZOffsetTarget);
-            break;
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Radius), shapeData.Radius);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::RadiusTarget), shapeData.RadiusTarget);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::Height), shapeData.Height);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::HeightTarget), shapeData.HeightTarget);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffset), shapeData.LocationZOffset);
+            SetUpdateFieldValue(cylinder.ModifyValue(&UF::AreaTriggerCylinder::LocationZOffsetTarget), shapeData.LocationZOffsetTarget);
         }
-        case AreaTriggerShapeType::Disk:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::Disk>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 7);
             auto disk = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerDisk>);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadius), shape.DiskDatas.InnerRadius);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadiusTarget), shape.DiskDatas.InnerRadiusTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadius), shape.DiskDatas.OuterRadius);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadiusTarget), shape.DiskDatas.OuterRadiusTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::Height), shape.DiskDatas.Height);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::HeightTarget), shape.DiskDatas.HeightTarget);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffset), shape.DiskDatas.LocationZOffset);
-            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffsetTarget), shape.DiskDatas.LocationZOffsetTarget);
-            break;
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadius), shapeData.InnerRadius);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::InnerRadiusTarget), shapeData.InnerRadiusTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadius), shapeData.OuterRadius);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::OuterRadiusTarget), shapeData.OuterRadiusTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::Height), shapeData.Height);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::HeightTarget), shapeData.HeightTarget);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffset), shapeData.LocationZOffset);
+            SetUpdateFieldValue(disk.ModifyValue(&UF::AreaTriggerDisk::LocationZOffsetTarget), shapeData.LocationZOffsetTarget);
         }
-        case AreaTriggerShapeType::BoundedPlane:
+        else if constexpr (std::is_same_v<ShapeType, AreaTriggerShapeInfo::BoundedPlane>)
         {
             SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeType), 8);
             auto boundedPlane = areaTriggerData.ModifyValue(&UF::AreaTriggerData::ShapeData, UF::VariantCase<UF::AreaTriggerBoundedPlane>);
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::Extents), { shape.BoundedPlaneDatas.Extents[0], shape.BoundedPlaneDatas.Extents[1] });
-            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTarget), { shape.BoundedPlaneDatas.ExtentsTarget[0], shape.BoundedPlaneDatas.ExtentsTarget[1] });
-            break;
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::Extents), shapeData.Extents);
+            SetUpdateFieldValue(boundedPlane.ModifyValue(&UF::AreaTriggerBoundedPlane::ExtentsTarget), shapeData.ExtentsTarget);
         }
-        default:
-            break;
-    }
+        else
+            static_assert(Trinity::dependant_false_v<ShapeType>, "Unsupported shape type");
+    }, shape.Data);
 }
 
 float AreaTrigger::GetMaxSearchRadius() const
@@ -1202,7 +1195,7 @@ void AreaTrigger::UndoActions(Unit* unit)
     }
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1221,10 +1214,10 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Option
         rotatedPoints[i].z += offset.GetPositionZ();
     }
 
-    InitSplines(rotatedPoints, overrideSpeed);
+    InitSplines(rotatedPoints, overrideSpeed, speedIsTimeInSeconds);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     if (splinePoints.size() < 2)
         return;
@@ -1237,7 +1230,7 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = spline->length() / speed * float(IN_MILLISECONDS);
+    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : spline->length() / speed) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
@@ -1263,7 +1256,7 @@ uint32 AreaTrigger::GetElapsedTimeForMovement() const
     return 0;
 }
 
-void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed)
+void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
 {
     // Circular movement requires either a center position or an attached unit
     ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
@@ -1272,7 +1265,7 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) * static_cast<float>(IN_MILLISECONDS) / speed);
+    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) / speed)) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
