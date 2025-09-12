@@ -21,6 +21,7 @@
 
 #include "gundrak.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ObjectMgr.h"
 #include "ScriptedCreature.h"
@@ -355,7 +356,7 @@ struct npc_living_mojo : public ScriptedAI
             {
                 for (auto& pair : sObjectMgr->GetSpawnMetadataForGroup(SPAWN_GROUP_MOJO))
                     if (Creature* mojo = _instance->instance->GetCreatureBySpawnId(pair.second->spawnId))
-                        if (mojo->GetMotionMaster()->GetCurrentMovementGeneratorType()) == MovementGeneratorType::IDLE_MOTION_TYPE)
+                        if (mojo->GetMotionMaster()->GetCurrentMovementGeneratorType() == MovementGeneratorType::IDLE_MOTION_TYPE)
                             mojo->GetMotionMaster()->MovePoint(POINT_COLOSSUS, colossus->GetHomePosition());
                 return;
             }
