@@ -4,4 +4,4 @@ INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyM
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_mage_fiery_rush_aura';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(383637, 'spell_mage_fiery_rush_aura');
+(190319, 'spell_mage_fiery_rush_aura');
