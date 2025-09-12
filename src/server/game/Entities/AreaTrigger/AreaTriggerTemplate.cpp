@@ -17,59 +17,54 @@
 
 #include "AreaTriggerTemplate.h"
 #include <algorithm>
-#include <cstring>
 #include <cmath>
 
-AreaTriggerScaleCurvePointsTemplate::AreaTriggerScaleCurvePointsTemplate() : Mode(CurveInterpolationMode::Linear), Points()
+float AreaTriggerShapeInfo::Sphere::GetMaxSearchRadius() const
 {
+    return std::max(Radius, RadiusTarget);
 }
 
-AreaTriggerScaleCurveTemplate::AreaTriggerScaleCurveTemplate() : StartTimeOffset(0), Curve(1.0f)
+float AreaTriggerShapeInfo::Box::GetMaxSearchRadius() const
 {
+    return std::sqrt(std::max(
+        Extents.Pos.GetPositionX() * Extents.Pos.GetPositionX() + Extents.Pos.GetPositionY() * Extents.Pos.GetPositionY(),
+        ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY()));
 }
 
-AreaTriggerShapeInfo::AreaTriggerShapeInfo()
+float AreaTriggerShapeInfo::Polygon::GetMaxSearchRadius() const
 {
-    Type = AreaTriggerShapeType::Max;
-    memset(DefaultDatas.Data, 0, sizeof(DefaultDatas.Data));
+    Position center(0.0f, 0.0f);
+    float maxSearchRadius = 0.0f;
+
+    for (TaggedPosition<Position::XY> const& vertex : PolygonVertices)
+        maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+    for (TaggedPosition<Position::XY> const& vertex : PolygonVerticesTarget)
+        maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
+
+    return maxSearchRadius;
+}
+
+float AreaTriggerShapeInfo::Cylinder::GetMaxSearchRadius() const
+{
+    return std::max(Radius, RadiusTarget);
+}
+
+float AreaTriggerShapeInfo::Disk::GetMaxSearchRadius() const
+{
+    return std::max(OuterRadius, OuterRadiusTarget);
+}
+
+float AreaTriggerShapeInfo::BoundedPlane::GetMaxSearchRadius() const
+{
+    return std::sqrt(std::max(
+        Extents.Pos.GetPositionX() * Extents.Pos.GetPositionX() / 4 + Extents.Pos.GetPositionY() * Extents.Pos.GetPositionY() / 4,
+        ExtentsTarget.Pos.GetPositionX() * ExtentsTarget.Pos.GetPositionX() / 4 + ExtentsTarget.Pos.GetPositionY() * ExtentsTarget.Pos.GetPositionY() / 4));
 }
 
 float AreaTriggerShapeInfo::GetMaxSearchRadius() const
 {
-    switch (Type)
-    {
-        case AreaTriggerShapeType::Sphere:
-            return std::max(SphereDatas.Radius, SphereDatas.RadiusTarget);
-        case AreaTriggerShapeType::Box:
-            return std::sqrt(std::max(
-                BoxDatas.Extents[0] * BoxDatas.Extents[0] + BoxDatas.Extents[1] * BoxDatas.Extents[1],
-                BoxDatas.ExtentsTarget[0] * BoxDatas.ExtentsTarget[0] + BoxDatas.ExtentsTarget[1] * BoxDatas.ExtentsTarget[1]));
-        case AreaTriggerShapeType::Polygon:
-        {
-            Position center(0.0f, 0.0f);
-            float maxSearchRadius = 0.0f;
-
-            for (TaggedPosition<Position::XY> const& vertex : PolygonVertices)
-                maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
-
-            for (TaggedPosition<Position::XY> const& vertex : PolygonVerticesTarget)
-                maxSearchRadius = std::max(maxSearchRadius, center.GetExactDist2d(vertex));
-
-            return maxSearchRadius;
-        }
-        case AreaTriggerShapeType::Cylinder:
-            return std::max(CylinderDatas.Radius, CylinderDatas.RadiusTarget);
-        case AreaTriggerShapeType::Disk:
-            return std::max(DiskDatas.OuterRadius, DiskDatas.OuterRadiusTarget);
-        case AreaTriggerShapeType::BoundedPlane:
-            return std::sqrt(std::max(
-                BoundedPlaneDatas.Extents[0] * BoundedPlaneDatas.Extents[0] / 4 + BoundedPlaneDatas.Extents[1] * BoundedPlaneDatas.Extents[1] / 4,
-                BoundedPlaneDatas.ExtentsTarget[0] * BoundedPlaneDatas.ExtentsTarget[0] / 4 + BoundedPlaneDatas.ExtentsTarget[1] * BoundedPlaneDatas.ExtentsTarget[1] / 4));
-        default:
-            break;
-    }
-
-    return 0.0f;
+    return std::visit([&](auto const& data) { return data.GetMaxSearchRadius(); }, Data);
 }
 
 AreaTriggerTemplate::AreaTriggerTemplate() = default;
@@ -77,8 +72,3 @@ AreaTriggerTemplate::~AreaTriggerTemplate() = default;
 
 AreaTriggerCreateProperties::AreaTriggerCreateProperties() = default;
 AreaTriggerCreateProperties::~AreaTriggerCreateProperties() = default;
-
-bool AreaTriggerCreateProperties::HasSplines() const
-{
-    return SplinePoints.size() >= 2;
-}
