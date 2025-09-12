@@ -98,6 +98,12 @@ struct boss_drakkari_colossus : public BossAI
         me->SetReactState(REACT_PASSIVE);
     }
 
+    void EnterEvadeMode(EvadeReason /*why*/) override
+    {
+        summons.DespawnAll();
+        _DespawnAtEvade();
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         me->RemoveAura(SPELL_FREEZE_ANIM);
