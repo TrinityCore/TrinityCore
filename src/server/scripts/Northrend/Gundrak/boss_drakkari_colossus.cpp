@@ -106,7 +106,6 @@ struct boss_drakkari_colossus : public BossAI
 
     void JustEngagedWith(Unit* who) override
     {
-        me->RemoveAura(SPELL_FREEZE_ANIM);
         _JustEngagedWith(who);
         events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
     }
@@ -123,8 +122,11 @@ struct boss_drakkari_colossus : public BossAI
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveAura(SPELL_FREEZE_ANIM);
                 events.RescheduleEvent(EVENT_MIGHTY_BLOW, 10s, 30s);
-                if (Unit* victim = me->SelectVictim())
-                    AttackStart(victim);
+                if (me->IsEngaged())
+                {
+                    if (Unit* victim = me->SelectVictim())
+                        AttackStart(victim);
+                }
                 else
                     DoZoneInCombat();
                 break;
