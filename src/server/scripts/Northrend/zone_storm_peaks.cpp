@@ -1321,6 +1321,39 @@ class spell_storm_peaks_flaming_arrow_triggered_effect : public AuraScript
     }
 };
 
+/*######
+## Quest 12920: Catching up with Brann
+######*/
+
+enum CatchingUpWithBrann
+{
+    SPELL_DESPAWN_BRANN    = 61121,
+    SPELL_CONTACT_BRANN    = 55038
+};
+
+// 61122 - Contact Brann
+class spell_storm_peaks_contact_brann : public SpellScript
+{
+    PrepareSpellScript(spell_storm_peaks_contact_brann);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DESPAWN_BRANN, SPELL_CONTACT_BRANN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_DESPAWN_BRANN);
+        caster->CastSpell(caster, SPELL_CONTACT_BRANN);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_storm_peaks_contact_brann::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     RegisterCreatureAI(npc_brunnhildar_prisoner);
@@ -1350,4 +1383,5 @@ void AddSC_storm_peaks()
     RegisterSpellScript(spell_storm_peaks_unstable_explosive_detonation);
     RegisterSpellScript(spell_storm_peaks_call_of_earth);
     RegisterSpellScript(spell_storm_peaks_flaming_arrow_triggered_effect);
+    RegisterSpellScript(spell_storm_peaks_contact_brann);
 }

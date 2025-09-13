@@ -130,40 +130,27 @@ bool PoolGroup<T>::CheckPool() const
 }
 
 // Main method to despawn a creature or gameobject in a pool
-// If no guid is passed, the pool is just removed (event end case)
-// If guid is filled, cache will be used and no removal will occur, it just fill the cache
 template<class T>
 void PoolGroup<T>::DespawnObject(ActivePoolData& spawns, ObjectGuid::LowType guid, bool alwaysDeleteRespawnTime)
 {
-    for (size_t i=0; i < EqualChanced.size(); ++i)
+    // if spawned
+    if (spawns.IsActiveObject<T>(guid))
     {
-        // if spawned
-        if (spawns.IsActiveObject<T>(EqualChanced[i].guid))
-        {
-            if (!guid || EqualChanced[i].guid == guid)
-            {
-                Despawn1Object(EqualChanced[i].guid, alwaysDeleteRespawnTime);
-                spawns.RemoveObject<T>(EqualChanced[i].guid, poolId);
-            }
-        }
-        else if (alwaysDeleteRespawnTime)
-            RemoveRespawnTimeFromDB(EqualChanced[i].guid);
+        Despawn1Object(guid, alwaysDeleteRespawnTime);
+        spawns.RemoveObject<T>(guid, poolId);
     }
+    else if (alwaysDeleteRespawnTime)
+        RemoveRespawnTimeFromDB(guid);
+}
 
-    for (size_t i = 0; i < ExplicitlyChanced.size(); ++i)
-    {
-        // spawned
-        if (spawns.IsActiveObject<T>(ExplicitlyChanced[i].guid))
-        {
-            if (!guid || ExplicitlyChanced[i].guid == guid)
-            {
-                Despawn1Object(ExplicitlyChanced[i].guid, alwaysDeleteRespawnTime);
-                spawns.RemoveObject<T>(ExplicitlyChanced[i].guid, poolId);
-            }
-        }
-        else if (alwaysDeleteRespawnTime)
-            RemoveRespawnTimeFromDB(ExplicitlyChanced[i].guid);
-    }
+template <class T>
+void PoolGroup<T>::DespawnAllObjects(ActivePoolData& spawns, bool alwaysDeleteRespawnTime)
+{
+    for (PoolObject& pooledObject : EqualChanced)
+        DespawnObject(spawns, pooledObject.guid, alwaysDeleteRespawnTime);
+
+    for (PoolObject& pooledObject : ExplicitlyChanced)
+        DespawnObject(spawns, pooledObject.guid, alwaysDeleteRespawnTime);
 }
 
 // Method that is actualy doing the removal job on one creature
@@ -255,66 +242,69 @@ void PoolGroup<Pool>::RemoveOneRelation(uint32 child_pool_id)
 template <class T>
 void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
 {
-    int count = limit - spawns.GetActiveObjectCount(poolId);
-
-    // If triggered from some object respawn this object is still marked as spawned
-    // and also counted into m_SpawnedPoolAmount so we need increase count to be
-    // spawned by 1
+    // First clear the object that triggered the respawn, if any.
+    // DespawnObject is responsible for decrementing the active object counter.
     if (triggerFrom)
-        ++count;
+        DespawnObject(spawns, triggerFrom);
 
-    if (count > 0)
+    int32 count = limit - spawns.GetActiveObjectCount(poolId);
+    if (count <= 0)
+        return;
+
+    PoolObjectList candidates;
+    candidates.reserve(EqualChanced.size() + ExplicitlyChanced.size());
+
+    // Add all not already active candidates.
+    for (PoolObject& obj : EqualChanced)
+        if (!spawns.IsActiveObject<T>(obj.guid))
+            candidates.push_back(obj);
+
+    for (PoolObject& obj : ExplicitlyChanced)
+        if (!spawns.IsActiveObject<T>(obj.guid))
+            candidates.push_back(obj);
+
+    if (candidates.empty())
+        return;
+
+    PoolObjectList rolledObjects;
+    rolledObjects.reserve(count);
+
+    // Attempt to select one object based on explicit chance.
+    if (!ExplicitlyChanced.empty())
     {
-        PoolObjectList rolledObjects;
-        rolledObjects.reserve(count);
-
-        // roll objects to be spawned
-        if (!ExplicitlyChanced.empty())
+        float roll = (float)rand_chance();
+        for (PoolObject& candidate : candidates)
         {
-            float roll = (float)rand_chance();
-
-            for (PoolObject& obj : ExplicitlyChanced)
+            if (candidate.chance > 0)
             {
-                roll -= obj.chance;
-                // Triggering object is marked as spawned at this time and can be also rolled (respawn case)
-                // so this need explicit check for this case
-                if (roll < 0 && (obj.guid == triggerFrom || !spawns.IsActiveObject<T>(obj.guid)))
+                roll -= candidate.chance;
+                if (roll < 0)
                 {
-                    rolledObjects.push_back(obj);
-                    break;
+                    rolledObjects.push_back(candidate);
+                    std::swap(candidate, candidates.back());
+                    candidates.pop_back();
+                    break; // We only roll for one chanced object.
                 }
-            }
-        }
-
-        if (!EqualChanced.empty() && rolledObjects.empty())
-        {
-            std::copy_if(EqualChanced.begin(), EqualChanced.end(), std::back_inserter(rolledObjects), [triggerFrom, &spawns](PoolObject const& object)
-            {
-                return object.guid == triggerFrom || !spawns.IsActiveObject<T>(object.guid);
-            });
-
-            Trinity::Containers::RandomResize(rolledObjects, count);
-        }
-
-        // try to spawn rolled objects
-        for (PoolObject& obj : rolledObjects)
-        {
-            if (obj.guid == triggerFrom)
-            {
-                ReSpawn1Object(&obj);
-                triggerFrom = 0;
-            }
-            else
-            {
-                spawns.ActivateObject<T>(obj.guid, poolId);
-                Spawn1Object(&obj);
             }
         }
     }
 
-    // One spawn one despawn no count increase
-    if (triggerFrom)
-        DespawnObject(spawns, triggerFrom);
+    // Fill the remaining slots with random selections from the rest of the candidates.
+    uint32 remainingCount = count - rolledObjects.size();
+    if (remainingCount > 0 && !candidates.empty())
+    {
+        if (candidates.size() > remainingCount)
+            Trinity::Containers::RandomResize(candidates, remainingCount);
+
+        rolledObjects.insert(rolledObjects.end(), candidates.begin(), candidates.end());
+    }
+
+    // Spawn all the objects we've selected.
+    for (PoolObject& objToSpawn : rolledObjects)
+    {
+        spawns.ActivateObject<T>(objToSpawn.guid, poolId);
+        Spawn1Object(&objToSpawn);
+    }
 }
 
 // Method that is actualy doing the spawn job on 1 creature
@@ -375,14 +365,6 @@ template <>
 void PoolGroup<Pool>::Spawn1Object(PoolObject* obj)
 {
     sPoolMgr->SpawnPool(obj->guid);
-}
-
-// Method that does the respawn job on the specified object
-template <typename T>
-void PoolGroup<T>::ReSpawn1Object(PoolObject* obj)
-{
-    Despawn1Object(obj->guid, false, false);
-    Spawn1Object(obj);
 }
 
 template <>
@@ -771,17 +753,17 @@ void PoolMgr::DespawnPool(uint32 pool_id, bool alwaysDeleteRespawnTime)
     {
         auto it = mPoolCreatureGroups.find(pool_id);
         if (it != mPoolCreatureGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
+            it->second.DespawnAllObjects(mSpawnedData, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolGameobjectGroups.find(pool_id);
         if (it != mPoolGameobjectGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
+            it->second.DespawnAllObjects(mSpawnedData, alwaysDeleteRespawnTime);
     }
     {
         auto it = mPoolPoolGroups.find(pool_id);
         if (it != mPoolPoolGroups.end() && !it->second.isEmpty())
-            it->second.DespawnObject(mSpawnedData, 0, alwaysDeleteRespawnTime);
+            it->second.DespawnAllObjects(mSpawnedData, alwaysDeleteRespawnTime);
     }
 }
 

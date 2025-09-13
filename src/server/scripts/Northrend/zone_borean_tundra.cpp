@@ -1904,6 +1904,111 @@ class spell_borean_tundra_ultrasonic_screwdriver : public SpellScript
     }
 };
 
+/*######
+## Quest 11652: The Plains of Nasam
+######*/
+
+enum ThePlainsOfNasam
+{
+    SPELL_DROP_WARSONG_LAND_MINE_1     = 45751,
+    SPELL_DROP_WARSONG_LAND_MINE_2     = 45752,
+    SPELL_DROP_WARSONG_LAND_MINE_3     = 45753,
+    SPELL_DROP_WARSONG_LAND_MINE_4     = 45754,
+    SPELL_DROP_WARSONG_LAND_MINE_5     = 45755,
+    SPELL_DROP_WARSONG_LAND_MINE_6     = 45756,
+    SPELL_DROP_WARSONG_LAND_MINE_7     = 47839,
+    SPELL_DROP_WARSONG_LAND_MINE_8     = 45749
+};
+
+static constexpr std::array<uint32, 8> DropLandMineSpells =
+{
+    SPELL_DROP_WARSONG_LAND_MINE_1, SPELL_DROP_WARSONG_LAND_MINE_2, SPELL_DROP_WARSONG_LAND_MINE_3, SPELL_DROP_WARSONG_LAND_MINE_4,
+    SPELL_DROP_WARSONG_LAND_MINE_5, SPELL_DROP_WARSONG_LAND_MINE_6, SPELL_DROP_WARSONG_LAND_MINE_7, SPELL_DROP_WARSONG_LAND_MINE_8
+};
+
+// 45750 - Land Mine Barrier
+class spell_borean_tundra_land_mine_barrier : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_land_mine_barrier);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(DropLandMineSpells);
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        for (uint32 spells : DropLandMineSpells)
+            caster->CastSpell(caster, spells);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_borean_tundra_land_mine_barrier::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+/*######
+## Quest 11681: Rescuing Evanor
+######*/
+
+enum RescuingEvanor
+{
+    SPELL_AMBER_LEDGE_TO_BERYL_POINT     = 45883
+};
+
+// 45992 - Taxi - Amber Ledge to Beryl Point Platform
+class spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AMBER_LEDGE_TO_BERYL_POINT });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_AMBER_LEDGE_TO_BERYL_POINT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 11969: Springing the Trap
+######*/
+
+enum SpringingTheTrap
+{
+    SPELL_COLDARRA_TO_TRANSITUS     = 46814
+};
+
+// 46813 - Taxi - Coldarra Ledge to Transitus Shield
+class spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield : public AuraScript
+{
+    PrepareAuraScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_COLDARRA_TO_TRANSITUS });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_COLDARRA_TO_TRANSITUS);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -1936,4 +2041,7 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_weakness_to_lightning_on_quest_complete);
     RegisterSpellScript(spell_borean_tundra_signal_alliance);
     RegisterSpellScript(spell_borean_tundra_ultrasonic_screwdriver);
+    RegisterSpellScript(spell_borean_tundra_land_mine_barrier);
+    RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
+    RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
 }
