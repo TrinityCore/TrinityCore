@@ -610,8 +610,8 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
                 _amplitude = int32(_amplitude * caster->GetFloatValue(UNIT_MOD_CAST_SPEED));
         }
     }
-    else // prevent infinite loop on Update
-        m_isPeriodic = false;
+    else if (!m_spellInfo->IsHeartbeatProcOrPeriodic()) // _amplitude = 0 is normal case for heartbeat-periodic auras
+        m_isPeriodic = false; // prevent infinite loop on AuraEffect::Update
 
     if (load) // aura loaded from db
     {
@@ -814,6 +814,9 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
     if (!m_isPeriodic || (GetBase()->GetDuration() < 0 && !GetBase()->IsPassive() && !GetBase()->IsPermanent()))
         return;
 
+    if (GetSpellInfo()->IsHeartbeatProcOrPeriodic())
+        return; // Handling in AuraEffect::OnTargetHeartbeat
+
     uint32 totalTicks = GetTotalTicks();
 
     _periodicTimer += diff;
@@ -835,6 +838,17 @@ void AuraEffect::Update(uint32 diff, Unit* caster)
         for (AuraApplication* aurApp : effectApplications)
             PeriodicTick(aurApp, caster);
     }
+}
+
+void AuraEffect::OnTargetHeartbeat(AuraApplication* aurApp)
+{
+    if (!m_isPeriodic || (GetBase()->GetDuration() < 0 && !GetBase()->IsPassive() && !GetBase()->IsPermanent()))
+        return;
+
+    if (!GetSpellInfo()->IsHeartbeatProcOrPeriodic())
+        return; // Handling in AuraEffect::Update
+
+    PeriodicTick(aurApp, GetCaster());
 }
 
 float AuraEffect::GetCritChanceFor(Unit const* caster, Unit const* target) const
