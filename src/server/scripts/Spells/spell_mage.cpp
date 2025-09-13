@@ -37,6 +37,7 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_ALEXSTRASZAS_FURY                 = 235870,
     SPELL_MAGE_ALTER_TIME_AURA                   = 110909,
     SPELL_MAGE_ALTER_TIME_VISUAL                 = 347402,
     SPELL_MAGE_ARCANE_ALTER_TIME_AURA            = 342246,
@@ -57,6 +58,7 @@ enum MageSpells
     SPELL_MAGE_CONE_OF_COLD_SLOW                 = 212792,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 116136,
     SPELL_MAGE_CONJURE_REFRESHMENT_TABLE         = 167145,
+    SPELL_MAGE_DRAGONS_BREATH                    = 31661,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_ETHEREAL_BLINK                    = 410939,
     SPELL_MAGE_EVERWARM_SOCKS                    = 320913,
@@ -64,6 +66,7 @@ enum MageSpells
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
     SPELL_MAGE_FIRE_BLAST                        = 108853,
     SPELL_MAGE_FIRESTARTER                       = 205026,
+    SPELL_MAGE_FLAMESTRIKE                       = 2120,
     SPELL_MAGE_FLAME_PATCH_AREATRIGGER           = 205470,
     SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
     SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
@@ -71,6 +74,8 @@ enum MageSpells
     SPELL_MAGE_FRENETIC_SPEED                    = 236060,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
+    SPELL_MAGE_HEATING_UP                        = 48107,
+    SPELL_MAGE_HOT_STREAK                        = 48108,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
@@ -86,6 +91,7 @@ enum MageSpells
     SPELL_MAGE_METEOR_MISSILE                    = 153564,
     SPELL_MAGE_MOLTEN_FURY                       = 458910,
     SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
+    SPELL_MAGE_PYROBLAST                         = 11366,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -942,6 +948,78 @@ class spell_mage_frostbolt : public SpellScript
     }
 };
 
+// 44448 - Pyroblast Clearcasting Driver
+class spell_mage_hot_streak : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_MAGE_DRAGONS_BREATH,
+            SPELL_MAGE_ALEXSTRASZAS_FURY,
+            SPELL_MAGE_HOT_STREAK,
+            SPELL_MAGE_HEATING_UP
+        });
+    }
+
+    bool CheckProc(ProcEventInfo const& procEvent) const
+    {
+        if (procEvent.GetSpellInfo()->Id == SPELL_MAGE_DRAGONS_BREATH)
+            if (!GetTarget()->HasAura(SPELL_MAGE_ALEXSTRASZAS_FURY))
+                return false;
+
+        return !GetTarget()->HasAura(SPELL_MAGE_HOT_STREAK);
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (eventInfo.GetHitMask() & PROC_HIT_CRITICAL)
+        {
+            CastSpellExtraArgs args;
+            args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
+
+            if (!caster->HasAura(SPELL_MAGE_HEATING_UP))
+                caster->CastSpell(caster, SPELL_MAGE_HEATING_UP, args);
+            else
+            {
+                caster->RemoveAura(SPELL_MAGE_HEATING_UP);
+                caster->CastSpell(caster, SPELL_MAGE_HOT_STREAK, args);
+            }
+        }
+        else
+            caster->RemoveAura(SPELL_MAGE_HEATING_UP);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_mage_hot_streak::CheckProc);
+        OnProc += AuraProcFn(spell_mage_hot_streak::HandleProc);
+    }
+};
+
+// 48108 - Hot Streak! (attached to 11366 - Pyroblast and 2120 - Flamestrike)
+class spell_mage_hot_streak_remove : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK });
+    }
+
+    void HandleHit() const
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_MAGE_HOT_STREAK);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_mage_hot_streak_remove::HandleHit);
+    }
+};
+
 // 386737 - Hyper Impact
 class spell_mage_hyper_impact : public AuraScript
 {
@@ -1103,12 +1181,20 @@ class spell_mage_ice_lance_damage : public SpellScript
     }
 };
 
+bool IsHotStreak(ProcEventInfo& eventInfo)
+{
+    if (!eventInfo.GetActor()->HasAura(SPELL_MAGE_HOT_STREAK))
+        return false;
+
+    return eventInfo.GetSpellInfo()->Id == SPELL_MAGE_PYROBLAST || eventInfo.GetSpellInfo()->Id == SPELL_MAGE_FLAMESTRIKE;
+};
+
 // 12846 - Ignite
 class spell_mage_ignite : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IGNITE });
+        return ValidateSpellInfo({ SPELL_MAGE_IGNITE, SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -1124,7 +1210,7 @@ class spell_mage_ignite : public AuraScript
         int32 pct = aurEff->GetAmount();
 
         ASSERT(igniteDot->GetMaxTicks() > 0);
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), IsHotStreak(eventInfo) ? (pct * 2) : pct) / igniteDot->GetMaxTicks());
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
@@ -1872,6 +1958,8 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_flurry);
     RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
+    RegisterSpellScript(spell_mage_hot_streak);
+    RegisterSpellScript(spell_mage_hot_streak_remove);
     RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
