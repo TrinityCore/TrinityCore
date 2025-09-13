@@ -682,7 +682,7 @@ struct at_aqusirr_undertow : AreaTriggerAI
         unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -5.0f, MovementForceType::Gravity);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
     {
         if (!unit->IsPlayer())
             return;
