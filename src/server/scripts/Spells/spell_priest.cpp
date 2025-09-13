@@ -37,6 +37,8 @@
 enum PriestSpells
 {
     SPELL_PRIEST_BLESSED_RECOVERY_R1                = 27813,
+    SPELL_PRIEST_DISPERSION_IMMUNITY                = 63230,
+    SPELL_PRIEST_DISPERSION_MOD_POWER               = 60069,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
     SPELL_PRIEST_GLYPH_OF_CIRCLE_OF_HEALING         = 55675,
@@ -289,6 +291,37 @@ class spell_pri_circle_of_healing : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_circle_of_healing::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 47585 - Dispersion
+class spell_pri_dispersion : public AuraScript
+{
+    PrepareAuraScript(spell_pri_dispersion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DISPERSION_MOD_POWER, SPELL_PRIEST_DISPERSION_IMMUNITY });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_PRIEST_DISPERSION_MOD_POWER, true);
+        target->CastSpell(target, SPELL_PRIEST_DISPERSION_IMMUNITY, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_DISPERSION_MOD_POWER);
+        target->RemoveAurasDueToSpell(SPELL_PRIEST_DISPERSION_IMMUNITY);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_dispersion::AfterApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_dispersion::AfterRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -1308,6 +1341,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_blessed_recovery);
     RegisterSpellScript(spell_pri_body_and_soul);
     RegisterSpellScript(spell_pri_circle_of_healing);
+    RegisterSpellScript(spell_pri_dispersion);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_hymn);
     RegisterSpellScript(spell_pri_glyph_of_dispel_magic);

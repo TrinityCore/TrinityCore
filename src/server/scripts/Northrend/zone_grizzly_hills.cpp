@@ -1099,6 +1099,27 @@ class spell_grizzly_hills_rage_of_jinarrak : public AuraScript
     }
 };
 
+// 61613 - Gan'jo Ressurection
+class spell_grizzly_hills_ganjo_ressurection : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_ganjo_ressurection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ON_THE_OTHER_SIDE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ON_THE_OTHER_SIDE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_ganjo_ressurection::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1125,4 +1146,5 @@ void AddSC_grizzly_hills()
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
     RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
     RegisterSpellScript(spell_grizzly_hills_rage_of_jinarrak);
+    RegisterSpellScript(spell_grizzly_hills_ganjo_ressurection);
 }
