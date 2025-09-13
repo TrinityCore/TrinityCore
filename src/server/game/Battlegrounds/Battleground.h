@@ -19,6 +19,7 @@
 #define __BATTLEGROUND_H
 
 #include "DBCEnums.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Position.h"
 #include "SharedDefines.h"
