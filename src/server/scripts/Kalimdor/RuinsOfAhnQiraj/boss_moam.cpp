@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -104,17 +105,19 @@ struct boss_moam : public BossAI
 
     void OnSpellCast(SpellInfo const* spell) override
     {
-        if (spell->Id == SPELL_ARCANE_ERUPTION)
+        switch (spell->Id)
         {
-            // Is there a spell for that? Maybe Zero Mana/Full Health but with a check to prevent setting full health if creature is in combat?
-            me->SetPower(POWER_MANA, 0);
-            Talk(EMOTE_MANA_FULL);
-        }
-
-        if (spell->Id == SPELL_SUMMON_MANA_FIENDS)
-        {
-            DoCastSelf(SPELL_ENERGIZE);
-            Talk(EMOTE_ENERGIZE);
+            case SPELL_ARCANE_ERUPTION:
+                // Is there a spell for that? Maybe Zero Mana/Full Health but with a check to prevent setting full health if creature is in combat?
+                me->SetPower(POWER_MANA, 0);
+                Talk(EMOTE_MANA_FULL);
+                break;
+            case SPELL_SUMMON_MANA_FIENDS:
+                DoCastSelf(SPELL_ENERGIZE);
+                Talk(EMOTE_ENERGIZE);
+                break;
+            default:
+                break;
         }
     }
 
@@ -234,23 +237,10 @@ class spell_moam_drain_mana : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        targets.remove_if([](WorldObject* target)
+        Trinity::Containers::RandomResize(targets, [](WorldObject* target)
         {
-            Player* player = target->ToPlayer();
-            if (!player)
-                return true;
-
-            if (player->GetPowerType() != POWER_MANA)
-                return true;
-
-            return false;
-        });
-
-        if (targets.empty())
-            return;
-
-        if (targets.size() > 6)
-            targets.resize(6);
+            return target->IsPlayer() && target->ToPlayer()->GetPowerType() == POWER_MANA;
+        }, 6);
     }
 
     void HandleScript(SpellEffIndex /*effIndex*/)
