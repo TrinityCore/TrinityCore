@@ -45,11 +45,6 @@ struct npc_drustvar_frightend_woodsman : public ScriptedAI
 {
     npc_drustvar_frightend_woodsman(Creature* creature) : ScriptedAI(creature) {}
 
-    void JustAppeared() override
-    {
-        me->SetReactState(REACT_PASSIVE);
-    }
-
     void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_DRUSTVAR_WOODSMAN_RALLYING)
@@ -99,7 +94,6 @@ struct npc_drustvar_frightend_woodsman_private : public ScriptedAI
 
     void JustAppeared() override
     {
-        me->SetReactState(REACT_PASSIVE);
         me->SetUninteractible(true);
         me->SetImmuneToAll(true);
 
@@ -129,7 +123,7 @@ private:
     TaskScheduler _scheduler;
 };
 
-CreatureAI* frightendWoodsmanAISelector(Creature* creature)
+CreatureAI* FrightendWoodsmanAISelector(Creature* creature)
 {
     if (creature->IsPrivateObject())
         return new npc_drustvar_frightend_woodsman_private(creature);
@@ -138,6 +132,6 @@ CreatureAI* frightendWoodsmanAISelector(Creature* creature)
 
 void AddSC_drustvar_chapter_3_an_airtight_alibi()
 {
-    // AISelctor
-    new FactoryCreatureScript<CreatureAI, &frightendWoodsmanAISelector>("npc_drustvar_frightend_woodsman_private");
+    // AISelector
+    new FactoryCreatureScript<CreatureAI, &FrightendWoodsmanAISelector>("npc_drustvar_frightend_woodsman_private");
 }

@@ -54,6 +54,10 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 -- Template
 UPDATE `creature_template` SET `ScriptName` = 'npc_drustvar_frightend_woodsman_private' WHERE `entry` = 126159;
 
+-- Difficulty
+DELETE FROM `creature_template_difficulty` WHERE (`Entry` = 126159 AND `DifficultyID` = 1);
+UPDATE `creature_template_difficulty` SET `StaticFlags1` = 0x12000000 WHERE `Entry` = 126159;
+
 -- Update Strings
 UPDATE `creature` SET `StringId` = 'CosmeticWoodmansPath0' WHERE `guid` = @CGUID+0;
 UPDATE `creature` SET `StringId` = 'CosmeticWoodmansPath1' WHERE `guid` = @CGUID+1;
