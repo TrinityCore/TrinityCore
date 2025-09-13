@@ -32,13 +32,14 @@ public:
 
         if (BattlegroundMap const* bgMap = sourceInfo.mConditionMap->ToBattlegroundMap())
             if (Battleground const* bg = bgMap->GetBG())
-                return bg->GetElapsedTime() >= 90 * IN_MILLISECONDS + 60 * IN_MILLISECONDS;
+                if (bg->GetInProgressStartTime() != TimePoint{})
+                    return (bg->GetInProgressStartTime() + 90s) <= GameTime::Now();
 
         return false;
     }
 };
 
-void AddSC_condition_scripts()
+void AddSC_arena_scripts_generic()
 {
     new condition_is_shadow_sight_enabled();
 }
