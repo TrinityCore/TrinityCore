@@ -236,7 +236,7 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     for (SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
         buffer >> optionalCurrency;
 
-    buffer >> Bits<5>(request.SendCastFlags);
+    buffer >> Bits<6>(request.SendCastFlags);
     buffer >> OptionalInit(request.MoveUpdate);
     buffer >> BitsSize<2>(request.Weight);
     buffer >> OptionalInit(request.CraftingOrderID);
