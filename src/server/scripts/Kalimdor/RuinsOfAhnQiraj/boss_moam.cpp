@@ -156,6 +156,7 @@ struct boss_moam : public BossAI
                     events.Repeat(6s);
                     break;
                 case EVENT_STONE_PHASE:
+                    _deadManaFiendCount = 0;
                     DoCastSelf(SPELL_SUMMON_MANA_FIENDS);
                     events.Repeat(130s);
                     break;
