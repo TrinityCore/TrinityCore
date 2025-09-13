@@ -15,89 +15,82 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_timmy_the_cruel
-SD%Complete: 100
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-enum Says
+enum TimmyTexts
 {
-    SAY_SPAWN                   = 0
+    SAY_AGGRO               = 0
 };
 
-enum Spells
+enum TimmySpells
 {
-    SPELL_RAVENOUSCLAW          = 17470
+    SPELL_THRASH            = 12787,
+    SPELL_RAVENOUS_CLAW     = 17470
 };
 
-class boss_timmy_the_cruel : public CreatureScript
+enum TimmyEvents
 {
-public:
-    boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }
+    EVENT_RAVENOUS_CLAW     = 1
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+// 10808 - Timmy the Cruel
+struct boss_timmy_the_cruel : public ScriptedAI
+{
+    boss_timmy_the_cruel(Creature* creature) : ScriptedAI(creature) { }
+
+    void Reset() override
     {
-        return GetStratholmeAI<boss_timmy_the_cruelAI>(creature);
+        _events.Reset();
+        DoCastSelf(SPELL_THRASH);
     }
 
-    struct boss_timmy_the_cruelAI : public ScriptedAI
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        boss_timmy_the_cruelAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
+        Talk(SAY_AGGRO);
 
-        void Initialize()
-        {
-            RavenousClaw_Timer = 10000;
-            HasYelled = false;
-        }
+        _events.ScheduleEvent(EVENT_RAVENOUS_CLAW, 10s, 15s);
+    }
 
-        uint32 RavenousClaw_Timer;
-        bool HasYelled;
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
 
-        void Reset() override
-        {
-            Initialize();
-        }
+        _events.Update(diff);
 
-        void JustEngagedWith(Unit* /*who*/) override
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = _events.ExecuteEvent())
         {
-            if (!HasYelled)
+            switch (eventId)
             {
-                Talk(SAY_SPAWN);
-                HasYelled = true;
+                case EVENT_RAVENOUS_CLAW:
+                    DoCastVictim(SPELL_RAVENOUS_CLAW);
+                    _events.Repeat(10s, 15s);
+                    break;
+                default:
+                    break;
             }
-        }
 
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            //RavenousClaw
-            if (RavenousClaw_Timer <= diff)
-            {
-                //Cast
-                DoCastVictim(SPELL_RAVENOUSCLAW);
-                //15 seconds until we should cast this again
-                RavenousClaw_Timer = 15000;
-            } else RavenousClaw_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    EventMap _events;
 };
 
 void AddSC_boss_timmy_the_cruel()
 {
-    new boss_timmy_the_cruel();
+    RegisterStratholmeCreatureAI(boss_timmy_the_cruel);
 }
