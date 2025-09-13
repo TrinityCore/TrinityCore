@@ -374,6 +374,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     else if (GetStartDelayTime() <= 0 && !(m_Events & BG_STARTING_EVENT_4))
     {
         m_Events |= BG_STARTING_EVENT_4;
+        _inProgressStartTime = GameTime::Now();
 
         GetBgMap()->GetBattlegroundScript()->OnStart();
 
