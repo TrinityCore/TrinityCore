@@ -7,8 +7,8 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 (22171, 0, 0, 49570);
 
 DELETE FROM `areatrigger_create_properties` WHERE (`Id`=18034 AND `IsCustom`=0);
-INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(18034, 0, 22171, 0, 0, 0, 0, 13613, 0, -1, 0, 0, NULL, 6000, 36.80350494384765625, 4, 3, 3, 6, 6, 0.300000011920928955, 0.300000011920928955, 0, 0, 'at_tunk_seismic_slam', 49570); -- Spell: 308455 (Seismic Slam)
+INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `SpeedIsTime`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
+(18034, 0, 22171, 0, 0, 0, 0, 13613, 0, -1, 0, 0, NULL, 6000, 0, 1, 4, 3, 3, 6, 6, 0.300000011920928955, 0.300000011920928955, 0, 0, 'at_tunk_seismic_slam', 49570); -- Spell: 308455 (Seismic Slam)
 
 UPDATE `creature_template` SET `ScriptName`='boss_tunk' WHERE `entry`=157300;
 

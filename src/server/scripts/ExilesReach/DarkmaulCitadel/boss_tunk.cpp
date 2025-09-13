@@ -163,7 +163,7 @@ struct at_tunk_seismic_slam : AreaTriggerAI
 
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
 
-        at->InitSplines(path.GetPath());
+        at->InitSplines(path.GetPath(), false, true);
     }
 
     void OnUnitEnter(Unit* unit) override
