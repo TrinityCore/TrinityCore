@@ -32,7 +32,7 @@ public:
 
         if (BattlegroundMap const* bgMap = sourceInfo.mConditionMap->ToBattlegroundMap())
             if (Battleground const* bg = bgMap->GetBG())
-                if (bg->GetStatus() >= IN_PROGRESS)
+                if (bg->GetStatus() >= STATUS_IN_PROGRESS)
                     return (bg->GetInProgressStartTime() + 90s) <= GameTime::Now();
 
         return false;
