@@ -25,6 +25,7 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class AreaTriggerExitMode : uint8;
 enum class MovementStopReason : uint8;
 
 enum SmartEscortState : uint8
