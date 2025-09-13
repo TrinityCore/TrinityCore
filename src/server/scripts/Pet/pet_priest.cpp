@@ -24,6 +24,7 @@
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "PetAI.h"
+#include "TemporarySummon.h"
 
 enum PriestSpells
 {
@@ -37,6 +38,17 @@ struct npc_pet_pri_lightwell : public PassiveAI
     npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature)
     {
         DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
+    }
+
+    void InitializeAI() override
+    {
+        if (WorldObject* summoner = me->ToTempSummon()->GetSummoner())
+            if (Unit* summonerUnit = summoner->ToUnit())
+            {
+                uint32 hp = uint32(summonerUnit->GetMaxHealth() * 0.23f);
+                me->SetMaxHealth(hp);
+                me->SetHealth(hp);
+            }
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override

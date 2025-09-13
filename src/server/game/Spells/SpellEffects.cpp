@@ -2132,7 +2132,8 @@ void Spell::EffectSummonType()
                     if (m_spellInfo->Id == 16190)
                         damage = unitCaster->CountPctFromMaxHealth(10);
 
-                    if (damage)                                            // if not spell info, DB values used
+                    // if not spell info, DB values used (lightwell hp is set on the AI script)
+                    if (damage && properties->Title != SUMMON_TYPE_LIGHTWELL)
                     {
                         summon->SetMaxHealth(damage);
                         summon->SetHealth(damage);
