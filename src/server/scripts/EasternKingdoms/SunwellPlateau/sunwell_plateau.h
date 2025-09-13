@@ -39,6 +39,7 @@ enum SWPDataTypes
     DATA_KALECGOS_HUMAN,
     DATA_SATHROVARR,
     DATA_MADRIGOSA,
+    DATA_WORLD_TRIGGER,
     DATA_ALYTHESS,
     DATA_SACROLASH,
     DATA_KILJAEDEN_CONTROLLER,
@@ -50,6 +51,8 @@ enum SWPDataTypes
     DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_2,
     DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_3,
     DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4,
+
+    DATA_ICE_BARRIER,
 
     // Misc
     DATA_PLAYER_GUID
@@ -63,8 +66,11 @@ enum SWPCreatureIds
     NPC_KALECGOS_HUMAN                       = 24891,
     NPC_SATHROVARR                           = 24892,
     NPC_BRUTALLUS                            = 24882,
-    NPC_MADRIGOSA                            = 24895,
     NPC_FELMYST                              = 25038,
+
+    // Brutallus
+    NPC_MADRIGOSA                            = 24895,
+    NPC_WORLD_TRIGGER                        = 19871,
 
     NPC_DEAD                                 = 25268,
     NPC_FLIGHT_LEFT                          = 25357,
@@ -112,7 +118,8 @@ enum SWPGameObjectIds
     GO_FIRE_BARRIER                          = 188075,
     GO_MURUS_GATE_1                          = 187990,
     GO_MURUS_GATE_2                          = 188118,
-    GO_SPECTRAL_RIFT                         = 187055
+    GO_SPECTRAL_RIFT                         = 187055,
+    GO_ICE_BARRIER                           = 188119
 };
 
 template <class AI, class T>
