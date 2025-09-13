@@ -919,7 +919,7 @@ void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitMode exitMod
     UndoActions(unit);
 
     if (canTriggerOnExit)
-        _ai->OnUnitExit(unit);
+        _ai->OnUnitExit(unit, exitMode);
 
     unit->ExitAreaTrigger(this);
 }

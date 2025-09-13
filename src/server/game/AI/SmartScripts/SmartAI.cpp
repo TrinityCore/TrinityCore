@@ -1135,7 +1135,7 @@ void SmartAreaTriggerAI::OnUnitEnter(Unit* unit)
     GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_ENTER, unit);
 }
 
-void SmartAreaTriggerAI::OnUnitExit(Unit* unit)
+void SmartAreaTriggerAI::OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_AREATRIGGER_EXIT, unit);
 }

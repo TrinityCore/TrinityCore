@@ -1374,7 +1374,7 @@ struct at_mage_meteor_burn : public AreaTriggerAI
                 caster->CastSpell(unit, SPELL_MAGE_METEOR_BURN_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_MAGE_METEOR_BURN_DAMAGE, at->GetCasterGuid());
     }
