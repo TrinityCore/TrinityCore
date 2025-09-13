@@ -37,6 +37,31 @@
 AISpellInfoType* UnitAI::AISpellInfo;
 AISpellInfoType* GetAISpellInfo(uint32 i) { return &UnitAI::AISpellInfo[i]; }
 
+SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/) : _owner(owner), _startCombat(startCombat)
+{
+    if (summoner)
+        _summonerGuid = summoner->GetGUID();
+}
+
+bool SetAggresiveStateEvent::Execute(uint64 /*time*/, uint32 /*diff*/)
+{
+    _owner->SetReactState(REACT_AGGRESSIVE);
+    if (_startCombat)
+    {
+        if (Unit* currentVictim = _owner->SelectVictim())
+        {
+            if (_owner->IsAIEnabled())
+                _owner->AI()->AttackStart(currentVictim);
+        }
+        else if (_summonerGuid)
+            if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
+                if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
+                    if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+                        _owner->AI()->AttackStart(target);
+    }
+    return true;
+}
+
 CreatureAI::CreatureAI(Creature* creature) : UnitAI(creature), me(creature), _boundary(nullptr), _negateBoundary(false), _isEngaged(false), _moveInLOSLocked(false)
 {
 }
