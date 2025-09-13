@@ -24,6 +24,7 @@
 class AreaTrigger;
 class Spell;
 class Unit;
+enum class AreaTriggerExitMode : uint8;
 
 class TC_GAME_API AreaTriggerAI
 {
