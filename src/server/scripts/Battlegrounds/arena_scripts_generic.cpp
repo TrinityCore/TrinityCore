@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "ConditionMgr.h"
+#include "GameTime.h"
 #include "Map.h"
 
 class condition_is_shadow_sight_enabled : public ConditionScript
