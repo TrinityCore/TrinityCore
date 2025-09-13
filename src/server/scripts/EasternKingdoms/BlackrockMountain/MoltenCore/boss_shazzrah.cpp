@@ -19,40 +19,52 @@
 #include "Containers.h"
 #include "molten_core.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Spells
+enum ShazzrahSpells
 {
     SPELL_ARCANE_EXPLOSION      = 19712,
     SPELL_SHAZZRAH_CURSE        = 19713,
     SPELL_MAGIC_GROUNDING       = 19714,
     SPELL_COUNTERSPELL          = 19715,
-    SPELL_SHAZZRAH_GATE_DUMMY   = 23138, // Teleports to and attacks a random target.
-    SPELL_SHAZZRAH_GATE         = 23139,
+    SPELL_SHAZZRAH_GATE         = 23138,
+
+    SPELL_SHAZZRAH_GATE_TELE    = 23139
 };
 
-enum Events
+enum ShazzrahEvents
 {
-    EVENT_ARCANE_EXPLOSION              = 1,
-    EVENT_ARCANE_EXPLOSION_TRIGGERED    = 2,
-    EVENT_SHAZZRAH_CURSE                = 3,
-    EVENT_MAGIC_GROUNDING               = 4,
-    EVENT_COUNTERSPELL                  = 5,
-    EVENT_SHAZZRAH_GATE                 = 6,
+    EVENT_ARCANE_EXPLOSION      = 1,
+    EVENT_SHAZZRAH_CURSE,
+    EVENT_MAGIC_GROUNDING,
+    EVENT_COUNTERSPELL,
+    EVENT_SHAZZRAH_GATE
 };
 
+// 12264 - Shazzrah
 struct boss_shazzrah : public BossAI
 {
     boss_shazzrah(Creature* creature) : BossAI(creature, BOSS_SHAZZRAH) { }
 
-    void JustEngagedWith(Unit* target) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(target);
-        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 6s);
-        events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 10s);
-        events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 24s);
-        events.ScheduleEvent(EVENT_COUNTERSPELL, 15s);
-        events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 2s, 4s);
+        events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 5s, 10s);
+        events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 6s);
+        events.ScheduleEvent(EVENT_COUNTERSPELL, 10s, 15s);
+        events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 30s);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_SHAZZRAH_GATE_TELE)
+        {
+            ResetThreatList();
+            events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, 500ms);
+        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -70,32 +82,24 @@ struct boss_shazzrah : public BossAI
             switch (eventId)
             {
                 case EVENT_ARCANE_EXPLOSION:
-                    DoCastVictim(SPELL_ARCANE_EXPLOSION);
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, 4s, 7s);
-                    break;
-                // Triggered subsequent to using "Gate of Shazzrah".
-                case EVENT_ARCANE_EXPLOSION_TRIGGERED:
-                    DoCastVictim(SPELL_ARCANE_EXPLOSION);
+                    DoCastSelf(SPELL_ARCANE_EXPLOSION);
+                    events.Repeat(4s, 6s);
                     break;
                 case EVENT_SHAZZRAH_CURSE:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true, true, -SPELL_SHAZZRAH_CURSE))
-                        DoCast(target, SPELL_SHAZZRAH_CURSE);
-                    events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, 25s, 30s);
+                    DoCastSelf(SPELL_SHAZZRAH_CURSE);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_MAGIC_GROUNDING:
-                    DoCast(me, SPELL_MAGIC_GROUNDING);
-                    events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35s);
+                    DoCastSelf(SPELL_MAGIC_GROUNDING);
+                    events.Repeat(20s, 25s);
                     break;
                 case EVENT_COUNTERSPELL:
-                    DoCastVictim(SPELL_COUNTERSPELL);
-                    events.ScheduleEvent(EVENT_COUNTERSPELL, 16s, 20s);
+                    DoCastSelf(SPELL_COUNTERSPELL);
+                    events.Repeat(15s, 20s);
                     break;
                 case EVENT_SHAZZRAH_GATE:
-                    ResetThreatList();
-                    DoCastAOE(SPELL_SHAZZRAH_GATE_DUMMY);
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION_TRIGGERED, 2s);
-                    events.RescheduleEvent(EVENT_ARCANE_EXPLOSION, 3s, 6s);
-                    events.ScheduleEvent(EVENT_SHAZZRAH_GATE, 45s);
+                    DoCastSelf(SPELL_SHAZZRAH_GATE);
+                    events.Repeat(40s, 45s);
                     break;
                 default:
                     break;
@@ -116,7 +120,7 @@ class spell_shazzrah_gate_dummy : public SpellScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE });
+        return ValidateSpellInfo({ SPELL_SHAZZRAH_GATE_TELE });
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
@@ -131,12 +135,7 @@ class spell_shazzrah_gate_dummy : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Unit* target = GetHitUnit())
-        {
-            target->CastSpell(GetCaster(), SPELL_SHAZZRAH_GATE, true);
-            if (Creature* creature = GetCaster()->ToCreature())
-                creature->AI()->AttackStart(target); // Attack the target which caster will teleport to.
-        }
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_SHAZZRAH_GATE_TELE, true);
     }
 
     void Register() override

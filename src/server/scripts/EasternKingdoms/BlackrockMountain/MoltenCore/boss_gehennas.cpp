@@ -15,44 +15,39 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Gehennas
-SD%Complete: 90
-SDComment: Adds MC NYI
-SDCategory: Molten Core
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "molten_core.h"
-#include "ObjectMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum GehennasSpells
 {
-    SPELL_GEHENNAS_CURSE    = 19716,
-    SPELL_RAIN_OF_FIRE      = 19717,
-    SPELL_SHADOW_BOLT       = 19728,
+    SPELL_GEHENNAS_CURSE       = 19716,
+    SPELL_RAIN_OF_FIRE         = 19717,
+    SPELL_SHADOW_BOLT_VICTIM   = 19728,
+    SPELL_SHADOW_BOLT_RANDOM   = 19729
 };
 
-enum Events
+enum GehennasEvents
 {
-    EVENT_GEHENNAS_CURSE    = 1,
-    EVENT_RAIN_OF_FIRE      = 2,
-    EVENT_SHADOW_BOLT       = 3,
+    EVENT_GEHENNAS_CURSE       = 1,
+    EVENT_RAIN_OF_FIRE,
+    EVENT_SHADOW_BOLT_VICTIM,
+    EVENT_SHADOW_BOLT_RANDOM
 };
 
+// 12259 - Gehennas
 struct boss_gehennas : public BossAI
 {
-    boss_gehennas(Creature* creature) : BossAI(creature, BOSS_GEHENNAS)
-    {
-    }
+    boss_gehennas(Creature* creature) : BossAI(creature, BOSS_GEHENNAS) { }
 
-    void JustEngagedWith(Unit* victim) override
+    void JustEngagedWith(Unit* who) override
     {
-        BossAI::JustEngagedWith(victim);
-        events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 12s);
-        events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 10s);
-        events.ScheduleEvent(EVENT_SHADOW_BOLT, 6s);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 5s, 10s);
+        events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 5s, 10s);
+        events.ScheduleEvent(EVENT_SHADOW_BOLT_VICTIM, 3s, 6s);
+        events.ScheduleEvent(EVENT_SHADOW_BOLT_RANDOM, 3s, 6s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -70,18 +65,22 @@ struct boss_gehennas : public BossAI
             switch (eventId)
             {
                 case EVENT_GEHENNAS_CURSE:
-                    DoCastVictim(SPELL_GEHENNAS_CURSE);
-                    events.ScheduleEvent(EVENT_GEHENNAS_CURSE, 22s, 30s);
+                    DoCastSelf(SPELL_GEHENNAS_CURSE);
+                    events.Repeat(25s, 30s);
                     break;
                 case EVENT_RAIN_OF_FIRE:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_RAIN_OF_FIRE);
-                    events.ScheduleEvent(EVENT_RAIN_OF_FIRE, 4s, 12s);
+                    events.Repeat(6s, 12s);
                     break;
-                case EVENT_SHADOW_BOLT:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
-                        DoCast(target, SPELL_SHADOW_BOLT);
-                    events.ScheduleEvent(EVENT_SHADOW_BOLT, 7s);
+                case EVENT_SHADOW_BOLT_VICTIM:
+                    DoCastVictim(SPELL_SHADOW_BOLT_VICTIM);
+                    events.Repeat(3s, 6s);
+                    break;
+                case EVENT_SHADOW_BOLT_RANDOM:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_SHADOW_BOLT_RANDOM);
+                    events.Repeat(3s, 6s);
                     break;
                 default:
                     break;
