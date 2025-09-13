@@ -3922,6 +3922,23 @@ private:
     uint32 _text;
 };
 
+// 23777 - Zero Mana/Full Health DND
+class spell_gen_zero_mana_full_health : public SpellScript
+{
+    PrepareSpellScript(spell_gen_zero_mana_full_health);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->SetFullHealth();
+        GetCaster()->SetPower(POWER_MANA, 0);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_gen_zero_mana_full_health::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 class spell_gen_eject_all_passengers : public SpellScript
 {
     PrepareSpellScript(spell_gen_eject_all_passengers);
@@ -4828,6 +4845,7 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_future_you_whisper_to_controller_random", WHISPER_FUTURE_YOU);
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_wyrmrest_defender_whisper_to_controller_random", WHISPER_DEFENDER);
     RegisterSpellScriptWithArgs(spell_gen_whisper_to_controller_random, "spell_past_you_whisper_to_controller_random", WHISPER_PAST_YOU);
+    RegisterSpellScript(spell_gen_zero_mana_full_health);
     RegisterSpellScript(spell_gen_eject_all_passengers);
     RegisterSpellScript(spell_gen_eject_passenger);
     RegisterSpellScriptWithArgs(spell_gen_eject_passenger_with_seatId, "spell_gen_eject_passenger_1", 0);
