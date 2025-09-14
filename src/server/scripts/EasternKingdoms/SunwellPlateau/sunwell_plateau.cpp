@@ -15,51 +15,54 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Sunwell_Plateau
-SD%Complete: 0
-SDComment: Placeholder, Epilogue after Kil'jaeden, Captain Selana Gossips
-EndScriptData */
-
-/* ContentData
-npc_prophet_velen
-npc_captain_selana
-EndContentData */
-
 #include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Containers.h"
+#include "SpellScript.h"
+#include "Unit.h"
 #include "sunwell_plateau.h"
 
-/*######
-## npc_prophet_velen
-######*/
-
-enum ProphetSpeeches
+enum CataclysmBreath
 {
-    PROPHET_SAY1 = -1580099,
-    PROPHET_SAY2 = -1580100,
-    PROPHET_SAY3 = -1580101,
-    PROPHET_SAY4 = -1580102,
-    PROPHET_SAY5 = -1580103,
-    PROPHET_SAY6 = -1580104,
-    PROPHET_SAY7 = -1580105,
-    PROPHET_SAY8 = -1580106
+    SPELL_CORROSIVE_POISON    = 46293,
+    SPELL_FEVERED_FATIGUE     = 46294,
+    SPELL_HEX                 = 46295,
+    SPELL_NECROTIC_POISON     = 46296,
+    SPELL_PIERCING_SHADOW     = 46297,
+    SPELL_SHRINK              = 46298,
+    SPELL_WAVERING_WILL       = 46299,
+    SPELL_WITHERED_TOUCH      = 46300
 };
 
-enum LiadrinnSpeeches
+// 46292 - Cataclysm Breath
+class spell_sunwell_plateau_cataclysm_breath : public SpellScript
 {
-    LIADRIN_SAY1 = -1580107,
-    LIADRIN_SAY2 = -1580108,
-    LIADRIN_SAY3 = -1580109
+    PrepareSpellScript(spell_sunwell_plateau_cataclysm_breath);
+
+    static constexpr std::array<uint32, 8> PossibleSpells = { SPELL_CORROSIVE_POISON, SPELL_FEVERED_FATIGUE, SPELL_HEX, SPELL_NECROTIC_POISON, SPELL_PIERCING_SHADOW, SPELL_SHRINK, SPELL_WAVERING_WILL, SPELL_WITHERED_TOUCH };
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(PossibleSpells);
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        std::array<uint32, 8> spellsToCast = PossibleSpells;
+
+        Trinity::Containers::RandomShuffle(spellsToCast);
+
+        for (uint32 i = 0; i < 4; ++i)
+            caster->CastSpell(caster, spellsToCast[i]);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sunwell_plateau_cataclysm_breath::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
-/*######
-## npc_captain_selana
-######*/
-
-#define CS_GOSSIP1 "Give me a situation report, Captain."
-#define CS_GOSSIP2 "What went wrong?"
-#define CS_GOSSIP3 "Why did they stop?"
-#define CS_GOSSIP4 "Your insight is appreciated."
-
-void AddSC_sunwell_plateau() { }
+void AddSC_sunwell_plateau()
+{
+    RegisterSpellScript(spell_sunwell_plateau_cataclysm_breath);
+}

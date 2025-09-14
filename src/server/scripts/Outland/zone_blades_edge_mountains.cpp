@@ -1308,6 +1308,87 @@ class spell_bem_check_fly_mount : public SpellScript
     }
 };
 
+enum ApexisSwiftness
+{
+    SPELL_APEXIS_VIBRATIONS               = 40623,
+    SPELL_APEXIS_EMANATIONS               = 40625,
+    SPELL_APEXIS_ENLIGHTENMENT            = 40626,
+    SPELL_SWIFTNESS_APEXIS_VIBRATIONS     = 40624,
+    SPELL_SWIFTNESS_APEXIS_EMANATIONS     = 40627,
+    SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT  = 40628
+};
+
+// 40623 - Apexis Vibrations
+// 40625 - Apexis Emanations
+// 40626 - Apexis Enlightenment
+class spell_bem_apexis_swiftness : public AuraScript
+{
+    PrepareAuraScript(spell_bem_apexis_swiftness);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SWIFTNESS_APEXIS_VIBRATIONS,
+            SPELL_SWIFTNESS_APEXIS_EMANATIONS,
+            SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT
+        });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        switch (GetId())
+        {
+            case SPELL_APEXIS_VIBRATIONS:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_VIBRATIONS);
+                break;
+            case SPELL_APEXIS_EMANATIONS:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_EMANATIONS);
+                break;
+            case SPELL_APEXIS_ENLIGHTENMENT:
+                GetTarget()->RemoveAurasDueToSpell(SPELL_SWIFTNESS_APEXIS_ENLIGHTENMENT);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bem_apexis_swiftness::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Quest 10525: Vision Guide
+######*/
+
+enum VisionGuide
+{
+    SPELL_VISION_GUIDE     = 36573
+};
+
+// 36587 - Vision Guide
+class spell_bem_vision_guide : public AuraScript
+{
+    PrepareAuraScript(spell_bem_vision_guide);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_VISION_GUIDE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_VISION_GUIDE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_bem_vision_guide::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1329,4 +1410,6 @@ void AddSC_blades_edge_mountains()
     RegisterSpellScript(spell_bem_aggro_burst);
     RegisterSpellScript(spell_bem_choose_loc);
     RegisterSpellScript(spell_bem_check_fly_mount);
+    RegisterSpellScript(spell_bem_apexis_swiftness);
+    RegisterSpellScript(spell_bem_vision_guide);
 }

@@ -883,6 +883,77 @@ public:
     explicit spell_hellfire_peninsula_translocation_falcon_watch(Translocation triggeredSpellId) : _triggeredSpellId(triggeredSpellId) { }
 };
 
+/*######
+## Quest 9361: Helboar, the Other White Meat
+######*/
+
+enum HelboarTheOtherWhiteMeat
+{
+    SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
+    SPELL_SUMMON_TOXIC_HELBOAR_MEAT         = 29278
+};
+
+// 29200 - Purify Helboar Meat
+class spell_hellfire_peninsula_purify_helboar_meat : public SpellScript
+{
+    PrepareSpellScript(spell_hellfire_peninsula_purify_helboar_meat);
+
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_PURIFIED_HELBOAR_MEAT, SPELL_SUMMON_TOXIC_HELBOAR_MEAT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_hellfire_peninsula_purify_helboar_meat::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+/*######
+## Quest 10813: The Eyes of Grillok
+######*/
+
+enum TheEyesOfGrillok
+{
+    SPELL_EYE_OF_GRILLOK      = 38495
+};
+
+// 38554 - Absorb Eye of Grillok
+class spell_hellfire_peninsula_absorb_eye_of_grillok : public AuraScript
+{
+    PrepareAuraScript(spell_hellfire_peninsula_absorb_eye_of_grillok);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EYE_OF_GRILLOK });
+    }
+
+    void PeriodicTick(AuraEffect const* aurEff)
+    {
+        PreventDefaultAction();
+
+        if (Unit* caster = GetCaster())
+            GetTarget()->CastSpell(caster, SPELL_EYE_OF_GRILLOK, aurEff);
+
+        if (Creature* target = GetTarget()->ToCreature())
+        {
+            /// @todo: This is a hack, in flight missiles of spells of despawned creatures get cancelled - delay despawning by the duration of SPELL_EYE_OF_GRILLOK aura
+            target->SetVisible(false);
+            target->DespawnOrUnsummon(5s);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hellfire_peninsula_absorb_eye_of_grillok::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+    }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_colonel_jules();
@@ -895,4 +966,6 @@ void AddSC_hellfire_peninsula()
     RegisterSpellScript(spell_hellfire_peninsula_send_vengeance_to_player);
     RegisterSpellScriptWithArgs(spell_hellfire_peninsula_translocation_falcon_watch, "spell_hellfire_peninsula_translocation_falcon_watch_tower_down", SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_DOWN);
     RegisterSpellScriptWithArgs(spell_hellfire_peninsula_translocation_falcon_watch, "spell_hellfire_peninsula_translocation_falcon_watch_tower_up", SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP);
+    RegisterSpellScript(spell_hellfire_peninsula_purify_helboar_meat);
+    RegisterSpellScript(spell_hellfire_peninsula_absorb_eye_of_grillok);
 }
