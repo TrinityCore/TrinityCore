@@ -632,6 +632,9 @@ void WorldSession::LogoutPlayer(bool save)
 
         _player->FailQuestsWithFlag(QUEST_FLAGS_FAIL_ON_LOGOUT);
 
+        // exit areatriggers before saving to remove auras applied by them
+        _player->ExitAllAreaTriggers();
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (save)
