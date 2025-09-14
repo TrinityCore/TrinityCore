@@ -69,3 +69,22 @@ DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 49039;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dk_lichborne';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (49039, 'spell_dk_lichborne');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (15237,15430,15431,25331,27799,27800,27801,48077,48078);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_pri_holy_nova';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(-15237, 'spell_pri_holy_nova');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (45719,46651);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_midsummer_remove_torches';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(46074, 'spell_midsummer_remove_torches');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (45716,46630,-45716,-46630);
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_midsummer_torch_tossing_training_practice';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45716, 'spell_midsummer_torch_tossing_training_practice'),
+(46630, 'spell_midsummer_torch_tossing_training_practice');

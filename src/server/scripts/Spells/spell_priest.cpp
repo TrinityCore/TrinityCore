@@ -45,6 +45,7 @@ enum PriestSpells
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
+    SPELL_PRIEST_HOLY_NOVA_HEAL_R1                  = 23455,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LIGHTWELL_CHARGES                  = 59907,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
@@ -502,6 +503,28 @@ class spell_pri_guardian_spirit : public AuraScript
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+    }
+};
+
+// -15237 - Holy Nova
+class spell_pri_holy_nova : public SpellScript
+{
+    PrepareSpellScript(spell_pri_holy_nova);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_NOVA_HEAL_R1 });
+    }
+
+    void HandleAfterCast()
+    {
+        uint32 triggerSpellId = sSpellMgr->GetSpellWithRank(SPELL_PRIEST_HOLY_NOVA_HEAL_R1, GetSpellInfo()->GetRank());
+        GetCaster()->CastSpell(GetCaster(), triggerSpellId, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_holy_nova::HandleAfterCast);
     }
 };
 
@@ -1347,6 +1370,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_glyph_of_dispel_magic);
     RegisterSpellScript(spell_pri_glyph_of_prayer_of_healing);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterSpellScript(spell_pri_holy_nova);
     RegisterSpellScript(spell_pri_hymn_of_hope);
     RegisterSpellScript(spell_pri_imp_shadowform);
     RegisterSpellScript(spell_pri_improved_spirit_tap);
