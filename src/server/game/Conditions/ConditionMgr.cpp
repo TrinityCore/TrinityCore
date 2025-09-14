@@ -1336,7 +1336,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond.NegativeCondition         = fields[11].GetBool();
         cond.ErrorType                 = fields[12].GetUInt32();
         cond.ErrorTextId               = fields[13].GetUInt32();
-        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[14].GetString());
+        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[14].GetStringView());
 
         if (iConditionTypeOrReference >= 0)
             cond.ConditionType = ConditionTypes(iConditionTypeOrReference);
