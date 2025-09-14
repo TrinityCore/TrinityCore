@@ -240,7 +240,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
             for (uint8 i = 0; i < MAX_AREATRIGGER_ENTITY_DATA; ++i)
                 createProperties.Shape.DefaultDatas.Data[i] = fields[16 + i].GetFloat();
 
-            createProperties.ScriptId = sObjectMgr->GetScriptId(fields[24].GetString());
+            createProperties.ScriptId = sObjectMgr->GetScriptId(fields[24].GetStringView());
 
             if (shape == AreaTriggerShapeType::Polygon)
             {
@@ -406,7 +406,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.phaseId = fields[10].GetUInt32();
             spawn.phaseGroup = fields[11].GetUInt32();
 
-            spawn.scriptId = sObjectMgr->GetScriptId(fields[12].GetString());
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[12].GetStringView());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
