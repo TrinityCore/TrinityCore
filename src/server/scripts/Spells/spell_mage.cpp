@@ -1853,7 +1853,6 @@ class spell_mage_wildfire_caster_crit : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        canBeRecalculated = false;
         Unit* caster = GetCaster();
         if (!caster)
             return;
@@ -1862,6 +1861,7 @@ class spell_mage_wildfire_caster_crit : public AuraScript
         if (!wildfireCritEffect)
             return;
 
+        canBeRecalculated = false;
         amount = wildfireCritEffect->GetAmount();
     }
 
@@ -1881,7 +1881,6 @@ class spell_mage_wildfire_area_crit : public AuraScript
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        canBeRecalculated = false;
         Unit* caster = GetCaster();
         if (!caster)
             return;
@@ -1890,6 +1889,7 @@ class spell_mage_wildfire_area_crit : public AuraScript
         if (!wildfireCritEffect)
             return;
 
+        canBeRecalculated = false;
         amount = wildfireCritEffect->GetAmount();
     }
 
