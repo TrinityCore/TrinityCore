@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
-#include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
