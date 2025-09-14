@@ -110,8 +110,6 @@ enum MageSpells
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
     SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
-    SPELL_MAGE_WILDFIRE_AREA_CRIT                = 383493,
-    SPELL_MAGE_WILDFIRE_CASTER_CRIT              = 383492,
     SPELL_MAGE_WILDFIRE_TALENT                   = 383489,
     SPELL_MAGE_WINTERS_CHILL                     = 228358
 };
@@ -1845,59 +1843,59 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
-// 383490 - Wildfire
-class spell_mage_wildfire : public AuraScript
+// 383492 - Wildfire
+class spell_mage_wildfire_caster_crit : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_CASTER_CRIT })
-            && ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2 } });
+        return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2 } });
     }
 
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        PreventDefaultAction();
+        canBeRecalculated = false;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        AuraEffect const* wildfireCrit = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2);
+        AuraEffect const* wildfireCritEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2);
+        if (!wildfireCritEffect)
+            return;
 
-        GetCaster()->CastSpell(GetTarget(), SPELL_MAGE_WILDFIRE_CASTER_CRIT, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff,
-            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, wildfireCrit->GetAmount() } }
-        });
+        amount = wildfireCritEffect->GetAmount();
     }
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_mage_wildfire::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_wildfire_caster_crit::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
     }
 };
 
-// 383492 - Wildfire
-class spell_mage_wildfire_area : public SpellScript
+// 383493 - Wildfire
+class spell_mage_wildfire_area_crit : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_WILDFIRE_AREA_CRIT })
-            && ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3 } });
+        return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3 } });
     }
 
-    void AreaCrit(SpellEffIndex effIndex)
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
     {
-        PreventHitDefaultEffect(effIndex);
+        canBeRecalculated = false;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
 
-        AuraEffect const* wildfireAreaCrit = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3);
+        AuraEffect const* wildfireCritEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3);
+        if (!wildfireCritEffect)
+            return;
 
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_MAGE_WILDFIRE_AREA_CRIT, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringSpell = GetSpell(),
-            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, wildfireAreaCrit->GetAmount() } }
-        });
+        amount = wildfireCritEffect->GetAmount();
     }
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_mage_wildfire_area::AreaCrit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_wildfire_area_crit::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_PCT);
     }
 };
 
@@ -1961,6 +1959,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
-    RegisterSpellScript(spell_mage_wildfire);
-    RegisterSpellScript(spell_mage_wildfire_area);
+    RegisterSpellScript(spell_mage_wildfire_caster_crit);
+    RegisterSpellScript(spell_mage_wildfire_area_crit);
 }

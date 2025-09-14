@@ -4,5 +4,5 @@ INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyM
 
 DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_wildfire', 'spell_mage_wildfire_area');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(383490, 'spell_mage_wildfire'),
-(383492, 'spell_mage_wildfire_area');
+(383492, 'spell_mage_wildfire_caster_crit'),
+(383493, 'spell_mage_wildfire_area_crit');
