@@ -120,8 +120,8 @@ INSERT INTO `creature_questender` (`id`, `quest`, `VerifiedBuild`) VALUES
 
 DELETE FROM `quest_template_addon` WHERE `ID` IN (49295,48518);
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
-(49295, 0, 0, 0, 48171, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Clear-Cutting
-(48518, 0, 0, 0, 48171, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''); -- Save Who We Can
+(49295, 0, 0, 0, 48171, 48519, -49295, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''), -- Clear-Cutting
+(48518, 0, 0, 0, 48171, 48519, -49295, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''); -- Save Who We Can
 
 DELETE FROM `quest_objectives_completion_effect` WHERE `ObjectiveID` = 292396;
 INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, `SpellID`, `ConversationID`, `UpdatePhaseShift`, `UpdateZoneAuras`) VALUES
