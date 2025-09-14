@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "SpellInfo.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
 #include "darkmaul_citadel.h"
