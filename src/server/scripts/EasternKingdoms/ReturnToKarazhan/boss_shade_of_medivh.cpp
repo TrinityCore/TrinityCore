@@ -319,6 +319,8 @@ struct boss_shade_of_medivh : public BossAI
         DoCastSelf(SPELL_VO_CONTROLLER, TRIGGERED_FULL_MASK);
         DoCastSelf(SPELL_MANA_REGEN, TRIGGERED_FULL_MASK);
 
+        scheduler.CancelAll();
+
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         events.ScheduleEvent(EVENT_BASIC_PRIMER, 3s);
