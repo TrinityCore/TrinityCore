@@ -1066,6 +1066,39 @@ class spell_grizzly_hills_hand_over_reins : public SpellScript
     }
 };
 
+/*######
+## Quest 12121: See You on the Other Side
+######*/
+
+enum SeeYouOnTheOtherSide
+{
+    SPELL_SUMMON_YOUR_CORPSE    = 61612,
+    SPELL_ON_THE_OTHER_SIDE     = 61611
+};
+
+// 47744 - Rage of Jin'arrak
+class spell_grizzly_hills_rage_of_jinarrak : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_rage_of_jinarrak);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_YOUR_CORPSE, SPELL_ON_THE_OTHER_SIDE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_SUMMON_YOUR_CORPSE, true);
+        target->CastSpell(target, SPELL_ON_THE_OTHER_SIDE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_grizzly_hills_rage_of_jinarrak::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1091,4 +1124,5 @@ void AddSC_grizzly_hills()
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook);
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
     RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
+    RegisterSpellScript(spell_grizzly_hills_rage_of_jinarrak);
 }

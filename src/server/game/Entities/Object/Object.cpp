@@ -2959,7 +2959,7 @@ bool WorldObject::IsValidAttackTarget(WorldObject const* target, SpellInfo const
                 if (!(player->GetReputationMgr().GetForcedRankIfAny(factionTemplate)))
                     if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplate->Faction))
                         if (FactionState const* repState = player->GetReputationMgr().GetState(factionEntry))
-                            if (!(repState->Flags & FACTION_FLAG_AT_WAR))
+                            if (!repState->Flags.HasFlag(ReputationFlags::AtWar))
                                 return false;
 
             }
