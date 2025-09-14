@@ -29,11 +29,6 @@ namespace RuinsOfLordaeron
         static constexpr uint32 Door02 = 185917;
         static constexpr uint32 Door01 = 185918;
     }
-
-    namespace SpawnGroups
-    {
-        static constexpr uint32 ShadowSight = 200000; // TODO CHANGE ME
-    }
 }
 
 struct arena_ruins_of_lordaeron : ArenaScript
