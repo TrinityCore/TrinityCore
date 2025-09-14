@@ -55,11 +55,6 @@ namespace DalaranSewers
         static constexpr uint32 Waterfall = 191877;
     }
 
-    namespace SpawnGroups
-    {
-        static constexpr uint32 ShadowSight = 100000; // TODO CHANGE ME
-    }
-
     namespace Spells
     {
         static constexpr uint32 PipeFlushKnockbackSearchTrigger = 96539;
