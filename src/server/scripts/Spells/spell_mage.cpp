@@ -1857,7 +1857,7 @@ class spell_mage_wildfire_caster_crit : public AuraScript
         if (!caster)
             return;
 
-        AuraEffect const* wildfireCritEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2);
+        AuraEffect const* wildfireCritEffect = caster->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2);
         if (!wildfireCritEffect)
             return;
 
@@ -1885,7 +1885,7 @@ class spell_mage_wildfire_area_crit : public AuraScript
         if (!caster)
             return;
 
-        AuraEffect const* wildfireCritEffect = GetCaster()->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3);
+        AuraEffect const* wildfireCritEffect = caster->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3);
         if (!wildfireCritEffect)
             return;
 
