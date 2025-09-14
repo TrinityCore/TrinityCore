@@ -65,8 +65,8 @@ UPDATE `smart_scripts` SET `comment`='Areatrigger 8045 - On enter - Invoker cast
 UPDATE `smart_scripts` SET `comment`='Areatrigger 7046 - On enter - Invoker casts ''The King''s Command Movie Aura''' WHERE `entryorguid`=7046 AND `source_type`=2 AND `id`=0;
 UPDATE `smart_scripts` SET `comment`='Areatrigger 7045 - On enter - Invoker casts ''The King''s Command Movie Aura''' WHERE `entryorguid`=7045 AND `source_type`=2 AND `id`=0;
 
+SET @ACTIONLIST := 66203 * 100;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=66203 AND `source_type`=0;
-DELETE FROM `smart_scripts` WHERE `source_type`=9 AND `entryorguid`=@ACTIONLIST;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (66203,0,0,1,'',11,0,100,0,0,0,0,0,0,'',42,1,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Thunder Hold Cannon - On respawn - Set invincibility'),
 (66203,0,1,0,'',61,0,100,0,0,0,0,0,0,'',116,15,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Thunder Hold Cannon - Event linked - Set corpse delay'),
@@ -77,6 +77,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Diffic
 (66203,0,6,0,'',2,0,100,0x1,0,10,0,0,0,'',80,@ACTIONLIST+0,2,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Thunder Hold Cannon - On health pct (0-10%) - Call timed actionlist (Not repeatable)'),
 (66203,0,7,0,'',11,0,100,0,0,0,0,0,0,'',48,1,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Thunder Hold Cannon - On respawn - Set active (TEMP)');
 
+SET @ACTIONLIST := 66210 * 100;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=66210 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (66210,0,0,0,'',11,0,100,0,0,0,0,0,0,'',42,1,0,0,0,0,0,0,NULL,1,0,0,0,0,NULL,0,0,0,0,'Thunder Hold Explosive Barrel - On respawn - Set invincibility'),
