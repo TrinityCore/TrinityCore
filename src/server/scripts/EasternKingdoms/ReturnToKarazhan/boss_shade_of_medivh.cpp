@@ -25,6 +25,7 @@
 #include "Position.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
+#include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
