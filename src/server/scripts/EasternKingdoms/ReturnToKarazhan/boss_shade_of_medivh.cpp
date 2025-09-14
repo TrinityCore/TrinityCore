@@ -232,7 +232,8 @@ struct boss_shade_of_medivh : public BossAI
                     DoCastSelf(SPELL_REFORM_VISUAL_STATE_2);
                 else if (_guardiansImageDefeatedCount == 3)
                     DoAction(ACTION_FINISH_SPLIT);
-                    break;
+
+                break;
             }
             case SPELL_GUARDIANS_IMAGE:
             {
