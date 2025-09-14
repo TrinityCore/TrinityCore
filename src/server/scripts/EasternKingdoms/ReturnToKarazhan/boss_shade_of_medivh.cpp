@@ -811,7 +811,7 @@ struct at_shade_of_medivh_flame_wreath : AreaTriggerAI
     {
         if (unit->HasAura(SPELL_FLAME_WREATH_PERIODIC_DAMAGE))
         {
-            unit->RemoveAuraFromStack(SPELL_FLAME_WREATH_PERIODIC_DAMAGE);
+            unit->RemoveAurasDueToSpell(SPELL_FLAME_WREATH_PERIODIC_DAMAGE);
             at->GetCaster()->CastSpell(unit, SPELL_FLAME_WREATH_AREA_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             at->Remove();
         }
