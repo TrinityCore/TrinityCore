@@ -81,7 +81,7 @@ struct boss_tunk : public BossAI
 
         if (spellInfo->Id == SPELL_SEISMIC_SLAM_DAMAGE)
             Talk(SAY_WARNING_SEISMIC_SLAM, target);
-        else if (spellInfo->Id == SPELL_INTERRUPTING_SHOUT) // should be when successful interrupts a spell
+        else if (spellInfo->Id == SPELL_INTERRUPTING_SHOUT && target->ToPlayer()->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL) != nullptr) // should only happens when successfully interrupts a spell
             Talk(SAY_WARNING_INTERRUPT, target);
     }
 
@@ -131,7 +131,7 @@ class spell_tunk_seismic_slam_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(*GetHitUnit(), SPELL_SEISMIC_SLAM_AT, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_SEISMIC_SLAM_AT, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
