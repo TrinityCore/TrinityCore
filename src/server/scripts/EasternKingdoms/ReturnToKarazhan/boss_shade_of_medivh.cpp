@@ -18,6 +18,7 @@
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "Containers.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
@@ -272,7 +273,7 @@ struct boss_shade_of_medivh : public BossAI
     void OnSpellStart(SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
-        {    
+        {
             case SPELL_GUARDIANS_IMAGE:
             {
                 Talk(SAY_GUARDIANS_IMAGE);
@@ -307,7 +308,7 @@ struct boss_shade_of_medivh : public BossAI
             }
             default:
                 break;
-        } 
+        }
     }
 
     void JustEngagedWith(Unit* who) override
@@ -479,7 +480,7 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
 
         Unit* target = creatureCaster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true);
         uint32 spellId = RAND(SPELL_INFERNO_BOLT_MARKER, SPELL_PIERCING_MISSILES, SPELL_FROSTBITE);
-        
+
         creatureCaster->CastSpell(target, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
@@ -704,7 +705,7 @@ class spell_shade_of_medivh_vo_controller_cast : public SpellScript
         Unit* caster = GetCaster();
         if (caster->HasAura(SPELL_VO_CONTROLLER))
             return;
-        
+
         caster->CastSpell(caster, SPELL_VO_CONTROLLER, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell(),
