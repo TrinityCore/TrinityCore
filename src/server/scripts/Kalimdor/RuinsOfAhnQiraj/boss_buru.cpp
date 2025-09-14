@@ -98,15 +98,19 @@ struct boss_buru : public BossAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_EXPLOSION)
+        switch (spellInfo->Id)
         {
-            me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-            me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
-            DoCastSelf(SPELL_CREATURE_SPECIAL);
+            case SPELL_EXPLOSION:
+                me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
+                me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
+                DoCastSelf(SPELL_CREATURE_SPECIAL);
+                break;
+            case SPELL_CREATURE_SPECIAL:
+                ChaseNewVictim();
+                break;
+            default:
+                break;
         }
-
-        if (spellInfo->Id == SPELL_CREATURE_SPECIAL)
-            ChaseNewVictim();
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -268,14 +272,14 @@ class spell_buru_egg_explosion : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        int32 damage;
+        int32 damage = 0;
 
         if (target->IsPet() || target->IsPlayer())
             // Damage from 100 - 500 based on proximity - max range 25. Pets are valid targets here
             damage = 100 + ((25 - std::min(caster->GetExactDist2d(target), 25.f)) / 25.f) * 400;
 
         // Buru has different formula
-        if (target->GetEntry() == NPC_BURU)
+        else if (target->GetEntry() == NPC_BURU)
             if (target->GetHealthPct() > 20.0f)
                 /// @todo: This requires additional research as it doesn't seem right, doesn't it depend on proximity?
                 damage = target->GetMaxHealth() * 15 / 100;
