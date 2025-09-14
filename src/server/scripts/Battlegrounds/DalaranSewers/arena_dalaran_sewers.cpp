@@ -97,6 +97,7 @@ struct arena_dalaran_sewers : ArenaScript
             return;
 
         _events.Update(diff);
+        _scheduler.Update(diff);
 
         while (uint32 eventId = _events.ExecuteEvent())
         {
@@ -136,11 +137,6 @@ struct arena_dalaran_sewers : ArenaScript
         }
     }
 
-    void OnShadowSightEnabled() override
-    {
-        battlegroundMap->SpawnGroupSpawn(DalaranSewers::SpawnGroups::ShadowSight);
-    }
-
     void OnStart() override
     {
         ArenaScript::OnStart();
@@ -166,7 +162,7 @@ struct arena_dalaran_sewers : ArenaScript
             if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 player->RemoveAurasDueToSpell(DalaranSewers::Spells::WarlockDemonicCircle);
 
-        Scheduler.Schedule(6s, [&](TaskContext)
+        _scheduler.Schedule(6s, [&](TaskContext)
         {
             for (ObjectGuid const& guid : _waterSpoutEntranceGUIDs)
             {
@@ -225,6 +221,8 @@ private:
 
     GuidVector _waterSpoutEntranceGUIDs;
     ObjectGuid _waterSpoutCenterGUID;
+
+    TaskScheduler _scheduler;
 };
 
 class at_ds_pipe_knockback : public AreaTriggerScript

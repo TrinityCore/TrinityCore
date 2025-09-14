@@ -11,12 +11,16 @@ SET @AT_SPAWN_ID = 100000;
 
 DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(@SPAWN_GROUP, 'Dalaran Arena Shadow Sight', 0x4);
+(@SPAWN_GROUP, 'Dalaran Arena - Shadow Sight', 0x20);
 
 DELETE FROM `spawn_group` WHERE `groupId` = @SPAWN_GROUP;
 INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
 (@SPAWN_GROUP, 1, @OGUID+4),
 (@SPAWN_GROUP, 1, @OGUID+5);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 33 AND `SourceEntry` = @SPAWN_GROUP;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ScriptName`) VALUES
+(33, @SPAWN_GROUP, 0, 22, 617, 'condition_is_shadow_sight_enabled');
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+5;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
