@@ -275,7 +275,7 @@ class TC_GAME_API Battleground
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetElapsedTime() const       { return m_StartTime; }
-        TimePoint GetInProgressStartTime() const { return _inProgressStartTime; }
+        Milliseconds GetInProgressDuration() const { return (m_Events & BG_STARTING_EVENT_4) ? Milliseconds(m_StartTime - StartDelayTimes[BG_STARTING_EVENT_FIRST]) : 0ms; }
         uint32 GetRemainingTime() const     { return m_EndTime; }
         uint32 GetMaxPlayers() const;
         uint32 GetMinPlayers() const;
@@ -567,9 +567,6 @@ class TC_GAME_API Battleground
 
         // Time when the first message "the battle will begin in 2minutes" is send (or 1m for arenas)
         time_t _preparationStartTime;
-
-        // Time when the battle actually started
-        TimePoint _inProgressStartTime;
 
         Trinity::unique_weak_ptr<Battleground> m_weakRef;
 };

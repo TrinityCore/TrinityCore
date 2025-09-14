@@ -18,7 +18,6 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "ConditionMgr.h"
-#include "GameTime.h"
 #include "Map.h"
 
 class condition_is_shadow_sight_enabled : public ConditionScript
@@ -34,7 +33,7 @@ public:
         if (BattlegroundMap const* bgMap = sourceInfo.mConditionMap->ToBattlegroundMap())
             if (Battleground const* bg = bgMap->GetBG())
                 if (bg->GetStatus() >= STATUS_IN_PROGRESS)
-                    return (bg->GetInProgressStartTime() + 90s) <= GameTime::Now();
+                    return bg->GetInProgressDuration() >= 90s;
 
         return false;
     }
