@@ -2304,9 +2304,9 @@ void ScriptMgr::ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage)
     FOREACH_SCRIPT(UnitScript)->ModifyMeleeDamage(target, attacker, damage);
 }
 
-void ScriptMgr::ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage, SpellInfo const* spellInfo)
+void ScriptMgr::ModifySpellDamageTaken(SpellNonMeleeDamage* damageInfo)
 {
-    FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(target, attacker, damage, spellInfo);
+    FOREACH_SCRIPT(UnitScript)->ModifySpellDamageTaken(damageInfo);
 }
 
 // Scene
@@ -2665,7 +2665,7 @@ void UnitScript::ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32&
 {
 }
 
-void UnitScript::ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/, SpellInfo const* /*spellInfo*/)
+void UnitScript::ModifySpellDamageTaken(SpellNonMeleeDamage* /*damageInfo*/)
 {
 }
 
