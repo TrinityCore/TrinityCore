@@ -1250,7 +1250,7 @@ public:
             if (!player)
                 return;
 
-            std::vector<uint32> entries = { ANCIENT_DRAKKARI_SOOTHSAYE, ANCIENT_DRAKKARI_WARMONGER };
+            std::vector<uint32> entries = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
             if (entries.empty())
                 return;
 
