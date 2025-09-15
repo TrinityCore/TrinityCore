@@ -20,266 +20,305 @@
 #include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Emotes
+enum BuruTexts
 {
-    EMOTE_TARGET                = 0
+    EMOTE_TARGET                    = 0
 };
 
-enum Spells
+enum BuruSpells
 {
-    SPELL_CREEPING_PLAGUE       = 20512,
-    SPELL_DISMEMBER             = 96,
-    SPELL_GATHERING_SPEED       = 1834,
-    SPELL_FULL_SPEED            = 1557,
-    SPELL_THORNS                = 25640,
-    SPELL_BURU_TRANSFORM        = 24721,
-    SPELL_SUMMON_HATCHLING      = 1881,
-    SPELL_EXPLODE               = 19593,
-    SPELL_EXPLODE_2             = 5255,
-    SPELL_BURU_EGG_TRIGGER      = 26646
+    // Phase 1
+    SPELL_DISMEMBER                 = 96,
+    SPELL_GATHERING_SPEED           = 1834,
+    SPELL_FULL_SPEED                = 1557,
+
+    // Phase 2
+    SPELL_CREEPING_PLAGUE           = 20512,
+
+    // Misc
+    SPELL_THORNS                    = 25640,
+    SPELL_CREATURE_SPECIAL          = 7155,
+    SPELL_BURU_TRANSFORM            = 24721,
+    SPELL_CANCEL_CREEPING_PLAGUE    = 27027,
+
+    // Buru Egg
+    SPELL_EGG_EXPLOSION             = 19593,
+    SPELL_SUMMON_HATCHLING          = 1881,
+
+    // Scripts
+    SPELL_EXPLOSION                 = 5255
 };
 
-enum Events
+enum BuruEvents
 {
-    EVENT_DISMEMBER             = 1,
-    EVENT_GATHERING_SPEED       = 2,
-    EVENT_FULL_SPEED            = 3,
-    EVENT_CREEPING_PLAGUE       = 4,
-    EVENT_RESPAWN_EGG           = 5
+    EVENT_DISMEMBER                 = 1,
+    EVENT_GATHERING_SPEED,
+    EVENT_FULL_SPEED,
+    EVENT_CREEPING_PLAGUE,
+
+    EVENT_TRANSFORM_1,
+    EVENT_TRANSFORM_2,
+    EVENT_TRANSFORM_3
 };
 
-enum Phases
+enum BuruPhases
 {
-    PHASE_EGG                   = 0,
-    PHASE_TRANSFORM             = 1
+    PHASE_EGG                       = 0,
+    PHASE_TRANSFORM                 = 1
 };
 
-enum Actions
+// 15370 - Buru the Gorger
+struct boss_buru : public BossAI
 {
-    ACTION_EXPLODE              = 0
-};
+    boss_buru(Creature* creature) : BossAI(creature, DATA_BURU), _phase(PHASE_EGG) { }
 
-class boss_buru : public CreatureScript
-{
-    public:
-        boss_buru() : CreatureScript("boss_buru") { }
+    void Reset() override
+    {
+        _Reset();
+        _phase = PHASE_EGG;
+        me->SetReactState(REACT_AGGRESSIVE);
+    }
 
-        struct boss_buruAI : public BossAI
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        DoCastSelf(SPELL_THORNS);
+
+        ChaseNewVictim();
+
+        events.ScheduleEvent(EVENT_DISMEMBER, 10s, 15s);
+        events.ScheduleEvent(EVENT_GATHERING_SPEED, 2s);
+        events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
         {
-            boss_buruAI(Creature* creature) : BossAI(creature, DATA_BURU)
-            {
-                _phase = 0;
-            }
-
-            void EnterEvadeMode(EvadeReason why) override
-            {
-                BossAI::EnterEvadeMode(why);
-
-                for (ObjectGuid eggGuid : Eggs)
-                    if (Creature* egg = ObjectAccessor::GetCreature(*me, eggGuid))
-                        egg->Respawn();
-
-                Eggs.clear();
-            }
-
-            void JustEngagedWith(Unit* who) override
-            {
-                BossAI::JustEngagedWith(who);
-                Talk(EMOTE_TARGET, who);
-                DoCast(me, SPELL_THORNS);
-
-                events.ScheduleEvent(EVENT_DISMEMBER, 5s);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
-
-                _phase = PHASE_EGG;
-            }
-
-            void DoAction(int32 action) override
-            {
-                if (action == ACTION_EXPLODE)
-                    if (_phase == PHASE_EGG)
-                        Unit::DealDamage(me, me, 45000);
-            }
-
-            void KilledUnit(Unit* victim) override
-            {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    ChaseNewVictim();
-            }
-
-            void ChaseNewVictim()
-            {
-                if (_phase != PHASE_EGG)
-                    return;
-
-                me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
+            case SPELL_EXPLOSION:
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                events.ScheduleEvent(EVENT_FULL_SPEED, 1min);
-
-                if (Unit* victim = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                {
-                    ResetThreatList();
-                    AttackStart(victim);
-                    Talk(EMOTE_TARGET, victim);
-                }
-            }
-
-            void ManageRespawn(ObjectGuid EggGUID)
-            {
+                me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
+                DoCastSelf(SPELL_CREATURE_SPECIAL);
+                break;
+            case SPELL_CREATURE_SPECIAL:
                 ChaseNewVictim();
-                Eggs.push_back(EggGUID);
-                events.ScheduleEvent(EVENT_RESPAWN_EGG, 100s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_DISMEMBER:
-                            DoCastVictim(SPELL_DISMEMBER);
-                            events.ScheduleEvent(EVENT_DISMEMBER, 5s);
-                            break;
-                        case EVENT_GATHERING_SPEED:
-                            DoCast(me, SPELL_GATHERING_SPEED);
-                            events.ScheduleEvent(EVENT_GATHERING_SPEED, 9s);
-                            break;
-                        case EVENT_FULL_SPEED:
-                            DoCast(me, SPELL_FULL_SPEED);
-                            break;
-                        case EVENT_CREEPING_PLAGUE:
-                            DoCast(me, SPELL_CREEPING_PLAGUE);
-                            events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 6s);
-                            break;
-                        case EVENT_RESPAWN_EGG:
-                            if (Creature* egg = ObjectAccessor::GetCreature(*me, Eggs.front()))
-                            {
-                                egg->Respawn();
-                                Eggs.pop_front();
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (me->GetHealthPct() < 20.0f && _phase == PHASE_EGG)
-                {
-                    DoCast(me, SPELL_BURU_TRANSFORM); // Enrage
-                    DoCast(me, SPELL_FULL_SPEED, true);
-                    me->RemoveAurasDueToSpell(SPELL_THORNS);
-                    _phase = PHASE_TRANSFORM;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        private:
-            GuidList Eggs;
-            uint8 _phase;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAQ20AI<boss_buruAI>(creature);
+                break;
+            default:
+                break;
         }
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase == PHASE_EGG && me->HealthBelowPctDamaged(20, damage))
+        {
+            _phase = PHASE_TRANSFORM;
+            events.ScheduleEvent(EVENT_TRANSFORM_1, 0s);
+        }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        // Triggers even if victim is a creature. Victim can be a creature if it reaches first position in threat list
+        ChaseNewVictim();
+    }
+
+    void ChaseNewVictim()
+    {
+        if (_phase != PHASE_EGG)
+            return;
+
+        events.RescheduleEvent(EVENT_GATHERING_SPEED, 9s);
+        events.RescheduleEvent(EVENT_FULL_SPEED, 1min);
+
+        ResetThreatList();
+
+        if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
+        {
+            AddThreat(target, 1000000.0f);
+            AttackStart(target);
+            Talk(EMOTE_TARGET, target);
+        }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        _JustDied();
+        DoCastSelf(SPELL_CANCEL_CREEPING_PLAGUE);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                // Phase 1
+                case EVENT_DISMEMBER:
+                    DoCastVictim(SPELL_DISMEMBER);
+                    events.Repeat(6s, 8s);
+                    break;
+                case EVENT_GATHERING_SPEED:
+                    DoCastSelf(SPELL_GATHERING_SPEED);
+                    events.Repeat(9s);
+                    break;
+                case EVENT_FULL_SPEED:
+                    DoCastSelf(SPELL_FULL_SPEED);
+                    break;
+
+                // Phase 2
+                case EVENT_CREEPING_PLAGUE:
+                    DoCastSelf(SPELL_CREEPING_PLAGUE);
+                    events.Repeat(6s);
+                    break;
+
+                // Transform
+                case EVENT_TRANSFORM_1:
+                    me->ResetPlayerDamageReq();
+                    me->SetReactState(REACT_PASSIVE);
+                    events.CancelEvent(EVENT_DISMEMBER);
+                    events.CancelEvent(EVENT_GATHERING_SPEED);
+                    events.CancelEvent(EVENT_FULL_SPEED);
+                    ResetThreatList();
+                    events.ScheduleEvent(EVENT_TRANSFORM_2, 3s + 500ms);
+                    break;
+                case EVENT_TRANSFORM_2:
+                    me->RemoveAurasDueToSpell(SPELL_THORNS);
+                    DoCastSelf(SPELL_BURU_TRANSFORM);
+                    events.ScheduleEvent(EVENT_TRANSFORM_3, 6s);
+                    break;
+                case EVENT_TRANSFORM_3:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    DoCastSelf(SPELL_FULL_SPEED);
+                    events.ScheduleEvent(EVENT_CREEPING_PLAGUE, 2s);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint8 _phase;
 };
 
-class npc_buru_egg : public CreatureScript
+// 15514 - Buru Egg
+struct npc_buru_egg : public ScriptedAI
 {
-    public:
-        npc_buru_egg() : CreatureScript("npc_buru_egg") { }
+    npc_buru_egg(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
 
-        struct npc_buru_eggAI : public ScriptedAI
+    void InitializeAI() override
+    {
+        me->SetCorpseDelay(4, true);
+        me->SetReactState(REACT_PASSIVE);
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
+            if (!buru->IsInCombat())
+                buru->AI()->AttackStart(who);
+    }
+
+    void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
+    {
+        if (spellInfo->Id == SPELL_BURU_TRANSFORM)
         {
-            npc_buru_eggAI(Creature* creature) : ScriptedAI(creature)
-            {
-                _instance = me->GetInstanceScript();
-                SetCombatMovement(false);
-            }
-
-            void JustEngagedWith(Unit* attacker) override
-            {
-                if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                    if (!buru->IsInCombat())
-                        buru->AI()->AttackStart(attacker);
-            }
-
-            void JustSummoned(Creature* who) override
-            {
-                if (who->GetEntry() == NPC_HATCHLING)
-                    if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                        if (Unit* target = buru->AI()->SelectTarget(SelectTargetMethod::Random))
-                            who->AI()->AttackStart(target);
-            }
-
-            void JustDied(Unit* /*killer*/) override
-            {
-                DoCastAOE(SPELL_EXPLODE, true);
-                DoCastAOE(SPELL_EXPLODE_2, true); // Unknown purpose
-                DoCast(me, SPELL_SUMMON_HATCHLING, true);
-
-                if (Creature* buru = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_BURU)))
-                    if (boss_buru::boss_buruAI* buruAI = dynamic_cast<boss_buru::boss_buruAI*>(buru->AI()))
-                        buruAI->ManageRespawn(me->GetGUID());
-            }
-        private:
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAQ20AI<npc_buru_eggAI>(creature);
+            DoCastSelf(SPELL_SUMMON_HATCHLING);
+            me->DespawnOrUnsummon();
         }
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        DoCastSelf(SPELL_EGG_EXPLOSION);
+        DoCastSelf(SPELL_SUMMON_HATCHLING, true);
+    }
+
+private:
+    InstanceScript* _instance;
 };
 
 // 19593 - Egg Explosion
-class spell_egg_explosion : public SpellScriptLoader
+class spell_buru_egg_explosion : public SpellScript
 {
-    public:
-        spell_egg_explosion() : SpellScriptLoader("spell_egg_explosion") { }
+    PrepareSpellScript(spell_buru_egg_explosion);
 
-        class spell_egg_explosion_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_egg_explosion_SpellScript);
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_EXPLOSION });
+    }
 
-            void HandleAfterCast()
-            {
-                if (Creature* buru = GetCaster()->FindNearestCreature(NPC_BURU, 5.f))
-                    buru->AI()->DoAction(ACTION_EXPLODE);
-            }
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
 
-            void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetHitUnit())
-                    Unit::DealDamage(GetCaster(), target, -16 * GetCaster()->GetDistance(target) + 500);
-            }
+        int32 damage = 0;
 
-            void Register() override
-            {
-                AfterCast += SpellCastFn(spell_egg_explosion_SpellScript::HandleAfterCast);
-                OnEffectHitTarget += SpellEffectFn(spell_egg_explosion_SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
+        if (target->IsPet() || target->IsPlayer())
+            // Damage from 100 - 500 based on proximity - max range 25. Pets are valid targets here
+            damage = 100 + ((25 - std::min(caster->GetExactDist2d(target), 25.f)) / 25.f) * 400;
 
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_egg_explosion_SpellScript();
-        }
+        // Buru has different formula
+        else if (target->GetEntry() == NPC_BURU)
+            if (target->GetHealthPct() > 20.0f)
+                /// @todo: This requires additional research as it doesn't seem right, doesn't it depend on proximity?
+                damage = target->GetMaxHealth() * 15 / 100;
+
+        CastSpellExtraArgs args;
+        args.AddSpellBP0(damage);
+        caster->CastSpell(target, SPELL_EXPLOSION, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_buru_egg_explosion::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 27027 - Cancel Creeping Plague
+class spell_buru_cancel_creeping_plague : public SpellScript
+{
+    PrepareSpellScript(spell_buru_cancel_creeping_plague);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_CREEPING_PLAGUE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_CREEPING_PLAGUE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_buru_cancel_creeping_plague::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 void AddSC_boss_buru()
 {
-    new boss_buru();
-    new npc_buru_egg();
-    new spell_egg_explosion();
+    RegisterAQ20CreatureAI(boss_buru);
+    RegisterAQ20CreatureAI(npc_buru_egg);
+    RegisterSpellScript(spell_buru_egg_explosion);
+    RegisterSpellScript(spell_buru_cancel_creeping_plague);
 }

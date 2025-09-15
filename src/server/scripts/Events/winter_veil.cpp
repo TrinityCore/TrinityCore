@@ -47,11 +47,7 @@ class spell_winter_veil_mistletoe : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        if (Player* target = GetHitPlayer())
-        {
-            uint32 spellId = RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES);
-            GetCaster()->CastSpell(target, spellId, true);
-        }
+        GetCaster()->CastSpell(GetHitUnit(), RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES), true);
     }
 
     void Register() override
@@ -86,18 +82,15 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScript
         return ValidateSpellInfo(WonderboltTransformSpells);
     }
 
-    void HandleScript(SpellEffIndex effIndex)
+    void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        PreventHitDefaultEffect(effIndex);
+        Unit* target = GetHitUnit();
 
-        if (Unit* target = GetHitUnit())
-        {
-            for (uint32 spell : WonderboltTransformSpells)
-                if (target->HasAura(spell))
-                    return;
+        for (uint32 spell : WonderboltTransformSpells)
+            if (target->HasAura(spell))
+                return;
 
-            target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
-        }
+        target->CastSpell(target, Trinity::Containers::SelectRandomContainerElement(WonderboltTransformSpells), true);
     }
 
     void Register() override

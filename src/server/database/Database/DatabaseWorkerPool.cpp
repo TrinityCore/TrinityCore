@@ -38,15 +38,36 @@
 #include <boost/stacktrace.hpp>
 #endif
 
-#define MIN_MYSQL_SERVER_VERSION 50700u
-#define MIN_MYSQL_SERVER_VERSION_STRING "5.7"
-#define MIN_MYSQL_CLIENT_VERSION 50700u
-#define MIN_MYSQL_CLIENT_VERSION_STRING "5.7"
+static consteval uint32 ParseVersionString(std::string_view chars)
+{
+    uint32 result = 0;
+    uint32 partialResult = 0;
+    uint32 multiplier = 10000;
+    for (std::size_t i =  0; i < chars.length(); ++i)
+    {
+        char c = chars[i];
+        if (c == '.')
+        {
+            if (multiplier < 100)
+                throw "Too many . characters in version string";
 
-#define MIN_MARIADB_SERVER_VERSION 100209u
-#define MIN_MARIADB_SERVER_VERSION_STRING "10.2.9"
-#define MIN_MARIADB_CLIENT_VERSION 30003u
-#define MIN_MARIADB_CLIENT_VERSION_STRING "3.0.3"
+            result += partialResult * multiplier;
+            multiplier /= 100;
+            partialResult = 0;
+        }
+        else if (c >= '0' && c <= '9')
+        {
+            partialResult *= 10;
+            partialResult += c - '0';
+        }
+        else
+            throw "Invalid input character";
+    }
+
+    result += partialResult * multiplier;
+
+    return result;
+}
 
 class PingOperation : public SQLOperation
 {
@@ -63,14 +84,17 @@ DatabaseWorkerPool<T>::DatabaseWorkerPool()
     : _queue(new ProducerConsumerQueue<SQLOperation*>()),
       _async_threads(0), _synch_threads(0)
 {
-    WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-
+    // We only need check compiled version match on Windows
+    // because on other platforms ABI compatibility is ensured by SOVERSION
+    // and Windows MySQL releases don't even have abi-version-like component in their dll file name
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #if defined(LIBMARIADB) && MARIADB_PACKAGE_VERSION_ID >= 30200
-    WPFatal(mysql_get_client_version() >= MIN_MARIADB_CLIENT_VERSION, "TrinityCore does not support MariaDB versions below " MIN_MARIADB_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MariaDB client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MARIADB_CLIENT_VERSION);
-    WPFatal(mysql_get_client_version() == MARIADB_PACKAGE_VERSION_ID, "Used MariaDB library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), MARIADB_PACKAGE_VERSION_ID);
+#define TRINITY_COMPILED_CLIENT_VERSION MARIADB_PACKAGE_VERSION_ID
 #else
-    WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below " MIN_MYSQL_CLIENT_VERSION_STRING " (found %s id %lu, need id >= %u), please update your MySQL client library", mysql_get_client_info(), mysql_get_client_version(), MIN_MYSQL_CLIENT_VERSION);
-    WPFatal(mysql_get_client_version() == MYSQL_VERSION_ID, "Used MySQL library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), MYSQL_VERSION_ID);
+#define TRINITY_COMPILED_CLIENT_VERSION MYSQL_VERSION_ID
+#endif
+    WPFatal(mysql_get_client_version() == TRINITY_COMPILED_CLIENT_VERSION, "Used " TRINITY_MYSQL_FLAVOR " library version (%s id %lu) does not match the version id used to compile TrinityCore (id %u). Search on forum for TCE00011.", mysql_get_client_info(), mysql_get_client_version(), TRINITY_COMPILED_CLIENT_VERSION);
+#undef TRINITY_COMPILED_CLIENT_VERSION
 #endif
 }
 
@@ -395,18 +419,9 @@ uint32 DatabaseWorkerPool<T>::OpenConnections(InternalIndex type, uint8 numConne
             _connections[type].clear();
             return error;
         }
-#ifndef LIBMARIADB
-        else if (connection->GetServerVersion() < MIN_MYSQL_SERVER_VERSION)
-#else
-        else if (connection->GetServerVersion() < MIN_MARIADB_SERVER_VERSION)
-#endif
+        else if (uint32 serverVersion = connection->GetServerVersion(); serverVersion < ParseVersionString(TRINITY_REQUIRED_MYSQL_VERSION))
         {
-#ifndef LIBMARIADB
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MySQL versions below " MIN_MYSQL_SERVER_VERSION_STRING " (found id {}, need id >= {}), please update your MySQL server", connection->GetServerVersion(), MIN_MYSQL_SERVER_VERSION);
-#else
-            TC_LOG_ERROR("sql.driver", "TrinityCore does not support MariaDB versions below " MIN_MARIADB_SERVER_VERSION_STRING " (found id {}, need id >= {}), please update your MySQL server", connection->GetServerVersion(), MIN_MARIADB_SERVER_VERSION);
-#endif
-
+            TC_LOG_ERROR("sql.driver", "TrinityCore does not support " TRINITY_MYSQL_FLAVOR " versions below " TRINITY_REQUIRED_MYSQL_VERSION " (found id {}, need id >= {}), please update your " TRINITY_MYSQL_FLAVOR " server", serverVersion, ParseVersionString(TRINITY_REQUIRED_MYSQL_VERSION));
             return 1;
         }
         else

@@ -19,89 +19,113 @@
 #include "ScriptedCreature.h"
 #include "razorfen_downs.h"
 
-enum Say
+enum GluttonTexts
 {
     SAY_AGGRO               = 0,
     SAY_SLAY                = 1,
-    SAY_HP50                = 2,
-    SAY_HP15                = 3
+    SAY_HEALTH_50           = 2,
+    SAY_HEALTH_15           = 3
 };
 
-enum Spells
+enum GluttonSpells
 {
+    SPELL_THRASH_15         = 8876,
     SPELL_DISEASE_CLOUD     = 12627,
+    SPELL_THRASH_35         = 12787,
     SPELL_FRENZY            = 12795
 };
 
-class boss_glutton : public CreatureScript
+enum GluttonEvents
 {
-public:
-    boss_glutton() : CreatureScript("boss_glutton") { }
+    EVENT_HEALTH_50         = 1,
+    EVENT_HEALTH_15
+};
 
-    struct boss_gluttonAI : public BossAI
+enum GluttonPhases : uint8
+{
+    PHASE_NONE              = 0,
+    PHASE_HEALTH_50,
+    PHASE_HEALTH_15
+};
+
+// 8567 - Glutton
+struct boss_glutton : public BossAI
+{
+    boss_glutton(Creature* creature) : BossAI(creature, DATA_GLUTTON), _phase(PHASE_NONE) { }
+
+    void Reset() override
     {
-        boss_gluttonAI(Creature* creature) : BossAI(creature, DATA_GLUTTON)
-        {
-            hp50 = false;
-            hp15 = false;
-        }
-
-        void Reset() override
-        {
-            _Reset();
-            hp50 = false;
-            hp15 = false;
-        }
-
-        void JustEngagedWith(Unit* who) override
-        {
-            BossAI::JustEngagedWith(who);
-            Talk(SAY_AGGRO);
-        }
-
-        void KilledUnit(Unit* /*victim*/) override
-        {
-            Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            _JustDied();
-        }
-
-        void UpdateAI(uint32 /*diff*/) override
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (!hp50 && HealthBelowPct(50))
-            {
-                Talk(SAY_HP50);
-                hp50 = true;
-            }
-
-            if (!hp15 && HealthBelowPct(15))
-            {
-                Talk(SAY_HP15);
-                DoCast(me, SPELL_FRENZY);
-                hp15 = true;
-            }
-
-            DoMeleeAttackIfReady();
-        }
-
-    private:
-        bool hp50;
-        bool hp15;
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return GetRazorfenDownsAI<boss_gluttonAI>(creature);
+        _Reset();
+        _phase = PHASE_NONE;
+        DoCastSelf(SPELL_THRASH_15);
+        DoCastSelf(SPELL_DISEASE_CLOUD);
     }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+        Talk(SAY_AGGRO);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (_phase < PHASE_HEALTH_50 && me->HealthBelowPctDamaged(50, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_HEALTH_50, 0s);
+        }
+
+        if (_phase < PHASE_HEALTH_15 && me->HealthBelowPctDamaged(15, damage))
+        {
+            _phase++;
+            events.ScheduleEvent(EVENT_HEALTH_15, 0s);
+        }
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_HEALTH_50:
+                    Talk(SAY_HEALTH_50);
+                    me->RemoveAurasDueToSpell(SPELL_THRASH_15);
+                    DoCastSelf(SPELL_THRASH_35);
+                    break;
+                case EVENT_HEALTH_15:
+                    Talk(SAY_HEALTH_15);
+                    DoCastSelf(SPELL_FRENZY);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    uint8 _phase;
 };
 
 void AddSC_boss_glutton()
 {
-    new boss_glutton();
+    RegisterRazorfenDownsCreatureAI(boss_glutton);
 }

@@ -15,134 +15,97 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Magistrate_Barthilas
-SD%Complete: 70
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-enum Spells
+enum BarthilasSpells
 {
-    SPELL_DRAININGBLOW      = 16793,
-    SPELL_CROWDPUMMEL       = 10887,
-    SPELL_MIGHTYBLOW        = 14099,
-    SPELL_FURIOUS_ANGER     = 16791
+    SPELL_FURIOUS_ANGER     = 16791,
+    SPELL_DRAINING_BLOW     = 16793,
+    SPELL_CROWD_PUMMEL      = 10887,
+    SPELL_MIGHTY_BLOW       = 14099,
+
+    SPELL_TRANSFORMATION    = 16794
 };
 
-enum Models
+enum BarthilasEvents
 {
-    MODEL_NORMAL            = 10433,
-    MODEL_HUMAN             = 3637
+    EVENT_FURIOUS_ANGER     = 1,
+    EVENT_DRAINING_BLOW,
+    EVENT_CROWD_PUMMEL,
+    EVENT_MIGHTY_BLOW
 };
 
-class boss_magistrate_barthilas : public CreatureScript
+// 10435 - Magistrate Barthilas
+struct boss_magistrate_barthilas : public BossAI
 {
-public:
-    boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }
+    boss_magistrate_barthilas(Creature* creature) : BossAI(creature, BOSS_MAGISTRATE_BARTHILAS) { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void JustEngagedWith(Unit* who) override
     {
-        return GetStratholmeAI<boss_magistrate_barthilasAI>(creature);
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_FURIOUS_ANGER, 0s, 4s);
+        events.ScheduleEvent(EVENT_DRAINING_BLOW, 0s, 5s);
+        events.ScheduleEvent(EVENT_CROWD_PUMMEL, 15s, 20s);
+        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 15s, 25s);
     }
 
-    struct boss_magistrate_barthilasAI : public ScriptedAI
+    void JustDied(Unit* killer) override
     {
-        boss_magistrate_barthilasAI(Creature* creature) : ScriptedAI(creature)
+        BossAI::JustDied(killer);
+
+        DoCastSelf(SPELL_TRANSFORMATION, true);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Initialize();
-        }
+            switch (eventId)
+            {
+                case EVENT_FURIOUS_ANGER:
+                    DoCastSelf(SPELL_FURIOUS_ANGER);
+                    events.Repeat(4s);
+                    break;
+                case EVENT_DRAINING_BLOW:
+                    DoCastVictim(SPELL_DRAINING_BLOW);
+                    events.Repeat(2s, 14s);
+                    break;
+                case EVENT_CROWD_PUMMEL:
+                    DoCastSelf(SPELL_CROWD_PUMMEL);
+                    events.Repeat(25s, 30s);
+                    break;
+                case EVENT_MIGHTY_BLOW:
+                    DoCastVictim(SPELL_MIGHTY_BLOW);
+                    events.Repeat(10s, 15s);
+                    break;
+                default:
+                    break;
+            }
 
-        void Initialize()
-        {
-            DrainingBlow_Timer = 20000;
-            CrowdPummel_Timer = 15000;
-            MightyBlow_Timer = 10000;
-            FuriousAnger_Timer = 5000;
-            AngerCount = 0;
-        }
-
-        uint32 DrainingBlow_Timer;
-        uint32 CrowdPummel_Timer;
-        uint32 MightyBlow_Timer;
-        uint32 FuriousAnger_Timer;
-        uint32 AngerCount;
-
-        void Reset() override
-        {
-            Initialize();
-
-            if (me->IsAlive())
-                me->SetDisplayId(MODEL_NORMAL);
-            else
-                me->SetDisplayId(MODEL_HUMAN);
-        }
-
-        void MoveInLineOfSight(Unit* who) override
-
-        {
-            //nothing to see here yet
-
-            ScriptedAI::MoveInLineOfSight(who);
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            me->SetDisplayId(MODEL_HUMAN);
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            if (FuriousAnger_Timer <= diff)
-            {
-                FuriousAnger_Timer = 4000;
-                if (AngerCount > 25)
-                    return;
-
-                ++AngerCount;
-                DoCast(me, SPELL_FURIOUS_ANGER, false);
-            } else FuriousAnger_Timer -= diff;
-
-            //DrainingBlow
-            if (DrainingBlow_Timer <= diff)
-            {
-                DoCastVictim(SPELL_DRAININGBLOW);
-                DrainingBlow_Timer = 15000;
-            } else DrainingBlow_Timer -= diff;
-
-            //CrowdPummel
-            if (CrowdPummel_Timer <= diff)
-            {
-                DoCastVictim(SPELL_CROWDPUMMEL);
-                CrowdPummel_Timer = 15000;
-            } else CrowdPummel_Timer -= diff;
-
-            //MightyBlow
-            if (MightyBlow_Timer <= diff)
-            {
-                DoCastVictim(SPELL_MIGHTYBLOW);
-                MightyBlow_Timer = 20000;
-            } else MightyBlow_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_magistrate_barthilas()
 {
-    new boss_magistrate_barthilas();
+    RegisterStratholmeCreatureAI(boss_magistrate_barthilas);
 }

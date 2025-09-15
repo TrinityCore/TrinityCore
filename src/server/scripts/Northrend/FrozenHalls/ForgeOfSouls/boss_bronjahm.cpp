@@ -45,7 +45,10 @@ enum Spells
     SPELL_SOULSTORM             = 68872,
     SPELL_SOULSTORM_CHANNEL     = 69008, // Pre-fight
     SPELL_SOULSTORM_VISUAL      = 68870, // Pre-cast Soulstorm
-    SPELL_PURPLE_BANISH_VISUAL  = 68862  // Used by Soul Fragment (Aura)
+    SPELL_PURPLE_BANISH_VISUAL  = 68862, // Used by Soul Fragment (Aura)
+
+    SPELL_KNOCKDOWN_STUN        = 68848,
+    SPELL_DRAW_CORRUPTED_SOUL   = 68846
 };
 
 enum Events
@@ -328,6 +331,29 @@ class spell_bronjahm_soulstorm_targeting : public SpellScript
     }
 };
 
+// 68839 - Corrupt Soul
+class spell_bronjahm_corrupt_soul : public AuraScript
+{
+    PrepareAuraScript(spell_bronjahm_corrupt_soul);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN_STUN, SPELL_DRAW_CORRUPTED_SOUL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_KNOCKDOWN_STUN, true);
+        target->CastSpell(target, SPELL_DRAW_CORRUPTED_SOUL, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_bronjahm_corrupt_soul::AfterRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_bronjahm_soul_power : public AchievementCriteriaScript
 {
     public:
@@ -348,5 +374,6 @@ void AddSC_boss_bronjahm()
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_channel");
     RegisterSpellScriptWithArgs(spell_bronjahm_soulstorm_visual, "spell_bronjahm_soulstorm_visual");
     RegisterSpellScript(spell_bronjahm_soulstorm_targeting);
+    RegisterSpellScript(spell_bronjahm_corrupt_soul);
     new achievement_bronjahm_soul_power();
 }

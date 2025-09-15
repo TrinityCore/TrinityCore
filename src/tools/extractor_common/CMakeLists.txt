@@ -27,4 +27,5 @@ target_include_directories(extractor_common
 
 set_target_properties(extractor_common
   PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
     FOLDER "tools")

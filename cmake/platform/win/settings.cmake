@@ -8,3 +8,8 @@ target_compile_definitions(trinity-compile-option-interface
 
 # set up output paths for executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+
+# add WindowsSettings.manifest to all executables
+target_sources(trinity-core-interface
+  INTERFACE
+    $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:${CMAKE_SOURCE_DIR}/cmake/platform/win/WindowsSettings.manifest>)
