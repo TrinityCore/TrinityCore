@@ -261,11 +261,11 @@ struct boss_brother_ironhull : public TidesageCouncilSharedAI
             }
             case EVENT_CHECK_MANA:
             {
-                if (me->GetPower(POWER_MANA) == me->GetMaxPower(POWER_MANA))
+                if (me->GetPowerPct(POWER_MANA) >= 100)
                 {
                     Talk(SAY_REINFORCING_WARD);
                     Talk(SAY_REINFORCING_WARD_WARNING);
-                    DoCastSelf(SPELL_REINFORCING_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST);
+                    DoCastSelf(SPELL_REINFORCING_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 }
                 events.Repeat(500ms);
                 break;
@@ -330,11 +330,11 @@ struct boss_galecaller_faye : public TidesageCouncilSharedAI
             }
             case EVENT_CHECK_MANA:
             {
-                if (me->GetPower(POWER_MANA) == me->GetMaxPower(POWER_MANA))
+                if (me->GetPowerPct(POWER_MANA) >= 100)
                 {
                     Talk(SAY_SWIFTING_WARD_WARNING);
                     Talk(SAY_SWIFTING_WARD);
-                    DoCastSelf(SPELL_SWIFTNESS_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST);
+                    DoCastSelf(SPELL_SWIFTNESS_WARD_SELECTOR, TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
                 }
                 events.Repeat(500ms);
                 break;
@@ -356,7 +356,7 @@ class spell_tidesage_council_ward_selector : public SpellScript
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), GetEffectValue(), CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
