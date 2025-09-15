@@ -68,6 +68,7 @@ struct GameEventData
     uint32 length;          // length of the event (minutes) after finishing all conditions
     HolidayIds holiday_id;
     uint8 holidayStage;
+    int32 WorldStateId;
     GameEventState state;   // state of the game event, these are saved into the game_event table on change!
     GameEventConditionMap conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
