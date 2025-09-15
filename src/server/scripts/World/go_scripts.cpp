@@ -46,6 +46,8 @@ EndContentData */
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
+#include <random>
+#include "vector"
 
 /*######
 ## go_gilded_brazier (Paladin First Trail quest (9678))
@@ -1219,6 +1221,73 @@ public:
     }
 };
 
+/*######
+## GO Drakkari Canopic Jar (Quest: It Takes Guts.... 12116)
+######*/
+
+enum it_takes_guts
+{
+    ANCIENT_DRAKKARI_SOOTHSAYER     = 26812,
+    ANCIENT_DRAKKARI_WARMONGER      = 26811,
+    NPC_ANCIENT_DRAKKARI_TALK       = 1
+};
+
+class go_188499_chest : public GameObjectScript
+{
+public:
+    go_188499_chest() : GameObjectScript("go_188499_chest") {}
+
+    struct go_188499_chestAI : public GameObjectAI
+    {
+        go_188499_chestAI(GameObject* go) : GameObjectAI(go) {}
+
+        void OnLootStateChanged(uint32 state, Unit* who) override
+        {
+            if (state != GO_ACTIVATED || !who || who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player* player = who->ToPlayer();
+            if (!player)
+                return;
+
+            std::vector<uint32> entries = { ANCIENT_DRAKKARI_SOOTHSAYE, ANCIENT_DRAKKARI_WARMONGER };
+            if (entries.empty())
+                return;
+
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distEntry(0, entries.size() - 1);
+            uint32 chosenEntry = entries[distEntry(gen)];
+
+            std::list<Creature*> tempList;
+            GetCreatureListWithEntryInGrid(tempList, me, chosenEntry, 30.0f);
+
+            std::vector<ObjectGuid> npcGuids;
+            for (Creature* c : tempList)
+                if (c && c->IsAlive())
+                    npcGuids.push_back(c->GetGUID());
+
+            if (npcGuids.empty())
+                return;
+
+            std::uniform_int_distribution<> distNpc(0, npcGuids.size() - 1);
+            ObjectGuid selectedGuid = npcGuids[distNpc(gen)];
+
+            if (Creature* target = ObjectAccessor::GetCreature(*me, selectedGuid))
+            {
+                target->SetFaction(14);
+                target->AI()->AttackStart(player);
+                target->AI()->Talk(NPC_ANCIENT_DRAKKARI_TALK);
+            }
+        }
+    };
+
+    GameObjectAI* GetAI(GameObject* go) const override
+    {
+        return new go_188499_chestAI(go);
+    }
+};
+
 void AddSC_go_scripts()
 {
     new go_gilded_brazier();
@@ -1241,4 +1310,5 @@ void AddSC_go_scripts()
     new go_darkmoon_faire_music();
     new go_pirate_day_music();
     new go_bells();
+    new go_188499_chest();
 }
