@@ -88,3 +88,18 @@ DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_midsummer_torch_tos
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (45716, 'spell_midsummer_torch_tossing_training_practice'),
 (46630, 'spell_midsummer_torch_tossing_training_practice');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (65684,67176,67177,67178,65686,67222,67223,67224);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_twin_valkyr_dark_essence',
+'spell_twin_valkyr_light_essence');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(65684, 'spell_twin_valkyr_dark_essence'),
+(67176, 'spell_twin_valkyr_dark_essence'),
+(67177, 'spell_twin_valkyr_dark_essence'),
+(67178, 'spell_twin_valkyr_dark_essence'),
+(65686, 'spell_twin_valkyr_light_essence'),
+(67222, 'spell_twin_valkyr_light_essence'),
+(67223, 'spell_twin_valkyr_light_essence'),
+(67224, 'spell_twin_valkyr_light_essence');
