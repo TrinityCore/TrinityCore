@@ -4780,6 +4780,20 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF ANTORUS THE BURNING THRONE SPELLS
 
     //
+    // DRUSTVAR SPELLS
+    //
+
+    // Shoot Wickerman
+    ApplySpellFix({ 255416 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AttributesEx2 |= SPELL_ATTR2_IGNORE_LINE_OF_SIGHT;
+    });
+
+    //
+    // ENDOF DRUSTVAR SPELLS
+    //
+
+    //
     // STORMSONG VALLEY SPELLS
     //
 
@@ -5064,6 +5078,12 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(12); // Interact Range
         spellInfo->AttributesEx4 &= ~SPELL_ATTR4_USE_FACING_FROM_SPELL;
+    });
+
+    // Rappelling Rope
+    ApplySpellFix({ 130960 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->AuraInterruptFlags |= SpellAuraInterruptFlags::LeaveWorld;
     });
 
     // ENDOF JADE FOREST SPELLS

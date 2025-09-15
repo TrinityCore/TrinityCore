@@ -68,6 +68,7 @@ enum MageSpells
     SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
     SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
     SPELL_MAGE_FLURRY_DAMAGE                     = 228596,
+    SPELL_MAGE_FRENETIC_SPEED                    = 236060,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_ICE_BARRIER                       = 11426,
@@ -109,6 +110,7 @@ enum MageSpells
     SPELL_MAGE_CHAIN_REACTION_DUMMY              = 278309,
     SPELL_MAGE_CHAIN_REACTION                    = 278310,
     SPELL_MAGE_TOUCH_OF_THE_MAGI_EXPLODE         = 210833,
+    SPELL_MAGE_WILDFIRE_TALENT                   = 383489,
     SPELL_MAGE_WINTERS_CHILL                     = 228358
 };
 
@@ -769,7 +771,7 @@ class spell_mage_firestarter_dots : public AuraScript
 // 108853 - Fire Blast
 class spell_mage_fire_blast : public SpellScript
 {
-    void CalcCritChance(Unit const* /*victim*/, float& critChance) const
+    void CalcCritChance(Unit const* /*victim*/, float& critChance)
     {
         critChance = 100.0f;
     }
@@ -1196,7 +1198,7 @@ class spell_mage_improved_scorch : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
     }
 
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
     }
@@ -1387,7 +1389,7 @@ class spell_mage_molten_fury : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_MOLTEN_FURY });
     }
 
-    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         if (!eventInfo.GetActionTarget()->HealthAbovePct(aurEff->GetAmount()))
             eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_MAGE_MOLTEN_FURY, CastSpellExtraArgsInit{
@@ -1678,6 +1680,37 @@ class spell_mage_scald : public SpellScript
     }
 };
 
+// 2948 - Scorch
+class spell_mage_scorch : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FRENETIC_SPEED });
+    }
+
+    void CalcCritChance(Unit const* victim, float& critChance)
+    {
+        if (victim->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            critChance = 100.0f;
+    }
+
+    void HandleFreneticSpeed(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (GetHitUnit()->GetHealthPct() < GetEffectInfo(EFFECT_1).CalcValue(GetCaster()))
+            caster->CastSpell(caster, SPELL_MAGE_FRENETIC_SPEED, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_scorch::CalcCritChance);
+        OnEffectHitTarget += SpellEffectFn(spell_mage_scorch::HandleFreneticSpeed, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 451875 - Spontaneous Combustion (attached to 190319 - Combustion)
 class spell_mage_spontaneous_combustion : public SpellScript
 {
@@ -1810,6 +1843,62 @@ class spell_mage_water_elemental_freeze : public SpellScript
     }
 };
 
+// 383493 - Wildfire
+class spell_mage_wildfire_area_crit : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* wildfireCritEffect = caster->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_3);
+        if (!wildfireCritEffect)
+            return;
+
+        canBeRecalculated = false;
+        amount = wildfireCritEffect->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_wildfire_area_crit::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_PCT);
+    }
+};
+
+// 383492 - Wildfire
+class spell_mage_wildfire_caster_crit : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2 } });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AuraEffect const* wildfireCritEffect = caster->GetAuraEffect(SPELL_MAGE_WILDFIRE_TALENT, EFFECT_2);
+        if (!wildfireCritEffect)
+            return;
+
+        canBeRecalculated = false;
+        amount = wildfireCritEffect->GetAmount();
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mage_wildfire_caster_crit::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     RegisterSpellScript(spell_mage_alter_time_aura);
@@ -1864,9 +1953,12 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ring_of_frost);
     RegisterSpellAndAuraScriptPair(spell_mage_ring_of_frost_freeze, spell_mage_ring_of_frost_freeze_AuraScript);
     RegisterSpellScript(spell_mage_scald);
+    RegisterSpellScript(spell_mage_scorch);
     RegisterSpellScript(spell_mage_spontaneous_combustion);
     RegisterSpellScript(spell_mage_supernova);
     RegisterSpellScript(spell_mage_tempest_barrier);
     RegisterSpellScript(spell_mage_touch_of_the_magi_aura);
     RegisterSpellScript(spell_mage_water_elemental_freeze);
+    RegisterSpellScript(spell_mage_wildfire_area_crit);
+    RegisterSpellScript(spell_mage_wildfire_caster_crit);
 }

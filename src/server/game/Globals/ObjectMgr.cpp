@@ -226,7 +226,6 @@ ObjectMgr::ObjectMgr():
     _hiPetNumber(1),
     _creatureSpawnId(1),
     _gameObjectSpawnId(1),
-    _voidItemId(1),
     DBCLocaleIndex(LOCALE_enUS)
 {
 }
@@ -466,7 +465,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth            = fields[40].GetBool();
     creatureTemplate.CreatureImmunitiesId   = fields[41].GetInt32();
     creatureTemplate.flags_extra            = fields[42].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetString());
+    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetStringView());
     creatureTemplate.StringId               = fields[44].GetString();
 }
 
@@ -923,11 +922,11 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
 
     //                                               0      1             2                     3                     4                5
     QueryResult result = WorldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID, HealthScalingExpansion, "
-    //   6               7             8              9               10                    11         12
-        "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, "
-    //   13      14                15          16       17
+    //   6               7             8              9               10                    11         12          13
+        "HealthModifier, ManaModifier, ArmorModifier, DamageModifier, CreatureDifficultyID, TypeFlags, TypeFlags2, TypeFlags3, "
+    //   14      15                16          17       18
         "LootID, PickPocketLootID, SkinLootID, GoldMin, GoldMax,"
-    //   18            19            20            21            22            23            24            25
+    //   19            20            21            22            23            24            25            26
         "StaticFlags1, StaticFlags2, StaticFlags3, StaticFlags4, StaticFlags5, StaticFlags6, StaticFlags7, StaticFlags8 "
         "FROM creature_template_difficulty ORDER BY Entry");
 
@@ -964,14 +963,15 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
         creatureDifficulty.CreatureDifficultyID   = fields[10].GetInt32();
         creatureDifficulty.TypeFlags              = fields[11].GetUInt32();
         creatureDifficulty.TypeFlags2             = fields[12].GetUInt32();
-        creatureDifficulty.LootID                 = fields[13].GetUInt32();
-        creatureDifficulty.PickPocketLootID       = fields[14].GetUInt32();
-        creatureDifficulty.SkinLootID             = fields[15].GetUInt32();
-        creatureDifficulty.GoldMin                = fields[16].GetUInt32();
-        creatureDifficulty.GoldMax                = fields[17].GetUInt32();
-        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[18].GetUInt32()), CreatureStaticFlags2(fields[19].GetUInt32()),
-            CreatureStaticFlags3(fields[20].GetUInt32()), CreatureStaticFlags4(fields[21].GetUInt32()), CreatureStaticFlags5(fields[22].GetUInt32()),
-            CreatureStaticFlags6(fields[23].GetUInt32()), CreatureStaticFlags7(fields[24].GetUInt32()),  CreatureStaticFlags8(fields[25].GetUInt32()));
+        creatureDifficulty.TypeFlags3             = fields[13].GetUInt32();
+        creatureDifficulty.LootID                 = fields[14].GetUInt32();
+        creatureDifficulty.PickPocketLootID       = fields[15].GetUInt32();
+        creatureDifficulty.SkinLootID             = fields[16].GetUInt32();
+        creatureDifficulty.GoldMin                = fields[17].GetUInt32();
+        creatureDifficulty.GoldMax                = fields[18].GetUInt32();
+        creatureDifficulty.StaticFlags            = CreatureStaticFlagsHolder(CreatureStaticFlags(fields[19].GetUInt32()), CreatureStaticFlags2(fields[20].GetUInt32()),
+            CreatureStaticFlags3(fields[21].GetUInt32()), CreatureStaticFlags4(fields[22].GetUInt32()), CreatureStaticFlags5(fields[23].GetUInt32()),
+            CreatureStaticFlags6(fields[24].GetUInt32()), CreatureStaticFlags7(fields[25].GetUInt32()),  CreatureStaticFlags8(fields[26].GetUInt32()));
 
         // TODO: Check if this still applies
         creatureDifficulty.DamageModifier *= Creature::GetDamageMod(itr->second.Classification);
@@ -2184,7 +2184,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseId        = fields[22].GetUInt32();
         data.phaseGroup     = fields[23].GetUInt32();
         data.terrainSwapMap = fields[24].GetInt32();
-        data.scriptId       = GetScriptId(fields[25].GetString());
+        data.scriptId       = GetScriptId(fields[25].GetStringView());
         data.StringId       = fields[26].GetString();
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
@@ -2654,7 +2654,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.scriptId = GetScriptId(fields[21].GetString());
+        data.scriptId = GetScriptId(fields[21].GetStringView());
         data.StringId = fields[22].GetString();
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
@@ -3431,7 +3431,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            itemTemplate->ScriptId = GetScriptId(fields[1].GetString());
+            itemTemplate->ScriptId = GetScriptId(fields[1].GetStringView());
             ++count;
         } while (result->NextRow());
     }
@@ -3544,6 +3544,15 @@ void ObjectMgr::LoadVehicleTemplate()
         vehicleTemplate.DespawnDelay = Milliseconds(fields[1].GetInt32());
         vehicleTemplate.Pitch = fields[2].GetFloatOrNull();
         vehicleTemplate.CustomFlags = VehicleCustomFlags(fields[3].GetInt32());
+
+        if (vehicleTemplate.DespawnDelay < 0ms)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `vehicle_template`: Creature (Entry: {}) has negative despawnDelayMs ({}).`. Ignoring",
+                creatureId, vehicleTemplate.DespawnDelay.count());
+            vehicleTemplate.DespawnDelay = 1ms;
+        }
+        else if (vehicleTemplate.DespawnDelay == 0ms)
+            vehicleTemplate.DespawnDelay = 1ms;
 
         if (vehicleTemplate.Pitch)
         {
@@ -6018,7 +6027,7 @@ void ObjectMgr::LoadEventScripts()
         Field* fields = result->Fetch();
 
         uint32 eventId = fields[0].GetUInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName = fields[1].GetStringView();
 
         if (!IsValidEvent(eventId))
         {
@@ -6054,7 +6063,7 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId                = fields[0].GetInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         bool allRanks = false;
         if (spellId < 0)
@@ -6270,7 +6279,7 @@ void ObjectMgr::LoadInstanceTemplate()
         InstanceTemplate instanceTemplate;
 
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = GetScriptId(fields[2].GetString());
+        instanceTemplate.ScriptId   = GetScriptId(fields[2].GetStringView());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -6690,7 +6699,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field* fields = result->Fetch();
 
         uint32 triggerId             = fields[0].GetUInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
         if (!atEntry)
@@ -7448,10 +7457,6 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 
-    result = CharacterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
-    if (result)
-        _voidItemId = (*result)[0].GetUInt64()+1;
-
     result = WorldDatabase.Query("SELECT MAX(guid) FROM creature");
     if (result)
         _creatureSpawnId = (*result)[0].GetUInt64() + 1;
@@ -7504,16 +7509,6 @@ uint32 ObjectMgr::GeneratePetNumber()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return _hiPetNumber++;
-}
-
-uint64 ObjectMgr::GenerateVoidStorageItemId()
-{
-    if (_voidItemId >= uint64(0xFFFFFFFFFFFFFFFELL))
-    {
-        TC_LOG_ERROR("misc", "_voidItemId overflow!! Can't continue, shutting down server. ");
-        World::StopNow(ERROR_EXIT_CODE);
-    }
-    return _voidItemId++;
 }
 
 uint64 ObjectMgr::GenerateCreatureSpawnId()
@@ -7710,7 +7705,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.ContentTuningId = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetString());
+        got.ScriptId = GetScriptId(fields[45].GetStringView());
         got.StringId = fields[46].GetString();
 
         // Checks
@@ -10037,16 +10032,17 @@ void ObjectMgr::ScriptNameContainer::reserve(size_t capacity)
     IndexToName.reserve(capacity);
 }
 
-uint32 ObjectMgr::ScriptNameContainer::insert(std::string const& scriptName, bool isScriptNameBound)
+uint32 ObjectMgr::ScriptNameContainer::insert(std::string_view scriptName, bool isScriptNameBound)
 {
-    auto result = NameToIndex.try_emplace(scriptName, static_cast<uint32>(NameToIndex.size()), isScriptNameBound);
-    if (result.second)
+    auto result = NameToIndex.lower_bound(scriptName);
+    if (result == NameToIndex.end() || NameToIndex.key_comp()(scriptName, result->first))
     {
         ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
-        IndexToName.emplace_back(result.first);
+        result = NameToIndex.emplace_hint(result, scriptName, Entry(static_cast<uint32>(NameToIndex.size()), isScriptNameBound));
+        IndexToName.emplace_back(result);
     }
 
-    return result.first->second.Id;
+    return result->second.Id;
 }
 
 size_t ObjectMgr::ScriptNameContainer::size() const
@@ -10059,7 +10055,7 @@ ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameCon
     return index < IndexToName.size() ? IndexToName[index] : end();
 }
 
-ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameContainer::find(std::string const& name) const
+ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameContainer::find(std::string_view name) const
 {
     // assume "" is the first element
     if (name.empty())
@@ -10120,7 +10116,7 @@ bool ObjectMgr::IsScriptDatabaseBound(uint32 id) const
     }
 }
 
-uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
+uint32 ObjectMgr::GetScriptId(std::string_view name, bool isDatabaseBound)
 {
     return _scriptNamesStore.insert(name, isDatabaseBound);
 }
@@ -11110,7 +11106,7 @@ void ObjectMgr::LoadSceneTemplates()
         sceneTemplate.PlaybackFlags     = static_cast<SceneFlag>(fields[1].GetUInt32());
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
         sceneTemplate.Encrypted         = fields[3].GetUInt8() != 0;
-        sceneTemplate.ScriptId          = GetScriptId(fields[4].GetCString());
+        sceneTemplate.ScriptId          = GetScriptId(fields[4].GetStringView());
 
     } while (templates->NextRow());
 
@@ -11161,7 +11157,7 @@ void ObjectMgr::LoadPlayerChoices()
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
             choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
             choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
-            choice.ScriptId = GetScriptId(fields.ScriptName().GetString());
+            choice.ScriptId = GetScriptId(fields.ScriptName().GetStringView());
 
         } while (choices->NextRow());
     }
@@ -12032,8 +12028,8 @@ void ObjectMgr::LoadJumpChargeParams()
     // need for reload case
     _jumpChargeParams.clear();
 
-    //                                               0   1      2                            3            4              5                6
-    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+    //                                               0   1      2                            3            4              5                6                 7
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
     if (!result)
     {
         return;
@@ -12050,6 +12046,7 @@ void ObjectMgr::LoadJumpChargeParams()
         Optional<int32> spellVisualId = fields[4].GetInt32OrNull();
         Optional<int32> progressCurveId = fields[5].GetInt32OrNull();
         Optional<int32> parabolicCurveId = fields[6].GetInt32OrNull();
+        Optional<int32> triggerSpellId = fields[7].GetInt32OrNull();
 
         if (speed <= 0.0f)
         {
@@ -12086,6 +12083,13 @@ void ObjectMgr::LoadJumpChargeParams()
             parabolicCurveId.reset();
         }
 
+        if (triggerSpellId && !sSpellMgr->GetSpellInfo(*triggerSpellId, DIFFICULTY_NONE))
+        {
+            TC_LOG_DEBUG("sql.sql", "Table `jump_charge_params` references non-existing trigger spell id: {} for id {}, ignored.",
+                *triggerSpellId, id);
+            triggerSpellId.reset();
+        }
+
         JumpChargeParams& params = _jumpChargeParams[id];
         params.Speed = speed;
         params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
@@ -12093,6 +12097,7 @@ void ObjectMgr::LoadJumpChargeParams()
         params.SpellVisualId = spellVisualId;
         params.ProgressCurveId = progressCurveId;
         params.ParabolicCurveId = parabolicCurveId;
+        params.TriggerSpellId = triggerSpellId;
 
     } while (result->NextRow());
 

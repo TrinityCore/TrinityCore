@@ -283,7 +283,7 @@ void BattlegroundMgr::LoadBattlegroundScriptTemplate()
         BattlegroundScriptTemplate& scriptTemplate = _battlegroundScriptTemplates[{ mapID, bgTypeId }];
         scriptTemplate.MapId = mapID;
         scriptTemplate.Id = bgTypeId;
-        scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetString());
+        scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetStringView());
 
         ++count;
     } while (result->NextRow());
@@ -406,7 +406,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         float dist                   = fields[3].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
         bgTemplate.Weight            = fields[4].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetStringView());
         bgTemplate.BattlemasterEntry = bl;
         bgTemplate.MapIDs            = std::move(mapsByBattleground[bgTypeId]);
 
@@ -465,19 +465,20 @@ void BattlegroundMgr::SendBattlegroundList(Player* player, ObjectGuid const& gui
     player->SendDirectMessage(battlefieldList.Write());
 }
 
-void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
+/*static*/ void BattlegroundMgr::SendToBattleground(Player* player, Battleground const* battleground)
 {
-    if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
+    if (!battleground)
     {
-        uint32 mapid = bg->GetMapId();
-        Team team = player->GetBGTeam();
-
-        WorldSafeLocsEntry const* pos = bg->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
-        TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), bgTypeId);
-        player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
+        TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Battleground not found while trying to teleport player {}", player->GetName());
+        return;
     }
-    else
-        TC_LOG_ERROR("bg.battleground", "BattlegroundMgr::SendToBattleground: Instance {} (bgType {}) not found while trying to teleport player {}", instanceId, bgTypeId, player->GetName());
+
+    uint32 mapid = battleground->GetMapId();
+    Team team = player->GetBGTeam();
+
+    WorldSafeLocsEntry const* pos = battleground->GetTeamStartPosition(Battleground::GetTeamIndexByTeamId(team));
+    TC_LOG_DEBUG("bg.battleground", "BattlegroundMgr::SendToBattleground: Sending {} to map {}, {} (bgType {})", player->GetName(), mapid, pos->Loc.ToString(), battleground->GetTypeID());
+    player->TeleportTo({ .Location = pos->Loc, .TransportGuid = pos->TransportSpawnId ? ObjectGuid::Create<HighGuid::Transport>(*pos->TransportSpawnId) : ObjectGuid::Empty });
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
