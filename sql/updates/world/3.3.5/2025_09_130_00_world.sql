@@ -103,3 +103,36 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (67222, 'spell_twin_valkyr_light_essence'),
 (67223, 'spell_twin_valkyr_light_essence'),
 (67224, 'spell_twin_valkyr_light_essence');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 55814;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_eck_spit';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(55814, 'spell_eck_spit');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (53288,53311);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_grizzly_hills_flight_onequah_to_lights_breach',
+'spell_grizzly_hills_flight_westfall_to_lights_breach');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(53288, 'spell_grizzly_hills_flight_onequah_to_lights_breach'),
+(53311, 'spell_grizzly_hills_flight_westfall_to_lights_breach');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (55428,55480,55500,55501,55502,55503);
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 57387;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_icecrown_argent_cannon_assault';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(57387, 'spell_icecrown_argent_cannon_assault');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 57787;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_icecrown_forcecast_bridenbrad_ascension';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(57787, 'spell_icecrown_forcecast_bridenbrad_ascension');
+
+UPDATE `creature_template` SET `AIName` = '' WHERE `entry` = 30562;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 30562 AND `source_type` = 0;
