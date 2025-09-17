@@ -132,6 +132,12 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when a spell starts
         void OnSpellStart(SpellInfo const* spellInfo) override;
 
+        // Called when aura is applied
+        void OnAuraApplied(SpellInfo const* spellInfo) override;
+
+        // Called when aura is removed
+        void OnAuraRemoved(SpellInfo const* spellInfo) override;
+
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
 

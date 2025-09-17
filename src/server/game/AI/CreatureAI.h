@@ -156,6 +156,12 @@ class TC_GAME_API CreatureAI : public UnitAI
         // Called when a channeled spell finishes
         virtual void OnChannelFinished(SpellInfo const* /*spell*/) { }
 
+        // Called when aura is applied
+        virtual void OnAuraApplied(SpellInfo const* /*spell*/) { }
+
+        // Called when aura is removed
+        virtual void OnAuraRemoved(SpellInfo const* /*spell*/) { }
+
         // Should return true if the NPC is currently being escorted
         virtual bool IsEscorted() const { return false; }
 

@@ -1788,6 +1788,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
     }
+
+    if (apply)
+    {
+        if (Creature* creature = target->ToCreature())
+            creature->AI()->OnAuraApplied(GetSpellInfo());
+    }
+    else
+    {
+        if (Creature* creature = target->ToCreature())
+            creature->AI()->OnAuraRemoved(GetSpellInfo());
+    }
 }
 
 bool Aura::CanBeAppliedOn(Unit* target)
