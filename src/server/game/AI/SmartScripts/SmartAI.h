@@ -23,6 +23,7 @@
 #include "GameObjectAI.h"
 #include "Position.h"
 #include "SmartScript.h"
+#include "SpellAuraEffects.h"
 #include "WaypointDefines.h"
 
 enum SmartEscortState : uint8
@@ -133,10 +134,10 @@ class TC_GAME_API SmartAI : public CreatureAI
         void OnSpellStart(SpellInfo const* spellInfo) override;
 
         // Called when aura is applied
-        void OnAuraApplied(SpellInfo const* spellInfo) override;
+        void OnAuraApplied(AuraApplication const* aurApp) override;
 
         // Called when aura is removed
-        void OnAuraRemoved(SpellInfo const* spellInfo) override;
+        void OnAuraRemoved(AuraApplication const* aurApp) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
