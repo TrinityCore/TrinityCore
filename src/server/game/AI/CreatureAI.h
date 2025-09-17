@@ -25,6 +25,7 @@
 #include "UnitAI.h"
 
 class AreaBoundary;
+class AuraApplication;
 class Creature;
 class DynamicObject;
 class GameObject;
