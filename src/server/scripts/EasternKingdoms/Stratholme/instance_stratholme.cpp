@@ -316,30 +316,6 @@ class instance_stratholme : public InstanceMapScript
                         }
                         break;
                     case BOSS_RAMSTEIN_THE_GORGER:
-                        if (state == IN_PROGRESS)
-                        {
-                            HandleGameObject(portGauntletGUID, false);
-
-                            uint32 count = abomnationGUID.size();
-                            for (GuidSet::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
-                            {
-                                if (Creature* pAbom = instance->GetCreature(*i))
-                                    if (!pAbom->IsAlive())
-                                        --count;
-                            }
-
-                            if (!count)
-                            {
-                                //a bit itchy, it should close the door after 10 secs, but it doesn't. skipping it for now.
-                                //UpdateGoState(ziggurat4GUID, 0, true);
-                                if (Creature* pBaron = instance->GetCreature(baronGUID))
-                                    pBaron->SummonCreature(NPC_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min);
-                                TC_LOG_DEBUG("scripts", "Instance Stratholme: Ramstein spawned.");
-                            }
-                            else
-                                TC_LOG_DEBUG("scripts", "Instance Stratholme: {} Abomnation left to kill.", count);
-                        }
-
                         if (state == NOT_STARTED)
                             HandleGameObject(portGauntletGUID, true);
 
@@ -422,6 +398,31 @@ class instance_stratholme : public InstanceMapScript
                                 }
                                 events.CancelEvent(EVENT_BARON_RUN);
                                 break;
+                        }
+                        break;
+                    case TYPE_RAMSTEIN:
+                        if (data == IN_PROGRESS)
+                        {
+                            HandleGameObject(portGauntletGUID, false);
+
+                            uint32 count = abomnationGUID.size();
+                            for (GuidSet::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
+                            {
+                                if (Creature* pAbom = instance->GetCreature(*i))
+                                    if (!pAbom->IsAlive())
+                                        --count;
+                            }
+
+                            if (!count)
+                            {
+                                //a bit itchy, it should close the door after 10 secs, but it doesn't. skipping it for now.
+                                //UpdateGoState(ziggurat4GUID, 0, true);
+                                if (Creature* pBaron = instance->GetCreature(baronGUID))
+                                    pBaron->SummonCreature(NPC_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min);
+                                TC_LOG_DEBUG("scripts", "Instance Stratholme: Ramstein spawned.");
+                            }
+                            else
+                                TC_LOG_DEBUG("scripts", "Instance Stratholme: {} Abomnation left to kill.", count);
                         }
                         break;
                     case TYPE_SH_AELMAR:
