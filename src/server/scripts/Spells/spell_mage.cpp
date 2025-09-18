@@ -1056,12 +1056,11 @@ class spell_mage_hot_streak_ignite_marker : public SpellScript
     bool _affectedByHotStreak = false;
 
 public:
-    static bool IsAffected(Spell const* spell)
+    static bool IsActive(Spell const* spell)
     {
         if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
             return script->_affectedByHotStreak;
         return false;
-
     }
 };
 
@@ -1247,7 +1246,7 @@ class spell_mage_ignite : public AuraScript
         int32 pct = aurEff->GetAmount();
 
         ASSERT(igniteDot->GetMaxTicks() > 0);
-        if (spell_mage_hot_streak_ignite_marker::IsAffected(eventInfo.GetProcSpell()))
+        if (spell_mage_hot_streak_ignite_marker::IsActive(eventInfo.GetProcSpell()))
             pct *= 2;
 
         int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
