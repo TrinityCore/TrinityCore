@@ -18,6 +18,7 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
+#include "Concepts.h"
 #include "ConditionMgr.h"
 #include "DBCEnums.h"
 #include "Duration.h"
@@ -27,6 +28,7 @@
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
+#include "Types.h"
 #include "UniqueTrackablePtr.h"
 #include <memory>
 
@@ -1054,6 +1056,36 @@ namespace Trinity
     };
 
     TC_GAME_API void SelectRandomInjuredTargets(std::list<WorldObject*>& targets, size_t maxTargets, bool prioritizePlayers, Unit const* prioritizeGroupMembersOf = nullptr);
+
+    struct TargetPriorityRule
+    {
+        template <typename Func> requires (!std::same_as<Func, TargetPriorityRule>)
+        TargetPriorityRule(Func&& func) : Rule([func = std::forward<Func>(func)]<typename T = WorldObject /*template to avoid Object.h dependency*/>(T* target)
+        {
+            if constexpr (invocable_r<Func, bool, WorldObject*>)
+                return std::invoke(func, target);
+            else if constexpr (invocable_r<Func, bool, Unit*>)
+                return target->IsUnit() && std::invoke(func, target->ToUnit());
+            else if constexpr (invocable_r<Func, bool, Player*>)
+                return target->IsPlayer() && std::invoke(func, target->ToPlayer());
+            else
+                static_assert(dependant_false_v<T>, "Unsupported object type, use WorldObject* as your rule argument");
+        })
+        {
+        }
+
+        std::function<bool(WorldObject*)> Rule;
+    };
+
+    TC_GAME_API void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::span<TargetPriorityRule const> rules);
+
+    template <std::size_t N>
+    inline void SortTargetsWithPriorityRules(std::list<WorldObject*>& targets, size_t maxTargets, std::array<TargetPriorityRule, N> const& rules)
+    {
+        static_assert(N <= 31);
+
+        SortTargetsWithPriorityRules(targets, maxTargets, std::span(rules));
+    }
 }
 
 extern template void Spell::SearchTargets<Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>>(Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck>& searcher, uint32 containerMask, WorldObject* referer, Position const* pos, float radius);

@@ -283,7 +283,7 @@ void BattlegroundMgr::LoadBattlegroundScriptTemplate()
         BattlegroundScriptTemplate& scriptTemplate = _battlegroundScriptTemplates[{ mapID, bgTypeId }];
         scriptTemplate.MapId = mapID;
         scriptTemplate.Id = bgTypeId;
-        scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetString());
+        scriptTemplate.ScriptId = sObjectMgr->GetScriptId(fields[2].GetStringView());
 
         ++count;
     } while (result->NextRow());
@@ -406,7 +406,7 @@ void BattlegroundMgr::LoadBattlegroundTemplates()
         float dist                   = fields[3].GetFloat();
         bgTemplate.MaxStartDistSq    = dist * dist;
         bgTemplate.Weight            = fields[4].GetUInt8();
-        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetString());
+        bgTemplate.ScriptId          = sObjectMgr->GetScriptId(fields[5].GetStringView());
         bgTemplate.BattlemasterEntry = bl;
         bgTemplate.MapIDs            = std::move(mapsByBattleground[bgTypeId]);
 

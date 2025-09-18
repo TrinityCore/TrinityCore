@@ -1158,7 +1158,7 @@ void AchievementGlobalMgr::LoadAchievementScripts()
         Field* fields = result->Fetch();
 
         uint32 achievementId         = fields[0].GetUInt32();
-        std::string scriptName       = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
