@@ -92,6 +92,7 @@ enum MageSpells
     SPELL_MAGE_METEOR_MISSILE                    = 153564,
     SPELL_MAGE_MOLTEN_FURY                       = 458910,
     SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
+    SPELL_MAGE_PHOENIX_FLAMES_DAMAGE             = 257542,
     SPELL_MAGE_PYROBLAST                         = 11366,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
@@ -979,24 +980,36 @@ class spell_mage_hot_streak : public AuraScript
             SPELL_MAGE_DRAGONS_BREATH,
             SPELL_MAGE_ALEXSTRASZAS_FURY,
             SPELL_MAGE_HOT_STREAK,
-            SPELL_MAGE_HEATING_UP
+            SPELL_MAGE_HEATING_UP,
+            SPELL_MAGE_PHOENIX_FLAMES_DAMAGE
         });
     }
 
     bool CheckProc(ProcEventInfo const& procEvent) const
     {
-        if (procEvent.GetSpellInfo()->Id == SPELL_MAGE_DRAGONS_BREATH)
-            if (!GetTarget()->HasAura(SPELL_MAGE_ALEXSTRASZAS_FURY))
-                return false;
+        Unit const* caster = GetTarget();
+        switch (procEvent.GetSpellInfo()->Id)
+        {
+            case SPELL_MAGE_DRAGONS_BREATH:
+                // talent requirement
+                if (!caster->HasAura(SPELL_MAGE_ALEXSTRASZAS_FURY))
+                    return false;
+                break;
+            case SPELL_MAGE_PHOENIX_FLAMES_DAMAGE:
+                // primary target only
+                if (procEvent.GetActionTarget()->GetGUID() != procEvent.GetProcSpell()->m_targets.GetObjectTargetGUID())
+                    return false;
+                break;
+            default:
+                break;
+        }
 
-        return !GetTarget()->HasAura(SPELL_MAGE_HOT_STREAK);
+        return true;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo) const
+    void HandleProc(ProcEventInfo const& eventInfo) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* caster = GetTarget();
 
         if (eventInfo.GetHitMask() & PROC_HIT_CRITICAL)
         {
@@ -1023,21 +1036,32 @@ class spell_mage_hot_streak : public AuraScript
 };
 
 // 48108 - Hot Streak! (attached to 11366 - Pyroblast and 2120 - Flamestrike)
-class spell_mage_hot_streak_remove : public SpellScript
+class spell_mage_hot_streak_ignite_marker : public SpellScript
 {
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK });
     }
 
-    void HandleHit() const
+    int32 CalcCastTime(int32 castTime) override
     {
-        GetCaster()->RemoveAurasDueToSpell(SPELL_MAGE_HOT_STREAK);
+        _affectedByHotStreak = GetSpell()->m_appliedMods.contains(GetCaster()->GetAura(SPELL_MAGE_HOT_STREAK));
+        return castTime;
     }
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_mage_hot_streak_remove::HandleHit);
+    }
+
+    bool _affectedByHotStreak = false;
+
+public:
+    static bool IsAffected(Spell const* spell)
+    {
+        if (spell_mage_hot_streak_ignite_marker const* script = spell->GetScript<spell_mage_hot_streak_ignite_marker>())
+            return script->_affectedByHotStreak;
+        return false;
+
     }
 };
 
@@ -1202,14 +1226,6 @@ class spell_mage_ice_lance_damage : public SpellScript
     }
 };
 
-bool IsHotStreak(ProcEventInfo& eventInfo)
-{
-    if (!eventInfo.GetActor()->HasAura(SPELL_MAGE_HOT_STREAK))
-        return false;
-
-    return eventInfo.GetSpellInfo()->Id == SPELL_MAGE_PYROBLAST || eventInfo.GetSpellInfo()->Id == SPELL_MAGE_FLAMESTRIKE;
-};
-
 // 12846 - Ignite
 class spell_mage_ignite : public AuraScript
 {
@@ -1231,7 +1247,10 @@ class spell_mage_ignite : public AuraScript
         int32 pct = aurEff->GetAmount();
 
         ASSERT(igniteDot->GetMaxTicks() > 0);
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), IsHotStreak(eventInfo) ? (pct * 2) : pct) / igniteDot->GetMaxTicks());
+        if (spell_mage_hot_streak_ignite_marker::IsAffected(eventInfo.GetProcSpell()))
+            pct *= 2;
+
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
@@ -2016,7 +2035,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_flurry_damage);
     RegisterSpellScript(spell_mage_frostbolt);
     RegisterSpellScript(spell_mage_hot_streak);
-    RegisterSpellScript(spell_mage_hot_streak_remove);
+    RegisterSpellScript(spell_mage_hot_streak_ignite_marker);
     RegisterSpellScript(spell_mage_hyper_impact);
     RegisterSpellScript(spell_mage_ice_barrier);
     RegisterSpellScript(spell_mage_ice_block);
