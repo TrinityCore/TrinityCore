@@ -288,7 +288,7 @@ void AreaTriggerDataStore::LoadAreaTriggerTemplates()
                     break;
             }
 
-            createProperties.ScriptId = sObjectMgr->GetScriptId(fields.ScriptName().GetString());
+            createProperties.ScriptId = sObjectMgr->GetScriptId(fields.ScriptName().GetStringView());
 
             if (std::vector<Position>* spline = Trinity::Containers::MapGetValuePtr(splinesByCreateProperties, createProperties.Id))
                 createProperties.Movement = std::move(*spline);
@@ -439,7 +439,7 @@ void AreaTriggerDataStore::LoadAreaTriggerSpawns()
             spawn.phaseId = fields[10].GetUInt32();
             spawn.phaseGroup = fields[11].GetUInt32();
 
-            spawn.scriptId = sObjectMgr->GetScriptId(fields[12].GetString());
+            spawn.scriptId = sObjectMgr->GetScriptId(fields[12].GetStringView());
             spawn.spawnGroupData = sObjectMgr->GetLegacySpawnGroup();
 
             // Add the trigger to a map::cell map, which is later used by GridLoader to query
