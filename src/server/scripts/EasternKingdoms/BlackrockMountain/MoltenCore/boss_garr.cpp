@@ -178,25 +178,19 @@ class spell_garr_separation_anxiety : public AuraScript
         amplitude = 5 * IN_MILLISECONDS;
     }
 
-    void HandleDummyTick(AuraEffect const* /*aurEff*/)
+    void HandleDummyTick(AuraEffect const* aurEff)
     {
         Unit* target = GetTarget();
 
         if (Unit* caster = GetCaster())
-            if (caster->IsAlive() && !caster->IsWithinDistInMap(target, GetEffectInfo(EFFECT_0).CalcRadius()))
+            if (caster->IsAlive() && !caster->IsWithinDistInMap(target, aurEff->GetSpellEffectInfo().CalcRadius()))
                 target->CastSpell(target, SPELL_SEPARATION_ANXIETY_EFFECT, true);
-    }
-
-    void HandleUpdatePeriodic(AuraEffect* aurEff)
-    {
-        aurEff->CalculatePeriodic(GetCaster());
     }
 
     void Register() override
     {
         DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_garr_separation_anxiety::CalcPeriodic, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_garr_separation_anxiety::HandleDummyTick, EFFECT_0, SPELL_AURA_DUMMY);
-        OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_garr_separation_anxiety::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
