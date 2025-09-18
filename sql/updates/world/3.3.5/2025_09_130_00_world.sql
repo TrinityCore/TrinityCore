@@ -136,3 +136,15 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 UPDATE `creature_template` SET `AIName` = '' WHERE `entry` = 30562;
 DELETE FROM `smart_scripts` WHERE `entryorguid` = 30562 AND `source_type` = 0;
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -57350;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_item_darkmoon_card_illusion';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(57350, 'spell_item_darkmoon_card_illusion');
+
+--
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = -38708;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_hellfire_peninsula_demonaic_visitation';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(38708, 'spell_hellfire_peninsula_demonaic_visitation');

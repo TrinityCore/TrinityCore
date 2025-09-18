@@ -4341,6 +4341,32 @@ class spell_item_thrallmar_and_honor_hold_favor : public AuraScript
     }
 };
 
+enum DarkmoonCardIllusion
+{
+    SPELL_DARKMOON_CARD_ILLUSION       = 60242
+};
+
+// 57350 - Illusionary Barrier
+class spell_item_darkmoon_card_illusion : public AuraScript
+{
+    PrepareAuraScript(spell_item_darkmoon_card_illusion);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DARKMOON_CARD_ILLUSION });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DARKMOON_CARD_ILLUSION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_item_darkmoon_card_illusion::AfterRemove, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4479,4 +4505,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_drums_of_forgotten_kings);
     RegisterSpellScript(spell_item_drums_of_the_wild);
     RegisterSpellScript(spell_item_thrallmar_and_honor_hold_favor);
+    RegisterSpellScript(spell_item_darkmoon_card_illusion);
 }
