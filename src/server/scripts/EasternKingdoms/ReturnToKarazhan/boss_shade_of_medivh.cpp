@@ -143,10 +143,10 @@ struct boss_shade_of_medivh : public BossAI
 
         scheduler.Schedule(2s, [this](TaskContext task)
         {
-            uint8 visualNumber = 5;
+            static constexpr uint8 VisualCount = 5;
             std::vector<Position> medivhVisualSpellsPositions(std::begin(MedivhVisualSpellsPositions), std::end(MedivhVisualSpellsPositions));
-            Trinity::Containers::RandomResize(medivhVisualSpellsPositions, visualNumber);
-            for (uint8 i = 0; i < visualNumber; i++)
+            Trinity::Containers::RandomResize(medivhVisualSpellsPositions, VisualCount);
+            for (uint8 i = 0; i < VisualCount; i++)
             {
                 float travelSpeed = 8.0f;
                 me->SendPlaySpellVisual(medivhVisualSpellsPositions[i], SPELLVISUAL_ARCANE_MISSILE, 0, 0, travelSpeed);
@@ -317,8 +317,8 @@ struct boss_shade_of_medivh : public BossAI
     {
         BossAI::JustEngagedWith(who);
 
-        DoCastSelf(SPELL_VO_CONTROLLER, TRIGGERED_FULL_MASK);
-        DoCastSelf(SPELL_MANA_REGEN, TRIGGERED_FULL_MASK);
+        DoCastSelf(SPELL_VO_CONTROLLER);
+        DoCastSelf(SPELL_MANA_REGEN);
 
         scheduler.CancelAll();
 
@@ -600,12 +600,8 @@ class spell_shade_of_medivh_ceaseless_winter_periodic : public AuraScript
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (caster->isMoving())
-            caster->RemoveAuraFromStack(SPELL_CEASELESS_WINTER_DAMAGE);
+        if (GetTarget()->isMoving())
+            GetTarget()->RemoveAuraFromStack(SPELL_CEASELESS_WINTER_DAMAGE);
     }
 
     void Register() override
@@ -686,8 +682,7 @@ class spell_shade_of_medivh_vo_controller : public SpellScript
             text = SAY_AGGRO;
 
         if (Creature* shadeOfMedivh = GetHitUnit()->ToCreature())
-            if (shadeOfMedivh->IsAIEnabled())
-                shadeOfMedivh->AI()->Talk(text);
+            shadeOfMedivh->AI()->Talk(text);
     }
 
     void Register() override
@@ -735,6 +730,8 @@ struct at_shade_of_medivh_ceaseless_winter : AreaTriggerAI
             for (ObjectGuid const& guid : at->GetInsideUnits())
             {
                 Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+                if (!unit)
+                    continue;
 
                 unit->CastSpell(unit, SPELL_CEASELESS_WINTER_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             }
@@ -795,25 +792,33 @@ struct at_shade_of_medivh_flame_wreath : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
         if (!unit->IsPlayer())
             return;
 
         if (GetInsidePlayersCount() >= 2)
         {
-            at->GetCaster()->CastSpell(unit, SPELL_FLAME_WREATH_AREA_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(unit, SPELL_FLAME_WREATH_AREA_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             at->Remove();
         }
         else
-            at->GetCaster()->CastSpell(unit, SPELL_FLAME_WREATH_PERIODIC_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(unit, SPELL_FLAME_WREATH_PERIODIC_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
     }
 
     void OnUnitExit(Unit* unit) override
     {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
         if (unit->HasAura(SPELL_FLAME_WREATH_PERIODIC_DAMAGE))
         {
             unit->RemoveAurasDueToSpell(SPELL_FLAME_WREATH_PERIODIC_DAMAGE);
-            at->GetCaster()->CastSpell(unit, SPELL_FLAME_WREATH_AREA_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            caster->CastSpell(unit, SPELL_FLAME_WREATH_AREA_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             at->Remove();
         }
     }
