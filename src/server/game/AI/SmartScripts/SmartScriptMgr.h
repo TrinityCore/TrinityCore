@@ -187,10 +187,12 @@ enum SMART_EVENT
     SMART_EVENT_ON_SPELL_FAILED          = 84,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_SPELL_START           = 85,      // SpellID, CooldownMin, CooldownMax
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
-    SMART_EVENT_ON_AURA_APPLIED          = 87,      // SpellID, CooldownMin, CooldownMax
-    SMART_EVENT_ON_AURA_REMOVED          = 88,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // don't use on 3.3.5a
+    SMART_EVENT_AREATRIGGER_EXIT         = 88,      // don't use on 3.3.5a
+    SMART_EVENT_ON_AURA_APPLIED          = 89,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_AURA_REMOVED          = 90,      // SpellID, CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 89
+    SMART_EVENT_END                      = 91
 };
 
 struct SmartEvent
@@ -1519,6 +1521,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_FAILED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_SEND_EVENT_TRIGGER,        0 },
+    {SMART_EVENT_AREATRIGGER_EXIT,          0 },
     {SMART_EVENT_ON_AURA_APPLIED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_AURA_REMOVED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
 };

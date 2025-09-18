@@ -1792,12 +1792,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     if (apply)
     {
         if (Creature* creature = target->ToCreature())
-            creature->AI()->OnAuraApplied(aurApp);
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraApplied(aurApp);
     }
     else
     {
         if (Creature* creature = target->ToCreature())
-            creature->AI()->OnAuraRemoved(aurApp);
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraRemoved(aurApp);
     }
 }
 
