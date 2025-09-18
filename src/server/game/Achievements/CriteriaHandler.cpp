@@ -4945,7 +4945,7 @@ void CriteriaMgr::LoadCriteriaData()
         }
 
         uint32 dataType = fields[1].GetUInt8();
-        std::string scriptName = fields[4].GetString();
+        std::string_view scriptName = fields[4].GetStringView();
         uint32 scriptId = 0;
         if (!scriptName.empty())
         {
