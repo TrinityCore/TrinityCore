@@ -723,6 +723,48 @@ class spell_powering_up : public SpellScript
 };
 
 // 65684, 67176, 67177, 67178 - Dark Essence
+class spell_twin_valkyr_dark_essence : public AuraScript
+{
+    PrepareAuraScript(spell_twin_valkyr_dark_essence);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_LIGHT_ESSENCE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_LIGHT_ESSENCE, GetTarget()));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_twin_valkyr_dark_essence::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 65686, 67222, 67223, 67224 - Light Essence
+class spell_twin_valkyr_light_essence : public AuraScript
+{
+    PrepareAuraScript(spell_twin_valkyr_light_essence);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DARK_ESSENCE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(sSpellMgr->GetSpellIdForDifficulty(SPELL_DARK_ESSENCE, GetTarget()));
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_twin_valkyr_light_essence::AfterApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 65684, 67176, 67177, 67178 - Dark Essence
 // 65686, 67222, 67223, 67224 - Light Essence
 class spell_valkyr_essences : public AuraScript
 {
@@ -860,6 +902,8 @@ void AddSC_boss_twin_valkyr()
 
     RegisterSpellScript(spell_bullet_controller);
     RegisterSpellScript(spell_powering_up);
+    RegisterSpellScript(spell_twin_valkyr_dark_essence);
+    RegisterSpellScript(spell_twin_valkyr_light_essence);
     RegisterSpellScript(spell_valkyr_essences);
     RegisterSpellScript(spell_power_of_the_twins);
 }
