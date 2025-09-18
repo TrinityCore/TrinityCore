@@ -1,5 +1,5 @@
-SET @OGUID := 109004300;
-SET @SPAWN_GROUP := 200000;
+SET @OGUID := 167035;
+SET @SPAWN_GROUP := 327;
 
 DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES

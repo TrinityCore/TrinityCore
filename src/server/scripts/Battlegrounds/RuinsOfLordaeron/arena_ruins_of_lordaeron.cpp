@@ -20,25 +20,19 @@
 #include "GameObject.h"
 #include "Map.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
 namespace RuinsOfLordaeron
 {
     namespace GameObjects
     {
-        static constexpr uint32 Door02 = 185917;
         static constexpr uint32 Door01 = 185918;
+        static constexpr uint32 Door02 = 185917;
     }
 }
 
 struct arena_ruins_of_lordaeron : ArenaScript
 {
     explicit arena_ruins_of_lordaeron(BattlegroundMap* map) : ArenaScript(map) { }
-
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
 
     void OnStart() override
     {
@@ -67,7 +61,6 @@ struct arena_ruins_of_lordaeron : ArenaScript
 
 private:
     GuidVector _doorGUIDs;
-    TaskScheduler _scheduler;
 };
 
 void AddSC_arena_ruins_of_lordaeron()
