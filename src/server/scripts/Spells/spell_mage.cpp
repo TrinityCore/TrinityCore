@@ -94,6 +94,7 @@ enum MageSpells
     SPELL_MAGE_PHOENIX_FLAMES                    = 257541,
     SPELL_MAGE_PHOENIX_FLAMES_DAMAGE             = 257542,
     SPELL_MAGE_PYROBLAST                         = 11366,
+    SPELL_MAGE_PYROTECHNICS                      = 157644,
     SPELL_MAGE_RADIANT_SPARK_PROC_BLOCKER        = 376105,
     SPELL_MAGE_RAY_OF_FROST_BONUS                = 208141,
     SPELL_MAGE_RAY_OF_FROST_FINGERS_OF_FROST     = 269748,
@@ -1591,6 +1592,29 @@ class spell_mage_prismatic_barrier : public AuraScript
     }
 };
 
+// 157642 - Pyrotechnics
+class spell_mage_pyrotechnics : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_PYROTECHNICS });
+    }
+
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
+    {
+        if (procInfo.GetHitMask() & PROC_HIT_CRITICAL)
+        {
+            PreventDefaultAction();
+            procInfo.GetActor()->RemoveAurasDueToSpell(SPELL_MAGE_PYROTECHNICS);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_mage_pyrotechnics::HandleProc, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
+};
+
 // 376103 - Radiant Spark
 class spell_mage_radiant_spark : public AuraScript
 {
@@ -2054,6 +2078,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_molten_fury);
     RegisterSpellScript(spell_mage_polymorph_visual);
     RegisterSpellScript(spell_mage_prismatic_barrier);
+    RegisterSpellScript(spell_mage_pyrotechnics);
     RegisterSpellScript(spell_mage_radiant_spark);
     RegisterSpellAndAuraScriptPair(spell_mage_ray_of_frost, spell_mage_ray_of_frost_aura);
     RegisterSpellScript(spell_mage_ring_of_frost);
