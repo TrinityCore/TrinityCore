@@ -131,6 +131,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void RemoveAreaTriggerFlag(AreaTriggerFieldFlags flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::Flags), uint32(flag)); }
         void ReplaceAllAreaTriggerFlags(AreaTriggerFieldFlags flag) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::Flags), uint32(flag)); }
 
+        float CalcCurrentScale() const;
         void SetOverrideScaleCurve(float overrideScale);
         void SetOverrideScaleCurve(std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset = {}, CurveInterpolationMode interpolation = CurveInterpolationMode::Linear);
         void ClearOverrideScaleCurve();
@@ -179,13 +180,13 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         void SetShape(AreaTriggerShapeInfo const& shape);
         float GetMaxSearchRadius() const;
-        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {});
-        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {});
+        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
         bool HasSplines() const { return _spline != nullptr; }
         ::Movement::Spline<float> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const;
 
-        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {});
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
         bool HasOrbit() const { return m_areaTriggerData->PathData.Is<UF::AreaTriggerOrbit>(); }
         UF::AreaTriggerOrbit const& GetOrbit() const { return *m_areaTriggerData->PathData.Get<UF::AreaTriggerOrbit>(); }
 
@@ -200,9 +201,16 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
     protected:
         void _UpdateDuration(int32 newDuration);
 
-        float CalcCurrentScale() const;
-
         float GetProgress() const;
+
+        struct ScaleCurveData
+        {
+            uint32 StartTimeOffset = 0;
+            CurveInterpolationMode Mode = CurveInterpolationMode::Linear;
+
+            using Points = std::array<DBCPosition2D, 2>;
+            std::variant<float, Points> Curve;
+        };
 
         float GetScaleCurveProgress(UF::ScaleCurve const& scaleCurve, uint32 timeTo) const;
         float GetScaleCurveValueAtProgress(UF::ScaleCurve const& scaleCurve, float x) const;
@@ -210,7 +218,7 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, float constantValue);
         void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, std::array<DBCPosition2D, 2> const& points, Optional<uint32> startTimeOffset, CurveInterpolationMode interpolation);
         void ClearScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator);
-        void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<AreaTriggerScaleCurveTemplate> const& curve);
+        void SetScaleCurve(UF::MutableFieldReference<UF::ScaleCurve, false> scaleCurveMutator, Optional<ScaleCurveData> const& curve);
 
         void UpdateTargetList();
         void SearchUnits(std::vector<Unit*>& targetList, float radius, bool check3D);

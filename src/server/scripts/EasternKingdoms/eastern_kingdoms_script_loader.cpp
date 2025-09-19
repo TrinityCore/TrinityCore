@@ -208,6 +208,7 @@ void AddSC_undercity();
 void AddSC_instance_return_to_karazhan();
 void AddSC_boss_maiden_of_virtue_rtk();
 void AddSC_boss_the_curator_rtk();
+void AddSC_boss_mana_devourer();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -406,4 +407,5 @@ void AddEasternKingdomsScripts()
     AddSC_instance_return_to_karazhan();
     AddSC_boss_maiden_of_virtue_rtk();
     AddSC_boss_the_curator_rtk();
+    AddSC_boss_mana_devourer();
 }
