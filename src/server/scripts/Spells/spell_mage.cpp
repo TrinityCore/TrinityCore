@@ -1600,16 +1600,12 @@ class spell_mage_pyrotechnics : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_PYROTECHNICS });
     }
 
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& procInfo)
+    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& procInfo)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
         if (procInfo.GetHitMask() & PROC_HIT_CRITICAL)
         {
             PreventDefaultAction();
-            caster->RemoveAurasDueToSpell(SPELL_MAGE_PYROTECHNICS);
+            procInfo.GetActor()->RemoveAurasDueToSpell(SPELL_MAGE_PYROTECHNICS);
         }
     }
 
