@@ -146,7 +146,7 @@ void LoadBuildInfo()
             build.MajorVersion = fields[0].GetUInt32();
             build.MinorVersion = fields[1].GetUInt32();
             build.BugfixVersion = fields[2].GetUInt32();
-            std::string hotfixVersion = fields[3].GetString();
+            std::string_view hotfixVersion = fields[3].GetStringView();
             if (hotfixVersion.length() < build.HotfixVersion.size())
                 std::ranges::copy(hotfixVersion, build.HotfixVersion.begin());
             else
