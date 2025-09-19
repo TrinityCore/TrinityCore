@@ -46,8 +46,7 @@ EndContentData */
 #include "SpellMgr.h"
 #include "TemporarySummon.h"
 #include "WorldSession.h"
-#include <random>
-#include "vector"
+#include <list>
 
 /*######
 ## go_gilded_brazier (Paladin First Trail quest (9678))
@@ -1227,9 +1226,9 @@ public:
 
 enum it_takes_guts
 {
-    ANCIENT_DRAKKARI_SOOTHSAYER     = 26812,
-    ANCIENT_DRAKKARI_WARMONGER      = 26811,
-    NPC_ANCIENT_DRAKKARI_TALK       = 1
+    ANCIENT_DRAKKARI_SOOTHSAYER = 26812,
+    ANCIENT_DRAKKARI_WARMONGER = 26811,
+    NPC_ANCIENT_DRAKKARI_TALK = 1
 };
 
 class go_188499_chest : public GameObjectScript
@@ -1250,30 +1249,32 @@ public:
             if (!player)
                 return;
 
-            std::vector<uint32> entries = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
-            if (entries.empty())
+            constexpr uint32 entries[] = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
+            constexpr size_t entryCount = sizeof(entries) / sizeof(entries[0]);
+
+            std::list<Creature*> npcList;
+
+            for (size_t i = 0; i < entryCount; ++i)
+            {
+                std::list<Creature*> tempList;
+                GetCreatureListWithEntryInGrid(tempList, me, entries[i], 30.0f);
+
+                for (Creature* c : tempList)
+                    if (c && c->IsAlive())
+                        npcList.push_back(c);
+            }
+
+            if (npcList.empty())
                 return;
 
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::uniform_int_distribution<> distEntry(0, entries.size() - 1);
-            uint32 chosenEntry = entries[distEntry(gen)];
+            size_t listSize = npcList.size();
+            size_t randIndex = urand(0, listSize - 1);
 
-            std::list<Creature*> tempList;
-            GetCreatureListWithEntryInGrid(tempList, me, chosenEntry, 30.0f);
+            auto it = npcList.begin();
+            std::advance(it, randIndex);
 
-            std::vector<ObjectGuid> npcGuids;
-            for (Creature* c : tempList)
-                if (c && c->IsAlive())
-                    npcGuids.push_back(c->GetGUID());
-
-            if (npcGuids.empty())
-                return;
-
-            std::uniform_int_distribution<> distNpc(0, npcGuids.size() - 1);
-            ObjectGuid selectedGuid = npcGuids[distNpc(gen)];
-
-            if (Creature* target = ObjectAccessor::GetCreature(*me, selectedGuid))
+            Creature* target = *it;
+            if (target)
             {
                 target->SetFaction(14);
                 target->AI()->AttackStart(player);
