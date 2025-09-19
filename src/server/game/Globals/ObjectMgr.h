@@ -1014,7 +1014,7 @@ class TC_GAME_API ObjectMgr
             };
 
         private:
-            using NameMap = std::map<std::string, Entry>;
+            using NameMap = std::map<std::string, Entry, std::less<>>;
 
             NameMap NameToIndex;
             std::vector<NameMap::const_iterator> IndexToName;
@@ -1023,10 +1023,10 @@ class TC_GAME_API ObjectMgr
             ScriptNameContainer();
 
             void reserve(size_t capacity);
-            uint32 insert(std::string const& scriptName, bool isScriptNameBound = true);
+            uint32 insert(std::string_view scriptName, bool isScriptNameBound = true);
             size_t size() const;
             NameMap::const_iterator find(size_t index) const;
-            NameMap::const_iterator find(std::string const& name) const;
+            NameMap::const_iterator find(std::string_view name) const;
             NameMap::const_iterator end() const;
 
             std::unordered_set<std::string> GetAllDBScriptNames() const;
@@ -1578,7 +1578,7 @@ class TC_GAME_API ObjectMgr
         std::unordered_set<std::string> GetAllDBScriptNames() const;
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
-        uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
+        uint32 GetScriptId(std::string_view name, bool isDatabaseBound = true);
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
