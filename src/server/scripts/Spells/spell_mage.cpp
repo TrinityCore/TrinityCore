@@ -81,6 +81,7 @@ enum MageSpells
     SPELL_MAGE_ICE_BARRIER                       = 11426,
     SPELL_MAGE_ICE_BLOCK                         = 45438,
     SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_IGNITION_BURST                    = 1217359,
     SPELL_MAGE_IMPROVED_COMBUSTION               = 383967,
     SPELL_MAGE_IMPROVED_SCORCH                   = 383608,
     SPELL_MAGE_INCANTERS_FLOW                    = 116267,
@@ -980,11 +981,6 @@ class spell_mage_heat_shimmer : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_HEAT_SHIMMER });
     }
 
-    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
-    {
-        return roll_chance_i(aurEff->GetAmount());
-    }
-
     static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_MAGE_HEAT_SHIMMER);
@@ -992,7 +988,6 @@ class spell_mage_heat_shimmer : public AuraScript
 
     void Register() override
     {
-        DoCheckEffectProc += AuraCheckEffectProcFn(spell_mage_heat_shimmer::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_mage_heat_shimmer::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1309,6 +1304,30 @@ class spell_mage_ignite : public AuraScript
     }
 };
 
+// 1217359 - Ignition Burst (attached to 458964 - Heat Shimmer)
+class spell_mage_ignition_burst : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_IGNITION_BURST });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_MAGE_IGNITION_BURST);
+    }
+
+    static void PreventAura(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_mage_ignition_burst::PreventAura, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
 // 37447 - Improved Mana Gems
 // 61062 - Improved Mana Gems
 class spell_mage_imp_mana_gems : public AuraScript
@@ -1365,12 +1384,12 @@ class spell_mage_improved_scorch : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH });
+        return ValidateSpellInfo({ SPELL_MAGE_IMPROVED_SCORCH, SPELL_MAGE_HEAT_SHIMMER });
     }
 
     static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount());
+        return eventInfo.GetProcTarget()->HealthBelowPct(aurEff->GetAmount()) || eventInfo.GetActor()->HasAura(SPELL_MAGE_HEAT_SHIMMER);
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
@@ -1860,10 +1879,11 @@ class spell_mage_scald : public SpellScript
 
     void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* victim, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
     {
-        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(GetCaster())) || !GetCaster()->HasAura(SPELL_MAGE_HEAT_SHIMMER))
+        Unit* caster = GetCaster();
+        if (!victim->HealthBelowPct(GetEffectInfo(EFFECT_1).CalcValue(caster)) || !caster->HasAura(SPELL_MAGE_HEAT_SHIMMER))
             return;
 
-        if (AuraEffect const* aurEff = GetCaster()->GetAuraEffect(SPELL_MAGE_SCALD, EFFECT_0))
+        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_MAGE_SCALD, EFFECT_0))
             AddPct(pctMod, aurEff->GetAmount());
     }
 
@@ -2112,6 +2132,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_ice_lance);
     RegisterSpellScript(spell_mage_ice_lance_damage);
     RegisterSpellScript(spell_mage_ignite);
+    RegisterSpellScript(spell_mage_ignition_burst);
     RegisterSpellScript(spell_mage_imp_mana_gems);
     RegisterSpellScript(spell_mage_improved_combustion);
     RegisterSpellScript(spell_mage_improved_scorch);

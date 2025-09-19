@@ -1,7 +1,8 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_heat_shimmer', 'spell_mage_heat_shimmer_remove');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_mage_heat_shimmer', 'spell_mage_heat_shimmer_remove', 'spell_mage_ignition_burst');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (457735, 'spell_mage_heat_shimmer'),
-(2948, 'spell_mage_heat_shimmer_remove');
+(2948, 'spell_mage_heat_shimmer_remove'),
+(458964, 'spell_mage_ignition_burst');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (457735);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
