@@ -24,6 +24,7 @@
 class AreaTrigger;
 class Spell;
 class Unit;
+enum class AreaTriggerExitMode : uint8;
 
 class TC_GAME_API AreaTriggerAI
 {
@@ -58,7 +59,7 @@ class TC_GAME_API AreaTriggerAI
         virtual void OnUnitEnter([[maybe_unused]] Unit* unit) { }
 
         // Called when an unit exit the AreaTrigger, or when the AreaTrigger is removed
-        virtual void OnUnitExit([[maybe_unused]] Unit* unit) { }
+        virtual void OnUnitExit([[maybe_unused]] Unit* unit, [[maybe_unused]] AreaTriggerExitMode exitMode) { }
 
         // Called when the AreaTrigger is removed
         virtual void OnRemove() { }

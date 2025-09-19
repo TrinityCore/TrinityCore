@@ -501,7 +501,7 @@ struct at_garothi_annihilation : AreaTriggerAI
             annihilation->RemoveAurasDueToSpell(SPELL_ANNIHILATION_WARNING);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
     {
         if (!unit->IsPlayer())
             return;
