@@ -637,12 +637,14 @@ class spell_hun_lock_and_load : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
     }
 
-    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        if (!roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
-            return;
+        return roll_chance_i(aurEff->GetAmount());
+    }
 
-        Unit* caster = GetCaster();
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
         caster->CastSpell(caster, SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
@@ -650,26 +652,8 @@ class spell_hun_lock_and_load : public AuraScript
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_hun_lock_and_load::HandleProc);
-    }
-};
-
-// 194594 - Lock and Load (attached to 19434 - Aimed Shot)
-class spell_hun_lock_and_load_remove : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
-    }
-
-    void HandleHit() const
-    {
-        GetCaster()->RemoveAurasDueToSpell(SPELL_HUNTER_LOCK_AND_LOAD);
-    }
-
-    void Register() override
-    {
-        AfterHit += SpellHitFn(spell_hun_lock_and_load_remove::HandleHit);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -1500,7 +1484,6 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_latent_poison_injectors_damage);
     RegisterSpellScript(spell_hun_latent_poison_injectors_trigger);
     RegisterSpellScript(spell_hun_lock_and_load);
-    RegisterSpellScript(spell_hun_lock_and_load_remove);
     RegisterSpellScript(spell_hun_manhunter);
     RegisterSpellScript(spell_hun_master_marksman);
     RegisterSpellScript(spell_hun_masters_call);
