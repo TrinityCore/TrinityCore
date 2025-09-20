@@ -254,7 +254,7 @@ BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxco
     sProcessorName[0] = '\0';
     // Skip spaces
     TCHAR* psz = szTmp;
-    while (iswspace(*psz))
+    while (_istspace(*psz))
         ++psz;
     _tcsncpy(sProcessorName, psz, maxcount);
     return TRUE;
@@ -567,9 +567,10 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
                 IWbemClassObject* fields = nullptr;
                 ULONG rows = 0;
                 HRESULT hres = queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
+                using wbem_class_object_ptr = com_unique_ptr<IWbemClassObject>;
                 return SUCCEEDED(hres) && rows
-                    ? std::pair(com_unique_ptr<IWbemClassObject>(fields), rows)
-                    : std::pair(com_unique_ptr<IWbemClassObject>(), ULONG(0));
+                    ? std::pair(wbem_class_object_ptr(fields), rows)
+                    : std::pair(wbem_class_object_ptr(), ULONG(0));
             }();
 
             if (!fields || !rows)
