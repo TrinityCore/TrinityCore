@@ -1180,13 +1180,13 @@ public:
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_LOCALE_BY_NAME);
                     stmt->setString(0, itemName);
                     result = WorldDatabase.Query(stmt);
+                }
 
-                    if (!result)
-                    {
-                        handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
-                        handler->SetSentErrorMessage(true);
-                        return false;
-                    }
+                if (!result)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
+                    handler->SetSentErrorMessage(true);
+                    return false;
                 }
                 itemId = result->Fetch()->GetUInt32();
             }
@@ -1327,13 +1327,13 @@ public:
                     stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_LOCALE_BY_NAME);
                     stmt->setString(0, itemName);
                     result = WorldDatabase.Query(stmt);
+                }
 
-                    if (!result)
-                    {
-                        handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr+1);
-                        handler->SetSentErrorMessage(true);
-                        return false;
-                    }
+                if (!result)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_COULDNOTFIND, itemNameStr + 1);
+                    handler->SetSentErrorMessage(true);
+                    return false;
                 }
                 itemId = result->Fetch()->GetUInt32();
             }
