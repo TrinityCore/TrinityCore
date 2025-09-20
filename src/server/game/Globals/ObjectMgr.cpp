@@ -465,7 +465,7 @@ void ObjectMgr::LoadCreatureTemplate(Field* fields)
     creatureTemplate.RegenHealth            = fields[40].GetBool();
     creatureTemplate.CreatureImmunitiesId   = fields[41].GetInt32();
     creatureTemplate.flags_extra            = fields[42].GetUInt32();
-    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetString());
+    creatureTemplate.ScriptID               = GetScriptId(fields[43].GetStringView());
     creatureTemplate.StringId               = fields[44].GetString();
 }
 
@@ -2184,7 +2184,7 @@ void ObjectMgr::LoadCreatures()
         data.phaseId        = fields[22].GetUInt32();
         data.phaseGroup     = fields[23].GetUInt32();
         data.terrainSwapMap = fields[24].GetInt32();
-        data.scriptId       = GetScriptId(fields[25].GetString());
+        data.scriptId       = GetScriptId(fields[25].GetStringView());
         data.StringId       = fields[26].GetString();
         data.spawnGroupData = IsTransportMap(data.mapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
@@ -2654,7 +2654,7 @@ void ObjectMgr::LoadGameObjects()
             }
         }
 
-        data.scriptId = GetScriptId(fields[21].GetString());
+        data.scriptId = GetScriptId(fields[21].GetStringView());
         data.StringId = fields[22].GetString();
 
         if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
@@ -3431,7 +3431,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            itemTemplate->ScriptId = GetScriptId(fields[1].GetString());
+            itemTemplate->ScriptId = GetScriptId(fields[1].GetStringView());
             ++count;
         } while (result->NextRow());
     }
@@ -6027,7 +6027,7 @@ void ObjectMgr::LoadEventScripts()
         Field* fields = result->Fetch();
 
         uint32 eventId = fields[0].GetUInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName = fields[1].GetStringView();
 
         if (!IsValidEvent(eventId))
         {
@@ -6063,7 +6063,7 @@ void ObjectMgr::LoadSpellScriptNames()
         Field* fields = result->Fetch();
 
         int32 spellId                = fields[0].GetInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         bool allRanks = false;
         if (spellId < 0)
@@ -6279,7 +6279,7 @@ void ObjectMgr::LoadInstanceTemplate()
         InstanceTemplate instanceTemplate;
 
         instanceTemplate.Parent     = uint32(fields[1].GetUInt16());
-        instanceTemplate.ScriptId   = GetScriptId(fields[2].GetString());
+        instanceTemplate.ScriptId   = GetScriptId(fields[2].GetStringView());
 
         _instanceTemplateStore[mapID] = instanceTemplate;
 
@@ -6699,7 +6699,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field* fields = result->Fetch();
 
         uint32 triggerId             = fields[0].GetUInt32();
-        std::string const scriptName = fields[1].GetString();
+        std::string_view scriptName  = fields[1].GetStringView();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
         if (!atEntry)
@@ -7705,7 +7705,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         got.ContentTuningId = fields[43].GetInt32();
         got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetString());
+        got.ScriptId = GetScriptId(fields[45].GetStringView());
         got.StringId = fields[46].GetString();
 
         // Checks
@@ -10032,16 +10032,17 @@ void ObjectMgr::ScriptNameContainer::reserve(size_t capacity)
     IndexToName.reserve(capacity);
 }
 
-uint32 ObjectMgr::ScriptNameContainer::insert(std::string const& scriptName, bool isScriptNameBound)
+uint32 ObjectMgr::ScriptNameContainer::insert(std::string_view scriptName, bool isScriptNameBound)
 {
-    auto result = NameToIndex.try_emplace(scriptName, static_cast<uint32>(NameToIndex.size()), isScriptNameBound);
-    if (result.second)
+    auto result = NameToIndex.lower_bound(scriptName);
+    if (result == NameToIndex.end() || NameToIndex.key_comp()(scriptName, result->first))
     {
         ASSERT(NameToIndex.size() <= std::numeric_limits<uint32>::max());
-        IndexToName.emplace_back(result.first);
+        result = NameToIndex.emplace_hint(result, scriptName, Entry(static_cast<uint32>(NameToIndex.size()), isScriptNameBound));
+        IndexToName.emplace_back(result);
     }
 
-    return result.first->second.Id;
+    return result->second.Id;
 }
 
 size_t ObjectMgr::ScriptNameContainer::size() const
@@ -10054,7 +10055,7 @@ ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameCon
     return index < IndexToName.size() ? IndexToName[index] : end();
 }
 
-ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameContainer::find(std::string const& name) const
+ObjectMgr::ScriptNameContainer::NameMap::const_iterator ObjectMgr::ScriptNameContainer::find(std::string_view name) const
 {
     // assume "" is the first element
     if (name.empty())
@@ -10115,7 +10116,7 @@ bool ObjectMgr::IsScriptDatabaseBound(uint32 id) const
     }
 }
 
-uint32 ObjectMgr::GetScriptId(std::string const& name, bool isDatabaseBound)
+uint32 ObjectMgr::GetScriptId(std::string_view name, bool isDatabaseBound)
 {
     return _scriptNamesStore.insert(name, isDatabaseBound);
 }
@@ -11105,7 +11106,7 @@ void ObjectMgr::LoadSceneTemplates()
         sceneTemplate.PlaybackFlags     = static_cast<SceneFlag>(fields[1].GetUInt32());
         sceneTemplate.ScenePackageId    = fields[2].GetUInt32();
         sceneTemplate.Encrypted         = fields[3].GetUInt8() != 0;
-        sceneTemplate.ScriptId          = GetScriptId(fields[4].GetCString());
+        sceneTemplate.ScriptId          = GetScriptId(fields[4].GetStringView());
 
     } while (templates->NextRow());
 
@@ -11156,7 +11157,7 @@ void ObjectMgr::LoadPlayerChoices()
             choice.ShowChoicesAsList = fields.ShowChoicesAsList().GetBool();
             choice.ForceDontShowChoicesAsList = fields.ForceDontShowChoicesAsList().GetBool();
             choice.MaxResponses = fields.MaxResponses().GetUInt32OrNull();
-            choice.ScriptId = GetScriptId(fields.ScriptName().GetString());
+            choice.ScriptId = GetScriptId(fields.ScriptName().GetStringView());
 
         } while (choices->NextRow());
     }

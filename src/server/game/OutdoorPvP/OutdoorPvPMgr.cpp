@@ -78,7 +78,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
             continue;
         }
 
-        m_OutdoorPvPDatas[typeId] = sObjectMgr->GetScriptId(fields[1].GetString());
+        m_OutdoorPvPDatas[typeId] = sObjectMgr->GetScriptId(fields[1].GetStringView());
 
         ++count;
     }
