@@ -2508,14 +2508,15 @@ DROP TABLE IF EXISTS `quest_tracker`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quest_tracker` (
-  `id` mediumint unsigned NOT NULL DEFAULT '0',
+  `id` int unsigned NOT NULL DEFAULT '0',
   `character_guid` int unsigned NOT NULL DEFAULT '0',
   `quest_accept_time` datetime NOT NULL,
   `quest_complete_time` datetime DEFAULT NULL,
   `quest_abandon_time` datetime DEFAULT NULL,
   `completed_by_gm` tinyint(1) NOT NULL DEFAULT '0',
   `core_hash` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
-  `core_revision` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0'
+  `core_revision` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  UNIQUE KEY `idx_latest_quest_for_character` (`id`,`character_guid`,`quest_accept_time` DESC)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2690,7 +2691,8 @@ INSERT INTO `updates` VALUES
 ('2024_08_17_00_characters.sql','08705FBCB8504E8B1009FDAF955F56D734FAD782','ARCHIVED','2024-08-17 22:26:12',0),
 ('2024_10_03_00_characters.sql','408249A6992999A36EB94089D184972E8E0767A3','ARCHIVED','2024-10-03 11:10:18',0),
 ('2024_11_22_00_characters.sql','9EA2A4F88036D1D5F47EE8A6B634D52D0014986E','ARCHIVED','2024-11-22 23:18:14',0),
-('2025_07_20_00_characters_2022_07_03_00_characters.sql','D3F04078C0846BCF7C8330AC20C39B8C3AEE7002','RELEASED','2022-07-03 23:37:24',0);
+('2025_07_20_00_characters_2022_07_03_00_characters.sql','D3F04078C0846BCF7C8330AC20C39B8C3AEE7002','RELEASED','2022-07-03 23:37:24',0),
+('2025_09_09_00_characters.sql','A1A793D656117C31DAA92653DF0BE4AE6354358A','RELEASED','2025-09-09 14:03:38',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 

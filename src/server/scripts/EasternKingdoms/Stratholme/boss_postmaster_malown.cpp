@@ -15,126 +15,108 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_postmaster_malown
-SD%Complete: 50
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires update
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-//Spell ID to summon this guy is 24627 "Summon Postmaster Malown"
-//He should be spawned along with three other elites once the third postbox has been opened
-
-enum Says
+enum MalownTexts
 {
-    SAY_KILL                    = 0
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1
 };
 
-enum Spells
+enum MalownSpells
 {
-    SPELL_WAILINGDEAD           = 7713,
+    SPELL_INCORPOREAL_DEFENSE   = 16331,
     SPELL_BACKHAND              = 6253,
-    SPELL_CURSEOFWEAKNESS       = 8552,
-    SPELL_CURSEOFTONGUES        = 12889,
-    SPELL_CALLOFTHEGRAVE        = 17831
+    SPELL_CURSE_OF_WEAKNESS     = 12741,
+    SPELL_CURSE_OF_TONGUES      = 13338,
+    SPELL_FEAR                  = 12542
 };
 
-enum Events
+enum MalownEvents
 {
-    EVENT_WAILINGDEAD          = 1,
-    EVENT_BACKHAND             = 2,
-    EVENT_CURSEOFWEAKNESS      = 3,
-    EVENT_CURSEOFTONGUES       = 4,
-    EVENT_CALLOFTHEGRAVE       = 5
+    EVENT_BACKHAND              = 1,
+    EVENT_CURSE_OF_WEAKNESS,
+    EVENT_CURSE_OF_TONGUES,
+    EVENT_FEAR
 };
 
-class boss_postmaster_malown : public CreatureScript
+// 11143 - Postmaster Malown
+struct boss_postmaster_malown : public BossAI
 {
-    public:
-        boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }
+    boss_postmaster_malown(Creature* creature) : BossAI(creature, BOSS_POSTMASTER_MALOWN) { }
 
-        struct boss_postmaster_malownAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        DoCastSelf(SPELL_INCORPOREAL_DEFENSE);
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override
+    {
+        Talk(SAY_AGGRO);
+
+        events.ScheduleEvent(EVENT_BACKHAND, 10s, 20s);
+        events.ScheduleEvent(EVENT_CURSE_OF_WEAKNESS, 20s, 30s);
+        events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 15s, 30s);
+        events.ScheduleEvent(EVENT_FEAR, 25s, 35s);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            boss_postmaster_malownAI(Creature* creature) : BossAI(creature, TYPE_MALOWN) { }
-
-            void Reset() override { }
-
-            void JustEngagedWith(Unit* /*who*/) override
+            switch (eventId)
             {
-                events.ScheduleEvent(EVENT_WAILINGDEAD, 19s);     // lasts 6 sec
-                events.ScheduleEvent(EVENT_BACKHAND, 8s);         // 2 sec stun
-                events.ScheduleEvent(EVENT_CURSEOFWEAKNESS, 20s); // lasts 2 mins
-                events.ScheduleEvent(EVENT_CURSEOFTONGUES, 22s);
-                events.ScheduleEvent(EVENT_CALLOFTHEGRAVE, 25s);
+                case EVENT_BACKHAND:
+                    DoCastVictim(SPELL_BACKHAND);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_CURSE_OF_WEAKNESS:
+                    DoCastSelf(SPELL_CURSE_OF_WEAKNESS);
+                    events.Repeat(30s, 40s);
+                    break;
+                case EVENT_CURSE_OF_TONGUES:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_CURSE_OF_TONGUES);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_FEAR:
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FEAR);
+                    events.Repeat(25s, 35s);
+                    break;
+                default:
+                    break;
             }
 
-            void KilledUnit(Unit* /*victim*/) override
-            {
-                Talk(SAY_KILL);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_WAILINGDEAD:
-                            if (rand32() % 100 < 65) //65% chance to cast
-                                DoCastVictim(SPELL_WAILINGDEAD, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 19s);
-                            break;
-                        case EVENT_BACKHAND:
-                            if (rand32() % 100 < 45) //45% chance to cast
-                                DoCastVictim(SPELL_BACKHAND, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 8s);
-                            break;
-                        case EVENT_CURSEOFWEAKNESS:
-                            if (rand32() % 100 < 3) //3% chance to cast
-                                DoCastVictim(SPELL_CURSEOFWEAKNESS, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 20s);
-                            break;
-                        case EVENT_CURSEOFTONGUES:
-                            if (rand32() % 100 < 3) //3% chance to cast
-                                DoCastVictim(SPELL_CURSEOFTONGUES, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 22s);
-                            break;
-                        case EVENT_CALLOFTHEGRAVE:
-                            if (rand32() % 100 < 5) //5% chance to cast
-                                DoCastVictim(SPELL_CALLOFTHEGRAVE, true);
-                            events.ScheduleEvent(EVENT_WAILINGDEAD, 25s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetStratholmeAI<boss_postmaster_malownAI>(creature);
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
         }
+
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_postmaster_malown()
 {
-    new boss_postmaster_malown();
+    RegisterStratholmeCreatureAI(boss_postmaster_malown);
 }
