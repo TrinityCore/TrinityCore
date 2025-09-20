@@ -162,6 +162,8 @@ class TC_GAME_API BattlegroundMgr
         void LoadBattlegroundScriptTemplate();
         BattlegroundScriptTemplate const* FindBattlegroundScriptTemplate(uint32 mapId, BattlegroundTypeId bgTypeId) const;
 
+        static void QueuePlayerForArena(Player const* player, uint8 teamSize, uint8 roles);
+
     private:
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         static bool IsArenaType(BattlegroundTypeId bgTypeId);

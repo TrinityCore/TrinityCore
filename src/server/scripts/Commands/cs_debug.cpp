@@ -26,7 +26,6 @@ EndScriptData */
 #include "Bag.h"
 #include "BattlefieldMgr.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundPackets.h"
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelPackets.h"
@@ -864,12 +863,7 @@ public:
         if (!battlemasterListId || !handler || !handler->GetSession())
             return true;
 
-        std::unique_ptr<WorldPacket> worldPacket = std::make_unique<WorldPacket>(CMSG_BATTLEMASTER_JOIN_ARENA);
-        *worldPacket << static_cast<uint8>(0);
-        *worldPacket << static_cast<uint8>(lfg::PLAYER_ROLE_DAMAGE);
-        WorldPackets::Battleground::BattlemasterJoinArena packet(std::move(*worldPacket));
-        packet.Read();
-        handler->GetSession()->HandleBattlemasterJoinArena(packet);
+        BattlegroundMgr::QueuePlayerForArena(handler->GetSession()->GetPlayer(), 0, lfg::PLAYER_ROLE_DAMAGE);
         return true;
     }
 
