@@ -507,10 +507,12 @@ void BattlegroundMgr::ToggleTesting()
     sWorld->SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
 }
 
-void BattlegroundMgr::ToggleArenaTesting()
+void BattlegroundMgr::ToggleArenaTesting(uint32 battlemasterListId)
 {
-    m_ArenaTesting = !m_ArenaTesting;
-    sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+    if (m_ArenaTesting != battlemasterListId)
+        sWorld->SendWorldText((battlemasterListId != 0) ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+
+    m_ArenaTesting = battlemasterListId;
 }
 
 bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
@@ -686,6 +688,9 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
+        if (bgTemplate->IsArena() && isArenaTesting())
+            return static_cast<BattlegroundTypeId>(m_ArenaTesting);
+
         std::vector<BattlegroundTemplate const*> ids;
         ids.reserve(bgTemplate->MapIDs.size());
         for (int32 mapId : bgTemplate->MapIDs)
