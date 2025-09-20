@@ -65,7 +65,7 @@ uint8 BattlegroundTemplate::GetMaxLevel() const
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
+    m_UpdateTimer(0), m_ArenaTesting(0), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
