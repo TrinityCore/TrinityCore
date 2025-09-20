@@ -634,6 +634,16 @@ void SmartAI::OnSpellStart(SpellInfo const* spellInfo)
     GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, 0, 0, false, spellInfo);
 }
 
+void SmartAI::OnAuraApplied(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_APPLIED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
+void SmartAI::OnAuraRemoved(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_REMOVED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);

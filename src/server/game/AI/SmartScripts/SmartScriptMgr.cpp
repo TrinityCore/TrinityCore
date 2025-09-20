@@ -774,6 +774,8 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_APPLIED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_REMOVED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
@@ -1108,6 +1110,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_ON_SPELL_CAST:
             case SMART_EVENT_ON_SPELL_FAILED:
             case SMART_EVENT_ON_SPELL_START:
+            case SMART_EVENT_ON_AURA_APPLIED:
+            case SMART_EVENT_ON_AURA_REMOVED:
             {
                 if (!IsSpellValid(e, e.event.spellCast.spell))
                     return false;
