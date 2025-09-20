@@ -173,7 +173,7 @@ WorldPacket const* WorldPackets::Query::QueryItemSingleResponse::Write()
             {
                 _worldPacket << Stats.Spells[s].SpellId;
                 _worldPacket << Stats.Spells[s].SpellTrigger;
-                _worldPacket << uint32(-abs(Stats.Spells[s].SpellCharges));
+                _worldPacket << int32(Stats.Spells[s].SpellCharges);
                 _worldPacket << uint32(Stats.Spells[s].SpellCooldown);
                 _worldPacket << uint32(Stats.Spells[s].SpellCategory);
                 _worldPacket << uint32(Stats.Spells[s].SpellCategoryCooldown);
