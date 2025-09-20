@@ -12,9 +12,10 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 
 UPDATE `creature_template` SET `ScriptName`='boss_tunk' WHERE `entry`=157300;
 
-DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_tunk_seismic_slam_selector';
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN('spell_tunk_seismic_slam_selector', 'spell_tunk_interrupting_shout');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(308454, 'spell_tunk_seismic_slam_selector');
+(308454, 'spell_tunk_seismic_slam_selector'),
+(321240, 'spell_tunk_interrupting_shout');
 
 DELETE FROM `creature_text` WHERE `CreatureID`=157300;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES

@@ -81,8 +81,6 @@ struct boss_tunk : public BossAI
 
         if (spellInfo->Id == SPELL_SEISMIC_SLAM_DAMAGE)
             Talk(SAY_WARNING_SEISMIC_SLAM, target);
-        else if (spellInfo->Id == SPELL_INTERRUPTING_SHOUT && target->ToPlayer()->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL) != nullptr) // should only happens when successfully interrupts a spell
-            Talk(SAY_WARNING_INTERRUPT, target);
     }
 
     void UpdateAI(uint32 diff) override
@@ -174,11 +172,35 @@ struct at_tunk_seismic_slam : AreaTriggerAI
     }
 };
 
+// 321240 - Interrupting Shout
+class spell_tunk_interrupting_shout : public SpellScript
+{
+    void HandleLaunchTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Creature* caster = GetCaster()->ToCreature();
+        if (!caster)
+            return;
+
+        Player* hitPlayer = GetHitUnit()->ToPlayer();
+        if (!hitPlayer)
+            return;
+
+        if (hitPlayer->GetCurrentSpell(CurrentSpellTypes::CURRENT_GENERIC_SPELL) != nullptr)
+            caster->AI()->Talk(SAY_WARNING_INTERRUPT, hitPlayer);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_tunk_interrupting_shout::HandleLaunchTarget, EFFECT_1, SPELL_EFFECT_INTERRUPT_CAST);
+    }
+};
+
 void AddSC_boss_tunk()
 {
     RegisterDarkmaulCitadelCreatureAI(boss_tunk);
 
     RegisterSpellScript(spell_tunk_seismic_slam_selector);
+    RegisterSpellScript(spell_tunk_interrupting_shout);
 
     RegisterAreaTriggerAI(at_tunk_seismic_slam);
 }
