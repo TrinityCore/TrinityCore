@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
+#include "WorldSession.h"
 
 bool BattlegroundTemplate::IsArena() const
 {
@@ -64,7 +65,7 @@ uint8 BattlegroundTemplate::GetMaxLevel() const
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
+    m_UpdateTimer(0), m_ArenaTesting(0), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -300,6 +301,16 @@ BattlegroundScriptTemplate const* BattlegroundMgr::FindBattlegroundScriptTemplat
     return Trinity::Containers::MapGetValuePtr(_battlegroundScriptTemplates, { mapId, BATTLEGROUND_TYPE_NONE });
 }
 
+void BattlegroundMgr::QueuePlayerForArena(Player const* player, uint8 teamSize, uint8 roles)
+{
+    std::unique_ptr<WorldPacket> worldPacket = std::make_unique<WorldPacket>(CMSG_BATTLEMASTER_JOIN_ARENA);
+    *worldPacket << static_cast<uint8>(teamSize);
+    *worldPacket << static_cast<uint8>(roles);
+    WorldPackets::Battleground::BattlemasterJoinArena packet(std::move(*worldPacket));
+    packet.Read();
+    player->GetSession()->HandleBattlemasterJoinArena(packet);
+}
+
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
     if (IsArenaType(bgTypeId))
@@ -507,10 +518,12 @@ void BattlegroundMgr::ToggleTesting()
     sWorld->SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
 }
 
-void BattlegroundMgr::ToggleArenaTesting()
+void BattlegroundMgr::ToggleArenaTesting(uint32 battlemasterListId)
 {
-    m_ArenaTesting = !m_ArenaTesting;
-    sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+    if (m_ArenaTesting != battlemasterListId)
+        sWorld->SendWorldText((battlemasterListId != 0) ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+
+    m_ArenaTesting = battlemasterListId;
 }
 
 bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
@@ -686,6 +699,9 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
+        if (bgTemplate->IsArena() && isArenaTesting())
+            return static_cast<BattlegroundTypeId>(m_ArenaTesting);
+
         std::vector<BattlegroundTemplate const*> ids;
         ids.reserve(bgTemplate->MapIDs.size());
         for (int32 mapId : bgTemplate->MapIDs)
