@@ -50,6 +50,7 @@ ObjectData const creatureData[] =
     { NPC_SATHROVARR,             DATA_SATHROVARR           },
     { NPC_BRUTALLUS,              DATA_BRUTALLUS            },
     { NPC_MADRIGOSA,              DATA_MADRIGOSA            },
+    { NPC_WORLD_TRIGGER,          DATA_WORLD_TRIGGER        },
     { NPC_FELMYST,                DATA_FELMYST              },
     { NPC_GRAND_WARLOCK_ALYTHESS, DATA_ALYTHESS             },
     { NPC_LADY_SACROLASH,         DATA_SACROLASH            },
@@ -59,6 +60,12 @@ ObjectData const creatureData[] =
     { NPC_ANVEENA,                DATA_ANVEENA              },
     { NPC_KALECGOS_KJ,            DATA_KALECGOS_KJ          },
     { 0,                          0                         } // END
+};
+
+ObjectData const gameObjectData[] =
+{
+    { GO_ICE_BARRIER,             DATA_ICE_BARRIER          },
+    { 0,                          0                         } //END
 };
 
 BossBoundaryData const boundaries =
@@ -78,7 +85,7 @@ class instance_sunwell_plateau : public InstanceMapScript
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                LoadObjectData(creatureData, nullptr);
+                LoadObjectData(creatureData, gameObjectData);
                 LoadBossBoundaries(boundaries);
             }
 
