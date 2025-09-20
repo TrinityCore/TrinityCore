@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
+#include "WorldSession.h"
 
 bool BattlegroundTemplate::IsArena() const
 {
