@@ -31,6 +31,7 @@
 #include "LFGQueue.h"
 #include "Log.h"
 #include "Map.h"
+#include "MapUtils.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -43,15 +44,16 @@
 namespace lfg
 {
 
-LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minlevel(0),
-    maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
+LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), minlevel(),
+    maxlevel(), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
 {
 }
 
 LFGDungeonData::LFGDungeonData(LFGDungeonEntry const* dbc) : id(dbc->ID), name(dbc->Name[0]), map(dbc->MapID),
     type(dbc->TypeID), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
-    minlevel(uint8(dbc->MinLevel)), maxlevel(uint8(dbc->MaxLevel)), difficulty(Difficulty(dbc->Difficulty)),
-    seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
+    minlevel({ uint8(dbc->MinLevel), uint8(dbc->MinLevel), uint8(dbc->MinLevel) }),
+    maxlevel({ uint8(dbc->MaxLevel), uint8(dbc->MaxLevel), uint8(dbc->MaxLevel) }),
+    difficulty(Difficulty(dbc->Difficulty)), seasonal((dbc->Flags & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
 {
 }
 
@@ -206,6 +208,15 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             case LFG_TYPE_RANDOM:
                 LfgDungeonStore[dungeon->ID] = LFGDungeonData(dungeon);
                 break;
+        }
+    }
+
+    for (LFGDungeonExpansionEntry const* dungeonExpansion : sLFGDungeonExpansionStore)
+    {
+        if (LFGDungeonData* dungeon = Trinity::Containers::MapGetValuePtr(LfgDungeonStore, dungeonExpansion->LfgID))
+        {
+            dungeon->minlevel[dungeonExpansion->ExpansionLevel] = dungeonExpansion->HardLevelMin;
+            dungeon->maxlevel[dungeonExpansion->ExpansionLevel] = dungeonExpansion->HardLevelMax;
         }
     }
 
@@ -1700,9 +1711,9 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
             lockData = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
             lockData = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if (dungeon->minlevel > level)
+        else if (dungeon->minlevel[expansion] > level)
             lockData = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-        else if (dungeon->maxlevel < level)
+        else if (dungeon->maxlevel[expansion] < level)
             lockData = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
             lockData = LFG_LOCKSTATUS_NOT_IN_SEASON;
@@ -2134,7 +2145,7 @@ LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
     {
         lfg::LFGDungeonData const& dungeon = itr->second;
         if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
-            && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
+            && dungeon.expansion <= expansion && dungeon.minlevel[expansion] <= level && level <= dungeon.maxlevel[expansion])
             randomDungeons.insert(dungeon.Entry());
     }
     return randomDungeons;
