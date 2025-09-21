@@ -104,9 +104,8 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup
 
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x20000000, `VerifiedBuild`=63163 WHERE (`Entry`=115494 AND `DifficultyID`=0); -- 115494 (High King Maulgar) - Floating
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_blades_edge_arena_reaction_trigger', 'spell_blades_edge_arena_game_event');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_blades_edge_arena_game_event');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(234032, 'spell_blades_edge_arena_reaction_trigger'),
 (234033, 'spell_blades_edge_arena_game_event');
 
 SET @MOVERGUID := @CGUID+7;

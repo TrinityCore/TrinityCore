@@ -20,6 +20,8 @@
 #include "Containers.h"
 #include "GameObject.h"
 #include "Map.h"
+#include "Player.h"
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "TaskScheduler.h"
@@ -34,7 +36,6 @@ namespace BladesEdge
         static constexpr uint32 MaulgarReactionGenderedF = 4;
         static constexpr uint32 MaulgarReactionNonGendered = 5;
         static constexpr uint32 MaulgarReactionBored = 6;
-        static constexpr uint32 OnKill = 7;
     }
 
     namespace Creatures
@@ -125,9 +126,6 @@ struct arena_blades_edge_legion : ArenaScript
             case BladesEdge::Actions::ReactionTrigger:
                 HandleReactionTriggerLowHealth(Object::ToPlayer(source));
                 break;
-            case BladesEdge::Actions::OnKill:
-                HandleReactionKill();
-                break;
             default:
                 break;
         }
@@ -186,7 +184,7 @@ struct arena_blades_edge_legion : ArenaScript
         });
     }
 
-    void HandleReactionTriggerLowHealth(Player const* source) const
+    void HandleReactionTriggerLowHealth(Player const* source)
     {
         if (Creature const* maulgar = battlegroundMap->GetCreature(_maulgarGUID))
         {
@@ -200,10 +198,7 @@ struct arena_blades_edge_legion : ArenaScript
                     maulgar->AI()->DoAction(BladesEdge::Actions::MaulgarReactionGenderedM);
             }
         }
-    }
 
-    void HandleReactionKill()
-    {
         _scheduleBored = false;
     }
 
@@ -212,27 +207,6 @@ private:
     GuidVector _doorGUIDs;
     ObjectGuid _maulgarGUID;
     bool _scheduleBored;
-};
-
-// 234032 - Blade's Edge Arena Reaction Trigger
-class spell_blades_edge_arena_reaction_trigger : public AuraScript
-{
-    bool Load() override
-    {
-        return GetCaster()->GetMapId() == BladesEdge::MapIds::BladesEdge;
-    }
-
-    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
-    {
-        Unit* target = GetTarget();
-        if (ZoneScript* zoneScript = target->FindZoneScript())
-            zoneScript->DoAction(BladesEdge::Actions::OnKill, target, target);
-    }
-
-    void Register() override
-    {
-        OnProc += AuraProcFn(spell_blades_edge_arena_reaction_trigger::HandleProc);
-    }
 };
 
 // 234033 - Blade's Edge Arena Game Event
@@ -266,7 +240,6 @@ class spell_blades_edge_arena_game_event : public SpellScript
 void AddSC_arena_blades_edge_legion()
 {
     RegisterBattlegroundMapScript(arena_blades_edge_legion, BladesEdge::MapIds::BladesEdge);
-    RegisterSpellScript(spell_blades_edge_arena_reaction_trigger);
     RegisterSpellScript(spell_blades_edge_arena_game_event);
     RegisterCreatureAI(npc_blades_edge_high_king_maulgar);
 }
