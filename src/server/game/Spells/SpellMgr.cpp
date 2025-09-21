@@ -2969,11 +2969,11 @@ void SpellMgr::LoadSpellInfoCorrections()
         
         ApplySpellFix({
             39284
-            }, [](SpellInfo* spellInfo)
-            {
-                 /* Handle Periodic Trigger 2 Seconds to much for summon*/
-                spellInfo->_GetEffect(EFFECT_0).Amplitude = 5 * IN_MILLISECONDS;
-            });
+    },  [](SpellInfo* spellInfo)
+    {
+        /* Handle Periodic Trigger 2 Seconds to much for summon*/
+        spellInfo->_GetEffect(EFFECT_0).Amplitude = 5 * IN_MILLISECONDS;
+    });
         
         ApplySpellFix({
             24707, // Food
