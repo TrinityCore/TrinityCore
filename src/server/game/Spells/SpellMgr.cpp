@@ -2966,7 +2966,15 @@ void SpellMgr::LoadSpellInfoCorrections()
         {
             spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
         });
-
+        
+        ApplySpellFix({
+            39284
+            }, [](SpellInfo* spellInfo)
+            {
+                 /* Handle Periodic Trigger 2 Seconds to much for summon*/
+                spellInfo->_GetEffect(EFFECT_0).Amplitude = 5 * IN_MILLISECONDS;
+            });
+        
         ApplySpellFix({
             24707, // Food
             26263, // Dim Sum
