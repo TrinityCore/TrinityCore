@@ -235,7 +235,6 @@ struct npc_barada : public ScriptedAI
             julesGUID = jules->GetGUID();
             jules->AI()->Talk(SAY_JULES_1);
         }
-        
         me->SetWalk(true);
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
         Talk(SAY_BARADA_2);
