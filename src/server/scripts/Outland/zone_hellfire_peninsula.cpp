@@ -140,6 +140,7 @@ struct npc_colonel_jules : public ScriptedAI
             me->RemoveAura(SPELL_JULES_GOES_UPRIGHT);
             me->RemoveAura(SPELL_JULES_VOMITS_AURA);
             me->RemoveAura(SPELL_JULES_THREATENS_AURA);
+
             std::list<uint32> despawnEntries = { NPC_DARKNESS_RELEASED, NPC_FOUL_PURGE, NPC_THE_EXORCISM_BUBBLING_SLIMER_BUNNY };
             for (uint32 entry : despawnEntries)
             {
@@ -175,6 +176,7 @@ struct npc_colonel_jules : public ScriptedAI
             point++;
             wpreached = false;
         }
+
         events.Update(diff);
     }
 
@@ -182,6 +184,7 @@ struct npc_colonel_jules : public ScriptedAI
     {
         if (success)
             player->KilledMonsterCredit(NPC_COLONEL_JULES, ObjectGuid::Empty);
+
         SendGossipMenuFor(player, player->GetGossipTextId(me), me->GetGUID());
         return true;
     }
