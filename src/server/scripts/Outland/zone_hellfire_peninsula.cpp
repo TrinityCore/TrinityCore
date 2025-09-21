@@ -448,9 +448,7 @@ private:
 enum spell_ritual_prayer_beads
 {
     SPELL_HEAL_BARADA           = 39322,
-    NPC_ANCHORITE_BARADA        = 22431,
-    NPC_DARKNESS_RELEASED       = 22507,
-    NPC_FOUL_PURGE              = 22506
+    NPC_ANCHORITE_BARADA        = 22431
 };
 
 /*Handle Prayer Beads item -> Linked spell in Database not working*/
