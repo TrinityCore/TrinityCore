@@ -93,6 +93,12 @@ public:
         _sslSocket.next_layer().shutdown(what, shutdownError);
     }
 
+    template<typename ConnectHandlerType>
+    decltype(auto) async_connect(boost::asio::ip::tcp::endpoint const& endpoint, ConnectHandlerType&& handler)
+    {
+        return _sslSocket.next_layer().async_connect(endpoint, std::forward<ConnectHandlerType>(handler));
+    }
+
     template<typename MutableBufferSequence, typename ReadHandlerType>
     decltype(auto) async_read_some(MutableBufferSequence const& buffers, ReadHandlerType&& handler)
     {
