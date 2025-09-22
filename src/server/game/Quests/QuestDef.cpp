@@ -257,7 +257,7 @@ void Quest::LoadQuestTemplateAddon(Field* fields)
     _requiredMaxRepValue = fields[15].GetInt32();
     _sourceItemIdCount = fields[16].GetUInt8();
     _specialFlags = fields[17].GetUInt8();
-    _scriptId = sObjectMgr->GetScriptId(fields[18].GetString());
+    _scriptId = sObjectMgr->GetScriptId(fields[18].GetStringView());
 
     if (_specialFlags & QUEST_SPECIAL_FLAGS_AUTO_ACCEPT)
         _flags |= QUEST_FLAGS_AUTO_ACCEPT;
