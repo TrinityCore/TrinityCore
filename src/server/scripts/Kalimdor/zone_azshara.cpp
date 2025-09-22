@@ -177,7 +177,6 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
             else
                 MustDieTimer -= diff;
         }
-        
         if (!Escape)
         {
             if (_playerGUID.IsEmpty())
@@ -212,7 +211,6 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
 
             return;
         }
-        
         if (!Reached)
         {
             if (GrenadeTimer <= diff)
@@ -227,13 +225,11 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
             else
                 GrenadeTimer -= diff;
         }
-        
         if (ContinueWP)
         {
             me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
             ContinueWP = false;
         }
-        
         if (CheckTimer <= diff)
         {
             Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
@@ -242,7 +238,6 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
                 me->DespawnOrUnsummon();
                 return;
             }
-
             if (me->IsWithinDist(player, 10.0f) && !Reached)
             {
                 Talk(SAY_RIZZLE_FINAL);
