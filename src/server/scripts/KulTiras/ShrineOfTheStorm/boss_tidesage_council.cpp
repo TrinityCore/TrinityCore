@@ -412,7 +412,7 @@ struct at_tidesage_council_reinforcing_ward : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_REINFORCING_WARD_DAMAGE_TAKEN_BOSS);
         unit->RemoveAurasDueToSpell(SPELL_REINFORCING_WARD_DAMAGE_TAKEN_PLAYER);
@@ -467,7 +467,7 @@ struct at_tidesage_council_swiftness_ward_boss : AreaTriggerAI
         caster->CastSpell(unit, SPELL_SWIFTNESS_WARD_HASTE_BOSS, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_SWIFTNESS_WARD_HASTE_BOSS);
     }
@@ -487,7 +487,7 @@ struct at_tidesage_council_swiftness_ward_player : AreaTriggerAI
         unit->CastSpell(unit, SPELL_SWIFTNESS_WARD_HASTE_PLAYER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_SWIFTNESS_WARD_HASTE_PLAYER);
     }
