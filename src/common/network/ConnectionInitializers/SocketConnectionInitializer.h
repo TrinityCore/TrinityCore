@@ -36,6 +36,12 @@ struct SocketConnectionInitializer : public std::enable_shared_from_this<SocketC
 
     virtual void Start() = 0;
 
+    void InvokeNext()
+    {
+        if (next)
+            next->Start();
+    }
+
     std::shared_ptr<SocketConnectionInitializer> next;
 
     static std::shared_ptr<SocketConnectionInitializer>& SetupChain(std::span<std::shared_ptr<SocketConnectionInitializer>> initializers)

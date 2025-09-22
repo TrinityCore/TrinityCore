@@ -176,8 +176,7 @@ void WorldSocketProtocolInitializer::HandleDataReady()
         return;
 
     _socket->SendAuthSession();
-    if (next)
-        next->Start();
+    InvokeNext();
 }
 
 bool WorldSocket::InitializeCompression()

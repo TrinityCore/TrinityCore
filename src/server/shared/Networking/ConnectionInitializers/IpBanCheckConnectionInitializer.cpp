@@ -17,6 +17,8 @@
 
 #include "IpBanCheckConnectionInitializer.h"
 #include "DatabaseEnv.h"
+#include "IpAddress.h"
+#include "Log.h"
 
 QueryCallback Trinity::Net::IpBanCheckHelpers::AsyncQuery(boost::asio::ip::address const& ipAddress)
 {
@@ -39,4 +41,9 @@ bool Trinity::Net::IpBanCheckHelpers::IsBanned(PreparedQueryResult const& result
     }
 
     return false;
+}
+
+void Trinity::Net::IpBanCheckHelpers::LogFailure(boost::asio::ip::address const& ipAddress)
+{
+    TC_LOG_ERROR("network", "IpBanCheckConnectionInitializer: IP {} is banned.", ipAddress);
 }
