@@ -202,6 +202,7 @@ enum PreAddSpells
 
     SPELL_RUNIC_STRIKE              = 62322,
     SPELL_AURA_OF_CELERITY          = 62320,
+    SPELL_AURA_OF_CELERITY_VISUAL   = 62398,
 
     SPELL_IMPALE                    = 62331,
     SPELL_WHIRLING_TRIP             = 64151,
@@ -2129,6 +2130,27 @@ class spell_thorim_activate_lightning_orb_periodic : public SpellScriptLoader
         }
 };
 
+// 62320 - Aura of Celerity
+class spell_thorim_aura_of_celerity : public AuraScript
+{
+    PrepareAuraScript(spell_thorim_aura_of_celerity);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AURA_OF_CELERITY_VISUAL });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_AURA_OF_CELERITY_VISUAL);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_thorim_aura_of_celerity::AfterRemove, EFFECT_0, SPELL_AURA_MELEE_SLOW, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 class achievement_dont_stand_in_the_lightning : public AchievementCriteriaScript
 {
     public:
@@ -2203,6 +2225,7 @@ void AddSC_boss_thorim()
     new spell_thorim_arena_leap();
     new spell_thorim_runic_smash();
     new spell_thorim_activate_lightning_orb_periodic();
+    RegisterSpellScript(spell_thorim_aura_of_celerity);
     new achievement_dont_stand_in_the_lightning();
     new achievement_lose_your_illusion();
     new achievement_i_ll_take_you_all_on();

@@ -1043,7 +1043,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
+        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveyard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team, nullptr);
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
@@ -1174,6 +1174,13 @@ public:
                 WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
                 stmt->setString(0, itemName);
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+                if (!result)
+                {
+                    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_LOCALE_BY_NAME);
+                    stmt->setString(0, itemName);
+                    result = WorldDatabase.Query(stmt);
+                }
 
                 if (!result)
                 {
@@ -1314,6 +1321,13 @@ public:
                 WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_BY_NAME);
                 stmt->setString(0, itemName);
                 PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+                if (!result)
+                {
+                    stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_ITEM_TEMPLATE_LOCALE_BY_NAME);
+                    stmt->setString(0, itemName);
+                    result = WorldDatabase.Query(stmt);
+                }
 
                 if (!result)
                 {

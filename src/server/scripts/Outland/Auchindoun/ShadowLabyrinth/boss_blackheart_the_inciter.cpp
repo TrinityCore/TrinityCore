@@ -72,6 +72,7 @@ class BlackheartCharmedPlayerAI : public SimpleCharmedPlayerAI
     }
 };
 
+// 18667 - Blackheart the Inciter
 struct boss_blackheart_the_inciter : public BossAI
 {
     boss_blackheart_the_inciter(Creature* creature) : BossAI(creature, DATA_BLACKHEART_THE_INCITER) { }
@@ -124,6 +125,7 @@ struct boss_blackheart_the_inciter : public BossAI
     void UpdateAI(uint32 diff) override
     {
         events.Update(diff);
+
         if (me->HasReactState(REACT_PASSIVE) || !UpdateVictim())
             return;
 
@@ -139,19 +141,19 @@ struct boss_blackheart_the_inciter : public BossAI
                     if (me->GetThreatManager().GetThreatListSize() > 1)
                     {
                         ResetThreatList();
-                        DoCast(me, SPELL_INCITE_CHAOS);
+                        DoCastSelf(SPELL_INCITE_CHAOS);
                     }
-                    events.ScheduleEvent(EVENT_INCITE_CHAOS, 40s);
+                    events.Repeat(40s);
                     break;
                 }
                 case EVENT_CHARGE_ATTACK:
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
                         DoCast(target, SPELL_CHARGE);
-                    events.ScheduleEvent(EVENT_CHARGE, 15s, 25s);
+                    events.Repeat(15s, 25s);
                     break;
                 case EVENT_WAR_STOMP:
-                    DoCast(me, SPELL_WAR_STOMP);
-                    events.ScheduleEvent(EVENT_WAR_STOMP, 18s, 24s);
+                    DoCastSelf(SPELL_WAR_STOMP);
+                    events.Repeat(18s, 24s);
                     break;
             }
 
@@ -168,6 +170,7 @@ struct boss_blackheart_the_inciter_mc_dummy : public NullCreatureAI
     using NullCreatureAI::NullCreatureAI;
     void InitializeAI() override { me->SetReactState(REACT_PASSIVE); }
     static const uint32 FIRST_DUMMY = NPC_BLACKHEART_DUMMY1, LAST_DUMMY = NPC_BLACKHEART_DUMMY5;
+
     void IsSummonedBy(WorldObject* whoWO) override
     {
         Unit* who = whoWO->ToUnit();
@@ -215,7 +218,8 @@ class spell_blackheart_incite_chaos : public SpellScript
 
     static const uint8 NUM_INCITE_SPELLS = 5;
     static const uint32 INCITE_SPELLS[NUM_INCITE_SPELLS];
-    uint8 i=0;
+    uint8 i = 0;
+
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Unit* target = GetHitUnit())
@@ -230,6 +234,7 @@ class spell_blackheart_incite_chaos : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_blackheart_incite_chaos::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
 const uint32 spell_blackheart_incite_chaos::INCITE_SPELLS[spell_blackheart_incite_chaos::NUM_INCITE_SPELLS] = { 33677,33680,33681,33682,33683 };
 
 void AddSC_boss_blackheart_the_inciter()
