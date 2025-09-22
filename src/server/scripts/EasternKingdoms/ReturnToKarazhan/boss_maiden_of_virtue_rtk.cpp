@@ -279,7 +279,7 @@ struct at_maiden_of_virtue_rtk_sacred_ground : AreaTriggerAI
         caster->CastSpell(unit, SPELL_SACRED_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAura(SPELL_SACRED_GROUND_PERIODIC);
     }
