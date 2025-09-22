@@ -74,42 +74,6 @@ namespace BladesEdge
     }
 }
 
-class npc_blades_edge_high_king_maulgar : public ScriptedAI
-{
-public:
-    explicit npc_blades_edge_high_king_maulgar(Creature* creature) : ScriptedAI(creature) { }
-
-    void DoAction(int32 actionId) override
-    {
-        switch (actionId)
-        {
-            case BladesEdge::Actions::ArenaStart:
-                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ArenaStart);
-                break;
-            case BladesEdge::Actions::MaulgarReactionNonGendered:
-                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerNonGendered);
-                break;
-            case BladesEdge::Actions::MaulgarReactionGenderedM:
-                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerGenderedM);
-                break;
-            case BladesEdge::Actions::MaulgarReactionGenderedF:
-                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerGenderedF);
-                break;
-            case BladesEdge::Actions::MaulgarReactionBored:
-                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::Bored);
-                break;
-            default:
-                break;
-        }
-    }
-
-    void ProcessTalk(uint8 id)
-    {
-        Talk(id);
-        DoCastAOE(BladesEdge::Spells::KingVoiceOverCooldownAura);
-    }
-};
-
 struct arena_blades_edge_legion : ArenaScript
 {
     explicit arena_blades_edge_legion(BattlegroundMap* map) : ArenaScript(map), _scheduleBored(true) { }
@@ -207,6 +171,43 @@ private:
     GuidVector _doorGUIDs;
     ObjectGuid _maulgarGUID;
     bool _scheduleBored;
+};
+
+// 115494 - High King Maulgar
+class npc_blades_edge_high_king_maulgar : public ScriptedAI
+{
+public:
+    explicit npc_blades_edge_high_king_maulgar(Creature* creature) : ScriptedAI(creature) {}
+
+    void DoAction(int32 actionId) override
+    {
+        switch (actionId)
+        {
+            case BladesEdge::Actions::ArenaStart:
+                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ArenaStart);
+                break;
+            case BladesEdge::Actions::MaulgarReactionNonGendered:
+                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerNonGendered);
+                break;
+            case BladesEdge::Actions::MaulgarReactionGenderedM:
+                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerGenderedM);
+                break;
+            case BladesEdge::Actions::MaulgarReactionGenderedF:
+                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::ReactionTriggerGenderedF);
+                break;
+            case BladesEdge::Actions::MaulgarReactionBored:
+                ProcessTalk(BladesEdge::Texts::HighKingMaulgar::Bored);
+                break;
+            default:
+                break;
+        }
+    }
+
+    void ProcessTalk(uint8 id)
+    {
+        Talk(id);
+        DoCastAOE(BladesEdge::Spells::KingVoiceOverCooldownAura);
+    }
 };
 
 // 234033 - Blade's Edge Arena Game Event
