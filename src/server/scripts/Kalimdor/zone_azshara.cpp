@@ -110,276 +110,248 @@ Position const WPs[58] =
     {1873.57f, -3695.32f, 33.9118f, 3.44f}
 };
 
-class npc_rizzle_sprysprocket : public CreatureScript
+struct npc_rizzle_sprysprocket : public ScriptedAI
 {
-public:
-    npc_rizzle_sprysprocket() : CreatureScript("npc_rizzle_sprysprocket") { }
+    npc_rizzle_sprysprocket(Creature* creature) : ScriptedAI(creature)  { }
 
-    struct npc_rizzle_sprysprocketAI : public ScriptedAI
+    void Reset() override
     {
-        npc_rizzle_sprysprocketAI(Creature* creature) : ScriptedAI(creature)
+        _playerGUID.Clear();
+        CurrWP = 0;
+        Escape = false;
+        Reached = false;
+        ReachedPlayer = false;
+        DespawnAfterWP = false;
+        GrenadeTimer = 20000;
+        SpellEscapeTimer = 0;
+        TeleportTimer = 0;
+        CheckTimer = 100;
+        MustDieTimer = 0;
+        me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+    }
+
+    void IsSummonedBy(WorldObject* summoner) override
+    {
+        if (Player* player = summoner->ToPlayer())
         {
-            Initialize();
+            _playerGUID = player->GetGUID();
+            DoCast(player, SPELL_RIZZLE_BLACKJACK, true);
+            DoTeleportTo(3706.39f, -3969.15f, 35.9118f);
+            DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE, true);
+            me->SetHover(true);
+            me->SetSwim(false);
+            me->SetSpeedRate(MOVE_RUN, 0.85f);
+            me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
+            Escape = true;
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        if (id == 57)
+        {
+            if (!Reached)
+                me->DespawnOrUnsummon();
+            return;
         }
 
-        void Initialize()
+        if (!Reached)
         {
-            SpellEscapeTimer = 1300;
-            TeleportTimer = 3500;
-            CheckTimer = 10000;
-            GrenadeTimer = 30000;
-            MustDieTimer = 3000;
-            CurrWP = 0;
-
-            PlayerGUID.Clear();
-
-            MustDie = false;
-            Escape = false;
-            ContinueWP = false;
-            Reached = false;
+            ++CurrWP;
+            ContinueWP = true;
         }
+    }
 
-        void Reset() override
+    void UpdateAI(uint32 diff) override
+    {
+        if (MustDie)
         {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void AttackStart(Unit* who) override
-        {
-            if (!who || !PlayerGUID.IsEmpty())
-                return;
-
-            Player* player = who->ToPlayer();
-
-            if (player && player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
-            {
-                PlayerGUID = who->GetGUID();
-                Talk(SAY_RIZZLE_START);
-                DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
-                return;
-            }
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
-        {
-            CloseGossipMenuFor(player);
-            me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
-            MustDieTimer = 3000;
-            MustDie = true;
-            return false;
-        }
-
-        void MovementInform(uint32 type, uint32 id) override
-        {
-            if (type != POINT_MOTION_TYPE)
-                return;
-
-            if (id == 57)
+            if (MustDieTimer <= diff)
             {
                 me->DespawnOrUnsummon();
                 return;
             }
-
-            ++CurrWP;
-            ContinueWP = true;
+            else
+                MustDieTimer -= diff;
         }
-
-        void UpdateAI(uint32 diff) override
+        
+        if (!Escape)
         {
-            if (MustDie)
-            {
-                if (MustDieTimer <= diff)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-                else
-                    MustDieTimer -= diff;
-            }
-
-            if (!Escape)
-            {
-                if (!PlayerGUID)
-                    return;
-
-                if (SpellEscapeTimer <= diff)
-                {
-                    DoCast(me, SPELL_RIZZLE_ESCAPE, false);
-                    SpellEscapeTimer = 10000;
-                }
-                else
-                    SpellEscapeTimer -= diff;
-
-                if (TeleportTimer <= diff)
-                {
-                    // temp solution - unit can't be teleported by core using spelleffect 5, only players
-                    DoTeleportTo(3706.39f, -3969.15f, 35.9118f);
-
-                    //begin swimming and summon depth charges
-                    Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                    if (!player)
-                        return;
-
-                    Talk(MSG_ESCAPE_NOTICE, player);
-                    DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
-                    me->SetHover(true);
-                    me->SetSwim(true);
-                    me->SetSpeedRate(MOVE_RUN, 0.85f);
-                    me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
-                    me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
-                    Escape = true;
-                }
-                else
-                    TeleportTimer -= diff;
-
+            if (_playerGUID.IsEmpty())
                 return;
-            }
 
-            if (ContinueWP)
+            if (SpellEscapeTimer <= diff)
             {
-                me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
-                ContinueWP = false;
+                DoCast(me, SPELL_RIZZLE_ESCAPE, false);
+                SpellEscapeTimer = 10000;
             }
+            else
+                SpellEscapeTimer -= diff;
 
+            if (TeleportTimer <= diff)
+            {
+                DoTeleportTo(3706.39f, -3969.15f, 35.9118f);
+                Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+                if (!player)
+                    return;
+
+                Talk(MSG_ESCAPE_NOTICE, player);
+                DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE, true);
+                me->SetHover(true);
+                me->SetSwim(false);
+                me->SetSpeedRate(MOVE_RUN, 0.85f);
+                me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+                me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
+                Escape = true;
+            }
+            else
+                TeleportTimer -= diff;
+
+            return;
+        }
+        
+        if (!Reached)
+        {
             if (GrenadeTimer <= diff)
             {
-                if (Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID))
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 {
-                   Talk(SAY_RIZZLE_GRENADE, player);
-                   DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
+                    Talk(SAY_RIZZLE_GRENADE, player);
+                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;
             }
             else
                 GrenadeTimer -= diff;
-
-            if (CheckTimer <= diff)
-            {
-                Player* player = ObjectAccessor::GetPlayer(*me, PlayerGUID);
-                if (!player)
-                {
-                    me->DespawnOrUnsummon();
-                    return;
-                }
-
-                if (me->IsWithinDist(player, 10) && me->GetPositionX() > player->GetPositionX() && !Reached)
-                {
-                    Talk(SAY_RIZZLE_FINAL);
-                    me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                    me->SetFaction(FACTION_FRIENDLY);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
-                    Reached = true;
-                }
-
-                CheckTimer = 1000;
-            }
-            else
-                CheckTimer -= diff;
         }
-
-        bool OnGossipHello(Player* player) override
+        
+        if (ContinueWP)
         {
-            InitGossipMenuFor(player, GOSSIP_MENU_GET_MOONSTONE);
-            if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
-                return true;
-            AddGossipItemFor(player, GOSSIP_MENU_GET_MOONSTONE, GOSSIP_OPTION_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            SendGossipMenuFor(player, 10811, me->GetGUID());
-            return true;
+            me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP]);
+            ContinueWP = false;
         }
+        
+        if (CheckTimer <= diff)
+        {
+            Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+            if (!player)
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
 
-    private:
-        ObjectGuid PlayerGUID;
-        uint32 SpellEscapeTimer;
-        uint32 TeleportTimer;
-        uint32 CheckTimer;
-        uint32 GrenadeTimer;
-        uint32 MustDieTimer;
-        uint32 CurrWP;
-        bool MustDie;
-        bool Escape;
-        bool ContinueWP;
-        bool Reached;
-    };
+            if (me->IsWithinDist(player, 10.0f) && !Reached)
+            {
+                Talk(SAY_RIZZLE_FINAL);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->GetMotionMaster()->MoveIdle();
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
+                Reached = true;
+            }
 
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_rizzle_sprysprocketAI(creature);
+            CheckTimer = 100;
+        }
+        else
+            CheckTimer -= diff;
     }
+
+    bool OnGossipHello(Player* player) override
+    {
+        InitGossipMenuFor(player, GOSSIP_MENU_GET_MOONSTONE);
+        if (player->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) != QUEST_STATUS_INCOMPLETE)
+            return true;
+
+        AddGossipItemFor(player, GOSSIP_MENU_GET_MOONSTONE, GOSSIP_OPTION_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        SendGossipMenuFor(player, 10811, me->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    {
+        CloseGossipMenuFor(player);
+        me->CastSpell(player, SPELL_GIVE_SOUTHFURY_MOONSTONE, true);
+        MustDieTimer = 3000;
+        MustDie = true;
+        return false;
+    }
+
+private:
+    ObjectGuid _playerGUID;
+    uint32 SpellEscapeTimer;
+    uint32 TeleportTimer;
+    uint32 CheckTimer;
+    uint32 GrenadeTimer;
+    uint32 MustDieTimer;
+    uint32 CurrWP;
+    bool MustDie;
+    bool Escape;
+    bool ContinueWP;
+    bool Reached;
+    bool DespawnAfterWP;
+    bool ReachedPlayer;
 };
 
 /*####
 # npc_depth_charge
 ####*/
-class npc_depth_charge : public CreatureScript
+
+struct npc_depth_charge : public ScriptedAI
 {
-public:
-    npc_depth_charge() : CreatureScript("npc_depth_charge") { }
-
-    struct npc_depth_chargeAI : public ScriptedAI
+    npc_depth_charge(Creature * creature) : ScriptedAI(creature)
     {
-        npc_depth_chargeAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Initialize();
-        }
-
-        void Initialize()
-        {
-            WeMustDie = false;
-            WeMustDieTimer = 1000;
-        }
-
-        bool WeMustDie;
-        uint32 WeMustDieTimer;
-
-        void Reset() override
-        {
-            me->SetHover(true);
-            me->SetSwim(true);
-            me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override { }
-
-        void AttackStart(Unit* /*who*/) override { }
-
-        void MoveInLineOfSight(Unit* who) override
-        {
-            if (!who)
-                return;
-
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 5))
-            {
-                DoCast(who, SPELL_DEPTH_CHARGE_TRAP);
-                WeMustDie = true;
-                return;
-            }
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (WeMustDie)
-            {
-                if (WeMustDieTimer <= diff)
-                    me->DespawnOrUnsummon();
-                else
-                    WeMustDieTimer -= diff;
-            }
-            return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_depth_chargeAI(creature);
+        Initialize();
     }
+
+    void Initialize()
+    {
+        _weMustDie = false;
+        _weMustDieTimer = 1000;
+    }
+
+    void Reset() override
+    {
+        me->SetHover(true);
+        me->SetSwim(true);
+        me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        Initialize();
+    }
+
+    void JustEngagedWith(Unit* /*who*/) override {}
+    void AttackStart(Unit* /*who*/) override {}
+
+    void MoveInLineOfSight(Unit * who) override
+    {
+        if (!who)
+            return;
+
+        if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 5))
+        {
+            DoCast(who, SPELL_DEPTH_CHARGE_TRAP);
+            _weMustDie = true;
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (_weMustDie)
+        {
+            if (_weMustDieTimer <= diff)
+                me->DespawnOrUnsummon();
+            else
+                _weMustDieTimer -= diff;
+        }
+    }
+
+private:
+    bool _weMustDie;
+    uint32 _weMustDieTimer;
 };
 
 void AddSC_azshara()
 {
-    new npc_rizzle_sprysprocket();
-    new npc_depth_charge();
+    RegisterCreatureAI(npc_rizzle_sprysprocket);
+    RegisterCreatureAI(npc_depth_charge);
 }
