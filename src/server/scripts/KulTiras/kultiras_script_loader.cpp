@@ -27,6 +27,7 @@ void AddSC_drustvar_chapter_3_an_airtight_alibi();
 
 // Shrine of the Storm
 void AddSC_boss_aqusirr();
+void AddSC_boss_tidesage_council();
 void AddSC_instance_shrine_of_the_storm();
 
 // Waycrest Manor
@@ -50,6 +51,7 @@ void AddKulTirasScripts()
 
     // Shrine of the Storm
     AddSC_boss_aqusirr();
+    AddSC_boss_tidesage_council();
     AddSC_instance_shrine_of_the_storm();
 
     // Waycrest Manor
