@@ -27,9 +27,9 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (13147,13160,13154,13157));
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (13147, 0, 17760, 0, 6, 0, 6336, 0, 0, -1, 0, 0, NULL, 120000, 0, 4, 2, 2, 4, 4, 0.300000011920928955, 0.300000011920928955, 0, 0, 'at_tidesage_council_blowback', 61967), -- Spell: 267836 (Blowback)
-(13160, 0, 17771, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, 8000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_reinforcing_ward', 61967), -- Spell: 267905 (Reinforcing Ward)
-(13154, 0, 17766, 0, 0, 0, 0, 0, 0, 0, 0, 0, 267891, 8000, 0, 0, 12, 12, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_swiftness_ward_boss', 61967), -- SpellForVisuals: 267891 (Swiftness Ward)
-(13157, 0, 17768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 267891, 8000, 0, 0, 11, 11, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_swiftness_ward_player', 61967); -- SpellForVisuals: 267891 (Swiftness Ward)
+(13160, 0, 17771, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 8000, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_reinforcing_ward', 61967), -- Spell: 267905 (Reinforcing Ward)
+(13154, 0, 17766, 0, 0, 0, 0, 0, 0, -1, 0, 0, 267891, 8000, 0, 0, 12, 12, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_swiftness_ward_boss', 61967), -- SpellForVisuals: 267891 (Swiftness Ward)
+(13157, 0, 17768, 0, 0, 0, 0, 0, 0, -1, 0, 0, 267891, 8000, 0, 0, 11, 11, 0, 0, 0, 0, 0, 0, 'at_tidesage_council_swiftness_ward_player', 61967); -- SpellForVisuals: 267891 (Swiftness Ward)
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (267830);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
