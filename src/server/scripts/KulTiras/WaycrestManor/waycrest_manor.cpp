@@ -272,7 +272,7 @@ struct at_waycrest_manor_wildfire : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE);
         unit->RemoveAurasDueToSpell(SPELL_WILDFIRE_DAMAGE_NPC);

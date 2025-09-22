@@ -824,7 +824,7 @@ struct at_heartsbane_triad_aura_of_apathy : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_APATHY_DEBUFF, true);
     }
 
-    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_APATHY_DEBUFF);
     }
@@ -843,7 +843,7 @@ struct at_heartsbane_triad_aura_of_dread : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_DREAD_MOVE_CHECK, true);
     }
 
-    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_MOVE_CHECK);
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_DREAD_DAMAGE);
@@ -925,7 +925,7 @@ struct at_heartsbane_triad_aura_of_thorns : AreaTriggerAI
         unit->CastSpell(unit, SPELL_AURA_OF_THORNS_CHECK_PROC, true);
     }
 
-    void OnUnitExit(Unit* unit, AreaTriggerExitMode /*exitMode*/) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_AURA_OF_THORNS_CHECK_PROC);
     }

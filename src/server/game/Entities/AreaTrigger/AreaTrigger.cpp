@@ -96,7 +96,7 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-        HandleUnitEnterExit({}, AreaTriggerExitMode::ByExpire);
+        HandleUnitEnterExit({}, AreaTriggerExitReason::ByExpire);
 
         WorldObject::RemoveFromWorld();
 
@@ -850,7 +850,7 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
     });
 }
 
-void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitMode exitMode)
+void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitReason exitMode)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
 
@@ -897,9 +897,9 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     unit->EnterAreaTrigger(this);
 }
 
-void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitMode exitMode)
+void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode)
 {
-    bool canTriggerOnExit = !(exitMode == AreaTriggerExitMode::ByExpire && HasActionSetFlag(AreaTriggerActionSetFlag::DontRunOnLeaveWhenExpiring));
+    bool canTriggerOnExit = exitMode != AreaTriggerExitReason::ByExpire || !HasActionSetFlag(AreaTriggerActionSetFlag::DontRunOnLeaveWhenExpiring);
 
     if (Player* player = unit->ToPlayer())
     {
