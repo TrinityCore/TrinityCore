@@ -324,8 +324,8 @@ struct boss_galecaller_faye : public TidesageCouncilSharedAI
             }
             case EVENT_SLICING_BLAST:
             {
-                DoCastSelf(SPELL_SLICING_BLAST);
-                events.Repeat(8s, 15s);
+                DoCastVictim(SPELL_SLICING_BLAST);
+                events.Repeat(2500ms);
                 break;
             }
             case EVENT_CHECK_MANA:
