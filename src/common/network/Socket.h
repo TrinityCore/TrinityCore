@@ -31,7 +31,6 @@
 #include <queue>
 #include <type_traits>
 
-#define READ_BLOCK_SIZE 4096
 #ifdef BOOST_ASIO_HAS_IOCP
 #define TC_SOCKET_USE_IOCP
 #endif
@@ -70,20 +69,21 @@ struct InvokeReadHandlerCallback
     SocketType* Socket;
 };
 
-template <typename SocketType>
+template <typename AsyncReadObjectType, typename ReadHandlerObjectType = AsyncReadObjectType>
 struct ReadConnectionInitializer final : SocketConnectionInitializer
 {
-    explicit ReadConnectionInitializer(SocketType* socket) : ReadCallback({ .Socket = socket }) { }
+    explicit ReadConnectionInitializer(AsyncReadObjectType* socket) : Socket(socket), ReadCallback({ .Socket = socket }) { }
+    explicit ReadConnectionInitializer(AsyncReadObjectType* socket, ReadHandlerObjectType* callbackSocket) : Socket(socket), ReadCallback({ .Socket = callbackSocket }) { }
 
     void Start() override
     {
-        ReadCallback.Socket->AsyncRead(std::move(ReadCallback));
+        Socket->AsyncRead(std::move(ReadCallback));
 
-        if (this->next)
-            this->next->Start();
+        this->InvokeNext();
     }
 
-    InvokeReadHandlerCallback<SocketType> ReadCallback;
+    AsyncReadObjectType* Socket;
+    InvokeReadHandlerCallback<ReadHandlerObjectType> ReadCallback;
 };
 
 /**
@@ -383,7 +383,7 @@ private:
     boost::asio::ip::address _remoteAddress;
     uint16 _remotePort = 0;
 
-    MessageBuffer _readBuffer = MessageBuffer(READ_BLOCK_SIZE);
+    MessageBuffer _readBuffer = MessageBuffer(0x1000);
     std::queue<MessageBuffer> _writeQueue;
 
     // Socket open state "enum" (not enum to enable integral std::atomic api)

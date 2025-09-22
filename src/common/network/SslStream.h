@@ -18,6 +18,8 @@
 #ifndef TRINITYCORE_SSL_STREAM_H
 #define TRINITYCORE_SSL_STREAM_H
 
+#include "Define.h"
+#include "Socket.h"
 #include "SocketConnectionInitializer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/stream.hpp>
@@ -25,6 +27,11 @@
 
 namespace Trinity::Net
 {
+namespace SslHandshakeHelpers
+{
+TC_NETWORK_API void LogFailure(boost::asio::ip::address const& ipAddress, uint16 port, boost::system::error_code const& error);
+}
+
 template <typename SocketImpl>
 struct SslHandshakeConnectionInitializer final : SocketConnectionInitializer
 {
@@ -41,13 +48,12 @@ struct SslHandshakeConnectionInitializer final : SocketConnectionInitializer
 
                 if (error)
                 {
-                    TC_LOG_ERROR("session", "{} SSL Handshake failed {}", socket->GetClientInfo(), error.message());
+                    SslHandshakeHelpers::LogFailure(socket->GetRemoteIpAddress(), socket->GetRemotePort(), error);
                     socket->CloseSocket();
                     return;
                 }
 
-                if (self->next)
-                    self->next->Start();
+                self->InvokeNext();
         });
     }
 
