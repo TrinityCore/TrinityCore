@@ -219,8 +219,8 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                 {
-                    Talk(SAY_RIZZLE_GRENADE, player);
-                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
+                Talk(SAY_RIZZLE_GRENADE, player);
+                DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;
             }
