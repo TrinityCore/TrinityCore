@@ -670,11 +670,13 @@ class spell_brutallus_freeze : public SpellScript
 
         /// @temporary: ActivateObject from the spell above doesn't work
         if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
+        {
             if (GameObject* iceBarrier = instance->GetGameObject(DATA_ICE_BARRIER))
             {
                 iceBarrier->SetLootState(GO_READY);
                 iceBarrier->UseDoorOrButton();
             }
+        }
     }
 
     void Register() override
@@ -699,11 +701,13 @@ class spell_brutallus_break_ice : public AuraScript
 
         /// @temporary: ActivateObject from the spell above doesn't work
         if (InstanceScript* instance = GetTarget()->GetInstanceScript())
+        {
             if (GameObject* iceBarrier = instance->GetGameObject(DATA_ICE_BARRIER))
             {
                 iceBarrier->SetLootState(GO_READY);
                 iceBarrier->UseDoorOrButton();
             }
+        }
     }
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -727,7 +731,6 @@ public:
     bool TryHandleOnce(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
         player->SummonCreature(NPC_MADRIGOSA, MadrigosaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN);
-
         return true;
     }
 };
