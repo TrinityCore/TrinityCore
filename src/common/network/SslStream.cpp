@@ -15,20 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This is where scripts' loading functions should be declared:
-void AddSC_zone_exiles_reach();
+#include "SslStream.h"
+#include "IpAddress.h"
+#include "Log.h"
 
-// Darkmaul Citacel
-void AddSC_instance_darkmaul_citadel();
-void AddSC_boss_tunk();
-
-// The name of this function should match:
-// void Add${NameOfDirectory}Scripts()
-void AddExilesReachScripts()
+void Trinity::Net::SslHandshakeHelpers::LogFailure(boost::asio::ip::address const& ipAddress, uint16 port, boost::system::error_code const& error)
 {
-    AddSC_zone_exiles_reach();
-
-    // Darkmaul Citacel
-    AddSC_instance_darkmaul_citadel();
-    AddSC_boss_tunk();
+    TC_LOG_ERROR("session", "{}:{} SSL Handshake failed {}", ipAddress, port, error.message());
 }
