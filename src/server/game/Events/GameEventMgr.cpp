@@ -217,8 +217,8 @@ void GameEventMgr::LoadFromDB()
 {
     {
         uint32 oldMSTime = getMSTime();
-        //                                               0           1                           2                         3          4       5        6             7            8            9
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
+        //                                               0           1                           2                         3          4       5        6             7             8            9            10
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, WorldStateId, description, world_event, announce FROM game_event");
         if (!result)
         {
             mGameEvent.clear();
@@ -247,9 +247,10 @@ void GameEventMgr::LoadFromDB()
             pGameEvent.length       = fields[4].GetUInt64();
             pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
             pGameEvent.holidayStage = fields[6].GetUInt8();
-            pGameEvent.description  = fields[7].GetString();
-            pGameEvent.state        = (GameEventState)(fields[8].GetUInt8());
-            pGameEvent.announce     = fields[9].GetUInt8();
+            pGameEvent.WorldStateId = fields[7].GetInt32OrNull();
+            pGameEvent.description  = fields[8].GetString();
+            pGameEvent.state        = (GameEventState)(fields[9].GetUInt8());
+            pGameEvent.announce     = fields[10].GetUInt8();
             pGameEvent.nextstart    = 0;
 
             ++count;
@@ -275,7 +276,23 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
+                if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(pGameEvent.holiday_id)))
+                {
+                    if (bl->HolidayWorldState)
+                    {
+                        if (pGameEvent.WorldStateId && *pGameEvent.WorldStateId != bl->HolidayWorldState)
+                            TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has world state id set, but holiday {} is linked to battleground, set to battlemaster world state id {}", event_id, pGameEvent.holiday_id, bl->HolidayWorldState);
+                        pGameEvent.WorldStateId = bl->HolidayWorldState;
+                    }
+                }
+
                 SetHolidayEventTime(pGameEvent);
+            }
+
+            if (pGameEvent.WorldStateId && !sWorldStateMgr->GetWorldStateTemplate(*pGameEvent.WorldStateId))
+            {
+                TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has an invalid world state Id {}, set to 0.", event_id, *pGameEvent.WorldStateId);
+                pGameEvent.WorldStateId.reset();
             }
 
         }
@@ -1091,7 +1108,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 
     TC_LOG_INFO("gameevent", "GameEvent {} \"{}\" started.", event_id, mGameEvent[event_id].description);
 
-    // spawn positive event tagget objects
+    // spawn positive event tagged objects
     GameEventSpawn(event_id);
     // un-spawn negative event tagged objects
     int16 event_nid = (-1) * event_id;
@@ -1501,11 +1518,8 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
 
 void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
-    GameEventData const& event = mGameEvent[event_id];
-    if (event.holiday_id != HOLIDAY_NONE)
-        if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id)))
-            if (bl->HolidayWorldState)
-                sWorldStateMgr->SetValue(bl->HolidayWorldState, Activate ? 1 : 0, false, nullptr);
+    if (Optional<int32> worldStateId = mGameEvent[event_id].WorldStateId)
+        sWorldStateMgr->SetValue(*worldStateId, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false)

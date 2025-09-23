@@ -3358,7 +3358,7 @@ struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, at->GetCasterGuid());
     }

@@ -176,8 +176,7 @@ void WorldSocketProtocolInitializer::HandleDataReady()
         return;
 
     _socket->SendAuthSession();
-    if (next)
-        next->Start();
+    InvokeNext();
 }
 
 bool WorldSocket::InitializeCompression()
@@ -1069,7 +1068,7 @@ bool WorldSocket::HandlePing(WorldPackets::Auth::Ping& ping)
                 bool ignoresOverspeedPingsLimit = [&]
                 {
                     std::lock_guard<std::mutex> sessionGuard(_worldSessionLock);
-                    return _worldSession && !_worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING);
+                    return _worldSession && _worldSession->HasPermission(rbac::RBAC_PERM_SKIP_CHECK_OVERSPEED_PING);
                 }();
 
                 if (!ignoresOverspeedPingsLimit)

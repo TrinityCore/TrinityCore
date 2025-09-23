@@ -307,7 +307,7 @@ struct at_the_curator_rtk_power_discharge : AreaTriggerAI
         caster->CastSpell(unit, SPELL_POWER_DISCHARGE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_POWER_DISCHARGE_DAMAGE, at->GetCasterGuid());
     }
