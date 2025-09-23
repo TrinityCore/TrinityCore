@@ -406,7 +406,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MELEE_HASTE_3                            = 319,
     SPELL_AURA_320                                          = 320,
     SPELL_AURA_MOD_NO_ACTIONS                               = 321,
-    SPELL_AURA_INTERFERE_TARGETTING                         = 322,
+    SPELL_AURA_INTERFERE_ENEMY_TARGETING                    = 322,
     SPELL_AURA_323                                          = 323,  // Not used in 4.3.4
     SPELL_AURA_OVERRIDE_UNLOCKED_AZERITE_ESSENCE_RANK       = 324,  // testing aura
     SPELL_AURA_LEARN_PVP_TALENT                             = 325,  // NYI
@@ -570,7 +570,7 @@ enum AuraType : uint32
     SPELL_AURA_SUPPRESS_TRANSFORMS                          = 483,  // NYI
     SPELL_AURA_ALLOW_INTERRUPT_SPELL                        = 484,
     SPELL_AURA_MOD_MOVEMENT_FORCE_MAGNITUDE                 = 485,
-    SPELL_AURA_486                                          = 486,
+    SPELL_AURA_INTERFERE_ALL_TARGETING                      = 486,
     SPELL_AURA_COSMETIC_MOUNTED                             = 487,
     SPELL_AURA_DISABLE_GRAVITY                              = 488,
     SPELL_AURA_MOD_ALTERNATIVE_DEFAULT_LANGUAGE             = 489,

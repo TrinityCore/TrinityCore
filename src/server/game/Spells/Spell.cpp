@@ -6039,17 +6039,25 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         if (castResult != SPELL_CAST_OK)
             return castResult;
 
-        // If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_TARGETTING
+        // If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_ENEMY_TARGETING
         if (m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
         {
             if (Unit const* unitCaster = m_caster->ToUnit())
             {
-                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
+                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ENEMY_TARGETING))
                     if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && !target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
                         return SPELL_FAILED_VISION_OBSCURED;
 
-                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
-                    if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && (!target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()) || !unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID())))
+                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ENEMY_TARGETING))
+                    if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && !unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
+                        return SPELL_FAILED_VISION_OBSCURED;
+
+                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ALL_TARGETING))
+                    if (!target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
+                        return SPELL_FAILED_VISION_OBSCURED;
+
+                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ALL_TARGETING))
+                    if (!unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
                         return SPELL_FAILED_VISION_OBSCURED;
             }
         }
