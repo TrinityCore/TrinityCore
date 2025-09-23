@@ -247,7 +247,7 @@ void GameEventMgr::LoadFromDB()
             pGameEvent.length       = fields[4].GetUInt64();
             pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
             pGameEvent.holidayStage = fields[6].GetUInt8();
-            pGameEvent.WorldStateId = fields[7].GetInt32();
+            pGameEvent.WorldStateId = fields[7].GetInt32OrNull();
             pGameEvent.description  = fields[8].GetString();
             pGameEvent.state        = (GameEventState)(fields[9].GetUInt8());
             pGameEvent.announce     = fields[10].GetUInt8();
@@ -280,7 +280,7 @@ void GameEventMgr::LoadFromDB()
                 {
                     if (bl->HolidayWorldState)
                     {
-                        if (pGameEvent.WorldStateId)
+                        if (pGameEvent.WorldStateId && *pGameEvent.WorldStateId != bl->HolidayWorldState)
                             TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has world state id set, but holiday {} is linked to battleground, set to battlemaster world state id {}", event_id, pGameEvent.holiday_id, bl->HolidayWorldState);
                         pGameEvent.WorldStateId = bl->HolidayWorldState;
                     }
@@ -289,10 +289,10 @@ void GameEventMgr::LoadFromDB()
                 SetHolidayEventTime(pGameEvent);
             }
 
-            if (pGameEvent.WorldStateId && !sWorldStateMgr->GetWorldStateTemplate(pGameEvent.WorldStateId))
+            if (pGameEvent.WorldStateId && !sWorldStateMgr->GetWorldStateTemplate(*pGameEvent.WorldStateId))
             {
-                TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has an invalid world state Id {}, set to 0.", event_id, pGameEvent.WorldStateId);
-                pGameEvent.WorldStateId = 0;
+                TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has an invalid world state Id {}, set to 0.", event_id, *pGameEvent.WorldStateId);
+                pGameEvent.WorldStateId.reset();
             }
 
         }
@@ -1518,8 +1518,8 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
 
 void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
-    if (int32 worldStateId = mGameEvent[event_id].WorldStateId)
-        sWorldStateMgr->SetValue(worldStateId, Activate ? 1 : 0, false, nullptr);
+    if (Optional<int32> worldStateId = mGameEvent[event_id].WorldStateId)
+        sWorldStateMgr->SetValue(*worldStateId, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false)
