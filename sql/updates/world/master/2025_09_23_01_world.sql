@@ -1,17 +1,4 @@
-DROP PROCEDURE IF EXISTS game_event_world_state_id;
-
-DELIMITER ;;
-CREATE PROCEDURE game_event_world_state_id() BEGIN
-    IF NOT EXISTS (SELECT * FROM `information_schema`.`columns` WHERE `table_schema`=SCHEMA() AND `table_name`='game_event' AND `column_name`='WorldStateId') THEN
-        ALTER TABLE `game_event`
-            ADD `WorldStateId` INT DEFAULT 0 AFTER `holidayStage`;
-    END IF;
-END;;
-
-DELIMITER ;
-CALL game_event_world_state_id();
-
-DROP PROCEDURE IF EXISTS game_event_world_state_id;
+ALTER TABLE `game_event` ADD `WorldStateId` INT DEFAULT NULL AFTER `holidayStage`;
 
 DELETE FROM `world_state` WHERE `ID` IN (521, 522, 523, 524);
 INSERT INTO `world_state` (`ID`, `DefaultValue`, `MapIDs`, `AreaIDs`, `ScriptName`, `Comment`) VALUES
