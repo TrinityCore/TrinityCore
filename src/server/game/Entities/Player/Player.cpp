@@ -6746,7 +6746,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvptoken)
+bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, HonorGainSource source)
 {
     // do not reward honor in arenas, but enable onkill spellproc
     if (InArena())
@@ -6847,7 +6847,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             honor_f /= groupsize;
 
         // apply honor multiplier from aura (not stacking-get highest)
-        AddPct(honor_f, GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT));
+        AddPct(honor_f, GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_HONOR_GAIN_PCT_FROM_SOURCE, 1 << AsUnderlyingType(source)));
         honor_f += _restMgr->GetRestBonusFor(REST_TYPE_HONOR, honor_f);
     }
 
@@ -6873,11 +6873,11 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     {
         if (Battleground* bg = GetBattleground())
         {
-            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
+            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false, source); //false: prevent looping
         }
     }
 
-    if (sWorld->getBoolConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken)
+    if (sWorld->getBoolConfig(CONFIG_PVP_TOKEN_ENABLE) && source == HonorGainSource::Kill)
     {
         if (!victim || victim == this || victim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return true;
@@ -7828,7 +7828,7 @@ void Player::DuelComplete(DuelCompleteType type)
 
             // Honor points after duel (the winner) - ImpConfig
             if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
-                opponent->RewardHonor(nullptr, 1, amount);
+                opponent->RewardHonor(nullptr, 1, amount, HonorGainSource::Kill);
 
             break;
         default:
@@ -15091,7 +15091,7 @@ void Player::RewardQuest(Quest const* quest, LootItemType rewardType, uint32 rew
 
     // honor reward
     if (uint32 honor = quest->CalculateHonorGain(GetLevel()))
-        RewardHonor(nullptr, 0, honor);
+        RewardHonor(nullptr, 0, honor, HonorGainSource::Quest);
 
     // title reward
     if (quest->GetRewTitle())

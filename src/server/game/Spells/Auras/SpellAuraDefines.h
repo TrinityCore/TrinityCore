@@ -296,7 +296,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS              = 209,
     SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS                     = 210,
     SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK                   = 211,
-    SPELL_AURA_MOD_HONOR_GAIN_PCT                           = 212,
+    SPELL_AURA_MOD_HONOR_GAIN_PCT_FROM_SOURCE               = 212,
     SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT                   = 213,
     SPELL_AURA_214                                          = 214,
     SPELL_AURA_ARENA_PREPARATION                            = 215,

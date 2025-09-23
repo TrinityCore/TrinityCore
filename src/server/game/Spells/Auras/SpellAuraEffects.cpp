@@ -281,7 +281,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //209 SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //210 SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS
     &AuraEffect::HandleAuraModIncreaseFlightSpeed,                //211 SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK
-    &AuraEffect::HandleNoImmediateEffect,                         //212 SPELL_AURA_MOD_HONOR_GAIN_PCT implemented in Player::RewardHonor
+    &AuraEffect::HandleNoImmediateEffect,                         //212 SPELL_AURA_MOD_HONOR_GAIN_PCT_FROM_SOURCE implemented in Player::RewardHonor
     &AuraEffect::HandleNoImmediateEffect,                         //213 SPELL_AURA_MOD_RAGE_FROM_DAMAGE_DEALT implemented in Player::RewardRage
     &AuraEffect::HandleNULL,                                      //214 Tamed Pet Passive
     &AuraEffect::HandleArenaPreparation,                          //215 SPELL_AURA_ARENA_PREPARATION
