@@ -22,6 +22,7 @@
 #include "SharedDefines.h"
 #include "Define.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include <list>
 #include <map>
 #include <set>
