@@ -2449,7 +2449,7 @@ struct at_anduin_wrynn_befouled_barrier : AreaTriggerAI
         caster->CastSpell(unit, SPELL_BEFOULED_BARRIER_DEBUFF, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAura(SPELL_BEFOULED_BARRIER_DEBUFF);
     }
@@ -3555,7 +3555,7 @@ struct at_anduin_wrynn_hopelessness : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsAlive() && unit->HasAura(at->GetSpellId()))
             unit->RemoveAurasDueToSpell(at->GetSpellId());

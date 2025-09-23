@@ -306,7 +306,7 @@ struct at_kings_rest_molten_gold : AreaTriggerAI
         unit->CastSpell(nullptr, SPELL_MOLTEN_GOLD_DAMAGE, false);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_MOLTEN_GOLD_DAMAGE);
     }

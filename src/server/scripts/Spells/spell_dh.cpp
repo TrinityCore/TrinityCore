@@ -737,7 +737,7 @@ struct areatrigger_dh_darkness : AreaTriggerAI
         });
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAura(SPELL_DH_DARKNESS_ABSORB, at->GetCasterGuid());
     }
