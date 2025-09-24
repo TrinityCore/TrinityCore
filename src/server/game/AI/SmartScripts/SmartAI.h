@@ -23,7 +23,6 @@
 #include "GameObjectAI.h"
 #include "Position.h"
 #include "SmartScript.h"
-#include "SpellAuraEffects.h"
 #include "WaypointDefines.h"
 
 enum SmartEscortState : uint8
