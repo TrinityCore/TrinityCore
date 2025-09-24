@@ -2235,7 +2235,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
             {
                 if (map && map->IsDungeon() && SendMsgTo)
                 {
-                    AreaTrigger const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
+                    AreaTriggerTeleport const * const instanceEntrance = sObjectMgr->GetGoBackTrigger(map->GetId());
 
                     if (!instanceEntrance)
                         TC_LOG_DEBUG("root", "Instance entrance not found for maps {}", map->GetId());
