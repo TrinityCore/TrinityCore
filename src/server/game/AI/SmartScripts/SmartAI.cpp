@@ -27,6 +27,7 @@
 #include "PetDefines.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellAuras.h"
 #include "Vehicle.h"
 
 SmartAI::SmartAI(Creature* creature) : CreatureAI(creature), _charmed(false), _followCreditType(0), _followArrivedTimer(0), _followCredit(0), _followArrivedEntry(0), _followDistance(0.f), _followAngle(0.f),
@@ -632,6 +633,16 @@ void SmartAI::OnSpellFailed(SpellInfo const* spellInfo)
 void SmartAI::OnSpellStart(SpellInfo const* spellInfo)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_ON_SPELL_START, nullptr, 0, 0, false, spellInfo);
+}
+
+void SmartAI::OnAuraApplied(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_APPLIED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
+}
+
+void SmartAI::OnAuraRemoved(AuraApplication const* aurApp)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_ON_AURA_REMOVED, nullptr, 0, 0, false, aurApp->GetBase()->GetSpellInfo());
 }
 
 void SmartAI::DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/)
