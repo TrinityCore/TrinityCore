@@ -65,6 +65,12 @@ enum class AreaTriggerPathType : int32
     MovementScript  = 3
 };
 
+enum class AreaTriggerExitReason : uint8
+{
+    NotInside   = 0, // Unit leave areatrigger
+    ByExpire    = 1  // On areatrigger despawn
+};
+
 class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:
@@ -228,9 +234,9 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void SearchUnitInCylinder(UF::AreaTriggerCylinder const& cylinder, std::vector<Unit*>& targetList);
         void SearchUnitInDisk(UF::AreaTriggerDisk const& disk, std::vector<Unit*>& targetList);
         void SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& boundedPlane, std::vector<Unit*>& targetList);
-        void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
+        void HandleUnitEnterExit(std::vector<Unit*> const& targetList, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
         void HandleUnitEnter(Unit* unit);
-        void HandleUnitExitInternal(Unit* unit);
+        void HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);
