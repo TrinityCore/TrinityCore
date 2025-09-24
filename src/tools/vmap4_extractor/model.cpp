@@ -256,7 +256,10 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
             uint32 nlen = ModelInstName.length();
             NormalizeFileName(ModelInstName.data(), nlen);
             if (ModelInstName.ends_with(".mdx") || ModelInstName.ends_with(".mdl"))
+            {
                 ModelInstName.replace(ModelInstName.length() - 2, 2, "2");
+                nlen = ModelInstName.length();
+            }
 
             std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
             FILE* input = fopen(tempname.c_str(), "r+b");

@@ -45,7 +45,7 @@ void FixNameCase(char* name, size_t len)
     char* ptr = name + len - 1;
 
     //extension in lowercase
-    for (; *ptr != '.'; --ptr)
+    for (; *ptr != '.' && ptr >= name; --ptr)
         *ptr |= 0x20;
 
     for (; ptr >= name; --ptr)
