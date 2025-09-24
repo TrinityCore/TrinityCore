@@ -730,7 +730,7 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(uint32 minPlayersPerTeam)
         //set correct team
         (*itr)->Team = otherTeamId;
         //add team to other queue
-        m_QueuedGroups[uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(teamIndex)].push_front(*itr);
+        m_QueuedGroups[uint8(BG_QUEUE_NORMAL_ALLIANCE) + uint8(otherTeam)].push_front(*itr);
         //remove team from old queue
         GroupsQueueType::iterator itr2 = itr_team;
         ++itr2;

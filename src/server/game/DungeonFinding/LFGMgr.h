@@ -290,8 +290,8 @@ struct LFGDungeonData
     uint8 type;
     uint8 expansion;
     uint8 group;
-    uint8 minlevel;
-    uint8 maxlevel;
+    std::array<uint8, MAX_EXPANSIONS> minlevel;
+    std::array<uint8, MAX_EXPANSIONS> maxlevel;
     Difficulty difficulty;
     bool seasonal;
     float x, y, z, o;

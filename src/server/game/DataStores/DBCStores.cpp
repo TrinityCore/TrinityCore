@@ -123,6 +123,7 @@ DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
 DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
+DBCStorage <LFGDungeonExpansionEntry> sLFGDungeonExpansionStore(LFGDungeonExpansionfmt);
 DBCStorage <LightEntry> sLightStore(LightEntryfmt);
 DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypefmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
@@ -346,6 +347,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sItemRandomSuffixStore,              "ItemRandomSuffix.dbc");
     LOAD_DBC(sItemSetStore,                       "ItemSet.dbc");
     LOAD_DBC(sLFGDungeonStore,                    "LFGDungeons.dbc");
+    LOAD_DBC(sLFGDungeonExpansionStore,           "LFGDungeonExpansion.dbc");
     LOAD_DBC(sLightStore,                         "Light.dbc");
     LOAD_DBC(sLiquidTypeStore,                    "LiquidType.dbc");
     LOAD_DBC(sLockStore,                          "Lock.dbc");
