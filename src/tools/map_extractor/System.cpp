@@ -90,7 +90,7 @@ void CreateDir(boost::filesystem::path const& path)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
-void Usage(char* prg)
+void Usage(char const* prg)
 {
     printf(
         "Usage:\n"\
@@ -103,7 +103,7 @@ void Usage(char* prg)
     exit(1);
 }
 
-void HandleArgs(int argc, char * arg[])
+void HandleArgs(int argc, char* arg[])
 {
     for(int c = 1; c < argc; ++c)
     {
@@ -1094,7 +1094,7 @@ int main(int argc, char * arg[])
         {
             FirstLocale = i;
             build = ReadBuild(FirstLocale);
-            printf("Detected client build: %u\n", build);
+            printf("Detected client build: %u\n\n", build);
             break;
         }
 
@@ -1103,7 +1103,7 @@ int main(int argc, char * arg[])
         {
             FirstLocale = i;
             build = ReadBuild(FirstLocale);
-            printf("Detected client build: %u\n", build);
+            printf("Detected client build: %u\n\n", build);
             ExtractDBCFiles(i, true);
         }
         else

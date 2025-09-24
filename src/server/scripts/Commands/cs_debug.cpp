@@ -1328,7 +1328,9 @@ public:
                 target->SetExtraUnitMovementFlags(*moveFlagsExtra);
             }
 
-            if (moveFlagsExtra || unhandledFlag)
+            if (target->GetTypeId() != TYPEID_PLAYER)
+                target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
+            else
                 target->SendMovementFlagUpdate();
 
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());

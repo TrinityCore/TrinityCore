@@ -74,7 +74,7 @@ char* GetExtension(char* FileName)
     return nullptr;
 }
 
-ADTFile::ADTFile(char* filename): _file(filename)
+ADTFile::ADTFile(char* filename) : _file(filename)
 {
     Adtfilename.append(filename);
 }

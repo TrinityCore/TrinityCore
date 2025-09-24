@@ -100,18 +100,7 @@ bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     float angle = owner->GetOrientation();
-    if (_direction == ROTATE_DIRECTION_LEFT)
-    {
-        angle += float(diff) * float(M_PI) * 2.f / float(_maxDuration);
-        while (angle >= float(M_PI) * 2.f)
-            angle -= float(M_PI) * 2.f;
-    }
-    else
-    {
-        angle -= float(diff) * float(M_PI) * 2.f / float(_maxDuration);
-        while (angle < 0.f)
-            angle += float(M_PI) * 2.f;
-    }
+    angle += (float(diff) * static_cast<float>(M_PI * 2) / _maxDuration) * (_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);

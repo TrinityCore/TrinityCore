@@ -198,7 +198,8 @@ void TempSummon::InitStats(uint32 duration)
 
     if (owner)
     {
-        if (uint32 slot = m_Properties->Slot)
+        std::ptrdiff_t slot = m_Properties->Slot;
+        if (slot != 0)
         {
             if (owner->m_SummonSlot[slot] && owner->m_SummonSlot[slot] != GetGUID())
             {
@@ -287,10 +288,10 @@ void TempSummon::RemoveFromWorld()
         return;
 
     if (m_Properties)
-        if (uint32 slot = m_Properties->Slot)
-            if (Unit* owner = GetSummonerUnit())
-                if (owner->m_SummonSlot[slot] == GetGUID())
-                    owner->m_SummonSlot[slot].Clear();
+        if (Unit* owner = GetSummonerUnit())
+            for (ObjectGuid& summonSlot : owner->m_SummonSlot)
+                if (summonSlot == GetGUID())
+                    summonSlot.Clear();
 
     //if (GetOwnerGUID())
     //    TC_LOG_ERROR("entities.unit", "Unit {} has owner guid when removed from world", GetEntry());

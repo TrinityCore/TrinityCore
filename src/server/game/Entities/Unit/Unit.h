@@ -1936,7 +1936,6 @@ class TC_GAME_API Unit : public WorldObject
         void SetRooted(bool apply);
 
     private:
-        uint32 m_rootTimes;
 
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_lastManaUse;                               // msecs

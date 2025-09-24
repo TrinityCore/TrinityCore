@@ -417,8 +417,12 @@ class TC_GAME_API LFGMgr
         uint8 GetPlayerCount(ObjectGuid guid);
         /// Add a new Proposal
         uint32 AddProposal(LfgProposal& proposal);
+        /// Returns queue id
+        uint8 GetQueueId(ObjectGuid guid);
         /// Checks if all players are queued
         bool AllQueued(GuidList const& check);
+        /// Gets queue join time
+        time_t GetQueueJoinTime(ObjectGuid guid);
         /// Checks if given roles match, modifies given roles map with new roles
         static bool CheckGroupRoles(LfgRolesMap &groles);
         /// Checks if given players are ignoring each other

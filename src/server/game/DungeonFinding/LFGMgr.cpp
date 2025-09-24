@@ -1997,18 +1997,22 @@ bool LFGMgr::IsLfgGroup(ObjectGuid guid)
     return guid && guid.IsGroup() && GroupsStore[guid].IsLfgGroup();
 }
 
-LFGQueue& LFGMgr::GetQueue(ObjectGuid guid)
+uint8 LFGMgr::GetQueueId(ObjectGuid guid)
 {
-    uint8 queueId = 0;
     if (guid.IsGroup())
     {
         GuidSet const& players = GetPlayers(guid);
         ObjectGuid pguid = players.empty() ? ObjectGuid::Empty : (*players.begin());
-        if (pguid)
-            queueId = GetTeam(pguid);
+        if (!pguid.IsEmpty())
+            return GetTeam(pguid);
     }
-    else
-        queueId = GetTeam(guid);
+
+    return GetTeam(guid);
+}
+
+LFGQueue& LFGMgr::GetQueue(ObjectGuid guid)
+{
+    uint8 queueId = GetQueueId(guid);
     return QueuesStore[queueId];
 }
 
@@ -2029,6 +2033,16 @@ bool LFGMgr::AllQueued(GuidList const& check)
         }
     }
     return true;
+}
+
+time_t LFGMgr::GetQueueJoinTime(ObjectGuid guid)
+{
+    uint8 queueId = GetQueueId(guid);
+    LfgQueueContainer::const_iterator itr = QueuesStore.find(queueId);
+    if (itr != QueuesStore.end())
+        return itr->second.GetJoinTime(guid);
+
+    return 0;
 }
 
 // Only for debugging purposes
