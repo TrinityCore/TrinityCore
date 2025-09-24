@@ -449,7 +449,7 @@ struct TC_GAME_API SpellClickInfo
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 
-struct AreaTriggerStruct
+struct AreaTriggerTeleport
 {
     uint32 target_mapId;
     float  target_X;
@@ -986,7 +986,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Trinity::unique_trackable_ptr<Quest>> QuestContainer;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerTeleport> AreaTriggerContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -1140,10 +1140,10 @@ class TC_GAME_API ObjectMgr
         WorldSafeLocsEntry const* GetWorldSafeLoc(uint32 id) const;
         Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iterator> GetWorldSafeLocs() const;
 
-        AreaTriggerStruct const* GetAreaTrigger(uint32 trigger) const;
+        AreaTriggerTeleport const* GetAreaTrigger(uint32 trigger) const;
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
-        AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
-        AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetGoBackTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         uint32 GetEventScriptId(uint32 eventId) const;
