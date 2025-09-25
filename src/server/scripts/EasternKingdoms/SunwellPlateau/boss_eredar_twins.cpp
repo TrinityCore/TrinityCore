@@ -251,7 +251,7 @@ struct boss_sacrolash : public BossAI
         }
         else
         {
-            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn 
+            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn
             /// sister in case of wipe, find a way to respawn sister with no corpse and enable SetCorpseDelay
             /// me->SetCorpseDelay(60, true);
             me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
@@ -479,7 +479,7 @@ struct boss_alythess : public BossAI
         }
         else
         {
-            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn 
+            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn
             /// sister in case of wipe, find a way to respawn sister with no corpse and enable SetCorpseDelay
             /// me->SetCorpseDelay(60, true);
             me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
