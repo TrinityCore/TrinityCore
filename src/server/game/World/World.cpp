@@ -772,6 +772,8 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_REGEN_HP_CANNOT_REACH_TARGET_IN_RAID] = sConfigMgr->GetBoolDefault("Creature.RegenHPCannotReachTargetInRaid", true);
 
+    m_bool_configs[CONFIG_HEARTBEAT_RESIST_ENABLED] = sConfigMgr->GetBoolDefault("Creature.HeartbeatResistanceEnabled", false);
+
     if (reload)
     {
         uint32 val = sConfigMgr->GetIntDefault("GameType", 0);

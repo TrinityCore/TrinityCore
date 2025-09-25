@@ -134,6 +134,8 @@ void DynamicObject::Update(uint32 p_time)
     ASSERT(_caster);
     ASSERT(_caster->GetMap() == GetMap());
 
+    WorldObject::Update(p_time);
+
     bool expired = false;
 
     if (_aura)

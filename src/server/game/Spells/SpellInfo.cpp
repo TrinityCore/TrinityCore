@@ -1279,6 +1279,11 @@ bool SpellInfo::HasInitialAggro() const
     return !(HasAttribute(SPELL_ATTR1_NO_THREAT) || HasAttribute(SPELL_ATTR3_NO_INITIAL_AGGRO));
 }
 
+bool SpellInfo::IsHeartbeatProcOrPeriodic() const
+{
+    return (ProcFlags & PROC_FLAG_HEARTBEAT) != 0;
+}
+
 WeaponAttackType SpellInfo::GetAttackType() const
 {
     WeaponAttackType result;

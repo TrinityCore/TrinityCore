@@ -517,7 +517,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
                 return false;
 
     // always trigger for these types
-    if (eventInfo.GetTypeMask() & (PROC_FLAG_KILLED | PROC_FLAG_KILL | PROC_FLAG_DEATH))
+    if (eventInfo.GetTypeMask() & (PROC_FLAG_KILL | PROC_FLAG_DEATH))
         return true;
 
     // check school mask (if set) for other trigger types
@@ -2949,10 +2949,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // Some spells have no amplitude set
     {
         ApplySpellFix({
-            6727,  // Poison Mushroom
-            7288,  // Immolate Cumulative (TEST) (Rank 1)
-            7291,  // Food (TEST)
-            7331,  // Healing Aura (TEST) (Rank 1)
             /*
             30400, // Nether Beam - Perseverance
                 Blizzlike to have it disabled? DBC says:
@@ -2981,13 +2977,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         // Vomit
         ApplySpellFix({ 43327 }, [](SpellInfo* spellInfo)
         {
-            spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
-        });
-
-        // Strider Presence
-        ApplySpellFix({ 4312 }, [](SpellInfo* spellInfo)
-        {
-            spellInfo->_GetEffect(EFFECT_0).Amplitude = 1 * IN_MILLISECONDS;
             spellInfo->_GetEffect(EFFECT_1).Amplitude = 1 * IN_MILLISECONDS;
         });
 
@@ -4728,16 +4717,10 @@ void SpellMgr::LoadSpellInfoCorrections()
         2479,  // Honorless Target
         3232,  // Gouge Stun Test
         3409,  // Crippling Poison
-        4312,  // Strider Presence
-        5707,  // Lifestone Regeneration
         5760,  // Mind-numbing Poison
-        6727,  // Poison Mushroom
         6940,  // Hand of Sacrifice (handled remove in split hook)
         6984,  // Frost Shot (Rank 2)
         7164,  // Defensive Stance
-        7288,  // Immolate Cumulative (TEST) (Rank 1)
-        7291,  // Food (TEST)
-        7331,  // Healing Aura (TEST) (Rank 1)
         7366,  // Berserker Stance
         7824,  // Blacksmithing Skill +10
         12551, // Frost Shot
@@ -4955,6 +4938,17 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName   = SPELL_AURA_PERIODIC_TRIGGER_SPELL;
         spellInfo->_GetEffect(EFFECT_1).Amplitude       = 10 * IN_MILLISECONDS;
         spellInfo->_GetEffect(EFFECT_1).TriggerSpell    = 24870;
+    });
+
+    ApplySpellFix({
+        31365,  // Self Fear
+        31797,  // Banish Self
+        32974,  // Cinematic - Mind Control (Rank 1)
+        32976,  // Cinematic - Mind Control (Rank 1)
+        38456   // Banish Self
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes &= ~SPELL_ATTR0_HEARTBEAT_RESIST_CHECK;
     });
 
     for (uint32 i = 0; i < GetSpellInfoStoreSize(); ++i)
