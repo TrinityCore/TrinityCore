@@ -17,9 +17,13 @@
 
 #include "Battleground.h"
 #include "BattlegroundScript.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "Map.h"
+#include "Player.h"
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 
 namespace Mugambala
 {
