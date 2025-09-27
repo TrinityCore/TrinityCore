@@ -31,7 +31,7 @@ WorldPacket const* WorldPackets::Query::QueryCreatureResponse::Write()
     {
         _worldPacket << Stats.Name;
         _worldPacket << uint8(0) << uint8(0) << uint8(0);                   // name2, name3, name4, always empty
-        _worldPacket << Stats.NameAlt;
+        _worldPacket << Stats.Title;
         _worldPacket << Stats.CursorName;                                   // "Directions" for guard, string for Icons 2.3.0
         _worldPacket << uint32(Stats.Flags);                                // flags
         _worldPacket << uint32(Stats.CreatureType);                         // CreatureType.dbc

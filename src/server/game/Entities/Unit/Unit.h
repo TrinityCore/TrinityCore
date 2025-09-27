@@ -1219,6 +1219,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsHovering() const { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_HOVER); }
         virtual bool SetWalk(bool enable);
         virtual bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimTier = true);
+        bool SetFall(bool enable);
         virtual bool SetSwim(bool enable);
         virtual bool SetCanFly(bool enable, bool packetOnly = false);
         virtual bool SetWaterWalking(bool enable, bool packetOnly = false);

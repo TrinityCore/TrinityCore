@@ -187,7 +187,7 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return nullptr;
 }
 
-void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
+void LFGMgr::LoadLFGDungeons()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -223,10 +223,9 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     // Fill teleport locations from DB
     //                                                   0          1           2           3            4
     QueryResult result = WorldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation FROM lfg_dungeon_template");
-
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg entrance positions. DB table `lfg_dungeon_template` is empty!");
+        TC_LOG_INFO("server.loading", ">> Loaded 0 lfg dungeon templates. DB table `lfg_dungeon_template` is empty!");
         return;
     }
 
@@ -243,17 +242,19 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             continue;
         }
 
-        LFGDungeonData& data = dungeonItr->second;
-        data.x = fields[1].GetFloat();
-        data.y = fields[2].GetFloat();
-        data.z = fields[3].GetFloat();
-        data.o = fields[4].GetFloat();
+        LFGDungeonData& data    = dungeonItr->second;
+        data.x                  = fields[1].GetFloat();
+        data.y                  = fields[2].GetFloat();
+        data.z                  = fields[3].GetFloat();
+        data.o                  = fields[4].GetFloat();
 
         ++count;
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded {} lfg entrance positions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded {} lfg dungeon templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+    CachedDungeonMapStore.clear();
 
     // Fill all other teleport coords from areatriggers
     for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
@@ -266,7 +267,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             AreaTriggerTeleport const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
             if (!at)
             {
-                TC_LOG_ERROR("sql.sql", "Failed to load dungeon {}, cant find areatrigger for map {}", dungeon.name, dungeon.map);
+                TC_LOG_ERROR("sql.sql", "Failed to load dungeon {} (Id: {}), cant find areatrigger for map {}", dungeon.name, dungeon.id, dungeon.map);
                 continue;
             }
 
@@ -280,11 +281,6 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         if (dungeon.type != LFG_TYPE_RANDOM)
             CachedDungeonMapStore[dungeon.group].insert(dungeon.id);
         CachedDungeonMapStore[0].insert(dungeon.id);
-    }
-
-    if (reload)
-    {
-        CachedDungeonMapStore.clear();
     }
 }
 
@@ -1700,41 +1696,41 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
         if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
             continue;
 
-        uint32 lockData = 0;
+        uint32 lockStatus = 0;
         if (denyJoin)
-            lockData = LFG_LOCKSTATUS_RAID_LOCKED;
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->expansion > expansion)
-            lockData = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
+            lockStatus = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
-            lockData = LFG_LOCKSTATUS_RAID_LOCKED;
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
-            lockData = LFG_LOCKSTATUS_RAID_LOCKED;
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && player->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
-            lockData = LFG_LOCKSTATUS_RAID_LOCKED;
+            lockStatus = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->minlevel[expansion] > level)
-            lockData = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+            lockStatus = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
         else if (dungeon->maxlevel[expansion] < level)
-            lockData = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+            lockStatus = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
-            lockData = LFG_LOCKSTATUS_NOT_IN_SEASON;
+            lockStatus = LFG_LOCKSTATUS_NOT_IN_SEASON;
         else if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
         {
             if (ar->item_level && player->GetAverageItemLevel() < ar->item_level)
-                lockData = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+                lockStatus = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
             else if (ar->achievement && !player->HasAchieved(ar->achievement))
-                lockData = LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
+                lockStatus = LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
             else if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
-                lockData = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                lockStatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
             else if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
-                lockData = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                lockStatus = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
             else
                 if (ar->item)
                 {
                     if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
-                        lockData = LFG_LOCKSTATUS_MISSING_ITEM;
+                        lockStatus = LFG_LOCKSTATUS_MISSING_ITEM;
                 }
                 else if (ar->item2 && !player->HasItemCount(ar->item2))
-                    lockData = LFG_LOCKSTATUS_MISSING_ITEM;
+                    lockStatus = LFG_LOCKSTATUS_MISSING_ITEM;
         }
 
         /* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
@@ -1743,8 +1739,8 @@ LfgLockMap const LFGMgr::GetLockedDungeons(ObjectGuid guid)
         lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
         */
 
-        if (lockData)
-            lock[dungeon->Entry()] = lockData;
+        if (lockStatus)
+            lock[dungeon->Entry()] = lockStatus;
     }
 
     return lock;

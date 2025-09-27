@@ -227,7 +227,7 @@ struct GameObjectTemplate
             uint32 conditionID1;                            //4
         } camera;
         //14 GAMEOBJECT_TYPE_MAPOBJECT - empty
-        //15 GAMEOBJECT_TYPE_MO_TRANSPORT
+        //15 GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT
         struct
         {
             uint32 taxiPathId;                              //0
@@ -242,7 +242,7 @@ struct GameObjectTemplate
         } moTransport;
         //16 GAMEOBJECT_TYPE_DUELFLAG - empty
         //17 GAMEOBJECT_TYPE_FISHINGNODE - empty
-        //18 GAMEOBJECT_TYPE_SUMMONING_RITUAL
+        //18 GAMEOBJECT_TYPE_RITUAL
         struct
         {
             uint32 reqParticipants;                         //0

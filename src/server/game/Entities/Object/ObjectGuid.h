@@ -71,7 +71,7 @@ enum class HighGuid
     Vehicle        = 0xF150,                      // blizz F550
     DynamicObject  = 0xF100,                      // blizz F100
     Corpse         = 0xF101,                      // blizz F100
-    Mo_Transport   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    Mo_Transport   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT)
     Instance       = 0x1F40,                      // blizz 1F40
     Group          = 0x1F50,
 };

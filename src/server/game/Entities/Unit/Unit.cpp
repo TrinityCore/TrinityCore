@@ -13293,6 +13293,22 @@ bool Unit::SetDisableGravity(bool disable, bool /*packetOnly = false*/, bool /*u
     return true;
 }
 
+bool Unit::SetFall(bool enable)
+{
+    if (enable == HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
+        return false;
+
+    if (enable)
+    {
+        AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        m_movementInfo.SetFallTime(0);
+    }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_FALLING | MOVEMENTFLAG_FALLING_FAR);
+
+    return true;
+}
+
 bool Unit::SetSwim(bool enable)
 {
     if (enable == HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
