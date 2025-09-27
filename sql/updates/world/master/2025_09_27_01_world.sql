@@ -1,7 +1,7 @@
-SET @CGUID := 110000000;
-SET @OGUID := 110000000;
-SET @WORLD_SAFE_LOC_ID := 200000;
-SET @SPAWN_GROUP := 200000;
+SET @CGUID := 6005881;
+SET @OGUID := 6002948;
+SET @WORLD_SAFE_LOC_ID := 100099;
+SET @SPAWN_GROUP := 328;
 
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC_ID + 0 AND @WORLD_SAFE_LOC_ID + 1;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
@@ -114,7 +114,7 @@ SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 0, 0x2, 15.2539, 'Nether Drake - Idle');
+(@PATH, 0, 0x2, 15.2539, 'Nether Drake - Cosmetic');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
