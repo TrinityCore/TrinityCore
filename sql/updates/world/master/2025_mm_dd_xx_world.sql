@@ -76,11 +76,13 @@ UPDATE `creature_template` SET `unit_flags`=0x2000000 WHERE `entry`=142710; -- 7
 UPDATE `creature_template` SET `unit_flags`=0x2000000, `unit_flags2`=0x800 WHERE `entry`=142640; -- Caravan Brutosaur
 UPDATE `creature_template` SET `unit_flags`=0x2000000, `unit_flags3`=0x800000 WHERE `entry`=142646; -- Arena Spectator
 
--- set floating
-UPDATE `creature_template_difficulty` SET `StaticFlags1` = `StaticFlags1` | 0x20000000 WHERE `entry` = 141962; -- Je'stry the Untamed
-
--- set floating & rooted
-UPDATE `creature_template_difficulty` SET `StaticFlags1` = `StaticFlags1` | 0x100 | 0x20000000 WHERE `entry` = 142667; -- Trained Pterrordax 
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=142643 AND `DifficultyID`=0); -- 142643 (Harbor Saurid) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000000, `VerifiedBuild`=63305 WHERE (`Entry`=141962 AND `DifficultyID`=0); -- 141962 (Je'stry the Untamed) - CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=63305 WHERE (`Entry`=142667 AND `DifficultyID`=0); -- 142667 (Trained Pterrordax) - Sessile, CanSwim, Floating
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=142645 AND `DifficultyID`=0); -- 142645 (Frog Critter) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=142710 AND `DifficultyID`=0); -- 142710 (7th Legion Soldier) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=142640 AND `DifficultyID`=0); -- 142640 (Caravan Brutosaur) - CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=63305 WHERE (`Entry`=142646 AND `DifficultyID`=0); -- 142646 (Arena Spectator) - Sessile, CanSwim, Floating
 
 DELETE FROM `creature_text` WHERE `CreatureID`=141962;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
