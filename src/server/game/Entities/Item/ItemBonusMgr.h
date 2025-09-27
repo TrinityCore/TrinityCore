@@ -40,12 +40,14 @@ TC_GAME_API uint32 GetItemBonusListForItemLevelDelta(int16 delta);
 
 struct ItemBonusGenerationParams
 {
-    /*implicit*/ ItemBonusGenerationParams(ItemContext context, Optional<int32> mythicPlusKeystoneLevel = {}, Optional<int32> pvpTier = {})
-        : Context(context), MythicPlusKeystoneLevel(mythicPlusKeystoneLevel), PvpTier(pvpTier) { }
+    /*implicit*/ ItemBonusGenerationParams(ItemContext context, Optional<int32> mythicPlusKeystoneLevel = {}, Optional<int32> pvpTier = {}, Optional<int32> bonusTreeID = {}, Optional<int32> craftingQualityLevel = {})
+        : Context(context), MythicPlusKeystoneLevel(mythicPlusKeystoneLevel), PvpTier(pvpTier), BonusTreeID(bonusTreeID), CraftingQualityLevel(craftingQualityLevel) { }
 
     ItemContext Context;
     Optional<int32> MythicPlusKeystoneLevel;
     Optional<int32> PvpTier;
+    Optional<int32> BonusTreeID;
+    Optional<int32> CraftingQualityLevel;
 };
 
 TC_GAME_API std::vector<int32> GetBonusListsForItem(uint32 itemId, ItemBonusGenerationParams const& params);
