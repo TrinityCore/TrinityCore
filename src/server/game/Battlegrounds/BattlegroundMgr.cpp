@@ -303,11 +303,10 @@ BattlegroundScriptTemplate const* BattlegroundMgr::FindBattlegroundScriptTemplat
 
 void BattlegroundMgr::QueuePlayerForArena(Player const* player, uint8 teamSize, uint8 roles)
 {
-    std::unique_ptr<WorldPacket> worldPacket = std::make_unique<WorldPacket>(CMSG_BATTLEMASTER_JOIN_ARENA);
-    *worldPacket << static_cast<uint8>(teamSize);
-    *worldPacket << static_cast<uint8>(roles);
-    WorldPackets::Battleground::BattlemasterJoinArena packet(std::move(*worldPacket));
-    packet.Read();
+    WorldPackets::Battleground::BattlemasterJoinArena packet((WorldPacket(CMSG_BATTLEMASTER_JOIN_ARENA)));
+    packet.TeamSizeIndex = teamSize;
+    packet.Roles = roles;
+
     player->GetSession()->HandleBattlemasterJoinArena(packet);
 }
 
