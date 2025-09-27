@@ -187,7 +187,7 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return nullptr;
 }
 
-void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
+void LFGMgr::LoadLFGDungeons()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -231,7 +231,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
         if (dungeonItr == LfgDungeonStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "table `lfg_entrances` contains coordinates for wrong dungeon {}", dungeonId);
+            TC_LOG_ERROR("sql.sql", "table `lfg_dungeon_template` contains coordinates for wrong dungeon {}", dungeonId);
             continue;
         }
 
@@ -247,6 +247,8 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} lfg dungeon templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
+
+    CachedDungeonMapStore.clear();
 
     // Fill all other teleport coords from areatriggers
     for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
@@ -274,9 +276,6 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             CachedDungeonMapStore[dungeon.group].insert(dungeon.id);
         CachedDungeonMapStore[0].insert(dungeon.id);
     }
-
-    if (reload)
-        CachedDungeonMapStore.clear();
 }
 
 LFGMgr* LFGMgr::instance()

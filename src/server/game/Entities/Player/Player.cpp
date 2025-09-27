@@ -2113,7 +2113,7 @@ void Player::GiveLevel(uint8 level)
 
     UpdateAllStats();
 
-    _ApplyAllLevelScaleItemMods(true); // Moved to above SetFullHealth so player will have full health from Heirlooms
+    _ApplyAllLevelScaleItemMods(true);
 
     // Only health and mana are set to maximum.
     SetFullHealth();
@@ -24703,7 +24703,7 @@ bool Player::isHonorOrXPTarget(Unit const* victim) const
     if (v_level < k_grey && !sWorld->getIntConfig(CONFIG_MIN_CREATURE_SCALED_XP_RATIO))
         return false;
 
-    if (Creature const* const creature = victim->ToCreature())
+    if (Creature const* creature = victim->ToCreature())
     {
         if (creature->IsCritter() || creature->IsTotem())
             return false;

@@ -589,8 +589,11 @@ void WorldSession::HandleGuildReplaceGuildMaster(WorldPackets::Guild::GuildRepla
 
 void WorldSession::HandleGuildSetGuildMaster(WorldPackets::Guild::GuildSetGuildMaster& packet)
 {
-    if (Guild* guild = GetPlayer()->GetGuild())
-        guild->HandleSetNewGuildMaster(this, packet.NewMasterName, false);
+    TC_LOG_DEBUG("guild", "CMSG_GUILD_SET_GUILD_MASTER [{}]: Target: {}", GetPlayerInfo(), packet.NewMasterName);
+
+    if (normalizePlayerName(packet.NewMasterName))
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleSetNewGuildMaster(this, packet.NewMasterName, false);
 }
 
 void WorldSession::HandleGuildSetAchievementTracking(WorldPackets::Guild::GuildSetAchievementTracking& packet)

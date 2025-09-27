@@ -339,7 +339,7 @@ class TC_GAME_API LFGMgr
         /// Loads rewards for random dungeons
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords
-        void LoadLFGDungeons(bool reload = false);
+        void LoadLFGDungeons();
 
         // Multiple files
         /// Check if given guid applied for random dungeon
