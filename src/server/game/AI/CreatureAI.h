@@ -19,6 +19,7 @@
 #define TRINITY_CREATUREAI_H
 
 #include "Common.h"
+#include "EventProcessor.h"
 #include "ObjectDefines.h"
 #include "Optional.h"
 #include "QuestDef.h"
@@ -74,6 +75,19 @@ enum SCEquip
 {
     EQUIP_NO_CHANGE = -1,
     EQUIP_UNEQUIP   = 0
+};
+
+class SetAggresiveStateEvent : public BasicEvent
+{
+    public:
+        SetAggresiveStateEvent(Creature* owner, bool startCombat = true, Creature* summoner = nullptr);
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override;
+
+    private:
+        Creature* _owner;
+        bool const _startCombat;
+        ObjectGuid _summonerGuid;
 };
 
 class TC_GAME_API CreatureAI : public UnitAI
