@@ -126,7 +126,8 @@ class TC_GAME_API BattlegroundMgr
         void ScheduleQueueUpdate(uint32 arenaMatchmakerRating, BattlegroundQueueTypeId bgQueueTypeId, BattlegroundBracketId bracket_id);
         uint32 GetPrematureFinishTime() const;
 
-        void ToggleArenaTesting(uint32 battlemasterListId);
+        // Return whether toggling was successful. In case of a non-existing battlemasterListId, or this battlemasterListId is not an arena, this would return false.
+        bool ToggleArenaTesting(uint32 battlemasterListId);
         void ToggleTesting();
 
         bool isArenaTesting() const { return m_ArenaTesting != 0; }

@@ -859,7 +859,14 @@ public:
 
     static bool HandleDebugArenaCommand(ChatHandler* handler, uint32 battlemasterListId)
     {
-        sBattlegroundMgr->ToggleArenaTesting(battlemasterListId);
+        bool successful = sBattlegroundMgr->ToggleArenaTesting(battlemasterListId);
+        if (!successful)
+        {
+            handler->PSendSysMessage("BattlemasterListId %u does not exist or is not an arena.", battlemasterListId);
+            handler->SetSentErrorMessage(true);
+            return true;
+        }
+
         if (!battlemasterListId || !handler || !handler->GetSession())
             return true;
 

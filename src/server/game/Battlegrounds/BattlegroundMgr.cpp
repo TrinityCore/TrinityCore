@@ -518,12 +518,23 @@ void BattlegroundMgr::ToggleTesting()
     sWorld->SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
 }
 
-void BattlegroundMgr::ToggleArenaTesting(uint32 battlemasterListId)
+bool BattlegroundMgr::ToggleArenaTesting(uint32 battlemasterListId)
 {
+    if (battlemasterListId != 0)
+    {
+        BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(static_cast<BattlegroundTypeId>(battlemasterListId));
+        if (!bgTemplate)
+            return false;
+
+        if (!bgTemplate->IsArena())
+            return false;
+    }
+
     if (m_ArenaTesting != battlemasterListId)
         sWorld->SendWorldText((battlemasterListId != 0) ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
 
     m_ArenaTesting = battlemasterListId;
+    return true;
 }
 
 bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
