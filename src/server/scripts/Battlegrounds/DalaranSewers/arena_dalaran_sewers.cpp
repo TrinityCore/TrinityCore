@@ -55,6 +55,11 @@ namespace DalaranSewers
         static constexpr uint32 Waterfall = 191877;
     }
 
+    namespace MapIds
+    {
+        static constexpr uint32 DalaranSewers = 617;
+    }
+
     namespace Spells
     {
         static constexpr uint32 PipeFlushKnockbackSearchTrigger = 96539;
@@ -302,11 +307,12 @@ class spell_arena_dalaran_sewers_flush_knock_back_effect : public SpellScript
 {
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
+        static constexpr float SpeedXY = 30.0f;
+        static constexpr float SpeedZ = 19.0f;
+
         Unit* caster = GetCaster();
         Unit const* target = GetHitUnit();
-        float speedXY = 30.0f;
-        float speedZ = 19.0f;
-        caster->KnockbackFrom(target->GetPosition(), speedXY, speedZ);
+        caster->KnockbackFrom(target->GetPosition(), SpeedXY, SpeedZ);
     }
 
     void Register() override
@@ -317,7 +323,7 @@ class spell_arena_dalaran_sewers_flush_knock_back_effect : public SpellScript
 
 void AddSC_arena_dalaran_sewers()
 {
-    RegisterBattlegroundMapScript(arena_dalaran_sewers, 617);
+    RegisterBattlegroundMapScript(arena_dalaran_sewers, DalaranSewers::MapIds::DalaranSewers);
     new at_ds_pipe_knockback();
     RegisterSpellScript(spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger);
     RegisterSpellScript(spell_arena_dalaran_sewers_flush_knock_back_effect);
