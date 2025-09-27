@@ -594,7 +594,7 @@ struct at_bg_temple_of_kotmogu_small_area : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(TempleOfKotmogu::Spells::SmallAura);
     }
@@ -629,7 +629,7 @@ struct at_bg_temple_of_kotmogu_medium_area : AreaTriggerAI
             player->CastSpell(player, TempleOfKotmogu::Spells::MediumAura, true);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(TempleOfKotmogu::Spells::MediumAura);
     }

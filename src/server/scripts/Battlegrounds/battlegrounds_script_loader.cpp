@@ -16,6 +16,9 @@
  */
 
 // This is where scripts' loading functions should be declared:
+// Generic Arena Scripts
+void AddSC_arena_scripts_generic();
+
 // Alterac Valley
 void AddSC_alterac_valley();
 void AddSC_boss_balinda();
@@ -64,6 +67,8 @@ void AddSC_battleground_deephaul_ravine();
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
 {
+    AddSC_arena_scripts_generic();
+
     // Alterac Valley
     AddSC_alterac_valley();
     AddSC_boss_balinda();

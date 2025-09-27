@@ -25,6 +25,7 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class AreaTriggerExitReason : uint8;
 enum class MovementStopReason : uint8;
 
 enum SmartEscortState : uint8
@@ -341,7 +342,7 @@ public:
     void OnInitialize() override;
     void OnUpdate(uint32 diff) override;
     void OnUnitEnter(Unit* unit) override;
-    void OnUnitExit(Unit* unit) override;
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason reason) override;
 
     SmartScript* GetScript() { return &mScript; }
     void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);
