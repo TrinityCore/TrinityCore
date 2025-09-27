@@ -28,7 +28,7 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC_ID + 0 AND @WORLD_SAFE_LOC_ID + 1;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
 (@WORLD_SAFE_LOC_ID+0, 2167, -186.3507, -278.31076, 90.473434, DEGREES(3.144173), 'The Robodrome - Purple Team'),
-(@WORLD_SAFE_LOC_ID+1, 2167, -375.97, -279.68, 90.45, DEGREES(6.233304), 'The Robodrome - Gold Team'); -- todo: correct coords
+(@WORLD_SAFE_LOC_ID+1, 2167, -377.32465, -279.32465, 90.82373, DEGREES(0.017222663), 'The Robodrome - Gold Team');
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 2167 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
