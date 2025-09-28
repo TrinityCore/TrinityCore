@@ -268,9 +268,7 @@ class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public Sp
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        int32 const flushSpell = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
-
-        GetCaster()->CastSpell(nullptr, flushSpell, CastSpellExtraArgsInit
+        GetCaster()->CastSpell(nullptr, GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(), CastSpellExtraArgsInit
         {
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
