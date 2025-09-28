@@ -1,6 +1,5 @@
 SET @CGUID := 113000000;
 SET @OGUID := 113000000;
-SET @WORLD_SAFE_LOC_ID := 230000;
 SET @SPAWN_GROUP := 230000;
 SET @AT_ID := 200000;
 SET @AT_PROP_ID := 11000000;
@@ -25,18 +24,13 @@ DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @AT_SPAWN_ID+0 AND @AT_SPAWN_I
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `Comment`) VALUES
 (@AT_SPAWN_ID+0, @AT_PROP_ID, 1, 2167, -281.619598, -278.841583, 70.442131, 0, 'Dalaran Sewers Entrance A');
 
-DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC_ID + 0 AND @WORLD_SAFE_LOC_ID + 1;
-INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
-(@WORLD_SAFE_LOC_ID+0, 2167, -186.3507, -278.31076, 90.473434, DEGREES(3.144173), 'The Robodrome - Purple Team'),
-(@WORLD_SAFE_LOC_ID+1, 2167, -377.32465, -279.32465, 90.82373, DEGREES(0.017222663), 'The Robodrome - Gold Team');
-
 DELETE FROM `battleground_scripts` WHERE `MapId` = 2167 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
 (2167, 0, 'arena_the_robodrome'); -- The Robodrome
 
 DELETE FROM `battleground_template` WHERE `ID` = 1025;
 INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `Comment`) VALUES
-(1025, @WORLD_SAFE_LOC_ID+0, @WORLD_SAFE_LOC_ID+1, 0, 1, 'The Robodrome');
+(1025, 7208, 7209, 0, 1, 'The Robodrome');
 
 DELETE FROM `gameobject_template_addon` WHERE `entry` IN (329743 /*Doodad_8XP_MECHAGONARENA_PVPDOOR002*/, 329742 /*Doodad_8XP_MECHAGONARENA_PVPDOOR001*/);
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
