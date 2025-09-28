@@ -78,13 +78,19 @@ class spell_westfall_unbound_energy : public SpellScript
 };
 
 // 42601 - Overloaded Harvest Golem
-struct npc_westfall_overloaded_harvest_golem : public VehicleAI
+struct npc_westfall_overloaded_harvest_golem : public ScriptedAI
 {
-    npc_westfall_overloaded_harvest_golem(Creature* creature) : VehicleAI(creature) {}
+    npc_westfall_overloaded_harvest_golem(Creature* creature) : ScriptedAI(creature) {}
 
     void JustAppeared() override
     {
         _events.ScheduleEvent(Events::ItsAlive::CheckArea, 1s);
+    }
+
+    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply)
+    {
+        if (!apply)
+            me->DespawnOrUnsummon();
     }
 
     void UpdateAI(uint32 diff) override
@@ -161,7 +167,7 @@ class spell_westfall_wake_harvest_golem : public SpellScript
 
         if (Creature* target = GetHitCreature())
         {
-            caster->ToPlayer()->KilledMonsterCredit(Creatures::EnergizedHarvestReaper);
+            caster->ToPlayer()->KilledMonsterCredit(Creatures::OverloadedHarvestGolem);
             target->DespawnOrUnsummon(100ms);
         }
     }
