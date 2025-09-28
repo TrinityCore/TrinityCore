@@ -34,7 +34,10 @@ enum ShrineOfTheStormDataTypes
     DATA_VOLZITH_THE_WHISPERER  = 3,
 
     DATA_BROTHER_IRONHULL,
-    DATA_GALECALLER_FAYE
+    DATA_GALECALLER_FAYE,
+
+    DATA_LORD_STORMSONG_INTRO,
+    DATA_LORD_STORMSONG_BROTHER_PIKE
 };
 
 enum ShrineOfTheStormCreatureIds
@@ -50,6 +53,8 @@ enum ShrineOfTheStormCreatureIds
     NPC_SHRINE_OF_THE_STORM_DUMMY   = 139986,
     NPC_GRASPING_TENTACLE           = 134612,
     NPC_AQUALING                    = 134828,
+
+    NPC_LORD_SONGSTORM_BROTHER_PIKE = 139970
 };
 
 template <class AI, class T>
