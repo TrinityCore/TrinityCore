@@ -203,6 +203,7 @@ void AddSC_tirisfal_glades();
 void AddSC_tol_barad();
 void AddSC_undercity();
 //void AddSC_western_plaguelands();
+void AddSC_westfall();
 
 // Return to Karazhan
 void AddSC_instance_return_to_karazhan();
@@ -402,6 +403,7 @@ void AddEasternKingdomsScripts()
     AddSC_tol_barad();
     AddSC_undercity();
     //AddSC_western_plaguelands();
+    AddSC_westfall();
 
     // Return to Karazhan
     AddSC_instance_return_to_karazhan();
