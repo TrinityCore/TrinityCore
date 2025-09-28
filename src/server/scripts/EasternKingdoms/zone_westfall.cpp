@@ -18,6 +18,7 @@
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
+#include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
@@ -131,7 +132,7 @@ class spell_westfall_reaping_blows : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
