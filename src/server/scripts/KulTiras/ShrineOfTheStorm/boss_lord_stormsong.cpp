@@ -195,7 +195,7 @@ struct boss_lord_stormsong : public BossAI
             return;
 
         if (spellInfo->Id == SPELL_ANCIENT_MINDBENDER)
-            Talk(SAY_MINDBENDER_WARNING. target);
+            Talk(SAY_MINDBENDER_WARNING, target);
     }
 
     void JustDied(Unit* /*killer*/) override
