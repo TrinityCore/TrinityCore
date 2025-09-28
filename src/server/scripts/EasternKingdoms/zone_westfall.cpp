@@ -87,7 +87,7 @@ struct npc_westfall_overloaded_harvest_golem : public ScriptedAI
         _events.ScheduleEvent(Events::ItsAlive::CheckArea, 1s);
     }
 
-    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply)
+    void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool apply) override
     {
         if (!apply)
             me->DespawnOrUnsummon();
