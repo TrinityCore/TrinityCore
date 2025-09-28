@@ -271,9 +271,9 @@ class spell_undermine_arena_warning_countdown : public AuraScript
         return GetOwner()->GetMapId() == CageOfCarnage::MapIds::CageOfCarnage;
     }
 
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({CageOfCarnage::Spells::WarningTeleport });
+        return ValidateSpellInfo({ CageOfCarnage::Spells::WarningTeleport });
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
