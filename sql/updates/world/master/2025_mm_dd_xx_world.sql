@@ -6,7 +6,7 @@ SET @SPAWN_GROUP := 210000;
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC_ID + 0 AND @WORLD_SAFE_LOC_ID + 1;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
 (@WORLD_SAFE_LOC_ID+0, 2509, 2856.63, 2329.15, 3259.74, DEGREES(4.4575706), 'Maldraxxus Coliseum - Purple Team'),
-(@WORLD_SAFE_LOC_ID+1, 2509, 2856.63, 2329.15, 3259.74, DEGREES(4.4575706), 'Maldraxxus Coliseum - Gold Team'); -- TODO
+(@WORLD_SAFE_LOC_ID+1, 2509, 2854.23, 2182.54, 3259.96, DEGREES(1.860521), 'Maldraxxus Coliseum - Gold Team');
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 2509 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
@@ -34,7 +34,7 @@ INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffe
 (355424, 0, 0x30, 0, 0), -- Door
 (358873, 0, 0x2000, 0, 0); -- Anima Reservoir
 
-DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26;
+DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+28;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 358873, 2509, 13972, 13972, '0', '0', 0, 1835.9671630859375, 2231.16552734375, 3389.037841796875, 5.751413822174072265, 0, 0, -0.26276397705078125, 0.964860141277313232, 7200, 255, 1, 63305), -- Anima Reservoir (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 (@OGUID+1, 355424, 2509, 13972, 13972, '0', '0', 0, 1029.6214599609375, 1130.5401611328125, 3066.897705078125, 1.570795774459838867, 0, 0, 0.707106590270996093, 0.707106947898864746, 7200, 255, 1, 63305), -- Door (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
@@ -62,9 +62,11 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 (@OGUID+23, 358875, 2509, 13972, 13972, '0', '0', 0, 1837.387939453125, 2232.581787109375, 3387.25927734375, 2.055546998977661132, 0, 0, 0.856150627136230468, 0.516726315021514892, 7200, 255, 1, 63305), -- Anima Crystal (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 (@OGUID+24, 358874, 2509, 13972, 13972, '0', '0', 0, 1826.52099609375, 2225.56591796875, 3387.630126953125, 3.141592741012573242, 0, 0, -1, 0, 7200, 255, 1, 63305), -- Anima Crystal (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 (@OGUID+25, 358876, 2509, 13972, 13972, '0', '0', 0, 1824.5372314453125, 2224.138427734375, 3388.286376953125, 3.141592741012573242, 0, 0, -1, 0, 7200, 255, 1, 63305), -- Anima Crystal (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
-(@OGUID+26, 358877, 2509, 13972, 13972, '0', '0', 0, 1824.9727783203125, 2226.773193359375, 3386.77294921875, 1.099337220191955566, 0, 0, 0.522404670715332031, 0.852697670459747314, 7200, 255, 1, 63305); -- Anima Crystal (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
+(@OGUID+26, 358877, 2509, 13972, 13972, '0', '0', 0, 1824.9727783203125, 2226.773193359375, 3386.77294921875, 1.099337220191955566, 0, 0, 0.522404670715332031, 0.852697670459747314, 7200, 255, 1, 63305), -- Anima Crystal (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
+(@OGUID+27, 184663, 2509, 13972, 13972, '0', '0', 0, 2786.130126953125, 2253.369873046875, 3260.39990234375, 3.040358543395996093, 0, 0, 0.998719215393066406, 0.050595458596944808, 7200, 255, 1, 63305), -- Shadow Sight (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject2
+(@OGUID+28, 184663, 2509, 13972, 13972, '0', '0', 0, 2881.690185546875, 2253.890625, 3260.489990234375, 1.710418701171875, 0, 0, 0.754708290100097656, 0.656060516834259033, 7200, 255, 1, 63305); -- Shadow Sight (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject2
 
-DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+26;
+DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+28;
 INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (@OGUID+0, 0, 0, 1, -0.00000004371138828, 0, 0), -- Anima Reservoir
 (@OGUID+1, 0, 0, 1, -0.00000004371138828, 0, 0), -- Door
@@ -149,6 +151,13 @@ INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier
 (@CGUID+23, 0, 0, 0, 0, 0, 1, 0, 716, 0, 0, 0, 0, ''), -- Maldraxxian Gladiator
 (@CGUID+34, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 3, ''); -- Jared V. Hellstrike
 
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=163041 AND `DifficultyID`=0); -- 163041 (Arena Prospect) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=347, `VerifiedBuild`=63305 WHERE (`Entry`=110854 AND `DifficultyID`=0); -- 110854 (Jared V. Hellstrike)
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=166568 AND `DifficultyID`=0); -- 166568 (Hellinka) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=969, `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=185659 AND `DifficultyID`=0); -- 185659 (Guard) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=837, `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=185764 AND `DifficultyID`=0); -- 185764 (Maldraxxian Gladiator) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=837, `StaticFlags1`=0x10000000, `VerifiedBuild`=63305 WHERE (`Entry`=185765 AND `DifficultyID`=0); -- 185765 (Arena Prospect) - CanSwim
+
 UPDATE `creature` SET `StringId` = 'arena_maldraxxus_coliseum_2' WHERE `guid` = @CGUID+0;
 UPDATE `creature` SET `StringId` = 'arena_maldraxxus_coliseum_1' WHERE `guid` = @CGUID+7;
 UPDATE `creature` SET `StringId` = 'arena_maldraxxus_coliseum_3' WHERE `guid` = @CGUID+16;
@@ -164,11 +173,10 @@ DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (@SPAWN_GROUP, 'Maldraxxus Coliseum - Shadow sight', 0x20);
 
--- TODO missing spawns
--- DELETE FROM `spawn_group` WHERE `groupId` = @SPAWN_GROUP;
--- INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
--- (@SPAWN_GROUP, 1, @OGUID+18),
--- (@SPAWN_GROUP, 1, @OGUID+19);
+DELETE FROM `spawn_group` WHERE `groupId` = @SPAWN_GROUP;
+INSERT INTO `spawn_group` (`groupId`, `spawnType`, `spawnId`) VALUES
+(@SPAWN_GROUP, 1, @OGUID+27),
+(@SPAWN_GROUP, 1, @OGUID+28);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 33 AND `SourceEntry` = @SPAWN_GROUP;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ScriptName`) VALUES

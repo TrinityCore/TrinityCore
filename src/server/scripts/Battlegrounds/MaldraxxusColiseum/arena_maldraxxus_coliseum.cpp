@@ -17,8 +17,10 @@
 
 #include "Battleground.h"
 #include "BattlegroundScript.h"
+#include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
+#include "MotionMaster.h"
 #include "ScriptMgr.h"
 
 namespace MaldraxxusColiseum
