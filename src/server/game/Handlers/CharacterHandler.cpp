@@ -629,6 +629,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
     ObjectGuid guid;
     recvData >> guid;
+
     // Initiating
     uint32 initAccountId = GetAccountId();
 

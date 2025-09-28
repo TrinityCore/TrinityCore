@@ -1366,11 +1366,11 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     Field* fields = result->Fetch();
 
     ObjectGuid::LowType guid = fields[0].GetUInt32();
-    uint8 plrRace = fields[2].GetUInt8();
-    uint8 plrClass = fields[3].GetUInt8();
+    uint8 playerRace = fields[2].GetUInt8();
+    uint8 playerClass = fields[3].GetUInt8();
     uint8 gender = fields[4].GetUInt8();
 
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(playerRace, playerClass);
     if (!info)
     {
         TC_LOG_ERROR("entities.player.loading", "Player {} has incorrect race/class pair. Don't build enum.", guid);
@@ -1384,8 +1384,8 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     *data << ObjectGuid(HighGuid::Player, guid);
     *data << fields[1].GetString();                         // name
-    *data << uint8(plrRace);                                // race
-    *data << uint8(plrClass);                               // class
+    *data << uint8(playerRace);                                // race
+    *data << uint8(playerClass);                               // class
     *data << uint8(gender);                                 // gender
 
     uint8 skin = fields[5].GetUInt8();
@@ -1396,7 +1396,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
 
     uint16 atLoginFlags = fields[18].GetUInt16();
 
-    if (!ValidateAppearance(uint8(plrRace), uint8(plrClass), gender, hairStyle, hairColor, face, facialStyle, skin))
+    if (!ValidateAppearance(uint8(playerRace), uint8(playerClass), gender, hairStyle, hairColor, face, facialStyle, skin))
     {
         TC_LOG_ERROR("entities.player.loading", "Player {} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", guid);
 
@@ -1472,7 +1472,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     CreatureFamily petFamily = CREATURE_FAMILY_NONE;
 
     // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
+    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (playerClass == CLASS_WARLOCK || playerClass == CLASS_HUNTER || playerClass == CLASS_DEATH_KNIGHT))
     {
         uint32 entry = fields[19].GetUInt32();
         CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
