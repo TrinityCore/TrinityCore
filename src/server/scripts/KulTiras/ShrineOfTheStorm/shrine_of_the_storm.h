@@ -37,7 +37,8 @@ enum ShrineOfTheStormDataTypes
     DATA_GALECALLER_FAYE,
 
     DATA_LORD_STORMSONG_INTRO,
-    DATA_LORD_STORMSONG_BROTHER_PIKE
+    DATA_LORD_STORMSONG_BROTHER_PIKE,
+    DATA_LORD_STORMSONG_REXXAR
 };
 
 enum ShrineOfTheStormCreatureIds
@@ -54,7 +55,8 @@ enum ShrineOfTheStormCreatureIds
     NPC_GRASPING_TENTACLE           = 134612,
     NPC_AQUALING                    = 134828,
 
-    NPC_LORD_SONGSTORM_BROTHER_PIKE = 139970
+    NPC_LORD_SONGSTORM_BROTHER_PIKE = 139970,
+    NPC_LORD_SONGSTORM_REXXAR       = 139971
 };
 
 template <class AI, class T>

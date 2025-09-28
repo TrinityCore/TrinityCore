@@ -34,23 +34,25 @@
 
 enum LordStormsongSpells
 {
-    SPELL_ANCIENT_MINDBENDER         = 269131,
-    SPELL_CONVERSATION               = 274622,
-    SPELL_CONVERSATION_INTRO         = 274640,
-    SPELL_CONVERSATION_OUTRO         = 274674,
-    SPELL_DARK_BINDING               = 274646,
-    SPELL_DISCIPLE_OF_THE_VOL_ZITH   = 269289,
-    SPELL_ENERGIZE                   = 269396, // Serverside
-    SPELL_EXPLOSIVE_VOID             = 269104,
-    SPELL_FIXATE                     = 269103,
-    SPELL_MIND_REND                  = 268896,
-    SPELL_RELEASE_VOID               = 274711,
-    SPELL_RIDE_VEHICLE               = 46598,
-    SPELL_SURRENDER_TO_THE_VOID      = 269242,
-    SPELL_VOID_BOLT                  = 268347,
-    SPELL_WAKEN_THE_VOID_AREATRIGGER = 269094,
-    SPELL_WAKEN_THE_VOID_SUMMON      = 269095,
-    SPELL_WAKEN_THE_VOID_AREA        = 269097
+    SPELL_ANCIENT_MINDBENDER          = 269131,
+    SPELL_CONVERSATION                = 274622,
+    SPELL_CONVERSATION_ALLIANCE_INTRO = 274640,
+    SPELL_CONVERSATION_ALLIANCE_OUTRO = 274674,
+    SPELL_CONVERSATION_HORDE_INTRO    = 274641,
+    SPELL_CONVERSATION_HORDE_OUTRO    = 274675,
+    SPELL_DARK_BINDING                = 274646,
+    SPELL_DISCIPLE_OF_THE_VOL_ZITH    = 269289,
+    SPELL_ENERGIZE                    = 269396, // Serverside
+    SPELL_EXPLOSIVE_VOID              = 269104,
+    SPELL_FIXATE                      = 269103,
+    SPELL_MIND_REND                   = 268896,
+    SPELL_RELEASE_VOID                = 274711,
+    SPELL_RIDE_VEHICLE                = 46598,
+    SPELL_SURRENDER_TO_THE_VOID       = 269242,
+    SPELL_VOID_BOLT                   = 268347,
+    SPELL_WAKEN_THE_VOID_AREATRIGGER  = 269094,
+    SPELL_WAKEN_THE_VOID_SUMMON       = 269095,
+    SPELL_WAKEN_THE_VOID_AREA         = 269097
 };
 
 enum LordStormsongEvents
@@ -76,24 +78,28 @@ enum LordStormsongActions
 
 enum LordStormsongMisc
 {
-    DISPLAY_POWERID          = 425,
+    DISPLAY_POWERID             = 425,
 
-    NPC_QUEEN_AZSHARA        = 139963,
-    NPC_ANCIENT_MINDBENDER   = 137051,
-    NPC_WATER_STALKER        = 82347,
+    NPC_QUEEN_AZSHARA           = 139963,
+    NPC_ANCIENT_MINDBENDER      = 137051,
+    NPC_WATER_STALKER           = 82347,
 
-    CONVO_ACTOR_BROTHER_PIKE = 65078,
+    CONVO_ACTOR_BROTHER_PIKE    = 65078,
+    CONVO_ACTOR_REXXAR          = 65085,
 
-    SEAT_PLAYER              = 0,
+    SEAT_PLAYER                 = 0,
 
-    PATH_BROTHER_PIKE_INTRO  = 13997000,
-    PATH_BROTHER_PIKE_OUTRO  = 13997001,
+    PATH_BROTHER_PIKE_INTRO     = 13997000,
+    PATH_BROTHER_PIKE_OUTRO     = 13997001,
 
-    WAYPOINT_BOSS_INTRO      = 13,
-    WAYPOINT_BOSS_OUTRO      = 2
+    PATH_REXXAR_INTRO           = 13997100,
+    PATH_REXXAR_OUTRO           = 13997101,
+
+    WAYPOINT_BOSS_INTRO         = 11,
+    WAYPOINT_BOSS_OUTRO         = 2
 };
 
-constexpr Position BrotherPikeIntroPosition = { 3608.3933f, -1379.824f, 160.573f, 4.370550f };
+constexpr Position IntroPosition = { 3608.3933f, -1379.824f, 160.573f, 4.370550f };
 
 // 134060 - Lord Stormsong
 struct boss_lord_stormsong : public BossAI
@@ -155,7 +161,7 @@ struct boss_lord_stormsong : public BossAI
             {
                 DoCastSelf(SPELL_CONVERSATION);
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
-                me->GetMap()->SummonCreature(NPC_LORD_SONGSTORM_BROTHER_PIKE, BrotherPikeIntroPosition);
+                me->GetMap()->SummonCreature(instance->instance->GetTeamInInstance() == HORDE ? NPC_LORD_SONGSTORM_REXXAR : NPC_LORD_SONGSTORM_BROTHER_PIKE, IntroPosition);
 
                 scheduler.Schedule(11s, [this](TaskContext task)
                 {
@@ -169,11 +175,7 @@ struct boss_lord_stormsong : public BossAI
 
                     task.Schedule(16s, [this](TaskContext task)
                     {
-                        Creature* brotherPike = me->GetInstanceScript()->GetCreature(DATA_LORD_STORMSONG_BROTHER_PIKE);
-                        if (!brotherPike)
-                            return;
-
-                        DoCast(brotherPike, SPELL_DARK_BINDING);
+                        DoCastSelf(SPELL_DARK_BINDING);
 
                         task.Schedule(6s, [this](TaskContext)
                         {
@@ -210,11 +212,11 @@ struct boss_lord_stormsong : public BossAI
 
         DespawnMindbenders();
 
-        Creature* brotherPike = me->GetInstanceScript()->GetCreature(DATA_LORD_STORMSONG_BROTHER_PIKE);
-        if (!brotherPike)
+        Creature* pikeOrRexxar = me->GetInstanceScript()->GetCreature(instance->instance->GetTeamInInstance() == HORDE ? DATA_LORD_STORMSONG_REXXAR : DATA_LORD_STORMSONG_BROTHER_PIKE);
+        if (!pikeOrRexxar)
             return;
 
-        brotherPike->AI()->DoAction(ACTION_START_OUTRO);
+        pikeOrRexxar->AI()->DoAction(ACTION_START_OUTRO);
     }
 
     void UpdateAI(uint32 diff) override
@@ -301,12 +303,12 @@ struct boss_lord_stormsong_brother_pike : public ScriptedAI
         if (pathId == PATH_BROTHER_PIKE_INTRO)
         {
             if (waypointId == WAYPOINT_BOSS_INTRO)
-                DoCastSelf(SPELL_CONVERSATION_INTRO);
+                DoCastSelf(SPELL_CONVERSATION_ALLIANCE_INTRO);
         }
         else if (pathId == PATH_BROTHER_PIKE_OUTRO)
         {
             if (waypointId == WAYPOINT_BOSS_OUTRO)
-                DoCastSelf(SPELL_CONVERSATION_OUTRO);
+                DoCastSelf(SPELL_CONVERSATION_ALLIANCE_OUTRO);
         }
     }
 
@@ -337,6 +339,68 @@ struct boss_lord_stormsong_brother_pike : public ScriptedAI
             {
                 me->RemoveAurasDueToSpell(SPELL_DARK_BINDING);
                 me->GetMotionMaster()->MovePath(PATH_BROTHER_PIKE_OUTRO, false);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+private:
+    EventMap _events;
+};
+
+// 139971 - Rexxar
+struct boss_lord_stormsong_rexxar : public ScriptedAI
+{
+    boss_lord_stormsong_rexxar(Creature* creature) : ScriptedAI(creature) { }
+
+    void JustAppeared() override
+    {
+        me->GetMotionMaster()->MovePath(PATH_REXXAR_INTRO, false);
+    }
+
+    void WaypointReached(uint32 waypointId, uint32 pathId) override
+    {
+        if (pathId == PATH_REXXAR_INTRO)
+        {
+            if (waypointId == WAYPOINT_BOSS_INTRO)
+                DoCastSelf(SPELL_CONVERSATION_HORDE_INTRO);
+        }
+        else if (pathId == PATH_REXXAR_OUTRO)
+        {
+            if (waypointId == WAYPOINT_BOSS_OUTRO)
+                DoCastSelf(SPELL_CONVERSATION_HORDE_OUTRO);
+        }
+    }
+
+    void DoAction(int32 action) override
+    {
+        if (action != ACTION_START_OUTRO)
+            return;
+
+        Creature* stalker = me->FindNearestCreature(NPC_WATER_STALKER, 100.0f);
+        if (!stalker)
+            return;
+
+        stalker->CastSpell(stalker, SPELL_RELEASE_VOID, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        _events.ScheduleEvent(EVENT_OUTRO, 2s);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        switch (_events.ExecuteEvent())
+        {
+            case EVENT_OUTRO:
+            {
+                me->RemoveAurasDueToSpell(SPELL_DARK_BINDING);
+                me->GetMotionMaster()->MovePath(PATH_REXXAR_OUTRO, false);
                 break;
             }
             default:
@@ -454,7 +518,11 @@ class spell_lord_stormsong_ancient_mindbender_aura : public AuraScript
         if (!ancientMindbender)
             return;
 
-        ancientMindbender->ToCreature()->DespawnOrUnsummon();
+        Creature* mindbender = ancientMindbender->ToCreature();
+        if (!mindbender)
+            return;
+
+        mindbender->DespawnOrUnsummon();
     }
 
     void Register() override
@@ -532,7 +600,7 @@ class spell_lord_stormsong_release_void_missile : public SpellScript
     }
 };
 
-// 264101 - Surging Rush
+// 269094 - Waken the Void
 struct at_lord_stormsong_waken_the_void : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
@@ -559,12 +627,12 @@ struct at_lord_stormsong_intro : AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        InstanceScript* instance = at->GetInstanceScript();
-        if (!instance)
-            return;
-
         Player* player = unit->ToPlayer();
         if (!player || player->IsGameMaster())
+            return;
+
+        InstanceScript* instance = at->GetInstanceScript();
+        if (!instance)
             return;
 
         if (Creature* lordStormsong = instance->GetCreature(DATA_LORD_STORMSONG))
@@ -576,14 +644,38 @@ struct at_lord_stormsong_intro : AreaTriggerAI
 
 // 274640 - Conversation
 // 274674 - Conversation
-class conversation_lord_stormsong_intro_outro : public ConversationAI
+class conversation_lord_stormsong_brother_pike_intro_outro : public ConversationAI
 {
 public:
-    conversation_lord_stormsong_intro_outro(Conversation* conversation) : ConversationAI(conversation) { }
+    conversation_lord_stormsong_brother_pike_intro_outro(Conversation* conversation) : ConversationAI(conversation) { }
 
     void OnCreate(Unit* creator) override
     {
         conversation->AddActor(CONVO_ACTOR_BROTHER_PIKE, 0, creator->GetGUID());
+    }
+};
+
+// 274641 - Conversation
+class conversation_lord_stormsong_rexxar_intro : public ConversationAI
+{
+public:
+    conversation_lord_stormsong_rexxar_intro(Conversation* conversation) : ConversationAI(conversation) { }
+
+    void OnCreate(Unit* creator) override
+    {
+        conversation->AddActor(CONVO_ACTOR_REXXAR, 1, creator->GetGUID());
+    }
+};
+
+// 274675 - Conversation
+class conversation_lord_stormsong_rexxar_outro : public ConversationAI
+{
+public:
+    conversation_lord_stormsong_rexxar_outro(Conversation* conversation) : ConversationAI(conversation) { }
+
+    void OnCreate(Unit* creator) override
+    {
+        conversation->AddActor(CONVO_ACTOR_REXXAR, 0, creator->GetGUID());
     }
 };
 
@@ -592,6 +684,7 @@ void AddSC_boss_lord_stormsong()
     RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong);
     RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_ancient_mindbender);
     RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_brother_pike);
+    RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_rexxar);
 
     RegisterSpellScript(spell_lord_stormsong_energize);
     RegisterSpellScript(spell_lord_stormsong_waken_the_void_missile);
@@ -603,7 +696,10 @@ void AddSC_boss_lord_stormsong()
     RegisterSpellScript(spell_lord_stormsong_release_void_missile);
 
     RegisterAreaTriggerAI(at_lord_stormsong_waken_the_void);
+
     RegisterAreaTriggerAI(at_lord_stormsong_intro);
 
-    RegisterConversationAI(conversation_lord_stormsong_intro_outro);
+    RegisterConversationAI(conversation_lord_stormsong_brother_pike_intro_outro);
+    RegisterConversationAI(conversation_lord_stormsong_rexxar_intro);
+    RegisterConversationAI(conversation_lord_stormsong_rexxar_outro);
 }
