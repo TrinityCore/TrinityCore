@@ -28,7 +28,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "TempSummon.h"
+#include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "shrine_of_the_storm.h"
 
