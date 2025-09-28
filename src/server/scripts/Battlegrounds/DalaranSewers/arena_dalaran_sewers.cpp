@@ -256,41 +256,21 @@ public:
     }
 };
 
-// 96539 - Pipe Flush Knockback Search Trigger
-class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public AuraScript
+// 96538 - Pipe Flush Knockback Search Effect
+class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({
-            { spellInfo->Id, EFFECT_0 },
-            { spellInfo->GetEffect(EFFECT_0).TriggerSpell, EFFECT_0 }
-        }) && ValidateSpellInfo({
-            static_cast<uint32>(sSpellMgr->GetSpellInfo(spellInfo->GetEffect(EFFECT_0).TriggerSpell, spellInfo->Difficulty)->GetEffect(EFFECT_0).CalcValue())
+        return ValidateSpellInfo({
+            static_cast<uint32>(spellInfo->GetEffect(EFFECT_0).CalcValue())
         });
     }
 
-    void HandlePeriodicTrigger(AuraEffect const* aurEff)
+    void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        // The trigger spell is never cast on retail
-        PreventDefaultAction();
+        int32 const flushSpell = GetSpellInfo()->GetEffect(EFFECT_0).CalcValue();
 
-        Unit* target = GetTarget();
-
-        SpellInfo const* triggerInfo = sSpellMgr->GetSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell, GetCastDifficulty());
-        int32 const flushSpell = triggerInfo->GetEffect(EFFECT_0).CalcValue();
-        SpellInfo const* flushInfo = sSpellMgr->GetSpellInfo(flushSpell, GetCastDifficulty());
-
-        std::vector<Player*> playerList;
-        target->GetPlayerListInGrid(playerList, 40.0f);
-        bool const anyValidTargets = std::ranges::any_of(playerList, [flushInfo, caster = target](Player const* player)
-        {
-            return flushInfo->CheckTarget(caster, player) == SPELL_CAST_OK;
-        });
-
-        if (!anyValidTargets)
-            return;
-
-        target->CastSpell(nullptr, flushSpell, CastSpellExtraArgsInit
+        GetCaster()->CastSpell(nullptr, flushSpell, CastSpellExtraArgsInit
         {
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
         });
@@ -298,7 +278,7 @@ class spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger : public Au
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger::HandlePeriodicTrigger, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        OnEffectHit += SpellEffectFn(spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -325,6 +305,5 @@ void AddSC_arena_dalaran_sewers()
 {
     RegisterBattlegroundMapScript(arena_dalaran_sewers, DalaranSewers::MapIds::DalaranSewers);
     new at_ds_pipe_knockback();
-    RegisterSpellScript(spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger);
     RegisterSpellScript(spell_arena_dalaran_sewers_flush_knock_back_effect);
 }

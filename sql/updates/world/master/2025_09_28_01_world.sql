@@ -1,13 +1,13 @@
-SET @OGUID := 108004300;
-SET @CGUID := 108000010;
-SET @SPAWN_GROUP := 100000;
+SET @OGUID := 2000000;
+SET @CGUID := 2000000;
+SET @SPAWN_GROUP := 1270;
 
 SET @AT_WIDTH := 10;
 SET @AT_LENGTH := 35;
 SET @AT_HEIGHT := 15;
-SET @AT_ID := 10000000;
-SET @AT_PROP_ID := 10000000;
-SET @AT_SPAWN_ID = 100000;
+SET @AT_ID := 167;
+SET @AT_PROP_ID := 161;
+SET @AT_SPAWN_ID = 263;
 
 DELETE FROM `spawn_group_template` WHERE `groupId` = @SPAWN_GROUP;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
@@ -50,9 +50,9 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 UPDATE `creature` SET `StringId` = 'arena_dalaran_sewers_water_spout_pipe' WHERE `guid` IN (@CGUID+2, @CGUID+5);
 UPDATE `creature` SET `StringId` = 'arena_dalaran_sewers_water_spout_center' WHERE `guid` = @CGUID+4;
 
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger', 'spell_arena_dalaran_sewers_flush_knock_back_effect');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_arena_dalaran_sewers_pipe_flush_knockback_search', 'spell_arena_dalaran_sewers_flush_knock_back_effect');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(96539, 'spell_arena_dalaran_sewers_pipe_flush_knockback_search_trigger'),
+(96538, 'spell_arena_dalaran_sewers_pipe_flush_knockback_search'),
 (61698, 'spell_arena_dalaran_sewers_flush_knock_back_effect');
 
 UPDATE `serverside_spell` SET `RangeIndex` = 5 WHERE `Id` = 61698;
