@@ -67,6 +67,8 @@ void AddSC_arena_blades_edge_legion();
 
 void AddSC_arena_mugambala();
 
+void AddSC_arena_cage_of_carnage();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
@@ -118,4 +120,6 @@ void AddBattlegroundsScripts()
     AddSC_arena_blades_edge_legion();
 
     AddSC_arena_mugambala();
+
+    AddSC_arena_cage_of_carnage();
 }
