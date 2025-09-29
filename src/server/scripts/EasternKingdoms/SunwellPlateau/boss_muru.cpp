@@ -144,7 +144,7 @@ enum MuruMisc
     ACTION_BERSERK                              = 0,
     ACTION_DISPELLED_MAGIC                      = 1,
     MAX_VOID_SPAWNS                             = 6,
-    NPC_WORLD_TRIGGER                           = 22515,
+    NPC_WORLD_TRIGGER_MOVE_TO                   = 22515,
     POINT_ROOM                                  = 0
 };
 
@@ -632,7 +632,7 @@ struct npc_dark_fiend : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* who, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    void DamageTaken(Unit* /*who*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
     {
         if (damage >= me->GetHealth())
         {
@@ -779,7 +779,7 @@ struct ShadowswordBaseAI : public ScriptedAI
             return !me->HasUnitState(UNIT_STATE_CASTING);
         });
 
-        if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER, 120.0f))
+        if (Creature* trigger = me->FindNearestCreature(NPC_WORLD_TRIGGER_MOVE_TO, 120.0f))
         {
             float x, y, z;
             trigger->GetClosePoint(x, y, z, 0.0f, 3.0f, float(M_PI));
