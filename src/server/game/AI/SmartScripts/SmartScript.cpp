@@ -3258,6 +3258,16 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 ProcessTimedAction(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
             break;
         }
+        case SMART_EVENT_AURA_REMOVED:
+        {
+            if (!unit)
+                return;
+
+            // Check if the removed aura matches the event's spell ID
+            if (e.event.aura.spell == uint32(-1) || e.event.aura.spell == var0)
+                ProcessAction(e, unit, var0, var1, bvar, spell, gob);
+            break;
+        }
         case SMART_EVENT_TARGET_BUFFED:
         {
             if (!me || !me->GetVictim())

@@ -40,6 +40,7 @@
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
+#include "SmartAI.h"
 #include <sstream>
 
 class ChargeDropEvent : public BasicEvent
@@ -2525,6 +2526,25 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 {
     if (IsRemoved())
         return;
+
+    // Process SMART_EVENT_AURA_REMOVED before removing the aura
+    if (GetUnitOwner()->IsCreature())
+    {
+        Creature* creature = GetUnitOwner()->ToCreature();
+        if (creature && creature->AI())
+        {
+            // Check if this is a SmartAI using dynamic_cast
+            if (dynamic_cast<SmartAI*>(creature->AI()))
+            {
+                SmartAI* smartAI = CAST_AI(SmartAI, creature->AI());
+                if (smartAI)
+                {
+                    smartAI->OnAuraRemove(creature, GetId());
+                }
+            }
+        }
+    }
+
     GetUnitOwner()->RemoveOwnedAura(this, removeMode);
 }
 

@@ -162,6 +162,9 @@ class TC_GAME_API SmartAI : public CreatureAI
         // Called when the unit is about to be removed from the world (despawn, grid unload, corpse disappearing)
         void OnDespawn() override;
 
+        // Called when an aura is removed from the creature
+        void OnAuraRemove(Unit* unit, uint32 spellId);
+
         // Called when a Player/Creature enters the creature (vehicle)
         void PassengerBoarded(Unit* who, int8 seatId, bool apply) override;
 

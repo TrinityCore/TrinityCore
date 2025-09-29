@@ -90,6 +90,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "SmartAI.h"
 #include <queue>
 #include <sstream>
 #include <cmath>
@@ -3735,6 +3736,11 @@ void Unit::RemoveOwnedAura(AuraMap::iterator& i, AuraRemoveMode removeMode)
     // if unit currently update aura list then make safe update iterator shift to next
     if (m_auraUpdateIterator == i)
         ++m_auraUpdateIterator;
+
+    // Trigger SMART_EVENT_AURA_REMOVED for SmartAI
+    if (Creature* creature = ToCreature())
+        if (creature->IsAIEnabled() && creature->AI())
+            ENSURE_AI(SmartAI, creature->AI())->OnAuraRemove(aura->GetCaster(), aura->GetId());
 
     m_ownedAuras.erase(i);
     m_removedAuras.push_front(aura);
