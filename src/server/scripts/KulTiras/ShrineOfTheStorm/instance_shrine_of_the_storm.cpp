@@ -34,9 +34,8 @@ ObjectData const creatureData[] =
     { BOSS_GALECALLER_FAYE,            DATA_GALECALLER_FAYE             },
     { BOSS_LORD_STORMSONG,             DATA_LORD_STORMSONG              },
     { BOSS_VOLZITH_THE_WHISPERER,      DATA_VOLZITH_THE_WHISPERER       },
-
-    { NPC_LORD_SONGSTORM_BROTHER_PIKE, DATA_LORD_STORMSONG_BROTHER_PIKE },
-    { NPC_LORD_SONGSTORM_REXXAR,       DATA_LORD_STORMSONG_REXXAR       },
+    { NPC_LORD_STORMSONG_BROTHER_PIKE, DATA_LORD_STORMSONG_BROTHER_PIKE },
+    { NPC_LORD_STORMSONG_REXXAR,       DATA_LORD_STORMSONG_REXXAR       },
     { 0,                               0                                }  // END
 };
 

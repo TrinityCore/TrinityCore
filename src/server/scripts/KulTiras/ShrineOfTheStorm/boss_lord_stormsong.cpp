@@ -89,11 +89,8 @@ enum LordStormsongMisc
 
     SEAT_PLAYER                 = 0,
 
-    PATH_BROTHER_PIKE_INTRO     = 13997000,
-    PATH_BROTHER_PIKE_OUTRO     = 13997001,
-
-    PATH_REXXAR_INTRO           = 13997100,
-    PATH_REXXAR_OUTRO           = 13997101,
+    PATH_INTRO                  = 13997000,
+    PATH_OUTRO                  = 13997001,
 
     WAYPOINT_BOSS_INTRO         = 11,
     WAYPOINT_BOSS_OUTRO         = 2
@@ -161,7 +158,7 @@ struct boss_lord_stormsong : public BossAI
             {
                 DoCastSelf(SPELL_CONVERSATION);
                 me->SetEmoteState(EMOTE_ONESHOT_NONE);
-                me->GetMap()->SummonCreature(instance->instance->GetTeamInInstance() == HORDE ? NPC_LORD_SONGSTORM_REXXAR : NPC_LORD_SONGSTORM_BROTHER_PIKE, IntroPosition);
+                me->GetMap()->SummonCreature(instance->instance->GetTeamInInstance() == HORDE ? NPC_LORD_STORMSONG_REXXAR : NPC_LORD_STORMSONG_BROTHER_PIKE, IntroPosition);
 
                 scheduler.Schedule(11s, [this](TaskContext task)
                 {
@@ -288,89 +285,29 @@ struct boss_lord_stormsong_ancient_mindbender : public ScriptedAI
     }
 };
 
-// 139970 - Brother Pike
-struct boss_lord_stormsong_brother_pike : public ScriptedAI
-{
-    boss_lord_stormsong_brother_pike(Creature* creature) : ScriptedAI(creature) { }
-
-    void JustAppeared() override
-    {
-        me->GetMotionMaster()->MovePath(PATH_BROTHER_PIKE_INTRO, false);
-    }
-
-    void WaypointReached(uint32 waypointId, uint32 pathId) override
-    {
-        if (pathId == PATH_BROTHER_PIKE_INTRO)
-        {
-            if (waypointId == WAYPOINT_BOSS_INTRO)
-                DoCastSelf(SPELL_CONVERSATION_ALLIANCE_INTRO);
-        }
-        else if (pathId == PATH_BROTHER_PIKE_OUTRO)
-        {
-            if (waypointId == WAYPOINT_BOSS_OUTRO)
-                DoCastSelf(SPELL_CONVERSATION_ALLIANCE_OUTRO);
-        }
-    }
-
-    void DoAction(int32 action) override
-    {
-        if (action != ACTION_START_OUTRO)
-            return;
-
-        Creature* stalker = me->FindNearestCreature(NPC_WATER_STALKER, 100.0f);
-        if (!stalker)
-            return;
-
-        stalker->CastSpell(stalker, SPELL_RELEASE_VOID, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-
-        _events.ScheduleEvent(EVENT_OUTRO, 2s);
-    }
-
-    void UpdateAI(uint32 diff) override
-    {
-        _events.Update(diff);
-
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
-
-        switch (_events.ExecuteEvent())
-        {
-            case EVENT_OUTRO:
-            {
-                me->RemoveAurasDueToSpell(SPELL_DARK_BINDING);
-                me->GetMotionMaster()->MovePath(PATH_BROTHER_PIKE_OUTRO, false);
-                break;
-            }
-            default:
-                break;
-        }
-    }
-
-private:
-    EventMap _events;
-};
-
 // 139971 - Rexxar
-struct boss_lord_stormsong_rexxar : public ScriptedAI
+// 139970 - Brother Pike
+template<uint32 ConvoIntroSpellId, uint32 ConvoOutroSpellId>
+struct boss_lord_stormsong_intro_npc : public ScriptedAI
 {
-    boss_lord_stormsong_rexxar(Creature* creature) : ScriptedAI(creature) { }
+    boss_lord_stormsong_intro_npc(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
-        me->GetMotionMaster()->MovePath(PATH_REXXAR_INTRO, false);
+        me->GetMotionMaster()->MovePath(PATH_INTRO, false);
     }
 
     void WaypointReached(uint32 waypointId, uint32 pathId) override
     {
-        if (pathId == PATH_REXXAR_INTRO)
+        if (pathId == PATH_INTRO)
         {
             if (waypointId == WAYPOINT_BOSS_INTRO)
-                DoCastSelf(SPELL_CONVERSATION_HORDE_INTRO);
+                DoCastSelf(ConvoIntroSpellId);
         }
-        else if (pathId == PATH_REXXAR_OUTRO)
+        else if (pathId == PATH_OUTRO)
         {
             if (waypointId == WAYPOINT_BOSS_OUTRO)
-                DoCastSelf(SPELL_CONVERSATION_HORDE_OUTRO);
+                DoCastSelf(ConvoOutroSpellId);
         }
     }
 
@@ -400,7 +337,7 @@ struct boss_lord_stormsong_rexxar : public ScriptedAI
             case EVENT_OUTRO:
             {
                 me->RemoveAurasDueToSpell(SPELL_DARK_BINDING);
-                me->GetMotionMaster()->MovePath(PATH_REXXAR_OUTRO, false);
+                me->GetMotionMaster()->MovePath(PATH_OUTRO, false);
                 break;
             }
             default:
@@ -683,8 +620,8 @@ void AddSC_boss_lord_stormsong()
 {
     RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong);
     RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_ancient_mindbender);
-    RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_brother_pike);
-    RegisterShrineOfTheStormCreatureAI(boss_lord_stormsong_rexxar);
+    new GenericCreatureScript<boss_lord_stormsong_intro_npc<SPELL_CONVERSATION_HORDE_INTRO, SPELL_CONVERSATION_HORDE_OUTRO>>("boss_lord_stormsong_rexxar");
+    new GenericCreatureScript<boss_lord_stormsong_intro_npc<SPELL_CONVERSATION_ALLIANCE_INTRO, SPELL_CONVERSATION_ALLIANCE_OUTRO>>("boss_lord_stormsong_brother_pike");
 
     RegisterSpellScript(spell_lord_stormsong_energize);
     RegisterSpellScript(spell_lord_stormsong_waken_the_void_missile);

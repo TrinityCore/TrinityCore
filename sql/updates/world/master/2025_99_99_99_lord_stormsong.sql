@@ -120,49 +120,12 @@ INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `Scrip
 (8749, 19597, 0, '', 63305);
 
 -- Waypoints
--- Rexxar
-SET @ENTRY := 139971;
-SET @PATHOFFSET := 0;
-SET @PATH := @ENTRY * 100 + @PATHOFFSET;
-DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
-INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Rexxar - Lord Stormsong intro path');
-
-DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
-INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
-(@PATH, 0, 3610.2056, -1374.7302, 160.579, NULL, 0),
-(@PATH, 1, 3608.8958, -1378.4115, 160.57855, NULL, 0),
-(@PATH, 2, 3607.586, -1382.0928, 160.57811, NULL, 0),
-(@PATH, 3, 3606.2456, -1385.8595, 160.0007, NULL, 0),
-(@PATH, 4, 3604.7078, -1390.1816, 159.93288, NULL, 0),
-(@PATH, 5, 3603.3623, -1393.9633, 159.97807, NULL, 0),
-(@PATH, 6, 3602.0173, -1397.743, 159.97806, NULL, 0),
-(@PATH, 7, 3595.3533, -1411.257, 159.97807, NULL, 0),
-(@PATH, 8, 3587.605, -1425.5087, 160.00375, NULL, 0),
-(@PATH, 9, 3579.908, -1436.9341, 159.97806, NULL, 0),
-(@PATH, 10, 3561.501, -1465.5017, 153.70235, NULL, 0),
-(@PATH, 11, 3557.8325, -1476.3142, 153.37808, NULL, 0);
-
-SET @ENTRY := 139971;
-SET @PATHOFFSET := 1;
-SET @PATH := @ENTRY * 100 + @PATHOFFSET;
-DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
-INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Rexxar - Lord Stormsong outro path');
-
-DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
-INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
-(@PATH, 0, 3546.2266, -1492.658, 153.37653, NULL, 0),
-(@PATH, 1, 3542.8281, -1499.783, 154.04007, NULL, 0),
-(@PATH, 2, 3539.2778, -1512.4166, 153.60727, NULL, 0);
-
--- Brother Pike
 SET @ENTRY := 139970;
 SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Brother Pike - Lord Stormsong intro path');
+(@PATH, 1, 0x0, NULL, 'Brother Pike/Rexxar - Lord Stormsong intro path');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -184,7 +147,7 @@ SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Brother Pike - Lord Stormsong outro path');
+(@PATH, 1, 0x0, NULL, 'Brother Pike/Rexxar - Lord Stormsong outro path');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
