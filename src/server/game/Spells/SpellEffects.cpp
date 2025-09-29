@@ -1723,7 +1723,7 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
         if (!gameObjTarget->isSpawned() && !player->IsGameMaster())
         {
             TC_LOG_ERROR("entities.player.cheat", "Possible hacking attempt: Player {} {} tried to loot a gameobject {} which is on respawn timer without being in GM mode!",
-                            player->GetName(), player->GetGUID().ToString(), gameObjTarget->GetGUID().ToString());
+                player->GetName(), player->GetGUID().ToString(), gameObjTarget->GetGUID().ToString());
             return;
         }
         // special case, already has GossipHello inside so return and avoid calling twice

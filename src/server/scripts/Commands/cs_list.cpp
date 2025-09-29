@@ -188,10 +188,10 @@ public:
             do
             {
                 Field* fields           = result->Fetch();
-                uint32 itemGuid         = fields[0].GetUInt32();
+                ObjectGuid itemGuid     = ObjectGuid::Create<HighGuid::Item>(fields[0].GetUInt32());
                 uint32 itemBag          = fields[1].GetUInt32();
                 uint8 itemSlot          = fields[2].GetUInt8();
-                uint32 ownerGuid        = fields[3].GetUInt32();
+                ObjectGuid ownerGuid    = ObjectGuid::Create<HighGuid::Player>(fields[3].GetUInt32());
                 uint32 ownerAccountId   = fields[4].GetUInt32();
                 std::string ownerName   = fields[5].GetString();
 
@@ -205,7 +205,7 @@ public:
                 else
                     itemPos = "";
 
-                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid, ownerName.c_str(), ownerGuid, ownerAccountId, itemPos);
+                handler->PSendSysMessage(LANG_ITEMLIST_SLOT, itemGuid.ToString().c_str(), ownerName.c_str(), ownerGuid.ToString().c_str(), ownerAccountId, itemPos);
             }
             while (result->NextRow());
 

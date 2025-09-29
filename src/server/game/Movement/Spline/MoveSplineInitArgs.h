@@ -19,6 +19,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
+#include "ObjectGuid.h"
 #include <vector>
 
 class Unit;
@@ -32,11 +33,11 @@ namespace Movement
         struct {
             float x, y, z;
         } f;
-        uint64 target;
+        ObjectGuid target;
         float angle;
 
         FacingInfo(float o) : angle(o) { }
-        FacingInfo(uint64 t) : target(t) { }
+        FacingInfo(ObjectGuid t) : target(t) { }
         FacingInfo() { }
     };
 

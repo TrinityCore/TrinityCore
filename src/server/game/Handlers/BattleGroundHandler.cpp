@@ -67,7 +67,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPackets::Battleground::Batt
     bool isPremade = false;
     if (!sBattlemasterListStore.LookupEntry(battlemasterJoin.BattlemasterListID))
     {
-        TC_LOG_ERROR("network", "Battleground: invalid bgtype ({}) received. possible cheater? player {}", battlemasterJoin.BattlemasterListID, _player->GetGUID().ToString());
+        TC_LOG_ERROR("network", "Battleground: invalid bgtype ({}) received. possible cheater? {}", battlemasterJoin.BattlemasterListID, _player->GetGUID().ToString());
         return;
     }
 

@@ -1101,7 +1101,7 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
     Position const* thisOrTransport = this;
     Position const* objOrObjTransport = obj;
 
-    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID().GetCounter() == GetTransport()->GetGUID().GetCounter())
+    if (GetTransport() && obj->GetTransport() && obj->GetTransport()->GetGUID() == GetTransport()->GetGUID())
     {
         thisOrTransport = &m_movementInfo.transport.pos;
         objOrObjTransport = &obj->m_movementInfo.transport.pos;

@@ -400,8 +400,7 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     CharterTypes type = petition->PetitionType;
     uint8 signs = uint8(petition->Signatures.size());
 
-    ObjectGuid playerGuid = _player->GetGUID();
-    if (ownerGuid == playerGuid)
+    if (ownerGuid == _player->GetGUID())
         return;
 
     // not let enemies sign guild charter
@@ -475,9 +474,9 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     }
 
     // fill petition store
-    petition->AddSignature(GetAccountId(), playerGuid, false);
+    petition->AddSignature(GetAccountId(), _player->GetGUID(), false);
 
-    TC_LOG_DEBUG("network", "PETITION SIGN: {} by player: {} ({} Account: {})", petitionGuid.ToString(), _player->GetName(), playerGuid.ToString(), GetAccountId());
+    TC_LOG_DEBUG("network", "PETITION SIGN: {} by player: {} ({} Account: {})", petitionGuid.ToString(), _player->GetName(), _player->GetGUID().ToString(), GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
     data << petitionGuid;

@@ -144,18 +144,17 @@ class TC_GAME_API ObjectGuid
         ObjectGuid(HighGuid hi, uint32 entry, LowType counter) : _guid(counter ? uint64(counter) | (uint64(entry) << 24) | (uint64(hi) << 48) : 0) { }
         ObjectGuid(HighGuid hi, LowType counter) : _guid(counter ? uint64(counter) | (uint64(hi) << 48) : 0) { }
 
-        operator uint64() const { return _guid; }
         PackedGuidReader ReadAsPacked() { return PackedGuidReader(*this); }
 
-        void Set(uint64 guid) { _guid = guid; }
+        uint64 GetRawValue() const { return _guid; }
+        void SetRawValue(uint64 guid) { _guid = guid; }
         void Clear() { _guid = 0; }
 
         PackedGuidWriter WriteAsPacked() const { return PackedGuidWriter(*this); }
 
-        uint64   GetRawValue() const { return _guid; }
         HighGuid GetHigh() const { return HighGuid((_guid >> 48) & 0x0000FFFF); }
-        uint32   GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
-        LowType  GetCounter()  const
+        uint32 GetEntry() const { return HasEntry() ? uint32((_guid >> 24) & UI64LIT(0x0000000000FFFFFF)) : 0; }
+        LowType GetCounter()  const
         {
             return HasEntry()
                    ? LowType(_guid & UI64LIT(0x0000000000FFFFFF))
@@ -169,7 +168,7 @@ class TC_GAME_API ObjectGuid
                    : LowType(0xFFFFFFFF);
         }
 
-        ObjectGuid::LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
+        LowType GetMaxCounter() const { return GetMaxCounter(GetHigh()); }
 
         bool IsEmpty()             const { return _guid == 0; }
         bool IsCreature()          const { return GetHigh() == HighGuid::Unit; }
@@ -263,7 +262,7 @@ using GuidList = std::list<ObjectGuid>;
 using GuidVector = std::vector<ObjectGuid>;
 using GuidUnorderedSet = std::unordered_set<ObjectGuid>;
 
-// minimum buffer size for packed guid is 9 bytes
+// maximum buffer size for packed guid is 9 bytes
 #define PACKED_GUID_MIN_BUFFER_SIZE 9
 
 class TC_GAME_API PackedGuid
@@ -307,18 +306,14 @@ TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuid const& guid);
 TC_GAME_API ByteBuffer& operator<<(ByteBuffer& buf, PackedGuidWriter const& guid);
 TC_GAME_API ByteBuffer& operator>>(ByteBuffer& buf, PackedGuidReader const& guid);
 
-namespace std
+template<>
+struct std::hash<ObjectGuid>
 {
-    template<>
-    struct hash<ObjectGuid>
+    size_t operator()(ObjectGuid const& key) const noexcept
     {
-        public:
-            size_t operator()(ObjectGuid const& key) const
-            {
-                return std::hash<uint64>()(key.GetRawValue());
-            }
-    };
-}
+        return std::hash<uint64>()(key.GetRawValue());
+    }
+};
 
 namespace fmt
 {

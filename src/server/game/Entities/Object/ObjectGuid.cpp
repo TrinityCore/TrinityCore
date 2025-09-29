@@ -151,7 +151,7 @@ ByteBuffer& operator<<(ByteBuffer& buf, ObjectGuid const& guid)
 
 ByteBuffer& operator>>(ByteBuffer& buf, ObjectGuid& guid)
 {
-    guid.Set(buf.read<uint64>());
+    guid.SetRawValue(buf.read<uint64>());
     return buf;
 }
 

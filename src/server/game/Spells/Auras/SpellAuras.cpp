@@ -582,7 +582,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication* auraAp
     if (itr == m_applications.end())
     {
         TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target: {}, caster: {}, spell:{} was not found in owners application map!",
-        target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "0", auraApp->GetBase()->GetSpellInfo()->Id);
+            target->GetGUID().ToString(), caster ? caster->GetGUID().ToString() : "Empty", auraApp->GetBase()->GetSpellInfo()->Id);
         ABORT();
     }
 

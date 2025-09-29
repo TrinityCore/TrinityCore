@@ -89,7 +89,8 @@ MailReceiver::MailReceiver(Player* receiver, ObjectGuid::LowType receiver_lowgui
 
 MailDraft& MailDraft::AddItem(Item* item)
 {
-    m_items[item->GetGUID().GetCounter()] = item; return *this;
+    m_items[item->GetGUID().GetCounter()] = item;
+    return *this;
 }
 
 void MailDraft::prepareItems(Player* receiver, CharacterDatabaseTransaction trans)

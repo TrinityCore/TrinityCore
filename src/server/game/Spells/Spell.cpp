@@ -316,7 +316,7 @@ void SpellCastTargets::SetItemTarget(Item* item)
 
 void SpellCastTargets::SetTradeItemTarget(Player* caster)
 {
-    m_itemTargetGUID.Set(uint64(TRADE_SLOT_NONTRADED));
+    m_itemTargetGUID.SetRawValue(uint64(TRADE_SLOT_NONTRADED));
     m_itemTargetEntry = 0;
     m_targetMask |= TARGET_FLAG_TRADE_ITEM;
 
@@ -3931,7 +3931,7 @@ void Spell::finish(bool ok)
             TC_LOG_DEBUG("spells", "Statue {} is unsummoned in spell {} finish", unitCaster->GetGUID().ToString(), m_spellInfo->Id);
             // Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
             // It might make sense to do this check in Unit::setDeathState() and all overloaded functions
-            if(unitCaster->getDeathState() != JUST_DIED)
+            if (unitCaster->getDeathState() != JUST_DIED)
                 unitCaster->setDeathState(JUST_DIED);
             return;
         }

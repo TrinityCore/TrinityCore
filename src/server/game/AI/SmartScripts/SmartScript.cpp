@@ -316,7 +316,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             mUseTextTimer = true;
             sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), talkTarget);
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: {} {}, textGuid: {}",
-                talker->GetName(), talker->GetGUID().ToString(), talkTarget ? talkTarget->GetGUID().ToString() : "0");
+                talker->GetName(), talker->GetGUID().ToString(), talkTarget ? talkTarget->GetGUID().ToString() : "Empty");
             break;
         }
         case SMART_ACTION_SIMPLE_TALK:

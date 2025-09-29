@@ -913,7 +913,7 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
 
     TC_LOG_DEBUG("bg.battlefield", "Creating capture point {}", capturePoint->GetEntry());
 
-    m_capturePointGUID = ObjectGuid(HighGuid::GameObject, capturePoint->GetEntry(), capturePoint->GetGUID().GetCounter());
+    m_capturePointGUID = capturePoint->GetGUID();
 
     // check info existence
     GameObjectTemplate const* goinfo = capturePoint->GetGOInfo();

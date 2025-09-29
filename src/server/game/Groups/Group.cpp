@@ -234,7 +234,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_lootThreshold = ItemQualities(fields[3].GetUInt8());
 
     for (uint8 i = 0; i < TARGET_ICONS_COUNT; ++i)
-        m_targetIcons[i].Set(fields[4 + i].GetUInt64());
+        m_targetIcons[i].SetRawValue(fields[4 + i].GetUInt64());
 
     m_groupType  = GroupType(fields[12].GetUInt8());
     if (m_groupType & GROUPTYPE_RAID)

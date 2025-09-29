@@ -198,12 +198,6 @@ std::string WorldSession::GetPlayerInfo() const
     return Trinity::StringFormat("[Player: Account: {}]", GetAccountId());
 }
 
-/// Get player guid if available. Use for logging purposes only
-ObjectGuid::LowType WorldSession::GetGUIDLow() const
-{
-    return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
-}
-
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {

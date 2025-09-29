@@ -170,13 +170,13 @@ class spell_ioc_parachute_ic : public AuraScript
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(Position const& pos, ObjectGuid::LowType lowGuid) : _pos(pos), _lowGuid(lowGuid)
+        StartLaunchEvent(Position const& pos, ObjectGuid const& guid) : _pos(pos), _guid(guid)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = ObjectAccessor::FindPlayerByLowGUID(_lowGuid);
+            Player* player = ObjectAccessor::FindPlayer(_guid);
             if (!player || !player->GetVehicle())
                 return true;
 
@@ -191,7 +191,7 @@ class StartLaunchEvent : public BasicEvent
 
     private:
         Position _pos;
-        ObjectGuid::LowType _lowGuid;
+        ObjectGuid _guid;
 };
 
 // 66218 - Launch
@@ -204,7 +204,7 @@ class spell_ioc_launch : public SpellScript
         if (!GetCaster()->ToCreature() || !GetExplTargetDest())
             return;
 
-        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID().GetCounter()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
+        GetCaster()->ToCreature()->m_Events.AddEvent(new StartLaunchEvent(*GetExplTargetDest(), ASSERT_NOTNULL(GetHitPlayer())->GetGUID()), GetCaster()->ToCreature()->m_Events.CalculateTime(2500ms));
     }
 
     void Register() override

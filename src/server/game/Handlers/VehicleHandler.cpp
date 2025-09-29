@@ -200,7 +200,7 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recvData*/)
                 GetPlayer()->ExitVehicle();
             else
                 TC_LOG_ERROR("network", "Player {} tried to exit vehicle, but seatflags {} (ID: {}) don't permit that.",
-                GetPlayer()->GetGUID().ToString(), seat->ID, seat->Flags);
+                    GetPlayer()->GetGUID().ToString(), seat->ID, seat->Flags);
         }
     }
 }
