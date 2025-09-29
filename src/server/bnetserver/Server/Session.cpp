@@ -81,7 +81,7 @@ void Battlenet::Session::GameAccountInfo::LoadResult(Field const* fields)
         DisplayName = Name;
 }
 
-Battlenet::Session::Session(Trinity::Net::IoContextTcpSocket&& socket) : BaseSocket(std::move(socket), SslContext::instance()),
+Battlenet::Session::Session(Trinity::Net::IoContextTcpSocket&& socket) : _socket(CreateSocket(std::move(socket))),
     _accountInfo(new AccountInfo()), _gameAccountInfo(nullptr), _locale(),
     _os(), _build(0), _clientInfo(), _timezoneOffset(0min), _ipCountry(), _clientSecret(), _authed(false), _requestToken(0)
 {
@@ -89,6 +89,11 @@ Battlenet::Session::Session(Trinity::Net::IoContextTcpSocket&& socket) : BaseSoc
 }
 
 Battlenet::Session::~Session() = default;
+
+std::shared_ptr<Battlenet::Session::Socket> Battlenet::Session::CreateSocket(Trinity::Net::IoContextTcpSocket&& socket)
+{
+    return std::make_shared<Socket>(std::move(socket), SslContext::instance());
+}
 
 void Battlenet::Session::Start()
 {
@@ -98,8 +103,8 @@ void Battlenet::Session::Start()
     std::array<std::shared_ptr<Trinity::Net::SocketConnectionInitializer>, 3> initializers =
     { {
         std::make_shared<Trinity::Net::IpBanCheckConnectionInitializer<Session>>(this),
-        std::make_shared<Trinity::Net::SslHandshakeConnectionInitializer<Session>>(this),
-        std::make_shared<Trinity::Net::ReadConnectionInitializer<Session>>(this),
+        std::make_shared<Trinity::Net::SslHandshakeConnectionInitializer<Socket>>(_socket.get()),
+        std::make_shared<Trinity::Net::ReadConnectionInitializer<Socket, Session>>(_socket.get(), this),
     } };
 
     Trinity::Net::SocketConnectionInitializer::SetupChain(initializers)->Start();
@@ -107,7 +112,7 @@ void Battlenet::Session::Start()
 
 bool Battlenet::Session::Update()
 {
-    if (!BaseSocket::Update())
+    if (!_socket->Update())
         return false;
 
     _queryProcessor.ProcessReadyCallbacks();
@@ -117,10 +122,10 @@ bool Battlenet::Session::Update()
 
 void Battlenet::Session::AsyncWrite(MessageBuffer* packet)
 {
-    if (!IsOpen())
+    if (!_socket->IsOpen())
         return;
 
-    QueuePacket(std::move(*packet));
+    _socket->QueuePacket(std::move(*packet));
 }
 
 void Battlenet::Session::SendResponse(uint32 token, pb::Message const* response)
@@ -243,7 +248,7 @@ uint32 Battlenet::Session::HandleLogon(authentication::v1::LogonRequest const* l
     challenge::v1::ChallengeExternalRequest externalChallenge;
     externalChallenge.set_payload_type("web_auth_url");
     externalChallenge.set_payload(Trinity::StringFormat("http{}://{}:{}/bnetserver/login/", !SslContext::UsesDevWildcardCertificate() ? "s" : "",
-        sLoginService.GetHostnameForClient(GetRemoteIpAddress()), sLoginService.GetPort()));
+        sLoginService.GetHostnameForClient(_socket->GetRemoteIpAddress()), sLoginService.GetPort()));
     Service<challenge::v1::ChallengeListener>(this).OnExternalChallenge(&externalChallenge);
     return ERROR_OK;
 }
@@ -358,7 +363,7 @@ uint32 Battlenet::Session::VerifyWebCredentials(std::string const& webCredential
         Battlenet::Services::Authentication asyncContinuationService(this);
         NoData response;
 
-        std::string ip_address = GetRemoteIpAddress().to_string();
+        std::string ip_address = _socket->GetRemoteIpAddress().to_string();
 
         // If the IP is 'locked', check that the player comes indeed from the correct IP address
         if (_accountInfo->IsLockedToIP)
@@ -582,7 +587,7 @@ uint32 Battlenet::Session::GetRealmListTicket(std::unordered_map<std::string, Va
         return ERROR_WOW_SERVICES_DENIED_REALM_LIST_TICKET;
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_LAST_LOGIN_INFO);
-    stmt->setString(0, GetRemoteIpAddress().to_string());
+    stmt->setString(0, _socket->GetRemoteIpAddress().to_string());
     stmt->setUInt8(1, GetLocaleByName(_locale));
     stmt->setString(2, _os);
     stmt->setUInt32(3, _accountInfo->Id);
@@ -675,7 +680,7 @@ uint32 Battlenet::Session::GetRealmList(std::unordered_map<std::string, Variant 
 uint32 Battlenet::Session::JoinRealm(std::unordered_map<std::string, Variant const*> const& params, game_utilities::v1::ClientResponse* response)
 {
     if (Variant const* realmAddress = Trinity::Containers::MapGetValuePtr(params, "Param_RealmAddress"))
-        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, _clientInfo, GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
+        return sRealmList->JoinRealm(realmAddress->uint_value(), _build, _clientInfo, _socket->GetRemoteIpAddress(), _clientSecret, GetLocaleByName(_locale),
             _os, _timezoneOffset, _gameAccountInfo->Name, _gameAccountInfo->SecurityLevel, response);
 
     return ERROR_WOW_SERVICES_INVALID_JOIN_TICKET;
@@ -730,7 +735,7 @@ static inline Optional<Trinity::Net::SocketReadCallbackResult> PartialProcessPac
 
 Trinity::Net::SocketReadCallbackResult Battlenet::Session::ReadHandler()
 {
-    MessageBuffer& packet = GetReadBuffer();
+    MessageBuffer& packet = _socket->GetReadBuffer();
     while (packet.GetActiveSize() > 0)
     {
         if (Optional<Trinity::Net::SocketReadCallbackResult> partialResult = PartialProcessPacket<&Session::ReadHeaderLengthHandler, &Session::_headerLengthBuffer>(this, packet))
@@ -795,7 +800,7 @@ bool Battlenet::Session::ReadDataHandler()
 std::string Battlenet::Session::GetClientInfo() const
 {
     std::ostringstream stream;
-    stream << '[' << GetRemoteIpAddress() << ':' << GetRemotePort();
+    stream << '[' << _socket->GetRemoteIpAddress() << ':' << _socket->GetRemotePort();
     if (_accountInfo && !_accountInfo->Login.empty())
         stream << ", Account: " << _accountInfo->Login;
 
