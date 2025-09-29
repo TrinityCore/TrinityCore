@@ -3136,6 +3136,22 @@ void SmartScript::GetTargets(ObjectVector& targets, SmartScriptHolder const& e, 
                 targets.push_back(target);
             break;
         }
+        case SMART_TARGET_INVOKER_SUMMONED_ENTRY:
+        {
+            if (scriptTrigger)
+            {
+                if (Unit* invokerUnit = scriptTrigger->ToUnit())
+                {
+                    for (Unit::ControlList::iterator itr = invokerUnit->m_Controlled.begin(); itr != invokerUnit->m_Controlled.end(); ++itr)
+                    {
+                        Unit* unit = *itr;
+                        if (unit->IsSummon() && unit->GetEntry() == e.target.invokerSummons.entry)
+                            targets.push_back(unit);
+                    }
+                }
+            }
+            break;
+        }
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         default:
