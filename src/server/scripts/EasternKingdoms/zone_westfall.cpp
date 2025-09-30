@@ -179,6 +179,20 @@ class spell_westfall_wake_harvest_golem : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_westfall_wake_harvest_golem::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
+// 79275 - Quest Credit: Jangolde Event
+class spell_westfall_quest_credit_jangolode_event : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_quest_credit_jangolode_event::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
 }
 
 void AddSC_westfall()
@@ -192,4 +206,5 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_unbound_energy);
     RegisterSpellScript(spell_westfall_reaping_blows);
     RegisterSpellScript(spell_westfall_wake_harvest_golem);
+    RegisterSpellScript(spell_westfall_quest_credit_jangolode_event);
 }
