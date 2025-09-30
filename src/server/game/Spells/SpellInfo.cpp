@@ -4270,6 +4270,12 @@ float SpellInfo::CalcProcPPM(Unit* caster, int32 itemLevel) const
                     ppm *= 1.0f + mod->Coeff;
                 break;
             }
+            case SPELL_PPM_MOD_AURA:
+            {
+                if (caster->HasAura(mod->Param))
+                    ppm *= 1.0f + mod->Coeff;
+                break;
+            }
             default:
                 break;
         }

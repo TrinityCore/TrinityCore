@@ -1913,7 +1913,8 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_SPEC          = 4,
     SPELL_PPM_MOD_RACE          = 5,
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
-    SPELL_PPM_MOD_BATTLEGROUND  = 7
+    SPELL_PPM_MOD_BATTLEGROUND  = 7,
+    SPELL_PPM_MOD_AURA          = 8
 };
 
 constexpr std::size_t MAX_POWERS_PER_SPELL = 5;
