@@ -26,7 +26,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
@@ -143,6 +142,7 @@ enum MuruMisc
 {
     ACTION_BERSERK                              = 0,
     ACTION_DISPELLED_MAGIC                      = 1,
+    ACTION_CANCEL_SUMMON                        = 2,
     MAX_VOID_SPAWNS                             = 6,
     NPC_WORLD_TRIGGER_MOVE_TO                   = 22515,
     POINT_ROOM                                  = 0
@@ -166,6 +166,27 @@ void DoResetPortals(Creature* creature)
     GetCreatureListWithEntryInGrid(portals, creature, NPC_MURU_PORTAL_TARGET, 100.0f);
     for (Creature* portal : portals)
         portal->RemoveAllAuras();
+}
+
+void DoDespawnSummons(Creature* creature)
+{
+    std::vector<Creature*> spawns;
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_ENTROPIUS, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_VOID_SENTINEL_SUMMONER, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_VOID_SENTINEL, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_VOID_SPAWN, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_DARK_FIEND, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_DARKNESS, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_SINGULARITY, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_BERSERKER, 250.0f);
+    GetCreatureListWithEntryInGrid(spawns, creature, NPC_FURY_MAGE, 250.0f);
+    for (Creature* spawn : spawns)
+        spawn->DespawnOrUnsummon();
+
+    std::vector<Creature*> portals;
+    GetCreatureListWithEntryInGrid(portals, creature, NPC_MURU_PORTAL_TARGET, 100.0f);
+    for (Creature* portal : portals)
+        portal->AI()->DoAction(ACTION_CANCEL_SUMMON);
 }
 
 // 25741 - M'uru
@@ -220,7 +241,6 @@ struct boss_muru : public BossAI
     {
         if (spell->Id == SPELL_SUMMON_ENTROPIUS)
             /// @todo: Temporarily replaced with SetVisible. Otherwise we will be not able to respawn M'uru in case of wipe
-            /// @todo: When enabling this, ensure all summons will be despawned in all scenarios
             /// me->DespawnOrUnsummon(1500ms);
             events.ScheduleEvent(EVENT_SET_INVISIBLE, 1500ms);
     }
@@ -228,17 +248,16 @@ struct boss_muru : public BossAI
     void EnterEvadeMode(EvadeReason /*why*/) override
     {
         DoResetPortals(me);
-        summons.DespawnAll();
+        DoDespawnSummons(me);
         _DespawnAtEvade();
     }
 
+    // Do not store anything, despawn is handled in DoDespawnSummons
     void JustSummoned(Creature* summon) override
     {
         if (summon->GetEntry() == NPC_ENTROPIUS)
             if (_isBerserkTriggered)
                 summon->AI()->DoAction(ACTION_BERSERK);
-
-        summons.Summon(summon);
     }
 
     void UpdateAI(uint32 diff) override
@@ -309,10 +328,8 @@ struct boss_entropius : public BossAI
         events.ScheduleEvent(EVENT_BLACK_HOLE, 10s, 15s);
     }
 
-    void JustSummoned(Creature* summon) override
-    {
-        summons.Summon(summon);
-    }
+    // Do not store anything, despawn is handled in DoDespawnSummons
+    void JustSummoned(Creature* summon) override { }
 
     void DoAction(int32 action) override
     {
@@ -326,13 +343,15 @@ struct boss_entropius : public BossAI
             muru->AI()->EnterEvadeMode();
 
         DoResetPortals(me);
-        summons.DespawnAll();
+        DoDespawnSummons(me);
         me->DespawnOrUnsummon();
     }
 
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
+
+        DoDespawnSummons(me);
 
         if (Creature* muru = instance->GetCreature(DATA_MURU))
             muru->DisappearAndDie();
@@ -414,6 +433,12 @@ struct npc_muru_portal : public ScriptedAI
         DoCast(summon, SPELL_SUMMON_VOID_SENTINEL_SUMMONER_VISUAL);
     }
 
+    void DoAction(int32 action) override
+    {
+        if (action == ACTION_CANCEL_SUMMON)
+            _scheduler.CancelAll();
+    }
+
     void UpdateAI(uint32 diff) override
     {
         _scheduler.Update(diff);
@@ -426,7 +451,7 @@ private:
 // 25782 - Void Sentinel Summoner
 struct npc_void_sentinel_summoner : public ScriptedAI
 {
-    npc_void_sentinel_summoner(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_void_sentinel_summoner(Creature* creature) : ScriptedAI(creature) { }
 
     void JustAppeared() override
     {
@@ -435,9 +460,6 @@ struct npc_void_sentinel_summoner : public ScriptedAI
             DoCastSelf(SPELL_SUMMON_VOID_SENTINEL);
             me->DespawnOrUnsummon(3500ms);
         });
-
-        if (Creature* muru = _instance->GetCreature(DATA_MURU))
-            muru->AI()->JustSummoned(me);
     }
 
     void UpdateAI(uint32 diff) override
@@ -447,13 +469,12 @@ struct npc_void_sentinel_summoner : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 25772 - Void Sentinel
 struct npc_void_sentinel : public ScriptedAI
 {
-    npc_void_sentinel(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_void_sentinel(Creature* creature) : ScriptedAI(creature) { }
 
     void InitializeAI() override
     {
@@ -470,18 +491,6 @@ struct npc_void_sentinel : public ScriptedAI
             DoZoneInCombat();
             me->SetReactState(REACT_AGGRESSIVE);
         });
-
-        // This creature is summoned in a tricky way, ensure it will despawn on wipe
-        _scheduler.Schedule(1s, [this](TaskContext task)
-        {
-            if (_instance->GetBossState(DATA_MURU) != IN_PROGRESS)
-                me->DespawnOrUnsummon();
-            else
-                task.Repeat(1s);
-        });
-
-        if (Creature* muru = _instance->GetCreature(DATA_MURU))
-            muru->AI()->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -509,13 +518,12 @@ struct npc_void_sentinel : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 25824 - Void Spawn
 struct npc_void_spawn : public ScriptedAI
 {
-    npc_void_spawn(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()) { }
+    npc_void_spawn(Creature* creature) : ScriptedAI(creature) { }
 
     void InitializeAI() override
     {
@@ -530,9 +538,6 @@ struct npc_void_spawn : public ScriptedAI
             DoZoneInCombat();
             me->SetReactState(REACT_AGGRESSIVE);
         });
-
-        if (Creature* muru = _instance->GetCreature(DATA_MURU))
-            muru->AI()->JustSummoned(me);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
@@ -554,13 +559,12 @@ struct npc_void_spawn : public ScriptedAI
 
 private:
     TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 25744 - Dark Fiend
 struct npc_dark_fiend : public ScriptedAI
 {
-    npc_dark_fiend(Creature* creature) : ScriptedAI(creature), _isKilled(false), _instance(creature->GetInstanceScript()) { }
+    npc_dark_fiend(Creature* creature) : ScriptedAI(creature), _isKilled(false) { }
 
     void InitializeAI() override
     {
@@ -585,14 +589,6 @@ struct npc_dark_fiend : public ScriptedAI
             else
                 task.Repeat(100ms);
         });
-
-        // In second phase creature is summoned by Darkness, try to assign summon to both bosses
-        /// @todo: Remove assignation to M'uru when we will despawn M'uru after summoning Entropius
-        if (Creature* muru = _instance->GetCreature(DATA_MURU))
-            muru->AI()->JustSummoned(me);
-
-        if (Creature* entropius = _instance->GetCreature(DATA_ENTROPIUS))
-            entropius->AI()->JustSummoned(me);
     }
 
     void SpellHitTarget(WorldObject* /*target*/, SpellInfo const* spellInfo) override
@@ -660,7 +656,6 @@ struct npc_dark_fiend : public ScriptedAI
 private:
     bool _isKilled;
     TaskScheduler _scheduler;
-    InstanceScript* _instance;
 };
 
 // 25879 - Darkness
