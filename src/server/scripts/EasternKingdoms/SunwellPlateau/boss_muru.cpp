@@ -330,7 +330,7 @@ struct boss_entropius : public BossAI
     }
 
     // Do not store anything, despawn is handled in DoDespawnSummons
-    void JustSummoned(Creature* summon) override { }
+    void JustSummoned(Creature* /*summon*/) override { }
 
     void DoAction(int32 action) override
     {
