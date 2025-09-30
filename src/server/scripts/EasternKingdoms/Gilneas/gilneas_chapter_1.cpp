@@ -32,7 +32,6 @@ namespace Scripts::EasternKingdoms::Gilneas::Chapter1
         static constexpr uint32 EvacuationStalkerFirst = 35830;
         static constexpr uint32 EvacuationStalkerNear = 35010;
         static constexpr uint32 EvacuationStalkerFar = 35011;
-        static constexpr uint32 RampagingWorgen = 35660;
     }
 
     namespace Events
