@@ -16,6 +16,7 @@
 */
 
 #include "ScriptMgr.h"
+#include "CreatureAIImpl.h"
 #include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
