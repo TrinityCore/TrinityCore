@@ -15,28 +15,32 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scholomance.h"
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum RasSpells
 {
-    SPELL_FROSTBOLT         = 21369,
-    SPELL_ICE_ARMOR         = 18100, // This is actually a buff he gives himself
+    SPELL_ICE_ARMOR         = 18100,
     SPELL_FREEZE            = 18763,
-    SPELL_FEAR              = 26070,
+    SPELL_FEAR              = 12096,
     SPELL_CHILL_NOVA        = 18099,
+    SPELL_KNOCK_AWAY        = 11130,
     SPELL_FROSTBOLT_VOLLEY  = 8398
 };
 
 enum RasEvents
 {
-    EVENT_FROSTBOLT = 1,
-    EVENT_ICE_ARMOR,
+    EVENT_ICE_ARMOR         = 1,
     EVENT_FREEZE,
     EVENT_FEAR,
     EVENT_CHILL_NOVA,
-    EVENT_FROSTVOLLEY
+    EVENT_KNOCK_AWAY,
+    EVENT_FROSTBOLT_VOLLEY
 };
 
 // 10508 - Ras Frostwhisper
@@ -47,16 +51,18 @@ struct boss_boss_ras_frostwhisper : public ScriptedAI
     void Reset() override
     {
         _events.Reset();
+
         DoCastSelf(SPELL_ICE_ARMOR);
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_ICE_ARMOR, 2s);
-        _events.ScheduleEvent(EVENT_FROSTBOLT, 8s);
-        _events.ScheduleEvent(EVENT_CHILL_NOVA, 12s);
-        _events.ScheduleEvent(EVENT_FREEZE, 18s);
-        _events.ScheduleEvent(EVENT_FEAR, 45s);
+        _events.ScheduleEvent(EVENT_ICE_ARMOR, 30s);
+        _events.ScheduleEvent(EVENT_FREEZE, 20s, 30s);
+        _events.ScheduleEvent(EVENT_FEAR, 10s, 20s);
+        _events.ScheduleEvent(EVENT_CHILL_NOVA, 10s, 15s);
+        _events.ScheduleEvent(EVENT_KNOCK_AWAY, 20s, 30s);
+        _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, 10s, 20s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -74,29 +80,30 @@ struct boss_boss_ras_frostwhisper : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ICE_ARMOR:
-                    DoCastSelf(SPELL_ICE_ARMOR);
-                    _events.Repeat(3min);
-                    break;
-                case EVENT_FROSTBOLT:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 40.0f, true))
-                        DoCast(target, SPELL_FROSTBOLT);
-                    _events.Repeat(8s);
+                    if (!me->HasAura(SPELL_ICE_ARMOR))
+                        DoCastSelf(SPELL_ICE_ARMOR);
+                    _events.Repeat(30s);
                     break;
                 case EVENT_FREEZE:
                     DoCastVictim(SPELL_FREEZE);
-                    _events.Repeat(24s);
+                    _events.Repeat(30s, 40s);
                     break;
                 case EVENT_FEAR:
-                    DoCastSelf(SPELL_FEAR);
-                    _events.Repeat(30s);
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0))
+                        DoCast(target, SPELL_FEAR);
+                    _events.Repeat(20s, 30s);
                     break;
                 case EVENT_CHILL_NOVA:
                     DoCastSelf(SPELL_CHILL_NOVA);
-                    _events.Repeat(14s);
+                    _events.Repeat(15s, 25s);
                     break;
-                case EVENT_FROSTVOLLEY:
-                    DoCastVictim(SPELL_FROSTBOLT_VOLLEY);
-                    _events.Repeat(15s);
+                case EVENT_KNOCK_AWAY:
+                    DoCastSelf(SPELL_KNOCK_AWAY);
+                    _events.Repeat(20s, 30s);
+                    break;
+                case EVENT_FROSTBOLT_VOLLEY:
+                    DoCastSelf(SPELL_FROSTBOLT_VOLLEY);
+                    _events.Repeat(10s, 20s);
                     break;
                 default:
                     break;

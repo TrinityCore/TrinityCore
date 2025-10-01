@@ -15,21 +15,28 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scholomance.h"
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
+#include "scholomance.h"
 #include "ScriptedCreature.h"
 
 enum AlexeiSpells
 {
-    SPELL_IMMOLATE                  = 20294,
-    SPELL_VEIL_OF_SHADOW            = 17820,
-    SPELL_UNHOLY_AURA               = 17467
+    // Passive
+    SPELL_IMMOLATE              = 15506,
+    SPELL_UNHOLY_AURA           = 17467,
+
+    // Combat
+    SPELL_VEIL_OF_SHADOW        = 17820
+
 };
 
 enum AlexeiEvents
 {
-    EVENT_IMMOLATE = 1,
-    EVENT_VEIL_OF_SHADOW
+    EVENT_VEIL_OF_SHADOW        = 1
 };
 
 // 10504 - Lord Alexei Barov
@@ -41,15 +48,15 @@ struct boss_lord_alexei_barov : public BossAI
     {
         _Reset();
 
-        if (!me->HasAura(SPELL_UNHOLY_AURA))
-            DoCastSelf(SPELL_UNHOLY_AURA);
+        DoCastSelf(SPELL_IMMOLATE);
+        DoCastSelf(SPELL_UNHOLY_AURA);
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_IMMOLATE, 7s);
-        events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 15s);
+
+        events.ScheduleEvent(EVENT_VEIL_OF_SHADOW, 10s, 15s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -66,13 +73,9 @@ struct boss_lord_alexei_barov : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_IMMOLATE:
-                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_IMMOLATE);
-                    events.Repeat(12s);
-                    break;
                 case EVENT_VEIL_OF_SHADOW:
                     DoCastVictim(SPELL_VEIL_OF_SHADOW);
-                    events.Repeat(20s);
+                    events.Repeat(15s, 25s);
                     break;
                 default:
                     break;
