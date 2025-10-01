@@ -105,12 +105,15 @@ struct npc_frightened_citizen : public ScriptedAI
             switch (eventId)
             {
                 case Events::EvacuateTheMerchantSquare::TalkFrightened:
-                    if (Unit* summoner = me->ToTempSummon()->GetSummonerUnit())
+                    if (TempSummon* summon = me->ToTempSummon())
                     {
-                        if (Player* player = summoner->ToPlayer())
+                        if (Unit* summoner = summon->GetSummonerUnit())
                         {
-                            player->KilledMonsterCredit(Creatures::EvacuationStalkerFirst);
-                            Talk(Texts::FrightenedCitizen::SayFrightenedCitizenRescue, summoner);
+                            if (Player* player = summoner->ToPlayer())
+                            {
+                                player->KilledMonsterCredit(Creatures::EvacuationStalkerFirst);
+                                Talk(Texts::FrightenedCitizen::SayFrightenedCitizenRescue, summoner);
+                            }
                         }
                     }
                     _events.ScheduleEvent(Events::EvacuateTheMerchantSquare::MoveToNearStalker, 2s);
@@ -144,15 +147,15 @@ class spell_gilneas_knocking : public SpellScript
     {
         return ValidateSpellInfo(
         {
-            uint32(spellInfo->GetEffect(EFFECT_1).BasePoints),
-            uint32(spellInfo->GetEffect(EFFECT_2).BasePoints)
+            uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()),
+            uint32(spellInfo->GetEffect(EFFECT_2).CalcValue())
         });
     }
 
     void HandleEffect()
     {
         if (SpellInfo const* spellInfo = GetSpellInfo())
-            GetCaster()->CastSpell(GetCaster(), spellInfo->GetEffect(RAND(0, 1) == 0 ? EFFECT_1 : EFFECT_2).BasePoints, true);
+            GetCaster()->CastSpell(GetCaster(), spellInfo->GetEffect(RAND(EFFECT_1, EFFECT_2)).CalcValue(), true);
     }
 
     void Register() override
