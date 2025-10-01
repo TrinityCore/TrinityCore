@@ -952,6 +952,7 @@ public:
                 {
                     target->RemoveAurasDueToSpell(SPELL_DIMENSIONS_TRANSFORM);
                     target->SetImmuneToAll(false);
+                    target->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                     Talk(NPC_SAEED_SAY_4);
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->Attack(target, true);
