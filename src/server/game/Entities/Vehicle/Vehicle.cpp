@@ -32,6 +32,7 @@
 #include "SpellAuraEffects.h"
 #include "TemporarySummon.h"
 #include "Unit.h"
+#include "MovementPackets.h"
 #include <sstream>
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
@@ -870,6 +871,11 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     float y = veSeat->AttachmentOffset.Y;
     float z = veSeat->AttachmentOffset.Z;
 
+    // Make sure the Z coordinate is not too low to prevent the player's perspective from falling to the ground
+    // adjust the seat position according to the orientation of the vehicle
+    if (z < 0.5f)
+        z = 0.5f;
+
     Passenger->m_movementInfo.transport.pos.Relocate(x, y, z, o);
     Passenger->m_movementInfo.transport.time = 0;
     Passenger->m_movementInfo.transport.seat = Seat->first;
@@ -899,6 +905,16 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         init.SetFacing(o);
         init.SetTransportEnter();
     };
+
+    // Ensure the player's camera is set correctly when entering a vehicle
+    if (Player* player = Passenger->ToPlayer())
+    {
+        // Force update of the player's position and orientation to avoid perspective errors
+        WorldPackets::Movement::MoveUpdate moveUpdatePacket;
+        moveUpdatePacket.Status = &Passenger->m_movementInfo;
+        player->SendDirectMessage(moveUpdatePacket.Write());
+    }
+
     Passenger->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_BOARD, MOTION_PRIORITY_HIGHEST);
 
     for (auto const& [guid, threatRef] : Passenger->GetThreatManager().GetThreatenedByMeList())
