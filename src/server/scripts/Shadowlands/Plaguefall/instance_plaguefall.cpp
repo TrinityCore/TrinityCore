@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_GLOBGROG, new CircleBoundary(Position(2021.948120f, -3556.348848), 83.0f) }
+    { DATA_GLOBGROG, new CircleBoundary(Position(2021.948120f, -3556.348848f), 83.0f) }
 };
 
 ObjectData const creatureData[] =
