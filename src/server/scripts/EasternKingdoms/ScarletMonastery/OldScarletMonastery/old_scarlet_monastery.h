@@ -15,14 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SCARLET_M_
-#define SCARLET_M_
+#ifndef _Old_Scarlet_Monastery_h_
+#define _Old_Scarlet_Monastery_h_
 
 #include "CreatureAIImpl.h"
 #include "Position.h"
 
-#define SMScriptName "instance_scarlet_monastery"
-#define DataHeader "SM"
+#define OSMScriptName "instance_old_scarlet_monastery"
+#define DataHeader "OSM"
 
 uint32 const EncounterCount = 9;
 
@@ -31,7 +31,7 @@ extern Position const EarthBunnySpawnPosition;
 extern Position const HeadlessHorsemanSpawnPosition;
 extern Position const HeadlessHorsemanHeadSpawnPosition;
 
-enum SMDataTypes
+enum OSMDataTypes
 {
     DATA_INTERROGATOR_VISHAS = 0,
     DATA_BLOODMAGE_THALNOS,
@@ -61,7 +61,7 @@ enum SMDataTypes
     DATA_THOMAS
 };
 
-enum SMCreatureIds
+enum OSMCreatureIds
 {
     NPC_MOGRAINE               = 3976,
     NPC_WHITEMANE              = 3977,
@@ -75,7 +75,7 @@ enum SMCreatureIds
     NPC_SIR_THOMAS             = 23904
 };
 
-enum SMCreatureMisc
+enum OSMCreatureMisc
 {
     SPELL_EARTH_EXPLOSION         = 42373,
     EVENT_ACTIVE_EARTH_EXPLOSION  = 1,
@@ -84,7 +84,7 @@ enum SMCreatureMisc
     ACTION_HORSEMAN_EVENT_START   = 101
 };
 
-enum SMGameObjectIds
+enum OSMGameObjectIds
 {
     GO_HIGH_INQUISITORS_DOOR = 104600,
     GO_PUMPKIN_SHRINE        = 186267,
@@ -92,12 +92,12 @@ enum SMGameObjectIds
 };
 
 template <class AI, class T>
-inline AI* GetScarletMonasteryAI(T* obj)
+inline AI* GetOldScarletMonasteryAI(T* obj)
 {
-    return GetInstanceAI<AI>(obj, SMScriptName);
+    return GetInstanceAI<AI>(obj, OSMScriptName);
 }
 
-#define RegisterScarletMonasteryCreatureAI(ai) RegisterCreatureAIWithFactory(ai, GetScarletMonasteryAI)
-#define RegisterScarletMonasteryGameObjectAI(ai) RegisterGameObjectAIWithFactory(ai, GetScarletMonasteryAI)
+#define RegisterOldScarletMonasteryCreatureAI(ai) RegisterCreatureAIWithFactory(ai, GetOldScarletMonasteryAI)
+#define RegisterOldScarletMonasteryGameObjectAI(ai) RegisterGameObjectAIWithFactory(ai, GetOldScarletMonasteryAI)
 
-#endif // SCARLET_M_
+#endif // _Old_Scarlet_Monastery_h_

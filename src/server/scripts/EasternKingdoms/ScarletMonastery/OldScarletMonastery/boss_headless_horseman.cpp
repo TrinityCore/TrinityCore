@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "Containers.h"
 #include "CreatureTextMgr.h"
 #include "GameObject.h"
@@ -1028,13 +1028,13 @@ class spell_headless_horseman_wisp_teleport : public SpellScript
 
 void AddSC_boss_headless_horseman()
 {
-    RegisterScarletMonasteryCreatureAI(boss_headless_horseman);
-    RegisterScarletMonasteryCreatureAI(npc_headless_horseman_head);
-    RegisterScarletMonasteryCreatureAI(npc_pulsing_pumpkin);
-    RegisterScarletMonasteryCreatureAI(npc_flame_bunny);
-    RegisterScarletMonasteryCreatureAI(npc_sir_thomas);
-    RegisterScarletMonasteryGameObjectAI(go_loosely_turned_soil);
-    RegisterScarletMonasteryGameObjectAI(go_headless_horseman_pumpkin);
+    RegisterOldScarletMonasteryCreatureAI(boss_headless_horseman);
+    RegisterOldScarletMonasteryCreatureAI(npc_headless_horseman_head);
+    RegisterOldScarletMonasteryCreatureAI(npc_pulsing_pumpkin);
+    RegisterOldScarletMonasteryCreatureAI(npc_flame_bunny);
+    RegisterOldScarletMonasteryCreatureAI(npc_sir_thomas);
+    RegisterOldScarletMonasteryGameObjectAI(go_loosely_turned_soil);
+    RegisterOldScarletMonasteryGameObjectAI(go_headless_horseman_pumpkin);
     RegisterSpellScript(spell_headless_horseman_yell_timer);
     RegisterSpellScript(spell_headless_horseman_maniacal_laugh);
     RegisterSpellScript(spell_headless_horseman_head_reposition);

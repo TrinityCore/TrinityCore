@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -68,5 +68,5 @@ struct boss_houndmaster_loksey : public BossAI
 
 void AddSC_boss_houndmaster_loksey()
 {
-    RegisterScarletMonasteryCreatureAI(boss_houndmaster_loksey);
+    RegisterOldScarletMonasteryCreatureAI(boss_houndmaster_loksey);
 }

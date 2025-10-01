@@ -110,7 +110,7 @@ void AddSC_boss_high_inquisitor_fairbanks();
 void AddSC_boss_houndmaster_loksey();
 void AddSC_boss_interrogator_vishas();
 void AddSC_boss_scorn();
-void AddSC_instance_scarlet_monastery();
+void AddSC_instance_old_scarlet_monastery();
 void AddSC_boss_mograine_and_whitemane();
 void AddSC_instance_scarlet_halls();        // Scarlet Halls
 void AddSC_boss_armsmaster_harlan();
@@ -309,7 +309,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_houndmaster_loksey();
     AddSC_boss_interrogator_vishas();
     AddSC_boss_scorn();
-    AddSC_instance_scarlet_monastery();
+    AddSC_instance_old_scarlet_monastery();
     AddSC_boss_mograine_and_whitemane();
     AddSC_instance_scarlet_halls();        // Scarlet Halls
     AddSC_boss_armsmaster_harlan();

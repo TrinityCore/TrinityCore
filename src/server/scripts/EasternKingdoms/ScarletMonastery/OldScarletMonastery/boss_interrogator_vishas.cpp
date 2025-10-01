@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
@@ -114,5 +114,5 @@ private:
 
 void AddSC_boss_interrogator_vishas()
 {
-    RegisterScarletMonasteryCreatureAI(boss_interrogator_vishas);
+    RegisterOldScarletMonasteryCreatureAI(boss_interrogator_vishas);
 }

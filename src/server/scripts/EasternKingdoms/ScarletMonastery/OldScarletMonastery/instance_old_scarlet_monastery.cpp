@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "EventMap.h"
@@ -62,14 +62,14 @@ static constexpr DungeonEncounterData Encounters[] =
     { DATA_MOGRAINE_AND_WHITE_EVENT, { { 450 } } },
 };
 
-class instance_scarlet_monastery : public InstanceMapScript
+class instance_old_scarlet_monastery : public InstanceMapScript
 {
     public:
-        instance_scarlet_monastery() : InstanceMapScript(SMScriptName, 189) { }
+        instance_old_scarlet_monastery() : InstanceMapScript(OSMScriptName, 189) { }
 
-        struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
+        struct instance_old_scarlet_monastery_InstanceMapScript : public InstanceScript
         {
-            instance_scarlet_monastery_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            instance_old_scarlet_monastery_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
@@ -165,11 +165,11 @@ class instance_scarlet_monastery : public InstanceMapScript
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
         {
-            return new instance_scarlet_monastery_InstanceMapScript(map);
+            return new instance_old_scarlet_monastery_InstanceMapScript(map);
         }
 };
 
-void AddSC_instance_scarlet_monastery()
+void AddSC_instance_old_scarlet_monastery()
 {
-    new instance_scarlet_monastery();
+    new instance_old_scarlet_monastery();
 }

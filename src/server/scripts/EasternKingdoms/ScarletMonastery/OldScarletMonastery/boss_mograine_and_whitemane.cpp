@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
@@ -430,6 +430,6 @@ private:
 
 void AddSC_boss_mograine_and_whitemane()
 {
-    RegisterScarletMonasteryCreatureAI(boss_scarlet_commander_mograine);
-    RegisterScarletMonasteryCreatureAI(boss_high_inquisitor_whitemane);
+    RegisterOldScarletMonasteryCreatureAI(boss_scarlet_commander_mograine);
+    RegisterOldScarletMonasteryCreatureAI(boss_high_inquisitor_whitemane);
 }

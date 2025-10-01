@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 
@@ -76,5 +76,5 @@ struct boss_scorn : public BossAI
 
 void AddSC_boss_scorn()
 {
-    RegisterScarletMonasteryCreatureAI(boss_scorn);
+    RegisterOldScarletMonasteryCreatureAI(boss_scorn);
 }

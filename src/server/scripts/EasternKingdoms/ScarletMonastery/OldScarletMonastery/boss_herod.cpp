@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scarlet_monastery.h"
+#include "old_scarlet_monastery.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptMgr.h"
@@ -157,6 +157,6 @@ private:
 
 void AddSC_boss_herod()
 {
-    RegisterScarletMonasteryCreatureAI(boss_herod);
-    RegisterScarletMonasteryCreatureAI(npc_scarlet_trainee);
+    RegisterOldScarletMonasteryCreatureAI(boss_herod);
+    RegisterOldScarletMonasteryCreatureAI(npc_scarlet_trainee);
 }
