@@ -25,6 +25,11 @@
 
 namespace MaldraxxusColiseum
 {
+    namespace MapIds
+    {
+        static constexpr uint32 MaldraxxusColiseum = 2509;
+    }
+
     namespace Creatures
     {
         static constexpr uint32 MaldraxxianGladiator = 185764;
@@ -116,5 +121,5 @@ private:
 
 void AddSC_arena_maldraxxus_coliseum()
 {
-    RegisterBattlegroundMapScript(arena_maldraxxus_coliseum, 2509);
+    RegisterBattlegroundMapScript(arena_maldraxxus_coliseum, MaldraxxusColiseum::MapIds::MaldraxxusColiseum);
 }

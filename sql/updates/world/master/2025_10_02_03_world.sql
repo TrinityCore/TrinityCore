@@ -1,7 +1,7 @@
-SET @CGUID := 111000000;
-SET @OGUID := 111000000;
-SET @WORLD_SAFE_LOC_ID := 210000;
-SET @SPAWN_GROUP := 210000;
+SET @CGUID := 8000828;
+SET @OGUID := 8000104;
+SET @WORLD_SAFE_LOC_ID := 100099;
+SET @SPAWN_GROUP := 1272;
 
 DELETE FROM `world_safe_locs` WHERE `ID` BETWEEN @WORLD_SAFE_LOC_ID + 0 AND @WORLD_SAFE_LOC_ID + 1;
 INSERT INTO `world_safe_locs` (`ID`, `MapID`, `LocX`, `LocY`, `LocZ`, `Facing`, `Comment`) VALUES
@@ -99,7 +99,7 @@ UPDATE `creature_template` SET `faction`=3171, `BaseAttackTime`=2000, `unit_flag
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=0x2000040, `unit_flags2`=0x4000800, `unit_flags3`=0x8001 WHERE `entry`=185763; -- Maldraxxian Honor Guard
 UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags2`=0x800, `unit_flags3`=0x1000000 WHERE `entry`=185659; -- Guard
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+41;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+40;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 185764, 2509, 13972, 13972, '0', '0', 0, 0, 1, 2844.864501953125, 2303.0244140625, 3260.145751953125, 1.222661018371582031, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Maldraxxian Gladiator (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 (@CGUID+1, 185765, 2509, 13972, 13972, '0', '0', 0, 0, 1, 2980.21435546875, 2327.197998046875, 3325.080322265625, 3.528119087219238281, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Arena Prospect (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
@@ -143,7 +143,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+39, 185659, 2509, 13972, 13972, '0', '0', 0, 0, 0, 2765.09375, 2251.748291015625, 3260.34765625, 0.461662709712982177, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Guard (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 (@CGUID+40, 185765, 2509, 13972, 13972, '0', '0', 0, 0, 1, 2935.385498046875, 2375.986083984375, 3323.709716796875, 4.388659000396728515, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305); -- Arena Prospect (Area: Maldraxxus Coliseum - Difficulty: 0) CreateObject1
 
-DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+41;
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+40;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@CGUID+0, 0, 0, 0, 0, 0, 1, 0, 716, 0, 0, 0, 0, ''), -- Maldraxxian Gladiator
 (@CGUID+7, 0, 0, 0, 0, 0, 1, 0, 716, 0, 0, 0, 0, ''), -- Maldraxxian Gladiator
