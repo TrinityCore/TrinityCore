@@ -28,6 +28,11 @@
 
 namespace TheRobodrome
 {
+    namespace MapIds
+    {
+        static constexpr uint32 TheRobodrome = 2167;
+    }
+
     namespace Creatures
     {
         static constexpr uint32 PowerCoil = 154593;
@@ -126,6 +131,6 @@ class spell_the_robodrome_zap_damage : public SpellScript
 
 void AddSC_arena_the_robodrome()
 {
-    RegisterBattlegroundMapScript(arena_the_robodrome, 2167);
+    RegisterBattlegroundMapScript(arena_the_robodrome, TheRobodrome::MapIds::TheRobodrome);
     RegisterSpellScript(spell_the_robodrome_zap_damage);
 }

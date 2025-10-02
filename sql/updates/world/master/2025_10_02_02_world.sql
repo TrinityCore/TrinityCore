@@ -1,9 +1,9 @@
-SET @CGUID := 113000000;
-SET @OGUID := 113000000;
-SET @SPAWN_GROUP := 230000;
-SET @AT_ID := 200000;
-SET @AT_PROP_ID := 11000000;
-SET @AT_SPAWN_ID = 110000;
+SET @CGUID := 7003691;
+SET @OGUID := 7000697;
+SET @SPAWN_GROUP := 1271;
+SET @AT_ID := 168;
+SET @AT_PROP_ID := 162;
+SET @AT_SPAWN_ID = 265;
 
 SET @AT_RADIUS := 53;
 SET @AT_HEIGHT := 25;
@@ -22,7 +22,7 @@ INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `Action
 
 DELETE FROM `areatrigger` WHERE `SpawnId` BETWEEN @AT_SPAWN_ID+0 AND @AT_SPAWN_ID+1;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `PosX`, `PosY`, `PosZ`, `Orientation`, `Comment`) VALUES
-(@AT_SPAWN_ID+0, @AT_PROP_ID, 1, 2167, -281.619598, -278.841583, 70.442131, 0, 'Dalaran Sewers Entrance A');
+(@AT_SPAWN_ID+0, @AT_PROP_ID, 1, 2167, -281.619598, -278.841583, 70.442131, 0, 'The Robodrome Inbounds');
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 2167 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
