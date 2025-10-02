@@ -132,11 +132,14 @@ class spell_westfall_reaping_blows : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).CalcValue()) });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } }) && ValidateSpellInfo({ uint32(spellInfo->GetEffect(EFFECT_1).TriggerSpell) });
     }
 
     void HandlePeriodic(AuraEffect const* /*aurEff*/)
     {
+        // HACK
+        // periodic ticks are forcing to cast the spell onto himself instead of target
+        // ref AuraEffect::HandlePeriodicTriggerSpellAuraTick
         PreventDefaultAction();
         if (Creature* reaper = GetTarget()->FindNearestCreature(Creatures::EnergizedHarvestReaper, 5.f, true))
             GetTarget()->CastSpell(reaper, GetSpellInfo()->GetEffect(EFFECT_1).TriggerSpell, true);
