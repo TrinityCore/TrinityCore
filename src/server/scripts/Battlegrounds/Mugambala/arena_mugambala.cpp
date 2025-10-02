@@ -221,7 +221,7 @@ class spell_zandalar_arena_reaction_trigger : public AuraScript
 {
     bool Load() override
     {
-        return GetTarget()->GetMapId() == Mugambala::MapIds::Mugambala;
+        return GetOwner()->GetMapId() == Mugambala::MapIds::Mugambala;
     }
 
     void HandleProc(ProcEventInfo const& eventInfo) const
