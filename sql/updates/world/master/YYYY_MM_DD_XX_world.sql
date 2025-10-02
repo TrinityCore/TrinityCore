@@ -6,9 +6,6 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `use
 -- Template
 UPDATE `creature_template` SET `VehicleId`= 899 WHERE `entry`= 42500;
 
--- Template Addon
-UPDATE `creature_template_addon` SET `auras`= '79192' WHERE `entry`= 42515;
-
 -- Creature Two-Shoed Lou's Old House 42500 SAI
 SET @ENTRY := 42500;
 UPDATE `creature_template` SET `AIName`="SmartAI", `unit_flags`= 520 WHERE `entry`= @ENTRY;
@@ -32,17 +29,18 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 
 -- Creature Shadowy Figure 42515 SAI
 SET @ENTRY := 42515;
-UPDATE `creature_template` SET `AIName`="SmartAI", `unit_flags`= 33587976 WHERE `entry`= @ENTRY;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
-(@ENTRY, 0, 0, 1, 63, 0, 100, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "When just created - Self: Set walk // "),
-(@ENTRY, 0, 1, 0, 61, 0, 100, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -9841.68, 1400.04, 37.1295, 0, " Linked - Self: Move to position (-9841.68, 1400.04, 37.1295, 0) (point id 0) // "),
-(@ENTRY, 0, 2, 0, 8, 0, 100, 0, 79273, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell Despawn Jangolode Actors (79273) hit  - Self: Despawn instantly // "),
-(@ENTRY, 0, 3, 4, 8, 0, 100, 0, 79279, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell General Trigger 1: Figure (79279) hit  - Self: Talk 0 // "),
-(@ENTRY, 0, 4, 0, 61, 0, 100, 0, 0, 0, 0, 0, 128, 610, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, " Linked - Self: Plays Anim with ID 610 // "),
-(@ENTRY, 0, 5, 0, 8, 0, 100, 0, 79283, 0, 0, 0, 80, 4251500, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell General Trigger 2: Figure (79283) hit  - Start timed action list id #4251500 // "),
-(@ENTRY, 0, 6, 0, 8, 0, 100, 0, 79284, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell General Trigger 3: Figure (79284) hit  - Self: Talk 3 // "),
-(@ENTRY, 0, 7, 0, 8, 0, 100, 0, 79287, 0, 0, 0, 80, 4251501, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, "On spell General Trigger 4: Figure (79287) hit  - Start timed action list id #4251501 // ");
+UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 0, 0, 1, 63, 0, 100, 0, 0, 0, 0, 0, 0, 85, 79192, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Cast spell 79192 on self', ''),
+(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Set walk', ''),
+(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -9841.68, 1400.04, 37.1295, 0, 'On just created - Self: Move to position (-9841.68, 1400.04, 37.1295, 0)', ''),
+(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 79273, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79273 hit - Self: Despawn instantly', ''),
+(@ENTRY, 0, 4, 5, 8, 0, 100, 0, 79279, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Talk 0 to invoker', ''),
+(@ENTRY, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 128, 610, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Plays Anim with ID 610', ''),
+(@ENTRY, 0, 6, 0, 8, 0, 100, 0, 79283, 0, 0, 0, 0, 80, 4251500, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79283 hit - Self: Start timed action list id #Shadowy Figure #0 (4251500) (update out of combat)', ''),
+(@ENTRY, 0, 7, 0, 8, 0, 100, 0, 79284, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79284 hit - Self: Talk 3 to invoker', ''),
+(@ENTRY, 0, 8, 0, 8, 0, 100, 0, 79287, 0, 0, 0, 0, 80, 4251501, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79287 hit - Self: Start timed action list id #Shadowy Figure #1 (4251501) (update out of combat)', '');
 
 -- TimedActionList  4251500 SAI
 SET @ENTRY := 4251500;
@@ -118,9 +116,17 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (42515, 5, 0, 'I will call for you when the dawning is upon us.', 12, 0, 100, 397, 0, 0, 42429, 'Shadowy Figure to Player');
 
 -- SpellScriptNames
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_westfall_quest_credit_jangolode_event';
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_westfall_quest_credit_jangolode_event', 'spell_westfall_livin_the_life_ping_glubtok', 'spell_westfall_livin_the_life_ping_figure');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(79275, 'spell_westfall_quest_credit_jangolode_event');
+(79275, 'spell_westfall_quest_credit_jangolode_event'),
+(79290, 'spell_westfall_livin_the_life_ping_glubtok'),
+(79292, 'spell_westfall_livin_the_life_ping_glubtok'),
+(79294, 'spell_westfall_livin_the_life_ping_glubtok'),
+(79297, 'spell_westfall_livin_the_life_ping_glubtok'),
+(79279, 'spell_westfall_livin_the_life_ping_figure'),
+(79283, 'spell_westfall_livin_the_life_ping_figure'),
+(79284, 'spell_westfall_livin_the_life_ping_figure'),
+(79287, 'spell_westfall_livin_the_life_ping_figure');
 
 -- SpawnGroup
 DELETE FROM `spawn_group` WHERE `spawnType`= 0 AND `spawnId` IN (275809, 280400, 308009);
