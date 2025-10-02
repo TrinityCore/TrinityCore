@@ -138,11 +138,12 @@ public:
         float x, y, z;
         player->GetPosition(x, y, z);
 
-        handler->PSendSysMessage("%04u%02i%02i.mmtile", player->GetMapId(), gx, gy);
-        handler->PSendSysMessage("tileloc [%i, %i]", gy, gx);
-
         // calculate navmesh tile location
         uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMapId(), player->GetMap()->GetTerrain(), x, y);
+
+        handler->PSendSysMessage("%04u%02i%02i.mmtile", terrainMapId, gx, gy);
+        handler->PSendSysMessage("tileloc [%i, %i]", gy, gx);
+
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(terrainMapId);
         dtNavMeshQuery const* navmeshquery = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMeshQuery(terrainMapId, player->GetMapId(), player->GetInstanceId());
         if (!navmesh || !navmeshquery)

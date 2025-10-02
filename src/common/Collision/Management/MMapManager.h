@@ -54,6 +54,16 @@ namespace MMAP
 
     typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
 
+    enum class LoadResult : uint8
+    {
+        Success,
+        AlreadyLoaded,
+        FileNotFound,
+        VersionMismatch,
+        ReadFromFileFailed,
+        LibraryError
+    };
+
     // singleton class
     // holds all all access to mmap loading unloading and meshes
     class TC_COMMON_API MMapManager
@@ -63,7 +73,7 @@ namespace MMAP
             ~MMapManager();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
-            bool loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
+            LoadResult loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
             bool loadMapInstance(std::string const& basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
@@ -76,7 +86,7 @@ namespace MMAP
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
         private:
-            bool loadMapData(std::string const& basePath, uint32 mapId);
+            LoadResult loadMapData(std::string const& basePath, uint32 mapId);
             uint32 packTileID(int32 x, int32 y);
 
             MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;

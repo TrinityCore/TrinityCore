@@ -19,6 +19,7 @@
 #include "Errors.h"
 #include "Log.h"
 #include "MMapDefines.h"
+#include "Memory.h"
 
 namespace MMAP
 {
@@ -58,14 +59,14 @@ namespace MMAP
         return itr;
     }
 
-    bool MMapManager::loadMapData(std::string const& basePath, uint32 mapId)
+    LoadResult MMapManager::loadMapData(std::string const& basePath, uint32 mapId)
     {
         // we already have this map loaded?
         MMapDataSet::iterator itr = loadedMMaps.find(mapId);
         if (itr != loadedMMaps.end())
         {
             if (itr->second)
-                return true;
+                return LoadResult::AlreadyLoaded;
         }
         else
         {
@@ -77,20 +78,19 @@ namespace MMAP
 
         // load and init dtNavMesh - read parameters from file
         std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, basePath, mapId);
-        FILE* file = fopen(fileName.c_str(), "rb");
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
         {
             TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not open mmap file '{}'", fileName);
-            return false;
+            return LoadResult::FileNotFound;
         }
 
         dtNavMeshParams params;
-        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file));
-        fclose(file);
+        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file.get()));
         if (count != 1)
         {
             TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '{}'", fileName);
-            return false;
+            return LoadResult::ReadFromFileFailed;
         }
 
         dtNavMesh* mesh = dtAllocNavMesh();
@@ -99,7 +99,7 @@ namespace MMAP
         {
             dtFreeNavMesh(mesh);
             TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {:04} from file {}", mapId, fileName);
-            return false;
+            return LoadResult::LibraryError;
         }
 
         TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded {:04}.mmap", mapId);
@@ -108,7 +108,7 @@ namespace MMAP
         MMapData* mmap_data = new MMapData(mesh);
 
         itr->second = mmap_data;
-        return true;
+        return LoadResult::Success;
     }
 
     uint32 MMapManager::packTileID(int32 x, int32 y)
@@ -116,11 +116,17 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y)
+    LoadResult MMapManager::loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
-        if (!loadMapData(basePath, mapId))
-            return false;
+        switch (LoadResult mapResult = loadMapData(basePath, mapId))
+        {
+            case LoadResult::Success:
+            case LoadResult::AlreadyLoaded:
+                break;
+            default:
+                return mapResult;
+        }
 
         // get this mmap data
         MMapData* mmap = loadedMMaps[mapId];
@@ -129,67 +135,67 @@ namespace MMAP
         // check if we already have this tile loaded
         uint32 packedGridPos = packTileID(x, y);
         if (mmap->loadedTileRefs.find(packedGridPos) != mmap->loadedTileRefs.end())
-            return false;
+            return LoadResult::AlreadyLoaded;
 
         // load this tile :: mmaps/MMMMXXYY.mmtile
         std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, basePath, mapId, x, y);
-        FILE* file = fopen(fileName.c_str(), "rb");
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
         {
             auto parentMapItr = parentMapData.find(mapId);
             if (parentMapItr != parentMapData.end())
             {
                 fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, basePath, parentMapItr->second, x, y);
-                file = fopen(fileName.c_str(), "rb");
+                file.reset(fopen(fileName.c_str(), "rb"));
             }
         }
 
         if (!file)
         {
             TC_LOG_DEBUG("maps", "MMAP:loadMap: Could not open mmtile file '{}'", fileName);
-            return false;
+            return LoadResult::FileNotFound;
         }
 
         // read header
         MmapTileHeader fileHeader;
-        if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file) != 1 || fileHeader.mmapMagic != MMAP_MAGIC)
+        if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file.get()) != 1)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
-            fclose(file);
-            return false;
+            return LoadResult::ReadFromFileFailed;
+        }
+
+        if (fileHeader.mmapMagic != MMAP_MAGIC)
+        {
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
+            return LoadResult::VersionMismatch;
         }
 
         if (fileHeader.mmapVersion != MMAP_VERSION)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}{:02}{:02}.mmtile was built with generator v{}, expected v{}",
                 mapId, x, y, fileHeader.mmapVersion, MMAP_VERSION);
-            fclose(file);
-            return false;
+            return LoadResult::VersionMismatch;
         }
 
-        long pos = ftell(file);
-        fseek(file, 0, SEEK_END);
-        if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file) - pos)
+        long pos = ftell(file.get());
+        fseek(file.get(), 0, SEEK_END);
+        if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file.get()) - pos)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}{:02}{:02}.mmtile has corrupted data size", mapId, x, y);
-            fclose(file);
-            return false;
+            return LoadResult::ReadFromFileFailed;
         }
 
-        fseek(file, pos, SEEK_SET);
+        fseek(file.get(), pos, SEEK_SET);
 
         unsigned char* data = (unsigned char*)dtAlloc(fileHeader.size, DT_ALLOC_PERM);
         ASSERT(data);
 
-        size_t result = fread(data, fileHeader.size, 1, file);
+        size_t result = fread(data, fileHeader.size, 1, file.get());
         if (!result)
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header or data in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
-            fclose(file);
-            return false;
+            return LoadResult::ReadFromFileFailed;
         }
-
-        fclose(file);
 
         dtMeshHeader* header = (dtMeshHeader*)data;
         dtTileRef tileRef = 0;
@@ -200,20 +206,26 @@ namespace MMAP
             mmap->loadedTileRefs.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
             TC_LOG_DEBUG("maps", "MMAP:loadMap: Loaded mmtile {:04}[{:02}, {:02}] into {:04}[{:02}, {:02}]", mapId, x, y, mapId, header->x, header->y);
-            return true;
+            return LoadResult::Success;
         }
         else
         {
             TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load {:04}{:02}{:02}.mmtile into navmesh", mapId, x, y);
             dtFree(data);
-            return false;
+            return LoadResult::LibraryError;
         }
     }
 
     bool MMapManager::loadMapInstance(std::string const& basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId)
     {
-        if (!loadMapData(basePath, meshMapId))
-            return false;
+        switch (loadMapData(basePath, meshMapId))
+        {
+            case LoadResult::Success:
+            case LoadResult::AlreadyLoaded:
+                break;
+            default:
+                return false;
+        }
 
         MMapData* mmap = loadedMMaps[meshMapId];
         auto [queryItr, inserted] = mmap->navMeshQueries.try_emplace({ instanceMapId, instanceId }, nullptr);

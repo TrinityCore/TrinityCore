@@ -866,7 +866,7 @@ namespace MMAP
             // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
             // is removed via removeTile()
             dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
-            if (!tileRef || dtResult != DT_SUCCESS)
+            if (!tileRef || !dtStatusSucceed(dtResult))
             {
                 printf("%s Failed adding tile to navmesh!           \n", tileString.c_str());
                 break;
@@ -942,7 +942,19 @@ namespace MMAP
     bool MapBuilder::shouldSkipMap(uint32 mapID) const
     {
         if (m_mapid >= 0)
-            return static_cast<uint32>(m_mapid) != mapID;
+        {
+            int32 parentMapId = m_mapid;
+            do
+            {
+                if (static_cast<uint32>(parentMapId) == mapID)
+                    return false;
+
+                parentMapId = sMapStore[parentMapId].ParentMapID;
+
+            } while (parentMapId != -1);
+
+            return true;
+        }
 
         if (m_skipContinents)
             if (isContinentMap(mapID))
