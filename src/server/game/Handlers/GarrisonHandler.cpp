@@ -22,8 +22,7 @@
 
 void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& /*getGarrisonInfo*/)
 {
-    if (Garrison* garrison = _player->GetGarrison())
-        garrison->SendInfo();
+    _player->SendGarrisonInfo();
 }
 
 void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding)
