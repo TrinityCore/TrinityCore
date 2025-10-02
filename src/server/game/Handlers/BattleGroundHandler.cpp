@@ -540,9 +540,16 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
         return;
 
     Group* grp = _player->GetGroup();
+    if (!grp)
+    {
+        grp = new Group();
+        grp->Create(_player);
+    }
+
     // no group found, error
     if (!grp)
         return;
+
     if (grp->GetLeaderGUID() != _player->GetGUID())
         return;
 
@@ -559,7 +566,10 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPackets::Battleground::Battl
     GroupQueueInfo* ginfo = nullptr;
 
     ObjectGuid errorGuid;
-    GroupJoinBattlegroundResult err = grp->CanJoinBattlegroundQueue(bgTemplate, bgQueueTypeId, arenatype, arenatype, true, packet.TeamSizeIndex, errorGuid);
+    GroupJoinBattlegroundResult err = ERR_BATTLEGROUND_NONE;
+    if (!sBattlegroundMgr->isArenaTesting())
+        err = grp->CanJoinBattlegroundQueue(bgTemplate, bgQueueTypeId, arenatype, arenatype, true, packet.TeamSizeIndex, errorGuid);
+
     if (!err)
     {
         TC_LOG_DEBUG("bg.battleground", "Battleground: arena team id {}, leader {} queued with matchmaker rating {} for type {}", _player->GetArenaTeamId(packet.TeamSizeIndex), _player->GetName(), matchmakerRating, arenatype);
