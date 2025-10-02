@@ -18458,7 +18458,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 break;
             }
 
-
             // save _any_ from daily quest times (it must be after last reset anyway)
             m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
 

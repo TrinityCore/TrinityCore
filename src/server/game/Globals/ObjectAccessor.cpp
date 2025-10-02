@@ -120,7 +120,7 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, ObjectGuid con
         case HighGuid::Pet:           return GetPet(p, guid);
         case HighGuid::DynamicObject: return GetDynamicObject(p, guid);
         case HighGuid::Corpse:        return GetCorpse(p, guid);
-        default:                     return nullptr;
+        default:                      return nullptr;
     }
 }
 
