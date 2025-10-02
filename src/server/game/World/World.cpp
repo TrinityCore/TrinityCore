@@ -69,7 +69,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MapUtils.h"
@@ -188,7 +188,6 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
-    MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
 }
@@ -1356,7 +1355,7 @@ bool World::SetInitialWorldSettings()
 
     vmmgr2->InitializeThreadUnsafe(mapData);
 
-    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    MMAP::MMapManager* mmmgr = MMAP::MMapManager::instance();
     mmmgr->InitializeThreadUnsafe(mapData);
 
     ///- Initialize static helper structures
