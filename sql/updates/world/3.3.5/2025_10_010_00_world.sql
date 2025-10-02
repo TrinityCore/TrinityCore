@@ -8,3 +8,16 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (16118,3,0,"%s goes into a frenzy!",16,0,100,0,0,0,10645,0,"Kormok EMOTE_FRENZY");
 
 DELETE FROM `creature_text` WHERE `CreatureID` = 10432;
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 14516;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(14516,0,0,"ENOUGH - this ends now!  You fools will be added to my bone collection!",14,0,100,0,0,0,9784,0,"Death Knight Darkreaver");
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 11261;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(11261,0,0,"The doctor is in!",12,0,100,0,0,0,6715,0,"Doctor Theolen Krastinov SAY_AGGRO"),
+(11261,1,0,"%s goes into a frenzy!",16,0,100,0,0,0,10645,0,"Doctor Theolen Krastinov EMOTE_FRENZY");
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 10503;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(10503,0,0,"%s loosens her grasp on the journal she had been clutching.",16,0,100,0,0,0,11408,0,"Jandice Barov");
