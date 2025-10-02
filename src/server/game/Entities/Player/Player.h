@@ -84,7 +84,23 @@ enum LootType : uint8;
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS           128
+#define PLAYER_MAX_SKILLS                       128
+enum SkillFieldOffset
+{
+    SKILL_ID_FIELD_OFFSET = 0,
+    SKILL_ID_SHORT_OFFSET = 0,
+    SKILL_STEP_FIELD_OFFSET = 0,
+    SKILL_STEP_SHORT_OFFSET = 1,
+    SKILL_RANK_FIELD_OFFSET = 1,
+    SKILL_RANK_SHORT_OFFSET = 0,
+    SKILL_MAX_RANK_FIELD_OFFSET = 1,
+    SKILL_MAX_RANK_SHORT_OFFSET = 1,
+    SKILL_TEMP_BONUS_FIELD_OFFSET = 2,
+    SKILL_TEMP_BONUS_SHORT_OFFSET = 0,
+    SKILL_PERM_BONUS_FIELD_OFFSET = 2,
+    SKILL_PERM_BONUS_SHORT_OFFSET = 1
+};
+
 #define PLAYER_MAX_DAILY_QUESTS     25
 #define PLAYER_EXPLORED_ZONES_SIZE  128
 
@@ -1793,6 +1809,18 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+        uint16 GetSkillLineIdByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_ID_FIELD_OFFSET, SKILL_ID_SHORT_OFFSET); }
+        void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_ID_FIELD_OFFSET, SKILL_ID_SHORT_OFFSET, skillLineId); }
+        uint16 GetSkillStepByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_STEP_FIELD_OFFSET, SKILL_STEP_SHORT_OFFSET); };
+        void SetSkillStep(uint32 pos, uint16 step) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_STEP_FIELD_OFFSET, SKILL_STEP_SHORT_OFFSET, step); };
+        uint16 GetSkillRankByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_RANK_FIELD_OFFSET, SKILL_RANK_SHORT_OFFSET); }
+        void SetSkillRank(uint32 pos, uint16 rank) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_RANK_FIELD_OFFSET, SKILL_RANK_SHORT_OFFSET, rank); }
+        uint16 GetSkillMaxRankByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_MAX_RANK_FIELD_OFFSET, SKILL_MAX_RANK_SHORT_OFFSET); }
+        void SetSkillMaxRank(uint32 pos, uint16 max) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_MAX_RANK_FIELD_OFFSET, SKILL_MAX_RANK_SHORT_OFFSET, max); }
+        int16 GetSkillTempBonusByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_TEMP_BONUS_FIELD_OFFSET, SKILL_TEMP_BONUS_SHORT_OFFSET); }
+        void SetSkillTempBonus(uint32 pos, int16 bonus) { SetInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_TEMP_BONUS_FIELD_OFFSET, SKILL_TEMP_BONUS_SHORT_OFFSET, bonus); }
+        uint16 GetSkillPermBonusByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_PERM_BONUS_FIELD_OFFSET, SKILL_PERM_BONUS_SHORT_OFFSET); }
+        void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_PERM_BONUS_FIELD_OFFSET, SKILL_PERM_BONUS_SHORT_OFFSET, bonus); }
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         uint32 GetTeleportOptions() const { return m_teleport_options; }
