@@ -32,7 +32,7 @@
 #include "ItemBonusMgr.h"
 #include "Language.h"
 #include "MiscPackets.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "MotionMaster.h"
 #include "MovementDefines.h"
 #include "ObjectAccessor.h"
@@ -258,7 +258,7 @@ public:
 
         uint32 haveMap = TerrainInfo::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = TerrainInfo::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapManager::instance()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
 
         if (haveVMap)
         {
