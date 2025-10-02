@@ -785,7 +785,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
         pCurrChar->SetGuildRank(0);
     }
 
-    if (pCurrChar->GetGuildId() != 0)
+    if (pCurrChar->GetGuildId())
     {
         if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
             guild->SendLoginInfo(this);

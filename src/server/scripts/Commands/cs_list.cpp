@@ -242,9 +242,9 @@ public:
             do
             {
                 Field* fields                   = result->Fetch();
-                ObjectGuid::LowType itemGuid                 = fields[0].GetUInt32();
-                ObjectGuid::LowType itemSender               = fields[1].GetUInt32();
-                uint32 itemReceiver             = fields[2].GetUInt32();
+                ObjectGuid::LowType itemGuid    = fields[0].GetUInt32();
+                ObjectGuid::LowType itemSender  = fields[1].GetUInt32();
+                ObjectGuid::LowType itemReceiver = fields[2].GetUInt32();
                 uint32 itemSenderAccountId      = fields[3].GetUInt32();
                 std::string itemSenderName      = fields[4].GetString();
                 uint32 itemReceiverAccount      = fields[5].GetUInt32();
@@ -559,9 +559,9 @@ public:
                 {
                     Field* queryFields      = queryResult->Fetch();
                     uint32 messageId        = queryFields[0].GetUInt32();
-                    uint32 senderId         = queryFields[1].GetUInt32();
+                    ObjectGuid::LowType senderId = queryFields[1].GetUInt32();
                     std::string sender      = queryFields[2].GetString();
-                    uint32 receiverId       = queryFields[3].GetUInt32();
+                    ObjectGuid::LowType receiverId = queryFields[3].GetUInt32();
                     std::string receiver    = queryFields[4].GetString();
                     std::string subject     = queryFields[5].GetString();
                     uint64 deliverTime      = queryFields[6].GetUInt32();

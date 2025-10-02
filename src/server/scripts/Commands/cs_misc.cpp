@@ -1675,7 +1675,7 @@ public:
         char const* zoneName    = nullptr;
 
         // Guild data print variables defined so that they exist, but are not necessarily used
-        uint32 guildId           = 0;
+        ObjectGuid::LowType guildId = 0;
         uint8 guildRankId        = 0;
         std::string guildName;
         std::string guildRank;
@@ -1819,7 +1819,7 @@ public:
             ObjectGuid::LowType gguid  = fields[1].GetUInt32(); // We check if have a guild for the person, so we might not require to query it at all
             xptotal = sObjectMgr->GetXPForLevel(level);
 
-            if (gguid != 0)
+            if (gguid)
             {
                 // Guild Data - an own query, because it may not happen.
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);

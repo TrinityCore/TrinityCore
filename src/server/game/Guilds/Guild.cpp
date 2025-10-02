@@ -2190,10 +2190,10 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
     // Player cannot be in guild
     if (player)
     {
-        if (player->GetGuildId() != 0)
+        if (player->GetGuildId())
             return false;
     }
-    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid) != 0)
+    else if (sCharacterCache->GetCharacterGuildIdByGuid(guid))
         return false;
 
     // Remove all player signs from another petitions
@@ -2268,7 +2268,6 @@ bool Guild::AddMember(CharacterDatabaseTransaction trans, ObjectGuid guid, uint8
 
 bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bool isDisbanding, bool isKicked)
 {
-    ObjectGuid::LowType lowguid = guid.GetCounter();
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
 
     // Guild master can be deleted when loading guild and guid doesn't exist in characters table
@@ -2318,7 +2317,7 @@ bool Guild::DeleteMember(CharacterDatabaseTransaction trans, ObjectGuid guid, bo
     else
         sCharacterCache->UpdateCharacterGuildId(guid, 0);
 
-    _DeleteMemberFromDB(trans, lowguid);
+    _DeleteMemberFromDB(trans, guid.GetCounter());
     if (!isDisbanding)
         _UpdateAccountsNumber();
 

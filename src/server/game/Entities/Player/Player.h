@@ -1363,7 +1363,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
         bool IsLoading() const override;
 
-        void Initialize(ObjectGuid::LowType guid);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
@@ -1437,13 +1436,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 unReadMails;
         time_t m_nextMailDelivereTime;
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 
         ItemMap mMitems;                                    //template defined in objectmgr.cpp
 
-        Item* GetMItem(uint32 id);
+        Item* GetMItem(ObjectGuid::LowType id);
         void AddMItem(Item* it);
-        bool RemoveMItem(uint32 id);
+        bool RemoveMItem(ObjectGuid::LowType id);
 
         void SendOnCancelExpectedVehicleRideAura() const;
         void PetSpellInitialize();
@@ -1605,13 +1604,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 guildId);
+        void SetInGuild(ObjectGuid::LowType guildId);
         void SetGuildRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetGuildRank() const { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
-        void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
-        uint32 GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
+        void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
+        ObjectGuid::LowType GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
         Guild* GetGuild();
-        int GetGuildIdInvited() const { return m_GuildIdInvited; }
+        ObjectGuid::LowType GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid, CharterTypes type);
 
         // Arena Team
@@ -2379,7 +2378,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         SkillStatusMap mSkillStatus;
 
-        uint32 m_GuildIdInvited;
+        ObjectGuid::LowType m_GuildIdInvited;
         uint32 m_ArenaTeamIdInvited;
 
         PlayerMails m_mail;

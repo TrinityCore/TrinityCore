@@ -621,7 +621,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPackets::Mail::MailQueryNextMail
         result.NextMailTime = 0.0f;
 
         time_t now = GameTime::GetGameTime();
-        std::set<uint32> sentSenders;
+        std::set<ObjectGuid::LowType> sentSenders;
         for (Mail* m : _player->GetMails())
         {
             // must be not checked yet

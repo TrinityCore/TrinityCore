@@ -4038,7 +4038,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                     uint32 mail_id       = mailFields[0].GetUInt32();
                     uint8 mailType       = mailFields[1].GetUInt8();
                     uint16 mailTemplateId= mailFields[2].GetUInt16();
-                    uint32 sender        = mailFields[3].GetUInt32();
+                    ObjectGuid::LowType sender = mailFields[3].GetUInt32();
                     std::string subject  = mailFields[4].GetString();
                     std::string body     = mailFields[5].GetString();
                     uint32 money         = mailFields[6].GetUInt32();
@@ -16845,11 +16845,6 @@ bool Player::HasPvPForcingQuest() const
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-void Player::Initialize(ObjectGuid::LowType guid)
-{
-    Object::_Create(guid, 0, HighGuid::Player);
-}
-
 void Player::_LoadDeclinedNames(PreparedQueryResult result)
 {
     if (!result)
@@ -18134,7 +18129,7 @@ Item* Player::_LoadItem(CharacterDatabaseTransaction trans, uint32 zoneId, uint3
                     {
                         item->SetRefundRecipient(GetGUID());
                         item->SetPaidMoney((*result)[0].GetUInt32());
-                        item->SetPaidExtendedCost((*result)[2].GetUInt16());
+                        item->SetPaidExtendedCost((*result)[1].GetUInt16());
                         AddRefundReference(item->GetGUID());
                     }
                     else
@@ -19727,7 +19722,7 @@ void Player::_SaveMail(CharacterDatabaseTransaction trans)
 
             if (!m->removedItems.empty())
             {
-                for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
+                for (std::vector<ObjectGuid::LowType>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_ITEM);
                     stmt->setUInt32(0, *itr2);
@@ -20723,7 +20718,7 @@ void Player::Whisper(uint32 textId, Player* target, bool /*isBossWhisper = false
     target->SendDirectMessage(&data);
 }
 
-Item* Player::GetMItem(uint32 id)
+Item* Player::GetMItem(ObjectGuid::LowType id)
 {
     ItemMap::const_iterator itr = mMitems.find(id);
     return itr != mMitems.end() ? itr->second : nullptr;
@@ -20736,7 +20731,7 @@ void Player::AddMItem(Item* it)
     mMitems[it->GetGUID().GetCounter()] = it;
 }
 
-bool Player::RemoveMItem(uint32 id)
+bool Player::RemoveMItem(ObjectGuid::LowType id)
 {
     return mMitems.erase(id) ? true : false;
 }
@@ -26580,7 +26575,7 @@ std::string Player::GetCoordsMapAreaAndZoneString() const
     return str.str();
 }
 
-void Player::SetInGuild(uint32 guildId)
+void Player::SetInGuild(ObjectGuid::LowType guildId)
 {
     SetUInt32Value(PLAYER_GUILDID, guildId);
     sCharacterCache->UpdateCharacterGuildId(GetGUID(), guildId);
@@ -26588,7 +26583,7 @@ void Player::SetInGuild(uint32 guildId)
 
 Guild* Player::GetGuild()
 {
-    uint32 guildId = GetGuildId();
+    ObjectGuid::LowType guildId = GetGuildId();
     return guildId ? sGuildMgr->GetGuildById(guildId) : nullptr;
 }
 

@@ -1623,7 +1623,7 @@ class TC_GAME_API ObjectMgr
         SpellScriptsContainer _spellScriptsStore;
 
         std::unordered_map<uint32, VehicleTemplate> _vehicleTemplateStore;
-        VehicleAccessoryContainer _vehicleTemplateAccessoryStore;
+        VehicleAccessoryTemplateContainer _vehicleTemplateAccessoryStore;
         VehicleAccessoryContainer _vehicleAccessoryStore;
 
         LocaleConstant DBCLocaleIndex;

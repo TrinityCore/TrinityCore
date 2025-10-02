@@ -117,12 +117,12 @@ void GroupMgr::Update(uint32 diff)
 
 void GroupMgr::AddGroup(Group* group)
 {
-    GroupStore[group->GetLowGUID()] = group;
+    GroupStore[group->GetGUID().GetCounter()] = group;
 }
 
 void GroupMgr::RemoveGroup(Group* group)
 {
-    GroupStore.erase(group->GetLowGUID());
+    GroupStore.erase(group->GetGUID().GetCounter());
 }
 
 void GroupMgr::LoadGroups()

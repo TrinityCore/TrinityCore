@@ -838,9 +838,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
-    uint32 petId = sObjectMgr->GeneratePetNumber();
-    if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, phaseMask, cinfo->Entry, sObjectMgr->GeneratePetNumber()))
         return false;
 
     SetMaxPower(POWER_HAPPINESS, GetCreatePowerValue(POWER_HAPPINESS));
