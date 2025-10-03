@@ -34,6 +34,12 @@ namespace Creatures
     static constexpr uint32 JangolodeMineFigure = 42515;
 }
 
+namespace Spells
+{
+    static constexpr uint32 JangolodeMineSummonFigure = 79265;
+    static constexpr uint32 JangolodeMineSummonGlubtok = 79263;
+}
+
 namespace Events
 {
     namespace ItsAlive
@@ -185,6 +191,22 @@ class spell_westfall_wake_harvest_golem : public SpellScript
     }
 };
 
+// 79262 - Summon Lou's House
+class spell_westfall_summon_lous_house : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(nullptr, Spells::JangolodeMineSummonFigure, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(nullptr, Spells::JangolodeMineSummonGlubtok, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_summon_lous_house::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 79275 - Quest Credit: Jangolde Event
 class spell_westfall_quest_credit_jangolode_event : public SpellScript
 {
@@ -249,6 +271,7 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_unbound_energy);
     RegisterSpellScript(spell_westfall_reaping_blows);
     RegisterSpellScript(spell_westfall_wake_harvest_golem);
+    RegisterSpellScript(spell_westfall_summon_lous_house);
     RegisterSpellScript(spell_westfall_quest_credit_jangolode_event);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_glubtok);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_figure);
