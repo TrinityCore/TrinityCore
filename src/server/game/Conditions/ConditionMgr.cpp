@@ -103,7 +103,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
 {
     { .Name = "None",                      .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
-    { .Name = "Aura",                      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Aura",                      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "Item Stored",               .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
     { .Name = "Item Equipped",             .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "Zone",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
