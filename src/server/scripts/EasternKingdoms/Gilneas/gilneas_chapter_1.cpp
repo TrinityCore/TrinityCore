@@ -154,8 +154,7 @@ class spell_gilneas_knocking : public SpellScript
 
     void HandleEffect()
     {
-        if (SpellInfo const* spellInfo = GetSpellInfo())
-            GetCaster()->CastSpell(GetCaster(), spellInfo->GetEffect(RAND(EFFECT_1, EFFECT_2)).CalcValue(), true);
+        GetCaster()->CastSpell(GetCaster(), GetEffectInfo(RAND(EFFECT_1, EFFECT_2)).CalcValue(), true);
     }
 
     void Register() override
