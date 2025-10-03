@@ -81,9 +81,8 @@ enum OratorKrixVizkMisc
     DISPLAY_POWERID               = 527
 };
 
-// Id xxxx - Areatrigger
-// Id xxxx - Areatrigger
-// Id xxxx - Areatrigger
+// 163
+// 164
 template<uint32 conversationEntry, uint32 data>
 struct at_orator_conversation_intro : AreaTriggerAI
 {
@@ -324,7 +323,7 @@ class spell_orator_krix_vizk_chains_of_oppression_periodic : public AuraScript
 class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
 {
     static constexpr uint8 MAX_SHADOW_OF_DOUBTS = 5;
-    static constexpr uint32 AT_CREATE_PROPERTIES = 165;
+    static constexpr uint32 DOUBT_AT_CREATE_PROPERTIES = 165;
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -333,19 +332,19 @@ class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
 
     void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL)
-        {
-            if (Unit* caster = GetCaster())
-            {
-                caster->CastSpell(GetTarget(), SPELL_DOUBT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+            return;
 
-                for (uint8 i = 0; i < MAX_SHADOW_OF_DOUBTS; ++i)
-                {
-                    Unit* target = GetTarget();
-                    float angle = target->GetOrientation() + float(M_PI) / 5.0f + i * float(M_PI) / 2.5f;
-                    Position dest(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
-                }
-            }
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        for (uint8 i = 0; i < MAX_SHADOW_OF_DOUBTS; ++i)
+        {
+            Unit* target = GetTarget();
+            float angle = 2.f * float(M_PI) / MAX_SHADOW_OF_DOUBTS * i;
+            Position dest(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
+            AreaTrigger::CreateAreaTrigger({ DOUBT_AT_CREATE_PROPERTIES, true }, dest, -1, caster, target);
         }
     }
 
@@ -454,7 +453,7 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
     }
 };
 
-// ID - xxxx
+// 165
 struct at_orator_krix_vizk_doubt : AreaTriggerAI
 {
     explicit at_orator_krix_vizk_doubt(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger), _canHitOrigin(false) {}
