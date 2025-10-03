@@ -508,11 +508,26 @@ namespace WorldPackets
             std::string Name;
         };
 
+        struct LeaverInfo
+        {
+            ObjectGuid BnetAccountGUID;
+            float LeaveScore = 0.0f;
+            uint32 SeasonID = 0;
+            uint32 TotalLeaves = 0;
+            uint32 TotalSuccesses = 0;
+            int32 ConsecutiveSuccesses = 0;
+            Timestamp<> LastPenaltyTime;
+            Timestamp<> LeaverExpirationTime;
+            int32 Unknown_1120 = 0;
+            bool LeaverStatus = false;
+        };
+
         struct PartyPlayerInfo
         {
             ObjectGuid GUID;
             std::string Name;
             std::string VoiceStateID;   // same as bgs.protocol.club.v1.MemberVoiceState.id
+            LeaverInfo Leaver;
             uint8 Class = 0u;
             uint8 Subgroup = 0u;
             uint8 Flags = 0u;
@@ -551,6 +566,19 @@ namespace WorldPackets
             uint32 LegacyRaidDifficultyID = 0u;
         };
 
+        struct ChallengeModeData
+        {
+            int32 Unknown_1120_1 = 0;
+            int32 Unknown_1120_2 = 0;
+            uint64 Unknown_1120_3 = 0;
+            int64 Unknown_1120_4 = 0;
+            ObjectGuid KeystoneOwnerGUID;
+            ObjectGuid LeaverGUID;
+            bool IsActive = false;
+            bool HasRestrictions = false;
+            bool CanVoteAbandon = false;
+        };
+
         class PartyUpdate final : public ServerPacket
         {
         public:
@@ -573,6 +601,7 @@ namespace WorldPackets
 
             std::vector<PartyPlayerInfo> PlayerList;
 
+            Optional<ChallengeModeData> ChallengeMode;
             Optional<PartyLFGInfo> LfgInfos;
             Optional<PartyLootSettings> LootSettings;
             Optional<PartyDifficultySettings> DifficultySettings;

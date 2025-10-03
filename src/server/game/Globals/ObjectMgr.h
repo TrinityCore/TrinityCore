@@ -449,7 +449,7 @@ struct TC_GAME_API SpellClickInfo
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 
-struct AreaTriggerStruct
+struct AreaTriggerTeleport
 {
     uint32 target_mapId;
     float  target_X;
@@ -986,7 +986,7 @@ class TC_GAME_API ObjectMgr
         typedef std::unordered_map<uint32, Trinity::unique_trackable_ptr<Quest>> QuestContainer;
         typedef std::unordered_map<uint32 /*questObjectiveId*/, QuestObjective const*> QuestObjectivesByIdContainer;
 
-        typedef std::unordered_map<uint32, AreaTriggerStruct> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerTeleport> AreaTriggerContainer;
 
         typedef std::unordered_map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -1014,7 +1014,7 @@ class TC_GAME_API ObjectMgr
             };
 
         private:
-            using NameMap = std::map<std::string, Entry>;
+            using NameMap = std::map<std::string, Entry, std::less<>>;
 
             NameMap NameToIndex;
             std::vector<NameMap::const_iterator> IndexToName;
@@ -1023,10 +1023,10 @@ class TC_GAME_API ObjectMgr
             ScriptNameContainer();
 
             void reserve(size_t capacity);
-            uint32 insert(std::string const& scriptName, bool isScriptNameBound = true);
+            uint32 insert(std::string_view scriptName, bool isScriptNameBound = true);
             size_t size() const;
             NameMap::const_iterator find(size_t index) const;
-            NameMap::const_iterator find(std::string const& name) const;
+            NameMap::const_iterator find(std::string_view name) const;
             NameMap::const_iterator end() const;
 
             std::unordered_set<std::string> GetAllDBScriptNames() const;
@@ -1140,10 +1140,10 @@ class TC_GAME_API ObjectMgr
         WorldSafeLocsEntry const* GetWorldSafeLoc(uint32 id) const;
         Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iterator> GetWorldSafeLocs() const;
 
-        AreaTriggerStruct const* GetAreaTrigger(uint32 trigger) const;
+        AreaTriggerTeleport const* GetAreaTrigger(uint32 trigger) const;
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
-        AreaTriggerStruct const* GetGoBackTrigger(uint32 Map) const;
-        AreaTriggerStruct const* GetMapEntranceTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetGoBackTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         uint32 GetEventScriptId(uint32 eventId) const;
@@ -1366,7 +1366,6 @@ class TC_GAME_API ObjectMgr
         uint64 GenerateEquipmentSetGuid();
         uint64 GenerateMailID();
         uint32 GeneratePetNumber();
-        uint64 GenerateVoidStorageItemId();
         ObjectGuid::LowType GenerateCreatureSpawnId();
         ObjectGuid::LowType GenerateGameObjectSpawnId();
 
@@ -1579,7 +1578,7 @@ class TC_GAME_API ObjectMgr
         std::unordered_set<std::string> GetAllDBScriptNames() const;
         std::string const& GetScriptName(uint32 id) const;
         bool IsScriptDatabaseBound(uint32 id) const;
-        uint32 GetScriptId(std::string const& name, bool isDatabaseBound = true);
+        uint32 GetScriptId(std::string_view name, bool isDatabaseBound = true);
 
         Trinity::IteratorPair<SpellClickInfoContainer::const_iterator> GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
@@ -1701,7 +1700,6 @@ class TC_GAME_API ObjectMgr
         std::atomic<uint32> _hiPetNumber;
         ObjectGuid::LowType _creatureSpawnId;
         ObjectGuid::LowType _gameObjectSpawnId;
-        uint64 _voidItemId;
 
         // first free low guid for selected guid type
         ObjectGuidGenerator& GetGuidSequenceGenerator(HighGuid high);

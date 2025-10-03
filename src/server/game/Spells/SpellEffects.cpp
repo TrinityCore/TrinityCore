@@ -430,6 +430,10 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //339 SPELL_EFFECT_UI_ACTION
     &Spell::EffectNULL,                                     //340 SPELL_EFFECT_340
     &Spell::EffectLearnWarbandScene,                        //341 SPELL_EFFECT_LEARN_WARBAND_SCENE
+    &Spell::EffectNULL,                                     //342 SPELL_EFFECT_342
+    &Spell::EffectNULL,                                     //343 SPELL_EFFECT_343
+    &Spell::EffectNULL,                                     //344 SPELL_EFFECT_344
+    &Spell::EffectNULL,                                     //345 SPELL_EFFECT_ASSIST_ACTION
 };
 
 void Spell::EffectNULL()
@@ -5861,10 +5865,11 @@ void Spell::EffectJumpCharge()
     }
 
     Optional<JumpArrivalCastArgs> arrivalCast;
-    if (effectInfo->TriggerSpell)
+    if (effectInfo->TriggerSpell || params->TriggerSpellId)
     {
         arrivalCast.emplace();
-        arrivalCast->SpellId = effectInfo->TriggerSpell;
+        arrivalCast->SpellId = params->TriggerSpellId ? *params->TriggerSpellId : effectInfo->TriggerSpell;
+        arrivalCast->Target = unitTarget ? unitTarget->GetGUID() : ObjectGuid::Empty;
     }
 
     Optional<Movement::SpellEffectExtraData> effectExtra;

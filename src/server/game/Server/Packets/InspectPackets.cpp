@@ -225,6 +225,8 @@ WorldPacket const* InspectResult::Write()
     if (!PvpTalents.empty())
         _worldPacket.append(PvpTalents.data(), PvpTalents.size());
 
+    _worldPacket << TalentInfo;
+
     _worldPacket << OptionalInit(GuildData);
     _worldPacket << OptionalInit(AzeriteLevel);
     _worldPacket.FlushBits();

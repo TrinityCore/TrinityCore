@@ -195,6 +195,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
+    stats.Flags[2] = creatureDifficulty->TypeFlags3;
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
@@ -273,6 +274,7 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            TypeFlags3 = 0;
             LootID = 0;
             PickPocketLootID = 0;
             SkinLootID = 0;
@@ -1556,20 +1558,22 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     stmt->setUInt16(index++, uint16(mapid));
     stmt->setString(index++, [&data]() -> std::string
     {
-        if (data.spawnDifficulties.empty())
-            return "";
-
         std::ostringstream os;
-        auto itr = data.spawnDifficulties.begin();
-        os << int32(*itr++);
+        if (!data.spawnDifficulties.empty())
+        {
+            auto itr = data.spawnDifficulties.begin();
+            os << int32(*itr++);
 
-        for (; itr != data.spawnDifficulties.end(); ++itr)
-            os << ',' << int32(*itr);
+            for (; itr != data.spawnDifficulties.end(); ++itr)
+                os << ',' << int32(*itr);
+        }
 
-        return os.str();
+        return std::move(os).str();
     }());
+    stmt->setUInt8(index++, data.phaseUseFlags);
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
+    stmt->setInt32(index++, data.terrainSwapMap);
     stmt->setUInt32(index++, displayId);
     stmt->setUInt8(index++, GetCurrentEquipmentId());
     stmt->setFloat(index++, GetPositionX());
@@ -1600,6 +1604,13 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
         stmt->setUInt32(index++, *unitFlags3);
     else
         stmt->setNull(index++);
+
+    stmt->setString(index++, sObjectMgr->GetScriptName(data.scriptId));
+    if (std::string_view stringId = GetStringId(StringIdType::Spawn); !stringId.empty())
+        stmt->setString(index++, stringId);
+    else
+        stmt->setNull(index++);
+
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -3067,8 +3078,8 @@ uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0f);
+    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0);
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const

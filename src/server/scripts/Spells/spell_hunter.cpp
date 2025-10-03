@@ -25,11 +25,13 @@
 #include "AreaTriggerAI.h"
 #include "CellImpl.h"
 #include "GridNotifiersImpl.h"
+#include "ObjectAccessor.h"
 #include "Pet.h"
 #include "SpellAuraEffects.h"
 #include "SpellHistory.h"
 #include "SpellMgr.h"
 #include "SpellScript.h"
+#include "TaskScheduler.h"
 
 enum HunterSpells
 {
@@ -42,9 +44,16 @@ enum HunterSpells
     SPELL_HUNTER_ASPECT_OF_THE_FOX                  = 1219162,
     SPELL_HUNTER_ASPECT_OF_THE_TURTLE_PACIFY_AURA   = 205769,
     SPELL_HUNTER_BINDING_SHOT                       = 109248,
+    SPELL_HUNTER_BINDING_SHOT_IMMUNE                = 117553,
+    SPELL_HUNTER_BINDING_SHOT_MARKER                = 117405,
+    SPELL_HUNTER_BINDING_SHOT_STUN                  = 117526,
+    SPELL_HUNTER_BINDING_SHOT_VISUAL                = 117614,
+    SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW          = 118306,
     SPELL_HUNTER_CONCUSSIVE_SHOT                    = 5116,
     SPELL_HUNTER_EMERGENCY_SALVE_TALENT             = 459517,
     SPELL_HUNTER_EMERGENCY_SALVE_DISPEL             = 459521,
+    SPELL_HUNTER_ENTRAPMENT_TALENT                  = 393344,
+    SPELL_HUNTER_ENTRAPMENT_ROOT                    = 393456,
     SPELL_HUNTER_EXHILARATION                       = 109304,
     SPELL_HUNTER_EXHILARATION_PET                   = 128594,
     SPELL_HUNTER_EXHILARATION_R2                    = 231546,
@@ -60,8 +69,10 @@ enum HunterSpells
     SPELL_HUNTER_LATENT_POISON_DAMAGE               = 378016,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_STACK      = 336903,
     SPELL_HUNTER_LATENT_POISON_INJECTORS_DAMAGE     = 336904,
+    SPELL_HUNTER_LOCK_AND_LOAD                      = 194594,
     SPELL_HUNTER_LONE_WOLF                          = 155228,
     SPELL_HUNTER_MARKSMANSHIP_HUNTER_AURA           = 137016,
+    SPELL_HUNTER_MASTER_MARKSMAN                    = 269576,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION                       = 34477,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -77,6 +88,8 @@ enum HunterSpells
     SPELL_HUNTER_RAPID_FIRE_ENERGIZE                = 263585,
     SPELL_HUNTER_REJUVENATING_WIND_HEAL             = 385540,
     SPELL_HUNTER_SCOUTS_INSTINCTS                   = 459455,
+    SPELL_HUNTER_SHRAPNEL_SHOT_TALENT               = 473520,
+    SPELL_HUNTER_SHRAPNEL_SHOT_DEBUFF               = 474310,
     SPELL_HUNTER_STEADY_SHOT                        = 56641,
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_STREAMLINE_TALENT                  = 260367,
@@ -175,7 +188,7 @@ class spell_hun_aspect_of_the_fox : public SpellScript
         return !GetCaster()->HasAura(SPELL_HUNTER_ASPECT_OF_THE_FOX);
     }
 
-    static void HandleCastWhileWalking(WorldObject*& target)
+    static void HandleCastWhileWalking(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -211,10 +224,97 @@ class spell_hun_aspect_of_the_turtle : public AuraScript
     }
 };
 
+// 109248 - Binding Shot
+class spell_hun_binding_shot : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW });
+    }
+
+    void HandleCast()
+    {
+        GetCaster()->CastSpell(GetExplTargetDest()->GetPosition(), SPELL_HUNTER_BINDING_SHOT_VISUAL_ARROW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_hun_binding_shot::HandleCast);
+    }
+};
+
+// 109248 - Binding Shot
+// Id - 1524
+struct at_hun_binding_shot : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            for (AreaTrigger* other : caster->GetAreaTriggers(SPELL_HUNTER_BINDING_SHOT))
+                other->SetDuration(0);
+    }
+
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        _scheduler.Schedule(1s, [this](TaskContext task)
+        {
+            for (ObjectGuid const& guid : at->GetInsideUnits())
+            {
+                Unit* unit = ObjectAccessor::GetUnit(*at, guid);
+                if (!unit->HasAura(SPELL_HUNTER_BINDING_SHOT_MARKER))
+                    continue;
+
+                unit->CastSpell(at->GetPosition(), SPELL_HUNTER_BINDING_SHOT_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+
+            task.Repeat(1s);
+        });
+    }
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit) && !unit->HasAura(SPELL_HUNTER_BINDING_SHOT_IMMUNE, caster->GetGUID()))
+            {
+                caster->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_MARKER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                unit->CastSpell(at->GetPosition(), SPELL_HUNTER_BINDING_SHOT_VISUAL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+        }
+    }
+
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
+    {
+        unit->RemoveAurasDueToSpell(SPELL_HUNTER_BINDING_SHOT_MARKER, at->GetCasterGuid());
+
+        if (at->IsRemoved())
+            return;
+
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit) && !unit->HasAura(SPELL_HUNTER_BINDING_SHOT_IMMUNE, caster->GetGUID()))
+            {
+                caster->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_STUN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+                caster->CastSpell(unit, SPELL_HUNTER_BINDING_SHOT_IMMUNE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+            }
+        }
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+
+private:
+    TaskScheduler _scheduler;
+};
+
 // 204089 - Bullseye
 class spell_hun_bullseye : public AuraScript
 {
-    static bool CheckEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static bool CheckEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetActionTarget()->HealthBelowPct(aurEff->GetAmount());
     }
@@ -529,6 +629,34 @@ class spell_hun_latent_poison_injectors_trigger : public SpellScript
     }
 };
 
+// 194595 - Lock and Load
+class spell_hun_lock_and_load : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
+    }
+
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        return roll_chance_i(aurEff->GetAmount());
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        caster->CastSpell(caster, SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_hun_lock_and_load::CheckProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_hun_lock_and_load::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 1217788 - Manhunter
 class spell_hun_manhunter : public AuraScript
 {
@@ -537,12 +665,12 @@ class spell_hun_manhunter : public AuraScript
         return ValidateSpellInfo({ SPELL_HUNTER_GREVIOUS_INJURY });
     }
 
-    static bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetProcTarget()->IsPlayer();
     }
 
-    static void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_GREVIOUS_INJURY, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -554,6 +682,34 @@ class spell_hun_manhunter : public AuraScript
     {
         DoCheckProc += AuraCheckProcFn(spell_hun_manhunter::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_hun_manhunter::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 260309 - Master Marksman
+class spell_hun_master_marksman : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_MASTER_MARKSMAN });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        uint32 ticks = sSpellMgr->AssertSpellInfo(SPELL_HUNTER_MASTER_MARKSMAN, DIFFICULTY_NONE)->GetMaxTicks();
+        if (!ticks)
+            return;
+
+        int32 damage = CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / ticks;
+
+        eventInfo.GetActor()->CastSpell(eventInfo.GetActionTarget(), SPELL_HUNTER_MASTER_MARKSMAN, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, damage } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_hun_master_marksman::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -690,6 +846,31 @@ class spell_hun_multi_shot : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_hun_multi_shot::HandleOnHit);
+    }
+};
+
+// 459783 - Penetrating Shots
+class spell_hun_penetrating_shots : public AuraScript
+{
+    void CalcAmount(AuraEffect const* /*aurEff*/, int32& amount, bool const& /*canBeRecalculated*/) const
+    {
+        if (AuraEffect const* amountHolder = GetEffect(EFFECT_1))
+        {
+            float critChanceDone = GetUnitOwner()->GetUnitCriticalChanceDone(BASE_ATTACK);
+            amount = CalculatePct(critChanceDone, amountHolder->GetAmount());
+        }
+    }
+
+    void UpdatePeriodic(AuraEffect const* aurEff) const
+    {
+        if (AuraEffect* bonus = GetEffect(EFFECT_0))
+            bonus->RecalculateAmount(aurEff);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_penetrating_shots::CalcAmount, EFFECT_0, SPELL_AURA_MOD_CRIT_DAMAGE_BONUS);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_penetrating_shots::UpdatePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -917,7 +1098,7 @@ class spell_hun_scouts_instincts : public SpellScript
         return !GetCaster()->HasAura(SPELL_HUNTER_SCOUTS_INSTINCTS);
     }
 
-    static void HandleMinSpeed(WorldObject*& target)
+    static void HandleMinSpeed(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }
@@ -947,6 +1128,30 @@ class spell_hun_scrappy : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_hun_scrappy::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 473520 - Shrapnel Shot
+class spell_hun_shrapnel_shot : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_HUNTER_LOCK_AND_LOAD });
+    }
+
+    void HandleProc(ProcEventInfo const& /*eventInfo*/) const
+    {
+        if (!roll_chance_i(GetEffect(EFFECT_0)->GetAmount()))
+            return;
+
+        GetCaster()->CastSpell(GetCaster(), SPELL_HUNTER_LOCK_AND_LOAD, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_hun_shrapnel_shot::HandleProc);
     }
 };
 
@@ -1108,14 +1313,25 @@ struct areatrigger_hun_tar_trap : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
+    void OnCreate(Spell const* /*creatingSpell*/) override
+    {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->HasAura(SPELL_HUNTER_ENTRAPMENT_TALENT))
+                caster->CastSpell(at->GetPosition(), SPELL_HUNTER_ENTRAPMENT_ROOT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
+    }
+
     void OnUnitEnter(Unit* unit) override
     {
         if (Unit* caster = at->GetCaster())
+        {
             if (caster->IsValidAttackTarget(unit))
                 caster->CastSpell(unit, SPELL_HUNTER_TAR_TRAP_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_HUNTER_TAR_TRAP_SLOW, at->GetCasterGuid());
     }
@@ -1251,6 +1467,8 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_cheetah);
     RegisterSpellScript(spell_hun_aspect_of_the_fox);
     RegisterSpellScript(spell_hun_aspect_of_the_turtle);
+    RegisterSpellScript(spell_hun_binding_shot);
+    RegisterAreaTriggerAI(at_hun_binding_shot);
     RegisterSpellScript(spell_hun_bullseye);
     RegisterSpellScript(spell_hun_cobra_sting);
     RegisterSpellScript(spell_hun_concussive_shot);
@@ -1265,11 +1483,14 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_latent_poison_trigger);
     RegisterSpellScript(spell_hun_latent_poison_injectors_damage);
     RegisterSpellScript(spell_hun_latent_poison_injectors_trigger);
+    RegisterSpellScript(spell_hun_lock_and_load);
     RegisterSpellScript(spell_hun_manhunter);
+    RegisterSpellScript(spell_hun_master_marksman);
     RegisterSpellScript(spell_hun_masters_call);
     RegisterSpellScript(spell_hun_misdirection);
     RegisterSpellScript(spell_hun_misdirection_proc);
     RegisterSpellScript(spell_hun_multi_shot);
+    RegisterSpellScript(spell_hun_penetrating_shots);
     RegisterSpellScript(spell_hun_pet_heart_of_the_phoenix);
     RegisterSpellScript(spell_hun_posthaste);
     RegisterSpellScript(spell_hun_precise_shots);
@@ -1280,6 +1501,7 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_scatter_shot);
     RegisterSpellScript(spell_hun_scouts_instincts);
     RegisterSpellScript(spell_hun_scrappy);
+    RegisterSpellScript(spell_hun_shrapnel_shot);
     RegisterSpellScript(spell_hun_steady_shot);
     RegisterSpellScript(spell_hun_streamline);
     RegisterSpellScript(spell_hun_surging_shots);

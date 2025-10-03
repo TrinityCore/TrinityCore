@@ -18,6 +18,8 @@
 #ifndef TRINITYCORE_SSL_STREAM_H
 #define TRINITYCORE_SSL_STREAM_H
 
+#include "Define.h"
+#include "Socket.h"
 #include "SocketConnectionInitializer.h"
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/stream.hpp>
@@ -25,6 +27,11 @@
 
 namespace Trinity::Net
 {
+namespace SslHandshakeHelpers
+{
+TC_NETWORK_API void LogFailure(boost::asio::ip::address const& ipAddress, uint16 port, boost::system::error_code const& error);
+}
+
 template <typename SocketImpl>
 struct SslHandshakeConnectionInitializer final : SocketConnectionInitializer
 {
@@ -41,13 +48,12 @@ struct SslHandshakeConnectionInitializer final : SocketConnectionInitializer
 
                 if (error)
                 {
-                    TC_LOG_ERROR("session", "{} SSL Handshake failed {}", socket->GetClientInfo(), error.message());
+                    SslHandshakeHelpers::LogFailure(socket->GetRemoteIpAddress(), socket->GetRemotePort(), error);
                     socket->CloseSocket();
                     return;
                 }
 
-                if (self->next)
-                    self->next->Start();
+                self->InvokeNext();
         });
     }
 
@@ -91,6 +97,12 @@ public:
     {
         _sslSocket.shutdown(shutdownError);
         _sslSocket.next_layer().shutdown(what, shutdownError);
+    }
+
+    template<typename ConnectHandlerType>
+    decltype(auto) async_connect(boost::asio::ip::tcp::endpoint const& endpoint, ConnectHandlerType&& handler)
+    {
+        return _sslSocket.next_layer().async_connect(endpoint, std::forward<ConnectHandlerType>(handler));
     }
 
     template<typename MutableBufferSequence, typename ReadHandlerType>

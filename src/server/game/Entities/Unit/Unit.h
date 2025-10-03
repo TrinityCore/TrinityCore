@@ -1433,6 +1433,12 @@ class TC_GAME_API Unit : public WorldObject
         void SetChannelObject(uint32 slot, ObjectGuid guid);
         void RemoveChannelObject(ObjectGuid guid);
         void ClearChannelObjects();
+        void SetChannelSpellData(uint32 startTimeMs, uint32 durationMs)
+        {
+            auto channelData = m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ChannelData);
+            SetUpdateFieldValue(channelData.ModifyValue(&UF::UnitChannel::StartTimeMs), startTimeMs);
+            SetUpdateFieldValue(channelData.ModifyValue(&UF::UnitChannel::Duration), durationMs);
+        }
         int8 GetSpellEmpowerStage() const { return m_unitData->SpellEmpowerStage; }
         void SetSpellEmpowerStage(int8 stage) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::SpellEmpowerStage), stage); }
 
@@ -1632,6 +1638,12 @@ class TC_GAME_API Unit : public WorldObject
         void RemoveAreaTrigger(uint32 spellId);
         void RemoveAreaTrigger(AuraEffect const* aurEff);
         void RemoveAllAreaTriggers(AreaTriggerRemoveReason reason = AreaTriggerRemoveReason::Default);
+
+        void EnterAreaTrigger(AreaTrigger* areaTrigger);
+        void ExitAreaTrigger(AreaTrigger* areaTrigger);
+
+        std::vector<AreaTrigger*> const& GetInsideAreaTriggers() const { return m_insideAreaTriggers; }
+        void ExitAllAreaTriggers();
 
         void ModifyAuraState(AuraStateType flag, bool apply);
         uint32 BuildAuraStateUpdateForTarget(Unit const* target) const;
@@ -1890,6 +1902,7 @@ class TC_GAME_API Unit : public WorldObject
 
         typedef std::vector<AreaTrigger*> AreaTriggerList;
         AreaTriggerList m_areaTrigger;
+        AreaTriggerList m_insideAreaTriggers;
 
         uint32 m_transformSpell;
 
@@ -1975,7 +1988,7 @@ class TC_GAME_API Unit : public WorldObject
         void SetFeared(bool apply);
         void SetConfused(bool apply);
         void SetStunned(bool apply);
-        void SetRooted(bool apply, bool packetOnly = false);
+        void SetRooted(bool apply);
 
         uint32 m_movementCounter;       ///< Incrementing counter used in movement packets
 

@@ -189,7 +189,7 @@ enum class AreaTriggerActionSetFlag : uint32
     SuppressConditionError          = 0x0040, // NYI
     NotTriggeredbyCaster            = 0x0080,
     CreatorsPartyOnly               = 0x0100,
-    DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
+    DontRunOnLeaveWhenExpiring      = 0x0200,
     CanAffectUninteractible         = 0x0400,
     DontDespawnWithCreator          = 0x0800,
     CanAffectBeastmaster            = 0x1000, // Can affect GMs
@@ -791,11 +791,11 @@ enum class CriteriaType : int16
 
     CompleteQuestsCountOnAccount                   = 257, /*NYI*/
 
-    WarbandBankTabPurchased                        = 260, /*NYI*/
+    BankTabPurchased                               = 260, // Bank Tab Purchased in {#BankType}
     ReachRenownLevel                               = 261,
     LearnTaxiNode                                  = 262,
 
-    Count                                          = 264
+    Count                                          = 270
 };
 
 enum class CriteriaTreeFlags : uint16
@@ -1015,6 +1015,107 @@ enum class FriendshipReputationFlags : int32
 };
 
 DEFINE_ENUM_FLAG(FriendshipReputationFlags);
+
+enum class GameRule : int32
+{
+    NoDebuffLimit                           = 1,
+    CharNameReservationEnabled              = 2,
+    MaxCharReservationsPerRealm             = 3,
+    MaxAccountCharReservationsPerContentset = 4,
+    EtaRealmLaunchTime                      = 5,
+    TrivialGroupXPPercent                   = 7,
+    CharReservationsPerRealmReopenThreshold = 8,
+    DisablePct                              = 9,
+    HardcoreRuleset                         = 10,
+    ReplaceAbsentGmSeconds                  = 11,
+    ReplaceGmRankLastOnlineSeconds          = 12,
+    GameMode                                = 13,
+    CharacterlessLogin                      = 14,
+    NoMultiboxing                           = 15,
+    VanillaNpcKnockback                     = 16,
+    Runecarving                             = 17,
+    TalentRespecCostMin                     = 18,
+    TalentRespecCostMax                     = 19,
+    TalentRespecCostStep                    = 20,
+    VanillaRageGenerationModifier           = 21,
+    SelfFoundAllowed                        = 22,
+    DisableHonorDecay                       = 23,
+    MaxLootDropLevel                        = 25,
+    MicrobarScale                           = 26,
+    MaxUnitNameDistance                     = 27,
+    MaxNameplateDistance                    = 28,
+    UserAddonsDisabled                      = 29,
+    UserScriptsDisabled                     = 30,
+    NonPlayerNameplateScale                 = 31,
+    ForcedPartyFrameScale                   = 32,
+    CustomActionbarOverlayHeightOffset      = 33,
+    ForcedChatLanguage                      = 34,
+    LandingPageFactionID                    = 35,
+    CollectionsPanelDisabled                = 36,
+    CharacterPanelDisabled                  = 37,
+    SpellbookPanelDisabled                  = 38,
+    TalentsPanelDisabled                    = 39,
+    AchievementsPanelDisabled               = 40,
+    CommunitiesPanelDisabled                = 41,
+    EncounterJournalDisabled                = 42,
+    FinderPanelDisabled                     = 43,
+    StoreDisabled                           = 44,
+    HelpPanelDisabled                       = 45,
+    GuildsDisabled                          = 46,
+    QuestLogMicrobuttonDisabled             = 47,
+    MapPlunderstormCircle                   = 48,
+    AfterDeathSpectatingUI                  = 49,
+    FrontEndChat                            = 50,
+    UniversalNameplateOcclusion             = 51,
+    FastAreaTriggerTick                     = 52,
+    AllPlayersAreFastMovers                 = 53,
+    IgnoreChrclassDisabledFlag              = 54,
+    CharacterCreateUseFixedBackgroundModel  = 55,
+    ForceAlteredFormsOn                     = 56,
+    PlayerNameplateDifficultyIcon           = 57,
+    PlayerNameplateAlternateHealthColor     = 58,
+    AlwaysAllowAlliedRaces                  = 59,
+    ActionbarIconIntroDisabled              = 60,
+    ReleaseSpiritGhostDisabled              = 61,
+    DeleteItemConfirmationDisabled          = 62,
+    ChatLinkLevelToastsDisabled             = 63,
+    BagsUIDisabled                          = 64,
+    PetBattlesDisabled                      = 65,
+    PerksProgramActivityTrackingDisabled    = 66,
+    MaximizeWorldMapDisabled                = 67,
+    WorldMapTrackingOptionsDisabled         = 68,
+    WorldMapTrackingPinDisabled             = 69,
+    WorldMapHelpPlateDisabled               = 70,
+    QuestLogPanelDisabled                   = 71,
+    QuestLogSuperTrackingDisabled           = 72,
+    TutorialFrameDisabled                   = 73,
+    IngameMailNotificationDisabled          = 74,
+    IngameCalendarDisabled                  = 75,
+    IngameTrackingDisabled                  = 76,
+    IngameWhoListDisabled                   = 77,
+    RaceAlteredFormsDisabled                = 78,
+    IngameFriendsListDisabled               = 79,
+    MacrosDisabled                          = 80,
+    CompactRaidFrameManagerDisabled         = 81,
+    EditModeDisabled                        = 82,
+    InstanceDifficultyBannerDisabled        = 83,
+    FullCharacterCreateDisabled             = 84,
+    TargetFrameBuffsDisabled                = 85,
+    UnitFramePvPContextualDisabled          = 86,
+    BlockWhileSheathedAllowed               = 88,
+    VanillaAccountMailInstant               = 91,
+    ClearMailOnRealmTransfer                = 92,
+    PremadeGroupFinderStyle                 = 93,
+    PlunderstormAreaSelection               = 94,
+    GroupFinderCapabilities                 = 98,
+    WorldMapLegendDisabled                  = 99,
+    WorldMapFrameStrata                     = 100,
+    MerchantFilterDisabled                  = 101,
+    SummoningStones                         = 108,
+    TransmogEnabled                         = 109,
+    MailGameRule                            = 132,
+    LootMethodStyle                         = 157,
+};
 
 enum class GlobalCurve : int32
 {
@@ -2046,7 +2147,7 @@ enum class PowerTypeFlags : int16
     ContinueRegenWhileFatigued    = 0x0200, // NYI
     RegenAffectedByHaste          = 0x0400, // NYI
     SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxOnInitialLogIn        = 0x2000, // NYI
+    SetToMaxOnInitialLogIn        = 0x2000,
     AllowCostModsForPlayers       = 0x4000  // NYI
 };
 
@@ -2186,7 +2287,8 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_SPEC          = 4,
     SPELL_PPM_MOD_RACE          = 5,
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
-    SPELL_PPM_MOD_BATTLEGROUND  = 7
+    SPELL_PPM_MOD_BATTLEGROUND  = 7,
+    SPELL_PPM_MOD_AURA          = 8
 };
 
 constexpr std::size_t MAX_POWERS_PER_SPELL = 5;

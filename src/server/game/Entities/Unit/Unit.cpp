@@ -5499,6 +5499,23 @@ void Unit::RemoveAllAreaTriggers(AreaTriggerRemoveReason reason /*= AreaTriggerR
     }
 }
 
+void Unit::EnterAreaTrigger(AreaTrigger* areaTrigger)
+{
+    m_insideAreaTriggers.push_back(areaTrigger);
+}
+
+void Unit::ExitAreaTrigger(AreaTrigger* areaTrigger)
+{
+    std::erase(m_insideAreaTriggers, areaTrigger);
+}
+
+void Unit::ExitAllAreaTriggers()
+{
+    AreaTriggerList atList = std::move(m_insideAreaTriggers);
+    for (AreaTrigger* at : atList)
+        at->HandleUnitExit(this);
+}
+
 void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage const* log)
 {
     WorldPackets::CombatLog::SpellNonMeleeDamageLog packet;
@@ -10083,6 +10100,7 @@ void Unit::RemoveFromWorld()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         RemoveAllAreaTriggers(AreaTriggerRemoveReason::UnitDespawn);
+        ExitAllAreaTriggers(); // exit all areatriggers the unit is in
 
         ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
@@ -11483,22 +11501,19 @@ void Unit::SetStunned(bool apply)
     }
 }
 
-void Unit::SetRooted(bool apply, bool packetOnly /*= false*/)
+void Unit::SetRooted(bool apply)
 {
-    if (!packetOnly)
+    if (apply)
     {
-        if (apply)
-        {
-            // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
-            // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
-            // setting MOVEMENTFLAG_ROOT
-            RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
-            AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            StopMoving();
-        }
-        else
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        // MOVEMENTFLAG_ROOT cannot be used in conjunction with MOVEMENTFLAG_MASK_MOVING (tested 3.3.5a)
+        // this will freeze clients. That's why we remove MOVEMENTFLAG_MASK_MOVING before
+        // setting MOVEMENTFLAG_ROOT
+        RemoveUnitMovementFlag(MOVEMENTFLAG_MASK_MOVING);
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        StopMoving();
     }
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
     static OpcodeServer const rootOpcodeTable[2][2] =
     {
