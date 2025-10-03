@@ -42,14 +42,15 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
 (@ENTRY, 0, 0, 1, 63, 0, 100, 0, 0, 0, 0, 0, 0, 85, 79192, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Cast spell 79192 on self', ''),
-(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Set walk', ''),
-(@ENTRY, 0, 2, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -9841.68, 1400.04, 37.1295, 0, 'On just created - Self: Move to position (-9841.68, 1400.04, 37.1295, 0)', ''),
-(@ENTRY, 0, 3, 0, 8, 0, 100, 0, 79273, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79273 hit - Self: Despawn instantly', ''),
-(@ENTRY, 0, 4, 5, 8, 0, 100, 0, 79279, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Talk 0 to invoker', ''),
-(@ENTRY, 0, 5, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 128, 610, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Plays Anim with ID 610', ''),
-(@ENTRY, 0, 6, 0, 8, 0, 100, 0, 79283, 0, 0, 0, 0, 80, 4251500, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79283 hit - Self: Start timed action list id #Shadowy Figure #0 (4251500) (update out of combat)', ''),
-(@ENTRY, 0, 7, 0, 8, 0, 100, 0, 79284, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79284 hit - Self: Talk 3 to invoker', ''),
-(@ENTRY, 0, 8, 0, 8, 0, 100, 0, 79287, 0, 0, 0, 0, 80, 4251501, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79287 hit - Self: Start timed action list id #Shadowy Figure #1 (4251501) (update out of combat)', '');
+(@ENTRY, 0, 1, 2, 61, 0, 100, 0, 0, 0, 0, 0, 0, 146, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Set uninteractable', ''),
+(@ENTRY, 0, 2, 3, 61, 0, 100, 0, 0, 0, 0, 0, 0, 59, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On just created - Self: Set walk', ''),
+(@ENTRY, 0, 3, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 69, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, -9841.68, 1400.04, 37.1295, 0, 'On just created - Self: Move to position (-9841.68, 1400.04, 37.1295, 0)', ''),
+(@ENTRY, 0, 4, 0, 8, 0, 100, 0, 79273, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79273 hit - Self: Despawn instantly', ''),
+(@ENTRY, 0, 5, 6, 8, 0, 100, 0, 79279, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Talk 0 to invoker', ''),
+(@ENTRY, 0, 6, 0, 61, 0, 100, 0, 0, 0, 0, 0, 0, 128, 610, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79279 hit - Self: Plays Anim with ID 610', ''),
+(@ENTRY, 0, 7, 0, 8, 0, 100, 0, 79283, 0, 0, 0, 0, 80, 4251500, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79283 hit - Self: Start timed action list id #Shadowy Figure #0 (4251500) (update out of combat)', ''),
+(@ENTRY, 0, 8, 0, 8, 0, 100, 0, 79284, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79284 hit - Self: Talk 3 to invoker', ''),
+(@ENTRY, 0, 9, 0, 8, 0, 100, 0, 79287, 0, 0, 0, 0, 80, 4251501, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On spell  79287 hit - Self: Start timed action list id #Shadowy Figure #1 (4251501) (update out of combat)', '');
 
 -- TimedActionList  4251500 SAI
 SET @ENTRY := 4251500;
