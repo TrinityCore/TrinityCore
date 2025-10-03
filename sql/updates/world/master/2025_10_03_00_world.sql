@@ -1,8 +1,7 @@
-SET @ATSPAWNID := 100000;
-SET @ATPROPERTIESID := 100000;
-SET @ATPROPERTIESID2 := 200000;
-SET @ATID := 100000;
-SET @CGUID := 10000000000000;
+SET @ATSPAWNID := 266;
+SET @ATPROPERTIESID := 163;
+SET @ATID := 169;
+SET @CGUID := 10006844;
 
 -- Creature
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=2722, `VerifiedBuild`=57388 WHERE (`Entry`=216619 AND `DifficultyID`=0); -- 216619 (Orator Krix'vizk) - CanSwim
@@ -33,11 +32,10 @@ DELETE FROM `areatrigger_template_actions` WHERE `AreaTriggerId`=35803 AND `IsCu
 INSERT INTO `areatrigger_template_actions` (`AreaTriggerId`, `IsCustom`, `ActionType`, `ActionParam`, `TargetType`) VALUES
 (35803, 0, 0, 449122, 0);
 
-DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (31997, 32026) OR (`IsCustom`=1 AND `Id` = @ATPROPERTIESID2+0));
+DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (31997, 32026));
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (32026, 0, 34764, 0, 2, 0, 0, 0, 0, -1, 0, 82, NULL, 6000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_orator_krix_vizk_lingering_influence', 58238), -- Spell: 434923 (Lingering Influence)
-(31997, 0, 34738, 0, 4, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 5, 10, 10, 80, 80, 30, 30, 10, 10, 'at_orator_krix_vizk_chains_of_oppression', 58238), -- Spell: 434691 (Chains of Oppression)
-(@ATPROPERTIESID2+0, 1, 35433, 0, 16, 0, 0, 0, 0, -1, 0, 601, 443437, 30000, 12, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_orator_krix_vizk_doubt', 58238); -- SpellForVisuals: 443437 (Shadows of Doubt)
+(31997, 0, 34738, 0, 4, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 5, 10, 10, 80, 80, 30, 30, 10, 10, 'at_orator_krix_vizk_chains_of_oppression', 58238); -- Spell: 434691 (Chains of Oppression)
 
 DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @ATID+0 AND @ATID+1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
@@ -50,10 +48,11 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 (@ATSPAWNID+1, @ATPROPERTIESID+1, 1, 2669, '1,2,8,23', -1790.64, -1026.74, -1243.88, 1.247988, 0, 0, 0, 'at_orator_conversation_intro_2', 'City of Threads - Orator Krixvizk Conversation 2', 56647),
 (@ATSPAWNID+2, @ATPROPERTIESID+0, 1, 2669, '1,2,8,23', -1826.44, -1082.34, -1244.16, 1.094052, 0, 0, 0, 'at_orator_conversation_intro_3', 'City of Threads - Orator Krixvizk Conversation 3', 56647);
 
-DELETE FROM `areatrigger_create_properties` WHERE `Id` BETWEEN @ATPROPERTIESID+0 AND @ATPROPERTIESID+1;
+DELETE FROM `areatrigger_create_properties` WHERE `Id` BETWEEN @ATPROPERTIESID+0 AND @ATPROPERTIESID+2;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
 (@ATPROPERTIESID+0, 1, @ATID+0, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 10, 50, 5, 10, 50, 5, 0, 0, '', 0),
-(@ATPROPERTIESID+1, 1, @ATID+1, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 50, 50, 0, 0, 0, 0, 0, 0, '', 0);
+(@ATPROPERTIESID+1, 1, @ATID+1, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 50, 50, 0, 0, 0, 0, 0, 0, '', 0),
+(@ATPROPERTIESID+2, 1, 35433, 0, 16, 0, 0, 0, 0, -1, 0, 601, 443437, 30000, 12, 0, 1, 1, 0, 0, 0, 0, 0, 0, 'at_orator_krix_vizk_doubt', 58238); -- SpellForVisuals: 443437 (Shadows of Doubt)
 
 -- Jumpcharge Parameters
 DELETE FROM `jump_charge_params` WHERE `id`=959;

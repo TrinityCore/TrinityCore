@@ -324,7 +324,7 @@ class spell_orator_krix_vizk_chains_of_oppression_periodic : public AuraScript
 class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
 {
     static constexpr uint8 MAX_SHADOW_OF_DOUBTS = 5;
-    static constexpr uint32 AT_CREATE_PROPERTIES = 200000; // ToDo: Change Id
+    static constexpr uint32 AT_CREATE_PROPERTIES = 165;
 
     bool Validate(SpellInfo const* /*spell*/) override
     {
@@ -344,7 +344,6 @@ class spell_orator_krix_vizk_shadows_of_doubt_periodic : public AuraScript
                     Unit* target = GetTarget();
                     float angle = target->GetOrientation() + float(M_PI) / 5.0f + i * float(M_PI) / 2.5f;
                     Position dest(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), angle);
-                    AreaTrigger::CreateAreaTrigger({ AT_CREATE_PROPERTIES, true }, dest, -1, caster, target);
                 }
             }
         }
@@ -400,10 +399,14 @@ struct at_orator_krix_vizk_chains_of_oppression : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_CHAINS_OF_OPPRESSION_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsPlayer())
             return;
@@ -423,10 +426,14 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        at->GetCaster()->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_LINGERING_INFLUENCE_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (!unit->IsPlayer())
             return;
@@ -450,7 +457,7 @@ struct at_orator_krix_vizk_lingering_influence : AreaTriggerAI
 // ID - xxxx
 struct at_orator_krix_vizk_doubt : AreaTriggerAI
 {
-    using AreaTriggerAI::AreaTriggerAI;
+    explicit at_orator_krix_vizk_doubt(AreaTrigger* areaTrigger) : AreaTriggerAI(areaTrigger), _canHitOrigin(false) {}
 
     void OnInitialize() override
     {
@@ -461,6 +468,17 @@ struct at_orator_krix_vizk_doubt : AreaTriggerAI
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), true);
 
         at->InitSplines(path.GetPath());
+
+        _canHitOrigin = false;
+        _scheduler.Schedule(1s, [this](TaskContext /*task*/)
+        {
+            _canHitOrigin = true;
+        });
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
     }
 
     void OnDestinationReached() override
@@ -473,12 +491,19 @@ struct at_orator_krix_vizk_doubt : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
+        if (!_canHitOrigin && unit == at->GetTarget())
+            return;
+
         Unit* caster = at->GetCaster();
         if (!caster)
             return;
 
         caster->CastSpell(unit, SPELL_DOUBT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
+
+private:
+    TaskScheduler _scheduler;
+    bool _canHitOrigin;
 };
 
 void AddSC_boss_orator_krix_vizk()
