@@ -178,7 +178,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), 1.0f);
 
-    if (caster && spellInfo)
+    if (caster)
     {
         if (Player const* modOwner = caster->GetSpellModOwner())
         {
