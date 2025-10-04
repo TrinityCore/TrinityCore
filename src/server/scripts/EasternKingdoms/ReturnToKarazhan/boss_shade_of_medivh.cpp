@@ -390,12 +390,15 @@ struct boss_shade_of_medivh : public BossAI
 
     uint32 GetData(uint32 id) const override
     {
-        return _castInfernoBoltNext;
+        if (id == DATA_INFERNO_BOLT_NEXT)
+            return _castInfernoBoltNext;
+        return 0;
     }
 
     void SetData(uint32 id, uint32 value) override
     {
-        _castInfernoBoltNext = value;
+        if (id == DATA_INFERNO_BOLT_NEXT)
+            _castInfernoBoltNext = value;
     }
 
 private:
