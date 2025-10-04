@@ -66,6 +66,9 @@ void AddSC_battleground_deephaul_ravine();
 void AddSC_arena_blades_edge_legion();
 
 void AddSC_arena_mugambala();
+void AddSC_arena_the_robodrome();
+
+void AddSC_arena_maldraxxus_coliseum();
 
 void AddSC_arena_cage_of_carnage();
 
@@ -120,6 +123,9 @@ void AddBattlegroundsScripts()
     AddSC_arena_blades_edge_legion();
 
     AddSC_arena_mugambala();
+    AddSC_arena_the_robodrome();
+
+    AddSC_arena_maldraxxus_coliseum();
 
     AddSC_arena_cage_of_carnage();
 }
