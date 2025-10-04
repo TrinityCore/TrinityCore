@@ -22,7 +22,7 @@
 #include "GridMap.h"
 #include "Log.h"
 #include "Memory.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "PhasingHandler.h"
 #include "Random.h"
 #include "ScriptMgr.h"
@@ -39,7 +39,7 @@ TerrainInfo::TerrainInfo(uint32 mapId) : _mapId(mapId), _parentTerrain(nullptr),
 TerrainInfo::~TerrainInfo()
 {
     VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId());
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId());
+    MMAP::MMapManager::instance()->unloadMap(GetId());
 }
 
 char const* TerrainInfo::GetMapName() const
@@ -185,7 +185,7 @@ void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
 
 void TerrainInfo::LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
 {
-    MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), _mapId, mapId, instanceId);
+    MMAP::MMapManager::instance()->loadMapInstance(sWorld->GetDataPath(), _mapId, mapId, instanceId);
 }
 
 void TerrainInfo::LoadMap(int32 gx, int32 gy)
@@ -239,12 +239,21 @@ void TerrainInfo::LoadMMap(int32 gx, int32 gy)
     if (!DisableMgr::IsPathfindingEnabled(GetId()))
         return;
 
-    bool mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy);
-
-    if (mmapLoadResult)
-        TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
-    else
-        TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
+    switch (MMAP::LoadResult mmapLoadResult = MMAP::MMapManager::instance()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy))
+    {
+        case MMAP::LoadResult::Success:
+            TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+        case MMAP::LoadResult::AlreadyLoaded:
+            break;
+        case MMAP::LoadResult::FileNotFound:
+            if (_parentTerrain)
+                break; // don't log tile not found errors for child maps
+            [[fallthrough]];
+        default:
+            TC_LOG_WARN("mmaps.tiles", "Could not load MMAP name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{}) result: {}", GetMapName(), GetId(), gx, gy, gx, gy, AsUnderlyingType(mmapLoadResult));
+            break;
+    }
 }
 
 void TerrainInfo::UnloadMap(int32 gx, int32 gy)
@@ -265,7 +274,7 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
 {
     _gridMap[gx][gy] = nullptr;
     VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
+    MMAP::MMapManager::instance()->unloadMap(GetId(), gx, gy);
 
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->UnloadMapImpl(gx, gy);
@@ -275,7 +284,7 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
 
 void TerrainInfo::UnloadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
 {
-    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(_mapId, mapId, instanceId);
+    MMAP::MMapManager::instance()->unloadMapInstance(_mapId, mapId, instanceId);
 }
 
 GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing /*= true*/)
