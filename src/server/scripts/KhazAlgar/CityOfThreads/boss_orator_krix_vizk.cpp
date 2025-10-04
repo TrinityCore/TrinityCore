@@ -20,7 +20,7 @@
 #include "CellImpl.h"
 #include "Conversation.h"
 #include "Creature.h"
-#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "PathGenerator.h"
