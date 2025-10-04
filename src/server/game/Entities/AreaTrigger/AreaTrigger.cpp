@@ -894,6 +894,14 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     DoActions(unit);
 
     _ai->OnUnitEnter(unit);
+
+    // OnUnitEnter script can despawn this areatrigger
+    if (!IsInWorld())
+        return;
+
+    // Register areatrigger in Unit after actions/scripts to allow them to determine
+    // if the unit is in one or more areatriggers with the same id
+    // without forcing every script to have additional logic excluding this areatrigger
     unit->EnterAreaTrigger(this);
 }
 
