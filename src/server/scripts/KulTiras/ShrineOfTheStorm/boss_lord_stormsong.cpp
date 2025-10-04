@@ -433,7 +433,7 @@ class spell_lord_stormsong_ancient_mindbender : public SpellScript
     void HandleHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* target = GetHitUnit();
-        GetHitUnit()->SummonCreature(NPC_ANCIENT_MINDBENDER, GetHitUnit()->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
+        target->SummonCreature(NPC_ANCIENT_MINDBENDER, target->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
         target->CastSpell(target, SPELL_SURRENDER_TO_THE_VOID, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
@@ -464,7 +464,7 @@ class spell_lord_stormsong_ancient_mindbender_aura : public AuraScript
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_lord_stormsong_ancient_mindbender_aura::AfterRemove, EFFECT_2, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_lord_stormsong_ancient_mindbender_aura::AfterRemove, EFFECT_2, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
