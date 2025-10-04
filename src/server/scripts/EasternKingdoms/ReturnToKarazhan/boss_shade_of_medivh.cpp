@@ -388,12 +388,12 @@ struct boss_shade_of_medivh : public BossAI
         }
     }
 
-    uint32 GetData(uint32 id) const
+    uint32 GetData(uint32 id) const override
     {
         return _castInfernoBoltNext;
     }
 
-    void SetData(uint32 id, uint32 value)
+    void SetData(uint32 id, uint32 value) override
     {
         _castInfernoBoltNext = value;
     }
