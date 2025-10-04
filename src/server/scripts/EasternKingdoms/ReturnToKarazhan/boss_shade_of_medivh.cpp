@@ -196,7 +196,6 @@ struct boss_shade_of_medivh : public BossAI
             case ACTION_DISSOLVE:
             {
                 DoCastSelf(SPELL_DISSOLVE);
-                me->SetPower(POWER_MANA, 0);
                 me->RemoveAurasDueToSpell(SPELL_MANA_REGEN);
                 me->AttackStop();
                 me->SetUninteractible(true);
@@ -208,6 +207,7 @@ struct boss_shade_of_medivh : public BossAI
             case ACTION_FINISH_SPLIT:
             {
                 _triggeredSplit = false;
+                _guardiansImageDefeatedCount = 0;
                 me->RemoveAurasDueToSpell(SPELL_REFORM_VISUAL_STATE_1);
                 me->RemoveAurasDueToSpell(SPELL_REFORM_VISUAL_STATE_2);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_UPDATE_PRIORITY, me, 1);
@@ -318,7 +318,7 @@ struct boss_shade_of_medivh : public BossAI
         BossAI::JustEngagedWith(who);
 
         DoCastSelf(SPELL_VO_CONTROLLER);
-        DoCastSelf(SPELL_MANA_REGEN);
+        DoCastSelf(SPELL_MANA_REGEN, TRIGGERED_FULL_MASK);
 
         scheduler.CancelAll();
 
@@ -485,6 +485,14 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
         Unit* target = creatureCaster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true);
         uint32 spellId = RAND(SPELL_INFERNO_BOLT_MARKER, SPELL_PIERCING_MISSILES, SPELL_FROSTBITE);
 
+        if (_castInfernoBoltNext)
+        {
+            spellId = SPELL_INFERNO_BOLT_MARKER;
+            _castInfernoBoltNext = false;
+        }
+        else if (spellId == SPELL_FROSTBITE)
+            _castInfernoBoltNext = true;
+
         creatureCaster->CastSpell(target, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
@@ -495,6 +503,9 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
     {
         OnHit += SpellHitFn(spell_shade_of_medivh_basic_primer::HandleHit);
     }
+
+private:
+    bool _castInfernoBoltNext;
 };
 
 // 228237 - Signature Primer
@@ -518,9 +529,15 @@ class spell_shade_of_medivh_signature_primer : public SpellScript
         });
     }
 
+    void HandleAfterCast() const
+    {
+        GetCaster()->SetPower(POWER_MANA, 0);
+    }
+
     void Register() override
     {
         OnHit += SpellHitFn(spell_shade_of_medivh_signature_primer::HandleHit);
+        AfterCast += SpellCastFn(spell_heartsbane_triad_dire_ritual::HandleAfterCast);
     }
 };
 
@@ -600,8 +617,11 @@ class spell_shade_of_medivh_ceaseless_winter_periodic : public AuraScript
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
-        if (GetTarget()->isMoving())
+        Unit* target = GetTarget();
+        if (target->isMoving())
             GetTarget()->RemoveAuraFromStack(SPELL_CEASELESS_WINTER_DAMAGE);
+        else
+            target->CastSpell(target, SPELL_CEASELESS_WINTER_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -723,39 +743,18 @@ struct at_shade_of_medivh_ceaseless_winter : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
-    void OnCreate(Spell const* /*creatingSpell*/) override
-    {
-        _scheduler.Schedule(1s, [this](TaskContext task)
-        {
-            for (ObjectGuid const& guid : at->GetInsideUnits())
-            {
-                Unit* unit = ObjectAccessor::GetUnit(*at, guid);
-                if (!unit)
-                    continue;
-
-                unit->CastSpell(unit, SPELL_CEASELESS_WINTER_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-            }
-            task.Repeat(1s);
-        });
-    }
-
-    void OnUpdate(uint32 diff) override
-    {
-        _scheduler.Update(diff);
-    }
-
     void OnUnitEnter(Unit* unit) override
     {
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(unit, SPELL_CEASELESS_WINTER_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         unit->CastSpell(unit, SPELL_CEASELESS_WINTER_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit) override
     {
         unit->RemoveAurasDueToSpell(SPELL_CEASELESS_WINTER_DAMAGE);
+        unit->RemoveAurasDueToSpell(SPELL_CEASELESS_WINTER_PERIODIC);
     }
 
 private:
@@ -813,6 +812,9 @@ struct at_shade_of_medivh_flame_wreath : AreaTriggerAI
     {
         Unit* caster = at->GetCaster();
         if (!caster)
+            return;
+
+        if (!unit->IsPlayer())
             return;
 
         if (unit->HasAura(SPELL_FLAME_WREATH_PERIODIC_DAMAGE))
