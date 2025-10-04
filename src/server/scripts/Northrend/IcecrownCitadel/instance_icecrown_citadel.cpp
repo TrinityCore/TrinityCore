@@ -1015,18 +1015,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void SetGuidData(uint32 type, ObjectGuid guid) override
+            void SetData64(uint32 type, uint64 data) override
             {
                 switch (type)
                 {
                     case DATA_SINDRAGOSA_FROSTWYRMS:
-                        FrostwyrmGUIDs.insert(guid.GetCounter());
+                        FrostwyrmGUIDs.insert(data);
                         break;
                     case DATA_SPINESTALKER:
-                        SpinestalkerTrash.insert(guid.GetCounter());
+                        SpinestalkerTrash.insert(data);
                         break;
                     case DATA_RIMEFANG:
-                        RimefangTrash.insert(guid.GetCounter());
+                        RimefangTrash.insert(data);
+                        break;
+                    default:
                         break;
                 }
             }
