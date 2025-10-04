@@ -476,7 +476,7 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
         return ValidateSpellInfo({ SPELL_INFERNO_BOLT_MARKER, SPELL_PIERCING_MISSILES, SPELL_FROSTBITE });
     }
 
-    void HandleHit() const
+    void HandleHit()
     {
         Creature* creatureCaster = GetCaster()->ToCreature();
         if (!creatureCaster)
@@ -537,7 +537,7 @@ class spell_shade_of_medivh_signature_primer : public SpellScript
     void Register() override
     {
         OnHit += SpellHitFn(spell_shade_of_medivh_signature_primer::HandleHit);
-        AfterCast += SpellCastFn(spell_heartsbane_triad_dire_ritual::HandleAfterCast);
+        AfterCast += SpellCastFn(spell_shade_of_medivh_signature_primer::HandleAfterCast);
     }
 };
 
@@ -751,7 +751,7 @@ struct at_shade_of_medivh_ceaseless_winter : AreaTriggerAI
         unit->CastSpell(unit, SPELL_CEASELESS_WINTER_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_CEASELESS_WINTER_DAMAGE);
         unit->RemoveAurasDueToSpell(SPELL_CEASELESS_WINTER_PERIODIC);
@@ -767,7 +767,7 @@ struct at_shade_of_medivh_ceaseless_winter_jump_check : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAuraFromStack(SPELL_CEASELESS_WINTER_DAMAGE);
     }
@@ -808,7 +808,7 @@ struct at_shade_of_medivh_flame_wreath : AreaTriggerAI
 
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         Unit* caster = at->GetCaster();
         if (!caster)
