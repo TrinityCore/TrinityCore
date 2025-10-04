@@ -3366,6 +3366,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_ON_SPELL_CAST:
         case SMART_EVENT_ON_SPELL_FAILED:
         case SMART_EVENT_ON_SPELL_START:
+        case SMART_EVENT_ON_AURA_APPLIED:
+        case SMART_EVENT_ON_AURA_REMOVED:
         {
             if (!spell)
                 return;

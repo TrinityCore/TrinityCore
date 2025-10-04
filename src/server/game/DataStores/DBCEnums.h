@@ -189,7 +189,7 @@ enum class AreaTriggerActionSetFlag : uint32
     SuppressConditionError          = 0x0040, // NYI
     NotTriggeredbyCaster            = 0x0080,
     CreatorsPartyOnly               = 0x0100,
-    DontRunOnLeaveWhenExpiring      = 0x0200, /*NYI*/
+    DontRunOnLeaveWhenExpiring      = 0x0200,
     CanAffectUninteractible         = 0x0400,
     DontDespawnWithCreator          = 0x0800,
     CanAffectBeastmaster            = 0x1000, // Can affect GMs
@@ -2147,7 +2147,7 @@ enum class PowerTypeFlags : int16
     ContinueRegenWhileFatigued    = 0x0200, // NYI
     RegenAffectedByHaste          = 0x0400, // NYI
     SetToMaxOnLevelUp             = 0x1000,
-    SetToMaxOnInitialLogIn        = 0x2000, // NYI
+    SetToMaxOnInitialLogIn        = 0x2000,
     AllowCostModsForPlayers       = 0x4000  // NYI
 };
 
@@ -2287,7 +2287,8 @@ enum SpellProcsPerMinuteModType
     SPELL_PPM_MOD_SPEC          = 4,
     SPELL_PPM_MOD_RACE          = 5,
     SPELL_PPM_MOD_ITEM_LEVEL    = 6,
-    SPELL_PPM_MOD_BATTLEGROUND  = 7
+    SPELL_PPM_MOD_BATTLEGROUND  = 7,
+    SPELL_PPM_MOD_AURA          = 8
 };
 
 constexpr std::size_t MAX_POWERS_PER_SPELL = 5;

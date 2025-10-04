@@ -1396,7 +1396,7 @@ struct at_dk_death_and_decay : AreaTriggerAI
             unit->CastSpell(unit, SPELL_DK_SANGUINE_GROUND);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         if (unit->GetGUID() != at->GetCasterGuid())
             return;

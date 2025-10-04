@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -1592,6 +1593,19 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+    }
+
+    if (apply)
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraApplied(aurApp);
+    }
+    else
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraRemoved(aurApp);
     }
 }
 

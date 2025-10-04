@@ -664,7 +664,7 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
                                     {
                                         battleground->UpdatePvpStat(player, PVP_STAT_GATES_DESTROYED, 1);
                                         if (rewardHonor)
-                                            battleground->UpdatePlayerScore(player, SCORE_BONUS_HONOR, battleground->GetBonusHonorFromKill(1));
+                                            battleground->UpdatePlayerScore(player, SCORE_BONUS_HONOR, battleground->GetBonusHonorFromKill(1), true, HonorGainSource::TeamContribution);
                                     }
                                 }
                             }

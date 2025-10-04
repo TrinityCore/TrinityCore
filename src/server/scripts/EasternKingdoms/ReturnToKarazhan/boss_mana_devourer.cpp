@@ -358,7 +358,7 @@ struct at_mana_devourer_energy_void : AreaTriggerAI
         at->SetOverrideScaleCurve(points);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_ENERGY_VOID_DAMAGE);
 

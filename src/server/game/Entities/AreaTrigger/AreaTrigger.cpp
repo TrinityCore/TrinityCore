@@ -96,7 +96,7 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-        HandleUnitEnterExit({});
+        HandleUnitEnterExit({}, AreaTriggerExitReason::ByExpire);
 
         WorldObject::RemoveFromWorld();
 
@@ -178,7 +178,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), 1.0f);
 
-    if (caster)
+    if (caster && spellInfo)
     {
         if (Player const* modOwner = caster->GetSpellModOwner())
         {
@@ -850,7 +850,7 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
     });
 }
 
-void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
+void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitReason exitMode)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
 
@@ -870,7 +870,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
-            HandleUnitExitInternal(leavingUnit);
+            HandleUnitExitInternal(leavingUnit, exitMode);
 
     UpdateHasPlayersFlag();
 
@@ -894,25 +894,40 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     DoActions(unit);
 
     _ai->OnUnitEnter(unit);
+
+    // OnUnitEnter script can despawn this areatrigger
+    if (!IsInWorld())
+        return;
+
+    // Register areatrigger in Unit after actions/scripts to allow them to determine
+    // if the unit is in one or more areatriggers with the same id
+    // without forcing every script to have additional logic excluding this areatrigger
     unit->EnterAreaTrigger(this);
 }
 
-void AreaTrigger::HandleUnitExitInternal(Unit* unit)
+void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode)
 {
+    bool canTriggerOnExit = exitMode != AreaTriggerExitReason::ByExpire || !HasActionSetFlag(AreaTriggerActionSetFlag::DontRunOnLeaveWhenExpiring);
+
     if (Player* player = unit->ToPlayer())
     {
         if (player->isDebugAreaTriggers)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
-        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+        if (canTriggerOnExit)
+        {
+            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
 
-        if (GetTemplate()->ActionSetId)
-            player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+            if (GetTemplate()->ActionSetId)
+                player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+        }
     }
 
     UndoActions(unit);
 
-    _ai->OnUnitExit(unit);
+    if (canTriggerOnExit)
+        _ai->OnUnitExit(unit, exitMode);
+
     unit->ExitAreaTrigger(this);
 }
 

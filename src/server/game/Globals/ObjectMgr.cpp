@@ -6089,6 +6089,7 @@ void ObjectMgr::LoadSpellScriptNames()
                 TC_LOG_ERROR("sql.sql", "Scriptname: `{}` spell (Id: {}) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
+
             while (spellInfo)
             {
                 _spellScriptsStore.insert(SpellScriptsContainer::value_type(spellInfo->Id, std::make_pair(GetScriptId(scriptName), true)));
@@ -7125,7 +7126,7 @@ Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iter
     return std::make_pair(_worldSafeLocs.begin(), _worldSafeLocs.end());
 }
 
-AreaTriggerStruct const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
+AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
     AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
     if (itr != _areaTriggerStore.end())
@@ -7215,21 +7216,6 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         uint32 Trigger_ID = fields[0].GetUInt32();
         uint32 PortLocID  = fields[1].GetUInt32();
 
-        WorldSafeLocsEntry const* portLoc = GetWorldSafeLoc(PortLocID);
-        if (!portLoc)
-        {
-            TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) has a non-existing Port Loc (ID: {}) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
-            continue;
-        }
-
-        AreaTriggerStruct at;
-
-        at.target_mapId       = portLoc->Loc.GetMapId();
-        at.target_X           = portLoc->Loc.GetPositionX();
-        at.target_Y           = portLoc->Loc.GetPositionY();
-        at.target_Z           = portLoc->Loc.GetPositionZ();
-        at.target_Orientation = portLoc->Loc.GetOrientation();
-
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
         {
@@ -7237,7 +7223,20 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             continue;
         }
 
-        _areaTriggerStore[Trigger_ID] = at;
+        WorldSafeLocsEntry const* portLoc = GetWorldSafeLoc(PortLocID);
+        if (!portLoc)
+        {
+            TC_LOG_ERROR("sql.sql", "Area Trigger (ID: {}) has a non-existing Port Loc (ID: {}) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
+            continue;
+        }
+
+        AreaTriggerTeleport& at = _areaTriggerStore[Trigger_ID];
+
+        at.target_mapId       = portLoc->Loc.GetMapId();
+        at.target_X           = portLoc->Loc.GetPositionX();
+        at.target_Y           = portLoc->Loc.GetPositionY();
+        at.target_Z           = portLoc->Loc.GetPositionZ();
+        at.target_Orientation = portLoc->Loc.GetOrientation();
 
     } while (result->NextRow());
 
@@ -7371,7 +7370,7 @@ void ObjectMgr::LoadAccessRequirements()
 /*
  * Searches for the areatrigger which teleports players out of the given map with instance_template.parent field support
  */
-AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
+AreaTriggerTeleport const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     Optional<uint32> parentId;
     MapEntry const* mapEntry = sMapStore.LookupEntry(Map);
@@ -7398,7 +7397,7 @@ AreaTriggerStruct const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 /**
  * Searches for the areatrigger which teleports players to the given map
  */
-AreaTriggerStruct const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
+AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {

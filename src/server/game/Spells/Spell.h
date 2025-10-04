@@ -31,6 +31,7 @@
 #include "Types.h"
 #include "UniqueTrackablePtr.h"
 #include <memory>
+#include <typeinfo>
 
 namespace WorldPackets::Spells
 {
@@ -920,6 +921,8 @@ class TC_GAME_API Spell
         void CallScriptCalcCritChanceHandlers(Unit const* victim, float& chance);
         void CallScriptCalcDamageHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& damage, int32& flatMod, float& pctMod);
         void CallScriptCalcHealingHandlers(SpellEffectInfo const& spellEffectInfo, Unit* victim, int32& healing, int32& flatMod, float& pctMod);
+        template <class Script>
+        Script* GetScript() const { return static_cast<Script*>(GetScriptByType(typeid(Script))); }
     protected:
         void CallScriptObjectAreaTargetSelectHandlers(std::list<WorldObject*>& targets, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
         void CallScriptObjectTargetSelectHandlers(WorldObject*& target, SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
@@ -927,6 +930,7 @@ class TC_GAME_API Spell
         void CallScriptEmpowerStageCompletedHandlers(int32 completedStagesCount);
         void CallScriptEmpowerCompletedHandlers(int32 completedStagesCount);
         bool CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToCheck);
+        SpellScript* GetScriptByType(std::type_info const& type) const;
         std::vector<SpellScript*> m_loadedScripts;
 
         struct HitTriggerSpell
