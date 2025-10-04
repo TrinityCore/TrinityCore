@@ -1,4 +1,4 @@
-SET @AREATRIGGERID := 44444;
+SET @AREATRIGGERID := 172;
 
 -- Creature
 UPDATE `creature_template` SET `ScriptName`='boss_shade_of_medivh' WHERE `entry`=114350;

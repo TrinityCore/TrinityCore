@@ -98,6 +98,11 @@ enum ShadeOfMedivhActions
     ACTION_START_VISUALS
 };
 
+enum ShadeOfMedivhDatas
+{
+    DATA_INFERNO_BOLT_NEXT = 0,
+};
+
 enum ShadeOfMedivhVisuals
 {
     SPELLVISUAL_ARCANE_MISSILE = 51100
@@ -132,7 +137,7 @@ static constexpr Position MedivhVisualSpellsPositions[14] =
 // 114350 - Shade of Medivh
 struct boss_shade_of_medivh : public BossAI
 {
-    boss_shade_of_medivh(Creature* creature) : BossAI(creature, DATA_SHADE_OF_MEDIVH), _triggeredSplit(false), _guardiansImageDefeatedCount(0) { }
+    boss_shade_of_medivh(Creature* creature) : BossAI(creature, DATA_SHADE_OF_MEDIVH), _triggeredSplit(false), _castInfernoBoltNext(0), _guardiansImageDefeatedCount(0) { }
 
     void JustAppeared() override
     {
@@ -144,12 +149,14 @@ struct boss_shade_of_medivh : public BossAI
         scheduler.Schedule(2s, [this](TaskContext task)
         {
             static constexpr uint8 VisualCount = 5;
-            std::vector<Position> medivhVisualSpellsPositions(std::begin(MedivhVisualSpellsPositions), std::end(MedivhVisualSpellsPositions));
-            Trinity::Containers::RandomResize(medivhVisualSpellsPositions, VisualCount);
+            static constexpr float TravelSpeed = 8.0f;
+
+            std::vector<Position> positions(std::begin(MedivhVisualSpellsPositions), std::end(MedivhVisualSpellsPositions));
+            Trinity::Containers::RandomShuffle(positions);
+
             for (uint8 i = 0; i < VisualCount; i++)
             {
-                float travelSpeed = 8.0f;
-                me->SendPlaySpellVisual(medivhVisualSpellsPositions[i], SPELLVISUAL_ARCANE_MISSILE, 0, 0, travelSpeed);
+                me->SendPlaySpellVisual(positions[i], SPELLVISUAL_ARCANE_MISSILE, 0, 0, TravelSpeed);
             }
             task.Repeat(1200ms);
         });
@@ -186,6 +193,7 @@ struct boss_shade_of_medivh : public BossAI
     {
         events.Reset();
         _triggeredSplit = false;
+        _castInfernoBoltNext = 0;
         _guardiansImageDefeatedCount = 0;
     }
 
@@ -380,8 +388,19 @@ struct boss_shade_of_medivh : public BossAI
         }
     }
 
+    uint32 GetData(uint32 id) const
+    {
+        return _castInfernoBoltNext;
+    }
+
+    void SetData(uint32 id, uint32 value)
+    {
+        _castInfernoBoltNext = value;
+    }
+
 private:
     bool _triggeredSplit;
+    uint8 _castInfernoBoltNext;
     uint8 _guardiansImageDefeatedCount;
 };
 
@@ -485,13 +504,13 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
         Unit* target = creatureCaster->AI()->SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true);
         uint32 spellId = RAND(SPELL_INFERNO_BOLT_MARKER, SPELL_PIERCING_MISSILES, SPELL_FROSTBITE);
 
-        if (_castInfernoBoltNext)
+        if (creatureCaster->AI()->GetData(DATA_INFERNO_BOLT_NEXT) == 1)
         {
             spellId = SPELL_INFERNO_BOLT_MARKER;
-            _castInfernoBoltNext = false;
+            creatureCaster->AI()->SetData(DATA_INFERNO_BOLT_NEXT, 0);
         }
         else if (spellId == SPELL_FROSTBITE)
-            _castInfernoBoltNext = true;
+            creatureCaster->AI()->SetData(DATA_INFERNO_BOLT_NEXT, 1);
 
         creatureCaster->CastSpell(target, spellId, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
@@ -503,9 +522,6 @@ class spell_shade_of_medivh_basic_primer : public SpellScript
     {
         OnHit += SpellHitFn(spell_shade_of_medivh_basic_primer::HandleHit);
     }
-
-private:
-    bool _castInfernoBoltNext;
 };
 
 // 228237 - Signature Primer
