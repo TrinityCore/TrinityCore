@@ -70,6 +70,8 @@ void AddSC_arena_the_robodrome();
 
 void AddSC_arena_maldraxxus_coliseum();
 
+void AddSC_arena_cage_of_carnage();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
@@ -124,4 +126,6 @@ void AddBattlegroundsScripts()
     AddSC_arena_the_robodrome();
 
     AddSC_arena_maldraxxus_coliseum();
+
+    AddSC_arena_cage_of_carnage();
 }
