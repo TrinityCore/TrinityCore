@@ -21,3 +21,7 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `creature_text` WHERE `CreatureID` = 10503;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (10503,0,0,"%s loosens her grasp on the journal she had been clutching.",16,0,100,0,0,0,11408,0,"Jandice Barov");
+
+UPDATE `waypoint_data` SET `move_type` = 1 WHERE `id` = 105061;
+
+UPDATE `creature_template` SET `unit_flags` = 832, `flags_extra` = `flags_extra`|512 WHERE `entry` = 10506;
