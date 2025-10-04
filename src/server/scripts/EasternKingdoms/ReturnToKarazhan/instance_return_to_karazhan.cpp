@@ -22,7 +22,8 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_MAIDEN_OF_VIRTUE_RTK, new CircleBoundary(Position(-10945.900391f, -2103.530029f, 92.794197f), 55.0f) }
+    { DATA_MAIDEN_OF_VIRTUE_RTK, new CircleBoundary(Position(-10945.900391f, -2103.530029f, 92.794197f), 55.0f) },
+    { DATA_SHADE_OF_MEDIVH, new CircleBoundary(Position(-4599.149902f, -2517.947266f, 2876.506836f), 35.0f) },
 };
 
 ObjectData const creatureData[] =
@@ -35,8 +36,10 @@ ObjectData const creatureData[] =
 
 DoorData const doorData[] =
 {
-    { GO_STRANGE_WALL, DATA_THE_CURATOR_RTK, EncounterDoorBehavior::OpenWhenDone          },
-    { 0,               0,                    EncounterDoorBehavior::OpenWhenNotInProgress }
+    { GO_STRANGE_WALL,        DATA_THE_CURATOR_RTK, EncounterDoorBehavior::OpenWhenDone          },
+    { GO_SUSPICIOUS_BOOKCASE, DATA_SHADE_OF_MEDIVH, EncounterDoorBehavior::OpenWhenDone          },
+    { GO_MEDIVH_DOOR,         DATA_SHADE_OF_MEDIVH, EncounterDoorBehavior::OpenWhenNotInProgress },
+    { 0,                      0,                    EncounterDoorBehavior::OpenWhenNotInProgress }
 };
 
 DungeonEncounterData const encounters[] =
