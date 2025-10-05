@@ -1677,7 +1677,13 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             return false;
 
-        return gemProto->GetItemLimitCategory() == limitCategory;
+        BonusData gemBonus;
+        gemBonus.Initialize(gemProto);
+
+        for (uint16 bonusListID : gemData.BonusListIDs)
+            gemBonus.AddBonusList(bonusListID);
+
+        return gemBonus.LimitCategory == limitCategory;
     }));
 }
 
@@ -2339,7 +2345,13 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     uint32 itemLevelBeforeUpgrades = itemLevel;
 
     if (pvpBonus)
+    {
+        if (bonusData.PvpItemLevel)
+            itemLevel = bonusData.PvpItemLevel;
+
+        itemLevel += bonusData.PvpItemLevelBonus;
         itemLevel += sDB2Manager.GetPvpItemLevelBonus(itemTemplate->GetId());
+    }
 
     if (itemTemplate->GetInventoryType() != INVTYPE_NON_EQUIP)
     {
@@ -2919,12 +2931,17 @@ void BonusData::Initialize(ItemTemplate const* proto)
     Suffix = 0;
     RequiredLevelCurve = 0;
 
+    PvpItemLevel = 0;
+    PvpItemLevelBonus = 0;
+
     EffectCount = 0;
     for (ItemEffectEntry const* itemEffect : proto->Effects)
         Effects[EffectCount++] = itemEffect;
 
     for (std::size_t i = EffectCount; i < Effects.size(); ++i)
         Effects[i] = nullptr;
+
+    LimitCategory = proto->GetItemLimitCategory();
 
     CanDisenchant = !proto->HasFlag(ITEM_FLAG_NO_DISENCHANT);
     CanScrap = proto->HasFlag(ITEM_FLAG4_SCRAPABLE);
@@ -2935,7 +2952,10 @@ void BonusData::Initialize(ItemTemplate const* proto)
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
     _state.AzeriteTierUnlockSetPriority = std::numeric_limits<int32>::max();
     _state.RequiredLevelCurvePriority = std::numeric_limits<int32>::max();
+    _state.PvpItemLevelPriority = std::numeric_limits<int32>::max();
+    _state.BondingPriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
+    _state.HasItemLimitCategory = false;
 }
 
 void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
@@ -3070,6 +3090,30 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                 _state.RequiredLevelCurvePriority = values[2];
                 if (values[1])
                     ContentTuningId = static_cast<uint32>(values[1]);
+            }
+            break;
+        case ITEM_BONUS_ITEM_LIMIT_CATEGORY:
+            if (!_state.HasItemLimitCategory)
+            {
+                LimitCategory = values[0];
+                _state.HasItemLimitCategory = true;
+            }
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT:
+            PvpItemLevelBonus += values[0];
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_BASE:
+            if (values[1] < _state.PvpItemLevelPriority)
+            {
+                PvpItemLevel = values[0];
+                _state.PvpItemLevelPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_BONDING_WITH_PRIORITY:
+            if (values[1] < _state.BondingPriority)
+            {
+                Bonding = static_cast<ItemBondingType>(values[0]);
+                _state.BondingPriority = values[1];
             }
             break;
     }
