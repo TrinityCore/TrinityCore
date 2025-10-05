@@ -4968,7 +4968,7 @@ void SpellMgr::LoadSpellInfoCorrections()
     });
 
     // Conversation
-    ApplySpellFix({ 274668, 274669 }, [](SpellInfo* spellInfo)
+    ApplySpellFix({ 274668, 274669, 274622, 274640, 274641, 274674, 274675 }, [](SpellInfo* spellInfo)
     {
         ApplySpellEffectFix(spellInfo, EFFECT_0, [](SpellEffectInfo* spellEffectInfo)
         {

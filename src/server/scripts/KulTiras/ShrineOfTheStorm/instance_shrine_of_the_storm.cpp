@@ -23,17 +23,20 @@
 static BossBoundaryData const boundaries =
 {
     { DATA_AQUSIRR, new ZRangeBoundary(119.89f, 132.9f) },
-    { DATA_TIDESAGE_COUNCIL, new CircleBoundary({ 3939.6357f, -1007.4829f, 109.2227f }, 60.0f)}
+    { DATA_TIDESAGE_COUNCIL, new CircleBoundary({ 3939.6357f, -1007.4829f, 109.2227f }, 60.0f) },
+    { DATA_LORD_STORMSONG, new ZRangeBoundary(146.85f, 157.03f) }
 };
 
 ObjectData const creatureData[] =
 {
-    { BOSS_AQUSIRR,               DATA_AQUSIRR               },
-    { BOSS_BROTHER_IRONHULL,      DATA_BROTHER_IRONHULL      },
-    { BOSS_GALECALLER_FAYE,       DATA_GALECALLER_FAYE       },
-    { BOSS_LORD_STORMSONG,        DATA_LORD_STORMSONG        },
-    { BOSS_VOLZITH_THE_WHISPERER, DATA_VOLZITH_THE_WHISPERER },
-    { 0,                          0                          }  // END
+    { BOSS_AQUSIRR,                    DATA_AQUSIRR                     },
+    { BOSS_BROTHER_IRONHULL,           DATA_BROTHER_IRONHULL            },
+    { BOSS_GALECALLER_FAYE,            DATA_GALECALLER_FAYE             },
+    { BOSS_LORD_STORMSONG,             DATA_LORD_STORMSONG              },
+    { BOSS_VOLZITH_THE_WHISPERER,      DATA_VOLZITH_THE_WHISPERER       },
+    { NPC_LORD_STORMSONG_BROTHER_PIKE, DATA_LORD_STORMSONG_BROTHER_PIKE },
+    { NPC_LORD_STORMSONG_REXXAR,       DATA_LORD_STORMSONG_REXXAR       },
+    { 0,                               0                                }  // END
 };
 
 DungeonEncounterData const encounters[] =
@@ -58,7 +61,36 @@ public:
             LoadBossBoundaries(boundaries);
             LoadObjectData(creatureData, nullptr);
             LoadDungeonEncounterData(encounters);
+
+            _lordStormsongIntroState = NOT_STARTED;
         }
+
+        uint32 GetData(uint32 dataId) const override
+        {
+            switch (dataId)
+            {
+                case DATA_LORD_STORMSONG_INTRO:
+                    return _lordStormsongIntroState;
+                default:
+                    break;
+            }
+            return 0;
+        }
+
+        void SetData(uint32 dataId, uint32 value) override
+        {
+            switch (dataId)
+            {
+                case DATA_LORD_STORMSONG_INTRO:
+                    _lordStormsongIntroState = value;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    private:
+        uint8 _lordStormsongIntroState;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
