@@ -1216,8 +1216,11 @@ enum ItemBonusType
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
     ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34,
     ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
+    ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT         = 36,
     ITEM_BONUS_ITEM_CONVERSION                  = 37,
     ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
+    ITEM_BONUS_PVP_ITEM_LEVEL_BASE              = 43,
+    ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
 };
 
 enum class ItemCollectionType : uint8
