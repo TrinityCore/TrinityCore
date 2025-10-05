@@ -1035,9 +1035,13 @@ void Player::Update(uint32 p_time)
                         if (getAttackTimer(OFF_ATTACK) < ATTACK_DISPLAY_DELAY)
                             setAttackTimer(OFF_ATTACK, ATTACK_DISPLAY_DELAY);
 
+                    if (IsValidAttackTarget(victim))
+                    {
+                    m_swingErrorMsg = 0;                    // reset swing error state
                     // do attack
                     AttackerStateUpdate(victim, BASE_ATTACK);
                     resetAttackTimer(BASE_ATTACK);
+                    }
                 }
             }
 
@@ -1053,9 +1057,12 @@ void Player::Update(uint32 p_time)
                     if (getAttackTimer(BASE_ATTACK) < ATTACK_DISPLAY_DELAY)
                         setAttackTimer(BASE_ATTACK, ATTACK_DISPLAY_DELAY);
 
+                    if (IsValidAttackTarget(victim))
+                    {
                     // do attack
                     AttackerStateUpdate(victim, OFF_ATTACK);
                     resetAttackTimer(OFF_ATTACK);
+                    }
                 }
             }
 
