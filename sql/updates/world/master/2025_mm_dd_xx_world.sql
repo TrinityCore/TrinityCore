@@ -16,6 +16,24 @@ DELETE FROM `battleground_template` WHERE `ID` = 1088;
 INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, `StartMaxDist`, `Weight`, `Comment`) VALUES
 (1088, @WORLD_SAFE_LOC_ID+0, @WORLD_SAFE_LOC_ID+1, 0, 1, 'Nokhudon Proving Grounds');
 
+DELETE FROM `conversation_actors` WHERE (`Idx`=0 AND `ConversationId` IN (20101,20102));
+INSERT INTO `conversation_actors` (`ConversationId`, `ConversationActorId`, `ConversationActorGuid`, `Idx`, `CreatureId`, `CreatureDisplayInfoId`, `NoActorObject`, `ActivePlayerObject`, `VerifiedBuild`) VALUES
+(20101, 88583, @CGUID+25, 0, 0, 0, 0, 0, 63305), -- Full: 0x2042394060C00F80002F720000582878 Creature/0 R4238/S12146 Map: 2563 (Nokhudon Proving Grounds) Entry: 196670 (Malicia) Low: 5777528
+(20102, 88583, @CGUID+25, 0, 0, 0, 0, 0, 63305); -- Full: 0x2042394060C00F80002F720000582878 Creature/0 R4238/S12146 Map: 2563 (Nokhudon Proving Grounds) Entry: 196670 (Malicia) Low: 5777528
+
+DELETE FROM `conversation_line_template` WHERE `Id` IN (51743, 51744, 21375, 21374, 21373);
+INSERT INTO `conversation_line_template` (`Id`, `UiCameraID`, `ActorIdx`, `Flags`, `ChatType`, `VerifiedBuild`) VALUES
+(51743, 0, 0, 0, 0, 63305),
+(51744, 0, 0, 0, 0, 63305),
+(21375, 0, 0, 0, 0, 63305),
+(21374, 0, 0, 0, 0, 63305),
+(21373, 0, 0, 0, 0, 63305);
+
+DELETE FROM `conversation_template` WHERE `Id` IN (20101, 20102);
+INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
+(20101, 51743, 0, 63305),
+(20102, 51744, 0, 63305);
+
 DELETE FROM `gameobject_template_addon` WHERE `entry`=379282;
 INSERT INTO `gameobject_template_addon` (`entry`, `faction`, `flags`, `WorldEffectID`, `AIAnimKitID`) VALUES
 (379282, 1375, 0x20, 0, 0); -- Arena Door

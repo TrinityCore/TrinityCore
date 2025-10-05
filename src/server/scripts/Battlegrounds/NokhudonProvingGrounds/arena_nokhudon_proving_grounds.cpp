@@ -17,6 +17,7 @@
 
 #include "Battleground.h"
 #include "BattlegroundScript.h"
+#include "Containers.h"
 #include "Conversation.h"
 #include "Creature.h"
 #include "CreatureAI.h"
@@ -54,6 +55,7 @@ namespace NokhudonProvingGrounds
     namespace Spells
     {
         static constexpr uint32 ArenaLowHealthCooldownAura = 234031;
+        static constexpr uint32 NokhudonProvingGroundsVOCooldownAuraPlayerDeath = 391325;
         static constexpr uint32 NokhudonProvingGroundsVOCooldownAura = 388904;
         static constexpr uint32 NokhudonProvingGroundsReactionTrigger = 388970;
     }
@@ -70,7 +72,7 @@ namespace NokhudonProvingGrounds
 
     namespace Conversations
     {
-        static constexpr uint32 ReactionKill = 20102;
+        static constexpr std::array<uint32, 2> ReactionKill = { 20101, 20102 };
     }
 }
 
@@ -155,12 +157,13 @@ struct arena_nokhudon_proving_grounds : ArenaScript
 
         if (Creature* creature = battlegroundMap->GetCreature(_maliciaGUID))
         {
-            if (creature->HasAura(NokhudonProvingGrounds::Spells::NokhudonProvingGroundsVOCooldownAura))
+            if (creature->HasAura(NokhudonProvingGrounds::Spells::NokhudonProvingGroundsVOCooldownAuraPlayerDeath))
                 return;
 
-            Conversation::CreateConversation(NokhudonProvingGrounds::Conversations::ReactionKill, creature, creature->GetPosition(), creature->GetGUID());
+            uint32 conversationId = Trinity::Containers::SelectRandomContainerElement(NokhudonProvingGrounds::Conversations::ReactionKill);
+            Conversation::CreateConversation(conversationId, creature, creature->GetPosition(), ObjectGuid::Empty);
 
-            creature->CastSpell(nullptr, NokhudonProvingGrounds::Spells::NokhudonProvingGroundsVOCooldownAura, CastSpellExtraArgsInit{
+            creature->CastSpell(nullptr, NokhudonProvingGrounds::Spells::NokhudonProvingGroundsVOCooldownAuraPlayerDeath, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
             });
         }
