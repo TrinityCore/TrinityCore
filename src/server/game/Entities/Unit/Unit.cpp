@@ -12762,6 +12762,15 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     };
     GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_VEHICLE_EXIT, MOTION_PRIORITY_HIGHEST);
 
+    // Ensure the player's camera is set correctly when exiting a vehicle
+    if (Player* player = ToPlayer())
+    {
+        // Force update of the player's position and orientation to avoid viewpoint errors
+        WorldPackets::Movement::MoveUpdate moveUpdatePacket;
+        moveUpdatePacket.Status = &m_movementInfo;
+        player->SendDirectMessage(moveUpdatePacket.Write());
+    }
+
     if (player)
         player->ResummonPetTemporaryUnSummonedIfAny();
 
