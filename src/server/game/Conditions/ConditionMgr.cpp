@@ -292,7 +292,25 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         case CONDITION_AURA:
         {
             if (Unit const* unit = object->ToUnit())
-                condMeets = unit->HasAuraEffect(ConditionValue1, ConditionValue2);
+            {
+                AuraEffect const* auraEffect = unit->GetAuraEffect(ConditionValue1, ConditionValue2);
+                if (auraEffect)
+                {
+                    if (ConditionValue3 != 0)
+                    {
+                        uint8 stackAmount = auraEffect->GetBase()->GetStackAmount();
+                        condMeets = (stackAmount >= uint32(ConditionValue3));
+                    }
+                    else
+                    {
+                        condMeets = true;
+                    }
+                }
+                else
+                {
+                    condMeets = false;
+                }
+            }
             break;
         }
         case CONDITION_ITEM:
