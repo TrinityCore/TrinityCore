@@ -11374,7 +11374,9 @@ Item* Player::StoreNewItem(ItemPosCountVec const& pos, uint32 itemId, bool updat
         UpdateCriteria(CriteriaType::ObtainAnyItem, itemId, count);
         UpdateCriteria(CriteriaType::AcquireItem, itemId, count);
 
-        if (allowedLooters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
+        if (allowedLooters.size() > 1 && item->IsSoulBound()
+            && (item->GetTemplate()->GetMaxStackSize() == 1 || item->GetTemplate()->HasFlag(ITEM_FLAG2_CAN_TRADE_BIND_ON_ACQUIRE))
+            && !item->GetBonus()->CannotTradeBindOnPickup)
         {
             item->SetSoulboundTradeable(allowedLooters);
             AddTradeableItem(item);

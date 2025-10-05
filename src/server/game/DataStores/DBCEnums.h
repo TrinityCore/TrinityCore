@@ -1206,20 +1206,28 @@ enum ItemBonusType
     ITEM_BONUS_RELIC_TYPE                       = 17,
     ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
     ITEM_BONUS_AZERITE_TIER_UNLOCK_SET          = 19,
-    ITEM_BONUS_SCRAPPING_LOOT_ID                = 20,
+    ITEM_BONUS_SCRAPPING_LOOT_ID                = 20, /*NYI*/
     ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
     ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22,
     ITEM_BONUS_ITEM_EFFECT_ID                   = 23,
-    ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25,
+    ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25, /*NYI*/
     ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
+    ITEM_BONUS_ICON_FILE_DATA_ID                = 28,
     ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
-    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34,
+    ITEM_BONUS_UPGRADE_SEQUENCE_VALUE           = 33, /*NYI*/
+    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34, /*NYI*/
     ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
     ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT         = 36,
-    ITEM_BONUS_ITEM_CONVERSION                  = 37,
-    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
+    ITEM_BONUS_ITEM_CONVERSION                  = 37, /*NYI*/
+    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38, /*NYI*/
+    ITEM_BONUS_OVERRIDE_CAN_SALVAGE             = 39,
+    ITEM_BONUS_OVERRIDE_CAN_RECRAFT             = 41,
+    ITEM_BONUS_ITEM_LEVEL_BASE                  = 42,
     ITEM_BONUS_PVP_ITEM_LEVEL_BASE              = 43,
+    ITEM_BONUS_COSMETIC_STAT                    = 44,
+    ITEM_BONUS_OVERRIDE_DESCRIPTION_COLOR       = 45,             // Overrides color of item description and upgrade track if TimeEvent from value[1] has passed
+    ITEM_BONUS_OVERRIDE_CANNOT_TRADE_BOP        = 46,
     ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
 };
 
