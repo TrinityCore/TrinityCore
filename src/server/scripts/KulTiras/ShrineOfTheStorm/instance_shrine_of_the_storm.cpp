@@ -24,7 +24,7 @@ static BossBoundaryData const boundaries =
 {
     { DATA_AQUSIRR, new ZRangeBoundary(119.89f, 132.9f) },
     { DATA_TIDESAGE_COUNCIL, new CircleBoundary({ 3939.6357f, -1007.4829f, 109.2227f }, 60.0f) },
-    { DATA_LORD_STORMSONG, new ZRangeBoundary(152.85f, 155.03f) }
+    { DATA_LORD_STORMSONG, new ZRangeBoundary(146.85f, 157.03f) }
 };
 
 ObjectData const creatureData[] =

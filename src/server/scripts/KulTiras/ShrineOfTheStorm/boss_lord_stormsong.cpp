@@ -87,8 +87,6 @@ enum LordStormsongMisc
     CONVO_ACTOR_BROTHER_PIKE    = 65078,
     CONVO_ACTOR_REXXAR          = 65085,
 
-    SEAT_PLAYER                 = 0,
-
     PATH_INTRO                  = 13997000,
     PATH_OUTRO                  = 13997001,
 
@@ -445,13 +443,13 @@ class spell_lord_stormsong_ancient_mindbender : public SpellScript
 
 class spell_lord_stormsong_ancient_mindbender_aura : public AuraScript
 {
-    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
         Vehicle* playerVehicle = GetTarget()->GetVehicleKit();
         if (!playerVehicle)
             return;
 
-        Unit* ancientMindbender = playerVehicle->GetPassenger(SEAT_PLAYER);
+        Unit* ancientMindbender = playerVehicle->GetPassenger(0);
         if (!ancientMindbender)
             return;
 
@@ -464,7 +462,7 @@ class spell_lord_stormsong_ancient_mindbender_aura : public AuraScript
 
     void Register() override
     {
-        OnEffectRemove += AuraEffectRemoveFn(spell_lord_stormsong_ancient_mindbender_aura::AfterRemove, EFFECT_2, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_lord_stormsong_ancient_mindbender_aura::OnRemove, EFFECT_2, SPELL_AURA_SET_VEHICLE_ID, AURA_EFFECT_HANDLE_REAL);
     }
 };
 

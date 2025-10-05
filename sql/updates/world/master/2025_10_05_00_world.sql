@@ -1,5 +1,6 @@
-SET @ATSPAWN := 500000;
-SET @ATPROP := 500000;
+SET @ATSPAWN := 271;
+SET @ATID := 174;
+SET @ATPROP := 167;
 
 -- Creature
 UPDATE `creature_template_addon` SET `auras`='160758' WHERE `entry`=134060; -- 134060 (Lord Stormsong) - Mod Scale 140%
@@ -43,11 +44,11 @@ INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom
 
 DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATPROP AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `SpeedIsTime`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATPROP, 1, @ATPROP, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 20, 10, 5, 20, 10, 5, 0, 0, '', 0);
+(@ATPROP, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 20, 10, 5, 20, 10, 5, 0, 0, '', 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id`=@ATPROP AND `IsCustom`=1;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
-(@ATPROP, 1, 1, 0, 0, 0);
+(@ATID, 1, 1, 0, 0, 0);
 
 -- Spells
 DELETE FROM `serverside_spell` WHERE `Id` = 269396;
