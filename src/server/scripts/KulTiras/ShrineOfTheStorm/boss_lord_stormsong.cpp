@@ -476,7 +476,11 @@ class spell_lord_stormsong_surrender_to_the_void : public SpellScript
 
     void HandleDummy(SpellEffIndex /* effIndex */) const
     {
-        GetHitUnit()->CastSpell(GetCaster(), uint32(GetEffectValue()), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetHitUnit()->m_Events.AddEvent([hitUnit = GetHitUnit(), casterGUID = GetCaster()->GetGUID(), spellId = GetEffectValue()]()
+        {
+            if (Unit* caster = ObjectAccessor::GetUnit(*hitUnit, casterGUID))
+                hitUnit->CastSpell(caster, uint32(spellId), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        }, 0ms);
     }
 
     void Register() override
