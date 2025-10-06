@@ -27,14 +27,14 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 SET @ENTRY := 4250000;
 DELETE FROM `smart_scripts` WHERE `source_type` = 9 AND `entryOrGuid` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
-(@ENTRY, 9, 0, 0, 0, 0, 100, 0, 9300, 9300, 0, 0, 0, 11, 79290, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 9.3 seconds - Self: Cast spell  79290 on Self', ''),
-(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 6500, 6500, 0, 0, 0, 11, 79279, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6.5 seconds - Self: Cast spell  79279 on Self', ''),
-(@ENTRY, 9, 2, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 0, 11, 79292, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 8 seconds - Self: Cast spell  79292 on Self', ''),
-(@ENTRY, 9, 3, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 11, 79283, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 4 seconds - Self: Cast spell  79283 on Self', ''),
-(@ENTRY, 9, 4, 0, 0, 0, 100, 0, 16000, 16000, 0, 0, 0, 11, 79294, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 16 seconds - Self: Cast spell  79294 on Self', ''),
-(@ENTRY, 9, 5, 0, 0, 0, 100, 0, 4100, 4100, 0, 0, 0, 11, 79284, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 4.1 seconds - Self: Cast spell  79284 on Self', ''),
-(@ENTRY, 9, 6, 0, 0, 0, 100, 0, 6400, 6400, 0, 0, 0, 11, 79297, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 6.4 seconds - Self: Cast spell  79297 on Self', ''),
-(@ENTRY, 9, 7, 0, 0, 0, 100, 0, 11400, 11400, 0, 0, 0, 11, 79287, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 11.4 seconds - Self: Cast spell  79287 on Self', '');
+(@ENTRY, 9, 0, 0, 0, 0, 100, 0, 9300, 9300, 0, 0, 0, 85, 79290, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 9.3 seconds - Self: Cast spell  79290 on Self', ''),
+(@ENTRY, 9, 1, 0, 0, 0, 100, 0, 6500, 6500, 0, 0, 0, 85, 79279, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 6.5 seconds - Self: Cast spell  79279 on Self', ''),
+(@ENTRY, 9, 2, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 0, 85, 79292, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 8 seconds - Self: Cast spell  79292 on Self', ''),
+(@ENTRY, 9, 3, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 0, 85, 79283, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 4 seconds - Self: Cast spell  79283 on Self', ''),
+(@ENTRY, 9, 4, 0, 0, 0, 100, 0, 16000, 16000, 0, 0, 0, 85, 79294, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 16 seconds - Self: Cast spell  79294 on Self', ''),
+(@ENTRY, 9, 5, 0, 0, 0, 100, 0, 4100, 4100, 0, 0, 0, 85, 79284, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 4.1 seconds - Self: Cast spell  79284 on Self', ''),
+(@ENTRY, 9, 6, 0, 0, 0, 100, 0, 6400, 6400, 0, 0, 0, 85, 79297, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 6.4 seconds - Self: Cast spell  79297 on Self', ''),
+(@ENTRY, 9, 7, 0, 0, 0, 100, 0, 11400, 11400, 0, 0, 0, 11, 79287, 0, 0, 0, 0, 0, 0, 23, 0, 0, 0, 0, 0, 0, 0, 'After 11.4 seconds - Self: Cast spell  79287 on Self', '');
 
 -- Creature Shadowy Figure 42515 SAI
 SET @ENTRY := 42515;
