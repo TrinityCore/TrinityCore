@@ -13,3 +13,30 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 DELETE FROM `creature_equip_template` WHERE `CreatureID` = 23954 AND `ID` = 2;
 UPDATE `creature_equip_template` SET `ItemID1` = 33177 WHERE `CreatureID` = 23954 AND `ID` = 1;
 UPDATE `creature` SET `equipment_id` = 1 WHERE `id` = 23954;
+
+-- Keleseth
+DELETE FROM `creature_summon_groups` WHERE `summonerId` = 23953 AND `summonerType` = 0;
+INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`entry`,`position_x`,`position_y`,`position_z`,`orientation`,`summonType`,`summonTime`,`Comment`) VALUES
+(23953,0,0,23970,153.91295,260.99866,42.953950,5.777040004730224609,8,0,"Prince Keleseth - Group 0 - Vrykul Skeleton"),
+(23953,0,0,23970,148.90604,260.21863,42.953945,5.899212837219238281,8,0,"Prince Keleseth - Group 0 - Vrykul Skeleton"),
+(23953,0,0,23970,147.77333,266.23520,42.953945,5.759586334228515625,8,0,"Prince Keleseth - Group 0 - Vrykul Skeleton"),
+(23953,0,0,23970,153.47198,266.16130,42.953945,5.619960308074951171,8,0,"Prince Keleseth - Group 0 - Vrykul Skeleton");
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 23953;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(23953,0,0,"Your blood is mine!",14,0,0,0,0,13221,22736,0,"Prince Keleseth - SAY_AGGRO"),
+(23953,1,0,"Not so fast.",14,0,0,0,0,13222,22734,0,"Prince Keleseth - SAY_FROST_TOMB"),
+(23953,2,0,"Darkness waits.",14,0,0,0,0,13223,29591,0,"Prince Keleseth - SAY_SLAY"),
+(23953,3,0,"Aranal, ledel! Their fate shall be yours!",14,0,0,0,0,13224,22729,0,"Prince Keleseth - SAY_SUMMON_SKELETONS"),
+(23953,4,0,"I join... the night.",14,0,0,0,0,13225,29592,0,"Prince Keleseth - SAY_DEATH"),
+(23953,5,0,"%s casts Frost Tomb on $n.",41,0,0,0,0,0,27152,0,"Prince Keleseth - EMOTE_FROST_TOMB");
+
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_keleseth_frost_tomb_channel' WHERE `ScriptName` = 'spell_frost_tomb';
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_keleseth_frost_tomb_periodic';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(42672, 'spell_keleseth_frost_tomb_periodic');
+
+DELETE FROM `creature_text` WHERE `CreatureID` = 23970;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(23970,0,0,"%s rises from the floor!",16,0,100,0,0,0,26607,0,"Vrykul Skeleton - EMOTE_RISES");
