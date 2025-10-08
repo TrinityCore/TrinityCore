@@ -81,11 +81,11 @@ UPDATE `creature_template` SET `faction`=35, `BaseAttackTime`=2000, `unit_flags`
 
 DELETE FROM `creature_text` WHERE `CreatureID` IN (188479);
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(188479, 0, 0, 'Mortals, I present a lucrative opportunity for those who prove themselves worthy of the task.', 12, 0, 100, 1, 0, 188957, 214980, 0, 'Zo\'sorg'),
-(188479, 1, 0, 'Many in the cartel are wagering on who are the greater combatants. Care to influence the outcome?', 12, 0, 100, 0, 0, 188958, 214991, 0, 'Zo\'sorg'),
-(188479, 2, 0, 'Do not let the cartel down, we expect a return on our investment.', 12, 0, 100, 0, 0, 188954, 214995, 0, 'Zo\'sorg'),
-(188479, 3, 0, 'Victory is clear, our bargain is upheld.', 12, 0, 100, 0, 0, 188955, 214998, 0, 'Zo\'sorg to Player'),
-(188479, 3, 1, 'No matter who wins, we profit.', 12, 0, 100, 0, 0, 188956, 215067, 0, 'Zo\'sorg to Player');
+(188479, 0, 0, 'Mortals, I present a lucrative opportunity for those who prove themselves worthy of the task.', 12, 0, 100, 1, 0, 188957, 214980, 3, 'Zo\'sorg'),
+(188479, 1, 0, 'Many in the cartel are wagering on who are the greater combatants. Care to influence the outcome?', 12, 0, 100, 0, 0, 188958, 214991, 3, 'Zo\'sorg'),
+(188479, 2, 0, 'Do not let the cartel down, we expect a return on our investment.', 12, 0, 100, 0, 0, 188954, 214995, 3, 'Zo\'sorg'),
+(188479, 3, 0, 'Victory is clear, our bargain is upheld.', 12, 0, 100, 0, 0, 188955, 214998, 3, 'Zo\'sorg to Player'),
+(188479, 3, 1, 'No matter who wins, we profit.', 12, 0, 100, 0, 0, 188956, 215067, 3, 'Zo\'sorg to Player');
 
 DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWN_GROUP+0 AND @SPAWN_GROUP+1;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
