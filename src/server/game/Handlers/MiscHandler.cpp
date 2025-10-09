@@ -594,7 +594,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPackets::AreaTrigger::AreaTrigge
     if (!packet.Entered)
         return;
 
-    AreaTriggerStruct const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
+    AreaTriggerTeleport const* at = sObjectMgr->GetAreaTrigger(packet.AreaTriggerID);
     if (!at)
         return;
 

@@ -25,6 +25,7 @@
 #include "SmartScript.h"
 #include "WaypointDefines.h"
 
+enum class AreaTriggerExitReason : uint8;
 enum class MovementStopReason : uint8;
 
 enum SmartEscortState : uint8
@@ -130,6 +131,12 @@ class TC_GAME_API SmartAI : public CreatureAI
 
         // Called when a spell starts
         void OnSpellStart(SpellInfo const* spellInfo) override;
+
+        // Called when aura is applied
+        void OnAuraApplied(AuraApplication const* aurApp) override;
+
+        // Called when aura is removed
+        void OnAuraRemoved(AuraApplication const* aurApp) override;
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* doneBy, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override;
@@ -341,7 +348,7 @@ public:
     void OnInitialize() override;
     void OnUpdate(uint32 diff) override;
     void OnUnitEnter(Unit* unit) override;
-    void OnUnitExit(Unit* unit) override;
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason reason) override;
 
     SmartScript* GetScript() { return &mScript; }
     void SetTimedActionList(SmartScriptHolder& e, uint32 entry, Unit* invoker);

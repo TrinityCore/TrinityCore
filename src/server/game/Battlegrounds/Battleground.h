@@ -19,7 +19,9 @@
 #define __BATTLEGROUND_H
 
 #include "DBCEnums.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
+#include "Optional.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "UniqueTrackablePtr.h"
@@ -42,6 +44,7 @@ struct BattlegroundScore;
 struct BattlegroundTemplate;
 struct PVPDifficultyEntry;
 struct WorldSafeLocsEntry;
+enum class HonorGainSource : uint8;
 
 namespace WorldPackets
 {
@@ -274,6 +277,7 @@ class TC_GAME_API Battleground
         BattlegroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
         uint32 GetElapsedTime() const       { return m_StartTime; }
+        Milliseconds GetInProgressDuration() const { return (m_Events & BG_STARTING_EVENT_4) ? Milliseconds(m_StartTime - StartDelayTimes[BG_STARTING_EVENT_FIRST]) : 0ms; }
         uint32 GetRemainingTime() const     { return m_EndTime; }
         uint32 GetMaxPlayers() const;
         uint32 GetMinPlayers() const;
@@ -376,7 +380,7 @@ class TC_GAME_API Battleground
 
         BattlegroundScore const* GetBattlegroundScore(Player* player) const;
 
-        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true);
+        bool UpdatePlayerScore(Player* player, uint32 type, uint32 value, bool doAddHonor = true, Optional<HonorGainSource> source = {});
         void UpdatePvpStat(Player* player, uint32 pvpStatId, uint32 value);
 
         static TeamId GetTeamIndexByTeamId(Team team) { return team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }

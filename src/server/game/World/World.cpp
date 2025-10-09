@@ -69,7 +69,7 @@
 #include "LootItemStorage.h"
 #include "LootMgr.h"
 #include "M2Stores.h"
-#include "MMapFactory.h"
+#include "MMapManager.h"
 #include "Map.h"
 #include "MapManager.h"
 #include "MapUtils.h"
@@ -188,7 +188,6 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
-    MMAP::MMapFactory::clear();
 
     /// @todo free addSessQueue
 }
@@ -1356,7 +1355,7 @@ bool World::SetInitialWorldSettings()
 
     vmmgr2->InitializeThreadUnsafe(mapData);
 
-    MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
+    MMAP::MMapManager* mmmgr = MMAP::MMapManager::instance();
     mmmgr->InitializeThreadUnsafe(mapData);
 
     ///- Initialize static helper structures
@@ -1610,6 +1609,9 @@ bool World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Quest Pooling Data...");
     sQuestPoolMgr->LoadFromDB();                                // must be after quest templates
 
+    TC_LOG_INFO("server.loading", "Loading World State templates...");
+    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP, game events and conditions
+
     TC_LOG_INFO("server.loading", "Loading Game Event Data...");               // must be after loading pools fully
     sGameEventMgr->LoadFromDB();
 
@@ -1841,9 +1843,6 @@ bool World::SetInitialWorldSettings()
 
     TC_LOG_INFO("server.loading", "Loading Creature Formations...");
     sFormationMgr->LoadCreatureFormations();
-
-    TC_LOG_INFO("server.loading", "Loading World State templates...");
-    sWorldStateMgr->LoadFromDB();                               // must be loaded before battleground, outdoor PvP and conditions
 
     TC_LOG_INFO("server.loading", "Loading Persistend World Variables...");
     LoadPersistentWorldVariables();
@@ -2400,6 +2399,7 @@ void World::Update(uint32 diff)
         CharacterDatabase.KeepAlive();
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
+        HotfixDatabase.KeepAlive();
     }
 
     if (m_timers[WUPDATE_GUILDSAVE].Passed())

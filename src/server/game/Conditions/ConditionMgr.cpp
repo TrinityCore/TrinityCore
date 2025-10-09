@@ -103,7 +103,7 @@ char const* const ConditionMgr::StaticSourceTypeData[CONDITION_SOURCE_TYPE_MAX_D
 ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[CONDITION_MAX] =
 {
     { .Name = "None",                      .HasConditionValue1 = false, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
-    { .Name = "Aura",                      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
+    { .Name = "Aura",                      .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "Item Stored",               .HasConditionValue1 =  true, .HasConditionValue2 =  true, .HasConditionValue3 =  true, .HasConditionStringValue1 = false },
     { .Name = "Item Equipped",             .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
     { .Name = "Zone",                      .HasConditionValue1 =  true, .HasConditionValue2 = false, .HasConditionValue3 = false, .HasConditionStringValue1 = false },
@@ -961,7 +961,7 @@ std::string Condition::ToString(bool ext /*= false*/) const
     return std::move(ss).str();
 }
 
-ConditionMgr::ConditionMgr() { }
+ConditionMgr::ConditionMgr() = default;
 
 ConditionMgr::~ConditionMgr()
 {
@@ -1336,7 +1336,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond.NegativeCondition         = fields[11].GetBool();
         cond.ErrorType                 = fields[12].GetUInt32();
         cond.ErrorTextId               = fields[13].GetUInt32();
-        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[14].GetString());
+        cond.ScriptId                  = sObjectMgr->GetScriptId(fields[14].GetStringView());
 
         if (iConditionTypeOrReference >= 0)
             cond.ConditionType = ConditionTypes(iConditionTypeOrReference);
@@ -2139,6 +2139,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond) const
 {
     switch (cond->ConditionType)
     {
+        case CONDITION_NONE:
+        {
+            if (!cond->ScriptId)
+            {
+                TC_LOG_ERROR("sql.sql", "{} must have a `ScriptName` in `condition` table, ignoring.", cond->ToString(true));
+                return false;
+            }
+            break;
+        }
         case CONDITION_AURA:
         {
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->ConditionValue1, DIFFICULTY_NONE);

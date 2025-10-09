@@ -39,6 +39,7 @@ EndScriptData */
 #include "GridNotifiersImpl.h"
 #include "InstanceScript.h"
 #include "Language.h"
+#include "LFG.h"
 #include "Log.h"
 #include "M2Stores.h"
 #include "MapManager.h"
@@ -856,9 +857,20 @@ public:
         return true;
     }
 
-    static bool HandleDebugArenaCommand(ChatHandler* /*handler*/)
+    static bool HandleDebugArenaCommand(ChatHandler* handler, uint32 battlemasterListId)
     {
-        sBattlegroundMgr->ToggleArenaTesting();
+        bool successful = sBattlegroundMgr->ToggleArenaTesting(battlemasterListId);
+        if (!successful)
+        {
+            handler->PSendSysMessage("BattlemasterListId %u does not exist or is not an arena.", battlemasterListId);
+            handler->SetSentErrorMessage(true);
+            return true;
+        }
+
+        if (!battlemasterListId || !handler || !handler->GetSession())
+            return true;
+
+        BattlegroundMgr::QueuePlayerForArena(handler->GetSession()->GetPlayer(), 0, lfg::PLAYER_ROLE_DAMAGE);
         return true;
     }
 

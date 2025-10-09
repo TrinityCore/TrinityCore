@@ -1077,7 +1077,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         HandleUnitEnterExit(unit);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
         HandleUnitEnterExit(unit);
@@ -2115,28 +2115,15 @@ class spell_pri_power_word_radiance : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        Unit* caster = GetCaster();
         Unit* explTarget = GetExplTargetUnit();
 
         // we must add one since explicit target is always chosen.
-        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(GetCaster()) + 1;
+        uint32 maxTargets = GetEffectInfo(EFFECT_2).CalcValue(caster) + 1;
 
-        if (targets.size() > maxTargets)
-        {
-            // priority is: a) no Atonement b) injured c) anything else (excluding explicit target which is always added).
-            targets.sort([this, explTarget](WorldObject* lhs, WorldObject* rhs)
-            {
-                if (lhs == explTarget) // explTarget > anything: always true
-                    return true;
-                if (rhs == explTarget) // anything > explTarget: always false
-                    return false;
+        Trinity::SortTargetsWithPriorityRules(targets, maxTargets, GetRadianceRules(caster, explTarget));
 
-                return MakeSortTuple(lhs) > MakeSortTuple(rhs);
-            });
-
-            targets.resize(maxTargets);
-        }
-
-        for (WorldObject* target : targets)
+        for (WorldObject const* target : targets)
         {
             if (target == explTarget)
                 continue;
@@ -2152,30 +2139,22 @@ class spell_pri_power_word_radiance : public SpellScript
                 GetHitUnit()->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE, 0, 0, 70.0f);
     }
 
+    static std::array<Trinity::TargetPriorityRule, 5> GetRadianceRules(Unit const* caster, Unit const* explTarget)
+    {
+        return
+        {
+            [explTarget](WorldObject const* target) { return target == explTarget; },
+            [caster](Unit const* target) { return !target->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()); },
+            [](Unit const* target) { return !target->IsFullHealth(); },
+            [](WorldObject const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); },
+            [caster](Unit const* target) { return target->IsInRaidWith(caster); }
+        };
+    }
+
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_power_word_radiance::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
         OnEffectHitTarget += SpellEffectFn(spell_pri_power_word_radiance::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-
-private:
-    std::tuple<bool, bool> MakeSortTuple(WorldObject* obj) const
-    {
-        return std::make_tuple(IsUnitWithNoAtonement(obj), IsUnitInjured(obj));
-    }
-
-    // Returns true if obj is a unit but has no atonement
-    bool IsUnitWithNoAtonement(WorldObject* obj) const
-    {
-        Unit* unit = obj->ToUnit();
-        return unit && !unit->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT, GetCaster()->GetGUID());
-    }
-
-    // Returns true if obj is a unit and is injured
-    static bool IsUnitInjured(WorldObject* obj)
-    {
-        Unit* unit = obj->ToUnit();
-        return unit && !unit->IsFullHealth();
     }
 
     std::vector<ObjectGuid> _visualTargets;

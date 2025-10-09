@@ -1421,12 +1421,10 @@ bool Item::HasEnchantRequiredSkill(Player const* player) const
 {
     // Check all enchants for required skill
     for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
         if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
             if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
                 if (enchantEntry->RequiredSkillID && player->GetSkillValue(enchantEntry->RequiredSkillID) < enchantEntry->RequiredSkillRank)
                     return false;
-    }
 
     return true;
 }
@@ -1590,7 +1588,7 @@ void Item::SetGem(uint16 slot, ItemDynamicFieldGems const* gem, uint32 gemScalin
                 for (uint16 bonusListId : gem->BonusListIDs)
                     gemBonus.AddBonusList(bonusListId);
 
-                uint32 gemBaseItemLevel = gemTemplate->GetBaseItemLevel();
+                uint32 gemBaseItemLevel = gemBonus.ItemLevel;
                 if (gemBonus.PlayerLevelToItemLevelCurveId)
                     if (uint32 scaledIlvl = uint32(sDB2Manager.GetCurveValueAt(gemBonus.PlayerLevelToItemLevelCurveId, gemScalingLevel)))
                         gemBaseItemLevel = scaledIlvl;
@@ -1679,7 +1677,13 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             return false;
 
-        return gemProto->GetItemLimitCategory() == limitCategory;
+        BonusData gemBonus;
+        gemBonus.Initialize(gemProto);
+
+        for (uint16 bonusListID : gemData.BonusListIDs)
+            gemBonus.AddBonusList(bonusListID);
+
+        return gemBonus.LimitCategory == limitCategory;
     }));
 }
 
@@ -2319,7 +2323,7 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     if (!itemTemplate)
         return MIN_ITEM_LEVEL;
 
-    uint32 itemLevel = itemTemplate->GetBaseItemLevel();
+    uint32 itemLevel = bonusData.ItemLevel;
     if (AzeriteLevelInfoEntry const* azeriteLevelInfo = sAzeriteLevelInfoStore.LookupEntry(azeriteLevel))
         itemLevel = azeriteLevelInfo->ItemLevel;
 
@@ -2341,7 +2345,13 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     uint32 itemLevelBeforeUpgrades = itemLevel;
 
     if (pvpBonus)
+    {
+        if (bonusData.PvpItemLevel)
+            itemLevel = bonusData.PvpItemLevel;
+
+        itemLevel += bonusData.PvpItemLevelBonus;
         itemLevel += sDB2Manager.GetPvpItemLevelBonus(itemTemplate->GetId());
+    }
 
     if (itemTemplate->GetInventoryType() != INVTYPE_NON_EQUIP)
     {
@@ -2887,6 +2897,7 @@ std::string Item::GetDebugInfo() const
 void BonusData::Initialize(ItemTemplate const* proto)
 {
     Quality = proto->GetQuality();
+    ItemLevel = proto->GetBaseItemLevel();
     ItemLevelBonus = 0;
     RequiredLevel = proto->GetBaseRequiredLevel();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
@@ -2921,6 +2932,9 @@ void BonusData::Initialize(ItemTemplate const* proto)
     Suffix = 0;
     RequiredLevelCurve = 0;
 
+    PvpItemLevel = 0;
+    PvpItemLevelBonus = 0;
+
     EffectCount = 0;
     for (ItemEffectEntry const* itemEffect : proto->Effects)
         Effects[EffectCount++] = itemEffect;
@@ -2928,8 +2942,13 @@ void BonusData::Initialize(ItemTemplate const* proto)
     for (std::size_t i = EffectCount; i < Effects.size(); ++i)
         Effects[i] = nullptr;
 
+    LimitCategory = proto->GetItemLimitCategory();
+
     CanDisenchant = !proto->HasFlag(ITEM_FLAG_NO_DISENCHANT);
     CanScrap = proto->HasFlag(ITEM_FLAG4_SCRAPABLE);
+    CanSalvage = !proto->HasFlag(ITEM_FLAG4_NO_SALVAGE);
+    CanRecraft = proto->HasFlag(ITEM_FLAG4_RECRAFTABLE);
+    CannotTradeBindOnPickup = proto->HasFlag(ITEM_FLAG2_NO_TRADE_BIND_ON_ACQUIRE);
 
     _state.SuffixPriority = std::numeric_limits<int32>::max();
     _state.AppearanceModPriority = std::numeric_limits<int32>::max();
@@ -2937,7 +2956,11 @@ void BonusData::Initialize(ItemTemplate const* proto)
     _state.ScalingStatDistributionPriority = std::numeric_limits<int32>::max();
     _state.AzeriteTierUnlockSetPriority = std::numeric_limits<int32>::max();
     _state.RequiredLevelCurvePriority = std::numeric_limits<int32>::max();
+    _state.ItemLevelPriority = std::numeric_limits<int32>::max();
+    _state.PvpItemLevelPriority = std::numeric_limits<int32>::max();
+    _state.BondingPriority = std::numeric_limits<int32>::max();
     _state.HasQualityBonus = false;
+    _state.HasItemLimitCategory = false;
 }
 
 void BonusData::Initialize(WorldPackets::Item::ItemInstance const& itemInstance)
@@ -3072,6 +3095,46 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
                 _state.RequiredLevelCurvePriority = values[2];
                 if (values[1])
                     ContentTuningId = static_cast<uint32>(values[1]);
+            }
+            break;
+        case ITEM_BONUS_ITEM_LIMIT_CATEGORY:
+            if (!_state.HasItemLimitCategory)
+            {
+                LimitCategory = values[0];
+                _state.HasItemLimitCategory = true;
+            }
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT:
+            PvpItemLevelBonus += values[0];
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_SALVAGE:
+            CanSalvage = values[0] != 0;
+            break;
+        case ITEM_BONUS_OVERRIDE_CAN_RECRAFT:
+            CanRecraft = values[0] != 0;
+            break;
+        case ITEM_BONUS_ITEM_LEVEL_BASE:
+            if (values[1] < _state.ItemLevelPriority)
+            {
+                ItemLevel = values[0];
+                _state.ItemLevelPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_PVP_ITEM_LEVEL_BASE:
+            if (values[1] < _state.PvpItemLevelPriority)
+            {
+                PvpItemLevel = values[0];
+                _state.PvpItemLevelPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_OVERRIDE_CANNOT_TRADE_BOP:
+            CannotTradeBindOnPickup = values[0] != 0;
+            break;
+        case ITEM_BONUS_BONDING_WITH_PRIORITY:
+            if (values[1] < _state.BondingPriority)
+            {
+                Bonding = static_cast<ItemBondingType>(values[0]);
+                _state.BondingPriority = values[1];
             }
             break;
     }

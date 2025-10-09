@@ -297,11 +297,6 @@ class spell_sha_ancestral_guidance : public AuraScript
 // 114911 - Ancestral Guidance Heal
 class spell_sha_ancestral_guidance_heal : public SpellScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_SHAMAN_ANCESTRAL_GUIDANCE });
-    }
-
     static void ResizeTargets(SpellScript const&, std::list<WorldObject*>& targets)
     {
         Trinity::SelectRandomInjuredTargets(targets, 3, true);
@@ -1762,17 +1757,40 @@ class spell_sha_lava_surge : public AuraScript
         return ValidateSpellInfo({ SPELL_SHAMAN_LAVA_SURGE, SPELL_SHAMAN_IGNEOUS_POTENTIAL });
     }
 
-    bool CheckProcChance(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    bool CheckProcChance(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
-        int32 procChance = aurEff->GetAmount();
+        Unit* caster = GetTarget();
+        float flameShocks = 0.0f;
+        auto work = [&, shaman = caster->GetGUID()](Unit const* target)
+        {
+            if (target->HasAuraEffect(SPELL_SHAMAN_FLAME_SHOCK, EFFECT_1, shaman))
+                flameShocks += 1.0f;
+        };
+        Trinity::UnitWorker worker(caster, work);
+        Cell::VisitAllObjects(caster, worker, 100.0f);
+
+        // Proc uptime is not supposed to scale with the number of applied flame shocks
+        _normalizedTicks += 1.0f / flameShocks;
+
+        // first 6 ticks after last proc fail to prevent overwriting
+        if (_normalizedTicks < 6.0f)
+            return false;
+
+        float procChance = aurEff->GetAmount();
         if (AuraEffect const* igneousPotential = GetTarget()->GetAuraEffect(SPELL_SHAMAN_IGNEOUS_POTENTIAL, EFFECT_0))
             procChance += igneousPotential->GetAmount();
 
-        return roll_chance_i(procChance);
+        float missChance = std::max(100 - procChance, 0.0f) / 100.0f;
+
+        procChance = (1.0f - std::pow(missChance, _normalizedTicks)) * 100.0f;
+
+        return roll_chance_f(procChance);
     }
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& /*eventInfo*/)
     {
+        _normalizedTicks = 0.0f;
+
         PreventDefaultAction();
         GetTarget()->CastSpell(GetTarget(), SPELL_SHAMAN_LAVA_SURGE, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_FULL_MASK });
     }
@@ -1782,6 +1800,8 @@ class spell_sha_lava_surge : public AuraScript
         DoCheckEffectProc += AuraCheckEffectProcFn(spell_sha_lava_surge::CheckProcChance, EFFECT_0, SPELL_AURA_DUMMY);
         OnEffectProc += AuraEffectProcFn(spell_sha_lava_surge::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+
+    float _normalizedTicks = 0.0f;
 };
 
 // 77762 - Lava Surge
@@ -3363,7 +3383,7 @@ struct areatrigger_sha_arctic_snowstorm : AreaTriggerAI
         }
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_SHAMAN_ARCTIC_SNOWSTORM_SLOW, at->GetCasterGuid());
     }

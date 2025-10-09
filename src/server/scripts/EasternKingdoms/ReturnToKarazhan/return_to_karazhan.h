@@ -43,12 +43,15 @@ enum RTKCreatureIds
 {
     // Bosses
     BOSS_MAIDEN_OF_VIRTUE_RTK = 113971,
-    BOSS_THE_CURATOR_RTK      = 114247
+    BOSS_THE_CURATOR_RTK      = 114247,
+    BOSS_MANA_DEVOURER        = 114252
 };
 
 enum RTKGameObjectsIds
 {
-    GO_STRANGE_WALL =  266508
+    GO_STRANGE_WALL        = 266508,
+    GO_SUSPICIOUS_BOOKCASE = 266510,
+    GO_MEDIVH_DOOR         = 266846
 };
 
 template <class AI, class T>

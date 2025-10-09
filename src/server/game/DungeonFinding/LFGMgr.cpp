@@ -187,7 +187,7 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
     return nullptr;
 }
 
-void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
+void LFGMgr::LoadLFGDungeons()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -231,7 +231,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         LFGDungeonContainer::iterator dungeonItr = LfgDungeonStore.find(dungeonId);
         if (dungeonItr == LfgDungeonStore.end())
         {
-            TC_LOG_ERROR("sql.sql", "table `lfg_entrances` contains coordinates for wrong dungeon {}", dungeonId);
+            TC_LOG_ERROR("sql.sql", "table `lfg_dungeon_template` contains coordinates for wrong dungeon {}", dungeonId);
             continue;
         }
 
@@ -248,6 +248,8 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
     TC_LOG_INFO("server.loading", ">> Loaded {} lfg dungeon templates in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
 
+    CachedDungeonMapStore.clear();
+
     // Fill all other teleport coords from areatriggers
     for (LFGDungeonContainer::iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
     {
@@ -256,7 +258,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
         // No teleport coords in database, load from areatriggers
         if (dungeon.type != LFG_TYPE_RANDOM && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
         {
-            AreaTriggerStruct const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
+            AreaTriggerTeleport const* at = sObjectMgr->GetMapEntranceTrigger(dungeon.map);
             if (!at)
             {
                 TC_LOG_ERROR("sql.sql", "Failed to load dungeon {} (Id: {}), cant find areatrigger for map {}", dungeon.name, dungeon.id, dungeon.map);
@@ -274,9 +276,6 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
             CachedDungeonMapStore[dungeon.group].insert(dungeon.id);
         CachedDungeonMapStore[0].insert(dungeon.id);
     }
-
-    if (reload)
-        CachedDungeonMapStore.clear();
 }
 
 LFGMgr* LFGMgr::instance()

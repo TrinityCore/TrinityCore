@@ -189,8 +189,10 @@ enum SMART_EVENT
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
     SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
     SMART_EVENT_AREATRIGGER_EXIT         = 88,      // NONE
+    SMART_EVENT_ON_AURA_APPLIED          = 89,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_AURA_REMOVED          = 90,      // SpellID, CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 89
+    SMART_EVENT_END                      = 91
 };
 
 struct SmartEvent
@@ -465,7 +467,7 @@ enum SMART_ACTION
     SMART_ACTION_ACTIVATE_GOBJECT                   = 9,      //
     SMART_ACTION_RANDOM_EMOTE                       = 10,     // EmoteId1, EmoteId2, EmoteId3...
     SMART_ACTION_CAST                               = 11,     // SpellId, CastFlags, TriggeredFlags
-    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, attackInvoker, flags(SmartActionSummonCreatureFlags)
+    SMART_ACTION_SUMMON_CREATURE                    = 12,     // CreatureID, summonType, duration in ms, stored target id, flags(SmartActionSummonCreatureFlags), count, createdBySpell
     SMART_ACTION_THREAT_SINGLE_PCT                  = 13,     // Threat%
     SMART_ACTION_THREAT_ALL_PCT                     = 14,     // Threat%
     SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS    = 15,     // UNUSED, DO NOT REUSE
@@ -503,7 +505,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // on/off
     SMART_ACTION_ATTACK_START                       = 49,     //
-    SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in s
+    SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in s, summon type, stored target id
     SMART_ACTION_KILL_UNIT                          = 51,     //
     SMART_ACTION_ACTIVATE_TAXI                      = 52,     // TaxiID
     SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime
@@ -560,7 +562,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_GO_FLAG                        = 104,    // UNUSED, DO NOT REUSE
     SMART_ACTION_ADD_GO_FLAG                        = 105,    // UNUSED, DO NOT REUSE
     SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // UNUSED, DO NOT REUSE
-    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
+    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker, stored target id
     SMART_ACTION_SET_POWER                          = 108,    // PowerType, newPower
     SMART_ACTION_ADD_POWER                          = 109,    // PowerType, newPower
     SMART_ACTION_REMOVE_POWER                       = 110,    // PowerType, newPower
@@ -619,8 +621,9 @@ enum class SmartActionSummonCreatureFlags
     None = 0,
     PersonalSpawn = 1,
     PreferUnit = 2,
+    AttackInvoker = 4,
 
-    All = PersonalSpawn | PreferUnit,
+    All = PersonalSpawn | PreferUnit | AttackInvoker,
 };
 
 DEFINE_ENUM_FLAG(SmartActionSummonCreatureFlags);
@@ -713,9 +716,10 @@ struct SmartAction
             uint32 creature;
             uint32 type;
             uint32 duration;
-            SAIBool attackInvoker;
+            uint32 storedTargetId;
             uint32 flags; // SmartActionSummonCreatureFlags
             uint32 count;
+            uint32 createdBySpell;
         } summonCreature;
 
         struct
@@ -857,6 +861,7 @@ struct SmartAction
             uint32 entry;
             uint32 despawnTime;
             uint32 summonType;
+            uint32 storedTargetId;
         } summonGO;
 
         struct
@@ -1059,6 +1064,7 @@ struct SmartAction
         {
             uint32 group;
             uint32 attackInvoker;
+            uint32 storedTargetId;
         } creatureGroup;
 
         struct
@@ -1604,7 +1610,9 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT },
-    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
+    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
+    {SMART_EVENT_ON_AURA_APPLIED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_ON_AURA_REMOVED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags

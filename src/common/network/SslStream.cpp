@@ -15,28 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MMapFactory.h"
+#include "SslStream.h"
+#include "IpAddress.h"
+#include "Log.h"
 
-namespace MMAP
+void Trinity::Net::SslHandshakeHelpers::LogFailure(boost::asio::ip::address const& ipAddress, uint16 port, boost::system::error_code const& error)
 {
-    // ######################## MMapFactory ########################
-    // our global singleton copy
-    MMapManager* g_MMapManager = nullptr;
-
-    MMapManager* MMapFactory::createOrGetMMapManager()
-    {
-        if (g_MMapManager == nullptr)
-            g_MMapManager = new MMapManager();
-
-        return g_MMapManager;
-    }
-
-    void MMapFactory::clear()
-    {
-        if (g_MMapManager)
-        {
-            delete g_MMapManager;
-            g_MMapManager = nullptr;
-        }
-    }
+    TC_LOG_ERROR("session", "{}:{} SSL Handshake failed {}", ipAddress, port, error.message());
 }

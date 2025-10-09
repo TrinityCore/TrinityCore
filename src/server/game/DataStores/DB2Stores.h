@@ -155,7 +155,6 @@ TC_GAME_API extern DB2Storage<ItemDamageTwoHandEntry>               sItemDamageT
 TC_GAME_API extern DB2Storage<ItemDamageTwoHandCasterEntry>         sItemDamageTwoHandCasterStore;
 TC_GAME_API extern DB2Storage<ItemDisenchantLootEntry>              sItemDisenchantLootStore;
 TC_GAME_API extern DB2Storage<ItemEffectEntry>                      sItemEffectStore;
-TC_GAME_API extern DB2Storage<ItemNameDescriptionEntry>             sItemNameDescriptionStore;
 TC_GAME_API extern DB2Storage<ItemEntry>                            sItemStore;
 TC_GAME_API extern DB2Storage<ItemExtendedCostEntry>                sItemExtendedCostStore;
 TC_GAME_API extern DB2Storage<ItemLevelSelectorEntry>               sItemLevelSelectorStore;
@@ -164,6 +163,7 @@ TC_GAME_API extern DB2Storage<ItemLevelSelectorQualitySetEntry>     sItemLevelSe
 TC_GAME_API extern DB2Storage<ItemLimitCategoryEntry>               sItemLimitCategoryStore;
 TC_GAME_API extern DB2Storage<ItemModifiedAppearanceEntry>          sItemModifiedAppearanceStore;
 TC_GAME_API extern DB2Storage<ItemModifiedAppearanceExtraEntry>     sItemModifiedAppearanceExtraStore;
+TC_GAME_API extern DB2Storage<ItemNameDescriptionEntry>             sItemNameDescriptionStore;
 TC_GAME_API extern DB2Storage<ItemPriceBaseEntry>                   sItemPriceBaseStore;
 TC_GAME_API extern DB2Storage<ItemSearchNameEntry>                  sItemSearchNameStore;
 TC_GAME_API extern DB2Storage<ItemSetEntry>                         sItemSetStore;

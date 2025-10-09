@@ -549,7 +549,7 @@ class spell_the_kings_command_movie_aura : public SpellScript
     {
         GetHitUnit()->CastSpell(nullptr, Spells::FadeToBlack, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -596,7 +596,7 @@ class spell_admiral_rogers_script_effect : public SpellScript
     {
         GetHitUnit()->CastSpell(nullptr, Spells::TeleportPrep, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 
@@ -623,7 +623,7 @@ class spell_teleport_prep_alliance : public SpellScript
         hitUnit->CancelMountAura();
         hitUnit->CastSpell(nullptr, Spells::TeleportTimer, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .OriginalCastId = GetSpell()->m_castId
+            .TriggeringSpell = GetSpell()
         });
     }
 

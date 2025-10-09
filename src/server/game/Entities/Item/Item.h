@@ -60,6 +60,7 @@ extern int32 const ItemTransmogrificationSlots[MAX_INVTYPE];
 struct BonusData
 {
     uint32 Quality;
+    uint32 ItemLevel;
     int32 ItemLevelBonus;
     int32 RequiredLevel;
     int32 ItemStatType[MAX_ITEM_PROTO_STATS];
@@ -80,11 +81,17 @@ struct BonusData
     int32 AzeriteTierUnlockSetId;
     uint32 Suffix;
     int32 RequiredLevelCurve;
+    uint16 PvpItemLevel;
+    int16 PvpItemLevelBonus;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
+    uint32 LimitCategory;
     bool CanDisenchant;
     bool CanScrap;
+    bool CanSalvage;
+    bool CanRecraft;
     bool HasFixedLevel;
+    bool CannotTradeBindOnPickup;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);
@@ -100,7 +107,11 @@ private:
         int32 ScalingStatDistributionPriority;
         int32 AzeriteTierUnlockSetPriority;
         int32 RequiredLevelCurvePriority;
+        int32 ItemLevelPriority;
+        int32 PvpItemLevelPriority;
+        int32 BondingPriority;
         bool HasQualityBonus;
+        bool HasItemLimitCategory;
     } _state;
 };
 
@@ -347,6 +358,7 @@ class TC_GAME_API Item : public Object
         static ItemDisenchantLootEntry const* GetBaseDisenchantLoot(ItemTemplate const* itemTemplate, uint32 quality, uint32 itemLevel);
         void SetFixedLevel(uint8 level);
         std::span<ItemEffectEntry const* const> GetEffects() const { return { _bonusData.Effects.data(), _bonusData.EffectCount }; }
+        uint32 GetItemLimitCategory() const { return _bonusData.LimitCategory; }
 
         // Item Refund system
         void SetNotRefundable(Player* owner, bool changestate = true, CharacterDatabaseTransaction* trans = nullptr, bool addToCollection = true);
