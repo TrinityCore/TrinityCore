@@ -38,7 +38,7 @@ m_timer(0), m_lifetime(0), m_canFollowOwner(true)
 
 WorldObject* TempSummon::GetSummoner() const
 {
-    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : nullptr;
+    return !m_summonerGUID.IsEmpty() ? ObjectAccessor::GetWorldObject(*this, m_summonerGUID) : nullptr;
 }
 
 Unit* TempSummon::GetSummonerUnit() const
