@@ -1359,31 +1359,6 @@ class spell_sindragosa_icy_grip : public SpellScript
     }
 };
 
-// 70122 - Icy Grip Jump
-class spell_sindragosa_icy_grip_jump : public SpellScript
-{
-    PrepareSpellScript(spell_sindragosa_icy_grip_jump);
-
-    void HandleEffect(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-
-        Unit* target = GetHitUnit();
-        Unit* caster = GetCaster();
-        if (!target || !caster)
-            return;
-
-        Position destination = target->GetPosition();
-        destination.m_positionZ += 1.5f;
-        caster->GetMotionMaster()->MoveJump(destination, caster->GetExactDist2d(destination), 10.f);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunchTarget += SpellEffectFn(spell_sindragosa_icy_grip_jump::HandleEffect, EFFECT_0, SPELL_EFFECT_JUMP);
-    }
-};
-
 class MysticBuffetTargetFilter
 {
     public:
@@ -1622,7 +1597,6 @@ void AddSC_boss_sindragosa()
     RegisterSpellScript(spell_sindragosa_frost_beacon);
     RegisterSpellScript(spell_sindragosa_ice_tomb_trap);
     RegisterSpellScript(spell_sindragosa_icy_grip);
-    RegisterSpellScript(spell_sindragosa_icy_grip_jump);
     RegisterSpellScript(spell_sindragosa_mystic_buffet);
     RegisterSpellScript(spell_rimefang_icy_blast);
     RegisterSpellScript(spell_frostwarden_handler_order_whelp);
