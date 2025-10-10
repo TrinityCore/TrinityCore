@@ -1273,12 +1273,40 @@ class spell_sindragosa_ice_tomb_trap : public AuraScript
     }
 };
 
+class SindragosaIcyGripTargetFilter
+{
+public:
+    explicit SindragosaIcyGripTargetFilter(Unit* caster) : _caster(caster) { }
+
+    bool operator()(WorldObject* object) const
+    {
+        if (!object->ToUnit())
+            return true;
+        // No frost beaconed players
+        if (object->ToUnit()->HasAura(SPELL_FROST_BEACON))
+            return true;
+        // Not current Victim
+        if (object->ToUnit() == _caster->GetVictim())
+            return true;
+
+        return false;
+    }
+
+private:
+    Unit* _caster;
+};
+
 // 70117 - Icy Grip
 class spell_sindragosa_icy_grip : public SpellScript
 {
     bool Validate(SpellInfo const* /*spell*/) override
     {
         return ValidateSpellInfo({ SPELL_ICY_GRIP_JUMP });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if(SindragosaIcyGripTargetFilter(GetCaster()));
     }
 
     void HandleScript(SpellEffIndex effIndex)
@@ -1289,6 +1317,7 @@ class spell_sindragosa_icy_grip : public SpellScript
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_sindragosa_icy_grip::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         OnEffectHitTarget += SpellEffectFn(spell_sindragosa_icy_grip::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
