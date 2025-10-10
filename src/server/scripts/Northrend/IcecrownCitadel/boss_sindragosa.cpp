@@ -474,6 +474,8 @@ struct boss_sindragosa : public BossAI
                 case EVENT_FROST_BREATH:
                     DoCastVictim(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1);
                     events.ScheduleEvent(EVENT_FROST_BREATH, 20s, 25s, EVENT_GROUP_LAND_PHASE);
+                    if (events.GetTimeUntilEvent(EVENT_ICY_GRIP) < 2s)
+                        events.RescheduleEvent(EVENT_ICY_GRIP, 2s, EVENT_GROUP_LAND_PHASE);
                     break;
                 case EVENT_UNCHAINED_MAGIC:
                     Talk(SAY_UNCHAINED_MAGIC);
@@ -481,8 +483,12 @@ struct boss_sindragosa : public BossAI
                     events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, 30s, 35s, EVENT_GROUP_LAND_PHASE);
                     break;
                 case EVENT_ICY_GRIP:
-                    DoCastSelf(SPELL_ICY_GRIP);
+                    DoCastAOE(SPELL_ICY_GRIP);
                     events.ScheduleEvent(EVENT_BLISTERING_COLD, 1s, EVENT_GROUP_LAND_PHASE);
+                    if (events.GetTimeUntilEvent(EVENT_FROST_BREATH) < 6s)
+                        events.RescheduleEvent(EVENT_FROST_BREATH, 6s, EVENT_GROUP_LAND_PHASE);
+                    if (_isThirdPhase)
+                        events.ScheduleEvent(EVENT_ICY_GRIP, 62s, 67s);
                     break;
                 case EVENT_BLISTERING_COLD:
                     Talk(EMOTE_WARN_BLISTERING_COLD);
