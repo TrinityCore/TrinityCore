@@ -341,7 +341,7 @@ bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, 
             if (_owner->IsAIEnabled())
                 _owner->AI()->AttackStart(currentVictim);
         }
-        else if (_summonerGUID)
+        else if (!_summonerGUID.IsEmpty())
             if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGUID))
                 if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
                     if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
