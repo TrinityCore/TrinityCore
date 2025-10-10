@@ -340,6 +340,7 @@ bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, 
         {
             if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGUID))
                 if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
+                {
                     if (_combatArgs.AvoidTargetVictim)
                     {
                         if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(summoner, _combatArgs.TargetPlayers)))
@@ -350,6 +351,7 @@ bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, 
                         if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, _combatArgs.Distance, _combatArgs.TargetPlayers))
                             _owner->AI()->AttackStart(target);
                     }
+                }
         }
         else if (Unit* currentVictim = _owner->SelectVictim())
         {
