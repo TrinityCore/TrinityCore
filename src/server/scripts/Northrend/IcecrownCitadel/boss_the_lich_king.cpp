@@ -425,28 +425,6 @@ class FrozenThroneResetWorker
         }
 };
 
-class LichKingStartMovementEvent : public BasicEvent
-{
-    public:
-        LichKingStartMovementEvent(Creature* summoner, Creature* owner)
-            : _summonerGuid(summoner->GetGUID()), _owner(owner)
-        {
-        }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
-                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(_summoner)))
-                    _owner->AI()->AttackStart(target);
-            return true;
-        }
-
-    private:
-        ObjectGuid _summonerGuid;
-        Creature* _owner;
-};
-
 class VileSpiritActivateEvent : public BasicEvent
 {
     public:
@@ -720,7 +698,7 @@ struct boss_the_lich_king : public BossAI
                 summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s, summon, true, me, StartCombatArgs().SetAvoidTargetVictim(true));
                 break;
             case NPC_SHADOW_TRAP:
                 summon->CastSpell(summon, SPELL_SHADOW_TRAP_VISUAL, true);
