@@ -459,6 +459,12 @@ void FillOwnedCurrenciesMap(WorldPackets::Traits::TraitConfig const& traitConfig
                         }
                     }
                     break;
+                case TraitCurrencyType::TraitSourcedPlayerDataElement:
+                    if (currency->PlayerDataElementAccountID)
+                        currencies[currency->ID] += std::visit([](auto value) { return static_cast<int32>(value); }, player.GetDataElementAccount(currency->CurrencyTypesID));
+                    else if (currency->PlayerDataElementCharacterID)
+                        currencies[currency->ID] += std::visit([](auto value) { return static_cast<int32>(value); }, player.GetDataElementCharacter(currency->CurrencyTypesID));
+                    break;
                 default:
                     break;
             }

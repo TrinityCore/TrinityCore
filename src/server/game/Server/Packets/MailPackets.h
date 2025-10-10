@@ -214,7 +214,7 @@ namespace WorldPackets
                 ObjectGuid SenderGuid;
                 float TimeLeft = 0.0f;
                 int32 AltSenderID = 0;
-                int8 AltSenderType = 0;
+                int32 AltSenderType = 0;
                 int32 StationeryID = 0;
             };
 

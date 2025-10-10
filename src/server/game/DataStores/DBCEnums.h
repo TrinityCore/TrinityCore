@@ -1229,6 +1229,9 @@ enum ItemBonusType
     ITEM_BONUS_OVERRIDE_DESCRIPTION_COLOR       = 45,             // Overrides color of item description and upgrade track if TimeEvent from value[1] has passed
     ITEM_BONUS_OVERRIDE_CANNOT_TRADE_BOP        = 46,
     ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
+    ITEM_BONUS_ITEM_OFFSET_CURVE                = 48,
+    ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL     = 49,
+    ITEM_BONUS_SCALING_CONFIG                   = 51,
 };
 
 enum class ItemCollectionType : uint8
@@ -1241,6 +1244,10 @@ enum class ItemCollectionType : uint8
     RuneforgeLegendaryAbility   = 5,
     TransmogIllusion            = 6,
     WarbandScene                = 7,
+    Room                        = 8,
+    ExteriorFixture             = 9,
+    RoomTheme                   = 10,
+    RoomMaterial                = 11
 };
 
 enum class ItemContext : uint8
@@ -1410,6 +1417,27 @@ enum class ItemContext : uint8
     Tournament_Realm_2                              = 162,
     Tournament_Realm_3                              = 163,
     Tournament_Realm_4                              = 164,
+    Warbound_1                                      = 165,
+    Warbound_2                                      = 166,
+    Warbound_3                                      = 167,
+    Warbound_4                                      = 168,
+    Warbound_5                                      = 169,
+    Warbound_6                                      = 170,
+    Warbound_7                                      = 171,
+    Warbound_8                                      = 172,
+    Warbound_9                                      = 173,
+    Warbound_10                                     = 174,
+    Warbound_11                                     = 175,
+    Warbound_12                                     = 176,
+    Warbound_13                                     = 177,
+    Warbound_14                                     = 178,
+    Warbound_15                                     = 179,
+    Warbound_16                                     = 180,
+    Warbound_17                                     = 181,
+    Warbound_18                                     = 182,
+    Warbound_19                                     = 183,
+    Warbound_20                                     = 184,
+    Endeavors                                       = 185,
 
     Max
 };
@@ -2515,9 +2543,10 @@ enum class TraitConfigType : int32
 
 enum class TraitCurrencyType : int32
 {
-    Gold                = 0,
-    CurrencyTypesBased  = 1,
-    TraitSourced        = 2
+    Gold                             = 0,
+    CurrencyTypesBased               = 1,
+    TraitSourced                     = 2,
+    TraitSourcedPlayerDataElement    = 3,
 };
 
 enum class TraitEdgeType : int32
@@ -2541,7 +2570,8 @@ enum class TraitNodeEntryType : int32
     SpendDiamond        = 6,
     ProfPath            = 7,
     ProfPerk            = 8,
-    ProfPathUnlock      = 9
+    ProfPathUnlock      = 9,
+    SpendInfinite       = 10
 };
 
 enum class TraitNodeGroupFlag : int32
@@ -2565,6 +2595,12 @@ enum class TraitPointsOperationType : int32
     None        = -1,
     Set         = 0,
     Multiply    = 1
+};
+
+enum class TraitSystemVariationType : int32
+{
+    None    = 0,
+    Spec    = 1
 };
 
 enum class TraitTreeFlag : int32

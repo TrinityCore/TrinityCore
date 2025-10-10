@@ -107,7 +107,7 @@ void ItemPurchaseRefund::Read()
 WorldPacket const* ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << OptionalInit(Contents);
     _worldPacket.FlushBits();
     if (Contents)

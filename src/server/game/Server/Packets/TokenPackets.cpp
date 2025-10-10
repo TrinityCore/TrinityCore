@@ -34,8 +34,8 @@ WorldPacket const* CommerceTokenGetLogResponse::Write()
     {
         _worldPacket << auctionableTokenAuctionable.Id;
         _worldPacket << auctionableTokenAuctionable.LastUpdate;
-        _worldPacket << auctionableTokenAuctionable.Price;
         _worldPacket << auctionableTokenAuctionable.Status;
+        _worldPacket << auctionableTokenAuctionable.Price;
         _worldPacket << auctionableTokenAuctionable.DurationLeft;
     }
 
@@ -49,9 +49,9 @@ void CommerceTokenGetMarketPrice::Read()
 
 WorldPacket const* CommerceTokenGetMarketPriceResponse::Write()
 {
-    _worldPacket << PriceGuarantee;
     _worldPacket << ClientToken;
     _worldPacket << ServerToken;
+    _worldPacket << PriceGuarantee;
     _worldPacket << PriceLockDurationSeconds;
 
     return &_worldPacket;

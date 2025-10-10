@@ -176,7 +176,7 @@ namespace WorldPackets
 
             PetRenameData RenameData;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
         };
 
         class PetRename final : public ClientPacket
@@ -243,8 +243,8 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            int32 SpellID = 0;
             ::PetActionFeedback Response = ::PetActionFeedback::None;
+            int32 SpellID = 0;
         };
 
         class PetActionSound final : public ServerPacket
@@ -265,7 +265,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
         };
 
         class PetMode final : public ServerPacket

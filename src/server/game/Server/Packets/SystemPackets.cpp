@@ -144,6 +144,10 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << int32(AddonChatThrottle.MaxTries);
     _worldPacket << int32(AddonChatThrottle.TriesRestoredPerSecond);
     _worldPacket << int32(AddonChatThrottle.UsedTriesPerMessage);
+    _worldPacket << int32(GuildChatThrottle.UsedTriesPerMessage);
+    _worldPacket << int32(GuildChatThrottle.TriesRestoredPerSecond);
+    _worldPacket << int32(GroupChatThrottle.UsedTriesPerMessage);
+    _worldPacket << int32(GroupChatThrottle.TriesRestoredPerSecond);
 
     _worldPacket << float(AddonPerformanceMsgWarning);
     _worldPacket << float(AddonPerformanceMsgError);
@@ -291,6 +295,8 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << Size<uint32>(GameRules);
     _worldPacket << int32(ActiveTimerunningSeasonID);
     _worldPacket << int32(RemainingTimerunningSeasonSeconds);
+    _worldPacket << TimerunningConversionMinCharacterAge;
+    _worldPacket << int32(TimerunningConversionMaxSeasonID);
     _worldPacket << int16(MaxPlayerGuidLookupsPerRequest);
     _worldPacket << int16(NameLookupTelemetryInterval);
     _worldPacket << NotFoundCacheTimeSeconds;
@@ -311,6 +317,28 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
 
     for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
         _worldPacket << debugTimeEventInfo;
+
+    return &_worldPacket;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, MirrorVarSingle const& variable)
+{
+    data << Bits<1>(variable.UpdateType);
+    data << SizedCString::BitsSize<24>(variable.Name);
+    data << SizedCString::BitsSize<24>(variable.Value);
+    data.FlushBits();
+
+    data << SizedCString::Data(variable.Name);
+    data << SizedCString::Data(variable.Value);
+
+    return data;
+}
+
+WorldPacket const* MirrorVars::Write()
+{
+    _worldPacket << Size<uint32>(Variables);
+    for (MirrorVarSingle const& variable : Variables)
+        _worldPacket << variable;
 
     return &_worldPacket;
 }

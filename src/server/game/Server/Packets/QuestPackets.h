@@ -225,7 +225,7 @@ namespace WorldPackets
             int32 QuestID       = 0;
             uint16 Count        = 0;
             uint16 Required     = 0;
-            uint8 ObjectiveType = 0;
+            uint32 ObjectiveType = 0;
         };
 
         class QuestUpdateAddCreditSimple final : public ServerPacket
@@ -237,7 +237,7 @@ namespace WorldPackets
 
             int32 QuestID = 0;
             int32 ObjectID = 0;
-            uint8 ObjectiveType = 0;
+            uint32 ObjectiveType = 0;
         };
 
         class QuestUpdateAddPvPCredit final : public ServerPacket
@@ -585,8 +585,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid SenderGUID;
-            uint8 Result = 0;
-            std::string QuestTitle;
+            uint32 Result = 0;
+            std::string_view QuestTitle;
         };
 
         class QuestLogFull final : public ServerPacket
@@ -606,7 +606,7 @@ namespace WorldPackets
 
             ObjectGuid SenderGUID;
             uint32 QuestID = 0;
-            uint8 Result = 0;
+            uint32 Result = 0;
         };
 
         class QuestGiverInvalidQuest final : public ServerPacket
