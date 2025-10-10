@@ -50,12 +50,7 @@ enum UKCreatureIds
 
     // Skarvald - Dalronn
     NPC_DALRONN_GHOST       = 27389,
-    NPC_SKARVALD_GHOST      = 27390,
-
-    // Ingvar the Plunderer
-    NPC_INGVAR_UNDEAD       = 23980,
-    NPC_THROW_TARGET        = 23996,
-    NPC_ANNHYLDE_THE_CALLER = 24068
+    NPC_SKARVALD_GHOST      = 27390
 };
 
 enum UKGameObjectIds
