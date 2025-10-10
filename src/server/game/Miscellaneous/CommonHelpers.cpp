@@ -327,7 +327,7 @@ bool Trinity::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
     }
 }
 
-Trinity::Helpers::Events::SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, ObjectGuid summonerGUID/* = ObjectGuid::Empty*/) : _owner(owner), _startCombat(startCombat), _summonerGUID(summonerGUID)
+Trinity::Helpers::Events::SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, ObjectGuid summonerGUID/* = ObjectGuid::Empty*/, StartCombatArgs const& combatArgs/* = { }*/) : _owner(owner), _startCombat(startCombat), _summonerGUID(summonerGUID), _combatArgs(combatArgs)
 {
 }
 
@@ -336,16 +336,26 @@ bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, 
     _owner->SetReactState(REACT_AGGRESSIVE);
     if (_startCombat)
     {
-        if (Unit* currentVictim = _owner->SelectVictim())
+        if (!_summonerGUID.IsEmpty())
+        {
+            if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGUID))
+                if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
+                    if (_combatArgs.AvoidTargetVictim)
+                    {
+                        if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(summoner, _combatArgs.TargetPlayers)))
+                            _owner->AI()->AttackStart(target);
+                    }
+                    else
+                    {
+                        if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, _combatArgs.Distance, _combatArgs.TargetPlayers))
+                            _owner->AI()->AttackStart(target);
+                    }
+        }
+        else if (Unit* currentVictim = _owner->SelectVictim())
         {
             if (_owner->IsAIEnabled())
                 _owner->AI()->AttackStart(currentVictim);
         }
-        else if (!_summonerGUID.IsEmpty())
-            if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGUID))
-                if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
-                    if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
-                        _owner->AI()->AttackStart(target);
     }
     return true;
 }

@@ -490,11 +490,18 @@ void ScriptedAI::SetCombatMovement(bool allowMovement)
     _isCombatMovementAllowed = allowMovement;
 }
 
-void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = nullptr*/, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/)
+void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = nullptr*/, bool startCombat/* = true*/, Creature* summoner/* = nullptr*/, StartCombatArgs const& combatArgs/* = { }*/)
 {
     if (!who)
         who = me;
-    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner->GetGUID()), who->m_Events.CalculateTime(timer));
+    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner->GetGUID(), combatArgs), who->m_Events.CalculateTime(timer));
+}
+
+void ScriptedAI::DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who/* = nullptr*/)
+{
+    if (!who)
+        who = me;
+    who->m_Events.AddEvent(event, who->m_Events.CalculateTime(timer));
 }
 
 // BossAI - for instanced bosses
