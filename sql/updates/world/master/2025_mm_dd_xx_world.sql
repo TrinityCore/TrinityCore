@@ -66,8 +66,8 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 (@OGUID+3, 376877, 2547, 14083, 14083, '0', '0', 0, 266.302093505859375, 266.734375, 89.80551910400390625, 0, 0, 0, 0, 1, 7200, 255, 0, 63305), -- ProgenitorArena_Button01 (Area: Enigma Crucible - Difficulty: 0) CreateObject1
 (@OGUID+4, 376125, 2547, 14083, 14083, '0', '0', 0, 336.744781494140625, 265.102447509765625, 90.0426025390625, 0, 0, 0, 0, 1, 7200, 255, 1, 63305), -- Enigma Arena - Door (Area: Enigma Crucible - Difficulty: 0) CreateObject2
 (@OGUID+5, 376125, 2547, 14083, 14083, '0', '0', 0, 185.748260498046875, 268.041656494140625, 93.93752288818359375, 0, 0, 0, 0, 1, 7200, 255, 1, 63305), -- Enigma Arena - Door (Area: Enigma Crucible - Difficulty: 0) CreateObject1
-(@OGUID+6, 184663, 2547, 14083, 14083, '0', '0', 0, 265.744781494140625, 199.90625, 89.2678985595703125, 0, 0, 0, 0, 1, 7200, 255, 1, 63305), -- Shadow Sight (Area: Enigma Crucible - Difficulty: 0) CreateObject2
-(@OGUID+7, 184663, 2547, 14083, 14083, '0', '0', 0, 265.467010498046875, 334.057281494140625, 89.2678985595703125, 0, 0, 0, 0, 1, 7200, 255, 1, 63305); -- Shadow Sight (Area: Enigma Crucible - Difficulty: 0) CreateObject2
+(@OGUID+6, 184663, 2547, 14083, 14083, '0', '0', 0, 265.744781494140625, 199.90625, 89.2678985595703125, 0, 0, 0, 0, 1, 360, 255, 1, 63305), -- Shadow Sight (Area: Enigma Crucible - Difficulty: 0) CreateObject2
+(@OGUID+7, 184663, 2547, 14083, 14083, '0', '0', 0, 265.467010498046875, 334.057281494140625, 89.2678985595703125, 0, 0, 0, 0, 1, 360, 255, 1, 63305); -- Shadow Sight (Area: Enigma Crucible - Difficulty: 0) CreateObject2
 
 DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+7;
 
