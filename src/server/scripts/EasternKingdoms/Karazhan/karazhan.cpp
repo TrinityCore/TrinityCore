@@ -37,6 +37,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum Spells
@@ -619,8 +620,35 @@ public:
     };
 };
 
+enum KarazhanCharge
+{
+    SPELL_FEAR      = 29321
+};
+
+// 29320 - Charge
+class spell_karazhan_charge : public SpellScript
+{
+    PrepareSpellScript(spell_karazhan_charge);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEAR });
+    }
+
+    void HandleAfterHit()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_FEAR);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_karazhan_charge::HandleAfterHit);
+    }
+};
+
 void AddSC_karazhan()
 {
     new npc_barnes();
     new npc_image_of_medivh();
+    RegisterSpellScript(spell_karazhan_charge);
 }

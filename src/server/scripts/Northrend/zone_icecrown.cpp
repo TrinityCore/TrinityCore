@@ -1189,6 +1189,32 @@ class spell_icecrown_summon_soul_moveto_bunny : public SpellScript
 ## Quest 13086: The Last Line Of Defense
 ######*/
 
+enum TheLastLineOfDefense
+{
+    SPELL_POWERING_UP_THE_CORE     = 57608
+};
+
+// 57387 - Argent Cannon Assault
+class spell_icecrown_argent_cannon_assault : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_argent_cannon_assault);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_POWERING_UP_THE_CORE });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_POWERING_UP_THE_CORE, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_icecrown_argent_cannon_assault::HandleAfterCast);
+    }
+};
+
 // 57385 - Argent Cannon
 // 57412 - Reckoning Bomb
 class spell_icecrown_cannons_target : public SpellScript
@@ -1495,6 +1521,55 @@ class spell_icecrown_burst_at_the_seams_52510 : public SpellScript
     }
 };
 
+/*######
+## Quest 13082: The Boon of A'dal
+######*/
+
+enum TheBoonOfAdal
+{
+    SPELL_SUMMON_SPIRIT_OF_BRIDENBRAD       = 57747,
+    SPELL_SEE_QUEST_INVISIBILITY_1          = 57745,
+    SPELL_SUMMON_ADAL                       = 57746,
+    SPELL_SUMMON_MORI                       = 57782,
+    SPELL_SUMMON_KURI                       = 57786,
+    SPELL_SUMMON_LIGHT_BUNNY                = 57773
+};
+
+// 57787 - Forcecast Bridenbrad Ascension
+class spell_icecrown_forcecast_bridenbrad_ascension : public SpellScript
+{
+    PrepareSpellScript(spell_icecrown_forcecast_bridenbrad_ascension);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_SUMMON_SPIRIT_OF_BRIDENBRAD,
+            SPELL_SEE_QUEST_INVISIBILITY_1,
+            SPELL_SUMMON_ADAL,
+            SPELL_SUMMON_MORI,
+            SPELL_SUMMON_KURI,
+            SPELL_SUMMON_LIGHT_BUNNY
+        });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        Unit* target = GetHitUnit();
+        target->CastSpell(target, SPELL_SUMMON_SPIRIT_OF_BRIDENBRAD);
+        target->RemoveAurasDueToSpell(SPELL_SEE_QUEST_INVISIBILITY_1);
+        target->CastSpell(target, SPELL_SUMMON_ADAL);
+        target->CastSpell(target, SPELL_SUMMON_MORI);
+        target->CastSpell(target, SPELL_SUMMON_KURI);
+        target->CastSpell(target, SPELL_SUMMON_LIGHT_BUNNY);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_icecrown_forcecast_bridenbrad_ascension::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_icecrown()
 {
     RegisterCreatureAI(npc_argent_valiant);
@@ -1518,6 +1593,7 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_grab_fake_soldier);
     RegisterSpellScript(spell_icecrown_summon_frost_wyrm);
     RegisterSpellScript(spell_icecrown_summon_soul_moveto_bunny);
+    RegisterSpellScript(spell_icecrown_argent_cannon_assault);
     RegisterSpellScript(spell_icecrown_cannons_target);
     RegisterSpellScript(spell_icecrown_bested_trigger);
     RegisterSpellScript(spell_icecrown_burst_at_the_seams_59576);
@@ -1526,4 +1602,5 @@ void AddSC_icecrown()
     RegisterSpellScript(spell_icecrown_area_restrict_abom);
     RegisterSpellScript(spell_icecrown_assign_credit_to_master);
     RegisterSpellScript(spell_icecrown_burst_at_the_seams_52510);
+    RegisterSpellScript(spell_icecrown_forcecast_bridenbrad_ascension);
 }
