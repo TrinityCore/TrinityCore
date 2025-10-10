@@ -18,6 +18,7 @@
 #ifndef TRINITY_COMMONHELPERS_H
 #define TRINITY_COMMONHELPERS_H
 
+#include "EventProcessor.h"
 #include "Define.h"
 #include "ObjectGuid.h"
 
