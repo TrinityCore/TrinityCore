@@ -494,7 +494,7 @@ void ScriptedAI::SetAggressiveStateAfter(Milliseconds timer, Creature* who/* = n
 {
     if (!who)
         who = me;
-    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner->GetGUID(), combatArgs), who->m_Events.CalculateTime(timer));
+    who->m_Events.AddEvent(new Trinity::Helpers::Events::SetAggresiveStateEvent(who, startCombat, summoner ? summoner->GetGUID() : ObjectGuid::Empty, combatArgs), who->m_Events.CalculateTime(timer));
 }
 
 void ScriptedAI::DoAddEvent(Milliseconds timer, BasicEvent* event, WorldObject* who/* = nullptr*/)
