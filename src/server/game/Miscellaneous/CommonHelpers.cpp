@@ -51,6 +51,8 @@ bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, 
             if (_owner->IsAIEnabled())
                 _owner->AI()->AttackStart(currentVictim);
         }
+        else if (_owner->IsAIEnabled())
+            _owner->AI()->DoZoneInCombat();
     }
     return true;
 }
