@@ -246,6 +246,8 @@ struct TC_GAME_API ScriptedAI : public CreatureAI
         // return true for 25 man or 25 man heroic mode
         bool Is25ManRaid() const { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
+        void SetAggressiveStateAfter(Milliseconds timer, Creature* who = nullptr, bool startCombat = true, Creature* summoner = nullptr);
+
         template <class T>
         inline T const& DUNGEON_MODE(T const& normal5, T const& heroic10) const
         {
