@@ -25,16 +25,28 @@
 class Creature;
 class Player;
 
+struct TC_GAME_API StartCombatArgs
+{
+    StartCombatArgs() {}
+    StartCombatArgs& SetAvoidTargetVictim(bool value) { AvoidTargetVictim = value; return *this; }
+    StartCombatArgs& SetTargetPlayers(bool value) { TargetPlayers = value; return *this; }
+    StartCombatArgs& SetDistance(float value) { Distance = value; return *this; }
+
+    bool AvoidTargetVictim = false;
+    bool TargetPlayers = true;
+    float Distance = 0.f;
+};
+
 namespace Trinity
 {
     namespace Helpers
     {
         namespace Events
         {
-            class SetAggresiveStateEvent : public BasicEvent
+            class TC_GAME_API SetAggresiveStateEvent : public BasicEvent
             {
                 public:
-                    SetAggresiveStateEvent(Creature* owner, bool startCombat = true, ObjectGuid summonerGUID = ObjectGuid::Empty);
+                    SetAggresiveStateEvent(Creature* owner, bool startCombat = true, ObjectGuid summonerGUID = ObjectGuid::Empty, StartCombatArgs const& combatArgs = { });
 
                     bool Execute(uint64 /*time*/, uint32 /*diff*/) override;
 
@@ -42,6 +54,7 @@ namespace Trinity
                     Creature* _owner;
                     bool const _startCombat;
                     ObjectGuid const _summonerGUID;
+                    StartCombatArgs const _combatArgs;
             };
         }
     }
