@@ -1016,7 +1016,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         " WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // ItemOffsetCurve.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_OFFSET_CURVE, "SELECT ID, CurveID, Offset FROM item_offset_curve WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM_OFFSET_CURVE, "SELECT ID, CurveID, `Offset` FROM item_offset_curve WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_OFFSET_CURVE, "SELECT MAX(ID) + 1 FROM item_offset_curve", CONNECTION_SYNCH);
 
     // ItemPriceBase.db2
