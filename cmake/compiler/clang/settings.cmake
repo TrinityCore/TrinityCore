@@ -57,9 +57,13 @@ if(WITH_WARNINGS)
   message(STATUS "Clang: All warnings enabled")
 endif()
 
-target_compile_options(trinity-compile-option-interface
-  INTERFACE
-    $<$<OR:$<CONFIG:Debug,RelWithDebInfo>,$<BOOL:${WITH_COREDEBUG}>>:-g3 -glldb>)
+if(WITH_COREDEBUG)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -g3 -glldb)
+
+  message(STATUS "Clang: Debug-flags set (-g3 -glldb)")
+endif()
 
 if(ASAN)
   target_compile_options(trinity-compile-option-interface
