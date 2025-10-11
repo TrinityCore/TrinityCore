@@ -26,7 +26,7 @@ INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `Sourc
 (14222, 0, 0, 0, 14221, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''); -- Last Stand
 
 -- Disable Class Quests
-DELETE FROM `Disables` WHERE (`sourceType` = 1 AND `entry` IN (14283,14266,14272,14274,14281,14279,14276));
+DELETE FROM `disables` WHERE (`sourceType` = 1 AND `entry` IN (14283,14266,14272,14274,14281,14279,14276));
 INSERT INTO `disables` (`sourceType`, `entry`, `flags`, `params_0`, `params_1`, `comment`) VALUES
 (1, 14283, 0, '', '', 'Deprecated quest: Moonfire'),
 (1, 14266, 0, '', '', 'Deprecated quest: Charge'),
