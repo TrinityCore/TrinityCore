@@ -46,7 +46,7 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   https://github.com/nemtrif/utfcpp
-  Version: 3.2.3
+  Version: 4.0.8
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
