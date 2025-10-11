@@ -264,6 +264,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
     else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
 
+    if (!aura->GetCastItemGUID().IsEmpty())
+        auraData.CastItem = aura->GetCastItemGUID();
+
     if (auraData.Flags & AFLAG_DURATION)
     {
         auraData.Duration = aura->GetMaxDuration();

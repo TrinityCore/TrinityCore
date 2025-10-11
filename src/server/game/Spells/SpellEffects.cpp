@@ -6150,13 +6150,30 @@ void Spell::EffectCreateTraitTreeConfig()
         return;
 
     newConfig.TraitSystemID = sTraitTreeStore.AssertEntry(effectInfo->MiscValue)->TraitSystemID;
-    int32 existingConfigForSystem = target->m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& config)
+    TraitSystemEntry const* traitSystem = sTraitSystemStore.LookupEntry(newConfig.TraitSystemID);
+    if (!traitSystem)
+        return;
+
+    switch (traitSystem->GetVariationType())
+    {
+        case TraitSystemVariationType::None:
+            newConfig.VariationID = 0;
+            break;
+        case TraitSystemVariationType::Spec:
+            newConfig.VariationID = AsUnderlyingType(target->GetPrimarySpecialization());
+            break;
+        default:
+            return;
+    }
+
+    int32 const* existingConfigIdForSystem = target->m_activePlayerData->TraitConfigs.FindIf([&](UF::TraitConfig const& config)
     {
         return static_cast<TraitConfigType>(*config.Type) == TraitConfigType::Generic
-            && config.TraitSystemID == newConfig.TraitSystemID;
-    });
+            && config.TraitSystemID == newConfig.TraitSystemID
+            && config.VariationID == newConfig.VariationID;
+    }).first;
 
-    if (existingConfigForSystem < 0)
+    if (!existingConfigIdForSystem)
         target->CreateTraitConfig(newConfig);
 }
 

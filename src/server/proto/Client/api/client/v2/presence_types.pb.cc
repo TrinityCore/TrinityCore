@@ -47,6 +47,18 @@ const ::google::protobuf::internal::GeneratedMessageReflection*
 const ::google::protobuf::Descriptor* PresenceExternalIdentityFieldValue_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   PresenceExternalIdentityFieldValue_reflection_ = NULL;
+const ::google::protobuf::Descriptor* LocalizedStringMapEntry_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  LocalizedStringMapEntry_reflection_ = NULL;
+const ::google::protobuf::Descriptor* LocalizedStringMap_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  LocalizedStringMap_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RichPresenceParty_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RichPresenceParty_reflection_ = NULL;
+const ::google::protobuf::Descriptor* RichPresenceDetails_descriptor_ = NULL;
+const ::google::protobuf::internal::GeneratedMessageReflection*
+  RichPresenceDetails_reflection_ = NULL;
 const ::google::protobuf::EnumDescriptor* PresenceQueryBehavior_descriptor_ = NULL;
 const ::google::protobuf::EnumDescriptor* PresenceAccountStatus_descriptor_ = NULL;
 
@@ -193,6 +205,73 @@ void protobuf_AssignDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
       ::google::protobuf::DescriptorPool::generated_pool(),
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(PresenceExternalIdentityFieldValue));
+  LocalizedStringMapEntry_descriptor_ = file->message_type(8);
+  static const int LocalizedStringMapEntry_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMapEntry, locale_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMapEntry, value_),
+  };
+  LocalizedStringMapEntry_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      LocalizedStringMapEntry_descriptor_,
+      LocalizedStringMapEntry::default_instance_,
+      LocalizedStringMapEntry_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMapEntry, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMapEntry, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(LocalizedStringMapEntry));
+  LocalizedStringMap_descriptor_ = file->message_type(9);
+  static const int LocalizedStringMap_offsets_[2] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMap, default_string_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMap, localized_entry_),
+  };
+  LocalizedStringMap_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      LocalizedStringMap_descriptor_,
+      LocalizedStringMap::default_instance_,
+      LocalizedStringMap_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMap, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LocalizedStringMap, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(LocalizedStringMap));
+  RichPresenceParty_descriptor_ = file->message_type(10);
+  static const int RichPresenceParty_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceParty, id_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceParty, current_size_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceParty, max_size_),
+  };
+  RichPresenceParty_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RichPresenceParty_descriptor_,
+      RichPresenceParty::default_instance_,
+      RichPresenceParty_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceParty, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceParty, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RichPresenceParty));
+  RichPresenceDetails_descriptor_ = file->message_type(11);
+  static const int RichPresenceDetails_offsets_[4] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, state_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, party_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, large_image_url_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, small_image_url_),
+  };
+  RichPresenceDetails_reflection_ =
+    new ::google::protobuf::internal::GeneratedMessageReflection(
+      RichPresenceDetails_descriptor_,
+      RichPresenceDetails::default_instance_,
+      RichPresenceDetails_offsets_,
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, _has_bits_[0]),
+      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(RichPresenceDetails, _unknown_fields_),
+      -1,
+      ::google::protobuf::DescriptorPool::generated_pool(),
+      ::google::protobuf::MessageFactory::generated_factory(),
+      sizeof(RichPresenceDetails));
   PresenceQueryBehavior_descriptor_ = file->enum_type(0);
   PresenceAccountStatus_descriptor_ = file->enum_type(1);
 }
@@ -223,6 +302,14 @@ void protobuf_RegisterTypes(const ::std::string&) {
     PresenceOnlineGameAccountFieldValue_descriptor_, &PresenceOnlineGameAccountFieldValue::default_instance());
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     PresenceExternalIdentityFieldValue_descriptor_, &PresenceExternalIdentityFieldValue::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    LocalizedStringMapEntry_descriptor_, &LocalizedStringMapEntry::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    LocalizedStringMap_descriptor_, &LocalizedStringMap::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RichPresenceParty_descriptor_, &RichPresenceParty::default_instance());
+  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
+    RichPresenceDetails_descriptor_, &RichPresenceDetails::default_instance());
 }
 
 }  // namespace
@@ -244,6 +331,14 @@ void protobuf_ShutdownFile_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
   delete PresenceOnlineGameAccountFieldValue_reflection_;
   delete PresenceExternalIdentityFieldValue::default_instance_;
   delete PresenceExternalIdentityFieldValue_reflection_;
+  delete LocalizedStringMapEntry::default_instance_;
+  delete LocalizedStringMapEntry_reflection_;
+  delete LocalizedStringMap::default_instance_;
+  delete LocalizedStringMap_reflection_;
+  delete RichPresenceParty::default_instance_;
+  delete RichPresenceParty_reflection_;
+  delete RichPresenceDetails::default_instance_;
+  delete RichPresenceDetails_reflection_;
 }
 
 void protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
@@ -254,40 +349,55 @@ void protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
 
   ::bgs::protocol::v2::protobuf_AddDesc_api_2fcommon_2fv2_2fattribute_5ftypes_2eproto();
   ::bgs::protocol::account::v2::protobuf_AddDesc_api_2fcommon_2fv2_2fgame_5faccount_5fhandle_2eproto();
+  ::bgs::protocol::protobuf_AddDesc_global_5fextensions_2ffield_5foptions_2eproto();
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
     "\n\"api/client/v2/presence_types.proto\022\030bg"
     "s.protocol.presence.v2\032#api/common/v2/at"
     "tribute_types.proto\032\'api/common/v2/game_"
-    "account_handle.proto\"L\n\017RichPresenceKey\022"
-    "\020\n\010title_id\030\001 \001(\r\022\016\n\006stream\030\002 \001(\007\022\027\n\017loc"
-    "alization_id\030\003 \001(\r\"U\n\020PresenceFieldKey\022\020"
-    "\n\010title_id\030\001 \001(\r\022\r\n\005group\030\002 \001(\r\022\r\n\005field"
-    "\030\003 \001(\r\022\021\n\tunique_id\030\004 \001(\004\"\233\001\n\rPresenceFi"
-    "eld\0227\n\003key\030\001 \001(\0132*.bgs.protocol.presence"
-    ".v2.PresenceFieldKey\022\'\n\005value\030\002 \001(\0132\030.bg"
-    "s.protocol.v2.Variant\022\017\n\007deleted\030\003 \001(\010\022\027"
-    "\n\017updated_time_us\030\004 \001(\004\"\273\001\n\022PresenceFiel"
-    "dState\022\022\n\naccount_id\030\001 \001(\004\022@\n\014game_accou"
-    "nt\030\002 \001(\0132*.bgs.protocol.account.v2.GameA"
-    "ccountHandle\0227\n\006fields\030\003 \003(\0132\'.bgs.proto"
-    "col.presence.v2.PresenceField\022\026\n\016oldest_"
-    "time_us\030\004 \001(\004\"\207\001\n\023PresenceFieldUpdate\0227\n"
-    "\003key\030\001 \001(\0132*.bgs.protocol.presence.v2.Pr"
-    "esenceFieldKey\022\'\n\005value\030\002 \001(\0132\030.bgs.prot"
-    "ocol.v2.Variant\022\016\n\006delete\030\003 \001(\010\"u\n\031Prese"
-    "nceOnlineGameAccount\022@\n\014game_account\030\001 \001"
-    "(\0132*.bgs.protocol.account.v2.GameAccount"
-    "Handle\022\026\n\016online_time_us\030\002 \001(\004\"x\n#Presen"
-    "ceOnlineGameAccountFieldValue\022Q\n\024online_"
-    "game_accounts\030\001 \003(\01323.bgs.protocol.prese"
-    "nce.v2.PresenceOnlineGameAccount\"K\n\"Pres"
-    "enceExternalIdentityFieldValue\022\021\n\tunique"
-    "_id\030\001 \001(\t\022\022\n\ndisplay_id\030\002 \001(\t*r\n\025Presenc"
-    "eQueryBehavior\022\033\n\027BATTLE_NET_ACCOUNT_ONL"
-    "Y\020\000\022\035\n\031INCLUDE_SAME_GAME_ACCOUNT\020\001\022\035\n\031IN"
-    "CLUDE_ALL_GAME_ACCOUNTS\020\002*C\n\025PresenceAcc"
-    "ountStatus\022\013\n\007OFFLINE\020\000\022\n\n\006ONLINE\020\001\022\010\n\004A"
-    "WAY\020\002\022\007\n\003DND\020\003B\002H\002", 1298);
+    "account_handle.proto\032%global_extensions/"
+    "field_options.proto\"L\n\017RichPresenceKey\022\020"
+    "\n\010title_id\030\001 \001(\r\022\016\n\006stream\030\002 \001(\007\022\027\n\017loca"
+    "lization_id\030\003 \001(\r\"U\n\020PresenceFieldKey\022\020\n"
+    "\010title_id\030\001 \001(\r\022\r\n\005group\030\002 \001(\r\022\r\n\005field\030"
+    "\003 \001(\r\022\021\n\tunique_id\030\004 \001(\004\"\233\001\n\rPresenceFie"
+    "ld\0227\n\003key\030\001 \001(\0132*.bgs.protocol.presence."
+    "v2.PresenceFieldKey\022\'\n\005value\030\002 \001(\0132\030.bgs"
+    ".protocol.v2.Variant\022\017\n\007deleted\030\003 \001(\010\022\027\n"
+    "\017updated_time_us\030\004 \001(\004\"\273\001\n\022PresenceField"
+    "State\022\022\n\naccount_id\030\001 \001(\004\022@\n\014game_accoun"
+    "t\030\002 \001(\0132*.bgs.protocol.account.v2.GameAc"
+    "countHandle\0227\n\006fields\030\003 \003(\0132\'.bgs.protoc"
+    "ol.presence.v2.PresenceField\022\026\n\016oldest_t"
+    "ime_us\030\004 \001(\004\"\207\001\n\023PresenceFieldUpdate\0227\n\003"
+    "key\030\001 \001(\0132*.bgs.protocol.presence.v2.Pre"
+    "senceFieldKey\022\'\n\005value\030\002 \001(\0132\030.bgs.proto"
+    "col.v2.Variant\022\016\n\006delete\030\003 \001(\010\"u\n\031Presen"
+    "ceOnlineGameAccount\022@\n\014game_account\030\001 \001("
+    "\0132*.bgs.protocol.account.v2.GameAccountH"
+    "andle\022\026\n\016online_time_us\030\002 \001(\004\"x\n#Presenc"
+    "eOnlineGameAccountFieldValue\022Q\n\024online_g"
+    "ame_accounts\030\001 \003(\01323.bgs.protocol.presen"
+    "ce.v2.PresenceOnlineGameAccount\"K\n\"Prese"
+    "nceExternalIdentityFieldValue\022\021\n\tunique_"
+    "id\030\001 \001(\t\022\022\n\ndisplay_id\030\002 \001(\t\"F\n\027Localize"
+    "dStringMapEntry\022\016\n\006locale\030\001 \001(\t\022\033\n\005value"
+    "\030\002 \001(\tB\014\212\371+\010\"\006\n\004\010\001\020@\"\224\001\n\022LocalizedString"
+    "Map\022$\n\016default_string\030\001 \001(\tB\014\212\371+\010\"\006\n\004\010\001\020"
+    "@\022X\n\017localized_entry\030\002 \003(\01321.bgs.protoco"
+    "l.presence.v2.LocalizedStringMapEntryB\014\212"
+    "\371+\010*\006\n\004\010\000\020 \"U\n\021RichPresenceParty\022\030\n\002id\030\001"
+    " \001(\tB\014\212\371+\010\"\006\n\004\010\001\020(\022\024\n\014current_size\030\002 \001(\r"
+    "\022\020\n\010max_size\030\003 \001(\r\"\336\001\n\023RichPresenceDetai"
+    "ls\022;\n\005state\030\001 \001(\0132,.bgs.protocol.presenc"
+    "e.v2.LocalizedStringMap\022:\n\005party\030\002 \001(\0132+"
+    ".bgs.protocol.presence.v2.RichPresencePa"
+    "rty\022&\n\017large_image_url\030\003 \001(\tB\r\212\371+\t\"\007\n\005\010\000"
+    "\020\200\001\022&\n\017small_image_url\030\004 \001(\tB\r\212\371+\t\"\007\n\005\010\000"
+    "\020\200\001*r\n\025PresenceQueryBehavior\022\033\n\027BATTLE_N"
+    "ET_ACCOUNT_ONLY\020\000\022\035\n\031INCLUDE_SAME_GAME_A"
+    "CCOUNT\020\001\022\035\n\031INCLUDE_ALL_GAME_ACCOUNTS\020\002*"
+    "C\n\025PresenceAccountStatus\022\013\n\007OFFLINE\020\000\022\n\n"
+    "\006ONLINE\020\001\022\010\n\004AWAY\020\002\022\007\n\003DND\020\003B\002H\002", 1872);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "api/client/v2/presence_types.proto", &protobuf_RegisterTypes);
   RichPresenceKey::default_instance_ = new RichPresenceKey();
@@ -298,6 +408,10 @@ void protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
   PresenceOnlineGameAccount::default_instance_ = new PresenceOnlineGameAccount();
   PresenceOnlineGameAccountFieldValue::default_instance_ = new PresenceOnlineGameAccountFieldValue();
   PresenceExternalIdentityFieldValue::default_instance_ = new PresenceExternalIdentityFieldValue();
+  LocalizedStringMapEntry::default_instance_ = new LocalizedStringMapEntry();
+  LocalizedStringMap::default_instance_ = new LocalizedStringMap();
+  RichPresenceParty::default_instance_ = new RichPresenceParty();
+  RichPresenceDetails::default_instance_ = new RichPresenceDetails();
   RichPresenceKey::default_instance_->InitAsDefaultInstance();
   PresenceFieldKey::default_instance_->InitAsDefaultInstance();
   PresenceField::default_instance_->InitAsDefaultInstance();
@@ -306,6 +420,10 @@ void protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto() {
   PresenceOnlineGameAccount::default_instance_->InitAsDefaultInstance();
   PresenceOnlineGameAccountFieldValue::default_instance_->InitAsDefaultInstance();
   PresenceExternalIdentityFieldValue::default_instance_->InitAsDefaultInstance();
+  LocalizedStringMapEntry::default_instance_->InitAsDefaultInstance();
+  LocalizedStringMap::default_instance_->InitAsDefaultInstance();
+  RichPresenceParty::default_instance_->InitAsDefaultInstance();
+  RichPresenceDetails::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_api_2fclient_2fv2_2fpresence_5ftypes_2eproto);
 }
 
@@ -966,6 +1084,333 @@ void PresenceExternalIdentityFieldValue::Swap(PresenceExternalIdentityFieldValue
   ::google::protobuf::Metadata metadata;
   metadata.descriptor = PresenceExternalIdentityFieldValue_descriptor_;
   metadata.reflection = PresenceExternalIdentityFieldValue_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int LocalizedStringMapEntry::kLocaleFieldNumber;
+const int LocalizedStringMapEntry::kValueFieldNumber;
+#endif  // !_MSC_VER
+
+LocalizedStringMapEntry::LocalizedStringMapEntry()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v2.LocalizedStringMapEntry)
+}
+
+void LocalizedStringMapEntry::InitAsDefaultInstance() {
+}
+
+LocalizedStringMapEntry::LocalizedStringMapEntry(const LocalizedStringMapEntry& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v2.LocalizedStringMapEntry)
+}
+
+void LocalizedStringMapEntry::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  locale_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  value_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+LocalizedStringMapEntry::~LocalizedStringMapEntry() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v2.LocalizedStringMapEntry)
+  SharedDtor();
+}
+
+void LocalizedStringMapEntry::SharedDtor() {
+  if (locale_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete locale_;
+  }
+  if (value_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete value_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void LocalizedStringMapEntry::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* LocalizedStringMapEntry::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return LocalizedStringMapEntry_descriptor_;
+}
+
+const LocalizedStringMapEntry& LocalizedStringMapEntry::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+LocalizedStringMapEntry* LocalizedStringMapEntry::default_instance_ = NULL;
+
+LocalizedStringMapEntry* LocalizedStringMapEntry::New() const {
+  return new LocalizedStringMapEntry;
+}
+
+void LocalizedStringMapEntry::Swap(LocalizedStringMapEntry* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata LocalizedStringMapEntry::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = LocalizedStringMapEntry_descriptor_;
+  metadata.reflection = LocalizedStringMapEntry_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int LocalizedStringMap::kDefaultStringFieldNumber;
+const int LocalizedStringMap::kLocalizedEntryFieldNumber;
+#endif  // !_MSC_VER
+
+LocalizedStringMap::LocalizedStringMap()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v2.LocalizedStringMap)
+}
+
+void LocalizedStringMap::InitAsDefaultInstance() {
+}
+
+LocalizedStringMap::LocalizedStringMap(const LocalizedStringMap& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v2.LocalizedStringMap)
+}
+
+void LocalizedStringMap::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  default_string_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+LocalizedStringMap::~LocalizedStringMap() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v2.LocalizedStringMap)
+  SharedDtor();
+}
+
+void LocalizedStringMap::SharedDtor() {
+  if (default_string_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete default_string_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void LocalizedStringMap::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* LocalizedStringMap::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return LocalizedStringMap_descriptor_;
+}
+
+const LocalizedStringMap& LocalizedStringMap::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+LocalizedStringMap* LocalizedStringMap::default_instance_ = NULL;
+
+LocalizedStringMap* LocalizedStringMap::New() const {
+  return new LocalizedStringMap;
+}
+
+void LocalizedStringMap::Swap(LocalizedStringMap* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata LocalizedStringMap::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = LocalizedStringMap_descriptor_;
+  metadata.reflection = LocalizedStringMap_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RichPresenceParty::kIdFieldNumber;
+const int RichPresenceParty::kCurrentSizeFieldNumber;
+const int RichPresenceParty::kMaxSizeFieldNumber;
+#endif  // !_MSC_VER
+
+RichPresenceParty::RichPresenceParty()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v2.RichPresenceParty)
+}
+
+void RichPresenceParty::InitAsDefaultInstance() {
+}
+
+RichPresenceParty::RichPresenceParty(const RichPresenceParty& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v2.RichPresenceParty)
+}
+
+void RichPresenceParty::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  id_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  current_size_ = 0u;
+  max_size_ = 0u;
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RichPresenceParty::~RichPresenceParty() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v2.RichPresenceParty)
+  SharedDtor();
+}
+
+void RichPresenceParty::SharedDtor() {
+  if (id_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete id_;
+  }
+  if (this != default_instance_) {
+  }
+}
+
+void RichPresenceParty::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RichPresenceParty::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RichPresenceParty_descriptor_;
+}
+
+const RichPresenceParty& RichPresenceParty::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+RichPresenceParty* RichPresenceParty::default_instance_ = NULL;
+
+RichPresenceParty* RichPresenceParty::New() const {
+  return new RichPresenceParty;
+}
+
+void RichPresenceParty::Swap(RichPresenceParty* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata RichPresenceParty::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RichPresenceParty_descriptor_;
+  metadata.reflection = RichPresenceParty_reflection_;
+  return metadata;
+}
+
+// ===================================================================
+
+#ifndef _MSC_VER
+const int RichPresenceDetails::kStateFieldNumber;
+const int RichPresenceDetails::kPartyFieldNumber;
+const int RichPresenceDetails::kLargeImageUrlFieldNumber;
+const int RichPresenceDetails::kSmallImageUrlFieldNumber;
+#endif  // !_MSC_VER
+
+RichPresenceDetails::RichPresenceDetails()
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:bgs.protocol.presence.v2.RichPresenceDetails)
+}
+
+void RichPresenceDetails::InitAsDefaultInstance() {
+  state_ = const_cast< ::bgs::protocol::presence::v2::LocalizedStringMap*>(&::bgs::protocol::presence::v2::LocalizedStringMap::default_instance());
+  party_ = const_cast< ::bgs::protocol::presence::v2::RichPresenceParty*>(&::bgs::protocol::presence::v2::RichPresenceParty::default_instance());
+}
+
+RichPresenceDetails::RichPresenceDetails(const RichPresenceDetails& from)
+  : ::google::protobuf::Message() {
+  SharedCtor();
+  MergeFrom(from);
+  // @@protoc_insertion_point(copy_constructor:bgs.protocol.presence.v2.RichPresenceDetails)
+}
+
+void RichPresenceDetails::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
+  _cached_size_ = 0;
+  state_ = NULL;
+  party_ = NULL;
+  large_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  small_image_url_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(_has_bits_, 0, sizeof(_has_bits_));
+}
+
+RichPresenceDetails::~RichPresenceDetails() {
+  // @@protoc_insertion_point(destructor:bgs.protocol.presence.v2.RichPresenceDetails)
+  SharedDtor();
+}
+
+void RichPresenceDetails::SharedDtor() {
+  if (large_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete large_image_url_;
+  }
+  if (small_image_url_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete small_image_url_;
+  }
+  if (this != default_instance_) {
+    delete state_;
+    delete party_;
+  }
+}
+
+void RichPresenceDetails::SetCachedSize(int size) const {
+  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
+  _cached_size_ = size;
+  GOOGLE_SAFE_CONCURRENT_WRITES_END();
+}
+const ::google::protobuf::Descriptor* RichPresenceDetails::descriptor() {
+  protobuf_AssignDescriptorsOnce();
+  return RichPresenceDetails_descriptor_;
+}
+
+const RichPresenceDetails& RichPresenceDetails::default_instance() {
+  if (default_instance_ == NULL) protobuf_AddDesc_api_2fclient_2fv2_2fpresence_5ftypes_2eproto();
+  return *default_instance_;
+}
+
+RichPresenceDetails* RichPresenceDetails::default_instance_ = NULL;
+
+RichPresenceDetails* RichPresenceDetails::New() const {
+  return new RichPresenceDetails;
+}
+
+void RichPresenceDetails::Swap(RichPresenceDetails* other) {
+  if (other != this) {
+    GetReflection()->Swap(this, other);}
+}
+
+::google::protobuf::Metadata RichPresenceDetails::GetMetadata() const {
+  protobuf_AssignDescriptorsOnce();
+  ::google::protobuf::Metadata metadata;
+  metadata.descriptor = RichPresenceDetails_descriptor_;
+  metadata.reflection = RichPresenceDetails_reflection_;
   return metadata;
 }
 

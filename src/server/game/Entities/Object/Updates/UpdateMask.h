@@ -97,15 +97,15 @@ public:
     constexpr void SetAll()
     {
         std::memset(_blocksMask.data(), 0xFF, _blocksMask.size() * sizeof(typename decltype(_blocksMask)::value_type));
-        if constexpr (BlocksMaskCount % 32)
-        {
-            constexpr uint32 unused = 32 - (BlocksMaskCount % 32);
-            _blocksMask.back() &= (0xFFFFFFFF >> unused);
-        }
-        std::memset(_blocks.data(), 0xFF, _blocks.size() * sizeof(typename decltype(_blocks)::value_type));
         if constexpr (BlockCount % 32)
         {
             constexpr uint32 unused = 32 - (BlockCount % 32);
+            _blocksMask.back() &= (0xFFFFFFFF >> unused);
+        }
+        std::memset(_blocks.data(), 0xFF, _blocks.size() * sizeof(typename decltype(_blocks)::value_type));
+        if constexpr (Bits % 32)
+        {
+            constexpr uint32 unused = 32 - (Bits % 32);
             _blocks.back() &= (0xFFFFFFFF >> unused);
         }
     }

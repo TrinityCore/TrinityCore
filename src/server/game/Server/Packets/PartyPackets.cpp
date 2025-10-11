@@ -213,7 +213,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyMemberStats const& memberStats)
     for (uint32 i = 0; i < 2; i++)
         data << uint8(memberStats.PartyType[i]);
 
-    data << uint16(memberStats.Status);
+    data << uint32(memberStats.Status);
     data << uint8(memberStats.PowerType);
     data << uint16(memberStats.PowerDisplayID);
     data << int32(memberStats.CurrentHealth);
@@ -503,6 +503,7 @@ ByteBuffer& operator<<(ByteBuffer& data, ChallengeModeData const& challengeMode)
     data << int64(challengeMode.Unknown_1120_4);
     data << challengeMode.KeystoneOwnerGUID;
     data << challengeMode.LeaverGUID;
+    data << challengeMode.InstanceAbandonVoteCooldown;
     data << Bits<1>(challengeMode.IsActive);
     data << Bits<1>(challengeMode.HasRestrictions);
     data << Bits<1>(challengeMode.CanVoteAbandon);

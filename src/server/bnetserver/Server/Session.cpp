@@ -266,14 +266,20 @@ uint32 Battlenet::Session::HandleGenerateWebCredentials(authentication::v1::Gene
     if (!_authed)
         return ERROR_DENIED;
 
-    if (request->program() != 0x576F57)
+    switch (request->program())
     {
-        auto asPrintable = [](char c) { return std::isprint(c) ? c : ' '; };
+        case 0x417070: // App
+        case 0x576F57: // WoW
+            break;
+        default:
+        {
+            auto asPrintable = [](char c) { return std::isprint(c) ? c : ' '; };
 
-        TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] {} attempted to generate web cretentials with game other than WoW (using {}{}{}{})!",
-            GetClientInfo(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
-            asPrintable((request->program() >> 8) & 0xFF), asPrintable(request->program() & 0xFF));
-        return ERROR_BAD_PROGRAM;
+            TC_LOG_DEBUG("session", "[Battlenet::HandleGenerateWebCredentials] {} attempted to generate web cretentials with game other than WoW (using {}{}{}{})!",
+                GetClientInfo(), asPrintable((request->program() >> 24) & 0xFF), asPrintable((request->program() >> 16) & 0xFF),
+                asPrintable((request->program() >> 8) & 0xFF), asPrintable(request->program() & 0xFF));
+            return ERROR_BAD_PROGRAM;
+        }
     }
 
     LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BNET_EXISTING_AUTHENTICATION_BY_ID);
