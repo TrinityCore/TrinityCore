@@ -7,7 +7,7 @@
 
 #include <efsw/WatcherWin32.hpp>
 #include <map>
-#include <set>
+#include <unordered_set>
 #include <vector>
 
 namespace efsw {
@@ -17,7 +17,7 @@ namespace efsw {
 class FileWatcherWin32 : public FileWatcherImpl {
   public:
 	/// type for a map from WatchID to WatcherWin32 pointer
-	typedef std::set<WatcherStructWin32*> Watches;
+	typedef std::unordered_set<WatcherStructWin32*> Watches;
 
 	FileWatcherWin32( FileWatcher* parent );
 

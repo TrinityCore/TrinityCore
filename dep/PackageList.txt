@@ -4,13 +4,9 @@ Boost (external)
   http://www.boost.org
   Version: 1.55
 
-Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
-  http://www.highscore.de/boost/process0.5/
-  Version: 0.5
-
 efsw (Entropia File System Watcher - crossplatform file system watcher)
   https://github.com/SpartanJ/efsw
-  Version: 1.3.1+ 36c1c7004a34b6f40719f0830bcfb10325415451
+  Version: 1.5.0+ f94a6616aba85fc9375fdff7ee69609d223a0672
 
 fmt (a small, safe and fast formatting library)
   https://github.com/fmtlib/fmt
@@ -38,11 +34,11 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   https://github.com/nemtrif/utfcpp
-  Version: 3.2.3
+  Version: 4.0.8
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
-  Version: 1.3
+  Version: 1.3.1
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
@@ -63,7 +59,7 @@ catch2
 
 CascLib (An open-source implementation of library for reading CASC storage from Blizzard games since 2014)
   https://github.com/ladislav-zezula/CascLib
-  Version: 07ab5f37ad282cc101d5c17793c550a0a6d4637f
+  Version: 09dd46e59614ee468c290b9002850454990bf15d
 
 rapidjson (A fast JSON parser/generator for C++ with both SAX/DOM style API http://rapidjson.org/)
   https://github.com/Tencent/rapidjson
