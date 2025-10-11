@@ -20626,16 +20626,16 @@ void Player::_SaveActions(CharacterDatabaseTransaction trans)
         if (!traitConfig)
             return 0;
 
-        int32 usedSavedTraitConfigIndex = m_activePlayerData->TraitConfigs.FindIndexIf([localIdent = *traitConfig->LocalIdentifier](UF::TraitConfig const& savedConfig)
+        int32 const* usedSavedTraitConfigId = m_activePlayerData->TraitConfigs.FindIf([localIdent = *traitConfig->LocalIdentifier](UF::TraitConfig const& savedConfig)
         {
             return static_cast<TraitConfigType>(*savedConfig.Type) == TraitConfigType::Combat
                 && (static_cast<TraitCombatConfigFlags>(*savedConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None
                 && (static_cast<TraitCombatConfigFlags>(*savedConfig.CombatConfigFlags) & TraitCombatConfigFlags::SharedActionBars) == TraitCombatConfigFlags::None
                 && savedConfig.LocalIdentifier == localIdent;
-        });
+        }).first;
 
-        if (usedSavedTraitConfigIndex >= 0)
-            return m_activePlayerData->TraitConfigs[usedSavedTraitConfigIndex].ID;
+        if (usedSavedTraitConfigId)
+            return *usedSavedTraitConfigId;
 
         return 0;
     }();
@@ -28095,8 +28095,8 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
 
     if (configsResult)
     {
-        //                    0     1                    2                  3                4            5              6      7
-        // SELECT traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, `name` FROM character_trait_config WHERE guid = ?
+        //                    0     1                    2                  3                4            5              6            7      8
+        // SELECT traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, variationId, `name` FROM character_trait_config WHERE guid = ?
         do
         {
             Field* fields = configsResult->Fetch();
@@ -28115,12 +28115,13 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
                     break;
                 case TraitConfigType::Generic:
                     traitConfig.TraitSystemID = fields[6].GetInt32();
+                    traitConfig.VariationID = fields[7].GetInt32();
                     break;
                 default:
                     break;
             }
 
-            traitConfig.Name = fields[7].GetString();
+            traitConfig.Name = fields[8].GetStringView();
 
             for (UF::TraitEntry const& grantedEntry : TraitMgr::GetGrantedTraitEntriesForConfig(traitConfig, this))
                 traitConfig.Entries.emplace_back(grantedEntry);
@@ -28165,23 +28166,23 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
 
     auto hasConfigForSpec = [&](int32 specId)
     {
-        return m_activePlayerData->TraitConfigs.FindIndexIf([=](UF::TraitConfig const& traitConfig)
+        return m_activePlayerData->TraitConfigs.FindIf([=](UF::TraitConfig const& traitConfig)
         {
             return traitConfig.Type == AsUnderlyingType(TraitConfigType::Combat)
                 && traitConfig.ChrSpecializationID == specId
                 && traitConfig.CombatConfigFlags & AsUnderlyingType(TraitCombatConfigFlags::ActiveForSpec);
-        }) >= 0;
+        }).first != nullptr;
     };
 
     auto findFreeLocalIdentifier = [&](int32 specId)
     {
         int32 index = 1;
-        while (m_activePlayerData->TraitConfigs.FindIndexIf([specId, index](UF::TraitConfig const& traitConfig)
+        while (m_activePlayerData->TraitConfigs.FindIf([specId, index](UF::TraitConfig const& traitConfig)
         {
             return traitConfig.Type == AsUnderlyingType(TraitConfigType::Combat)
                 && traitConfig.ChrSpecializationID == specId
                 && traitConfig.LocalIdentifier == index;
-        }) >= 0)
+        }).first)
             ++index;
 
         return index;
@@ -28205,39 +28206,38 @@ void Player::_LoadTraits(PreparedQueryResult configsResult, PreparedQueryResult 
         }
     }
 
-    int32 activeConfig = m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& traitConfig)
+    UF::TraitConfig const* activeTraitConfig = m_activePlayerData->TraitConfigs.FindIf([&](UF::TraitConfig const& traitConfig)
     {
         return traitConfig.Type == AsUnderlyingType(TraitConfigType::Combat)
             && traitConfig.ChrSpecializationID == int32(GetPrimarySpecialization())
             && traitConfig.CombatConfigFlags & AsUnderlyingType(TraitCombatConfigFlags::ActiveForSpec);
-    });
+    }).second;
 
-    if (activeConfig >= 0)
+    if (activeTraitConfig)
     {
-        UF::TraitConfig const& activeTraitConfig = m_activePlayerData->TraitConfigs[activeConfig];
-        SetActiveCombatTraitConfigID(activeTraitConfig.ID);
-        int32 activeSubTree = activeTraitConfig.SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
+        SetActiveCombatTraitConfigID(activeTraitConfig->ID);
+        int32 activeSubTree = activeTraitConfig->SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
         if (activeSubTree >= 0)
-            SetCurrentCombatTraitConfigSubTreeID(activeTraitConfig.SubTrees[activeSubTree].TraitSubTreeID);
+            SetCurrentCombatTraitConfigSubTreeID(activeTraitConfig->SubTrees[activeSubTree].TraitSubTreeID);
     }
 
-    for (UF::TraitConfig const& traitConfig : m_activePlayerData->TraitConfigs)
+    for (auto const& [id, traitConfig] : m_activePlayerData->TraitConfigs)
     {
-        switch (static_cast<TraitConfigType>(*traitConfig.Type))
+        switch (static_cast<TraitConfigType>(*traitConfig.value.Type))
         {
             case TraitConfigType::Combat:
-                if (traitConfig.ID != int32(*m_activePlayerData->ActiveCombatTraitConfigID))
+                if (traitConfig.value.ID != int32(*m_activePlayerData->ActiveCombatTraitConfigID))
                     continue;
                 break;
             case TraitConfigType::Profession:
-                if (!HasSkill(traitConfig.SkillLineID))
+                if (!HasSkill(traitConfig.value.SkillLineID))
                     continue;
                 break;
             default:
                 break;
         }
 
-        ApplyTraitConfig(traitConfig.ID, true);
+        ApplyTraitConfig(id, true);
     }
 }
 
@@ -28317,6 +28317,7 @@ void Player::_SaveTraits(CharacterDatabaseTransaction trans)
                             stmt->setInt32(5, traitConfig->LocalIdentifier);
                             stmt->setNull(6);
                             stmt->setNull(7);
+                            stmt->setNull(8);
                             break;
                         case TraitConfigType::Profession:
                             stmt->setNull(3);
@@ -28324,6 +28325,7 @@ void Player::_SaveTraits(CharacterDatabaseTransaction trans)
                             stmt->setNull(5);
                             stmt->setInt32(6, traitConfig->SkillLineID);
                             stmt->setNull(7);
+                            stmt->setNull(8);
                             break;
                         case TraitConfigType::Generic:
                             stmt->setNull(3);
@@ -28331,12 +28333,13 @@ void Player::_SaveTraits(CharacterDatabaseTransaction trans)
                             stmt->setNull(5);
                             stmt->setNull(6);
                             stmt->setInt32(7, traitConfig->TraitSystemID);
+                            stmt->setInt32(8, traitConfig->VariationID);
                             break;
                         default:
                             break;
                     }
 
-                    stmt->setString(8, *traitConfig->Name);
+                    stmt->setString(9, *traitConfig->Name);
                     trans->Append(stmt);
 
                     for (UF::TraitEntry const& traitEntry : traitConfig->Entries)
@@ -28482,19 +28485,18 @@ void Player::ActivateTalentGroup(ChrSpecializationEntry const* spec)
 
     SetActiveTalentGroup(spec->OrderIndex);
     SetPrimarySpecialization(spec->ID);
-    int32 specTraitConfigIndex = m_activePlayerData->TraitConfigs.FindIndexIf([spec](UF::TraitConfig const& traitConfig)
+    UF::TraitConfig const* specTraitConfig = m_activePlayerData->TraitConfigs.FindIf([spec](UF::TraitConfig const& traitConfig)
     {
         return static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
             && traitConfig.ChrSpecializationID == int32(spec->ID)
             && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None;
-    });
-    if (specTraitConfigIndex >= 0)
+    }).second;
+    if (specTraitConfig)
     {
-        UF::TraitConfig const& activeTraitConfig = m_activePlayerData->TraitConfigs[specTraitConfigIndex];
-        SetActiveCombatTraitConfigID(activeTraitConfig.ID);
-        int32 activeSubTree = activeTraitConfig.SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
+        SetActiveCombatTraitConfigID(specTraitConfig->ID);
+        int32 activeSubTree = specTraitConfig->SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
         if (activeSubTree >= 0)
-            SetCurrentCombatTraitConfigSubTreeID(activeTraitConfig.SubTrees[activeSubTree].TraitSubTreeID);
+            SetCurrentCombatTraitConfigSubTreeID(specTraitConfig->SubTrees[activeSubTree].TraitSubTreeID);
         else
             SetCurrentCombatTraitConfigSubTreeID(0);
     }
@@ -28615,16 +28617,16 @@ void Player::StartLoadingActionButtons(std::function<void()>&& callback /*= null
         if (!traitConfig)
             return 0;
 
-        int32 usedSavedTraitConfigIndex = m_activePlayerData->TraitConfigs.FindIndexIf([localIdent = *traitConfig->LocalIdentifier](UF::TraitConfig const& savedConfig)
+        int32 const* usedSavedTraitConfigId = m_activePlayerData->TraitConfigs.FindIf([localIdent = *traitConfig->LocalIdentifier](UF::TraitConfig const& savedConfig)
         {
             return static_cast<TraitConfigType>(*savedConfig.Type) == TraitConfigType::Combat
             && (static_cast<TraitCombatConfigFlags>(*savedConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None
             && (static_cast<TraitCombatConfigFlags>(*savedConfig.CombatConfigFlags) & TraitCombatConfigFlags::SharedActionBars) == TraitCombatConfigFlags::None
             && savedConfig.LocalIdentifier == localIdent;
-        });
+        }).first;
 
-        if (usedSavedTraitConfigIndex >= 0)
-            return m_activePlayerData->TraitConfigs[usedSavedTraitConfigIndex].ID;
+        if (usedSavedTraitConfigId)
+            return *usedSavedTraitConfigId;
 
         return 0;
     }();
@@ -28663,7 +28665,7 @@ void Player::CreateTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig)
     uint32 configId = TraitMgr::GenerateNewTraitConfigId();
     auto hasConfigId = [&](int32 id)
     {
-        return m_activePlayerData->TraitConfigs.FindIndexIf([id](UF::TraitConfig const& config) { return config.ID == id; }) >= 0;
+        return m_activePlayerData->TraitConfigs.Get(id) != nullptr;
     };
 
     while (hasConfigId(configId))
@@ -28671,18 +28673,18 @@ void Player::CreateTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig)
 
     traitConfig.ID = configId;
 
-    int32 traitConfigIndex = m_activePlayerData->TraitConfigs.size();
     AddTraitConfig(traitConfig);
 
+    auto entrySetter = m_values.ModifyValue(&Player::m_activePlayerData)
+        .ModifyValue(&UF::ActivePlayerData::TraitConfigs, configId)
+        .ModifyValue(&UF::TraitConfig::Entries);
     for (UF::TraitEntry const& grantedEntry : TraitMgr::GetGrantedTraitEntriesForConfig(traitConfig, this))
     {
-        auto entryItr = std::find_if(traitConfig.Entries.begin(), traitConfig.Entries.end(),
+        auto entryItr = std::ranges::find_if(traitConfig.Entries,
             [&](WorldPackets::Traits::TraitEntry const& entry) { return entry.TraitNodeID == grantedEntry.TraitNodeID && entry.TraitNodeEntryID == grantedEntry.TraitNodeEntryID; });
 
         if (entryItr == traitConfig.Entries.end())
-            AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfigIndex)
-                .ModifyValue(&UF::TraitConfig::Entries)) = grantedEntry;
+            AddDynamicUpdateFieldValue(entrySetter) = grantedEntry;
     }
 
     m_traitConfigStates[configId] = PLAYERSPELL_CHANGED;
@@ -28690,15 +28692,15 @@ void Player::CreateTraitConfig(WorldPackets::Traits::TraitConfig& traitConfig)
 
 void Player::AddTraitConfig(WorldPackets::Traits::TraitConfig const& traitConfig)
 {
-    auto setter = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TraitConfigs));
-    setter.ModifyValue(&UF::TraitConfig::ID).SetValue(traitConfig.ID);
-    setter.ModifyValue(&UF::TraitConfig::Name).SetValue(traitConfig.Name);
-    setter.ModifyValue(&UF::TraitConfig::Type).SetValue(AsUnderlyingType(traitConfig.Type));
-    setter.ModifyValue(&UF::TraitConfig::SkillLineID).SetValue(traitConfig.SkillLineID);;
-    setter.ModifyValue(&UF::TraitConfig::ChrSpecializationID).SetValue(traitConfig.ChrSpecializationID);
-    setter.ModifyValue(&UF::TraitConfig::CombatConfigFlags).SetValue(AsUnderlyingType(traitConfig.CombatConfigFlags));
-    setter.ModifyValue(&UF::TraitConfig::LocalIdentifier).SetValue(traitConfig.LocalIdentifier);
-    setter.ModifyValue(&UF::TraitConfig::TraitSystemID).SetValue(traitConfig.TraitSystemID);
+    auto setter = m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfig.ID);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::ID), traitConfig.ID);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::Name), traitConfig.Name);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::Type), AsUnderlyingType(traitConfig.Type));
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::SkillLineID), traitConfig.SkillLineID);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::ChrSpecializationID), traitConfig.ChrSpecializationID);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::CombatConfigFlags), AsUnderlyingType(traitConfig.CombatConfigFlags));
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::LocalIdentifier), traitConfig.LocalIdentifier);
+    SetUpdateFieldValue(setter.ModifyValue(&UF::TraitConfig::TraitSystemID), traitConfig.TraitSystemID);
 
     for (WorldPackets::Traits::TraitEntry const& traitEntry : traitConfig.Entries)
     {
@@ -28728,17 +28730,13 @@ void Player::AddTraitConfig(WorldPackets::Traits::TraitConfig const& traitConfig
 
 UF::TraitConfig const* Player::GetTraitConfig(int32 configId) const
 {
-    int32 index = m_activePlayerData->TraitConfigs.FindIndexIf([configId](UF::TraitConfig const& config) { return config.ID == configId; });
-    if (index < 0)
-        return nullptr;
-
-    return &m_activePlayerData->TraitConfigs[index];
+    return m_activePlayerData->TraitConfigs.Get(configId);
 }
 
 void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, int32 savedConfigId, bool withCastTime)
 {
-    int32 index = m_activePlayerData->TraitConfigs.FindIndexIf([&](UF::TraitConfig const& config) { return config.ID == newConfig.ID; });
-    if (index < 0)
+    UF::TraitConfig const* oldConfig = m_activePlayerData->TraitConfigs.Get(newConfig.ID);
+    if (!oldConfig)
         return;
 
     if (withCastTime)
@@ -28749,14 +28747,14 @@ void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, in
 
     bool isActiveConfig = true;
     bool loadActionButtons = false;
-    switch (TraitConfigType(*m_activePlayerData->TraitConfigs[index].Type))
+    switch (TraitConfigType(*oldConfig->Type))
     {
         case TraitConfigType::Combat:
             isActiveConfig = newConfig.ID == int32(*m_activePlayerData->ActiveCombatTraitConfigID);
-            loadActionButtons = m_activePlayerData->TraitConfigs[index].LocalIdentifier != newConfig.LocalIdentifier;
+            loadActionButtons = oldConfig->LocalIdentifier != newConfig.LocalIdentifier;
             break;
         case TraitConfigType::Profession:
-            isActiveConfig = HasSkill(m_activePlayerData->TraitConfigs[index].SkillLineID);
+            isActiveConfig = HasSkill(oldConfig->SkillLineID);
             break;
         default:
             break;
@@ -28765,7 +28763,7 @@ void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, in
     std::function<void()> finalizeTraitConfigUpdate = [=, this, newConfig = std::move(newConfig)]()
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, index)
+            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, newConfig.ID)
             .ModifyValue(&UF::TraitConfig::LocalIdentifier), newConfig.LocalIdentifier);
 
         ApplyTraitEntryChanges(newConfig.ID, newConfig, isActiveConfig, true);
@@ -28791,8 +28789,8 @@ void Player::UpdateTraitConfig(WorldPackets::Traits::TraitConfig&& newConfig, in
 
 void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::TraitConfig const& newConfig, bool applyTraits, bool consumeCurrencies)
 {
-    int32 editedIndex = m_activePlayerData->TraitConfigs.FindIndexIf([editedConfigId](UF::TraitConfig const& config) { return config.ID == editedConfigId; });
-    if (editedIndex < 0)
+    UF::TraitConfig const* editedConfig = m_activePlayerData->TraitConfigs.Get(editedConfigId);
+    if (!editedConfig)
         return;
 
     auto makeTraitEntryFinder = [](int32 traitNodeId, int32 traitNodeEntryId)
@@ -28800,13 +28798,14 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
         return [=](auto const& ufEntry) { return ufEntry.TraitNodeID == traitNodeId && ufEntry.TraitNodeEntryID == traitNodeEntryId; };
     };
 
-    UF::TraitConfig const& editedConfig = m_activePlayerData->TraitConfigs[editedIndex];
+    auto configSetter = m_values.ModifyValue(&Player::m_activePlayerData)
+        .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedConfigId);
 
     // remove traits not found in new config
     std::set<int32, std::greater<>> entryIndicesToRemove;
-    for (int32 i = 0; i < std::ssize(editedConfig.Entries); ++i)
+    for (int32 i = 0; i < std::ssize(editedConfig->Entries); ++i)
     {
-        UF::TraitEntry const& oldEntry = editedConfig.Entries[i];
+        UF::TraitEntry const& oldEntry = editedConfig->Entries[i];
         auto entryItr = std::ranges::find_if(newConfig.Entries, makeTraitEntryFinder(oldEntry.TraitNodeID, oldEntry.TraitNodeEntryID));
         if (entryItr != newConfig.Entries.end())
             continue;
@@ -28818,26 +28817,20 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
     }
 
     for (int32 indexToRemove : entryIndicesToRemove)
-    {
-        RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
-            .ModifyValue(&UF::TraitConfig::Entries), indexToRemove);
-    }
+        RemoveDynamicUpdateFieldValue(configSetter.ModifyValue(&UF::TraitConfig::Entries), indexToRemove);
 
     std::vector<WorldPackets::Traits::TraitEntry> costEntries;
 
     // apply new traits
     for (WorldPackets::Traits::TraitEntry const& newEntry : newConfig.Entries)
     {
-        int32 oldEntryIndex = editedConfig.Entries.FindIndexIf(makeTraitEntryFinder(newEntry.TraitNodeID, newEntry.TraitNodeEntryID));
+        int32 oldEntryIndex = editedConfig->Entries.FindIndexIf(makeTraitEntryFinder(newEntry.TraitNodeID, newEntry.TraitNodeEntryID));
         if (oldEntryIndex < 0)
         {
             if (consumeCurrencies)
                 costEntries.push_back(newEntry);
 
-            UF::TraitEntry& newUfEntry = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
-                .ModifyValue(&UF::TraitConfig::Entries));
+            UF::TraitEntry& newUfEntry = AddDynamicUpdateFieldValue(configSetter.ModifyValue(&UF::TraitConfig::Entries));
             newUfEntry.TraitNodeID = newEntry.TraitNodeID;
             newUfEntry.TraitNodeEntryID = newEntry.TraitNodeEntryID;
             newUfEntry.Rank = newEntry.Rank;
@@ -28846,21 +28839,19 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
             if (applyTraits)
                 ApplyTraitEntry(newUfEntry.TraitNodeEntryID, newUfEntry.Rank, 0, true);
         }
-        else if (newEntry.Rank != editedConfig.Entries[oldEntryIndex].Rank || newEntry.GrantedRanks != editedConfig.Entries[oldEntryIndex].GrantedRanks)
+        else if (newEntry.Rank != editedConfig->Entries[oldEntryIndex].Rank || newEntry.GrantedRanks != editedConfig->Entries[oldEntryIndex].GrantedRanks)
         {
-            if (consumeCurrencies && newEntry.Rank > editedConfig.Entries[oldEntryIndex].Rank)
+            if (consumeCurrencies && newEntry.Rank > editedConfig->Entries[oldEntryIndex].Rank)
             {
                 WorldPackets::Traits::TraitEntry& costEntry = costEntries.emplace_back(newEntry);
-                costEntry.Rank -= editedConfig.Entries[oldEntryIndex].Rank;
+                costEntry.Rank -= editedConfig->Entries[oldEntryIndex].Rank;
             }
 
-            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+            SetUpdateFieldValue(configSetter
                 .ModifyValue(&UF::TraitConfig::Entries, oldEntryIndex)
                 .ModifyValue(&UF::TraitEntry::Rank), newEntry.Rank);
 
-            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+            SetUpdateFieldValue(configSetter
                 .ModifyValue(&UF::TraitConfig::Entries, oldEntryIndex)
                 .ModifyValue(&UF::TraitEntry::GrantedRanks), newEntry.GrantedRanks);
 
@@ -28899,7 +28890,7 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
 
     for (WorldPackets::Traits::TraitSubTreeCache const& newSubTree : newConfig.SubTrees)
     {
-        int32 oldSubTreeIndex = editedConfig.SubTrees.FindIndexIf([&](UF::TraitSubTreeCache const& ufSubTree) { return ufSubTree.TraitSubTreeID == newSubTree.TraitSubTreeID; });
+        int32 oldSubTreeIndex = editedConfig->SubTrees.FindIndexIf([&](UF::TraitSubTreeCache const& ufSubTree) { return ufSubTree.TraitSubTreeID == newSubTree.TraitSubTreeID; });
         std::vector<UF::TraitEntry> subTreeEntries;
         subTreeEntries.resize(newSubTree.Entries.size());
         for (std::size_t j = 0; j < newSubTree.Entries.size(); ++j)
@@ -28913,24 +28904,20 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
 
         if (oldSubTreeIndex < 0)
         {
-            UF::TraitSubTreeCache& newUfSubTree = AddDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
-                .ModifyValue(&UF::TraitConfig::SubTrees));
+            UF::TraitSubTreeCache& newUfSubTree = AddDynamicUpdateFieldValue(configSetter.ModifyValue(&UF::TraitConfig::SubTrees));
             newUfSubTree.TraitSubTreeID = newSubTree.TraitSubTreeID;
             newUfSubTree.Active = newSubTree.Active;
             newUfSubTree.Entries = std::move(subTreeEntries);
         }
         else
         {
-            bool wasActive = m_activePlayerData->TraitConfigs[editedIndex].SubTrees[oldSubTreeIndex].Active != 0;
+            bool wasActive = editedConfig->SubTrees[oldSubTreeIndex].Active != 0;
 
-            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+            SetUpdateFieldValue(configSetter
                 .ModifyValue(&UF::TraitConfig::SubTrees, oldSubTreeIndex)
                 .ModifyValue(&UF::TraitSubTreeCache::Active), newSubTree.Active);
 
-            SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-                .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+            SetUpdateFieldValue(configSetter
                 .ModifyValue(&UF::TraitConfig::SubTrees, oldSubTreeIndex)
                 .ModifyValue(&UF::TraitSubTreeCache::Entries), std::move(subTreeEntries));
 
@@ -28942,9 +28929,9 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
 
     if (applyTraits)
     {
-        int32 activeSubTree = editedConfig.SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
+        int32 activeSubTree = editedConfig->SubTrees.FindIndexIf([](UF::TraitSubTreeCache const& subTree) { return subTree.Active != 0; });
         if (activeSubTree >= 0)
-            SetCurrentCombatTraitConfigSubTreeID(editedConfig.SubTrees[activeSubTree].TraitSubTreeID);
+            SetCurrentCombatTraitConfigSubTreeID(editedConfig->SubTrees[activeSubTree].TraitSubTreeID);
         else
             SetCurrentCombatTraitConfigSubTreeID(0);
 
@@ -28956,17 +28943,14 @@ void Player::ApplyTraitEntryChanges(int32 editedConfigId, WorldPackets::Traits::
 
 void Player::RenameTraitConfig(int32 editedConfigId, std::string&& newName)
 {
-    int32 editedIndex = m_activePlayerData->TraitConfigs.FindIndexIf([editedConfigId](UF::TraitConfig const& traitConfig)
-    {
-        return traitConfig.ID == editedConfigId
-            && static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
-            && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None;
-    });
-    if (editedIndex < 0)
+    UF::TraitConfig const* editedConfig = m_activePlayerData->TraitConfigs.Get(editedConfigId);
+    if (!editedConfig
+        || static_cast<TraitConfigType>(*editedConfig->Type) != TraitConfigType::Combat
+        || (static_cast<TraitCombatConfigFlags>(*editedConfig->CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None)
         return;
 
     SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-        .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedIndex)
+        .ModifyValue(&UF::ActivePlayerData::TraitConfigs, editedConfigId)
         .ModifyValue(&UF::TraitConfig::Name), std::move(newName));
 
     m_traitConfigStates[editedConfigId] = PLAYERSPELL_CHANGED;
@@ -28974,17 +28958,14 @@ void Player::RenameTraitConfig(int32 editedConfigId, std::string&& newName)
 
 void Player::DeleteTraitConfig(int32 deletedConfigId)
 {
-    int32 deletedIndex = m_activePlayerData->TraitConfigs.FindIndexIf([deletedConfigId](UF::TraitConfig const& traitConfig)
-    {
-        return traitConfig.ID == deletedConfigId
-            && static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
-            && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None;
-    });
-    if (deletedIndex < 0)
+    UF::TraitConfig const* deletedConfig = m_activePlayerData->TraitConfigs.Get(deletedConfigId);
+    if (!deletedConfig
+        || static_cast<TraitConfigType>(*deletedConfig->Type) != TraitConfigType::Combat
+        || (static_cast<TraitCombatConfigFlags>(*deletedConfig->CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None)
         return;
 
-    RemoveDynamicUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
-        .ModifyValue(&UF::ActivePlayerData::TraitConfigs), deletedIndex);
+    RemoveMapUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData)
+        .ModifyValue(&UF::ActivePlayerData::TraitConfigs), deletedConfigId);
 
     m_traitConfigStates[deletedConfigId] = PLAYERSPELL_REMOVED;
 }
@@ -29023,26 +29004,23 @@ void Player::ApplyTraitEntry(int32 traitNodeEntryId, int32 rank, int32 grantedRa
 
 void Player::SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterBuild)
 {
-    int32 configIndex = m_activePlayerData->TraitConfigs.FindIndexIf([traitConfigId](UF::TraitConfig const& traitConfig)
-    {
-        return traitConfig.ID == traitConfigId
-            && static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
-            && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None;
-    });
-    if (configIndex < 0)
+    UF::TraitConfig const* config = m_activePlayerData->TraitConfigs.Get(traitConfigId);
+    if (!config
+        || static_cast<TraitConfigType>(*config->Type) != TraitConfigType::Combat
+        || (static_cast<TraitCombatConfigFlags>(*config->CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None)
         return;
 
-    bool currentlyUsesStarterBuild = EnumFlag(static_cast<TraitCombatConfigFlags>(*m_activePlayerData->TraitConfigs[configIndex].CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::StarterBuild);
+    bool currentlyUsesStarterBuild = EnumFlag(static_cast<TraitCombatConfigFlags>(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::StarterBuild);
     if (currentlyUsesStarterBuild == useStarterBuild)
         return;
 
     if (useStarterBuild)
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, configIndex)
+            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfigId)
             .ModifyValue(&UF::TraitConfig::CombatConfigFlags), AsUnderlyingType(TraitCombatConfigFlags::StarterBuild));
     else
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, configIndex)
+            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfigId)
             .ModifyValue(&UF::TraitConfig::CombatConfigFlags), AsUnderlyingType(TraitCombatConfigFlags::StarterBuild));
 
     m_traitConfigStates[traitConfigId] = PLAYERSPELL_CHANGED;
@@ -29050,23 +29028,20 @@ void Player::SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterB
 
 void Player::SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig)
 {
-    int32 configIndex = m_activePlayerData->TraitConfigs.FindIndexIf([traitConfigId](UF::TraitConfig const& traitConfig)
-    {
-        return traitConfig.ID == traitConfigId
-            && static_cast<TraitConfigType>(*traitConfig.Type) == TraitConfigType::Combat
-            && (static_cast<TraitCombatConfigFlags>(*traitConfig.CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) == TraitCombatConfigFlags::None;
-    });
-    if (configIndex < 0)
+    UF::TraitConfig const* config = m_activePlayerData->TraitConfigs.Get(traitConfigId);
+    if (!config
+        || static_cast<TraitConfigType>(*config->Type) != TraitConfigType::Combat
+        || (static_cast<TraitCombatConfigFlags>(*config->CombatConfigFlags) & TraitCombatConfigFlags::ActiveForSpec) != TraitCombatConfigFlags::None)
         return;
 
-    bool currentlyUsesSharedActionBars = EnumFlag(static_cast<TraitCombatConfigFlags>(*m_activePlayerData->TraitConfigs[configIndex].CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::SharedActionBars);
+    bool currentlyUsesSharedActionBars = EnumFlag(static_cast<TraitCombatConfigFlags>(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::SharedActionBars);
     if (currentlyUsesSharedActionBars == usesSharedActionBars)
         return;
 
     if (usesSharedActionBars)
     {
         SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, configIndex)
+            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfigId)
             .ModifyValue(&UF::TraitConfig::CombatConfigFlags), AsUnderlyingType(TraitCombatConfigFlags::SharedActionBars));
 
         {
@@ -29082,7 +29057,7 @@ void Player::SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSha
     else
     {
         RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData)
-            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, configIndex)
+            .ModifyValue(&UF::ActivePlayerData::TraitConfigs, traitConfigId)
             .ModifyValue(&UF::TraitConfig::CombatConfigFlags), AsUnderlyingType(TraitCombatConfigFlags::SharedActionBars));
 
         // trigger a save with traitConfigId
@@ -30904,6 +30879,16 @@ bool TraitMgr::PlayerDataAccessor::HasAchieved(int32 achievementId) const
 uint32 TraitMgr::PlayerDataAccessor::GetPrimarySpecialization() const
 {
     return AsUnderlyingType(_player->GetPrimarySpecialization());
+}
+
+std::variant<int64, float> TraitMgr::PlayerDataAccessor::GetDataElementAccount(uint32 dataElementId) const
+{
+    return _player->GetDataElementAccount(dataElementId);
+}
+
+std::variant<int64, float> TraitMgr::PlayerDataAccessor::GetDataElementCharacter(uint32 dataElementId) const
+{
+    return _player->GetDataElementCharacter(dataElementId);
 }
 
 void Player::RequestSpellCast(std::unique_ptr<SpellCastRequest> castRequest)

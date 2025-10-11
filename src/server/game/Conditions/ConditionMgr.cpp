@@ -3309,16 +3309,16 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     {
         auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
         {
-            for (UF::TraitConfig const& traitConfig : player->m_activePlayerData->TraitConfigs)
+            for (auto const& [_, traitConfig] : player->m_activePlayerData->TraitConfigs)
             {
-                if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
+                if (TraitConfigType(*traitConfig.value.Type) == TraitConfigType::Combat)
                 {
-                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != *traitConfig.ID
-                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != *traitConfig.value.ID
+                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.value.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
                         continue;
                 }
 
-                for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
                     if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
                         return traitEntry.Rank;
             }

@@ -79,7 +79,7 @@ namespace WorldPackets
         {
             int32 GossipOptionID  = 0;
             GossipOptionNpc OptionNPC = {};
-            uint8 OptionFlags   = 0;
+            int32 OptionFlags = 0;
             uint64 OptionCost    = 0;
             uint32 OptionLanguage = 0;
             GossipOptionFlags Flags = {};
@@ -90,7 +90,7 @@ namespace WorldPackets
             TreasureLootList Treasure;
             Optional<int32> SpellID;
             Optional<int32> OverrideIconID;
-            std::string FailureDescription;
+            std::string_view FailureDescription;
         };
 
         struct ClientGossipText
@@ -103,7 +103,7 @@ namespace WorldPackets
             bool ResetByScheduler = false;
             bool Important = false;
             bool Meta = false;
-            std::string QuestTitle;
+            std::string_view QuestTitle;
             std::array<int32, 4> QuestFlags = { };
         };
 
@@ -207,7 +207,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             ObjectGuid TrainerGUID;
-            int32 TrainerType   = 0;
+            int8 TrainerType   = 0;
             int32 TrainerID     = 1;
             std::vector<TrainerListSpell> Spells;
             std::string Greeting;
@@ -226,7 +226,7 @@ namespace WorldPackets
             int32 Icon          = 0;
             int32 Importance    = 0;
             int32 WMOGroupID    = 0;
-            std::string Name;
+            std::string_view Name;
         };
 
         class SpiritHealerActivate final : public ClientPacket

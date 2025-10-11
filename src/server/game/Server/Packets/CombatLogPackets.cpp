@@ -52,6 +52,7 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
     *this << int32(Absorbed);
     *this << int32(Resisted);
     *this << int32(ShieldBlock);
+    *this << int32(Flags);
     *this << Size<uint32>(WorldTextViewers);
     *this << Size<uint32>(Supporters);
 
@@ -59,7 +60,6 @@ WorldPacket const* SpellNonMeleeDamageLog::Write()
         *this << supportInfo;
 
     *this << Bits<1>(Periodic);
-    *this << Bits<7>(Flags);
     *this << Bits<1>(false); // Debug info
     WriteLogDataBit();
     *this << OptionalInit(ContentTuning);

@@ -2327,17 +2327,22 @@ uint32 Item::GetItemLevel(ItemTemplate const* itemTemplate, BonusData const& bon
     if (AzeriteLevelInfoEntry const* azeriteLevelInfo = sAzeriteLevelInfoStore.LookupEntry(azeriteLevel))
         itemLevel = azeriteLevelInfo->ItemLevel;
 
-    if (bonusData.PlayerLevelToItemLevelCurveId)
+    if (!bonusData.ItemLevelOffsetCurveId)
     {
-        if (fixedLevel)
-            level = fixedLevel;
-        else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true))
-            level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
+        if (bonusData.PlayerLevelToItemLevelCurveId)
+        {
+            if (fixedLevel)
+                level = fixedLevel;
+            else if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(bonusData.ContentTuningId, 0, true))
+                level = std::min(std::max(int16(level), levels->MinLevel), levels->MaxLevel);
 
-        itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
+            itemLevel = uint32(sDB2Manager.GetCurveValueAt(bonusData.PlayerLevelToItemLevelCurveId, level));
+        }
+
+        itemLevel += bonusData.ItemLevelBonus;
     }
-
-    itemLevel += bonusData.ItemLevelBonus;
+    else
+        itemLevel = bonusData.ItemLevelOffset + uint32(sDB2Manager.GetCurveValueAt(bonusData.ItemLevelOffsetCurveId, bonusData.ItemLevelOffsetItemLevel));
 
     for (uint32 i = 0; i < MAX_ITEM_PROTO_SOCKETS; ++i)
         itemLevel += bonusData.GemItemLevelBonus[i];
@@ -2935,6 +2940,10 @@ void BonusData::Initialize(ItemTemplate const* proto)
     PvpItemLevel = 0;
     PvpItemLevelBonus = 0;
 
+    ItemLevelOffsetCurveId = proto->GetItemLevelOffsetCurveId();
+    ItemLevelOffsetItemLevel = proto->GetItemLevelOffsetItemLevel();
+    ItemLevelOffset = 0;
+
     EffectCount = 0;
     for (ItemEffectEntry const* itemEffect : proto->Effects)
         Effects[EffectCount++] = itemEffect;
@@ -3135,6 +3144,50 @@ void BonusData::AddBonus(uint32 type, std::array<int32, 4> const& values)
             {
                 Bonding = static_cast<ItemBondingType>(values[0]);
                 _state.BondingPriority = values[1];
+            }
+            break;
+        case ITEM_BONUS_ITEM_OFFSET_CURVE:
+            if (values[3] < _state.ScalingStatDistributionPriority)
+            {
+                ItemLevelOffsetCurveId = values[0];
+                ItemLevelOffsetItemLevel = values[1];
+                _state.ScalingStatDistributionPriority = values[3];
+            }
+            break;
+        case ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL:
+            if (values[1] < _state.ScalingStatDistributionPriority)
+            {
+                if (ItemScalingConfigEntry const* scalingConfig = sItemScalingConfigStore.LookupEntry(values[0]))
+                {
+                    if (ItemOffsetCurveEntry const* itemOffsetCurve = sItemOffsetCurveStore.LookupEntry(scalingConfig->ItemOffsetCurveID))
+                    {
+                        ItemLevelOffsetCurveId = itemOffsetCurve->CurveID;
+                        ItemLevelOffset = itemOffsetCurve->Offset;
+                    }
+
+                    ItemLevelOffsetItemLevel = scalingConfig->ItemLevel;
+
+                    if (values[1] < _state.RequiredLevelCurvePriority)
+                    {
+                        RequiredLevelOverride = scalingConfig->RequiredLevel;
+                        RequiredLevelCurve = 0;
+                    }
+                }
+            }
+            break;
+        case ITEM_BONUS_SCALING_CONFIG:
+            if (values[1] < _state.ScalingStatDistributionPriority)
+            {
+                if (ItemScalingConfigEntry const* scalingConfig = sItemScalingConfigStore.LookupEntry(values[0]))
+                {
+                    if (ItemOffsetCurveEntry const* itemOffsetCurve = sItemOffsetCurveStore.LookupEntry(scalingConfig->ItemOffsetCurveID))
+                    {
+                        ItemLevelOffsetCurveId = itemOffsetCurve->CurveID;
+                        ItemLevelOffset = itemOffsetCurve->Offset;
+                    }
+
+                    ItemLevelOffsetItemLevel = 0;
+                }
             }
             break;
     }
