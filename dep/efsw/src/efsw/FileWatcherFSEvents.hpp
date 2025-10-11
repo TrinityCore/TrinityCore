@@ -16,27 +16,6 @@
 
 namespace efsw {
 
-/* OSX < 10.7 has no file events */
-/* So i declare the events constants */
-enum FSEventEvents {
-	efswFSEventStreamCreateFlagNoDefer = 0x00000002,
-	efswFSEventStreamCreateFlagFileEvents = 0x00000010,
-	efswFSEventStreamEventFlagItemCreated = 0x00000100,
-	efswFSEventStreamEventFlagItemRemoved = 0x00000200,
-	efswFSEventStreamEventFlagItemInodeMetaMod = 0x00000400,
-	efswFSEventStreamEventFlagItemRenamed = 0x00000800,
-	efswFSEventStreamEventFlagItemModified = 0x00001000,
-	efswFSEventStreamEventFlagItemFinderInfoMod = 0x00002000,
-	efswFSEventStreamEventFlagItemChangeOwner = 0x00004000,
-	efswFSEventStreamEventFlagItemXattrMod = 0x00008000,
-	efswFSEventStreamEventFlagItemIsFile = 0x00010000,
-	efswFSEventStreamEventFlagItemIsDir = 0x00020000,
-	efswFSEventStreamEventFlagItemIsSymlink = 0x00040000,
-	efswFSEventsModified = efswFSEventStreamEventFlagItemFinderInfoMod |
-						   efswFSEventStreamEventFlagItemModified |
-						   efswFSEventStreamEventFlagItemInodeMetaMod
-};
-
 /// Implementation for Win32 based on ReadDirectoryChangesW.
 /// @class FileWatcherFSEvents
 class FileWatcherFSEvents : public FileWatcherImpl {

@@ -21,14 +21,12 @@ set(EFSW_CPP_SOURCE
   src/efsw/FileWatcherImpl.hpp
   src/efsw/Lock.hpp
   src/efsw/Log.cpp
-  src/efsw/Mutex.cpp
   src/efsw/Mutex.hpp
   src/efsw/sophist.h
   src/efsw/String.cpp
   src/efsw/String.hpp
   src/efsw/System.cpp
   src/efsw/System.hpp
-  src/efsw/Thread.cpp
   src/efsw/Thread.hpp
   src/efsw/Utf.hpp
   src/efsw/Watcher.cpp
@@ -42,22 +40,14 @@ if (WIN32)
   list (APPEND EFSW_CPP_SOURCE
     src/efsw/platform/win/FileSystemImpl.cpp
     src/efsw/platform/win/FileSystemImpl.hpp
-    src/efsw/platform/win/MutexImpl.cpp
-    src/efsw/platform/win/MutexImpl.hpp
     src/efsw/platform/win/SystemImpl.cpp
-    src/efsw/platform/win/SystemImpl.hpp
-    src/efsw/platform/win/ThreadImpl.cpp
-    src/efsw/platform/win/ThreadImpl.hpp)
+    src/efsw/platform/win/SystemImpl.hpp)
 else ()
   list (APPEND EFSW_CPP_SOURCE
     src/efsw/platform/posix/FileSystemImpl.cpp
     src/efsw/platform/posix/FileSystemImpl.hpp
-    src/efsw/platform/posix/MutexImpl.cpp
-    src/efsw/platform/posix/MutexImpl.hpp
     src/efsw/platform/posix/SystemImpl.cpp
-    src/efsw/platform/posix/SystemImpl.hpp
-    src/efsw/platform/posix/ThreadImpl.cpp
-    src/efsw/platform/posix/ThreadImpl.hpp)
+    src/efsw/platform/posix/SystemImpl.hpp)
 endif()
 
 if (APPLE)
