@@ -42,8 +42,8 @@ ByteBuffer& operator<<(ByteBuffer& data, TreasureLootList const& treasureLootLis
 ByteBuffer& operator<<(ByteBuffer& data, ClientGossipOptions const& gossipOption)
 {
     data << int32(gossipOption.GossipOptionID);
-    data << int32(gossipOption.OptionFlags);
-    data << uint8(gossipOption.OptionNPC);
+    data << uint32(gossipOption.OptionNPC);
+    data << int8(gossipOption.OptionFlags);
     data << uint64(gossipOption.OptionCost);
     data << uint32(gossipOption.OptionLanguage);
     data << int32(gossipOption.Flags);
