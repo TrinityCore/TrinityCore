@@ -41,9 +41,13 @@ if(WITH_WARNINGS)
   message(STATUS "GCC: All warnings enabled")
 endif()
 
-target_compile_options(trinity-compile-option-interface
-  INTERFACE
-    $<$<OR:$<CONFIG:Debug,RelWithDebInfo>,$<BOOL:${WITH_COREDEBUG}>>:-ggdb3>)
+if(WITH_COREDEBUG)
+  target_compile_options(trinity-compile-option-interface
+    INTERFACE
+      -ggdb3)
+
+  message(STATUS "GCC: Debug-flags set (-ggdb3)")
+endif()
 
 if(ASAN)
   target_compile_options(trinity-compile-option-interface
