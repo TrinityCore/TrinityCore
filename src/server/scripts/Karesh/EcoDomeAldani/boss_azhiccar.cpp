@@ -395,10 +395,10 @@ class spell_azhiccar_player_detection : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_INVADING_SHRIEK_SUMMON });
+        return ValidateSpellInfo({ SPELL_THRASH });
     }
 
-    void HandleAfterCast() const
+    void HandlePlayerDetection() const
     {
         int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
         if (targetsHit > 0)
@@ -409,8 +409,7 @@ class spell_azhiccar_player_detection : public SpellScript
 
     void Register() override
     {
-        AfterCast += SpellCastFn(spell_azhiccar_player_detection::HandleAfterCast);
-        //OnEffectLaunch += SpellEffectFn(spell_azhiccar_player_detection::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_azhiccar_player_detection::HandlePlayerDetection);
     }
 };
 
