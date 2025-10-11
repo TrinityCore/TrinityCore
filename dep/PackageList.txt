@@ -4,10 +4,6 @@ Boost (external)
   http://www.boost.org
   Version: 1.55
 
-Boost Process (Proposed for boost, but its not an official part of it yet. Used to start child processes.)
-  http://www.highscore.de/boost/process0.5/
-  Version: 0.5
-
 efsw (Entropia File System Watcher - crossplatform file system watcher)
   https://github.com/SpartanJ/efsw
   Version: 1.5.0+ f94a6616aba85fc9375fdff7ee69609d223a0672
