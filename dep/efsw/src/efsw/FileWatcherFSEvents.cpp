@@ -41,7 +41,33 @@ bool FileWatcherFSEvents::isGranular() {
 	return getOSXReleaseNumber() >= 11;
 }
 
-void FileWatcherFSEvents::FSEventCallback( ConstFSEventStreamRef streamRef, void* userData,
+static std::string convertCFStringToStdString( CFStringRef cfString ) {
+	// Try to get the C string pointer directly
+	const char* cStr = CFStringGetCStringPtr( cfString, kCFStringEncodingUTF8 );
+
+	if ( cStr ) {
+		// If the pointer is valid, directly return a std::string from it
+		return std::string( cStr );
+	} else {
+		// If not, manually convert it
+		CFIndex length = CFStringGetLength( cfString );
+		CFIndex maxSize = CFStringGetMaximumSizeForEncoding( length, kCFStringEncodingUTF8 ) +
+						  1; // +1 for null terminator
+
+		char* buffer = new char[maxSize];
+
+		if ( CFStringGetCString( cfString, buffer, maxSize, kCFStringEncodingUTF8 ) ) {
+			std::string result( buffer );
+			delete[] buffer;
+			return result;
+		} else {
+			delete[] buffer;
+			return "";
+		}
+	}
+}
+
+void FileWatcherFSEvents::FSEventCallback( ConstFSEventStreamRef /*streamRef*/, void* userData,
 										   size_t numEvents, void* eventPaths,
 										   const FSEventStreamEventFlags eventFlags[],
 										   const FSEventStreamEventId eventIds[] ) {
@@ -51,8 +77,24 @@ void FileWatcherFSEvents::FSEventCallback( ConstFSEventStreamRef streamRef, void
 	events.reserve( numEvents );
 
 	for ( size_t i = 0; i < numEvents; i++ ) {
-		events.push_back( FSEvent( std::string( ( (char**)eventPaths )[i] ), (long)eventFlags[i],
-								   (Uint64)eventIds[i] ) );
+		if ( isGranular() ) {
+			CFDictionaryRef pathInfoDict =
+				static_cast<CFDictionaryRef>( CFArrayGetValueAtIndex( (CFArrayRef)eventPaths, i ) );
+			CFStringRef path = static_cast<CFStringRef>(
+				CFDictionaryGetValue( pathInfoDict, kFSEventStreamEventExtendedDataPathKey ) );
+			CFNumberRef cfInode = static_cast<CFNumberRef>(
+				CFDictionaryGetValue( pathInfoDict, kFSEventStreamEventExtendedFileIDKey ) );
+
+			if ( cfInode ) {
+				unsigned long inode = 0;
+				CFNumberGetValue( cfInode, kCFNumberLongType, &inode );
+				events.push_back( FSEvent( convertCFStringToStdString( path ), (long)eventFlags[i],
+										   (Uint64)eventIds[i], inode ) );
+			}
+		} else {
+			events.push_back( FSEvent( std::string( ( (char**)eventPaths )[i] ),
+									   (long)eventFlags[i], (Uint64)eventIds[i] ) );
+		}
 	}
 
 	watcher->handleActions( events );
@@ -84,8 +126,8 @@ FileWatcherFSEvents::~FileWatcherFSEvents() {
 }
 
 WatchID FileWatcherFSEvents::addWatch( const std::string& directory, FileWatchListener* watcher,
-									   bool recursive, const std::vector<WatcherOption> &options ) {
-	std::string dir( directory );
+									   bool recursive, const std::vector<WatcherOption>& options ) {
+	std::string dir( FileSystem::getRealPath( directory ) );
 
 	FileInfo fi( dir );
 
@@ -125,6 +167,9 @@ WatchID FileWatcherFSEvents::addWatch( const std::string& directory, FileWatchLi
 	pWatch->Directory = dir;
 	pWatch->Recursive = recursive;
 	pWatch->FWatcher = this;
+	pWatch->ModifiedFlags =
+		getOptionValue( options, Option::MacModifiedFilter, efswFSEventsModified );
+	pWatch->SanitizeEvents = getOptionValue( options, Option::MacSanitizeEvents, 0 ) != 0;
 
 	pWatch->init();
 
@@ -169,8 +214,8 @@ void FileWatcherFSEvents::removeWatch( WatchID watchid ) {
 
 void FileWatcherFSEvents::watch() {}
 
-void FileWatcherFSEvents::handleAction( Watcher* watch, const std::string& filename,
-										unsigned long action, std::string oldFilename ) {
+void FileWatcherFSEvents::handleAction( Watcher* /*watch*/, const std::string& /*filename*/,
+										unsigned long /*action*/, std::string /*oldFilename*/ ) {
 	/// Not used
 }
 

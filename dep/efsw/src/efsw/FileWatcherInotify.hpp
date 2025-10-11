@@ -65,7 +65,8 @@ class FileWatcherInotify : public FileWatcherImpl {
 	std::vector<std::pair<WatcherInotify*, std::string>> mMovedOutsideWatches;
 
 	WatchID addWatch( const std::string& directory, FileWatchListener* watcher, bool recursive,
-					  WatcherInotify* parent = NULL );
+					  bool syntheticEvents, WatcherInotify* parent = NULL,
+					  bool fromInternalEvent = false );
 
 	bool pathInWatches( const std::string& path ) override;
 
