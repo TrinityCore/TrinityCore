@@ -20,7 +20,7 @@ DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` 
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `TypeFlags3`) VALUES
 (236190, 23, 10, 0.5, 1, 315019, 0x200048, 128, 0); -- Frenzied Mite
 
-UPDATE `creature_template_difficulty` SET `ContentTuningID`=1279, `StaticFlags1`=0x10000000,  WHERE (`Entry`=236190 AND `DifficultyID`=23); -- 236190 (Frenzied Mite) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1279, `StaticFlags1`=0x10000000 WHERE (`Entry`=236190 AND `DifficultyID`=23); -- 236190 (Frenzied Mite) - CanSwim
 
 -- SAI
 DELETE FROM `smart_scripts` WHERE `entryorguid`=237454 AND `source_type`=0;
