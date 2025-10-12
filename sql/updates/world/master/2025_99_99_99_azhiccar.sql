@@ -10,7 +10,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_azhiccar_intro_creature' WHERE 
 
 DELETE FROM `creature_template_addon` WHERE `entry`=234893;
 INSERT INTO `creature_template_addon` (`entry`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
-(234893, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '1227068 422356');
+(234893, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, '422356');
 
 DELETE FROM `creature_addon` WHERE `guid`=10006776;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
