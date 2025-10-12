@@ -46,11 +46,7 @@ enum UKCreatureIds
     NPC_PRINCE_KELESETH     = 23953,
     NPC_SKARVALD            = 24200,
     NPC_DALRONN             = 24201,
-    NPC_INGVAR              = 23954,
-
-    // Skarvald - Dalronn
-    NPC_DALRONN_GHOST       = 27389,
-    NPC_SKARVALD_GHOST      = 27390
+    NPC_INGVAR              = 23954
 };
 
 enum UKGameObjectIds

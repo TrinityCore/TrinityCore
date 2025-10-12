@@ -40,3 +40,8 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 DELETE FROM `creature_text` WHERE `CreatureID` = 23970;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (23970,0,0,"%s rises from the floor!",16,0,100,0,0,0,26607,0,"Vrykul Skeleton - EMOTE_RISES");
+
+-- Skarvald
+DELETE FROM `creature_loot_template` WHERE `Entry` = 24201 AND `Reference` = 35045;
+DELETE FROM `creature_loot_template` WHERE `Entry` = 31656 AND `Item` = 47241;
+DELETE FROM `creature_loot_template` WHERE `Entry` = 31656 AND `Reference` = 35049;
