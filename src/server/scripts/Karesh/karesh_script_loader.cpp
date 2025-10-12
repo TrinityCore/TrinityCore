@@ -21,7 +21,6 @@
 void AddSC_boss_azhiccar();
 void AddSC_instance_ecodome_aldani();
 
-
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKareshScripts()
