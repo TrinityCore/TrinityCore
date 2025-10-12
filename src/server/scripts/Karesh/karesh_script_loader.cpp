@@ -26,7 +26,7 @@ void AddSC_instance_ecodome_aldani();
 // void Add${NameOfDirectory}Scripts()
 void AddKareshScripts()
 {
-	// Eco-Dome Aldani
-	AddSC_boss_azhiccar();
-	AddSC_instance_ecodome_aldani();
+    // Eco-Dome Aldani
+    AddSC_boss_azhiccar();
+    AddSC_instance_ecodome_aldani();
 }
