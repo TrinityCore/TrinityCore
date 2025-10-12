@@ -155,7 +155,7 @@ struct npc_core_rager : public ScriptedAI
     void DoAction(int32 action) override
     {
         if (action == ACTION_QUIET_SUICIDE)
-            DoCastSelf(SPELL_QUIET_SUICIDE);
+            DoCastSelf(SPELL_QUIET_SUICIDE, true);
     }
 
     void OnSpellCast(SpellInfo const* spell) override
