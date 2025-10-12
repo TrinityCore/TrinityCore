@@ -226,7 +226,7 @@ struct boss_azhiccar : public BossAI
                     for (float angle : portalAngles)
                     {
                         angle += me->GetOrientation();
-                        
+
                         float dist = 30.0f;
                         Position pos = me->GetPosition();
                         me->MovePosition(pos, dist, angle);
@@ -235,7 +235,7 @@ struct boss_azhiccar : public BossAI
                     }
 
                     DoCastSelf(SPELL_INVADING_SHRIEK_PERIODIC);
- 
+
                     _invadingShriekCount++;
                     if (_invadingShriekCount % 2 == 0)
                         events.Repeat(37200ms);
