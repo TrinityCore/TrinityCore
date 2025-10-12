@@ -29,28 +29,31 @@
 enum AzhiccarSpells
 {
     // Intro
-    SPELL_DEVOUR_INSTAKILL                = 1233147,
     SPELL_DEVOUR_INTRO                    = 1233112,
-    SPELL_DEVOUR_SELECTOR                 = 1233116,
+    SPELL_DEVOUR_INTRO_SELECTOR           = 1233116,
+    SPELL_DEVOUR_INSTAKILL                = 1233147,
     SPELL_KNOCKBACK                       = 1222792,
 
     // Combat
-    SPELL_PLAYER_DETECTION                = 1217757,
-    SPELL_ENERGY_CONTROLLER               = 1217202,
-    SPELL_TOXIC_REGURGITATION_SELECTOR    = 1217436,
-    SPELL_TOXIC_REGURGITATION_CAST        = 1227745,
-    SPELL_TOXIC_REGURGITATION_MISSILE     = 1217438,
-    SPELL_TOXIC_REGURGITATION_MARKER      = 1227748,
-    SPELL_DIGESTIVE_SPITTLE               = 1217446,
-
-    SPELL_THRASH                          = 1217664,
     SPELL_DEVOUR                          = 1217232,
+    SPELL_DEVOUR_AREATRIGGER              = 1217240,
+    SPELL_DEVOUR_SELECTOR                 = 1217255,
+    SPELL_DEVOURER_VORTEX                 = 1227068,
+    SPELL_DIGESTIVE_SPITTLE               = 1217446,
+    SPELL_ENERGY_CONTROLLER               = 1217202,
     SPELL_FEAST                           = 1217241,
-
-    SPELL_INVADING_SHRIEK_PERIODIC        = 1217327,
+    SPELL_FEAST_HEAL                      = 1217247,
+    SPELL_FEAST_INSTAKILL                 = 1217252,
     SPELL_INVADING_SHRIEK_DAMAGE          = 1231850,
     SPELL_INVADING_SHRIEK_DUMMY           = 1217330,
-    SPELL_INVADING_SHRIEK_SUMMON          = 1217331
+    SPELL_INVADING_SHRIEK_PERIODIC        = 1217327,
+    SPELL_INVADING_SHRIEK_SUMMON          = 1217331,
+    SPELL_PLAYER_DETECTION                = 1217757,
+    SPELL_THRASH                          = 1217664,
+    SPELL_TOXIC_REGURGITATION_CAST        = 1227745,
+    SPELL_TOXIC_REGURGITATION_MARKER      = 1227748,
+    SPELL_TOXIC_REGURGITATION_MISSILE     = 1217438,
+    SPELL_TOXIC_REGURGITATION_SELECTOR    = 1217436
 };
 
 enum AzhiccarEvents
@@ -63,6 +66,11 @@ enum AzhiccarEvents
 enum AzhiccarActions
 {
     ACTION_START_INTRO = 1
+};
+
+enum AzhiccarTexts
+{
+    SAY_DEVOUR = 0
 };
 
 enum AzhiccarMisc
@@ -99,6 +107,8 @@ struct boss_azhiccar : public BossAI
 
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
+
+        DoCastSelf(SPELL_DEVOURER_VORTEX);
     }
 
     void Reset() override
@@ -127,6 +137,9 @@ struct boss_azhiccar : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
+
+        summons.DespawnAll();
+        me->RemoveAllAreaTriggers();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
@@ -134,8 +147,24 @@ struct boss_azhiccar : public BossAI
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
+        summons.DespawnAll();
+        me->RemoveAllAreaTriggers();
         _EnterEvadeMode();
         _DespawnAtEvade();
+    }
+
+    void OnSpellStart(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id)
+        {
+            case SPELL_DEVOUR:
+            {
+                Talk(SAY_DEVOUR);
+                break;
+            }
+            default:
+                break;
+        }
     }
 
     void DoAction(int32 actionId) override
@@ -227,7 +256,12 @@ struct boss_azhiccar : public BossAI
                 case EVENT_CHECK_ENERGY:
                 {
                     if (me->GetPower(POWER_ENERGY) >= 100)
-                        DoCast(SPELL_DEVOUR);
+                    {
+                        DoCastSelf(SPELL_DEVOUR);
+
+                        if (IsMythic() || IsMythicPlus())
+                            events.ScheduleEvent(EVENT_INVADING_SHRIEK, 2500ms);
+                    }
                     else
                         events.Repeat(500ms);
                     break;
@@ -244,6 +278,26 @@ struct boss_azhiccar : public BossAI
 private:
     uint32 _invadingShriekCount;
     uint32 _toxicRegurgitationCount;
+};
+
+// 1217202 - Energy Controller
+class spell_azhiccar_energy_controller : public AuraScript
+{
+    static constexpr std::array<uint8, 3> AzhiccarEnergizeCycle = { 1, 2, 2 };
+
+    void PeriodicTick(AuraEffect const* aurEff) const
+    {
+        if (GetTarget()->HasAura(SPELL_DEVOUR))
+            return;
+
+        uint8 cycleIdx = aurEff->GetTickNumber() % AzhiccarEnergizeCycle.size();
+        GetTarget()->ModifyPower(POWER_ENERGY, AzhiccarEnergizeCycle[cycleIdx]);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_azhiccar_energy_controller::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
 };
 
 // 1217436 - Toxic Regurgitation
@@ -400,16 +454,90 @@ class spell_azhiccar_player_detection : public SpellScript
 
     void HandlePlayerDetection() const
     {
+        Unit* caster = GetCaster();
         int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
         if (targetsHit > 0)
             return;
 
-        GetCaster()->CastSpell(GetCaster(), SPELL_THRASH, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Spell* currentChanneledSpell = caster->GetCurrentSpell(CURRENT_CHANNELED_SPELL);
+        if (currentChanneledSpell && (currentChanneledSpell->GetSpellInfo()->Id == SPELL_DEVOUR))
+            return;
+
+        if (caster->HasAura(SPELL_DEVOUR))
+            return;
+
+        caster->CastSpell(caster, SPELL_THRASH, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
         AfterCast += SpellCastFn(spell_azhiccar_player_detection::HandlePlayerDetection);
+    }
+};
+
+// 1217232 - Devour
+class spell_azhiccar_devour : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DEVOUR_AREATRIGGER });
+    }
+
+    void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DEVOUR_AREATRIGGER, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->CastSpell(GetCaster(), SPELL_DEVOUR_SELECTOR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectRemoveFn(spell_azhiccar_devour::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 1217255 - Devour
+class spell_azhiccar_devour_selector : public SpellScript
+{
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
+        std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
+        {
+            init.SetBackward();
+            init.MoveTo(AzhiccarPosition.GetPositionX(), AzhiccarPosition.GetPositionY(), AzhiccarPosition.GetPositionZ(), false);
+        };
+        target->SendPlaySpellVisualKit(SPELL_VISUALKIT_ALARM, 4, 9000);
+        target->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_AZHICCAR, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+        target->SetSpeed(MOVE_RUN_BACK, 12.0f);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_azhiccar_devour_selector::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 1217241 - Feast
+// 1217252 - Feast
+class spell_azhiccar_feast : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEAST_HEAL });
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_FEAST_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_azhiccar_feast::HandleHit, EFFECT_0, SPELL_EFFECT_ANY);
     }
 };
 
@@ -424,12 +552,55 @@ struct at_azhiccar_digestive_spittle : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        unit->CastSpell(unit, SPELL_DIGESTIVE_SPITTLE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(unit, SPELL_DIGESTIVE_SPITTLE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_SPITTLE);
+    }
+};
+
+// 1217240 Devour
+// Id - 38188
+struct at_azhiccar_devour_force : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        if (!unit->IsPlayer())
+            return;
+
+        unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), 3.0f, MovementForceType::Gravity);
+    }
+
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
+    {
+        unit->RemoveMovementForce(at->GetGUID());
+    }
+};
+
+// 1217240 Devour
+// Id - 38189
+struct at_azhiccar_devour : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        if (unit->IsPlayer())
+            caster->CastSpell(unit, SPELL_FEAST, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        else if (unit->HasAura(SPELL_DEVOUR_SELECTOR))
+            caster->CastSpell(unit, SPELL_FEAST_INSTAKILL, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
@@ -463,9 +634,9 @@ struct npc_azhiccar_intro_creature : public ScriptedAI
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
     {
-        if (spellInfo->Id == SPELL_DEVOUR_SELECTOR)
+        if (spellInfo->Id == SPELL_DEVOUR_INTRO_SELECTOR)
         {
-            _scheduler.Schedule(2500ms, 4500ms, [this](TaskContext)
+            _scheduler.Schedule(2000ms, 4500ms, [this](TaskContext)
             {
                 me->SendPlayOrphanSpellVisual(OrphanSpellVisualPosition, me->GetPosition(), SPELL_VISUAL_DEVOURED, 45.0f, false);
                 DoCastSelf(SPELL_DEVOUR_INSTAKILL);
@@ -509,12 +680,18 @@ void AddSC_boss_azhiccar()
 {
     RegisterEcodomeAldaniCreatureAI(boss_azhiccar);
 
+    RegisterSpellScript(spell_azhiccar_energy_controller);
     RegisterSpellScript(spell_azhiccar_toxic_regurgitation_selector);
     RegisterSpellScript(spell_azhiccar_toxic_regurgitation_cast);
     RegisterSpellAndAuraScriptPair(spell_azhiccar_invading_shriek, spell_azhiccar_invading_shriek_aura);
     RegisterSpellScript(spell_azhiccar_invading_shriek_dummy);
     RegisterSpellScript(spell_azhiccar_player_detection);
+    RegisterSpellScript(spell_azhiccar_devour);
+    RegisterSpellScript(spell_azhiccar_devour_selector);
+    RegisterSpellScript(spell_azhiccar_feast);
     RegisterAreaTriggerAI(at_azhiccar_digestive_spittle);
+    RegisterAreaTriggerAI(at_azhiccar_devour_force);
+    RegisterAreaTriggerAI(at_azhiccar_devour);
 
     // Intro
     RegisterAreaTriggerAI(at_azhiccar_intro);

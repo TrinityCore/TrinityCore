@@ -1,3 +1,6 @@
+SET @ATSPAWNID := 6666666;
+SET @ATPROP := 66666;
+SET @ATID := 666666;
 
 -- Creature
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800, `unit_flags3`=0x80000 WHERE `entry`=236190; -- Frenzied Mite
@@ -13,6 +16,11 @@ DELETE FROM `creature_addon` WHERE `guid`=10006776;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `MountCreatureID`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvPFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (10006776, 0, 0, 0, 0, 0, 0, 1, 0, 0, 19254, 0, 0, 0, '');
 
+DELETE FROM `creature_template_difficulty` WHERE (`DifficultyID`=23 AND `Entry` =236190);
+INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `HealthScalingExpansion`, `HealthModifier`, `ManaModifier`, `CreatureDifficultyID`, `TypeFlags`, `TypeFlags2`, `TypeFlags3`) VALUES
+(236190, 23, 10, 0.5, 1, 315019, 0x200048, 128, 0); -- Frenzied Mite
+
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=1279, `StaticFlags1`=0x10000000,  WHERE (`Entry`=236190 AND `DifficultyID`=23); -- 236190 (Frenzied Mite) - CanSwim
 
 -- SAI
 DELETE FROM `smart_scripts` WHERE `entryorguid`=237454 AND `source_type`=0;
@@ -25,41 +33,63 @@ INSERT INTO `instance_template` (`map`, `parent`, `script`) VALUES
 (2830, 0, 'instance_ecodome_aldani');
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (1233147, 1233116);
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (1217255, 1233147, 1233116);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(13, 1, 1217255, 0, 0, 51, 0, 5, 236190, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Frenzied Mite\''),
+(13, 2, 1217255, 0, 0, 51, 0, 5, 236190, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Frenzied Mite\''),
 (13, 2, 1233147, 0, 0, 51, 0, 5, 234893, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Azhiccar\''),
 (13, 4, 1233147, 0, 0, 51, 0, 5, 234893, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Azhiccar\''),
 (13, 1, 1233116, 0, 1, 51, 0, 5, 245411, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Ravaging Scavenger\''),
 (13, 1, 1233116, 0, 0, 51, 0, 5, 245412, 0, '', 0, 0, 0, '', 'Spell \'Devour\' can only hit \'Voracious Gorger\'');
 
 -- Areatrigger
-DELETE FROM `areatrigger` WHERE `SpawnId`=65656556;
+DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWNID;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
-(65656556, 323333, 1, 2830, '1,2,23,8,205', 526.473, -747.901, 999.682, 6.1991, 0, 0, 0, 'at_azhiccar_intro', 'Eco-Dome Aldani - Azhiccar intro', 0);
+(@ATSPAWNID, @ATPROP, 1, 2830, '1,2,23,8,205', 526.473, -747.901, 999.682, 6.1991, 0, 0, 0, 'at_azhiccar_intro', 'Eco-Dome Aldani - Azhiccar intro', 0);
 
-DELETE FROM `areatrigger_create_properties` WHERE `Id`=323333 AND `IsCustom`=1;
+DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATPROP AND `IsCustom`=1;
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `SpeedIsTime`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(323333, 1, 323333, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 20, 10, 5, 20, 10, 5, 0, 0, '', 0);
+(@ATPROP, 1, @ATID, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 0, 1, 20, 10, 5, 20, 10, 5, 0, 0, '', 0);
 
-DELETE FROM `areatrigger_template` WHERE `Id`=323333 AND `IsCustom`=1;
+DELETE FROM `areatrigger_template` WHERE `Id`=@ATID AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
-(323333, 1, 1, 0, 0, 0);
+(@ATID, 1, 1, 0, 0, 0);
 
-DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` = 36181);
+DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (36165, 36166, 38667, 36181, 38379));
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(36181, 0, 38204, 0, 4, 0, 81441, 0, 0, -1, 0, 690, NULL, 180000, 0, 0, 10, 10, 0, 0, 0, 0, 0, 0, 'at_azhiccar_digestive_spittle', 63305); -- Spell: 1217441 (Digestive Spittle)
+(36165, 0, 38189, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1217240, 18000, 0, 0, 12, 12, 0, 0, 0, 0, 0, 0, 'at_azhiccar_devour', 63305), -- SpellForVisuals: 1217240 (Devour)
+(36166, 0, 38188, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1217240, 18000, 0, 0, 108, 108, 0, 0, 0, 0, 0, 0, 'at_azhiccar_devour_force', 63305), -- SpellForVisuals: 1217240 (Devour)
+(38667, 0, 34184, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1217240, 18000, 0, 0, 20, 20, 0, 0, 0, 0, 0, 0, '', 63305), -- SpellForVisuals: 1217240 (Devour)
+(36181, 0, 38204, 0, 4, 0, 81441, 0, 0, -1, 0, 690, NULL, 180000, 0, 0, 10, 10, 0, 0, 0, 0, 0, 0, 'at_azhiccar_digestive_spittle', 63305), -- Spell: 1217441 (Digestive Spittle)
+(38379, 0, 6197, 0, 2, 0, 0, 0, 0, -1, 0, 0, NULL, 6000, 0, 0, 108, 108, 0, 0, 0, 0, 0, 0, '', 63305);
 
-DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` = 38204);
+DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` IN (38189, 38188, 34184, 38204));
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `VerifiedBuild`) VALUES
+(38189, 0, 63305),
+(38188, 0, 63305),
+(34184, 0, 63305),
 (38204, 0, 63305);
 
+UPDATE `areatrigger_template` SET `VerifiedBuild`=63305 WHERE (`Id`=6197 AND `IsCustom`=0);
+
+-- Texts
+DELETE FROM `creature_text` WHERE `CreatureID` = 234893;
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
+(234893, 0, 0, '|TInterface\\ICONS\\Spell_Shadow_DevouringPlague..blp:20|t %s prepares to |cFFFF0000|Hspell:1217232|h[Devour]|h|r!', 41, 0, 100, 0, 0, 283865, 285972, 0, 'Azhiccar');
+
 -- Spells
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_azhiccar_invading_shriek_dummy', 'spell_azhiccar_toxic_regurgitation_cast', 'spell_azhiccar_toxic_regurgitation_selector', 'spell_azhiccar_devour_intro_selector', 'spell_azhiccar_invading_shriek');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_azhiccar_energy_controller', 'spell_azhiccar_feast', 'spell_azhiccar_devour_selector', 'spell_azhiccar_devour', 'spell_azhiccar_player_detection', 'spell_azhiccar_invading_shriek_dummy', 'spell_azhiccar_toxic_regurgitation_cast', 'spell_azhiccar_toxic_regurgitation_selector', 'spell_azhiccar_devour_intro_selector', 'spell_azhiccar_invading_shriek');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(1217202, 'spell_azhiccar_energy_controller'),
 (1217436, 'spell_azhiccar_toxic_regurgitation_selector'),
 (1227745, 'spell_azhiccar_toxic_regurgitation_cast'),
 (1233116, 'spell_azhiccar_devour_intro_selector'),
 (1217330, 'spell_azhiccar_invading_shriek_dummy'),
+(1217758, 'spell_azhiccar_player_detection'),
+(1217232, 'spell_azhiccar_devour'),
+(1217255, 'spell_azhiccar_devour_selector'),
+(1217241, 'spell_azhiccar_feast'),
+(1217252, 'spell_azhiccar_feast'),
 (1217327, 'spell_azhiccar_invading_shriek');
 
 DELETE FROM `serverside_spell` WHERE `Id`=1217758 AND `DifficultyID`=0;
