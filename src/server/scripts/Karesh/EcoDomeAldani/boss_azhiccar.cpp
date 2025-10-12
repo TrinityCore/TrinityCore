@@ -24,6 +24,8 @@
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "ecodome_aldani.h"
 
 enum AzhiccarSpells
@@ -226,11 +228,9 @@ struct boss_azhiccar : public BossAI
                     for (float angle : portalAngles)
                     {
                         angle += me->GetOrientation();
-
                         float dist = 30.0f;
                         Position pos = me->GetPosition();
                         me->MovePosition(pos, dist, angle);
-
                         me->SummonCreature(NPC_PORTAL_STALKER, pos, TEMPSUMMON_TIMED_DESPAWN, 4100ms);
                     }
 
