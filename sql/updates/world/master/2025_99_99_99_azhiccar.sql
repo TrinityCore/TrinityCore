@@ -3,7 +3,7 @@ SET @ATPROP := 66666;
 SET @ATID := 666666;
 
 -- Creature
-UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800, `unit_flags3`=0x80000 WHERE `entry`=236190; -- Frenzied Mite
+UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags2`=0x800, `unit_flags3`=0x80000, `AIName`='SmartAI' WHERE `entry`=236190; -- Frenzied Mite
 UPDATE `creature_template` SET `faction`=16, `BaseAttackTime`=2000, `unit_flags`=33555264, `unit_flags3`=1073741824, `ScriptName`='boss_azhiccar' WHERE `entry`=234893;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=237454;
 UPDATE `creature_template` SET `ScriptName`='npc_azhiccar_intro_creature' WHERE `entry` IN (245411, 245412);
@@ -26,6 +26,10 @@ UPDATE `creature_template_difficulty` SET `ContentTuningID`=1279, `StaticFlags1`
 DELETE FROM `smart_scripts` WHERE `entryorguid`=237454 AND `source_type`=0;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (237454, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 1217720, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, '[DNT] Stalker - On Just Summoned - Cast self [DNT] Spawn');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=236190 AND `source_type`=0;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(236190, 0, 0, 0, '', 63, 0, 100, 0, 0, 0, 0, 0, 0, '', 85, 1231811, 0, 0, 0, 0, 0, 0, NULL, 1, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'Frenzied Mite - On Just Summoned - Cast self Uncontrolled');
 
 -- Instance
 DELETE FROM `instance_template` WHERE `map`=2830;
