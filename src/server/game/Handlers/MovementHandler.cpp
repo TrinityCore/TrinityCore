@@ -293,20 +293,22 @@ void WorldSession::HandleMoveTeleportAck(WorldPackets::Movement::MoveTeleportAck
     uint32 old_zone = plMover->GetZoneId();
 
     TeleportLocation const& dest = plMover->GetTeleportDest();
+    WorldLocation destLocation = dest.Location;
 
-    float x, y, z, o;
-    dest.Location.GetPosition(x, y, z, o);
     if (dest.TransportGuid)
     {
         if (Transport* transport = plMover->GetMap()->GetTransport(*dest.TransportGuid))
         {
             transport->AddPassenger(plMover);
-            plMover->m_movementInfo.transport.pos.Relocate(dest.Location.GetPosition());
+            plMover->m_movementInfo.transport.pos.Relocate(destLocation);
+            float x, y, z, o;
+            dest.Location.GetPosition(x, y, z, o);
             transport->CalculatePassengerPosition(x, y, z, &o);
+            destLocation.Relocate(x, y, z, o);
         }
     }
 
-    plMover->UpdatePosition(dest.Location, true);
+    plMover->UpdatePosition(destLocation, true);
     plMover->SetFallInformation(0, GetPlayer()->GetPositionZ());
 
     uint32 newzone, newarea;
