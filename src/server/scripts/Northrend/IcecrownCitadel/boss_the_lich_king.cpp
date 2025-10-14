@@ -736,7 +736,7 @@ struct boss_the_lich_king : public BossAI
                 summons.Summon(summon);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->SetSpeedRate(MOVE_FLIGHT, 0.5f);
-                summon->GetMotionMaster()->MoveRandom(10.0f);
+                summon->GetMotionMaster()->MoveRandom(5.0f, true);
                 if (!events.IsInPhase(PHASE_FROSTMOURNE))
                     summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15s));
                 return;
