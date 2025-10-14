@@ -28,7 +28,7 @@ template<class T>
 class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovementGenerator<T>>
 {
     public:
-        explicit RandomMovementGenerator(float distance = 0.0f);
+        explicit RandomMovementGenerator(float distance = 0.0f, bool force2DPositionRelocation = false);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 
@@ -51,6 +51,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
         Position _reference;
         float _wanderDistance;
         uint8 _wanderSteps;
+        bool _force2DPositionRelocation;
 };
 
 #endif
