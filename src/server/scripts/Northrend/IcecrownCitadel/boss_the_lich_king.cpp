@@ -1463,7 +1463,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
 
                         triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                         DoCast(target, SPELL_VALKYR_CARRY);
-                        _dropPoint.Relocate(triggers.front());
+                        _dropPoint.Relocate(triggers.front()->GetPositionX(), triggers.front()->GetPositionY(), me->GetFloorZ() + 2.f);
                         _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1s + 500ms);
                     }
                 }
@@ -2723,6 +2723,28 @@ class spell_the_lich_king_harvest_souls_teleport : public SpellScript
     }
 };
 
+// 74399 - Charge (Valkyr)
+class spell_the_lich_king_valkyr_charge : public SpellScript
+{
+    void ChargeDest(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        Position pos = target->GetPosition();
+        caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, caster->GetFloorZ() + 2.f);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_the_lich_king_valkyr_charge::ChargeDest, EFFECT_0, SPELL_EFFECT_CHARGE_DEST);
+    }
+};
+
 class achievement_been_waiting_long_time : public AchievementCriteriaScript
 {
     public:
@@ -2796,6 +2818,7 @@ void AddSC_boss_the_lich_king()
     RegisterSpellScript(spell_the_lich_king_jump_remove_aura);
     RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_the_lich_king_mass_resurrection", SPELL_MASS_RESURRECTION_REAL);
     RegisterSpellScript(spell_the_lich_king_harvest_souls_teleport);
+    RegisterSpellScript(spell_the_lich_king_valkyr_charge);
 
     // Achievements
     new achievement_been_waiting_long_time();
