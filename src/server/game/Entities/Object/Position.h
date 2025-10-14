@@ -129,7 +129,7 @@ public:
     float GetExactDist(Position const& pos) const { return GetExactDist(pos.m_positionX, pos.m_positionY, pos.m_positionZ); }
     float GetExactDist(Position const* pos) const { return GetExactDist(*pos); }
 
-    void GetPositionOffsetTo(Position const & endPos, Position & retOffset) const;
+    Position GetPositionOffsetTo(Position const & endPos) const;
     Position GetPositionWithOffset(Position const& offset) const;
 
     float GetAbsoluteAngle(float x, float y) const

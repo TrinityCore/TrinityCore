@@ -486,8 +486,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
                 {
                     o -= trans->GetTransportOrientation();
                     owner->SetTransportHomePosition(x, y, z, o);
-                    trans->CalculatePassengerPosition(x, y, z, &o);
-                    owner->SetHomePosition(x, y, z, o);
+                    owner->SetHomePosition(trans->GetPositionWithOffset(owner->GetTransportHomePosition()));
                 }
                 // else if (vehicle) - this should never happen, vehicle offsets are const
             }

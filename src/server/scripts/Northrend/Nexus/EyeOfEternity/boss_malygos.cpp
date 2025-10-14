@@ -504,9 +504,7 @@ struct boss_malygos : public BossAI
                 break;
             case ACTION_HANDLE_RESPAWN:
                 // Teleport to spawn position, we can't use normal relocate
-                float x, y, z, o;
-                me->GetRespawnPosition(x, y, z, &o);
-                me->NearTeleportTo(x, y, z, o);
+                me->NearTeleportTo(me->GetRespawnPosition());
                 // Respawn Iris
                 instance->SetData(DATA_RESPAWN_IRIS, 0);
                 _despawned = false;

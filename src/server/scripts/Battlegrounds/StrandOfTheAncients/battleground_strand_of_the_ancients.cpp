@@ -554,16 +554,12 @@ struct battleground_strand_of_the_ancients : BattlegroundScript
             {
                 if (TransportBase* transport = boat->ToTransportBase())
                 {
-                    player->Relocate(spawnPositionOnTransport[_attackers]);
-                    transport->AddPassenger(player);
-                    player->m_movementInfo.transport.pos.Relocate(spawnPositionOnTransport[_attackers]);
-                    float x, y, z, o;
-                    spawnPositionOnTransport[_attackers].GetPosition(x, y, z, o);
-                    transport->CalculatePassengerPosition(x, y, z, &o);
-                    player->Relocate(x, y, z, o);
+                    transport->AddPassenger(player, spawnPositionOnTransport[_attackers]);
+                    Position position = transport->GetPositionWithOffset(player->m_movementInfo.transport.pos);
+                    player->Relocate(position);
 
                     if (player->IsInWorld())
-                        player->NearTeleportTo({ x, y, z, o });
+                        player->NearTeleportTo(position);
                 }
             }
         }

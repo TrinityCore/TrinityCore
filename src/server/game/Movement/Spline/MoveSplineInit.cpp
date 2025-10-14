@@ -35,7 +35,7 @@ namespace Movement
         Vector3 operator()(Vector3 input) const
         {
             if (_transport)
-                _transport->CalculatePassengerOffset(input.x, input.y, input.z);
+                _transport->GetPositionOffsetTo({ input.x, input.y, input.z }).GetPosition(input.x, input.y, input.z);
 
             return input;
         }

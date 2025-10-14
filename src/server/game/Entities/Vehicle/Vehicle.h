@@ -95,23 +95,13 @@ class TC_GAME_API Vehicle final : public TransportBase
 
         float GetTransportOrientation() const override { return GetBase()->GetOrientation(); }
 
-        void AddPassenger(WorldObject* /*passenger*/) override { ABORT_MSG("Vehicle cannot directly gain passengers without auras"); }
+        void AddPassenger(WorldObject* /*passenger*/, Position const& /*offset*/) override { ABORT_MSG("Vehicle cannot directly gain passengers without auras"); }
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float* o /*= nullptr*/) const override
-        {
-            TransportBase::CalculatePassengerPosition(x, y, z, o,
-                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
-                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
-        }
+        Position GetPositionWithOffset(Position const& offset) const override { return GetBase()->GetPositionWithOffset(offset); }
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float* o /*= nullptr*/) const override
-        {
-            TransportBase::CalculatePassengerOffset(x, y, z, o,
-                GetBase()->GetPositionX(), GetBase()->GetPositionY(),
-                GetBase()->GetPositionZ(), GetBase()->GetOrientation());
-        }
+        Position GetPositionOffsetTo(Position const& endPos) const override { return GetBase()->GetPositionOffsetTo(endPos); }
 
         int32 GetMapIdForSpawning() const override { return GetBase()->GetMapId(); }
 

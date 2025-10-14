@@ -572,16 +572,12 @@ void Vehicle::RelocatePassengers()
         {
             ASSERT(passenger->IsInWorld());
 
-            float px, py, pz, po;
-            passenger->m_movementInfo.transport.pos.GetPosition(px, py, pz, po);
-            CalculatePassengerPosition(px, py, pz, &po);
-
-            seatRelocation.emplace_back(passenger, Position(px, py, pz, po));
+            seatRelocation.emplace_back(passenger, _me->GetPositionWithOffset(passenger->m_movementInfo.transport.pos));
         }
     }
 
     for (auto const& [passenger, position] : seatRelocation)
-        UpdatePassengerPosition(_me->GetMap(), passenger, position.GetPositionX(), position.GetPositionY(), position.GetPositionZ(), position.GetOrientation(), false);
+        UpdatePassengerPosition(_me->GetMap(), passenger, position, false);
 }
 
 /**
