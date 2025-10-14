@@ -821,7 +821,7 @@ class spell_mage_flame_accelerant : public AuraScript
         return ValidateSpellInfo({ SPELL_MAGE_FLAME_ACCELERANT });
     }
 
-    void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/) const
     {
         Unit* target = GetTarget();
         target->CastSpell(target, SPELL_MAGE_FLAME_ACCELERANT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
