@@ -112,7 +112,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         void Update(uint32 time) override;                         // overwrited Unit::Update
         void Heartbeat() override;
 
-        void GetRespawnPosition(float &x, float &y, float &z, float* ori = nullptr, float* dist = nullptr) const;
+        Position GetRespawnPosition(float* dist = nullptr) const;
         bool IsSpawnedOnTransport() const { return m_creatureData && m_creatureData->mapId != GetMapId(); }
 
         void SetCorpseDelay(uint32 delay, bool ignoreCorpseDecayRatio = false)

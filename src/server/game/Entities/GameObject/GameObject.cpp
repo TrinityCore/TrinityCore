@@ -418,12 +418,7 @@ public:
     void UpdatePassengerPositions()
     {
         for (WorldObject* passenger : _passengers)
-        {
-            float x, y, z, o;
-            passenger->m_movementInfo.transport.pos.GetPosition(x, y, z, o);
-            CalculatePassengerPosition(x, y, z, &o);
-            UpdatePassengerPosition(_owner.GetMap(), passenger, x, y, z, o, true);
-        }
+            UpdatePassengerPosition(_owner.GetMap(), passenger, _owner.GetPositionWithOffset(passenger->m_movementInfo.transport.pos), true);
     }
 
     uint32 GetTransportPeriod() const
@@ -443,7 +438,7 @@ public:
 
     float GetTransportOrientation() const override { return _owner.GetOrientation(); }
 
-    void AddPassenger(WorldObject* passenger) override
+    void AddPassenger(WorldObject* passenger, Position const& offset) override
     {
         if (!_owner.IsInWorld())
             return;
@@ -452,6 +447,7 @@ public:
         {
             passenger->SetTransport(this);
             passenger->m_movementInfo.transport.guid = GetTransportGUID();
+            passenger->m_movementInfo.transport.pos = offset;
             TC_LOG_DEBUG("entities.transport", "Object {} boarded transport {}.", passenger->GetName(), _owner.GetName());
         }
     }
@@ -471,14 +467,14 @@ public:
         return this;
     }
 
-    void CalculatePassengerPosition(float& x, float& y, float& z, float* o) const override
+    Position GetPositionWithOffset(Position const& offset) const override
     {
-        TransportBase::CalculatePassengerPosition(x, y, z, o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+        return _owner.GetPositionWithOffset(offset);
     }
 
-    void CalculatePassengerOffset(float& x, float& y, float& z, float* o) const override
+    Position GetPositionOffsetTo(Position const& endPos) const override
     {
-        TransportBase::CalculatePassengerOffset(x, y, z, o, _owner.GetPositionX(), _owner.GetPositionY(), _owner.GetPositionZ(), _owner.GetOrientation());
+        return _owner.GetPositionOffsetTo(endPos);
     }
 
     int32 GetMapIdForSpawning() const override
@@ -4129,22 +4125,12 @@ void GameObject::SetPathProgressForClient(float progress)
     m_transportPathProgress = progress;
 }
 
-void GameObject::GetRespawnPosition(float &x, float &y, float &z, float* ori /* = nullptr*/) const
+Position GameObject::GetRespawnPosition() const
 {
     if (m_goData)
-    {
-        if (ori)
-            m_goData->spawnPoint.GetPosition(x, y, z, *ori);
-        else
-            m_goData->spawnPoint.GetPosition(x, y, z);
-    }
-    else
-    {
-        if (ori)
-            GetPosition(x, y, z, *ori);
-        else
-            GetPosition(x, y, z);
-    }
+        return m_goData->spawnPoint;
+
+    return GetPosition();
 }
 
 TransportBase const* GameObject::ToTransportBase() const

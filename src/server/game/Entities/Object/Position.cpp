@@ -33,9 +33,9 @@ bool Position::operator==(Position const& a) const
 
 void Position::RelocateOffset(Position const& offset)
 {
-    m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + float(M_PI)));
-    m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
-    m_positionZ = GetPositionZ() + offset.GetPositionZ();
+    m_positionX += offset.GetPositionX() * std::cos(GetOrientation()) - offset.GetPositionY() * std::sin(GetOrientation());
+    m_positionY += offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation());
+    m_positionZ += offset.GetPositionZ();
     SetOrientation(GetOrientation() + offset.GetOrientation());
 }
 
@@ -44,15 +44,18 @@ bool Position::IsPositionValid() const
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
 }
 
-void Position::GetPositionOffsetTo(Position const& endPos, Position& retOffset) const
+Position Position::GetPositionOffsetTo(Position const& endPos) const
 {
     float dx = endPos.GetPositionX() - GetPositionX();
     float dy = endPos.GetPositionY() - GetPositionY();
 
-    retOffset.m_positionX = (dx + dy * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
-    retOffset.m_positionY = (dy - dx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation()));
-    retOffset.m_positionZ = endPos.GetPositionZ() - GetPositionZ();
-    retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
+    return
+    {
+        (dx + dy * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation())),
+        (dy - dx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation())),
+        endPos.GetPositionZ() - GetPositionZ(),
+        endPos.GetOrientation() - GetOrientation()
+    };
 }
 
 Position Position::GetPositionWithOffset(Position const& offset) const
