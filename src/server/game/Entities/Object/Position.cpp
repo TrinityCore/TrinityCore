@@ -51,8 +51,8 @@ Position Position::GetPositionOffsetTo(Position const& endPos) const
 
     return
     {
-        (dx + dy * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation())),
-        (dy - dx * std::tan(GetOrientation())) / (std::cos(GetOrientation()) + std::sin(GetOrientation()) * std::tan(GetOrientation())),
+        dx * std::cos(GetOrientation()) + dy * std::sin(GetOrientation()),
+        dy * std::cos(GetOrientation()) - dx * std::sin(GetOrientation()),
         endPos.GetPositionZ() - GetPositionZ(),
         endPos.GetOrientation() - GetOrientation()
     };
