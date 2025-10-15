@@ -16,10 +16,8 @@
  */
 
 #include "ScriptMgr.h"
-#include "G3DPosition.hpp"
 #include "ObjectAccessor.h"
 #include "MotionMaster.h"
-#include "MoveSplineInit.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
@@ -51,70 +49,7 @@ enum RizzleSprysprocketData
     GOSSIP_MENU_GET_MOONSTONE = 57025,
     GOSSIP_OPTION_GET_MOONSTONE = 0,
 
-    POINT_END = 1
-};
-
-static constexpr uint8 const RizzlePathSize = 58;
-G3D::Vector3 const RizzlePath[RizzlePathSize] =
-{
-    { 3691.97f, -3962.41f, 35.9118f },
-    { 3675.02f, -3960.49f, 35.9118f },
-    { 3653.19f, -3958.33f, 33.9118f },
-    { 3621.12f, -3958.51f, 29.9118f },
-    { 3604.86f, -3963,     29.9118f },
-    { 3569.94f, -3970.25f, 29.9118f },
-    { 3541.03f, -3975.64f, 29.9118f },
-    { 3510.84f, -3978.71f, 29.9118f },
-    { 3472.7f,  -3997.07f, 29.9118f },
-    { 3439.15f, -4014.55f, 29.9118f },
-    { 3412.8f,  -4025.87f, 29.9118f },
-    { 3384.95f, -4038.04f, 29.9118f },
-    { 3346.77f, -4052.93f, 29.9118f },
-    { 3299.56f, -4071.59f, 29.9118f },
-    { 3261.22f, -4080.38f, 30.9118f },
-    { 3220.68f, -4083.09f, 31.9118f },
-    { 3187.11f, -4070.45f, 33.9118f },
-    { 3162.78f, -4062.75f, 33.9118f },
-    { 3136.09f, -4050.32f, 33.9118f },
-    { 3119.47f, -4044.51f, 36.0363f },
-    { 3098.95f, -4019.8f,  33.9118f },
-    { 3073.07f, -4011.42f, 33.9118f },
-    { 3051.71f, -3993.37f, 33.9118f },
-    { 3027.52f, -3978.6f,  33.9118f },
-    { 3003.78f, -3960.14f, 33.9118f },
-    { 2977.99f, -3941.98f, 31.9118f },
-    { 2964.57f, -3932.07f, 30.9118f },
-    { 2947.9f,  -3921.31f, 29.9118f },
-    { 2924.91f, -3910.8f,  29.9118f },
-    { 2903.04f, -3896.42f, 29.9118f },
-    { 2884.75f, -3874.03f, 29.9118f },
-    { 2868.19f, -3851.48f, 29.9118f },
-    { 2854.62f, -3819.72f, 29.9118f },
-    { 2825.53f, -3790.4f,  29.9118f },
-    { 2804.31f, -3773.05f, 29.9118f },
-    { 2769.78f, -3763.57f, 29.9118f },
-    { 2727.23f, -3745.92f, 30.9118f },
-    { 2680.12f, -3737.49f, 30.9118f },
-    { 2647.62f, -3739.94f, 30.9118f },
-    { 2616.6f,  -3745.75f, 30.9118f },
-    { 2589.38f, -3731.97f, 30.9118f },
-    { 2562.94f, -3722.35f, 31.9118f },
-    { 2521.05f, -3716.6f,  31.9118f },
-    { 2485.26f, -3706.67f, 31.9118f },
-    { 2458.93f, -3696.67f, 31.9118f },
-    { 2432,     -3692.03f, 31.9118f },
-    { 2399.59f, -3681.97f, 31.9118f },
-    { 2357.75f, -3666.6f,  31.9118f },
-    { 2311.99f, -3656.88f, 31.9118f },
-    { 2263.41f, -3649.55f, 31.9118f },
-    { 2209.05f, -3641.76f, 31.9118f },
-    { 2164.83f, -3637.64f, 31.9118f },
-    { 2122.42f, -3639,     31.9118f },
-    { 2075.73f, -3643.59f, 31.9118f },
-    { 2033.59f, -3649.52f, 31.9118f },
-    { 1985.22f, -3662.99f, 31.9118f },
-    { 1927.09f, -3679.56f, 33.9118f },
-    { 1873.57f, -3695.32f, 33.9118f }
+    PATH_RIZZLE = 2300200
 };
 
 struct npc_rizzle_sprysprocket : public ScriptedAI
@@ -142,13 +77,7 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
                 me->SetSpeedRate(MOVE_RUN, 0.85f);
                 DoCastSelf(SPELL_PERIODIC_DEPTH_CHARGE, true);
                 Talk(SAY_RIZZLE_START);
-                std::function<void(Movement::MoveSplineInit&)> initializer = [=, me = me](Movement::MoveSplineInit& init)
-                {
-                    Movement::PointsArray path(RizzlePath, RizzlePath + RizzlePathSize);
-                    init.MovebyPath(path);
-                    init.SetVelocity(me->GetSpeed(MOVE_RUN));
-                };
-                me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_END, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
+                me->GetMotionMaster()->MovePath(PATH_RIZZLE, false);
                 teleportContext.Schedule(1s, [this](TaskContext checkDistanceContext)
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
@@ -180,9 +109,9 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id) override
+    void WaypointPathEnded(uint32/* waypointId*/, uint32 pathId) override
     {
-        if (type != POINT_MOTION_TYPE && id != POINT_END)
+        if (pathId != PATH_RIZZLE)
             return;
 
         me->DespawnOrUnsummon();
