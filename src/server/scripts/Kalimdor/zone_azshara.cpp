@@ -68,45 +68,56 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
         {
             _playerGUID = player->GetGUID();
             DoCast(player, SPELL_RIZZLE_BLACKJACK, true);
-            Talk(MSG_ESCAPE_NOTICE, player);
-            DoCastSelf(SPELL_RIZZLE_ESCAPE, true);
             _scheduler.Schedule(1s, [this](TaskContext teleportContext)
             {
-                me->SetHover(true);
-                me->SetSwim(false);
-                me->SetSpeedRate(MOVE_RUN, 0.85f);
-                DoCastSelf(SPELL_PERIODIC_DEPTH_CHARGE, true);
-                Talk(SAY_RIZZLE_START);
-                me->GetMotionMaster()->MovePath(PATH_RIZZLE, false);
-                teleportContext.Schedule(1s, [this](TaskContext checkDistanceContext)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+                    Talk(MSG_ESCAPE_NOTICE, player);
+                DoCastSelf(SPELL_RIZZLE_ESCAPE);
+                teleportContext.Schedule(1ms, [this](TaskContext startPathContext)
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
-                    if (!player)
-                    {
-                        me->DespawnOrUnsummon();
-                        return;
-                    }
-                    if (me->IsWithinDist(player, 5.0f))
-                    {
-                        checkDistanceContext.CancelAll();
-                        Talk(SAY_RIZZLE_FINAL);
-                        me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                        me->GetMotionMaster()->MoveIdle();
-                        me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
-                    }
-                    else
-                        checkDistanceContext.Repeat(1s);
-                }).Schedule(20s, [this](TaskContext granadeContext)
-                {
-                    if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
-                    {
-                        Talk(SAY_RIZZLE_GRENADE, player);
-                        DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
-                    }
-                    granadeContext.Repeat(20s, 30s);
+                    //me->SetHover(true);
+                    //me->SetSwim(false);
+                    me->SetSpeedRate(MOVE_RUN, 0.85f);
+                    DoCastSelf(SPELL_PERIODIC_DEPTH_CHARGE, true);
+                    Talk(SAY_RIZZLE_START);
+                    me->GetMotionMaster()->MovePath(PATH_RIZZLE, false);
                 });
             });
         }
+    }
+
+    void WaypointStarted(uint32 waypointId, uint32 pathId) override
+    {
+        if (waypointId != 1 && pathId != PATH_RIZZLE)
+            return;
+
+        _scheduler.Schedule(1s, [this](TaskContext checkDistanceContext)
+        {
+            Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID);
+            if (!player)
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
+            if (me->IsWithinDist(player, 5.0f))
+            {
+                checkDistanceContext.CancelAll();
+                Talk(SAY_RIZZLE_FINAL);
+                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->GetMotionMaster()->MoveIdle();
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
+            }
+            else
+                checkDistanceContext.Repeat(1s);
+        }).Schedule(20s, [this](TaskContext granadeContext)
+        {
+            if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
+            {
+                Talk(SAY_RIZZLE_GRENADE, player);
+                DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
+            }
+            granadeContext.Repeat(20s, 30s);
+        });
     }
 
     void WaypointPathEnded(uint32/* waypointId*/, uint32 pathId) override
