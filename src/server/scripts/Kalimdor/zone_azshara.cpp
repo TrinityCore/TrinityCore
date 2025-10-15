@@ -91,7 +91,7 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
                         checkDistanceContext.CancelAll();
                         Talk(SAY_RIZZLE_FINAL);
                         me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                        me->GetMotionMaster()->Clear(MOTION_PRIORITY_NORMAL);
+                        me->GetMotionMaster()->MoveIdle();
                         me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                     }
                     else
