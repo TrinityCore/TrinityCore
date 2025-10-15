@@ -138,7 +138,7 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
 
         InitGossipMenuFor(player, GOSSIP_MENU_GET_MOONSTONE);
         AddGossipItemFor(player, GOSSIP_MENU_GET_MOONSTONE, GOSSIP_OPTION_GET_MOONSTONE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        SendGossipMenuFor(player, player->GetGossipTextId(GOSSIP_MENU_GET_MOONSTONE, me), me->GetGUID());        
+        SendGossipMenuFor(player, player->GetGossipTextId(GOSSIP_MENU_GET_MOONSTONE, me), me->GetGUID());
         return true;
     }
 
