@@ -830,7 +830,7 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
+    m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -865,7 +865,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 GameObject::~GameObject()
 {
     delete m_AI;
-    delete m_model;
 }
 
 void GameObject::AIM_Destroy()
@@ -3662,7 +3661,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -3710,7 +3708,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = 0;
                 SetGoAnimProgress(0);
             }
-            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -3731,7 +3728,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         }
     }
@@ -3925,15 +3921,26 @@ void GameObject::UpdateModel()
 {
     if (!IsInWorld())
         return;
+    bool modelCollisionEnabled;
     if (m_model)
+    {
+        modelCollisionEnabled = m_model->IsCollisionEnabled();
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
+    }
+    else
+        modelCollisionEnabled = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
+
     RemoveFlag(GO_FLAG_MAP_OBJECT);
-    delete m_model;
     m_model = nullptr;
+
     CreateModel();
     if (m_model)
+    {
         GetMap()->InsertGameObjectModel(*m_model);
+        if (modelCollisionEnabled)
+            m_model->EnableCollision(modelCollisionEnabled);
+    }
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
