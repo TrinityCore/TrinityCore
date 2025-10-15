@@ -838,7 +838,7 @@ class spell_mage_flame_accelerant_proc : public AuraScript
 {
     bool CheckProc(ProcEventInfo const& procEvent) const
     {
-        return procEvent.GetProcSpell() && procEvent.GetProcSpell()->GetCastTime() > 0.0f;
+        return procEvent.GetProcSpell() && procEvent.GetProcSpell()->GetCastTime() > 0;
     }
 
     void Register() override
