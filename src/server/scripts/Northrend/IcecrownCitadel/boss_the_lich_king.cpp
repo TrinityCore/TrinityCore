@@ -2261,7 +2261,7 @@ class spell_the_lich_king_summon_into_air : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_the_lich_king_summon_into_air::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_the_lich_king_summon_into_air::ModDestHeight, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 
