@@ -67,19 +67,17 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
         if (Player* player = summoner->ToPlayer())
         {
             _playerGUID = player->GetGUID();
+            Talk(SAY_RIZZLE_START);
             DoCast(player, SPELL_RIZZLE_BLACKJACK, true);
             _scheduler.Schedule(1s, [this](TaskContext teleportContext)
             {
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGUID))
                     Talk(MSG_ESCAPE_NOTICE, player);
                 DoCastSelf(SPELL_RIZZLE_ESCAPE);
-                teleportContext.Schedule(1ms, [this](TaskContext startPathContext)
+                teleportContext.Schedule(1ms, [this](TaskContext/* startPathContext*/)
                 {
-                    //me->SetHover(true);
-                    //me->SetSwim(false);
-                    me->SetSpeedRate(MOVE_RUN, 0.85f);
+                    me->SetSpeedRate(MOVE_SWIM, 0.85f);
                     DoCastSelf(SPELL_PERIODIC_DEPTH_CHARGE, true);
-                    Talk(SAY_RIZZLE_START);
                     me->GetMotionMaster()->MovePath(PATH_RIZZLE, false);
                 });
             });
@@ -88,7 +86,7 @@ struct npc_rizzle_sprysprocket : public ScriptedAI
 
     void WaypointStarted(uint32 waypointId, uint32 pathId) override
     {
-        if (waypointId != 1 && pathId != PATH_RIZZLE)
+        if (pathId != PATH_RIZZLE || waypointId != 1)
             return;
 
         _scheduler.Schedule(1s, [this](TaskContext checkDistanceContext)
@@ -168,13 +166,11 @@ struct npc_depth_charge : public NullCreatureAI
 
     void Reset() override
     {
-        me->SetReactState(REACT_PASSIVE);
-        me->SetHover(true);
-        me->SetSwim(true);
         me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
+        me->SetFacingTo(me->GetOrientation() + float(M_PI));
     }
 
-    void MoveInLineOfSight(Unit * who) override
+    void MoveInLineOfSight(Unit* who) override
     {
         if (!who)
             return;
