@@ -396,7 +396,7 @@ class TC_GAME_API GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetFaction() const override { return m_gameObjectData->FactionTemplate; }
         void SetFaction(uint32 faction) override { SetUpdateFieldValue(m_values.ModifyValue(&GameObject::m_gameObjectData).ModifyValue(&UF::GameObjectData::FactionTemplate), faction); }
 
-        GameObjectModel* m_model;
+        std::unique_ptr<GameObjectModel> m_model;
         Position GetRespawnPosition() const;
 
         TransportBase* ToTransportBase() { return const_cast<TransportBase*>(const_cast<GameObject const*>(this)->ToTransportBase()); }
