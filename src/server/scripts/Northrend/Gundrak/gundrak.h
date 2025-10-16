@@ -61,7 +61,8 @@ enum GDCreatureIds
     NPC_ECK_THE_FEROCIOUS            = 29932,
     NPC_ALTAR_TRIGGER                = 30298,
     NPC_RHINO_SPIRIT                 = 29791,
-    NPC_LIVING_MOJO                  = 29830
+    NPC_LIVING_MOJO                  = 29830,
+    NPC_DRAKKARI_ELEMENTAL           = 29573
 };
 
 enum GDGameObjectIds
