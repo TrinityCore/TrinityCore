@@ -196,6 +196,12 @@ void LoginDatabaseConnection::DoPrepareStatements()
         "ON DUPLICATE KEY UPDATE isFavorite = VALUES(isFavorite)", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_UPD_BNET_WARBAND_SCENE, "UPDATE battlenet_account_warband_scenes SET isFavorite = ?, hasFanfare = ? WHERE battlenetAccountId = ? AND warbandSceneId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_BNET_WARBAND_SCENE, "DELETE FROM battlenet_account_warband_scenes WHERE battlenetAccountId = ? AND warbandSceneId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_WARBAND_GROUPS, "SELECT id, orderIndex, name, warbandSceneId, flags FROM account_warband_groups WHERE accountId = ? ORDER BY orderIndex", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_INS_ACCOUNT_WARBAND_GROUP, "INSERT INTO account_warband_groups (id, accountId, orderIndex, name, warbandSceneId, flags) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_DEL_ACCOUNT_WARBAND_GROUPS, "DELETE FROM account_warband_groups WHERE accountId = ?", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_WARBAND_GROUP_MEMBERS, "SELECT groupId, characterGuid, placementId, type FROM account_warband_group_members WHERE groupId IN (SELECT id FROM account_warband_groups WHERE accountId = ?)", CONNECTION_SYNCH);
+    PrepareStatement(LOGIN_INS_ACCOUNT_WARBAND_GROUP_MEMBER, "INSERT INTO account_warband_group_members (groupId, characterGuid, placementId, type) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(LOGIN_SEL_ACCOUNT_WARBAND_GROUP_MAX_ID, "SELECT COALESCE(MAX(id), 0) FROM account_warband_groups", CONNECTION_SYNCH);
 
     PrepareStatement(LOGIN_SEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT, "SELECT playerDataElementAccountId, floatValue, int64Value FROM battlenet_account_player_data_element WHERE battlenetAccountId = ?", CONNECTION_ASYNC);
     PrepareStatement(LOGIN_DEL_BNET_PLAYER_DATA_ELEMENTS_ACCOUNT, "DELETE FROM battlenet_account_player_data_element WHERE battlenetAccountId = ? AND playerDataElementAccountId = ?", CONNECTION_ASYNC);

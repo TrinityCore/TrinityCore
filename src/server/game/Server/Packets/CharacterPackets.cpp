@@ -78,6 +78,43 @@ EnumCharacters::EnumCharacters(WorldPacket&& packet) : ClientPacket(std::move(pa
     ASSERT(GetOpcode() == CMSG_ENUM_CHARACTERS || GetOpcode() == CMSG_ENUM_CHARACTERS_DELETED_BY_CLIENT);
 }
 
+void SetupWarbandGroups::Read()
+{
+    uint32 groupCount = _worldPacket.ReadBits(5);
+    _worldPacket.FlushBits();
+
+    Groups.resize(groupCount);
+    for (uint32 i = 0; i < groupCount; ++i)
+    {
+        _worldPacket >> Groups[i].GroupID;
+        _worldPacket >> Groups[i].OrderIndex;
+        _worldPacket >> Groups[i].WarbandSceneID;
+        _worldPacket >> Groups[i].Flags;
+
+        uint32 memberCount;
+        _worldPacket >> memberCount;
+
+        Groups[i].Members.resize(memberCount);
+        for (uint32 j = 0; j < memberCount; ++j)
+        {
+            _worldPacket >> Groups[i].Members[j].WarbandScenePlacementID;
+            _worldPacket >> Groups[i].Members[j].Type;
+
+            if (Groups[i].Members[j].Type == 0)
+                _worldPacket >> Groups[i].Members[j].Guid;
+        }
+
+        uint8 nameLenDiv2;
+        _worldPacket >> nameLenDiv2;
+
+        uint32 nameLenMod2 = _worldPacket.ReadBits(1);
+        _worldPacket.FlushBits();
+
+        uint32 nameLen = (nameLenDiv2 * 2) + nameLenMod2;
+        Groups[i].Name = _worldPacket.ReadString(nameLen);
+    }
+}
+
 EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields)
 {
     //         0                1                2                3                 4                  5
@@ -366,10 +403,12 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
     for (WarbandGroupMember const& member : warbandGroup.Members)
         data << member;
 
-    data << SizedString::BitsSize<9>(warbandGroup.Name);
+    uint32 nameLen = static_cast<uint32>(warbandGroup.Name.length());
+    data << uint8(nameLen / 2);
+    data.WriteBits(nameLen % 2, 1);
     data.FlushBits();
 
-    data << SizedString::Data(warbandGroup.Name);
+    data.WriteString(warbandGroup.Name);
 
     return data;
 }

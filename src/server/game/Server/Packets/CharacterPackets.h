@@ -54,6 +54,16 @@ namespace WorldPackets
             void Read() override { }
         };
 
+        class SetupWarbandGroups final : public ClientPacket
+        {
+        public:
+            explicit SetupWarbandGroups(WorldPacket&& packet) : ClientPacket(CMSG_SETUP_WARBAND_GROUPS, std::move(packet)) { }
+
+            void Read() override;
+
+            std::vector<WarbandGroup> Groups;
+        };
+
         struct CharacterCreateInfo
         {
             /// User specified variables
@@ -130,7 +140,7 @@ namespace WorldPackets
             uint32 WarbandSceneID = 0;
             uint32 Flags = 0;    ///< enum WarbandGroupFlags { Collapsed = 1 }
             std::vector<WarbandGroupMember> Members;
-            std::string_view Name;
+            std::string Name;
         };
 
         class EnumCharactersResult final : public ServerPacket
