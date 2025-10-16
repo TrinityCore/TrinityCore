@@ -1879,12 +1879,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_PAUSE_MOVEMENT:
-            if (e.action.pauseMovement.pauseTimer < 0)
-            {
-                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} specifies invalid pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
         case SMART_ACTION_SET_MOVEMENT_SPEED:
@@ -2079,13 +2073,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         }
-        case SMART_ACTION_RESUME_MOVEMENT:
-            if (e.action.resumeMovement.resumeTimer < 0)
-            {
-                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} specifies invalid resume duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-            break;
         case SMART_ACTION_FOLLOW:
         case SMART_ACTION_SET_ORIENTATION:
         case SMART_ACTION_STORE_TARGET_LIST:
@@ -2133,6 +2120,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
+        case SMART_ACTION_RESUME_MOVEMENT:
             break;
         // Unused
         case SMART_ACTION_SET_UNIT_FLAG:
