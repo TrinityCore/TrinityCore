@@ -663,6 +663,7 @@ namespace WorldPackets
         class QuestGiverStatusMultipleQuery;
         class QuestGiverHello;
         class QueryQuestInfo;
+        class QueryQuestItemUsability;
         class QuestGiverChooseReward;
         class QuestGiverCloseQuest;
         class QuestGiverCompleteQuest;
@@ -1593,6 +1594,7 @@ class TC_GAME_API WorldSession
         void HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::QuestGiverChooseReward& packet);
         void HandleQuestgiverRequestRewardOpcode(WorldPackets::Quest::QuestGiverRequestReward& packet);
         void HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& packet);
+        void HandleQueryQuestItemUsability(WorldPackets::Quest::QueryQuestItemUsability& packet);
         void HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemoveQuest& packet);
         void HandleQuestConfirmAccept(WorldPackets::Quest::QuestConfirmAccept& packet);
         void HandleQuestgiverCompleteQuest(WorldPackets::Quest::QuestGiverCompleteQuest& packet);

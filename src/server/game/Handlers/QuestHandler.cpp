@@ -235,6 +235,53 @@ void WorldSession::HandleQuestQueryOpcode(WorldPackets::Quest::QueryQuestInfo& p
     }
 }
 
+void WorldSession::HandleQueryQuestItemUsability(WorldPackets::Quest::QueryQuestItemUsability& packet)
+{
+    TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUERY_QUEST_ITEM_USABILITY quest = {} item = {}", packet.QuestID, packet.ItemID);
+
+    WorldPackets::Quest::QuestItemUsabilityResponse response;
+    response.QuestID = packet.QuestID;
+    response.ItemID = packet.ItemID;
+
+    // Default deny
+    response.Allow = false;
+
+    if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(packet.ItemID))
+    {
+        // Use existing Player::CanUseItem logic to determine general usability
+        InventoryResult res = _player->CanUseItem(proto);
+        response.Allow = (res == EQUIP_ERR_OK);
+
+        // For quest-specific checks, ensure the item is a quest starter/quest item when quest id specified
+        if (response.Allow && packet.QuestID)
+        {
+            Quest const* quest = sObjectMgr->GetQuestTemplate(packet.QuestID);
+            if (!quest)
+                response.Allow = false;
+            else
+            {
+                bool matches = false;
+                if (quest->GetSrcItemId() && uint32(quest->GetSrcItemId()) == packet.ItemID)
+                    matches = true;
+
+                for (int i = 0; i < QUEST_ITEM_DROP_COUNT && !matches; ++i)
+                {
+                    if (quest->ItemDrop[i] && uint32(quest->ItemDrop[i]) == packet.ItemID)
+                    {
+                        matches = true;
+                        break;
+                    }
+                }
+
+                if (!matches)
+                    response.Allow = false;
+            }
+        }
+    }
+
+    SendPacket(response.Write());
+}
+
 void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPackets::Quest::QuestGiverChooseReward& packet)
 {
     TC_LOG_DEBUG("network", "WORLD: Received CMSG_QUESTGIVER_CHOOSE_REWARD npc = {}, quest = {}, reward = {}",

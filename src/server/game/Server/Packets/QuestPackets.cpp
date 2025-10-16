@@ -77,6 +77,12 @@ void QueryQuestInfo::Read()
     _worldPacket >> QuestGiver;
 }
 
+void QueryQuestItemUsability::Read()
+{
+    _worldPacket >> QuestID;
+    _worldPacket >> ItemID;
+}
+
 WorldPacket const* QueryQuestInfoResponse::Write()
 {
     _worldPacket << uint32(QuestID);
@@ -236,6 +242,17 @@ WorldPacket const* QueryQuestInfoResponse::Write()
         for (ConditionalQuestText const& conditionalQuestText : Info.ConditionalQuestCompletionLog)
             _worldPacket << conditionalQuestText;
     }
+
+    return &_worldPacket;
+}
+
+WorldPacket const* QuestItemUsabilityResponse::Write()
+{
+    _worldPacket << int32(QuestID);
+    _worldPacket << int32(ItemID);
+
+    _worldPacket << Bits<1>(Allow);
+    _worldPacket.FlushBits();
 
     return &_worldPacket;
 }

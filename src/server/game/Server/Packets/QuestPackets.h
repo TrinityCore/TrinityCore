@@ -101,6 +101,18 @@ namespace WorldPackets
             int32 QuestID = 0;
         };
 
+        // Client requests whether a quest item is usable for a quest
+        class QueryQuestItemUsability final : public ClientPacket
+        {
+        public:
+            explicit QueryQuestItemUsability(WorldPacket&& packet) : ClientPacket(CMSG_QUERY_QUEST_ITEM_USABILITY, std::move(packet)) { }
+
+            void Read() override;
+
+            int32 QuestID = 0;
+            uint32 ItemID = 0;
+        };
+
         struct QuestInfoChoiceItem
         {
             int32 ItemID = 0;
@@ -211,6 +223,19 @@ namespace WorldPackets
             bool Allow = false;
             QuestInfo Info;
             uint32 QuestID = 0;
+        };
+
+        // Server response for quest item usability
+        class QuestItemUsabilityResponse final : public ServerPacket
+        {
+        public:
+            explicit QuestItemUsabilityResponse() : ServerPacket(SMSG_QUEST_ITEM_USABILITY_RESPONSE, 16) { }
+
+            WorldPacket const* Write() override;
+
+            int32 QuestID = 0;
+            uint32 ItemID = 0;
+            bool Allow = false;
         };
 
         class QuestUpdateAddCredit final : public ServerPacket
