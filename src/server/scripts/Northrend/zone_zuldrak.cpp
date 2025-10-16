@@ -1321,71 +1321,60 @@ class spell_zuldrak_summon_escort_aura : public AuraScript
 };
 
 /*######
-## GO Drakkari Canopic Jar (Quest: It Takes Guts.... 12116)
+## Quest 12116: It Takes Guts....
 ######*/
 
-enum it_takes_guts
+enum quest_it_takes_guts
 {
     ANCIENT_DRAKKARI_SOOTHSAYER = 26812,
     ANCIENT_DRAKKARI_WARMONGER = 26811,
     NPC_ANCIENT_DRAKKARI_TALK = 1
 };
 
-class go_188499_chest : public GameObjectScript
+struct go_188499_chest : public GameObjectAI
 {
-public:
-    go_188499_chest() : GameObjectScript("go_188499_chest") {}
+    go_188499_chest(GameObject* go) : GameObjectAI(go) {}
 
-    struct go_188499_chestAI : public GameObjectAI
+    void OnLootStateChanged(uint32 state, Unit* who) override
     {
-        go_188499_chestAI(GameObject* go) : GameObjectAI(go) {}
+        if (state != GO_ACTIVATED || !who || who->GetTypeId() != TYPEID_PLAYER)
+            return;
 
-        void OnLootStateChanged(uint32 state, Unit* who) override
+        Player* player = who->ToPlayer();
+        if (!player)
+            return;
+
+        constexpr uint32 entries[] = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
+        constexpr size_t entryCount = sizeof(entries) / sizeof(entries[0]);
+
+        std::list<Creature*> npcList;
+
+        for (size_t i = 0; i < entryCount; ++i)
         {
-            if (state != GO_ACTIVATED || !who || who->GetTypeId() != TYPEID_PLAYER)
-                return;
+            std::list<Creature*> tempList;
+            GetCreatureListWithEntryInGrid(tempList, me, entries[i], 30.0f);
 
-            Player* player = who->ToPlayer();
-            if (!player)
-                return;
-
-            constexpr uint32 entries[] = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
-            constexpr size_t entryCount = sizeof(entries) / sizeof(entries[0]);
-
-            std::list<Creature*> npcList;
-
-            for (size_t i = 0; i < entryCount; ++i)
-            {
-                std::list<Creature*> tempList;
-                GetCreatureListWithEntryInGrid(tempList, me, entries[i], 30.0f);
-
-                for (Creature* c : tempList)
-                    if (c && c->IsAlive())
-                        npcList.push_back(c);
-            }
-
-            if (npcList.empty())
-                return;
-
-            size_t listSize = npcList.size();
-            size_t randIndex = urand(0, listSize - 1);
-
-            auto it = npcList.begin();
-            std::advance(it, randIndex);
-
-            Creature* target = *it;
-            if (target)
-            {
-                target->SetFaction(14);
-                target->AI()->AttackStart(player);
-                target->AI()->Talk(NPC_ANCIENT_DRAKKARI_TALK);
-            }
+            for (Creature* c : tempList)
+                if (c && c->IsAlive())
+                    npcList.push_back(c);
         }
-    };
 
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_188499_chestAI(go);
+        if (npcList.empty())
+            return;
+
+        size_t listSize = npcList.size();
+        size_t randIndex = urand(0, listSize - 1);
+
+        auto it = npcList.begin();
+        std::advance(it, randIndex);
+
+        Creature* target = *it;
+        if (target)
+        {
+            target->SetFaction(14);
+            target->AI()->AttackStart(player);
+            target->AI()->Talk(NPC_ANCIENT_DRAKKARI_TALK);
+        }
     }
 };
 
@@ -1420,5 +1409,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_gymers_throw);
     RegisterSpellScript(spell_zuldrak_have_ingredient);
     RegisterSpellScript(spell_zuldrak_summon_escort_aura);
-    new go_188499_chest();
+    RegisterGameObjectAI(go_188499_chest);
 }
