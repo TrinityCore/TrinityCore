@@ -1566,7 +1566,7 @@ class spell_dh_shattered_souls_trigger : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER, SPELL_DH_SHATTERED_SOULS_NORMAL_TRIGGER });
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER, SPELL_DH_SHATTERED_SOULS_SHATTERED_TRIGGER });
     }
 
     void HandleSoulFragment(SpellEffIndex /*effIndex*/) const
