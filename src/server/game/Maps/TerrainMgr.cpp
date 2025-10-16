@@ -32,7 +32,7 @@
 #include "World.h"
 #include <G3D/g3dmath.h>
 
-TerrainInfo::TerrainInfo(uint32 mapId) : _mapId(mapId), _parentTerrain(nullptr), _cleanupTimer(randtime(CleanupInterval / 2, CleanupInterval))
+TerrainInfo::TerrainInfo(uint32 mapId) : _mapId(mapId), _parentTerrain(nullptr), _loadedGrids(), _cleanupTimer(randtime(CleanupInterval / 2, CleanupInterval))
 {
 }
 
@@ -180,7 +180,7 @@ void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->LoadMapAndVMapImpl(gx, gy);
 
-    _loadedGrids[GetBitsetIndex(gx, gy)] = true;
+    _loadedGrids[gx] |= UI64LIT(1) << gy;
 }
 
 void TerrainInfo::LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
@@ -279,7 +279,7 @@ void TerrainInfo::UnloadMapImpl(int32 gx, int32 gy)
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->UnloadMapImpl(gx, gy);
 
-    _loadedGrids[GetBitsetIndex(gx, gy)] = false;
+    _loadedGrids[gx] &= ~(UI64LIT(1) << gy);
 }
 
 void TerrainInfo::UnloadMMapInstanceImpl(uint32 mapId, uint32 instanceId)
@@ -294,7 +294,7 @@ GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing
     int32 gy = (int)(CENTER_GRID_ID - y / SIZE_OF_GRIDS);                   //grid y
 
     // ensure GridMap is loaded
-    if (!_loadedGrids[GetBitsetIndex(gx, gy)] && loadIfMissing)
+    if (!(_loadedGrids[gx] & (UI64LIT(1) << gy)) && loadIfMissing)
     {
         std::lock_guard<std::mutex> lock(_loadMutex);
         LoadMapAndVMapImpl(gx, gy);
@@ -303,7 +303,7 @@ GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing
     GridMap* grid = _gridMap[gx][gy].get();
     if (mapId != GetId())
     {
-        auto childMapItr = std::find_if(_childTerrain.begin(), _childTerrain.end(), [mapId](std::shared_ptr<TerrainInfo> const& childTerrain) { return childTerrain->GetId() == mapId; });
+        auto childMapItr = std::ranges::find(_childTerrain, mapId, [](std::shared_ptr<TerrainInfo> const& childTerrain) { return childTerrain->GetId(); });
         if (childMapItr != _childTerrain.end() && (*childMapItr)->_gridMap[gx][gy])
             grid = (*childMapItr)->GetGrid(mapId, x, y, false);
     }
@@ -319,9 +319,10 @@ void TerrainInfo::CleanUpGrids(uint32 diff)
 
     // delete those GridMap objects which have refcount = 0
     for (int32 x = 0; x < MAX_NUMBER_OF_GRIDS; ++x)
-        for (int32 y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
-            if (_loadedGrids[GetBitsetIndex(x, y)] && !_referenceCountFromMap[x][y])
-                UnloadMapImpl(x, y);
+        if (_loadedGrids[x])
+            for (int32 y = 0; y < MAX_NUMBER_OF_GRIDS; ++y)
+                if ((_loadedGrids[x] & (UI64LIT(1) << y)) && !_referenceCountFromMap[x][y])
+                    UnloadMapImpl(x, y);
 
     _cleanupTimer.Reset(CleanupInterval);
 }
