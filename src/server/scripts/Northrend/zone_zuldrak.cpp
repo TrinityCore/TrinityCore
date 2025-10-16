@@ -1324,16 +1324,17 @@ class spell_zuldrak_summon_escort_aura : public AuraScript
 ## Quest 12116: It Takes Guts....
 ######*/
 
-enum quest_it_takes_guts
+enum ItTakesGuts
 {
-    ANCIENT_DRAKKARI_SOOTHSAYER = 26812,
-    ANCIENT_DRAKKARI_WARMONGER = 26811,
-    NPC_ANCIENT_DRAKKARI_TALK = 1
+    NPC_ANCIENT_DRAKKARI_SOOTHSAYER = 26812,
+    NPC_ANCIENT_DRAKKARI_WARMONGER = 26811,
+
+    SAY_ANCIENT_DRAKKARI = 1
 };
 
-struct go_188499_chest : public GameObjectAI
+struct go_drakkari_canopic_jar_chest : public GameObjectAI
 {
-    go_188499_chest(GameObject* go) : GameObjectAI(go) {}
+    go_drakkari_canopic_jar_chest(GameObject* go) : GameObjectAI(go) {}
 
     void OnLootStateChanged(uint32 state, Unit* who) override
     {
@@ -1344,7 +1345,7 @@ struct go_188499_chest : public GameObjectAI
         if (!player)
             return;
 
-        constexpr uint32 entries[] = { ANCIENT_DRAKKARI_SOOTHSAYER, ANCIENT_DRAKKARI_WARMONGER };
+        constexpr uint32 entries[] = { NPC_ANCIENT_DRAKKARI_SOOTHSAYER, NPC_ANCIENT_DRAKKARI_WARMONGER };
         constexpr size_t entryCount = sizeof(entries) / sizeof(entries[0]);
 
         std::list<Creature*> npcList;
@@ -1373,7 +1374,7 @@ struct go_188499_chest : public GameObjectAI
         {
             target->SetFaction(14);
             target->AI()->AttackStart(player);
-            target->AI()->Talk(NPC_ANCIENT_DRAKKARI_TALK);
+            target->AI()->Talk(SAY_ANCIENT_DRAKKARI);
         }
     }
 };
@@ -1409,5 +1410,5 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_gymers_throw);
     RegisterSpellScript(spell_zuldrak_have_ingredient);
     RegisterSpellScript(spell_zuldrak_summon_escort_aura);
-    RegisterGameObjectAI(go_188499_chest);
+    RegisterGameObjectAI(go_drakkari_canopic_jar_chest);
 }
