@@ -1,5 +1,5 @@
 --
-UPDATE `spell_dbc` SET `ProcChance` = 101, `Effect1` = 140, `EffectImplicitTargetA1` = 1, `RangeIndex`= 1,`EffectTriggerSpell1` = 47681 WHERE `Id` = 47680;
+UPDATE `spell_dbc` SET `ProcChance` = 101, `Effect1` = 140, `EffectImplicitTargetA1` = 25, `RangeIndex`= 13,`EffectTriggerSpell1` = 47681 WHERE `Id` = 47680;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 47681;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES

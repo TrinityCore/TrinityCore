@@ -2528,6 +2528,8 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     if (GetGoType() == GAMEOBJECT_TYPE_CHEST && state == GO_ACTIVATED)
     {
         GameObjectTemplate const* goInfo = GetGOInfo();
+        if (uint32 trapEntry = goInfo->chest.linkedTrapId)
+            TriggeringLinkedGameObject(trapEntry, unit);
         if (goInfo->chest.chestRestockTime > 0 && m_restockTime == 0)
             m_restockTime = GameTime::GetGameTime() + goInfo->chest.chestRestockTime;
 
