@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
@@ -1345,36 +1346,20 @@ struct go_drakkari_canopic_jar_chest : public GameObjectAI
         if (!player)
             return;
 
-        constexpr uint32 entries[] = { NPC_ANCIENT_DRAKKARI_SOOTHSAYER, NPC_ANCIENT_DRAKKARI_WARMONGER };
-        constexpr size_t entryCount = sizeof(entries) / sizeof(entries[0]);
+        std::list<Creature*> creatureList;
+        FindCreatureOptions args;
+        args.IsAlive = true;
+        args.IsInCombat = false;
+        args.CreatureId = NPC_ANCIENT_DRAKKARI_SOOTHSAYER;
+        GetCreatureListWithOptionsInGrid(creatureList, me, 30.f, args);
+        args.CreatureId = NPC_ANCIENT_DRAKKARI_WARMONGER;
+        GetCreatureListWithOptionsInGrid(creatureList, me, 30.f, args);
 
-        std::list<Creature*> npcList;
-
-        for (size_t i = 0; i < entryCount; ++i)
+        if (Creature* attacker = Trinity::Containers::SelectRandomContainerElement(creatureList))
         {
-            std::list<Creature*> tempList;
-            GetCreatureListWithEntryInGrid(tempList, me, entries[i], 30.0f);
-
-            for (Creature* c : tempList)
-                if (c && c->IsAlive())
-                    npcList.push_back(c);
-        }
-
-        if (npcList.empty())
-            return;
-
-        size_t listSize = npcList.size();
-        size_t randIndex = urand(0, listSize - 1);
-
-        auto it = npcList.begin();
-        std::advance(it, randIndex);
-
-        Creature* target = *it;
-        if (target)
-        {
-            target->SetFaction(14);
-            target->AI()->AttackStart(player);
-            target->AI()->Talk(SAY_ANCIENT_DRAKKARI);
+            attacker->SetFaction(14);
+            attacker->AI()->AttackStart(player);
+            attacker->AI()->Talk(SAY_ANCIENT_DRAKKARI);
         }
     }
 };
