@@ -1878,9 +1878,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_PAUSE_MOVEMENT:
-            if (!e.action.pauseMovement.pauseTimer)
+            if (e.action.pauseMovement.pauseTimer < 0)
             {
-                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} specifies invalid pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
             }
 
