@@ -2190,12 +2190,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         }
         case SMART_ACTION_PAUSE_MOVEMENT:
         {
-            if (!e.action.pauseMovement.pauseTimer)
-            {
-                TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
         }
