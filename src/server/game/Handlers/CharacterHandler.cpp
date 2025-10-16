@@ -536,7 +536,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
         WorldPackets::Character::WarbandGroup defaultGroup;
         defaultGroup.GroupID = nextGroupId;
         defaultGroup.OrderIndex = 0;
-        defaultGroup.Name = "Favoris";
+        defaultGroup.Name = "Favorites";
         defaultGroup.WarbandSceneID = 29;
         defaultGroup.Flags = 1;
 
@@ -546,7 +546,7 @@ void WorldSession::HandleCharEnum(CharacterDatabaseQueryHolder const& holder)
         insertStmt->setUInt64(0, nextGroupId);
         insertStmt->setUInt32(1, GetAccountId());
         insertStmt->setUInt8(2, 0);
-        insertStmt->setString(3, std::string("Favoris"));
+        insertStmt->setString(3, std::string("Favorites"));
         insertStmt->setUInt32(4, 29);
         insertStmt->setUInt32(5, 1);
         LoginDatabase.Execute(insertStmt);
