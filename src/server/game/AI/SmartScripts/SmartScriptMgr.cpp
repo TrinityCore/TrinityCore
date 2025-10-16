@@ -1035,6 +1035,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_ENTER_VEHICLE: return sizeof(SmartAction::enterVehicle);
             case SMART_ACTION_BOARD_PASSENGER: return sizeof(SmartAction::enterVehicle);
             case SMART_ACTION_EXIT_VEHICLE: return NO_PARAMS;
+            case SMART_ACTION_RESUME_MOVEMENT: return sizeof(SmartAction::resumeMovement);
             case SMART_ACTION_FALL: return sizeof(SmartAction::fall);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
@@ -2447,6 +2448,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
         case SMART_ACTION_DO_ACTION:
         case SMART_ACTION_EXIT_VEHICLE:
+        case SMART_ACTION_RESUME_MOVEMENT:
         case SMART_ACTION_FALL:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
