@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "Containers.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "MotionMaster.h"
@@ -1321,49 +1320,6 @@ class spell_zuldrak_summon_escort_aura : public AuraScript
     }
 };
 
-/*######
-## Quest 12116: It Takes Guts....
-######*/
-
-enum ItTakesGuts
-{
-    NPC_ANCIENT_DRAKKARI_SOOTHSAYER = 26812,
-    NPC_ANCIENT_DRAKKARI_WARMONGER = 26811,
-
-    SAY_ANCIENT_DRAKKARI = 1
-};
-
-struct go_drakkari_canopic_jar_chest : public GameObjectAI
-{
-    go_drakkari_canopic_jar_chest(GameObject* go) : GameObjectAI(go) {}
-
-    void OnLootStateChanged(uint32 state, Unit* who) override
-    {
-        if (state != GO_ACTIVATED || !who || who->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        Player* player = who->ToPlayer();
-        if (!player)
-            return;
-
-        std::list<Creature*> creatureList;
-        FindCreatureOptions args;
-        args.IsAlive = true;
-        args.IsInCombat = false;
-        args.CreatureId = NPC_ANCIENT_DRAKKARI_SOOTHSAYER;
-        GetCreatureListWithOptionsInGrid(creatureList, me, 30.f, args);
-        args.CreatureId = NPC_ANCIENT_DRAKKARI_WARMONGER;
-        GetCreatureListWithOptionsInGrid(creatureList, me, 30.f, args);
-
-        if (Creature* attacker = Trinity::Containers::SelectRandomContainerElement(creatureList))
-        {
-            attacker->SetFaction(14);
-            attacker->AI()->AttackStart(player);
-            attacker->AI()->Talk(SAY_ANCIENT_DRAKKARI);
-        }
-    }
-};
-
 void AddSC_zuldrak()
 {
     RegisterCreatureAI(npc_released_offspring_harkoa);
@@ -1395,5 +1351,4 @@ void AddSC_zuldrak()
     RegisterSpellScript(spell_zuldrak_gymers_throw);
     RegisterSpellScript(spell_zuldrak_have_ingredient);
     RegisterSpellScript(spell_zuldrak_summon_escort_aura);
-    RegisterGameObjectAI(go_drakkari_canopic_jar_chest);
 }
