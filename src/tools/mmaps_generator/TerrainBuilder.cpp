@@ -16,7 +16,6 @@
  */
 
 #include "TerrainBuilder.h"
-#include "MapBuilder.h"
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
@@ -585,22 +584,22 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
     {
-        std::unique_ptr<VMapManager2> vmapManager = VMapFactory::CreateVMapManager();
-        LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        std::unique_ptr<VMAP::VMapManager2> vmapManager = VMapFactory::CreateVMapManager();
+        VMAP::LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
         bool retval = false;
 
         do
         {
-            if (result != LoadResult::Success)
+            if (result != VMAP::LoadResult::Success)
                 break;
 
-            InstanceTreeMap instanceTrees;
+            VMAP::InstanceTreeMap instanceTrees;
             vmapManager->getInstanceMapTree(instanceTrees);
 
             if (!instanceTrees[mapID])
                 break;
 
-            ModelInstance* models = nullptr;
+            VMAP::ModelInstance* models = nullptr;
             uint32 count = 0;
             instanceTrees[mapID]->getModelInstances(models, count);
 
@@ -609,17 +608,17 @@ namespace MMAP
 
             for (uint32 i = 0; i < count; ++i)
             {
-                ModelInstance const& instance = models[i];
+                VMAP::ModelInstance const& instance = models[i];
 
                 // model instances exist in tree even though there are instances of that model in this tile
-                WorldModel const* worldModel = instance.getWorldModel();
+                VMAP::WorldModel const* worldModel = instance.getWorldModel();
                 if (!worldModel)
                     continue;
 
                 // now we have a model to add to the meshdata
                 retval = true;
 
-                std::vector<GroupModel> const& groupModels = worldModel->getGroupModels();
+                std::vector<VMAP::GroupModel> const& groupModels = worldModel->getGroupModels();
 
                 // all M2s need to have triangle indices reversed
                 bool isM2 = worldModel->IsM2();
@@ -631,12 +630,12 @@ namespace MMAP
                 position.x -= 32 * GRID_SIZE;
                 position.y -= 32 * GRID_SIZE;
 
-                for (std::vector<GroupModel>::const_iterator it = groupModels.begin(); it != groupModels.end(); ++it)
+                for (std::vector<VMAP::GroupModel>::const_iterator it = groupModels.begin(); it != groupModels.end(); ++it)
                 {
                     std::vector<G3D::Vector3> const& tempVertices = it->GetVertices();
                     std::vector<G3D::Vector3> transformedVertices;
-                    std::vector<MeshTriangle> const& tempTriangles = it->GetTriangles();
-                    WmoLiquid const* liquid = it->GetLiquid();
+                    std::vector<VMAP::MeshTriangle> const& tempTriangles = it->GetTriangles();
+                    VMAP::WmoLiquid const* liquid = it->GetLiquid();
 
                     // first handle collision mesh
                     transform(tempVertices, transformedVertices, scale, rotation, position);
@@ -759,12 +758,12 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyIndices(std::vector<MeshTriangle> const& source, G3D::Array<int>& dest, int offset, bool flip)
+    void TerrainBuilder::copyIndices(std::vector<VMAP::MeshTriangle> const& source, G3D::Array<int>& dest, int offset, bool flip)
     {
         dest.reserve(dest.size() + source.size() * 3);
         if (flip)
         {
-            for (MeshTriangle const& triangle : source)
+            for (VMAP::MeshTriangle const& triangle : source)
             {
                 dest.push_back(triangle.idx2 + offset);
                 dest.push_back(triangle.idx1 + offset);
@@ -773,7 +772,7 @@ namespace MMAP
         }
         else
         {
-            for (MeshTriangle const& triangle : source)
+            for (VMAP::MeshTriangle const& triangle : source)
             {
                 dest.push_back(triangle.idx0 + offset);
                 dest.push_back(triangle.idx1 + offset);

@@ -149,7 +149,7 @@ namespace MMAP
                     for (uint32 tileX = 0; tileX < 64; ++tileX)
                         for (uint32 tileY = 0; tileY < 64; ++tileY)
                             if (tilesData[tileX * 64 + tileY] == '1')
-                                if (tiles.insert(StaticMapTree::packTileID(tileX, tileY)).second)
+                                if (tiles.insert(VMAP::StaticMapTree::packTileID(tileX, tileY)).second)
                                     ++m_totalTiles;
                 }
             }
@@ -180,7 +180,7 @@ namespace MMAP
 
                 uint32 tileX = Trinity::StringTo<uint32>(std::string_view(fileName).substr(8, 2)).value_or(0);
                 uint32 tileY = Trinity::StringTo<uint32>(std::string_view(fileName).substr(5, 2)).value_or(0);
-                uint32 tileID = StaticMapTree::packTileID(tileY, tileX);
+                uint32 tileID = VMAP::StaticMapTree::packTileID(tileY, tileX);
 
                 if (tiles.insert(tileID).second)
                     ++m_totalTiles;
@@ -429,7 +429,7 @@ namespace MMAP
                 uint32 tileX, tileY;
 
                 // unpack tile coords
-                StaticMapTree::unpackTileID(packedTile, tileX, tileY);
+                VMAP::StaticMapTree::unpackTileID(packedTile, tileX, tileY);
 
                 TileInfo tileInfo;
                 tileInfo.m_mapId = mapID;
@@ -526,7 +526,7 @@ namespace MMAP
         uint32 tileXMin = 64, tileYMin = 64, tileXMax = 0, tileYMax = 0, tileX, tileY;
         for (uint32 packedTile : tiles)
         {
-            StaticMapTree::unpackTileID(packedTile, tileX, tileY);
+            VMAP::StaticMapTree::unpackTileID(packedTile, tileX, tileY);
 
             if (tileX > tileXMax)
                 tileXMax = tileX;

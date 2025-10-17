@@ -29,8 +29,6 @@
 #include <thread>
 #include <vector>
 
-using namespace VMAP;
-
 namespace MMAP
 {
     typedef std::unordered_map<uint32, Trinity::Containers::FlatSet<uint32>> TileList;
