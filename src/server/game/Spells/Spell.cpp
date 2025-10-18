@@ -2948,7 +2948,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
             {
                 Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
-                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
+                unitCaster->RemoveAppliedAuras([](AuraApplication const* aurApp)
+                {
+                    return aurApp->GetBase()->GetSpellInfo()->Dispel == DISPEL_STEALTH;
+                });
                 spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
             }
         }
