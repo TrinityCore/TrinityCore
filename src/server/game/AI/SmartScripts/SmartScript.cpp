@@ -810,11 +810,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // Reset home position to respawn position if specified in the parameters
             if (e.action.evade.toRespawnPosition == 0)
-            {
-                float homeX, homeY, homeZ, homeO;
-                me->GetRespawnPosition(homeX, homeY, homeZ, &homeO);
-                me->SetHomePosition(homeX, homeY, homeZ, homeO);
-            }
+                me->SetHomePosition(me->GetRespawnPosition());
 
             me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature {} EnterEvadeMode", me->GetGUID());
@@ -1523,7 +1519,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             Position dest(e.target.x, e.target.y, e.target.z);
             if (e.action.moveToPos.transport)
                 if (TransportBase* trans = me->GetDirectTransport())
-                    trans->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ);
+                    dest = trans->GetPositionWithOffset(dest);
 
             me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0, {}, {},
                 MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));

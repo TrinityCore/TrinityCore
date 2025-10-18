@@ -567,18 +567,13 @@ struct gunship_npc_AI : public ScriptedAI
 
             me->SetReactState(REACT_PASSIVE);
 
-            float x, y, z, o;
-            Slot->TargetPosition.GetPosition(x, y, z, o);
-
             me->SetTransportHomePosition(Slot->TargetPosition);
-            float hx = x, hy = y, hz = z, ho = o;
-            me->GetTransport()->CalculatePassengerPosition(hx, hy, hz, &ho);
-            me->SetHomePosition(hx, hy, hz, ho);
+            me->SetHomePosition(me->GetTransport()->GetPositionWithOffset(Slot->TargetPosition));
 
-            std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+            std::function<void(Movement::MoveSplineInit&)> initializer = [pos = Slot->TargetPosition](Movement::MoveSplineInit& init)
             {
                 init.DisableTransportPathTransformations();
-                init.MoveTo(x, y, z, false);
+                init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), EVENT_CHARGE_PREPATH, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
         }
@@ -1417,23 +1412,21 @@ struct npc_gunship_boarding_addAI : public gunship_npc_AI
         if (pointId == EVENT_CHARGE_PREPATH && Slot)
         {
             Position const& otherTransportPos = Instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? OrgrimsHammerTeleportExit : SkybreakerTeleportExit;
-            float x, y, z, o;
-            otherTransportPos.GetPosition(x, y, z, o);
-
-            TransportBase* myTransport = me->GetTransport();
+            TransportBase const* myTransport = me->GetTransport();
             if (!myTransport)
                 return;
 
-            if (Transport* destTransport = ObjectAccessor::GetTransport(*me, Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
-                destTransport->CalculatePassengerPosition(x, y, z, &o);
+            if (Transport const* destTransport = ObjectAccessor::GetTransport(*me, Instance->GetGuidData(DATA_ICECROWN_GUNSHIP_BATTLE)))
+            {
+                Position globalPosition = destTransport->GetPositionWithOffset(otherTransportPos);
 
-            float angle = frand(0, float(M_PI) * 2.0f);
-            x += 2.0f * std::cos(angle);
-            y += 2.0f * std::sin(angle);
+                float angle = frand(0, float(M_PI) * 2.0f);
+                globalPosition.m_positionX += 2.0f * std::cos(angle);
+                globalPosition.m_positionY += 2.0f * std::sin(angle);
 
-            me->SetHomePosition(x, y, z, o);
-            myTransport->CalculatePassengerOffset(x, y, z, &o);
-            me->SetTransportHomePosition(x, y, z, o);
+                me->SetHomePosition(globalPosition);
+                me->SetTransportHomePosition(myTransport->GetPositionOffsetTo(globalPosition));
+            }
 
             me->m_Events.AddEvent(new BattleExperienceEvent(me), me->m_Events.CalculateTime(BattleExperienceEvent::ExperiencedTimes[0]));
             DoCast(me, SPELL_BATTLE_EXPERIENCE, true);
@@ -1974,10 +1967,7 @@ class spell_igb_teleport_to_enemy_ship : public SpellScript
         if (!dest || !target || !target->GetTransport())
             return;
 
-        float x, y, z, o;
-        dest->GetPosition(x, y, z, o);
-        target->GetTransport()->CalculatePassengerOffset(x, y, z, &o);
-        target->m_movementInfo.transport.pos.Relocate(x, y, z, o);
+        target->m_movementInfo.transport.pos.Relocate(target->GetTransport()->GetPositionOffsetTo(*dest));
     }
 
     void Register() override

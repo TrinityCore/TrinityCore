@@ -431,12 +431,8 @@ bool Player::Create(ObjectGuid::LowType guidlow, WorldPackets::Character::Charac
     {
         if (Transport* transport = ObjectAccessor::GetTransport(*this, ObjectGuid::Create<HighGuid::Transport>(*position.TransportGuid)))
         {
-            transport->AddPassenger(this);
-            m_movementInfo.transport.pos.Relocate(position.Loc);
-            float x, y, z, o;
-            position.Loc.GetPosition(x, y, z, o);
-            transport->CalculatePassengerPosition(x, y, z, &o);
-            Relocate(x, y, z, o);
+            transport->AddPassenger(this, position.Loc);
+            Relocate(transport->GetPositionWithOffset(position.Loc));
         }
     }
 
@@ -18102,18 +18098,17 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
         if (transport)
         {
-            float x = fields.trans_x, y = fields.trans_y, z = fields.trans_z, o = fields.trans_o;
-            m_movementInfo.transport.pos.Relocate(x, y, z, o);
-            transport->CalculatePassengerPosition(x, y, z, &o);
+            m_movementInfo.transport.pos.Relocate(fields.trans_x, fields.trans_y, fields.trans_z, fields.trans_o);
+            Position globalPosition = transport->GetPositionWithOffset(m_movementInfo.transport.pos);
 
-            if (!Trinity::IsValidMapCoord(x, y, z, o) ||
+            if (!globalPosition.IsPositionValid() ||
                 // transport size limited
                 std::fabs(m_movementInfo.transport.pos.GetPositionX()) > 250.0f ||
                 std::fabs(m_movementInfo.transport.pos.GetPositionY()) > 250.0f ||
                 std::fabs(m_movementInfo.transport.pos.GetPositionZ()) > 250.0f)
             {
-                TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid transport coordinates (X: {} Y: {} Z: {} O: {}). Teleport to bind location.",
-                    guid.ToString(), x, y, z, o);
+                TC_LOG_ERROR("entities.player.loading", "Player::LoadFromDB: Player ({}) has invalid transport coordinates ({}). Teleport to bind location.",
+                    guid.ToString(), globalPosition.ToString());
 
                 m_movementInfo.transport.Reset();
 
@@ -18121,10 +18116,10 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
             }
             else
             {
-                Relocate(x, y, z, o);
+                Relocate(globalPosition);
                 mapId = transport->GetMapId();
 
-                transport->AddPassenger(this);
+                transport->AddPassenger(this, m_movementInfo.transport.pos);
             }
         }
         else

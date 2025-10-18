@@ -730,7 +730,7 @@ class spell_heartsbane_triad_drop_the_iris : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_heartsbane_triad_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_heartsbane_triad_drop_the_iris::RemoveIris, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 

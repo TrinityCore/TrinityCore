@@ -60,11 +60,9 @@ namespace MMAP
     }
 }
 
-using namespace MMAP;
-
 bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
-    if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
+    if (MMAP::getDirContents(dbcLocales, "dbc") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
     {
         printf("'dbc' directory is empty or does not exist\n");
         return false;
@@ -72,21 +70,21 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 
     std::vector<std::string> dirFiles;
 
-    if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, "maps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'maps' directory is empty or does not exist\n");
         return false;
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         printf("'vmaps' directory is empty or does not exist\n");
         return false;
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
+    if (MMAP::getDirContents(dirFiles, "mmaps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
     {
         if (!boost::filesystem::create_directory("mmaps"))
         {
@@ -98,7 +96,7 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
     dirFiles.clear();
     if (debugOutput)
     {
-        if (getDirContents(dirFiles, "meshes") == LISTFILE_DIRECTORY_NOT_FOUND)
+        if (MMAP::getDirContents(dirFiles, "meshes") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
         {
             if (!boost::filesystem::create_directory("meshes"))
             {
@@ -373,7 +371,7 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
             if (parentMapId != -1)
                 mapData[parentMapId].push_back(record.GetId());
 
-            MapEntry& map = sMapStore[record.GetId()];
+            MMAP::MapEntry& map = MMAP::sMapStore[record.GetId()];
             map.MapType = record.GetUInt8("MapType");
             map.InstanceType = record.GetUInt8("InstanceType");
             map.ParentMapID = parentMapId;
@@ -441,7 +439,7 @@ int main(int argc, char** argv)
 
     _mapDataForVmapInitialization = LoadMap(dbcLocales[0], silent, -4);
 
-    MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
+    MMAP::MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     uint32 start = getMSTime();

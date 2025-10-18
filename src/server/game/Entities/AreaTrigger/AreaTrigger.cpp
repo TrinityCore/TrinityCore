@@ -272,13 +272,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
         if (transport)
         {
-            float x, y, z, o;
-            pos.GetPosition(x, y, z, o);
-            transport->CalculatePassengerOffset(x, y, z, &o);
-            m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
             // This object must be added to transport before adding to map for the client to properly display it
-            transport->AddPassenger(this);
+            transport->AddPassenger(this, transport->GetPositionOffsetTo(pos));
         }
     }
 

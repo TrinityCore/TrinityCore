@@ -3317,6 +3317,8 @@ struct PlayerConditionEntry
     std::array<int32, 4> TraitNodeEntryID;
     std::array<uint16, 4> TraitNodeEntryMinRank;
     std::array<uint16, 4> TraitNodeEntryMaxRank;
+
+    EnumFlag<PlayerConditionFlags> GetFlags() const { return static_cast<PlayerConditionFlags>(Flags); }
 };
 
 struct PlayerDataElementAccountEntry

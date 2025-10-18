@@ -618,7 +618,7 @@ void Unit::UpdateSplinePosition()
         pos.SetOrientation(loc.orientation);
 
         if (TransportBase* transport = GetDirectTransport())
-            transport->CalculatePassengerPosition(loc.x, loc.y, loc.z, &loc.orientation);
+            transport->GetPositionWithOffset(pos).GetPosition(loc.x, loc.y, loc.z, loc.orientation);
         else
             return;
     }
@@ -12801,18 +12801,22 @@ bool Unit::CanSwim() const
     return HasUnitFlag(UNIT_FLAG_RENAME | UNIT_FLAG_CAN_SWIM);
 }
 
-void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
+void Unit::NearTeleportTo(TeleportLocation const& target, bool casting)
 {
     DisableSpline();
-    TeleportLocation target{ .Location = { GetMapId(), pos } };
     if (GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->TeleportTo(target, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : TELE_TO_NONE));
     else
     {
         SendTeleportPacket(target);
-        UpdatePosition(pos, true);
+        UpdatePosition(target.Location, true);
         UpdateObjectVisibility();
     }
+}
+
+void Unit::NearTeleportTo(Position const& pos, bool casting /*= false*/)
+{
+    NearTeleportTo(TeleportLocation{ .Location = { GetMapId(), pos } }, casting);
 }
 
 void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
@@ -12852,14 +12856,14 @@ void Unit::SendTeleportPacket(TeleportLocation const& teleportLocation)
             if (!transport)
                 return;
 
-            float x, y, z, o;
-            teleportLocation.Location.GetPosition(x, y, z, o);
-            transport->CalculatePassengerPosition(x, y, z, &o);
-            moveUpdateTeleport.Status->pos.Relocate(x, y, z, o);
+            moveUpdateTeleport.Status->pos.Relocate(transport->GetPositionWithOffset(teleportLocation.Location));
             moveUpdateTeleport.Status->transport.pos.Relocate(teleportLocation.Location);
         }
         else
+        {
             moveUpdateTeleport.Status->pos.Relocate(teleportLocation.Location);
+            moveUpdateTeleport.Status->transport.Reset();
+        }
     }
 
     // Broadcast the packet to everyone except self.
@@ -13078,7 +13082,7 @@ void CharmInfo::SaveStayPosition()
 
     if (_unit->movespline->onTransport)
         if (TransportBase* transport = _unit->GetDirectTransport())
-            transport->CalculatePassengerPosition(stayPos.x, stayPos.y, stayPos.z);
+            transport->GetPositionWithOffset({ stayPos.x, stayPos.y, stayPos.z }).GetPosition(stayPos.x, stayPos.y, stayPos.z);
 
     _stayX = stayPos.x;
     _stayY = stayPos.y;
