@@ -204,7 +204,7 @@ WorldPacket const* LFGUpdateStatus::Write()
 {
     _worldPacket << Ticket;
     _worldPacket << uint8(SubType);
-    _worldPacket << uint8(Reason);
+    _worldPacket << uint32(Reason);
     _worldPacket << Size<uint32>(Slots);
     _worldPacket << uint8(RequestedRoles);
     _worldPacket << Size<uint32>(SuspendedPlayers);

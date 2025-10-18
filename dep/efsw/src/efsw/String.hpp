@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <efsw/base.hpp>
-#include <fstream>
 #include <iostream>
 #include <locale>
 #include <sstream>
@@ -24,7 +23,7 @@ namespace efsw {
  * **/
 class String {
   public:
-	typedef Uint32 StringBaseType;
+	typedef char32_t StringBaseType;
 	typedef std::basic_string<StringBaseType> StringType;
 	typedef StringType::iterator Iterator;							 //! Iterator type
 	typedef StringType::const_iterator ConstIterator;				 //! Constant iterator type

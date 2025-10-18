@@ -4762,7 +4762,7 @@ class spell_summon_battle_pet : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_summon_battle_pet::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_summon_battle_pet::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 

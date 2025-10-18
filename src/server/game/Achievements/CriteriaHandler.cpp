@@ -3874,21 +3874,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfig: // 340
         {
-            auto hasTraitNodeEntry = [referencePlayer, reqValue]()
+            auto hasTraitNodeEntry = [referencePlayer, reqValue]
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(reqValue))
                             return true;
-                }
+
                 return false;
             }();
             if (!hasTraitNodeEntry)
@@ -3899,19 +3892,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             auto traitNodeEntryRank = [referencePlayer, secondaryAsset]() -> Optional<uint16>
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(secondaryAsset))
                             return traitEntry.Rank;
-                }
+
                 return {};
             }();
             if (!traitNodeEntryRank || traitNodeEntryRank < int32(reqValue))
@@ -3943,18 +3929,18 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
-            auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
+            uint32 traitNodeEntryRankCount = [referencePlayer, secondaryAsset]
             {
                 uint32 ranks = 0;
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                for (auto const& [_, traitConfig] : referencePlayer->m_activePlayerData->TraitConfigs)
                 {
-                    if (TraitConfigType(*traitConfig.Type) != TraitConfigType::Profession)
+                    if (TraitConfigType(*traitConfig.value.Type) != TraitConfigType::Profession)
                         continue;
 
-                    if (*traitConfig.SkillLineID != int32(secondaryAsset))
+                    if (*traitConfig.value.SkillLineID != int32(secondaryAsset))
                         continue;
 
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                    for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
                         if (sTraitNodeEntryStore.AssertEntry(traitEntry.TraitNodeEntryID)->GetNodeEntryType() == TraitNodeEntryType::ProfPath)
                             ranks += traitEntry.Rank + traitEntry.GrantedRanks;
                 }
@@ -4025,7 +4011,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
         {
-            int32 traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIndexIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
+            int32 const* traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
             {
                 if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat
                     && (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
@@ -4036,8 +4022,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     return traitSubTree.TraitSubTreeID == int32(reqValue) && traitSubTree.Active;
                 }) >= 0;
-            });
-            if (traitConfigWithSubtree < 0)
+            }).first;
+            if (!traitConfigWithSubtree)
                 return false;
             break;
         }

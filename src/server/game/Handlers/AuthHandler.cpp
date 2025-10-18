@@ -139,4 +139,18 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     }
 
     SendPacket(features.Write());
+
+    WorldPackets::System::MirrorVarSingle vars[] =
+    {
+        { "raidLockoutExtendEnabled"sv, "1"sv },
+        { "bypassItemLevelScalingCode"sv, "0"sv },
+        { "shop2Enabled"sv, "0"sv },
+        { "bpayStoreEnable"sv, "0"sv },
+        { "recentAlliesEnabledClient"sv, "0"sv },
+        { "browserEnabled"sv, "0"sv },
+    };
+
+    WorldPackets::System::MirrorVars variables;
+    variables.Variables = vars;
+    SendPacket(variables.Write());
 }

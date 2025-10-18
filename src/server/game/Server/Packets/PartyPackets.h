@@ -193,7 +193,7 @@ namespace WorldPackets
         struct PartyMemberStats
         {
             uint16 Level = 0;
-            uint16 Status = 0;
+            uint32 Status = 0;
 
             int32 CurrentHealth = 0;
             int32 MaxHealth = 0;
@@ -574,6 +574,7 @@ namespace WorldPackets
             int64 Unknown_1120_4 = 0;
             ObjectGuid KeystoneOwnerGUID;
             ObjectGuid LeaverGUID;
+            Duration<Milliseconds> InstanceAbandonVoteCooldown;
             bool IsActive = false;
             bool HasRestrictions = false;
             bool CanVoteAbandon = false;

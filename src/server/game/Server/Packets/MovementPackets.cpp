@@ -340,27 +340,13 @@ ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineUnknown901 const& unk)
 ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
 {
     data << uint32(movementSpline.Flags);
+    data << uint8(movementSpline.Face);
     data << int32(movementSpline.Elapsed);
     data << uint32(movementSpline.MoveTime);
     data << uint32(movementSpline.FadeObjectTime);
     data << uint8(movementSpline.Mode);
     data << movementSpline.TransportGUID;
     data << int8(movementSpline.VehicleSeat);
-    data << Bits<2>(movementSpline.Face);
-    data << BitsSize<16>(movementSpline.Points);
-    data << Bits<1>(movementSpline.VehicleExitVoluntary);
-    data << Bits<1>(movementSpline.TaxiSmoothing);
-    data << BitsSize<16>(movementSpline.PackedDeltas);
-    data << OptionalInit(movementSpline.SplineFilter);
-    data << OptionalInit(movementSpline.SpellEffectExtraData);
-    data << OptionalInit(movementSpline.JumpExtraData);
-    data << OptionalInit(movementSpline.TurnData);
-    data << OptionalInit(movementSpline.AnimTierTransition);
-    data << OptionalInit(movementSpline.Unknown901);
-    data.FlushBits();
-
-    if (movementSpline.SplineFilter)
-        data << *movementSpline.SplineFilter;
 
     switch (movementSpline.Face)
     {
@@ -375,6 +361,21 @@ ByteBuffer& operator<<(ByteBuffer& data, MovementSpline const& movementSpline)
             data << float(movementSpline.FaceDirection);
             break;
     }
+
+    data << BitsSize<16>(movementSpline.Points);
+    data << Bits<1>(movementSpline.VehicleExitVoluntary);
+    data << Bits<1>(movementSpline.TaxiSmoothing);
+    data << BitsSize<16>(movementSpline.PackedDeltas);
+    data << OptionalInit(movementSpline.SplineFilter);
+    data << OptionalInit(movementSpline.SpellEffectExtraData);
+    data << OptionalInit(movementSpline.JumpExtraData);
+    data << OptionalInit(movementSpline.TurnData);
+    data << OptionalInit(movementSpline.AnimTierTransition);
+    data << OptionalInit(movementSpline.Unknown901);
+    data.FlushBits();
+
+    if (movementSpline.SplineFilter)
+        data << *movementSpline.SplineFilter;
 
     for (TaggedPosition<Position::XYZ> const& pos : movementSpline.Points)
         data << pos;

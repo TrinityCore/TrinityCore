@@ -83,6 +83,9 @@ struct BonusData
     int32 RequiredLevelCurve;
     uint16 PvpItemLevel;
     int16 PvpItemLevelBonus;
+    uint32 ItemLevelOffsetCurveId;
+    uint32 ItemLevelOffsetItemLevel;
+    uint32 ItemLevelOffset;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
     uint32 LimitCategory;

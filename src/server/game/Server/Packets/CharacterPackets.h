@@ -167,6 +167,7 @@ namespace WorldPackets
                 uint32 Flags4            = 0; ///< Character flags 4 @todo research
                 bool FirstLogin      = false;
                 uint8 CantLoginReason    = 0;
+                Timestamp<> CreateTime;
                 Timestamp<> LastActiveTime;
                 uint16 SpecID            = 0;
                 uint32 SaveVersion       = 0;
@@ -336,7 +337,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+            uint32 Code = 0; ///< Result code @see enum ResponseCodes
             ObjectGuid Guid;
         };
 
@@ -357,7 +358,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Code = 0; ///< Result code @see enum ResponseCodes
+            uint32 Code = 0; ///< Result code @see enum ResponseCodes
         };
 
         class CharacterRenameRequest final : public ClientPacket
@@ -382,7 +383,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::string Name;
-            uint8 Result = 0;
+            uint32 Result = 0;
             Optional<ObjectGuid> Guid;
         };
 
@@ -445,7 +446,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0; ///< @see enum ResponseCodes
+            uint32 Result = 0; ///< @see enum ResponseCodes
             ObjectGuid Guid;
             Optional<CharFactionChangeDisplayInfo> Display;
         };
@@ -847,7 +848,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
             ObjectGuid CharGUID;
         };
 

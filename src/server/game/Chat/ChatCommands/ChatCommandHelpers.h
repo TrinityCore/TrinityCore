@@ -127,7 +127,7 @@ namespace Trinity::Impl::ChatCommands
     template <typename... Ts>
     std::string FormatTrinityString(ChatHandler const* handler, TrinityStrings which, Ts&&... args)
     {
-        return FormatTrinityString(GetTrinityString(handler, which), fmt::make_printf_args(std::forward<Ts>(args)...));
+        return FormatTrinityString(GetTrinityString(handler, which), fmt::make_printf_args(args...));
     }
 }
 

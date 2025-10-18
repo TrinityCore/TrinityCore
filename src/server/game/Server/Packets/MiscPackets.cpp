@@ -121,6 +121,7 @@ WorldPacket const* SetupCurrency::Write()
     {
         _worldPacket << int32(data.Type);
         _worldPacket << int32(data.Quantity);
+        _worldPacket << uint8(data.Flags);
 
         _worldPacket << OptionalInit(data.WeeklyQuantity);
         _worldPacket << OptionalInit(data.MaxWeeklyQuantity);
@@ -129,7 +130,6 @@ WorldPacket const* SetupCurrency::Write()
         _worldPacket << OptionalInit(data.TotalEarned);
         _worldPacket << OptionalInit(data.NextRechargeTime);
         _worldPacket << OptionalInit(data.RechargeCycleStartTime);
-        _worldPacket << Bits<5>(data.Flags);
         _worldPacket.FlushBits();
 
         if (data.WeeklyQuantity)
