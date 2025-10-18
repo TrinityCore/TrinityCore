@@ -2089,7 +2089,7 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
         _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 12000ms);
     }
 
-    void SetGUID(ObjectGuid const& guid, int32 id)
+    void SetGUID(ObjectGuid const& guid, int32 id) override
     {
         if (id != DATA_CAZA_AXE_TARGET_GUID)
             return;
@@ -2097,7 +2097,7 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
         _axeTarget = guid;
     }
 
-    ObjectGuid GetGUID(int32 id) const
+    ObjectGuid GetGUID(int32 id) const override
     {
         if (id != DATA_CAZA_AXE_TARGET_GUID)
             return ObjectGuid::Empty;
