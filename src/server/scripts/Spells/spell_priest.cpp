@@ -1077,7 +1077,7 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
         HandleUnitEnterExit(unit);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
         // Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
         HandleUnitEnterExit(unit);
@@ -2628,7 +2628,8 @@ class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptB
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
+        return spell_pri_prayer_of_mending_SpellScriptBase::Load()
+            && GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const

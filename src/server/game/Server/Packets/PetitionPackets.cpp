@@ -41,7 +41,7 @@ ByteBuffer& operator<<(ByteBuffer& data, PetitionInfo const& petitionInfo)
     data << int32(petitionInfo.AllowedMinLevel);
     data << int32(petitionInfo.AllowedMaxLevel);
     data << int32(petitionInfo.NumChoices);
-    data << int32(petitionInfo.StaticType);
+    data << int8(petitionInfo.StaticType);
     data << uint32(petitionInfo.Muid);
 
     data << SizedString::BitsSize<8>(petitionInfo.Title);

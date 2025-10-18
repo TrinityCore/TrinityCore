@@ -96,7 +96,7 @@ void AreaTrigger::RemoveFromWorld()
         _ai->OnRemove();
 
         // Handle removal of all units, calling OnUnitExit & deleting auras if needed
-        HandleUnitEnterExit({});
+        HandleUnitEnterExit({}, AreaTriggerExitReason::ByExpire);
 
         WorldObject::RemoveFromWorld();
 
@@ -178,7 +178,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetScaleCurve(areaTriggerData.ModifyValue(&UF::AreaTriggerData::ExtraScaleCurve), 1.0f);
 
-    if (caster)
+    if (caster && spellInfo)
     {
         if (Player const* modOwner = caster->GetSpellModOwner())
         {
@@ -194,7 +194,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         }
     }
 
-    SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID), GetCreateProperties()->AnimId);
+    if (GetCreateProperties()->AnimId != -1)
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimationDataID, 0), GetCreateProperties()->AnimId);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::AnimKitID), GetCreateProperties()->AnimKitId);
     if (GetCreateProperties()->Flags.HasFlag(AreaTriggerCreatePropertiesFlag::VisualAnimIsDecay))
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::VisualAnim).ModifyValue(&UF::VisualAnim::IsDecay), true);
@@ -252,10 +253,10 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             else
                 orbit.Center = pos;
 
-            this->InitOrbit(orbit, {}, GetCreateProperties()->SpeedIsTime);
+            this->InitOrbit(orbit);
         }
         else if constexpr (std::is_same_v<MovementType, AreaTriggerCreateProperties::SplineInfo>)
-            this->InitSplineOffsets(movement, {}, GetCreateProperties()->SpeedIsTime);
+            this->InitSplineOffsets(movement);
         else if constexpr (std::is_same_v<MovementType, std::monostate>)
             this->SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
         else
@@ -271,13 +272,8 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
         transport = m_movementInfo.transport.guid.IsEmpty() ? caster->GetTransport() : nullptr;
         if (transport)
         {
-            float x, y, z, o;
-            pos.GetPosition(x, y, z, o);
-            transport->CalculatePassengerOffset(x, y, z, &o);
-            m_movementInfo.transport.pos.Relocate(x, y, z, o);
-
             // This object must be added to transport before adding to map for the client to properly display it
-            transport->AddPassenger(this);
+            transport->AddPassenger(this, transport->GetPositionOffsetTo(pos));
         }
     }
 
@@ -850,7 +846,7 @@ void AreaTrigger::SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& bo
     });
 }
 
-void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
+void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList, AreaTriggerExitReason exitMode)
 {
     GuidUnorderedSet exitUnits(std::move(_insideUnits));
 
@@ -870,7 +866,7 @@ void AreaTrigger::HandleUnitEnterExit(std::vector<Unit*> const& newTargetList)
 
     for (ObjectGuid const& exitUnitGuid : exitUnits)
         if (Unit* leavingUnit = ObjectAccessor::GetUnit(*this, exitUnitGuid))
-            HandleUnitExitInternal(leavingUnit);
+            HandleUnitExitInternal(leavingUnit, exitMode);
 
     UpdateHasPlayersFlag();
 
@@ -894,25 +890,40 @@ void AreaTrigger::HandleUnitEnter(Unit* unit)
     DoActions(unit);
 
     _ai->OnUnitEnter(unit);
+
+    // OnUnitEnter script can despawn this areatrigger
+    if (!IsInWorld())
+        return;
+
+    // Register areatrigger in Unit after actions/scripts to allow them to determine
+    // if the unit is in one or more areatriggers with the same id
+    // without forcing every script to have additional logic excluding this areatrigger
     unit->EnterAreaTrigger(this);
 }
 
-void AreaTrigger::HandleUnitExitInternal(Unit* unit)
+void AreaTrigger::HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode)
 {
+    bool canTriggerOnExit = exitMode != AreaTriggerExitReason::ByExpire || !HasActionSetFlag(AreaTriggerActionSetFlag::DontRunOnLeaveWhenExpiring);
+
     if (Player* player = unit->ToPlayer())
     {
         if (player->isDebugAreaTriggers)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_ENTITY_LEFT, GetEntry(), IsCustom(), IsStaticSpawn(), _spawnId);
 
-        player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
+        if (canTriggerOnExit)
+        {
+            player->UpdateQuestObjectiveProgress(QUEST_OBJECTIVE_AREA_TRIGGER_EXIT, GetEntry(), 1);
 
-        if (GetTemplate()->ActionSetId)
-            player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+            if (GetTemplate()->ActionSetId)
+                player->UpdateCriteria(CriteriaType::LeaveAreaTriggerWithActionSet, GetTemplate()->ActionSetId);
+        }
     }
 
     UndoActions(unit);
 
-    _ai->OnUnitExit(unit);
+    if (canTriggerOnExit)
+        _ai->OnUnitExit(unit, exitMode);
+
     unit->ExitAreaTrigger(this);
 }
 
@@ -1195,7 +1206,7 @@ void AreaTrigger::UndoActions(Unit* unit)
     }
 }
 
-void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
+void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
 {
     float angleSin = std::sin(GetOrientation());
     float angleCos = std::cos(GetOrientation());
@@ -1217,7 +1228,7 @@ void AreaTrigger::InitSplineOffsets(std::vector<Position> const& offsets, Option
     InitSplines(rotatedPoints, overrideSpeed, speedIsTimeInSeconds);
 }
 
-void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
+void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
 {
     if (splinePoints.size() < 2)
         return;
@@ -1230,7 +1241,9 @@ void AreaTrigger::InitSplines(std::vector<G3D::Vector3> const& splinePoints, Opt
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : spline->length() / speed) * static_cast<float>(IN_MILLISECONDS);
+    uint32 timeToTarget = (speedIsTimeInSeconds.value_or(GetCreateProperties()->SpeedIsTime)
+        ? speed
+        : spline->length() / speed) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);
@@ -1256,7 +1269,7 @@ uint32 AreaTrigger::GetElapsedTimeForMovement() const
     return 0;
 }
 
-void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed /*= {}*/, bool speedIsTimeInSeconds /*= false*/)
+void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed /*= {}*/, Optional<bool> speedIsTimeInSeconds /*= {}*/)
 {
     // Circular movement requires either a center position or an attached unit
     ASSERT(orbit.Center.has_value() || orbit.PathTarget.has_value());
@@ -1265,7 +1278,9 @@ void AreaTrigger::InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> o
     if (speed <= 0.0f)
         speed = 1.0f;
 
-    uint32 timeToTarget = (speedIsTimeInSeconds ? speed : static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) / speed)) * static_cast<float>(IN_MILLISECONDS);
+    uint32 timeToTarget = (speedIsTimeInSeconds.value_or(GetCreateProperties()->SpeedIsTime)
+        ? speed
+        : static_cast<uint32>(orbit.Radius * 2.0f * static_cast<float>(M_PI) / speed)) * static_cast<float>(IN_MILLISECONDS);
 
     auto areaTriggerData = m_values.ModifyValue(&AreaTrigger::m_areaTriggerData);
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTarget), timeToTarget);

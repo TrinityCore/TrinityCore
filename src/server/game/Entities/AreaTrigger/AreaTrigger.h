@@ -65,6 +65,12 @@ enum class AreaTriggerPathType : int32
     MovementScript  = 3
 };
 
+enum class AreaTriggerExitReason : uint8
+{
+    NotInside   = 0, // Unit leave areatrigger
+    ByExpire    = 1  // On areatrigger despawn
+};
+
 class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<AreaTrigger>, public MapObject
 {
     public:
@@ -180,13 +186,13 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
 
         void SetShape(AreaTriggerShapeInfo const& shape);
         float GetMaxSearchRadius() const;
-        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
-        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
+        void InitSplineOffsets(std::vector<Position> const& offsets, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
+        void InitSplines(std::vector<G3D::Vector3> const& splinePoints, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
         bool HasSplines() const { return _spline != nullptr; }
         ::Movement::Spline<float> const& GetSpline() const { return *_spline; }
         uint32 GetElapsedTimeForMovement() const;
 
-        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {}, bool speedIsTimeInSeconds = false);
+        void InitOrbit(AreaTriggerOrbitInfo const& orbit, Optional<float> overrideSpeed = {}, Optional<bool> speedIsTimeInSeconds = {});
         bool HasOrbit() const { return m_areaTriggerData->PathData.Is<UF::AreaTriggerOrbit>(); }
         UF::AreaTriggerOrbit const& GetOrbit() const { return *m_areaTriggerData->PathData.Get<UF::AreaTriggerOrbit>(); }
 
@@ -228,9 +234,9 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         void SearchUnitInCylinder(UF::AreaTriggerCylinder const& cylinder, std::vector<Unit*>& targetList);
         void SearchUnitInDisk(UF::AreaTriggerDisk const& disk, std::vector<Unit*>& targetList);
         void SearchUnitInBoundedPlane(UF::AreaTriggerBoundedPlane const& boundedPlane, std::vector<Unit*>& targetList);
-        void HandleUnitEnterExit(std::vector<Unit*> const& targetList);
+        void HandleUnitEnterExit(std::vector<Unit*> const& targetList, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
         void HandleUnitEnter(Unit* unit);
-        void HandleUnitExitInternal(Unit* unit);
+        void HandleUnitExitInternal(Unit* unit, AreaTriggerExitReason exitMode = AreaTriggerExitReason::NotInside);
 
         void DoActions(Unit* unit);
         void UndoActions(Unit* unit);

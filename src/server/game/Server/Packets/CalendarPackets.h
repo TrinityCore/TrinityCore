@@ -293,7 +293,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             uint64 EventID = 0;
             uint8 Status = 0;
             bool ClearPending = false;
@@ -311,7 +311,7 @@ namespace WorldPackets
 
             ObjectGuid InviteGuid;
             uint64 EventID = 0;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             bool ClearPending = false;
         };
 
@@ -337,7 +337,7 @@ namespace WorldPackets
 
             uint64 EventID = 0;
             WowTime Date;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             uint8 Status = 0;
         };
 
@@ -543,7 +543,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 EventID = 0;
-            uint32 Flags = 0;
+            uint16 Flags = 0;
             WowTime Date;
             uint8 Status = 0;
         };

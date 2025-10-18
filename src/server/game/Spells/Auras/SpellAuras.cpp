@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "Common.h"
 #include "Containers.h"
+#include "CreatureAI.h"
 #include "DynamicObject.h"
 #include "GridNotifiersImpl.h"
 #include "Item.h"
@@ -262,6 +263,9 @@ void AuraApplication::BuildUpdatePacket(WorldPackets::Spells::AuraInfo& auraInfo
         auraData.CastUnit = ObjectGuid::Empty; // optional data is filled in, but cast unit contains empty guid in packet
     else if (!(auraData.Flags & AFLAG_NOCASTER))
         auraData.CastUnit = aura->GetCasterGUID();
+
+    if (!aura->GetCastItemGUID().IsEmpty())
+        auraData.CastItem = aura->GetCastItemGUID();
 
     if (auraData.Flags & AFLAG_DURATION)
     {
@@ -1592,6 +1596,19 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+    }
+
+    if (apply)
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraApplied(aurApp);
+    }
+    else
+    {
+        if (Creature* creature = target->ToCreature())
+            if (CreatureAI* ai = creature->AI())
+                ai->OnAuraRemoved(aurApp);
     }
 }
 

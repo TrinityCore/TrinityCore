@@ -18,9 +18,8 @@
 #ifndef TRINITYCORE_IP_BAN_CHECK_CONNECTION_INITIALIZER_H
 #define TRINITYCORE_IP_BAN_CHECK_CONNECTION_INITIALIZER_H
 
+#include "AsioHacksFwd.h"
 #include "DatabaseEnvFwd.h"
-#include "IpAddress.h"
-#include "Log.h"
 #include "QueryCallback.h"
 #include "SocketConnectionInitializer.h"
 
@@ -30,6 +29,7 @@ namespace IpBanCheckHelpers
 {
 TC_SHARED_API QueryCallback AsyncQuery(boost::asio::ip::address const& ipAddress);
 TC_SHARED_API bool IsBanned(PreparedQueryResult const& result);
+TC_SHARED_API void LogFailure(boost::asio::ip::address const& ipAddress);
 }
 
 template <typename SocketImpl>
@@ -47,13 +47,12 @@ struct IpBanCheckConnectionInitializer final : SocketConnectionInitializer
 
             if (IpBanCheckHelpers::IsBanned(result))
             {
-                TC_LOG_ERROR("network", "IpBanCheckConnectionInitializer: IP {} is banned.", socket->GetRemoteIpAddress());
+                IpBanCheckHelpers::LogFailure(socket->GetRemoteIpAddress());
                 socket->CloseSocket();
                 return;
             }
 
-            if (self->next)
-                self->next->Start();
+            self->InvokeNext();
         }));
     }
 

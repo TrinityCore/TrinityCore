@@ -81,11 +81,8 @@ SpellDestination::SpellDestination(WorldObject const& wObj) : _position(wObj.Get
 void SpellDestination::Relocate(Position const& pos)
 {
     if (!_transportGUID.IsEmpty())
-    {
-        Position offset;
-        _position.GetPositionOffsetTo(pos, offset);
-        _transportOffset.RelocateOffset(offset);
-    }
+        _transportOffset.RelocateOffset(_position.GetPositionOffsetTo(pos));
+
     _position.Relocate(pos);
 }
 
@@ -2951,7 +2948,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
             {
                 Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
-                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
+                unitCaster->RemoveAppliedAuras([](AuraApplication const* aurApp)
+                {
+                    return aurApp->GetBase()->GetSpellInfo()->Dispel == DISPEL_STEALTH;
+                });
                 spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
             }
         }
@@ -6039,17 +6039,25 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
         if (castResult != SPELL_CAST_OK)
             return castResult;
 
-        // If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_TARGETTING
+        // If it's not a melee spell, check if vision is obscured by SPELL_AURA_INTERFERE_ENEMY_TARGETING
         if (m_spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE)
         {
             if (Unit const* unitCaster = m_caster->ToUnit())
             {
-                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
+                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ENEMY_TARGETING))
                     if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && !target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
                         return SPELL_FAILED_VISION_OBSCURED;
 
-                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_TARGETTING))
-                    if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && (!target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()) || !unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID())))
+                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ENEMY_TARGETING))
+                    if (!unitCaster->IsFriendlyTo(auraEff->GetCaster()) && !unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
+                        return SPELL_FAILED_VISION_OBSCURED;
+
+                for (AuraEffect const* auraEff : unitCaster->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ALL_TARGETING))
+                    if (!target->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
+                        return SPELL_FAILED_VISION_OBSCURED;
+
+                for (AuraEffect const* auraEff : target->GetAuraEffectsByType(SPELL_AURA_INTERFERE_ALL_TARGETING))
+                    if (!unitCaster->HasAura(auraEff->GetId(), auraEff->GetCasterGUID()))
                         return SPELL_FAILED_VISION_OBSCURED;
             }
         }
@@ -9165,6 +9173,14 @@ bool Spell::CheckScriptEffectImplicitTargets(uint32 effIndex, uint32 effIndexToC
             return false;
     }
     return true;
+}
+
+SpellScript* Spell::GetScriptByType(std::type_info const& type) const
+{
+    auto itr = std::ranges::find(m_loadedScripts, type, [](SpellScript* script) -> std::type_info const& { return typeid(*script); });
+    if (itr != m_loadedScripts.end())
+        return *itr;
+    return nullptr;
 }
 
 bool Spell::CanExecuteTriggersOnHit(Unit* unit, SpellInfo const* triggeredByAura /*= nullptr*/) const

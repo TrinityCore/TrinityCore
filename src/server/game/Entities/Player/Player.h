@@ -45,6 +45,7 @@ struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
+struct BonusData;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct ChrSpecializationEntry;
@@ -334,6 +335,22 @@ enum ActionButtonType
     ACTION_BUTTON_COMPANION = 0x50,
     ACTION_BUTTON_MOUNT     = 0x60,
     ACTION_BUTTON_ITEM      = 0x80
+};
+
+enum class HonorGainSource : uint8
+{
+    Kill                    = 0,
+    Quest                   = 1,
+    ArenaCompletion         = 2,
+    BGCompletion            = 3,
+    LFG                     = 4,
+    TeamContribution        = 5,
+    RankedBGCompletion      = 6,
+    RatedArenaCompletion    = 7,
+    ArenaSkirmishCompletion = 8,
+    RandomBGCompletion      = 9,
+    HolidayBGCompletion     = 10,
+    Spell                   = 11,
 };
 
 enum ReputationSource
@@ -1474,7 +1491,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         InventoryResult CanEquipChildItem(Item* parentItem) const;
 
         InventoryResult CanEquipUniqueItem(Item* pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
-        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
+        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, BonusData const& itemBonus, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;
@@ -2294,12 +2311,19 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 GetProfessionSlotFor(uint32 skillId) const;
         int32 FindEmptyProfessionSlotFor(uint32 skillId) const;
+        uint16 GetSkillLineIdByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillLineID[pos]; }
         void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
-        void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
+        uint16 GetSkillStepByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillStep[pos]; }
+        void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); }
+        uint16 GetSkillRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillRank[pos]; }
         void SetSkillRank(uint32 pos, uint16 rank) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillRank, pos), rank); }
+        uint16 GetSkillStartingRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillStartingRank[pos]; }
         void SetSkillStartingRank(uint32 pos, uint16 starting) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStartingRank, pos), starting); }
+        uint16 GetSkillMaxRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillMaxRank[pos]; }
         void SetSkillMaxRank(uint32 pos, uint16 max) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillMaxRank, pos), max); }
+        int16 GetSkillTempBonusByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillTempBonus[pos]; }
         void SetSkillTempBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillTempBonus, pos), bonus); }
+        uint16 GetSkillPermBonusByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillPermBonus[pos]; }
         void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus); }
 
         TeleportLocation& GetTeleportDest() { return m_teleport_dest; }
@@ -2360,7 +2384,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
         void UpdateHonorFields();
-        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, HonorGainSource source = HonorGainSource::Kill);
         void ResetHonorStats();
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
 

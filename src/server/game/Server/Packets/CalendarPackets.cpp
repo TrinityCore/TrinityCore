@@ -332,7 +332,7 @@ WorldPacket const* CalendarInviteStatus::Write()
     _worldPacket << InviteGuid;
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
     _worldPacket << ResponseTime;
     _worldPacket << Bits<1>(ClearPending);
@@ -345,7 +345,7 @@ WorldPacket const* CalendarInviteRemoved::Write()
 {
     _worldPacket << InviteGuid;
     _worldPacket << uint64(EventID);
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << Bits<1>(ClearPending);
     _worldPacket.FlushBits();
 
@@ -367,7 +367,7 @@ WorldPacket const* CalendarInviteRemovedAlert::Write()
 {
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
 
     return &_worldPacket;
@@ -472,7 +472,7 @@ WorldPacket const* CalendarInviteStatusAlert::Write()
 {
     _worldPacket << uint64(EventID);
     _worldPacket << Date;
-    _worldPacket << uint32(Flags);
+    _worldPacket << uint16(Flags);
     _worldPacket << uint8(Status);
 
     return &_worldPacket;

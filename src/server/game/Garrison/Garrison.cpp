@@ -670,7 +670,7 @@ GarrisonError Garrison::CheckBuildingRemoval(uint32 garrPlotInstanceId) const
     return GARRISON_SUCCESS;
 }
 
-template<class T, void(T::*SecondaryRelocate)(float,float,float,float)>
+template<class T, void(T::*SecondaryRelocate)(Position const&)>
 T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* map)
 {
     T* spawn = new T();
@@ -680,14 +680,10 @@ T* BuildingSpawnHelper(GameObject* building, ObjectGuid::LowType spawnId, Map* m
         return nullptr;
     }
 
-    float x = spawn->GetPositionX();
-    float y = spawn->GetPositionY();
-    float z = spawn->GetPositionZ();
-    float o = spawn->GetOrientation();
-    TransportBase::CalculatePassengerPosition(x, y, z, &o, building->GetPositionX(), building->GetPositionY(), building->GetPositionZ(), building->GetOrientation());
+    Position globalPosition = building->GetPositionWithOffset(spawn->GetPosition());
 
-    spawn->Relocate(x, y, z, o);
-    (spawn->*SecondaryRelocate)(x, y, z, o);
+    spawn->Relocate(globalPosition);
+    (spawn->*SecondaryRelocate)(globalPosition);
 
     if (!spawn->IsPositionValid())
     {
