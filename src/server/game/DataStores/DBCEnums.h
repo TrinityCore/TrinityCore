@@ -1206,18 +1206,32 @@ enum ItemBonusType
     ITEM_BONUS_RELIC_TYPE                       = 17,
     ITEM_BONUS_OVERRIDE_REQUIRED_LEVEL          = 18,
     ITEM_BONUS_AZERITE_TIER_UNLOCK_SET          = 19,
-    ITEM_BONUS_SCRAPPING_LOOT_ID                = 20,
+    ITEM_BONUS_SCRAPPING_LOOT_ID                = 20, /*NYI*/
     ITEM_BONUS_OVERRIDE_CAN_DISENCHANT          = 21,
     ITEM_BONUS_OVERRIDE_CAN_SCRAP               = 22,
     ITEM_BONUS_ITEM_EFFECT_ID                   = 23,
-    ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25,
+    ITEM_BONUS_MODIFIED_CRAFTING_STAT           = 25, /*NYI*/
     ITEM_BONUS_REQUIRED_LEVEL_CURVE             = 27,
+    ITEM_BONUS_ICON_FILE_DATA_ID                = 28,
     ITEM_BONUS_DESCRIPTION_TEXT                 = 30,             // Item description
     ITEM_BONUS_OVERRIDE_NAME                    = 31,             // ItemNameDescription id
-    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34,
+    ITEM_BONUS_UPGRADE_SEQUENCE_VALUE           = 33, /*NYI*/
+    ITEM_BONUS_ITEM_BONUS_LIST_GROUP            = 34, /*NYI*/
     ITEM_BONUS_ITEM_LIMIT_CATEGORY              = 35,
-    ITEM_BONUS_ITEM_CONVERSION                  = 37,
-    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38,
+    ITEM_BONUS_PVP_ITEM_LEVEL_INCREMENT         = 36,
+    ITEM_BONUS_ITEM_CONVERSION                  = 37, /*NYI*/
+    ITEM_BONUS_ITEM_HISTORY_SLOT                = 38, /*NYI*/
+    ITEM_BONUS_OVERRIDE_CAN_SALVAGE             = 39,
+    ITEM_BONUS_OVERRIDE_CAN_RECRAFT             = 41,
+    ITEM_BONUS_ITEM_LEVEL_BASE                  = 42,
+    ITEM_BONUS_PVP_ITEM_LEVEL_BASE              = 43,
+    ITEM_BONUS_COSMETIC_STAT                    = 44,
+    ITEM_BONUS_OVERRIDE_DESCRIPTION_COLOR       = 45,             // Overrides color of item description and upgrade track if TimeEvent from value[1] has passed
+    ITEM_BONUS_OVERRIDE_CANNOT_TRADE_BOP        = 46,
+    ITEM_BONUS_BONDING_WITH_PRIORITY            = 47,
+    ITEM_BONUS_ITEM_OFFSET_CURVE                = 48,
+    ITEM_BONUS_SCALING_CONFIG_AND_REQ_LEVEL     = 49,
+    ITEM_BONUS_SCALING_CONFIG                   = 51,
 };
 
 enum class ItemCollectionType : uint8
@@ -1230,6 +1244,10 @@ enum class ItemCollectionType : uint8
     RuneforgeLegendaryAbility   = 5,
     TransmogIllusion            = 6,
     WarbandScene                = 7,
+    Room                        = 8,
+    ExteriorFixture             = 9,
+    RoomTheme                   = 10,
+    RoomMaterial                = 11
 };
 
 enum class ItemContext : uint8
@@ -1399,6 +1417,27 @@ enum class ItemContext : uint8
     Tournament_Realm_2                              = 162,
     Tournament_Realm_3                              = 163,
     Tournament_Realm_4                              = 164,
+    Warbound_1                                      = 165,
+    Warbound_2                                      = 166,
+    Warbound_3                                      = 167,
+    Warbound_4                                      = 168,
+    Warbound_5                                      = 169,
+    Warbound_6                                      = 170,
+    Warbound_7                                      = 171,
+    Warbound_8                                      = 172,
+    Warbound_9                                      = 173,
+    Warbound_10                                     = 174,
+    Warbound_11                                     = 175,
+    Warbound_12                                     = 176,
+    Warbound_13                                     = 177,
+    Warbound_14                                     = 178,
+    Warbound_15                                     = 179,
+    Warbound_16                                     = 180,
+    Warbound_17                                     = 181,
+    Warbound_18                                     = 182,
+    Warbound_19                                     = 183,
+    Warbound_20                                     = 184,
+    Endeavors                                       = 185,
 
     Max
 };
@@ -2035,6 +2074,25 @@ enum PhaseUseFlagsValues : uint8
     PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
 };
 
+enum class PlayerConditionFlags : int32
+{
+    ClientExecutable            = 0x0001,
+    CheckAchievementsOnAllChars = 0x0002,
+    ComparePowerToMax           = 0x0004,
+    Invert                      = 0x0008,
+    IsAtMaxExpansionLevel       = 0x0010,
+    WithinOrAboveRecord         = 0x0020,
+    UseEffectiveLevel           = 0x0040,
+    InvertContentTuning         = 0x0080,
+    Disabled                    = 0x0100,
+    InvertModifierTree          = 0x0200,
+    NotRecentlyTransferred      = 0x0400,
+    IncludeLevelDelta           = 0x0800,
+    CheckAccountCombinedQuests  = 0x1000  // NYI - checks PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUESTS_INDEX
+};
+
+DEFINE_ENUM_FLAG(PlayerConditionFlags);
+
 enum class PlayerConditionLfgStatus : uint8
 {
     InLFGDungeon            = 1,
@@ -2504,9 +2562,10 @@ enum class TraitConfigType : int32
 
 enum class TraitCurrencyType : int32
 {
-    Gold                = 0,
-    CurrencyTypesBased  = 1,
-    TraitSourced        = 2
+    Gold                             = 0,
+    CurrencyTypesBased               = 1,
+    TraitSourced                     = 2,
+    TraitSourcedPlayerDataElement    = 3,
 };
 
 enum class TraitEdgeType : int32
@@ -2530,7 +2589,8 @@ enum class TraitNodeEntryType : int32
     SpendDiamond        = 6,
     ProfPath            = 7,
     ProfPerk            = 8,
-    ProfPathUnlock      = 9
+    ProfPathUnlock      = 9,
+    SpendInfinite       = 10
 };
 
 enum class TraitNodeGroupFlag : int32
@@ -2554,6 +2614,12 @@ enum class TraitPointsOperationType : int32
     None        = -1,
     Set         = 0,
     Multiply    = 1
+};
+
+enum class TraitSystemVariationType : int32
+{
+    None    = 0,
+    Spec    = 1
 };
 
 enum class TraitTreeFlag : int32

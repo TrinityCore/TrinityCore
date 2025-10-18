@@ -97,6 +97,7 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
     data << int32(auraData.ContentTuningID);
     data << auraData.DstLocation;
     data << OptionalInit(auraData.CastUnit);
+    data << OptionalInit(auraData.CastItem);
     data << OptionalInit(auraData.Duration);
     data << OptionalInit(auraData.Remaining);
     data << OptionalInit(auraData.TimeMod);
@@ -109,6 +110,9 @@ ByteBuffer& operator<<(ByteBuffer& data, AuraDataInfo const& auraData)
 
     if (auraData.CastUnit)
         data << *auraData.CastUnit;
+
+    if (auraData.CastItem)
+        data << *auraData.CastItem;
 
     if (auraData.Duration)
         data << uint32(*auraData.Duration);
@@ -162,17 +166,15 @@ ByteBuffer& operator>>(ByteBuffer& buffer, TargetLocation& location)
 
 ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
 {
-    buffer.ResetBitPos();
+    buffer >> targetData.Flags;
+    buffer >> targetData.Unit;
+    buffer >> targetData.Item;
 
-    buffer >> Bits<28>(targetData.Flags);
     buffer >> OptionalInit(targetData.SrcLocation);
     buffer >> OptionalInit(targetData.DstLocation);
     buffer >> OptionalInit(targetData.Orientation);
     buffer >> OptionalInit(targetData.MapID);
     buffer >> SizedString::BitsSize<7>(targetData.Name);
-
-    buffer >> targetData.Unit;
-    buffer >> targetData.Item;
 
     if (targetData.SrcLocation)
         buffer >> *targetData.SrcLocation;
@@ -222,6 +224,7 @@ ByteBuffer& operator>>(ByteBuffer& data, SpellExtraCurrencyCost& extraCurrencyCo
 ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
 {
     buffer >> request.CastID;
+    buffer >> request.SendCastFlags;
     buffer >> request.Misc[0];
     buffer >> request.Misc[1];
     buffer >> request.SpellID;
@@ -236,17 +239,18 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request)
     for (SpellExtraCurrencyCost& optionalCurrency : request.OptionalCurrencies)
         buffer >> optionalCurrency;
 
-    buffer >> Bits<6>(request.SendCastFlags);
+    buffer >> request.Target;
+
+    buffer.ResetBitPos();
     buffer >> OptionalInit(request.MoveUpdate);
     buffer >> BitsSize<2>(request.Weight);
     buffer >> OptionalInit(request.CraftingOrderID);
-    buffer >> request.Target;
-
-    if (request.CraftingOrderID)
-        buffer >> *request.CraftingOrderID;
 
     for (SpellCraftingReagent& optionalReagent : request.OptionalReagents)
         buffer >> optionalReagent;
+
+    if (request.CraftingOrderID)
+        buffer >> *request.CraftingOrderID;
 
     for (SpellCraftingReagent& optionalReagent : request.RemovedModifications)
         buffer >> optionalReagent;
@@ -302,16 +306,16 @@ ByteBuffer& operator<<(ByteBuffer& data, TargetLocation const& targetLocation)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
 {
-    data << Bits<28>(spellTargetData.Flags);
+    data << uint32(spellTargetData.Flags);
+    data << spellTargetData.Unit;
+    data << spellTargetData.Item;
+
     data << OptionalInit(spellTargetData.SrcLocation);
     data << OptionalInit(spellTargetData.DstLocation);
     data << OptionalInit(spellTargetData.Orientation);
     data << OptionalInit(spellTargetData.MapID);
     data << SizedString::BitsSize<7>(spellTargetData.Name);
     data.FlushBits();
-
-    data << spellTargetData.Unit;
-    data << spellTargetData.Item;
 
     if (spellTargetData.SrcLocation)
         data << *spellTargetData.SrcLocation;
@@ -382,7 +386,7 @@ ByteBuffer& operator<<(ByteBuffer& data, CreatureImmunities const& immunities)
 ByteBuffer& operator<<(ByteBuffer& data, SpellHealPrediction const& spellPred)
 {
     data << int32(spellPred.Points);
-    data << uint8(spellPred.Type);
+    data << uint32(spellPred.Type);
     data << spellPred.BeaconGUID;
 
     return data;
@@ -805,9 +809,9 @@ WorldPacket const* PlaySpellVisual::Write()
     _worldPacket << TargetPosition;
     _worldPacket << uint32(SpellVisualID);
     _worldPacket << float(TravelSpeed);
-    _worldPacket << uint16(HitReason);
-    _worldPacket << uint16(MissReason);
-    _worldPacket << uint16(ReflectStatus);
+    _worldPacket << uint8(HitReason);
+    _worldPacket << uint8(MissReason);
+    _worldPacket << uint8(ReflectStatus);
     _worldPacket << float(LaunchDelay);
     _worldPacket << float(MinDuration);
     _worldPacket << Bits<1>(SpeedAsTime);

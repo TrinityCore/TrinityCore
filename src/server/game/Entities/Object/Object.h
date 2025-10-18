@@ -171,6 +171,12 @@ namespace UF
         setter.Clear();
     }
 
+    template<typename K, typename V>
+    inline void RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
+    {
+        setter.RemoveKey(key);
+    }
+
     template<typename T>
     inline void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
     {
@@ -361,6 +367,13 @@ class TC_GAME_API Object
         {
             AddToObjectUpdateIfNeeded();
             UF::RemoveDynamicUpdateFieldValue(setter, index);
+        }
+
+        template<typename K, typename V>
+        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
+        {
+            AddToObjectUpdateIfNeeded();
+            UF::RemoveMapUpdateFieldValue(setter, key);
         }
 
         template<typename T>

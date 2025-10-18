@@ -45,6 +45,7 @@ struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
+struct BonusData;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct ChrSpecializationEntry;
@@ -1490,7 +1491,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         InventoryResult CanEquipChildItem(Item* parentItem) const;
 
         InventoryResult CanEquipUniqueItem(Item* pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
-        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
+        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, BonusData const& itemBonus, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;

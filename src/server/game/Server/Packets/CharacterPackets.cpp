@@ -86,11 +86,11 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     // "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, "
     //  11                    12                      13                   14                   15                     16                   17
     // "guild_member.guildid, characters.playerFlags, characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, "
-    //  18                     19               20                      21                            22
-    // "character_banned.guid, characters.slot, characters.logout_time, characters.activeTalentGroup, characters.lastLoginBuild, "
-    //  23                                    24                                    25                                    26                                    27
+    //  18                     19               20                     21                      22                            23
+    // "character_banned.guid, characters.slot, characters.createTime, characters.logout_time, characters.activeTalentGroup, characters.lastLoginBuild, "
+    //  24                                    25                                    26                                    27                                    28
     // "characters.personalTabardEmblemStyle, characters.personalTabardEmblemColor, characters.personalTabardBorderStyle, characters.personalTabardBorderColor, characters.personalTabardBackgroundColor "
-    //  28
+    //  29
     // "character_declinedname.genitive"
 
     Guid              = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt64());
@@ -129,7 +129,7 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
     if (fields[18].GetUInt64())
         Flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
 
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[28].GetStringView().empty())
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && !fields[29].GetStringView().empty())
         Flags |= CHARACTER_FLAG_DECLINED;
 
     if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
@@ -172,17 +172,18 @@ EnumCharactersResult::CharacterInfoBasic::CharacterInfoBasic(Field const* fields
 
     std::vector<std::string_view> equipment = Trinity::Tokenize(fields[17].GetStringView(), ' ', false);
     ListPosition = fields[19].GetUInt8();
-    LastActiveTime = fields[20].GetInt64();
-    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[21].GetUInt8()))
+    CreateTime = fields[20].GetInt64();
+    LastActiveTime = fields[21].GetInt64();
+    if (ChrSpecializationEntry const* spec = sDB2Manager.GetChrSpecializationByIndex(ClassID, fields[22].GetUInt8()))
         SpecID = spec->ID;
 
-    LastLoginVersion = fields[22].GetUInt32();
+    LastLoginVersion = fields[23].GetUInt32();
 
-    PersonalTabard.EmblemStyle = fields[23].GetInt32();
-    PersonalTabard.EmblemColor = fields[24].GetInt32();
-    PersonalTabard.BorderStyle = fields[25].GetInt32();
-    PersonalTabard.BorderColor = fields[26].GetInt32();
-    PersonalTabard.BackgroundColor = fields[27].GetInt32();
+    PersonalTabard.EmblemStyle = fields[24].GetInt32();
+    PersonalTabard.EmblemColor = fields[25].GetInt32();
+    PersonalTabard.BorderStyle = fields[26].GetInt32();
+    PersonalTabard.BorderColor = fields[27].GetInt32();
+    PersonalTabard.BackgroundColor = fields[28].GetInt32();
 
     constexpr std::size_t equipmentFieldsPerSlot = 5;
 
@@ -240,6 +241,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterInfoBasi
         data << visualItem;
 
     data << int32(charInfo.SaveVersion);
+    data << charInfo.CreateTime;
     data << charInfo.LastActiveTime;
     data << int32(charInfo.LastLoginVersion);
     data << charInfo.PersonalTabard;
@@ -467,7 +469,7 @@ void CreateCharacter::Read()
 
 WorldPacket const* CreateChar::Write()
 {
-    _worldPacket << uint8(Code);
+    _worldPacket << uint32(Code);
     _worldPacket << Guid;
 
     return &_worldPacket;
@@ -480,7 +482,7 @@ void CharDelete::Read()
 
 WorldPacket const* DeleteChar::Write()
 {
-    _worldPacket << uint8(Code);
+    _worldPacket << uint32(Code);
 
     return &_worldPacket;
 }
@@ -497,7 +499,7 @@ void CharacterRenameRequest::Read()
 
 WorldPacket const* CharacterRenameResult::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << OptionalInit(Guid);
     _worldPacket << SizedString::BitsSize<6>(Name);
     _worldPacket.FlushBits();
@@ -546,7 +548,7 @@ void CharRaceOrFactionChange::Read()
 
 WorldPacket const* CharFactionChangeResult::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << Guid;
     _worldPacket << OptionalInit(Display);
     _worldPacket.FlushBits();
@@ -833,7 +835,7 @@ WorldPacket const* CharCustomizeSuccess::Write()
 
 WorldPacket const* CharCustomizeFailure::Write()
 {
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << CharGUID;
 
     return &_worldPacket;

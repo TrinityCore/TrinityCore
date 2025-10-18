@@ -852,6 +852,8 @@ struct TC_GAME_API ItemTemplate
     float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
     uint32 GetScalingStatContentTuning() const { return ExtendedData->ContentTuningID; }
     uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
+    uint32 GetItemLevelOffsetCurveId() const { return ExtendedData->ItemLevelOffsetCurveID; }
+    uint32 GetItemLevelOffsetItemLevel() const { return ExtendedData->ItemLevelOffsetItemLevel; }
     uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }

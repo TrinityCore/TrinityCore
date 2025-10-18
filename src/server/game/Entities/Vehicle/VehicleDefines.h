@@ -21,6 +21,9 @@
 #include "Define.h"
 #include "Duration.h"
 #include "EnumFlag.h"
+#include "ObjectGuid.h"
+#include "Optional.h"
+#include "Position.h"
 #include <map>
 #include <vector>
 
@@ -172,42 +175,18 @@ public:
     virtual ObjectGuid GetTransportGUID() const = 0;
 
     /// This method transforms supplied transport offsets into global coordinates
-    virtual void CalculatePassengerPosition(float& x, float& y, float& z, float* o = nullptr) const = 0;
+    virtual Position GetPositionWithOffset(Position const& offset) const = 0;
 
     /// This method transforms supplied global coordinates into local offsets
-    virtual void CalculatePassengerOffset(float& x, float& y, float& z, float* o = nullptr) const = 0;
+    virtual Position GetPositionOffsetTo(Position const& endPos) const = 0;
 
     virtual float GetTransportOrientation() const = 0;
 
-    virtual void AddPassenger(WorldObject* passenger) = 0;
+    virtual void AddPassenger(WorldObject* passenger, Position const& offset) = 0;
 
     virtual TransportBase* RemovePassenger(WorldObject* passenger) = 0;
 
-    void UpdatePassengerPosition(Map* map, WorldObject* passenger, float x, float y, float z, float o, bool setHomePosition);
-
-    static void CalculatePassengerPosition(float& x, float& y, float& z, float* o, float transX, float transY, float transZ, float transO)
-    {
-        float inx = x, iny = y, inz = z;
-        if (o)
-            *o = Position::NormalizeOrientation(transO + *o);
-
-        x = transX + inx * std::cos(transO) - iny * std::sin(transO);
-        y = transY + iny * std::cos(transO) + inx * std::sin(transO);
-        z = transZ + inz;
-    }
-
-    static void CalculatePassengerOffset(float& x, float& y, float& z, float* o, float transX, float transY, float transZ, float transO)
-    {
-        if (o)
-            *o = Position::NormalizeOrientation(*o - transO);
-
-        z -= transZ;
-        y -= transY;    // y = searchedY * std::cos(o) + searchedX * std::sin(o)
-        x -= transX;    // x = searchedX * std::cos(o) + searchedY * std::sin(o + pi)
-        float inx = x, iny = y;
-        y = (iny - inx * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
-        x = (inx + iny * std::tan(transO)) / (std::cos(transO) + std::sin(transO) * std::tan(transO));
-    }
+    void UpdatePassengerPosition(Map* map, WorldObject* passenger, Position const& position, bool setHomePosition);
 
     virtual int32 GetMapIdForSpawning() const = 0;
 };

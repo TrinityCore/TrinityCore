@@ -41,6 +41,10 @@ enum class ReportType : int32
     Calendar                = 11,
     Mail                    = 12,
     PvP                     = 13,
+    PvPScoreboard           = 14,
+    PvPGroupMember          = 15,
+    CraftingOrder           = 16,
+    RecentAlly              = 17
 };
 
 enum class ReportMajorCategory : int32

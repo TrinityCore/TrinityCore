@@ -352,13 +352,13 @@ class TC_GAME_API Guild
                 void SaveToDB(CharacterDatabaseTransaction trans) const;
 
                 ObjectGuid const& GetGUID() const { return m_guid; }
-                std::string const& GetName() const { return m_name; }
+                std::string_view GetName() const { return m_name; }
                 uint32 GetAccountId() const { return m_accountId; }
                 GuildRankId GetRankId() const { return m_rankId; }
                 uint64 GetLogoutTime() const { return m_logoutTime; }
                 float GetInactiveDays() const;
-                std::string GetPublicNote() const { return m_publicNote; }
-                std::string GetOfficerNote() const { return m_officerNote; }
+                std::string_view GetPublicNote() const { return m_publicNote; }
+                std::string_view GetOfficerNote() const { return m_officerNote; }
                 uint8 GetRace() const { return m_race; }
                 uint8 GetClass() const { return m_class; }
                 uint8 GetGender() const { return m_gender; }
