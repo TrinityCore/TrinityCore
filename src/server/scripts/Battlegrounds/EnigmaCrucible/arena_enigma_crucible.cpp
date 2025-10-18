@@ -351,7 +351,7 @@ public:
     }
 };
 
-void AddSC_arena_EnigmaCrucible()
+void AddSC_arena_enigma_crucible()
 {
     RegisterBattlegroundMapScript(arena_enigma_crucible, EnigmaCrucible::MapIds::EnigmaCrucible);
     RegisterSpellScript(spell_enigma_arena_reaction_trigger_low_health);
