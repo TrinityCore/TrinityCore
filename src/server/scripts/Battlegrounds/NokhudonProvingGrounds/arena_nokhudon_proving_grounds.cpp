@@ -294,7 +294,7 @@ class spell_nokhudon_proving_grounds_reaction_trigger : public AuraScript
     }
 };
 
-void AddSC_arena_NokhudonProvingGrounds()
+void AddSC_arena_nokhudon_proving_grounds()
 {
     RegisterBattlegroundMapScript(arena_nokhudon_proving_grounds, NokhudonProvingGrounds::MapIds::NokhudonProvingGrounds);
     RegisterCreatureAI(npc_nokhudon_proving_grounds_nokhud_combatant);
