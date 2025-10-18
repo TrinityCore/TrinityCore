@@ -1,8 +1,6 @@
-SET @ATFELENERGY := 2000000;
-SET @ATTHROWAXECHARGE := 500000;
-SET @ATSPAWN := 1000000;
-SET @ATPROP := 1000000;
-SET @ATTEMP := 1000000;
+SET @ATSPAWN := 274;
+SET @ATPROP := 169;
+SET @ATID := 176;
 
 -- Template
 UPDATE `creature_template` SET `ScriptName` = 'npc_fel_lord_caza_cryptic_hollow' WHERE `entry` = 96441;
@@ -19,34 +17,31 @@ DELETE FROM `areatrigger_template` WHERE (`Id`=10037 AND `IsCustom`=0);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
 (10037, 0, 0, 57212);
 
-DELETE FROM `areatrigger_template` WHERE `Id` IN (@ATFELENERGY, @ATTHROWAXECHARGE) AND `IsCustom`=1;
+DELETE FROM `areatrigger_template` WHERE `Id` BETWEEN @ATID+0 AND @ATID+2 AND `IsCustom`=1;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
-(@ATFELENERGY, 1, 1, 0),
-(@ATTHROWAXECHARGE, 1, 1, 0);
+(@ATID+0, 1, 1, 0),
+(@ATID+1, 1, 1, 0),
+(@ATID+2, 1, 1, 0);
 
 DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=0 AND `Id` IN (5315, 5298, 5295));
+DELETE FROM `areatrigger_create_properties` WHERE (`IsCustom`=1 AND `Id`=@ATPROP);
 INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES 
 (5315, 0, 10037, 0, 4, 0, 0, 0, 0, -1, 0, 0, 197180, 6000, 1, 0, 15, 15, 0, 0, 0, 0, 0, 0, 'at_fel_lord_caza_fel_infusion', 57212), -- Spell: 197180 (Fel Infusion)
-(5298, 0, @ATFELENERGY, 1, 4, 0, 0, 0, 0, -1, 0, 0, 197180, 10000, 1, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_fel_lord_caza_fel_infusion', 57212), -- Spell: 196988 (Violent Fel Energy)
-(5295, 0, @ATTHROWAXECHARGE, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 40, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_fel_lord_caza_throw_axe_knockback', 57212);
+(5298, 0, @ATID+0, 1, 4, 0, 0, 0, 0, -1, 0, 0, 197180, 10000, 1, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_fel_lord_caza_fel_infusion', 57212), -- Spell: 196988 (Violent Fel Energy)
+(5295, 0, @ATID+1, 1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 40, 0, 5, 5, 0, 0, 0, 0, 0, 0, 'at_fel_lord_caza_throw_axe_knockback', 57212),
+(@ATPROP, 1, @ATID+2, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 8, 20, 1, 8, 20, 1, 0, 0, 'at_fel_lord_caza_intro', 0);
 
 -- Serverside Areatrigger
 DELETE FROM `areatrigger` WHERE `SpawnId`=@ATSPAWN;
 INSERT INTO `areatrigger` (`SpawnId`, `AreaTriggerCreatePropertiesId`, `IsCustom`, `MapId`, `SpawnDifficulties`, `PosX`, `PosY`, `PosZ`, `Orientation`, `PhaseUseFlags`, `PhaseId`, `PhaseGroup`, `ScriptName`, `Comment`, `VerifiedBuild`) VALUES
-(@ATSPAWN, @ATTEMP, 1, 1481, 0, 1091.278809, 1637.828247, 115.609467, 5.082482, 0, 5077, 0, '', 'Cryptic Hollow - Fel Lord Caza', 0);
-
-DELETE FROM `areatrigger_template` WHERE `Id`=@ATTEMP AND `IsCustom`=1;
-INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `VerifiedBuild`) VALUES
-(@ATTEMP, 1, 1, 0);
-
-DELETE FROM `areatrigger_create_properties` WHERE `Id`=@ATTEMP AND `IsCustom`=1;
-INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, `IsAreatriggerCustom`, `Flags`, `MoveCurveId`, `ScaleCurveId`, `MorphCurveId`, `FacingCurveId`, `AnimId`, `AnimKitId`, `DecalPropertiesId`, `SpellForVisuals`, `TimeToTargetScale`, `Speed`, `Shape`, `ShapeData0`, `ShapeData1`, `ShapeData2`, `ShapeData3`, `ShapeData4`, `ShapeData5`, `ShapeData6`, `ShapeData7`, `ScriptName`, `VerifiedBuild`) VALUES
-(@ATTEMP, 1, @ATTEMP, 1, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 0, 0, 1, 8, 20, 1, 8, 20, 1, 0, 0, 'at_fel_lord_caza_intro', 0);
+(@ATSPAWN, @ATPROP, 1, 1481, 0, 1091.278809, 1637.828247, 115.609467, 5.082482, 0, 5077, 0, '', 'Cryptic Hollow - Fel Lord Caza', 0);
 
 -- ScriptName
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (196875);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_fel_lord_caza_throwing_axe_selector', 'spell_fel_lord_caza_dies_02', 'spell_fel_lord_caza_disarmed');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(196875, 'spell_throwing_axe_fel_lord_caza');
+(196889, 'spell_fel_lord_caza_throwing_axe_selector'),
+(210103, 'spell_fel_lord_caza_dies_02'),
+(196892, 'spell_fel_lord_caza_disarmed');
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` = 96441;
@@ -73,11 +68,6 @@ INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `OrderIndex`, `MapID`,
 (196875, 0, 1, 1481, 1119.779541015625, 1612.4444580078125, 116.5227890014648437, 60822), -- Spell: 196875 (Throw Axe) Effect 0: 42 (SPELL_EFFECT_JUMP_DEST)
 (196875, 0, 2, 1481, 1097.99658203125, 1598.2569580078125, 116.8708877563476562, 60822), -- Spell: 196875 (Throw Axe) Effect 0: 42 (SPELL_EFFECT_JUMP_DEST)
 (196875, 0, 3, 1481, 1089.2239990234375, 1609.329833984375, 116.8122177124023437, 60822); -- Spell: 196875 (Throw Axe) Effect 0: 42 (SPELL_EFFECT_JUMP_DEST)
-
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (196889, 210103);
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(196889, 'spell_fel_lord_caza_throwing_axe_selector'),
-(210103, 'spell_fel_lord_caza_dies_02');
 
 -- Conditions
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (196889, 210107);

@@ -1995,7 +1995,11 @@ enum FelLordCazaData
     EVENT_CAZA_FEL_INFUSION,
     EVENT_CAZA_THROW_AXE_JUMP,
 
-    NPC_FEL_LORD_CAZA                       = 96441
+    NPC_FEL_LORD_CAZA                       = 96441,
+
+    DATA_CAZA_AXE_TARGET_GUID               = 0,
+
+    ACTION_CAZA_AXE_RETRIEVED               = 0,
 };
 
 // 96441 - Fel Lord Caza
@@ -2011,6 +2015,12 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
         _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 23s);
     }
 
+    void Reset() override
+    {
+        _events.Reset();
+        _axeTarget = ObjectGuid::Empty;
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
         Talk(SAY_FEL_LORD_CAZA_DEATH);
@@ -2023,10 +2033,16 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
         }
     }
 
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE)
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
     void SpellHitTarget(WorldObject* target, SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA && target->GetTypeId() == TYPEID_PLAYER && !me->IsInCombat())
-            me->Attack(target->ToUnit(), false);
+            me->AI()->AttackStart(target->ToUnit());
     }
 
     void UpdateAI(uint32 diff) override
@@ -2045,16 +2061,14 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
             {
                 case EVENT_CAZA_SWEEPING_SLASH:
                     DoCastVictim(SPELL_FEL_LORD_CAZA_SWEEPING_SLASH);
-                    _events.ScheduleEvent(EVENT_CAZA_SWEEPING_SLASH, 25s);
                     break;
                 case EVENT_CAZA_FEL_INFUSION:
                     DoCast(SPELL_FEL_LORD_CAZA_FEL_INFUSION);
-                    _events.ScheduleEvent(EVENT_CAZA_FEL_INFUSION, 26s);
                     break;
                 case EVENT_CAZA_THROW_AXE_JUMP:
-                    DoCast(SPELL_FEL_LORD_CAZA_THROW_AXE_JUMP);
                     Talk(SAY_FEL_LORD_CAZA_THROW_AXE);
-                    _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 35s);
+                    me->SetReactState(REACT_PASSIVE);
+                    DoCast(SPELL_FEL_LORD_CAZA_THROW_AXE_JUMP);
                     break;
                 default:
                     break;
@@ -2065,11 +2079,38 @@ struct npc_fel_lord_caza_cryptic_hollow : public ScriptedAI
         }
     }
 
+    void DoAction(int32 param) override
+    {
+        if (param != ACTION_CAZA_AXE_RETRIEVED)
+            return;
+
+        _events.ScheduleEvent(EVENT_CAZA_FEL_INFUSION, 400ms);
+        _events.ScheduleEvent(EVENT_CAZA_SWEEPING_SLASH, 8500ms);
+        _events.ScheduleEvent(EVENT_CAZA_THROW_AXE_JUMP, 12000ms);
+    }
+
+    void SetGUID(ObjectGuid const& guid, int32 id)
+    {
+        if (id != DATA_CAZA_AXE_TARGET_GUID)
+            return;
+
+        _axeTarget = guid;
+    }
+
+    ObjectGuid GetGUID(int32 id) const
+    {
+        if (id != DATA_CAZA_AXE_TARGET_GUID)
+            return ObjectGuid::Empty;
+
+        return _axeTarget;
+    }
+
 private:
     EventMap _events;
+    ObjectGuid _axeTarget;
 };
 
-// ID - xxxxx
+// ID - 169
 struct at_fel_lord_caza_intro : AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
@@ -2080,12 +2121,12 @@ struct at_fel_lord_caza_intro : AreaTriggerAI
         if (!player || player->IsGameMaster())
             return;
 
-        Creature* felLordCaza = player->FindNearestCreature(NPC_FEL_LORD_CAZA, 100.0f);
-        if (!felLordCaza)
+        Creature* caza = player->FindNearestCreature(NPC_FEL_LORD_CAZA, 100.0f);
+        if (!caza || caza->isDead())
             return;
 
         // This should have a cooldown of 2 minutes
-        felLordCaza->CastSpell(player, SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caza->CastSpell(player, SPELL_AREATRIGGER_DUMMY_FEL_LORD_CAZA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 };
 
@@ -2124,7 +2165,11 @@ struct at_fel_lord_caza_throw_axe_knockback : AreaTriggerAI
         if (!caster)
             return;
 
-        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetMaxRange(false, caster), at->GetRelativeAngle(caster));
+        Unit* axeTarget = ObjectAccessor::GetUnit(*at, caster->GetAI()->GetGUID(DATA_CAZA_AXE_TARGET_GUID));
+        if (!axeTarget)
+            return;
+
+        Position destPos = at->GetFirstCollisionPosition(spellInfo->GetMaxRange(false, caster), at->GetRelativeAngle(axeTarget));
         PathGenerator path(at);
 
         path.CalculatePath(destPos.GetPositionX(), destPos.GetPositionY(), destPos.GetPositionZ(), false);
@@ -2143,13 +2188,24 @@ struct at_fel_lord_caza_throw_axe_knockback : AreaTriggerAI
 // 196889 - Throw Axe
 class spell_fel_lord_caza_throwing_axe_selector : public SpellScript
 {
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([this](WorldObject* target) -> bool
+        {
+            return GetCaster()->GetDistance(target) <= 25.0f;
+        });
+    }
+
     void HandleHit(SpellEffIndex /*effIndex*/)
     {
         GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_FEL_LORD_CAZA_THROW_AXE_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetCaster()->SetFacingToObject(GetHitUnit());
+        GetCaster()->GetAI()->SetGUID(GetHitUnit()->GetGUID(), DATA_CAZA_AXE_TARGET_GUID);
     }
 
     void Register() override
     {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_fel_lord_caza_throwing_axe_selector::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
         OnEffectHitTarget += SpellEffectFn(spell_fel_lord_caza_throwing_axe_selector::HandleHit, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
@@ -2174,6 +2230,20 @@ class spell_fel_lord_caza_dies_02 : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_fel_lord_caza_dies_02::HandleHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 196892 - Disarmed
+class spell_fel_lord_caza_disarmed : public AuraScript
+{
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->GetAI()->DoAction(ACTION_CAZA_AXE_RETRIEVED);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_fel_lord_caza_disarmed::AfterRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE_3, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2234,10 +2304,11 @@ void AddSC_zone_mardum()
     RegisterSpellScript(spell_mardum_coloss_infernal_smash_selector);
     RegisterSpellScript(spell_mardum_baleful_beaming_gaze_selector);
     RegisterSpellScript(spell_give_me_sight_beyond_sight_periodic);
-    RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
-    RegisterSpellScript(spell_fel_lord_caza_dies_02);
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_CYANA_NIGHTGLAIVE_FREED>, "spell_cyana_nightglaive_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_IZAL_WHITEMOON_FREED>, "spell_izal_whitemoon_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_BELATH_DAWNBLADE_FREED>, "spell_belath_dawnblade_killcredit_set_them_free");
     RegisterSpellScriptWithArgs(spell_freed_killcredit_set_them_free<NPC_MANNETHREL_DARKSTAR_FREED>, "spell_mannethrel_darkstar_killcredit_set_them_free");
+    RegisterSpellScript(spell_fel_lord_caza_throwing_axe_selector);
+    RegisterSpellScript(spell_fel_lord_caza_dies_02);
+    RegisterSpellScript(spell_fel_lord_caza_disarmed);
 };
