@@ -36,7 +36,7 @@ enum Misc
 {
     NEFARIUS_PATH_2                 = 1379671,
     NEFARIUS_PATH_3                 = 1379672,
-    GYTH_PATH_1                     = 1379681,
+    GYTH_PATH_1                     = 11037448,
 };
 
 enum Events

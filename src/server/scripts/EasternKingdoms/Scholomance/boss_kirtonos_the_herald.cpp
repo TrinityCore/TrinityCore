@@ -65,7 +65,7 @@ enum KirtonosMisc
 {
     WEAPON_KIRTONOS_STAFF             = 11365,
     POINT_KIRTONOS_LAND               = 13,
-    KIRTONOS_PATH                     = 105061
+    KIRTONOS_PATH                     = 840488
 };
 
 Position const PosMove[2] =
