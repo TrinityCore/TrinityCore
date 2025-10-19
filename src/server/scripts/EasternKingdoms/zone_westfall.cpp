@@ -30,6 +30,14 @@ namespace Creatures
 {
     static constexpr uint32 EnergizedHarvestReaper = 42342;
     static constexpr uint32 OverloadedHarvestGolem = 42601;
+    static constexpr uint32 JangolodeMineGlubtok = 42492;
+    static constexpr uint32 JangolodeMineFigure = 42515;
+}
+
+namespace Spells
+{
+    static constexpr uint32 JangolodeMineSummonFigure = 79265;
+    static constexpr uint32 JangolodeMineSummonGlubtok = 79263;
 }
 
 namespace Events
@@ -182,6 +190,105 @@ class spell_westfall_wake_harvest_golem : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_westfall_wake_harvest_golem::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
     }
 };
+
+// 79262 - Summon Lou's House
+class spell_westfall_summon_lous_house : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(nullptr, Spells::JangolodeMineSummonFigure, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+        caster->CastSpell(nullptr, Spells::JangolodeMineSummonGlubtok, CastSpellExtraArgs(TRIGGERED_FULL_MASK));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_summon_lous_house::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 79275 - Quest Credit: Jangolde Event
+class spell_westfall_quest_credit_jangolode_event : public SpellScript
+{
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_westfall_quest_credit_jangolode_event::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 79290 - General Trigger 1: Glubtok
+// 79292 - General Trigger 2: Glubtok
+// 79294 - General Trigger 3: Glubtok
+// 79297 - General Trigger 4: Glubtok
+class spell_westfall_livin_the_life_ping_glubtok : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        targets.clear();
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineGlubtok, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_glubtok::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+// 79279 - General Trigger 1: Figure
+// 79283 - General Trigger 2: Figure
+// 79284 - General Trigger 3: Figure
+// 79287 - General Trigger 4: Figure
+class spell_westfall_livin_the_life_ping_figure : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        targets.clear();
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineFigure, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_figure::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+// 79273 - Despawn Jangolode Actor
+class spell_westfall_despawn_jangolode_actor : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        targets.clear();
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineGlubtok, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineFigure, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_despawn_jangolode_actor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
 }
 
 void AddSC_westfall()
@@ -195,4 +302,9 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_unbound_energy);
     RegisterSpellScript(spell_westfall_reaping_blows);
     RegisterSpellScript(spell_westfall_wake_harvest_golem);
+    RegisterSpellScript(spell_westfall_summon_lous_house);
+    RegisterSpellScript(spell_westfall_quest_credit_jangolode_event);
+    RegisterSpellScript(spell_westfall_despawn_jangolode_actor);
+    RegisterSpellScript(spell_westfall_livin_the_life_ping_glubtok);
+    RegisterSpellScript(spell_westfall_livin_the_life_ping_figure);
 }
