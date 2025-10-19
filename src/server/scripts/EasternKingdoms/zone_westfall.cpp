@@ -229,14 +229,18 @@ class spell_westfall_livin_the_life_ping_glubtok : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
         targets.clear();
-        if (Creature* creature = GetCaster()->FindNearestCreature(Creatures::JangolodeMineGlubtok, 50.0f))
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineGlubtok, .OwnerGuid = player->GetGUID() }))
             targets.push_back(creature);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_glubtok::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_glubtok::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 
@@ -248,14 +252,41 @@ class spell_westfall_livin_the_life_ping_figure : public SpellScript
 {
     void FilterTargets(std::list<WorldObject*>& targets)
     {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
         targets.clear();
-        if (Creature* creature = GetCaster()->FindNearestCreature(Creatures::JangolodeMineFigure, 50.0f))
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineFigure, .OwnerGuid = player->GetGUID() }))
             targets.push_back(creature);
     }
 
     void Register() override
     {
-        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_figure::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_livin_the_life_ping_figure::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+    }
+};
+
+// 79273 - Despawn Jangolode Actor
+class spell_westfall_despawn_jangolode_actor : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Player* player = Object::ToPlayer(GetCaster());
+        if (!player)
+            return;
+
+        targets.clear();
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineGlubtok, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+
+        if (Creature* creature = player->FindNearestCreatureWithOptions(50.0f, { .CreatureId = Creatures::JangolodeMineFigure, .OwnerGuid = player->GetGUID() }))
+            targets.push_back(creature);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_westfall_despawn_jangolode_actor::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
     }
 };
 }
@@ -273,6 +304,7 @@ void AddSC_westfall()
     RegisterSpellScript(spell_westfall_wake_harvest_golem);
     RegisterSpellScript(spell_westfall_summon_lous_house);
     RegisterSpellScript(spell_westfall_quest_credit_jangolode_event);
+    RegisterSpellScript(spell_westfall_despawn_jangolode_actor);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_glubtok);
     RegisterSpellScript(spell_westfall_livin_the_life_ping_figure);
 }
