@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
+#include "WorldSession.h"
 
 bool BattlegroundTemplate::IsArena() const
 {
@@ -64,7 +65,7 @@ uint8 BattlegroundTemplate::GetMaxLevel() const
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_UpdateTimer(0), m_ArenaTesting(false), m_Testing(false)
+    m_UpdateTimer(0), m_ArenaTesting(0), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -300,6 +301,15 @@ BattlegroundScriptTemplate const* BattlegroundMgr::FindBattlegroundScriptTemplat
     return Trinity::Containers::MapGetValuePtr(_battlegroundScriptTemplates, { mapId, BATTLEGROUND_TYPE_NONE });
 }
 
+void BattlegroundMgr::QueuePlayerForArena(Player const* player, uint8 teamSize, uint8 roles)
+{
+    WorldPackets::Battleground::BattlemasterJoinArena packet((WorldPacket(CMSG_BATTLEMASTER_JOIN_ARENA)));
+    packet.TeamSizeIndex = teamSize;
+    packet.Roles = roles;
+
+    player->GetSession()->HandleBattlemasterJoinArena(packet);
+}
+
 uint32 BattlegroundMgr::CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
 {
     if (IsArenaType(bgTypeId))
@@ -507,10 +517,23 @@ void BattlegroundMgr::ToggleTesting()
     sWorld->SendWorldText(m_Testing ? LANG_DEBUG_BG_ON : LANG_DEBUG_BG_OFF);
 }
 
-void BattlegroundMgr::ToggleArenaTesting()
+bool BattlegroundMgr::ToggleArenaTesting(uint32 battlemasterListId)
 {
-    m_ArenaTesting = !m_ArenaTesting;
-    sWorld->SendWorldText(m_ArenaTesting ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+    if (battlemasterListId != 0)
+    {
+        BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(static_cast<BattlegroundTypeId>(battlemasterListId));
+        if (!bgTemplate)
+            return false;
+
+        if (!bgTemplate->IsArena())
+            return false;
+    }
+
+    if (m_ArenaTesting != battlemasterListId)
+        sWorld->SendWorldText((battlemasterListId != 0) ? LANG_DEBUG_ARENA_ON : LANG_DEBUG_ARENA_OFF);
+
+    m_ArenaTesting = battlemasterListId;
+    return true;
 }
 
 bool BattlegroundMgr::IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
@@ -686,6 +709,9 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
 {
     if (BattlegroundTemplate const* bgTemplate = GetBattlegroundTemplateByTypeId(bgTypeId))
     {
+        if (bgTemplate->IsArena() && isArenaTesting())
+            return static_cast<BattlegroundTypeId>(m_ArenaTesting);
+
         std::vector<BattlegroundTemplate const*> ids;
         ids.reserve(bgTemplate->MapIDs.size());
         for (int32 mapId : bgTemplate->MapIDs)

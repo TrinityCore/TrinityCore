@@ -8,9 +8,9 @@
 #include <time.h>
 
 #ifdef _WIN32
-	#include <Windows.h>
+#include <Windows.h>
 #else
-	#include <unistd.h>
+#include <unistd.h>
 #endif
 
 const char PATH_SEPARATOR =
@@ -32,10 +32,10 @@ void sleepMsecs( int msecs ) {
 	Sleep( msecs );
 #else
 	sleep( msecs );
-#endif	
+#endif
 }
 
-const char * getActionName( enum efsw_action action ) {
+const char* getActionName( enum efsw_action action ) {
 	switch ( action ) {
 		case EFSW_ADD:
 			return "Add";
@@ -50,16 +50,15 @@ const char * getActionName( enum efsw_action action ) {
 	}
 }
 
-void handleFileAction( efsw_watcher watcher, efsw_watchid watchid, 
-						const char* dir, const char* filename,
-						enum efsw_action action, const char* oldFilename,
-						void* param ) {
+void handleFileAction( efsw_watcher watcher, efsw_watchid watchid, const char* dir,
+					   const char* filename, enum efsw_action action, const char* oldFilename,
+					   void* param ) {
 	if ( strlen( oldFilename ) == 0 ) {
-		printf( "Watch ID %ld DIR (%s) FILE (%s) has event %s\n", 
-			watchid, dir, filename, getActionName( action ));
+		printf( "Watch ID %ld DIR (%s) FILE (%s) has event %s\n", watchid, dir, filename,
+				getActionName( action ) );
 	} else {
-		printf( "Watch ID %ld DIR (%s) FILE (from file %s to %s) has event %s\n",
-			watchid, dir, oldFilename, filename, getActionName( action ));
+		printf( "Watch ID %ld DIR (%s) FILE (from file %s to %s) has event %s\n", watchid, dir,
+				oldFilename, filename, getActionName( action ) );
 	}
 }
 
@@ -87,17 +86,17 @@ int main( int argc, char** argv ) {
 	signal( SIGINT, sigend );
 	signal( SIGTERM, sigend );
 
-	printf("Press ^C to exit demo\n");
+	printf( "Press ^C to exit demo\n" );
 
 	bool commonTest = true;
 	bool useGeneric = false;
-	char *path = 0;
+	char* path = 0;
 
 	if ( argc >= 2 ) {
 		path = argv[1];
 
 		struct stat s;
-		if( stat(path,&s) == 0 && (s.st_mode & S_IFDIR) == S_IFDIR ) {
+		if ( stat( path, &s ) == 0 && ( s.st_mode & S_IFDIR ) == S_IFDIR ) {
 			commonTest = false;
 		}
 
@@ -115,24 +114,25 @@ int main( int argc, char** argv ) {
 
 	if ( commonTest ) {
 		char cwd[256];
-		getcwd( cwd, sizeof(cwd) );
+		getcwd( cwd, sizeof( cwd ) );
 		printf( "CurPath: %s\n", cwd );
 
 		/// starts watching
 		efsw_watch( fileWatcher );
 
 		/// add a watch to the system
-		char path1[256];
-		sprintf(path1, "%s%ctest", cwd, PATH_SEPARATOR );
-		handleWatchID( efsw_addwatch_withoptions( fileWatcher, path1, handleFileAction, true, 0, 0, 0 ) );
+		char path1[512];
+		snprintf( path1, sizeof( path1 ), "%s%ctest", cwd, PATH_SEPARATOR );
+		handleWatchID( efsw_addwatch_withoptions( fileWatcher, path1, handleFileAction, true, 0, 0,
+												  0, NULL ) );
 
 		/// adds another watch after started watching...
 		sleepMsecs( 100 );
 
-		char path2[256];
-		sprintf(path2, "%s%ctest2", cwd, PATH_SEPARATOR );
-		efsw_watchid watchID = handleWatchID(
-			efsw_addwatch_withoptions( fileWatcher, path2, handleFileAction, true, 0, 0, 0 ) );
+		char path2[512];
+		snprintf( path2, sizeof( path2 ), "%s%ctest2", cwd, PATH_SEPARATOR );
+		efsw_watchid watchID = handleWatchID( efsw_addwatch_withoptions(
+			fileWatcher, path2, handleFileAction, true, 0, 0, 0, NULL ) );
 
 		/// delete the watch
 		if ( watchID > 0 ) {
@@ -159,6 +159,6 @@ int main( int argc, char** argv ) {
 	}
 
 	efsw_release( fileWatcher );
-	
+
 	return 0;
 }

@@ -2628,7 +2628,8 @@ class spell_pri_assured_safety : public spell_pri_prayer_of_mending_SpellScriptB
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
+        return spell_pri_prayer_of_mending_SpellScriptBase::Load()
+            && GetCaster()->HasAura(SPELL_PRIEST_ASSURED_SAFETY);
     }
 
     void HandleEffectHitTarget(SpellEffIndex /*effIndex*/) const

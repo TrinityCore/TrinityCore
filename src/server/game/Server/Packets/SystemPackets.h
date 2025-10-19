@@ -107,7 +107,7 @@ namespace WorldPackets
                 uint32 RewardsVersion = 0;
             };
 
-            struct AddonChatThrottleParams
+            struct ChatThrottleParams
             {
                 int32 MaxTries = 0;
                 int32 TriesRestoredPerSecond = 0;
@@ -186,7 +186,9 @@ namespace WorldPackets
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
             std::string Unknown1027;                          // related to movement lua functions used by keybinds
-            AddonChatThrottleParams AddonChatThrottle;
+            ChatThrottleParams AddonChatThrottle;
+            ChatThrottleParams GuildChatThrottle;
+            ChatThrottleParams GroupChatThrottle;
             uint32 RealmPvpTypeOverride              = 0;       ///< Use Cfg_Configs value = 0, ForceEnabled = 1, ForceDisabled = 2
             float AddonPerformanceMsgWarning         = 0.0f;
             float AddonPerformanceMsgError           = 0.0f;
@@ -250,6 +252,8 @@ namespace WorldPackets
             std::vector<GameRuleValuePair> GameRules;
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
+            Duration<Seconds, int32> TimerunningConversionMinCharacterAge { 1_days };
+            int32 TimerunningConversionMaxSeasonID   = -1;
             int16 MaxPlayerGuidLookupsPerRequest     = 50;
             int16 NameLookupTelemetryInterval        = 600;
             Duration<Seconds, uint32> NotFoundCacheTimeSeconds = 10s;
@@ -258,6 +262,26 @@ namespace WorldPackets
             int32 MostRecentTimeEventID              = 0;
             uint32 EventRealmQueues                  = 0;
             std::string RealmHiddenAlert;
+        };
+
+        struct MirrorVarSingle
+        {
+            std::string_view Name;
+            std::string Value;
+            int32 UpdateType;
+
+            MirrorVarSingle(std::string_view name, std::string_view value, int32 updateType = 0)
+                : Name(name), Value(value), UpdateType(updateType) { }
+        };
+
+        class MirrorVars final : public ServerPacket
+        {
+        public:
+            explicit MirrorVars() : ServerPacket(SMSG_MIRROR_VARS) { }
+
+            WorldPacket const* Write() override;
+
+            std::span<MirrorVarSingle> Variables;
         };
 
         class SetTimeZoneInformation final : public ServerPacket

@@ -61,6 +61,9 @@ ByteBuffer& operator<<(ByteBuffer& data, ClassicTalentGroupInfo const& talentGro
     if (!talentGroupInfo.GlyphIDs.empty())
         data.append(talentGroupInfo.GlyphIDs.data(), talentGroupInfo.GlyphIDs.size());
 
+    data.WriteBit(talentGroupInfo.Unused1125);
+    data.FlushBits();
+
     return data;
 }
 

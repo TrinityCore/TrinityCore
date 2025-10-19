@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include <map>
+#include <variant>
 #include <vector>
 
 class Player;
@@ -69,6 +70,8 @@ struct PlayerDataAccessor
     bool IsQuestRewarded(int32 questId) const;
     bool HasAchieved(int32 achievementId) const;
     uint32 GetPrimarySpecialization() const;
+    std::variant<int64, float> GetDataElementAccount(uint32 dataElementId) const;
+    std::variant<int64, float> GetDataElementCharacter(uint32 dataElementId) const;
 
 private:
     Player const* _player;
