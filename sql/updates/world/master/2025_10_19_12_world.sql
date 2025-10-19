@@ -94,18 +94,10 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@ENTRY, 9, 1, 0, 0, 0, 100, 0, 8000, 8000, 0, 0, 0, 1, 4, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'After 8 seconds - Self: Talk 4 to invoker', '');
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceEntry` IN (79273, 79290, 79292, 79294, 79297, 79279, 79283, 79284, 79287) AND `SourceTypeOrReferenceId`= 13;
+DELETE FROM `conditions` WHERE `SourceEntry`=79273 AND `SourceTypeOrReferenceId`= 13;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorType`, `ScriptName`, `Comment`) VALUES
 (13, 1, 79273, 0, 0, 51, 0, 5, 42515, 0, 0, 0, '', 'Despawn Jangolode Actors - Target Shadowy Figure'),
-(13, 1, 79273, 0, 1, 51, 0, 5, 42492, 0, 0, 0, '', 'Despawn Jangolode Actors - Target Glubtok'),
-(13, 1, 79290, 0, 0, 51, 0, 5, 42492, 0, 0, 0, '', 'General Trigger 1: Glubtok - Target Glubtok'),
-(13, 1, 79292, 0, 0, 51, 0, 5, 42492, 0, 0, 0, '', 'General Trigger 2: Glubtok - Target Glubtok'),
-(13, 1, 79294, 0, 0, 51, 0, 5, 42492, 0, 0, 0, '', 'General Trigger 3: Glubtok - Target Glubtok'),
-(13, 1, 79297, 0, 0, 51, 0, 5, 42492, 0, 0, 0, '', 'General Trigger 4: Glubtok - Target Glubtok'),
-(13, 1, 79279, 0, 0, 51, 0, 5, 42515, 0, 0, 0, '', 'General Trigger 1: Figure - Shadowy Figure'),
-(13, 1, 79283, 0, 0, 51, 0, 5, 42515, 0, 0, 0, '', 'General Trigger 2: Figure - Shadowy Figure'),
-(13, 1, 79284, 0, 0, 51, 0, 5, 42515, 0, 0, 0, '', 'General Trigger 3: Figure - Shadowy Figure'),
-(13, 1, 79287, 0, 0, 51, 0, 5, 42515, 0, 0, 0, '', 'General Trigger 4: Figure - Shadowy Figure');
+(13, 1, 79273, 0, 1, 51, 0, 5, 42492, 0, 0, 0, '', 'Despawn Jangolode Actors - Target Glubtok');
 
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID` IN (42492, 42515);
