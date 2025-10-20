@@ -1579,6 +1579,7 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
 // 202137 - Sigil of Silence
+// 390163 - Sigil of Spite
 template<uint32 TriggerSpellId, uint32 TriggerSpellId2 = 0>
 struct areatrigger_dh_generic_sigil : AreaTriggerAI
 {
