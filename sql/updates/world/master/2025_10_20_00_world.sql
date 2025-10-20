@@ -1,7 +1,6 @@
-SET @CGUID := 118000000;
-SET @OGUID := 118000000;
-SET @WORLD_SAFE_LOC_ID := 280000;
-SET @SPAWN_GROUP := 280000;
+SET @CGUID := 7003715;
+SET @OGUID := 7000701;
+SET @SPAWN_GROUP := 1277;
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 1825 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
@@ -190,7 +189,7 @@ SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Penny - On Arena Start');
+(@PATH, 1, 0x0, 7.0, 'Penny - On Arena Start');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -201,7 +200,7 @@ SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
 DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 1, 0x0, NULL, 'Penny - Idle');
+(@PATH, 1, 0x0, 7.0, 'Penny - Idle');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -399,6 +398,6 @@ UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `en
 DELETE FROM `smart_scripts` WHERE `source_type` = 0 AND `entryOrGuid` = @ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
 (@ENTRY, 0, 0, 0, 58, 0, 100, 0, 0, 14312100, 0, 0, 0, 53, 1, 14312101, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On any waypoint of path 14312100 ended - Self: Start path #14312101, run, repeat, Passive', ''),
-(@ENTRY, 0, 1, 0, 72, 0, 100, 0, 4, 0, 0, 0, 0, 53, 1, 14312100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On action[4] - Self: Start path #14312100, run, do not repeat, Passive', '');
+(@ENTRY, 0, 1, 0, 72, 0, 100, 0, 4, 0, 0, 0, 0, 53, 0, 14312100, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'On action[4] - Self: Start path #14312100, run, do not repeat, Passive', '');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` = 143121 AND `SourceId` = 0;
