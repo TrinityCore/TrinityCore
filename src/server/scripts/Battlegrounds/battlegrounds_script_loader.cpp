@@ -66,6 +66,7 @@ void AddSC_battleground_deephaul_ravine();
 void AddSC_arena_blades_edge_legion();
 
 void AddSC_arena_mugambala();
+void AddSC_arena_hook_point();
 void AddSC_arena_the_robodrome();
 
 void AddSC_arena_maldraxxus_coliseum();
@@ -74,8 +75,6 @@ void AddSC_arena_enigma_crucible();
 void AddSC_arena_nokhudon_proving_grounds();
 
 void AddSC_arena_cage_of_carnage();
-
-void AddSC_arena_hook_point();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
@@ -128,6 +127,7 @@ void AddBattlegroundsScripts()
     AddSC_arena_blades_edge_legion();
 
     AddSC_arena_mugambala();
+    AddSC_arena_hook_point();
     AddSC_arena_the_robodrome();
 
     AddSC_arena_maldraxxus_coliseum();
@@ -136,6 +136,4 @@ void AddBattlegroundsScripts()
     AddSC_arena_nokhudon_proving_grounds();
 
     AddSC_arena_cage_of_carnage();
-
-    AddSC_arena_hook_point();
 }
