@@ -3949,7 +3949,7 @@ struct ChrCustomizationReqMeta
         .ParentIndexField   = -1,
         .FieldCount         = 9,
         .FileFieldCount     = 9,
-        .LayoutHash         = 0x6930BE3A,
+        .LayoutHash         = 0xEFC66872,
         .Fields             = Fields
     };
 };
