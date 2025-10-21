@@ -35,10 +35,6 @@ int CHECK_TREE_PERIOD = 200;
 
 } // namespace
 
-template<> struct HashTrait< GameObjectModel>{
-    static size_t hashCode(GameObjectModel const& g) { return (size_t)(void*)&g; }
-};
-
 template<> struct PositionTrait< GameObjectModel> {
     static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.getPosition(); }
 };
