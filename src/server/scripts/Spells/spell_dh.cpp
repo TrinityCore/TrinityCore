@@ -86,6 +86,8 @@ enum DemonHunterSpells
     SPELL_DH_DARKNESS_ABSORB                       = 209426,
     SPELL_DH_DEFLECTING_SPIKES                     = 321028,
     SPELL_DH_DEMON_BLADES_DMG                      = 203796,
+    SPELL_DH_DEMON_MUZZLE_TALENT                   = 388111,
+    SPELL_DH_DEMON_MUZZLE                          = 394933,
     SPELL_DH_DEMON_SPIKES                          = 203819,
     SPELL_DH_DEMON_SPIKES_TRIGGER                  = 203720,
     SPELL_DH_DEMONIC                               = 213410,
@@ -180,7 +182,6 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_1 = 228533,
     SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_2 = 237867,
     SPELL_DH_SHEAR                                 = 203782,
-    SPELL_DH_SIGIL_OF_CHAINS_AREA_SELECTOR         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_GRIP                  = 208674,
     SPELL_DH_SIGIL_OF_CHAINS_JUMP                  = 208674,
     SPELL_DH_SIGIL_OF_CHAINS_SLOW                  = 204843,
@@ -191,9 +192,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_FLAME_AOE                    = 204598,
     SPELL_DH_SIGIL_OF_FLAME_FLAME_CRASH            = 228973,
     SPELL_DH_SIGIL_OF_FLAME_VISUAL                 = 208710,
-    SPELL_DH_SIGIL_OF_MISERY                       = 207685,
     SPELL_DH_SIGIL_OF_MISERY_AOE                   = 207685,
-    SPELL_DH_SIGIL_OF_SILENCE                      = 204490,
     SPELL_DH_SIGIL_OF_SILENCE_AOE                  = 204490,
     SPELL_DH_SOUL_BARRIER                          = 227225,
     SPELL_DH_SOUL_CLEAVE                           = 228477,
@@ -765,6 +764,39 @@ class spell_dh_deflecting_spikes : public SpellScript
     void Register() override
     {
         OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dh_deflecting_spikes::HandleParryChance, EFFECT_0, TARGET_UNIT_CASTER);
+    }
+};
+
+// 388111 - Demon Muzzle (attached to 389860 - Sigil of Spite, 204598 - Sigil of Flame, 207685 - Sigil of Misery, 204490 - Sigil of Silence, 204834 - Sigil of Chains)
+class spell_dh_demon_muzzle : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEMON_MUZZLE_TALENT, SPELL_DH_DEMON_MUZZLE, SPELL_DH_SIGIL_OF_MISERY_AOE, SPELL_DH_SIGIL_OF_SILENCE_AOE, SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_DEMON_MUZZLE_TALENT);
+    }
+
+    void HandleHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DH_DEMON_MUZZLE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        if (m_scriptSpellId == SPELL_DH_SIGIL_OF_MISERY_AOE || m_scriptSpellId == SPELL_DH_SIGIL_OF_SILENCE_AOE)
+            OnEffectHitTarget += SpellEffectFn(spell_dh_demon_muzzle::HandleHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        else if (m_scriptSpellId == SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT)
+            OnEffectHitTarget += SpellEffectFn(spell_dh_demon_muzzle::HandleHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        else
+            OnEffectHitTarget += SpellEffectFn(spell_dh_demon_muzzle::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+
     }
 };
 
@@ -1752,6 +1784,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_darkglare_boon);
     RegisterSpellScript(spell_dh_darkness);
     RegisterSpellScript(spell_dh_deflecting_spikes);
+    RegisterSpellScript(spell_dh_demon_muzzle);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
