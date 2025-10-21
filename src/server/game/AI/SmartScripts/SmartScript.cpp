@@ -19,6 +19,7 @@
 #include "CellImpl.h"
 #include "ChatTextBuilder.h"
 #include "Containers.h"
+#include "Unit.h"
 #include "Creature.h"
 #include "CreatureTextMgr.h"
 #include "CreatureTextMgrImpl.h"
@@ -2676,6 +2677,28 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     unitTarget->ExitVehicle();
                 }
             }
+            break;
+        }
+        case SMART_ACTION_FALL:
+        {
+            for (WorldObject* target : targets)
+                if (Unit* unitTarget = target->ToUnit())
+                    if (unitTarget->IsAlive() && unitTarget->IsInWorld() && !unitTarget->IsUnderWater())
+                    {
+                        bool wasStunned = unitTarget->HasUnitState(UNIT_STATE_STUNNED);
+                        bool wasRooted = unitTarget->HasUnitState(UNIT_STATE_ROOT);
+                        unitTarget->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
+                        unitTarget->RemoveUnitMovementFlag(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_DISABLE_GRAVITY);
+
+                        float x, y, z;
+                        unitTarget->GetPosition(x, y, z);
+                        float ground = unitTarget->GetMap()->GetHeight(unitTarget->GetPhaseShift(), x, y, z, true, MAX_FALL_DISTANCE);
+                        if (ground < z - 0.2f && unitTarget->GetMap()->isInLineOfSight(unitTarget->GetPhaseShift(), x, y, z, x, y, ground, LINEOFSIGHT_ALL_CHECKS, VMAP::ModelIgnoreFlags::Nothing))
+                            unitTarget->GetMotionMaster()->MoveFall(e.action.fall.pointId);
+
+                        if (wasStunned) unitTarget->AddUnitState(UNIT_STATE_STUNNED);
+                        if (wasRooted) unitTarget->AddUnitState(UNIT_STATE_ROOT);
+                    }
             break;
         }
         default:
