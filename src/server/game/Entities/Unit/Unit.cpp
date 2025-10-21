@@ -1172,9 +1172,9 @@ void Unit::CastStop(uint32 except_spellid)
             InterruptSpell(CurrentSpellTypes(i), false);
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit /*= false*/, bool blocked /*= false*/, Spell* spell /*= nullptr*/)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, Spell* spell /*= nullptr*/)
 {
-    if (damage < 0)
+    if (damageInfo->damage < 0)
         return;
 
     Unit* victim = damageInfo->target;
@@ -1183,20 +1183,22 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
 
+    int32 damage = damageInfo->damage;
+
     // Spells with SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS ignore resilience because their damage is based off another spell's damage.
-    if (!spellInfo->HasAttribute(SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS))
+    if (!damageInfo->Spell->HasAttribute(SPELL_ATTR4_IGNORE_DAMAGE_TAKEN_MODIFIERS))
     {
-        if (Unit::IsDamageReducedByArmor(damageSchoolMask, spellInfo))
-            damage = Unit::CalcArmorReducedDamage(damageInfo->attacker, victim, damage, spellInfo, attackType);
+        if (Unit::IsDamageReducedByArmor(damageSchoolMask, damageInfo->Spell))
+            damage = Unit::CalcArmorReducedDamage(damageInfo->attacker, victim, damage, damageInfo->Spell, damageInfo->Spell->GetAttackType());
 
         // Per-school calc
-        switch (spellInfo->DmgClass)
+        switch (damageInfo->Spell->DmgClass)
         {
             // Melee and Ranged Spells
             case SPELL_DAMAGE_CLASS_RANGED:
             case SPELL_DAMAGE_CLASS_MELEE:
             {
-                if (crit)
+                if (damageInfo->critical)
                 {
                     damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
 
@@ -1204,18 +1206,18 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                     uint32 crit_bonus = damage;
                     // Apply crit_damage bonus for melee spells
                     if (Player* modOwner = GetSpellModOwner())
-                        modOwner->ApplySpellMod(spellInfo, SpellModOp::CritDamageAndHealing, crit_bonus);
+                        modOwner->ApplySpellMod(damageInfo->Spell, SpellModOp::CritDamageAndHealing, crit_bonus);
                     damage += crit_bonus;
 
                     // Increase crit damage from SPELL_AURA_MOD_CRIT_DAMAGE_BONUS
-                    float critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, spellInfo->GetSchoolMask()) - 1.0f) * 100;
+                    float critPctDamageMod = (GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CRIT_DAMAGE_BONUS, damageInfo->Spell->GetSchoolMask()) - 1.0f) * 100;
 
                     if (critPctDamageMod != 0)
                         AddPct(damage, critPctDamageMod);
                 }
 
                 // Spell weapon based damage CAN BE crit & blocked at same time
-                if (blocked)
+                if (damageInfo->blocked)
                 {
                     // double blocked amount if block is critical
                     uint32 value = victim->GetBlockPercent(GetLevel());
@@ -1243,10 +1245,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             case SPELL_DAMAGE_CLASS_MAGIC:
             {
                 // If crit add critical bonus
-                if (crit)
+                if (damageInfo->critical)
                 {
                     damageInfo->HitInfo |= SPELL_HIT_TYPE_CRIT;
-                    damage = Unit::SpellCriticalDamageBonus(this, spellInfo, damage, victim);
+                    damage = Unit::SpellCriticalDamageBonus(this, damageInfo->Spell, damage, victim);
                 }
 
                 if (CanApplyResilience())
@@ -1260,7 +1262,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
     }
 
     // Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
-    sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage, spellInfo);
+    sScriptMgr->ModifySpellDamageTaken(damageInfo);
 
     // Calculate absorb resist
     if (damage < 0)
