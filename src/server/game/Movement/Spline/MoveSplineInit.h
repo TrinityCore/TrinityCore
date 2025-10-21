@@ -156,6 +156,8 @@ namespace Movement
          */
         void SetVelocity(float velocity);
 
+        void SetSwim();
+
         void SetSpellEffectExtraData(SpellEffectExtraData const& spellEffectExtraData);
 
         PointsArray& Path() { return args.path; }
@@ -180,6 +182,7 @@ namespace Movement
     inline void MoveSplineInit::SetTransportExit() { args.flags.TransportExit = true; }
     inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.OrientationFixed = enable; }
     inline void MoveSplineInit::SetJumpOrientationFixed(bool enable) { args.flags.JumpOrientationFixed = enable; }
+    inline void MoveSplineInit::SetSwim() { args.flags.CanSwim = true; }
     inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
