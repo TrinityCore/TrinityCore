@@ -2668,7 +2668,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
 
     if (target->SetCanFly(apply))
     {
-        if (!apply && !target->IsGravityDisabled())
+        if (!apply && !target->IsGravityDisabled() && !target->CanFly())
             target->GetMotionMaster()->MoveFall();
     }
 }
