@@ -269,22 +269,18 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
 // check path lengths - why are we even starting such short movement?
 bool MoveSplineInitArgs::_checkPathLengths()
 {
-    constexpr float MIN_XY_OFFSET = -(1 << 11) / 4.0f;
-    constexpr float MIN_Z_OFFSET = -(1 << 10) / 4.0f;
-
-    // positive values have 1 less bit limit (if the highest bit was set, value would be sign extended into negative when decompressing)
     constexpr float MAX_XY_OFFSET = (1 << 10) / 4.0f;
     constexpr float MAX_Z_OFFSET = (1 << 9) / 4.0f;
 
-    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > MIN_XY_OFFSET && coord < MAX_XY_OFFSET; };
-    auto isValidPackedZOffset = [](float coord) -> bool { return coord > MIN_Z_OFFSET && coord < MAX_Z_OFFSET; };
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > -MAX_XY_OFFSET && coord < MAX_XY_OFFSET; };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord > -MAX_Z_OFFSET && coord < MAX_Z_OFFSET; };
 
     if (path.size() > 2)
     {
         Vector3 middle = (path.front() + path.back()) / 2;
         for (uint32 i = 1; i < path.size() - 1; ++i)
         {
-            if ((path[i + 1] - path[i]).length() < 0.1f)
+            if ((path[i + 1] - path[i]).squaredLength() < 0.01f)
                 return false;
 
             // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
