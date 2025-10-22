@@ -614,7 +614,8 @@ enum SMART_ACTION
     SMART_ACTION_BOARD_PASSENGER                    = 156,    // seat id
     SMART_ACTION_EXIT_VEHICLE                       = 157,
     SMART_ACTION_RESUME_MOVEMENT                    = 158,    // UNUSED NEEDS CHERRYPICK
-    SMART_ACTION_END                                = 159
+    SMART_ACTION_FALL                               = 159,    // pointId
+    SMART_ACTION_END                                = 160
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -874,6 +875,11 @@ struct SmartAction
         {
             uint32 id;
         } taxi;
+
+        struct
+        {
+            uint32 pointId;
+        } fall;
 
         struct
         {

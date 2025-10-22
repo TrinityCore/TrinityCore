@@ -2678,6 +2678,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_FALL:
+        {
+            for (WorldObject* target : targets)
+                if (Unit* unitTarget = target->ToUnit())
+                    unitTarget->GetMotionMaster()->MoveFall(e.action.fall.pointId);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
