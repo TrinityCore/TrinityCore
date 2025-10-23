@@ -21,6 +21,7 @@
 #include "Log.h"
 #include "MMapDefines.h"
 #include "Memory.h"
+#include <algorithm>
 
 namespace MMAP
 {
