@@ -24,8 +24,6 @@
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
 #include <algorithm>
-#include <limits>
-#include <stdexcept>
 #include <vector>
 
 #define MAX_STACK_SIZE 64
