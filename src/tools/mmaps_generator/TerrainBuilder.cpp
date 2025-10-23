@@ -16,6 +16,7 @@
  */
 
 #include "TerrainBuilder.h"
+#include "Log.h"
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
@@ -100,7 +101,7 @@ namespace MMAP
             fheader.versionMagic != MapVersionMagic)
         {
             fclose(mapFile);
-            printf("%s is the wrong version, please extract new .map files\n", mapFileName.c_str());
+            TC_LOG_ERROR("maps.mmapgen", "{} is the wrong version, please extract new .map files", mapFileName);
             return false;
         }
 
@@ -137,17 +138,17 @@ namespace MMAP
         {
             float heightMultiplier;
             float V9[V9_SIZE_SQ], V8[V8_SIZE_SQ];
-            int expected = V9_SIZE_SQ + V8_SIZE_SQ;
+            size_t expected = V9_SIZE_SQ + V8_SIZE_SQ;
 
             if (hheader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt8))
             {
                 uint8 v9[V9_SIZE_SQ];
                 uint8 v8[V8_SIZE_SQ];
-                int count = 0;
+                size_t count = 0;
                 count += fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile);
                 count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 255;
 
@@ -161,11 +162,11 @@ namespace MMAP
             {
                 uint16 v9[V9_SIZE_SQ];
                 uint16 v8[V8_SIZE_SQ];
-                int count = 0;
+                size_t count = 0;
                 count += fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile);
                 count += fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 65535;
 
@@ -177,11 +178,11 @@ namespace MMAP
             }
             else
             {
-                int count = 0;
+                size_t count = 0;
                 count += fread(V9, sizeof(float), V9_SIZE_SQ, mapFile);
                 count += fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
             }
 
             // hole data
@@ -190,7 +191,7 @@ namespace MMAP
                 memset(holes, 0, fheader.holesSize);
                 fseek(mapFile, fheader.holesOffset, SEEK_SET);
                 if (fread(holes, fheader.holesSize, 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} holes data expected {}, read {}", mapFileName, 1, 0);
             }
 
             int count = meshData.solidVerts.size() / 3;
@@ -234,16 +235,16 @@ namespace MMAP
             map_liquidHeader lheader;
             fseek(mapFile, fheader.liquidMapOffset, SEEK_SET);
             if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile) != 1)
-                printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, 1, 0);
 
             float* liquid_map = nullptr;
 
             if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoType))
             {
                 if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid id expected {}, read {}", mapFileName, 1, 0);
                 if (fread(liquid_flags, sizeof(liquid_flags), 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid flags expected {}, read {}", mapFileName, 1, 0);
             }
             else
             {
@@ -257,7 +258,7 @@ namespace MMAP
                 liquid_map = new float [toRead];
                 if (fread(liquid_map, sizeof(float), toRead, mapFile) != toRead)
                 {
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, toRead, 0);
                     delete[] liquid_map;
                     liquid_map = nullptr;
                 }
