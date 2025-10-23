@@ -17,6 +17,7 @@
 
 #include "MapBuilder.h"
 #include "IntermediateValues.h"
+#include "Log.h"
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "MapUtils.h"
@@ -187,8 +188,8 @@ namespace MMAP
             }
         }
 
-        printf("Discovering maps... found %u.\n", uint32(m_tiles.size()));
-        printf("Discovering tiles... found %u.\n\n", m_totalTiles);
+        TC_LOG_INFO("maps.mmapgen", "Discovering maps... found {}.", m_tiles.size());
+        TC_LOG_INFO("maps.mmapgen", "Discovering tiles... found {}.\n", m_totalTiles);
     }
 
     /**************************************************************************/
@@ -201,7 +202,7 @@ namespace MMAP
         auto fp = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(offMeshFilePath, "rb"));
         if (!fp)
         {
-            printf(" loadOffMeshConnections:: input file %s not found!\n", offMeshFilePath);
+            TC_LOG_ERROR("maps.mmapgen", "MapBuilder::loadOffMeshConnections:: input file {} not found!", offMeshFilePath);
             return;
         }
 
@@ -251,7 +252,7 @@ namespace MMAP
             dtNavMesh* navMesh = dtAllocNavMesh();
             if (!navMesh->init(&tileInfo.m_navMeshParams))
             {
-                printf("[Map %04i] Failed creating navmesh for tile %i,%i !\n", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
+                TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] Failed creating navmesh for tile {},{} !", tileInfo.m_mapId, tileInfo.m_tileX, tileInfo.m_tileY);
                 dtFreeNavMesh(navMesh);
                 return;
             }
@@ -264,7 +265,7 @@ namespace MMAP
 
     void MapBuilder::buildMaps(Optional<uint32> mapID)
     {
-        printf("Using %u threads to generate mmaps\n", m_threads);
+        TC_LOG_INFO("maps.mmapgen", "Using {} threads to generate mmaps", m_threads);
 
         for (unsigned int i = 0; i < m_threads; ++i)
         {
@@ -304,7 +305,7 @@ namespace MMAP
         if (!file)
             return;
 
-        printf("Building mesh from file\n");
+        TC_LOG_INFO("maps.mmapgen", "Building mesh from file");
         int tileX, tileY, mapId;
         if (fread(&mapId, sizeof(int), 1, file) != 1)
         {
@@ -326,7 +327,7 @@ namespace MMAP
         buildNavMesh(mapId, navMesh);
         if (!navMesh)
         {
-            printf("Failed creating navmesh!              \n");
+            TC_LOG_ERROR("maps.mmapgen", "Failed creating navmesh!");
             fclose(file);
             return;
         }
@@ -390,7 +391,7 @@ namespace MMAP
         buildNavMesh(mapID, navMesh);
         if (!navMesh)
         {
-            printf("Failed creating navmesh!              \n");
+            TC_LOG_ERROR("maps.mmapgen", "Failed creating navmesh!");
             return;
         }
 
@@ -417,13 +418,13 @@ namespace MMAP
             buildNavMesh(mapID, navMesh);
             if (!navMesh)
             {
-                printf("[Map %04u] Failed creating navmesh!\n", mapID);
+                TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] Failed creating navmesh!", mapID);
                 m_totalTilesProcessed += tiles.size();
                 return;
             }
 
             // now start building mmtiles for each tile
-            printf("[Map %04u] We have %u tiles.                          \n", mapID, uint32(tiles.size()));
+            TC_LOG_INFO("maps.mmapgen", "[Map {:04}] We have {} tiles.", mapID, tiles.size());
             for (uint32 packedTile : tiles)
             {
                 uint32 tileX, tileY;
@@ -452,7 +453,7 @@ namespace MMAP
             return;
         }
 
-        printf("%u%% [Map %04i] Building tile [%02u,%02u]\n", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
+        TC_LOG_INFO("maps.mmapgen", "{}% [Map {:04}] Building tile [{:02},{:02}]", m_mapBuilder->currentPercentageDone(), mapID, tileX, tileY);
 
         MeshData meshData;
 
@@ -555,10 +556,10 @@ namespace MMAP
         navMeshParams.maxPolys = maxPolysPerTile;
 
         navMesh = dtAllocNavMesh();
-        printf("[Map %04u] Creating navMesh...\n", mapID);
+        TC_LOG_INFO("maps.mmapgen", "[Map {:04}] Creating navMesh...", mapID);
         if (!navMesh->init(&navMeshParams))
         {
-            printf("[Map %04u] Failed creating navmesh!                \n", mapID);
+            TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] Failed creating navmesh!", mapID);
             return;
         }
 
@@ -569,7 +570,7 @@ namespace MMAP
         {
             dtFreeNavMesh(navMesh);
             navMesh = nullptr;
-            perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
+            TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!\n", strerror(errno), mapID, fileName);
             return;
         }
 
@@ -585,7 +586,7 @@ namespace MMAP
     {
         // console output
         std::string tileString = Trinity::StringFormat("[Map {:04}] [{:02},{:02}]: ", mapID, tileX, tileY);
-        printf("%s Building movemap tiles...\n", tileString.c_str());
+        TC_LOG_INFO("maps.mmapgen", "{} Building movemap tile...", tileString);
 
         IntermediateValues iv;
 
@@ -642,7 +643,7 @@ namespace MMAP
                 tile.solid = rcAllocHeightfield();
                 if (!tile.solid || !rcCreateHeightfield(m_rcContext, *tile.solid, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch))
                 {
-                    printf("%s Failed building heightfield!            \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building heightfield!", tileString);
                     continue;
                 }
 
@@ -672,39 +673,39 @@ namespace MMAP
                 tile.chf = rcAllocCompactHeightfield();
                 if (!tile.chf || !rcBuildCompactHeightfield(m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid, *tile.chf))
                 {
-                    printf("%s Failed compacting heightfield!            \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed compacting heightfield!", tileString);
                     continue;
                 }
 
                 // build polymesh intermediates
                 if (!rcErodeWalkableArea(m_rcContext, config.walkableRadius, *tile.chf))
                 {
-                    printf("%s Failed eroding area!                    \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed eroding area!", tileString);
                     continue;
                 }
 
                 if (!rcMedianFilterWalkableArea(m_rcContext, *tile.chf))
                 {
-                    printf("%s Failed filtering area!                  \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed filtering area!", tileString);
                     continue;
                 }
 
                 if (!rcBuildDistanceField(m_rcContext, *tile.chf))
                 {
-                    printf("%s Failed building distance field!         \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building distance field!", tileString);
                     continue;
                 }
 
                 if (!rcBuildRegions(m_rcContext, *tile.chf, tileCfg.borderSize, tileCfg.minRegionArea, tileCfg.mergeRegionArea))
                 {
-                    printf("%s Failed building regions!                \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building regions!", tileString);
                     continue;
                 }
 
                 tile.cset = rcAllocContourSet();
                 if (!tile.cset || !rcBuildContours(m_rcContext, *tile.chf, tileCfg.maxSimplificationError, tileCfg.maxEdgeLen, *tile.cset))
                 {
-                    printf("%s Failed building contours!               \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building contours!", tileString);
                     continue;
                 }
 
@@ -712,14 +713,14 @@ namespace MMAP
                 tile.pmesh = rcAllocPolyMesh();
                 if (!tile.pmesh || !rcBuildPolyMesh(m_rcContext, *tile.cset, tileCfg.maxVertsPerPoly, *tile.pmesh))
                 {
-                    printf("%s Failed building polymesh!               \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building polymesh!", tileString);
                     continue;
                 }
 
                 tile.dmesh = rcAllocPolyMeshDetail();
                 if (!tile.dmesh || !rcBuildPolyMeshDetail(m_rcContext, *tile.pmesh, *tile.chf, tileCfg.detailSampleDist, tileCfg.detailSampleMaxError, *tile.dmesh))
                 {
-                    printf("%s Failed building polymesh detail!        \n", tileString.c_str());
+                    TC_LOG_ERROR("maps.mmapgen", "{} Failed building polymesh detail!", tileString);
                     continue;
                 }
 
@@ -742,7 +743,7 @@ namespace MMAP
         iv.polyMesh = rcAllocPolyMesh();
         if (!iv.polyMesh)
         {
-            printf("%s alloc iv.polyMesh FAILED!\n", tileString.c_str());
+            TC_LOG_ERROR("maps.mmapgen", "{} alloc iv.polyMesh FAILED!", tileString);
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;
@@ -753,7 +754,7 @@ namespace MMAP
         iv.polyMeshDetail = rcAllocPolyMeshDetail();
         if (!iv.polyMeshDetail)
         {
-            printf("%s alloc m_dmesh FAILED!\n", tileString.c_str());
+            TC_LOG_ERROR("maps.mmapgen", "{} alloc m_dmesh FAILED!", tileString);
             delete[] pmmerge;
             delete[] dmmerge;
             delete[] tiles;
@@ -824,12 +825,12 @@ namespace MMAP
             // so we have a clear error message
             if (params.nvp > DT_VERTS_PER_POLYGON)
             {
-                printf("%s Invalid verts-per-polygon value!        \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
                 break;
             }
             if (params.vertCount >= 0xffff)
             {
-                printf("%s Too many vertices!                      \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
                 break;
             }
             if (!params.vertCount || !params.verts)
@@ -838,37 +839,37 @@ namespace MMAP
                 // loaded but those models don't span into this tile
 
                 // message is an annoyance
-                //printf("%sNo vertices to build tile!              \n", tileString.c_str());
+                //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
                 break;
             }
             if (!params.polyCount || !params.polys)
             {
                 // we have flat tiles with no actual geometry - don't build those, its useless
                 // keep in mind that we do output those into debug info
-                printf("%s No polygons to build on tile!              \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
                 break;
             }
             if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
             {
-                printf("%s No detail mesh to build tile!           \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
                 break;
             }
 
-            printf("%s Building navmesh tile...\n", tileString.c_str());
+            TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
             if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
             {
-                printf("%s Failed building navmesh tile!           \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
                 break;
             }
 
             dtTileRef tileRef = 0;
-            printf("%s Adding tile to navmesh...\n", tileString.c_str());
+            TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
             // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
             // is removed via removeTile()
             dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
             if (!tileRef || !dtStatusSucceed(dtResult))
             {
-                printf("%s Failed adding tile to navmesh!           \n", tileString.c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
                 break;
             }
 
@@ -877,23 +878,18 @@ namespace MMAP
             FILE* file = fopen(fileName.c_str(), "wb");
             if (!file)
             {
-                perror(Trinity::StringFormat("[Map {:04}] Failed to open {} for writing!\n", mapID, fileName).c_str());
+                TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
                 navMesh->removeTile(tileRef, nullptr, nullptr);
                 break;
             }
 
-            printf("%s Writing to file...\n", tileString.c_str());
+            TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
 
             // write header
             MmapTileHeader header;
             header.usesLiquids = m_terrainBuilder->usesLiquids();
             header.size = uint32(navDataSize);
             fwrite(&header, sizeof(MmapTileHeader), 1, file);
-
-            /*
-            dtMeshHeader* navDataHeader = (dtMeshHeader*)navData;
-            printf("Poly count: %d\n", navDataHeader->polyCount);
-            */
 
             // write data
             fwrite(navData, sizeof(unsigned char), navDataSize, file);
