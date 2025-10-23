@@ -38,7 +38,6 @@ constexpr char Readme[] =
 namespace
 {
     std::unordered_map<uint32, uint8> _liquidTypes;
-    std::unordered_map<uint32, std::vector<uint32>> _mapDataForVmapInitialization;
 }
 
 namespace MMAP
@@ -47,10 +46,21 @@ namespace MMAP
 
     namespace VMapFactory
     {
-        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager()
+        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager(uint32 mapId)
         {
             std::unique_ptr<VMAP::VMapManager2> vmgr = std::make_unique<VMAP::VMapManager2>();
-            vmgr->InitializeThreadUnsafe(_mapDataForVmapInitialization);
+
+            do
+            {
+                int32 parentMapId = sMapStore[mapId].ParentMapID;
+
+                vmgr->InitializeThreadUnsafe(mapId, parentMapId);
+                if (parentMapId < 0)
+                    break;
+
+                mapId = parentMapId;
+            } while (true);
+
             vmgr->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
             {
                 auto itr = _liquidTypes.find(liquidId);
@@ -362,10 +372,9 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool sil
     return liquidData;
 }
 
-std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
+void LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader mapDb2;
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
     DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
     try
     {
@@ -376,12 +385,9 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
             if (!record)
                 continue;
 
-            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
             int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
             if (parentMapId < 0)
                 parentMapId = int16(record.GetUInt16("CosmeticParentMapID"));
-            if (parentMapId != -1)
-                mapData[parentMapId].push_back(record.GetId());
 
             MMAP::MapEntry& map = MMAP::sMapStore[record.GetId()];
             map.MapType = record.GetUInt8("MapType");
@@ -397,8 +403,6 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
 
         exit(finish(e.what(), errorExitCode));
     }
-
-    return mapData;
 }
 
 int main(int argc, char** argv)
@@ -451,7 +455,7 @@ int main(int argc, char** argv)
 
     _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
 
-    _mapDataForVmapInitialization = LoadMap(dbcLocales[0], silent, -4);
+    LoadMap(dbcLocales[0], silent, -4);
 
     MMAP::MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);

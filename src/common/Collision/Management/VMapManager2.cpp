@@ -88,6 +88,13 @@ namespace VMAP
         thread_safe_environment = false;
     }
 
+    void VMapManager2::InitializeThreadUnsafe(uint32 mapId, int32 parentMapId)
+    {
+        iInstanceMapTrees[mapId] = nullptr;
+        if (parentMapId >= 0)
+            iParentMapData[mapId] = parentMapId;
+    }
+
     Vector3 VMapManager2::convertPositionToInternalRep(float x, float y, float z) const
     {
         Vector3 pos;
