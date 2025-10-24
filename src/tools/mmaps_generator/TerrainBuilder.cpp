@@ -589,23 +589,12 @@ namespace MMAP
             if (result != VMAP::LoadResult::Success)
                 break;
 
-            VMAP::InstanceTreeMap instanceTrees;
-            vmapManager->getInstanceMapTree(instanceTrees);
-
-            if (!instanceTrees[mapID])
+            std::span<VMAP::ModelInstance const> models = vmapManager->getModelsOnMap(mapID);
+            if (models.empty())
                 break;
 
-            VMAP::ModelInstance* models = nullptr;
-            uint32 count = 0;
-            instanceTrees[mapID]->getModelInstances(models, count);
-
-            if (!models)
-                break;
-
-            for (uint32 i = 0; i < count; ++i)
+            for (VMAP::ModelInstance const& instance : models)
             {
-                VMAP::ModelInstance const& instance = models[i];
-
                 // model instances exist in tree even though there are instances of that model in this tile
                 VMAP::WorldModel const* worldModel = instance.getWorldModel();
                 if (!worldModel)
