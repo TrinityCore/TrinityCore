@@ -16,6 +16,7 @@
  */
 
 #include "TerrainBuilder.h"
+#include "Log.h"
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
@@ -28,10 +29,9 @@
 namespace MMAP
 {
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
-    TerrainBuilder::~TerrainBuilder() { }
 
     /**************************************************************************/
-    void TerrainBuilder::getLoopVars(Spot portion, int &loopStart, int &loopEnd, int &loopInc)
+    void TerrainBuilder::getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc)
     {
         switch (portion)
         {
@@ -64,31 +64,31 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
+    void TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager)
     {
-        if (loadMap(mapID, tileX, tileY, meshData, ENTIRE))
+        if (loadMap(mapID, tileX, tileY, meshData, vmapManager, ENTIRE))
         {
-            loadMap(mapID, tileX+1, tileY, meshData, LEFT);
-            loadMap(mapID, tileX-1, tileY, meshData, RIGHT);
-            loadMap(mapID, tileX, tileY+1, meshData, TOP);
-            loadMap(mapID, tileX, tileY-1, meshData, BOTTOM);
+            loadMap(mapID, tileX+1, tileY, meshData, vmapManager, LEFT);
+            loadMap(mapID, tileX-1, tileY, meshData, vmapManager, RIGHT);
+            loadMap(mapID, tileX, tileY+1, meshData, vmapManager, TOP);
+            loadMap(mapID, tileX, tileY-1, meshData, vmapManager, BOTTOM);
         }
     }
 
     /**************************************************************************/
-    bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
+    bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager, Spot portion)
     {
         std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName.c_str(), "rb");
         if (!mapFile)
         {
-            int32 parentMapId = sMapStore[mapID].ParentMapID;
+            int32 parentMapId = vmapManager->getParentMapId(mapID);
             while (!mapFile && parentMapId != -1)
             {
                 mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileY, tileX);
                 mapFile = fopen(mapFileName.c_str(), "rb");
-                parentMapId = sMapStore[parentMapId].ParentMapID;
+                parentMapId = vmapManager->getParentMapId(mapID);
             }
         }
 
@@ -100,7 +100,7 @@ namespace MMAP
             fheader.versionMagic != MapVersionMagic)
         {
             fclose(mapFile);
-            printf("%s is the wrong version, please extract new .map files\n", mapFileName.c_str());
+            TC_LOG_ERROR("maps.mmapgen", "{} is the wrong version, please extract new .map files", mapFileName);
             return false;
         }
 
@@ -123,12 +123,9 @@ namespace MMAP
         }
 
         // data used later
-        uint8 holes[16][16][8];
-        memset(holes, 0, sizeof(holes));
-        uint16 liquid_entry[16][16];
-        memset(liquid_entry, 0, sizeof(liquid_entry));
-        map_liquidHeaderTypeFlags liquid_flags[16][16];
-        memset(liquid_flags, 0, sizeof(liquid_flags));
+        uint8 holes[16][16][8] = { };
+        uint16 liquid_entry[16][16] = { };
+        map_liquidHeaderTypeFlags liquid_flags[16][16] = { };
         G3D::Array<int> ltriangles;
         G3D::Array<int> ttriangles;
 
@@ -137,17 +134,17 @@ namespace MMAP
         {
             float heightMultiplier;
             float V9[V9_SIZE_SQ], V8[V8_SIZE_SQ];
-            int expected = V9_SIZE_SQ + V8_SIZE_SQ;
+            size_t expected = V9_SIZE_SQ + V8_SIZE_SQ;
 
             if (hheader.flags.HasFlag(map_heightHeaderFlags::HeightAsInt8))
             {
                 uint8 v9[V9_SIZE_SQ];
                 uint8 v8[V8_SIZE_SQ];
-                int count = 0;
+                size_t count = 0;
                 count += fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile);
                 count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 255;
 
@@ -161,11 +158,11 @@ namespace MMAP
             {
                 uint16 v9[V9_SIZE_SQ];
                 uint16 v8[V8_SIZE_SQ];
-                int count = 0;
+                size_t count = 0;
                 count += fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile);
                 count += fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 65535;
 
@@ -177,11 +174,11 @@ namespace MMAP
             }
             else
             {
-                int count = 0;
+                size_t count = 0;
                 count += fread(V9, sizeof(float), V9_SIZE_SQ, mapFile);
                 count += fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
                 if (count != expected)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
             }
 
             // hole data
@@ -190,7 +187,7 @@ namespace MMAP
                 memset(holes, 0, fheader.holesSize);
                 fseek(mapFile, fheader.holesOffset, SEEK_SET);
                 if (fread(holes, fheader.holesSize, 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} holes data expected {}, read {}", mapFileName, 1, 0);
             }
 
             int count = meshData.solidVerts.size() / 3;
@@ -234,16 +231,16 @@ namespace MMAP
             map_liquidHeader lheader;
             fseek(mapFile, fheader.liquidMapOffset, SEEK_SET);
             if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile) != 1)
-                printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, 1, 0);
 
             float* liquid_map = nullptr;
 
             if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoType))
             {
                 if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid id expected {}, read {}", mapFileName, 1, 0);
                 if (fread(liquid_flags, sizeof(liquid_flags), 1, mapFile) != 1)
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid flags expected {}, read {}", mapFileName, 1, 0);
             }
             else
             {
@@ -257,7 +254,7 @@ namespace MMAP
                 liquid_map = new float [toRead];
                 if (fread(liquid_map, sizeof(float), toRead, mapFile) != toRead)
                 {
-                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+                    TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, toRead, 0);
                     delete[] liquid_map;
                     liquid_map = nullptr;
                 }
@@ -558,7 +555,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
+    bool TerrainBuilder::isHole(int square, uint8 const (&holes)[16][16][8])
     {
         int row = square / 128;
         int col = square % 128;
@@ -582,9 +579,8 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
+    bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager)
     {
-        std::unique_ptr<VMAP::VMapManager2> vmapManager = VMapFactory::CreateVMapManager();
         VMAP::LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
         bool retval = false;
 
@@ -791,7 +787,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::cleanVertices(G3D::Array<float> &verts, G3D::Array<int> &tris)
+    void TerrainBuilder::cleanVertices(G3D::Array<float>& verts, G3D::Array<int>& tris)
     {
         std::map<int, int> vertMap;
 

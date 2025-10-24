@@ -16,6 +16,7 @@
  */
 
 #include "IntermediateValues.h"
+#include "Log.h"
 #include "StringFormat.h"
 
 namespace MMAP
@@ -31,9 +32,7 @@ namespace MMAP
 
     void IntermediateValues::writeIV(uint32 mapID, uint32 tileX, uint32 tileY)
     {
-        std::string tileString = Trinity::StringFormat("[{:02},{:02}]: ", tileX, tileY);
-
-        printf("%sWriting debug output...                       \r", tileString.c_str());
+        TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output intermediate values...", mapID, tileX, tileY);
 
         auto debugWrite = [&](char const* extension, auto const* data)
         {
@@ -44,7 +43,7 @@ namespace MMAP
                 fclose(file);
             }
             else
-                perror(Trinity::StringFormat("{}Failed to open {} for writing!\n", tileString, fileName).c_str());
+                TC_LOG_ERROR("maps.mmapgen.debug", "{}: [{:04}-{:02},{:02}] Failed to open {} for writing!", strerror(errno), mapID, tileX, tileY, fileName);
         };
 
         if (heightfield)
@@ -197,7 +196,7 @@ namespace MMAP
         FILE* objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
+            TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
             return;
         }
 
@@ -222,14 +221,14 @@ namespace MMAP
 
         fclose(objFile);
 
-        printf("[%02u,%02u]: Writing debug output...                       \r", tileY, tileX);
+        TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output object file...", mapID, tileY, tileX);
 
         objFileName = Trinity::StringFormat("meshes/map{:04}.map", mapID);
 
         objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
+            TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
             return;
         }
 
@@ -241,7 +240,7 @@ namespace MMAP
         objFile = fopen(objFileName.c_str(), "wb");
         if (!objFile)
         {
-            perror(Trinity::StringFormat("Failed to open {} for writing!\n", objFileName).c_str());
+            TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
             return;
         }
 

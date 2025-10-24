@@ -141,7 +141,7 @@ namespace MMAP
 
     namespace VMapFactory
     {
-        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager();
+        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager(uint32 mapId);
 }
 }
 
