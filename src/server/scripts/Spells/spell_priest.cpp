@@ -192,7 +192,7 @@ enum PriestSpells
     SPELL_PRIEST_THE_PENITENT_AURA                  = 200347,
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
     SPELL_PRIEST_TRINITY                            = 214205,
-    SPELL_PRIEST_TRINITY_EFFECT                     = 214206,
+    SPELL_PRIEST_TRINITY_EFFECT                     = 290793,
     SPELL_PRIEST_ULTIMATE_PENITENCE                 = 421453,
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
@@ -389,8 +389,8 @@ class spell_pri_atonement : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY })
-            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 } });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_HEAL, SPELL_PRIEST_SINS_OF_THE_MANY, SPELL_PRIEST_TRINITY_EFFECT })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 }, { SPELL_PRIEST_SINS_OF_THE_MANY, EFFECT_2 }, { SPELL_PRIEST_TRINITY, EFFECT_0 } });
     }
 
     static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
@@ -417,6 +417,7 @@ public:
         _appliedAtonements.push_back(target);
 
         UpdateSinsOfTheManyValue();
+        UpdateTrinityEffect();
     }
 
     void RemoveAtonementTarget(ObjectGuid const& target)
@@ -424,6 +425,7 @@ public:
         std::erase(_appliedAtonements, target);
 
         UpdateSinsOfTheManyValue();
+        UpdateTrinityEffect();
     }
 
     std::vector<ObjectGuid> const& GetAtonementTargets() const
@@ -474,6 +476,15 @@ public:
         for (SpellEffIndex effectIndex : { EFFECT_0, EFFECT_1, EFFECT_2 })
             if (AuraEffect* sinOfTheMany = GetUnitOwner()->GetAuraEffect(SPELL_PRIEST_SINS_OF_THE_MANY, effectIndex))
                 sinOfTheMany->ChangeAmount(damageByStack[std::min(_appliedAtonements.size(), damageByStack.size() - 1)]);
+    }
+
+    void UpdateTrinityEffect() const
+    {
+        Unit* priest = GetUnitOwner();
+        if (AuraEffect const* trinity = priest->GetAuraEffect(SPELL_PRIEST_TRINITY, EFFECT_0); trinity && std::ssize(_appliedAtonements) >= trinity->GetAmount())
+            priest->CastSpell(priest, SPELL_PRIEST_TRINITY_EFFECT, CastSpellExtraArgsInit{ .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR });
+        else
+            priest->RemoveAurasDueToSpell(SPELL_PRIEST_TRINITY_EFFECT);
     }
 };
 
@@ -1212,12 +1223,7 @@ class spell_pri_evangelism : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
-        ({
-            SPELL_PRIEST_TRINITY,
-            SPELL_PRIEST_ATONEMENT_EFFECT,
-            SPELL_PRIEST_TRINITY_EFFECT
-        });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT_EFFECT });
     }
 
     void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
@@ -1225,9 +1231,7 @@ class spell_pri_evangelism : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        Aura* atonementAura = caster->HasAura(SPELL_PRIEST_TRINITY)
-            ? target->GetAura(SPELL_PRIEST_TRINITY_EFFECT, caster->GetGUID())
-            : target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+        Aura* atonementAura = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
         if (!atonementAura)
             return;
 
@@ -1828,7 +1832,6 @@ class spell_pri_pain_transformation : public SpellScript
         return ValidateSpellInfo
         ({
             SPELL_PRIEST_ATONEMENT_EFFECT,
-            SPELL_PRIEST_TRINITY,
             SPELL_PRIEST_PAIN_TRANSFORMATION,
             SPELL_PRIEST_PAIN_TRANSFORMATION_HEAL
         });
@@ -1836,7 +1839,7 @@ class spell_pri_pain_transformation : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION) && !GetCaster()->HasAura(SPELL_PRIEST_TRINITY);
+        return GetCaster()->HasAura(SPELL_PRIEST_PAIN_TRANSFORMATION);
     }
 
     void HandleHit(SpellEffIndex /*effIndex*/) const
@@ -2976,7 +2979,6 @@ class spell_pri_shadow_mend : public SpellScript
         ({
             SPELL_PRIEST_ATONEMENT,
             SPELL_PRIEST_ATONEMENT_EFFECT,
-            SPELL_PRIEST_TRINITY,
             SPELL_PRIEST_MASOCHISM_TALENT,
             SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL,
             SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY
