@@ -28,7 +28,7 @@
 #include "ScriptMgr.h"
 #include "Util.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "World.h"
 #include <G3D/g3dmath.h>
 
@@ -109,12 +109,12 @@ bool TerrainInfo::ExistMap(uint32 mapid, int32 gx, int32 gy, bool log /*= true*/
 
 bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
 {
-    if (VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+    if (VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
     {
         if (vmgr->isMapLoadingEnabled())
         {
             VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", mapid, gx, gy);
-            std::string name = VMAP::VMapManager2::getDirFileName(mapid, gx, gy);
+            std::string name = VMAP::VMapManager::getDirFileName(mapid, gx, gy);
             switch (result)
             {
                 case VMAP::LoadResult::Success:
@@ -334,7 +334,7 @@ static bool IsInWMOInterior(uint32 mogpFlags)
 void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, PositionFullTerrainStatus& data,
     Optional<map_liquidHeaderTypeFlags> reqLiquidType, float collisionHeight, DynamicMapTree const* dynamicMapTree)
 {
-    VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
     VMAP::AreaAndLiquidData dynData;
     VMAP::AreaAndLiquidData* wmoData = nullptr;
@@ -484,7 +484,7 @@ void TerrainInfo::GetFullTerrainStatusForPosition(PhaseShift const& phaseShift, 
 ZLiquidStatus TerrainInfo::GetLiquidStatus(PhaseShift const& phaseShift, uint32 mapId, float x, float y, float z, Optional<map_liquidHeaderTypeFlags> ReqLiquidType, LiquidData* data, float collisionHeight)
 {
     ZLiquidStatus result = LIQUID_MAP_NO_WATER;
-    VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vmapData;
     bool useGridLiquid = true;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
@@ -585,7 +585,7 @@ bool TerrainInfo::GetAreaInfo(PhaseShift const& phaseShift, uint32 mapId, float 
 {
     float check_z = z;
     uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, mapId, this, x, y);
-    VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+    VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
     VMAP::AreaAndLiquidData vdata;
     VMAP::AreaAndLiquidData ddata;
 
@@ -703,7 +703,7 @@ float TerrainInfo::GetStaticHeight(PhaseShift const& phaseShift, uint32 mapId, f
     float vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
     if (checkVMap)
     {
-        VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
+        VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
         if (vmgr->isHeightCalcEnabled())
             vmapHeight = vmgr->getHeight(terrainMapId, x, y, z, maxSearchDist);
     }

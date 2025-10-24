@@ -25,7 +25,7 @@
 #include "PathCommon.h"
 #include "Timer.h"
 #include "Util.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include <boost/filesystem/operations.hpp>
 #include <unordered_map>
 #include <vector>
@@ -46,9 +46,9 @@ namespace MMAP
 
     namespace VMapFactory
     {
-        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager(uint32 mapId)
+        std::unique_ptr<VMAP::VMapManager> CreateVMapManager(uint32 mapId)
         {
-            std::unique_ptr<VMAP::VMapManager2> vmgr = std::make_unique<VMAP::VMapManager2>();
+            std::unique_ptr<VMAP::VMapManager> vmgr = std::make_unique<VMAP::VMapManager>();
 
             do
             {

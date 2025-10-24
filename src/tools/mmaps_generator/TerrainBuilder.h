@@ -25,7 +25,7 @@
 
 namespace VMAP
 {
-class VMapManager2;
+class VMapManager;
 }
 
 enum class map_liquidHeaderTypeFlags : uint8;
@@ -97,8 +97,8 @@ namespace MMAP
         public:
             explicit TerrainBuilder(bool skipLiquid);
 
-            void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager);
-            bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager);
+            void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
+            bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
             void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, std::vector<OffMeshData> const& offMeshConnections);
 
             bool usesLiquids() const { return !m_skipLiquid; }
@@ -112,7 +112,7 @@ namespace MMAP
             static void cleanVertices(G3D::Array<float>& verts, G3D::Array<int>& tris);
         private:
             /// Loads a portion of a map's terrain
-            bool loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager, Spot portion);
+            bool loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager, Spot portion);
 
             /// Sets loop variables for selecting only certain parts of a map's terrain
             void getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc);

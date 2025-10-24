@@ -38,7 +38,7 @@
 
 namespace VMAP
 {
-    class VMapManager2;
+    class VMapManager;
 }
 
 namespace MMAP
@@ -141,7 +141,7 @@ namespace MMAP
 
     namespace VMapFactory
     {
-        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager(uint32 mapId);
+        std::unique_ptr<VMAP::VMapManager> CreateVMapManager(uint32 mapId);
 }
 }
 

@@ -27,7 +27,7 @@ namespace VMAP
 {
     class ModelInstance;
     class GroupModel;
-    class VMapManager2;
+    class VMapManager;
     enum class LoadResult : uint8;
     enum class ModelIgnoreFlags : uint32;
 
@@ -66,7 +66,7 @@ namespace VMAP
         public:
             static uint32 packTileID(uint32 tileX, uint32 tileY) { return tileX << 16 | tileY; }
             static void unpackTileID(uint32 ID, uint32& tileX, uint32& tileY) { tileX = ID >> 16; tileY = ID & 0xFF; }
-            static LoadResult CanLoadMap(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm);
+            static LoadResult CanLoadMap(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm);
 
             StaticMapTree(uint32 mapID, std::string const& basePath);
             ~StaticMapTree();
@@ -78,8 +78,8 @@ namespace VMAP
 
             LoadResult InitMap(std::string const& fname);
             void UnloadMap();
-            LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
-            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
+            LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
+            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
             std::span<ModelInstance const> getModelInstances() const;
 

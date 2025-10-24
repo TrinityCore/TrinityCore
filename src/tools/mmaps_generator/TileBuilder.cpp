@@ -21,7 +21,7 @@
 #include "MMapDefines.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include <DetourNavMeshBuilder.h>
 
 namespace
@@ -95,7 +95,7 @@ namespace MMAP
 
         MeshData meshData;
 
-        std::unique_ptr<VMAP::VMapManager2> vmapManager = VMapFactory::CreateVMapManager(mapID);
+        std::unique_ptr<VMAP::VMapManager> vmapManager = VMapFactory::CreateVMapManager(mapID);
 
         // get heightmap data
         m_terrainBuilder.loadMap(mapID, tileX, tileY, meshData, vmapManager.get());

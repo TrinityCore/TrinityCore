@@ -23,7 +23,7 @@
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>

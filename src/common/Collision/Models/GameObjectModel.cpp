@@ -16,7 +16,7 @@
  */
 
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
 #include "GameObjectModel.h"

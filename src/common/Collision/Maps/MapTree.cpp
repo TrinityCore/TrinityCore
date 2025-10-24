@@ -22,7 +22,7 @@
 #include "Metric.h"
 #include "ModelInstance.h"
 #include "VMapDefinitions.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <limits>
 #include <string>
@@ -199,19 +199,19 @@ namespace VMAP
         explicit operator bool() const { return TileFile && SpawnIndicesFile; }
     };
 
-    TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         TileFileOpenResult result;
-        result.Name = basePath + VMapManager2::getTileFileName(mapID, tileX, tileY, "vmtile");
+        result.Name = basePath + VMapManager::getTileFileName(mapID, tileX, tileY, "vmtile");
         result.TileFile.reset(fopen(result.Name.c_str(), "rb"));
-        result.SpawnIndicesFile.reset(fopen((basePath + VMapManager2::getTileFileName(mapID, tileX, tileY, "vmtileidx")).c_str(), "rb"));
+        result.SpawnIndicesFile.reset(fopen((basePath + VMapManager::getTileFileName(mapID, tileX, tileY, "vmtileidx")).c_str(), "rb"));
         result.UsedMapId = mapID;
         if (!result.TileFile)
         {
             int32 parentMapId = vm->getParentMapId(mapID);
             while (parentMapId != -1)
             {
-                result.Name = basePath + VMapManager2::getTileFileName(parentMapId, tileX, tileY, "vmtile");
+                result.Name = basePath + VMapManager::getTileFileName(parentMapId, tileX, tileY, "vmtile");
                 result.TileFile.reset(fopen(result.Name.c_str(), "rb"));
                 result.UsedMapId = parentMapId;
                 if (result.TileFile)
@@ -225,13 +225,13 @@ namespace VMAP
     }
 
     //=========================================================
-    LoadResult StaticMapTree::CanLoadMap(std::string const& vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    LoadResult StaticMapTree::CanLoadMap(std::string const& vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         std::string basePath = vmapPath;
         if (!basePath.empty() && basePath.back() != '/' && basePath.back() != '\\')
             basePath.push_back('/');
 
-        std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
+        std::string fullname = basePath + VMapManager::getMapFileName(mapID);
 
         auto rf = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fullname.c_str(), "rb"));
         if (!rf)
@@ -285,7 +285,7 @@ namespace VMAP
 
     //=========================================================
 
-    LoadResult StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    LoadResult StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         if (iTreeValues.empty())
         {
@@ -369,7 +369,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         uint32 tileID = packTileID(tileX, tileY);
         loadedTileMap::iterator tile = iLoadedTiles.find(tileID);
