@@ -513,8 +513,6 @@ class spell_pri_atonement_effect : public SpellScript
         ({
             SPELL_PRIEST_ATONEMENT,
             SPELL_PRIEST_ATONEMENT_EFFECT,
-            SPELL_PRIEST_TRINITY,
-            SPELL_PRIEST_TRINITY_EFFECT,
             SPELL_PRIEST_POWER_WORD_RADIANCE,
             SPELL_PRIEST_POWER_WORD_SHIELD
         }) && ValidateSpellEffect({
@@ -528,15 +526,6 @@ class spell_pri_atonement_effect : public SpellScript
         Unit* caster = GetCaster();
         if (!caster->HasAura(SPELL_PRIEST_ATONEMENT))
             return false;
-
-        // only apply Trinity if the Priest has both Trinity and Atonement and the triggering spell is Power Word: Shield.
-        if (caster->HasAura(SPELL_PRIEST_TRINITY))
-        {
-            if (GetSpellInfo()->Id != SPELL_PRIEST_POWER_WORD_SHIELD)
-                return false;
-
-            _effectSpellId = SPELL_PRIEST_TRINITY_EFFECT;
-        }
 
         return true;
     }
@@ -577,7 +566,7 @@ class spell_pri_atonement_effect : public SpellScript
     uint32 _effectSpellId = SPELL_PRIEST_ATONEMENT_EFFECT;
 };
 
-// 194384 - Atonement (Buff), 214206 - Atonement [Trinity] (Buff)
+// 194384 - Atonement (Buff)
 class spell_pri_atonement_effect_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
