@@ -96,7 +96,7 @@ namespace VMAP
         Optional<LiquidInfo> liquidInfo;
     };
 
-    class TC_COMMON_API VMapManager2
+    class TC_COMMON_API VMapManager
     {
         protected:
             bool iEnableLineOfSightCalc;
@@ -116,15 +116,15 @@ namespace VMAP
             static std::string getMapFileName(uint32 mapId);
             static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY, std::string_view extension);
 
-            VMapManager2();
+            VMapManager();
 
-            VMapManager2(VMapManager2 const&) = delete;
-            VMapManager2(VMapManager2&&) = delete;
+            VMapManager(VMapManager const&) = delete;
+            VMapManager(VMapManager&&) = delete;
 
-            VMapManager2& operator=(VMapManager2 const&) = delete;
-            VMapManager2& operator=(VMapManager2&&) = delete;
+            VMapManager& operator=(VMapManager const&) = delete;
+            VMapManager& operator=(VMapManager&&) = delete;
 
-            ~VMapManager2();
+            ~VMapManager();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             void InitializeThreadUnsafe(uint32 mapId, int32 parentMapId);

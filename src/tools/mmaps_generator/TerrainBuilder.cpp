@@ -23,7 +23,7 @@
 #include "ModelInstance.h"
 #include "StringFormat.h"
 #include "Util.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include <map>
 
 namespace MMAP
@@ -64,7 +64,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager)
+    void TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager)
     {
         if (loadMap(mapID, tileX, tileY, meshData, vmapManager, ENTIRE))
         {
@@ -76,7 +76,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager, Spot portion)
+    bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager, Spot portion)
     {
         std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileY, tileX);
 
@@ -579,7 +579,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager2* vmapManager)
+    bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager)
     {
         VMAP::LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
         bool retval = false;

@@ -67,7 +67,7 @@
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "advstd.h"
@@ -2216,7 +2216,7 @@ void ObjectMgr::LoadCreatures()
 
         if (sWorld->getBoolConfig(CONFIG_CREATURE_CHECK_INVALID_POSITION))
         {
-            if (VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+            if (VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
             {
                 if (vmgr->isMapLoadingEnabled() && !IsTransportMap(data.mapId))
                 {
@@ -2572,7 +2572,7 @@ void ObjectMgr::LoadGameObjects()
 
         if (sWorld->getBoolConfig(CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION))
         {
-            if (VMAP::VMapManager2* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+            if (VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
             {
                 if (vmgr->isMapLoadingEnabled() && !IsTransportMap(data.mapId))
                 {

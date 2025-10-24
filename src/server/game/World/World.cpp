@@ -97,7 +97,7 @@
 #include "Unit.h"
 #include "UpdateTime.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 #include "WeatherMgr.h"
@@ -1669,7 +1669,7 @@ bool World::SetInitialWorldSettings()
     dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize VMapManager function pointers (to untangle game/collision circular deps)
-    VMAP::VMapManager2* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
+    VMAP::VMapManager* vmmgr2 = VMAP::VMapFactory::createOrGetVMapManager();
     vmmgr2->GetLiquidFlagsPtr = &DB2Manager::GetLiquidFlags;
     vmmgr2->IsVMAPDisabledForPtr = &DisableMgr::IsVMAPDisabledFor;
 
