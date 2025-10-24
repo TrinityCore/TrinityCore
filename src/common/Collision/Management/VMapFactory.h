@@ -18,7 +18,7 @@
 #ifndef _VMAPFACTORY_H
 #define _VMAPFACTORY_H
 
-#include "IVMapManager.h"
+#include "Define.h"
 
 /**
 This is the access point to the VMapManager.

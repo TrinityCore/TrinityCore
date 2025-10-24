@@ -15,13 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _VMAPMANAGER2_H
-#define _VMAPMANAGER2_H
+#ifndef TRINITYCORE_VMAP_MANAGER2_H
+#define TRINITYCORE_VMAP_MANAGER2_H
 
 #include "Define.h"
-#include "IVMapManager.h"
+#include "ModelIgnoreFlags.h"
+#include "Optional.h"
 #include <memory>
 #include <mutex>
+#include <span>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -37,21 +40,17 @@ Additionally a table to match map ids and map names is used.
 
 //===========================================================
 
-namespace G3D
-{
-    class Vector3;
-}
-
 namespace VMAP
 {
     class ManagedModel;
+    class ModelInstance;
     class StaticMapTree;
     class WorldModel;
 
-    typedef std::unordered_map<uint32, StaticMapTree*> InstanceTreeMap;
+    typedef std::unordered_map<uint32, std::unique_ptr<StaticMapTree>> InstanceTreeMap;
     typedef std::unordered_map<std::string, std::weak_ptr<ManagedModel>> ModelFileMap;
 
-    enum DisableTypes
+    enum DisableTypes : uint8
     {
         VMAP_DISABLE_AREAFLAG       = 0x1,
         VMAP_DISABLE_HEIGHT         = 0x2,
@@ -59,61 +58,122 @@ namespace VMAP
         VMAP_DISABLE_LIQUIDSTATUS   = 0x8
     };
 
-    class TC_COMMON_API VMapManager2 : public IVMapManager
+    enum class LoadResult : uint8
+    {
+        Success,
+        FileNotFound,
+        VersionMismatch,
+        ReadFromFileFailed,
+        DisabledInConfig
+    };
+
+    #define VMAP_INVALID_HEIGHT       -100000.0f            // for check
+    #define VMAP_INVALID_HEIGHT_VALUE -200000.0f            // real assigned value in unknown height case
+
+    struct AreaAndLiquidData
+    {
+        struct AreaInfo
+        {
+            AreaInfo() = default;
+            AreaInfo(int32 _groupId, int32 _adtId, int32 _rootId, uint32 _mogpFlags, uint32 _uniqueId)
+                : groupId(_groupId), adtId(_adtId), rootId(_rootId), mogpFlags(_mogpFlags), uniqueId(_uniqueId) { }
+            int32 groupId = 0;
+            int32 adtId = 0;
+            int32 rootId = 0;
+            uint32 mogpFlags = 0;
+            uint32 uniqueId = 0;
+        };
+        struct LiquidInfo
+        {
+            LiquidInfo() = default;
+            LiquidInfo(uint32 _type, float _level) : type(_type), level(_level) { }
+            uint32 type = 0;
+            float level = 0.0f;
+        };
+
+        float floorZ = VMAP_INVALID_HEIGHT;
+        Optional<AreaInfo> areaInfo;
+        Optional<LiquidInfo> liquidInfo;
+    };
+
+    class TC_COMMON_API VMapManager2
     {
         protected:
+            bool iEnableLineOfSightCalc;
+            bool iEnableHeightCalc;
+            bool thread_safe_environment;
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
             std::unordered_map<uint32, uint32> iParentMapData;
-            bool thread_safe_environment;
             // Mutex for iLoadedModelFiles
             std::mutex LoadedModelFilesLock;
-
-            static uint32 GetLiquidFlagsDummy(uint32) { return 0; }
-            static bool IsVMAPDisabledForDummy(uint32 /*entry*/, uint8 /*flags*/) { return false; }
 
             InstanceTreeMap::const_iterator GetMapTree(uint32 mapId) const;
 
         public:
             // public for debug
-            G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
-            static std::string getMapFileName(unsigned int mapId);
+            static std::string getMapFileName(uint32 mapId);
+            static std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY, std::string_view extension);
 
             VMapManager2();
+
+            VMapManager2(VMapManager2 const&) = delete;
+            VMapManager2(VMapManager2&&) = delete;
+
+            VMapManager2& operator=(VMapManager2 const&) = delete;
+            VMapManager2& operator=(VMapManager2&&) = delete;
+
             ~VMapManager2();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
             void InitializeThreadUnsafe(uint32 mapId, int32 parentMapId);
-
-            LoadResult loadMap(char const* pBasePath, unsigned int mapId, int x, int y) override;
-
-            void unloadMap(unsigned int mapId, int x, int y) override;
-
-            void unloadMap(unsigned int mapId) override;
-
-            bool isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags) override ;
             /**
-            fill the hit pos and return true, if an object was hit
+                Enable/disable LOS calculation
+                It is enabled by default. If it is enabled in mid game the maps have to loaded manualy
             */
-            bool getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist) override;
-            float getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist) override;
+            void setEnableLineOfSightCalc(bool enableLineOfSightCalc) { iEnableLineOfSightCalc = enableLineOfSightCalc; }
 
-            bool processCommand(char* /*command*/) override { return false; } // for debug and extensions
+            /**
+                Enable/disable model height calculation
+                It is enabled by default. If it is enabled in mid game the maps have to loaded manualy
+            */
+            void setEnableHeightCalc(bool enableHeightCalc) { iEnableHeightCalc = enableHeightCalc; }
 
-            bool getAreaAndLiquidData(uint32 mapId, float x, float y, float z, Optional<uint8> reqLiquidType, AreaAndLiquidData& data) const override;
+            bool isLineOfSightCalcEnabled() const { return iEnableLineOfSightCalc; }
+            bool isHeightCalcEnabled() const { return iEnableHeightCalc; }
+            bool isMapLoadingEnabled() const { return iEnableLineOfSightCalc || iEnableHeightCalc; }
+
+            LoadResult loadMap(std::string const& basePath, uint32 mapId, uint32 x, uint32 y);
+
+            void unloadMap(uint32 mapId, uint32 x, uint32 y);
+
+            void unloadMap(uint32 mapId);
+
+            bool isInLineOfSight(uint32 mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags);
+            /**
+                test if we hit an object. return true if we hit one. rx, ry, rz will hold the hit position or the dest position, if no intersection was found
+                return a position, that is modifyDist closer to the origin
+            */
+            bool getObjectHitPos(uint32 mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist);
+            float getHeight(uint32 mapId, float x, float y, float z, float maxSearchDist);
+
+            /**
+                Query world model area info.
+            */
+            bool getAreaAndLiquidData(uint32 mapId, float x, float y, float z, Optional<uint8> reqLiquidType, AreaAndLiquidData& data) const;
 
             std::shared_ptr<WorldModel> acquireModelInstance(std::string const& basepath, std::string const& filename);
             void releaseModelInstance(std::string const& filename);
 
             // what's the use of this? o.O
-            virtual std::string getDirFileName(unsigned int mapId, int /*x*/, int /*y*/) const override
+            static std::string getDirFileName(uint32 mapId, uint32 x, uint32 y)
             {
-                return getMapFileName(mapId);
+                return getTileFileName(mapId, x, y, "vmtile");
             }
-            virtual LoadResult existsMap(char const* basePath, unsigned int mapId, int x, int y) override;
+            LoadResult existsMap(std::string const& basePath, uint32 mapId, uint32 x, uint32 y);
 
-            void getInstanceMapTree(InstanceTreeMap &instanceMapTree);
+            std::span<ModelInstance const> getModelsOnMap(uint32 mapId) const;
 
             int32 getParentMapId(uint32 mapId) const;
 
@@ -125,4 +185,4 @@ namespace VMAP
     };
 }
 
-#endif
+#endif // TRINITYCORE_VMAP_MANAGER2_H
