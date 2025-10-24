@@ -580,6 +580,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
+            
+            // Add a custom maximum number of targets to override the default MaxEffectedTargets
+            if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
+            {
+                uint32 customMaxTargets = e.target.unitRange.maxSize ? e.target.unitRange.maxSize : e.target.unitDistance.maxSize;
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, customMaxTargets);
+            }
 
             std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, targets.size());
 
@@ -654,6 +661,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
+            
+            // Add a custom maximum number of targets to override the default MaxEffectedTargets
+            if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
+            {
+                uint32 customMaxTargets = e.target.unitRange.maxSize ? e.target.unitRange.maxSize : e.target.unitDistance.maxSize;
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, customMaxTargets);
+            }
 
             for (WorldObject* target : targets)
             {
@@ -695,6 +709,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
+
+        // Add a custom maximum number of targets to override the default MaxEffectedTargets
+        if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
+        {
+            uint32 customMaxTargets = e.target.unitRange.maxSize ? e.target.unitRange.maxSize : e.target.unitDistance.maxSize;
+            args.AddSpellMod(SPELLVALUE_MAX_TARGETS, customMaxTargets);
+        }
 
             std::shared_ptr<MultiActionResult<SpellCastResult>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<SpellCastResult>>(e, targets.size());
 
@@ -1706,6 +1727,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             CastSpellExtraArgs args;
             if (e.action.crossCast.castFlags & SMARTCAST_TRIGGERED)
                 args.TriggerFlags = TRIGGERED_FULL_MASK;
+
+            // Add a custom maximum number of targets to override the default MaxEffectedTargets
+            if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
+            {
+                uint32 customMaxTargets = e.target.unitRange.maxSize ? e.target.unitRange.maxSize : e.target.unitDistance.maxSize;
+                args.AddSpellMod(SPELLVALUE_MAX_TARGETS, customMaxTargets);
+            }
 
             for (WorldObject* caster : casters)
             {
