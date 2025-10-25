@@ -15,6 +15,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "scholomance.h"
 #include "ScriptedCreature.h"
@@ -22,52 +26,38 @@
 enum MaliciaSpells
 {
     SPELL_CALL_OF_GRAVES        = 17831,
-    SPELL_CORRUPTION            = 11672,
-    SPELL_FLASH_HEAL            = 10917,
-    SPELL_RENEW                 = 10929,
-    SPELL_HEALING_TOUCH         = 9889
+    SPELL_CORRUPTION            = 18376,
+    SPELL_SLOW                  = 13747,
+    SPELL_FLASH_HEAL            = 17843,
+    SPELL_HEAL                  = 15586,
+    SPELL_RENEW                 = 8362
 };
 
 enum MaliciaEvents
 {
-    EVENT_CALL_OF_GRAVES = 1,
+    EVENT_CALL_OF_GRAVES        = 1,
     EVENT_CORRUPTION,
+    EVENT_SLOW,
     EVENT_FLASH_HEAL,
-    EVENT_RENEW,
-    EVENT_HEALING_TOUCH
+    EVENT_HEAL,
+    EVENT_RENEW
 };
 
 // 10505 - Instructor Malicia
 struct boss_instructor_malicia : public BossAI
 {
-    boss_instructor_malicia(Creature* creature) : BossAI(creature, DATA_INSTRUCTOR_MALICIA)
-    {
-        Initialize();
-    }
-
-    void Initialize()
-    {
-        FlashCounter = 0;
-        TouchCounter = 0;
-    }
-
-    uint32 FlashCounter;
-    uint32 TouchCounter;
-
-    void Reset() override
-    {
-        _Reset();
-        Initialize();
-    }
+    boss_instructor_malicia(Creature* creature) : BossAI(creature, DATA_INSTRUCTOR_MALICIA) { }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
-        events.ScheduleEvent(EVENT_CALL_OF_GRAVES, 4s);
-        events.ScheduleEvent(EVENT_CORRUPTION, 8s);
-        events.ScheduleEvent(EVENT_RENEW, 32s);
-        events.ScheduleEvent(EVENT_FLASH_HEAL, 38s);
-        events.ScheduleEvent(EVENT_HEALING_TOUCH, 45s);
+
+        events.ScheduleEvent(EVENT_CALL_OF_GRAVES, 20s, 30s);
+        events.ScheduleEvent(EVENT_CORRUPTION, 10s, 15s);
+        events.ScheduleEvent(EVENT_SLOW, 5s, 10s);
+        events.ScheduleEvent(EVENT_FLASH_HEAL, 5s, 10s);
+        events.ScheduleEvent(EVENT_HEAL, 5s, 15s);
+        events.ScheduleEvent(EVENT_RENEW, 15s, 20s);
     }
 
     void UpdateAI(uint32 diff) override
@@ -86,43 +76,27 @@ struct boss_instructor_malicia : public BossAI
             {
                 case EVENT_CALL_OF_GRAVES:
                     DoCastSelf(SPELL_CALL_OF_GRAVES);
-                    events.Repeat(65s);
+                    events.Repeat(30s, 40s);
                     break;
                 case EVENT_CORRUPTION:
-                    DoCast(SelectTarget(SelectTargetMethod::Random, 0, 100, true), SPELL_CORRUPTION);
-                    events.Repeat(24s);
+                    DoCastSelf(SPELL_CORRUPTION);
+                    events.Repeat(30s, 40s);
+                    break;
+                case EVENT_SLOW:
+                    DoCastSelf(SPELL_SLOW);
+                    events.Repeat(15s, 25s);
+                    break;
+                case EVENT_FLASH_HEAL:
+                    DoCastSelf(SPELL_FLASH_HEAL);
+                    events.Repeat(10s, 15s);
+                    break;
+                case EVENT_HEAL:
+                    DoCastSelf(SPELL_HEAL);
+                    events.Repeat(20s, 30s);
                     break;
                 case EVENT_RENEW:
                     DoCastSelf(SPELL_RENEW);
-                    events.Repeat(10s);
-                    break;
-                case EVENT_FLASH_HEAL:
-                    // 5 Flash Heal will be cast
-                    DoCastSelf(SPELL_FLASH_HEAL);
-                    if (FlashCounter < 2)
-                    {
-                        events.ScheduleEvent(EVENT_FLASH_HEAL, 5s);
-                        ++FlashCounter;
-                    }
-                    else
-                    {
-                        FlashCounter=0;
-                        events.ScheduleEvent(EVENT_FLASH_HEAL, 30s);
-                    }
-                    break;
-                case EVENT_HEALING_TOUCH:
-                    // 3 Healing Touch will be cast
-                    DoCastSelf(SPELL_HEALING_TOUCH);
-                    if (TouchCounter < 2)
-                    {
-                        events.ScheduleEvent(EVENT_HEALING_TOUCH, 5500ms);
-                        ++TouchCounter;
-                    }
-                    else
-                    {
-                        TouchCounter=0;
-                        events.ScheduleEvent(EVENT_HEALING_TOUCH, 30s);
-                    }
+                    events.Repeat(15s, 20s);
                     break;
                 default:
                     break;
