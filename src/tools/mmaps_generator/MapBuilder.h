@@ -140,7 +140,7 @@ namespace MMAP
             uint32 m_totalTiles;
             std::atomic<uint32> m_totalTilesProcessed;
 
-            std::vector<TileBuilder*> m_tileBuilders;
+            std::vector<std::unique_ptr<TileBuilder>> m_tileBuilders;
             ProducerConsumerQueue<TileInfo> _queue;
             std::atomic<bool> _cancelationToken;
     };
