@@ -195,6 +195,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_MISERY_AOE                   = 207685,
     SPELL_DH_SIGIL_OF_SILENCE                      = 204490,
     SPELL_DH_SIGIL_OF_SILENCE_AOE                  = 204490,
+    SPELL_DH_SIGIL_OF_SPITE_AOE                    = 389860,
     SPELL_DH_SOUL_BARRIER                          = 227225,
     SPELL_DH_SOUL_CLEAVE                           = 228477,
     SPELL_DH_SOUL_CLEAVE_DMG                       = 228478,
@@ -1578,6 +1579,7 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
 // 202137 - Sigil of Silence
+// 390163 - Sigil of Spite
 template<uint32 TriggerSpellId, uint32 TriggerSpellId2 = 0>
 struct areatrigger_dh_generic_sigil : AreaTriggerAI
 {
@@ -1587,9 +1589,9 @@ struct areatrigger_dh_generic_sigil : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            caster->CastSpell(at->GetPosition(), TriggerSpellId);
+            caster->CastSpell(at->GetPosition(), TriggerSpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             if constexpr (TriggerSpellId2 != 0)
-                caster->CastSpell(at->GetPosition(), TriggerSpellId2);
+                caster->CastSpell(at->GetPosition(), TriggerSpellId2, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         }
     }
 };
@@ -1785,6 +1787,7 @@ void AddSC_demon_hunter_spell_scripts()
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>>("areatrigger_dh_sigil_of_flame");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>>("areatrigger_dh_sigil_of_silence");
     new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>>("areatrigger_dh_sigil_of_misery");
+    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SPITE_AOE>>("areatrigger_dh_sigil_of_spite");
 
     // Havoc
 
