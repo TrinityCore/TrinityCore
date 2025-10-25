@@ -27,6 +27,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "sunwell_plateau.h"
 #include "TemporarySummon.h"
 
@@ -52,8 +53,6 @@ enum Spells
     SPELL_CORROSION                               = 45866,
     SPELL_GAS_NOVA                                = 45855,
     SPELL_ENCAPSULATE_CHANNEL                     = 45661,
-    // SPELL_ENCAPSULATE_EFFECT                      = 45665,
-    // SPELL_ENCAPSULATE_AOE                         = 45662,
 
     //Flight phase
     SPELL_VAPOR_SELECT                            = 45391,   // fel to player, force cast 45392, 50000y selete target
@@ -82,7 +81,10 @@ enum Spells
     //Other
     SPELL_BERSERK                                 = 45078,
     SPELL_CLOUD_VISUAL                            = 45212,
-    SPELL_CLOUD_SUMMON                            = 45884
+    SPELL_CLOUD_SUMMON                            = 45884,
+
+    // Scripts
+    SPELL_ENCAPSULATE_EFFECT                      = 45665
 };
 
 enum PhaseFelmyst
@@ -544,9 +546,31 @@ struct npc_felmyst_trail : public ScriptedAI
     void UpdateAI(uint32 /*diff*/) override { }
 };
 
+// 45661 - Encapsulate
+class spell_felmyst_encapsulate : public SpellScript
+{
+    PrepareSpellScript(spell_felmyst_encapsulate);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ENCAPSULATE_EFFECT });
+    }
+
+    void HandleAfterHit()
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ENCAPSULATE_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_felmyst_encapsulate::HandleAfterHit);
+    }
+};
+
 void AddSC_boss_felmyst()
 {
     RegisterSunwellPlateauCreatureAI(boss_felmyst);
     RegisterSunwellPlateauCreatureAI(npc_felmyst_vapor);
     RegisterSunwellPlateauCreatureAI(npc_felmyst_trail);
+    RegisterSpellScript(spell_felmyst_encapsulate);
 }
