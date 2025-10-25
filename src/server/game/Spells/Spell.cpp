@@ -1160,8 +1160,6 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
     switch (targetType.GetTarget())
     {
         case TARGET_DEST_NEARBY_ENTRY_OR_DB:
-        case TARGET_DEST_NEARBY_ENTRY:
-        case TARGET_DEST_NEARBY_ENTRY_2:
             // if we are here then there was no db target
             if (!target)
             {
@@ -9373,7 +9371,7 @@ WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(WorldObject* caster, Wo
     _targetSelectionType(selectionType), _condSrcInfo(nullptr), _condList(condList), _objectType(objectType)
 {
     if (condList)
-        _condSrcInfo = std::make_unique<ConditionSourceInfo>(caster, referer);
+        _condSrcInfo = std::make_unique<ConditionSourceInfo>(nullptr, caster);
 }
 
 WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
@@ -9382,6 +9380,40 @@ WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
 
 bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
 {
+    if (!target || !_caster)
+        return false;
+
+    if (_condSrcInfo && _condList && !_condList->empty())
+    {
+        _condSrcInfo->mConditionTargets[0] = target;
+        
+        bool hasObjectEntryGuidCondition = false;
+        for (Condition const& condition : *_condList)
+        {
+            if (condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID)
+            {
+                hasObjectEntryGuidCondition = true;
+                break;
+            }
+        }
+        // Even if the visibility check fails, we still attempt the condition check
+        if (hasObjectEntryGuidCondition)
+        {
+            CanSeeOrDetectExtraArgs relaxedArgs = CanSeeOrDetectExtraArgs{
+                .ImplicitDetection = true,
+                .IgnorePhaseShift = true,
+                .IncludeHiddenBySpawnTracking = true,
+                .IncludeAnyPrivateObject = true
+            };
+            
+            // Even if the visibility check fails, we still attempt the condition check.
+            bool meetsConditions = sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+            
+            if (meetsConditions)
+                return true;
+        }
+    }
+    
     if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
         return false;
 
@@ -9466,10 +9498,14 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
         }
     }
 
-    if (!_condSrcInfo)
-        return true;
-    _condSrcInfo->mConditionTargets[0] = target;
-    return sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+    // If the condition was not checked previously, we now perform a condition check.
+    if (_condSrcInfo && _condList)
+    {
+        _condSrcInfo->mConditionTargets[0] = target;
+        return sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+    }
+
+    return true;
 }
 
 WorldObjectSpellNearbyTargetCheck::WorldObjectSpellNearbyTargetCheck(float range, WorldObject* caster, SpellInfo const* spellInfo,
