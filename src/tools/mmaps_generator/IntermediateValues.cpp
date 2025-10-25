@@ -188,7 +188,7 @@ namespace MMAP
         fwrite(mesh->meshes, sizeof(int), mesh->nmeshes*4, file);
     }
 
-    void IntermediateValues::generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData)
+    void IntermediateValues::generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData const& meshData)
     {
         std::string objFileName;
         objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.obj", mapID, tileY, tileX);

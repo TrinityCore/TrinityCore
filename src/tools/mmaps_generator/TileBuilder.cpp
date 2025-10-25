@@ -371,98 +371,100 @@ namespace MMAP
         unsigned char* navData = nullptr;
         int navDataSize = 0;
 
-        do
-        {
-            // these values are checked within dtCreateNavMeshData - handle them here
-            // so we have a clear error message
-            if (params.nvp > DT_VERTS_PER_POLYGON)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
-                break;
-            }
-            if (params.vertCount >= 0xffff)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
-                break;
-            }
-            if (!params.vertCount || !params.verts)
-            {
-                // occurs mostly when adjacent tiles have models
-                // loaded but those models don't span into this tile
-
-                // message is an annoyance
-                //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
-                break;
-            }
-            if (!params.polyCount || !params.polys)
-            {
-                // we have flat tiles with no actual geometry - don't build those, its useless
-                // keep in mind that we do output those into debug info
-                TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
-                break;
-            }
-            if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
-                break;
-            }
-
-            TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
-            if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
-                break;
-            }
-
-            dtTileRef tileRef = 0;
-            TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
-            // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
-            // is removed via removeTile()
-            dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
-            if (!tileRef || !dtStatusSucceed(dtResult))
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
-                break;
-            }
-
-            // file output
-            std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
-            auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
-            if (!file)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
-                navMesh->removeTile(tileRef, nullptr, nullptr);
-                break;
-            }
-
-            TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
-
-            // write header
-            MmapTileHeader header;
-            header.usesLiquids = m_terrainBuilder.usesLiquids();
-            header.size = uint32(navDataSize);
-            fwrite(&header, sizeof(MmapTileHeader), 1, file.get());
-
-            // write data
-            fwrite(navData, sizeof(unsigned char), navDataSize, file.get());
-
-            // now that tile is written to disk, we can unload it
-            navMesh->removeTile(tileRef, nullptr, nullptr);
-        } while (false);
-
-        if (m_debugOutput)
+        auto debugOutputWriter = Trinity::make_unique_ptr_with_deleter(m_debugOutput ? &iv : nullptr, [=, borderSize = static_cast<unsigned short>(config.borderSize), &meshData](IntermediateValues* intermediate)
         {
             // restore padding so that the debug visualization is correct
-            for (int i = 0; i < iv.polyMesh->nverts; ++i)
+            for (std::ptrdiff_t i = 0; i < intermediate->polyMesh->nverts; ++i)
             {
-                unsigned short* v = &iv.polyMesh->verts[i * 3];
-                v[0] += (unsigned short)config.borderSize;
-                v[2] += (unsigned short)config.borderSize;
+                unsigned short* v = &intermediate->polyMesh->verts[i * 3];
+                v[0] += borderSize;
+                v[2] += borderSize;
             }
 
-            iv.generateObjFile(mapID, tileX, tileY, meshData);
-            iv.writeIV(mapID, tileX, tileY);
+            intermediate->generateObjFile(mapID, tileX, tileY, meshData);
+            intermediate->writeIV(mapID, tileX, tileY);
+        });
+
+        // these values are checked within dtCreateNavMeshData - handle them here
+        // so we have a clear error message
+        if (params.nvp > DT_VERTS_PER_POLYGON)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
+            return;
         }
+
+        if (params.vertCount >= 0xffff)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
+            return;
+        }
+
+        if (!params.vertCount || !params.verts)
+        {
+            // occurs mostly when adjacent tiles have models
+            // loaded but those models don't span into this tile
+
+            // message is an annoyance
+            //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
+            return;
+        }
+
+        if (!params.polyCount || !params.polys)
+        {
+            // we have flat tiles with no actual geometry - don't build those, its useless
+            // keep in mind that we do output those into debug info
+            TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
+            return;
+        }
+
+        if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
+            return;
+        }
+
+        TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
+        if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
+            return;
+        }
+
+        dtTileRef tileRef = 0;
+        TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
+        // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
+        // is removed via removeTile()
+        dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
+        if (!tileRef || !dtStatusSucceed(dtResult))
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
+            return;
+        }
+
+        auto navMeshTile = Trinity::make_unique_ptr_with_deleter(&tileRef, [navMesh](dtTileRef const* ref)
+        {
+            navMesh->removeTile(*ref, nullptr, nullptr);
+        });
+
+        // file output
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
+        if (!file)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
+            return;
+        }
+
+        TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
+
+        // write header
+        MmapTileHeader header;
+        header.usesLiquids = m_terrainBuilder.usesLiquids();
+        header.size = uint32(navDataSize);
+        fwrite(&header, sizeof(MmapTileHeader), 1, file.get());
+
+        // write data
+        fwrite(navData, sizeof(unsigned char), navDataSize, file.get());
     }
 
     /**************************************************************************/

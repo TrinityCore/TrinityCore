@@ -571,136 +571,135 @@ namespace MMAP
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager)
     {
         VMAP::LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        if (result != VMAP::LoadResult::Success)
+            return false;
+
+        auto vmapTile = Trinity::make_unique_ptr_with_deleter(vmapManager, [=](VMAP::VMapManager* mgr)
+        {
+            mgr->unloadMap(mapID, tileX, tileY);
+        });
+
+        std::span<VMAP::ModelInstance const> models = vmapManager->getModelsOnMap(mapID);
+        if (models.empty())
+            return false;
+
         bool retval = false;
 
-        do
+        for (VMAP::ModelInstance const& instance : models)
         {
-            if (result != VMAP::LoadResult::Success)
-                break;
+            // model instances exist in tree even though there are instances of that model in this tile
+            VMAP::WorldModel const* worldModel = instance.getWorldModel();
+            if (!worldModel)
+                continue;
 
-            std::span<VMAP::ModelInstance const> models = vmapManager->getModelsOnMap(mapID);
-            if (models.empty())
-                break;
+            // now we have a model to add to the meshdata
+            retval = true;
 
-            for (VMAP::ModelInstance const& instance : models)
+            std::vector<VMAP::GroupModel> const& groupModels = worldModel->getGroupModels();
+
+            // all M2s need to have triangle indices reversed
+            bool isM2 = worldModel->IsM2();
+
+            // transform data
+            float scale = instance.iScale;
+            G3D::Matrix3 rotation = instance.GetInvRot();
+            G3D::Vector3 position = instance.iPos;
+            position.x -= 32 * GRID_SIZE;
+            position.y -= 32 * GRID_SIZE;
+
+            for (std::vector<VMAP::GroupModel>::const_iterator it = groupModels.begin(); it != groupModels.end(); ++it)
             {
-                // model instances exist in tree even though there are instances of that model in this tile
-                VMAP::WorldModel const* worldModel = instance.getWorldModel();
-                if (!worldModel)
-                    continue;
+                std::vector<G3D::Vector3> const& tempVertices = it->GetVertices();
+                std::vector<G3D::Vector3> transformedVertices;
+                std::vector<VMAP::MeshTriangle> const& tempTriangles = it->GetTriangles();
+                VMAP::WmoLiquid const* liquid = it->GetLiquid();
 
-                // now we have a model to add to the meshdata
-                retval = true;
+                // first handle collision mesh
+                transform(tempVertices, transformedVertices, scale, rotation, position);
 
-                std::vector<VMAP::GroupModel> const& groupModels = worldModel->getGroupModels();
+                int offset = meshData.solidVerts.size() / 3;
 
-                // all M2s need to have triangle indices reversed
-                bool isM2 = worldModel->IsM2();
+                copyVertices(transformedVertices, meshData.solidVerts);
+                copyIndices(tempTriangles, meshData.solidTris, offset, isM2);
 
-                // transform data
-                float scale = instance.iScale;
-                G3D::Matrix3 rotation = instance.GetInvRot();
-                G3D::Vector3 position = instance.iPos;
-                position.x -= 32 * GRID_SIZE;
-                position.y -= 32 * GRID_SIZE;
-
-                for (std::vector<VMAP::GroupModel>::const_iterator it = groupModels.begin(); it != groupModels.end(); ++it)
+                // now handle liquid data
+                if (liquid && liquid->GetFlagsStorage())
                 {
-                    std::vector<G3D::Vector3> const& tempVertices = it->GetVertices();
-                    std::vector<G3D::Vector3> transformedVertices;
-                    std::vector<VMAP::MeshTriangle> const& tempTriangles = it->GetTriangles();
-                    VMAP::WmoLiquid const* liquid = it->GetLiquid();
+                    std::vector<G3D::Vector3> liqVerts;
+                    std::vector<int> liqTris;
+                    uint32 tilesX, tilesY, vertsX, vertsY;
+                    G3D::Vector3 corner;
+                    liquid->getPosInfo(tilesX, tilesY, corner);
+                    vertsX = tilesX + 1;
+                    vertsY = tilesY + 1;
+                    uint8 const* flags = liquid->GetFlagsStorage();
+                    float const* data = liquid->GetHeightStorage();
+                    uint8 type = NAV_AREA_EMPTY;
 
-                    // first handle collision mesh
-                    transform(tempVertices, transformedVertices, scale, rotation, position);
+                    // convert liquid type to NavTerrain
+                    EnumFlag<map_liquidHeaderTypeFlags> liquidFlags = map_liquidHeaderTypeFlags(vmapManager->GetLiquidFlagsPtr(liquid->GetType()));
+                    if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean))
+                        type = NAV_AREA_WATER;
+                    else if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Magma | map_liquidHeaderTypeFlags::Slime))
+                        type = NAV_AREA_MAGMA_SLIME;
 
-                    int offset = meshData.solidVerts.size() / 3;
+                    // indexing is weird...
+                    // after a lot of trial and error, this is what works:
+                    // vertex = y*vertsX+x
+                    // tile   = x*tilesY+y
+                    // flag   = y*tilesY+x
 
-                    copyVertices(transformedVertices, meshData.solidVerts);
-                    copyIndices(tempTriangles, meshData.solidTris, offset, isM2);
-
-                    // now handle liquid data
-                    if (liquid && liquid->GetFlagsStorage())
+                    G3D::Vector3 vert;
+                    for (uint32 x = 0; x < vertsX; ++x)
                     {
-                        std::vector<G3D::Vector3> liqVerts;
-                        std::vector<int> liqTris;
-                        uint32 tilesX, tilesY, vertsX, vertsY;
-                        G3D::Vector3 corner;
-                        liquid->getPosInfo(tilesX, tilesY, corner);
-                        vertsX = tilesX + 1;
-                        vertsY = tilesY + 1;
-                        uint8 const* flags = liquid->GetFlagsStorage();
-                        float const* data = liquid->GetHeightStorage();
-                        uint8 type = NAV_AREA_EMPTY;
-
-                        // convert liquid type to NavTerrain
-                        EnumFlag<map_liquidHeaderTypeFlags> liquidFlags = map_liquidHeaderTypeFlags(vmapManager->GetLiquidFlagsPtr(liquid->GetType()));
-                        if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Water | map_liquidHeaderTypeFlags::Ocean))
-                            type = NAV_AREA_WATER;
-                        else if (liquidFlags.HasFlag(map_liquidHeaderTypeFlags::Magma | map_liquidHeaderTypeFlags::Slime))
-                            type = NAV_AREA_MAGMA_SLIME;
-
-                        // indexing is weird...
-                        // after a lot of trial and error, this is what works:
-                        // vertex = y*vertsX+x
-                        // tile   = x*tilesY+y
-                        // flag   = y*tilesY+x
-
-                        G3D::Vector3 vert;
-                        for (uint32 x = 0; x < vertsX; ++x)
+                        for (uint32 y = 0; y < vertsY; ++y)
                         {
-                            for (uint32 y = 0; y < vertsY; ++y)
+                            vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y * vertsX + x]);
+                            vert = vert * rotation * scale + position;
+                            vert.x *= -1.f;
+                            vert.y *= -1.f;
+                            liqVerts.push_back(vert);
+                        }
+                    }
+
+                    int idx1, idx2, idx3, idx4;
+                    uint32 square;
+                    for (uint32 x = 0; x < tilesX; ++x)
+                    {
+                        for (uint32 y = 0; y < tilesY; ++y)
+                        {
+                            if ((flags[x + y * tilesX] & 0x0f) != 0x0f)
                             {
-                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y * vertsX + x]);
-                                vert = vert * rotation * scale + position;
-                                vert.x *= -1.f;
-                                vert.y *= -1.f;
-                                liqVerts.push_back(vert);
+                                square = x * tilesY + y;
+                                idx1 = square + x;
+                                idx2 = square + 1 + x;
+                                idx3 = square + tilesY + 1 + 1 + x;
+                                idx4 = square + tilesY + 1 + x;
+
+                                // top triangle
+                                liqTris.push_back(idx3);
+                                liqTris.push_back(idx2);
+                                liqTris.push_back(idx1);
+                                // bottom triangle
+                                liqTris.push_back(idx4);
+                                liqTris.push_back(idx3);
+                                liqTris.push_back(idx1);
                             }
                         }
+                    }
 
-                        int idx1, idx2, idx3, idx4;
-                        uint32 square;
-                        for (uint32 x = 0; x < tilesX; ++x)
-                        {
-                            for (uint32 y = 0; y < tilesY; ++y)
-                            {
-                                if ((flags[x + y * tilesX] & 0x0f) != 0x0f)
-                                {
-                                    square = x * tilesY + y;
-                                    idx1 = square + x;
-                                    idx2 = square + 1 + x;
-                                    idx3 = square + tilesY + 1 + 1 + x;
-                                    idx4 = square + tilesY + 1 + x;
+                    uint32 liqOffset = meshData.liquidVerts.size() / 3;
+                    for (uint32 i = 0; i < liqVerts.size(); ++i)
+                        meshData.liquidVerts.append(liqVerts[i].y, liqVerts[i].z, liqVerts[i].x);
 
-                                    // top triangle
-                                    liqTris.push_back(idx3);
-                                    liqTris.push_back(idx2);
-                                    liqTris.push_back(idx1);
-                                    // bottom triangle
-                                    liqTris.push_back(idx4);
-                                    liqTris.push_back(idx3);
-                                    liqTris.push_back(idx1);
-                                }
-                            }
-                        }
-
-                        uint32 liqOffset = meshData.liquidVerts.size() / 3;
-                        for (uint32 i = 0; i < liqVerts.size(); ++i)
-                            meshData.liquidVerts.append(liqVerts[i].y, liqVerts[i].z, liqVerts[i].x);
-
-                        for (uint32 i = 0; i < liqTris.size() / 3; ++i)
-                        {
-                            meshData.liquidTris.append(liqTris[i * 3 + 1] + liqOffset, liqTris[i * 3 + 2] + liqOffset, liqTris[i * 3] + liqOffset);
-                            meshData.liquidType.append(type);
-                        }
+                    for (uint32 i = 0; i < liqTris.size() / 3; ++i)
+                    {
+                        meshData.liquidTris.append(liqTris[i * 3 + 1] + liqOffset, liqTris[i * 3 + 2] + liqOffset, liqTris[i * 3] + liqOffset);
+                        meshData.liquidType.append(type);
                     }
                 }
             }
         }
-        while (false);
-
-        vmapManager->unloadMap(mapID, tileX, tileY);
 
         return retval;
     }
