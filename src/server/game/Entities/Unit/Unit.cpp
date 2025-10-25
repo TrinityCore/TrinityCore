@@ -7540,6 +7540,71 @@ int32 Unit::SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, in
     return int32(std::max(heal, 0.0f));
 }
 
+int32 Unit::SpellBaseAbsorbBonusDone(SpellSchoolMask schoolMask) const
+{
+    if (Player const* thisPlayer = ToPlayer())
+    {
+        float overrideSP = thisPlayer->m_activePlayerData->OverrideSpellPowerByAPPercent;
+        if (overrideSP > 0.0f)
+            return int32(CalculatePct(GetTotalAttackPowerValue(BASE_ATTACK), overrideSP) + 0.5f);
+    }
+
+    int32 advertisedBenefit = GetTotalAuraModifier(SPELL_AURA_SCHOOL_ABSORB, [schoolMask](AuraEffect const* aurEff) -> bool
+        {
+            if (!aurEff->GetMiscValue() || (aurEff->GetMiscValue() & schoolMask) != 0)
+                return true;
+            return false;
+        });
+
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+
+    }
+
+}
+
+int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int32 absorbamount, SpellEffectInfo const& spellEffectInfo, uint32 stack /*= 1*/, Spell* spell /*= nullptr*/, AuraEffect const* aurEff /*= nullptr*/) const
+{
+    if (GetTypeId() == TYPEID_UNIT && IsTotem())
+        if (Unit* owner = GetOwner())
+            return owner->SpellAbsorbBonusDone(victim, spellProto, absorbamount, spellEffectInfo, stack, spell, aurEff);
+
+    if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) ||
+        spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
+        return absorbamount;
+
+    int32 doneTotal = 0;
+    float doneTotalMod = 1.f;
+
+    int32 doneAdvertisedBenefit = SpellBaseHealingBonusDone(spellProto->GetSchoolMask());
+
+    if (doneAdvertisedBenefit)
+    {
+        float coeff = spellEffectInfo.BonusCoefficient;
+        doneTotal += int32(doneAdvertisedBenefit * coeff);
+    }
+
+    if (Player const* player = ToPlayer())
+        AddPct(doneTotalMod, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+    float absorbAmount = float(absorbamount + doneTotal) * doneTotalMod;
+
+    if (Player* modOwner = GetSpellModOwner())
+        modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, absorbAmount);
+
+    return static_cast<int32>(std::round(absorbAmount));
+}
+
+float Unit::SpellAbsorbPctDone(Unit* victim, SpellInfo const* spellProto) const
+{
+
+}
+
+int32 Unit::SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 absorbamount) const
+{
+
+}
+
 int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
 {
     if (Player const* thisPlayer = ToPlayer())
