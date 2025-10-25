@@ -23,7 +23,7 @@
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
@@ -34,10 +34,6 @@ namespace {
 int CHECK_TREE_PERIOD = 200;
 
 } // namespace
-
-template<> struct HashTrait< GameObjectModel>{
-    static size_t hashCode(GameObjectModel const& g) { return (size_t)(void*)&g; }
-};
 
 template<> struct PositionTrait< GameObjectModel> {
     static void getPosition(GameObjectModel const& g, G3D::Vector3& p) { p = g.getPosition(); }
@@ -105,10 +101,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
 DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl()) { }
 
-DynamicMapTree::~DynamicMapTree()
-{
-    delete impl;
-}
+DynamicMapTree::~DynamicMapTree() = default;
 
 void DynamicMapTree::insert(GameObjectModel const& mdl)
 {

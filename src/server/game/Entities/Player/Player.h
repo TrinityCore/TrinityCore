@@ -518,6 +518,7 @@ enum PlayerFlagsEx
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
     PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002,
     PLAYER_FLAGS_EX_ARTIFACT_FORGE_CHEAT    = 0x0004,
+    PLAYER_FLAGS_EX_ITEM_LEVEL_SQUISH       = 0x0020,       // Uses ItemLevelSquish gametable
     PLAYER_FLAGS_EX_IN_PVP_COMBAT           = 0x0040,       // Forbids /follow
     PLAYER_FLAGS_EX_MENTOR                  = 0x0080,
     PLAYER_FLAGS_EX_NEWCOMER                = 0x0100,

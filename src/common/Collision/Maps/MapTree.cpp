@@ -22,7 +22,7 @@
 #include "Metric.h"
 #include "ModelInstance.h"
 #include "VMapDefinitions.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <limits>
 #include <string>
@@ -35,7 +35,7 @@ namespace VMAP
     {
         public:
             MapRayCallback(ModelInstance const* val, ModelIgnoreFlags ignoreFlags) : prims(val), hit(false), flags(ignoreFlags) { }
-            bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit = true)
+            bool operator()(G3D::Ray const& ray, uint32 entry, float& distance, bool pStopAtFirstHit = true)
             {
                 bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit, flags);
                 if (result)
@@ -69,11 +69,6 @@ namespace VMAP
 
     //=========================================================
 
-    std::string getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY, std::string_view extension)
-    {
-        return Trinity::StringFormat("{:04}/{:04}_{:02}_{:02}.{}", mapID, mapID, tileY, tileX, extension);
-    }
-
     bool StaticMapTree::GetLocationInfo(Vector3 const& pos, LocationInfo& info) const
     {
         LocationInfoCallback intersectionCallBack(iTreeValues.data(), info);
@@ -84,10 +79,8 @@ namespace VMAP
     StaticMapTree::StaticMapTree(uint32 mapID, std::string const& basePath)
         : iMapID(mapID), iBasePath(basePath)
     {
-        if (iBasePath.length() > 0 && iBasePath[iBasePath.length() - 1] != '/' && iBasePath[iBasePath.length() - 1] != '\\')
-        {
+        if (!iBasePath.empty() && iBasePath.back() != '/' && iBasePath.back() != '\\')
             iBasePath.push_back('/');
-        }
     }
 
     //=========================================================
@@ -100,7 +93,7 @@ namespace VMAP
     Else, pMaxDist is not modified and returns false;
     */
 
-    bool StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const
+    bool StaticMapTree::getIntersectionTime(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const
     {
         float distance = pMaxDist;
         MapRayCallback intersectionCallBack(iTreeValues.data(), ignoreFlags);
@@ -206,19 +199,19 @@ namespace VMAP
         explicit operator bool() const { return TileFile && SpawnIndicesFile; }
     };
 
-    TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    TileFileOpenResult OpenMapTileFile(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         TileFileOpenResult result;
-        result.Name = basePath + getTileFileName(mapID, tileX, tileY, "vmtile");
+        result.Name = basePath + VMapManager::getTileFileName(mapID, tileX, tileY, "vmtile");
         result.TileFile.reset(fopen(result.Name.c_str(), "rb"));
-        result.SpawnIndicesFile.reset(fopen((basePath + getTileFileName(mapID, tileX, tileY, "vmtileidx")).c_str(), "rb"));
+        result.SpawnIndicesFile.reset(fopen((basePath + VMapManager::getTileFileName(mapID, tileX, tileY, "vmtileidx")).c_str(), "rb"));
         result.UsedMapId = mapID;
         if (!result.TileFile)
         {
             int32 parentMapId = vm->getParentMapId(mapID);
             while (parentMapId != -1)
             {
-                result.Name = basePath + getTileFileName(parentMapId, tileX, tileY, "vmtile");
+                result.Name = basePath + VMapManager::getTileFileName(parentMapId, tileX, tileY, "vmtile");
                 result.TileFile.reset(fopen(result.Name.c_str(), "rb"));
                 result.UsedMapId = parentMapId;
                 if (result.TileFile)
@@ -232,12 +225,13 @@ namespace VMAP
     }
 
     //=========================================================
-    LoadResult StaticMapTree::CanLoadMap(const std::string& vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm)
+    LoadResult StaticMapTree::CanLoadMap(std::string const& vmapPath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         std::string basePath = vmapPath;
-        if (basePath.length() > 0 && basePath[basePath.length() - 1] != '/' && basePath[basePath.length() - 1] != '\\')
+        if (!basePath.empty() && basePath.back() != '/' && basePath.back() != '\\')
             basePath.push_back('/');
-        std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
+
+        std::string fullname = basePath + VMapManager::getMapFileName(mapID);
 
         auto rf = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fullname.c_str(), "rb"));
         if (!rf)
@@ -291,7 +285,7 @@ namespace VMAP
 
     //=========================================================
 
-    LoadResult StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    LoadResult StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         if (iTreeValues.empty())
         {
@@ -375,7 +369,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
+    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm)
     {
         uint32 tileID = packTileID(tileX, tileY);
         loadedTileMap::iterator tile = iLoadedTiles.find(tileID);
@@ -436,9 +430,8 @@ namespace VMAP
             "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
     }
 
-    void StaticMapTree::getModelInstances(ModelInstance*& models, uint32& count)
+    std::span<ModelInstance const> StaticMapTree::getModelInstances() const
     {
-        models = iTreeValues.data();
-        count = iTreeValues.size();
+        return iTreeValues;
     }
 }
