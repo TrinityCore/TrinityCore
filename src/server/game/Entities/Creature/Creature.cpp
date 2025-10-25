@@ -2663,10 +2663,7 @@ void Creature::UpdateMovementFlags()
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    float ground = GetFloorZ();
-
-    bool canHover = CanHover();
-    bool isInAir = (G3D::fuzzyGt(GetPositionZ(), ground + (canHover ? GetFloatValue(UNIT_FIELD_HOVERHEIGHT) : 0.0f) + GROUND_HEIGHT_TOLERANCE) || G3D::fuzzyLt(GetPositionZ(), ground - GROUND_HEIGHT_TOLERANCE)); // Can be underground too, prevent the falling
+    bool isInAir = IsInAir(*this, GetFloorZ() + GROUND_HEIGHT_TOLERANCE) || IsInAir(*this, GetFloorZ() - GROUND_HEIGHT_TOLERANCE);
 
     if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
