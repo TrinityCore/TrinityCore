@@ -1160,6 +1160,8 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
     switch (targetType.GetTarget())
     {
         case TARGET_DEST_NEARBY_ENTRY_OR_DB:
+        case TARGET_DEST_NEARBY_ENTRY:
+        case TARGET_DEST_NEARBY_ENTRY_2:
             // if we are here then there was no db target
             if (!target)
             {
@@ -9371,7 +9373,7 @@ WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(WorldObject* caster, Wo
     _targetSelectionType(selectionType), _condSrcInfo(nullptr), _condList(condList), _objectType(objectType)
 {
     if (condList)
-        _condSrcInfo = std::make_unique<ConditionSourceInfo>(nullptr, caster);
+        _condSrcInfo = std::make_unique<ConditionSourceInfo>(caster, referer);
 }
 
 WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
