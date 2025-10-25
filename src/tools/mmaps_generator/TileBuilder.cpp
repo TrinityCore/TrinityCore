@@ -105,7 +105,7 @@ namespace MMAP
         m_terrainBuilder.loadVMap(mapID, tileY, tileX, meshData, vmapManager.get());
 
         // if there is no data, give up now
-        if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
+        if (meshData.solidVerts.empty() && meshData.liquidVerts.empty())
         {
             OnTileDone();
             return;
@@ -115,20 +115,21 @@ namespace MMAP
         TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
         TerrainBuilder::cleanVertices(meshData.liquidVerts, meshData.liquidTris);
 
-        // gather all mesh data for final data check, and bounds calculation
-        G3D::Array<float> allVerts;
-        allVerts.append(meshData.liquidVerts);
-        allVerts.append(meshData.solidVerts);
-
-        if (!allVerts.size())
+        if (meshData.liquidVerts.empty() && meshData.solidVerts.empty())
         {
             OnTileDone();
             return;
         }
 
+        // gather all mesh data for final data check, and bounds calculation
+        std::vector<float> allVerts(meshData.liquidVerts.size() + meshData.solidVerts.size());
+        auto allVertsOutput = allVerts.begin();
+        allVertsOutput = std::ranges::copy(meshData.liquidVerts, allVertsOutput).out;
+        allVertsOutput = std::ranges::copy(meshData.solidVerts, allVertsOutput).out;
+
         // get bounds of current tile
         float bmin[3], bmax[3];
-        getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
+        getTileBounds(tileX, tileY, allVerts.data(), allVerts.size() / 3, bmin, bmax);
 
         if (m_offMeshConnections)
             m_terrainBuilder.loadOffMeshConnections(mapID, tileX, tileY, meshData, *m_offMeshConnections);
@@ -150,16 +151,16 @@ namespace MMAP
 
         IntermediateValues iv;
 
-        float* tVerts = meshData.solidVerts.getCArray();
+        float* tVerts = meshData.solidVerts.data();
         int tVertCount = meshData.solidVerts.size() / 3;
-        int* tTris = meshData.solidTris.getCArray();
+        int* tTris = meshData.solidTris.data();
         int tTriCount = meshData.solidTris.size() / 3;
 
-        float* lVerts = meshData.liquidVerts.getCArray();
+        float* lVerts = meshData.liquidVerts.data();
         int lVertCount = meshData.liquidVerts.size() / 3;
-        int* lTris = meshData.liquidTris.getCArray();
+        int* lTris = meshData.liquidTris.data();
         int lTriCount = meshData.liquidTris.size() / 3;
-        uint8* lTriFlags = meshData.liquidType.getCArray();
+        uint8* lTriFlags = meshData.liquidType.data();
 
         const TileConfig tileConfig = TileConfig(m_bigBaseUnit);
         int TILES_PER_MAP = tileConfig.TILES_PER_MAP;
@@ -348,12 +349,12 @@ namespace MMAP
         params.detailTris = iv.polyMeshDetail->tris;
         params.detailTriCount = iv.polyMeshDetail->ntris;
 
-        params.offMeshConVerts = meshData.offMeshConnections.getCArray();
+        params.offMeshConVerts = meshData.offMeshConnections.data();
         params.offMeshConCount = meshData.offMeshConnections.size() / 6;
-        params.offMeshConRad = meshData.offMeshConnectionRads.getCArray();
-        params.offMeshConDir = meshData.offMeshConnectionDirs.getCArray();
-        params.offMeshConAreas = meshData.offMeshConnectionsAreas.getCArray();
-        params.offMeshConFlags = meshData.offMeshConnectionsFlags.getCArray();
+        params.offMeshConRad = meshData.offMeshConnectionRads.data();
+        params.offMeshConDir = meshData.offMeshConnectionDirs.data();
+        params.offMeshConAreas = meshData.offMeshConnectionsAreas.data();
+        params.offMeshConFlags = meshData.offMeshConnectionsFlags.data();
 
         params.walkableHeight = BASE_UNIT_DIM * config.walkableHeight;    // agent height
         params.walkableRadius = BASE_UNIT_DIM * config.walkableRadius;    // agent radius
