@@ -200,24 +200,24 @@ namespace MMAP
             return;
         }
 
-        G3D::Array<float> allVerts;
-        G3D::Array<int> allTris;
+        std::vector<float> allVerts;
+        std::vector<int> allTris;
 
-        allTris.append(meshData.liquidTris);
-        allVerts.append(meshData.liquidVerts);
+        allTris.insert(allTris.end(), meshData.liquidTris.begin(), meshData.liquidTris.end());
+        allVerts.insert(allVerts.end(), meshData.liquidVerts.begin(), meshData.liquidVerts.end());
         TerrainBuilder::copyIndices(meshData.solidTris, allTris, allVerts.size() / 3);
-        allVerts.append(meshData.solidVerts);
+        allVerts.insert(allVerts.end(), meshData.solidVerts.begin(), meshData.solidVerts.end());
 
-        float* verts = allVerts.getCArray();
+        float* verts = allVerts.data();
         int vertCount = allVerts.size() / 3;
-        int* tris = allTris.getCArray();
+        int* tris = allTris.data();
         int triCount = allTris.size() / 3;
 
-        for (int i = 0; i < allVerts.size() / 3; i++)
-            fprintf(objFile.get(), "v %f %f %f\n", verts[i*3], verts[i*3 + 1], verts[i*3 + 2]);
+        for (std::size_t i = 0; i < allVerts.size() / 3; i++)
+            fprintf(objFile.get(), "v %f %f %f\n", verts[i * 3], verts[i * 3 + 1], verts[i * 3 + 2]);
 
-        for (int i = 0; i < allTris.size() / 3; i++)
-            fprintf(objFile.get(), "f %i %i %i\n", tris[i*3] + 1, tris[i*3 + 1] + 1, tris[i*3 + 2] + 1);
+        for (std::size_t i = 0; i < allTris.size() / 3; i++)
+            fprintf(objFile.get(), "f %i %i %i\n", tris[i * 3] + 1, tris[i * 3 + 1] + 1, tris[i * 3 + 2] + 1);
 
         TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output object file...", mapID, tileY, tileX);
 

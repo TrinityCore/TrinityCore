@@ -310,26 +310,20 @@ namespace MMAP
         if (fread(&indicesCount, sizeof(uint32), 1, file.get()) != 1)
             return;
 
-        std::unique_ptr<float[]> verts = std::make_unique<float[]>(verticesCount);
-        if (fread(verts.get(), sizeof(float), verticesCount, file.get()) != verticesCount)
-            return;
-
-        std::unique_ptr<int[]> inds = std::make_unique<int[]>(indicesCount);
-        if (fread(inds.get(), sizeof(int), indicesCount, file.get()) != indicesCount)
-            return;
-
         MeshData data;
 
-        for (uint32 i = 0; i < verticesCount; ++i)
-            data.solidVerts.append(verts[i]);
+        data.solidVerts.resize(verticesCount);
+        if (fread(data.solidVerts.data(), sizeof(float), verticesCount, file.get()) != verticesCount)
+            return;
 
-        for (uint32 i = 0; i < indicesCount; ++i)
-            data.solidTris.append(inds[i]);
+        data.solidTris.resize(indicesCount);
+        if (fread(data.solidTris.data(), sizeof(int), indicesCount, file.get()) != indicesCount)
+            return;
 
         TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
         // get bounds of current tile
         float bmin[3], bmax[3];
-        TileBuilder::getTileBounds(tileX, tileY, data.solidVerts.getCArray(), data.solidVerts.size() / 3, bmin, bmax);
+        TileBuilder::getTileBounds(tileX, tileY, data.solidVerts.data(), data.solidVerts.size() / 3, bmin, bmax);
 
         // build navmesh tile
         MapTileBuilder tileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
