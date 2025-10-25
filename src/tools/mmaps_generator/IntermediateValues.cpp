@@ -17,6 +17,7 @@
 
 #include "IntermediateValues.h"
 #include "Log.h"
+#include "Memory.h"
 #include "StringFormat.h"
 
 namespace MMAP
@@ -37,10 +38,9 @@ namespace MMAP
         auto debugWrite = [&](char const* extension, auto const* data)
         {
             std::string fileName = Trinity::StringFormat("meshes/{:04}{:02}{:02}.{}", mapID, tileY, tileX, extension);
-            if (FILE* file = fopen(fileName.c_str(), "wb"))
+            if (auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb")))
             {
-                this->debugWrite(file, data);
-                fclose(file);
+                this->debugWrite(file.get(), data);
             }
             else
                 TC_LOG_ERROR("maps.mmapgen.debug", "{}: [{:04}-{:02},{:02}] Failed to open {} for writing!", strerror(errno), mapID, tileX, tileY, fileName);
@@ -193,7 +193,7 @@ namespace MMAP
         std::string objFileName;
         objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.obj", mapID, tileY, tileX);
 
-        FILE* objFile = fopen(objFileName.c_str(), "wb");
+        auto objFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
         {
             TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
@@ -214,18 +214,16 @@ namespace MMAP
         int triCount = allTris.size() / 3;
 
         for (int i = 0; i < allVerts.size() / 3; i++)
-            fprintf(objFile, "v %f %f %f\n", verts[i*3], verts[i*3 + 1], verts[i*3 + 2]);
+            fprintf(objFile.get(), "v %f %f %f\n", verts[i*3], verts[i*3 + 1], verts[i*3 + 2]);
 
         for (int i = 0; i < allTris.size() / 3; i++)
-            fprintf(objFile, "f %i %i %i\n", tris[i*3] + 1, tris[i*3 + 1] + 1, tris[i*3 + 2] + 1);
-
-        fclose(objFile);
+            fprintf(objFile.get(), "f %i %i %i\n", tris[i*3] + 1, tris[i*3 + 1] + 1, tris[i*3 + 2] + 1);
 
         TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output object file...", mapID, tileY, tileX);
 
         objFileName = Trinity::StringFormat("meshes/map{:04}.map", mapID);
 
-        objFile = fopen(objFileName.c_str(), "wb");
+        objFile.reset(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
         {
             TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
@@ -233,25 +231,22 @@ namespace MMAP
         }
 
         char b = '\0';
-        fwrite(&b, sizeof(char), 1, objFile);
-        fclose(objFile);
+        fwrite(&b, sizeof(char), 1, objFile.get());
 
         objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.mesh", mapID, tileY, tileX);
-        objFile = fopen(objFileName.c_str(), "wb");
+        objFile.reset(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
         {
             TC_LOG_ERROR("maps.mmapgen.debug", "{}: Failed to open {} for writing!", strerror(errno), objFileName);
             return;
         }
 
-        fwrite(&vertCount, sizeof(int), 1, objFile);
-        fwrite(verts, sizeof(float), vertCount*3, objFile);
-        fflush(objFile);
+        fwrite(&vertCount, sizeof(int), 1, objFile.get());
+        fwrite(verts, sizeof(float), vertCount*3, objFile.get());
+        fflush(objFile.get());
 
-        fwrite(&triCount, sizeof(int), 1, objFile);
-        fwrite(tris, sizeof(int), triCount*3, objFile);
-        fflush(objFile);
-
-        fclose(objFile);
+        fwrite(&triCount, sizeof(int), 1, objFile.get());
+        fwrite(tris, sizeof(int), triCount*3, objFile.get());
+        fflush(objFile.get());
     }
 }

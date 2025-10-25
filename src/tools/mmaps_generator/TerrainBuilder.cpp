@@ -20,6 +20,7 @@
 #include "MapDefines.h"
 #include "MapTree.h"
 #include "MMapDefines.h"
+#include "Memory.h"
 #include "ModelInstance.h"
 #include "StringFormat.h"
 #include "Util.h"
@@ -80,14 +81,14 @@ namespace MMAP
     {
         std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileY, tileX);
 
-        FILE* mapFile = fopen(mapFileName.c_str(), "rb");
+        auto mapFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(mapFileName.c_str(), "rb"));
         if (!mapFile)
         {
             int32 parentMapId = vmapManager->getParentMapId(mapID);
             while (!mapFile && parentMapId != -1)
             {
                 mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileY, tileX);
-                mapFile = fopen(mapFileName.c_str(), "rb");
+                mapFile.reset(fopen(mapFileName.c_str(), "rb"));
                 parentMapId = vmapManager->getParentMapId(mapID);
             }
         }
@@ -96,20 +97,19 @@ namespace MMAP
             return false;
 
         map_fileheader fheader;
-        if (fread(&fheader, sizeof(map_fileheader), 1, mapFile) != 1 ||
+        if (fread(&fheader, sizeof(map_fileheader), 1, mapFile.get()) != 1 ||
             fheader.versionMagic != MapVersionMagic)
         {
-            fclose(mapFile);
             TC_LOG_ERROR("maps.mmapgen", "{} is the wrong version, please extract new .map files", mapFileName);
             return false;
         }
 
         map_heightHeader hheader;
-        fseek(mapFile, fheader.heightMapOffset, SEEK_SET);
+        fseek(mapFile.get(), fheader.heightMapOffset, SEEK_SET);
 
         bool haveTerrain = false;
         bool haveLiquid = false;
-        if (fread(&hheader, sizeof(map_heightHeader), 1, mapFile) == 1)
+        if (fread(&hheader, sizeof(map_heightHeader), 1, mapFile.get()) == 1)
         {
             haveTerrain = !hheader.flags.HasFlag(map_heightHeaderFlags::NoHeight);
             haveLiquid = fheader.liquidMapOffset && !m_skipLiquid;
@@ -117,10 +117,7 @@ namespace MMAP
 
         // no data in this map file
         if (!haveTerrain && !haveLiquid)
-        {
-            fclose(mapFile);
             return false;
-        }
 
         // data used later
         uint8 holes[16][16][8] = { };
@@ -141,8 +138,8 @@ namespace MMAP
                 uint8 v9[V9_SIZE_SQ];
                 uint8 v8[V8_SIZE_SQ];
                 size_t count = 0;
-                count += fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile);
-                count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
+                count += fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile.get());
+                count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile.get());
                 if (count != expected)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
@@ -159,8 +156,8 @@ namespace MMAP
                 uint16 v9[V9_SIZE_SQ];
                 uint16 v8[V8_SIZE_SQ];
                 size_t count = 0;
-                count += fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile);
-                count += fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile);
+                count += fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile.get());
+                count += fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile.get());
                 if (count != expected)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
 
@@ -175,8 +172,8 @@ namespace MMAP
             else
             {
                 size_t count = 0;
-                count += fread(V9, sizeof(float), V9_SIZE_SQ, mapFile);
-                count += fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
+                count += fread(V9, sizeof(float), V9_SIZE_SQ, mapFile.get());
+                count += fread(V8, sizeof(float), V8_SIZE_SQ, mapFile.get());
                 if (count != expected)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} height data expected {}, read {}", mapFileName, expected, count);
             }
@@ -185,8 +182,8 @@ namespace MMAP
             if (fheader.holesSize != 0)
             {
                 memset(holes, 0, fheader.holesSize);
-                fseek(mapFile, fheader.holesOffset, SEEK_SET);
-                if (fread(holes, fheader.holesSize, 1, mapFile) != 1)
+                fseek(mapFile.get(), fheader.holesOffset, SEEK_SET);
+                if (fread(holes, fheader.holesSize, 1, mapFile.get()) != 1)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} holes data expected {}, read {}", mapFileName, 1, 0);
             }
 
@@ -229,17 +226,17 @@ namespace MMAP
         if (haveLiquid)
         {
             map_liquidHeader lheader;
-            fseek(mapFile, fheader.liquidMapOffset, SEEK_SET);
-            if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile) != 1)
+            fseek(mapFile.get(), fheader.liquidMapOffset, SEEK_SET);
+            if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile.get()) != 1)
                 TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, 1, 0);
 
-            float* liquid_map = nullptr;
+            std::unique_ptr<float[]> liquid_map;
 
             if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoType))
             {
-                if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile) != 1)
+                if (fread(liquid_entry, sizeof(liquid_entry), 1, mapFile.get()) != 1)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid id expected {}, read {}", mapFileName, 1, 0);
-                if (fread(liquid_flags, sizeof(liquid_flags), 1, mapFile) != 1)
+                if (fread(liquid_flags, sizeof(liquid_flags), 1, mapFile.get()) != 1)
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid flags expected {}, read {}", mapFileName, 1, 0);
             }
             else
@@ -251,11 +248,10 @@ namespace MMAP
             if (!lheader.flags.HasFlag(map_liquidHeaderFlags::NoHeight))
             {
                 uint32 toRead = lheader.width * lheader.height;
-                liquid_map = new float [toRead];
-                if (fread(liquid_map, sizeof(float), toRead, mapFile) != toRead)
+                liquid_map = std::make_unique<float[]>(toRead);
+                if (fread(liquid_map.get(), sizeof(float), toRead, mapFile.get()) != toRead)
                 {
                     TC_LOG_ERROR("maps.mmapgen", "TerrainBuilder::loadMap: Failed to read {} liquid header expected {}, read {}", mapFileName, toRead, 0);
-                    delete[] liquid_map;
                     liquid_map = nullptr;
                 }
             }
@@ -284,7 +280,7 @@ namespace MMAP
                         continue;
                     }
 
-                    getLiquidCoord(i, j, xoffset, yoffset, coord, liquid_map);
+                    getLiquidCoord(i, j, xoffset, yoffset, coord, liquid_map.get());
                     meshData.liquidVerts.append(coord[0]);
                     meshData.liquidVerts.append(coord[2]);
                     meshData.liquidVerts.append(coord[1]);
@@ -300,8 +296,6 @@ namespace MMAP
                     meshData.liquidVerts.append((xoffset+col*GRID_PART_SIZE)*-1, lheader.liquidLevel, (yoffset+row*GRID_PART_SIZE)*-1);
                 }
             }
-
-            delete[] liquid_map;
 
             int indices[] = { 0, 0, 0 };
             int loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
@@ -320,8 +314,6 @@ namespace MMAP
             }
         }
 
-        fclose(mapFile);
-
         // now that we have gathered the data, we can figure out which parts to keep:
         // liquid above ground, ground above liquid
         int loopStart = 0, loopEnd = 0, loopInc = 0, tTriCount = 4;
@@ -338,11 +330,11 @@ namespace MMAP
 
         // make a copy of liquid vertices
         // used to pad right-bottom frame due to lost vertex data at extraction
-        float* lverts_copy = nullptr;
+        std::unique_ptr<float[]> lverts_copy;
         if (meshData.liquidVerts.size())
         {
-            lverts_copy = new float[meshData.liquidVerts.size()];
-            memcpy(lverts_copy, lverts, sizeof(float)*meshData.liquidVerts.size());
+            lverts_copy = std::make_unique<float[]>(meshData.liquidVerts.size());
+            memcpy(lverts_copy.get(), lverts, sizeof(float)* meshData.liquidVerts.size());
         }
 
         getLoopVars(portion, loopStart, loopEnd, loopInc);
@@ -470,9 +462,6 @@ namespace MMAP
                 ttris += 3*tTriCount/2;
             }
         }
-
-        if (lverts_copy)
-            delete [] lverts_copy;
 
         return meshData.solidTris.size() || meshData.liquidTris.size();
     }

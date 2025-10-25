@@ -19,6 +19,7 @@
 #include "IntermediateValues.h"
 #include "Log.h"
 #include "MMapDefines.h"
+#include "Memory.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
 #include "VMapManager.h"
@@ -169,7 +170,7 @@ namespace MMAP
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
 
         // allocate subregions : tiles
-        Tile* tiles = new Tile[TILES_PER_MAP * TILES_PER_MAP];
+        std::unique_ptr<Tile[]> tiles = std::make_unique<Tile[]>(TILES_PER_MAP * TILES_PER_MAP);
 
         // Initialize per tile config.
         rcConfig tileCfg = config;
@@ -177,8 +178,8 @@ namespace MMAP
         tileCfg.height = config.tileSize + config.borderSize * 2;
 
         // merge per tile poly and detail meshes
-        rcPolyMesh** pmmerge = new rcPolyMesh * [TILES_PER_MAP * TILES_PER_MAP];
-        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail * [TILES_PER_MAP * TILES_PER_MAP];
+        std::unique_ptr<rcPolyMesh*[]> pmmerge = std::make_unique<rcPolyMesh*[]>(TILES_PER_MAP * TILES_PER_MAP);
+        std::unique_ptr<rcPolyMeshDetail*[]> dmmerge = std::make_unique<rcPolyMeshDetail*[]>(TILES_PER_MAP * TILES_PER_MAP);
         int nmerge = 0;
         // build all tiles
         for (int y = 0; y < TILES_PER_MAP; ++y)
@@ -214,12 +215,11 @@ namespace MMAP
                  * any area above that will get RC_NULL_AREA (unwalkable), then call rcMarkWalkableTriangles with 55 to set NAV_AREA_GROUND
                  * on anything below 55 . Players and idle Creatures can use NAV_AREA_GROUND, while Creatures in combat can use NAV_AREA_GROUND_STEEP.
                  */
-                unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_AREA_GROUND_STEEP, tTriCount * sizeof(unsigned char));
-                rcClearUnwalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
-                rcMarkWalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags, NAV_AREA_GROUND);
-                rcRasterizeTriangles(&m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
-                delete[] triFlags;
+                std::unique_ptr<unsigned char[]> triFlags = std::make_unique<unsigned char[]>(tTriCount);
+                memset(triFlags.get(), NAV_AREA_GROUND_STEEP, tTriCount * sizeof(unsigned char));
+                rcClearUnwalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags.get());
+                rcMarkWalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags.get(), NAV_AREA_GROUND);
+                rcRasterizeTriangles(&m_rcContext, tVerts, tVertCount, tTris, triFlags.get(), tTriCount, *tile.solid, config.walkableClimb);
 
                 rcFilterLowHangingWalkableObstacles(&m_rcContext, config.walkableClimb, *tile.solid);
                 rcFilterLedgeSpans(&m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
@@ -303,28 +303,22 @@ namespace MMAP
         if (!iv.polyMesh)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc iv.polyMesh FAILED!", tileString);
-            delete[] pmmerge;
-            delete[] dmmerge;
-            delete[] tiles;
             return;
         }
-        rcMergePolyMeshes(&m_rcContext, pmmerge, nmerge, *iv.polyMesh);
+        rcMergePolyMeshes(&m_rcContext, pmmerge.get(), nmerge, *iv.polyMesh);
 
         iv.polyMeshDetail = rcAllocPolyMeshDetail();
         if (!iv.polyMeshDetail)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc m_dmesh FAILED!", tileString);
-            delete[] pmmerge;
-            delete[] dmmerge;
-            delete[] tiles;
             return;
         }
-        rcMergePolyMeshDetails(&m_rcContext, dmmerge, nmerge, *iv.polyMeshDetail);
+        rcMergePolyMeshDetails(&m_rcContext, dmmerge.get(), nmerge, *iv.polyMeshDetail);
 
         // free things up
-        delete[] pmmerge;
-        delete[] dmmerge;
-        delete[] tiles;
+        pmmerge = nullptr;
+        dmmerge = nullptr;
+        tiles = nullptr;
 
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
@@ -433,7 +427,7 @@ namespace MMAP
 
             // file output
             std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
-            FILE* file = fopen(fileName.c_str(), "wb");
+            auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
             if (!file)
             {
                 TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
@@ -447,11 +441,10 @@ namespace MMAP
             MmapTileHeader header;
             header.usesLiquids = m_terrainBuilder.usesLiquids();
             header.size = uint32(navDataSize);
-            fwrite(&header, sizeof(MmapTileHeader), 1, file);
+            fwrite(&header, sizeof(MmapTileHeader), 1, file.get());
 
             // write data
-            fwrite(navData, sizeof(unsigned char), navDataSize, file);
-            fclose(file);
+            fwrite(navData, sizeof(unsigned char), navDataSize, file.get());
 
             // now that tile is written to disk, we can unload it
             navMesh->removeTile(tileRef, nullptr, nullptr);
