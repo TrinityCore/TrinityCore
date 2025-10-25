@@ -563,8 +563,6 @@ bool MotionMaster::StopOnDeath()
         MoveIdle();
     }
 
-    _owner->StopMoving();
-
     return true;
 }
 
