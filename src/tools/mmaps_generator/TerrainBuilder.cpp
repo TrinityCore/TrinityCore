@@ -89,7 +89,7 @@ namespace MMAP
             {
                 mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileY, tileX);
                 mapFile.reset(fopen(mapFileName.c_str(), "rb"));
-                parentMapId = vmapManager->getParentMapId(mapID);
+                parentMapId = vmapManager->getParentMapId(parentMapId);
             }
         }
 
