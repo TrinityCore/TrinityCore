@@ -13254,7 +13254,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
             SetPlayHoverAnim(false, false);
     }
 
-    if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT))
     {
         if (IsGravityDisabled())
             SetAnimTier(AnimTier::Fly);
@@ -13480,7 +13480,7 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
     else if (IsPlayer()) // To update player who dies while flying/hovering
         SetPlayHoverAnim(false, false);
 
-    if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT))
     {
         if (IsGravityDisabled())
             SetAnimTier(AnimTier::Fly);
