@@ -19,9 +19,11 @@
 #include "DB2FileLoader.h"
 #include "DB2FileSystemSource.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "IoContext.h"
 #include "Locales.h"
 #include "Log.h"
 #include "MapBuilder.h"
+#include "Memory.h"
 #include "PathCommon.h"
 #include "Timer.h"
 #include "Util.h"
@@ -71,9 +73,11 @@ namespace MMAP
     }
 }
 
-void SetupLogging()
+void SetupLogging(Trinity::Asio::IoContext* ioContext)
 {
     Log* log = sLog;
+
+    log->SetAsynchronous(ioContext);
 
     log->CreateAppenderFromConfigLine("Appender.Console", "1,2,0");         // APPENDER_CONSOLE | LOG_LEVEL_DEBUG | APPENDER_FLAGS_NONE
     log->CreateLoggerFromConfigLine("Logger.root", "2,Console");            // LOG_LEVEL_DEBUG | Console appender
@@ -411,7 +415,18 @@ int main(int argc, char** argv)
 
     Trinity::Locale::Init();
 
-    SetupLogging();
+    Trinity::Asio::IoContext ioContext(1);
+
+    SetupLogging(&ioContext);
+
+    std::thread loggingThread;
+
+    auto workGuard = std::pair(
+        Trinity::make_unique_ptr_with_deleter(&loggingThread, [](std::thread* thread) { thread->join(); }),
+        boost::asio::make_work_guard(ioContext.get_executor())
+    );
+
+    loggingThread = std::thread([](Trinity::Asio::IoContext* context) { context->run(); }, &ioContext);
 
     Trinity::Banner::Show("MMAP generator", [](char const* text) { TC_LOG_INFO("tool.mmapgen", "{}", text); }, nullptr);
 
@@ -472,6 +487,7 @@ int main(int argc, char** argv)
 
     if (!silent)
         TC_LOG_INFO("tool.mmapgen", "Finished. MMAPS were built in {}", secsToTimeString(GetMSTimeDiffToNow(start) / 1000));
+
     return 0;
 }
 
