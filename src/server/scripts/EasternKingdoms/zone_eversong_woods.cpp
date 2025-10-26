@@ -27,8 +27,8 @@ enum Partygoer_Pather
     EVENT_REMOVE_EQUIPMENT_PATHER,
     EVENT_STOP_DANCING_PATHER,
 
-    PATH_FIRST_PATH               = 594440,
-    PATH_LAST_PATH                = 594444,
+    PATH_FIRST_PATH               = 4755520,
+    PATH_LAST_PATH                = 4755552,
 };
 
 struct npc_partygoer_pather : public ScriptedAI
