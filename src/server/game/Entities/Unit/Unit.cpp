@@ -11390,22 +11390,29 @@ void Unit::SetRooted(bool apply)
     else
         RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-    static OpcodeServer const rootOpcodeTable[2][2] =
+    static OpcodeServer const rootOpcodeTable[2][3] =
     {
-        { SMSG_SPLINE_MOVE_UNROOT, SMSG_FORCE_MOVE_UNROOT },
-        { SMSG_SPLINE_MOVE_ROOT, SMSG_FORCE_MOVE_ROOT }
+        { SMSG_SPLINE_MOVE_UNROOT, SMSG_FORCE_MOVE_UNROOT, MSG_MOVE_UNROOT },
+        { SMSG_SPLINE_MOVE_ROOT, SMSG_FORCE_MOVE_ROOT, MSG_MOVE_ROOT }
     };
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(rootOpcodeTable[apply][1], 10);
         data << GetPackGUID();
         data << GetMovementCounterAndInc();
-        SendMessageToSet(&data, true);
+        playerMover->SendDirectMessage(&data);
+
+        data.Initialize(rootOpcodeTable[apply][2], 64);
+        data << GetPackGUID();
+        BuildMovementPacket(&data);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
-        WorldPacket data(rootOpcodeTable[apply][0], 8);
+        WorldPacket data(rootOpcodeTable[apply][0], 9);
         data << GetPackGUID();
         SendMessageToSet(&data, true);
     }
@@ -13300,8 +13307,10 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         { SMSG_SPLINE_MOVE_GRAVITY_DISABLE, SMSG_MOVE_GRAVITY_DISABLE }
     };
 
-    if (Player* playerMover = ToPlayer())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(gravityOpcodeTable[disable][1], 12);
         data << GetPackGUID();
         data << uint32(0);          //! movement counter
@@ -13310,7 +13319,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         data.Initialize(MSG_MOVE_GRAVITY_CHNG, 64);
         data << GetPackGUID();
         BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
@@ -13392,8 +13401,10 @@ bool Unit::SetCanFly(bool enable, bool packetOnly /*= false */)
     if (!enable && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
 
-    if (Player* playerMover = ToPlayer())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(flyOpcodeTable[enable][1], 12);
         data << GetPackGUID();
         data << uint32(0);          //! movement counter
@@ -13402,7 +13413,7 @@ bool Unit::SetCanFly(bool enable, bool packetOnly /*= false */)
         data.Initialize(MSG_MOVE_UPDATE_CAN_FLY, 64);
         data << GetPackGUID();
         BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
@@ -13430,17 +13441,19 @@ bool Unit::SetWaterWalking(bool enable)
         { SMSG_SPLINE_MOVE_WATER_WALK, SMSG_MOVE_WATER_WALK }
     };
 
-    if (Player* playerMover = ToPlayer())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(waterWalkingOpcodeTable[enable][1], 12);
         data << GetPackGUID();
         data << uint32(0);          //! movement counter
-        playerMover->SendDirectMessage(&data);
+        GetGameClientMovingMe()->GetBasePlayer()->SendDirectMessage(&data);
 
         data.Initialize(MSG_MOVE_WATER_WALK, 64);
         data << GetPackGUID();
         BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
@@ -13468,8 +13481,10 @@ bool Unit::SetFeatherFall(bool enable)
         { SMSG_SPLINE_MOVE_FEATHER_FALL, SMSG_MOVE_FEATHER_FALL }
     };
 
-    if (Player* playerMover = ToPlayer())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(featherFallOpcodeTable[enable][1], 12);
         data << GetPackGUID();
         data << uint32(0);          //! movement counter
@@ -13478,7 +13493,7 @@ bool Unit::SetFeatherFall(bool enable)
         data.Initialize(MSG_MOVE_FEATHER_FALL, 64);
         data << GetPackGUID();
         BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
@@ -13522,8 +13537,10 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
         { SMSG_SPLINE_MOVE_SET_HOVER,   SMSG_MOVE_SET_HOVER   }
     };
 
-    if (Player* playerMover = ToPlayer())
+    if (IsMovedByClient())
     {
+        Player* playerMover = GetGameClientMovingMe()->GetBasePlayer();
+
         WorldPacket data(hoverOpcodeTable[enable][1], 12);
         data << GetPackGUID();
         data << uint32(0);          //! movement counter
@@ -13532,7 +13549,7 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
         data.Initialize(MSG_MOVE_HOVER, 64);
         data << GetPackGUID();
         BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
+        SendMessageToSet(&data, playerMover);
     }
     else
     {
