@@ -49,7 +49,6 @@ enum MotionMasterFlags : uint8
     MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING = 0x2, // Static movement (MOTION_SLOT_DEFAULT) hasn't been initialized
     MOTIONMASTER_FLAG_INITIALIZATION_PENDING        = 0x4, // MotionMaster is stalled until signaled
     MOTIONMASTER_FLAG_INITIALIZING                  = 0x8, // MotionMaster is initializing
-    MOTIONMASTER_FLAG_STATIC_PREVENT_INITIALIZATION = 0x10,
 
     MOTIONMASTER_FLAG_DELAYED = MOTIONMASTER_FLAG_UPDATE | MOTIONMASTER_FLAG_INITIALIZATION_PENDING
 };
@@ -195,14 +194,14 @@ class TC_GAME_API MotionMaster
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
-
-        void AddFlag(uint8 const flag) { _flags |= flag; }
-        bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
-        void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
     private:
         typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;
         typedef std::multiset<MovementGenerator*, MovementGeneratorComparator> MotionMasterContainer;
         typedef std::unordered_multimap<uint32, MovementGenerator const*> MotionMasterUnitStatesContainer;
+
+        void AddFlag(uint8 const flag) { _flags |= flag; }
+        bool HasFlag(uint8 const flag) const { return (_flags & flag) != 0; }
+        void RemoveFlag(uint8 const flag) { _flags &= ~flag; }
 
         void ResolveDelayedActions();
         void Remove(MotionMasterContainer::iterator iterator, bool active, bool movementInform);

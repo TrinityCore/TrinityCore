@@ -304,10 +304,7 @@ void MotionMaster::Update(uint32 diff)
     if (HasFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING) && IsStatic(top))
     {
         RemoveFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
-        if (!HasFlag(MOTIONMASTER_FLAG_STATIC_PREVENT_INITIALIZATION))
-            top->Initialize(_owner);
-        else
-            RemoveFlag(MOTIONMASTER_FLAG_STATIC_PREVENT_INITIALIZATION);
+        top->Initialize(_owner);
     }
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
         top->Initialize(_owner);
