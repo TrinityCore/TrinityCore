@@ -2644,7 +2644,7 @@ void Creature::UpdateMovementFlags()
         return;
 
     // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
-    bool isInAir = IsInAir(*this, GetFloorZ());
+    bool isInAir = IsInAir(*this, GetFloorZ() + GROUND_HEIGHT_TOLERANCE) || IsInAir(*this, GetFloorZ() - GROUND_HEIGHT_TOLERANCE);
 
     if (GetMovementTemplate().IsFlightAllowed() && isInAir && !IsFalling())
     {
