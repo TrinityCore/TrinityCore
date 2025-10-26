@@ -11521,7 +11521,7 @@ void Unit::SetRooted(bool apply)
         { SMSG_MOVE_SPLINE_ROOT, SMSG_MOVE_ROOT }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved())) // unit controlled by a player.
+    if (Player* playerMover = GetPlayerMovingMe()) // unit controlled by a player.
     {
         WorldPackets::Movement::MoveSetFlag packet(rootOpcodeTable[apply][1]);
         packet.MoverGUID = GetGUID();
@@ -13223,7 +13223,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
         { SMSG_MOVE_SPLINE_DISABLE_GRAVITY, SMSG_MOVE_DISABLE_GRAVITY }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(gravityOpcodeTable[disable][1]);
         packet.MoverGUID = GetGUID();
@@ -13254,7 +13254,7 @@ bool Unit::SetDisableGravity(bool disable, bool updateAnimTier /*= true*/)
             SetPlayHoverAnim(false, false);
     }
 
-    if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT))
     {
         if (IsGravityDisabled())
             SetAnimTier(AnimTier::Fly);
@@ -13324,7 +13324,7 @@ bool Unit::SetCanFly(bool enable)
     if (!enable && GetTypeId() == TYPEID_PLAYER)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(flyOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -13361,7 +13361,7 @@ bool Unit::SetWaterWalking(bool enable)
         { SMSG_MOVE_SPLINE_SET_WATER_WALK, SMSG_MOVE_SET_WATER_WALK }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(waterWalkingOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -13399,7 +13399,7 @@ bool Unit::SetFeatherFall(bool enable)
         { SMSG_MOVE_SPLINE_SET_FEATHER_FALL, SMSG_MOVE_SET_FEATHER_FALL }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(featherFallOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -13452,7 +13452,7 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
         { SMSG_MOVE_SPLINE_SET_HOVER,   SMSG_MOVE_SET_HOVERING   }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(hoverOpcodeTable[enable][1]);
         packet.MoverGUID = GetGUID();
@@ -13480,7 +13480,7 @@ bool Unit::SetHover(bool enable, bool updateAnimTier /*= true*/)
     else if (IsPlayer()) // To update player who dies while flying/hovering
         SetPlayHoverAnim(false, false);
 
-    if (IsCreature() && updateAnimTier && IsAlive() && !HasUnitState(UNIT_STATE_ROOT))
+    if (IsCreature() && updateAnimTier && !HasUnitState(UNIT_STATE_ROOT))
     {
         if (IsGravityDisabled())
             SetAnimTier(AnimTier::Fly);
@@ -13509,7 +13509,7 @@ bool Unit::SetCollision(bool disable)
         { SMSG_MOVE_SPLINE_DISABLE_COLLISION, SMSG_MOVE_DISABLE_COLLISION }
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(collisionOpcodeTable[disable][1]);
         packet.MoverGUID = GetGUID();
@@ -13549,7 +13549,7 @@ bool Unit::SetEnableFullSpeedTurning(bool enable)
         SMSG_MOVE_ENABLE_FULL_SPEED_TURNING
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(fullSpeedTurningOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -13583,7 +13583,7 @@ bool Unit::SetCanTransitionBetweenSwimAndFly(bool enable)
         SMSG_MOVE_ENABLE_TRANSITION_BETWEEN_SWIM_AND_FLY
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(swimToFlyTransOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -13615,7 +13615,7 @@ bool Unit::SetCanTurnWhileFalling(bool enable)
         SMSG_MOVE_SET_CAN_TURN_WHILE_FALLING
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(canTurnWhileFallingOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -13646,7 +13646,7 @@ bool Unit::SetCanDoubleJump(bool enable)
         SMSG_MOVE_ENABLE_DOUBLE_JUMP
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(doubleJumpOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -13677,7 +13677,7 @@ bool Unit::SetDisableInertia(bool disable)
         SMSG_MOVE_DISABLE_INERTIA
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(disableInertiaOpcodeTable[disable]);
         packet.MoverGUID = GetGUID();
@@ -13708,7 +13708,7 @@ bool Unit::SetCanAdvFly(bool enable)
         SMSG_MOVE_SET_CAN_ADV_FLY
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(advFlyOpcodeTable[enable]);
         packet.MoverGUID = GetGUID();
@@ -13739,7 +13739,7 @@ bool Unit::SetMoveCantSwim(bool cantSwim)
         SMSG_MOVE_SET_CANT_SWIM,
     };
 
-    if (Player* playerMover = Unit::ToPlayer(GetUnitBeingMoved()))
+    if (Player* playerMover = GetPlayerMovingMe())
     {
         WorldPackets::Movement::MoveSetFlag packet(cantSwimOpcodeTable[cantSwim]);
         packet.MoverGUID = GetGUID();

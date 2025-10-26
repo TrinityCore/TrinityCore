@@ -19,6 +19,7 @@
 #include "IntermediateValues.h"
 #include "Log.h"
 #include "MMapDefines.h"
+#include "Memory.h"
 #include "PathCommon.h"
 #include "StringFormat.h"
 #include "VMapManager.h"
@@ -104,7 +105,7 @@ namespace MMAP
         m_terrainBuilder.loadVMap(mapID, tileY, tileX, meshData, vmapManager.get());
 
         // if there is no data, give up now
-        if (!meshData.solidVerts.size() && !meshData.liquidVerts.size())
+        if (meshData.solidVerts.empty() && meshData.liquidVerts.empty())
         {
             OnTileDone();
             return;
@@ -114,20 +115,21 @@ namespace MMAP
         TerrainBuilder::cleanVertices(meshData.solidVerts, meshData.solidTris);
         TerrainBuilder::cleanVertices(meshData.liquidVerts, meshData.liquidTris);
 
-        // gather all mesh data for final data check, and bounds calculation
-        G3D::Array<float> allVerts;
-        allVerts.append(meshData.liquidVerts);
-        allVerts.append(meshData.solidVerts);
-
-        if (!allVerts.size())
+        if (meshData.liquidVerts.empty() && meshData.solidVerts.empty())
         {
             OnTileDone();
             return;
         }
 
+        // gather all mesh data for final data check, and bounds calculation
+        std::vector<float> allVerts(meshData.liquidVerts.size() + meshData.solidVerts.size());
+        auto allVertsOutput = allVerts.begin();
+        allVertsOutput = std::ranges::copy(meshData.liquidVerts, allVertsOutput).out;
+        allVertsOutput = std::ranges::copy(meshData.solidVerts, allVertsOutput).out;
+
         // get bounds of current tile
         float bmin[3], bmax[3];
-        getTileBounds(tileX, tileY, allVerts.getCArray(), allVerts.size() / 3, bmin, bmax);
+        getTileBounds(tileX, tileY, allVerts.data(), allVerts.size() / 3, bmin, bmax);
 
         if (m_offMeshConnections)
             m_terrainBuilder.loadOffMeshConnections(mapID, tileX, tileY, meshData, *m_offMeshConnections);
@@ -149,16 +151,16 @@ namespace MMAP
 
         IntermediateValues iv;
 
-        float* tVerts = meshData.solidVerts.getCArray();
+        float* tVerts = meshData.solidVerts.data();
         int tVertCount = meshData.solidVerts.size() / 3;
-        int* tTris = meshData.solidTris.getCArray();
+        int* tTris = meshData.solidTris.data();
         int tTriCount = meshData.solidTris.size() / 3;
 
-        float* lVerts = meshData.liquidVerts.getCArray();
+        float* lVerts = meshData.liquidVerts.data();
         int lVertCount = meshData.liquidVerts.size() / 3;
-        int* lTris = meshData.liquidTris.getCArray();
+        int* lTris = meshData.liquidTris.data();
         int lTriCount = meshData.liquidTris.size() / 3;
-        uint8* lTriFlags = meshData.liquidType.getCArray();
+        uint8* lTriFlags = meshData.liquidType.data();
 
         const TileConfig tileConfig = TileConfig(m_bigBaseUnit);
         int TILES_PER_MAP = tileConfig.TILES_PER_MAP;
@@ -169,7 +171,7 @@ namespace MMAP
         rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);
 
         // allocate subregions : tiles
-        Tile* tiles = new Tile[TILES_PER_MAP * TILES_PER_MAP];
+        std::unique_ptr<Tile[]> tiles = std::make_unique<Tile[]>(TILES_PER_MAP * TILES_PER_MAP);
 
         // Initialize per tile config.
         rcConfig tileCfg = config;
@@ -177,8 +179,8 @@ namespace MMAP
         tileCfg.height = config.tileSize + config.borderSize * 2;
 
         // merge per tile poly and detail meshes
-        rcPolyMesh** pmmerge = new rcPolyMesh * [TILES_PER_MAP * TILES_PER_MAP];
-        rcPolyMeshDetail** dmmerge = new rcPolyMeshDetail * [TILES_PER_MAP * TILES_PER_MAP];
+        std::unique_ptr<rcPolyMesh*[]> pmmerge = std::make_unique<rcPolyMesh*[]>(TILES_PER_MAP * TILES_PER_MAP);
+        std::unique_ptr<rcPolyMeshDetail*[]> dmmerge = std::make_unique<rcPolyMeshDetail*[]>(TILES_PER_MAP * TILES_PER_MAP);
         int nmerge = 0;
         // build all tiles
         for (int y = 0; y < TILES_PER_MAP; ++y)
@@ -214,12 +216,11 @@ namespace MMAP
                  * any area above that will get RC_NULL_AREA (unwalkable), then call rcMarkWalkableTriangles with 55 to set NAV_AREA_GROUND
                  * on anything below 55 . Players and idle Creatures can use NAV_AREA_GROUND, while Creatures in combat can use NAV_AREA_GROUND_STEEP.
                  */
-                unsigned char* triFlags = new unsigned char[tTriCount];
-                memset(triFlags, NAV_AREA_GROUND_STEEP, tTriCount * sizeof(unsigned char));
-                rcClearUnwalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags);
-                rcMarkWalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags, NAV_AREA_GROUND);
-                rcRasterizeTriangles(&m_rcContext, tVerts, tVertCount, tTris, triFlags, tTriCount, *tile.solid, config.walkableClimb);
-                delete[] triFlags;
+                std::unique_ptr<unsigned char[]> triFlags = std::make_unique<unsigned char[]>(tTriCount);
+                memset(triFlags.get(), NAV_AREA_GROUND_STEEP, tTriCount * sizeof(unsigned char));
+                rcClearUnwalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngle, tVerts, tVertCount, tTris, tTriCount, triFlags.get());
+                rcMarkWalkableTriangles(&m_rcContext, tileCfg.walkableSlopeAngleNotSteep, tVerts, tVertCount, tTris, tTriCount, triFlags.get(), NAV_AREA_GROUND);
+                rcRasterizeTriangles(&m_rcContext, tVerts, tVertCount, tTris, triFlags.get(), tTriCount, *tile.solid, config.walkableClimb);
 
                 rcFilterLowHangingWalkableObstacles(&m_rcContext, config.walkableClimb, *tile.solid);
                 rcFilterLedgeSpans(&m_rcContext, tileCfg.walkableHeight, tileCfg.walkableClimb, *tile.solid);
@@ -303,28 +304,22 @@ namespace MMAP
         if (!iv.polyMesh)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc iv.polyMesh FAILED!", tileString);
-            delete[] pmmerge;
-            delete[] dmmerge;
-            delete[] tiles;
             return;
         }
-        rcMergePolyMeshes(&m_rcContext, pmmerge, nmerge, *iv.polyMesh);
+        rcMergePolyMeshes(&m_rcContext, pmmerge.get(), nmerge, *iv.polyMesh);
 
         iv.polyMeshDetail = rcAllocPolyMeshDetail();
         if (!iv.polyMeshDetail)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc m_dmesh FAILED!", tileString);
-            delete[] pmmerge;
-            delete[] dmmerge;
-            delete[] tiles;
             return;
         }
-        rcMergePolyMeshDetails(&m_rcContext, dmmerge, nmerge, *iv.polyMeshDetail);
+        rcMergePolyMeshDetails(&m_rcContext, dmmerge.get(), nmerge, *iv.polyMeshDetail);
 
         // free things up
-        delete[] pmmerge;
-        delete[] dmmerge;
-        delete[] tiles;
+        pmmerge = nullptr;
+        dmmerge = nullptr;
+        tiles = nullptr;
 
         // set polygons as walkable
         // TODO: special flags for DYNAMIC polygons, ie surfaces that can be turned on and off
@@ -354,12 +349,12 @@ namespace MMAP
         params.detailTris = iv.polyMeshDetail->tris;
         params.detailTriCount = iv.polyMeshDetail->ntris;
 
-        params.offMeshConVerts = meshData.offMeshConnections.getCArray();
+        params.offMeshConVerts = meshData.offMeshConnections.data();
         params.offMeshConCount = meshData.offMeshConnections.size() / 6;
-        params.offMeshConRad = meshData.offMeshConnectionRads.getCArray();
-        params.offMeshConDir = meshData.offMeshConnectionDirs.getCArray();
-        params.offMeshConAreas = meshData.offMeshConnectionsAreas.getCArray();
-        params.offMeshConFlags = meshData.offMeshConnectionsFlags.getCArray();
+        params.offMeshConRad = meshData.offMeshConnectionRads.data();
+        params.offMeshConDir = meshData.offMeshConnectionDirs.data();
+        params.offMeshConAreas = meshData.offMeshConnectionsAreas.data();
+        params.offMeshConFlags = meshData.offMeshConnectionsFlags.data();
 
         params.walkableHeight = BASE_UNIT_DIM * config.walkableHeight;    // agent height
         params.walkableRadius = BASE_UNIT_DIM * config.walkableRadius;    // agent radius
@@ -377,99 +372,100 @@ namespace MMAP
         unsigned char* navData = nullptr;
         int navDataSize = 0;
 
-        do
-        {
-            // these values are checked within dtCreateNavMeshData - handle them here
-            // so we have a clear error message
-            if (params.nvp > DT_VERTS_PER_POLYGON)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
-                break;
-            }
-            if (params.vertCount >= 0xffff)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
-                break;
-            }
-            if (!params.vertCount || !params.verts)
-            {
-                // occurs mostly when adjacent tiles have models
-                // loaded but those models don't span into this tile
-
-                // message is an annoyance
-                //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
-                break;
-            }
-            if (!params.polyCount || !params.polys)
-            {
-                // we have flat tiles with no actual geometry - don't build those, its useless
-                // keep in mind that we do output those into debug info
-                TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
-                break;
-            }
-            if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
-                break;
-            }
-
-            TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
-            if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
-                break;
-            }
-
-            dtTileRef tileRef = 0;
-            TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
-            // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
-            // is removed via removeTile()
-            dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
-            if (!tileRef || !dtStatusSucceed(dtResult))
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
-                break;
-            }
-
-            // file output
-            std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
-            FILE* file = fopen(fileName.c_str(), "wb");
-            if (!file)
-            {
-                TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
-                navMesh->removeTile(tileRef, nullptr, nullptr);
-                break;
-            }
-
-            TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
-
-            // write header
-            MmapTileHeader header;
-            header.usesLiquids = m_terrainBuilder.usesLiquids();
-            header.size = uint32(navDataSize);
-            fwrite(&header, sizeof(MmapTileHeader), 1, file);
-
-            // write data
-            fwrite(navData, sizeof(unsigned char), navDataSize, file);
-            fclose(file);
-
-            // now that tile is written to disk, we can unload it
-            navMesh->removeTile(tileRef, nullptr, nullptr);
-        } while (false);
-
-        if (m_debugOutput)
+        auto debugOutputWriter = Trinity::make_unique_ptr_with_deleter(m_debugOutput ? &iv : nullptr, [=, borderSize = static_cast<unsigned short>(config.borderSize), &meshData](IntermediateValues* intermediate)
         {
             // restore padding so that the debug visualization is correct
-            for (int i = 0; i < iv.polyMesh->nverts; ++i)
+            for (std::ptrdiff_t i = 0; i < intermediate->polyMesh->nverts; ++i)
             {
-                unsigned short* v = &iv.polyMesh->verts[i * 3];
-                v[0] += (unsigned short)config.borderSize;
-                v[2] += (unsigned short)config.borderSize;
+                unsigned short* v = &intermediate->polyMesh->verts[i * 3];
+                v[0] += borderSize;
+                v[2] += borderSize;
             }
 
-            iv.generateObjFile(mapID, tileX, tileY, meshData);
-            iv.writeIV(mapID, tileX, tileY);
+            intermediate->generateObjFile(mapID, tileX, tileY, meshData);
+            intermediate->writeIV(mapID, tileX, tileY);
+        });
+
+        // these values are checked within dtCreateNavMeshData - handle them here
+        // so we have a clear error message
+        if (params.nvp > DT_VERTS_PER_POLYGON)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
+            return;
         }
+
+        if (params.vertCount >= 0xffff)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
+            return;
+        }
+
+        if (!params.vertCount || !params.verts)
+        {
+            // occurs mostly when adjacent tiles have models
+            // loaded but those models don't span into this tile
+
+            // message is an annoyance
+            //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
+            return;
+        }
+
+        if (!params.polyCount || !params.polys)
+        {
+            // we have flat tiles with no actual geometry - don't build those, its useless
+            // keep in mind that we do output those into debug info
+            TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
+            return;
+        }
+
+        if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
+            return;
+        }
+
+        TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
+        if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
+            return;
+        }
+
+        dtTileRef tileRef = 0;
+        TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
+        // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
+        // is removed via removeTile()
+        dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
+        if (!tileRef || !dtStatusSucceed(dtResult))
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
+            return;
+        }
+
+        auto navMeshTile = Trinity::make_unique_ptr_with_deleter(&tileRef, [navMesh](dtTileRef const* ref)
+        {
+            navMesh->removeTile(*ref, nullptr, nullptr);
+        });
+
+        // file output
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
+        if (!file)
+        {
+            TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
+            return;
+        }
+
+        TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
+
+        // write header
+        MmapTileHeader header;
+        header.usesLiquids = m_terrainBuilder.usesLiquids();
+        header.size = uint32(navDataSize);
+        fwrite(&header, sizeof(MmapTileHeader), 1, file.get());
+
+        // write data
+        fwrite(navData, sizeof(unsigned char), navDataSize, file.get());
     }
 
     /**************************************************************************/
