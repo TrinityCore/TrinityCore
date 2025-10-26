@@ -64,10 +64,10 @@ public:
     uint32 size;
 
     template<class T>
-    T* As() { return (T*)data; }
+    T* As() const { return (T*)data; }
     void parseSubChunks();
-    std::multimap<std::string, FileChunk*> subchunks;
-    FileChunk* GetSubChunk(std::string const& name);
+    std::multimap<std::string_view, FileChunk> subchunks;
+    FileChunk const* GetSubChunk(std::string_view name) const;
 };
 
 class ChunkedFile
@@ -87,8 +87,8 @@ public:
     void free();
 
     void parseChunks();
-    std::multimap<std::string, FileChunk*> chunks;
-    FileChunk* GetChunk(std::string const& name);
+    std::multimap<std::string_view, FileChunk> chunks;
+    FileChunk const* GetChunk(std::string_view name) const;
 };
 
 #pragma pack(pop)
