@@ -3164,11 +3164,6 @@ bool Unit::IsUnderWater() const
     return GetLiquidStatus() & LIQUID_MAP_UNDER_WATER;
 }
 
-bool Unit::IsInAir(Position const destination, float destinationFloor, bool honorHover/* = true*/) const
-{
-    return std::fabs(destination.GetPositionZ() - (honorHover ? GetHoverOffset() : 0.f) - destinationFloor) > 0.1f;
-}
-
 void Unit::ProcessPositionDataChanged(PositionFullTerrainStatus const& data)
 {
     ZLiquidStatus oldLiquidStatus = GetLiquidStatus();

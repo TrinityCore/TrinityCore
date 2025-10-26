@@ -1171,7 +1171,6 @@ class TC_GAME_API Unit : public WorldObject
 
         bool IsInWater() const;
         bool IsUnderWater() const;
-        bool IsInAir(Position const destination, float destinationFloor, bool honorHover = true) const;
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
         void SendHealSpellLog(HealInfo& healInfo, bool critical = false);
