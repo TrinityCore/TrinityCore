@@ -2006,6 +2006,13 @@ void Creature::setDeathState(DeathState s)
         if (m_formation && m_formation->GetLeader() == this)
             m_formation->FormationReset(true);
 
+        bool needsFalling = (IsFlying() || IsHovering()) && !IsUnderWater();
+        SetHover(false, false);
+        SetDisableGravity(false, false);
+
+        if (needsFalling)
+            GetMotionMaster()->MoveFall();
+
         Unit::setDeathState(CORPSE);
     }
     else if (s == JUST_RESPAWNED)

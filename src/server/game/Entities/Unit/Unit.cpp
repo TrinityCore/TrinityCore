@@ -8760,27 +8760,8 @@ void Unit::setDeathState(DeathState s)
         if (!isOnVehicle)
         {
             if (GetMotionMaster()->StopOnDeath())
-            {
-                if (!HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED) && GetTypeId() == TYPEID_UNIT && ToCreature()->IsInAir(*this, GetFloorZ(), false) && !IsUnderWater())
-                {
-                    GetMotionMaster()->AddFlag(MOTIONMASTER_FLAG_STATIC_PREVENT_INITIALIZATION);
-                    SetFall(true);
-                    Movement::MoveSplineInit init(this);
-                    init.MoveTo(GetPositionX(), GetPositionY(), GetFloorZ(), false, true);
-                    init.SetFall();
-                    init.Launch();
-                }
-                else
-                {
-                    StopMoving();
-                    DisableSpline();
-                }
-            }
+                DisableSpline();
         }
-
-        SetDisableGravity(false);
-        SetCanFly(false);
-        SetHover(false);
 
         // without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         // do not why since in IncreaseMaxHealth currenthealth is checked
