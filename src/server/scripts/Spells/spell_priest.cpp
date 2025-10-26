@@ -2182,8 +2182,6 @@ class spell_pri_power_word_shield : public AuraScript
 
         if (roll_chance_f(critChanceTaken))
             amount *= 2;
-
-        amount = amount;
     }
 
     void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
