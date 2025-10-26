@@ -76,6 +76,8 @@ void AddSC_arena_nokhudon_proving_grounds();
 
 void AddSC_arena_cage_of_carnage();
 
+void AddSC_arena_ashamanes_fall();
+
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddBattlegroundsScripts()
@@ -136,4 +138,6 @@ void AddBattlegroundsScripts()
     AddSC_arena_nokhudon_proving_grounds();
 
     AddSC_arena_cage_of_carnage();
+
+    AddSC_arena_ashamanes_fall();
 }
