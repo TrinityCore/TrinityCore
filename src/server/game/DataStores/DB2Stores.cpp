@@ -1042,16 +1042,16 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     }
 
     // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(16579) ||               // last area added in 11.2.0 (62213)
-        !sCharTitlesStore.LookupEntry(937) ||                // last char title added in 11.2.0 (62213)
+    if (!sAreaTableStore.LookupEntry(16579) ||               // last area added in 11.2.5 (63906)
+        !sCharTitlesStore.LookupEntry(971) ||                // last char title added in 11.2.5 (63906)
         !sFlightCapabilityStore.LookupEntry(1) ||            // default flight capability (required)
-        !sGemPropertiesStore.LookupEntry(4287) ||            // last gem property added in 11.2.0 (62213)
-        !sItemStore.LookupEntry(252009) ||                   // last item added in 11.2.0 (62213)
+        !sGemPropertiesStore.LookupEntry(4418) ||            // last gem property added in 11.2.5 (63906)
+        !sItemStore.LookupEntry(263226) ||                   // last item added in 11.2.5 (63906)
         !sItemSparseStore.LookupEntry(ITEM_ACCOUNT_BANK_TAB_BAG) ||
         !sItemSparseStore.LookupEntry(ITEM_CHARACTER_BANK_TAB_BAG) ||
-        !sItemExtendedCostStore.LookupEntry(10637) ||        // last item extended cost added in 11.2.0 (62213)
-        !sMapStore.LookupEntry(2951) ||                      // last map added in 11.2.0 (62213)
-        !sSpellNameStore.LookupEntry(1254022))               // last spell added in 11.2.0 (62213)
+        !sItemExtendedCostStore.LookupEntry(10811) ||        // last item extended cost added in 11.2.5 (63906)
+        !sMapStore.LookupEntry(2954) ||                      // last map added in 11.2.5 (63906)
+        !sSpellNameStore.LookupEntry(1271533))               // last spell added in 11.2.5 (63906)
     {
         TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         return 0;
