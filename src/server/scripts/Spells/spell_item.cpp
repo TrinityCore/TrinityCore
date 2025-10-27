@@ -4230,6 +4230,36 @@ class spell_item_titanium_seal_of_dalaran_catch : public SpellScript
     }
 };
 
+// 7932 - Anti-Venom
+// 7933 - Strong Anti-Venom
+// 23786 - Powerful Anti-Venom
+class spell_item_antivenom : public SpellScript
+{
+    PrepareSpellScript(spell_item_antivenom);
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        if (Unit* target = GetHitUnit())
+        {
+            // Remove poison effects from the target up to X level
+            uint32 maxLevel = GetSpellInfo()->MaxLevel;
+
+            target->RemoveAppliedAuras([&maxLevel](AuraApplication const* aurApp) -> bool
+            {
+                Aura const* aura = aurApp->GetBase();
+                bool isPoison = aura->GetSpellInfo()->Dispel == DISPEL_POISON;
+                bool passesLevelCheck = aura->GetCasterLevel() <= maxLevel;
+                return isPoison && passesLevelCheck;
+            });
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_item_antivenom::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4364,4 +4394,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_eggnog);
     RegisterSpellScript(spell_item_titanium_seal_of_dalaran_toss);
     RegisterSpellScript(spell_item_titanium_seal_of_dalaran_catch);
+    RegisterSpellScript(spell_item_antivenom);
 }
