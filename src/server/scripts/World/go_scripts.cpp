@@ -24,7 +24,6 @@ go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
 go_soulwell
-go_amberpine_outhouse
 go_veil_skith_cage
 go_bells
 EndContentData */
@@ -494,81 +493,6 @@ class go_soulwell : public GameObjectScript
         {
             return new go_soulwellAI(go);
         }
-};
-
-/*######
-## go_amberpine_outhouse
-######*/
-
-#define GOSSIP_USE_OUTHOUSE "Use the outhouse."
-#define GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND "Quest item Anderhol's Slider Cider not found."
-
-enum AmberpineOuthouse
-{
-    ITEM_ANDERHOLS_SLIDER_CIDER     = 37247,
-    NPC_OUTHOUSE_BUNNY              = 27326,
-    QUEST_DOING_YOUR_DUTY           = 12227,
-    SPELL_INDISPOSED                = 53017,
-    SPELL_INDISPOSED_III            = 48341,
-    SPELL_CREATE_AMBERSEEDS         = 48330,
-    GOSSIP_OUTHOUSE_INUSE           = 12775,
-    GOSSIP_OUTHOUSE_VACANT          = 12779
-};
-
-class go_amberpine_outhouse : public GameObjectScript
-{
-public:
-    go_amberpine_outhouse() : GameObjectScript("go_amberpine_outhouse") { }
-
-    struct go_amberpine_outhouseAI : public GameObjectAI
-    {
-        go_amberpine_outhouseAI(GameObject* go) : GameObjectAI(go) { }
-
-        bool OnGossipHello(Player* player) override
-        {
-            QuestStatus status = player->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
-            if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
-            {
-                AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                SendGossipMenuFor(player, GOSSIP_OUTHOUSE_VACANT, me->GetGUID());
-            }
-            else
-                SendGossipMenuFor(player, GOSSIP_OUTHOUSE_INUSE, me->GetGUID());
-
-            return true;
-        }
-
-        bool OnGossipSelect(Player* player, uint32 /*menuId*/, uint32 gossipListId) override
-        {
-            uint32 const action = player->PlayerTalkClass->GetGossipOptionAction(gossipListId);
-            ClearGossipMenuFor(player);
-            if (action == GOSSIP_ACTION_INFO_DEF + 1)
-            {
-                CloseGossipMenuFor(player);
-                Creature* target = GetClosestCreatureWithEntry(player, NPC_OUTHOUSE_BUNNY, 3.0f);
-                if (target)
-                {
-                    target->AI()->SetData(1, player->GetNativeGender());
-                    me->CastSpell(target, SPELL_INDISPOSED_III);
-                }
-                me->CastSpell(player, SPELL_INDISPOSED);
-                if (player->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER))
-                    me->CastSpell(player, SPELL_CREATE_AMBERSEEDS);
-                return true;
-            }
-            else
-            {
-                CloseGossipMenuFor(player);
-                player->GetSession()->SendNotification(GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
-                return false;
-            }
-        }
-    };
-
-    GameObjectAI* GetAI(GameObject* go) const override
-    {
-        return new go_amberpine_outhouseAI(go);
-    }
 };
 
 class go_massive_seaforium_charge : public GameObjectScript
@@ -1231,7 +1155,6 @@ void AddSC_go_scripts()
     new go_tele_to_violet_stand();
     new go_blood_filled_orb();
     new go_soulwell();
-    new go_amberpine_outhouse();
     new go_massive_seaforium_charge();
     new go_veil_skith_cage();
     new go_midsummer_bonfire();
