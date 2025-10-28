@@ -17,10 +17,11 @@
 
 #include "Errors.h"
 #include "StringFormat.h"
-#include <cstdio>
 #include <cstdlib>
 #include <thread>
 #include <cstdarg>
+#include <cstdio>
+#include <cstring>
 
 /**
     @file Errors.cpp
@@ -51,40 +52,42 @@ extern "C" { TC_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; 
 
 namespace
 {
-    std::string FormatAssertionMessage(char const* format, va_list args)
+    void FormatAssertionMessageTo(std::string& formatted, char const* format, va_list args) noexcept
     {
-        std::string formatted;
         va_list len;
 
         va_copy(len, args);
         int32 length = vsnprintf(nullptr, 0, format, len);
         va_end(len);
 
-        formatted.resize(length);
-        vsnprintf(&formatted[0], length + 1, format, args);
-
-        return formatted;
+        std::size_t offset = formatted.length();
+        formatted.resize(offset + length);
+        vsnprintf(&formatted[offset], length + 1, format, args);
     }
 }
 
 namespace Trinity
 {
-
-void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message)
+void Assert(char const* file, int line, char const* function, char const* message, std::string debugInfo) noexcept
 {
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + debugInfo + '\n';
+    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n{}\n", file, line, function, message, debugInfo);
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
     Crash(formattedMessage.c_str());
 }
 
-void Assert(char const* file, int line, char const* function, std::string debugInfo, char const* message, char const* format, ...)
+void Assert(char const* file, int line, char const* function, char const* message, std::string debugInfo, char const* format, ...) noexcept
 {
     va_list args;
     va_start(args, format);
 
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message) + FormatAssertionMessage(format, args) + '\n' + debugInfo + '\n';
+    std::string formattedMessage = StringFormat("\n{}:{} in {} ASSERTION FAILED:\n  {}\n", file, line, function, message);
+    FormatAssertionMessageTo(formattedMessage, format, args);
     va_end(args);
+
+    formattedMessage.append(1, '\n');
+    formattedMessage.append(debugInfo);
+    formattedMessage.append(1, '\n');
 
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
@@ -92,13 +95,16 @@ void Assert(char const* file, int line, char const* function, std::string debugI
     Crash(formattedMessage.c_str());
 }
 
-void Fatal(char const* file, int line, char const* function, char const* message, ...)
+void Fatal(char const* file, int line, char const* function, char const* message, ...) noexcept
 {
     va_list args;
     va_start(args, message);
 
-    std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+    std::string formattedMessage = StringFormat("\n{}:{} in {} FATAL ERROR:\n", file, line, function);
+    FormatAssertionMessageTo(formattedMessage, message, args);
     va_end(args);
+
+    formattedMessage.append(1, '\n');
 
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
@@ -107,7 +113,7 @@ void Fatal(char const* file, int line, char const* function, char const* message
     Crash(formattedMessage.c_str());
 }
 
-void Error(char const* file, int line, char const* function, char const* message)
+void Error(char const* file, int line, char const* function, char const* message) noexcept
 {
     std::string formattedMessage = StringFormat("\n{}:{} in {} ERROR:\n  {}\n", file, line, function, message);
     fprintf(stderr, "%s", formattedMessage.c_str());
@@ -115,13 +121,13 @@ void Error(char const* file, int line, char const* function, char const* message
     Crash(formattedMessage.c_str());
 }
 
-void Warning(char const* file, int line, char const* function, char const* message)
+void Warning(char const* file, int line, char const* function, char const* message) noexcept
 {
     fprintf(stderr, "\n%s:%i in %s WARNING:\n  %s\n",
                    file, line, function, message);
 }
 
-void Abort(char const* file, int line, char const* function)
+void Abort(char const* file, int line, char const* function) noexcept
 {
     std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED.\n", file, line, function);
     fprintf(stderr, "%s", formattedMessage.c_str());
@@ -129,13 +135,16 @@ void Abort(char const* file, int line, char const* function)
     Crash(formattedMessage.c_str());
 }
 
-void Abort(char const* file, int line, char const* function, char const* message, ...)
+void Abort(char const* file, int line, char const* function, char const* message, ...) noexcept
 {
     va_list args;
     va_start(args, message);
 
-    std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n", file, line, function) + FormatAssertionMessage(message, args) + '\n';
+    std::string formattedMessage = StringFormat("\n{}:{} in {} ABORTED:\n", file, line, function);
+    FormatAssertionMessageTo(formattedMessage, message, args);
     va_end(args);
+
+    formattedMessage.append(1, '\n');
 
     fprintf(stderr, "%s", formattedMessage.c_str());
     fflush(stderr);
@@ -143,7 +152,7 @@ void Abort(char const* file, int line, char const* function, char const* message
     Crash(formattedMessage.c_str());
 }
 
-void AbortHandler(int sigval)
+void AbortHandler(int sigval) noexcept
 {
     // nothing useful to log here, no way to pass args
     std::string formattedMessage = StringFormat("Caught signal {}\n", sigval);
@@ -151,7 +160,6 @@ void AbortHandler(int sigval)
     fflush(stderr);
     Crash(formattedMessage.c_str());
 }
-
 } // namespace Trinity
 
 std::string GetDebugInfo()
