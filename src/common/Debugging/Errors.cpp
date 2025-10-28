@@ -17,7 +17,6 @@
 
 #include "Errors.h"
 #include "StringFormat.h"
-#include <cstdlib>
 #include <thread>
 #include <cstdarg>
 #include <cstdio>
@@ -34,20 +33,26 @@
     terminates the application.
  */
 
+#if TRINITY_COMPILER == TRINITY_COMPILER_MICROSOFT
+#define Unreachable() (__assume(false))
+#else
+#define Unreachable() (__builtin_unreachable())
+#endif
+
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include <Windows.h>
 #include <intrin.h>
 #define Crash(message) \
     ULONG_PTR execeptionArgs[] = { reinterpret_cast<ULONG_PTR>(strdup(message)), reinterpret_cast<ULONG_PTR>(_ReturnAddress()) }; \
-    RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs);
+    RaiseException(EXCEPTION_ASSERTION_FAILURE, 0, 2, execeptionArgs); \
+    Unreachable()
 #else
-#include <cstring>
 // should be easily accessible in gdb
 extern "C" { TC_COMMON_API char const* TrinityAssertionFailedMessage = nullptr; }
 #define Crash(message) \
     TrinityAssertionFailedMessage = strdup(message); \
     *((volatile int*)nullptr) = 0; \
-    exit(1);
+    Unreachable()
 #endif
 
 namespace
