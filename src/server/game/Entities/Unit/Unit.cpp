@@ -583,7 +583,7 @@ void Unit::AtEndOfEncounter(EncounterType type)
         SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(cooldown.SpellId, DIFFICULTY_NONE);
         SpellCategoryEntry const* category = sSpellCategoryStore.LookupEntry(spellInfo->CategoryId);
 
-        return category->GetFlags().HasFlag(SpellCategoryFlags::ResetCooldownUponEndingEncounter) || spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
+        return (category && category->GetFlags().HasFlag(SpellCategoryFlags::ResetCooldownUponEndingEncounter)) || spellInfo->HasAttribute(SPELL_ATTR10_RESET_COOLDOWN_ON_ENCOUNTER_END);
     }, true);
 }
 
