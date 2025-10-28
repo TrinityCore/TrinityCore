@@ -63,6 +63,7 @@ class TC_COMMON_API Log
         static Log* instance() noexcept;
 
         void Initialize(Trinity::Asio::IoContext* ioContext);
+        void SetAsynchronous(Trinity::Asio::IoContext* ioContext);
         void SetSynchronous();  // Not threadsafe - should only be called from main() after all threads are joined
         void LoadFromConfig();
         void Close();
