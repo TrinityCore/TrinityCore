@@ -198,7 +198,7 @@ struct npc_wg_spirit_guide : public ScriptedAI
         if (!wintergrasp)
             return true;
 
-        GraveyardVect graveyard = wintergrasp->GetGraveyardVector();
+        GraveyardVect const& graveyard = wintergrasp->GetGraveyardVector();
         for (uint8 i = 0; i < graveyard.size(); i++)
             if (graveyard[i]->GetControlTeamId() == player->GetTeamId())
                 AddGossipItemFor(player, GossipOptionNpc::None, player->GetSession()->GetTrinityString(((BfGraveyardWG*)graveyard[i])->GetTextId()), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + i);
@@ -215,7 +215,7 @@ struct npc_wg_spirit_guide : public ScriptedAI
         Battlefield* wintergrasp = sBattlefieldMgr->GetBattlefieldByBattleId(me->GetMap(), BATTLEFIELD_BATTLEID_WG);
         if (wintergrasp)
         {
-            GraveyardVect gy = wintergrasp->GetGraveyardVector();
+            GraveyardVect const& gy = wintergrasp->GetGraveyardVector();
             for (uint8 i = 0; i < gy.size(); i++)
                 if (action - GOSSIP_ACTION_INFO_DEF == i && gy[i]->GetControlTeamId() == player->GetTeamId())
                     if (WorldSafeLocsEntry const* safeLoc = sObjectMgr->GetWorldSafeLoc(gy[i]->GetGraveyardId()))
