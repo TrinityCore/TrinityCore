@@ -2171,14 +2171,15 @@ class spell_pri_power_word_shield : public AuraScript
     void CalculateAmount(AuraEffect const* auraEffect, int32& amount, bool& canBeRecalculated) const
     {
         canBeRecalculated = false;
+        Unit* caster = GetCaster();
 
         // Mastery: Grace (TBD: move into DoEffectCalcDamageAndHealing hook with a new SpellScript and AuraScript).
-        if (AuraEffect const* masteryGraceEffect = GetCaster()->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
+        if (AuraEffect const* masteryGraceEffect = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
             if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT))
                 AddPct(amount, masteryGraceEffect->GetAmount());
 
-        float critChanceDone = GetCaster()->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
-        float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(GetCaster(), nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
+        float critChanceDone = caster->SpellCritChanceDone(nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+        float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, auraEffect, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
 
         if (roll_chance_f(critChanceTaken))
             amount *= 2;
