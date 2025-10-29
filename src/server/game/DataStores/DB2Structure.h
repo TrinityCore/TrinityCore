@@ -3830,6 +3830,8 @@ struct SpellCategoryEntry
     int32 MaxCharges;
     int32 ChargeRecoveryTime;
     int32 TypeMask;
+
+    EnumFlag<SpellCategoryFlags> GetFlags() const { return static_cast<SpellCategoryFlags>(Flags); }
 };
 
 struct SpellClassOptionsEntry
