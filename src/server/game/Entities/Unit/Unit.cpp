@@ -4018,10 +4018,15 @@ void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
     // interrupt auras
     for (AuraApplicationList::iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end();)
     {
-        Aura* aura = (*iter)->GetBase();
+        AuraApplication* aurApp = *iter;
+        Aura* aura = aurApp->GetBase();
         ++iter;
         if ((aura->GetSpellInfo()->AuraInterruptFlags & flag) && (!except || aura->GetId() != except))
         {
+            // allow to prevent interruption in scripts
+            if (aura->CallScriptAuraInterruptHandlers(aurApp, flag))
+                continue;
+
             uint32 removedAuras = m_removedAurasCount;
             RemoveAura(aura);
             if (m_removedAurasCount > removedAuras + 1)

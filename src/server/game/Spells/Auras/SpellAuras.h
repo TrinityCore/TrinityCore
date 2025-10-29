@@ -231,6 +231,7 @@ class TC_GAME_API Aura
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
         void CallScriptDispel(DispelInfo* dispelInfo);
         void CallScriptAfterDispel(DispelInfo* dispelInfo);
+        bool CallScriptAuraInterruptHandlers(AuraApplication const* aurApp, uint32 interruptMask);
         bool CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
