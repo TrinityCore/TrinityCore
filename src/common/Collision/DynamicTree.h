@@ -20,6 +20,7 @@
 
 #include "Define.h"
 #include "Optional.h"
+#include <memory>
 
 namespace G3D
 {
@@ -38,7 +39,7 @@ namespace VMAP
 
 class TC_COMMON_API DynamicMapTree
 {
-    DynTreeImpl *impl;
+    std::unique_ptr<DynTreeImpl> impl;
 
 public:
 

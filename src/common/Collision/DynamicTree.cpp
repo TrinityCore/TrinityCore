@@ -23,7 +23,7 @@
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "WorldModel.h"
 #include <G3D/AABox.h>
 #include <G3D/Ray.h>
@@ -101,10 +101,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
 DynamicMapTree::DynamicMapTree() : impl(new DynTreeImpl()) { }
 
-DynamicMapTree::~DynamicMapTree()
-{
-    delete impl;
-}
+DynamicMapTree::~DynamicMapTree() = default;
 
 void DynamicMapTree::insert(GameObjectModel const& mdl)
 {
