@@ -85,7 +85,7 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
-    SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
+    SPELL_PRIEST_EMPOWERED_RENEW                    = 391339,
     SPELL_PRIEST_EPIPHANY                           = 414553,
     SPELL_PRIEST_EPIPHANY_HIGHLIGHT                 = 414556,
     SPELL_PRIEST_ESSENCE_DEVOURER                   = 415479,
@@ -1150,7 +1150,7 @@ class spell_pri_empowered_renew : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_EMPOWERED_RENEW_HEAL })
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_HOLY_WORD_SANCTIFY })
             && ValidateSpellEffect({ { SPELL_PRIEST_RENEW, EFFECT_0 } })
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_PERIODIC_HEAL);
     }
@@ -1158,19 +1158,38 @@ class spell_pri_empowered_renew : public AuraScript
     void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetProcTarget();
 
-        SpellInfo const* renewSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, GetCastDifficulty());
-        SpellEffectInfo const& renewEffect = renewSpellInfo->GetEffect(EFFECT_0);
-        int32 estimatedTotalHeal = AuraEffect::CalculateEstimatedfTotalPeriodicAmount(caster, target, renewSpellInfo, renewEffect, renewEffect.CalcValue(caster), 1);
-        int32 healAmount = CalculatePct(estimatedTotalHeal, aurEff->GetAmount());
-
-        caster->CastSpell(target, SPELL_PRIEST_EMPOWERED_RENEW_HEAL, CastSpellExtraArgs(aurEff).AddSpellBP0(healAmount));
+        int32 cdReduction = aurEff->GetAmount();
+        if (SpellInfo const* sanct = sSpellMgr->GetSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, GetCastDifficulty()))
+            caster->GetSpellHistory()->ModifyCooldown(sanct, Milliseconds(-cdReduction));
     }
 
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_empowered_renew::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 139 - Renew
+class spell_pri_renew : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ {SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1} });
+    }
+
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
+    {
+        AuraEffect const* empRenew = GetCaster()->GetAuraEffect(SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1, GetCaster()->GetGUID());
+        if (!empRenew)
+            return;
+
+        AddPct(pctMod, empRenew->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pri_renew::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -3611,6 +3630,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
+    RegisterSpellScript(spell_pri_renew);
     RegisterSpellScript(spell_pri_sanctuary_absorb);
     RegisterSpellScript(spell_pri_sanctuary_trigger);
     RegisterSpellScript(spell_pri_rhapsody);
