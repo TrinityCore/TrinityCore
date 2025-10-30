@@ -5458,6 +5458,12 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(5, 0, 190411, EFFECT_2, {}, {});
     });
 
+    // Sigil of Spite
+    ApplySpellFix({ 389860 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 390163, EFFECT_0, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
