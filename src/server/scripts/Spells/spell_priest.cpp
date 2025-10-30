@@ -2272,6 +2272,66 @@ class spell_pri_divine_aegis : public AuraScript
     }
 };
 
+// 472361 - Divine Procession
+class spell_pri_divine_procession : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_EFFECT });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* caster = GetCaster();
+
+        Aura* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
+        if (!atonementAura)
+            return;
+
+        spell_pri_atonement* atonementScript = atonementAura->GetScript<spell_pri_atonement>();
+        if (!atonementScript)
+            return;
+
+        std::vector<ObjectGuid> const& _atonementTargets = atonementScript->GetAtonementTargets();
+        if (_atonementTargets.empty())
+            return;
+
+        // smallest Atonement duration should get increased
+        auto it = std::min_element(_atonementTargets.begin(), _atonementTargets.end(), [caster](ObjectGuid const& guidA, ObjectGuid const& guidB)
+            {
+                Unit* targetA = ObjectAccessor::GetUnit(*caster, guidA);
+                Unit* targetB = ObjectAccessor::GetUnit(*caster, guidB);
+
+                if (!targetA)
+                    return false;
+                if (!targetB)
+                    return true;
+
+                Aura* auraA = targetA->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+                Aura* auraB = targetB->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+
+                if (!auraA)
+                    return false;
+                if (!auraB)
+                    return true;
+
+                return auraA->GetDuration() < auraB->GetDuration();
+            });
+
+        if (it == _atonementTargets.end())
+            return;
+
+        if (Unit* target = ObjectAccessor::GetUnit(*caster, *it))
+            if (Aura* atonement = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()))
+                atonement->SetDuration(atonement->GetDuration() + aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_divine_procession::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 129250 - Power Word: Solace
 class spell_pri_power_word_solace : public SpellScript
 {
@@ -3566,6 +3626,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
+    RegisterSpellScript(spell_pri_divine_procession);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
