@@ -26,6 +26,7 @@
 enum KingDeepbeardSpells
 {
     SPELL_CALL_THE_SEAS         = 193051,
+    SPELL_CALL_THE_SEAS_AT      = 193054,
     SPELL_CALL_THE_SEAS_DAMAGE  = 193055,
     SPELL_GASEOUS_BUBBLES       = 193018,
     SPELL_GASEOUS_EXPLOSION     = 193047,
@@ -56,6 +57,11 @@ enum KingDeepbeardTexts
     SAY_WIPE                  = 9
 };
 
+enum KingDeepbeardMisc
+{
+    NPC_CALL_THE_SEAS     = 97844
+};
+
 // 91797 - King Deepbeard
 struct boss_king_deepbeard : public BossAI
 {
@@ -74,12 +80,28 @@ struct boss_king_deepbeard : public BossAI
         Talk(SAY_SLAY);
     }
 
+    void RemoveCallTheSeas()
+    {
+        std::list<Creature*> callTheSeas;
+        Trinity::AllCreaturesOfEntryInRange checker(me, NPC_CALL_THE_SEAS, 200.0f);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, callTheSeas, checker);
+        Cell::VisitAllObjects(me, searcher, 200.0f);
+
+        if (callTheSeas.empty())
+            return;
+
+        for (Creature* callTheSea : callTheSeas)
+            callTheSea->RemoveAurasDueToSpell(SPELL_CALL_THE_SEAS_AT);
+    }
+
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         instance->SetBossState(DATA_KING_DEEPBEARD, DONE);
         Talk(SAY_DEATH);
+
+        RemoveCallTheSeas();
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -91,6 +113,8 @@ struct boss_king_deepbeard : public BossAI
 
         _EnterEvadeMode();
         _DespawnAtEvade();
+
+        RemoveCallTheSeas();
     }
 
     void JustEngagedWith(Unit* who) override

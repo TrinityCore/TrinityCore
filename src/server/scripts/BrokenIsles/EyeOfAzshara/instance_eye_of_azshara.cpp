@@ -15,9 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaBoundary.h"
 #include "InstanceScript.h"
 #include "ScriptMgr.h"
 #include "eye_of_azshara.h"
+
+BossBoundaryData const boundaries =
+{
+    { DATA_KING_DEEPBEARD, new CircleBoundary(Position(-3450.758301f, 4154.493652f, 23.183308f), 45.0f) }
+};
 
 ObjectData const creatureData[] =
 {
