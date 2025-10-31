@@ -15,10 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "the_eye.h"
+#include "ScriptMgr.h"
 #include "ObjectAccessor.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
+#include "SpellInfo.h"
+#include "the_eye.h"
 
 enum ReaverTexts
 {
@@ -33,7 +34,7 @@ enum ReaverSpells
     SPELL_POUNDING              = 34162,
     SPELL_ARCANE_ORB            = 34172,
     SPELL_KNOCK_AWAY            = 25778,
-    SPELL_BERSERK               = 27680
+    SPELL_BERSERK               = 26662
 };
 
 enum ReaverEvents
@@ -44,26 +45,29 @@ enum ReaverEvents
     EVENT_BERSERK
 };
 
+// 19516 - Void Reaver
 struct boss_void_reaver : public BossAI
 {
-    boss_void_reaver(Creature* creature) : BossAI(creature, DATA_VOID_REAVER), _enraged(false) { }
-
-    void Reset() override
-    {
-        _Reset();
-        _enraged = false;
-    }
+    boss_void_reaver(Creature* creature) : BossAI(creature, DATA_VOID_REAVER) { }
 
     void JustEngagedWith(Unit* who) override
     {
-        Talk(SAY_AGGRO);
         BossAI::JustEngagedWith(who);
+
+        Talk(SAY_AGGRO);
+
         me->CallForHelp(120.0f);
 
-        events.ScheduleEvent(EVENT_POUNDING, 15s);
+        events.ScheduleEvent(EVENT_POUNDING, 8s, 15s);
         events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
-        events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
+        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12s, 16s);
         events.ScheduleEvent(EVENT_BERSERK, 10min);
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_POUNDING)
+            Talk(SAY_POUNDING);
     }
 
     void KilledUnit(Unit* /*victim*/) override
@@ -92,9 +96,8 @@ struct boss_void_reaver : public BossAI
             switch (eventId)
             {
                 case EVENT_POUNDING:
-                    DoCastVictim(SPELL_POUNDING);
-                    Talk(SAY_POUNDING);
-                    events.ScheduleEvent(EVENT_POUNDING, 15s);
+                    DoCastSelf(SPELL_POUNDING);
+                    events.Repeat(12s, 14s);
                     break;
                 case EVENT_ARCANE_ORB:
                 {
@@ -113,25 +116,17 @@ struct boss_void_reaver : public BossAI
                         target = me->GetVictim();
 
                     if (target)
-                        me->CastSpell(target, SPELL_ARCANE_ORB);
+                        DoCast(target, SPELL_ARCANE_ORB);
 
-                    events.ScheduleEvent(EVENT_ARCANE_ORB, 3s);
+                    events.Repeat(3s);
                     break;
                 }
                 case EVENT_KNOCK_AWAY:
                     DoCastVictim(SPELL_KNOCK_AWAY);
-                    // Drop 25% aggro
-                    if (GetThreat(me->GetVictim()))
-                        ModifyThreatByPercent(me->GetVictim(), -25);
-
-                    events.ScheduleEvent(EVENT_KNOCK_AWAY, 30s);
+                    events.Repeat(20s, 22s);
                     break;
                 case EVENT_BERSERK:
-                    if (!_enraged)
-                    {
-                        DoCastSelf(SPELL_BERSERK);
-                        _enraged = true;
-                    }
+                    DoCastSelf(SPELL_BERSERK);
                     break;
                 default:
                     break;
@@ -143,9 +138,6 @@ struct boss_void_reaver : public BossAI
 
         DoMeleeAttackIfReady();
     }
-
-private:
-    bool _enraged;
 };
 
 void AddSC_boss_void_reaver()
