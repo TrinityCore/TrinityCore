@@ -237,7 +237,7 @@ class TC_GAME_API MotionMaster
             Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
-        void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
+        void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
     private:
         typedef std::unique_ptr<MovementGenerator, MovementGeneratorDeleter> MovementGeneratorPointer;

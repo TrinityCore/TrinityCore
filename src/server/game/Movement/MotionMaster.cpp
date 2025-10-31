@@ -1186,7 +1186,7 @@ void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 
     }
 }
 
-void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id/*= 0*/, MovementGeneratorPriority priority/* = MOTION_PRIORITY_NORMAL*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/)
+void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id/*= 0*/, MovementGeneratorPriority priority/* = MOTION_PRIORITY_NORMAL*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
 {
     if (IsInvalidMovementGeneratorType(type))
     {
@@ -1196,7 +1196,7 @@ void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit&
 
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::LaunchMoveSpline: '{}', initiates spline Id: {} (Type: {}, Priority: {})", _owner->GetGUID(), id, type, priority);
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), type, id);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), type, id, { .ScriptResult = scriptResult });
     movement->Priority = priority;
     Add(movement);
 }
