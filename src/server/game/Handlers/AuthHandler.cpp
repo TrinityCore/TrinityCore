@@ -27,6 +27,7 @@
 #include "RealmList.h"
 #include "SystemPackets.h"
 #include "Timezone.h"
+#include "Util.h"
 #include "World.h"
 
 void WorldSession::SendAuthResponse(uint32 code, bool queued, uint32 queuePos)
@@ -124,5 +125,32 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
     features.EuropaTicketSystemStatus->ComplaintsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_COMPLAINTS_ENABLED);
     features.EuropaTicketSystemStatus->SuggestionsEnabled = sWorld->getBoolConfig(CONFIG_SUPPORT_SUGGESTIONS_ENABLED);
 
+    for (World::GameRule const& gameRule : sWorld->GetGameRules())
+    {
+        WorldPackets::System::GameRuleValuePair& rule = features.GameRules.emplace_back();
+        rule.Rule = AsUnderlyingType(gameRule.Rule);
+        std::visit([&]<typename T>(T value)
+        {
+            if constexpr (std::is_same_v<T, float>)
+                rule.ValueF = value;
+            else
+                rule.Value = value;
+        }, gameRule.Value);
+    }
+
     SendPacket(features.Write());
+
+    WorldPackets::System::MirrorVarSingle vars[] =
+    {
+        { "raidLockoutExtendEnabled"sv, "1"sv },
+        { "bypassItemLevelScalingCode"sv, "0"sv },
+        { "shop2Enabled"sv, "0"sv },
+        { "bpayStoreEnable"sv, "0"sv },
+        { "recentAlliesEnabledClient"sv, "0"sv },
+        { "browserEnabled"sv, "0"sv },
+    };
+
+    WorldPackets::System::MirrorVars variables;
+    variables.Variables = vars;
+    SendPacket(variables.Write());
 }

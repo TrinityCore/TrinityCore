@@ -16,7 +16,7 @@
  */
 
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
 #include "GameObjectModel.h"
@@ -140,14 +140,11 @@ bool GameObjectModel::initialize(std::unique_ptr<GameObjectModelOwnerBase> model
     return true;
 }
 
-GameObjectModel* GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
+std::unique_ptr<GameObjectModel> GameObjectModel::Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath)
 {
-    GameObjectModel* mdl = new GameObjectModel();
+    std::unique_ptr<GameObjectModel> mdl(new GameObjectModel());
     if (!mdl->initialize(std::move(modelOwner), dataPath))
-    {
-        delete mdl;
         return nullptr;
-    }
 
     return mdl;
 }
@@ -222,8 +219,7 @@ bool GameObjectModel::GetLiquidLevel(G3D::Vector3 const& point, VMAP::LocationIn
     if (info.hitModel->GetLiquidLevel(pModel, zDist))
     {
         // calculate world height (zDist in model coords):
-        // assume WMO not tilted (wouldn't make much sense anyway)
-        liqHeight = zDist * iScale + iPos.z;
+        liqHeight = (Vector3(pModel.x, pModel.y, zDist) * iInvRot * iScale + iPos).z;
         return true;
     }
     return false;

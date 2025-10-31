@@ -209,7 +209,7 @@ std::string ReputationMgr::GetReputationRankName(FactionEntry const* factionEntr
 {
     ReputationRank rank = GetRank(factionEntry);
     if (!factionEntry->FriendshipRepID)
-        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[GetRank(factionEntry)], _player->GetSession()->GetSessionDbcLocale());
+        return sObjectMgr->GetTrinityString(ReputationRankStrIndex[rank], _player->GetSession()->GetSessionDbcLocale());
 
     if (DB2Manager::FriendshipRepReactionSet const* friendshipReactions = sDB2Manager.GetFriendshipRepReactions(factionEntry->FriendshipRepID))
     {
@@ -352,7 +352,7 @@ void ReputationMgr::SendState(FactionState const* faction)
         {
             state.needSend = false;
             if (!faction || state.ReputationListID != faction->ReputationListID)
-                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state), faction->ID);
+                setFactionStanding.Faction.emplace_back(int32(state.ReputationListID), getStandingForPacket(&state), state.ID);
         }
     }
 

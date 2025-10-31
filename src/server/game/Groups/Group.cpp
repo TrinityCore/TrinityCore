@@ -237,7 +237,7 @@ void Group::LoadGroupFromDB(Field* fields)
     m_raidDifficulty = Player::CheckLoadedRaidDifficultyID(Difficulty(fields[14].GetUInt8()));
     m_legacyRaidDifficulty = Player::CheckLoadedLegacyRaidDifficultyID(Difficulty(fields[15].GetUInt8()));
 
-    m_masterLooterGuid = ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64());
+    m_masterLooterGuid = fields[16].GetUInt64() ? ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt64()) : ObjectGuid::Empty;
 
     m_pingRestriction = RestrictPingsTo(fields[18].GetInt8());
 
@@ -1269,6 +1269,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(BattlegroundTemplate
             return ERR_BATTLEGROUND_JOIN_FAILED;
         if (isMercenary != (member->HasAura(SPELL_MERCENARY_CONTRACT_HORDE) || member->HasAura(SPELL_MERCENARY_CONTRACT_ALLIANCE)))
             return ERR_BATTLEGROUND_JOIN_MERCENARY;
+
+        memberscount++;
     }
 
     errorGuid = ObjectGuid::Empty;

@@ -52,11 +52,13 @@ uint32 const EMBLEM_PRICE = 10 * GOLD;
 
 inline uint64 GetGuildBankTabPrice(uint8 tabId)
 {
-    // these prices are in gold units, not copper
-    static uint64 const tabPrices[GUILD_BANK_MAX_TABS] = { 100, 250, 500, 1000, 2500, 5000, 0, 0 };
-    ASSERT(tabId < GUILD_BANK_MAX_TABS);
+    auto bankTab = std::ranges::find(sBankTabStore, std::pair(BankType::Guild, int8(tabId)),
+        [](BankTabEntry const* bankTab) { return std::pair(BankType(bankTab->BankType), bankTab->OrderIndex); });
 
-    return tabPrices[tabId];
+    if (bankTab != sBankTabStore.end())
+        return bankTab->Cost;
+
+    return 0;
 }
 
 void Guild::SendCommandResult(WorldSession* session, GuildCommandType type, GuildCommandError errCode, std::string_view param)
@@ -1360,13 +1362,11 @@ void Guild::HandleRoster(WorldSession* session)
         memberData.GuildClubMemberID = Battlenet::Services::Clubs::CreateClubMemberId(member.GetGUID());
 
         memberData.Authenticated = false;
-        memberData.SorEligible = false;
 
         memberData.Name = member.GetName();
         memberData.Note = member.GetPublicNote();
         if (sendOfficerNote)
             memberData.OfficerNote = member.GetOfficerNote();
-
     }
 
     roster.WelcomeText = m_motd;
@@ -1659,7 +1659,7 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Remove money from bank
-    uint64 tabCost = GetGuildBankTabPrice(tabId) * GOLD;
+    uint64 tabCost = GetGuildBankTabPrice(tabId);
     if (tabCost && !_ModifyBankMoney(trans, tabCost, false))                   // Should not happen, this is checked by client
         return;
 
@@ -1801,7 +1801,7 @@ void Guild::HandleRemoveMember(WorldSession* session, ObjectGuid guid)
         SendCommandResult(session, GUILD_COMMAND_REMOVE_PLAYER, ERR_GUILD_PERMISSIONS);
     else if (Member* member = GetMember(guid))
     {
-        std::string name = member->GetName();
+        std::string_view name = member->GetName();
 
         // Guild masters cannot be removed
         if (member->IsRank(GuildRankId::GuildMaster))
@@ -1840,7 +1840,7 @@ void Guild::HandleUpdateMemberRank(WorldSession* session, ObjectGuid guid, bool 
     // Promoted player must be a member of guild
     else if (Member* member = GetMember(guid))
     {
-        std::string name = member->GetName();
+        std::string_view name = member->GetName();
         // Player cannot promote himself
         if (member->IsSamePlayer(player->GetGUID()))
         {

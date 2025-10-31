@@ -19,12 +19,15 @@
 #include "DB2FileLoader.h"
 #include "DB2FileSystemSource.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "IoContext.h"
 #include "Locales.h"
+#include "Log.h"
 #include "MapBuilder.h"
+#include "Memory.h"
 #include "PathCommon.h"
 #include "Timer.h"
 #include "Util.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include <boost/filesystem/operations.hpp>
 #include <unordered_map>
 #include <vector>
@@ -37,7 +40,6 @@ constexpr char Readme[] =
 namespace
 {
     std::unordered_map<uint32, uint8> _liquidTypes;
-    std::unordered_map<uint32, std::vector<uint32>> _mapDataForVmapInitialization;
 }
 
 namespace MMAP
@@ -46,10 +48,21 @@ namespace MMAP
 
     namespace VMapFactory
     {
-        std::unique_ptr<VMAP::VMapManager2> CreateVMapManager()
+        std::unique_ptr<VMAP::VMapManager> CreateVMapManager(uint32 mapId)
         {
-            std::unique_ptr<VMAP::VMapManager2> vmgr = std::make_unique<VMAP::VMapManager2>();
-            vmgr->InitializeThreadUnsafe(_mapDataForVmapInitialization);
+            std::unique_ptr<VMAP::VMapManager> vmgr = std::make_unique<VMAP::VMapManager>();
+
+            do
+            {
+                int32 parentMapId = sMapStore[mapId].ParentMapID;
+
+                vmgr->InitializeThreadUnsafe(mapId, parentMapId);
+                if (parentMapId < 0)
+                    break;
+
+                mapId = parentMapId;
+            } while (true);
+
             vmgr->GetLiquidFlagsPtr = [](uint32 liquidId) -> uint32
             {
                 auto itr = _liquidTypes.find(liquidId);
@@ -60,37 +73,48 @@ namespace MMAP
     }
 }
 
-using namespace MMAP;
+void SetupLogging(Trinity::Asio::IoContext* ioContext)
+{
+    Log* log = sLog;
+
+    log->SetAsynchronous(ioContext);
+
+    log->CreateAppenderFromConfigLine("Appender.Console", "1,2,0");         // APPENDER_CONSOLE | LOG_LEVEL_DEBUG | APPENDER_FLAGS_NONE
+    log->CreateLoggerFromConfigLine("Logger.root", "2,Console");            // LOG_LEVEL_DEBUG | Console appender
+    log->CreateLoggerFromConfigLine("Logger.tool.mmapgen", "2,Console");    // LOG_LEVEL_DEBUG | Console appender
+    log->CreateLoggerFromConfigLine("Logger.maps", "3,Console");            // LOG_LEVEL_DEBUG | Console appender
+    log->CreateLoggerFromConfigLine("Logger.maps.mmapgen", "2,Console");    // LOG_LEVEL_DEBUG | Console appender
+}
 
 bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 {
-    if (getDirContents(dbcLocales, "dbc") == LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
+    if (MMAP::getDirContents(dbcLocales, "dbc") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
     {
-        printf("'dbc' directory is empty or does not exist\n");
+        TC_LOG_ERROR("tool.mmapgen", "'dbc' directory is empty or does not exist");
         return false;
     }
 
     std::vector<std::string> dirFiles;
 
-    if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, "maps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
-        printf("'maps' directory is empty or does not exist\n");
+        TC_LOG_ERROR("tool.mmapgen", "'maps' directory is empty or does not exist");
         return false;
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
-        printf("'vmaps' directory is empty or does not exist\n");
+        TC_LOG_ERROR("tool.mmapgen", "'vmaps' directory is empty or does not exist");
         return false;
     }
 
     dirFiles.clear();
-    if (getDirContents(dirFiles, "mmaps") == LISTFILE_DIRECTORY_NOT_FOUND)
+    if (MMAP::getDirContents(dirFiles, "mmaps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
     {
         if (!boost::filesystem::create_directory("mmaps"))
         {
-            printf("'mmaps' directory does not exist and failed to create it\n");
+            TC_LOG_ERROR("tool.mmapgen", "'mmaps' directory does not exist and failed to create it");
             return false;
         }
     }
@@ -98,11 +122,11 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
     dirFiles.clear();
     if (debugOutput)
     {
-        if (getDirContents(dirFiles, "meshes") == LISTFILE_DIRECTORY_NOT_FOUND)
+        if (MMAP::getDirContents(dirFiles, "meshes") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
         {
             if (!boost::filesystem::create_directory("meshes"))
             {
-                printf("'meshes' directory does not exist and failed to create it (no place to put debugOutput files)\n");
+                TC_LOG_ERROR("tool.mmapgen", "'meshes' directory does not exist and failed to create it (no place to put debugOutput files)");
                 return false;
             }
         }
@@ -113,7 +137,7 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 
 int finish(char const* message, int returnValue)
 {
-    printf("%s", message);
+    TC_LOG_FATAL("tool.mmapgen.commandline", "{}", message);
     getchar(); // Wait for user input
     return returnValue;
 }
@@ -149,7 +173,7 @@ bool handleArgs(int argc, char** argv,
             if (maxangle <= 90.f && maxangle >= 0.f)
                 maxAngle = maxangle;
             else
-                printf("invalid option for '--maxAngle', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--maxAngle', using default");
         }
         else if (strcmp(argv[i], "--maxAngleNotSteep") == 0)
         {
@@ -161,7 +185,7 @@ bool handleArgs(int argc, char** argv,
             if (maxangle <= 90.f && maxangle >= 0.f)
                 maxAngleNotSteep = maxangle;
             else
-                printf("invalid option for '--maxAngleNotSteep', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--maxAngleNotSteep', using default");
         }
         else if (strcmp(argv[i], "--threads") == 0)
         {
@@ -195,7 +219,7 @@ bool handleArgs(int argc, char** argv,
 
             if (tileX < 0 || tileY < 0)
             {
-                printf("invalid tile coords.\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid tile coords.");
                 return false;
             }
         }
@@ -210,7 +234,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 skipLiquid = false;
             else
-                printf("invalid option for '--skipLiquid', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--skipLiquid', using default");
         }
         else if (strcmp(argv[i], "--skipContinents") == 0)
         {
@@ -223,7 +247,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 skipContinents = false;
             else
-                printf("invalid option for '--skipContinents', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--skipContinents', using default");
         }
         else if (strcmp(argv[i], "--skipJunkMaps") == 0)
         {
@@ -236,7 +260,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 skipJunkMaps = false;
             else
-                printf("invalid option for '--skipJunkMaps', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--skipJunkMaps', using default");
         }
         else if (strcmp(argv[i], "--skipBattlegrounds") == 0)
         {
@@ -249,7 +273,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 skipBattlegrounds = false;
             else
-                printf("invalid option for '--skipBattlegrounds', using default\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--skipBattlegrounds', using default");
         }
         else if (strcmp(argv[i], "--debugOutput") == 0)
         {
@@ -262,7 +286,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 debugOutput = false;
             else
-                printf("invalid option for '--debugOutput', using default true\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--debugOutput', using default true");
         }
         else if (strcmp(argv[i], "--silent") == 0)
         {
@@ -279,7 +303,7 @@ bool handleArgs(int argc, char** argv,
             else if (strcmp(param, "false") == 0)
                 bigBaseUnit = false;
             else
-                printf("invalid option for '--bigBaseUnit', using default false\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid option for '--bigBaseUnit', using default false");
         }
         else if (strcmp(argv[i], "--offMeshInput") == 0)
         {
@@ -295,7 +319,7 @@ bool handleArgs(int argc, char** argv,
         }
         else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-?"))
         {
-            printf("%s\n", Readme);
+            TC_LOG_INFO("tool.mmapgen", "{}", Readme);
             silent = true;
             return false;
         }
@@ -306,16 +330,16 @@ bool handleArgs(int argc, char** argv,
                 mapnum = map;
             else
             {
-                printf("invalid map id\n");
+                TC_LOG_ERROR("tool.mmapgen.commandline", "invalid map id {}", map);
                 return false;
             }
         }
     }
 
-#ifndef NDEBUG
+#if !defined(NDEBUG)
     if (!allowDebug)
     {
-        finish("Build mmaps_generator in RelWithDebInfo or Release mode or it will take hours to complete!!!\nUse '--allowDebug' argument if you really want to run this tool in Debug.\n", -2);
+        finish("Build mmaps_generator in RelWithDebInfo or Release mode or it will take hours to complete!!!\nUse '--allowDebug' argument if you really want to run this tool in Debug.", -2);
         silent = true;
         return false;
     }
@@ -352,10 +376,9 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool sil
     return liquidData;
 }
 
-std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
+void LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader mapDb2;
-    std::unordered_map<uint32, std::vector<uint32>> mapData;
     DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
     try
     {
@@ -366,14 +389,11 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
             if (!record)
                 continue;
 
-            mapData.emplace(std::piecewise_construct, std::forward_as_tuple(record.GetId()), std::forward_as_tuple());
             int16 parentMapId = int16(record.GetUInt16("ParentMapID"));
             if (parentMapId < 0)
                 parentMapId = int16(record.GetUInt16("CosmeticParentMapID"));
-            if (parentMapId != -1)
-                mapData[parentMapId].push_back(record.GetId());
 
-            MapEntry& map = sMapStore[record.GetId()];
+            MMAP::MapEntry& map = MMAP::sMapStore[record.GetId()];
             map.MapType = record.GetUInt8("MapType");
             map.InstanceType = record.GetUInt8("InstanceType");
             map.ParentMapID = parentMapId;
@@ -387,8 +407,6 @@ std::unordered_map<uint32, std::vector<uint32>> LoadMap(std::string const& local
 
         exit(finish(e.what(), errorExitCode));
     }
-
-    return mapData;
 }
 
 int main(int argc, char** argv)
@@ -397,7 +415,20 @@ int main(int argc, char** argv)
 
     Trinity::Locale::Init();
 
-    Trinity::Banner::Show("MMAP generator", [](char const* text) { printf("%s\n", text); }, nullptr);
+    Trinity::Asio::IoContext ioContext(1);
+
+    SetupLogging(&ioContext);
+
+    std::thread loggingThread;
+
+    auto workGuard = std::pair(
+        Trinity::make_unique_ptr_with_deleter(&loggingThread, [](std::thread* thread) { thread->join(); }),
+        boost::asio::make_work_guard(ioContext.get_executor())
+    );
+
+    loggingThread = std::thread([](Trinity::Asio::IoContext* context) { context->run(); }, &ioContext);
+
+    Trinity::Banner::Show("MMAP generator", [](char const* text) { TC_LOG_INFO("tool.mmapgen", "{}", text); }, nullptr);
 
     unsigned int threads = std::thread::hardware_concurrency();
     int mapnum = -1;
@@ -426,9 +457,9 @@ int main(int argc, char** argv)
         if (silent)
             return -2;
 
-        printf("You have specifed debug output, but didn't specify a map to generate.\n");
-        printf("This will generate debug output for ALL maps.\n");
-        printf("Are you sure you want to continue? (y/n) ");
+        TC_LOG_INFO("tool.mmapgen", "You have specifed debug output, but didn't specify a map to generate.");
+        TC_LOG_INFO("tool.mmapgen", "This will generate debug output for ALL maps.");
+        TC_LOG_INFO("tool.mmapgen", "Are you sure you want to continue? (y/n)");
         if (getchar() != 'y')
             return 0;
     }
@@ -439,9 +470,9 @@ int main(int argc, char** argv)
 
     _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
 
-    _mapDataForVmapInitialization = LoadMap(dbcLocales[0], silent, -4);
+    LoadMap(dbcLocales[0], silent, -4);
 
-    MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
+    MMAP::MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     uint32 start = getMSTime();
@@ -455,7 +486,8 @@ int main(int argc, char** argv)
         builder.buildMaps({});
 
     if (!silent)
-        printf("Finished. MMAPS were built in %s\n", secsToTimeString(GetMSTimeDiffToNow(start) / 1000).c_str());
+        TC_LOG_INFO("tool.mmapgen", "Finished. MMAPS were built in {}", secsToTimeString(GetMSTimeDiffToNow(start) / 1000));
+
     return 0;
 }
 

@@ -107,7 +107,7 @@ void ItemPurchaseRefund::Read()
 WorldPacket const* ItemPurchaseRefundResult::Write()
 {
     _worldPacket << ItemGUID;
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
     _worldPacket << OptionalInit(Contents);
     _worldPacket.FlushBits();
     if (Contents)
@@ -379,13 +379,6 @@ void RemoveNewItem::Read()
 }
 
 void ChangeBagSlotFlag::Read()
-{
-    _worldPacket >> BagIndex;
-    _worldPacket >> As<uint32>(FlagToChange);
-    _worldPacket >> Bits<1>(On);
-}
-
-void ChangeBankBagSlotFlag::Read()
 {
     _worldPacket >> BagIndex;
     _worldPacket >> As<uint32>(FlagToChange);

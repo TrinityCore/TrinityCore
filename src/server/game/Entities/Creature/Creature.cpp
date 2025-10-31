@@ -195,6 +195,7 @@ WorldPacket CreatureTemplate::BuildQueryData(LocaleConstant loc, Difficulty diff
 
     stats.Flags[0] = creatureDifficulty->TypeFlags;
     stats.Flags[1] = creatureDifficulty->TypeFlags2;
+    stats.Flags[2] = creatureDifficulty->TypeFlags3;
 
     stats.CreatureType = type;
     stats.CreatureFamily = family;
@@ -273,6 +274,7 @@ CreatureDifficulty const* CreatureTemplate::GetDifficulty(Difficulty difficulty)
             CreatureDifficultyID = 0;
             TypeFlags = 0;
             TypeFlags2 = 0;
+            TypeFlags3 = 0;
             LootID = 0;
             PickPocketLootID = 0;
             SkinLootID = 0;
@@ -452,25 +454,20 @@ void Creature::RemoveCorpse(bool setSpawnTime, bool destroyForNearbyPlayers)
         if (IsFalling())
             StopMoving();
 
-        float x, y, z, o;
-        GetRespawnPosition(x, y, z, &o);
+        Position respawnPosition = GetRespawnPosition();
 
         // We were spawned on transport, calculate real position
         if (IsSpawnedOnTransport())
         {
-            Position& pos = m_movementInfo.transport.pos;
-            pos.m_positionX = x;
-            pos.m_positionY = y;
-            pos.m_positionZ = z;
-            pos.SetOrientation(o);
+            m_movementInfo.transport.pos = respawnPosition;
 
             if (TransportBase* transport = GetDirectTransport())
-                transport->CalculatePassengerPosition(x, y, z, &o);
+                respawnPosition = transport->GetPositionWithOffset(respawnPosition);
         }
 
-        UpdateAllowedPositionZ(x, y, z);
-        SetHomePosition(x, y, z, o);
-        GetMap()->CreatureRelocation(this, x, y, z, o);
+        UpdateAllowedPositionZ(respawnPosition.GetPositionX(), respawnPosition.GetPositionY(), respawnPosition.m_positionZ);
+        SetHomePosition(respawnPosition);
+        GetMap()->CreatureRelocation(this, respawnPosition.GetPositionX(), respawnPosition.GetPositionY(), respawnPosition.GetPositionZ(), respawnPosition.GetOrientation());
     }
     else
     {
@@ -1556,20 +1553,22 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
     stmt->setUInt16(index++, uint16(mapid));
     stmt->setString(index++, [&data]() -> std::string
     {
-        if (data.spawnDifficulties.empty())
-            return "";
-
         std::ostringstream os;
-        auto itr = data.spawnDifficulties.begin();
-        os << int32(*itr++);
+        if (!data.spawnDifficulties.empty())
+        {
+            auto itr = data.spawnDifficulties.begin();
+            os << int32(*itr++);
 
-        for (; itr != data.spawnDifficulties.end(); ++itr)
-            os << ',' << int32(*itr);
+            for (; itr != data.spawnDifficulties.end(); ++itr)
+                os << ',' << int32(*itr);
+        }
 
-        return os.str();
+        return std::move(os).str();
     }());
+    stmt->setUInt8(index++, data.phaseUseFlags);
     stmt->setUInt32(index++, data.phaseId);
     stmt->setUInt32(index++, data.phaseGroup);
+    stmt->setInt32(index++, data.terrainSwapMap);
     stmt->setUInt32(index++, displayId);
     stmt->setUInt8(index++, GetCurrentEquipmentId());
     stmt->setFloat(index++, GetPositionX());
@@ -1600,6 +1599,13 @@ void Creature::SaveToDB(uint32 mapid, std::vector<Difficulty> const& spawnDiffic
         stmt->setUInt32(index++, *unitFlags3);
     else
         stmt->setNull(index++);
+
+    stmt->setString(index++, sObjectMgr->GetScriptName(data.scriptId));
+    if (std::string_view stringId = GetStringId(StringIdType::Spawn); !stringId.empty())
+        stmt->setString(index++, stringId);
+    else
+        stmt->setNull(index++);
+
     trans->Append(stmt);
 
     WorldDatabase.CommitTransaction(trans);
@@ -2896,27 +2902,21 @@ void Creature::SetRespawnTime(uint32 respawn)
     m_respawnTime = respawn ? GameTime::GetGameTime() + respawn : 0;
 }
 
-void Creature::GetRespawnPosition(float &x, float &y, float &z, float* ori, float* dist) const
+Position Creature::GetRespawnPosition(float* dist) const
 {
     if (m_creatureData)
     {
-        if (ori)
-            m_creatureData->spawnPoint.GetPosition(x, y, z, *ori);
-        else
-            m_creatureData->spawnPoint.GetPosition(x, y, z);
-
         if (dist)
             *dist = m_creatureData->wander_distance;
+
+        return m_creatureData->spawnPoint;
     }
     else
     {
-        Position const& homePos = GetHomePosition();
-        if (ori)
-            homePos.GetPosition(x, y, z, *ori);
-        else
-            homePos.GetPosition(x, y, z);
         if (dist)
             *dist = 0;
+
+        return GetHomePosition();
     }
 }
 
@@ -3067,8 +3067,8 @@ uint64 Creature::GetMaxHealthByLevel(uint8 level) const
 {
     CreatureTemplate const* cInfo = GetCreatureTemplate();
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
-    float baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
-    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0f);
+    double baseHealth = sDB2Manager.EvaluateExpectedStat(ExpectedStatType::CreatureHealth, level, creatureDifficulty->GetHealthScalingExpansion(), creatureDifficulty->ContentTuningID, Classes(cInfo->unit_class), 0);
+    return std::max(baseHealth * creatureDifficulty->HealthModifier, 1.0);
 }
 
 float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
@@ -3077,8 +3077,6 @@ float Creature::GetHealthMultiplierForTarget(WorldObject const* target) const
         return 1.0f;
 
     uint8 levelForTarget = GetLevelForTarget(target);
-    if (GetLevel() < levelForTarget)
-        return 1.0f;
 
     return double(GetMaxHealthByLevel(levelForTarget)) / double(GetCreateHealth());
 }
@@ -3122,12 +3120,6 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
 {
     if (Unit const* unitTarget = target->ToUnit())
     {
-        if (isWorldBoss())
-        {
-            uint8 level = unitTarget->GetLevel() + sWorld->getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
-            return RoundToInterval<uint8>(level, 1u, 255u);
-        }
-
         // If this creature should scale level, adapt level depending of target level
         // between UNIT_FIELD_SCALING_LEVEL_MIN and UNIT_FIELD_SCALING_LEVEL_MAX
         if (HasScalableLevels())
@@ -3136,9 +3128,7 @@ uint8 Creature::GetLevelForTarget(WorldObject const* target) const
             int32 scalingLevelMax = m_unitData->ScalingLevelMax;
             int32 scalingLevelDelta = m_unitData->ScalingLevelDelta;
             uint8 scalingFactionGroup = m_unitData->ScalingFactionGroup;
-            int32 targetLevel = unitTarget->m_unitData->EffectiveLevel;
-            if (!targetLevel)
-                targetLevel = unitTarget->GetLevel();
+            int32 targetLevel = unitTarget->GetEffectiveLevel();
 
             int32 targetLevelDelta = 0;
 

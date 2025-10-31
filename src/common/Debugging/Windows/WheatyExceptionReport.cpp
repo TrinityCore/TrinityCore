@@ -254,7 +254,7 @@ BOOL WheatyExceptionReport::_GetProcessorName(TCHAR* sProcessorName, DWORD maxco
     sProcessorName[0] = '\0';
     // Skip spaces
     TCHAR* psz = szTmp;
-    while (iswspace(*psz))
+    while (_istspace(*psz))
         ++psz;
     _tcsncpy(sProcessorName, psz, maxcount);
     return TRUE;
@@ -567,9 +567,10 @@ BOOL WheatyExceptionReport::_GetWindowsVersionFromWMI(TCHAR* szVersion, DWORD cn
                 IWbemClassObject* fields = nullptr;
                 ULONG rows = 0;
                 HRESULT hres = queryResult->Next(WBEM_INFINITE, 1, &fields, &rows);
+                using wbem_class_object_ptr = com_unique_ptr<IWbemClassObject>;
                 return SUCCEEDED(hres) && rows
-                    ? std::pair(com_unique_ptr<IWbemClassObject>(fields), rows)
-                    : std::pair(com_unique_ptr<IWbemClassObject>(), ULONG(0));
+                    ? std::pair(wbem_class_object_ptr(fields), rows)
+                    : std::pair(wbem_class_object_ptr(), ULONG(0));
             }();
 
             if (!fields || !rows)
@@ -1823,7 +1824,7 @@ size_t countOverride)
                     if (basicType == btFloat)
                         pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%f", *(PFLOAT)pAddress);
                     else
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", *(PDWORD)pAddress);
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%lX", *(PDWORD)pAddress);
                 }
                 else if (length == 8)
                 {
@@ -1833,27 +1834,19 @@ size_t countOverride)
                             *(double *)pAddress);
                     }
                     else
-                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X",
+                        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%llX",
                         *(DWORD64*)pAddress);
                 }
                 else
                 {
-    #if _WIN64
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X", (DWORD64)pAddress);
-    #else
-                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X", (DWORD)pAddress);
-    #endif
+                    pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%p", pAddress);
                 }
                 break;
         }
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
-#if _WIN64
-        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%I64X <Unable to read memory>", (DWORD64)pAddress);
-#else
-        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "0x%X <Unable to read memory>", (DWORD)pAddress);
-#endif
+        pszCurrBuffer += snprintf(pszCurrBuffer, bufferSize, "%p <Unable to read memory>", pAddress);
     }
 }
 

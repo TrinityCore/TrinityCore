@@ -416,6 +416,8 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
             QuestStatus oldStatus = _player->GetQuestStatus(questId);
 
+            _player->RemoveActiveQuest(questId);
+
             if (quest)
             {
                 if (quest->HasFlagEx(QUEST_FLAGS_EX_NO_ABANDON_ONCE_BEGUN))
@@ -434,10 +436,8 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPackets::Quest::QuestLogRemove
             }
 
             _player->SendForceSpawnTrackingUpdate(questId);
-            _player->SetQuestSlot(packet.Entry, 0);
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
             _player->AbandonQuest(questId); // remove all quest items player received before abandoning quest. Note, this does not remove normal drop items that happen to be quest requirements.
-            _player->RemoveActiveQuest(questId);
             _player->DespawnPersonalSummonsForQuest(questId);
 
             TC_LOG_INFO("network", "Player {} abandoned quest {}", _player->GetGUID().ToString(), questId);

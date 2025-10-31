@@ -22,7 +22,7 @@
 #include "IteratorPair.h"
 #include <G3D/Ray.h>
 #include <G3D/BoundsTrait.h>
-#include <G3D/PositionTrait.h>
+#include <memory>
 #include <unordered_map>
 
 template<class Node>
@@ -33,8 +33,7 @@ struct NodeCreator{
 template<class T,
 class Node,
 class NodeCreatorFunc = NodeCreator<Node>,
-class BoundsFunc = BoundsTrait<T>,
-class PositionFunc = PositionTrait<T>
+class BoundsFunc = BoundsTrait<T>
 >
 class TC_COMMON_API RegularGrid2D
 {
@@ -44,27 +43,14 @@ public:
         CELL_NUMBER = 64,
     };
 
-    #define HGRID_MAP_SIZE  (533.33333f * 64.f)     // shouldn't be changed
-    #define CELL_SIZE       float(HGRID_MAP_SIZE/(float)CELL_NUMBER)
+    #define CELL_SIZE       533.33333f
 
-    typedef std::unordered_multimap<const T*, Node*> MemberTable;
+    typedef std::unordered_multimap<T const*, Node*> MemberTable;
 
     MemberTable memberTable;
-    Node* nodes[CELL_NUMBER][CELL_NUMBER];
+    std::unique_ptr<Node> nodes[CELL_NUMBER][CELL_NUMBER] = { };
 
-    RegularGrid2D()
-    {
-        memset(nodes, 0, sizeof(nodes));
-    }
-
-    ~RegularGrid2D()
-    {
-        for (int x = 0; x < CELL_NUMBER; ++x)
-            for (int y = 0; y < CELL_NUMBER; ++y)
-                delete nodes[x][y];
-    }
-
-    void insert(const T& value)
+    void insert(T const& value)
     {
         G3D::AABox bounds = G3D::AABox::empty();
         BoundsFunc::getBounds(value, bounds);
@@ -81,7 +67,7 @@ public:
         }
     }
 
-    void remove(const T& value)
+    void remove(T const& value)
     {
         for (auto& p : Trinity::Containers::MapEqualRange(memberTable, &value))
             p.second->remove(value);
@@ -93,25 +79,22 @@ public:
     {
         for (int x = 0; x < CELL_NUMBER; ++x)
             for (int y = 0; y < CELL_NUMBER; ++y)
-                if (Node* n = nodes[x][y])
+                if (Node* n = nodes[x][y].get())
                     n->balance();
     }
 
-    bool contains(const T& value) const { return memberTable.count(&value) > 0; }
+    bool contains(T const& value) const { return memberTable.contains(&value); }
     bool empty() const { return memberTable.empty(); }
 
     struct Cell
     {
         int x, y;
-        bool operator==(Cell const& c2) const
-        {
-            return x == c2.x && y == c2.y;
-        }
+
+        friend bool operator==(Cell const&, Cell const&) = default;
 
         static Cell ComputeCell(float fx, float fy)
         {
-            Cell c = { int(fx * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)), int(fy * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)) };
-            return c;
+            return { .x = int(fx * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)), .y = int(fy * (1.f / CELL_SIZE) + (CELL_NUMBER / 2)) };
         }
 
         bool isValid() const { return x >= 0 && x < CELL_NUMBER && y >= 0 && y < CELL_NUMBER; }
@@ -121,18 +104,18 @@ public:
     {
         ASSERT(x < CELL_NUMBER && y < CELL_NUMBER);
         if (!nodes[x][y])
-            nodes[x][y] = NodeCreatorFunc::makeNode(x, y);
+            nodes[x][y].reset(NodeCreatorFunc::makeNode(x, y));
         return *nodes[x][y];
     }
 
     template<typename RayCallback>
-    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float max_dist)
+    void intersectRay(G3D::Ray const& ray, RayCallback& intersectCallback, float max_dist)
     {
         intersectRay(ray, intersectCallback, max_dist, ray.origin() + ray.direction() * max_dist);
     }
 
     template<typename RayCallback>
-    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist, const G3D::Vector3& end)
+    void intersectRay(G3D::Ray const& ray, RayCallback& intersectCallback, float& max_dist, G3D::Vector3 const& end)
     {
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())
@@ -142,7 +125,7 @@ public:
 
         if (cell == last_cell)
         {
-            if (Node* node = nodes[cell.x][cell.y])
+            if (Node* node = nodes[cell.x][cell.y].get())
                 node->intersectRay(ray, intersectCallback, max_dist);
             return;
         }
@@ -186,7 +169,7 @@ public:
         float tDeltaY = voxel * std::fabs(ky_inv);
         do
         {
-            if (Node* node = nodes[cell.x][cell.y])
+            if (Node* node = nodes[cell.x][cell.y].get())
             {
                 //float enterdist = max_dist;
                 node->intersectRay(ray, intersectCallback, max_dist);
@@ -208,28 +191,27 @@ public:
     }
 
     template<typename IsectCallback>
-    void intersectPoint(const G3D::Vector3& point, IsectCallback& intersectCallback)
+    void intersectPoint(G3D::Vector3 const& point, IsectCallback& intersectCallback)
     {
         Cell cell = Cell::ComputeCell(point.x, point.y);
         if (!cell.isValid())
             return;
-        if (Node* node = nodes[cell.x][cell.y])
+        if (Node* node = nodes[cell.x][cell.y].get())
             node->intersectPoint(point, intersectCallback);
     }
 
     // Optimized verson of intersectRay function for rays with vertical directions
     template<typename RayCallback>
-    void intersectZAllignedRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& max_dist)
+    void intersectZAllignedRay(G3D::Ray const& ray, RayCallback& intersectCallback, float& max_dist)
     {
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())
             return;
-        if (Node* node = nodes[cell.x][cell.y])
+        if (Node* node = nodes[cell.x][cell.y].get())
             node->intersectRay(ray, intersectCallback, max_dist);
     }
 };
 
 #undef CELL_SIZE
-#undef HGRID_MAP_SIZE
 
 #endif

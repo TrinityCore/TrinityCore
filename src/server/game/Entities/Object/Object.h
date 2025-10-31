@@ -93,7 +93,6 @@ struct CreateObjectBits
     bool Vehicle : 1;
     bool AnimKit : 1;
     bool Rotation : 1;
-    bool AreaTrigger : 1;
     bool GameObject : 1;
     bool SmoothPhasing : 1;
     bool ThisIsYou : 1;
@@ -170,6 +169,12 @@ namespace UF
     inline void ClearDynamicUpdateFieldValues(DynamicUpdateFieldSetter<T>& setter)
     {
         setter.Clear();
+    }
+
+    template<typename K, typename V>
+    inline void RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
+    {
+        setter.RemoveKey(key);
     }
 
     template<typename T>
@@ -362,6 +367,13 @@ class TC_GAME_API Object
         {
             AddToObjectUpdateIfNeeded();
             UF::RemoveDynamicUpdateFieldValue(setter, index);
+        }
+
+        template<typename K, typename V>
+        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
+        {
+            AddToObjectUpdateIfNeeded();
+            UF::RemoveMapUpdateFieldValue(setter, key);
         }
 
         template<typename T>

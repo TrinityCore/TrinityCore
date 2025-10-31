@@ -30,6 +30,7 @@ TraitEntry::TraitEntry(UF::TraitEntry const& ufEntry)
     TraitNodeEntryID = ufEntry.TraitNodeEntryID;
     Rank = ufEntry.Rank;
     GrantedRanks = ufEntry.GrantedRanks;
+    BonusRanks = ufEntry.BonusRanks;
 }
 
 TraitSubTreeCache::TraitSubTreeCache() = default;
@@ -53,6 +54,7 @@ TraitConfig::TraitConfig(UF::TraitConfig const& ufConfig)
     LocalIdentifier = ufConfig.LocalIdentifier;
     SkillLineID = ufConfig.SkillLineID;
     TraitSystemID = ufConfig.TraitSystemID;
+    VariationID = ufConfig.VariationID;
     for (UF::TraitEntry const& ufEntry : ufConfig.Entries)
         Entries.emplace_back(ufEntry);
     for (UF::TraitSubTreeCache const& ufSubTree : ufConfig.SubTrees)
@@ -66,6 +68,7 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitEntry& traitEntry)
     data >> traitEntry.TraitNodeEntryID;
     data >> traitEntry.Rank;
     data >> traitEntry.GrantedRanks;
+    data >> traitEntry.BonusRanks;
 
     return data;
 }
@@ -76,6 +79,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitEntry const& traitEntry)
     data << int32(traitEntry.TraitNodeEntryID);
     data << int32(traitEntry.Rank);
     data << int32(traitEntry.GrantedRanks);
+    data << int32(traitEntry.BonusRanks);
 
     return data;
 }
@@ -138,6 +142,7 @@ ByteBuffer& operator>>(ByteBuffer& data, TraitConfig& traitConfig)
             break;
         case TraitConfigType::Generic:
             data >> traitConfig.TraitSystemID;
+            data >> traitConfig.VariationID;
             break;
         default:
             break;
@@ -174,6 +179,7 @@ ByteBuffer& operator<<(ByteBuffer& data, TraitConfig const& traitConfig)
             break;
         case TraitConfigType::Generic:
             data << int32(traitConfig.TraitSystemID);
+            data << int32(traitConfig.VariationID);
             break;
         default:
             break;

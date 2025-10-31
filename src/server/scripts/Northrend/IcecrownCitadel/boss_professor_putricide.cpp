@@ -1328,7 +1328,7 @@ class spell_putricide_mutated_transformation : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_putricide_mutated_transformation::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+        OnEffectLaunch += SpellEffectFn(spell_putricide_mutated_transformation::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
     }
 };
 

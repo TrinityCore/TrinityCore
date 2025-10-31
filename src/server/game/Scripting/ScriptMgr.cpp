@@ -1343,15 +1343,12 @@ void ScriptMgr::Initialize()
     // Remove the used scripts from the given container.
     sScriptRegistryCompositum->RemoveUsedScriptsFromContainer(unusedScriptNames);
 
-    for (std::string const& scriptName : unusedScriptNames)
-    {
-        // Avoid complaining about empty script names since the
-        // script name container contains a placeholder as the 0 element.
-        if (scriptName.empty())
-            continue;
+    // Avoid complaining about empty script names since the
+    // script name container contains a placeholder as the 0 element.
+    unusedScriptNames.erase("");
 
+    for (std::string const& scriptName : unusedScriptNames)
         TC_LOG_ERROR("sql.sql", "Script '{}' is referenced by the database, but does not exist in the core!", scriptName);
-    }
 
     TC_LOG_INFO("server.loading", ">> Loaded {} C++ scripts in {} ms",
         GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
@@ -2595,7 +2592,7 @@ BattlegroundMapScript::BattlegroundMapScript(char const* name, uint32 mapId) noe
     if (!GetEntry())
         TC_LOG_ERROR("scripts", "Invalid BattlegroundMapScript for {}; no such map ID.", mapId);
 
-    if (GetEntry() && !GetEntry()->IsBattleground())
+    if (GetEntry() && !GetEntry()->IsBattlegroundOrArena())
         TC_LOG_ERROR("scripts", "BattlegroundMapScript for map {} is invalid.", mapId);
 
     ScriptRegistry<BattlegroundMapScript>::Instance()->AddScript(this);

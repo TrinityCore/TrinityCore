@@ -19,52 +19,47 @@
 #define _MMAP_MANAGER_H
 
 #include "Define.h"
-#include "DetourNavMesh.h"
-#include "DetourNavMeshQuery.h"
-#include "Hash.h"
-#include <string>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
+#include <memory>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
 //  move map related classes
 namespace MMAP
 {
-    typedef std::unordered_map<uint32, dtTileRef> MMapTileSet;
-    typedef std::unordered_map<std::pair<uint32, uint32>, dtNavMeshQuery*> NavMeshQuerySet;
+    struct MMapData;
 
-    // dummy struct to hold map's mmap data
-    struct TC_COMMON_API MMapData
+    typedef std::unordered_map<uint32, std::unique_ptr<MMapData>> MMapDataSet;
+
+    enum class LoadResult : uint8
     {
-        MMapData(dtNavMesh* mesh) : navMesh(mesh) { }
-        ~MMapData()
-        {
-            for (NavMeshQuerySet::iterator i = navMeshQueries.begin(); i != navMeshQueries.end(); ++i)
-                dtFreeNavMeshQuery(i->second);
-
-            if (navMesh)
-                dtFreeNavMesh(navMesh);
-        }
-
-        // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
-        NavMeshQuerySet navMeshQueries;     // instanceId to query
-
-        dtNavMesh* navMesh;
-        MMapTileSet loadedTileRefs;        // maps [map grid coords] to [dtTile]
+        Success,
+        AlreadyLoaded,
+        FileNotFound,
+        VersionMismatch,
+        ReadFromFileFailed,
+        LibraryError
     };
-
-    typedef std::unordered_map<uint32, MMapData*> MMapDataSet;
 
     // singleton class
     // holds all all access to mmap loading unloading and meshes
     class TC_COMMON_API MMapManager
     {
         public:
-            MMapManager() : loadedTiles(0), thread_safe_environment(true) {}
+            MMapManager();
+            MMapManager(MMapManager const& other) = delete;
+            MMapManager(MMapManager&& other) noexcept = delete;
+            MMapManager& operator=(MMapManager const& other) = delete;
+            MMapManager& operator=(MMapManager&& other) noexcept = delete;
             ~MMapManager();
 
+            static MMapManager* instance();
+
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
-            bool loadMap(std::string const& basePath, uint32 mapId, int32 x, int32 y);
-            bool loadMapInstance(std::string const& basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
+            LoadResult loadMap(std::string_view basePath, uint32 mapId, int32 x, int32 y);
+            bool loadMapInstance(std::string_view basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);
             bool unloadMap(uint32 mapId);
             bool unloadMapInstance(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
@@ -76,13 +71,13 @@ namespace MMAP
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
         private:
-            bool loadMapData(std::string const& basePath, uint32 mapId);
+            LoadResult loadMapData(std::string_view basePath, uint32 mapId);
             uint32 packTileID(int32 x, int32 y);
 
             MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;
             MMapDataSet loadedMMaps;
-            uint32 loadedTiles;
-            bool thread_safe_environment;
+            uint32 loadedTiles = 0;
+            bool thread_safe_environment = true;
 
             std::unordered_map<uint32, uint32> parentMapData;
     };

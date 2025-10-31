@@ -28,7 +28,7 @@ namespace VMAP
     const char RAW_VMAP_MAGIC[] = "VMAP04D";                // used in extracted vmap files with raw data
     const char GAMEOBJECT_MODELS[] = "GameObjectModels.dtree";
 
-    // defined in VMapManager2.cpp currently...
+    // defined in VMapManager.cpp currently...
     bool readChunk(FILE* rf, char *dest, const char *compare, uint32 len);
 }
 

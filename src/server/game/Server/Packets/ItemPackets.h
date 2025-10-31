@@ -145,7 +145,7 @@ namespace WorldPackets
 
             WorldPacket const* Write() override;
 
-            uint8 Result = 0;
+            uint32 Result = 0;
             ObjectGuid ItemGUID;
             Optional<ItemPurchaseContents> Contents;
         };
@@ -509,14 +509,6 @@ namespace WorldPackets
         {
         public:
             explicit SortBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_BANK_BAGS, std::move(packet)) { }
-
-            void Read() override { }
-        };
-
-        class SortReagentBankBags final : public ClientPacket
-        {
-        public:
-            explicit SortReagentBankBags(WorldPacket&& packet) : ClientPacket(CMSG_SORT_REAGENT_BANK_BAGS, std::move(packet)) { }
 
             void Read() override { }
         };

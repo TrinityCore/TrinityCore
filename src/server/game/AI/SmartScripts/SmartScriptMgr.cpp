@@ -844,6 +844,8 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_APPLIED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_REMOVED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             case SMART_EVENT_SEND_EVENT_TRIGGER: return NO_PARAMS;
             case SMART_EVENT_AREATRIGGER_EXIT: return NO_PARAMS;
@@ -1033,6 +1035,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_ENTER_VEHICLE: return sizeof(SmartAction::enterVehicle);
             case SMART_ACTION_BOARD_PASSENGER: return sizeof(SmartAction::enterVehicle);
             case SMART_ACTION_EXIT_VEHICLE: return NO_PARAMS;
+            case SMART_ACTION_FALL: return sizeof(SmartAction::fall);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1255,6 +1258,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_ON_SPELL_CAST:
             case SMART_EVENT_ON_SPELL_FAILED:
             case SMART_EVENT_ON_SPELL_START:
+            case SMART_EVENT_ON_AURA_APPLIED:
+            case SMART_EVENT_ON_AURA_REMOVED:
             {
                 if (!IsSpellValid(e, e.event.spellCast.spell))
                     return false;
@@ -1858,7 +1863,24 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 return false;
             }
 
-            TC_SAI_IS_BOOLEAN_VALID(e, e.action.summonCreature.attackInvoker);
+            if (e.action.summonCreature.createdBySpell != 0)
+            {
+                if (!IsSpellValid(e, e.action.summonCreature.createdBySpell))
+                    return false;
+
+                bool propertiesFound = std::ranges::any_of(sSpellMgr->AssertSpellInfo(e.action.summonCreature.createdBySpell, DIFFICULTY_NONE)->GetEffects(),
+                    [](SpellEffectInfo const& spellEffectInfo)
+                {
+                    return spellEffectInfo.IsEffect(SPELL_EFFECT_SUMMON) && sSummonPropertiesStore.HasRecord(spellEffectInfo.MiscValueB);
+                });
+
+                if (!propertiesFound)
+                {
+                    TC_LOG_ERROR("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} Spell {} is not a summon creature spell.",
+                        e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.createdBySpell);
+                    return false;
+                }
+            }
             break;
         }
         case SMART_ACTION_CALL_KILLEDMONSTER:
@@ -2431,6 +2453,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
         case SMART_ACTION_DO_ACTION:
         case SMART_ACTION_EXIT_VEHICLE:
+        case SMART_ACTION_FALL:
             break;
         case SMART_ACTION_BECOME_PERSONAL_CLONE_FOR_PLAYER:
         {

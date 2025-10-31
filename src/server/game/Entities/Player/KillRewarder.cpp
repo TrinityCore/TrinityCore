@@ -134,7 +134,7 @@ inline void KillRewarder::_RewardHonor(Player* player)
 {
     // Rewarded player must be alive.
     if (player->IsAlive())
-        player->RewardHonor(_victim, _count, -1, true);
+        player->RewardHonor(_victim, _count, -1, HonorGainSource::Kill);
 }
 
 inline void KillRewarder::_RewardXP(Player* player, float rate)

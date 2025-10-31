@@ -105,18 +105,18 @@ namespace WorldPackets
             int32 GuildReputation = 0;
             int32 GuildRepToCap = 0;
             float LastSave = 0.0f;
-            std::string Name;
+            std::string_view Name;
             uint32 VirtualRealmAddress = 0;
-            std::string Note;
-            std::string OfficerNote;
+            std::string_view Note;
+            std::string_view OfficerNote;
             uint8 Status = 0;
             uint8 Level = 0;
             uint8 ClassID = 0;
             uint8 Gender = 0;
             uint64 GuildClubMemberID = 0;
             uint8 RaceID = 0;
+            int32 TimerunningSeasonID = 0;
             bool Authenticated = false;
-            bool SorEligible = false;
             GuildRosterProfessionData Profession[2];
             MythicPlus::DungeonScoreSummary DungeonScore;
         };
@@ -605,7 +605,7 @@ namespace WorldPackets
             ObjectGuid Promotee;
         };
 
-        class GuildOfficerRemoveMember : public ClientPacket
+        class GuildOfficerRemoveMember final : public ClientPacket
         {
         public:
             explicit GuildOfficerRemoveMember(WorldPacket&& packet) : ClientPacket(CMSG_GUILD_OFFICER_REMOVE_MEMBER, std::move(packet)) { }
@@ -1069,7 +1069,7 @@ namespace WorldPackets
         {
             int32 Id = 0;
             WowTime CompletedDate;
-            int32 Type = 0;
+            int8 Type = 0;
             int32 Flags = 0;
             std::array<int32, 2> Data = { };
             ObjectGuid MemberGuid;

@@ -32,7 +32,7 @@ enum RTKDataTypes : uint8
     DATA_MAIDEN_OF_VIRTUE_RTK,
     DATA_MOROES,
     DATA_ATTUMEN_THE_HUNTSMAN,
-    DATA_THE_CURATOR,
+    DATA_THE_CURATOR_RTK,
     DATA_SHADE_OF_MEDIVH,
     DATA_MANA_DEVOURER,
     DATA_VIZADUUM_THE_WATCHER,
@@ -42,7 +42,16 @@ enum RTKDataTypes : uint8
 enum RTKCreatureIds
 {
     // Bosses
-    BOSS_MAIDEN_OF_VIRTUE_RTK = 113971
+    BOSS_MAIDEN_OF_VIRTUE_RTK = 113971,
+    BOSS_THE_CURATOR_RTK      = 114247,
+    BOSS_MANA_DEVOURER        = 114252
+};
+
+enum RTKGameObjectsIds
+{
+    GO_STRANGE_WALL        = 266508,
+    GO_SUSPICIOUS_BOOKCASE = 266510,
+    GO_MEDIVH_DOOR         = 266846
 };
 
 template <class AI, class T>

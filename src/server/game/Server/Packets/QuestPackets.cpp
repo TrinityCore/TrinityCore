@@ -247,7 +247,7 @@ WorldPacket const* QuestUpdateAddCredit::Write()
     _worldPacket << int32(ObjectID);
     _worldPacket << uint16(Count);
     _worldPacket << uint16(Required);
-    _worldPacket << uint8(ObjectiveType);
+    _worldPacket << uint32(ObjectiveType);
 
     return &_worldPacket;
 };
@@ -256,7 +256,7 @@ WorldPacket const* QuestUpdateAddCreditSimple::Write()
 {
     _worldPacket << int32(QuestID);
     _worldPacket << int32(ObjectID);
-    _worldPacket << uint8(ObjectiveType);
+    _worldPacket << uint32(ObjectiveType);
 
     return &_worldPacket;
 }
@@ -642,7 +642,7 @@ void QuestConfirmAccept::Read()
 WorldPacket const* QuestPushResultResponse::Write()
 {
     _worldPacket << SenderGUID;
-    _worldPacket << uint8(Result);
+    _worldPacket << uint32(Result);
 
     _worldPacket << SizedString::BitsSize<9>(QuestTitle);
     _worldPacket.FlushBits();

@@ -166,12 +166,12 @@ class spell_evo_burnout : public AuraScript
         return ValidateSpellInfo({ SPELL_EVOKER_BURNOUT });
     }
 
-    static bool CheckProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    static bool CheckProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
     {
         return roll_chance_i(aurEff->GetAmount());
     }
 
-    static void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         eventInfo.GetActor()->CastSpell(eventInfo.GetActor(), SPELL_EVOKER_BURNOUT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
@@ -634,7 +634,7 @@ class spell_evo_ruby_embers : public SpellScript
         return !GetCaster()->HasAura(SPELL_EVOKER_RUBY_EMBERS);
     }
 
-    static void PreventPeriodic(WorldObject*& target)
+    static void PreventPeriodic(SpellScript const&, WorldObject*& target)
     {
         target = nullptr;
     }

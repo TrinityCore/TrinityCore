@@ -379,9 +379,10 @@ enum SocketColor
     SOCKET_COLOR_SINGING_THUNDER                = 0x08000000,
     SOCKET_COLOR_SINGING_SEA                    = 0x10000000,
     SOCKET_COLOR_SINGING_WIND                   = 0x20000000,
+    SOCKET_COLOR_FIBER                          = 0x40000000,
 };
 
-extern int32 const SocketColorToGemTypeMask[30];
+extern int32 const SocketColorToGemTypeMask[31];
 
 #define SOCKET_COLOR_STANDARD (SOCKET_COLOR_RED | SOCKET_COLOR_YELLOW | SOCKET_COLOR_BLUE)
 
@@ -811,6 +812,9 @@ enum ItemIdConstants
     ITEM_PURPLE_RIBBONED_HOLIDAY_GIFT            = 17308,   // Purple Ribboned Holiday Gift
     ITEM_EMPTY_WRAPPER                           = 21830,   // Empty Wrapper
     ITEM_WRAPPED_GIFT                            = 21831,   // Wrappered Gift
+
+    ITEM_ACCOUNT_BANK_TAB_BAG                    = 208392,  // Account Bank Tab Bag (DNT)
+    ITEM_CHARACTER_BANK_TAB_BAG                  = 242709,  // Character Bank Tab Bag (DNT)
 };
 
 class Player;
@@ -848,6 +852,8 @@ struct TC_GAME_API ItemTemplate
     float GetStatPercentageOfSocket(uint32 index) const { ASSERT(index < MAX_ITEM_PROTO_STATS); return ExtendedData->StatPercentageOfSocket[index]; }
     uint32 GetScalingStatContentTuning() const { return ExtendedData->ContentTuningID; }
     uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
+    uint32 GetItemLevelOffsetCurveId() const { return ExtendedData->ItemLevelOffsetCurveID; }
+    uint32 GetItemLevelOffsetItemLevel() const { return ExtendedData->ItemLevelOffsetItemLevel; }
     uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }

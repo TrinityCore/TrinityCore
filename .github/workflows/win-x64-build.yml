@@ -12,7 +12,7 @@ jobs:
       MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
       OPENSSL_ROOT_DIR: C:/libs/openssl
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set reusable strings
       id: strings

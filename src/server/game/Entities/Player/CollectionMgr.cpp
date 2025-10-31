@@ -582,22 +582,6 @@ void CollectionMgr::SaveAccountItemAppearances(LoginDatabaseTransaction trans)
     }
 }
 
-constexpr uint32 PlayerClassByArmorSubclass[MAX_ITEM_SUBCLASS_ARMOR] =
-{
-    CLASSMASK_ALL_PLAYABLE,                                                                                                 //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
-    (1 << (CLASS_PRIEST - 1)) | (1 << (CLASS_MAGE - 1)) | (1 << (CLASS_WARLOCK - 1)),                                       //ITEM_SUBCLASS_ARMOR_CLOTH
-    (1 << (CLASS_ROGUE - 1)) | (1 << (CLASS_MONK - 1)) | (1 << (CLASS_DRUID - 1)) | (1 << (CLASS_DEMON_HUNTER - 1)),        //ITEM_SUBCLASS_ARMOR_LEATHER
-    (1 << (CLASS_HUNTER - 1)) | (1 << (CLASS_SHAMAN - 1)) | (1 << (CLASS_EVOKER - 1)),                                      //ITEM_SUBCLASS_ARMOR_MAIL
-    (1 << (CLASS_WARRIOR - 1)) | (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_DEATH_KNIGHT - 1)),                              //ITEM_SUBCLASS_ARMOR_PLATE
-    CLASSMASK_ALL_PLAYABLE,                                                                                                 //ITEM_SUBCLASS_ARMOR_BUCKLER
-    (1 << (CLASS_WARRIOR - 1)) | (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_SHAMAN - 1)),                                    //ITEM_SUBCLASS_ARMOR_SHIELD
-    1 << (CLASS_PALADIN - 1),                                                                                               //ITEM_SUBCLASS_ARMOR_LIBRAM
-    1 << (CLASS_DRUID - 1),                                                                                                 //ITEM_SUBCLASS_ARMOR_IDOL
-    1 << (CLASS_SHAMAN - 1),                                                                                                //ITEM_SUBCLASS_ARMOR_TOTEM
-    1 << (CLASS_DEATH_KNIGHT - 1),                                                                                          //ITEM_SUBCLASS_ARMOR_SIGIL
-    (1 << (CLASS_PALADIN - 1)) | (1 << (CLASS_DEATH_KNIGHT - 1)) | (1 << (CLASS_SHAMAN - 1)) | (1 << (CLASS_DRUID - 1)),    //ITEM_SUBCLASS_ARMOR_RELIC
-};
-
 void CollectionMgr::AddItemAppearance(Item* item)
 {
     if (!item->IsSoulBound())
@@ -686,12 +670,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     if (!itemTemplate)
         return false;
 
-    if (!_owner->GetPlayer())
-        return false;
-
-    if (_owner->GetPlayer()->CanUseItem(itemTemplate) != EQUIP_ERR_OK)
-        return false;
-
     if (itemTemplate->HasFlag(ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL) || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
         return false;
 
@@ -699,8 +677,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
     {
         case ITEM_CLASS_WEAPON:
         {
-            if (!(_owner->GetPlayer()->GetWeaponProficiency() & (1 << itemTemplate->GetSubClass())))
-                return false;
             if (itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_EXOTIC ||
                 itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_EXOTIC2 ||
                 itemTemplate->GetSubClass() == ITEM_SUBCLASS_WEAPON_MISCELLANEOUS ||
@@ -735,9 +711,6 @@ bool CollectionMgr::CanAddAppearance(ItemModifiedAppearanceEntry const* itemModi
                 default:
                     return false;
             }
-            if (itemTemplate->GetInventoryType() != INVTYPE_CLOAK)
-                if (!(PlayerClassByArmorSubclass[itemTemplate->GetSubClass()] & _owner->GetPlayer()->GetClassMask()))
-                    return false;
             break;
         }
         default:
@@ -773,19 +746,29 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
         _temporaryAppearances.erase(temporaryAppearance);
     }
 
-    _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
+    owner->UpdateCriteria(CriteriaType::LearnAnyTransmog, 1);
 
     if (ItemEntry const* item = sItemStore.LookupEntry(itemModifiedAppearance->ItemID))
     {
         int32 transmogSlot = ItemTransmogrificationSlots[item->InventoryType];
         if (transmogSlot >= 0)
-            _owner->GetPlayer()->UpdateCriteria(CriteriaType::LearnAnyTransmogInSlot, transmogSlot, itemModifiedAppearance->ID);
+            owner->UpdateCriteria(CriteriaType::LearnAnyTransmogInSlot, transmogSlot, itemModifiedAppearance->ID);
     }
 
     if (std::vector<TransmogSetEntry const*> const* sets = sDB2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance->ID))
+    {
         for (TransmogSetEntry const* set : *sets)
+        {
             if (IsSetCompleted(set->ID))
-                _owner->GetPlayer()->UpdateCriteria(CriteriaType::CollectTransmogSetFromGroup, set->TransmogSetGroupID);
+            {
+
+                if (Quest const* quest = sObjectMgr->GetQuestTemplate(set->TrackingQuestID))
+                    owner->RewardQuest(quest, LootItemType::Item, 0, owner, false);
+
+                owner->UpdateCriteria(CriteriaType::CollectTransmogSetFromGroup, set->TransmogSetGroupID);
+            }
+        }
+    }
 }
 
 void CollectionMgr::AddTemporaryAppearance(ObjectGuid const& itemGuid, ItemModifiedAppearanceEntry const* itemModifiedAppearance)

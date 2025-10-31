@@ -19,7 +19,6 @@
 #include "Item.h"
 #include "Loot.h"
 #include "PacketOperators.h"
-#include "Player.h"
 
 namespace WorldPackets::Item
 {
@@ -76,24 +75,6 @@ void ItemInstance::Initialize(::LootItem const& lootItem)
         ItemBonus->Context = lootItem.context;
         if (lootItem.randomBonusListId)
             ItemBonus->BonusListIDs.push_back(lootItem.randomBonusListId);
-    }
-}
-
-void ItemInstance::Initialize(::VoidStorageItem const* voidItem)
-{
-    ItemID = voidItem->ItemEntry;
-
-    if (voidItem->FixedScalingLevel)
-        Modifications.Values.push_back({ .Value = int32(voidItem->FixedScalingLevel), .Type = ITEM_MODIFIER_TIMEWALKER_LEVEL });
-
-    if (voidItem->ArtifactKnowledgeLevel)
-        Modifications.Values.push_back({ .Value = int32(voidItem->ArtifactKnowledgeLevel), .Type = ITEM_MODIFIER_ARTIFACT_KNOWLEDGE_LEVEL });
-
-    if (!voidItem->BonusListIDs.empty())
-    {
-        ItemBonus.emplace();
-        ItemBonus->Context = voidItem->Context;
-        ItemBonus->BonusListIDs = voidItem->BonusListIDs;
     }
 }
 

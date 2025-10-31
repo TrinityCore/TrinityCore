@@ -45,6 +45,7 @@ struct AzeriteItemMilestonePowerEntry;
 struct AzeritePowerEntry;
 struct BarberShopStyleEntry;
 struct BattlegroundTemplate;
+struct BonusData;
 struct CharTitlesEntry;
 struct ChatChannelsEntry;
 struct ChrSpecializationEntry;
@@ -336,6 +337,22 @@ enum ActionButtonType
     ACTION_BUTTON_ITEM      = 0x80
 };
 
+enum class HonorGainSource : uint8
+{
+    Kill                    = 0,
+    Quest                   = 1,
+    ArenaCompletion         = 2,
+    BGCompletion            = 3,
+    LFG                     = 4,
+    TeamContribution        = 5,
+    RankedBGCompletion      = 6,
+    RatedArenaCompletion    = 7,
+    ArenaSkirmishCompletion = 8,
+    RandomBGCompletion      = 9,
+    HolidayBGCompletion     = 10,
+    Spell                   = 11,
+};
+
 enum ReputationSource
 {
     REPUTATION_SOURCE_KILL,
@@ -501,6 +518,7 @@ enum PlayerFlagsEx
     PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED   = 0x0001,
     PLAYER_FLAGS_EX_MERCENARY_MODE          = 0x0002,
     PLAYER_FLAGS_EX_ARTIFACT_FORGE_CHEAT    = 0x0004,
+    PLAYER_FLAGS_EX_ITEM_LEVEL_SQUISH       = 0x0020,       // Uses ItemLevelSquish gametable
     PLAYER_FLAGS_EX_IN_PVP_COMBAT           = 0x0040,       // Forbids /follow
     PLAYER_FLAGS_EX_MENTOR                  = 0x0080,
     PLAYER_FLAGS_EX_NEWCOMER                = 0x0100,
@@ -511,21 +529,24 @@ DEFINE_ENUM_FLAG(PlayerFlagsEx);
 
 enum PlayerLocalFlags
 {
-    PLAYER_LOCAL_FLAG_CONTROLLING_PET               = 0x00000001,   // Displays "You have an active summon already" when trying to tame new pet
-    PLAYER_LOCAL_FLAG_TRACK_STEALTHED               = 0x00000002,
-    PLAYER_LOCAL_FLAG_RELEASE_TIMER                 = 0x00000008,   // Display time till auto release spirit
-    PLAYER_LOCAL_FLAG_NO_RELEASE_WINDOW             = 0x00000010,   // Display no "release spirit" window at all
-    PLAYER_LOCAL_FLAG_NO_PET_BAR                    = 0x00000020,   // CGPetInfo::IsPetBarUsed
-    PLAYER_LOCAL_FLAG_OVERRIDE_CAMERA_MIN_HEIGHT    = 0x00000040,
-    PLAYER_LOCAL_FLAG_NEWLY_BOOSTED_CHARACTER       = 0x00000080,
-    PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON          = 0x00000100,
-    PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED       = 0x00000200,
-    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON      = 0x00000400,
-    PLAYER_LOCAL_FLAG_WAR_MODE                      = 0x00000800,
-    PLAYER_LOCAL_FLAG_ACCOUNT_SECURED               = 0x00001000,   // Script_IsAccountSecured
-    PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME= 0x00008000,
-    PLAYER_LOCAL_FLAG_MENTOR_RESTRICTED             = 0x00020000,
-    PLAYER_LOCAL_FLAG_WEEKLY_REWARD_AVAILABLE       = 0x00040000,
+    PLAYER_LOCAL_FLAG_CONTROLLING_PET                   = 0x00000001,   // Displays "You have an active summon already" when trying to tame new pet
+    PLAYER_LOCAL_FLAG_TRACK_STEALTHED                   = 0x00000002,
+    PLAYER_LOCAL_FLAG_RELEASE_TIMER                     = 0x00000008,   // Display time till auto release spirit
+    PLAYER_LOCAL_FLAG_NO_RELEASE_WINDOW                 = 0x00000010,   // Display no "release spirit" window at all
+    PLAYER_LOCAL_FLAG_NO_PET_BAR                        = 0x00000020,   // CGPetInfo::IsPetBarUsed
+    PLAYER_LOCAL_FLAG_OVERRIDE_CAMERA_MIN_HEIGHT        = 0x00000040,
+    PLAYER_LOCAL_FLAG_NEWLY_BOOSTED_CHARACTER           = 0x00000080,
+    PLAYER_LOCAL_FLAG_USING_PARTY_GARRISON              = 0x00000100,
+    PLAYER_LOCAL_FLAG_CAN_USE_OBJECTS_MOUNTED           = 0x00000200,
+    PLAYER_LOCAL_FLAG_CAN_VISIT_PARTY_GARRISON          = 0x00000400,
+    PLAYER_LOCAL_FLAG_WAR_MODE                          = 0x00000800,
+    PLAYER_LOCAL_FLAG_ACCOUNT_SECURED                   = 0x00001000,   // Script_IsAccountSecured
+    PLAYER_LOCAL_FLAG_OVERRIDE_TRANSPORT_SERVER_TIME    = 0x00008000,
+    PLAYER_LOCAL_FLAG_MENTOR_RESTRICTED                 = 0x00020000,
+    PLAYER_LOCAL_FLAG_HAS_ACCOUNT_BANK_LOCK             = 0x00040000,
+    PLAYER_LOCAL_FLAG_CHARACTER_BANK_DISABLED           = 0x00080000,
+    PLAYER_LOCAL_FLAG_CHARACTER_BANK_CONVERSION_FAILED  = 0x00100000,
+    PLAYER_LOCAL_FLAG_ACCOUNT_BANK_DISABLED             = 0x00200000,
 };
 
 DEFINE_ENUM_FLAG(PlayerLocalFlags);
@@ -642,7 +663,6 @@ typedef std::unordered_map<uint32, SkillStatusData> SkillStatusMap;
 
 class Quest;
 class Spell;
-class Item;
 class WorldSession;
 
 enum PlayerSlots
@@ -650,7 +670,7 @@ enum PlayerSlots
     // first slot for item stored (in any way in player m_items data)
     PLAYER_SLOT_START           = 0,
     // last+1 slot for item stored (in any way in player m_items data)
-    PLAYER_SLOT_END             = 232,
+    PLAYER_SLOT_END             = 105,
     PLAYER_SLOTS_COUNT          = (PLAYER_SLOT_END - PLAYER_SLOT_START)
 };
 
@@ -722,61 +742,49 @@ enum InventoryPackSlots : uint8                             // 28 slots
     INVENTORY_SLOT_ITEM_END     = 63
 };
 
-enum BankItemSlots                                          // 28 slots
+enum BankBagSlots                                           // 6 slots
 {
-    BANK_SLOT_ITEM_START        = 63,
-    BANK_SLOT_ITEM_END          = 91
-};
-
-enum BankBagSlots                                           // 7 slots
-{
-    BANK_SLOT_BAG_START         = 91,
-    BANK_SLOT_BAG_END           = 98
+    BANK_SLOT_BAG_START         = 63,
+    BANK_SLOT_BAG_END           = 69
 };
 
 enum BuyBackSlots                                           // 12 slots
 {
     // stored in m_buybackitems
-    BUYBACK_SLOT_START          = 98,
-    BUYBACK_SLOT_END            = 110
-};
-
-enum ReagentSlots                                           // 98 slots
-{
-    REAGENT_SLOT_START          = 110,
-    REAGENT_SLOT_END            = 208,
+    BUYBACK_SLOT_START          = 69,
+    BUYBACK_SLOT_END            = 81
 };
 
 enum ChildEquipmentSlots
 {
-    CHILD_EQUIPMENT_SLOT_START   = 208,
-    CHILD_EQUIPMENT_SLOT_END     = 211,
+    CHILD_EQUIPMENT_SLOT_START   = 81,
+    CHILD_EQUIPMENT_SLOT_END     = 84,
 };
 
 enum EquipableSpellSlots
 {
-    EQUIPABLE_SPELL_OFFENSIVE_SLOT1 = 211,
-    EQUIPABLE_SPELL_OFFENSIVE_SLOT2 = 212,
-    EQUIPABLE_SPELL_OFFENSIVE_SLOT3 = 213,
-    EQUIPABLE_SPELL_OFFENSIVE_SLOT4 = 214,
-    EQUIPABLE_SPELL_UTILITY_SLOT1   = 215,
-    EQUIPABLE_SPELL_UTILITY_SLOT2   = 216,
-    EQUIPABLE_SPELL_UTILITY_SLOT3   = 217,
-    EQUIPABLE_SPELL_UTILITY_SLOT4   = 218,
-    EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 219,
-    EQUIPABLE_SPELL_DEFENSIVE_SLOT2 = 220,
-    EQUIPABLE_SPELL_DEFENSIVE_SLOT3 = 221,
-    EQUIPABLE_SPELL_DEFENSIVE_SLOT4 = 222,
-    EQUIPABLE_SPELL_WEAPON_SLOT1    = 223,
-    EQUIPABLE_SPELL_WEAPON_SLOT2    = 224,
-    EQUIPABLE_SPELL_WEAPON_SLOT3    = 225,
-    EQUIPABLE_SPELL_WEAPON_SLOT4    = 226,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT1 = 84,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT2 = 85,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT3 = 86,
+    EQUIPABLE_SPELL_OFFENSIVE_SLOT4 = 87,
+    EQUIPABLE_SPELL_UTILITY_SLOT1   = 88,
+    EQUIPABLE_SPELL_UTILITY_SLOT2   = 89,
+    EQUIPABLE_SPELL_UTILITY_SLOT3   = 90,
+    EQUIPABLE_SPELL_UTILITY_SLOT4   = 91,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT1 = 92,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT2 = 93,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT3 = 94,
+    EQUIPABLE_SPELL_DEFENSIVE_SLOT4 = 95,
+    EQUIPABLE_SPELL_WEAPON_SLOT1    = 96,
+    EQUIPABLE_SPELL_WEAPON_SLOT2    = 97,
+    EQUIPABLE_SPELL_WEAPON_SLOT3    = 98,
+    EQUIPABLE_SPELL_WEAPON_SLOT4    = 99,
 };
 
 enum AccountBankBagSlots
 {
-    ACCOUNT_BANK_SLOT_BAG_START = 227,
-    ACCOUNT_BANK_SLOT_BAG_END   = 232
+    ACCOUNT_BANK_SLOT_BAG_START = 100,
+    ACCOUNT_BANK_SLOT_BAG_END   = 105
 };
 
 struct ItemPosCount
@@ -810,14 +818,17 @@ enum class ItemSearchCallbackResult
 
 enum class BagSlotFlags : uint32
 {
-    None                = 0x00,
-    DisableAutoSort     = 0x01,
-    PriorityEquipment   = 0x02,
-    PriorityConsumables = 0x04,
-    PriorityTradeGoods  = 0x08,
-    PriorityJunk        = 0x10,
-    PriorityQuestItems  = 0x20,
-    ExcludeJunkSell     = 0x40,
+    None                = 0x0000,
+    DisableAutoSort     = 0x0001,
+    PriorityEquipment   = 0x0002,
+    PriorityConsumables = 0x0004,
+    PriorityTradeGoods  = 0x0008,
+    PriorityJunk        = 0x0010,
+    PriorityQuestItems  = 0x0020,
+    ExcludeJunkSell     = 0x0040,
+    PriorityReagents    = 0x0080,
+    ExpansionCurrent    = 0x0100,
+    ExpansionLegacy     = 0x0200,
 };
 
 DEFINE_ENUM_FLAG(BagSlotFlags);
@@ -939,7 +950,6 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_INSTANCE_LOCK_TIMES,
     PLAYER_LOGIN_QUERY_LOAD_SEASONAL_QUEST_STATUS,
     PLAYER_LOGIN_QUERY_LOAD_MONTHLY_QUEST_STATUS,
-    PLAYER_LOGIN_QUERY_LOAD_VOID_STORAGE,
     PLAYER_LOGIN_QUERY_LOAD_CURRENCY,
     PLAYER_LOGIN_QUERY_LOAD_CUF_PROFILES,
     PLAYER_LOGIN_QUERY_LOAD_CORPSE_LOCATION,
@@ -953,6 +963,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOAD_TRAIT_CONFIGS,
     PLAYER_LOGIN_QUERY_LOAD_DATA_ELEMENTS,
     PLAYER_LOGIN_QUERY_LOAD_DATA_FLAGS,
+    PLAYER_LOGIN_QUERY_LOAD_BANK_TAB_SETTINGS,
     MAX_PLAYER_LOGIN_QUERY
 };
 
@@ -1082,29 +1093,6 @@ struct BGData
 
     void ClearTaxiPath()     { taxiPath[0] = taxiPath[1] = 0; }
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
-};
-
-struct VoidStorageItem
-{
-    VoidStorageItem() : ItemId(0), ItemEntry(0), RandomBonusListId(0), FixedScalingLevel(0), ArtifactKnowledgeLevel(0), Context(ItemContext::NONE) { }
-    VoidStorageItem(uint64 id, uint32 entry, ObjectGuid const& creator, ItemRandomBonusListId randomBonusListId,
-        uint32 fixedScalingLevel, uint32 artifactKnowledgeLevel, ItemContext context, std::vector<int32> const& bonuses)
-        : ItemId(id), ItemEntry(entry), CreatorGuid(creator), RandomBonusListId(randomBonusListId),
-        FixedScalingLevel(fixedScalingLevel), ArtifactKnowledgeLevel(artifactKnowledgeLevel), Context(context)
-    {
-        BonusListIDs.insert(BonusListIDs.end(), bonuses.begin(), bonuses.end());
-    }
-    VoidStorageItem(VoidStorageItem&& vsi) noexcept : ItemId(vsi.ItemId), ItemEntry(vsi.ItemEntry), CreatorGuid(vsi.CreatorGuid), RandomBonusListId(vsi.RandomBonusListId),
-        FixedScalingLevel(vsi.FixedScalingLevel), ArtifactKnowledgeLevel(vsi.ArtifactKnowledgeLevel), Context(vsi.Context), BonusListIDs(std::move(vsi.BonusListIDs)) { }
-
-    uint64 ItemId;
-    uint32 ItemEntry;
-    ObjectGuid CreatorGuid;
-    ItemRandomBonusListId RandomBonusListId;
-    uint32 FixedScalingLevel;
-    uint32 ArtifactKnowledgeLevel;
-    ItemContext Context;
-    std::vector<int32> BonusListIDs;
 };
 
 struct ResurrectionData
@@ -1391,11 +1379,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
 
             if (flag.HasFlag(ItemSearchLocation::Bank))
             {
-                for (uint8 i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
-                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
-                            return false;
-
                 for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
                     if (Bag* pBag = GetBagByPos(i))
                         for (uint32 j = 0; j < GetBagSize(pBag); ++j)
@@ -1412,11 +1395,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
                             if (Item* pItem = GetItemInBag(bag, j))
                                 if (callback(pItem) == ItemSearchCallbackResult::Stop)
                                     return false;
-
-                for (uint8 i = REAGENT_SLOT_START; i < REAGENT_SLOT_END; ++i)
-                    if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-                        if (callback(pItem) == ItemSearchCallbackResult::Stop)
-                            return false;
             }
 
             return true;
@@ -1426,7 +1404,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void UpdateAverageItemLevelTotal();
         void UpdateAverageItemLevelEquipped();
 
-        uint8 FindEquipSlot(Item const* item, uint32 slot, bool swap) const;
+        uint8 FindEquipSlot(Item const* item, uint8 slot, bool swap) const;
         uint32 GetFreeInventorySlotCount(EnumFlag<ItemSearchLocation> location = ItemSearchLocation::Inventory) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = nullptr) const;
         uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = nullptr) const;
@@ -1450,16 +1428,37 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
-        static bool IsReagentBankPos(uint16 pos) { return IsReagentBankPos(pos >> 8, pos & 255); }
-        static bool IsReagentBankPos(uint8 bag, uint8 slot);
         static bool IsChildEquipmentPos(uint16 pos) { return IsChildEquipmentPos(pos >> 8, pos & 255); }
         static bool IsChildEquipmentPos(uint8 bag, uint8 slot);
+        static bool IsAccountBankPos(uint16 pos) { return IsBankPos(pos >> 8, pos & 255); }
+        static bool IsAccountBankPos(uint8 bag, uint8 slot);
         bool IsValidPos(uint16 pos, bool explicit_pos) const { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
         bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos) const;
         uint8 GetInventorySlotCount() const { return m_activePlayerData->NumBackpackSlots; }
         void SetInventorySlotCount(uint8 slots);
         uint8 GetBankBagSlotCount() const { return m_activePlayerData->NumBankSlots; }
         void SetBankBagSlotCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumBankSlots), count); }
+        uint8 GetCharacterBankTabCount() const { return m_activePlayerData->NumCharacterBankTabs; }
+        void SetCharacterBankTabCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumCharacterBankTabs), count); }
+        uint8 GetAccountBankTabCount() const { return m_activePlayerData->NumAccountBankTabs; }
+        void SetAccountBankTabCount(uint8 count) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::NumAccountBankTabs), count); }
+        void SetCharacterBankTabSettings(uint32 tabId, std::string const& name, std::string const& icon, std::string const& description, BagSlotFlags depositFlags)
+        {
+            auto setter = m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::CharacterBankTabSettings, tabId);
+            SetBankTabSettings(setter, name, icon, description, depositFlags);
+        }
+        void SetAccountBankTabSettings(uint32 tabId, std::string const& name, std::string const& icon, std::string const& description, BagSlotFlags depositFlags)
+        {
+            auto setter = m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::AccountBankTabSettings, tabId);
+            SetBankTabSettings(setter, name, icon, description, depositFlags);
+        }
+        void SetBankTabSettings(UF::MutableFieldReferenceWithChangesMask<UF::BankTabSettings, false> setter, std::string const& name, std::string const& icon, std::string const& description, BagSlotFlags depositFlags)
+        {
+            SetUpdateFieldValue(setter.ModifyValue(&UF::BankTabSettings::Name), name);
+            SetUpdateFieldValue(setter.ModifyValue(&UF::BankTabSettings::Icon), icon);
+            SetUpdateFieldValue(setter.ModifyValue(&UF::BankTabSettings::Description), description);
+            SetUpdateFieldValue(setter.ModifyValue(&UF::BankTabSettings::DepositFlags), int32(depositFlags));
+        }
         bool IsBackpackAutoSortDisabled() const { return m_activePlayerData->BackpackAutoSortDisabled; }
         void SetBackpackAutoSortDisabled(bool disabled) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BackpackAutoSortDisabled), disabled); }
         bool IsBackpackSellJunkDisabled() const { return m_activePlayerData->BackpackSellJunkDisabled; }
@@ -1470,10 +1469,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void SetBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
         void RemoveBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
         void ReplaceAllBagSlotFlags(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
-        EnumFlag<BagSlotFlags> GetBankBagSlotFlags(uint32 bagIndex) const { return static_cast<BagSlotFlags>(m_activePlayerData->BankBagSlotFlags[bagIndex]); }
-        void SetBankBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
-        void RemoveBankBagSlotFlag(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
-        void ReplaceAllBankBagSlotFlags(uint32 bagIndex, EnumFlag<BagSlotFlags> flags) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::BankBagSlotFlags, bagIndex), flags.AsUnderlyingType()); }
         bool HasItemCount(uint32 item, uint32 count = 1, bool inBankAlso = false) const;
         bool HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item const* ignoreItem = nullptr) const;
         bool CanNoReagentCast(SpellInfo const* spellInfo) const;
@@ -1497,7 +1492,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         InventoryResult CanEquipChildItem(Item* parentItem) const;
 
         InventoryResult CanEquipUniqueItem(Item* pItem, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
-        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
+        InventoryResult CanEquipUniqueItem(ItemTemplate const* itemProto, BonusData const& itemBonus, uint8 except_slot = NULL_SLOT, uint32 limit_count = 1) const;
         InventoryResult CanUnequipItems(uint32 item, uint32 count) const;
         InventoryResult CanUnequipItem(uint16 src, bool swap) const;
         InventoryResult CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading = true, bool reagentBankOnly = false) const;
@@ -1998,6 +1993,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void ApplyTraitConfig(int32 configId, bool apply);
         void ApplyTraitEntry(int32 traitNodeEntryId, int32 rank, int32 grantedRanks, bool apply);
         void SetActiveCombatTraitConfigID(int32 traitConfigId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ActiveCombatTraitConfigID), traitConfigId); }
+        void SetCurrentCombatTraitConfigSubTreeID(int32 traitSubTreeId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CurrentCombatTraitConfigSubTreeID), traitSubTreeId); }
         void SetTraitConfigUseStarterBuild(int32 traitConfigId, bool useStarterBuild);
         void SetTraitConfigUseSharedActionBars(int32 traitConfigId, bool usesSharedActionBars, bool isLastSelectedSavedConfig);
         Optional<PlayerSpellTrait> GetTraitInfoForSpell(uint32 spellId) const;
@@ -2316,12 +2312,19 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue, Races race);
         int32 GetProfessionSlotFor(uint32 skillId) const;
         int32 FindEmptyProfessionSlotFor(uint32 skillId) const;
+        uint16 GetSkillLineIdByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillLineID[pos]; }
         void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillLineID, pos), skillLineId); }
-        void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); };
+        uint16 GetSkillStepByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillStep[pos]; }
+        void SetSkillStep(uint32 pos, uint16 step) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStep, pos), step); }
+        uint16 GetSkillRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillRank[pos]; }
         void SetSkillRank(uint32 pos, uint16 rank) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillRank, pos), rank); }
+        uint16 GetSkillStartingRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillStartingRank[pos]; }
         void SetSkillStartingRank(uint32 pos, uint16 starting) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillStartingRank, pos), starting); }
+        uint16 GetSkillMaxRankByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillMaxRank[pos]; }
         void SetSkillMaxRank(uint32 pos, uint16 max) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillMaxRank, pos), max); }
+        int16 GetSkillTempBonusByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillTempBonus[pos]; }
         void SetSkillTempBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillTempBonus, pos), bonus); }
+        uint16 GetSkillPermBonusByPos(uint32 pos) const { return m_activePlayerData->Skill->SkillPermBonus[pos]; }
         void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::Skill).ModifyValue(&UF::SkillInfo::SkillPermBonus, pos), bonus); }
 
         TeleportLocation& GetTeleportDest() { return m_teleport_dest; }
@@ -2382,7 +2385,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
         void UpdateHonorFields();
-        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, HonorGainSource source = HonorGainSource::Kill);
         void ResetHonorStats();
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
 
@@ -2807,18 +2810,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         std::string GetMapAreaAndZoneString() const;
         std::string GetCoordsMapAreaAndZoneString() const;
 
-        // Void Storage
-        bool IsVoidStorageUnlocked() const { return HasPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
-        void UnlockVoidStorage() { SetPlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
-        void LockVoidStorage() { RemovePlayerFlag(PLAYER_FLAGS_VOID_UNLOCKED); }
-        uint8 GetNextVoidStorageFreeSlot() const;
-        uint8 GetNumOfVoidStorageFreeSlots() const;
-        uint8 AddVoidStorageItem(VoidStorageItem&& item);
-        void DeleteVoidStorageItem(uint8 slot);
-        bool SwapVoidStorageItem(uint8 oldSlot, uint8 newSlot);
-        VoidStorageItem* GetVoidStorageItem(uint8 slot) const;
-        VoidStorageItem* GetVoidStorageItem(uint64 id, uint8& slot) const;
-
         // Reagent Bank
         bool IsReagentBankUnlocked() const { return HasPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
         void UnlockReagentBank() { SetPlayerFlagEx(PLAYER_FLAGS_EX_REAGENT_BANK_UNLOCKED); }
@@ -3058,7 +3049,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadInventory(PreparedQueryResult result, PreparedQueryResult artifactsResult, PreparedQueryResult azeriteResult,
             PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult,
             PreparedQueryResult azeriteEmpoweredItemResult, uint32 timeDiff);
-        void _LoadVoidStorage(PreparedQueryResult result);
         void _LoadMail(PreparedQueryResult mailsResult, PreparedQueryResult mailItemsResult, PreparedQueryResult artifactResult, PreparedQueryResult azeriteItemResult,
             PreparedQueryResult azeriteItemMilestonePowersResult, PreparedQueryResult azeriteItemUnlockedEssencesResult, PreparedQueryResult azeriteEmpoweredItemResult);
         static Item* _LoadMailedItem(ObjectGuid const& playerGuid, Player* player, uint64 mailId, Mail* mail, Field* fields, ItemAdditionalLoadInfo* addionalData);
@@ -3090,6 +3080,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
         void _LoadPlayerData(PreparedQueryResult elementsResult, PreparedQueryResult flagsResult);
+        void _LoadCharacterBankTabSettings(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -3099,7 +3090,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveActions(CharacterDatabaseTransaction trans);
         void _SaveAuras(CharacterDatabaseTransaction trans);
         void _SaveInventory(CharacterDatabaseTransaction trans);
-        void _SaveVoidStorage(CharacterDatabaseTransaction trans);
         void _SaveMail(CharacterDatabaseTransaction trans);
         void _SaveQuestStatus(CharacterDatabaseTransaction trans);
         void _SaveDailyQuestStatus(CharacterDatabaseTransaction trans);
@@ -3119,6 +3109,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         void _SaveCurrency(CharacterDatabaseTransaction trans);
         void _SaveCUFProfiles(CharacterDatabaseTransaction trans);
         void _SavePlayerData(CharacterDatabaseTransaction trans);
+        void _SaveCharacterBankTabSettings(CharacterDatabaseTransaction trans) const;
 
         /*********************************************************/
         /***              ENVIRONMENTAL SYSTEM                 ***/
@@ -3150,8 +3141,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
-
-        VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
         std::vector<Item*> m_itemUpdateQueue;
         bool m_itemUpdateQueueBlocked;

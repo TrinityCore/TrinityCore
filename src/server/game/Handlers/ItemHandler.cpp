@@ -1048,9 +1048,9 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
 
         // unique limit type item
         int32 limit_newcount = 0;
-        if (iGemProto->GetItemLimitCategory())
+        if (gems[i]->GetItemLimitCategory())
         {
-            if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->GetItemLimitCategory()))
+            if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(gems[i]->GetItemLimitCategory()))
             {
                 // NOTE: limitEntry->Flags is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
@@ -1058,15 +1058,23 @@ void WorldSession::HandleSocketGems(WorldPackets::Item::SocketGems& socketGems)
                     if (gems[j])
                     {
                         // new gem
-                        if (iGemProto->GetItemLimitCategory() == gems[j]->GetTemplate()->GetItemLimitCategory())
+                        if (gems[i]->GetItemLimitCategory() == gems[j]->GetItemLimitCategory())
                             ++limit_newcount;
                     }
                     else if (oldGemData[j])
                     {
                         // existing gem
                         if (ItemTemplate const* jProto = sObjectMgr->GetItemTemplate(oldGemData[j]->ItemID))
-                            if (iGemProto->GetItemLimitCategory() == jProto->GetItemLimitCategory())
+                        {
+                            BonusData oldGemBonus;
+                            oldGemBonus.Initialize(jProto);
+
+                            for (uint16 bonusListID : oldGemData[j]->BonusListIDs)
+                                oldGemBonus.AddBonusList(bonusListID);
+
+                            if (gems[i]->GetItemLimitCategory() == oldGemBonus.LimitCategory)
                                 ++limit_newcount;
+                        }
                     }
                 }
 
@@ -1251,13 +1259,6 @@ void WorldSession::HandleSortBankBags(WorldPackets::Item::SortBankBags& /*sortBa
     SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
 }
 
-void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBankBags& /*sortReagentBankBags*/)
-{
-    // TODO: Implement sorting
-    // Placeholder to prevent completely locking out bags clientside
-    SendPacket(WorldPackets::Item::BagCleanupFinished().Write());
-}
-
 void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& removeNewItem)
 {
     Item* item = _player->GetItemByGuid(removeNewItem.ItemGuid);
@@ -1283,17 +1284,6 @@ void WorldSession::HandleChangeBagSlotFlag(WorldPackets::Item::ChangeBagSlotFlag
         _player->SetBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
     else
         _player->RemoveBagSlotFlag(changeBagSlotFlag.BagIndex, changeBagSlotFlag.FlagToChange);
-}
-
-void WorldSession::HandleChangeBankBagSlotFlag(WorldPackets::Item::ChangeBankBagSlotFlag const& changeBankBagSlotFlag)
-{
-    if (changeBankBagSlotFlag.BagIndex >= _player->m_activePlayerData->BankBagSlotFlags.size())
-        return;
-
-    if (changeBankBagSlotFlag.On)
-        _player->SetBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
-    else
-        _player->RemoveBankBagSlotFlag(changeBankBagSlotFlag.BagIndex, changeBankBagSlotFlag.FlagToChange);
 }
 
 void WorldSession::HandleSetBackpackAutosortDisabled(WorldPackets::Item::SetBackpackAutosortDisabled const& setBackpackAutosortDisabled)

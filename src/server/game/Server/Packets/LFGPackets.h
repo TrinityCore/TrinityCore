@@ -224,7 +224,7 @@ namespace WorldPackets
 
             RideTicket Ticket;
             uint8 SubType = 0;
-            uint8 Reason = 0;
+            uint32 Reason = 0;
             std::vector<uint32> Slots;
             uint8 RequestedRoles = 0;
             std::vector<ObjectGuid> SuspendedPlayers;

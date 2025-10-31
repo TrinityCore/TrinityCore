@@ -34,6 +34,7 @@
 #include "StringConvert.h"
 #include "World.h"
 #include "WorldStateMgr.h"
+#include "WowTime.h"
 
 GameEventMgr* GameEventMgr::instance()
 {
@@ -216,8 +217,8 @@ void GameEventMgr::LoadFromDB()
 {
     {
         uint32 oldMSTime = getMSTime();
-        //                                               0           1                           2                         3          4       5        6             7            8            9
-        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
+        //                                               0           1                           2                         3          4       5        6             7             8            9            10
+        QueryResult result = WorldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, WorldStateId, description, world_event, announce FROM game_event");
         if (!result)
         {
             mGameEvent.clear();
@@ -246,9 +247,10 @@ void GameEventMgr::LoadFromDB()
             pGameEvent.length       = fields[4].GetUInt64();
             pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
             pGameEvent.holidayStage = fields[6].GetUInt8();
-            pGameEvent.description  = fields[7].GetString();
-            pGameEvent.state        = (GameEventState)(fields[8].GetUInt8());
-            pGameEvent.announce     = fields[9].GetUInt8();
+            pGameEvent.WorldStateId = fields[7].GetInt32OrNull();
+            pGameEvent.description  = fields[8].GetString();
+            pGameEvent.state        = (GameEventState)(fields[9].GetUInt8());
+            pGameEvent.announce     = fields[10].GetUInt8();
             pGameEvent.nextstart    = 0;
 
             ++count;
@@ -274,7 +276,23 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
+                if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(pGameEvent.holiday_id)))
+                {
+                    if (bl->HolidayWorldState)
+                    {
+                        if (pGameEvent.WorldStateId && *pGameEvent.WorldStateId != bl->HolidayWorldState)
+                            TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has world state id set, but holiday {} is linked to battleground, set to battlemaster world state id {}", event_id, pGameEvent.holiday_id, bl->HolidayWorldState);
+                        pGameEvent.WorldStateId = bl->HolidayWorldState;
+                    }
+                }
+
                 SetHolidayEventTime(pGameEvent);
+            }
+
+            if (pGameEvent.WorldStateId && !sWorldStateMgr->GetWorldStateTemplate(*pGameEvent.WorldStateId))
+            {
+                TC_LOG_ERROR("sql.sql", "`game_event` game event id ({}) has an invalid world state Id {}, set to 0.", event_id, *pGameEvent.WorldStateId);
+                pGameEvent.WorldStateId.reset();
             }
 
         }
@@ -1090,7 +1108,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
 
     TC_LOG_INFO("gameevent", "GameEvent {} \"{}\" started.", event_id, mGameEvent[event_id].description);
 
-    // spawn positive event tagget objects
+    // spawn positive event tagged objects
     GameEventSpawn(event_id);
     // un-spawn negative event tagged objects
     int16 event_nid = (-1) * event_id;
@@ -1500,11 +1518,8 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
 
 void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
 {
-    GameEventData const& event = mGameEvent[event_id];
-    if (event.holiday_id != HOLIDAY_NONE)
-        if (BattlemasterListEntry const* bl = sBattlemasterListStore.LookupEntry(BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id)))
-            if (bl->HolidayWorldState)
-                sWorldStateMgr->SetValue(bl->HolidayWorldState, Activate ? 1 : 0, false, nullptr);
+    if (Optional<int32> worldStateId = mGameEvent[event_id].WorldStateId)
+        sWorldStateMgr->SetValue(*worldStateId, Activate ? 1 : 0, false, nullptr);
 }
 
 GameEventMgr::GameEventMgr() : isSystemInit(false)
@@ -1679,9 +1694,9 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
     uint8 stageIndex = event.holidayStage - 1;
     event.length = holiday->Duration[stageIndex] * HOUR / MINUTE;
 
-    time_t stageOffset = 0;
+    Hours stageOffset = 0h;
     for (uint8 i = 0; i < stageIndex; ++i)
-        stageOffset += holiday->Duration[i] * HOUR;
+        stageOffset += Hours(holiday->Duration[i]);
 
     switch (holiday->CalendarFilterType)
     {
@@ -1704,47 +1719,25 @@ void GameEventMgr::SetHolidayEventTime(GameEventData& event)
             event.occurence += holiday->Duration[i] * HOUR / MINUTE;
     }
 
-    bool singleDate = ((holiday->Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
-
-    time_t curTime = GameTime::GetGameTime();
+    WowTime const& curTime = *GameTime::GetWowTime();
     for (uint8 i = 0; i < MAX_HOLIDAY_DATES && holiday->Date[i]; ++i)
     {
-        uint32 date = holiday->Date[i];
-
-        tm timeInfo;
+        WowTime date;
+        date.SetPackedTime(holiday->Date[i]);
+        bool singleDate = date.GetYear() == -1;
         if (singleDate)
-        {
-            localtime_r(&curTime, &timeInfo);
-            timeInfo.tm_year -= 1; // First try last year (event active through New Year)
-        }
-        else
-            timeInfo.tm_year = ((date >> 24) & 0x1F) + 100;
-
-        timeInfo.tm_mon = (date >> 20) & 0xF;
-        timeInfo.tm_mday = ((date >> 14) & 0x3F) + 1;
-        timeInfo.tm_hour = (date >> 6) & 0x1F;
-        timeInfo.tm_min = date & 0x3F;
-        timeInfo.tm_sec = 0;
-        timeInfo.tm_wday = 0;
-        timeInfo.tm_yday = 0;
-        timeInfo.tm_isdst = -1;
+            date.SetYear(GameTime::GetWowTime()->GetYear() - 1); // First try last year (event active through New Year)
 
         // try to get next start time (skip past dates)
-        time_t startTime = mktime(&timeInfo);
-        if (curTime < startTime + event.length * MINUTE)
+        if (curTime < date + Minutes(event.length))
         {
-            event.start = startTime + stageOffset;
+            event.start = (date + stageOffset).GetUnixTimeFromUtcTime();
             break;
         }
         else if (singleDate)
         {
-            tm tmCopy;
-            localtime_r(&curTime, &tmCopy);
-            int year = tmCopy.tm_year; // This year
-            tmCopy = timeInfo;
-            tmCopy.tm_year = year;
-
-            event.start = mktime(&tmCopy) + stageOffset;
+            date.SetYear(date.GetYear() + 1); // This year
+            event.start = (date + stageOffset).GetUnixTimeFromUtcTime();
             break;
         }
         else

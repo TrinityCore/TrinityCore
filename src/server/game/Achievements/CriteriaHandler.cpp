@@ -792,6 +792,19 @@ void CriteriaHandler::UpdateCriteria(Criteria const* criteria, uint64 miscValue1
         case CriteriaType::GuildAttainedLevel:
             SetCriteriaProgress(criteria, miscValue1, referencePlayer);
             break;
+        case CriteriaType::BankTabPurchased:
+            switch (BankType(criteria->Entry->Asset.BankType))
+            {
+                case BankType::Character:
+                    SetCriteriaProgress(criteria, referencePlayer->GetCharacterBankTabCount(), referencePlayer);
+                    break;
+                case BankType::Account:
+                    SetCriteriaProgress(criteria, referencePlayer->GetAccountBankTabCount(), referencePlayer);
+                    break;
+                default:
+                    break;
+            }
+            break;
         // FIXME: not triggered in code as result, need to implement
         case CriteriaType::RunInstance:
         case CriteriaType::EarnTeamArenaRating:
@@ -1237,6 +1250,7 @@ bool CriteriaHandler::IsCompletedCriteria(Criteria const* criteria, uint64 requi
         case CriteriaType::SellItemsToVendors:
         case CriteriaType::GainLevels:
         case CriteriaType::ReachRenownLevel:
+        case CriteriaType::BankTabPurchased:
         case CriteriaType::LearnTaxiNode:
             return progress->Counter >= requiredAmount;
         case CriteriaType::EarnAchievement:
@@ -1689,6 +1703,10 @@ bool CriteriaHandler::RequirementsSatisfied(Criteria const* criteria, uint64 mis
             break;
         case CriteriaType::ReachMaxLevel:
             if (!referencePlayer->IsMaxLevel())
+                return false;
+            break;
+        case CriteriaType::BankTabPurchased:
+            if (miscValue1 /*allow any at login*/ && miscValue1 != uint32(criteria->Entry->Asset.BankType))
                 return false;
             break;
         case CriteriaType::LearnTaxiNode:
@@ -3856,21 +3874,14 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasTraitNodeEntryInActiveConfig: // 340
         {
-            auto hasTraitNodeEntry = [referencePlayer, reqValue]()
+            auto hasTraitNodeEntry = [referencePlayer, reqValue]
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(reqValue))
                             return true;
-                }
+
                 return false;
             }();
             if (!hasTraitNodeEntry)
@@ -3881,19 +3892,12 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         {
             auto traitNodeEntryRank = [referencePlayer, secondaryAsset]() -> Optional<uint16>
             {
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
-                {
-                    if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat)
-                    {
-                        if (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
-                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                            continue;
-                    }
-
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                UF::TraitConfig const* config = referencePlayer->GetTraitConfig(referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID);
+                if (config && EnumFlag(TraitCombatConfigFlags(*config->CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                    for (UF::TraitEntry const& traitEntry : config->Entries)
                         if (traitEntry.TraitNodeEntryID == int32(secondaryAsset))
                             return traitEntry.Rank;
-                }
+
                 return {};
             }();
             if (!traitNodeEntryRank || traitNodeEntryRank < int32(reqValue))
@@ -3925,18 +3929,18 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             break;
         case ModifierTreeType::PlayerHasAtLeastProfPathRanks: // 355
         {
-            auto traitNodeEntryRankCount = [referencePlayer, secondaryAsset]()
+            uint32 traitNodeEntryRankCount = [referencePlayer, secondaryAsset]
             {
                 uint32 ranks = 0;
-                for (UF::TraitConfig const& traitConfig : referencePlayer->m_activePlayerData->TraitConfigs)
+                for (auto const& [_, traitConfig] : referencePlayer->m_activePlayerData->TraitConfigs)
                 {
-                    if (TraitConfigType(*traitConfig.Type) != TraitConfigType::Profession)
+                    if (TraitConfigType(*traitConfig.value.Type) != TraitConfigType::Profession)
                         continue;
 
-                    if (*traitConfig.SkillLineID != int32(secondaryAsset))
+                    if (*traitConfig.value.SkillLineID != int32(secondaryAsset))
                         continue;
 
-                    for (UF::TraitEntry const& traitEntry : traitConfig.Entries)
+                    for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
                         if (sTraitNodeEntryStore.AssertEntry(traitEntry.TraitNodeEntryID)->GetNodeEntryType() == TraitNodeEntryType::ProfPath)
                             ranks += traitEntry.Rank + traitEntry.GrantedRanks;
                 }
@@ -4007,7 +4011,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         }
         case ModifierTreeType::PlayerHasActiveTraitSubTree: // 385
         {
-            int32 traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIndexIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
+            int32 const* traitConfigWithSubtree = referencePlayer->m_activePlayerData->TraitConfigs.FindIf([referencePlayer, reqValue](UF::TraitConfig const& traitConfig)
             {
                 if (TraitConfigType(*traitConfig.Type) == TraitConfigType::Combat
                     && (int32(*referencePlayer->m_activePlayerData->ActiveCombatTraitConfigID) != traitConfig.ID
@@ -4018,8 +4022,8 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 {
                     return traitSubTree.TraitSubTreeID == int32(reqValue) && traitSubTree.Active;
                 }) >= 0;
-            });
-            if (traitConfigWithSubtree < 0)
+            }).first;
+            if (!traitConfigWithSubtree)
                 return false;
             break;
         }
@@ -4546,8 +4550,8 @@ char const* CriteriaMgr::GetCriteriaTypeString(CriteriaType type)
             return "GainLevels";
         case CriteriaType::CompleteQuestsCountOnAccount:
             return "CompleteQuestsCountOnAccount";
-        case CriteriaType::WarbandBankTabPurchased:
-            return "WarbandBankTabPurchased";
+        case CriteriaType::BankTabPurchased:
+            return "BankTabPurchased";
         case CriteriaType::ReachRenownLevel:
             return "ReachRenownLevel";
         case CriteriaType::LearnTaxiNode:
@@ -4927,7 +4931,7 @@ void CriteriaMgr::LoadCriteriaData()
         }
 
         uint32 dataType = fields[1].GetUInt8();
-        std::string scriptName = fields[4].GetString();
+        std::string_view scriptName = fields[4].GetStringView();
         uint32 scriptId = 0;
         if (!scriptName.empty())
         {
@@ -5036,7 +5040,7 @@ std::span<CriteriaType const> CriteriaMgr::GetRetroactivelyUpdateableCriteriaTyp
         //CriteriaType::MythicPlusRatingAttained, /*NYI*/
         //CriteriaType::MythicPlusDisplaySeasonEnded, /*NYI*/
         //CriteriaType::CompleteTrackingQuest, /*NYI*/
-        //CriteriaType::WarbandBankTabPurchased, /*NYI*/
+        CriteriaType::BankTabPurchased,
         CriteriaType::LearnTaxiNode,
 
         CriteriaType::EarnAchievementPoints,
