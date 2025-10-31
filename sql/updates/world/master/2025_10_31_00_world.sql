@@ -1,7 +1,6 @@
-SET @CGUID := 119000000;
-SET @OGUID := 119000000;
-SET @WORLD_SAFE_LOC_ID := 290000;
-SET @SPAWN_GROUP := 290000;
+SET @CGUID := 6005889;
+SET @OGUID := 6002968;
+SET @SPAWN_GROUP := 1278;
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 1505 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
@@ -218,8 +217,8 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficu
 (@OGUID+75, 3914, 1505, 7822, 7822, '0', '0', 0, -3026.064208984375, 6378.92041015625, 96.247467041015625, 4.756022453308105468, 0, 0, -0.6915130615234375, 0.722363948822021484, 7200, 255, 1, 63305), -- Burning Embers (Area: Nagrand Arena - Difficulty: 0) CreateObject1
 (@OGUID+76, 3918, 1505, 7822, 7822, '0', '0', 0, -3007.2529296875, 6329.82958984375, 96.247467041015625, 0.043632153421640396, 0, 0, 0.021814346313476562, 0.99976205825805664, 7200, 255, 1, 63305), -- Burning Embers (Area: Nagrand Arena - Difficulty: 0) CreateObject1
 (@OGUID+77, 3916, 1505, 7822, 7822, '0', '0', 0, -3023.7890625, 6384.9306640625, 96.247467041015625, 2.303830623626708984, 0, 0, 0.913544654846191406, 0.406738430261611938, 7200, 255, 1, 63305), -- Burning Embers (Area: Nagrand Arena - Difficulty: 0) CreateObject1
-(@OGUID+78, 184663, 1505, 7822, 7822, '0', '0', 0, -2092.829833984375, 6628.21630859375, 12.82109546661376953, 0, 0, 0, 0, 1, 7200, 255, 1, 63305), -- Shadow Sight (Area: Nagrand Arena - Difficulty: 0) CreateObject2
-(@OGUID+79, 184663, 1505, 7822, 7822, '0', '0', 0, -1994.892333984375, 6680.19775390625, 13.06343936920166015, 0, 0, 0, 0, 1, 7200, 255, 1, 63305); -- Shadow Sight (Area: Nagrand Arena - Difficulty: 0) CreateObject2
+(@OGUID+78, 184663, 1505, 7822, 7822, '0', '0', 0, -2092.829833984375, 6628.21630859375, 12.82109546661376953, 0, 0, 0, 0, 1, 360, 255, 1, 63305), -- Shadow Sight (Area: Nagrand Arena - Difficulty: 0) CreateObject2
+(@OGUID+79, 184663, 1505, 7822, 7822, '0', '0', 0, -1994.892333984375, 6680.19775390625, 13.06343936920166015, 0, 0, 0, 0, 1, 360, 255, 1, 63305); -- Shadow Sight (Area: Nagrand Arena - Difficulty: 0) CreateObject2
 
 DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+79;
 INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `WorldEffectID`, `AIAnimKitID`) VALUES
