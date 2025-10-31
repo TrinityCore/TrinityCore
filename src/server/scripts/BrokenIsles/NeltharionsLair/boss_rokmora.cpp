@@ -151,6 +151,7 @@ struct boss_rokmora : public BossAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
 
         DoCastSelf(SPELL_GAIN_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100); // power is set to 0 in Creature::UpdateMaxPower
 
         events.ScheduleEvent(EVENT_RAZOR_SHARDS, 29100ms);
         events.ScheduleEvent(EVENT_CHECK_ENERGY, 500ms);
