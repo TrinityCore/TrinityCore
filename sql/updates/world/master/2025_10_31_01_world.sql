@@ -1,7 +1,6 @@
-SET @CGUID := 119000000;
-SET @OGUID := 119000000;
-SET @WORLD_SAFE_LOC_ID := 290000;
-SET @SPAWN_GROUP := 290000;
+SET @CGUID := 6005969;
+SET @OGUID := 6003048;
+SET @SPAWN_GROUP := 1279;
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 1552 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
@@ -133,8 +132,8 @@ DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+3;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
 (@OGUID+0, 250431, 1552, 8008, 8008, '0', '0', 0, 3539.869873046875, 5488.70068359375, 323.581939697265625, 1.553341388702392578, 0, 0, 0.700908660888671875, 0.713251054286956787, 7200, 255, 1, 63305), -- Roots (Area: Ashamane's Fall - Difficulty: 0) CreateObject1
 (@OGUID+1, 250430, 1552, 8008, 8008, '0', '0', 0, 3548.342041015625, 5584.77880859375, 323.6123046875, 1.544615507125854492, 0, 0, 0.697790145874023437, 0.716302275657653808, 7200, 255, 1, 63305), -- Roots (Area: Ashamane's Fall - Difficulty: 0) CreateObject1
-(@OGUID+2, 184663, 1552, 8008, 8008, '0', '0', 0, 3579.07470703125, 5575.9375, 326.891265869140625, 2.460912704467773437, 0, 0, 0.942641258239746093, 0.333807557821273803, 7200, 255, 1, 63305), -- Shadow Sight (Area: Ashamane's Fall - Difficulty: 0) CreateObject2
-(@OGUID+3, 184664, 1552, 8008, 8008, '0', '0', 0, 3503.2822265625, 5502.15087890625, 325.707183837890625, 3.316144466400146484, 0, 0, -0.99619388580322265, 0.087165042757987976, 7200, 255, 1, 63305); -- Shadow Sight (Area: Ashamane's Fall - Difficulty: 0) CreateObject2
+(@OGUID+2, 184663, 1552, 8008, 8008, '0', '0', 0, 3579.07470703125, 5575.9375, 326.891265869140625, 2.460912704467773437, 0, 0, 0.942641258239746093, 0.333807557821273803, 360, 255, 1, 63305), -- Shadow Sight (Area: Ashamane's Fall - Difficulty: 0) CreateObject2
+(@OGUID+3, 184664, 1552, 8008, 8008, '0', '0', 0, 3503.2822265625, 5502.15087890625, 325.707183837890625, 3.316144466400146484, 0, 0, -0.99619388580322265, 0.087165042757987976, 360, 255, 1, 63305); -- Shadow Sight (Area: Ashamane's Fall - Difficulty: 0) CreateObject2
 DELETE FROM `gameobject_addon` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+3;
 
 DELETE FROM `spawn_group` WHERE `groupId` BETWEEN @SPAWN_GROUP+0 AND @SPAWN_GROUP+0;

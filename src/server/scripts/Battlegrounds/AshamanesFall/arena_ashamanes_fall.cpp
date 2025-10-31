@@ -23,6 +23,11 @@
 
 namespace AshamanesFall
 {
+    namespace MapIds
+    {
+        static constexpr uint32 AshamanesFall = 1552;
+    }
+
     namespace GameObjects
     {
         static constexpr uint32 Roots01 = 250430;
@@ -65,5 +70,5 @@ private:
 
 void AddSC_arena_ashamanes_fall()
 {
-    RegisterBattlegroundMapScript(arena_ashamanes_fall, 1552);
+    RegisterBattlegroundMapScript(arena_ashamanes_fall, AshamanesFall::MapIds::AshamanesFall);
 }
