@@ -45,7 +45,7 @@ ObjectData const creatureData[] =
     { NPC_GRAND_WARLOCK_NETHEKURSE,   DATA_NETHEKURSE },
     { NPC_LEFT_HEAD,                  DATA_LEFT_HEAD  },
     { NPC_RIGHT_HEAD,                 DATA_RIGHT_HEAD },
-    { 0,                         0               } // END
+    { 0,                              0               } // END
 };
 
 class instance_shattered_halls : public InstanceMapScript
