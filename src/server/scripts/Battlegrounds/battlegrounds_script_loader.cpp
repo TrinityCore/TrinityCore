@@ -64,6 +64,7 @@ void AddSC_battleground_temple_of_kotmogu();
 void AddSC_battleground_deephaul_ravine();
 
 void AddSC_arena_blades_edge_legion();
+void AddSC_arena_nagrand_arena_legion();
 
 void AddSC_arena_mugambala();
 void AddSC_arena_hook_point();
@@ -127,6 +128,7 @@ void AddBattlegroundsScripts()
     AddSC_battleground_deephaul_ravine();
 
     AddSC_arena_blades_edge_legion();
+    AddSC_arena_nagrand_arena_legion();
 
     AddSC_arena_mugambala();
     AddSC_arena_hook_point();
