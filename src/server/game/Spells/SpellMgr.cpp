@@ -4949,6 +4949,22 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
+    // PLAGUEFALL SPELLS
+    //
+
+    // Slime Wave
+    ApplySpellFix({ 332865 }, [](SpellInfo* spellInfo)
+    {
+        ApplySpellEffectFix(spellInfo, EFFECT_1, [](SpellEffectInfo* spellEffectInfo)
+        {
+            spellEffectInfo->Effect = SPELL_EFFECT_NONE;
+        });
+    });
+
+    // ENDOF PLAGUEFALL SPELLS
+    //
+
+    //
     // SHRINE OF THE STORM SPELLS
     //
 
