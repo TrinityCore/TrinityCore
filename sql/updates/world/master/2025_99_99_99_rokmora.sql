@@ -75,9 +75,10 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (91003, 3, 0, 'Rok... no... break', 14, 0, 100, 0, 0, 54549, 102713, 0, 'Rokmora');
 
 -- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=209390;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (209390, 200247);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(13, 1, 209390, 0, 0, 51, 0, 5, 91003, 0, '', 0, 0, 0, '', 'Spell \'Boss 01 Intro Ularogg Cast\' can only hit Rokmora');
+(13, 1, 209390, 0, 0, 51, 0, 5, 91003, 0, '', 0, 0, 0, '', 'Spell \'Boss 01 Intro Ularogg Cast\' can only hit Rokmora'),
+(13, 1, 200247, 0, 0, 51, 0, 5, 97720, 0, '', 0, 0, 0, '', 'Spell \'Shatter\' can only hit \'Blightshard Skitter\'');
 
 -- SAI
 DELETE FROM `smart_scripts` WHERE `entryorguid`=105300 AND `source_type`=0;

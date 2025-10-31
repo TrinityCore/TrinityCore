@@ -324,9 +324,9 @@ struct at_rokmora_choking_dust : AreaTriggerAI
         caster->CastSpell(unit, SPELL_CHOKING_DUST_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
-        unit->RemoveAurasDueToSpell(SPELL_CHOKING_DUST_DAMAGE, at->GetCasterGuid());
+        unit->RemoveAurasDueToSpell(SPELL_CHOKING_DUST_DAMAGE);
     }
 };
 
@@ -341,16 +341,12 @@ struct at_rokmora_crystalline_ground : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        caster->CastSpell(unit, SPELL_CRYSTALLINE_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        unit->CastSpell(unit, SPELL_CRYSTALLINE_GROUND_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void OnUnitExit(Unit* unit) override
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason /*reason*/) override
     {
-        unit->RemoveAurasDueToSpell(SPELL_CRYSTALLINE_GROUND_PERIODIC, at->GetCasterGuid());
+        unit->RemoveAurasDueToSpell(SPELL_CRYSTALLINE_GROUND_PERIODIC);
     }
 };
 
