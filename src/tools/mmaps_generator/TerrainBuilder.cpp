@@ -69,17 +69,17 @@ namespace MMAP
     {
         if (loadMap(mapID, tileX, tileY, meshData, vmapManager, ENTIRE))
         {
-            loadMap(mapID, tileX+1, tileY, meshData, vmapManager, LEFT);
-            loadMap(mapID, tileX-1, tileY, meshData, vmapManager, RIGHT);
-            loadMap(mapID, tileX, tileY+1, meshData, vmapManager, TOP);
-            loadMap(mapID, tileX, tileY-1, meshData, vmapManager, BOTTOM);
+            loadMap(mapID, tileX, tileY+1, meshData, vmapManager, LEFT);
+            loadMap(mapID, tileX, tileY-1, meshData, vmapManager, RIGHT);
+            loadMap(mapID, tileX+1, tileY, meshData, vmapManager, TOP);
+            loadMap(mapID, tileX-1, tileY, meshData, vmapManager, BOTTOM);
         }
     }
 
     /**************************************************************************/
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager, Spot portion)
     {
-        std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileY, tileX);
+        std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileX, tileY);
 
         auto mapFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(mapFileName.c_str(), "rb"));
         if (!mapFile)
@@ -87,7 +87,7 @@ namespace MMAP
             int32 parentMapId = vmapManager->getParentMapId(mapID);
             while (!mapFile && parentMapId != -1)
             {
-                mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileY, tileX);
+                mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileX, tileY);
                 mapFile.reset(fopen(mapFileName.c_str(), "rb"));
                 parentMapId = vmapManager->getParentMapId(parentMapId);
             }
@@ -274,9 +274,9 @@ namespace MMAP
                         col < lheader.offsetX || col >= lheader.offsetX + lheader.width)
                     {
                         // dummy vert using invalid height
-                        liquidVerts[(count + i) * 3 + 0] = (xoffset + col * GRID_PART_SIZE) * -1;
+                        liquidVerts[(count + i) * 3 + 0] = (yoffset + col * GRID_PART_SIZE) * -1;
                         liquidVerts[(count + i) * 3 + 1] = INVALID_MAP_LIQ_HEIGHT;
-                        liquidVerts[(count + i) * 3 + 2] = (yoffset + row * GRID_PART_SIZE) * -1;
+                        liquidVerts[(count + i) * 3 + 2] = (xoffset + row * GRID_PART_SIZE) * -1;
                         continue;
                     }
 
@@ -290,9 +290,9 @@ namespace MMAP
                 {
                     row = i / V9_SIZE;
                     col = i % V9_SIZE;
-                    liquidVerts[(count + i) * 3 + 0] = (xoffset + col * GRID_PART_SIZE) * -1;
+                    liquidVerts[(count + i) * 3 + 0] = (yoffset + col * GRID_PART_SIZE) * -1;
                     liquidVerts[(count + i) * 3 + 1] = lheader.liquidLevel;
-                    liquidVerts[(count + i) * 3 + 2] = (yoffset + row * GRID_PART_SIZE) * -1;
+                    liquidVerts[(count + i) * 3 + 2] = (xoffset + row * GRID_PART_SIZE) * -1;
                 }
             }
 
@@ -467,14 +467,14 @@ namespace MMAP
         switch (grid)
         {
         case GRID_V9:
-            coord[0] = (xOffset + (int)(index % V9_SIZE) * GRID_PART_SIZE) * -1.f;
+            coord[0] = (yOffset + (int)(index % V9_SIZE) * GRID_PART_SIZE) * -1.f;
             coord[1] = v[index];
-            coord[2] = (yOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
+            coord[2] = (xOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
             break;
         case GRID_V8:
-            coord[0] = (xOffset + (int)(index % V8_SIZE) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
+            coord[0] = (yOffset + (int)(index % V8_SIZE) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
             coord[1] = v[index];
-            coord[2] = (yOffset + (int)(index / (V8_SIZE)) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
+            coord[2] = (xOffset + (int)(index / (V8_SIZE)) * GRID_PART_SIZE + GRID_PART_SIZE / 2.f) * -1.f;
             break;
         }
     }
@@ -531,9 +531,9 @@ namespace MMAP
     {
         // wow coords: x, y, height
         // coord is mirroed about the horizontal axes
-        coord[0] = (xOffset + (int)(index % V9_SIZE) * GRID_PART_SIZE) * -1.f;
+        coord[0] = (yOffset + (int)(index % V9_SIZE) * GRID_PART_SIZE) * -1.f;
         coord[1] = v[index2];
-        coord[2] = (yOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
+        coord[2] = (xOffset + (int)(index / (V9_SIZE)) * GRID_PART_SIZE) * -1.f;
     }
 
     /**************************************************************************/
