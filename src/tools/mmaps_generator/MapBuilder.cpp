@@ -92,9 +92,6 @@ namespace MMAP
 
         _queue.Cancel();
 
-        for (auto& builder : m_tileBuilders)
-            delete builder;
-
         m_tileBuilders.clear();
         m_tiles.clear();
     }
@@ -252,11 +249,10 @@ namespace MMAP
     {
         TC_LOG_INFO("maps.mmapgen", "Using {} threads to generate mmaps", m_threads);
 
+        m_tileBuilders.resize(m_threads);
         for (unsigned int i = 0; i < m_threads; ++i)
-        {
-            m_tileBuilders.push_back(new MapTileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
+            m_tileBuilders[i].reset(new MapTileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
                 m_skipLiquid, m_bigBaseUnit, m_debugOutput, &m_offMeshConnections));
-        }
 
         if (mapID)
         {
@@ -278,97 +274,61 @@ namespace MMAP
 
         _queue.Cancel();
 
-        for (auto& builder : m_tileBuilders)
-            delete builder;
-
         m_tileBuilders.clear();
     }
 
     /**************************************************************************/
     void MapBuilder::buildMeshFromFile(char* name)
     {
-        FILE* file = fopen(name, "rb");
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(name, "rb"));
         if (!file)
             return;
 
         TC_LOG_INFO("maps.mmapgen", "Building mesh from file");
         int tileX, tileY, mapId;
-        if (fread(&mapId, sizeof(int), 1, file) != 1)
-        {
-            fclose(file);
+        if (fread(&mapId, sizeof(int), 1, file.get()) != 1)
             return;
-        }
-        if (fread(&tileX, sizeof(int), 1, file) != 1)
-        {
-            fclose(file);
+
+        if (fread(&tileX, sizeof(int), 1, file.get()) != 1)
             return;
-        }
-        if (fread(&tileY, sizeof(int), 1, file) != 1)
-        {
-            fclose(file);
+
+        if (fread(&tileY, sizeof(int), 1, file.get()) != 1)
             return;
-        }
 
         dtNavMesh* navMesh = nullptr;
         buildNavMesh(mapId, navMesh);
         if (!navMesh)
         {
             TC_LOG_ERROR("maps.mmapgen", "Failed creating navmesh!");
-            fclose(file);
             return;
         }
 
         uint32 verticesCount, indicesCount;
-        if (fread(&verticesCount, sizeof(uint32), 1, file) != 1)
-        {
-            fclose(file);
+        if (fread(&verticesCount, sizeof(uint32), 1, file.get()) != 1)
             return;
-        }
 
-        if (fread(&indicesCount, sizeof(uint32), 1, file) != 1)
-        {
-            fclose(file);
+        if (fread(&indicesCount, sizeof(uint32), 1, file.get()) != 1)
             return;
-        }
-
-        float* verts = new float[verticesCount];
-
-        if (fread(verts, sizeof(float), verticesCount, file) != verticesCount)
-        {
-            fclose(file);
-            delete[] verts;
-            return;
-        }
-
-        int* inds = new int[indicesCount];
-        if (fread(inds, sizeof(int), indicesCount, file) != indicesCount)
-        {
-            fclose(file);
-            delete[] verts;
-            delete[] inds;
-            return;
-        }
 
         MeshData data;
 
-        for (uint32 i = 0; i < verticesCount; ++i)
-            data.solidVerts.append(verts[i]);
-        delete[] verts;
+        data.solidVerts.resize(verticesCount);
+        if (fread(data.solidVerts.data(), sizeof(float), verticesCount, file.get()) != verticesCount)
+            return;
 
-        for (uint32 i = 0; i < indicesCount; ++i)
-            data.solidTris.append(inds[i]);
-        delete[] inds;
+        data.solidTris.resize(indicesCount);
+        if (fread(data.solidTris.data(), sizeof(int), indicesCount, file.get()) != indicesCount)
+            return;
 
         TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
         // get bounds of current tile
         float bmin[3], bmax[3];
-        TileBuilder::getTileBounds(tileX, tileY, data.solidVerts.getCArray(), data.solidVerts.size() / 3, bmin, bmax);
+        TileBuilder::getTileBounds(tileX, tileY, data.solidVerts.data(), data.solidVerts.size() / 3, bmin, bmax);
 
         // build navmesh tile
         MapTileBuilder tileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
             m_skipLiquid, m_bigBaseUnit, m_debugOutput, &m_offMeshConnections);
         tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
-        fclose(file);
     }
 
     /**************************************************************************/
@@ -500,7 +460,7 @@ namespace MMAP
 
         std::string fileName = Trinity::StringFormat("mmaps/{:04}.mmap", mapID);
 
-        FILE* file = fopen(fileName.c_str(), "wb");
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
         {
             dtFreeNavMesh(navMesh);
@@ -510,8 +470,7 @@ namespace MMAP
         }
 
         // now that we know navMesh params are valid, we can write them to file
-        fwrite(&navMeshParams, sizeof(dtNavMeshParams), 1, file);
-        fclose(file);
+        fwrite(&navMeshParams, sizeof(dtNavMeshParams), 1, file.get());
     }
 
     /**************************************************************************/
@@ -603,13 +562,12 @@ namespace MMAP
     bool MapTileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
         std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
-        FILE* file = fopen(fileName.c_str(), "rb");
+        auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
             return false;
 
         MmapTileHeader header;
-        int count = fread(&header, sizeof(MmapTileHeader), 1, file);
-        fclose(file);
+        int count = fread(&header, sizeof(MmapTileHeader), 1, file.get());
         if (count != 1)
             return false;
 
