@@ -32,6 +32,7 @@
 #include "ScriptedCreature.h"
 #include "shattered_halls.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 enum NethekurseTexts
 {
