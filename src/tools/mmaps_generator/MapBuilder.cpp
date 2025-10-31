@@ -126,12 +126,12 @@ namespace MMAP
                     && fread(&versionMagic, sizeof(versionMagic), 1, tileList.get()) == 1
                     && versionMagic == MapVersionMagic
                     && fread(&build, sizeof(build), 1, tileList.get()) == 1
-                    && fread(std::data(tilesData), 64 * 64, 1, tileList.get()) == 1)
+                    && fread(std::data(tilesData), std::size(tilesData), 1, tileList.get()) == 1)
                 {
                     Trinity::Containers::FlatSet<uint32>& tiles = m_tiles[*mapId];
                     for (uint32 tileX = 0; tileX < 64; ++tileX)
                         for (uint32 tileY = 0; tileY < 64; ++tileY)
-                            if (tilesData[tileX * 64 + tileY] == '1')
+                            if (tilesData[std::size(tilesData) - 1 - (tileX * 64 + tileY)] == '1')
                                 if (tiles.insert(VMAP::StaticMapTree::packTileID(tileX, tileY)).second)
                                     ++m_totalTiles;
                 }
@@ -163,7 +163,7 @@ namespace MMAP
 
                 uint32 tileX = Trinity::StringTo<uint32>(std::string_view(fileName).substr(8, 2)).value_or(0);
                 uint32 tileY = Trinity::StringTo<uint32>(std::string_view(fileName).substr(5, 2)).value_or(0);
-                uint32 tileID = VMAP::StaticMapTree::packTileID(tileY, tileX);
+                uint32 tileID = VMAP::StaticMapTree::packTileID(tileX, tileY);
 
                 if (tiles.insert(tileID).second)
                     ++m_totalTiles;
@@ -561,7 +561,7 @@ namespace MMAP
     /**************************************************************************/
     bool MapTileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
             return false;
