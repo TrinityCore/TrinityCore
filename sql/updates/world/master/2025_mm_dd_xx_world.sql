@@ -85,10 +85,13 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBu
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=63305 WHERE (`Entry`=113264 AND `DifficultyID`=0); -- 113264 (Ghostly Spectator) - Sessile, CanSwim, Floating
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=63305 WHERE (`Entry`=113180 AND `DifficultyID`=0); -- 113180 (Ghostly Spectator) - Sessile, CanSwim, Floating
 
-DELETE FROM `vehicle_template_accessory` WHERE (`seat_id`=0 AND `entry` IN (114618,154577));
+DELETE FROM `vehicle_template_accessory` WHERE (`seat_id`=0 AND `entry` IN (114618));
 INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`, `summontype`, `summontimer`) VALUES
-(114618, 114619, 0, 0, 'Kaldorei Windgryph - Reanimated Archer', 7, 0), -- Kaldorei Windgryph - Reanimated Archer
-(154577, 150520, 0, 0, 'Flying Claw - Cubed Clutter', 7, 0); -- Flying Claw - Cubed Clutter
+(114618, 114619, 0, 0, 'Kaldorei Windgryph - Reanimated Archer', 8, 0); -- Kaldorei Windgryph - Reanimated Archer
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=114618;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
+(114618, 46598, 1, 0);
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+11;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
