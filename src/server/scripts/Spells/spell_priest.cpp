@@ -2277,7 +2277,8 @@ class spell_pri_divine_procession : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_EFFECT });
+        return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_EFFECT })
+            && ValidateSpellEffect({ {SPELL_PRIEST_ATONEMENT_EFFECT, EFFECT_2} });
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
@@ -2324,7 +2325,9 @@ class spell_pri_divine_procession : public AuraScript
         if (Unit const* target = ObjectAccessor::GetUnit(*caster, *it))
             if (Aura* atonement = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()))
             {
-                int32 maxDuration = 33 * IN_MILLISECONDS; // max duration from retail
+                int32 baseDuration = atonement->GetEffect(EFFECT_2)->GetBaseAmount();
+                int32 maxDuration = (baseDuration + static_cast<int32>(std::floor(baseDuration * 1.25f))) * IN_MILLISECONDS; // +125% from base duration
+
                 int32 newDuration = atonement->GetDuration() + aurEff->GetAmount();
                 if (newDuration <= maxDuration)
                     atonement->SetDuration(newDuration);
