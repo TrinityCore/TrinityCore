@@ -25,7 +25,6 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
-#include "TaskScheduler.h"
 #include "TemporarySummon.h"
 #include "plaguefall.h"
 
@@ -213,7 +212,6 @@ struct boss_globgrog : public BossAI
     }
 
 private:
-    TaskScheduler _scheduler;
     uint32 _plaguestompCount;
     uint32 _slimeWaveCount;
 };
