@@ -1544,6 +1544,10 @@ bool WorldObject::CanSeeOrDetect(WorldObject const* obj, CanSeeOrDetectExtraArgs
 
 bool WorldObject::CanNeverSee(WorldObject const* obj, bool ignorePhaseShift /*= false*/) const
 {
+    // Private objects should always be visible to their owners, regardless of phase
+    if (!ignorePhaseShift && obj->IsPrivateObject() && obj->CheckPrivateObjectOwnerVisibility(this))
+        return false;
+        
     return GetMap() != obj->GetMap() || (!ignorePhaseShift && !InSamePhase(obj));
 }
 

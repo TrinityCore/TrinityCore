@@ -24403,7 +24403,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
 {
     if (HaveAtClient(target))
     {
-        if (!CanSeeOrDetect(target, { .DistanceCheck = true }))
+        if (!CanSeeOrDetect(target, { .ImplicitDetection = false, .IgnorePhaseShift = false, .IncludeHiddenBySpawnTracking = false, .IncludeAnyPrivateObject = false, .DistanceCheck = true }))
         {
             BeforeVisibilityDestroy<T>(target, this);
 
@@ -24421,7 +24421,7 @@ void Player::UpdateVisibilityOf(T* target, UpdateData& data, std::set<WorldObjec
     }
     else
     {
-        if (CanSeeOrDetect(target, { .DistanceCheck = true }))
+        if (CanSeeOrDetect(target, { .ImplicitDetection = false, .IgnorePhaseShift = false, .IncludeHiddenBySpawnTracking = false, .IncludeAnyPrivateObject = false, .DistanceCheck = true }))
         {
             target->BuildCreateUpdateBlockForPlayer(&data, this);
             m_clientGUIDs.insert(target->GetGUID());
