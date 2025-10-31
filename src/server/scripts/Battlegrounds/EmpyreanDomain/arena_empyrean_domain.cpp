@@ -218,7 +218,7 @@ struct arena_empyrean_domain : ArenaScript
             init.SetVelocity(17.5f);
         };
 
-        player->GetMotionMaster()->Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, 1));
+        player->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 1);
     }
 
 private:
