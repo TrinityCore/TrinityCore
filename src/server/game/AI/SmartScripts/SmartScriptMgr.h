@@ -1459,7 +1459,7 @@ struct SmartTarget
         {
             uint32 entry;
         } invokerSummons;
-        
+
         struct
         {
             uint32 param1;
