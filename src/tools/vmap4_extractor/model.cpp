@@ -233,22 +233,16 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
 
             std::string ModelInstName;
             if (doodadData.Paths)
-                ModelInstName = GetPlainName(&doodadData.Paths[doodad.NameIndex]);
+                ModelInstName = &doodadData.Paths[doodad.NameIndex];
             else if (doodadData.FileDataIds)
                 ModelInstName = Trinity::StringFormat("FILE{:08X}.xxx", doodadData.FileDataIds[doodad.NameIndex]);
             else
                 ASSERT(false);
 
-            uint32 nlen = ModelInstName.length();
-            NormalizeFileName(ModelInstName.data(), nlen);
-            if (ModelInstName.ends_with(".mdx") || ModelInstName.ends_with(".mdl"))
-            {
-                ModelInstName.replace(ModelInstName.length() - 2, 2, "2");
-                nlen = ModelInstName.length();
-            }
-
             if (!ExtractSingleModel(ModelInstName))
                 continue;
+
+            uint32 nlen = ModelInstName.length();
 
             ASSERT(doodadId < std::numeric_limits<uint16>::max());
             ++doodadId;

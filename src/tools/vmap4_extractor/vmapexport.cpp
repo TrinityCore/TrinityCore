@@ -202,10 +202,10 @@ ExtractedModelData const* ExtractSingleWmo(std::string& fname)
     // Copy files from archive
     std::string originalName = fname;
 
-    char* plain_name = GetPlainName(&fname[0]);
-    NormalizeFileName(plain_name, strlen(plain_name));
+    fname = GetPlainName(fname);
+    NormalizeFileName(fname);
 
-    auto [model, shouldExtract] = BeginModelExtraction(plain_name);
+    auto [model, shouldExtract] = BeginModelExtraction(fname);
     if (!shouldExtract)
     {
         model->Wait();
@@ -223,10 +223,10 @@ ExtractedModelData const* ExtractSingleWmo(std::string& fname)
 
     int p = 0;
     // Select root wmo files
-    char const* rchr = strrchr(plain_name, '_');
-    if (rchr != nullptr)
-        for (int i = 0; i < 4; ++i)
-            if (isdigit(rchr[i]))
+    std::size_t rchr = fname.find_last_of('_');
+    if (rchr != std::string::npos)
+        for (std::size_t i = 0; i < 4 && rchr + i < fname.length(); ++i)
+            if (isdigit(fname[rchr + i]))
                 p++;
 
     if (p == 3)
@@ -239,7 +239,7 @@ ExtractedModelData const* ExtractSingleWmo(std::string& fname)
         printf("Couldn't open RootWmo!!!\n");
         return nullptr;
     }
-    std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
+    std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, fname);
     FILE* output = fopen(szLocalFile.c_str(), "wb");
     if(!output)
     {
@@ -260,7 +260,7 @@ ExtractedModelData const* ExtractSingleWmo(std::string& fname)
         WMOGroup& fgroup = groups.emplace_back(s);
         if (!fgroup.open(&froot))
         {
-            printf("Could not open all Group file for: %s\n", plain_name);
+            printf("Could not open all Group file for: %s\n", fname.c_str());
             file_ok = false;
             break;
         }
