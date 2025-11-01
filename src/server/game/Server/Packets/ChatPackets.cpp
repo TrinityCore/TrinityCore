@@ -65,8 +65,8 @@ void ChatMessageChannel::Read()
     if (IsSecure)
         _worldPacket >> Bits<1>(*IsSecure);
 
-    _worldPacket >> SizedCString::Data(Target);
-    _worldPacket >> SizedCString::Data(Text);
+    _worldPacket >> SizedString::Data(Target);
+    _worldPacket >> SizedString::Data(Text);
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, ChatAddonMessageParams& params)

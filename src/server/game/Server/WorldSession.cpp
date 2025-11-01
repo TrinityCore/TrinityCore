@@ -480,7 +480,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         catch (ByteBufferException const&)
         {
             TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid={}. Skipped packet.",
-                    packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
+                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetRemoteAddress(), GetAccountId());
             packet->hexlike();
         }
 
