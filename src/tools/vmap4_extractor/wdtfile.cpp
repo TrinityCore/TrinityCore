@@ -116,18 +116,17 @@ bool WDTFile::init(uint32 mapId)
                 {
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
-                    if (!(mapObjDef.Flags & 0x8))
+                    std::string fileName;
+                    if (mapObjDef.Flags & 0x8)
                     {
-                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), true, mapId, mapId, dirfile.get(), nullptr);
-                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
+                        fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
+                        ExtractSingleWmo(fileName);
                     }
                     else
-                    {
-                        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
-                        ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile.get(), nullptr);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
-                    }
+                        fileName = _wmoNames[mapObjDef.Id];
+
+                    MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile.get(), nullptr);
+                    Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
                 }
             }
         }

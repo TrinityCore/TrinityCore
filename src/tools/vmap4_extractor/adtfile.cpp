@@ -207,18 +207,18 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 {
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
-                    if (!(mapObjDef.Flags & 0x8))
+
+                    std::string fileName;
+                    if (mapObjDef.Flags & 0x8)
                     {
-                        MapObject::Extract(mapObjDef, WmoInstanceNames[mapObjDef.Id].c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
-                        Doodad::ExtractSet(WmoDoodads[WmoInstanceNames[mapObjDef.Id]], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                        fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
+                        ExtractSingleWmo(fileName);
                     }
                     else
-                    {
-                        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
-                        ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
-                    }
+                        fileName = WmoInstanceNames[mapObjDef.Id];
+
+                    MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                    Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
                 }
 
                 WmoInstanceNames.clear();

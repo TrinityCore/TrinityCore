@@ -60,7 +60,8 @@ namespace VMAP
         iEnableHeightCalc(true),
         thread_safe_environment(true),
         GetLiquidFlagsPtr([](uint32 /*liquidTypeId*/) { return 0u; }),
-        IsVMAPDisabledForPtr([](uint32 /*mapId*/, uint8 /*disableFlags*/) { return false; })
+        IsVMAPDisabledForPtr([](uint32 /*mapId*/, uint8 /*disableFlags*/) { return false; }),
+        LoadPathOnlyModels(false)
     {
     }
 
