@@ -9380,6 +9380,40 @@ WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck()
 
 bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
 {
+    if (!target || !_caster)
+        return false;
+
+    if (_condSrcInfo && _condList && !_condList->empty())
+    {
+        _condSrcInfo->mConditionTargets[0] = target;
+
+        bool hasObjectEntryGuidCondition = false;
+        for (Condition const& condition : *_condList)
+        {
+            if (condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID)
+            {
+                hasObjectEntryGuidCondition = true;
+                break;
+            }
+        }
+        // Even if the visibility check fails, we still attempt the condition check
+        if (hasObjectEntryGuidCondition)
+        {
+            CanSeeOrDetectExtraArgs relaxedArgs = CanSeeOrDetectExtraArgs{
+                .ImplicitDetection = true,
+                .IgnorePhaseShift = true,
+                .IncludeHiddenBySpawnTracking = true,
+                .IncludeAnyPrivateObject = true
+            };
+
+            bool visibilityCheck = _caster->CanSeeOrDetect(target, relaxedArgs);
+            bool meetsConditions = sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+
+            if (visibilityCheck || meetsConditions)
+                return true;
+        }
+    }
+
     if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
         return false;
 
@@ -9464,10 +9498,13 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
         }
     }
 
-    if (!_condSrcInfo)
-        return true;
-    _condSrcInfo->mConditionTargets[0] = target;
-    return sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+    // If the condition was not checked previously, we now perform a condition check.
+    if (_condSrcInfo && _condList)
+    {
+        _condSrcInfo->mConditionTargets[0] = target;
+        return sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
+    }
+    return true;
 }
 
 WorldObjectSpellNearbyTargetCheck::WorldObjectSpellNearbyTargetCheck(float range, WorldObject* caster, SpellInfo const* spellInfo,
