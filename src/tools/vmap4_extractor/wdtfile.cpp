@@ -22,6 +22,7 @@
 #include "Errors.h"
 #include "Memory.h"
 #include "StringFormat.h"
+#include "Util.h"
 #include <cstdio>
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
@@ -81,21 +82,16 @@ bool WDTFile::init(uint32 mapId)
             // global map objects
             if (size)
             {
-                char *buf = new char[size];
-                _file.read(buf, size);
-                char *p = buf;
-                while (p < buf + size)
+                char* p = _file.getPointer();
+                _file.seekRelative(size);
+                char* end = _file.getPointer();
+                while (p < end)
                 {
-                    std::string path(p);
+                    std::size_t length = std::ranges::distance(p, CStringSentinel.Checked(end));
+                    _wmoNames.emplace_back(p, length);
 
-                    char* s = GetPlainName(p);
-                    NormalizeFileName(s, strlen(s));
-                    p = p + strlen(p) + 1;
-                    _wmoNames.emplace_back(s);
-
-                    ExtractSingleWmo(path);
+                    p += length + 1;
                 }
-                delete[] buf;
             }
         }
         else if (!strcmp(fourcc, "MODF"))

@@ -23,6 +23,7 @@
 #include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
+#include "Util.h"
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -86,19 +87,17 @@ bool WMORoot::open()
         {
             ASSERT(!DoodadData.FileDataIds);
 
-            char* ptr = f.getPointer();
-            char* end = ptr + size;
             DoodadData.Paths = std::make_unique<char[]>(size);
-            memcpy(DoodadData.Paths.get(), ptr, size);
+            f.read(DoodadData.Paths.get(), size);
+            char* ptr = DoodadData.Paths.get();
+            char* end = ptr + size;
             while (ptr < end)
             {
-                std::string path = ptr;
+                std::size_t length = std::ranges::distance(ptr, CStringSentinel.Checked(end));
+                std::string path(ptr, length);
 
-                char* s = GetPlainName(ptr);
-                NormalizeFileName(s, strlen(s));
-
-                uint32 doodadNameIndex = ptr - f.getPointer();
-                ptr += path.length() + 1;
+                uint32 doodadNameIndex = ptr - DoodadData.Paths.get();
+                ptr += length + 1;
 
                 if (ExtractSingleModel(path))
                     ValidDoodadNames.insert(doodadNameIndex);

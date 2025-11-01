@@ -16,70 +16,44 @@
  */
 
 #include "adtfile.h"
+#include "Common.h"
 #include "Memory.h"
 #include "StringFormat.h"
+#include "Util.h"
 #include "vmapexport.h"
 #include <cstdio>
 
-char const* GetPlainName(char const* FileName)
+std::string_view GetPlainName(std::string_view fileName)
 {
-    const char * szTemp;
+    std::size_t lastSeparatorPos = fileName.find_last_of("\\/"sv);
 
-    if((szTemp = strrchr(FileName, '\\')) != nullptr)
-        FileName = szTemp + 1;
-    return FileName;
+    if (lastSeparatorPos != std::string_view::npos)
+        fileName.remove_prefix(lastSeparatorPos + 1);
+
+    return fileName;
 }
 
-char* GetPlainName(char* FileName)
+void NormalizeFileName(std::string& name)
 {
-    char * szTemp;
+    if (name.starts_with("FILE"sv)) // name is FileDataId formatted, do not normalize
+        return;
 
-    if((szTemp = strrchr(FileName, '\\')) != nullptr)
-        FileName = szTemp + 1;
-    return FileName;
-}
-
-void FixNameCase(char* name, size_t len)
-{
-    char* ptr = name + len - 1;
+    auto ptr = name.begin() + (name.length() - 1);
 
     //extension in lowercase
-    for (; *ptr != '.' && ptr >= name; --ptr)
-        *ptr |= 0x20;
-
-    for (; ptr >= name; --ptr)
-    {
-        if (ptr > name && *ptr >= 'A' && *ptr <= 'Z' && isalpha(*(ptr - 1)))
+    for (; *ptr != '.' && ptr >= name.begin(); --ptr)
+        if (*ptr >= 'A' && *ptr <= 'Z')
             *ptr |= 0x20;
-        else if ((ptr == name || !isalpha(*(ptr - 1))) && *ptr >= 'a' && *ptr <= 'z')
+
+    for (; ptr >= name.begin(); --ptr)
+    {
+        if (ptr > name.begin() && *ptr >= 'A' && *ptr <= 'Z' && isalpha(*(ptr - 1)))
+            *ptr |= 0x20;
+        else if ((ptr == name.begin() || !isalpha(*(ptr - 1))) && *ptr >= 'a' && *ptr <= 'z')
             *ptr &= ~0x20;
+        else if (*ptr == ' ')
+            *ptr = '_';
     }
-}
-
-void FixNameSpaces(char* name, size_t len)
-{
-    if (len < 3)
-        return;
-
-    for (size_t i = 0; i < len - 3; i++)
-        if (name[i] == ' ')
-            name[i] = '_';
-}
-
-void NormalizeFileName(char* name, size_t len)
-{
-    if (len >= 4 && !memcmp(name, "FILE", 4)) // name is FileDataId formatted, do not normalize
-        return;
-
-    FixNameCase(name, len);
-    FixNameSpaces(name, len);
-}
-
-char* GetExtension(char* FileName)
-{
-    if (char* szTemp = strrchr(FileName, '.'))
-        return szTemp;
-    return nullptr;
 }
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
@@ -130,46 +104,32 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
         {
             if (size)
             {
-                char* buf = new char[size];
-                _file.read(buf, size);
-                char* p = buf;
-                while (p < buf + size)
+                char* p = _file.getPointer();
+                _file.seekRelative(size);
+                char* end = _file.getPointer();
+                while (p < end)
                 {
-                    std::string path(p);
+                    std::size_t length = std::ranges::distance(p, CStringSentinel.Checked(end));
+                    ModelInstanceNames.emplace_back(p, length);
 
-                    char* s = GetPlainName(p);
-                    NormalizeFileName(s, strlen(s));
-
-                    ModelInstanceNames.emplace_back(s);
-
-                    ExtractSingleModel(path);
-
-                    p += strlen(p) + 1;
+                    p += length + 1;
                 }
-                delete[] buf;
             }
         }
         else if (!strcmp(fourcc,"MWMO"))
         {
             if (size)
             {
-                char* buf = new char[size];
-                _file.read(buf, size);
-                char* p = buf;
-                while (p < buf + size)
+                char* p = _file.getPointer();
+                _file.seekRelative(size);
+                char* end = _file.getPointer();
+                while (p < end)
                 {
-                    std::string path(p);
+                    std::size_t length = std::ranges::distance(p, CStringSentinel.Checked(end));
+                    WmoInstanceNames.emplace_back(p, length);
 
-                    char* s = GetPlainName(p);
-                    NormalizeFileName(s, strlen(s));
-
-                    WmoInstanceNames.emplace_back(s);
-
-                    ExtractSingleWmo(path);
-
-                    p += strlen(p) + 1;
+                    p += length + 1;
                 }
-                delete[] buf;
             }
         }
         //======================

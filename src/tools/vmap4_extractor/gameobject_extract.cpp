@@ -20,6 +20,7 @@
 #include "Errors.h"
 #include "ExtractorDB2LoadInfo.h"
 #include "Memory.h"
+#include "StringConvert.h"
 #include "model.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
@@ -34,19 +35,16 @@ ExtractedModelData const* ExtractSingleModel(std::string& fname)
     if (fname.length() < 4)
         return nullptr;
 
-    std::string extension = fname.substr(fname.length() - 4, 4);
-    if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
-    {
-        fname.erase(fname.length() - 2, 2);
-        fname.append("2");
-    }
+    std::string_view extension = std::string_view(fname).substr(fname.length() - 4, 4);
+    if (StringEqualI(extension, ".mdx"sv) || StringEqualI(extension, ".mdl"sv))
+        fname.replace(fname.length() - 2, 2, "2");
 
     std::string originalName = fname;
 
-    char* name = GetPlainName((char*)fname.c_str());
-    NormalizeFileName(name, strlen(name));
+    fname = GetPlainName(fname);
+    NormalizeFileName(fname);
 
-    auto [model, shouldExtract] = BeginModelExtraction(name);
+    auto [model, shouldExtract] = BeginModelExtraction(fname);
     if (!shouldExtract)
     {
         model->Wait();
@@ -61,7 +59,7 @@ ExtractedModelData const* ExtractSingleModel(std::string& fname)
 
     std::string output(szWorkDirWmo);
     output += "/";
-    output += name;
+    output += fname;
 
     if (!mdl.ConvertToVMAPModel(output.c_str()))
         return nullptr;
