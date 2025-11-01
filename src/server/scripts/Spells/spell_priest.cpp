@@ -874,7 +874,7 @@ class spell_pri_dispersing_light_heal : public SpellScript
             return obj->GetGUID() == excludedTarget;
         });
 
-        int32 const maxTargets = args->maxTargets;
+        uint32 maxTargets = args->maxTargets;
         if (targets.size() > maxTargets)
         {
             targets.sort(Trinity::Predicates::HealthPctOrderPred());
