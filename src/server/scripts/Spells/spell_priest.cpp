@@ -38,6 +38,7 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
+#include "CommonPredicates.h"
 
 enum PriestSpells
 {
@@ -70,6 +71,8 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
+    SPELL_PRIEST_DISPERSING_LIGHT                   = 1215265,
+    SPELL_PRIEST_DISPERSING_LIGHT_HEAL              = 1215266,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
     SPELL_PRIEST_DIVINE_AEGIS_ABSORB                = 47753,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
@@ -791,6 +794,97 @@ class spell_pri_dark_indulgence : public SpellScript
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_pri_dark_indulgence::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 1215265 - Dispersing Light
+class spell_pri_dispersing_light : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DISPERSING_LIGHT_HEAL })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        if (!healInfo || !healInfo->GetHeal())
+            return;
+
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+
+        if (!caster || !target)
+            return;
+
+        int32 healAmount = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(healAmount);
+        args.SetTriggerFlags(TRIGGERED_FULL_MASK);
+        args.SetCustomArg(TriggerArgs{
+            .targetToExclude = target->GetGUID(),
+            .maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster)
+        });
+
+        caster->CastSpell(nullptr, SPELL_PRIEST_DISPERSING_LIGHT_HEAL, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_dispersing_light::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+
+public:
+    struct TriggerArgs
+    {
+        ObjectGuid targetToExclude;
+        int32 maxTargets = 0;
+    };
+};
+
+// 1215266 - Dispersing Light (Heal)
+class spell_pri_dispersing_light_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_0} });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        spell_pri_dispersing_light::TriggerArgs const* args = std::any_cast<spell_pri_dispersing_light::TriggerArgs>(&GetSpell()->m_customArg);
+        if (!args || args->targetToExclude.IsEmpty())
+            return;
+
+        float maxRange = GetSpellInfo()->GetEffect(EFFECT_0).TargetBRadiusEntry->RadiusMax;
+        targets.remove_if([caster, maxRange](WorldObject* obj)
+        {
+            return !caster->IsWithinDist(obj, maxRange);
+        });
+
+        ObjectGuid excludedTarget = args->targetToExclude;
+        targets.remove_if([excludedTarget](WorldObject* obj)
+        {
+            return obj->GetGUID() == excludedTarget;
+        });
+
+        int32 const maxTargets = args->maxTargets;
+        if (targets.size() > maxTargets)
+        {
+            targets.sort(Trinity::Predicates::HealthPctOrderPred());
+            targets.resize(maxTargets);
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_dispersing_light_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
 };
 
@@ -3559,6 +3653,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
+    RegisterSpellScript(spell_pri_dispersing_light);
+    RegisterSpellScript(spell_pri_dispersing_light_heal);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
