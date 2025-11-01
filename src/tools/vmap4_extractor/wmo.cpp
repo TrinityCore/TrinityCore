@@ -587,11 +587,6 @@ WMOGroup::~WMOGroup()
 
 void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, bool isGlobalWmo, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    // destructible wmo, do not dump. we can handle the vmap for these
-    // in dynamic tree (gameobject vmaps)
-    if ((mapObjDef.Flags & 0x1) != 0)
-        return;
-
     //-----------add_in _dir_file----------------
 
     std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, WmoInstName);
@@ -630,6 +625,17 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
     uint8 nameSet = mapObjDef.NameSet;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
+    if (mapObjDef.Flags & 0x1)
+    {
+        flags |= MOD_PATH_ONLY;
+        //if (FILE* destro = fopen("Buildings/destructible.log", "a"))
+        //{
+        //    fprintf(destro, R"(  { fileName: "%s", fileDataID: %u, mapId: %u, uniqueId: %u, pos: { x: %f, y: %f, z: %f }, rot: { x: %f, y: %f, z: %f } },)" "\n",
+        //        WmoInstName, mapObjDef.Id, mapID, mapObjDef.UniqueId, 533.33333f * 32 - mapObjDef.Position.z, 533.33333f * 32 - mapObjDef.Position.x, mapObjDef.Position.y,
+        //        mapObjDef.Rotation.x, mapObjDef.Rotation.y, mapObjDef.Rotation.z);
+        //    fclose(destro);
+        //}
+    }
 
     //write Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&flags, sizeof(uint8), 1, pDirfile);
