@@ -102,7 +102,7 @@ namespace MMAP
         m_terrainBuilder.loadMap(mapID, tileX, tileY, meshData, vmapManager.get());
 
         // get model data
-        m_terrainBuilder.loadVMap(mapID, tileY, tileX, meshData, vmapManager.get());
+        m_terrainBuilder.loadVMap(mapID, tileX, tileY, meshData, vmapManager.get());
 
         // if there is no data, give up now
         if (meshData.solidVerts.empty() && meshData.liquidVerts.empty())
@@ -448,7 +448,7 @@ namespace MMAP
         });
 
         // file output
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileY, tileX);
+        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
         {
@@ -481,8 +481,8 @@ namespace MMAP
         }
 
         // this is for width and depth
-        bmax[0] = (32 - int(tileX)) * GRID_SIZE;
-        bmax[2] = (32 - int(tileY)) * GRID_SIZE;
+        bmax[0] = (32 - int(tileY)) * GRID_SIZE;
+        bmax[2] = (32 - int(tileX)) * GRID_SIZE;
         bmin[0] = bmax[0] - GRID_SIZE;
         bmin[2] = bmax[2] - GRID_SIZE;
     }

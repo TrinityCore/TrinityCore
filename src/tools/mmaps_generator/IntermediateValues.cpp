@@ -37,7 +37,7 @@ namespace MMAP
 
         auto debugWrite = [&](char const* extension, auto const* data)
         {
-            std::string fileName = Trinity::StringFormat("meshes/{:04}{:02}{:02}.{}", mapID, tileY, tileX, extension);
+            std::string fileName = Trinity::StringFormat("meshes/{:04}{:02}{:02}.{}", mapID, tileX, tileY, extension);
             if (auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb")))
             {
                 this->debugWrite(file.get(), data);
@@ -191,7 +191,7 @@ namespace MMAP
     void IntermediateValues::generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData const& meshData)
     {
         std::string objFileName;
-        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.obj", mapID, tileY, tileX);
+        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.obj", mapID, tileX, tileY);
 
         auto objFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
@@ -219,7 +219,7 @@ namespace MMAP
         for (std::size_t i = 0; i < allTris.size() / 3; i++)
             fprintf(objFile.get(), "f %i %i %i\n", tris[i * 3] + 1, tris[i * 3 + 1] + 1, tris[i * 3 + 2] + 1);
 
-        TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output object file...", mapID, tileY, tileX);
+        TC_LOG_INFO("maps.mmapgen.debug", "[Map {:04}] [{:02},{:02}]: Writing debug output object file...", mapID, tileX, tileY);
 
         objFileName = Trinity::StringFormat("meshes/map{:04}.map", mapID);
 
@@ -233,7 +233,7 @@ namespace MMAP
         char b = '\0';
         fwrite(&b, sizeof(char), 1, objFile.get());
 
-        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.mesh", mapID, tileY, tileX);
+        objFileName = Trinity::StringFormat("meshes/map{:04}{:02}{:02}.mesh", mapID, tileX, tileY);
         objFile.reset(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
         {
