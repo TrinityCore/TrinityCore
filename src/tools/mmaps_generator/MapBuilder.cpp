@@ -161,8 +161,8 @@ namespace MMAP
 
                 std::string fileName = fileItr->path().filename().string();
 
-                uint32 tileX = Trinity::StringTo<uint32>(std::string_view(fileName).substr(8, 2)).value_or(0);
-                uint32 tileY = Trinity::StringTo<uint32>(std::string_view(fileName).substr(5, 2)).value_or(0);
+                uint32 tileX = Trinity::StringTo<uint32>(std::string_view(fileName).substr(5, 2)).value_or(0);
+                uint32 tileY = Trinity::StringTo<uint32>(std::string_view(fileName).substr(8, 2)).value_or(0);
                 uint32 tileID = VMAP::StaticMapTree::packTileID(tileX, tileY);
 
                 if (tiles.insert(tileID).second)
