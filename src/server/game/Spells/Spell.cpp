@@ -9386,7 +9386,7 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
     if (_condSrcInfo && _condList && !_condList->empty())
     {
         _condSrcInfo->mConditionTargets[0] = target;
-        
+
         bool hasObjectEntryGuidCondition = false;
         for (Condition const& condition : *_condList)
         {
@@ -9405,15 +9405,15 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                 .IncludeHiddenBySpawnTracking = true,
                 .IncludeAnyPrivateObject = true
             };
-            
+
             // Even if the visibility check fails, we still attempt the condition check.
             bool meetsConditions = sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
-            
+
             if (meetsConditions)
                 return true;
         }
     }
-    
+
     if (_spellInfo->CheckTarget(_caster, target, true) != SPELL_CAST_OK)
         return false;
 
