@@ -1224,8 +1224,7 @@ void Spell::EffectPowerBurn()
 
     int32 newDamage = -(unitTarget->ModifyPower(powerType, -damage));
 
-    // NO - Not a typo - EffectPowerBurn uses effect value multiplier - not effect damage multiplier
-    float dmgMultiplier = effectInfo->CalcValueMultiplier(GetUnitCasterForEffectHandlers(), this);
+    float dmgMultiplier = effectInfo->CalcDamageMultiplier(GetUnitCasterForEffectHandlers(), this);
 
     // add log data before multiplication (need power amount, not damage)
     ExecuteLogEffectTakeTargetPower(SpellEffectName(effectInfo->Effect), unitTarget, powerType, newDamage, 0.0f);
