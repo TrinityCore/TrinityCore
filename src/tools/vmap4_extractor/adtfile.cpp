@@ -15,12 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "vmapexport.h"
 #include "adtfile.h"
-#include "StringFormat.h"
-#include <cstdio>
-#include "Errors.h"
 #include "Memory.h"
+#include "StringFormat.h"
+#include "vmapexport.h"
+#include <cstdio>
 
 char const* GetPlainName(char const* FileName)
 {
@@ -183,16 +182,15 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 {
                     ADT::MDDF doodadDef;
                     _file.read(&doodadDef, sizeof(ADT::MDDF));
-                    if (!(doodadDef.Flags & 0x40))
-                    {
-                        Doodad::Extract(doodadDef, ModelInstanceNames[doodadDef.Id].c_str(), map_num, originalMapId, dirfile.get(), dirfileCache);
-                    }
+
+                    std::string fileName;
+                    if (doodadDef.Flags & 0x40)
+                        fileName = Trinity::StringFormat("FILE{:08X}.xxx", doodadDef.Id);
                     else
-                    {
-                        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", doodadDef.Id);
-                        ExtractSingleModel(fileName);
+                        fileName = ModelInstanceNames[doodadDef.Id];
+
+                    if (ExtractSingleModel(fileName))
                         Doodad::Extract(doodadDef, fileName.c_str(), map_num, originalMapId, dirfile.get(), dirfileCache);
-                    }
                 }
 
                 ModelInstanceNames.clear();
@@ -210,15 +208,18 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
 
                     std::string fileName;
                     if (mapObjDef.Flags & 0x8)
-                    {
                         fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
-                        ExtractSingleWmo(fileName);
-                    }
                     else
                         fileName = WmoInstanceNames[mapObjDef.Id];
 
-                    MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
-                    Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                    if (ExtractedModelData const* extracted = ExtractSingleWmo(fileName))
+                    {
+                        if (extracted->HasCollision())
+                            MapObject::Extract(mapObjDef, fileName.c_str(), false, map_num, originalMapId, dirfile.get(), dirfileCache);
+
+                        if (extracted->Doodads)
+                            Doodad::ExtractSet(*extracted->Doodads, mapObjDef, false, map_num, originalMapId, dirfile.get(), dirfileCache);
+                    }
                 }
 
                 WmoInstanceNames.clear();

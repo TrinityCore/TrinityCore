@@ -19,6 +19,7 @@
 #include "DB2CascFileSource.h"
 #include "Errors.h"
 #include "ExtractorDB2LoadInfo.h"
+#include "Memory.h"
 #include "model.h"
 #include "StringFormat.h"
 #include "vmapexport.h"
@@ -28,10 +29,10 @@
 #include <cstdio>
 #include "advstd.h"
 
-bool ExtractSingleModel(std::string& fname)
+ExtractedModelData const* ExtractSingleModel(std::string& fname)
 {
     if (fname.length() < 4)
-        return false;
+        return nullptr;
 
     std::string extension = fname.substr(fname.length() - 4, 4);
     if (extension == ".mdx" || extension == ".MDX" || extension == ".mdl" || extension == ".MDL")
@@ -45,18 +46,28 @@ bool ExtractSingleModel(std::string& fname)
     char* name = GetPlainName((char*)fname.c_str());
     NormalizeFileName(name, strlen(name));
 
+    auto [model, shouldExtract] = BeginModelExtraction(name);
+    if (!shouldExtract)
+    {
+        model->Wait();
+        return model->State.load(std::memory_order::relaxed) == ExtractedModelData::Ok ? model : nullptr;
+    }
+
+    auto stateGuard = Trinity::make_unique_ptr_with_deleter<&ExtractedModelData::Fail>(model);
+
+    Model mdl(originalName);
+    if (!mdl.open())
+        return nullptr;
+
     std::string output(szWorkDirWmo);
     output += "/";
     output += name;
 
-    if (FileExists(output.c_str()))
-        return true;
+    if (!mdl.ConvertToVMAPModel(output.c_str()))
+        return nullptr;
 
-    Model mdl(originalName);
-    if (!mdl.open())
-        return false;
-
-    return mdl.ConvertToVMAPModel(output.c_str());
+    stateGuard->Complete();
+    return stateGuard.release();
 }
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
@@ -123,9 +134,12 @@ void ExtractGameobjectModels()
 
         std::string_view header(headerRaw.data(), headerRaw.size());
         if (header == "REVM")
-            result = ExtractSingleWmo(fileName);
+        {
+            ExtractedModelData const* wmo = ExtractSingleWmo(fileName);
+            result = wmo && wmo->HasCollision();
+        }
         else if (header == "MD20" || header == "MD21")
-            result = ExtractSingleModel(fileName);
+            result = ExtractSingleModel(fileName) != nullptr;
         else if (header == "BLP2")
             continue;   // broken db2 data
         else

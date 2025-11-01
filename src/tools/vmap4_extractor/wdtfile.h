@@ -74,7 +74,7 @@ public:
     ~WDTFile();
     bool init(uint32 mapId);
 
-    ADTFile* GetMap(int32 x, int32 y);
+    ADTFile* GetMap(int32 x, int32 y, bool createIfMissing);
     void FreeADT(ADTFile* adt);
 private:
     CASCFile _file;
