@@ -1,10 +1,13 @@
 -- Creature
-DELETE FROM `creature_template_difficulty` WHERE (`Entry`=97916 AND `DifficultyID`=23);
+DELETE FROM `creature_template_difficulty` WHERE (`Entry`=97916 AND `DifficultyID` IN (23, 2));
 INSERT INTO `creature_template_difficulty` (`Entry`, `DifficultyID`, `LevelScalingDeltaMin`, `LevelScalingDeltaMax`, `ContentTuningID`, `StaticFlags1`, `StaticFlags2`, `StaticFlags3`, `StaticFlags4`, `StaticFlags5`, `StaticFlags6`, `StaticFlags7`, `StaticFlags8`, `VerifiedBuild`) VALUES
-(97916, 23, 2, 2, 629, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 63906); -- 97916 (Quake) - 
+(97916, 23, 2, 2, 629, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 63906), -- 97916 (Quake) - 
+(97916, 2, 2, 2, 628, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 64154); -- 97916 (Quake) - 
 
 UPDATE `creature_template_difficulty` SET `HealthScalingExpansion`=6, `HealthModifier`=2, `CreatureDifficultyID`=98421, `TypeFlags`=0x400, `TypeFlags2`=128 WHERE (`Entry`=97916 AND `DifficultyID`=23); -- Quake
 UPDATE `creature_template_difficulty` SET `ContentTuningID`=629, `StaticFlags1`=0x10000000, `VerifiedBuild`=63906 WHERE (`Entry`=91797 AND `DifficultyID`=0); -- 91797 (King Deepbeard) - CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=628, `VerifiedBuild`=64154 WHERE (`Entry`=91797 AND `DifficultyID`=0); -- 91797 (King Deepbeard) - CanSwim
+UPDATE `creature_template_difficulty` SET `LevelScalingDeltaMin`=0, `VerifiedBuild`=64154 WHERE (`Entry`=91797 AND `DifficultyID`=2); -- 91797 (King Deepbeard) - CanSwim
 
 UPDATE `creature_template` SET `faction`=14, `speed_walk`=1.60000002384185791, `speed_run`=0.571428596973419189, `BaseAttackTime`=2000, `unit_flags`=0x2000000, `unit_flags3`=0x80001, `AIName`='SmartAI' WHERE `entry`=97916; -- Quake
 UPDATE `creature_template` SET `ScriptName`='boss_king_deepbeard' WHERE `entry`=91797;
