@@ -589,23 +589,6 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
 {
     //-----------add_in _dir_file----------------
 
-    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, WmoInstName);
-    FILE* input = fopen(tempname.c_str(), "r+b");
-
-    if (!input)
-    {
-        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname.c_str());
-        return;
-    }
-
-    fseek(input, 8, SEEK_SET); // get the correct no of vertices
-    int nVertices;
-    int count = fread(&nVertices, sizeof(int), 1, input);
-    fclose(input);
-
-    if (count != 1 || nVertices == 0)
-        return;
-
     Vec3D position = fixCoords(mapObjDef.Position);
     AaBox3D bounds;
     bounds.min = fixCoords(mapObjDef.Bounds.min);

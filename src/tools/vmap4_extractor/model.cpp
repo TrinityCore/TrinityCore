@@ -159,21 +159,7 @@ Vec3D fixCoordSystem(Vec3D const& v)
 
 void Doodad::Extract(ADT::MDDF const& doodadDef, char const* ModelInstName, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
-    FILE* input = fopen(tempname.c_str(), "r+b");
-
-    if (!input)
-        return;
-
-    fseek(input, 8, SEEK_SET); // get the correct no of vertices
-    int nVertices;
-    int count = fread(&nVertices, sizeof(int), 1, input);
-    fclose(input);
-
-    if (count != 1 || nVertices == 0)
-        return;
-
-    // scale factor - divide by 1024. blizzard devs must be on crack, why not just use a float?
+    // scale factor - divide by 1024
     float sc = doodadDef.Scale / 1024.0f;
 
     Vec3D position = fixCoords(doodadDef.Position);
@@ -261,17 +247,7 @@ void Doodad::ExtractSet(WMODoodadData const& doodadData, ADT::MODF const& wmo, b
                 nlen = ModelInstName.length();
             }
 
-            std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, ModelInstName);
-            FILE* input = fopen(tempname.c_str(), "r+b");
-            if (!input)
-                continue;
-
-            fseek(input, 8, SEEK_SET); // get the correct no of vertices
-            int nVertices;
-            int count = fread(&nVertices, sizeof(int), 1, input);
-            fclose(input);
-
-            if (count != 1 || nVertices == 0)
+            if (!ExtractSingleModel(ModelInstName))
                 continue;
 
             ASSERT(doodadId < std::numeric_limits<uint16>::max());
