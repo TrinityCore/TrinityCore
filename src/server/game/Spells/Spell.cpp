@@ -9406,10 +9406,10 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
                 .IncludeAnyPrivateObject = true
             };
 
-            // Even if the visibility check fails, we still attempt the condition check.
+            bool visibilityCheck = _caster->CanSeeOrDetect(target, relaxedArgs);
             bool meetsConditions = sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
 
-            if (meetsConditions)
+            if (visibilityCheck || meetsConditions)
                 return true;
         }
     }
@@ -9504,7 +9504,6 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
         _condSrcInfo->mConditionTargets[0] = target;
         return sConditionMgr->IsObjectMeetToConditions(*_condSrcInfo, *_condList);
     }
-
     return true;
 }
 
