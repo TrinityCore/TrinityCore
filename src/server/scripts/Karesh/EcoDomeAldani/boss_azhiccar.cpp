@@ -24,6 +24,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "ecodome_aldani.h"
 
@@ -258,8 +259,7 @@ struct boss_azhiccar : public BossAI
                     {
                         DoCastSelf(SPELL_DEVOUR);
 
-                        if (IsMythic() || IsMythicPlus())
-                            events.ScheduleEvent(EVENT_INVADING_SHRIEK, 2500ms);
+                        // Todo: implement m+ mechanic for spawning more Devourer Mites
                     }
                     else
                         events.Repeat(500ms);
