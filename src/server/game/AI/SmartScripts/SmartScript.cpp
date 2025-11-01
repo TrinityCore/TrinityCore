@@ -580,7 +580,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
-            
+
             // Add a custom maximum number of targets to override the default MaxEffectedTargets
             if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
             {
@@ -661,7 +661,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 else
                     args.TriggerFlags = TRIGGERED_FULL_MASK;
             }
-            
+
             // Add a custom maximum number of targets to override the default MaxEffectedTargets
             if (e.target.unitRange.maxSize || e.target.unitDistance.maxSize)
             {
