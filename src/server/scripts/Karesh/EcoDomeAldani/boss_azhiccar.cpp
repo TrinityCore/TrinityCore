@@ -24,6 +24,7 @@
 #include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "ecodome_aldani.h"
