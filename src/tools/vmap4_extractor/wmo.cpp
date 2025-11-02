@@ -23,6 +23,7 @@
 #include "vec3d.h"
 #include "VMapDefinitions.h"
 #include "wmo.h"
+#include "Util.h"
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -86,19 +87,17 @@ bool WMORoot::open()
         {
             ASSERT(!DoodadData.FileDataIds);
 
-            char* ptr = f.getPointer();
-            char* end = ptr + size;
             DoodadData.Paths = std::make_unique<char[]>(size);
-            memcpy(DoodadData.Paths.get(), ptr, size);
+            f.read(DoodadData.Paths.get(), size);
+            char* ptr = DoodadData.Paths.get();
+            char* end = ptr + size;
             while (ptr < end)
             {
-                std::string path = ptr;
+                std::size_t length = std::ranges::distance(ptr, CStringSentinel.Checked(end));
+                std::string path(ptr, length);
 
-                char* s = GetPlainName(ptr);
-                NormalizeFileName(s, strlen(s));
-
-                uint32 doodadNameIndex = ptr - f.getPointer();
-                ptr += path.length() + 1;
+                uint32 doodadNameIndex = ptr - DoodadData.Paths.get();
+                ptr += length + 1;
 
                 if (ExtractSingleModel(path))
                     ValidDoodadNames.insert(doodadNameIndex);
@@ -587,29 +586,7 @@ WMOGroup::~WMOGroup()
 
 void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, bool isGlobalWmo, uint32 mapID, uint32 originalMapId, FILE* pDirfile, std::vector<ADTOutputCache>* dirfileCache)
 {
-    // destructible wmo, do not dump. we can handle the vmap for these
-    // in dynamic tree (gameobject vmaps)
-    if ((mapObjDef.Flags & 0x1) != 0)
-        return;
-
     //-----------add_in _dir_file----------------
-
-    std::string tempname = Trinity::StringFormat("{}/{}", szWorkDirWmo, WmoInstName);
-    FILE* input = fopen(tempname.c_str(), "r+b");
-
-    if (!input)
-    {
-        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname.c_str());
-        return;
-    }
-
-    fseek(input, 8, SEEK_SET); // get the correct no of vertices
-    int nVertices;
-    int count = fread(&nVertices, sizeof(int), 1, input);
-    fclose(input);
-
-    if (count != 1 || nVertices == 0)
-        return;
 
     Vec3D position = fixCoords(mapObjDef.Position);
     AaBox3D bounds;
@@ -630,6 +607,17 @@ void MapObject::Extract(ADT::MODF const& mapObjDef, char const* WmoInstName, boo
     uint8 nameSet = mapObjDef.NameSet;
     if (mapID != originalMapId)
         flags |= MOD_PARENT_SPAWN;
+    if (mapObjDef.Flags & 0x1)
+    {
+        flags |= MOD_PATH_ONLY;
+        //if (FILE* destro = fopen("Buildings/destructible.log", "a"))
+        //{
+        //    fprintf(destro, R"(  { fileName: "%s", fileDataID: %u, mapId: %u, uniqueId: %u, pos: { x: %f, y: %f, z: %f }, rot: { x: %f, y: %f, z: %f } },)" "\n",
+        //        WmoInstName, mapObjDef.Id, mapID, mapObjDef.UniqueId, 533.33333f * 32 - mapObjDef.Position.z, 533.33333f * 32 - mapObjDef.Position.x, mapObjDef.Position.y,
+        //        mapObjDef.Rotation.x, mapObjDef.Rotation.y, mapObjDef.Rotation.z);
+        //    fclose(destro);
+        //}
+    }
 
     //write Flags, NameSet, UniqueId, Pos, Rot, Scale, Bound_lo, Bound_hi, name
     fwrite(&flags, sizeof(uint8), 1, pDirfile);

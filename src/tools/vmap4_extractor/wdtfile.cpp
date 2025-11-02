@@ -22,22 +22,15 @@
 #include "Errors.h"
 #include "Memory.h"
 #include "StringFormat.h"
+#include "Util.h"
 #include <cstdio>
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
 
 WDTFile::WDTFile(uint32 fileDataId, std::string const& description, std::string mapName, bool cache)
-    : _file(CascStorage, fileDataId, description), _mapName(std::move(mapName))
+    : _file(CascStorage, fileDataId, description), _header(), _adtInfo(), _mapName(std::move(mapName)),
+    _adtCache(cache ? std::make_unique<ADTCache>() : nullptr)
 {
-    memset(&_header, 0, sizeof(WDT::MPHD));
-    memset(&_adtInfo, 0, sizeof(WDT::MAIN));
-    if (cache)
-    {
-        _adtCache = std::make_unique<ADTCache>();
-        memset(_adtCache->file, 0, sizeof(_adtCache->file));
-    }
-    else
-        _adtCache = nullptr;
 }
 
 WDTFile::~WDTFile() = default;
@@ -89,21 +82,16 @@ bool WDTFile::init(uint32 mapId)
             // global map objects
             if (size)
             {
-                char *buf = new char[size];
-                _file.read(buf, size);
-                char *p = buf;
-                while (p < buf + size)
+                char* p = _file.getPointer();
+                _file.seekRelative(size);
+                char* end = _file.getPointer();
+                while (p < end)
                 {
-                    std::string path(p);
+                    std::size_t length = std::ranges::distance(p, CStringSentinel.Checked(end));
+                    _wmoNames.emplace_back(p, length);
 
-                    char* s = GetPlainName(p);
-                    NormalizeFileName(s, strlen(s));
-                    p = p + strlen(p) + 1;
-                    _wmoNames.emplace_back(s);
-
-                    ExtractSingleWmo(path);
+                    p += length + 1;
                 }
-                delete[] buf;
             }
         }
         else if (!strcmp(fourcc, "MODF"))
@@ -116,17 +104,20 @@ bool WDTFile::init(uint32 mapId)
                 {
                     ADT::MODF mapObjDef;
                     _file.read(&mapObjDef, sizeof(ADT::MODF));
-                    if (!(mapObjDef.Flags & 0x8))
-                    {
-                        MapObject::Extract(mapObjDef, _wmoNames[mapObjDef.Id].c_str(), true, mapId, mapId, dirfile.get(), nullptr);
-                        Doodad::ExtractSet(WmoDoodads[_wmoNames[mapObjDef.Id]], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
-                    }
+
+                    std::string fileName;
+                    if (mapObjDef.Flags & 0x8)
+                        fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
                     else
+                        fileName = _wmoNames[mapObjDef.Id];
+
+                    if (ExtractedModelData const* extracted = ExtractSingleWmo(fileName))
                     {
-                        std::string fileName = Trinity::StringFormat("FILE{:08X}.xxx", mapObjDef.Id);
-                        ExtractSingleWmo(fileName);
-                        MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile.get(), nullptr);
-                        Doodad::ExtractSet(WmoDoodads[fileName], mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
+                        if (extracted->HasCollision())
+                            MapObject::Extract(mapObjDef, fileName.c_str(), true, mapId, mapId, dirfile.get(), nullptr);
+
+                        if (extracted->Doodads)
+                            Doodad::ExtractSet(*extracted->Doodads, mapObjDef, true, mapId, mapId, dirfile.get(), nullptr);
                     }
                 }
             }
@@ -138,7 +129,7 @@ bool WDTFile::init(uint32 mapId)
     return true;
 }
 
-ADTFile* WDTFile::GetMap(int32 x, int32 y)
+ADTFile* WDTFile::GetMap(int32 x, int32 y, bool createIfMissing)
 {
     if (!(x >= 0 && y >= 0 && x < 64 && y < 64))
         return nullptr;
@@ -147,6 +138,9 @@ ADTFile* WDTFile::GetMap(int32 x, int32 y)
         return _adtCache->file[x][y].get();
 
     if (!(_adtInfo.Data[y][x].Flag & 1))
+        return nullptr;
+
+    if (!createIfMissing)
         return nullptr;
 
     ADTFile* adt;
