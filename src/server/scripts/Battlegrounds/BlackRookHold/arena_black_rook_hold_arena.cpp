@@ -15,19 +15,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AreaTrigger.h"
 #include "Battleground.h"
 #include "BattlegroundScript.h"
-#include "Creature.h"
 #include "GameObject.h"
 #include "Map.h"
-#include "MotionMaster.h"
-#include "Player.h"
 #include "ScriptMgr.h"
-#include "TaskScheduler.h"
 
-namespace EmpyreanDomain
+namespace BlackRookHoldArena
 {
+    namespace MapIds
+    {
+        static constexpr uint32 BlackRookHoldArena = 1504;
+    }
+
     namespace GameObjects
     {
         static constexpr uint32 BlackRookDoor02 = 245763;
@@ -54,12 +54,12 @@ struct arena_black_rook_hold_arena : ArenaScript
     {
         switch (gameobject->GetEntry())
         {
-            case EmpyreanDomain::GameObjects::BlackRookDoor02:
-            case EmpyreanDomain::GameObjects::BlackRookDoor05:
-            case EmpyreanDomain::GameObjects::BlackRookDoor06:
-            case EmpyreanDomain::GameObjects::BlackRookDoor09:
-            case EmpyreanDomain::GameObjects::BlackRookDoor07:
-            case EmpyreanDomain::GameObjects::BlackRookDoor10:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor02:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor05:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor06:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor09:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor07:
+            case BlackRookHoldArena::GameObjects::BlackRookDoor10:
                 _doorGUIDs.emplace_back(gameobject->GetGUID());
                 break;
             default:
@@ -73,5 +73,5 @@ private:
 
 void AddSC_arena_black_rook_hold_arena()
 {
-    RegisterBattlegroundMapScript(arena_black_rook_hold_arena, 1504);
+    RegisterBattlegroundMapScript(arena_black_rook_hold_arena, BlackRookHoldArena::MapIds::BlackRookHoldArena);
 }

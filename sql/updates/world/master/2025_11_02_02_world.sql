@@ -1,6 +1,6 @@
-SET @CGUID := 119990000;
-SET @OGUID := 119990000;
-SET @SPAWN_GROUP := 299900;
+SET @CGUID := 6006031;
+SET @OGUID := 6003052;
+SET @SPAWN_GROUP := 1282;
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 1504 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES
@@ -14,7 +14,7 @@ DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWN_GROUP+0 AND @S
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
 (@SPAWN_GROUP+0, 'Black Rook Hold Arena - Shadow sight', 0x20);
 
-DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+51;
+DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+44;
 INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `wander_distance`, `currentwaypoint`, `MovementType`, `npcflag`, `unit_flags`, `unit_flags2`, `unit_flags3`, `VerifiedBuild`) VALUES
 (@CGUID+0, 113180, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1425.5885009765625, 1311.2083740234375, 53.24037933349609375, 4.736895561218261718, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
 (@CGUID+1, 113180, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1393.392333984375, 1293.920166015625, 48.62905120849609375, 5.532239437103271484, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
@@ -33,34 +33,34 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 (@CGUID+14, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1392.173583984375, 1198.60595703125, 48.61893844604492187, 1.071634650230407714, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
 (@CGUID+15, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1473.263916015625, 1217.5538330078125, 48.6434783935546875, 2.929628372192382812, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
 (@CGUID+16, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1454.892333984375, 1194.1771240234375, 51.01436996459960937, 2.129171609878540039, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+18, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1429.13134765625, 1276.8773193359375, 33.22537994384765625, 5.266579151153564453, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+19, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1383.579833984375, 1216.6353759765625, 46.71955108642578125, 0.609175741672515869, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+20, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1465.203369140625, 1245.3006591796875, 32.98969268798828125, 0.957385122776031494, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+21, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1415.4722900390625, 1302.732666015625, 48.64091873168945312, 4.757316112518310546, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+22, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1376.4722900390625, 1208.2847900390625, 50.97879409790039062, 0.370390832424163818, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+23, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1472.4722900390625, 1242.875, 46.72802352905273437, 3.104459524154663085, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+24, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1400.5260009765625, 1289.8853759765625, 46.71635818481445312, 5.375006675720214843, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+25, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1435.862548828125, 1304.86865234375, 74.0537567138671875, 5.254535198211669921, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+29, 114617, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1418.9757080078125, 1297.6458740234375, 33.08808517456054687, 0, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Risen Saber (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 184387 - Black Rook Hold Ghost Visual)
-(@CGUID+31, 114617, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.6441650390625, 1218.1302490234375, 33.08701705932617187, 1.057152390480041503, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Risen Saber (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 184387 - Black Rook Hold Ghost Visual)
-(@CGUID+32, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1426.3172607421875, 1194.4637451171875, 32.26053619384765625, 3.108500480651855468, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+33, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1391.90087890625, 1216.066650390625, 33.949127197265625, 4.225357532501220703, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+34, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1411.09765625, 1192.5714111328125, 32.26054000854492187, 2.879513740539550781, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+35, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1411.875, 1239.3507080078125, 34.19060134887695312, 1.52785956859588623, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+36, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1462.0069580078125, 1203.19970703125, 48.6137542724609375, 1.972630023956298828, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+37, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1438.90283203125, 1282.0660400390625, 33.07302093505859375, 4.635184288024902343, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+38, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1324.19189453125, 1242.88427734375, 63.12650299072265625, 0.003253789152950048, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+39, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1350.1671142578125, 1280.3900146484375, 106.6975173950195312, 4.724079132080078125, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+40, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.9161376953125, 1219.8092041015625, 110.937652587890625, 1.391187787055969238, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+42, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1323.37890625, 1243.4534912109375, 63.3365631103515625, 0.164714828133583068, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+44, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1371.8175048828125, 1253.8363037109375, 32.26054000854492187, 5.696830272674560546, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+45, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1439.4691162109375, 1217.3165283203125, 33.00476455688476562, 4.563040733337402343, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+46, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1460.8739013671875, 1283.9073486328125, 32.2605438232421875, 4.492687225341796875, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+47, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1318.49658203125, 1204.293701171875, 104.2949752807617187, 5.937742233276367187, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+48, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.460205078125, 1245.385498046875, 107.5664901733398437, 3.9197235107421875, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
-(@CGUID+49, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1474.311279296875, 1263.5736083984375, 32.26054000854492187, 0.768477439880371093, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
-(@CGUID+50, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1469.5416259765625, 1225.5711669921875, 32.736480712890625, 0, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1
-(@CGUID+51, 113180, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1374.357666015625, 1274.392333984375, 48.64179229736328125, 5.843991756439208984, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305); -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+17, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1429.13134765625, 1276.8773193359375, 33.22537994384765625, 5.266579151153564453, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+18, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1383.579833984375, 1216.6353759765625, 46.71955108642578125, 0.609175741672515869, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+19, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1465.203369140625, 1245.3006591796875, 32.98969268798828125, 0.957385122776031494, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+20, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1415.4722900390625, 1302.732666015625, 48.64091873168945312, 4.757316112518310546, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+21, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1376.4722900390625, 1208.2847900390625, 50.97879409790039062, 0.370390832424163818, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+22, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1472.4722900390625, 1242.875, 46.72802352905273437, 3.104459524154663085, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+23, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1400.5260009765625, 1289.8853759765625, 46.71635818481445312, 5.375006675720214843, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+24, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1435.862548828125, 1304.86865234375, 74.0537567138671875, 5.254535198211669921, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+25, 114617, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1418.9757080078125, 1297.6458740234375, 33.08808517456054687, 0, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Risen Saber (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 184387 - Black Rook Hold Ghost Visual)
+(@CGUID+26, 114617, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.6441650390625, 1218.1302490234375, 33.08701705932617187, 1.057152390480041503, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Risen Saber (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 184387 - Black Rook Hold Ghost Visual)
+(@CGUID+27, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1426.3172607421875, 1194.4637451171875, 32.26053619384765625, 3.108500480651855468, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+28, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1391.90087890625, 1216.066650390625, 33.949127197265625, 4.225357532501220703, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+29, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1411.09765625, 1192.5714111328125, 32.26054000854492187, 2.879513740539550781, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+30, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1411.875, 1239.3507080078125, 34.19060134887695312, 1.52785956859588623, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+31, 113264, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1462.0069580078125, 1203.19970703125, 48.6137542724609375, 1.972630023956298828, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+32, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1438.90283203125, 1282.0660400390625, 33.07302093505859375, 4.635184288024902343, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+33, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1324.19189453125, 1242.88427734375, 63.12650299072265625, 0.003253789152950048, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+34, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1350.1671142578125, 1280.3900146484375, 106.6975173950195312, 4.724079132080078125, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+35, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.9161376953125, 1219.8092041015625, 110.937652587890625, 1.391187787055969238, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+36, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1323.37890625, 1243.4534912109375, 63.3365631103515625, 0.164714828133583068, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+37, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1371.8175048828125, 1253.8363037109375, 32.26054000854492187, 5.696830272674560546, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+38, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1439.4691162109375, 1217.3165283203125, 33.00476455688476562, 4.563040733337402343, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+39, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1460.8739013671875, 1283.9073486328125, 32.2605438232421875, 4.492687225341796875, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+40, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1318.49658203125, 1204.293701171875, 104.2949752807617187, 5.937742233276367187, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+41, 114618, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1467.460205078125, 1245.385498046875, 107.5664901733398437, 3.9197235107421875, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Kaldorei Windgryph (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
+(@CGUID+42, 114620, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1474.311279296875, 1263.5736083984375, 32.26054000854492187, 0.768477439880371093, 7200, 10, 0, 1, NULL, NULL, NULL, NULL, 63305), -- Dusk Spiderling (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (possible waypoints or random movement)
+(@CGUID+43, 114621, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1469.5416259765625, 1225.5711669921875, 32.736480712890625, 0, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305), -- Cockroach (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1
+(@CGUID+44, 113180, 1504, 7816, 7816, '0', '0', 0, 0, 0, 1374.357666015625, 1274.392333984375, 48.64179229736328125, 5.843991756439208984, 7200, 0, 0, 0, NULL, NULL, NULL, NULL, 63305); -- Ghostly Spectator (Area: Black Rook Hold Arena - Difficulty: 0) CreateObject1 (Auras: 225288 - Crowd)
 
 DELETE FROM `creature_addon` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+52;
 
@@ -129,7 +129,7 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 33 AND `SourceEntry` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceEntry`, `SourceGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ScriptName`) VALUES
 (33, @SPAWN_GROUP, 0, 0, 0, 'condition_is_shadow_sight_enabled');
 
-SET @MOVERGUID := @CGUID+39;
+SET @MOVERGUID := @CGUID+34;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 0;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -151,7 +151,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+48;
+SET @MOVERGUID := @CGUID+41;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 1;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -175,7 +175,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+47;
+SET @MOVERGUID := @CGUID+40;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 2;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -198,7 +198,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+38;
+SET @MOVERGUID := @CGUID+33;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 3;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -226,7 +226,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+25;
+SET @MOVERGUID := @CGUID+24;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 5;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -249,7 +249,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+40;
+SET @MOVERGUID := @CGUID+35;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 6;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
@@ -274,7 +274,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `mount`, `StandState`, `AnimTier`, `VisFlags`, `SheathState`, `PvpFlags`, `emote`, `aiAnimKit`, `movementAnimKit`, `meleeAnimKit`, `visibilityDistanceType`, `auras`) VALUES
 (@MOVERGUID, @PATH, 0, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, '225288'); -- 114618 (Kaldorei Windgryph) - Crowd
 
-SET @MOVERGUID := @CGUID+42;
+SET @MOVERGUID := @CGUID+36;
 SET @ENTRY := 114618;
 SET @PATHOFFSET := 7;
 SET @PATH := @ENTRY * 100 + @PATHOFFSET;
