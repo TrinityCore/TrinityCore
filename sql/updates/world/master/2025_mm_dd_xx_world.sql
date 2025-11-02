@@ -12,7 +12,7 @@ INSERT INTO `battleground_template` (`ID`, `AllianceStartLoc`, `HordeStartLoc`, 
 
 DELETE FROM `spawn_group_template` WHERE `groupId` BETWEEN @SPAWN_GROUP+0 AND @SPAWN_GROUP+0;
 INSERT INTO `spawn_group_template` (`groupId`, `groupName`, `groupFlags`) VALUES
-(@SPAWN_GROUP+0, 'Empyrean Domain - Shadow sight', 0x20);
+(@SPAWN_GROUP+0, 'Tigers Peak - Shadow sight', 0x20);
 
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @OGUID+0 AND @OGUID+3;
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficulties`, `PhaseId`, `PhaseGroup`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`, `VerifiedBuild`) VALUES
