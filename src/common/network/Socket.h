@@ -366,6 +366,89 @@ private:
 
     bool _isWritingAsync = false;
 };
+
+namespace Impl::Operations
+{
+struct ConnectState
+{
+    explicit ConnectState(std::shared_ptr<void> const& socketRef, boost::asio::ip::tcp::endpoint const& endpoint)
+        : SocketRef(socketRef), Endpoints(1, endpoint), Index(-1) { }
+
+    explicit ConnectState(std::shared_ptr<void> const& socketRef, std::vector<boost::asio::ip::tcp::endpoint> const& endpoints)
+        : SocketRef(socketRef), Endpoints(endpoints), Index(-1) { }
+
+    std::weak_ptr<void> SocketRef;
+    std::vector<boost::asio::ip::tcp::endpoint> Endpoints;
+    std::ptrdiff_t Index;
+};
+
+template <typename Socket>
+struct Connect
+{
+    explicit Connect(std::shared_ptr<Socket> const& socketRef, boost::asio::ip::tcp::endpoint const& endpoint)
+        : State(std::make_shared<ConnectState>(std::move(socketRef), endpoint)) { }
+
+    explicit Connect(std::shared_ptr<Socket> const& socketRef, std::vector<boost::asio::ip::tcp::endpoint> const& endpoints)
+        : State(std::make_shared<ConnectState>(std::move(socketRef), endpoints)) { }
+
+    std::shared_ptr<ConnectState> State;
+
+    template <typename Handler>
+    void operator()(Handler& handler, boost::system::error_code error = {})
+    {
+        std::shared_ptr<Socket> socket = static_pointer_cast<Socket>(State->SocketRef.lock());
+        if (!socket)
+        {
+            error = boost::asio::error::operation_aborted;
+            handler.complete(error, boost::asio::ip::tcp::endpoint());
+            return;
+        }
+
+        bool isFirst = State->Index < 0;
+
+        if (std::max(State->Index, std::ptrdiff_t(0)) >= std::ssize(State->Endpoints))
+        {
+            Connect::HandleError(socket.get(), "failed to connect to any of specified endpoints");
+            error = boost::asio::error::not_found;
+            handler.complete(error, boost::asio::ip::tcp::endpoint());
+            return;
+        }
+
+        if (!isFirst && !socket->underlying_stream().is_open())
+        {
+            Connect::HandleError(socket.get(), "socket closed");
+            error = boost::asio::error::operation_aborted;
+            handler.complete(error, boost::asio::ip::tcp::endpoint());
+            return;
+        }
+
+        if (!error && !isFirst)
+        {
+            socket->SetRemoteEndpoint(State->Endpoints[State->Index]);
+            handler.complete(error, State->Endpoints[State->Index]);
+        }
+        else
+        {
+#if BOOST_VERSION >= 107700
+            if (handler.get_cancellation_state().cancelled() != boost::asio::cancellation_type::none)
+            {
+                Connect::HandleError(socket.get(), "connect cancelled");
+                error = boost::asio::error::operation_aborted;
+            }
+#endif
+
+            socket->underlying_stream().close(error);
+            socket->underlying_stream().async_connect(State->Endpoints[++State->Index], std::move(handler));
+        }
+    }
+
+    static void HandleError(Socket* self, std::string_view message)
+    {
+        TC_LOG_DEBUG("network", "Socket::Connect: {}", message);
+        self->CloseSocket();
+    }
+};
+}
 }
 
 #endif // TRINITYCORE_SOCKET_H
