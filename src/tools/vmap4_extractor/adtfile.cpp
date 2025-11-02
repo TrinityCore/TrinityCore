@@ -20,7 +20,10 @@
 #include "Memory.h"
 #include "StringFormat.h"
 #include "Util.h"
+#include "model.h"
 #include "vmapexport.h"
+#include "wmo.h"
+#include <algorithm>
 #include <cstdio>
 
 std::string_view GetPlainName(std::string_view fileName)
@@ -92,15 +95,14 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
 
     while (!_file.isEof())
     {
-        char fourcc[5];
+        char fourcc[4];
         _file.read(&fourcc,4);
         _file.read(&size, 4);
-        flipcc(fourcc);
-        fourcc[4] = 0;
+        std::ranges::reverse(fourcc);
 
         size_t nextpos = _file.getPos() + size;
 
-        if (!strcmp(fourcc,"MMDX"))
+        if (!memcmp(fourcc, "MMDX", 4))
         {
             if (size)
             {
@@ -116,7 +118,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 }
             }
         }
-        else if (!strcmp(fourcc,"MWMO"))
+        else if (!memcmp(fourcc, "MWMO", 4))
         {
             if (size)
             {
@@ -133,7 +135,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
             }
         }
         //======================
-        else if (!strcmp(fourcc, "MDDF"))
+        else if (!memcmp(fourcc, "MDDF", 4))
         {
             if (size)
             {
@@ -156,7 +158,7 @@ bool ADTFile::init(uint32 map_num, uint32 originalMapId)
                 ModelInstanceNames.clear();
             }
         }
-        else if (!strcmp(fourcc,"MODF"))
+        else if (!memcmp(fourcc, "MODF", 4))
         {
             if (size)
             {

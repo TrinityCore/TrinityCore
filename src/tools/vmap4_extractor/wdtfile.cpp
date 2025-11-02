@@ -15,14 +15,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "vmapexport.h"
 #include "wdtfile.h"
 #include "adtfile.h"
-#include "Common.h"
 #include "Errors.h"
 #include "Memory.h"
+#include "model.h"
 #include "StringFormat.h"
 #include "Util.h"
+#include "vmapexport.h"
+#include "wmo.h"
+#include <algorithm>
 #include <cstdio>
 
 extern std::shared_ptr<CASC::Storage> CascStorage;
@@ -40,7 +42,7 @@ bool WDTFile::init(uint32 mapId)
     if (_file.isEof())
         return false;
 
-    char fourcc[5];
+    char fourcc[4];
     uint32 size;
 
     std::string dirname = Trinity::StringFormat("{}/dir_bin/{:04}", szWorkDirWmo, mapId);
@@ -56,28 +58,27 @@ bool WDTFile::init(uint32 mapId)
         _file.read(fourcc,4);
         _file.read(&size, 4);
 
-        flipcc(fourcc);
-        fourcc[4] = 0;
+        std::ranges::reverse(fourcc);
 
         size_t nextpos = _file.getPos() + size;
 
-        if (!strcmp(fourcc, "MPHD"))
+        if (!memcmp(fourcc, "MPHD", 4))
         {
             ASSERT(size == sizeof(WDT::MPHD));
             _file.read(&_header, sizeof(WDT::MPHD));
         }
-        else if (!strcmp(fourcc,"MAIN"))
+        else if (!memcmp(fourcc, "MAIN", 4))
         {
             ASSERT(size == sizeof(WDT::MAIN));
             _file.read(&_adtInfo, sizeof(WDT::MAIN));
         }
-        else if (!strcmp(fourcc, "MAID"))
+        else if (!memcmp(fourcc, "MAID", 4))
         {
             ASSERT(size == sizeof(WDT::MAID));
             _adtFileDataIds = std::make_unique<WDT::MAID>();
             _file.read(_adtFileDataIds.get(), sizeof(WDT::MAID));
         }
-        else if (!strcmp(fourcc,"MWMO"))
+        else if (!memcmp(fourcc, "MWMO", 4))
         {
             // global map objects
             if (size)
@@ -94,7 +95,7 @@ bool WDTFile::init(uint32 mapId)
                 }
             }
         }
-        else if (!strcmp(fourcc, "MODF"))
+        else if (!memcmp(fourcc, "MODF", 4))
         {
             // global wmo instance data
             if (size)

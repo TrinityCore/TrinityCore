@@ -19,7 +19,6 @@
 #define WDTFILE_H
 
 #include "cascfile.h"
-#include "wmo.h"
 #include <memory>
 #include <string>
 #include <vector>

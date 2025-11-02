@@ -22,7 +22,6 @@
 #include <atomic>
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 // flags of each spawn
 enum ModelInstanceFlags

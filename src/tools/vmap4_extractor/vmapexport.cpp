@@ -32,14 +32,13 @@
 #include "VMapDefinitions.h"
 #include "wdtfile.h"
 #include "wmo.h"
-#include <CascLib.h>
 #include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <CascLib.h>
 #include <algorithm>
-#include <list>
 #include <map>
+#include <mutex>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 #include <cstdio>
 
