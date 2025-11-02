@@ -1,6 +1,5 @@
-SET @CGUID := 119990000;
-SET @OGUID := 119990000;
-SET @SPAWN_GROUP := 299900;
+SET @OGUID := 4000246;
+SET @SPAWN_GROUP := 1281;
 
 DELETE FROM `battleground_scripts` WHERE `MapId` = 1134 AND `BattlemasterListId` = 0;
 INSERT INTO `battleground_scripts` (`MapId`, `BattlemasterListId`, `ScriptName`) VALUES

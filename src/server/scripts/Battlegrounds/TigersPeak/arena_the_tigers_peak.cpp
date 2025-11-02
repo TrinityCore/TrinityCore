@@ -23,6 +23,11 @@
 
 namespace TigersPeak
 {
+    namespace MapIds
+    {
+        static constexpr uint32 TigersPeak = 1134;
+    }
+
     namespace GameObjects
     {
         static constexpr uint32 Door01 = 219395;
@@ -65,5 +70,5 @@ private:
 
 void AddSC_arena_the_tigers_peak()
 {
-    RegisterBattlegroundMapScript(arena_tigers_peak, 1134);
+    RegisterBattlegroundMapScript(arena_tigers_peak, TigersPeak::MapIds::TigersPeak);
 }
