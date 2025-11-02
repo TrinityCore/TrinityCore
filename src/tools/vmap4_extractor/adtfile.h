@@ -72,10 +72,7 @@ public:
     bool initFromCache(uint32 map_num, uint32 originalMapId);
 };
 
-char const* GetPlainName(char const* FileName);
-char* GetPlainName(char* FileName);
-char* GetExtension(char* FileName);
-void NormalizeFileName(char* name, size_t len);
-//void fixMapNamen(char *name, size_t len);
+std::string_view GetPlainName(std::string_view fileName);
+void NormalizeFileName(std::string& fileName);
 
 #endif
