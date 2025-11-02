@@ -19,6 +19,8 @@
 #define VMAPEXPORT_H
 
 #include "Define.h"
+#include <atomic>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -26,7 +28,8 @@
 enum ModelInstanceFlags
 {
     MOD_HAS_BOUND       = 1 << 0,
-    MOD_PARENT_SPAWN    = 1 << 1
+    MOD_PARENT_SPAWN    = 1 << 1,
+    MOD_PATH_ONLY       = 1 << 2
 };
 
 // flags of each model
@@ -39,14 +42,46 @@ enum class ModelFlags : uint32
 struct WMODoodadData;
 
 extern const char * szWorkDirWmo;
-extern std::unordered_map<std::string, WMODoodadData> WmoDoodads;
 
 uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo);
 
-bool FileExists(const char * file);
+struct ExtractedModelData
+{
+    enum ExtractionState : uint8
+    {
+        InProgress,
+        Ok,
+        OkNoCollision,  // has no data by itself but its WMO doodads do
+        Failed
+    };
 
-bool ExtractSingleWmo(std::string& fname);
-bool ExtractSingleModel(std::string& fname);
+    std::atomic<ExtractionState> State;
+    std::unique_ptr<WMODoodadData> Doodads;
+
+    void Wait()
+    {
+        State.wait(InProgress);
+    }
+
+    void Fail()
+    {
+        State.store(Failed);
+        State.notify_all();
+    }
+
+    void Complete(ExtractionState state = Ok)
+    {
+        State.store(state);
+        State.notify_all();
+    }
+
+    bool HasCollision() const { return State.load(std::memory_order::relaxed) == Ok; }
+};
+
+std::pair<ExtractedModelData*, bool> BeginModelExtraction(std::string const& outputName);
+
+ExtractedModelData const* ExtractSingleWmo(std::string& fname);
+ExtractedModelData const* ExtractSingleModel(std::string& fname);
 
 void ExtractGameobjectModels();
 
