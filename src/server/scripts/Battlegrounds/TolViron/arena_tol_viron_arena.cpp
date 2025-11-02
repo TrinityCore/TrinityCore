@@ -21,8 +21,13 @@
 #include "Map.h"
 #include "ScriptMgr.h"
 
-namespace RuinsOfLordaeron
+namespace TolVironArena
 {
+    namespace MapIds
+    {
+        static constexpr uint32 TolVironArena = 980;
+    }
+
     namespace GameObjects
     {
         static constexpr uint32 Door01 = 213196;
@@ -50,8 +55,8 @@ struct arena_tol_viron_arena : ArenaScript
     {
         switch (gameobject->GetEntry())
         {
-            case RuinsOfLordaeron::GameObjects::Door01:
-            case RuinsOfLordaeron::GameObjects::Door02:
+            case TolVironArena::GameObjects::Door01:
+            case TolVironArena::GameObjects::Door02:
                 _doorGUIDs.emplace_back(gameobject->GetGUID());
                 break;
             default:
@@ -65,5 +70,5 @@ private:
 
 void AddSC_arena_tol_viron_arena()
 {
-    RegisterBattlegroundMapScript(arena_tol_viron_arena, 980);
+    RegisterBattlegroundMapScript(arena_tol_viron_arena, TolVironArena::MapIds::TolVironArena);
 }
