@@ -23,6 +23,7 @@
 #include <boost/asio/detail/handler_cont_helpers.hpp>
 #include <boost/outcome/result.hpp>
 #include <boost/preprocessor/empty.hpp>
+#include <boost/preprocessor/comma.hpp>
 #include <type_traits>
 
 namespace Trinity::Asio
@@ -194,6 +195,8 @@ STAMP_AS_EXPECTED_SIGNATURE(noexcept);
 STAMP_AS_EXPECTED_SIGNATURE(& noexcept);
 STAMP_AS_EXPECTED_SIGNATURE(&& noexcept);
 
+#undef STAMP_AS_EXPECTED_SIGNATURE
+
 } // namespace Impl
 }
 
@@ -239,11 +242,17 @@ public:
     }
 };
 
-template <template <typename, typename> class Associator, typename Handler, typename DefaultCandidate, typename _>
+#if BOOST_VERSION >= 108600
+#define TRINITY_BOOST_ASIO_ASSOCIATOR_SFINAE_PARAM(param) param
+#else
+#define TRINITY_BOOST_ASIO_ASSOCIATOR_SFINAE_PARAM(param)
+#endif
+
+template <template <typename, typename> class Associator, typename Handler, typename DefaultCandidate TRINITY_BOOST_ASIO_ASSOCIATOR_SFINAE_PARAM(BOOST_PP_COMMA() typename _)>
 struct associator;
 
 template <template <typename, typename> class Associator, typename Handler, typename DefaultCandidate>
-struct associator<Associator, Trinity::Asio::Impl::AsExpectedHandler<Handler>, DefaultCandidate, void> : Associator<Handler, DefaultCandidate>
+struct associator<Associator, Trinity::Asio::Impl::AsExpectedHandler<Handler>, DefaultCandidate TRINITY_BOOST_ASIO_ASSOCIATOR_SFINAE_PARAM(BOOST_PP_COMMA() void)> : Associator<Handler, DefaultCandidate>
 {
     static inline auto get(Trinity::Asio::Impl::AsExpectedHandler<Handler> const& h) noexcept
     {
@@ -255,6 +264,8 @@ struct associator<Associator, Trinity::Asio::Impl::AsExpectedHandler<Handler>, D
         return Associator<Handler, DefaultCandidate>::get(h.handler_, c);
     }
 };
+
+#undef TRINITY_BOOST_ASIO_ASSOCIATOR_SFINAE_PARAM
 
 template <typename... Signatures>
 class async_result<Trinity::Asio::AsExpectedFn, Signatures...>
