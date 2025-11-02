@@ -63,6 +63,8 @@ void AddSC_battleground_temple_of_kotmogu();
 
 void AddSC_battleground_deephaul_ravine();
 
+void AddSC_arena_tol_viron_arena();
+
 void AddSC_arena_blades_edge_legion();
 void AddSC_arena_nagrand_arena_legion();
 void AddSC_arena_ashamanes_fall();
@@ -125,6 +127,8 @@ void AddBattlegroundsScripts()
     AddSC_battleground_silvershard_mines();
     AddSC_battleground_temple_of_kotmogu();
     AddSC_battleground_deephaul_ravine();
+
+    AddSC_arena_tol_viron_arena();
 
     AddSC_arena_blades_edge_legion();
     AddSC_arena_nagrand_arena_legion();
