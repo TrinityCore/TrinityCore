@@ -60,7 +60,8 @@ namespace VMAP
         iEnableHeightCalc(true),
         thread_safe_environment(true),
         GetLiquidFlagsPtr([](uint32 /*liquidTypeId*/) { return 0u; }),
-        IsVMAPDisabledForPtr([](uint32 /*mapId*/, uint8 /*disableFlags*/) { return false; })
+        IsVMAPDisabledForPtr([](uint32 /*mapId*/, uint8 /*disableFlags*/) { return false; }),
+        LoadPathOnlyModels(false)
     {
     }
 
@@ -114,7 +115,7 @@ namespace VMAP
 
     std::string VMapManager::getTileFileName(uint32 mapID, uint32 tileX, uint32 tileY, std::string_view extension)
     {
-        return Trinity::StringFormat("{:04}/{:04}_{:02}_{:02}.{}", mapID, mapID, tileY, tileX, extension);
+        return Trinity::StringFormat("{:04}/{:04}_{:02}_{:02}.{}", mapID, mapID, tileX, tileY, extension);
     }
 
     LoadResult VMapManager::loadMap(std::string const& basePath, uint32 mapId, uint32 x, uint32 y)
