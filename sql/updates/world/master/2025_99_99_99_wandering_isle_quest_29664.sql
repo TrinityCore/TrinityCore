@@ -38,11 +38,14 @@ UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHE
 UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHERE `entry`=209369; -- Brazier of the Flickering Flame
 UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHERE `entry`=209802; -- Brazier of the Blue Flame
 
-DELETE FROM `gameobject_addon` WHERE `guid` IN (300145, 300146, 300147);
+DELETE FROM `gameobject_addon` WHERE `guid` IN (300139, 300140, 300141, 300145, 300146, 300147);
 INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, `parent_rotation2`, `parent_rotation3`, `invisibilityType`, `invisibilityValue`, `WorldEffectID`, `AIAnimKitID`) VALUES
+(300140, 0, 0, 0, 1, 26, 1000, 0, 0),
 (300145, 0, 0, 0, 1, 23, 1000, 0, 0),
-(300146, 0, 0, 0, 1, 21, 1000, 0, 0),
-(300147, 0, 0, 0, 1, 22, 1000, 0, 0);
+(300141, 0, 0, 0, 1, 25, 1000, 0, 0),
+(300147, 0, 0, 0, 1, 22, 1000, 0, 0),
+(300139, 0, 0, 0, 1, 24, 1000, 0, 0),
+(300146, 0, 0, 0, 1, 21, 1000, 0, 0);
 
 -- Conditions
 DELETE FROM `conditions` WHERE (`SourceTypeOrReferenceId` = 34 AND `SourceEntry` = 13004);
