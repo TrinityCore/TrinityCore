@@ -815,14 +815,11 @@ class spell_pri_dispersing_light : public AuraScript
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
 
-        if (!caster || !target)
-            return;
-
         int32 healAmount = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(healAmount);
-        args.SetTriggerFlags(TRIGGERED_FULL_MASK);
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         args.SetCustomArg(TriggerArgs{
             .targetToExclude = target->GetGUID(),
             .maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster)
@@ -855,8 +852,6 @@ class spell_pri_dispersing_light_heal : public SpellScript
     void FilterTargets(std::list<WorldObject*>& targets)
     {
         Unit* caster = GetCaster();
-        if (!caster)
-            return;
 
         spell_pri_dispersing_light::TriggerArgs const* args = std::any_cast<spell_pri_dispersing_light::TriggerArgs>(&GetSpell()->m_customArg);
         if (!args || args->targetToExclude.IsEmpty())
