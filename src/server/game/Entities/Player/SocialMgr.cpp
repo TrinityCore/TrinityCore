@@ -96,8 +96,8 @@ void PlayerSocial::RemoveFromSocialList(ObjectGuid const& friendGuid, SocialFlag
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_SOCIAL_FLAGS);
 
         stmt->setUInt8(0, itr->second.Flags);
-        stmt->setUInt32(1, GetPlayerGUID());
-        stmt->setUInt32(2, friendGuid);
+        stmt->setUInt32(1, GetPlayerGUID().GetCounter());
+        stmt->setUInt32(2, friendGuid.GetCounter());
 
         CharacterDatabase.Execute(stmt);
     }
@@ -153,7 +153,7 @@ void PlayerSocial::SendSocialList(Player* player, uint32 flags)
         ++totalCount;
         SocialMgr::GetFriendInfo(player, v.first, v.second);
 
-        data << uint64(v.first);                            // player guid
+        data << v.first;                                    // player guid
         data << uint32(contactFlags);                       // player flag (0x1 = Friend, 0x2 = Ignored, 0x4 = Muted)
         data << v.second.Note;                              // string note
         if (contactFlags & SOCIAL_FLAG_FRIEND)              // if IsFriend()

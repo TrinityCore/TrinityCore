@@ -76,7 +76,8 @@ Channel::Channel(std::string const& name, uint32 team /*= 0*/, std::string const
 {
     for (std::string_view guid : Trinity::Tokenize(banList, ' ', false))
     {
-        ObjectGuid banned(Trinity::StringTo<uint64>(guid).value_or(0));
+        ObjectGuid banned;
+        banned.SetRawValue(Trinity::StringTo<uint64>(guid).value_or(0));
         if (!banned)
             continue;
 
@@ -627,7 +628,7 @@ void Channel::List(Player const* player) const
              member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
-            data << uint64(i->first);
+            data << i->first;
             data << uint8(i->second.flags);             // flags seems to be changed...
             ++count;
         }
@@ -776,7 +777,7 @@ void Channel::Invite(Player const* player, std::string const& newname)
 
 void Channel::SetOwner(ObjectGuid guid, bool exclaim)
 {
-    if (_ownerGuid)
+    if (!_ownerGuid.IsEmpty())
     {
         auto itr = _playersStore.find(_ownerGuid);
         if (itr != _playersStore.end())
@@ -784,7 +785,7 @@ void Channel::SetOwner(ObjectGuid guid, bool exclaim)
     }
 
     _ownerGuid = guid;
-    if (_ownerGuid)
+    if (!_ownerGuid.IsEmpty())
     {
         uint8 oldFlag = GetPlayerFlags(_ownerGuid);
         auto itr = _playersStore.find(_ownerGuid);
@@ -826,7 +827,7 @@ void Channel::JoinNotify(ObjectGuid guid) const
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         data.Initialize(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + 30 /*channelName buffer*/);
-        data << uint64(guid);
+        data << guid;
         data << uint8(GetPlayerFlags(guid));
         data << uint8(GetFlags());
         data << uint32(GetNumPlayers());
@@ -846,7 +847,7 @@ void Channel::LeaveNotify(ObjectGuid guid) const
         LocaleConstant localeIdx = sWorld->GetAvailableDbcLocale(locale);
 
         data.Initialize(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + 30 /*channelName buffer*/);
-        data << uint64(guid);
+        data << guid;
         data << uint8(GetFlags());
         data << uint32(GetNumPlayers());
         data << GetName(localeIdx);

@@ -243,7 +243,7 @@ void BattlegroundWS::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundWGScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundWGScore(player->GetGUID());
 }
 
 void BattlegroundWS::RespawnFlag(uint32 Team, bool captured)

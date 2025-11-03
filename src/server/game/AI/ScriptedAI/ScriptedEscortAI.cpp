@@ -212,7 +212,7 @@ void EscortAI::UpdateAI(uint32 diff)
     }
 
     // Check if player or any member of his group is within range
-    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && _playerGUID && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
+    if (_despawnAtFar && HasEscortState(STATE_ESCORT_ESCORTING) && !_playerGUID.IsEmpty() && !me->IsEngaged() && !HasEscortState(STATE_ESCORT_RETURNING))
     {
         if (_playerCheckTimer <= diff)
         {

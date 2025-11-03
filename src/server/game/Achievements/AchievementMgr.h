@@ -47,17 +47,17 @@ struct CriteriaProgress
 };
 
 enum AchievementCriteriaDataType
-{                                                           // value1         value2        comment
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE                = 0, // 0              0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE          = 1, // creature_id    0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE = 2, // class_id       race_id
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH= 3, // health_percent 0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD       = 4, // own_team       0             not corpse (not released body), own_team == false if enemy team expected
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5, // spell_id       effect_idx
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6, // area id        0
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7, // spell_id       effect_idx
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8, // minvalue                     value provided with achievement update must be not less that limit
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9, // minlevel                     minlevel of target
+{                                                            // value1         value2        comment
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE                = 0,  // 0              0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE          = 1,  // creature_id    0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE = 2,  // class_id       race_id
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH= 3,  // health_percent 0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD       = 4,  // own_team       0             not corpse (not released body), own_team == false if enemy team expected
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA              = 5,  // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA              = 6,  // area id        0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA              = 7,  // spell_id       effect_idx
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8,  // minvalue                     value provided with achievement update must be not less that limit
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9,  // minlevel                     minlevel of target
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER            = 10, // gender                       0=male; 1=female
     ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT              = 11, // scripted requirement
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12, // difficulty                   normal/heroic difficulty for current event map
@@ -72,11 +72,11 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE = 21, // class_id       race_id
     ACHIEVEMENT_CRITERIA_DATA_TYPE_NTH_BIRTHDAY        = 22, // N                            login on day of N-th Birthday
     ACHIEVEMENT_CRITERIA_DATA_TYPE_S_KNOWN_TITLE       = 23, // title_id                     known (pvp) title, values from dbc
-    // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT       = 24, // 7.x only
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25  // item_quality
-};
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT          = 24, // game_event_id  0
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY      = 25, // item_quality
 
-#define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               26 // maximum value in AchievementCriteriaDataType enum
+    MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE
+};
 
 struct AchievementCriteriaData
 {
@@ -188,12 +188,17 @@ struct AchievementCriteriaData
         {
             uint32 title_id;
         } known_title;
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_GAME_EVENT        = 24
+        struct
+        {
+            uint32 id;
+        } game_event;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_ITEM_QUALITY    = 25
         struct
         {
             uint32 item_quality;
         } item;
-        // ...
+        // raw
         struct
         {
             uint32 value1;

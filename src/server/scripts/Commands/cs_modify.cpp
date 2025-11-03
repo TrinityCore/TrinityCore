@@ -228,7 +228,7 @@ public:
 
         if (!factionid)
         {
-            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().GetCounter(), *factionid, *flag, *npcflag, *dyflag);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUID().ToString().c_str(), *factionid, *flag, *npcflag, *dyflag);
             return true;
         }
 
@@ -239,7 +239,7 @@ public:
             return false;
         }
 
-        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().GetCounter(), *factionid, *flag, *npcflag, *dyflag);
+        handler->PSendSysMessage(LANG_YOU_CHANGE_FACTION, target->GetGUID().ToString().c_str(), *factionid, *flag, *npcflag, *dyflag);
 
         target->SetFaction(*factionid);
         target->ReplaceAllUnitFlags(UnitFlags(*flag));

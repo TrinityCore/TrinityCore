@@ -90,7 +90,7 @@ void CreateDir(boost::filesystem::path const& path)
         throw std::runtime_error("Unable to create directory" + path.string());
 }
 
-void Usage(char* prg)
+void Usage(char const* prg)
 {
     printf(
         "Usage:\n"\
@@ -99,11 +99,11 @@ void Usage(char* prg)
         "-o set output path (max %d characters)\n"\
         "-e extract only MAP(1)/DBC(2)/Camera(4) - standard: all(7)\n"\
         "-f height stored as int (less map size but lost some accuracy) 1 by default\n"\
-        "Example: %s -f 0 -i \"c:\\games\\game\"", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
+        "Example: %s -f 0 -i \"c:\\games\\game\"\n", prg, MAX_PATH_LENGTH - 1, MAX_PATH_LENGTH - 1, prg);
     exit(1);
 }
 
-void HandleArgs(int argc, char * arg[])
+void HandleArgs(int argc, char* arg[])
 {
     for(int c = 1; c < argc; ++c)
     {
@@ -150,6 +150,11 @@ void HandleArgs(int argc, char * arg[])
                 }
                 else
                     Usage(arg[0]);
+                break;
+            case 'h':
+                Usage(arg[0]);
+                break;
+            default:
                 break;
         }
     }
@@ -1094,7 +1099,7 @@ int main(int argc, char * arg[])
         {
             FirstLocale = i;
             build = ReadBuild(FirstLocale);
-            printf("Detected client build: %u\n", build);
+            printf("Detected client build: %u\n\n", build);
             break;
         }
 
@@ -1103,7 +1108,7 @@ int main(int argc, char * arg[])
         {
             FirstLocale = i;
             build = ReadBuild(FirstLocale);
-            printf("Detected client build: %u\n", build);
+            printf("Detected client build: %u\n\n", build);
             ExtractDBCFiles(i, true);
         }
         else

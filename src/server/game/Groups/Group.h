@@ -217,7 +217,6 @@ class TC_GAME_API Group
         bool IsCreated()   const;
         ObjectGuid GetLeaderGUID() const;
         ObjectGuid GetGUID() const;
-        ObjectGuid::LowType GetLowGUID() const;
         const char * GetLeaderName() const;
         LootMethod GetLootMethod() const;
         ObjectGuid GetLooterGuid() const;
@@ -249,6 +248,7 @@ class TC_GAME_API Group
         GroupReference const* GetFirstMember() const { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
         uint32 GetInviteeCount() const { return m_invitees.size(); }
+        GroupType GetGroupType() const { return m_groupType; }
 
         uint8 GetMemberGroup(ObjectGuid guid) const;
 

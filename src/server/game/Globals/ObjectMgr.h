@@ -449,7 +449,7 @@ struct TC_GAME_API SpellClickInfo
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoContainer;
 
-struct AreaTrigger
+struct AreaTriggerTeleport
 {
     uint32 target_mapId;
     float  target_X;
@@ -948,7 +948,7 @@ class TC_GAME_API ObjectMgr
 
         typedef std::unordered_map<uint32, Trinity::unique_trackable_ptr<Quest>> QuestContainer;
 
-        typedef std::unordered_map<uint32, AreaTrigger> AreaTriggerContainer;
+        typedef std::unordered_map<uint32, AreaTriggerTeleport> AreaTriggerContainer;
 
         typedef std::map<uint32, uint32> AreaTriggerScriptContainer;
 
@@ -1065,10 +1065,10 @@ class TC_GAME_API ObjectMgr
         void LoadGraveyardZones();
         GraveyardData const* FindGraveyardData(uint32 id, uint32 zone) const;
 
-        AreaTrigger const* GetAreaTrigger(uint32 trigger) const;
+        AreaTriggerTeleport const* GetAreaTrigger(uint32 trigger) const;
         AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const;
-        AreaTrigger const* GetGoBackTrigger(uint32 Map) const;
-        AreaTrigger const* GetMapEntranceTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetGoBackTrigger(uint32 Map) const;
+        AreaTriggerTeleport const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id) const;
         SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
@@ -1251,7 +1251,8 @@ class TC_GAME_API ObjectMgr
         template<HighGuid type>
         ObjectGuidGenerator& GetGenerator()
         {
-            static_assert(ObjectGuidTraits<type>::Global, "Only global guid can be generated in ObjectMgr context");
+            static_assert(ObjectGuidTraits<type>::SequenceSource.HasFlag(ObjectGuidSequenceSource::Global),
+                "Only global guid can be generated in ObjectMgr context");
             return GetGuidSequenceGenerator(type);
         }
 
@@ -1623,7 +1624,7 @@ class TC_GAME_API ObjectMgr
         SpellScriptsContainer _spellScriptsStore;
 
         std::unordered_map<uint32, VehicleTemplate> _vehicleTemplateStore;
-        VehicleAccessoryContainer _vehicleTemplateAccessoryStore;
+        VehicleAccessoryTemplateContainer _vehicleTemplateAccessoryStore;
         VehicleAccessoryContainer _vehicleAccessoryStore;
 
         LocaleConstant DBCLocaleIndex;

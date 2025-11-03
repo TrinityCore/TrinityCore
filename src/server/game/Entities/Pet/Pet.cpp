@@ -222,9 +222,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petEntry, uint32 petnumber, bool c
     }
 
     Map* map = owner->GetMap();
-    ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
-
-    if (!Create(guid, map, owner->GetPhaseMask(), petInfo->CreatureId, petInfo->PetNumber))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, owner->GetPhaseMask(), petInfo->CreatureId, petInfo->PetNumber))
         return false;
 
     setPetType(petInfo->Type);
@@ -838,9 +836,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
 bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     TC_LOG_DEBUG("entities.pet", "Pet::CreateBaseForTamed");
-    ObjectGuid::LowType guid = map->GenerateLowGuid<HighGuid::Pet>();
-    uint32 petId = sObjectMgr->GeneratePetNumber();
-    if (!Create(guid, map, phaseMask, cinfo->Entry, petId))
+    if (!Create(map->GenerateLowGuid<HighGuid::Pet>(), map, phaseMask, cinfo->Entry, sObjectMgr->GeneratePetNumber()))
         return false;
 
     SetMaxPower(POWER_HAPPINESS, GetCreatePowerValue(POWER_HAPPINESS));
@@ -1234,6 +1230,7 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
 {
     TC_LOG_DEBUG("entities.pet", "Loading auras for pet {}", GetGUID().ToString());
 
+    ObjectGuid casterGuid;
     if (result)
     {
         do
@@ -1241,10 +1238,10 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
             int32 damage[3];
             int32 baseDamage[3];
             Field* fields = result->Fetch();
-            ObjectGuid caster_guid(fields[0].GetUInt64());
+            casterGuid.SetRawValue(fields[0].GetUInt64());
             // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
-            if (!caster_guid)
-                caster_guid = GetGUID();
+            if (!casterGuid)
+                casterGuid = GetGUID();
             uint32 spellid = fields[1].GetUInt32();
             uint8 effmask = fields[2].GetUInt8();
             uint8 recalculatemask = fields[3].GetUInt8();
@@ -1288,7 +1285,7 @@ void Pet::_LoadAuras(PreparedQueryResult result, uint32 timediff)
 
             AuraCreateInfo createInfo(spellInfo, effmask, this);
             createInfo
-                .SetCasterGUID(caster_guid)
+                .SetCasterGUID(casterGuid)
                 .SetBaseAmount(baseDamage);
 
             if (Aura* aura = Aura::TryCreate(createInfo))
@@ -1880,7 +1877,7 @@ bool Pet::Create(ObjectGuid::LowType guidlow, Map* map, uint32 phaseMask, uint32
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);
-    Object::_Create(guidlow, petId, HighGuid::Pet);
+    Object::_Create(ObjectGuid::Create<HighGuid::Pet>(petId, guidlow));
 
     m_originalEntry = Entry;
 

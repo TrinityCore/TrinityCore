@@ -940,7 +940,7 @@ class instance_ulduar : public InstanceMapScript
                 data << ColossusData << ' ' << _algalonTimer << ' ' << uint32(_algalonSummoned ? 1 : 0);
 
                 for (uint8 i = 0; i < 4; ++i)
-                    data << ' ' << uint32(KeeperGUIDs[i] ? 1 : 0);
+                    data << ' ' << uint32(!KeeperGUIDs[i].IsEmpty() ? 1 : 0);
 
                 data << ' ' << _CoUAchivePlayerDeathMask;
             }

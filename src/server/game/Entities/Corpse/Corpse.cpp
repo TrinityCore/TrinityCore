@@ -65,7 +65,7 @@ void Corpse::RemoveFromWorld()
 
 bool Corpse::Create(ObjectGuid::LowType guidlow)
 {
-    Object::_Create(guidlow, 0, HighGuid::Corpse);
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guidlow));
     return true;
 }
 
@@ -82,7 +82,8 @@ bool Corpse::Create(ObjectGuid::LowType guidlow, Player* owner)
         return false;
     }
 
-    WorldObject::_Create(guidlow, HighGuid::Corpse, owner->GetPhaseMask());
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guidlow));
+    SetPhaseMask(owner->GetPhaseMask(), false);
 
     SetObjectScale(1.0f);
     SetGuidValue(CORPSE_FIELD_OWNER, owner->GetGUID());
@@ -153,14 +154,13 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, guildId, flags, dynFlags, time, corpseType, instanceId, phaseMask, guid FROM corpse WHERE mapId = ? AND instanceId = ?
 
-    ObjectGuid::LowType ownerGuid = fields[16].GetUInt32();
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();
     float o      = fields[3].GetFloat();
     uint32 mapId = fields[4].GetUInt16();
 
-    Object::_Create(guid, 0, HighGuid::Corpse);
+    Object::_Create(ObjectGuid::Create<HighGuid::Corpse>(guid));
 
     SetObjectScale(1.0f);
     SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
@@ -174,7 +174,7 @@ bool Corpse::LoadCorpseFromDB(ObjectGuid::LowType guid, Field* fields)
     SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt8());
-    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid(HighGuid::Player, ownerGuid));
+    SetGuidValue(CORPSE_FIELD_OWNER, ObjectGuid::Create<HighGuid::Player>(fields[16].GetUInt32()));
 
     m_time = time_t(fields[12].GetUInt32());
 
