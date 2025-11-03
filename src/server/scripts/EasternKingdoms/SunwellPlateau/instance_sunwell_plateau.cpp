@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "AreaBoundary.h"
+#include "Creature.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
@@ -108,6 +109,38 @@ class instance_sunwell_plateau : public InstanceMapScript
                 return nullptr;
             }
 
+            void OnCreatureCreate(Creature* creature) override
+            {
+                InstanceScript::OnCreatureCreate(creature);
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_LADY_SACROLASH:
+                        EredarTwinsSpawnId[0] = creature->GetSpawnId();
+                        break;
+                    case NPC_GRAND_WARLOCK_ALYTHESS:
+                        EredarTwinsSpawnId[1] = creature->GetSpawnId();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            uint64 GetData64(uint32 type) const override
+            {
+                switch (type)
+                {
+                    case DATA_SACROLASH:
+                        return EredarTwinsSpawnId[0];
+                    case DATA_ALYTHESS:
+                        return EredarTwinsSpawnId[1];
+                    default:
+                        break;
+                }
+
+                return InstanceScript::GetData64(type);
+            }
+
             ObjectGuid GetGuidData(uint32 id) const override
             {
                 switch (id)
@@ -120,8 +153,10 @@ class instance_sunwell_plateau : public InstanceMapScript
                     default:
                         break;
                 }
-                return ObjectGuid::Empty;
+                return InstanceScript::GetGuidData(id);
             }
+
+            ObjectGuid::LowType EredarTwinsSpawnId[2] = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
