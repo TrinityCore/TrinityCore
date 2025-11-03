@@ -153,14 +153,6 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
 
         CreatureAI* AI() const { return reinterpret_cast<CreatureAI*>(GetAI()); }
 
-        bool SetWalk(bool enable) override;
-        bool SetDisableGravity(bool disable, bool packetOnly = false, bool updateAnimTier = true) override;
-        bool SetSwim(bool enable) override;
-        bool SetCanFly(bool enable, bool packetOnly = false) override;
-        bool SetWaterWalking(bool enable, bool packetOnly = false) override;
-        bool SetFeatherFall(bool enable, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimTier = true) override;
-
         uint32 GetShieldBlockValue() const override;
 
         SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType /*attackType*/ = BASE_ATTACK, uint8 /*damageIndex*/ = 0) const override { return m_meleeDamageSchoolMask; }
@@ -221,7 +213,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         ObjectGuid GetLootRecipientGUID() const { return m_lootRecipient; }
         Player* GetLootRecipient() const;
         Group* GetLootRecipientGroup() const;
-        bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || m_lootRecipientGroup; }
+        bool hasLootRecipient() const { return !m_lootRecipient.IsEmpty() || !m_lootRecipientGroup.IsEmpty(); }
         bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit, bool withGroup = true);
@@ -282,7 +274,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         }
 
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        ObjectGuid::LowType lootingGroupLowGUID;                         // used to find group which is looting corpse
+        ObjectGuid lootingGroupLowGUID;                     // used to find group which is looting corpse
 
         void SendZoneUnderAttackMessage(Player* attacker);
 
@@ -388,7 +380,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         static float _GetHealthMod(int32 Rank);
 
         ObjectGuid m_lootRecipient;
-        uint32 m_lootRecipientGroup;
+        ObjectGuid m_lootRecipientGroup;
 
         /// Timers
         time_t _pickpocketLootRestore;

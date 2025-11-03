@@ -185,7 +185,7 @@ struct boss_prince_taldaram : public BossAI
                     break;
                 case EVENT_VANISH:
                 {
-                    if (me->GetThreatManager().GetThreatListSize() > 1)
+                    if (me->GetThreatManager().GetThreatListPlayerCount() > 1)
                     {
                         if (Unit* embraceTarget = SelectTarget(SelectTargetMethod::Random, 0, 100.0f, true))
                             _embraceTargetGUID = embraceTarget->GetGUID();
@@ -265,7 +265,7 @@ struct boss_prince_taldaram : public BossAI
 
     Unit* GetEmbraceTarget()
     {
-        if (_embraceTargetGUID)
+        if (!_embraceTargetGUID.IsEmpty())
             return ObjectAccessor::GetUnit(*me, _embraceTargetGUID);
 
         return nullptr;

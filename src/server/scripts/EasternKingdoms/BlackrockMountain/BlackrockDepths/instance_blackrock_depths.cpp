@@ -374,7 +374,7 @@ public:
 
         void TombOfSevenEvent()
         {
-            if (GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM && TombBossGUIDs[TombEventCounter])
+            if (GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM && !TombBossGUIDs[TombEventCounter].IsEmpty())
             {
                 if (Creature* boss = instance->GetCreature(TombBossGUIDs[TombEventCounter]))
                 {
@@ -425,7 +425,7 @@ public:
 
         void Update(uint32 diff) override
         {
-            if (TombEventStarterGUID && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
+            if (!TombEventStarterGUID.IsEmpty() && GhostKillCount < TOMB_OF_SEVEN_BOSS_NUM)
             {
                 if (TombTimer <= diff)
                 {
@@ -449,7 +449,7 @@ public:
                     }
                 } else TombTimer -= diff;
             }
-            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM && TombEventStarterGUID)
+            if (GhostKillCount >= TOMB_OF_SEVEN_BOSS_NUM && !TombEventStarterGUID.IsEmpty())
                 TombOfSevenEnd();
         }
     };

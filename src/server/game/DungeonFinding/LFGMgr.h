@@ -290,8 +290,8 @@ struct LFGDungeonData
     uint8 type;
     uint8 expansion;
     uint8 group;
-    uint8 minlevel;
-    uint8 maxlevel;
+    std::array<uint8, MAX_EXPANSIONS> minlevel;
+    std::array<uint8, MAX_EXPANSIONS> maxlevel;
     Difficulty difficulty;
     bool seasonal;
     float x, y, z, o;
@@ -318,7 +318,7 @@ class TC_GAME_API LFGMgr
         /// Loads rewards for random dungeons
         void LoadRewards();
         /// Loads dungeons from dbc and adds teleport coords
-        void LoadLFGDungeons(bool reload = false);
+        void LoadLFGDungeons();
 
         // Multiple files
         /// Check if given guid applied for random dungeon
@@ -417,8 +417,12 @@ class TC_GAME_API LFGMgr
         uint8 GetPlayerCount(ObjectGuid guid);
         /// Add a new Proposal
         uint32 AddProposal(LfgProposal& proposal);
+        /// Returns queue id
+        uint8 GetQueueId(ObjectGuid guid);
         /// Checks if all players are queued
         bool AllQueued(GuidList const& check);
+        /// Gets queue join time
+        time_t GetQueueJoinTime(ObjectGuid guid);
         /// Checks if given roles match, modifies given roles map with new roles
         static bool CheckGroupRoles(LfgRolesMap &groles);
         /// Checks if given players are ignoring each other

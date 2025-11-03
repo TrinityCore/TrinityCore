@@ -824,7 +824,7 @@ void hyjalAI::UpdateAI(uint32 diff)
     {
         for (uint8 i = 0; i < 2; ++i)
         {
-            if (BossGUID[i])
+            if (!BossGUID[i].IsEmpty())
             {
                 Unit* unit = ObjectAccessor::GetUnit(*me, BossGUID[i]);
                 if (unit && (!unit->IsAlive()))
@@ -939,7 +939,7 @@ void hyjalAI::WaypointReached(uint32 waypointId, uint32 /*pathId*/)
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
             DoCast(me, SPELL_MASS_TELEPORT, false);
-        if (me->GetEntry() == THRALL && DummyGuid)
+        if (me->GetEntry() == THRALL && !DummyGuid.IsEmpty())
         {
             if (Creature* creature = ObjectAccessor::GetCreature(*me, DummyGuid))
             {

@@ -244,8 +244,8 @@ void WorldSession::SendPetitionSigns(Petition const* petition, Player* sendTo)
 {
     SignaturesVector const& signatures = petition->Signatures;
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8 + 8 + 4 + 1 + signatures.size() * 12));
-    data << uint64(petition->PetitionGuid);                 // petition guid
-    data << uint64(petition->OwnerGuid);                    // owner guid
+    data << petition->PetitionGuid;                         // petition guid
+    data << petition->OwnerGuid;                            // owner guid
     data << uint32(petition->PetitionGuid.GetCounter());    // guild guid
     data << uint8(signatures.size());                       // sign's count
 
@@ -282,7 +282,7 @@ void WorldSession::SendPetitionQueryOpcode(ObjectGuid petitionguid)
 
     WorldPacket data(SMSG_PETITION_QUERY_RESPONSE, (4+8+petition->PetitionName.size()+1+1+4*12+2+10));
     data << uint32(petitionguid.GetCounter());              // guild/team guid (in Trinity always same as GUID_LOPART(petition guid)
-    data << uint64(petition->OwnerGuid);                    // charter owner guid
+    data << petition->OwnerGuid;                            // charter owner guid
     data << petition->PetitionName;                         // name (guild/arena team)
     data << uint8(0);                                       // some string
 
@@ -374,8 +374,8 @@ void WorldSession::HandlePetitionRenameGuild(WorldPacket& recvData)
     petition->UpdateName(newName);
 
     TC_LOG_DEBUG("network", "Petition {} renamed to '{}'", petitionGuid.ToString(), newName);
-    WorldPacket data(MSG_PETITION_RENAME, (8+newName.size()+1));
-    data << uint64(petitionGuid);
+    WorldPacket data(MSG_PETITION_RENAME, (8 + newName.size() + 1));
+    data << petitionGuid;
     data << newName;
     SendPacket(&data);
 }
@@ -400,8 +400,7 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     CharterTypes type = petition->PetitionType;
     uint8 signs = uint8(petition->Signatures.size());
 
-    ObjectGuid playerGuid = _player->GetGUID();
-    if (ownerGuid == playerGuid)
+    if (ownerGuid == _player->GetGUID())
         return;
 
     // not let enemies sign guild charter
@@ -461,8 +460,8 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     if (isSigned)
     {
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-        data << uint64(petitionGuid);
-        data << uint64(_player->GetGUID());
+        data << petitionGuid;
+        data << _player->GetGUID();
         data << uint32(PETITION_SIGN_ALREADY_SIGNED);
 
         // close at signer side
@@ -475,13 +474,13 @@ void WorldSession::HandleSignPetition(WorldPacket& recvData)
     }
 
     // fill petition store
-    petition->AddSignature(GetAccountId(), playerGuid, false);
+    petition->AddSignature(GetAccountId(), _player->GetGUID(), false);
 
-    TC_LOG_DEBUG("network", "PETITION SIGN: {} by player: {} ({} Account: {})", petitionGuid.ToString(), _player->GetName(), playerGuid.ToString(), GetAccountId());
+    TC_LOG_DEBUG("network", "PETITION SIGN: {} by player: {} ({} Account: {})", petitionGuid.ToString(), _player->GetName(), _player->GetGUID().ToString(), GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-    data << uint64(petitionGuid);
-    data << uint64(_player->GetGUID());
+    data << petitionGuid;
+    data << _player->GetGUID();
     data << uint32(PETITION_SIGN_OK);
     SendPacket(&data);
 
@@ -506,7 +505,7 @@ void WorldSession::HandleDeclinePetition(WorldPacket& recvData)
     if (Player* owner = ObjectAccessor::FindConnectedPlayer(petition->OwnerGuid))
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
-        data << uint64(_player->GetGUID());
+        data << _player->GetGUID();
         owner->SendDirectMessage(&data);
     }
 }

@@ -55,7 +55,7 @@ struct JoinedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -70,7 +70,7 @@ struct LeftAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -139,7 +139,7 @@ struct PasswordChangedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -154,7 +154,7 @@ struct OwnerChangedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -213,7 +213,7 @@ struct ModeChangeAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
         data << uint8(_oldFlags);
         data << uint8(_newFlags);
     }
@@ -232,7 +232,7 @@ struct AnnouncementsOnAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -247,7 +247,7 @@ struct AnnouncementsOffAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -269,8 +269,8 @@ struct PlayerKickedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_kickee);
-        data << uint64(_kicker);
+        data << _kickee;
+        data << _kicker;
     }
 
 private:
@@ -293,8 +293,8 @@ struct PlayerBannedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_banned);
-        data << uint64(_moderator);
+        data << _banned;
+        data << _moderator;
     }
 
 private:
@@ -310,8 +310,8 @@ struct PlayerUnbannedAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_unbanned);
-        data << uint64(_moderator);
+        data << _unbanned;
+        data << _moderator;
     }
 
 private:
@@ -342,7 +342,7 @@ struct PlayerAlreadyMemberAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -357,7 +357,7 @@ struct InviteAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -451,7 +451,7 @@ struct VoiceOnAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:
@@ -466,7 +466,7 @@ struct VoiceOffAppend
 
     void Append(WorldPacket& data) const
     {
-        data << uint64(_guid);
+        data << _guid;
     }
 
 private:

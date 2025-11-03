@@ -188,13 +188,12 @@ struct boss_anubrekhan : public BossAI
                 case EVENT_SCARABS:
                     if (!guardCorpses.empty())
                     {
-                        if (ObjectGuid target = Trinity::Containers::SelectRandomContainerElement(guardCorpses))
-                            if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, target))
-                            {
-                                creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());
-                                creatureTarget->AI()->Talk(EMOTE_SCARAB);
-                                creatureTarget->DespawnOrUnsummon();
-                            }
+                        if (Creature* creatureTarget = ObjectAccessor::GetCreature(*me, Trinity::Containers::SelectRandomContainerElement(guardCorpses)))
+                        {
+                            creatureTarget->CastSpell(creatureTarget, SPELL_SUMMON_CORPSE_SCARABS_MOB, me->GetGUID());
+                            creatureTarget->AI()->Talk(EMOTE_SCARAB);
+                            creatureTarget->DespawnOrUnsummon();
+                        }
                     }
                     events.Repeat(randtime(Seconds(40), Seconds(60)));
                     break;

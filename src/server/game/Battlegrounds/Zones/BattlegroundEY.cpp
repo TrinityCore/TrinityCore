@@ -360,7 +360,7 @@ void BattlegroundEY::AddPlayer(Player* player)
     bool const isInBattleground = IsPlayerInBattleground(player->GetGUID());
     Battleground::AddPlayer(player);
     if (!isInBattleground)
-        PlayerScores[player->GetGUID().GetCounter()] = new BattlegroundEYScore(player->GetGUID());
+        PlayerScores[player->GetGUID()] = new BattlegroundEYScore(player->GetGUID());
 
     m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 }
@@ -755,7 +755,7 @@ void BattlegroundEY::EventTeamCapturedPoint(Player* player, uint32 Point)
     else
         SendBroadcastText(m_CapturingPointTypes[Point].MessageIdHorde, CHAT_MSG_BG_SYSTEM_HORDE, player);
 
-    if (BgCreatures[Point])
+    if (!BgCreatures[Point].IsEmpty())
         DelCreature(Point);
 
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(m_CapturingPointTypes[Point].GraveyardId);

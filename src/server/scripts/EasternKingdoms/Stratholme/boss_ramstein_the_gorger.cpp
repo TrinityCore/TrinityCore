@@ -15,106 +15,97 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Ramstein_The_Gorger
-SD%Complete: 70
-SDComment:
-SDCategory: Stratholme
-EndScriptData */
+/*
+ * Timers requires to be revisited
+ * Intro NYI
+ */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "stratholme.h"
-#include "TemporarySummon.h"
 
-enum Spells
+enum RamsteinSpells
 {
+    SPELL_FLURRY            = 15088,
     SPELL_TRAMPLE           = 5568,
     SPELL_KNOCKOUT          = 17307
 };
 
-enum CreatureId
+enum RamsteinEvents
 {
-    NPC_MINDLESS_UNDEAD     = 11030
+    EVENT_TRAMPLE           = 1,
+    EVENT_KNOCKOUT
 };
 
-class boss_ramstein_the_gorger : public CreatureScript
+enum RamsteinMisc
 {
-public:
-    boss_ramstein_the_gorger() : CreatureScript("boss_ramstein_the_gorger") { }
+    SUMMON_GROUP_SENTRY     = 0,
+    SUMMON_GROUP_UNDEAD     = 1
+};
 
-    CreatureAI* GetAI(Creature* creature) const override
+// 10439 - Ramstein the Gorger
+struct boss_ramstein_the_gorger : public BossAI
+{
+    boss_ramstein_the_gorger(Creature* creature) : BossAI(creature, BOSS_RAMSTEIN_THE_GORGER) { }
+
+    void Reset() override
     {
-        return GetStratholmeAI<boss_ramstein_the_gorgerAI>(creature);
+        BossAI::Reset();
+
+        DoCastSelf(SPELL_FLURRY);
     }
 
-    struct boss_ramstein_the_gorgerAI : public ScriptedAI
+    void JustEngagedWith(Unit* who) override
     {
-        boss_ramstein_the_gorgerAI(Creature* creature) : ScriptedAI(creature)
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_TRAMPLE, 10s, 15s);
+        events.ScheduleEvent(EVENT_KNOCKOUT, 10s, 20s);
+    }
+
+    void JustDied(Unit* killer) override
+    {
+        BossAI::JustDied(killer);
+
+        me->SummonCreatureGroup(SUMMON_GROUP_SENTRY);
+        me->SummonCreatureGroup(SUMMON_GROUP_UNDEAD);
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
         {
-            Initialize();
-            instance = me->GetInstanceScript();
-        }
-
-        void Initialize()
-        {
-            Trample_Timer = 3000;
-            Knockout_Timer = 12000;
-        }
-
-        InstanceScript* instance;
-
-        uint32 Trample_Timer;
-        uint32 Knockout_Timer;
-
-        void Reset() override
-        {
-            Initialize();
-        }
-
-        void JustEngagedWith(Unit* /*who*/) override
-        {
-        }
-
-        void JustDied(Unit* /*killer*/) override
-        {
-            for (uint8 i = 0; i < 30; ++i)
+            switch (eventId)
             {
-                if (Creature* mob = me->SummonCreature(NPC_MINDLESS_UNDEAD, 3969.35f+irand(-10, 10), -3391.87f+irand(-10, 10), 119.11f, 5.91f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30min))
-                    mob->AI()->AttackStart(me->SelectNearestTarget(100.0f));
+                case EVENT_TRAMPLE:
+                    DoCastSelf(SPELL_TRAMPLE);
+                    events.Repeat(10s, 25s);
+                    break;
+                case EVENT_KNOCKOUT:
+                    DoCastVictim(SPELL_KNOCKOUT);
+                    events.Repeat(15s, 20s);
+                    break;
+                default:
+                    break;
             }
 
-            instance->SetData(TYPE_RAMSTEIN, DONE);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-
-            //Trample
-            if (Trample_Timer <= diff)
-            {
-                DoCast(me, SPELL_TRAMPLE);
-                Trample_Timer = 7000;
-            } else Trample_Timer -= diff;
-
-            //Knockout
-            if (Knockout_Timer <= diff)
-            {
-                DoCastVictim(SPELL_KNOCKOUT);
-                Knockout_Timer = 10000;
-            } else Knockout_Timer -= diff;
-
-            DoMeleeAttackIfReady();
         }
-    };
 
+        DoMeleeAttackIfReady();
+    }
 };
 
 void AddSC_boss_ramstein_the_gorger()
 {
-    new boss_ramstein_the_gorger();
+    RegisterStratholmeCreatureAI(boss_ramstein_the_gorger);
 }

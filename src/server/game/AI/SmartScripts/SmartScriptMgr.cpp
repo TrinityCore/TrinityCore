@@ -216,23 +216,23 @@ void SmartAIMgr::LoadSmartAIFromDB()
             {
                 case SMART_SCRIPT_TYPE_CREATURE:
                 {
-                    CreatureData const* creature = sObjectMgr->GetCreatureData(uint32(std::abs(temp.entryOrGuid)));
+                    CreatureData const* creature = sObjectMgr->GetCreatureData(uint32(-temp.entryOrGuid));
                     if (!creature)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid ({}) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature guid ({}) does not exist, skipped loading.", -temp.entryOrGuid);
                         continue;
                     }
 
                     CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature->id);
                     if (!creatureInfo)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) does not exist, skipped loading.", creature->id, uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) does not exist, skipped loading.", creature->id, -temp.entryOrGuid);
                         continue;
                     }
 
                     if (creatureInfo->AIName != "SmartAI")
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) is not using SmartAI, skipped loading.", creature->id, uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: Creature entry ({}) guid ({}) is not using SmartAI, skipped loading.", creature->id, -temp.entryOrGuid);
                         continue;
                     }
                     break;
@@ -242,20 +242,20 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     GameObjectData const* gameObject = sObjectMgr->GetGameObjectData(uint32(std::abs(temp.entryOrGuid)));
                     if (!gameObject)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid ({}) does not exist, skipped loading.", uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject guid ({}) does not exist, skipped loading.", -temp.entryOrGuid);
                         continue;
                     }
 
                     GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(gameObject->id);
                     if (!gameObjectInfo)
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) does not exist, skipped loading.", gameObject->id, uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) does not exist, skipped loading.", gameObject->id, -temp.entryOrGuid);
                         continue;
                     }
 
                     if (gameObjectInfo->AIName != "SmartGameObjectAI")
                     {
-                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) is not using SmartGameObjectAI, skipped loading.", gameObject->id, uint32(std::abs(temp.entryOrGuid)));
+                        TC_LOG_ERROR("sql.sql", "SmartAIMgr::LoadSmartAIFromDB: GameObject entry ({}) guid ({}) is not using SmartGameObjectAI, skipped loading.", gameObject->id, -temp.entryOrGuid);
                         continue;
                     }
                     break;
@@ -774,6 +774,8 @@ bool SmartAIMgr::CheckUnusedEventParams(SmartScriptHolder const& e)
             case SMART_EVENT_ON_SPELL_CAST: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_FAILED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_SPELL_START: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_APPLIED: return sizeof(SmartEvent::spellCast);
+            case SMART_EVENT_ON_AURA_REMOVED: return sizeof(SmartEvent::spellCast);
             case SMART_EVENT_ON_DESPAWN: return NO_PARAMS;
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an event with no unused params specified in SmartAIMgr::CheckUnusedEventParams(), please report this.",
@@ -935,6 +937,7 @@ bool SmartAIMgr::CheckUnusedActionParams(SmartScriptHolder const& e)
             case SMART_ACTION_SET_UNINTERACTIBLE: return sizeof(SmartAction::setUninteractible);
             case SMART_ACTION_ACTIVATE_GAMEOBJECT: return sizeof(SmartAction::activateGameObject);
             case SMART_ACTION_ADD_TO_STORED_TARGET_LIST: return sizeof(SmartAction::addToStoredTargets);
+            case SMART_ACTION_RESUME_MOVEMENT: return sizeof(SmartAction::resumeMovement);
             default:
                 TC_LOG_WARN("sql.sql", "SmartAIMgr: Entry {} SourceType {} Event {} Action {} is using an action with no unused params specified in SmartAIMgr::CheckUnusedActionParams(), please report this.",
                     e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
@@ -1108,6 +1111,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_ON_SPELL_CAST:
             case SMART_EVENT_ON_SPELL_FAILED:
             case SMART_EVENT_ON_SPELL_START:
+            case SMART_EVENT_ON_AURA_APPLIED:
+            case SMART_EVENT_ON_AURA_REMOVED:
             {
                 if (!IsSpellValid(e, e.event.spellCast.spell))
                     return false;
@@ -1874,12 +1879,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
             break;
         case SMART_ACTION_PAUSE_MOVEMENT:
-            if (!e.action.pauseMovement.pauseTimer)
-            {
-                TC_LOG_ERROR("sql.sql", "Entry {} SourceType {} Event {} Action {} does not specify pause duration", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
-                return false;
-            }
-
             TC_SAI_IS_BOOLEAN_VALID(e, e.action.pauseMovement.force);
             break;
         case SMART_ACTION_SET_MOVEMENT_SPEED:
@@ -2121,6 +2120,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_DESPAWN_SPAWNGROUP:
         case SMART_ACTION_PLAY_CINEMATIC:
         case SMART_ACTION_ADD_TO_STORED_TARGET_LIST:
+        case SMART_ACTION_RESUME_MOVEMENT:
             break;
         // Unused
         case SMART_ACTION_SET_UNIT_FLAG:

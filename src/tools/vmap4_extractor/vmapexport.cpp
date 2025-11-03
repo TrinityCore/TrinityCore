@@ -88,8 +88,8 @@ bool ExtractSingleWmo(std::string& fname)
     std::string originalName = fname;
 
     char* plain_name = GetPlainName(&fname[0]);
-    fixnamen(plain_name, strlen(plain_name));
-    fixname2(plain_name, strlen(plain_name));
+    FixNameCase(plain_name, strlen(plain_name));
+    FixNameSpaces(plain_name, strlen(plain_name));
     std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
 
     if (FileExists(szLocalFile.c_str()))
@@ -302,7 +302,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n", versionString);
+    printf("Extract %s. Beginning work ....\n\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     success = boost::filesystem::create_directories(szWorkDirWmo) || boost::filesystem::is_directory(szWorkDirWmo);
@@ -352,7 +352,7 @@ int main(int argc, char ** argv)
         delete dbc;
         ParsMapFiles();
         //nError = ERROR_SUCCESS;
-        // Extract models, listed in DameObjectDisplayInfo.dbc
+        // Extract models, listed in GameObjectDisplayInfo.dbc
         ExtractGameobjectModels();
     }
 
