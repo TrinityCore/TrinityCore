@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -147,7 +148,7 @@ struct boss_sacrolash : public BossAI
         _sisterIsDead = false;
         _isAboutToDie = false;
 
-        instance->instance->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_ALYTHESS));
+        me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_ALYTHESS));
     }
 
     void JustEngagedWith(Unit* who) override
@@ -371,7 +372,7 @@ struct boss_alythess : public BossAI
         _sisterIsDead = false;
         _isAboutToDie = false;
 
-        instance->instance->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_SACROLASH));
+        me->GetMap()->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_SACROLASH));
     }
 
     void JustEngagedWith(Unit* who) override
