@@ -147,9 +147,7 @@ struct boss_sacrolash : public BossAI
         _sisterIsDead = false;
         _isAboutToDie = false;
 
-        if (Creature* alythess = instance->GetCreature(DATA_ALYTHESS))
-            if (alythess->isDead())
-                alythess->Respawn();
+        instance->instance->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_ALYTHESS));
     }
 
     void JustEngagedWith(Unit* who) override
@@ -197,6 +195,8 @@ struct boss_sacrolash : public BossAI
     {
         summons.DespawnAll();
         _DespawnAtEvade();
+        if (Creature* alythess = instance->GetCreature(DATA_ALYTHESS))
+            alythess->RemoveCorpse(false);
     }
 
     void OnSpellCast(SpellInfo const* spell) override
@@ -250,12 +250,7 @@ struct boss_sacrolash : public BossAI
             Talk(SAY_DEATH_SAC);
         }
         else
-        {
-            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn
-            /// sister in case of wipe, find a way to respawn sister with no corpse and enable SetCorpseDelay
-            /// me->SetCorpseDelay(60, true);
             me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -337,6 +332,7 @@ struct boss_sacrolash : public BossAI
                     events.ScheduleEvent(EVENT_DEATH_2, 3s);
                     break;
                 case EVENT_DEATH_2:
+                    me->SetCorpseDelay(60, true);
                     DoCastSelf(SPELL_INSTAKILL_SELF);
                     break;
                 default:
@@ -375,9 +371,7 @@ struct boss_alythess : public BossAI
         _sisterIsDead = false;
         _isAboutToDie = false;
 
-        if (Creature* sacrolash = instance->GetCreature(DATA_SACROLASH))
-            if (sacrolash->isDead())
-                sacrolash->Respawn();
+        instance->instance->Respawn(SPAWN_TYPE_CREATURE, instance->GetData64(DATA_SACROLASH));
     }
 
     void JustEngagedWith(Unit* who) override
@@ -425,6 +419,8 @@ struct boss_alythess : public BossAI
     {
         summons.DespawnAll();
         _DespawnAtEvade();
+        if (Creature* sacrolash = instance->GetCreature(DATA_SACROLASH))
+            sacrolash->RemoveCorpse(false);
     }
 
     void OnSpellCast(SpellInfo const* spell) override
@@ -478,12 +474,7 @@ struct boss_alythess : public BossAI
             Talk(SAY_DEATH_ALY);
         }
         else
-        {
-            /// @todo: First killed sister despawns after 60 sec but we need a corpse to respawn
-            /// sister in case of wipe, find a way to respawn sister with no corpse and enable SetCorpseDelay
-            /// me->SetCorpseDelay(60, true);
             me->RemoveDynamicFlag(UNIT_DYNFLAG_LOOTABLE);
-        }
     }
 
     void UpdateAI(uint32 diff) override
@@ -567,6 +558,7 @@ struct boss_alythess : public BossAI
                     events.ScheduleEvent(EVENT_DEATH_2, 3s);
                     break;
                 case EVENT_DEATH_2:
+                    me->SetCorpseDelay(60, true);
                     DoCastSelf(SPELL_INSTAKILL_SELF);
                     break;
                 default:
