@@ -19,8 +19,8 @@
 #define ADT_H
 
 #include "cascfile.h"
-#include "wmo.h"
-#include "model.h"
+#include "vec3d.h"
+#include <vector>
 
 #pragma pack(push, 1)
 namespace ADT
