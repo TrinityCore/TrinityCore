@@ -3346,7 +3346,7 @@ class spell_pri_ultimate_penitence_aura : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
+        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_0}, {spellInfo->Id, EFFECT_2} });
     }
 
     void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
@@ -3356,7 +3356,7 @@ class spell_pri_ultimate_penitence_aura : public AuraScript
         if (!caster)
             return;
 
-        amount = caster->GetMaxHealth();
+        amount = caster->CountPctFromMaxHealth(GetSpellInfo()->GetEffect(EFFECT_0).CalcValue(caster));
     }
 
     void Register() override
