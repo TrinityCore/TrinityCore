@@ -1168,6 +1168,19 @@ void Spell::SelectImplicitNearbyTargets(SpellEffectInfo const& spellEffectInfo, 
                 randomRadius = spellEffectInfo.CalcRadius(m_caster, targetIndex);
             }
             break;
+        case TARGET_DEST_NEARBY_ENTRY:
+        case TARGET_DEST_NEARBY_ENTRY_2:
+            if (target)
+            {
+                SpellDestination dest(*target);
+                if (m_spellInfo->HasAttribute(SPELL_ATTR4_USE_FACING_FROM_SPELL))
+                    dest._position.SetOrientation(spellEffectInfo.PositionFacing);
+
+                CallScriptDestinationTargetSelectHandlers(dest, spellEffectInfo.EffectIndex, targetType);
+                m_targets.SetDst(dest);
+                return;
+            }
+            break;
         default:
             break;
     }
@@ -1736,7 +1749,8 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffectInfo const& spellEffect
         case TARGET_UNIT_SUMMONER:
             if (Unit* unitCaster = m_caster->ToUnit())
                 if (unitCaster->IsSummon())
-                    target = unitCaster->ToTempSummon()->GetSummonerUnit();
+                    if (TempSummon* tempSummon = unitCaster->ToTempSummon())
+                        target = tempSummon->GetSummonerUnit();
             break;
         case TARGET_UNIT_VEHICLE:
             if (Unit* unitCaster = m_caster->ToUnit())
@@ -2174,9 +2188,43 @@ WorldObject* Spell::SearchNearbyTarget(SpellEffectInfo const& spellEffectInfo, f
     if (!containerTypeMask)
         return nullptr;
 
-    Trinity::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList, objectType);
-    Trinity::WorldObjectLastSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), target, check, containerTypeMask);
-    SearchTargets(searcher, containerTypeMask, m_caster, m_caster, range);
+    bool hasObjectEntryGuidCondition = false;
+    if (condList)
+    {
+        for (Condition const& condition : *condList)
+        {
+            if (condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID || condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID_LEGACY)
+            {
+                hasObjectEntryGuidCondition = true;
+                break;
+            }
+        }
+    }
+
+    if (hasObjectEntryGuidCondition)
+    {
+        std::list<WorldObject*> targets;
+        Trinity::WorldObjectSpellAreaTargetCheck check(range, m_caster, m_caster, m_caster, m_spellInfo, selectionType, condList, objectType, Trinity::WorldObjectSpellAreaTargetSearchReason::Area);
+        Trinity::WorldObjectListSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), targets, check, containerTypeMask);
+        SearchTargets(searcher, containerTypeMask, m_caster, m_caster, range);
+
+        for (WorldObject* obj : targets)
+        {
+            ConditionSourceInfo condInfo(obj, m_caster);
+            if (sConditionMgr->IsObjectMeetToConditions(condInfo, *condList))
+            {
+                target = obj;
+                break;
+            }
+        }
+    }
+    else
+    {
+        Trinity::WorldObjectSpellNearbyTargetCheck check(range, m_caster, m_spellInfo, selectionType, condList, objectType);
+        Trinity::WorldObjectLastSearcher searcher(PhasingHandler::GetAlwaysVisiblePhaseShift(), target, check, containerTypeMask);
+        SearchTargets(searcher, containerTypeMask, m_caster, m_caster, range);
+    }
+
     return target;
 }
 
@@ -9444,8 +9492,9 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
             case TARGET_CHECK_SUMMONED:
                 if (!unitTarget->IsSummon())
                     return false;
-                if (unitTarget->ToTempSummon()->GetSummonerGUID() != _caster->GetGUID())
-                    return false;
+                if (TempSummon* tempSummon = unitTarget->ToTempSummon())
+                    if (tempSummon->GetSummonerGUID() != _caster->GetGUID())
+                        return false;
                 break;
             default:
                 break;
@@ -9472,15 +9521,40 @@ bool WorldObjectSpellTargetCheck::operator()(WorldObject* target) const
 
 WorldObjectSpellNearbyTargetCheck::WorldObjectSpellNearbyTargetCheck(float range, WorldObject* caster, SpellInfo const* spellInfo,
     SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType)
-    : WorldObjectSpellTargetCheck(caster, caster, spellInfo, selectionType, condList, objectType), _range(range), _position(caster) { }
+    : WorldObjectSpellTargetCheck(caster, caster, spellInfo, selectionType, condList, objectType), _range(range), _position(caster), _hasConditionMatch(false) { }
 
 bool WorldObjectSpellNearbyTargetCheck::operator()(WorldObject* target)
 {
     float dist = target->GetDistance(*_position);
     if (dist < _range && WorldObjectSpellTargetCheck::operator ()(target))
     {
-        _range = dist;
-        return true;
+        bool meetsObjectEntryGuidCondition = false;
+        if (_condList)
+        {
+
+            ConditionSourceInfo tempCondInfo(target, _caster);
+            tempCondInfo.mConditionTargets[0] = target;
+
+            ConditionContainer objectEntryGuidConditions;
+            for (Condition const& condition : *_condList)
+            {
+                if (condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID || condition.ConditionType == CONDITION_OBJECT_ENTRY_GUID_LEGACY)
+                {
+                    objectEntryGuidConditions.push_back(condition);
+                }
+            }
+
+            if (!objectEntryGuidConditions.empty() && sConditionMgr->IsObjectMeetToConditions(tempCondInfo, objectEntryGuidConditions))
+            {
+                meetsObjectEntryGuidCondition = true;
+            }
+        }
+        if (!_hasConditionMatch || meetsObjectEntryGuidCondition)
+        {
+            _range = dist;
+            _hasConditionMatch = meetsObjectEntryGuidCondition;
+            return true;
+        }
     }
     return false;
 }

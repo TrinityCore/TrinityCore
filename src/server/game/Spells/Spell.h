@@ -1004,6 +1004,7 @@ namespace Trinity
     {
         float _range;
         Position const* _position;
+        bool _hasConditionMatch;
         WorldObjectSpellNearbyTargetCheck(float range, WorldObject* caster, SpellInfo const* spellInfo,
             SpellTargetCheckTypes selectionType, ConditionContainer const* condList, SpellTargetObjectTypes objectType);
 
