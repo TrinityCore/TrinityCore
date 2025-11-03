@@ -1159,9 +1159,9 @@ class spell_pri_empowered_renew : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
 
+        SpellInfo const* sanct = sSpellMgr->GetSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, GetCastDifficulty());
         int32 cdReduction = aurEff->GetAmount();
-        if (SpellInfo const* sanct = sSpellMgr->GetSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, GetCastDifficulty()))
-            caster->GetSpellHistory()->ModifyCooldown(sanct, Milliseconds(-cdReduction));
+        caster->GetSpellHistory()->ModifyCooldown(sanct, Milliseconds(-cdReduction));
     }
 
     void Register() override
@@ -1180,7 +1180,7 @@ class spell_pri_renew : public AuraScript
 
     void CalculateHealing(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
     {
-        AuraEffect const* empRenew = GetCaster()->GetAuraEffect(SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1, GetCaster()->GetGUID());
+        AuraEffect const* empRenew = GetCaster()->GetAuraEffect(SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1);
         if (!empRenew)
             return;
 
