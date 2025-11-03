@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "Creature.h"
+#include "CreatureAI.h"
 #include "InstanceScript.h"
 #include "Map.h"
 #include "wailing_caverns.h"
