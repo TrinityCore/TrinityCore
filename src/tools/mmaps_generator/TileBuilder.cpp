@@ -135,19 +135,23 @@ namespace MMAP
             m_terrainBuilder.loadOffMeshConnections(mapID, tileX, tileY, meshData, *m_offMeshConnections);
 
         // build navmesh tile
-        buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh);
+        TileResult tileResult = buildMoveMapTile(mapID, tileX, tileY, meshData, bmin, bmax, navMesh->getParams());
+        if (tileResult.data)
+            saveMoveMapTileToFile(mapID, tileX, tileY, navMesh, tileResult);
 
         OnTileDone();
     }
 
     /**************************************************************************/
-    void TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
+    TileBuilder::TileResult TileBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
         MeshData& meshData, float (&bmin)[3], float (&bmax)[3],
-        dtNavMesh* navMesh)
+        dtNavMeshParams const* navMeshParams)
     {
         // console output
         std::string tileString = Trinity::StringFormat("[Map {:04}] [{:02},{:02}]:", mapID, tileX, tileY);
         TC_LOG_INFO("maps.mmapgen", "{} Building movemap tile...", tileString);
+
+        TileResult tileResult;
 
         IntermediateValues iv;
 
@@ -304,7 +308,7 @@ namespace MMAP
         if (!iv.polyMesh)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc iv.polyMesh FAILED!", tileString);
-            return;
+            return tileResult;
         }
         rcMergePolyMeshes(&m_rcContext, pmmerge.get(), nmerge, *iv.polyMesh);
 
@@ -312,7 +316,7 @@ namespace MMAP
         if (!iv.polyMeshDetail)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} alloc m_dmesh FAILED!", tileString);
-            return;
+            return tileResult;
         }
         rcMergePolyMeshDetails(&m_rcContext, dmmerge.get(), nmerge, *iv.polyMeshDetail);
 
@@ -359,8 +363,8 @@ namespace MMAP
         params.walkableHeight = BASE_UNIT_DIM * config.walkableHeight;    // agent height
         params.walkableRadius = BASE_UNIT_DIM * config.walkableRadius;    // agent radius
         params.walkableClimb = BASE_UNIT_DIM * config.walkableClimb;      // keep less that walkableHeight (aka agent height)!
-        params.tileX = (((bmin[0] + bmax[0]) / 2) - navMesh->getParams()->orig[0]) / GRID_SIZE;
-        params.tileY = (((bmin[2] + bmax[2]) / 2) - navMesh->getParams()->orig[2]) / GRID_SIZE;
+        params.tileX = (((bmin[0] + bmax[0]) / 2) - navMeshParams->orig[0]) / GRID_SIZE;
+        params.tileY = (((bmin[2] + bmax[2]) / 2) - navMeshParams->orig[2]) / GRID_SIZE;
         rcVcopy(params.bmin, bmin);
         rcVcopy(params.bmax, bmax);
         params.cs = config.cs;
@@ -370,7 +374,6 @@ namespace MMAP
 
         // will hold final navmesh
         unsigned char* navData = nullptr;
-        int navDataSize = 0;
 
         auto debugOutputWriter = Trinity::make_unique_ptr_with_deleter(m_debugOutput ? &iv : nullptr, [=, borderSize = static_cast<unsigned short>(config.borderSize), &meshData](IntermediateValues* intermediate)
         {
@@ -391,13 +394,13 @@ namespace MMAP
         if (params.nvp > DT_VERTS_PER_POLYGON)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} Invalid verts-per-polygon value!", tileString);
-            return;
+            return tileResult;
         }
 
         if (params.vertCount >= 0xffff)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} Too many vertices!", tileString);
-            return;
+            return tileResult;
         }
 
         if (!params.vertCount || !params.verts)
@@ -407,7 +410,7 @@ namespace MMAP
 
             // message is an annoyance
             //TC_LOG_ERROR("maps.mmapgen", "{} No vertices to build tile!", tileString);
-            return;
+            return tileResult;
         }
 
         if (!params.polyCount || !params.polys)
@@ -415,57 +418,68 @@ namespace MMAP
             // we have flat tiles with no actual geometry - don't build those, its useless
             // keep in mind that we do output those into debug info
             TC_LOG_ERROR("maps.mmapgen", "{} No polygons to build on tile!", tileString);
-            return;
+            return tileResult;
         }
 
         if (!params.detailMeshes || !params.detailVerts || !params.detailTris)
         {
             TC_LOG_ERROR("maps.mmapgen", "{} No detail mesh to build tile!", tileString);
-            return;
+            return tileResult;
         }
 
         TC_LOG_DEBUG("maps.mmapgen", "{} Building navmesh tile...", tileString);
-        if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+        if (!dtCreateNavMeshData(&params, &navData, &tileResult.size))
         {
             TC_LOG_ERROR("maps.mmapgen", "{} Failed building navmesh tile!", tileString);
-            return;
+            return tileResult;
         }
 
+        tileResult.data.reset(navData);
+        return tileResult;
+    }
+
+    void TileBuilder::saveMoveMapTileToFile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh, TileResult const& tileResult)
+    {
         dtTileRef tileRef = 0;
-        TC_LOG_DEBUG("maps.mmapgen", "{} Adding tile to navmesh...", tileString);
-        // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
-        // is removed via removeTile()
-        dtStatus dtResult = navMesh->addTile(navData, navDataSize, DT_TILE_FREE_DATA, 0, &tileRef);
-        if (!tileRef || !dtStatusSucceed(dtResult))
-        {
-            TC_LOG_ERROR("maps.mmapgen", "{} Failed adding tile to navmesh!", tileString);
-            return;
-        }
-
-        auto navMeshTile = Trinity::make_unique_ptr_with_deleter(&tileRef, [navMesh](dtTileRef const* ref)
+        auto navMeshTile = Trinity::make_unique_ptr_with_deleter<dtTileRef*>(nullptr, [navMesh](dtTileRef const* ref)
         {
             navMesh->removeTile(*ref, nullptr, nullptr);
         });
+
+        if (navMesh)
+        {
+            TC_LOG_DEBUG("maps.mmapgen", "[Map {:04}] [{:02},{:02}]: Adding tile to navmesh...", mapID, tileX, tileY);
+            // DT_TILE_FREE_DATA tells detour to unallocate memory when the tile
+            // is removed via removeTile()
+            dtStatus dtResult = navMesh->addTile(tileResult.data.get(), tileResult.size, 0, 0, &tileRef);
+            if (!tileRef || !dtStatusSucceed(dtResult))
+            {
+                TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] [{:02},{:02}]: Failed adding tile to navmesh!", mapID, tileX, tileY);
+                return;
+            }
+
+            navMeshTile.reset(&tileRef);
+        }
 
         // file output
         std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
         {
-            TC_LOG_ERROR("maps.mmapgen", "{}: [Map {:04}] Failed to open {} for writing!", strerror(errno), mapID, fileName);
+            TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] [{:02},{:02}]: {}: Failed to open {} for writing!", mapID, tileX, tileY, strerror(errno), fileName);
             return;
         }
 
-        TC_LOG_DEBUG("maps.mmapgen", "{} Writing to file...", tileString);
+        TC_LOG_DEBUG("maps.mmapgen", "[Map {:04}] [{:02},{:02}]: Writing to file...", mapID, tileX, tileY);
 
         // write header
         MmapTileHeader header;
         header.usesLiquids = m_terrainBuilder.usesLiquids();
-        header.size = uint32(navDataSize);
+        header.size = uint32(tileResult.size);
         fwrite(&header, sizeof(MmapTileHeader), 1, file.get());
 
         // write data
-        fwrite(navData, sizeof(unsigned char), navDataSize, file.get());
+        fwrite(tileResult.data.get(), sizeof(unsigned char), tileResult.size, file.get());
     }
 
     /**************************************************************************/

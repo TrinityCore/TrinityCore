@@ -328,7 +328,9 @@ namespace MMAP
         // build navmesh tile
         MapTileBuilder tileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
             m_skipLiquid, m_bigBaseUnit, m_debugOutput, &m_offMeshConnections);
-        tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        TileBuilder::TileResult tileResult = tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh->getParams());
+        if (tileResult.data)
+            tileBuilder.saveMoveMapTileToFile(mapId, tileX, tileY, navMesh, tileResult);
     }
 
     /**************************************************************************/

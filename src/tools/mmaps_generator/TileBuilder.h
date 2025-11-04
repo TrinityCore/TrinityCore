@@ -19,6 +19,7 @@
 #define TRINITYCORE_TILE_BUILDER_H
 
 #include "Define.h"
+#include "Memory.h"
 #include "StringFormat.h"
 #include "TerrainBuilder.h"
 #include <DetourNavMesh.h>
@@ -27,6 +28,8 @@
 namespace MMAP
 {
 struct TileConfig;
+
+using detour_unique_ptr = std::unique_ptr<unsigned char, decltype(Trinity::unique_ptr_deleter<unsigned char*, &::dtFree>())>;
 
 class TileBuilder
 {
@@ -47,14 +50,22 @@ public:
     virtual ~TileBuilder();
 
     void buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh);
+
     // move map building
-    void buildMoveMapTile(uint32 mapID,
+    struct TileResult
+    {
+        detour_unique_ptr data;
+        int size = 0;
+    };
+    TileResult buildMoveMapTile(uint32 mapID,
         uint32 tileX,
         uint32 tileY,
         MeshData& meshData,
         float (&bmin)[3],
         float (&bmax)[3],
-        dtNavMesh* navMesh);
+        dtNavMeshParams const* navMeshParams);
+
+    void saveMoveMapTileToFile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh, TileResult const& tileResult);
 
     virtual bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const;
 
