@@ -44,7 +44,32 @@ class spell_zulgurub_poisonous_blood : public SpellScript
     }
 };
 
+enum AxeFlurry
+{
+    SPELL_AXE_FLURRY      = 24020
+};
+
+// 24019 - Axe Flurry
+class spell_zulgurub_axe_flurry : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_AXE_FLURRY });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_AXE_FLURRY, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_zulgurub_axe_flurry::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_zulgurub()
 {
     RegisterSpellScript(spell_zulgurub_poisonous_blood);
+    RegisterSpellScript(spell_zulgurub_axe_flurry);
 }
