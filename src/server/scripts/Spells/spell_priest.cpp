@@ -3410,14 +3410,16 @@ class spell_pri_ultimate_penitence_channel : public AuraScript
 
         if (!_healingMode)
         {
-            std::list<Unit*> enemies;
+            std::list<WorldObject*> enemies;
             Trinity::AnyUnfriendlyUnitInObjectRangeCheck check(caster, caster, maxRange);
             Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(caster, enemies, check);
             Cell::VisitAllObjects(caster, searcher, maxRange);
 
+            Trinity::SortTargetsWithPriorityRules(enemies, 1, GetDamageRules(caster));
+
             if (!enemies.empty())
             {
-                caster->CastSpell(Trinity::Containers::SelectRandomContainerElement(enemies), SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE,
+                caster->CastSpell(enemies.front(), SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE,
                     CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
                 _swappedFromDmg = true;
             }
@@ -3427,25 +3429,41 @@ class spell_pri_ultimate_penitence_channel : public AuraScript
 
         if (_healingMode)
         {
-            std::list<Unit*> allies;
+            std::list<WorldObject*> allies;
             Trinity::AnyFriendlyUnitInObjectRangeCheck check(caster, caster, maxRange);
             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(caster, allies, check);
             Cell::VisitAllObjects(caster, searcher, maxRange);
 
-            allies.remove_if([caster](Unit* ally)
-            {
-                return !caster->IsValidAssistTarget(ally);
-            });
-
             allies.remove(caster);
+
+            Trinity::SortTargetsWithPriorityRules(allies, 1, GetHealingRules(caster));
 
             if (allies.empty() && _swappedFromDmg)
                 allies.push_back(caster);
 
             if (!allies.empty())
-                caster->CastSpell(Trinity::Containers::SelectRandomContainerElement(allies), SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL,
+                caster->CastSpell(allies.front(), SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL,
                     CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
         }
+    }
+
+    static std::array<Trinity::TargetPriorityRule, 1> GetDamageRules(Unit const* caster)
+    {
+        return
+        {
+            [caster](WorldObject const* target) { return caster->IsValidAttackTarget(target); }
+        };
+    }
+
+    static std::array<Trinity::TargetPriorityRule, 4> GetHealingRules(Unit const* caster)
+    {
+        return
+        {
+            [caster](WorldObject const* target) { return caster->IsValidAssistTarget(target); },
+            [](Unit const* target) { return !target->IsFullHealth(); },
+            [](WorldObject const* target) {return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); },
+            [caster](Unit const* target) { return target->IsInRaidWith(caster); }
+        };
     }
 
     void Register() override
