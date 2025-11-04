@@ -1099,6 +1099,87 @@ class spell_grizzly_hills_rage_of_jinarrak : public AuraScript
     }
 };
 
+// 61613 - Gan'jo Ressurection
+class spell_grizzly_hills_ganjo_ressurection : public SpellScript
+{
+    PrepareSpellScript(spell_grizzly_hills_ganjo_ressurection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ON_THE_OTHER_SIDE });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->RemoveAurasDueToSpell(SPELL_ON_THE_OTHER_SIDE);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_grizzly_hills_ganjo_ressurection::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+};
+
+/*######
+## Creature 26853 (Makki Wintergale) (if quest 'Shifting Priorities' (12763) is completed)
+######*/
+
+enum MakkiWintergale
+{
+    SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH     = 53289
+};
+
+// 53288 - Flight - Onequah to Light's Breach
+class spell_grizzly_hills_flight_onequah_to_lights_breach : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_flight_onequah_to_lights_breach);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_FLIGHT_ONEQUAH_TO_LIGHTS_BREACH);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_grizzly_hills_flight_onequah_to_lights_breach::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+/*######
+## Creature 26876 (Samuel Clearbook) (if quest 'Reallocating Resources' (12770) is completed)
+######*/
+
+enum SamuelClearbook
+{
+    SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH     = 53310
+};
+
+// 53311 - Flight - Westfall to Light's Breach
+class spell_grizzly_hills_flight_westfall_to_lights_breach : public AuraScript
+{
+    PrepareAuraScript(spell_grizzly_hills_flight_westfall_to_lights_breach);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_FLIGHT_WESTFALL_TO_LIGHTS_BREACH);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_grizzly_hills_flight_westfall_to_lights_breach::AfterApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     RegisterCreatureAI(npc_emily);
@@ -1125,4 +1206,7 @@ void AddSC_grizzly_hills()
     RegisterSpellScript(spell_grizzly_hills_escape_from_silverbrook_summon_worgen);
     RegisterSpellScript(spell_grizzly_hills_hand_over_reins);
     RegisterSpellScript(spell_grizzly_hills_rage_of_jinarrak);
+    RegisterSpellScript(spell_grizzly_hills_ganjo_ressurection);
+    RegisterSpellScript(spell_grizzly_hills_flight_onequah_to_lights_breach);
+    RegisterSpellScript(spell_grizzly_hills_flight_westfall_to_lights_breach);
 }
