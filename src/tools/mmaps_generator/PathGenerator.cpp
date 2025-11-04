@@ -87,9 +87,10 @@ void SetupLogging(Trinity::Asio::IoContext* ioContext)
     log->CreateLoggerFromConfigLine("Logger.maps.mmapgen", "2,Console");    // LOG_LEVEL_DEBUG | Console appender
 }
 
-bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
+bool checkDirectories(boost::filesystem::path const& inputDirectory, boost::filesystem::path const& outputDirectory,
+    bool debugOutput, std::vector<std::string>& dbcLocales)
 {
-    if (MMAP::getDirContents(dbcLocales, "dbc") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
+    if (MMAP::getDirContents(dbcLocales, inputDirectory / "dbc", boost::filesystem::directory_file) == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dbcLocales.empty())
     {
         TC_LOG_ERROR("tool.mmapgen", "'dbc' directory is empty or does not exist");
         return false;
@@ -97,39 +98,32 @@ bool checkDirectories(bool debugOutput, std::vector<std::string>& dbcLocales)
 
     std::vector<std::string> dirFiles;
 
-    if (MMAP::getDirContents(dirFiles, "maps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, inputDirectory / "maps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         TC_LOG_ERROR("tool.mmapgen", "'maps' directory is empty or does not exist");
         return false;
     }
 
     dirFiles.clear();
-    if (MMAP::getDirContents(dirFiles, "vmaps/0000", "*.vmtree") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
+    if (MMAP::getDirContents(dirFiles, inputDirectory / "vmaps" / "0000", boost::filesystem::regular_file, "*.vmtree") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
         TC_LOG_ERROR("tool.mmapgen", "'vmaps' directory is empty or does not exist");
         return false;
     }
 
-    dirFiles.clear();
-    if (MMAP::getDirContents(dirFiles, "mmaps") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
+    boost::system::error_code ec;
+    if (!boost::filesystem::create_directories(outputDirectory / "mmaps", ec) && ec)
     {
-        if (!boost::filesystem::create_directory("mmaps"))
-        {
-            TC_LOG_ERROR("tool.mmapgen", "'mmaps' directory does not exist and failed to create it");
-            return false;
-        }
+        TC_LOG_ERROR("tool.mmapgen", "'mmaps' directory does not exist and failed to create it");
+        return false;
     }
 
-    dirFiles.clear();
     if (debugOutput)
     {
-        if (MMAP::getDirContents(dirFiles, "meshes") == MMAP::LISTFILE_DIRECTORY_NOT_FOUND)
+        if (!boost::filesystem::create_directories(outputDirectory / "meshes", ec) && ec)
         {
-            if (!boost::filesystem::create_directory("meshes"))
-            {
-                TC_LOG_ERROR("tool.mmapgen", "'meshes' directory does not exist and failed to create it (no place to put debugOutput files)");
-                return false;
-            }
+            TC_LOG_ERROR("tool.mmapgen", "'meshes' directory does not exist and failed to create it (no place to put debugOutput files)");
+            return false;
         }
     }
 
@@ -144,21 +138,23 @@ int finish(char const* message, int returnValue)
 }
 
 bool handleArgs(int argc, char** argv,
-               int &mapnum,
-               int &tileX,
-               int &tileY,
+               int& mapnum,
+               int& tileX,
+               int& tileY,
                Optional<float>& maxAngle,
                Optional<float>& maxAngleNotSteep,
-               bool &skipLiquid,
-               bool &skipContinents,
-               bool &skipJunkMaps,
-               bool &skipBattlegrounds,
-               bool &debugOutput,
-               bool &silent,
-               bool &bigBaseUnit,
-               char* &offMeshInputPath,
-               char* &file,
-               unsigned int& threads)
+               bool& skipLiquid,
+               bool& skipContinents,
+               bool& skipJunkMaps,
+               bool& skipBattlegrounds,
+               bool& debugOutput,
+               bool& silent,
+               bool& bigBaseUnit,
+               char const*& offMeshInputPath,
+               char const*& file,
+               unsigned int& threads,
+               boost::filesystem::path& inputDirectory,
+               boost::filesystem::path& outputDirectory)
 {
     char* param = nullptr;
     [[maybe_unused]] bool allowDebug = false;
@@ -314,6 +310,22 @@ bool handleArgs(int argc, char** argv,
 
             offMeshInputPath = param;
         }
+        else if (strcmp(argv[i], "--input") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            inputDirectory = param;
+        }
+        else if (strcmp(argv[i], "--output") == 0)
+        {
+            param = argv[++i];
+            if (!param)
+                return false;
+
+            outputDirectory = param;
+        }
         else if (strcmp(argv[i], "--allowDebug") == 0)
         {
             allowDebug = true;
@@ -349,11 +361,11 @@ bool handleArgs(int argc, char** argv,
     return true;
 }
 
-std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool silent, int32 errorExitCode)
+std::unordered_map<uint32, uint8> LoadLiquid(boost::filesystem::path const& inputDirectory, std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader liquidDb2;
     std::unordered_map<uint32, uint8> liquidData;
-    DB2FileSystemSource liquidTypeSource((boost::filesystem::path("dbc") / locale / "LiquidType.db2").string());
+    DB2FileSystemSource liquidTypeSource((inputDirectory / "dbc" / locale / "LiquidType.db2").string());
     try
     {
         liquidDb2.Load(&liquidTypeSource, &LiquidTypeLoadInfo::Instance);
@@ -377,10 +389,10 @@ std::unordered_map<uint32, uint8> LoadLiquid(std::string const& locale, bool sil
     return liquidData;
 }
 
-void LoadMap(std::string const& locale, bool silent, int32 errorExitCode)
+void LoadMap(boost::filesystem::path const& inputDirectory, std::string const& locale, bool silent, int32 errorExitCode)
 {
     DB2FileLoader mapDb2;
-    DB2FileSystemSource mapSource((boost::filesystem::path("dbc") / locale / "Map.db2").string());
+    DB2FileSystemSource mapSource((inputDirectory / "dbc" / locale / "Map.db2").string());
     try
     {
         mapDb2.Load(&mapSource, &MapLoadInfo::Instance);
@@ -442,13 +454,16 @@ int main(int argc, char** argv)
          debugOutput = false,
          silent = false,
          bigBaseUnit = false;
-    char* offMeshInputPath = nullptr;
-    char* file = nullptr;
+    char const* offMeshInputPath = nullptr;
+    char const* file = nullptr;
+    boost::filesystem::path inputDirectory = boost::filesystem::current_path();
+    boost::filesystem::path outputDirectory = boost::filesystem::current_path();
 
     bool validParam = handleArgs(argc, argv, mapnum,
                                  tileX, tileY, maxAngle, maxAngleNotSteep,
                                  skipLiquid, skipContinents, skipJunkMaps, skipBattlegrounds,
-                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads);
+                                 debugOutput, silent, bigBaseUnit, offMeshInputPath, file, threads,
+                                 inputDirectory, outputDirectory);
 
     if (!validParam)
         return silent ? -1 : finish("You have specified invalid parameters", -1);
@@ -466,14 +481,14 @@ int main(int argc, char** argv)
     }
 
     std::vector<std::string> dbcLocales;
-    if (!checkDirectories(debugOutput, dbcLocales))
+    if (!checkDirectories(inputDirectory, outputDirectory, debugOutput, dbcLocales))
         return silent ? -3 : finish("Press ENTER to close...", -3);
 
-    _liquidTypes = LoadLiquid(dbcLocales[0], silent, -5);
+    _liquidTypes = LoadLiquid(inputDirectory, dbcLocales[0], silent, -5);
 
-    LoadMap(dbcLocales[0], silent, -4);
+    LoadMap(inputDirectory, dbcLocales[0], silent, -4);
 
-    MMAP::MapBuilder builder(maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
+    MMAP::MapBuilder builder(inputDirectory, outputDirectory, maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
     uint32 start = getMSTime();

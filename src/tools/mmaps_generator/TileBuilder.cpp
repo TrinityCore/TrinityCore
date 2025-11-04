@@ -69,13 +69,15 @@ namespace MMAP
         int TILES_PER_MAP;
     };
 
-    TileBuilder::TileBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep,
+    TileBuilder::TileBuilder(boost::filesystem::path const& inputDirectory, boost::filesystem::path const& outputDirectory,
+        Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep,
         bool skipLiquid, bool bigBaseUnit, bool debugOutput, std::vector<OffMeshData> const* offMeshConnections) :
+        m_outputDirectory(outputDirectory),
         m_maxWalkableAngle(maxWalkableAngle),
         m_maxWalkableAngleNotSteep(maxWalkableAngleNotSteep),
         m_bigBaseUnit(bigBaseUnit),
         m_debugOutput(debugOutput),
-        m_terrainBuilder(skipLiquid),
+        m_terrainBuilder(inputDirectory, skipLiquid),
         m_rcContext(false),
         m_offMeshConnections(offMeshConnections)
     {
@@ -375,7 +377,7 @@ namespace MMAP
         // will hold final navmesh
         unsigned char* navData = nullptr;
 
-        auto debugOutputWriter = Trinity::make_unique_ptr_with_deleter(m_debugOutput ? &iv : nullptr, [=, borderSize = static_cast<unsigned short>(config.borderSize), &meshData](IntermediateValues* intermediate)
+        auto debugOutputWriter = Trinity::make_unique_ptr_with_deleter(m_debugOutput ? &iv : nullptr, [borderSize = static_cast<unsigned short>(config.borderSize), outputDir = &m_outputDirectory, mapID, tileX, tileY, &meshData](IntermediateValues* intermediate)
         {
             // restore padding so that the debug visualization is correct
             for (std::ptrdiff_t i = 0; i < intermediate->polyMesh->nverts; ++i)
@@ -385,8 +387,8 @@ namespace MMAP
                 v[2] += borderSize;
             }
 
-            intermediate->generateObjFile(mapID, tileX, tileY, meshData);
-            intermediate->writeIV(mapID, tileX, tileY);
+            intermediate->generateObjFile(*outputDir, mapID, tileX, tileY, meshData);
+            intermediate->writeIV(*outputDir, mapID, tileX, tileY);
         });
 
         // these values are checked within dtCreateNavMeshData - handle them here
@@ -462,7 +464,7 @@ namespace MMAP
         }
 
         // file output
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}{:02}{:02}.mmtile", m_outputDirectory.generic_string(), mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
         {

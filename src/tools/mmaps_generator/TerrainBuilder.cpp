@@ -29,7 +29,11 @@
 
 namespace MMAP
 {
-    TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
+    TerrainBuilder::TerrainBuilder(boost::filesystem::path const& inputDirectory, bool skipLiquid) :
+        m_inputDirectory(inputDirectory),
+        m_skipLiquid (skipLiquid)
+    {
+    }
 
     /**************************************************************************/
     void TerrainBuilder::getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc)
@@ -79,7 +83,7 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager, Spot portion)
     {
-        std::string mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", mapID, tileX, tileY);
+        std::string mapFileName = Trinity::StringFormat("{}/maps/{:04}_{:02}_{:02}.map", m_inputDirectory.generic_string(), mapID, tileX, tileY);
 
         auto mapFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(mapFileName.c_str(), "rb"));
         if (!mapFile)
@@ -87,7 +91,7 @@ namespace MMAP
             int32 parentMapId = vmapManager->getParentMapId(mapID);
             while (!mapFile && parentMapId != -1)
             {
-                mapFileName = Trinity::StringFormat("maps/{:04}_{:02}_{:02}.map", parentMapId, tileX, tileY);
+                mapFileName = Trinity::StringFormat("{}/maps/{:04}_{:02}_{:02}.map", m_inputDirectory.generic_string(), parentMapId, tileX, tileY);
                 mapFile.reset(fopen(mapFileName.c_str(), "rb"));
                 parentMapId = vmapManager->getParentMapId(parentMapId);
             }
@@ -563,7 +567,7 @@ namespace MMAP
     /**************************************************************************/
     bool TerrainBuilder::loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager)
     {
-        VMAP::LoadResult result = vmapManager->loadMap("vmaps", mapID, tileX, tileY);
+        VMAP::LoadResult result = vmapManager->loadMap((m_inputDirectory / "vmaps").string(), mapID, tileX, tileY);
         if (result != VMAP::LoadResult::Success)
             return false;
 

@@ -37,7 +37,7 @@ namespace MMAP
 {
     MapTileBuilder::MapTileBuilder(MapBuilder* mapBuilder, Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep,
         bool skipLiquid, bool bigBaseUnit, bool debugOutput, std::vector<OffMeshData> const* offMeshConnections) :
-        TileBuilder(maxWalkableAngle, maxWalkableAngleNotSteep, skipLiquid, bigBaseUnit, debugOutput, offMeshConnections),
+        TileBuilder(mapBuilder->m_inputDirectory, mapBuilder->m_outputDirectory, maxWalkableAngle, maxWalkableAngleNotSteep, skipLiquid, bigBaseUnit, debugOutput, offMeshConnections),
         m_mapBuilder(mapBuilder),
         m_workerThread(&MapTileBuilder::WorkerThread, this)
     {
@@ -59,9 +59,12 @@ namespace MMAP
         ++m_mapBuilder->m_totalTilesProcessed;
     }
 
-    MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
+    MapBuilder::MapBuilder(boost::filesystem::path const& inputDirectory, boost::filesystem::path const& outputDirectory,
+        Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
+        m_inputDirectory     (inputDirectory),
+        m_outputDirectory    (outputDirectory),
         m_debugOutput        (debugOutput),
         m_threads            (threads),
         m_skipContinents     (skipContinents),
@@ -100,7 +103,7 @@ namespace MMAP
     void MapBuilder::discoverTiles()
     {
         boost::filesystem::directory_iterator end;
-        for (auto itr = boost::filesystem::directory_iterator("maps"); itr != end; ++itr)
+        for (auto itr = boost::filesystem::directory_iterator(m_inputDirectory / "maps"); itr != end; ++itr)
         {
             if (!boost::filesystem::is_regular_file(*itr))
                 continue;
@@ -138,7 +141,7 @@ namespace MMAP
             }
         }
 
-        for (auto itr = boost::filesystem::directory_iterator("vmaps"); itr != end; ++itr)
+        for (auto itr = boost::filesystem::directory_iterator(m_inputDirectory / "vmaps"); itr != end; ++itr)
         {
             if (!boost::filesystem::is_directory(*itr))
                 continue;
@@ -278,7 +281,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildMeshFromFile(char* name)
+    void MapBuilder::buildMeshFromFile(char const* name)
     {
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(name, "rb"));
         if (!file)
@@ -460,7 +463,7 @@ namespace MMAP
             return;
         }
 
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}.mmap", mapID);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}.mmap", m_outputDirectory.generic_string(), mapID);
 
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
@@ -563,7 +566,7 @@ namespace MMAP
     /**************************************************************************/
     bool MapTileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}{:02}{:02}.mmtile", m_outputDirectory.generic_string(), mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
             return false;
