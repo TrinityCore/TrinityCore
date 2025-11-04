@@ -1,5 +1,11 @@
 R"(Generator command line args
 
+--input             [path]          Directory to use for reading maps and vmaps
+                                    Default: current_directory
+
+--output            [path]          Directory to write generated data to
+                                    Default: current_directory
+
 --threads           [#]             Max number of threads used by the generator
                                     Default: Same as CPU cores
 

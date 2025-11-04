@@ -64,15 +64,15 @@ namespace MMAP
             return *this;
         }
 
-        void writeIV(uint32 mapID, uint32 tileX, uint32 tileY);
+        void writeIV(boost::filesystem::path const& outputDirectory, uint32 mapID, uint32 tileX, uint32 tileY);
 
-        void debugWrite(FILE* file, rcHeightfield const* mesh);
-        void debugWrite(FILE* file, rcCompactHeightfield const* chf);
-        void debugWrite(FILE* file, rcContourSet const* cs);
-        void debugWrite(FILE* file, rcPolyMesh const* mesh);
-        void debugWrite(FILE* file, rcPolyMeshDetail const* mesh);
+        static void debugWrite(FILE* file, rcHeightfield const* mesh);
+        static void debugWrite(FILE* file, rcCompactHeightfield const* chf);
+        static void debugWrite(FILE* file, rcContourSet const* cs);
+        static void debugWrite(FILE* file, rcPolyMesh const* mesh);
+        static void debugWrite(FILE* file, rcPolyMeshDetail const* mesh);
 
-        void generateObjFile(uint32 mapID, uint32 tileX, uint32 tileY, MeshData const& meshData);
+        void generateObjFile(boost::filesystem::path const& outputDirectory, uint32 mapID, uint32 tileX, uint32 tileY, MeshData const& meshData);
     };
 }
 #endif

@@ -23,6 +23,7 @@
 #include "ProducerConsumerQueue.h"
 #include "TerrainBuilder.h"
 #include "TileBuilder.h"
+#include <boost/filesystem/path.hpp>
 #include <DetourNavMesh.h>
 #include <atomic>
 #include <span>
@@ -78,7 +79,9 @@ namespace MMAP
         friend class MapTileBuilder;
 
         public:
-            MapBuilder(Optional<float> maxWalkableAngle,
+            MapBuilder(boost::filesystem::path const& inputDirectory,
+                boost::filesystem::path const& outputDirectory,
+                Optional<float> maxWalkableAngle,
                 Optional<float> maxWalkableAngleNotSteep,
                 bool skipLiquid,
                 bool skipContinents,
@@ -92,7 +95,7 @@ namespace MMAP
 
             ~MapBuilder();
 
-            void buildMeshFromFile(char* name);
+            void buildMeshFromFile(char const* name);
 
             // builds an mmap tile for the specified map and its mesh
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
@@ -122,6 +125,8 @@ namespace MMAP
 
             TileList m_tiles;
 
+            boost::filesystem::path m_inputDirectory;
+            boost::filesystem::path m_outputDirectory;
             bool m_debugOutput;
 
             std::vector<OffMeshData> m_offMeshConnections;

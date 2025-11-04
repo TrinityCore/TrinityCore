@@ -34,7 +34,9 @@ using detour_unique_ptr = std::unique_ptr<unsigned char, decltype(Trinity::uniqu
 class TileBuilder
 {
 public:
-    TileBuilder(Optional<float> maxWalkableAngle,
+    TileBuilder(boost::filesystem::path const& inputDirectory,
+        boost::filesystem::path const& outputDirectory,
+        Optional<float> maxWalkableAngle,
         Optional<float> maxWalkableAngleNotSteep,
         bool skipLiquid,
         bool bigBaseUnit,
@@ -79,7 +81,8 @@ public:
 
     virtual void OnTileDone() { }
 
-private:
+protected:
+    boost::filesystem::path m_outputDirectory;
     Optional<float> m_maxWalkableAngle;
     Optional<float> m_maxWalkableAngleNotSteep;
     bool m_bigBaseUnit;

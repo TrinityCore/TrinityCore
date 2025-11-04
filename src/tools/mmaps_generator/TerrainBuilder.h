@@ -20,6 +20,7 @@
 
 #include "WorldModel.h"
 #include <G3D/Vector3.h>
+#include <boost/filesystem/path.hpp>
 
 namespace VMAP
 {
@@ -93,7 +94,7 @@ namespace MMAP
     class TerrainBuilder
     {
         public:
-            explicit TerrainBuilder(bool skipLiquid);
+            explicit TerrainBuilder(boost::filesystem::path const& inputDirectory, bool skipLiquid);
 
             void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
             bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
@@ -113,6 +114,8 @@ namespace MMAP
 
             /// Sets loop variables for selecting only certain parts of a map's terrain
             static void getLoopVars(Spot portion, int& loopStart, int& loopEnd, int& loopInc);
+
+            boost::filesystem::path m_inputDirectory;
 
             /// Controls whether liquids are loaded
             bool m_skipLiquid;
