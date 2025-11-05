@@ -98,6 +98,8 @@ namespace MMAP
 
             void loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
             bool loadVMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, VMAP::VMapManager* vmapManager);
+            void loadVMapModel(VMAP::WorldModel const* worldModel, G3D::Vector3 const& position, G3D::Matrix3 const& rotation, float scale,
+                MeshData& meshData, VMAP::VMapManager* vmapManager);
             void loadOffMeshConnections(uint32 mapID, uint32 tileX, uint32 tileY, MeshData& meshData, std::vector<OffMeshData> const& offMeshConnections);
 
             bool usesLiquids() const { return !m_skipLiquid; }
