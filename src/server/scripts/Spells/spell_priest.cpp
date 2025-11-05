@@ -86,6 +86,10 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
+    SPELL_PRIEST_ENTROPIC_RIFT                      = 447444,
+    SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER          = 447445,
+    SPELL_PRIEST_ENTROPIC_RIFT_AURA                 = 450193,
+    SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE               = 447448,
     SPELL_PRIEST_EPIPHANY                           = 414553,
     SPELL_PRIEST_EPIPHANY_HIGHLIGHT                 = 414556,
     SPELL_PRIEST_ESSENCE_DEVOURER                   = 415479,
@@ -124,6 +128,7 @@ enum PriestSpells
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
+    SPELL_PRIEST_MIND_BLAST                         = 8092,
     SPELL_PRIEST_MIND_DEVOURER                      = 373202,
     SPELL_PRIEST_MIND_DEVOURER_AURA                 = 373204,
     SPELL_PRIEST_MINDBENDER_DISC                    = 123040,
@@ -203,6 +208,7 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_VOID_TORRENT                       = 263165,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
     SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
     SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
@@ -1172,6 +1178,189 @@ class spell_pri_empowered_renew : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_empowered_renew::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+};
+
+// 447444 - Entropic Rift
+class spell_pri_entropic_rift : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_MIND_BLAST, SPELL_PRIEST_VOID_TORRENT });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        Player* player = eventInfo.GetActor()->ToPlayer();
+        if (!player)
+            return false;
+
+        if (player->GetPrimarySpecialization() == ChrSpecialization::PriestDiscipline)
+            return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_MIND_BLAST;
+
+        if (player->GetPrimarySpecialization() == ChrSpecialization::PriestShadow)
+            return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_VOID_TORRENT;
+
+        return false;
+    }
+
+    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = eventInfo.GetActionTarget();
+		ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
+
+        caster->CastSpell(target ? target : caster, SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER, CastSpellExtraArgs(aurEff).SetCustomArg(targetGUID));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_entropic_rift::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_entropic_rift::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 450193 - Entropic Rift (Aura)
+class spell_pri_entropic_rift_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (AreaTrigger* at = caster->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER))
+            at->SetDuration(GetDuration());
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_entropic_rift_aura::HandleApply, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 447445 - Entropic Rift (AreaTrigger)
+struct areatrigger_pri_entropic_rift : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnInitialize() override
+    {
+        _scheduler.Schedule(100ms, [this](TaskContext task)
+        {
+            UpdateMovement();
+            task.Repeat(250ms);
+        });
+    }
+
+    void OnCreate(Spell const* creatingSpell) override
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA);
+
+        if (creatingSpell)
+        {
+            if (ObjectGuid const* targetGUID = std::any_cast<ObjectGuid>(&creatingSpell->m_customArg))
+                _targetGuid = *targetGUID;
+            _searchRadius = creatingSpell->GetSpellInfo()->GetMaxRange();
+        }
+    }
+
+    void OnUpdate(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+
+        _damageTimer -= Milliseconds(diff);
+        while (_damageTimer <= 0s)
+        {
+            DealDamage();
+            _damageTimer += damagePeriod;
+        }
+    }
+
+    void UpdateMovement()
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        Unit* target = nullptr;
+        if (!_targetGuid.IsEmpty())
+            target = ObjectAccessor::GetUnit(*at, _targetGuid);
+
+        if (!target || !target->IsAlive())
+        {
+            target = FindNewEnemy(caster);
+            if (!target)
+            {
+                _targetGuid = ObjectGuid::Empty;
+                return;
+            }
+
+            _targetGuid = target->GetGUID();
+        }
+
+        PathGenerator path(at);
+        path.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false);
+        at->InitSplines(path.GetPath());
+    }
+
+    void DealDamage()
+    {
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return;
+
+        float radius = at->GetMaxSearchRadius();
+        std::list<WorldObject*> targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, radius);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
+        Cell::VisitAllObjects(at, searcher, radius);
+
+        targets.remove_if([caster](WorldObject const* target)
+        {
+            return !caster->IsValidAttackTarget(target);
+        });
+
+        for (WorldObject* target : targets)
+            caster->CastSpell(target->ToUnit(), SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE);
+    }
+
+    Unit* FindNewEnemy(Unit const* caster)
+    {
+        std::list<WorldObject*> targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, _searchRadius);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
+        Cell::VisitAllObjects(at, searcher, _searchRadius);
+
+        targets.remove_if([caster](WorldObject const* obj)
+        {
+            Unit const* target = obj->ToUnit();
+            return !target || !target->IsAlive() || !caster->IsValidAttackTarget(target) || !caster->IsInCombatWith(target);
+        });
+
+        if (targets.empty())
+            return nullptr;
+
+        return Trinity::Containers::SelectRandomContainerElement(targets)->ToUnit();
+    }
+
+private:
+    static constexpr Milliseconds damagePeriod = 1s;
+    Milliseconds _damageTimer{};
+    TaskScheduler _scheduler{};
+    ObjectGuid _targetGuid{};
+    float _searchRadius{};
 };
 
 // 414553 - Epiphany
@@ -3567,6 +3756,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_empowered_renew);
+    RegisterAreaTriggerAI(areatrigger_pri_entropic_rift);
+    RegisterSpellScript(spell_pri_entropic_rift);
+    RegisterSpellScript(spell_pri_entropic_rift_aura);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_evangelism);
