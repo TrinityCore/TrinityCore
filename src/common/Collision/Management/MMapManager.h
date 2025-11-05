@@ -19,7 +19,7 @@
 #define _MMAP_MANAGER_H
 
 #include "Define.h"
-#include <DetourNavMesh.h>
+#include "MMapDefines.h"
 #include <DetourNavMeshQuery.h>
 #include <memory>
 #include <string_view>
@@ -58,6 +58,7 @@ namespace MMAP
             static MMapManager* instance();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
+            static LoadResult parseNavMeshParamsFile(std::string_view basePath, uint32 mapId, dtNavMeshParams* params, std::vector<OffMeshData>* offmeshConnections = nullptr);
             LoadResult loadMap(std::string_view basePath, uint32 mapId, int32 x, int32 y);
             bool loadMapInstance(std::string_view basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
             bool unloadMap(uint32 mapId, int32 x, int32 y);

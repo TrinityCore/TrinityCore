@@ -800,7 +800,7 @@ namespace MMAP
             meshData.offMeshConnections.push_back(offMeshConnection.To[2]);
             meshData.offMeshConnections.push_back(offMeshConnection.To[0]);
 
-            meshData.offMeshConnectionDirs.push_back(offMeshConnection.Bidirectional ? 1 : 0);
+            meshData.offMeshConnectionDirs.push_back(offMeshConnection.ConnectionFlags & OFFMESH_CONNECTION_FLAG_BIDIRECTIONAL);
             meshData.offMeshConnectionRads.push_back(offMeshConnection.Radius);    // agent size equivalent
             // can be used same way as polygon flags
             meshData.offMeshConnectionsAreas.push_back(offMeshConnection.AreaId);

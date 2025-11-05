@@ -74,7 +74,7 @@ public:
     virtual bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const;
 
     static void getTileBounds(uint32 tileX, uint32 tileY,
-        float* verts, int vertCount,
+        float const* verts, std::size_t vertCount,
         float* bmin, float* bmax);
 
     rcConfig GetMapSpecificConfig(uint32 mapID, float const (&bmin)[3], float const (&bmax)[3], TileConfig const& tileConfig) const;
