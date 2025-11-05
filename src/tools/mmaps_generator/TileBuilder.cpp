@@ -125,9 +125,8 @@ namespace MMAP
 
         // gather all mesh data for final data check, and bounds calculation
         std::vector<float> allVerts(meshData.liquidVerts.size() + meshData.solidVerts.size());
-        auto allVertsOutput = allVerts.begin();
-        allVertsOutput = std::ranges::copy(meshData.liquidVerts, allVertsOutput).out;
-        allVertsOutput = std::ranges::copy(meshData.solidVerts, allVertsOutput).out;
+        std::ranges::copy(meshData.liquidVerts, allVerts.begin());
+        std::ranges::copy(meshData.solidVerts, allVerts.begin() + std::ssize(meshData.liquidVerts));
 
         // get bounds of current tile
         float bmin[3], bmax[3];
@@ -489,11 +488,11 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TileBuilder::getTileBounds(uint32 tileX, uint32 tileY, float* verts, int vertCount, float* bmin, float* bmax)
+    void TileBuilder::getTileBounds(uint32 tileX, uint32 tileY, float const* verts, std::size_t vertCount, float* bmin, float* bmax)
     {
         // this is for elevation
         if (verts && vertCount)
-            rcCalcBounds(verts, vertCount, bmin, bmax);
+            rcCalcBounds(verts, int(vertCount), bmin, bmax);
         else
         {
             bmin[1] = FLT_MIN;

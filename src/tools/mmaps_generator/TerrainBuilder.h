@@ -18,6 +18,7 @@
 #ifndef _MMAP_TERRAIN_BUILDER_H
 #define _MMAP_TERRAIN_BUILDER_H
 
+#include "MMapDefines.h"
 #include "WorldModel.h"
 #include <G3D/Vector3.h>
 #include <boost/filesystem/path.hpp>
@@ -60,19 +61,6 @@ namespace MMAP
     // see following files:
     // contrib/extractor/system.cpp
     // src/game/Map.cpp
-
-    struct OffMeshData
-    {
-        uint32 MapId;
-        uint32 TileX;
-        uint32 TileY;
-        float From[3];
-        float To[3];
-        bool Bidirectional;
-        float Radius;
-        uint8 AreaId;
-        uint16 Flags;
-    };
 
     struct MeshData
     {

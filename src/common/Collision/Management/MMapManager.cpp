@@ -97,6 +97,28 @@ namespace MMAP
         }
 
         // load and init dtNavMesh - read parameters from file
+        dtNavMeshParams params;
+        if (LoadResult paramsResult = parseNavMeshParamsFile(basePath, mapId, &params); paramsResult != LoadResult::Success)
+            return paramsResult;
+
+        NavMeshPtr mesh(dtAllocNavMesh());
+        ASSERT(mesh);
+        if (dtStatusFailed(mesh->init(&params)))
+        {
+            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {:04}", mapId);
+            return LoadResult::LibraryError;
+        }
+
+        TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded {:04}.mmap", mapId);
+
+        // store inside our map list
+        itr->second.reset(new MMapData(std::move(mesh)));
+        return LoadResult::Success;
+    }
+
+    LoadResult MMapManager::parseNavMeshParamsFile(std::string_view basePath, uint32 mapId, dtNavMeshParams* params,
+        std::vector<OffMeshData>* offmeshConnections /*= nullptr*/)
+    {
         std::string fileName = Trinity::StringFormat(MAP_FILE_NAME_FORMAT, basePath, mapId);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
@@ -105,26 +127,39 @@ namespace MMAP
             return LoadResult::FileNotFound;
         }
 
-        dtNavMeshParams params;
-        uint32 count = uint32(fread(&params, sizeof(dtNavMeshParams), 1, file.get()));
-        if (count != 1)
+        MmapNavMeshHeader fileHeader;
+        if (fread(&fileHeader, sizeof(MmapNavMeshHeader), 1, file.get()) != 1)
         {
             TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read params from file '{}'", fileName);
             return LoadResult::ReadFromFileFailed;
         }
 
-        NavMeshPtr mesh(dtAllocNavMesh());
-        ASSERT(mesh);
-        if (dtStatusFailed(mesh->init(&params)))
+        if (fileHeader.mmapMagic != MMAP_MAGIC)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {:04} from file {}", mapId, fileName);
-            return LoadResult::LibraryError;
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}.mmap", mapId);
+            return LoadResult::VersionMismatch;
         }
 
-        TC_LOG_DEBUG("maps", "MMAP:loadMapData: Loaded {:04}.mmap", mapId);
+        if (fileHeader.mmapVersion != MMAP_VERSION)
+        {
+            TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}.mmap was built with generator v{}, expected v{}",
+                mapId, fileHeader.mmapVersion, MMAP_VERSION);
+            return LoadResult::VersionMismatch;
+        }
 
-        // store inside our map list
-        itr->second.reset(new MMapData(std::move(mesh)));
+        memcpy(params, &fileHeader.params, sizeof(dtNavMeshParams));
+
+        if (offmeshConnections)
+        {
+            offmeshConnections->resize(fileHeader.offmeshConnectionCount);
+            if (fread(offmeshConnections->data(), sizeof(OffMeshData), offmeshConnections->size(), file.get()) != offmeshConnections->size())
+            {
+                offmeshConnections->clear();
+                TC_LOG_DEBUG("maps", "MMAP:loadMapData: Error: Could not read offmesh connections from file '{}'", fileName);
+                return LoadResult::ReadFromFileFailed;
+            }
+        }
+
         return LoadResult::Success;
     }
 
