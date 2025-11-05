@@ -91,6 +91,8 @@ enum PriestSpells
     SPELL_PRIEST_ESSENCE_DEVOURER                   = 415479,
     SPELL_PRIEST_ESSENCE_DEVOURER_SHADOWFIEND_HEAL  = 415673,
     SPELL_PRIEST_ESSENCE_DEVOURER_MINDBENDER_HEAL   = 415676,
+    SPELL_PRIEST_EXPIATION                          = 390832,
+    SPELL_PRIEST_EXPIATION_DAMAGE                   = 390844,
     SPELL_PRIEST_FLASH_HEAL                         = 2061,
     SPELL_PRIEST_FROM_DARKNESS_COMES_LIGHT_AURA     = 390617,
     SPELL_PRIEST_GREATER_HEAL                       = 289666,
@@ -1244,6 +1246,63 @@ class spell_pri_evangelism : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_evangelism::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 390832 - Expiation
+// Triggered by 8092 - Mind Blast and 32379 - Shadow Word: Death
+class spell_pri_expiation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_EXPIATION_DAMAGE, SPELL_PRIEST_SHADOW_WORD_PAIN })
+            && ValidateSpellEffect({ {SPELL_PRIEST_EXPIATION, EFFECT_0}, {SPELL_PRIEST_EXPIATION, EFFECT_1}, {SPELL_PRIEST_SHADOW_WORD_PAIN, EFFECT_1} });
+    }
+
+    void HandleHitTarget(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        AuraEffect const* expiationConsume = GetCaster()->GetAuraEffect(SPELL_PRIEST_EXPIATION, EFFECT_0);
+        AuraEffect const* expiationDmgMul = GetCaster()->GetAuraEffect(SPELL_PRIEST_EXPIATION, EFFECT_1);
+        if (!expiationConsume || !expiationDmgMul)
+            return;
+
+        Aura* swPainAura = target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID());
+        if (!swPainAura)
+            return;
+
+        AuraEffect* swPainAuraEffect = swPainAura->GetEffect(EFFECT_1);
+        if (!swPainAuraEffect)
+            return;
+
+        int32 debuffDuration = swPainAura->GetDuration();
+        int32 debuffTickPeriodic = swPainAuraEffect->GetPeriod();
+        int32 consumeDuration = std::min(debuffDuration, expiationConsume->GetAmount() * IN_MILLISECONDS);
+        if (consumeDuration == 0)
+            return;
+
+        float ticksConsumed = static_cast<float>(consumeDuration) / debuffTickPeriodic;
+        if (ticksConsumed == 0)
+            return;
+
+        float damagePerTick = swPainAuraEffect->GetEstimatedAmount().value_or(swPainAuraEffect->GetAmount());
+        int32 totalDamage = static_cast<int32>(damagePerTick * ticksConsumed);
+        int32 calculateDamage = CalculatePct(totalDamage, expiationDmgMul->GetAmount());
+
+        swPainAura->SetDuration(swPainAura->GetDuration() - consumeDuration);
+
+        CastSpellExtraArgs args;
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellBP0(calculateDamage);
+
+        caster->CastSpell(target, SPELL_PRIEST_EXPIATION_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_expiation::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -3570,6 +3629,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_evangelism);
+    RegisterSpellScript(spell_pri_expiation);
     RegisterSpellScript(spell_pri_focused_mending);
     RegisterSpellScript(spell_pri_from_darkness_comes_light);
     RegisterSpellScript(spell_pri_guardian_spirit);
