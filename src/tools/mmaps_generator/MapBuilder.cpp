@@ -566,7 +566,7 @@ namespace MMAP
     /**************************************************************************/
     bool MapTileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}{:02}{:02}.mmtile", m_outputDirectory.generic_string(), mapID, tileX, tileY);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}_{:02}_{:02}.mmtile", m_outputDirectory.generic_string(), mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
             return false;

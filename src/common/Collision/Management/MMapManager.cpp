@@ -26,7 +26,7 @@
 namespace MMAP
 {
     constexpr char MAP_FILE_NAME_FORMAT[] = "{}mmaps/{:04}.mmap";
-    constexpr char TILE_FILE_NAME_FORMAT[] = "{}mmaps/{:04}{:02}{:02}.mmtile";
+    constexpr char TILE_FILE_NAME_FORMAT[] = "{}mmaps/{:04}_{:02}_{:02}.mmtile";
 
     using NavMeshPtr = std::unique_ptr<dtNavMesh, decltype(Trinity::unique_ptr_deleter<dtNavMesh*, &::dtFreeNavMesh>())>;
     using NavMeshQueryPtr = std::unique_ptr<dtNavMeshQuery, decltype(Trinity::unique_ptr_deleter<dtNavMeshQuery*, &::dtFreeNavMeshQuery>())>;
@@ -154,7 +154,7 @@ namespace MMAP
         if (mmap->loadedTileRefs.contains(packedGridPos))
             return LoadResult::AlreadyLoaded;
 
-        // load this tile :: mmaps/MMMMXXYY.mmtile
+        // load this tile :: mmaps/MMMM_XX_YY.mmtile
         std::string fileName = Trinity::StringFormat(TILE_FILE_NAME_FORMAT, basePath, mapId, x, y);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
@@ -177,19 +177,19 @@ namespace MMAP
         MmapTileHeader fileHeader;
         if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file.get()) != 1)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}_{:02}_{:02}.mmtile", mapId, x, y);
             return LoadResult::ReadFromFileFailed;
         }
 
         if (fileHeader.mmapMagic != MMAP_MAGIC)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header in mmap {:04}_{:02}_{:02}.mmtile", mapId, x, y);
             return LoadResult::VersionMismatch;
         }
 
         if (fileHeader.mmapVersion != MMAP_VERSION)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}{:02}{:02}.mmtile was built with generator v{}, expected v{}",
+            TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}_{:02}_{:02}.mmtile was built with generator v{}, expected v{}",
                 mapId, x, y, fileHeader.mmapVersion, MMAP_VERSION);
             return LoadResult::VersionMismatch;
         }
@@ -198,7 +198,7 @@ namespace MMAP
         fseek(file.get(), 0, SEEK_END);
         if (pos < 0 || static_cast<int32>(fileHeader.size) > ftell(file.get()) - pos)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}{:02}{:02}.mmtile has corrupted data size", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: {:04}_{:02}_{:02}.mmtile has corrupted data size", mapId, x, y);
             return LoadResult::ReadFromFileFailed;
         }
 
@@ -210,7 +210,7 @@ namespace MMAP
         size_t result = fread(data.get(), fileHeader.size, 1, file.get());
         if (!result)
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header or data in mmap {:04}{:02}{:02}.mmtile", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Bad header or data in mmap {:04}_{:02}_{:02}.mmtile", mapId, x, y);
             return LoadResult::ReadFromFileFailed;
         }
 
@@ -227,7 +227,7 @@ namespace MMAP
         }
         else
         {
-            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load {:04}{:02}{:02}.mmtile into navmesh", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:loadMap: Could not load {:04}_{:02}_{:02}.mmtile into navmesh", mapId, x, y);
             return LoadResult::LibraryError;
         }
     }
@@ -270,7 +270,7 @@ namespace MMAP
         if (itr == loadedMMaps.end())
         {
             // file may not exist, therefore not loaded
-            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Asked to unload not loaded navmesh map. {:04}{:02}{:02}.mmtile", mapId, x, y);
+            TC_LOG_DEBUG("maps", "MMAP:unloadMap: Asked to unload not loaded navmesh map. {:04}_{:02}_{:02}.mmtile", mapId, x, y);
             return false;
         }
 
@@ -292,7 +292,7 @@ namespace MMAP
             // this is technically a memory leak
             // if the grid is later reloaded, dtNavMesh::addTile will return error but no extra memory is used
             // we cannot recover from this error - assert out
-            TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}{:02}{:02}.mmtile from navmesh", mapId, x, y);
+            TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", mapId, x, y);
             ABORT();
         }
         else
@@ -322,7 +322,7 @@ namespace MMAP
             uint32 x = (tileId >> 16);
             uint32 y = (tileId & 0x0000FFFF);
             if (dtStatusFailed(mmap->navMesh->removeTile(tileRef, nullptr, nullptr)))
-                TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}{:02}{:02}.mmtile from navmesh", mapId, x, y);
+                TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", mapId, x, y);
             else
             {
                 --loadedTiles;

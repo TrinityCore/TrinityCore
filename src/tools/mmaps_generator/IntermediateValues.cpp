@@ -37,7 +37,7 @@ namespace MMAP
 
         auto debugWrite = [=, outputDirectory = outputDirectory.generic_string()](char const* extension, auto const* data)
         {
-            std::string fileName = Trinity::StringFormat("{}/meshes/{:04}{:02}{:02}{}.{}", outputDirectory, mapID, tileX, tileY, fileNameSuffix, extension);
+            std::string fileName = Trinity::StringFormat("{}/meshes/{:04}_{:02}_{:02}{}.{}", outputDirectory, mapID, tileX, tileY, fileNameSuffix, extension);
             if (auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb")))
             {
                 IntermediateValues::debugWrite(file.get(), data);
@@ -191,7 +191,7 @@ namespace MMAP
     void IntermediateValues::generateObjFile(boost::filesystem::path const& outputDirectory, std::string_view fileNameSuffix, uint32 mapID, uint32 tileX, uint32 tileY, MeshData const& meshData)
     {
         std::string objFileName;
-        objFileName = Trinity::StringFormat("{}/meshes/map{:04}{:02}{:02}{}.obj", outputDirectory.generic_string(), mapID, tileX, tileY, fileNameSuffix);
+        objFileName = Trinity::StringFormat("{}/meshes/map{:04}_{:02}_{:02}{}.obj", outputDirectory.generic_string(), mapID, tileX, tileY, fileNameSuffix);
 
         auto objFile = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
@@ -233,7 +233,7 @@ namespace MMAP
         char b = '\0';
         fwrite(&b, sizeof(char), 1, objFile.get());
 
-        objFileName = Trinity::StringFormat("{}/meshes/map{:04}{:02}{:02}{}.mesh", outputDirectory.generic_string(), mapID, tileX, tileY, fileNameSuffix);
+        objFileName = Trinity::StringFormat("{}/meshes/map{:04}_{:02}_{:02}{}.mesh", outputDirectory.generic_string(), mapID, tileX, tileY, fileNameSuffix);
         objFile.reset(fopen(objFileName.c_str(), "wb"));
         if (!objFile)
         {

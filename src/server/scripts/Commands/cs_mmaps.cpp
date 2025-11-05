@@ -141,7 +141,7 @@ public:
         // calculate navmesh tile location
         uint32 terrainMapId = PhasingHandler::GetTerrainMapId(player->GetPhaseShift(), player->GetMapId(), player->GetMap()->GetTerrain(), x, y);
 
-        handler->PSendSysMessage("%04u%02i%02i.mmtile", terrainMapId, gx, gy);
+        handler->PSendSysMessage("%04u_%02i_%02i.mmtile", terrainMapId, gx, gy);
         handler->PSendSysMessage("tileloc [%i, %i]", gy, gx);
 
         dtNavMesh const* navmesh = MMAP::MMapManager::instance()->GetNavMesh(terrainMapId);
