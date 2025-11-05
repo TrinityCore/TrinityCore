@@ -18,7 +18,7 @@
 #ifndef TRINITYCORE_TILE_BUILDER_H
 #define TRINITYCORE_TILE_BUILDER_H
 
-#include "Define.h"
+#include "Common.h"
 #include "Memory.h"
 #include "StringFormat.h"
 #include "TerrainBuilder.h"
@@ -65,9 +65,11 @@ public:
         MeshData& meshData,
         float (&bmin)[3],
         float (&bmax)[3],
-        dtNavMeshParams const* navMeshParams);
+        dtNavMeshParams const* navMeshParams,
+        std::string_view fileNameSuffix = ""sv);
 
-    void saveMoveMapTileToFile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh, TileResult const& tileResult);
+    void saveMoveMapTileToFile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh,
+        TileResult const& tileResult, std::string_view fileNameSuffix = ""sv);
 
     virtual bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const;
 
