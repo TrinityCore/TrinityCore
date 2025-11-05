@@ -197,7 +197,7 @@ namespace MMAP
             OffMeshData offMesh;
             int32 scanned = sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f %hhu %hu", &offMesh.MapId, &offMesh.TileX, &offMesh.TileY,
                 &offMesh.From[0], &offMesh.From[1], &offMesh.From[2], &offMesh.To[0], &offMesh.To[1], &offMesh.To[2],
-                &offMesh.Radius, &offMesh.AreaId, &offMesh.Flags);
+                &offMesh.Radius, &offMesh.AreaId, reinterpret_cast<std::underlying_type_t<NavTerrainFlag>*>(&offMesh.Flags));
             if (scanned < 10)
                 continue;
 
