@@ -21,6 +21,7 @@
 #include "Define.h"
 #include "Optional.h"
 #include <memory>
+#include <span>
 
 namespace G3D
 {
@@ -59,6 +60,8 @@ public:
 
     void balance();
     void update(uint32 diff);
+
+    std::span<GameObjectModel const* const> getModelsInGrid(uint32 gx, uint32 gy) const;
 };
 
 #endif // _DYNTREE_H

@@ -19,6 +19,7 @@
 #define TRINITYCORE_BOUNDING_INTERVAL_HIERARCHY_WRAPPER_H
 
 #include "BoundingIntervalHierarchy.h"
+#include <span>
 #include <unordered_map>
 
 template<class T, class BoundsFunc = BoundsTrait<T> >
@@ -115,6 +116,8 @@ public:
         MDLCallback<IsectCallback> callback(intersectCallback, m_objects.data(), m_objects.size());
         m_tree.intersectPoint(point, callback);
     }
+
+    std::span<T const* const> getObjects() const { return m_objects; }
 };
 
 #endif // TRINITYCORE_BOUNDING_INTERVAL_HIERARCHY_WRAPPER_H

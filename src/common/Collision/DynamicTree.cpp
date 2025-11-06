@@ -280,3 +280,9 @@ bool DynamicMapTree::getAreaAndLiquidData(float x, float y, float z, PhaseShift 
     }
     return false;
 }
+
+std::span<GameObjectModel const* const> DynamicMapTree::getModelsInGrid(uint32 gx, uint32 gy) const
+{
+    // convert from map tile X/Y to RegularGrid internal representation
+    return impl->getObjects(63 - int32(gx), 63 - int32(gy));
+}
