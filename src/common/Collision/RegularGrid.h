@@ -210,6 +210,13 @@ public:
         if (Node* node = nodes[cell.x][cell.y].get())
             node->intersectRay(ray, intersectCallback, max_dist);
     }
+
+    std::span<T const* const> getObjects(int x, int y) const
+    {
+        if (Node* n = nodes[x][y].get())
+            return n->getObjects();
+        return {};
+    }
 };
 
 #undef CELL_SIZE

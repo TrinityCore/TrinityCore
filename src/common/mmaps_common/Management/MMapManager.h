@@ -67,10 +67,13 @@ namespace MMAP
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
             dtNavMeshQuery const* GetNavMeshQuery(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
-            dtNavMesh const* GetNavMesh(uint32 mapId, uint32 instanceId);
+            dtNavMesh* GetNavMesh(uint32 mapId, uint32 instanceId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
+
+            static bool isRebuildingTilesEnabledOnMap(uint32 mapId);
+
         private:
             LoadResult loadMapData(std::string_view basePath, uint32 mapId, uint32 instanceId);
             uint32 packTileID(int32 x, int32 y);

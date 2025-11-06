@@ -83,6 +83,7 @@ enum class ItemContext : uint8;
 namespace Trinity { struct ObjectUpdater; }
 namespace Vignettes { struct VignetteData; }
 namespace VMAP { enum class ModelIgnoreFlags : uint32; }
+namespace MMAP { class DynamicTileBuilder; }
 
 enum TransferAbortReason : uint32
 {
@@ -496,11 +497,14 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void RemoveGameObjectModel(GameObjectModel const& model) { _dynamicTree.remove(model); }
         void InsertGameObjectModel(GameObjectModel const& model) { _dynamicTree.insert(model); }
         bool ContainsGameObjectModel(GameObjectModel const& model) const { return _dynamicTree.contains(model);}
+        std::span<GameObjectModel const* const> GetGameObjectModelsInGrid(uint32 gx, uint32 gy) const { return _dynamicTree.getModelsInGrid(gx, gy); }
         float GetGameObjectFloor(PhaseShift const& phaseShift, float x, float y, float z, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const
         {
             return _dynamicTree.getHeight(x, y, z, maxSearchDist, phaseShift);
         }
         bool getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
+
+        void RequestRebuildNavMeshOnGameObjectModelChange(GameObjectModel const& model, PhaseShift const& phaseShift);
 
         virtual ObjectGuid::LowType GetOwnerGuildId(uint32 /*team*/ = TEAM_OTHER) const { return UI64LIT(0); }
         /*
@@ -647,6 +651,7 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         uint32 m_unloadTimer;
         float m_VisibleDistance;
         DynamicMapTree _dynamicTree;
+        std::shared_ptr<MMAP::DynamicTileBuilder> m_mmapTileRebuilder;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;

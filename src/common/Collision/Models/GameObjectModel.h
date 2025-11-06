@@ -21,14 +21,10 @@
 #include "Define.h"
 #include <G3D/AABox.h>
 #include <G3D/Matrix3.h>
+#include <G3D/Quat.h>
 #include <G3D/Ray.h>
 #include <G3D/Vector3.h>
 #include <memory>
-
-namespace G3D
-{
-class Quat;
-}
 
 namespace VMAP
 {
@@ -53,25 +49,33 @@ public:
     virtual bool IsInPhase(PhaseShift const& /*phaseShift*/) const = 0;
     virtual G3D::Vector3 GetPosition() const = 0;
     virtual G3D::Quat GetRotation() const = 0;
+    virtual int64 GetPackedRotation() const = 0;
     virtual float GetScale() const = 0;
     virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const = 0;
 };
 
 class TC_COMMON_API GameObjectModel /*, public Intersectable*/
 {
-    GameObjectModel() : iCollisionEnabled(false), iLosBlockingDisabled(false), iInvScale(0), iScale(0), iModel(nullptr) { }
+    GameObjectModel() : iCollisionEnabled(false), iLosBlockingDisabled(false), iIncludeInNavMesh(false), iInvScale(0), iScale(0), iModel(nullptr) { }
 public:
     const G3D::AABox& getBounds() const { return iBound; }
 
     ~GameObjectModel();
 
-    const G3D::Vector3& getPosition() const { return iPos;}
+    uint32 GetDisplayId() const { return owner->GetDisplayId(); }
+    G3D::Vector3 const& GetPosition() const { return iPos; }
+    G3D::Quat GetRotation() const { return owner->GetRotation(); }
+    G3D::Matrix3 const& GetInvRot() const { return iInvRot; }
+    int64 GetPackedRotation() const { return owner->GetPackedRotation(); }
+    float GetScale() const { return iScale; }
 
     /* Enables/disables collision */
     void EnableCollision(bool enable) { iCollisionEnabled = enable; }
     bool IsCollisionEnabled() const { return iCollisionEnabled; }
     void DisableLosBlocking(bool enable) { iLosBlockingDisabled = enable; }
     bool IsLosBlockingDisabled() const { return iLosBlockingDisabled; }
+    void IncludeInNavMesh(bool enable) { iIncludeInNavMesh = enable; }
+    bool IsIncludedInNavMesh() const { return iIncludeInNavMesh; }
     bool IsMapObject() const;
     uint8 GetNameSetId() const { return owner->GetNameSetId(); }
 
@@ -83,11 +87,14 @@ public:
 
     bool UpdatePosition();
 
+    std::shared_ptr<VMAP::WorldModel const> GetWorldModel() const { return iModel; }
+
 private:
     bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
 
     bool iCollisionEnabled;     ///< Is model ignored in all checks
     bool iLosBlockingDisabled;  ///< Is model ignored during line of sight checks (but is always included in location/height checks)
+    bool iIncludeInNavMesh;     ///< Is model included when generating navigation mesh
     G3D::AABox iBound;
     G3D::Matrix3 iInvRot;
     G3D::Vector3 iPos;
