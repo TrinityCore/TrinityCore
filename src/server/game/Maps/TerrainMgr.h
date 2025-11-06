@@ -58,13 +58,14 @@ public:
 
     void LoadMapAndVMap(int32 gx, int32 gy);
     void LoadMMapInstance(uint32 mapId, uint32 instanceId);
+    void LoadMMap(uint32 instanceId, int32 gx, int32 gy);
 
 private:
     void LoadMapAndVMapImpl(int32 gx, int32 gy);
     void LoadMMapInstanceImpl(uint32 mapId, uint32 instanceId);
     void LoadMap(int32 gx, int32 gy);
     void LoadVMap(int32 gx, int32 gy);
-    void LoadMMap(int32 gx, int32 gy);
+    void LoadMMapImpl(uint32 instanceId, int32 gx, int32 gy);
 
 public:
     void UnloadMap(int32 gx, int32 gy);

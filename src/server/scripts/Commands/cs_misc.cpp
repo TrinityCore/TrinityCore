@@ -258,7 +258,7 @@ public:
 
         uint32 haveMap = TerrainInfo::ExistMap(mapId, gridX, gridY) ? 1 : 0;
         uint32 haveVMap = TerrainInfo::ExistVMap(mapId, gridX, gridY) ? 1 : 0;
-        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapManager::instance()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId())) ? 1 : 0;
+        uint32 haveMMap = (DisableMgr::IsPathfindingEnabled(mapId) && MMAP::MMapManager::instance()->GetNavMesh(object->GetMapId(), object->GetInstanceId())) ? 1 : 0;
 
         if (haveVMap)
         {

@@ -25,7 +25,6 @@
 #include "MMapManager.h"
 #include "PhasingHandler.h"
 #include "Random.h"
-#include "ScriptMgr.h"
 #include "Util.h"
 #include "VMapFactory.h"
 #include "VMapManager.h"
@@ -144,7 +143,7 @@ bool TerrainInfo::ExistVMap(uint32 mapid, int32 gx, int32 gy)
 
 bool TerrainInfo::HasChildTerrainGridFile(uint32 mapId, int32 gx, int32 gy) const
 {
-    auto childMapItr = std::find_if(_childTerrain.begin(), _childTerrain.end(), [mapId](std::shared_ptr<TerrainInfo> const& childTerrain) { return childTerrain->GetId() == mapId; });
+    auto childMapItr = std::ranges::find(_childTerrain, mapId, [](std::shared_ptr<TerrainInfo> const& childTerrain) { return childTerrain->GetId(); });
     return childMapItr != _childTerrain.end() && (*childMapItr)->_gridFileExists[GetBitsetIndex(gx, gy)];
 }
 
@@ -171,11 +170,18 @@ void TerrainInfo::LoadMMapInstance(uint32 mapId, uint32 instanceId)
         childTerrain->LoadMMapInstanceImpl(mapId, instanceId);
 }
 
+void TerrainInfo::LoadMMap(uint32 instanceId, int32 gx, int32 gy)
+{
+    LoadMMapImpl(instanceId, gx, gy);
+
+    for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
+        childTerrain->LoadMMapImpl(instanceId, gx, gy);
+}
+
 void TerrainInfo::LoadMapAndVMapImpl(int32 gx, int32 gy)
 {
     LoadMap(gx, gy);
     LoadVMap(gx, gy);
-    LoadMMap(gx, gy);
 
     for (std::shared_ptr<TerrainInfo> const& childTerrain : _childTerrain)
         childTerrain->LoadMapAndVMapImpl(gx, gy);
@@ -233,12 +239,12 @@ void TerrainInfo::LoadVMap(int32 gx, int32 gy)
     }
 }
 
-void TerrainInfo::LoadMMap(int32 gx, int32 gy)
+void TerrainInfo::LoadMMapImpl(uint32 instanceId, int32 gx, int32 gy)
 {
     if (!DisableMgr::IsPathfindingEnabled(GetId()))
         return;
 
-    switch (MMAP::LoadResult mmapLoadResult = MMAP::MMapManager::instance()->loadMap(sWorld->GetDataPath(), GetId(), gx, gy))
+    switch (MMAP::LoadResult mmapLoadResult = MMAP::MMapManager::instance()->loadMap(sWorld->GetDataPath(), GetId(), instanceId, gx, gy))
     {
         case MMAP::LoadResult::Success:
             TC_LOG_DEBUG("mmaps.tiles", "MMAP loaded name:{}, id:{}, x:{}, y:{} (mmap rep.: x:{}, y:{})", GetMapName(), GetId(), gx, gy, gx, gy);
