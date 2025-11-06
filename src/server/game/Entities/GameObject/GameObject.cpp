@@ -4014,7 +4014,7 @@ void GameObject::UpdateModel()
         modelCollisionEnabled = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
 
     RemoveFlag(GO_FLAG_MAP_OBJECT);
-    m_model = nullptr;
+    std::unique_ptr<GameObjectModel> oldModel = std::exchange(m_model, nullptr);
 
     CreateModel();
     if (m_model)
@@ -4022,6 +4022,23 @@ void GameObject::UpdateModel()
         GetMap()->InsertGameObjectModel(*m_model);
         if (modelCollisionEnabled)
             m_model->EnableCollision(modelCollisionEnabled);
+    }
+
+    switch (GetGoType())
+    {
+        // Only update navmesh when display id changes and not on spawn
+        // default state of destructible buildings is intended to be baked in the mesh produced by mmaps_generator
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_TRAPDOOR:
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+        case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+            if (m_model)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*m_model, GetPhaseShift());
+            else if (oldModel)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*oldModel, GetPhaseShift());
+            break;
+        default:
+            break;
     }
 }
 
@@ -4499,6 +4516,7 @@ public:
     bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
     G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     G3D::Quat GetRotation() const override { return G3D::Quat(_owner->GetLocalRotation().x, _owner->GetLocalRotation().y, _owner->GetLocalRotation().z, _owner->GetLocalRotation().w); }
+    int64 GetPackedRotation() const override { return _owner->GetPackedLocalRotation(); }
     float GetScale() const override { return _owner->GetObjectScale(); }
     void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
@@ -4538,8 +4556,20 @@ void GameObject::CreateModel()
         if (m_model->IsMapObject())
             SetFlag(GO_FLAG_MAP_OBJECT);
 
-        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
-            m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+        switch (GetGoType())
+        {
+            case GAMEOBJECT_TYPE_DOOR:
+                m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+                break;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            case GAMEOBJECT_TYPE_TRAPDOOR:
+            case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+                m_model->IncludeInNavMesh(true);
+                break;
+            default:
+                break;
+        }
     }
 }
 
