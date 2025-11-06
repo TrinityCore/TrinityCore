@@ -29,6 +29,8 @@
 
 namespace MMAP
 {
+    std::unique_ptr<VMAP::VMapManager> (*CreateVMapManager)(uint32 mapId);
+
     TerrainBuilder::TerrainBuilder(boost::filesystem::path const& inputDirectory, bool skipLiquid) :
         m_inputDirectory(inputDirectory),
         m_skipLiquid (skipLiquid)

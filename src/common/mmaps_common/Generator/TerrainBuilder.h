@@ -79,7 +79,7 @@ namespace MMAP
         std::vector<unsigned short> offMeshConnectionsFlags;
     };
 
-    class TerrainBuilder
+    class TC_MMAPS_COMMON_API TerrainBuilder
     {
         public:
             explicit TerrainBuilder(boost::filesystem::path const& inputDirectory, bool skipLiquid);
@@ -125,6 +125,8 @@ namespace MMAP
             /// Get the liquid type for a specific position
             static map_liquidHeaderTypeFlags getLiquidType(int square, map_liquidHeaderTypeFlags const (&liquid_type)[16][16]);
     };
+
+    TC_MMAPS_COMMON_API extern std::unique_ptr<VMAP::VMapManager> (*CreateVMapManager)(uint32 mapId);
 }
 
 #endif

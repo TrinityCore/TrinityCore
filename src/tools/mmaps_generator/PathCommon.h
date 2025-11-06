@@ -98,11 +98,6 @@ namespace MMAP
     };
 
     extern std::unordered_map<uint32, MapEntry> sMapStore;
-
-    namespace VMapFactory
-    {
-        std::unique_ptr<VMAP::VMapManager> CreateVMapManager(uint32 mapId);
-}
 }
 
 #endif

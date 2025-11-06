@@ -488,6 +488,8 @@ int main(int argc, char** argv)
 
     LoadMap(inputDirectory, dbcLocales[0], silent, -4);
 
+    MMAP::CreateVMapManager = &MMAP::VMapFactory::CreateVMapManager;
+
     MMAP::MapBuilder builder(inputDirectory, outputDirectory, maxAngle, maxAngleNotSteep, skipLiquid, skipContinents, skipJunkMaps,
                        skipBattlegrounds, debugOutput, bigBaseUnit, mapnum, offMeshInputPath, threads);
 
