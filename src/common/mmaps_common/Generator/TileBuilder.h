@@ -31,7 +31,7 @@ struct TileConfig;
 
 using detour_unique_ptr = std::unique_ptr<unsigned char, decltype(Trinity::unique_ptr_deleter<unsigned char*, &::dtFree>())>;
 
-class TileBuilder
+class TC_MMAPS_COMMON_API TileBuilder
 {
 public:
     TileBuilder(boost::filesystem::path const& inputDirectory,
