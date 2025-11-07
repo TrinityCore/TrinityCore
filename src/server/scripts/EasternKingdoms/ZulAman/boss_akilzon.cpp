@@ -426,7 +426,7 @@ class npc_akilzon_eagle : public CreatureScript
             void MovementInform(uint32, uint32) override
             {
                 arrived = true;
-                if (TargetGUID)
+                if (!TargetGUID.IsEmpty())
                 {
                     if (Unit* target = ObjectAccessor::GetUnit(*me, TargetGUID))
                         DoCast(target, SPELL_EAGLE_SWOOP, true);

@@ -204,7 +204,7 @@ struct boss_lady_vashj : public BossAI
 
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (ShieldGeneratorChannel[i])
+            if (!ShieldGeneratorChannel[i].IsEmpty())
             {
                 if (Unit* remo = ObjectAccessor::GetUnit(*me, ShieldGeneratorChannel[i]))
                 {

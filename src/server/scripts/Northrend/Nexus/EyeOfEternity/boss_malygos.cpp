@@ -103,7 +103,7 @@ enum Spells
     SPELL_PORTAL_BEAM                        = 56046, // Malygos cast on portal to activate it during PHASE_NOT_STARTED
 
     //Phase I
-    SPELL_BERSERK                           = 60670,
+    SPELL_BERSERK                            = 60670,
     SPELL_MALYGOS_BERSERK                    = 47008, // it's the berserk spell that will hit only Malygos after 10 min of 60670
     SPELL_PORTAL_VISUAL_CLOSED               = 55949,
     SPELL_SUMMON_POWER_PARK                  = 56142,
@@ -1781,7 +1781,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScript
         // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
         // and if 3rd picks X again 4th will pick smth else (by not limiting the cast to certain caster).
         if (targets.size() > 1)
-            if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID))
+            if (malygos && !malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID).IsEmpty())
                 targets.remove_if(Trinity::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
 
         // Remove players not on Hover Disk from second list

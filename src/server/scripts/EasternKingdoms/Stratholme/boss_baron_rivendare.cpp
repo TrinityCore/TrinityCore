@@ -16,7 +16,6 @@
  */
 
 #include "ScriptMgr.h"
-#include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "stratholme.h"
@@ -62,37 +61,16 @@ uint32 const RaiseDeadSpells[6] =
 struct boss_baron_rivendare : public BossAI
 {
 public:
-    boss_baron_rivendare(Creature* creature) : BossAI(creature, TYPE_BARON), RaiseDead(false) { }
-
-    void Reset() override
-    {
-        // needed until re-write of instance scripts is done
-        if (instance->GetData(TYPE_RAMSTEIN) == DONE)
-            instance->SetData(TYPE_BARON, NOT_STARTED);
-
-        BossAI::Reset();
-    }
+    boss_baron_rivendare(Creature* creature) : BossAI(creature, BOSS_RIVENDARE), RaiseDead(false) { }
 
     void JustEngagedWith(Unit* who) override
     {
-        // needed until re-write of instance scripts is done
-        if (instance->GetData(TYPE_BARON) == NOT_STARTED)
-            instance->SetData(TYPE_BARON, IN_PROGRESS);
-
         events.ScheduleEvent(EVENT_SHADOWBOLT, 5s);
         events.ScheduleEvent(EVENT_CLEAVE, 8s);
         events.ScheduleEvent(EVENT_MORTALSTRIKE, 12s);
         events.ScheduleEvent(EVENT_RAISE_DEAD, 15s);
 
         BossAI::JustEngagedWith(who);
-    }
-
-    void JustDied(Unit* killer) override
-    {
-        // needed until re-write of instance scripts is done
-        instance->SetData(TYPE_BARON, DONE);
-
-        BossAI::JustDied(killer);
     }
 
     void UpdateAI(uint32 diff) override

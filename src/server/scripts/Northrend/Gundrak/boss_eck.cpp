@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "gundrak.h"
 
 enum Texts
@@ -30,7 +31,9 @@ enum Spells
     SPELL_ECK_BITE              = 55813, // Eck bites down hard, inflicting 150% of his normal damage to an enemy.
     SPELL_ECK_SPIT              = 55814, // Eck spits toxic bile at enemies in a cone in front of him, inflicting 2970 Nature damage and draining 220 mana every 1 sec for 3 sec.
     SPELL_ECK_SPRING_1          = 55815, // Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
-    SPELL_ECK_SPRING_2          = 55837  // Eck leaps at a distant target.
+    SPELL_ECK_SPRING_2          = 55837, // Eck leaps at a distant target.
+
+    SPELL_ECK_RESIDUE           = 55817
 };
 
 enum Events
@@ -108,7 +111,29 @@ private:
     bool _berserk;
 };
 
+// 55814 - Eck Spit
+class spell_eck_spit : public AuraScript
+{
+    PrepareAuraScript(spell_eck_spit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_ECK_RESIDUE });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_ECK_RESIDUE, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_eck_spit::AfterRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_boss_eck()
 {
     RegisterGundrakCreatureAI(boss_eck);
+    RegisterSpellScript(spell_eck_spit);
 }

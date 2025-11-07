@@ -607,7 +607,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 {
     WorldPacket data(SMSG_MOUNTSPECIAL_ANIM, 8);
-    data << uint64(GetPlayer()->GetGUID());
+    data << GetPlayer()->GetGUID();
 
     GetPlayer()->SendMessageToSet(&data, false);
 }

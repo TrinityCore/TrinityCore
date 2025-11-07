@@ -374,7 +374,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
         {
             WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
             data << uint32(categoryItr->second->SpellId);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             player->SendDirectMessage(&data);
 
             if (startCooldown)
@@ -383,7 +383,7 @@ void SpellHistory::SendCooldownEvent(SpellInfo const* spellInfo, uint32 itemId /
 
         WorldPacket data(SMSG_COOLDOWN_EVENT, 4 + 8);
         data << uint32(spellInfo->Id);
-        data << uint64(_owner->GetGUID());
+        data << _owner->GetGUID();
         player->SendDirectMessage(&data);
     }
 
@@ -423,7 +423,7 @@ void SpellHistory::ModifyCooldown(uint32 spellId, int32 cooldownModMs)
     {
         WorldPacket modifyCooldown(SMSG_MODIFY_COOLDOWN, 4 + 8 + 4);
         modifyCooldown << uint32(spellId);
-        modifyCooldown << uint64(_owner->GetGUID());
+        modifyCooldown << _owner->GetGUID();
         modifyCooldown << int32(cooldownModMs);
         playerOwner->SendDirectMessage(&modifyCooldown);
     }
@@ -446,7 +446,7 @@ void SpellHistory::ResetCooldown(CooldownStorageType::iterator& itr, bool update
         {
             WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(itr->first);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             playerOwner->SendDirectMessage(&data);
         }
     }
@@ -611,7 +611,7 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
         {
             WorldPacket data(SMSG_CLEAR_COOLDOWN, 4 + 8);
             data << uint32(spell);
-            data << uint64(_owner->GetGUID());
+            data << _owner->GetGUID();
             playerOwner->SendDirectMessage(&data);
         }
     }
@@ -620,7 +620,7 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
 void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 spellId, uint32 cooldown) const
 {
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + 4 + 4);
-    data << uint64(_owner->GetGUID());
+    data << _owner->GetGUID();
     data << uint8(flags);
     data << uint32(spellId);
     data << uint32(cooldown);
@@ -629,7 +629,7 @@ void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, uint32 sp
 void SpellHistory::BuildCooldownPacket(WorldPacket& data, uint8 flags, PacketCooldowns const& cooldowns) const
 {
     data.Initialize(SMSG_SPELL_COOLDOWN, 8 + 1 + (4 + 4) * cooldowns.size());
-    data << uint64(_owner->GetGUID());
+    data << _owner->GetGUID();
     data << uint8(flags);
     for (auto const& cooldown : cooldowns)
     {

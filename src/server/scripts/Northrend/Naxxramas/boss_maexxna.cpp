@@ -219,7 +219,7 @@ struct npc_webwrap : public NullCreatureAI
 
     void JustDied(Unit* /*killer*/) override
     {
-        if (victimGUID)
+        if (!victimGUID.IsEmpty())
             if (Unit* victim = ObjectAccessor::GetUnit(*me, victimGUID))
                 victim->RemoveAurasDueToSpell(SPELL_WEB_WRAP, me->GetGUID());
 

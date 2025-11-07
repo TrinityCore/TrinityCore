@@ -281,6 +281,17 @@ size_t ThreatManager::GetThreatListSize() const
     return _sortedThreatList->size();
 }
 
+uint32 ThreatManager::GetThreatListPlayerCount(bool includeOffline/* = false*/) const
+{
+    if (includeOffline)
+        return uint32(_sortedThreatList->size());
+    uint32 returnValue = 0;
+    for (ThreatReference const* ref : *_sortedThreatList)
+        if (ref->IsAvailable() && ref->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            ++returnValue;
+    return returnValue;
+}
+
 Trinity::IteratorPair<ThreatManager::ThreatListIterator, std::nullptr_t> ThreatManager::GetUnsortedThreatList() const
 {
     auto itr = _myThreatListEntries.begin();

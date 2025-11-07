@@ -90,6 +90,7 @@ struct MovementInfo
     void RemoveExtraMovementFlag(uint16 flag) { flags2 &= ~flag; }
     bool HasExtraMovementFlag(uint16 flag) const { return (flags2 & flag) != 0; }
 
+    uint32 GetFallTime() const { return fallTime; }
     void SetFallTime(uint32 val) { fallTime = val; }
 
     void OutDebug();

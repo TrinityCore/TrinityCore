@@ -638,7 +638,8 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayer(Player* player, uint32 spel
 
     for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
     {
-        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+        ObjectGuid summonGUID = player->m_SummonSlot[itr2];
+        if (!summonGUID.IsEmpty())
             if (Creature* summon = instance->GetCreature(summonGUID))
                 summon->RemoveAurasDueToSpell(spell);
     }
@@ -673,7 +674,8 @@ void InstanceScript::DoCastSpellOnPlayer(Player* player, uint32 spell, bool incl
 
     for (uint8 itr2 = 0; itr2 < MAX_SUMMON_SLOT; ++itr2)
     {
-        if (ObjectGuid summonGUID = player->m_SummonSlot[itr2])
+        ObjectGuid summonGUID = player->m_SummonSlot[itr2];
+        if (!summonGUID.IsEmpty())
             if (Creature* summon = instance->GetCreature(summonGUID))
                 summon->CastSpell(player, spell, true);
     }

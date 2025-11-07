@@ -39,7 +39,7 @@ void WorldSession::SendTradeStatus(TradeStatusInfo const& info)
     switch (info.Status)
     {
         case TRADE_STATUS_BEGIN_TRADE:
-            data << uint64(info.TraderGuid);                // CGTradeInfo::m_tradingPlayer
+            data << info.TraderGuid;                        // CGTradeInfo::m_tradingPlayer
             break;
         case TRADE_STATUS_OPEN_WINDOW:
             data << uint32(0);                              // CGTradeInfo::m_tradeID
@@ -93,13 +93,13 @@ void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
             data << uint32(item->GetCount());               // stack count
                                                             // wrapped: hide stats but show giftcreator name
             data << uint32(item->IsWrapped() ? 1 : 0);
-            data << uint64(item->GetGuidValue(ITEM_FIELD_GIFTCREATOR));
+            data << item->GetGuidValue(ITEM_FIELD_GIFTCREATOR);
                                                             // perm. enchantment and gems
             data << uint32(item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT));
             for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
                 data << uint32(item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
                                                             // creator
-            data << uint64(item->GetGuidValue(ITEM_FIELD_CREATOR));
+            data << item->GetGuidValue(ITEM_FIELD_CREATOR);
             data << uint32(item->GetSpellCharges());        // charges
             data << uint32(item->GetItemSuffixFactor());    // SuffixFactor
             data << uint32(item->GetItemRandomPropertyId());// random properties id
