@@ -1,5 +1,3 @@
-DELETE FROM `spell_proc` WHERE `SpellId` IN (447444);
-
 DELETE FROM `areatrigger_template` WHERE `Id` = 35700 AND `IsCustom` = 0;
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `Flags`, `ActionSetId`, `ActionSetFlags`, `VerifiedBuild`) VALUES
 (35700, 0, 0, 0, 0, 0);

@@ -1239,6 +1239,46 @@ class spell_pri_entropic_rift_aura : public AuraScript
     }
 };
 
+// 459314 - Entropic Rift (Periodic)
+class spell_pri_entropic_rift_periodic : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        AreaTrigger* at = caster->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER);
+        if (!at)
+            return;
+
+        float radius = at->GetMaxSearchRadius();
+        std::list<Unit*> targets;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, radius);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
+        Cell::VisitAllObjects(at, searcher, radius);
+
+        targets.remove_if([caster](Unit const* target)
+        {
+            return !caster->IsValidAttackTarget(target);
+        });
+
+        for (Unit* target : targets)
+            caster->CastSpell(target, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE,
+                CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_entropic_rift_periodic::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
 // 447445 - Entropic Rift (AreaTrigger)
 struct areatrigger_pri_entropic_rift : public AreaTriggerAI
 {
@@ -1260,6 +1300,7 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
             return;
 
         caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         if (creatingSpell)
         {
@@ -1272,13 +1313,6 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
     void OnUpdate(uint32 diff) override
     {
         _scheduler.Update(diff);
-
-        _damageTimer -= Milliseconds(diff);
-        while (_damageTimer <= 0s)
-        {
-            DealDamage();
-            _damageTimer += damagePeriod;
-        }
     }
 
     void UpdateMovement()
@@ -1308,27 +1342,6 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         at->InitSplines(path.GetPath());
     }
 
-    void DealDamage()
-    {
-        Unit* caster = at->GetCaster();
-        if (!caster)
-            return;
-
-        float radius = at->GetMaxSearchRadius();
-        std::list<Unit*> targets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, radius);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
-        Cell::VisitAllObjects(at, searcher, radius);
-
-        targets.remove_if([caster](Unit const* target)
-        {
-            return !caster->IsValidAttackTarget(target);
-        });
-
-        for (Unit* target : targets)
-            caster->CastSpell(target, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE);
-    }
-
     Unit* FindNewEnemy(Unit const* caster)
     {
         std::list<Unit*> targets;
@@ -1348,8 +1361,6 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
     }
 
 private:
-    static constexpr Milliseconds damagePeriod = 1s;
-    Milliseconds _damageTimer{};
     TaskScheduler _scheduler{};
     ObjectGuid _targetGuid{};
     float _searchRadius{};
@@ -3750,6 +3761,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_entropic_rift);
     RegisterSpellScript(spell_pri_entropic_rift_aura);
+    RegisterSpellScript(spell_pri_entropic_rift_periodic);
     RegisterAreaTriggerAI(areatrigger_pri_entropic_rift);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
