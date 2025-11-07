@@ -52,6 +52,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
     SPELL_PRIEST_BENEDICTION                        = 193157,
+    SPELL_PRIEST_BINDING_HEALS_HEAL                 = 368276,
     SPELL_PRIEST_BLAZE_OF_LIGHT                     = 215768,
     SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE            = 355851,
     SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE            = 356084,
@@ -661,6 +662,32 @@ class spell_pri_benediction : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_benediction::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// 368275 - Binding Heals
+class spell_pri_binding_heals : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_BINDING_HEALS_HEAL })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_0} });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        if (caster == eventInfo.GetProcTarget())
+            return;
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
+        caster->CastSpell(caster, SPELL_PRIEST_BINDING_HEALS_HEAL, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_binding_heals::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3555,6 +3582,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_effect_aura);
     RegisterSpellScript(spell_pri_atonement_passive);
     RegisterSpellScript(spell_pri_benediction);
+    RegisterSpellScript(spell_pri_binding_heals);
     RegisterSpellScript(spell_pri_blaze_of_light);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
