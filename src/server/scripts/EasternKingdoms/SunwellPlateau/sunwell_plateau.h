@@ -45,6 +45,7 @@ enum SWPDataTypes
     DATA_KILJAEDEN_CONTROLLER,
     DATA_ANVEENA,
     DATA_KALECGOS_KJ,
+    DATA_ENTROPIUS,
 
     // GameObject GUIDs
     DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_1,
@@ -99,13 +100,15 @@ enum SWPCreatureIds
     NPC_SPIKE_TARGET2                        = 30614,
     NPC_SINISTER_REFLECTION                  = 25708, // Sinister Relection spawnd on Phase swichtes
 
-    NPC_DARKNESS                             = 25879,
-    NPC_DARK_FIENDS                          = 25744,
-    NPC_BERSERKER                            = 25798,
-    NPC_FURY_MAGE                            = 25799,
+    // M'uru
+    NPC_VOID_SENTINEL_SUMMONER               = 25782,
     NPC_VOID_SENTINEL                        = 25772,
     NPC_VOID_SPAWN                           = 25824,
-    NPC_BLACK_HOLE                           = 25855,
+    NPC_DARK_FIEND                           = 25744,
+    NPC_DARKNESS                             = 25879,
+    NPC_SINGULARITY                          = 25855,
+    NPC_BERSERKER                            = 25798,
+    NPC_FURY_MAGE                            = 25799,
     NPC_MURU_PORTAL_TARGET                   = 25770
 };
 
