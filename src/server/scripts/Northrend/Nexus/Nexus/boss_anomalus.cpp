@@ -142,7 +142,7 @@ struct boss_anomalus : public ScriptedAI
 
         if (me->HasAura(SPELL_RIFT_SHIELD))
         {
-            if (uiChaoticRiftGUID)
+            if (!uiChaoticRiftGUID.IsEmpty())
             {
                 Creature* Rift = ObjectAccessor::GetCreature(*me, uiChaoticRiftGUID);
                 if (Rift && Rift->isDead())

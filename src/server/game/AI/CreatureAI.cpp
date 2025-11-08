@@ -53,7 +53,7 @@ void CreatureAI::Talk(uint8 id, WorldObject const* whisperTarget /*= nullptr*/)
 // Disable CreatureAI when charmed
 void CreatureAI::OnCharmed(bool isNew)
 {
-    if (isNew && !me->IsCharmed() && me->LastCharmerGUID)
+    if (isNew && !me->IsCharmed() && !me->LastCharmerGUID.IsEmpty())
     {
         if (!me->HasReactState(REACT_PASSIVE))
         {

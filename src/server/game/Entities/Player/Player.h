@@ -84,7 +84,23 @@ enum LootType : uint8;
 
 typedef std::deque<Mail*> PlayerMails;
 
-#define PLAYER_MAX_SKILLS           128
+#define PLAYER_MAX_SKILLS                       128
+enum SkillFieldOffset
+{
+    SKILL_ID_FIELD_OFFSET = 0,
+    SKILL_ID_SHORT_OFFSET = 0,
+    SKILL_STEP_FIELD_OFFSET = 0,
+    SKILL_STEP_SHORT_OFFSET = 1,
+    SKILL_RANK_FIELD_OFFSET = 1,
+    SKILL_RANK_SHORT_OFFSET = 0,
+    SKILL_MAX_RANK_FIELD_OFFSET = 1,
+    SKILL_MAX_RANK_SHORT_OFFSET = 1,
+    SKILL_TEMP_BONUS_FIELD_OFFSET = 2,
+    SKILL_TEMP_BONUS_SHORT_OFFSET = 0,
+    SKILL_PERM_BONUS_FIELD_OFFSET = 2,
+    SKILL_PERM_BONUS_SHORT_OFFSET = 1
+};
+
 #define PLAYER_MAX_DAILY_QUESTS     25
 #define PLAYER_EXPLORED_ZONES_SIZE  128
 
@@ -397,7 +413,7 @@ static_assert((PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID & 1) == 0, "PLAYER
 #define PLAYER_BYTES_2_OVERRIDE_SPELLS_UINT16_OFFSET (PLAYER_FIELD_BYTES_2_OFFSET_OVERRIDE_SPELLS_ID / 2)
 
 #define KNOWN_TITLES_SIZE   3
-#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
+#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE * 64)        // 3 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -946,7 +962,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const override;
 
-        bool IsFalling() { return GetPositionZ() < m_lastFallZ; }
         bool IsInAreaTriggerRadius(AreaTriggerEntry const* trigger) const;
 
         void SendInitialPacketsBeforeAddToMap();
@@ -1364,7 +1379,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& holder);
         bool IsLoading() const override;
 
-        void Initialize(ObjectGuid::LowType guid);
         static uint32 GetZoneIdFromDB(ObjectGuid guid);
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, ObjectGuid guid);
 
@@ -1438,13 +1452,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint8 unReadMails;
         time_t m_nextMailDelivereTime;
 
-        typedef std::unordered_map<uint32, Item*> ItemMap;
+        typedef std::unordered_map<ObjectGuid::LowType, Item*> ItemMap;
 
         ItemMap mMitems;                                    //template defined in objectmgr.cpp
 
-        Item* GetMItem(uint32 id);
+        Item* GetMItem(ObjectGuid::LowType id);
         void AddMItem(Item* it);
-        bool RemoveMItem(uint32 id);
+        bool RemoveMItem(ObjectGuid::LowType id);
 
         void SendOnCancelExpectedVehicleRideAura() const;
         void PetSpellInitialize();
@@ -1606,13 +1620,13 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 guildId);
+        void SetInGuild(ObjectGuid::LowType guildId);
         void SetGuildRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetGuildRank() const { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
-        void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
-        uint32 GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
+        void SetGuildIdInvited(ObjectGuid::LowType GuildId) { m_GuildIdInvited = GuildId; }
+        ObjectGuid::LowType GetGuildId() const { return GetUInt32Value(PLAYER_GUILDID);  }
         Guild* GetGuild();
-        int GetGuildIdInvited() const { return m_GuildIdInvited; }
+        ObjectGuid::LowType GetGuildIdInvited() const { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(ObjectGuid guid, CharterTypes type);
 
         // Arena Team
@@ -1795,6 +1809,18 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint16 GetSkillStep(uint32 skill) const;            // 0...6
         bool HasSkill(uint32 skill) const;
         void LearnSkillRewardedSpells(uint32 skillId, uint32 skillValue);
+        uint16 GetSkillLineIdByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_ID_FIELD_OFFSET, SKILL_ID_SHORT_OFFSET); }
+        void SetSkillLineId(uint32 pos, uint16 skillLineId) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_ID_FIELD_OFFSET, SKILL_ID_SHORT_OFFSET, skillLineId); }
+        uint16 GetSkillStepByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_STEP_FIELD_OFFSET, SKILL_STEP_SHORT_OFFSET); };
+        void SetSkillStep(uint32 pos, uint16 step) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_STEP_FIELD_OFFSET, SKILL_STEP_SHORT_OFFSET, step); };
+        uint16 GetSkillRankByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_RANK_FIELD_OFFSET, SKILL_RANK_SHORT_OFFSET); }
+        void SetSkillRank(uint32 pos, uint16 rank) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_RANK_FIELD_OFFSET, SKILL_RANK_SHORT_OFFSET, rank); }
+        uint16 GetSkillMaxRankByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_MAX_RANK_FIELD_OFFSET, SKILL_MAX_RANK_SHORT_OFFSET); }
+        void SetSkillMaxRank(uint32 pos, uint16 max) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_MAX_RANK_FIELD_OFFSET, SKILL_MAX_RANK_SHORT_OFFSET, max); }
+        int16 GetSkillTempBonusByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_TEMP_BONUS_FIELD_OFFSET, SKILL_TEMP_BONUS_SHORT_OFFSET); }
+        void SetSkillTempBonus(uint32 pos, int16 bonus) { SetInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_TEMP_BONUS_FIELD_OFFSET, SKILL_TEMP_BONUS_SHORT_OFFSET, bonus); }
+        uint16 GetSkillPermBonusByPos(uint32 pos) const { return GetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_PERM_BONUS_FIELD_OFFSET, SKILL_PERM_BONUS_SHORT_OFFSET); }
+        void SetSkillPermBonus(uint32 pos, uint16 bonus) { SetUInt16Value(PLAYER_SKILL_INFO_1_1 + pos * 3 + SKILL_PERM_BONUS_FIELD_OFFSET, SKILL_PERM_BONUS_SHORT_OFFSET, bonus); }
 
         WorldLocation& GetTeleportDest() { return m_teleport_dest; }
         uint32 GetTeleportOptions() const { return m_teleport_options; }
@@ -2229,11 +2255,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         bool IsInWhisperWhiteList(ObjectGuid guid);
         void RemoveFromWhisperWhiteList(ObjectGuid guid) { WhisperList.remove(guid); }
 
-        bool SetDisableGravity(bool disable, bool packetOnly /* = false */, bool updateAnimTier = true) override;
-        bool SetCanFly(bool apply, bool packetOnly = false) override;
-        bool SetWaterWalking(bool apply, bool packetOnly = false) override;
-        bool SetFeatherFall(bool apply, bool packetOnly = false) override;
-        bool SetHover(bool enable, bool packetOnly = false, bool updateAnimTier = true) override;
         void SendMovementSetCollisionHeight(float height);
 
         bool CanFly() const override { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
@@ -2380,7 +2401,7 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         SkillStatusMap mSkillStatus;
 
-        uint32 m_GuildIdInvited;
+        ObjectGuid::LowType m_GuildIdInvited;
         uint32 m_ArenaTeamIdInvited;
 
         PlayerMails m_mail;

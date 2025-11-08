@@ -93,9 +93,7 @@ void Totem::InitStats(uint32 duration)
 void Totem::InitSummon()
 {
     if (m_type == TOTEM_PASSIVE && GetSpell())
-    {
         CastSpell(this, GetSpell(), true);
-    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
@@ -129,7 +127,7 @@ void Totem::UnSummon(uint32 msTime)
     if (GetEntry() == SENTRY_TOTEM_ENTRY)
         GetOwner()->RemoveAurasDueToSpell(SENTRY_TOTEM_SPELLID);
 
-    //remove aura all party members too
+    // remove aura all party members too
     if (Player* owner = GetOwner()->ToPlayer())
     {
         owner->SendAutoRepeatCancel(this);

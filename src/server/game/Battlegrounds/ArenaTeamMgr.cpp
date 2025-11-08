@@ -143,7 +143,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_START);
 
     // Temporary structure for storing maximum points to add values for all players
-    std::map<uint32, uint32> PlayerPoints;
+    std::map<ObjectGuid, uint32> PlayerPoints;
 
     // At first update all points for all team members
     for (auto [teamId, team] : ArenaTeamStore)
@@ -154,16 +154,16 @@ void ArenaTeamMgr::DistributeArenaPoints()
     CharacterDatabasePreparedStatement* stmt;
 
     // Cycle that gives points to all players
-    for (std::map<uint32, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
+    for (std::map<ObjectGuid, uint32>::iterator playerItr = PlayerPoints.begin(); playerItr != PlayerPoints.end(); ++playerItr)
     {
         // Add points to player if online
-        if (Player* player = ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, playerItr->first)))
+        if (Player* player = ObjectAccessor::FindConnectedPlayer(playerItr->first))
             player->ModifyArenaPoints(playerItr->second, trans);
         else    // Update database
         {
             stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_CHAR_ARENA_POINTS);
             stmt->setUInt32(0, playerItr->second);
-            stmt->setUInt32(1, playerItr->first);
+            stmt->setUInt32(1, playerItr->first.GetCounter());
             trans->Append(stmt);
         }
     }

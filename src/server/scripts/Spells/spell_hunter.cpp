@@ -692,7 +692,7 @@ class spell_hun_masters_call : public SpellScript
         // Do a mini Spell::CheckCasterAuras on the pet, no other way of doing this
         SpellCastResult result = SPELL_CAST_OK;
         uint32 const unitflag = pet->GetUnitFlags();
-        if (pet->GetCharmerGUID())
+        if (!pet->GetCharmerGUID().IsEmpty())
             result = SPELL_FAILED_CHARMED;
         else if (unitflag & UNIT_FLAG_STUNNED)
             result = SPELL_FAILED_STUNNED;
@@ -1175,10 +1175,10 @@ class spell_hun_tame_beast : public SpellScript
                 }
             }
 
-            if (caster->GetCharmedGUID())
+            if (!caster->GetCharmedGUID().IsEmpty())
                 return SPELL_FAILED_ALREADY_HAVE_CHARM;
 
-            if (target->GetOwnerGUID())
+            if (!target->GetOwnerGUID().IsEmpty())
             {
                 caster->SendTameFailure(PETTAME_CREATUREALREADYOWNED);
                 return SPELL_FAILED_DONT_REPORT;
