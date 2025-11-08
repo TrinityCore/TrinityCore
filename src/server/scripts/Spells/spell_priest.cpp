@@ -59,6 +59,7 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_CASTIGATION                        = 193134,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL        = 373462,
@@ -1344,12 +1345,15 @@ class spell_pri_harsh_discipline : public SpellScript
     void HandleHit()
     {
         Unit* caster = GetCaster();
-
         Aura* aura = caster->GetAura(SPELL_PRIEST_HARSH_DISCIPLINE);
         if (!aura)
             return;
 
-        caster->CastSpell(caster, SPELL_PRIEST_HARSH_DISCIPLINE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        int32 rankStacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        caster->CastSpell(caster, SPELL_PRIEST_HARSH_DISCIPLINE_AURA, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT1, rankStacks }}
+            });
     }
 
     void Register() override
@@ -1361,22 +1365,32 @@ class spell_pri_harsh_discipline : public SpellScript
 // 373183 - Harsh Discipline (Aura)
 class spell_pri_harsh_discipline_aura : public AuraScript
 {
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE, SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE });
+    }
+
     void CalculateAmount(AuraEffect const* /*auraEff*/, int32& amount, bool& canBeRecalculated) const
     {
         canBeRecalculated = false;
-
         Unit* caster = GetCaster();
         if (!caster)
             return;
 
-        int32 boltModVal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
-        int32 stacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
-        TC_LOG_ERROR("test", "bolt mod val {}", boltModVal);
-        TC_LOG_ERROR("test", "stacks {}", stacks);
+        SpellInfo const* harshDiscipline = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty());
+        int32 additionalBolts = harshDiscipline->GetEffect(EFFECT_1).CalcValue(caster);
 
-        amount = -boltModVal * stacks;
+        SpellInfo const* penanceChannel = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, GetCastDifficulty());
+        int32 channelDuration = penanceChannel->GetDuration();
 
-        TC_LOG_ERROR("test", "amount {}", amount);
+        int32 baseBolts = caster->HasAura(SPELL_PRIEST_CASTIGATION) ? 4 : 3;
+        int32 basePeriod = channelDuration / (baseBolts - 1);
+        int32 totalBolts = baseBolts + additionalBolts;
+
+        float newPeriod = static_cast<float>(channelDuration) / (totalBolts - 1);
+        float pctDiff = (newPeriod - basePeriod) / basePeriod;
+
+        amount = static_cast<int32>(std::floor(pctDiff * 100.f));
     }
 
     void Register() override
