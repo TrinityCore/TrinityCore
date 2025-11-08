@@ -88,6 +88,7 @@ struct boss_kirtonos_the_herald : public BossAI
     void JustAppeared() override
     {
         events.ScheduleEvent(EVENT_INTRO_1, 0s);
+        me->SetDisableGravity(true);
     }
 
     void JustEngagedWith(Unit* who) override
