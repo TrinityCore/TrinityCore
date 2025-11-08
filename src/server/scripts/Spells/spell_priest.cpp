@@ -102,6 +102,8 @@ enum PriestSpells
     SPELL_PRIEST_HALO_HOLY_HEAL                     = 120692,
     SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
     SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
+    SPELL_PRIEST_HARSH_DISCIPLINE                   = 373180,
+    SPELL_PRIEST_HARSH_DISCIPLINE_AURA              = 373183,
     SPELL_PRIEST_HEAL                               = 2060,
     SPELL_PRIEST_HEALING_LIGHT                      = 196809,
     SPELL_PRIEST_HEAVENS_WRATH                      = 421558,
@@ -1327,6 +1329,59 @@ class spell_pri_guardian_spirit : public AuraScript
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+    }
+};
+
+// 373180 - Harsh Discipline
+// Triggered by 194509 - Power Word: Radiance
+class spell_pri_harsh_discipline : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE, SPELL_PRIEST_HARSH_DISCIPLINE_AURA });
+    }
+    
+    void HandleHit()
+    {
+        Unit* caster = GetCaster();
+
+        Aura* aura = caster->GetAura(SPELL_PRIEST_HARSH_DISCIPLINE);
+        if (!aura)
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_HARSH_DISCIPLINE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_harsh_discipline::HandleHit);
+    }
+};
+
+// 373183 - Harsh Discipline (Aura)
+class spell_pri_harsh_discipline_aura : public AuraScript
+{
+    void CalculateAmount(AuraEffect const* /*auraEff*/, int32& amount, bool& canBeRecalculated) const
+    {
+        canBeRecalculated = false;
+
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        int32 boltModVal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+        int32 stacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE_AURA, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        TC_LOG_ERROR("test", "bolt mod val {}", boltModVal);
+        TC_LOG_ERROR("test", "stacks {}", stacks);
+
+        amount = -boltModVal * stacks;
+
+        TC_LOG_ERROR("test", "amount {}", amount);
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_harsh_discipline_aura::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
     }
 };
 
@@ -3575,6 +3630,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
+    RegisterSpellScript(spell_pri_harsh_discipline);
+    RegisterSpellScript(spell_pri_harsh_discipline_aura);
     RegisterSpellScript(spell_pri_heavens_wrath);
     RegisterSpellScript(spell_pri_holy_mending);
     RegisterSpellScript(spell_pri_holy_words);
