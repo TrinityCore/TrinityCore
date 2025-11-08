@@ -56,6 +56,7 @@ ObjectData const creatureData[] =
     { NPC_GRAND_WARLOCK_ALYTHESS, DATA_ALYTHESS             },
     { NPC_LADY_SACROLASH,         DATA_SACROLASH            },
     { NPC_MURU,                   DATA_MURU                 },
+    { NPC_ENTROPIUS,              DATA_ENTROPIUS            },
     { NPC_KILJAEDEN,              DATA_KILJAEDEN            },
     { NPC_KILJAEDEN_CONTROLLER,   DATA_KILJAEDEN_CONTROLLER },
     { NPC_ANVEENA,                DATA_ANVEENA              },
