@@ -110,8 +110,8 @@ void Vehicle::Uninstall()
     /// @Prevent recursive uninstall call. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING && !GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
     {
-        TC_LOG_ERROR("entities.vehicle", "Vehicle {} attempts to uninstall, but already has STATUS_UNINSTALLING! "
-            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString());
+        TC_LOG_ERROR("entities.vehicle", "Vehicle {} Entry: {} attempts to uninstall, but already has STATUS_UNINSTALLING! "
+            "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUID().ToString(), _creatureEntry);
         return;
     }
 

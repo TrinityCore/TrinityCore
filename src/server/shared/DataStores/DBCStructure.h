@@ -1013,6 +1013,18 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (TypeID << 24); }
 };
 
+struct LFGDungeonExpansionEntry
+{
+    //uint32 ID;                                            // 0
+    uint32 LfgID;                                           // 1
+    uint32 ExpansionLevel;                                  // 2
+    //uint32 RandomID;                                      // 3
+    uint32 HardLevelMin;                                    // 4
+    uint32 HardLevelMax;                                    // 5
+    //uint32 TargetLevelMin;                                // 6
+    //uint32 TargetLevelMax;                                // 7
+};
+
 struct LightEntry
 {
     uint32 ID;                                              // 0

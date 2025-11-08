@@ -1479,7 +1479,7 @@ CreatureAddon const* ObjectMgr::GetCreatureAddon(ObjectGuid::LowType lowguid) co
 
 CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry) const
 {
-    CreatureAddonContainer::const_iterator itr = _creatureTemplateAddonStore.find(entry);
+    CreatureTemplateAddonContainer::const_iterator itr = _creatureTemplateAddonStore.find(entry);
     if (itr != _creatureTemplateAddonStore.end())
         return &(itr->second);
 
@@ -1892,8 +1892,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
+                guid = ObjectGuid::Create<HighGuid::Unit>(slave->id, guidLow);
+                linkedGuid = ObjectGuid::Create<HighGuid::Unit>(master->id, linkedGuidLow);
                 break;
             }
             case LINKED_RESPAWN_CREATURE_TO_GO:
@@ -1929,8 +1929,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HighGuid::Unit, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
+                guid = ObjectGuid::Create<HighGuid::Unit>(slave->id, guidLow);
+                linkedGuid = ObjectGuid::Create<HighGuid::GameObject>(master->id, linkedGuidLow);
                 break;
             }
             case LINKED_RESPAWN_GO_TO_GO:
@@ -1966,8 +1966,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HighGuid::GameObject, master->id, linkedGuidLow);
+                guid = ObjectGuid::Create<HighGuid::GameObject>(slave->id, guidLow);
+                linkedGuid = ObjectGuid::Create<HighGuid::GameObject>(master->id, linkedGuidLow);
                 break;
             }
             case LINKED_RESPAWN_GO_TO_CREATURE:
@@ -2003,8 +2003,8 @@ void ObjectMgr::LoadLinkedRespawn()
                     break;
                 }
 
-                guid = ObjectGuid(HighGuid::GameObject, slave->id, guidLow);
-                linkedGuid = ObjectGuid(HighGuid::Unit, master->id, linkedGuidLow);
+                guid = ObjectGuid::Create<HighGuid::GameObject>(slave->id, guidLow);
+                linkedGuid = ObjectGuid::Create<HighGuid::Unit>(master->id, linkedGuidLow);
                 break;
             }
         }
@@ -2024,7 +2024,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
 
     CreatureData const* master = GetCreatureData(guidLow);
     ASSERT(master);
-    ObjectGuid guid(HighGuid::Unit, master->id, guidLow);
+    ObjectGuid guid = ObjectGuid::Create<HighGuid::Unit>(master->id, guidLow);
 
     if (!linkedGuidLow) // we're removing the linking
     {
@@ -2056,7 +2056,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(ObjectGuid::LowType guidLow, ObjectGuid
         return false;
     }
 
-    ObjectGuid linkedGuid(HighGuid::Unit, slave->id, linkedGuidLow);
+    ObjectGuid linkedGuid = ObjectGuid::Create<HighGuid::Unit>(slave->id, linkedGuidLow);
 
     _linkedRespawnStore[guid] = linkedGuid;
     WorldDatabasePreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_LINKED_RESPAWN);
@@ -3751,7 +3751,7 @@ void ObjectMgr::LoadVehicleAccessories()
     {
         Field* fields = result->Fetch();
 
-        uint32 uiGUID       = fields[0].GetUInt32();
+        ObjectGuid::LowType uiGUID = fields[0].GetUInt32();
         uint32 uiAccessory  = fields[1].GetUInt32();
         int8   uiSeat       = int8(fields[2].GetInt16());
         bool   bMinion      = fields[3].GetBool();
@@ -5945,7 +5945,7 @@ void ObjectMgr::LoadSpellScriptNames()
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Scriptname: `{}` spell (Id: {}) does not exist.", scriptName, spellId);
+            TC_LOG_ERROR("sql.sql", "Scriptname: `{}` spell (Id: {}) does not exist.", scriptName, fields[0].GetInt32());
             continue;
         }
 
@@ -6443,7 +6443,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     {
         Field* fields = result->Fetch();
         ObjectGuid::LowType receiver = fields[3].GetUInt32();
-        if (serverUp && ObjectAccessor::FindConnectedPlayer(ObjectGuid(HighGuid::Player, receiver)))
+        if (serverUp && ObjectAccessor::FindConnectedPlayer(ObjectGuid::Create<HighGuid::Player>(receiver)))
             continue;
 
         Mail* m = new Mail;
@@ -7153,7 +7153,7 @@ GraveyardData const* ObjectMgr::FindGraveyardData(uint32 id, uint32 zoneId) cons
     return nullptr;
 }
 
-AreaTrigger const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
+AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
     AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
     if (itr != _areaTriggerStore.end())
@@ -7248,7 +7248,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 {
     uint32 oldMSTime = getMSTime();
 
-    _areaTriggerStore.clear();                                  // need for reload case
+    _areaTriggerStore.clear(); // need for reload case
 
     //                                               0        1              2                  3                  4                   5
     QueryResult result = WorldDatabase.Query("SELECT ID,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
@@ -7268,20 +7268,20 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         uint32 Trigger_ID = fields[0].GetUInt32();
 
-        AreaTrigger at;
-
-        at.target_mapId             = fields[1].GetUInt16();
-        at.target_X                 = fields[2].GetFloat();
-        at.target_Y                 = fields[3].GetFloat();
-        at.target_Z                 = fields[4].GetFloat();
-        at.target_Orientation       = fields[5].GetFloat();
-
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
         {
             TC_LOG_ERROR("sql.sql", "Area trigger (ID:{}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
             continue;
         }
+
+        AreaTriggerTeleport at;
+
+        at.target_mapId             = fields[1].GetUInt16();
+        at.target_X                 = fields[2].GetFloat();
+        at.target_Y                 = fields[3].GetFloat();
+        at.target_Z                 = fields[4].GetFloat();
+        at.target_Orientation       = fields[5].GetFloat();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
         if (!mapEntry)
@@ -7397,7 +7397,7 @@ void ObjectMgr::LoadAccessRequirements()
 /*
  * Searches for the areatrigger which teleports players out of the given map with instance_template.parent field support
  */
-AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
+AreaTriggerTeleport const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     bool useParentDbValue = false;
     uint32 parentId = 0;
@@ -7430,7 +7430,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 /**
  * Searches for the areatrigger which teleports players to the given map
  */
-AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
+AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {
@@ -7791,7 +7791,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLockId(&got, got.camera.lockId, 0);
                 break;
             }
-            case GAMEOBJECT_TYPE_MO_TRANSPORT:              //15
+            case GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT:              //15
             {
                 if (got.moTransport.taxiPathId)
                 {
@@ -7803,7 +7803,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                     _transportMaps.insert(transportMap);
                 break;
             }
-            case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
+            case GAMEOBJECT_TYPE_RITUAL:          //18
                 break;
             case GAMEOBJECT_TYPE_SPELLCASTER:               //22
             {
@@ -10334,7 +10334,7 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     }
 
     // Otherwise return entry-based
-    VehicleAccessoryContainer::const_iterator itr = _vehicleTemplateAccessoryStore.find(veh->GetCreatureEntry());
+    VehicleAccessoryTemplateContainer::const_iterator itr = _vehicleTemplateAccessoryStore.find(veh->GetCreatureEntry());
     if (itr != _vehicleTemplateAccessoryStore.end())
         return &itr->second;
     return nullptr;

@@ -464,7 +464,7 @@ void PoolMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                ObjectGuid::LowType guid    = fields[0].GetUInt32();
+                ObjectGuid::LowType guid = fields[0].GetUInt32();
                 uint32 pool_id = fields[1].GetUInt32();
                 float chance   = fields[2].GetFloat();
 

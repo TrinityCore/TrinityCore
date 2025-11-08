@@ -15,113 +15,129 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
+/*
+ * Timers requires to be revisited
+ */
+
+#include "ScriptMgr.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
-#include "ScriptMgr.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
 
-enum Yells
+enum RajaxxTexts
 {
-    // The time of our retribution is at hand! Let darkness reign in the hearts of our enemies! Sound: 8645 Emote: 35
-    SAY_ANDOROV_INTRO         = 0,   // Before for the first wave
-    SAY_ANDOROV_ATTACK        = 1,   // Beginning the event
-
-    SAY_WAVE3                 = 0,
-    SAY_WAVE4                 = 1,
-    SAY_WAVE5                 = 2,
-    SAY_WAVE6                 = 3,
-    SAY_WAVE7                 = 4,
+    // Intro
+    SAY_WAVE_3                = 0,
+    SAY_WAVE_4                = 1,
+    SAY_WAVE_5                = 2,
+    SAY_WAVE_6                = 3,
+    SAY_WAVE_7                = 4,
     SAY_INTRO                 = 5,
-    SAY_UNK1                  = 6,
-    SAY_UNK2                  = 7,
-    SAY_UNK3                  = 8,
-    SAY_DEATH                 = 9,
-    SAY_CHANGEAGGRO           = 10,
-    SAY_KILLS_ANDOROV         = 11,
-    SAY_COMPLETE_QUEST        = 12    // Yell when realm complete quest 8743 for world event
-    // Warriors, Captains, continue the fight! Sound: 8640
+
+    // Combat
+    SAY_SLAY                  = 6,
+    SAY_DEATH                 = 7,
+    EMOTE_FRENZY              = 8
 };
 
-enum Spells
+enum RajaxxSpells
 {
-    SPELL_DISARM            = 6713,
-    SPELL_FRENZY            = 8269,
-    SPELL_THUNDERCRASH      = 25599
+    SPELL_DISARM              = 6713,
+    SPELL_THUNDERCRASH        = 25599,
+    SPELL_FRENZY              = 8269
 };
 
-enum Events
+enum RajaxxEvents
 {
-    EVENT_DISARM            = 1,        // 03:58:27, 03:58:49
-    EVENT_THUNDERCRASH      = 2,        // 03:58:29, 03:58:50
-    EVENT_CHANGE_AGGRO      = 3,
+    EVENT_DISARM              = 1,
+    EVENT_THUNDERCRASH,
+    EVENT_FRENZY
 };
 
-class boss_rajaxx : public CreatureScript
+// 15341 - General Rajaxx
+struct boss_rajaxx : public BossAI
 {
-    public:
-        boss_rajaxx() : CreatureScript("boss_rajaxx") { }
+    boss_rajaxx(Creature* creature) : BossAI(creature, DATA_RAJAXX), _frenzied(false) { }
 
-        struct boss_rajaxxAI : public BossAI
+    void Reset() override
+    {
+        _Reset();
+        _frenzied = false;
+    }
+
+    void JustEngagedWith(Unit* who) override
+    {
+        BossAI::JustEngagedWith(who);
+
+        events.ScheduleEvent(EVENT_DISARM, 10s, 20s);
+        events.ScheduleEvent(EVENT_THUNDERCRASH, 10s, 15s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_frenzied && me->HealthBelowPctDamaged(30, damage))
         {
-            boss_rajaxxAI(Creature* creature) : BossAI(creature, DATA_RAJAXX)
-            {
-                Initialize();
-            }
-
-            void Initialize()
-            {
-                enraged = false;
-            }
-
-            void Reset() override
-            {
-                _Reset();
-                Initialize();
-                events.ScheduleEvent(EVENT_DISARM, 10s);
-                events.ScheduleEvent(EVENT_THUNDERCRASH, 12s);
-            }
-
-            void UpdateAI(uint32 diff) override
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_DISARM:
-                            DoCastVictim(SPELL_DISARM);
-                            events.ScheduleEvent(EVENT_DISARM, 22s);
-                            break;
-                        case EVENT_THUNDERCRASH:
-                            DoCast(me, SPELL_THUNDERCRASH);
-                            events.ScheduleEvent(EVENT_THUNDERCRASH, 21s);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (me->HasUnitState(UNIT_STATE_CASTING))
-                        return;
-                }
-
-                DoMeleeAttackIfReady();
-            }
-            private:
-                bool enraged;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const override
-        {
-            return GetAQ20AI<boss_rajaxxAI>(creature);
+            _frenzied = true;
+            events.ScheduleEvent(EVENT_FRENZY, 0s);
         }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FRENZY)
+            Talk(EMOTE_FRENZY);
+    }
+
+    void KilledUnit(Unit* /*victim*/) override
+    {
+        Talk(SAY_SLAY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
+        _JustDied();
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        if (!UpdateVictim())
+            return;
+
+        events.Update(diff);
+
+        if (me->HasUnitState(UNIT_STATE_CASTING))
+            return;
+
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                case EVENT_DISARM:
+                    DoCastVictim(SPELL_DISARM);
+                    events.Repeat(20s, 30s);
+                    break;
+                case EVENT_THUNDERCRASH:
+                    DoCastSelf(SPELL_THUNDERCRASH);
+                    events.Repeat(20s, 35s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
+                    break;
+                default:
+                    break;
+            }
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+        }
+
+        DoMeleeAttackIfReady();
+    }
+
+private:
+    bool _frenzied;
 };
 
 // 25599 - Thundercrash
@@ -138,14 +154,21 @@ class spell_rajaxx_thundercrash : public SpellScript
         SetEffectValue(damage);
     }
 
+    void HandleAfterCast()
+    {
+        if (GetCaster()->CanHaveThreatList())
+            GetCaster()->GetThreatManager().ResetAllThreat();
+    }
+
     void Register() override
     {
         OnEffectLaunchTarget += SpellEffectFn(spell_rajaxx_thundercrash::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        AfterCast += SpellCastFn(spell_rajaxx_thundercrash::HandleAfterCast);
     }
 };
 
 void AddSC_boss_rajaxx()
 {
-    new boss_rajaxx();
+    RegisterAQ20CreatureAI(boss_rajaxx);
     RegisterSpellScript(spell_rajaxx_thundercrash);
 }

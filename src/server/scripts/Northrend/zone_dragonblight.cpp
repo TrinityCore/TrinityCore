@@ -1095,6 +1095,36 @@ class spell_dragonblight_toaluus_spiritual_incense : public AuraScript
     }
 };
 
+/*######
+## Quest 24545: The Sacred and the Corrupt
+######*/
+
+enum TheSacredAndTheCorrupt
+{
+    SPELL_KNOCKDOWN     = 13360
+};
+
+// 70653 - Lich King Zap Player
+class spell_dragonblight_lich_king_zap_player : public SpellScript
+{
+    PrepareSpellScript(spell_dragonblight_lich_king_zap_player);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_KNOCKDOWN });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_KNOCKDOWN, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dragonblight_lich_king_zap_player::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_dragonblight()
 {
     RegisterCreatureAI(npc_commander_eligor_dawnbringer);
@@ -1118,4 +1148,5 @@ void AddSC_dragonblight()
     RegisterSpellScript(spell_dragonblight_atop_the_woodlands_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_end_of_the_line_quest_completion_script);
     RegisterSpellScript(spell_dragonblight_toaluus_spiritual_incense);
+    RegisterSpellScript(spell_dragonblight_lich_king_zap_player);
 }

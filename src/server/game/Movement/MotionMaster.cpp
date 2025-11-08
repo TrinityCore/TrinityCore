@@ -952,8 +952,7 @@ void MotionMaster::MoveFall(uint32 id/* = 0*/)
     if (_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
 
-    _owner->AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    _owner->m_movementInfo.SetFallTime(0);
+    _owner->SetFall(true);
 
     // Don't run spline movement for players
     if (_owner->GetTypeId() == TYPEID_PLAYER)

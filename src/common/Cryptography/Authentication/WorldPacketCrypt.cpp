@@ -15,18 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AuthCrypt.h"
-#include "BigNumber.h"
+#include "WorldPacketCrypt.h"
 #include "Errors.h"
 #include "HMAC.h"
 
-#include <cstring>
+WorldPacketCrypt::WorldPacketCrypt() : _initialized(false)
+{
+}
 
-AuthCrypt::AuthCrypt() :
-    _initialized(false)
-{ }
-
-void AuthCrypt::Init(SessionKey const& K)
+void WorldPacketCrypt::Init(SessionKey const& K)
 {
     uint8 ServerEncryptionKey[] = { 0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0xEA, 0xCA, 0x12, 0xDD, 0xC0, 0x93, 0x42, 0x91, 0x53, 0x57 };
     _serverEncrypt.Init(Trinity::Crypto::HMAC_SHA1::GetDigestOf(ServerEncryptionKey, K));
@@ -41,13 +38,13 @@ void AuthCrypt::Init(SessionKey const& K)
     _initialized = true;
 }
 
-void AuthCrypt::DecryptRecv(uint8 *data, size_t len)
+void WorldPacketCrypt::DecryptRecv(uint8 *data, size_t len)
 {
     ASSERT(_initialized);
     _clientDecrypt.UpdateData(data, len);
 }
 
-void AuthCrypt::EncryptSend(uint8 *data, size_t len)
+void WorldPacketCrypt::EncryptSend(uint8 *data, size_t len)
 {
     ASSERT(_initialized);
     _serverEncrypt.UpdateData(data, len);
