@@ -23,6 +23,7 @@
 #include "GarrisonPackets.h"
 #include "Optional.h"
 #include "QuaternionData.h"
+#include "SharedDefines.h"
 #include <unordered_map>
 
 class GameObject;
