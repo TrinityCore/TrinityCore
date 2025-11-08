@@ -31130,27 +31130,3 @@ bool Player::CanExecutePendingSpellCastRequest()
 
     return true;
 }
-
-void Player::SendGarrisonInfo()
-{
-    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
-    garrisonInfo.FactionIndex = GetGarrison()->GetFaction();
-    garrisonInfo.Garrisons.emplace_back();
-
-    WorldPackets::Garrison::GarrisonInfo& garrison = garrisonInfo.Garrisons.back();
-    garrison.GarrTypeID = GetGarrison()->GetType();
-    garrison.GarrSiteID = GetGarrison()->GetSiteLevel()->GarrSiteID;
-    garrison.GarrSiteLevelID = GetGarrison()->GetSiteLevel()->ID;
-    garrison.NumFollowerActivationsRemaining = GetGarrison()->GetFollowerActivations();
-    for (Garrison::Plot* plot : GetGarrison()->GetPlots())
-    {
-        garrison.Plots.push_back(&plot->PacketInfo);
-        if (plot->BuildingInfo.PacketInfo)
-            garrison.Buildings.push_back(&*plot->BuildingInfo.PacketInfo);
-    }
-
-    for (auto& [_, follower] : GetGarrison()->GetFollowers())
-        garrison.Followers.push_back(&follower.PacketInfo);
-
-    SendDirectMessage(garrisonInfo.Write());
-}

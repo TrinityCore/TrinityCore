@@ -2555,8 +2555,6 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         bool GetRandomWinner() const { return m_IsBGRandomWinner; }
         void SetRandomWinner(bool isWinner);
 
-        void SendGarrisonInfo();
-
         /*********************************************************/
         /***               OUTDOOR PVP SYSTEM                  ***/
         /*********************************************************/

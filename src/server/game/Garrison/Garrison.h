@@ -228,6 +228,7 @@ public:
     void Enter() const;
     void Leave() const;
 
+    static constexpr GarrisonFactionIndex GetFaction(Team team) { return team == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE; }
     GarrisonFactionIndex GetFaction() const;
     GarrisonType GetType() const { return GARRISON_TYPE_GARRISON; }
     GarrSiteLevelEntry const* GetSiteLevel() const { return _siteLevel; }
@@ -248,7 +249,6 @@ public:
     // Followers
     void AddFollower(uint32 garrFollowerId);
     Follower const* GetFollower(uint64 dbId) const;
-    std::unordered_map<uint64 /*dbId*/, Garrison::Follower> const& GetFollowers() const { return _followers; }
     template<typename Predicate>
     uint32 CountFollowers(Predicate&& predicate) const
     {
@@ -260,13 +260,12 @@ public:
         return count;
     }
 
+    void BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const;
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendMapData(Player* receiver) const;
 
     void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
-
-    uint32 GetFollowerActivations() const { return _followerActivationsRemainingToday; }
 
 private:
     Map* FindMap() const;

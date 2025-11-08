@@ -22,7 +22,13 @@
 
 void WorldSession::HandleGetGarrisonInfo(WorldPackets::Garrison::GetGarrisonInfo& /*getGarrisonInfo*/)
 {
-    _player->SendGarrisonInfo();
+    WorldPackets::Garrison::GetGarrisonInfoResult garrisonInfo;
+    garrisonInfo.FactionIndex = Garrison::GetFaction(_player->GetTeam());
+
+    if (Garrison* garrison = _player->GetGarrison())
+        garrison->BuildInfoPacket(garrisonInfo.Garrisons.emplace_back());
+
+    SendPacket(garrisonInfo.Write());
 }
 
 void WorldSession::HandleGarrisonPurchaseBuilding(WorldPackets::Garrison::GarrisonPurchaseBuilding& garrisonPurchaseBuilding)

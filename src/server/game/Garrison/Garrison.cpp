@@ -301,7 +301,7 @@ void Garrison::Leave() const
 
 GarrisonFactionIndex Garrison::GetFaction() const
 {
-    return _owner->GetTeam() == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE;
+    return GetFaction(_owner->GetTeam());
 }
 
 std::vector<Garrison::Plot*> Garrison::GetPlots()
@@ -528,6 +528,24 @@ Garrison::Follower const* Garrison::GetFollower(uint64 dbId) const
         return &itr->second;
 
     return nullptr;
+}
+
+void Garrison::BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const
+{
+    garrison.GarrTypeID = GetType();
+    garrison.GarrSiteID = _siteLevel->GarrSiteID;
+    garrison.GarrSiteLevelID = _siteLevel->ID;
+    garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
+    for (auto& p : _plots)
+    {
+        Plot const& plot = p.second;
+        garrison.Plots.push_back(&plot.PacketInfo);
+        if (plot.BuildingInfo.PacketInfo)
+            garrison.Buildings.push_back(&*plot.BuildingInfo.PacketInfo);
+    }
+
+    for (auto const& p : _followers)
+        garrison.Followers.push_back(&p.second.PacketInfo);
 }
 
 void Garrison::SendRemoteInfo() const
