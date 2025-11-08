@@ -19,12 +19,12 @@
 #define __WORLDSOCKET_H__
 
 #include "Common.h"
-#include "AuthCrypt.h"
 #include "ServerPktHeader.h"
 #include "Socket.h"
 #include "Util.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "WorldPacketCrypt.h"
 #include "MPSCQueue.h"
 #include <boost/asio/ip/tcp.hpp>
 
@@ -113,7 +113,7 @@ private:
     bool HandlePing(WorldPacket& recvPacket);
 
     std::array<uint8, 4> _authSeed;
-    AuthCrypt _authCrypt;
+    WorldPacketCrypt _authCrypt;
 
     TimePoint _LastPingTime;
     uint32 _OverSpeedPings;

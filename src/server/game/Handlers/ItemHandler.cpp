@@ -615,7 +615,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     if (!items)
     {
         WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data << uint64(vendorGuid);
+        data << vendorGuid;
         data << uint8(0);                                   // count == 0, next will be error code
         data << uint8(0);                                   // "Vendor has no inventory"
         SendPacket(&data);
@@ -626,7 +626,7 @@ void WorldSession::SendListInventory(ObjectGuid vendorGuid)
     uint8 count = 0;
 
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-    data << uint64(vendorGuid);
+    data << vendorGuid;
 
     size_t countPos = data.wpos();
     data << uint8(count);
@@ -785,10 +785,10 @@ void WorldSession::SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid I
 {
                                                             // last check 2.0.10
     WorldPacket data(SMSG_ITEM_ENCHANT_TIME_UPDATE, (8+4+4+8));
-    data << uint64(Itemguid);
+    data << Itemguid;
     data << uint32(slot);
     data << uint32(Duration);
-    data << uint64(Playerguid);
+    data << Playerguid;
     SendPacket(&data);
 }
 
@@ -942,8 +942,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         recvData >> gem_guids[i];
 
     //cheat -> tried to socket same gem multiple times
-    if ((gem_guids[0] && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
-        (gem_guids[1] && (gem_guids[1] == gem_guids[2])))
+    if ((!gem_guids[0].IsEmpty() && (gem_guids[0] == gem_guids[1] || gem_guids[0] == gem_guids[2])) ||
+        (!gem_guids[1].IsEmpty() && (gem_guids[1] == gem_guids[2])))
         return;
 
     Item* itemTarget = _player->GetItemByGuid(item_guid);
@@ -959,7 +959,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recvData)
 
     Item* Gems[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)
-        Gems[i] = gem_guids[i] ? _player->GetItemByGuid(gem_guids[i]) : nullptr;
+        Gems[i] = !gem_guids[i].IsEmpty() ? _player->GetItemByGuid(gem_guids[i]) : nullptr;
 
     GemPropertiesEntry const* GemProps[MAX_GEM_SOCKETS];
     for (int i = 0; i < MAX_GEM_SOCKETS; ++i)                //get geminfo from dbc storage
@@ -1204,7 +1204,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
         data << uint8(0);                                       // has text
-        data << uint64(itemGuid);                               // item guid
+        data << itemGuid;                                       // item guid
         data << item->GetText();
     }
     else

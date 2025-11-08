@@ -69,7 +69,7 @@ void WorldSession::SendAuctionHello(ObjectGuid guid, Unit const* unit)
         return;
 
     WorldPacket data(MSG_AUCTION_HELLO, 12);
-    data << uint64(guid);
+    data << guid;
     data << uint32(ahEntry->ID);
     data << uint8(1);                                       // 3.3.3: 1 - AH enabled, 0 - AH disabled
     SendPacket(&data);
@@ -110,7 +110,7 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     WorldPacket data(SMSG_AUCTION_BIDDER_NOTIFICATION, (8*4));
     data << uint32(location);
     data << uint32(auctionId);
-    data << uint64(bidder);
+    data << bidder;
     data << uint32(bidSum);
     data << uint32(diff);
     data << uint32(itemEntry);
@@ -339,8 +339,9 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->auctionHouseEntry = auctionHouseEntry;
         AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} {} is selling item {} entry {} {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-            _player->GetName(), _player->GetGUID().ToString(), item->GetTemplate()->Name1, item->GetEntry(), item->GetGUID().ToString(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
+            _player->GetGUID().ToString(), _player->GetName(), item->GetGUID().ToString(), item->GetTemplate()->Name1,
+            creature->GetGUID().ToString(), item->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
@@ -397,8 +398,9 @@ void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
         AH->auctionHouseEntry = auctionHouseEntry;
         AH->Flags = AUCTION_ENTRY_FLAG_NONE;
 
-        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: Player {} {} is selling item {} entry {} {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
-            _player->GetName(), _player->GetGUID().ToString(), newItem->GetTemplate()->Name1, newItem->GetEntry(), newItem->GetGUID().ToString(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
+        TC_LOG_INFO("network", "CMSG_AUCTION_SELL_ITEM: {} {} is selling item {} {} to auctioneer {} with count {} with initial bid {} with buyout {} and with time {} (in sec) in auctionhouse {}",
+            _player->GetGUID().ToString(), _player->GetName(), newItem->GetGUID().ToString(), newItem->GetTemplate()->Name1,
+            creature->GetGUID().ToString(), newItem->GetCount(), bid, buyout, auctionTime, AH->GetHouseId());
 
         // Add to pending auctions, or fail with insufficient funds error
         if (!sAuctionMgr->PendingAuctionAdd(_player, AH))
@@ -487,7 +489,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
     }
 
     // impossible have online own another character (use this for speedup check in case online owner)
-    ObjectGuid ownerGuid(HighGuid::Player, auction->owner);
+    ObjectGuid ownerGuid = ObjectGuid::Create<HighGuid::Player>(auction->owner);
     Player* auction_owner = ObjectAccessor::FindPlayer(ownerGuid);
     if (!auction_owner && sCharacterCache->GetCharacterAccountIdByGuid(ownerGuid) == player->GetSession()->GetAccountId())
     {
@@ -520,7 +522,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 
     if (price < auction->buyout || auction->buyout == 0)
     {
-        if (auction->bidder > 0)
+        if (auction->bidder)
         {
             if (auction->bidder == player->GetGUID().GetCounter())
                 player->ModifyMoney(-int32(price - auction->bid));
@@ -630,7 +632,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
         Item* pItem = sAuctionMgr->GetAItem(auction->itemGUIDLow);
         if (pItem)
         {
-            if (auction->bidder > 0)                        // If we have a bidder, we have to send him the money he paid
+            if (auction->bidder)                            // If we have a bidder, we have to send him the money he paid
             {
                 uint32 auctionCut = auction->GetAuctionCut();
                 if (!player->HasEnoughMoney(auctionCut))          //player doesn't have enough money, maybe message needed

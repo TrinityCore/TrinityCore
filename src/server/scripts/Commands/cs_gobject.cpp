@@ -302,12 +302,13 @@ public:
         if (GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(spawnId))
         {
             Player const* const player = handler->GetSession()->GetPlayer();
-            if (ObjectGuid ownerGuid = object->GetOwnerGUID())
+            ObjectGuid ownerGuid = object->GetOwnerGUID();
+            if (!ownerGuid.IsEmpty())
             {
                 Unit* owner = ObjectAccessor::GetUnit(*player, ownerGuid);
                 if (!owner || !ownerGuid.IsPlayer())
                 {
-                    handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, ownerGuid.GetCounter(), spawnId);
+                    handler->PSendSysMessage(LANG_COMMAND_DELOBJREFERCREATURE, *spawnId, ownerGuid.ToString().c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
@@ -537,10 +538,7 @@ public:
         type = gameObjectInfo->type;
         displayId = gameObjectInfo->displayId;
         name = gameObjectInfo->name;
-        if (type == GAMEOBJECT_TYPE_CHEST)
-            lootId = gameObjectInfo->chest.lootId;
-        else if (type == GAMEOBJECT_TYPE_FISHINGHOLE)
-            lootId = gameObjectInfo->fishinghole.lootId;
+        lootId = gameObjectInfo->GetLootId();
 
         // If we have a real object, send some info about it
         if (thisGO)

@@ -45,7 +45,7 @@ namespace WorldPackets
         struct CreatureStats
         {
             std::string Name;
-            std::string NameAlt;
+            std::string Title;
             std::string CursorName;
             uint32 Flags = 0;
             uint32 CreatureType = 0;

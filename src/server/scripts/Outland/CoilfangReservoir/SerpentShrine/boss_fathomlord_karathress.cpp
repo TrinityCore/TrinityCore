@@ -136,7 +136,7 @@ struct boss_fathomlord_karathress : public BossAI
 
         // Respawn advisors
         for (uint8 i = 0; i < MAX_ADVISORS; ++i)
-            if (_advisors[i])
+            if (!_advisors[i].IsEmpty())
             {
                 Creature* advisor = ObjectAccessor::GetCreature(*me, _advisors[i]);
                 if (advisor && !advisor->IsAlive())

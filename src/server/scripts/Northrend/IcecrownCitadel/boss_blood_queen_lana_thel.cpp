@@ -401,7 +401,7 @@ struct boss_blood_queen_lana_thel : public BossAI
                     break;
                 }
                 case EVENT_DELIRIOUS_SLASH:
-                    if (_offtankGUID && me->GetAnimTier() != AnimTier::Fly)
+                    if (!_offtankGUID.IsEmpty() && me->GetAnimTier() != AnimTier::Fly)
                         if (Player* _offtank = ObjectAccessor::GetPlayer(*me, _offtankGUID))
                             DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
                     events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, 20s, 24s, EVENT_GROUP_NORMAL);

@@ -840,7 +840,7 @@ void Map::Update(uint32 t_diff)
 
             // Totems
             for (ObjectGuid const& summonGuid : player->m_SummonSlot)
-                if (summonGuid)
+                if (!summonGuid.IsEmpty())
                     if (Creature* unit = GetCreature(summonGuid))
                         if (unit->GetMapId() == player->GetMapId() && !unit->IsWithinDistInMap(player, GetVisibilityRange(), false))
                             toVisit.push_back(unit);
@@ -3082,7 +3082,9 @@ bool Map::CheckRespawn(RespawnInfo* info)
     }
 
     // next, check linked respawn time
-    ObjectGuid thisGUID = ObjectGuid((info->type == SPAWN_TYPE_GAMEOBJECT) ? HighGuid::GameObject : HighGuid::Unit, info->entry, info->spawnId);
+    ObjectGuid thisGUID = info->type == SPAWN_TYPE_GAMEOBJECT
+        ? ObjectGuid::Create<HighGuid::GameObject>(info->entry, info->spawnId)
+        : ObjectGuid::Create<HighGuid::Unit>(info->entry, info->spawnId);
     if (time_t linkedTime = GetLinkedRespawnTime(thisGUID))
     {
         time_t now = GameTime::GetGameTime();

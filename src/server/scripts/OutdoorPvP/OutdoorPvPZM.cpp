@@ -335,7 +335,7 @@ void OPvPCapturePointZM_Graveyard::SetBeaconState(uint32 controlling_faction)
         if (m_GraveyardState & ZM_GRAVEYARD_N)
         {
             // gy was neutral, thus neutral banner was spawned, it is possible that someone was taking the flag to the gy
-            if (m_FlagCarrierGUID)
+            if (!m_FlagCarrierGUID.IsEmpty())
             {
                 // remove flag from carrier, reset flag carrier guid
                 Player* p = ObjectAccessor::FindPlayer(m_FlagCarrierGUID);
@@ -374,7 +374,7 @@ bool OPvPCapturePointZM_Graveyard::HandleGossipOption(Player* player, Creature* 
     if (itr != m_CreatureTypes.end())
     {
         // if the flag is already taken, then return
-        if (m_FlagCarrierGUID)
+        if (!m_FlagCarrierGUID.IsEmpty())
             return true;
         if (itr->second == ZM_ALLIANCE_FIELD_SCOUT)
         {

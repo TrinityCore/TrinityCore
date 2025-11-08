@@ -395,7 +395,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiInterceptTimer <= uiDiff)
@@ -544,7 +544,7 @@ public:
                 uiFireBallTimer = 5000;
             } else uiFireBallTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiFireBallTimer <= uiDiff)
@@ -687,7 +687,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiChainLightningTimer <= uiDiff)
@@ -838,7 +838,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiLightningArrowsTimer <= uiDiff)
@@ -991,7 +991,7 @@ public:
                 }
             } else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiEviscerateTimer <= uiDiff)

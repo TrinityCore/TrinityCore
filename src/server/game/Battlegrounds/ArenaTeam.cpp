@@ -195,7 +195,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
 
     TeamId            = fields[0].GetUInt32();
     TeamName          = fields[1].GetString();
-    CaptainGuid       = ObjectGuid(HighGuid::Player, fields[2].GetUInt32());
+    CaptainGuid       = ObjectGuid::Create<HighGuid::Player>(fields[2].GetUInt32());
     Type              = fields[3].GetUInt8();
     BackgroundColor   = fields[4].GetUInt32();
     EmblemStyle       = fields[5].GetUInt8();
@@ -234,7 +234,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
             break;
 
         ArenaTeamMember newMember;
-        newMember.Guid             = ObjectGuid(HighGuid::Player, fields[1].GetUInt32());
+        newMember.Guid             = ObjectGuid::Create<HighGuid::Player>(fields[1].GetUInt32());
         newMember.WeekGames        = fields[2].GetUInt16();
         newMember.WeekWins         = fields[3].GetUInt16();
         newMember.SeasonGames      = fields[4].GetUInt16();
@@ -447,7 +447,7 @@ void ArenaTeam::Roster(WorldSession* session)
     {
         player = ObjectAccessor::FindConnectedPlayer(itr->Guid);
 
-        data << uint64(itr->Guid);                              // guid
+        data << itr->Guid;                                      // guid
         data << uint8((player ? 1 : 0));                        // online flag
         data << itr->Name;                                      // member name
         data << uint32((itr->Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
@@ -513,7 +513,7 @@ void ArenaTeam::Inspect(WorldSession* session, ObjectGuid guid)
         return;
 
     WorldPacket data(MSG_INSPECT_ARENA_TEAMS, 8+1+4*6);
-    data << uint64(guid);                                   // player guid
+    data << guid;                                           // player guid
     data << uint8(GetSlot());                               // slot (0...2)
     data << uint32(GetId());                                // arena team id
     data << uint32(Stats.Rating);                           // rating
@@ -576,8 +576,8 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, ObjectGuid guid, uint8 str
             return;
     }
 
-    if (guid)
-        data << uint64(guid);
+    if (!guid.IsEmpty())
+        data << guid;
 
     BroadcastPacket(&data);
 
@@ -890,7 +890,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
     }
 }
 
-void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
+void ArenaTeam::UpdateArenaPointsHelper(std::map<ObjectGuid, uint32>& playerPoints)
 {
     // Called after a match has ended and the stats are already modified
     // Helper function for arena point distribution (this way, when distributing, no actual calculation is required, just a few comparisons)
@@ -908,15 +908,15 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
         if (itr->WeekGames >= requiredGames)
             pointsToAdd = GetPoints(itr->PersonalRating);
 
-        std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(itr->Guid.GetCounter());
+        std::map<ObjectGuid, uint32>::iterator plr_itr = playerPoints.find(itr->Guid);
         if (plr_itr != playerPoints.end())
         {
             // Check if there is already more points
             if (plr_itr->second < pointsToAdd)
-                playerPoints[itr->Guid.GetCounter()] = pointsToAdd;
+                playerPoints[itr->Guid] = pointsToAdd;
         }
         else
-            playerPoints[itr->Guid.GetCounter()] = pointsToAdd;
+            playerPoints[itr->Guid] = pointsToAdd;
     }
 }
 

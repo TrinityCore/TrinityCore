@@ -101,6 +101,7 @@ namespace Movement
         void EnableFacingTarget() { raw() = (raw() & ~Mask_Final_Facing) | Final_Target; }
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
+        void EnableSwim() { raw() = raw() | CanSwim; }
 
         uint8 animTier;
         bool done                : 1;

@@ -15,23 +15,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ADDONHANDLER_H
-#define __ADDONHANDLER_H
+#ifndef _WORLDPACKETCRYPT_H
+#define _WORLDPACKETCRYPT_H
 
-#include "Common.h"
-#include "Config.h"
-#include "WorldPacket.h"
+#include "ARC4.h"
+#include "AuthDefines.h"
 
-class AddonHandler
+class TC_COMMON_API WorldPacketCrypt
 {
-    public:
-        static AddonHandler* instance();
+public:
+    WorldPacketCrypt();
 
-        bool BuildAddonPacket(WorldPacket* Source, WorldPacket* Target);
+    void Init(SessionKey const& K);
+    void DecryptRecv(uint8* data, size_t len);
+    void EncryptSend(uint8* data, size_t len);
 
-    private:
-        AddonHandler() { }
-        ~AddonHandler() { }
+    bool IsInitialized() const { return _initialized; }
+
+private:
+    Trinity::Crypto::ARC4 _clientDecrypt;
+    Trinity::Crypto::ARC4 _serverEncrypt;
+    bool _initialized;
 };
-#define sAddOnHandler AddonHandler::instance()
-#endif
+
+#endif // _WORLDPACKETCRYPT_H

@@ -198,12 +198,6 @@ std::string WorldSession::GetPlayerInfo() const
     return Trinity::StringFormat("[Player: Account: {}]", GetAccountId());
 }
 
-/// Get player guid if available. Use for logging purposes only
-ObjectGuid::LowType WorldSession::GetGUIDLow() const
-{
-    return GetPlayer() ? GetPlayer()->GetGUID().GetCounter() : 0;
-}
-
 /// Send a packet to the client
 void WorldSession::SendPacket(WorldPacket const* packet)
 {
@@ -495,7 +489,8 @@ void WorldSession::LogoutPlayer(bool save)
 
     if (_player)
     {
-        if (ObjectGuid lguid = _player->GetLootGUID())
+        ObjectGuid lguid = _player->GetLootGUID();
+        if (!lguid.IsEmpty())
             DoLootRelease(lguid);
 
         ///- If the player just died before logging out, make him appear as a ghost
