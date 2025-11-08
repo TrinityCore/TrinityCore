@@ -1370,7 +1370,7 @@ class spell_pri_harsh_discipline_aura : public AuraScript
             return;
 
         int32 boltModVal = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
-        int32 stacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE_AURA, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        int32 stacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
         TC_LOG_ERROR("test", "bolt mod val {}", boltModVal);
         TC_LOG_ERROR("test", "stacks {}", stacks);
 
