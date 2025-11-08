@@ -189,6 +189,7 @@ DB2Storage<ItemBonusTreeNodeEntry>              sItemBonusTreeNodeStore("ItemBon
 DB2Storage<ItemChildEquipmentEntry>             sItemChildEquipmentStore("ItemChildEquipment.db2", &ItemChildEquipmentLoadInfo::Instance);
 DB2Storage<ItemClassEntry>                      sItemClassStore("ItemClass.db2", &ItemClassLoadInfo::Instance);
 DB2Storage<ItemContextPickerEntryEntry>         sItemContextPickerEntryStore("ItemContextPickerEntry.db2", &ItemContextPickerEntryLoadInfo::Instance);
+DB2Storage<ItemCreationContextEntry>            sItemCreationContextStore("ItemCreationContext.db2", &ItemCreationContextLoadInfo::Instance);
 DB2Storage<ItemCurrencyCostEntry>               sItemCurrencyCostStore("ItemCurrencyCost.db2", &ItemCurrencyCostLoadInfo::Instance);
 DB2Storage<ItemDamageAmmoEntry>                 sItemDamageAmmoStore("ItemDamageAmmo.db2", &ItemDamageAmmoLoadInfo::Instance);
 DB2Storage<ItemDamageOneHandEntry>              sItemDamageOneHandStore("ItemDamageOneHand.db2", &ItemDamageOneHandLoadInfo::Instance);
@@ -207,7 +208,9 @@ DB2Storage<ItemLimitCategoryConditionEntry>     sItemLimitCategoryConditionStore
 DB2Storage<ItemModifiedAppearanceEntry>         sItemModifiedAppearanceStore("ItemModifiedAppearance.db2", &ItemModifiedAppearanceLoadInfo::Instance);
 DB2Storage<ItemModifiedAppearanceExtraEntry>    sItemModifiedAppearanceExtraStore("ItemModifiedAppearanceExtra.db2", &ItemModifiedAppearanceExtraLoadInfo::Instance);
 DB2Storage<ItemNameDescriptionEntry>            sItemNameDescriptionStore("ItemNameDescription.db2", &ItemNameDescriptionLoadInfo::Instance);
+DB2Storage<ItemOffsetCurveEntry>                sItemOffsetCurveStore("ItemOffsetCurve.db2", &ItemOffsetCurveLoadInfo::Instance);
 DB2Storage<ItemPriceBaseEntry>                  sItemPriceBaseStore("ItemPriceBase.db2", &ItemPriceBaseLoadInfo::Instance);
+DB2Storage<ItemScalingConfigEntry>              sItemScalingConfigStore("ItemScalingConfig.db2", &ItemScalingConfigLoadInfo::Instance);
 DB2Storage<ItemSearchNameEntry>                 sItemSearchNameStore("ItemSearchName.db2", &ItemSearchNameLoadInfo::Instance);
 DB2Storage<ItemSetEntry>                        sItemSetStore("ItemSet.db2", &ItemSetLoadInfo::Instance);
 DB2Storage<ItemSetSpellEntry>                   sItemSetSpellStore("ItemSetSpell.db2", &ItemSetSpellLoadInfo::Instance);
@@ -368,6 +371,7 @@ DB2Storage<TraitNodeXTraitCondEntry>            sTraitNodeXTraitCondStore("Trait
 DB2Storage<TraitNodeXTraitCostEntry>            sTraitNodeXTraitCostStore("TraitNodeXTraitCost.db2", &TraitNodeXTraitCostLoadInfo::Instance);
 DB2Storage<TraitNodeXTraitNodeEntryEntry>       sTraitNodeXTraitNodeEntryStore("TraitNodeXTraitNodeEntry.db2", &TraitNodeXTraitNodeEntryLoadInfo::Instance);
 DB2Storage<TraitSubTreeEntry>                   sTraitSubTreeStore("TraitSubTree.db2", &TraitSubTreeLoadInfo::Instance);
+DB2Storage<TraitSystemEntry>                    sTraitSystemStore("TraitSystem.db2", &TraitSystemLoadInfo::Instance);
 DB2Storage<TraitTreeEntry>                      sTraitTreeStore("TraitTree.db2", &TraitTreeLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntry>               sTraitTreeLoadoutStore("TraitTreeLoadout.db2", &TraitTreeLoadoutLoadInfo::Instance);
 DB2Storage<TraitTreeLoadoutEntryEntry>          sTraitTreeLoadoutEntryStore("TraitTreeLoadoutEntry.db2", &TraitTreeLoadoutEntryLoadInfo::Instance);
@@ -544,7 +548,7 @@ namespace
     std::unordered_map<uint32, std::unordered_set<uint32>> _pvpStatIdsByMap;
 }
 
-void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
+static void LoadDB2(std::bitset<TOTAL_LOCALES>& availableDb2Locales, std::vector<std::string>& errlist, StorageMap& stores, DB2StorageBase* storage, std::string const& db2Path,
     LocaleConstant defaultLocale, std::size_t cppRecordSize)
 {
     // validate structure
@@ -815,6 +819,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemChildEquipmentStore);
     LOAD_DB2(sItemClassStore);
     LOAD_DB2(sItemContextPickerEntryStore);
+    LOAD_DB2(sItemCreationContextStore);
     LOAD_DB2(sItemCurrencyCostStore);
     LOAD_DB2(sItemDamageAmmoStore);
     LOAD_DB2(sItemDamageOneHandStore);
@@ -833,7 +838,9 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sItemModifiedAppearanceStore);
     LOAD_DB2(sItemModifiedAppearanceExtraStore);
     LOAD_DB2(sItemNameDescriptionStore);
+    LOAD_DB2(sItemOffsetCurveStore);
     LOAD_DB2(sItemPriceBaseStore);
+    LOAD_DB2(sItemScalingConfigStore);
     LOAD_DB2(sItemSearchNameStore);
     LOAD_DB2(sItemSetStore);
     LOAD_DB2(sItemSetSpellStore);
@@ -994,6 +1001,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTraitNodeXTraitCostStore);
     LOAD_DB2(sTraitNodeXTraitNodeEntryStore);
     LOAD_DB2(sTraitSubTreeStore);
+    LOAD_DB2(sTraitSystemStore);
     LOAD_DB2(sTraitTreeStore);
     LOAD_DB2(sTraitTreeLoadoutStore);
     LOAD_DB2(sTraitTreeLoadoutEntryStore);
@@ -1023,6 +1031,12 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sWorldStateExpressionStore);
 
     // error checks
+
+    // Check loaded DB2 files proper version
+    for (uint32 criticalItemId : { ITEM_ACCOUNT_BANK_TAB_BAG, ITEM_CHARACTER_BANK_TAB_BAG })
+        if (!sItemSparseStore.LookupEntry(criticalItemId))
+            loadErrors.emplace_back(Trinity::StringFormat("Missing required item {} from ItemSparse.db2 (or its hotfix table)", criticalItemId));
+
     if (!loadErrors.empty())
     {
         sLog->SetSynchronous(); // server will shut down after this, so set sync logging to prevent messages from getting lost
@@ -1030,22 +1044,6 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
         for (std::string const& error : loadErrors)
             TC_LOG_FATAL("misc", "{}", error);
 
-        return 0;
-    }
-
-    // Check loaded DB2 files proper version
-    if (!sAreaTableStore.LookupEntry(16579) ||               // last area added in 11.2.0 (62213)
-        !sCharTitlesStore.LookupEntry(937) ||                // last char title added in 11.2.0 (62213)
-        !sFlightCapabilityStore.LookupEntry(1) ||            // default flight capability (required)
-        !sGemPropertiesStore.LookupEntry(4287) ||            // last gem property added in 11.2.0 (62213)
-        !sItemStore.LookupEntry(252009) ||                   // last item added in 11.2.0 (62213)
-        !sItemSparseStore.LookupEntry(ITEM_ACCOUNT_BANK_TAB_BAG) ||
-        !sItemSparseStore.LookupEntry(ITEM_CHARACTER_BANK_TAB_BAG) ||
-        !sItemExtendedCostStore.LookupEntry(10637) ||        // last item extended cost added in 11.2.0 (62213)
-        !sMapStore.LookupEntry(2951) ||                      // last map added in 11.2.0 (62213)
-        !sSpellNameStore.LookupEntry(1254022))               // last spell added in 11.2.0 (62213)
-    {
-        TC_LOG_FATAL("misc", "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
         return 0;
     }
 

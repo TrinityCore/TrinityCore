@@ -43,7 +43,7 @@ PathGenerator::PathGenerator(WorldObject const* owner) :
     {
         MMAP::MMapManager* mmap = MMAP::MMapManager::instance();
         _navMeshQuery = mmap->GetNavMeshQuery(mapId, _source->GetMapId(), _source->GetInstanceId());
-        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId);
+        _navMesh = _navMeshQuery ? _navMeshQuery->getAttachedNavMesh() : mmap->GetNavMesh(mapId, _source->GetInstanceId());
     }
 
     CreateFilter();

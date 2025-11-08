@@ -810,11 +810,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             // Reset home position to respawn position if specified in the parameters
             if (e.action.evade.toRespawnPosition == 0)
-            {
-                float homeX, homeY, homeZ, homeO;
-                me->GetRespawnPosition(homeX, homeY, homeZ, &homeO);
-                me->SetHomePosition(homeX, homeY, homeZ, homeO);
-            }
+                me->SetHomePosition(me->GetRespawnPosition());
 
             me->AI()->EnterEvadeMode();
             TC_LOG_DEBUG("scripts.ai", "SmartScript::ProcessAction:: SMART_ACTION_EVADE: Creature {} EnterEvadeMode", me->GetGUID());
@@ -1523,7 +1519,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             Position dest(e.target.x, e.target.y, e.target.z);
             if (e.action.moveToPos.transport)
                 if (TransportBase* trans = me->GetDirectTransport())
-                    trans->CalculatePassengerPosition(dest.m_positionX, dest.m_positionY, dest.m_positionZ);
+                    dest = trans->GetPositionWithOffset(dest);
 
             me->GetMotionMaster()->MovePoint(e.action.moveToPos.pointId, dest, e.action.moveToPos.disablePathfinding == 0, {}, {},
                 MovementWalkRunSpeedSelectionMode::Default, {}, std::move(scriptResult));
@@ -2682,6 +2678,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_FALL:
+        {
+            std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
+
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = target->ToUnit())
+                {
+                    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+                    if (waitEvent)
+                        actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
+
+                    unitTarget->GetMotionMaster()->MoveFall(e.action.fall.pointId, std::move(actionResultSetter));
+                }
+            }
+
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;
@@ -3366,6 +3382,8 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_ON_SPELL_CAST:
         case SMART_EVENT_ON_SPELL_FAILED:
         case SMART_EVENT_ON_SPELL_START:
+        case SMART_EVENT_ON_AURA_APPLIED:
+        case SMART_EVENT_ON_AURA_REMOVED:
         {
             if (!spell)
                 return;

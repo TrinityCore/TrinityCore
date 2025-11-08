@@ -65,7 +65,7 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <numeric>
@@ -81,11 +81,8 @@ SpellDestination::SpellDestination(WorldObject const& wObj) : _position(wObj.Get
 void SpellDestination::Relocate(Position const& pos)
 {
     if (!_transportGUID.IsEmpty())
-    {
-        Position offset;
-        _position.GetPositionOffsetTo(pos, offset);
-        _transportOffset.RelocateOffset(offset);
-    }
+        _transportOffset.RelocateOffset(_position.GetPositionOffsetTo(pos));
+
     _position.Relocate(pos);
 }
 
@@ -2951,7 +2948,10 @@ void Spell::TargetInfo::DoDamageAndTriggers(Spell* spell)
             if (MissCondition == SPELL_MISS_RESIST && spell->m_spellInfo->HasAttribute(SPELL_ATTR1_FAILURE_BREAKS_STEALTH) && spell->unitTarget->GetTypeId() == TYPEID_UNIT)
             {
                 Unit* unitCaster = ASSERT_NOTNULL(spell->m_caster->ToUnit());
-                unitCaster->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);
+                unitCaster->RemoveAppliedAuras([](AuraApplication const* aurApp)
+                {
+                    return aurApp->GetBase()->GetSpellInfo()->Dispel == DISPEL_STEALTH;
+                });
                 spell->unitTarget->ToCreature()->EngageWithTarget(unitCaster);
             }
         }

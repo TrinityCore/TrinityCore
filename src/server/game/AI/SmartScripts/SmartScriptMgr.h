@@ -189,8 +189,10 @@ enum SMART_EVENT
     SMART_EVENT_ON_DESPAWN               = 86,      // NONE
     SMART_EVENT_SEND_EVENT_TRIGGER       = 87,      // NONE
     SMART_EVENT_AREATRIGGER_EXIT         = 88,      // NONE
+    SMART_EVENT_ON_AURA_APPLIED          = 89,      // SpellID, CooldownMin, CooldownMax
+    SMART_EVENT_ON_AURA_REMOVED          = 90,      // SpellID, CooldownMin, CooldownMax
 
-    SMART_EVENT_END                      = 89
+    SMART_EVENT_END                      = 91
 };
 
 struct SmartEvent
@@ -611,7 +613,9 @@ enum SMART_ACTION
     SMART_ACTION_ENTER_VEHICLE                      = 155,    // seat id
     SMART_ACTION_BOARD_PASSENGER                    = 156,    // seat id
     SMART_ACTION_EXIT_VEHICLE                       = 157,
-    SMART_ACTION_END                                = 158
+    SMART_ACTION_RESUME_MOVEMENT                    = 158,    // UNUSED NEEDS CHERRYPICK
+    SMART_ACTION_FALL                               = 159,    // pointId
+    SMART_ACTION_END                                = 160
 };
 
 enum class SmartActionSummonCreatureFlags
@@ -871,6 +875,11 @@ struct SmartAction
         {
             uint32 id;
         } taxi;
+
+        struct
+        {
+            uint32 pointId;
+        } fall;
 
         struct
         {
@@ -1608,7 +1617,9 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_ON_SPELL_START,            SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_ON_DESPAWN,                SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_SEND_EVENT_TRIGGER,        SMART_SCRIPT_TYPE_MASK_EVENT },
-    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY }
+    {SMART_EVENT_AREATRIGGER_EXIT,          SMART_SCRIPT_TYPE_MASK_AREATRIGGER + SMART_SCRIPT_TYPE_MASK_AREATRIGGER_ENTITY },
+    {SMART_EVENT_ON_AURA_APPLIED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_ON_AURA_REMOVED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
 };
 
 enum SmartEventFlags
