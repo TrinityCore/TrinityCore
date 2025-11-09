@@ -674,11 +674,14 @@ class spell_pri_binding_heals : public AuraScript
             && ValidateSpellEffect({ {spellInfo->Id, EFFECT_0} });
     }
 
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetCaster() != eventInfo.GetProcTarget();
+    }
+
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
-        if (caster == eventInfo.GetProcTarget())
-            return;
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellBP0(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
@@ -687,6 +690,7 @@ class spell_pri_binding_heals : public AuraScript
 
     void Register() override
     {
+        DoCheckProc += AuraProcFn(spell_pri_binding_heals::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_binding_heals::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
