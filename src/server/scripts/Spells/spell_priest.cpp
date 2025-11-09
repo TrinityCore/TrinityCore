@@ -203,6 +203,7 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_VOICE_OF_HARMONY                   = 390994,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
     SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
     SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
@@ -3471,6 +3472,45 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 390994 - Voice of Harmony
+class spell_pri_voice_of_harmony_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_VOICE_OF_HARMONY,
+            _targetSpellId
+        }) && ValidateSpellEffect(
+        {
+            { SPELL_PRIEST_VOICE_OF_HARMONY, EFFECT_1 },
+            { SPELL_PRIEST_VOICE_OF_HARMONY, EFFECT_2 }
+        });
+    }
+
+    void HandleHit() const
+    {
+        Unit* caster = GetCaster();
+        AuraEffect const* voiceOfHarmonyEff = caster->GetAura(SPELL_PRIEST_VOICE_OF_HARMONY)->GetEffect(_cdReductionEffIndex);
+        if (!voiceOfHarmonyEff)
+            return;
+
+        int32 cdReduction = voiceOfHarmonyEff->GetAmount();
+        caster->GetSpellHistory()->ModifyCooldown(_targetSpellId, Seconds(-cdReduction), true);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_voice_of_harmony_trigger::HandleHit);
+    }
+
+    uint32 _targetSpellId{};
+    SpellEffIndex _cdReductionEffIndex{};
+
+public:
+    explicit spell_pri_voice_of_harmony_trigger(uint32 spellId, SpellEffIndex effIndex) : _targetSpellId{ spellId }, _cdReductionEffIndex{ effIndex } {}
+};
+
 // 205385 - Shadow Crash
 class spell_pri_whispering_shadows : public SpellScript
 {
@@ -3633,6 +3673,11 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
+    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_prayer_of_mending_harmony", SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_power_word_life_harmony", SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1);
+    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_halo_harmony", SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_0);
+    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_divine_star_harmony", SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_0);
+    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_holy_fire_harmony", SPELL_PRIEST_HOLY_WORD_CHASTISE, EFFECT_2);
     RegisterSpellScript(spell_pri_whispering_shadows);
     RegisterSpellScript(spell_pri_whispering_shadows_effect);
 }
