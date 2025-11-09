@@ -52,22 +52,22 @@ namespace Movement
          */
         void Stop();
 
-        /* Adds movement by parabolic trajectory
-         * @param amplitude  - the maximum height of parabola, value could be negative and positive
-         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
+        /** Adds movement by parabolic trajectory
+         * @param amplitude   the maximum height of parabola, value could be negative and positive
+         * @param start_point point index on the path where parabolic movement starts
          * can't be combined with final animation
          */
-        void SetParabolic(float amplitude, float start_time);
-        /* Adds movement by parabolic trajectory
-         * @param vertical_acceleration - vertical acceleration
-         * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
+        void SetParabolic(float amplitude, int32 start_point);
+        /** Adds movement by parabolic trajectory
+         * @param vertical_acceleration  vertical acceleration
+         * @param start_point            point index on the path where parabolic movement starts
          * can't be combined with final animation
          */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time);
+        void SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
-        void SetAnimation(AnimTier anim, uint32 tierTransitionId = 0, Milliseconds transitionStartTime = 0ms);
+        void SetAnimation(AnimTier anim, uint32 tierTransitionId = 0, int32 transitionStartPoint = 0);
 
         /* Adds final facing animation
          * sets unit's facing to specified point/angle after all path done
@@ -184,26 +184,25 @@ namespace Movement
     inline void MoveSplineInit::SetSteering() { args.flags.Steering = true; }
     inline void MoveSplineInit::SetUnlimitedSpeed() { args.flags.UnlimitedSpeed = true; }
 
-    inline void MoveSplineInit::SetParabolic(float amplitude, float start_time)
+    inline void MoveSplineInit::SetParabolic(float amplitude, int32 start_point)
     {
-        args.effect_start_time_percent = start_time;
+        args.effect_start_point = start_point;
         args.parabolic_amplitude = amplitude;
         args.vertical_acceleration = 0.0f;
         args.flags.Parabolic = true;
     }
 
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, float start_time)
+    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point)
     {
-        args.effect_start_time_percent = start_time;
+        args.effect_start_point = start_point;
         args.parabolic_amplitude = 0.0f;
         args.vertical_acceleration = vertical_acceleration;
         args.flags.Parabolic = true;
     }
 
-    inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, Milliseconds transitionStartTime /*= 0ms*/)
+    inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, int32 transitionStartPoint /*= 0*/)
     {
-        args.effect_start_time_percent = 0.f;
-        args.effect_start_time = transitionStartTime;
+        args.effect_start_point = transitionStartPoint;
         args.animTier.emplace();
         args.animTier->TierTransitionId = tierTransitionId;
         args.animTier->AnimTier = anim;
