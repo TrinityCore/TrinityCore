@@ -2629,8 +2629,10 @@ class spell_pri_protector_of_the_frail : public SpellScript
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
-        int32 cdReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(GetCaster());
-        GetCaster()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_PAIN_SUPPRESSION, Milliseconds(cdReduction));
+        Unit* caster = GetCaster();
+
+        int32 cdReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_PAIN_SUPPRESSION, Milliseconds(cdReduction));
     }
 
     void Register() override
