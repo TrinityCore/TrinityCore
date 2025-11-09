@@ -1977,7 +1977,7 @@ enum class ModifierTreeType : int32
     PlayerHasCompletedQuestlineOnAccount                                = 383, /*NYI*/ // Player has completed questline "{Questline}" on account
     PlayerHasCompletedQuestlineQuestCountOnAccount                      = 384, /*NYI*/ // Player has completed "{#Quests}" quests in questline "{Questline}" on account
     PlayerHasActiveTraitSubTree                                         = 385, // Player has active trait config with {TraitSubTree}
-
+    PlayerIsInTimerunningSeason                                         = 386, // Player is timerunning {TimerunningSeason}
     PlayerIsInSoloRBG                                                   = 387, /*NYI*/ // Player is in solo RBG (BG Blitz)
     PlayerHasCompletedCampaign                                          = 388, /*NYI*/ // Player has completed campaign "{Campaign}"
     TargetCreatureClassificationEqual                                   = 389, // Creature classification is {CreatureClassification}
@@ -2073,6 +2073,25 @@ enum PhaseUseFlagsValues : uint8
 
     PHASE_USE_FLAGS_ALL             = PHASE_USE_FLAGS_ALWAYS_VISIBLE | PHASE_USE_FLAGS_INVERSE
 };
+
+enum class PlayerConditionFlags : int32
+{
+    ClientExecutable            = 0x0001,
+    CheckAchievementsOnAllChars = 0x0002,
+    ComparePowerToMax           = 0x0004,
+    Invert                      = 0x0008,
+    IsAtMaxExpansionLevel       = 0x0010,
+    WithinOrAboveRecord         = 0x0020,
+    UseEffectiveLevel           = 0x0040,
+    InvertContentTuning         = 0x0080,
+    Disabled                    = 0x0100,
+    InvertModifierTree          = 0x0200,
+    NotRecentlyTransferred      = 0x0400,
+    IncludeLevelDelta           = 0x0800,
+    CheckAccountCombinedQuests  = 0x1000  // NYI - checks PLAYER_DATA_FLAG_ACCOUNT_COMBINED_QUESTS_INDEX
+};
+
+DEFINE_ENUM_FLAG(PlayerConditionFlags);
 
 enum class PlayerConditionLfgStatus : uint8
 {
@@ -2259,13 +2278,19 @@ enum SkillRaceClassInfoFlags
     SKILL_FLAG_MONO_VALUE               = 0x400     // Skill always has value 1 - clientside display flag, real value can be different
 };
 
-enum SpellCategoryFlags
+enum class SpellCategoryFlags
 {
-    SPELL_CATEGORY_FLAG_COOLDOWN_SCALES_WITH_WEAPON_SPEED   = 0x01, // unused
-    SPELL_CATEGORY_FLAG_COOLDOWN_STARTS_ON_EVENT            = 0x04,
-    SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET     = 0x08,
-    SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE            = 0x40
+    CooldownModifiesItem               = 0x01,      // NYI
+    CooldownIsGlobal                   = 0x02,      // NYI
+    CooldownEventOnLeaveCombat         = 0x04,
+    CooldownInDays                     = 0x08,
+    ResetChargesUponEndingEncounter    = 0x10,      // NYI
+    ResetCooldownUponEndingEncounter   = 0x20,
+    IgnoreForModTimeRate               = 0x40,
+    Unknown                            = 0x80       // NYI
 };
+
+DEFINE_ENUM_FLAG(SpellCategoryFlags);
 
 enum class SpellEffectAttributes
 {

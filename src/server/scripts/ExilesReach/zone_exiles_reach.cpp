@@ -632,10 +632,7 @@ public:
         if (!transport || !creature)
             return;
 
-        float x, y, z, o;
-        position.GetPosition(x, y, z, o);
-        transport->CalculatePassengerPosition(x, y, z, &o);
-        creature->SummonPersonalClone({ x, y, z, o }, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+        creature->SummonPersonalClone(transport->GetPositionWithOffset(position), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
     }
 };
 

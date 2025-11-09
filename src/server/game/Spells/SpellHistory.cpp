@@ -506,7 +506,7 @@ void SpellHistory::StartCooldown(SpellInfo const* spellInfo, uint32 itemId, Spel
                 }
 
                 SpellCategoryEntry const* categoryEntry = sSpellCategoryStore.AssertEntry(categoryId);
-                if (categoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET)
+                if (categoryEntry->GetFlags().HasFlag(SpellCategoryFlags::CooldownInDays))
                     categoryCooldown = duration_cast<Milliseconds>(Clock::from_time_t(sWorld->GetNextDailyQuestsResetTime()) - GameTime::GetTime<Clock>());
             }
         }
@@ -1027,8 +1027,8 @@ int32 SpellHistory::GetChargeRecoveryTime(uint32 chargeCategoryId) const
             recoveryTimeF *= 100.0f / (std::max<float>(modRecoveryRate->GetAmount(), -99.0f) + 100.0f);
 
     if (Milliseconds(chargeCategoryEntry->ChargeRecoveryTime) <= 1h
-        && !(chargeCategoryEntry->Flags & SPELL_CATEGORY_FLAG_IGNORE_FOR_MOD_TIME_RATE)
-        && !(chargeCategoryEntry->Flags & SPELL_CATEGORY_FLAG_COOLDOWN_EXPIRES_AT_DAILY_RESET))
+        && !(chargeCategoryEntry->GetFlags().HasFlag(SpellCategoryFlags::IgnoreForModTimeRate))
+        && !(chargeCategoryEntry->GetFlags().HasFlag(SpellCategoryFlags::CooldownInDays)))
         recoveryTimeF *= *_owner->m_unitData->ModTimeRate;
 
     return int32(std::floor(recoveryTimeF));

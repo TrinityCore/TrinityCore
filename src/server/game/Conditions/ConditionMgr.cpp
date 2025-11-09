@@ -978,25 +978,23 @@ uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionContainer cons
     {
         // no point of having not loaded conditions in list
         ASSERT(i->isLoaded() && "ConditionMgr::GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
-        std::map<uint32, uint32>::const_iterator itr = elseGroupSearcherTypeMasks.find(i->ElseGroup);
         // group not filled yet, fill with widest mask possible
-        if (itr == elseGroupSearcherTypeMasks.end())
-            elseGroupSearcherTypeMasks[i->ElseGroup] = GRID_MAP_TYPE_MASK_ALL;
+        auto itr = elseGroupSearcherTypeMasks.try_emplace(i->ElseGroup, GRID_MAP_TYPE_MASK_ALL).first;
         // no point of checking anymore, empty mask
-        else if (!itr->second)
+        if (!itr->second)
             continue;
 
         if (i->ReferenceId) // handle reference
         {
             auto ref = ConditionStore[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].find({ i->ReferenceId, 0, 0 });
             ASSERT(ref != ConditionStore[CONDITION_SOURCE_TYPE_REFERENCE_CONDITION].end() && "ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference");
-            elseGroupSearcherTypeMasks[i->ElseGroup] &= GetSearcherTypeMaskForConditionList(*(ref->second));
+            itr->second &= GetSearcherTypeMaskForConditionList(*(ref->second));
         }
         else // handle normal condition
         {
             // object will match conditions in one ElseGroupStore only when it matches all of them
             // so, let's find a smallest possible mask which satisfies all conditions
-            elseGroupSearcherTypeMasks[i->ElseGroup] &= i->GetSearcherTypeMaskForCondition();
+            itr->second &= i->GetSearcherTypeMaskForCondition();
         }
     }
     // object will match condition when one of the checks in ElseGroupStore is matching
@@ -1476,7 +1474,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     {
         bool operator()(uint32 playerConditionId, std::vector<Condition> const& conditions, ConditionEntriesByTypeArray const& store) const
         {
-            return std::any_of(conditions.begin(), conditions.end(), [&](Condition const& condition)
+            return std::ranges::any_of(conditions, [&](Condition const& condition)
             {
                 if (condition.ConditionType == CONDITION_PLAYER_CONDITION)
                 {
@@ -2771,32 +2769,42 @@ inline bool PlayerConditionCompare(int32 comparisonType, int32 value1, int32 val
     return false;
 }
 
-template<std::size_t N>
-inline bool PlayerConditionLogic(uint32 logic, std::array<bool, N>& results)
+template <std::size_t N>
+inline bool PlayerConditionLogic(uint32 logic, std::bitset<N>& results)
 {
     static_assert(N < 8, "Logic array size must be equal to or less than 8");
 
-    for (std::size_t i = 0; i < results.size(); ++i)
-        if ((logic >> (16 + i)) & 1)
-            results[i] ^= true;
-
-    bool result = results[0];
+    uint32 resultsMask = results.to_ulong() ^ (logic >> 16);
+    uint32 result = resultsMask & 1;
     for (std::size_t i = 1; i < results.size(); ++i)
     {
         switch ((logic >> (2 * (i - 1))) & 3)
         {
             case 1:
-                result = result && results[i];
+                result &= (resultsMask >> i) & 1;
                 break;
             case 2:
-                result = result || results[i];
+                result |= (resultsMask >> i) & 1;
                 break;
             default:
                 break;
         }
     }
 
-    return result;
+    return result != 0;
+}
+
+template <typename T, std::size_t N, typename... ExtraParams, Trinity::invocable_r<bool, Player const*, T, typename ExtraParams::value_type...> Predicate>
+inline static std::bitset<N> GetPlayerConditionSingleResult(Predicate predicate, Player const* player, std::array<T, N> const& conditions, ExtraParams const&... params)
+{
+    static_assert(((std::tuple_size_v<ExtraParams> == N) && ...));
+    std::bitset<N> results;
+
+    for (std::size_t i = 0; i < N; ++i)
+        if (predicate(player, conditions[i], params[i]...))
+            results[i] = true;
+
+    return results;
 }
 
 uint32 ConditionMgr::GetPlayerConditionLfgValue(Player const* player, PlayerConditionLfgStatus status)
@@ -2853,34 +2861,45 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, uint32 conditi
         return false;
 
     if (PlayerConditionEntry const* playerCondition = sPlayerConditionStore.LookupEntry(conditionId))
-        return IsPlayerMeetingCondition(player, playerCondition);
+        return IsPlayerMeetingCondition(player, playerCondition) != playerCondition->GetFlags().HasFlag(PlayerConditionFlags::Invert);
 
     return true;
 }
 
 bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditionEntry const* condition)
 {
+    if (condition->GetFlags().HasFlag(PlayerConditionFlags::Disabled))
+        return true;
+
+    if (condition->GetFlags().HasFlag(PlayerConditionFlags::IsAtMaxExpansionLevel))
+    {
+        uint8 level = condition->GetFlags().HasFlag(PlayerConditionFlags::UseEffectiveLevel) ? player->GetEffectiveLevel() : player->GetLevel();
+        if (level < GetMaxLevelForExpansion(sWorld->getIntConfig(CONFIG_EXPANSION)))
+            return false;
+    }
+
     if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(condition->ContentTuningID, player->m_playerData->CtrOptions->ConditionalFlags))
     {
-        uint8 minLevel = condition->Flags & 0x800 ? levels->MinLevelWithDelta : levels->MinLevel;
+        uint8 level = condition->GetFlags().HasFlag(PlayerConditionFlags::UseEffectiveLevel) ? player->GetEffectiveLevel() : player->GetLevel();
+        uint8 minLevel = condition->GetFlags().HasFlag(PlayerConditionFlags::IncludeLevelDelta) ? levels->MinLevelWithDelta : levels->MinLevel;
         uint8 maxLevel = 0;
-        if (!(condition->Flags & 0x20))
-            maxLevel = condition->Flags & 0x800 ? levels->MaxLevelWithDelta : levels->MaxLevel;
+        if (!condition->GetFlags().HasFlag(PlayerConditionFlags::WithinOrAboveRecord))
+            maxLevel = condition->GetFlags().HasFlag(PlayerConditionFlags::IncludeLevelDelta) ? levels->MaxLevelWithDelta : levels->MaxLevel;
 
-        if (condition->Flags & 0x80)
+        if (condition->GetFlags().HasFlag(PlayerConditionFlags::InvertContentTuning))
         {
-            if (minLevel && player->GetLevel() >= minLevel && (!maxLevel || player->GetLevel() <= maxLevel))
+            if (minLevel && level >= minLevel && (!maxLevel || level <= maxLevel))
                 return false;
 
-            if (maxLevel && player->GetLevel() <= maxLevel && (!minLevel || player->GetLevel() >= minLevel))
+            if (maxLevel && level <= maxLevel && (!minLevel || level >= minLevel))
                 return false;
         }
         else
         {
-            if (minLevel && player->GetLevel() < minLevel)
+            if (minLevel && level < minLevel)
                 return false;
 
-            if (maxLevel && player->GetLevel() > maxLevel)
+            if (maxLevel && level > maxLevel)
                 return false;
         }
     }
@@ -2899,7 +2918,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->PowerType != -1 && condition->PowerTypeComp)
     {
-        int32 requiredPowerValue = condition->Flags & 4 ? player->GetMaxPower(Powers(condition->PowerType)) : condition->PowerTypeValue;
+        int32 requiredPowerValue = condition->GetFlags().HasFlag(PlayerConditionFlags::ComparePowerToMax) ? player->GetMaxPower(Powers(condition->PowerType)) : condition->PowerTypeValue;
         if (!PlayerConditionCompare(condition->PowerTypeComp, player->GetPower(Powers(condition->PowerType)), requiredPowerValue))
             return false;
     }
@@ -2916,18 +2935,16 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         }
     }
 
-    if (condition->SkillID[0] || condition->SkillID[1] || condition->SkillID[2] || condition->SkillID[3])
+    if (std::ranges::any_of(condition->SkillID, [](uint32 skillId) { return skillId != 0; }))
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->SkillID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->SkillID.size(); ++i)
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 skillId, uint32 minSkill, uint32 maxSkill)
         {
-            if (condition->SkillID[i])
-            {
-                uint16 skillValue = player->GetSkillValue(condition->SkillID[i]);
-                results[i] = skillValue != 0 && skillValue > condition->MinSkill[i] && skillValue < condition->MaxSkill[i];
-            }
-        }
+            if (!skillId)
+                return true;
+
+            uint16 skillValue = player->GetSkillValue(skillId);
+            return skillValue != 0 && skillValue > minSkill && skillValue < maxSkill;
+        }, player, condition->SkillID, condition->MinSkill, condition->MaxSkill);
 
         if (!PlayerConditionLogic(condition->SkillLogic, results))
             return false;
@@ -2944,7 +2961,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
                 languageSkill = std::max<int32>(languageSkill, player->GetSkillValue(languageDesc.second.SkillId));
         }
 
-        if (condition->MinLanguage && languageSkill < condition->MinLanguage)
+        if (condition->MinLanguage && languageSkill < int32(condition->MinLanguage))
             return false;
 
         if (condition->MaxLanguage && languageSkill > condition->MaxLanguage)
@@ -2953,35 +2970,39 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->MinFactionID[0] || condition->MinFactionID[1] || condition->MinFactionID[2] || condition->MaxFactionID)
     {
+        auto isMinFactionConditionSatisfied = [](Player const* player, uint32 factionId, uint8 minReputationRank)
+        {
+            if (!sFactionStore.HasRecord(factionId))
+                return true;
+
+            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(factionId))
+                return *forcedRank >= ReputationRank(minReputationRank);
+
+            return player->GetReputationRank(factionId) >= ReputationRank(minReputationRank);
+        };
+
+        auto isMaxFactionConditionSatisfied = [](Player const* player, uint32 factionId, uint8 maxReputationRank)
+        {
+            if (!sFactionStore.HasRecord(factionId))
+                return true;
+
+            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(factionId))
+                return *forcedRank <= ReputationRank(maxReputationRank);
+
+            return player->GetReputationRank(factionId) <= ReputationRank(maxReputationRank);
+        };
+
         if (!condition->MinFactionID[0] && !condition->MinFactionID[1] && !condition->MinFactionID[2])
         {
-            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
-            {
-                if (*forcedRank > ReputationRank(condition->MaxReputation))
-                    return false;
-            }
-            else if (sFactionStore.HasRecord(condition->MaxReputation) && player->GetReputationRank(condition->MaxFactionID) > ReputationRank(condition->MaxReputation))
+            if (!isMaxFactionConditionSatisfied(player, condition->MaxFactionID, condition->MaxReputation))
                 return false;
         }
         else
         {
-            std::array<bool, std::tuple_size_v<decltype(condition->MinFactionID)> + 1> results;
-            results.fill(true);
-            for (std::size_t i = 0; i < condition->MinFactionID.size(); ++i)
-            {
-                if (sFactionStore.HasRecord(condition->MinFactionID[i]))
-                {
-                    if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MinFactionID[i]))
-                        results[i] = *forcedRank >= ReputationRank(condition->MinReputation[i]);
-                    else
-                        results[i] = player->GetReputationRank(condition->MinFactionID[i]) >= ReputationRank(condition->MinReputation[i]);
-                }
-            }
-
-            if (ReputationRank const* forcedRank = player->GetReputationMgr().GetForcedRankIfAny(condition->MaxFactionID))
-                results[3] = *forcedRank <= ReputationRank(condition->MaxReputation);
-            else if (sFactionStore.HasRecord(condition->MaxReputation))
-                results[3] = player->GetReputationRank(condition->MaxFactionID) <= ReputationRank(condition->MaxReputation);
+            auto minFactionResults = GetPlayerConditionSingleResult(isMinFactionConditionSatisfied, player, condition->MinFactionID, condition->MinReputation);
+            std::bitset<minFactionResults.size() + 1> results(minFactionResults.to_ulong());
+            if (isMaxFactionConditionSatisfied(player, condition->MaxFactionID, condition->MaxReputation))
+                results[3] = true;
 
             if (!PlayerConditionLogic(condition->ReputationLogic, results))
                 return false;
@@ -3051,10 +3072,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->PrevQuestID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->PrevQuestID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->PrevQuestID.size(); ++i)
-            results[i] = player->IsQuestCompletedBitSet(condition->PrevQuestID[i]);
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 questId)
+        {
+            return !questId || player->IsQuestCompletedBitSet(questId);
+        }, player, condition->PrevQuestID);
 
         if (!PlayerConditionLogic(condition->PrevQuestLogic, results))
             return false;
@@ -3062,11 +3083,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrQuestID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->CurrQuestID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->CurrQuestID.size(); ++i)
-            if (condition->CurrQuestID[i])
-                results[i] = player->FindQuestSlot(condition->CurrQuestID[i]) != MAX_QUEST_LOG_SIZE;
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 questId)
+        {
+            return !questId || player->FindQuestSlot(questId) != MAX_QUEST_LOG_SIZE;
+        }, player, condition->CurrQuestID);
 
         if (!PlayerConditionLogic(condition->CurrQuestLogic, results))
             return false;
@@ -3074,11 +3094,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrentCompletedQuestID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->CurrentCompletedQuestID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->CurrentCompletedQuestID.size(); ++i)
-            if (condition->CurrentCompletedQuestID[i])
-                results[i] = player->GetQuestStatus(condition->CurrentCompletedQuestID[i]) == QUEST_STATUS_COMPLETE;
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 questId)
+        {
+            return !questId || player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE;
+        }, player, condition->CurrentCompletedQuestID);
 
         if (!PlayerConditionLogic(condition->CurrentCompletedQuestLogic, results))
             return false;
@@ -3086,11 +3105,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->SpellID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->SpellID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->SpellID.size(); ++i)
-            if (condition->SpellID[i])
-                results[i] = player->HasSpell(condition->SpellID[i]);
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 spellId)
+        {
+            return !spellId || player->HasSpell(spellId);
+        }, player, condition->SpellID);
 
         if (!PlayerConditionLogic(condition->SpellLogic, results))
             return false;
@@ -3098,35 +3116,38 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->ItemID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->ItemID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->ItemID.size(); ++i)
+        auto results = GetPlayerConditionSingleResult([itemFlags = condition->ItemFlags](Player const* player, uint32 itemId, uint32 itemCount)
         {
-            if (condition->ItemID[i])
+            if (!itemId)
+                return true;
+
+            EnumFlag<ItemSearchLocation> where = ItemSearchLocation::Equipment;
+            if ((itemFlags & 1) != 0) // include banks
+                where |= ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank | ItemSearchLocation::AccountBank;
+            if ((itemFlags & 2) == 0) // ignore inventory
+                where |= ItemSearchLocation::Inventory;
+
+            uint32 foundCount = 0;
+            bool foundItemCount = !player->ForEachItem(where, [&](Item const* item)
             {
-                EnumFlag<ItemSearchLocation> where = ItemSearchLocation::Equipment;
-                if ((condition->ItemFlags & 1) != 0)    // include banks
-                    where |= ItemSearchLocation::Bank | ItemSearchLocation::ReagentBank | ItemSearchLocation::AccountBank;
-                if ((condition->ItemFlags & 2) == 0)    // ignore inventory
-                    where |= ItemSearchLocation::Inventory;
-
-                uint32 foundCount = 0;
-                results[i] = !player->ForEachItem(where, [&](Item const* item)
+                if (item->GetEntry() == uint32(itemId))
                 {
-                    if (item->GetEntry() == uint32(condition->ItemID[i]))
-                    {
-                        foundCount += item->GetCount();
-                        if (foundCount >= condition->ItemCount[i])
-                            return ItemSearchCallbackResult::Stop;
-                    }
+                    foundCount += item->GetCount();
+                    if (foundCount >= itemCount)
+                        return ItemSearchCallbackResult::Stop;
+                }
 
-                    return ItemSearchCallbackResult::Continue;
-                });
+                return ItemSearchCallbackResult::Continue;
+            });
 
-                if (!results[i] && condition->ItemCount[i] == 1 && sDB2Manager.IsToyItem(condition->ItemID[i]))
-                    results[i] = player->GetSession()->GetCollectionMgr()->HasToy(condition->ItemID[i]);
-            }
-        }
+            if (foundItemCount)
+                return true;
+
+            if (itemCount == 1 && sDB2Manager.IsToyItem(itemId) && player->GetSession()->GetCollectionMgr()->HasToy(itemId))
+                return true;
+
+            return false;
+        }, player, condition->ItemID, condition->ItemCount);
 
         if (!PlayerConditionLogic(condition->ItemLogic, results))
             return false;
@@ -3134,11 +3155,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->CurrencyID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->CurrencyID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->CurrencyID.size(); ++i)
-            if (condition->CurrencyID[i])
-                results[i] = player->GetCurrencyQuantity(condition->CurrencyID[i]) >= condition->CurrencyCount[i];
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 currencyId, uint32 count)
+        {
+            return !currencyId || player->GetCurrencyQuantity(currencyId) >= count;
+        }, player, condition->CurrencyID, condition->CurrencyCount);
 
         if (!PlayerConditionLogic(condition->CurrencyLogic, results))
             return false;
@@ -3154,18 +3174,16 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->AuraSpellID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->AuraSpellID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->AuraSpellID.size(); ++i)
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 spellId, uint32 count)
         {
-            if (condition->AuraSpellID[i])
-            {
-                if (condition->AuraStacks[i])
-                    results[i] = player->GetAuraCount(condition->AuraSpellID[i]) >= condition->AuraStacks[i];
-                else
-                    results[i] = player->HasAura(condition->AuraSpellID[i]);
-            }
-        }
+            if (!spellId)
+                return true;
+
+            if (count)
+                return player->GetAuraCount(spellId) >= count;
+
+            return player->HasAura(spellId);
+        }, player, condition->AuraSpellID, condition->AuraStacks);
 
         if (!PlayerConditionLogic(condition->AuraSpellLogic, results))
             return false;
@@ -3204,17 +3222,15 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->Achievement[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->Achievement)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->Achievement.size(); ++i)
+        auto results = GetPlayerConditionSingleResult([flags = condition->GetFlags()](Player const* player, uint32 achievementId)
         {
-            if (condition->Achievement[i])
-            {
-                // if (condition->Flags & 2) { any character on account completed it } else { current character only }
-                // TODO: part of accountwide achievements
-                results[i] = player->HasAchieved(condition->Achievement[i]);
-            }
-        }
+            if (!achievementId)
+                return true;
+            (void)flags;
+            // if (flags.HasFlag(PlayerConditionFlags::CheckAchievementsOnAllChars)) { any character on account completed it } else { current character only }
+            // TODO: part of accountwide achievements
+            return player->HasAchieved(achievementId);
+        }, player, condition->Achievement);
 
         if (!PlayerConditionLogic(condition->AchievementLogic, results))
             return false;
@@ -3222,13 +3238,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->LfgStatus[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->LfgStatus)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->LfgStatus.size(); ++i)
-            if (condition->LfgStatus[i])
-                results[i] = PlayerConditionCompare(condition->LfgCompare[i],
-                    GetPlayerConditionLfgValue(player, PlayerConditionLfgStatus(condition->LfgStatus[i])),
-                    condition->LfgValue[i]);
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint8 status, uint8 compare, uint32 value)
+        {
+            return !status || PlayerConditionCompare(compare, GetPlayerConditionLfgValue(player, PlayerConditionLfgStatus(status)), value);
+        }, player, condition->LfgStatus, condition->LfgCompare, condition->LfgValue);
 
         if (!PlayerConditionLogic(condition->LfgLogic, results))
             return false;
@@ -3236,11 +3249,10 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (condition->AreaID[0])
     {
-        std::array<bool, std::tuple_size_v<decltype(condition->AreaID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->AreaID.size(); ++i)
-            if (condition->AreaID[i])
-                results[i] = DB2Manager::IsInArea(player->GetAreaId(), condition->AreaID[i]);
+        auto results = GetPlayerConditionSingleResult([](Player const* player, uint32 areaId)
+        {
+            return !areaId || DB2Manager::IsInArea(player->GetAreaId(), areaId);
+        }, player, condition->AreaID);
 
         if (!PlayerConditionLogic(condition->AreaLogic, results))
             return false;
@@ -3267,20 +3279,17 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
         uint16 questSlot = player->FindQuestSlot(condition->QuestKillID);
         if (quest && player->GetQuestStatus(condition->QuestKillID) != QUEST_STATUS_COMPLETE && questSlot < MAX_QUEST_LOG_SIZE)
         {
-            std::array<bool, std::tuple_size_v<decltype(condition->QuestKillMonster)>> results;
-            results.fill(true);
-            for (std::size_t i = 0; i < condition->QuestKillMonster.size(); ++i)
+            auto results = GetPlayerConditionSingleResult([questSlot, quest](Player const* player, uint32 creatureId)
             {
-                if (condition->QuestKillMonster[i])
+                if (!creatureId)
+                    return true;
+
+                auto objectiveItr = std::ranges::find_if(quest->GetObjectives(), [creatureId](QuestObjective const& objective) -> bool
                 {
-                    auto objectiveItr = std::find_if(quest->GetObjectives().begin(), quest->GetObjectives().end(), [condition, i](QuestObjective const& objective) -> bool
-                    {
-                        return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == condition->QuestKillMonster[i];
-                    });
-                    if (objectiveItr != quest->GetObjectives().end())
-                        results[i] = player->GetQuestSlotObjectiveData(questSlot, *objectiveItr) >= objectiveItr->Amount;
-                }
-            }
+                    return objective.Type == QUEST_OBJECTIVE_MONSTER && uint32(objective.ObjectID) == creatureId;
+                });
+                return objectiveItr == quest->GetObjectives().end() || player->GetQuestSlotObjectiveData(questSlot, *objectiveItr) >= objectiveItr->Amount;
+            }, player, condition->QuestKillMonster);
 
             if (!PlayerConditionLogic(condition->QuestKillLogic, results))
                 return false;
@@ -3299,7 +3308,7 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
     if (condition->MaxAvgEquippedItemLevel && uint32(std::floor(player->m_playerData->AvgItemLevel[1])) > condition->MaxAvgEquippedItemLevel)
         return false;
 
-    if (condition->ModifierTreeID && !player->ModifierTreeSatisfied(condition->ModifierTreeID))
+    if (condition->ModifierTreeID && player->ModifierTreeSatisfied(condition->ModifierTreeID) == condition->GetFlags().HasFlag(PlayerConditionFlags::InvertModifierTree))
         return false;
 
     if (condition->CovenantID && player->m_playerData->CovenantID != condition->CovenantID)
@@ -3307,39 +3316,33 @@ bool ConditionMgr::IsPlayerMeetingCondition(Player const* player, PlayerConditio
 
     if (std::ranges::any_of(condition->TraitNodeEntryID, [](int32 traitNodeEntryId) { return traitNodeEntryId != 0; }))
     {
-        auto getTraitNodeEntryRank = [player](int32 traitNodeEntryId) -> Optional<uint16>
+        auto results = GetPlayerConditionSingleResult([](Player const* player, int32 traitNodeEntryId, uint16 minRank, uint16 maxRank)
         {
-            for (auto const& [_, traitConfig] : player->m_activePlayerData->TraitConfigs)
+            if (!traitNodeEntryId)
+                return true;
+
+            Optional<uint16> rank = [&]() -> Optional<uint16>
             {
-                if (TraitConfigType(*traitConfig.value.Type) == TraitConfigType::Combat)
+                for (auto const& [_, traitConfig] : player->m_activePlayerData->TraitConfigs)
                 {
-                    if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != *traitConfig.value.ID
-                        || !EnumFlag(TraitCombatConfigFlags(*traitConfig.value.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
-                        continue;
+                    if (TraitConfigType(*traitConfig.value.Type) == TraitConfigType::Combat)
+                    {
+                        if (int32(*player->m_activePlayerData->ActiveCombatTraitConfigID) != *traitConfig.value.ID
+                            || !EnumFlag(TraitCombatConfigFlags(*traitConfig.value.CombatConfigFlags)).HasFlag(TraitCombatConfigFlags::ActiveForSpec))
+                            continue;
+                    }
+
+                    for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
+                        if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
+                            return traitEntry.Rank;
                 }
+                return {};
+            }();
 
-                for (UF::TraitEntry const& traitEntry : traitConfig.value.Entries)
-                    if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
-                        return traitEntry.Rank;
-            }
-            return {};
-        };
-
-        std::array<bool, std::tuple_size_v<decltype(condition->TraitNodeEntryID)>> results;
-        results.fill(true);
-        for (std::size_t i = 0; i < condition->TraitNodeEntryID.size(); ++i)
-        {
-            if (!condition->TraitNodeEntryID[i])
-                continue;
-
-            Optional<int32> rank = getTraitNodeEntryRank(condition->TraitNodeEntryID[i]);
-            if (!rank)
-                results[i] = false;
-            else if (condition->TraitNodeEntryMinRank[i] && rank < condition->TraitNodeEntryMinRank[i])
-                results[i] = false;
-            else if (condition->TraitNodeEntryMaxRank[i] && rank > condition->TraitNodeEntryMaxRank[i])
-                results[i] = false;
-        }
+            return rank
+                && (!minRank || *rank >= minRank)
+                && (!maxRank || *rank <= maxRank);
+        }, player, condition->TraitNodeEntryID, condition->TraitNodeEntryMinRank, condition->TraitNodeEntryMaxRank);
 
         if (!PlayerConditionLogic(condition->TraitNodeEntryLogic, results))
             return false;

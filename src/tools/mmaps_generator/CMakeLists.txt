@@ -17,12 +17,8 @@ add_executable(mmaps_generator ${PRIVATE_SOURCES})
 target_link_libraries(mmaps_generator
   PRIVATE
     trinity-core-interface
-  PUBLIC
-    common
     extractor_common
-    Recast
-    Detour
-    zlib)
+    mmaps_common)
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
