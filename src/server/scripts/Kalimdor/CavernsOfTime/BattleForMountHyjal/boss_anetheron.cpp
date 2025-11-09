@@ -23,6 +23,7 @@
 #include "Containers.h"
 #include "hyjal.h"
 #include "MotionMaster.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 

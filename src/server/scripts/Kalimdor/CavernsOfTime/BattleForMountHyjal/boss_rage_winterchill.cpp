@@ -22,6 +22,7 @@
 #include "ScriptMgr.h"
 #include "hyjal.h"
 #include "MotionMaster.h"
+#include "ScriptedCreature.h"
 #include "SpellInfo.h"
 
 enum WinterchillTexts
