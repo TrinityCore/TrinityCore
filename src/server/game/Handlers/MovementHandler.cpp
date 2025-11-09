@@ -354,14 +354,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         movementInfo.transport.Reset();
     }
 
-    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
-    if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
-        plrMover->HandleFall(movementInfo);
-
-    // interrupt parachutes upon falling or landing in water
-    if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
-        mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
-
     /* process position-change */
     WorldPacket data(opcode, recvPacket.size());
     int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
@@ -376,10 +368,18 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     }
 
     movementInfo.guid = mover->GetGUID();
+    mover->m_movementInfo = movementInfo;
+
+    // fall damage generation (ignore in flight case that can be triggered also at lags in moment teleportation to another map).
+    if (opcode == MSG_MOVE_FALL_LAND && plrMover && !plrMover->IsInFlight())
+        plrMover->HandleFall();
+
+    // interrupt parachutes upon falling or landing in water
+    if (opcode == MSG_MOVE_FALL_LAND || opcode == MSG_MOVE_START_SWIM)
+        mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
+
     WriteMovementInfo(&data, &movementInfo);
     mover->SendMessageToSet(&data, _player);
-
-    mover->m_movementInfo = movementInfo;
 
     // Some vehicles allow the passenger to turn by himself
     if (Vehicle* vehicle = mover->GetVehicle())
