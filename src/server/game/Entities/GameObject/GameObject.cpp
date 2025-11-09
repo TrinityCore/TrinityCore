@@ -322,7 +322,7 @@ public:
             }
 
             dst = dst * pathRotation;
-            dst += PositionToVector3(&_owner.GetStationaryPosition());
+            dst += PositionToVector3(_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
         }
@@ -833,7 +833,7 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 }
 
 GameObject::GameObject() : WorldObject(false), MapObject(),
-    m_model(nullptr), m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
+    m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -868,7 +868,6 @@ GameObject::GameObject() : WorldObject(false), MapObject(),
 GameObject::~GameObject()
 {
     delete m_AI;
-    delete m_model;
 }
 
 void GameObject::AIM_Destroy()
@@ -3744,7 +3743,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -3792,7 +3790,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = 0;
                 SetGoAnimProgress(0);
             }
-            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -3813,7 +3810,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, WorldOb
                 m_goValue.Building.Health = m_goValue.Building.DestructibleHitpoint->GetMaxHealth();
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         }
     }
@@ -4007,15 +4003,43 @@ void GameObject::UpdateModel()
 {
     if (!IsInWorld())
         return;
+    bool modelCollisionEnabled;
     if (m_model)
+    {
+        modelCollisionEnabled = m_model->IsCollisionEnabled();
         if (GetMap()->ContainsGameObjectModel(*m_model))
             GetMap()->RemoveGameObjectModel(*m_model);
+    }
+    else
+        modelCollisionEnabled = GetGoType() == GAMEOBJECT_TYPE_CHEST ? getLootState() == GO_READY : (GetGoState() == GO_STATE_READY || IsTransport());
+
     RemoveFlag(GO_FLAG_MAP_OBJECT);
-    delete m_model;
-    m_model = nullptr;
+    std::unique_ptr<GameObjectModel> oldModel = std::exchange(m_model, nullptr);
+
     CreateModel();
     if (m_model)
+    {
         GetMap()->InsertGameObjectModel(*m_model);
+        if (modelCollisionEnabled)
+            m_model->EnableCollision(modelCollisionEnabled);
+    }
+
+    switch (GetGoType())
+    {
+        // Only update navmesh when display id changes and not on spawn
+        // default state of destructible buildings is intended to be baked in the mesh produced by mmaps_generator
+        case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+        case GAMEOBJECT_TYPE_TRAPDOOR:
+        case GAMEOBJECT_TYPE_PHASEABLE_MO:
+        case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+            if (m_model)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*m_model, GetPhaseShift());
+            else if (oldModel)
+                GetMap()->RequestRebuildNavMeshOnGameObjectModelChange(*oldModel, GetPhaseShift());
+            break;
+        default:
+            break;
+    }
 }
 
 bool GameObject::IsLootAllowedFor(Player const* player) const
@@ -4492,6 +4516,7 @@ public:
     bool IsInPhase(PhaseShift const& phaseShift) const override { return _owner->GetPhaseShift().CanSee(phaseShift); }
     G3D::Vector3 GetPosition() const override { return G3D::Vector3(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ()); }
     G3D::Quat GetRotation() const override { return G3D::Quat(_owner->GetLocalRotation().x, _owner->GetLocalRotation().y, _owner->GetLocalRotation().z, _owner->GetLocalRotation().w); }
+    int64 GetPackedRotation() const override { return _owner->GetPackedLocalRotation(); }
     float GetScale() const override { return _owner->GetObjectScale(); }
     void DebugVisualizeCorner(G3D::Vector3 const& corner) const override { _owner->SummonCreature(1, corner.x, corner.y, corner.z, 0, TEMPSUMMON_MANUAL_DESPAWN); }
 
@@ -4531,8 +4556,20 @@ void GameObject::CreateModel()
         if (m_model->IsMapObject())
             SetFlag(GO_FLAG_MAP_OBJECT);
 
-        if (GetGoType() == GAMEOBJECT_TYPE_DOOR)
-            m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+        switch (GetGoType())
+        {
+            case GAMEOBJECT_TYPE_DOOR:
+                m_model->DisableLosBlocking(GetGOInfo()->door.NotLOSBlocking);
+                break;
+            case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
+            case GAMEOBJECT_TYPE_TRAPDOOR:
+            case GAMEOBJECT_TYPE_PHASEABLE_MO:
+            case GAMEOBJECT_TYPE_SIEGEABLE_MO:
+                m_model->IncludeInNavMesh(true);
+                break;
+            default:
+                break;
+        }
     }
 }
 

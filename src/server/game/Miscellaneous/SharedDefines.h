@@ -7280,15 +7280,18 @@ enum LineOfSightChecks : uint8
 
 enum TokenResult
 {
-    TOKEN_RESULT_SUCCESS                        = 0,
-    TOKEN_RESULT_ERROR_DISABLED                 = 1,
-    TOKEN_RESULT_ERROR_OTHER                    = 2,
-    TOKEN_RESULT_ERROR_NONE_FOR_SALE            = 3,
-    TOKEN_RESULT_ERROR_TOO_MANY_TOKENS          = 4,
-    TOKEN_RESULT_SUCCESS_NO                     = 5,
-    TOKEN_RESULT_ERROR_TRANSACTION_IN_PROGRESS  = 6,
-    TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED  = 7,
-    TOKEN_RESULT_ERROR_TRIAL_RESTRICTED         = 8
+    TOKEN_RESULT_SUCCESS                                = 0,
+    TOKEN_RESULT_ERROR_DISABLED                         = 1,
+    TOKEN_RESULT_ERROR_OTHER                            = 2,
+    TOKEN_RESULT_ERROR_NONE_FOR_SALE                    = 3,
+    TOKEN_RESULT_ERROR_TOO_MANY_TOKENS                  = 4,
+    TOKEN_RESULT_SUCCESS_NO                             = 5,
+    TOKEN_RESULT_ERROR_TRANSACTION_IN_PROGRESS          = 6,
+    TOKEN_RESULT_ERROR_AUCTIONABLE_TOKEN_OWNED          = 7,
+    TOKEN_RESULT_ERROR_TRIAL_RESTRICTED                 = 8,
+    TOKEN_RESULT_ERROR_BALANCE_NEAR_CAP                 = 9,
+    TOKEN_RESULT_ERROR_NOT_ENOUGH_PURCHASED_GAME_TIME   = 10,
+    TOKEN_RESULT_ERROR_THROTTLE_TOKENS                  = 11
 };
 
 enum TutorialAction : uint8
