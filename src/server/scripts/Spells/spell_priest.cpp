@@ -59,6 +59,8 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_BURNING_VEHEMENCE                  = 372307,
+    SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE           = 400370,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL        = 373462,
@@ -691,6 +693,34 @@ class spell_pri_blaze_of_light : public AuraScript
     void Register() override
     {
         OnProc += AuraProcFn(spell_pri_blaze_of_light::HandleProc);
+    }
+};
+
+// 372307 - Burning Vehemence
+class spell_pri_burning_vehemence : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE })
+            && ValidateSpellEffect({ {SPELL_PRIEST_BURNING_VEHEMENCE, EFFECT_2} });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!caster || !target)
+            return;
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->CastSpell(target, SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_burning_vehemence::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3556,6 +3586,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_passive);
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_blaze_of_light);
+    RegisterSpellScript(spell_pri_burning_vehemence);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
