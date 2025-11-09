@@ -2624,7 +2624,8 @@ class spell_pri_protector_of_the_frail : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ {SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, EFFECT_1} });
+        return ValidateSpellInfo({ SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL })
+            && ValidateSpellEffect({ {SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, EFFECT_1} });
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
