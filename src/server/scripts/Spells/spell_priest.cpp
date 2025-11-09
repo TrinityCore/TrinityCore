@@ -59,6 +59,7 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_CENSURE                            = 200199,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL        = 373462,
@@ -109,6 +110,8 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_MENDING_HEAL                  = 391156,
     SPELL_PRIEST_HOLY_NOVA                          = 132157,
     SPELL_PRIEST_HOLY_WORD_CHASTISE                 = 88625,
+    SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE    = 200196,
+    SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN            = 200200,
     SPELL_PRIEST_HOLY_WORD_SALVATION                = 265202,
     SPELL_PRIEST_HOLY_WORD_SANCTIFY                 = 34861,
     SPELL_PRIEST_HOLY_WORD_SERENITY                 = 2050,
@@ -1485,6 +1488,36 @@ class spell_pri_holy_words : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_holy_words::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 88625 - Holy Word: Chastise
+class spell_pri_holy_word_chastise : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE,
+            SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN,
+            SPELL_PRIEST_CENSURE
+        });
+    }
+
+    void HandleAfterHit()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        if (!caster->HasAura(SPELL_PRIEST_CENSURE))
+            caster->CastSpell(target, SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        else
+            caster->CastSpell(target, SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_pri_holy_word_chastise::HandleAfterHit);
     }
 };
 
@@ -3578,6 +3611,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_heavens_wrath);
     RegisterSpellScript(spell_pri_holy_mending);
     RegisterSpellScript(spell_pri_holy_words);
+    RegisterSpellScript(spell_pri_holy_word_chastise);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
     RegisterSpellScript(spell_pri_item_t6_trinket);
