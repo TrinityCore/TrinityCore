@@ -322,7 +322,7 @@ public:
             }
 
             dst = dst * pathRotation;
-            dst += PositionToVector3(&_owner.GetStationaryPosition());
+            dst += PositionToVector3(_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
         }
