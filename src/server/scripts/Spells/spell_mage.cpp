@@ -833,20 +833,6 @@ class spell_mage_flame_accelerant : public AuraScript
     }
 };
 
-// 453283 - Flame Accelerant
-class spell_mage_flame_accelerant_proc : public AuraScript
-{
-    bool CheckProc(ProcEventInfo const& procEvent) const
-    {
-        return procEvent.GetProcSpell() && procEvent.GetProcSpell()->GetCastTime() > 0;
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_mage_flame_accelerant_proc::CheckProc);
-    }
-};
-
 // 205029 - Flame On
 class spell_mage_flame_on : public AuraScript
 {
@@ -2152,7 +2138,6 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_fire_blast);
     RegisterSpellScript(spell_mage_flame_accelerant);
-    RegisterSpellScript(spell_mage_flame_accelerant_proc);
     RegisterSpellScript(spell_mage_flame_on);
     RegisterSpellScript(spell_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_flame_patch);
