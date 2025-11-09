@@ -433,6 +433,7 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) override
         {
+            // todo: migrate to worldstate 3895 (worldstateexpression 6312)
             return target && target->GetAI() && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }
 };

@@ -305,12 +305,6 @@ struct npc_annhylde_the_caller : public ScriptedAI
 
     void JustAppeared() override
     {
-        x = 0.f;
-        y = 0.f;
-        z = 0.f;
-
-        me->GetPosition(x, y, z);
-
         _events.ScheduleEvent(EVENT_RESURRECTION_1, 0s);
     }
 
@@ -345,7 +339,7 @@ struct npc_annhylde_the_caller : public ScriptedAI
                     _events.ScheduleEvent(EVENT_RESURRECTION_2, 2400ms);
                     break;
                 case EVENT_RESURRECTION_2:
-                    me->GetMotionMaster()->MovePoint(POINT_CALLER_DOWN, x, y, z - 15.0f);
+                    me->GetMotionMaster()->MovePoint(POINT_CALLER_DOWN, me->GetPositionWithOffset({ 0.0f, 0.0f, -15.0f }));
                     break;
                 case EVENT_RESURRECTION_3:
                     Talk(SAY_RESURRECT);
@@ -381,7 +375,7 @@ struct npc_annhylde_the_caller : public ScriptedAI
                     _events.ScheduleEvent(EVENT_RESURRECTION_9, 1200ms);
                     break;
                 case EVENT_RESURRECTION_9:
-                    me->GetMotionMaster()->MovePoint(POINT_CALLER_UP, x, y, z + 15.0f);
+                    me->GetMotionMaster()->MovePoint(POINT_CALLER_UP, me->GetPositionWithOffset({ 0.0f, 0.0f, 15.0f }));
                     break;
                 case EVENT_RESURRECTION_10:
                     me->DespawnOrUnsummon();
@@ -395,7 +389,6 @@ struct npc_annhylde_the_caller : public ScriptedAI
 private:
     InstanceScript* _instance;
     EventMap _events;
-    float x, y, z;
 };
 
 // 23997 - Ingvar Throw Dummy
@@ -410,21 +403,13 @@ struct npc_ingvar_throw_dummy : public ScriptedAI
         _scheduler.Schedule(1s, [this](TaskContext /*task*/)
         {
             if (Creature* target = me->FindNearestCreature(NPC_THROW_TARGET, 200.0f))
-            {
-                float x, y, z;
-                target->GetPosition(x, y, z);
-                me->GetMotionMaster()->MovePoint(POINT_AXE_TO_TARGET, x, y, z);
-            }
+                me->GetMotionMaster()->MovePoint(POINT_AXE_TO_TARGET, target->GetPosition());
         });
 
         _scheduler.Schedule(6s, 10s, [this](TaskContext /*task*/)
         {
             if (Creature* ingvar = ObjectAccessor::GetCreature(*me, _instance->GetGuidData(DATA_INGVAR)))
-            {
-                float x, y, z;
-                ingvar->GetPosition(x, y, z);
-                me->GetMotionMaster()->MovePoint(POINT_AXE_TO_OWNER, x, y, z);
-            }
+                me->GetMotionMaster()->MovePoint(POINT_AXE_TO_OWNER, ingvar->GetPosition());
         });
     }
 

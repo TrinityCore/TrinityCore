@@ -213,6 +213,8 @@ struct ControllerBaseAI : public BossAI
                 me->SetUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
                 me->SetReactState(REACT_PASSIVE);
                 break;
+            default:
+                break;
         }
     }
 
