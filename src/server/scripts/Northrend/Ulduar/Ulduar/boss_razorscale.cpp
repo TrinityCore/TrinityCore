@@ -330,7 +330,7 @@ struct boss_razorscale : public BossAI
         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
         {
             Movement::PointsArray path(std::size(RazorscalePath));
-            std::transform(std::begin(RazorscalePath), std::end(RazorscalePath), path.begin(), [](Position pos) { return PositionToVector3(pos); });
+            std::ranges::transform(RazorscalePath, path.begin(), PositionToVector3);
             init.MovebyPath(path, 0);
             init.SetCyclic();
             init.SetFly();

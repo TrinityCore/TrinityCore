@@ -205,7 +205,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
             }
 
             if (shortenPath)
-                _path->ShortenPathUntilDist(PositionToVector3(target), maxTarget);
+                _path->ShortenPathUntilDist(PositionToVector3(target->GetPosition()), maxTarget);
 
             if (cOwner)
                 cOwner->SetCannotReachTarget(false);
