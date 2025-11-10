@@ -3163,12 +3163,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Priority = 100;
     });
 
-    // Howl of Azgalor
-    ApplySpellFix({ 31344 }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->_GetEffect(EFFECT_0).RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_100_YARDS); // 100yards instead of 50000?!
-    });
-
     ApplySpellFix({
         42818, // Headless Horseman - Wisp Flight Port
         42821, // Headless Horseman - Wisp Flight Missile
@@ -3297,7 +3291,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         45004, // Wild Magic
         45006, // Wild Magic
         45010, // Wild Magic
-        31347, // Doom
         41635, // Prayer of Mending
         44869, // Spectral Blast
         45027, // Revitalize

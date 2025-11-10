@@ -127,7 +127,7 @@ struct boss_anetheron : public BossAI
             case PATH_ALLY_INITIAL_1:
             case PATH_ALLY_INITIAL_2:
             case PATH_ALLY_INITIAL_3:
-                me->GetMotionMaster()->MovePath(RAND(PATH_ALLY_BASE_1, PATH_ALLY_BASE_2, PATH_ALLY_BASE_3), false);
+                me->GetMotionMaster()->MovePath(RAND(PATH_ALLY_BASE_1, PATH_ALLY_BASE_2, PATH_ALLY_BASE_3), true);
                 break;
             default:
                 break;
