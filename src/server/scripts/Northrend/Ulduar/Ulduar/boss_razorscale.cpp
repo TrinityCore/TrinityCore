@@ -271,7 +271,7 @@ constexpr uint32 SummonMinionsSpells[4] =
     SPELL_TRIGGER_SUMMON_IRON_VRYKUL
 };
 
-constexpr Position RazorscalePath[] =
+G3D::Vector3 const RazorscalePath[] =
 {
     { 657.0227f, -361.1278f, 519.5406f },
     { 698.9319f, -340.9654f, 520.4857f },
@@ -329,9 +329,7 @@ struct boss_razorscale : public BossAI
     {
         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
         {
-            Movement::PointsArray path(std::size(RazorscalePath));
-            std::ranges::transform(RazorscalePath, path.begin(), PositionToVector3);
-            init.MovebyPath(path, 0);
+            init.MovebyPath(RazorscalePath);
             init.SetCyclic();
             init.SetFly();
         };

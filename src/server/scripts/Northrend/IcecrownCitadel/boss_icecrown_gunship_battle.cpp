@@ -225,8 +225,7 @@ Position const OrgrimsHammerTeleportExit = { 7.461699f, 0.158853f, 35.72989f, 0.
 Position const OrgrimsHammerTeleportPortal = { 47.550990f, -0.101778f, 37.61111f, 0.0f };
 Position const SkybreakerTeleportExit      = { -17.55738f, -0.090421f, 21.18366f, 0.0f };
 
-uint32 const MuradinExitPathSize = 10;
-G3D::Vector3 const MuradinExitPath[MuradinExitPathSize] =
+G3D::Vector3 const MuradinExitPath[] =
 {
     { 8.130936f, -0.2699585f, 20.31728f },
     { 6.380936f, -0.2699585f, 20.31728f },
@@ -240,8 +239,7 @@ G3D::Vector3 const MuradinExitPath[MuradinExitPathSize] =
     { -14.88477f, 25.20844f, 21.59985f },
 };
 
-uint32 const SaurfangExitPathSize = 13;
-G3D::Vector3 const SaurfangExitPath[SaurfangExitPathSize] =
+G3D::Vector3 const SaurfangExitPath[] =
 {
     { 30.43987f, 0.1475817f, 36.10674f },
     { 21.36141f, -3.056458f, 35.42970f },
@@ -935,9 +933,8 @@ struct npc_high_overlord_saurfang_igb : public ScriptedAI
         {
             std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
             {
-                Movement::PointsArray path(SaurfangExitPath, SaurfangExitPath + SaurfangExitPathSize);
                 init.DisableTransportPathTransformations();
-                init.MovebyPath(path, 0);
+                init.MovebyPath(SaurfangExitPath);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
@@ -1192,9 +1189,8 @@ struct npc_muradin_bronzebeard_igb : public ScriptedAI
         {
             std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
             {
-                Movement::PointsArray path(MuradinExitPath, MuradinExitPath + MuradinExitPathSize);
                 init.DisableTransportPathTransformations();
-                init.MovebyPath(path, 0);
+                init.MovebyPath(MuradinExitPath);
             };
             me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
 
