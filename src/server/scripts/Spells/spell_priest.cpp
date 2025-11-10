@@ -155,6 +155,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_PRAYERFUL_LITANY                   = 391209,
     SPELL_PRIEST_PROTECTIVE_LIGHT_AURA              = 193065,
     SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
     SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
@@ -2466,6 +2467,44 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 391209 - Prayerful Litany
+// Triggered by 596 - Prayer of Healing
+class spell_pri_prayerful_litany : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PRAYERFUL_LITANY })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster->HasAura(SPELL_PRIEST_PRAYERFUL_LITANY))
+            return;
+
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        if (target != GetExplTargetUnit())
+            return;
+
+        AuraEffect const* prayerfulLitanyEff = caster->GetAura(SPELL_PRIEST_PRAYERFUL_LITANY)->GetEffect(EFFECT_0);
+        if (!prayerfulLitanyEff)
+            return;
+
+        int32 heal = GetHitHeal();
+        AddPct(heal, prayerfulLitanyEff->GetAmount());
+        SetHitHeal(heal);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_prayerful_litany::HandleEffectHit, EFFECT_1, SPELL_EFFECT_HEAL);
+    }
+};
+
 // 193063 - Protective Light (Aura)
 class spell_pri_protective_light : public AuraScript
 {
@@ -3603,6 +3642,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
     RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_prayerful_litany);
     RegisterSpellScript(spell_pri_protective_light);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc_chooser);
