@@ -363,23 +363,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
     /* process position-change */
-    WorldPacket data(opcode, recvPacket.size());
-    int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
-
     movementInfo.guid = mover->GetGUID();
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
+    mover->m_movementInfo = movementInfo;
+
+    WorldPacket data(opcode, recvPacket.size());
     WriteMovementInfo(&data, &movementInfo);
     mover->SendMessageToSet(&data, _player);
-
-    mover->m_movementInfo = movementInfo;
 
     // Some vehicles allow the passenger to turn by himself
     if (Vehicle* vehicle = mover->GetVehicle())
