@@ -1178,7 +1178,7 @@ class spell_pri_divine_word_chastise : public SpellScript
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_pri_divine_word_chastise::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_word_chastise::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1199,12 +1199,13 @@ class spell_pri_divine_word_serenity : public SpellScript
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_DIVINE_FAVOR_SERENITY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PRIEST_DIVINE_FAVOR_SERENITY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_pri_divine_word_serenity::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_word_serenity::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
@@ -1226,12 +1227,12 @@ class spell_pri_divine_word_sanctify : public SpellScript
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(*GetHitDest(), SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, TRIGGERED_FULL_MASK);
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, TRIGGERED_IGNORE_GCD);
     }
 
     void Register() override
     {
-        OnEffectHit += SpellEffectFn(spell_pri_divine_word_sanctify::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_divine_word_sanctify::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 };
 
