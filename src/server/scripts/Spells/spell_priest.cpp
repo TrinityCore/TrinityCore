@@ -2480,18 +2480,11 @@ class spell_pri_prayerful_litany : public SpellScript
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
-        if (!caster->HasAura(SPELL_PRIEST_PRAYERFUL_LITANY))
-            return;
-
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        if (target != GetExplTargetUnit())
-            return;
-
-        AuraEffect const* prayerfulLitanyEff = caster->GetAura(SPELL_PRIEST_PRAYERFUL_LITANY)->GetEffect(EFFECT_0);
+        AuraEffect const* prayerfulLitanyEff = caster->GetAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0);
         if (!prayerfulLitanyEff)
+            return;
+
+        if (GetHitUnit() != GetExplTargetUnit())
             return;
 
         int32 heal = GetHitHeal();
