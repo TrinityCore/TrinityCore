@@ -73,6 +73,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
     SPELL_PRIEST_DIVINE_AEGIS_ABSORB                = 47753,
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
+    SPELL_PRIEST_DIVINE_FAVOR_CHASTISE              = 372761,
+    SPELL_PRIEST_DIVINE_FAVOR_SERENITY              = 372791,
     SPELL_PRIEST_DIVINE_HYMN_HEAL                   = 64844,
     SPELL_PRIEST_DIVINE_IMAGE_SUMMON                = 392990,
     SPELL_PRIEST_DIVINE_IMAGE_EMPOWER               = 409387,
@@ -84,6 +86,9 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_HOLY_HEAL              = 110745,
     SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
+    SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER           = 372784,
+    SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL         = 372787,
+    SPELL_PRIEST_DIVINE_WORD                        = 372760,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_EPIPHANY                           = 414553,
@@ -1143,6 +1148,105 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
+};
+
+// 372760 - Divine Word
+// Triggered by 88625 - Holy Word: Chastise, 2050 - Holy Word: Serenity
+class spell_pri_divine_word : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _spellId });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_DIVINE_WORD))
+            return true;
+        return false;
+    }
+
+    void HandleHit() const
+    {
+        GetCaster()->CastSpell(GetCaster(), _spellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_divine_word::HandleHit);
+    }
+
+    uint32 _spellId{};
+public:
+    explicit spell_pri_divine_word(uint32 spellId) : _spellId{ spellId } {}
+};
+
+// 372784 - Divine Word: Sanctuary
+// Triggered by 34861 - Holy Word: Sanctify
+class spell_pri_divine_word_sanctify : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER });
+    }
+
+    bool Load() override
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_DIVINE_WORD))
+            return true;
+        return false;
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(*GetHitDest(), SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pri_divine_word_sanctify::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+};
+
+// 372784 - Divine Word: Sanctuary
+class spell_pri_divine_word_sanctuary : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL })
+            && ValidateSpellEffect({ {SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, EFFECT_2} });
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    {
+        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER))
+            GetTarget()->CastSpell(at->GetPosition(), SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_divine_word_sanctuary::HandleEffectPeriodic, EFFECT_2, SPELL_AURA_PERIODIC_DUMMY);
+    }
+};
+
+// 372787 - Divine Word: Sanctuary
+class spell_pri_divine_word_sanctuary_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        int32 maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(GetCaster());
+        Trinity::SelectRandomInjuredTargets(targets, maxTargets, true);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_divine_word_sanctuary_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
 };
 
 // 391339 - Empowered Renew
@@ -3566,6 +3670,11 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
+    RegisterSpellScriptWithArgs(spell_pri_divine_word, "spell_pri_divine_word_chastise", SPELL_PRIEST_DIVINE_FAVOR_CHASTISE);
+    RegisterSpellScriptWithArgs(spell_pri_divine_word, "spell_pri_divine_word_serenity", SPELL_PRIEST_DIVINE_FAVOR_SERENITY);
+    RegisterSpellScript(spell_pri_divine_word_sanctify);
+    RegisterSpellScript(spell_pri_divine_word_sanctuary);
+    RegisterSpellScript(spell_pri_divine_word_sanctuary_heal);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
