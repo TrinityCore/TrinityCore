@@ -1509,10 +1509,8 @@ class spell_pri_holy_word_chastise : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        if (!caster->HasAura(SPELL_PRIEST_CENSURE))
-            caster->CastSpell(target, SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        else
-            caster->CastSpell(target, SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        uint32 spellId = caster->HasAura(SPELL_PRIEST_CENSURE) ? SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN : SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE;
+        caster->CastSpell(target, spellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
