@@ -88,7 +88,7 @@ enum MovementSlot : uint8
     MAX_MOTION_SLOT
 };
 
-enum class MovementWalkRunSpeedSelectionMode
+enum class MovementWalkRunSpeedSelectionMode : uint8
 {
     Default,
     ForceRun,

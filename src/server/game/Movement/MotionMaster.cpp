@@ -701,13 +701,51 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<int32> tier
     MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveLand: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+    MoveTierTransition(id, pos, AnimTier::Ground, tierTransitionId, velocity, speedSelectionMode, std::move(scriptResult));
+}
 
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+{
+    MoveTierTransition(id, pos, AnimTier::Fly, tierTransitionId, velocity, speedSelectionMode, std::move(scriptResult));
+}
+
+void MotionMaster::MoveTierTransition(uint32 id, Position const& pos, AnimTier newAnimTier, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+{
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTierTransition: '{}', anim tier transition to {} Id: {} (X: {}, Y: {}, Z: {})",
+        _owner->GetGUID(), newAnimTier, id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
+
+    bool flyingTransition = newAnimTier == AnimTier::Fly || _owner->GetAnimTier() == AnimTier::Fly;
+    if (!tierTransitionId)
+    {
+        switch (newAnimTier)
+        {
+            case AnimTier::Ground:
+                tierTransitionId = 208;
+                break;
+            case AnimTier::Swim:
+                tierTransitionId = 149;
+                break;
+            case AnimTier::Hover:
+                tierTransitionId = 25;
+                break;
+            case AnimTier::Fly:
+                tierTransitionId = 17;
+                break;
+            default:
+                break;
+        }
+    }
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, tierTransitionId = tierTransitionId.value_or(0)](Movement::MoveSplineInit& init)
     {
         init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Ground, tierTransitionId.value_or(1));
-        init.SetFly(); // ensure smooth animation even if gravity is enabled before calling this function
+        init.SetAnimation(newAnimTier, tierTransitionId);
+        if (flyingTransition)
+            init.SetFly(); // ensure smooth animation even if gravity is disabled after/enabled before calling this function
         init.SetSmooth();
         switch (speedSelectionMode)
         {
@@ -724,35 +762,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, Optional<int32> tier
         if (velocity)
             init.SetVelocity(*velocity);
     };
-    Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, { .ScriptResult = std::move(scriptResult) }));
-}
 
-void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId /*= {}*/, Optional<float> velocity /*= {}*/,
-    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::Default*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveTakeoff: '{}', landing point Id: {} (X: {}, Y: {}, Z: {})", _owner->GetGUID(), id, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(PositionToVector3(pos), false);
-        init.SetAnimation(AnimTier::Fly, tierTransitionId.value_or(2));
-        init.SetFly(); // ensure smooth animation even if gravity is disabled after calling this function
-        switch (speedSelectionMode)
-        {
-            case MovementWalkRunSpeedSelectionMode::ForceRun:
-                init.SetWalk(false);
-                break;
-            case MovementWalkRunSpeedSelectionMode::ForceWalk:
-                init.SetWalk(true);
-                break;
-            case MovementWalkRunSpeedSelectionMode::Default:
-            default:
-                break;
-        }
-        if (velocity)
-            init.SetVelocity(*velocity);
-    };
     Add(new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, { .ScriptResult = std::move(scriptResult) }));
 }
 
