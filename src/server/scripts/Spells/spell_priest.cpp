@@ -55,6 +55,7 @@ enum PriestSpells
     SPELL_PRIEST_BLAZE_OF_LIGHT                     = 215768,
     SPELL_PRIEST_BLAZE_OF_LIGHT_INCREASE            = 355851,
     SPELL_PRIEST_BLAZE_OF_LIGHT_DECREASE            = 356084,
+    SPELL_PRIEST_BLESSED_BOLT                       = 372847,
     SPELL_PRIEST_BLESSED_HEALING                    = 70772,
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
@@ -121,6 +122,11 @@ enum PriestSpells
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_LIGHT_ERUPTION                     = 196812,
     SPELL_PRIEST_LIGHTS_WRATH_VISUAL                = 215795,
+    SPELL_PRIEST_LIGHTWELL                          = 372835,
+    SPELL_PRIEST_LIGHTWELL_CHARGES                  = 372838,
+    SPELL_PRIEST_LIGHTWELL_MISSILE                  = 439820,
+    SPELL_PRIEST_LIGHTWELL_TRIGGER                  = 372845,
+    SPELL_PRIEST_LIGHTSPRING_RENEW                  = 126141,
     SPELL_PRIEST_MASOCHISM_TALENT                   = 193063,
     SPELL_PRIEST_MASOCHISM_PERIODIC_HEAL            = 193065,
     SPELL_PRIEST_MASTERY_GRACE                      = 271534,
@@ -1677,6 +1683,238 @@ class spell_pri_lights_wrath : public SpellScript
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_pri_lights_wrath::CalculateDamageBonus);
+    }
+};
+
+// 372835 - Lightwell
+class spell_pri_lightwell : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL_CHARGES });
+    }
+
+    void HandleAfterCast()
+    {
+        Unit* caster = GetCaster();
+        caster->CastSpell(caster, SPELL_PRIEST_LIGHTWELL_CHARGES);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_pri_lightwell::HandleAfterCast);
+    }
+};
+
+// 372838 - Lightwell (Charges)
+class spell_pri_lightwell_charges_aura : public AuraScript
+{
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Aura* lightwellCharges = GetAura();
+        lightwellCharges->SetStackAmount(lightwellCharges->GetCharges());
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_lightwell_charges_aura::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+
+    ObjectGuid _lightwellTarget{};
+public:
+    void SetLightwellTarget(ObjectGuid targetGUID)
+    {
+        _lightwellTarget = targetGUID;
+    }
+
+    Unit* GetLightwellTarget() const
+    {
+        return ObjectAccessor::GetUnit(*GetOwner(), _lightwellTarget);
+    }
+};
+
+// 372845 - Lightwell Trigger
+class spell_pri_lightwell_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL, SPELL_PRIEST_LIGHTSPRING_RENEW })
+            && ValidateSpellEffect
+            ({
+                {SPELL_PRIEST_LIGHTWELL, EFFECT_1},
+                {SPELL_PRIEST_LIGHTWELL, EFFECT_2}
+                });
+    }
+
+    void FilterTarget(std::list<WorldObject*>& targets)
+    {
+        Unit* lightwell = GetCaster();
+        if (!lightwell)
+            return;
+
+        TempSummon* temp = lightwell->ToTempSummon();
+        if (!temp)
+            return;
+
+        Unit* summoner = temp->GetSummonerUnit();
+        if (!summoner)
+            return;
+
+        targets.remove(lightwell);
+        targets.remove(summoner);
+
+        SpellInfo const* lightwellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_LIGHTWELL, GetCastDifficulty());
+        int32 _healthPct = lightwellInfo->GetEffect(EFFECT_1).CalcValue(summoner);
+
+        Trinity::SortTargetsWithPriorityRules(targets, 1, GetLightwellRules(summoner, _healthPct));
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* lightwell = GetCaster();
+        if (!lightwell)
+            return;
+
+        TempSummon* temp = lightwell->ToTempSummon();
+        if (!temp)
+            return;
+
+        Unit* summoner = temp->GetSummonerUnit();
+        if (!summoner)
+            return;
+
+        Unit* target = GetHitUnit();
+
+        if (Aura* chargesAura = summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+            if (spell_pri_lightwell_charges_aura* script = chargesAura->GetScript<spell_pri_lightwell_charges_aura>())
+                script->SetLightwellTarget(target->GetGUID());
+
+        lightwell->CastSpell(target, SPELL_PRIEST_LIGHTSPRING_RENEW);
+    }
+
+    static std::array<Trinity::TargetPriorityRule, 4> GetLightwellRules(Unit const* summoner, int32 healthPct)
+    {
+        return
+        {
+            [summoner](WorldObject const* target) { return summoner->IsValidAssistTarget(target); },
+            [healthPct](Unit const* target) {return target->GetHealthPct() < healthPct; },
+            [](WorldObject const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); },
+            [summoner](Unit const* target) { return target->IsInRaidWith(summoner); }
+        };
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_lightwell_trigger::FilterTarget, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_lightwell_trigger::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    int32 _healthPct{};
+};
+
+// 126141 - Lightspring Renew (Lightwell)
+class spell_pri_lightspring_renew : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL_CHARGES })
+            && ValidateSpellEffect({ {SPELL_PRIEST_LIGHTSPRING_RENEW, EFFECT_1} });
+    }
+
+    void HandleLaunch(SpellEffIndex /*effIndex*/)
+    {
+        Unit* lightwell = GetCaster();
+        if (!lightwell)
+            return;
+
+        TempSummon* temp = lightwell->ToTempSummon();
+        if (!temp)
+            return;
+
+        Unit* summoner = temp->GetSummonerUnit();;
+        if (!summoner)
+            return;
+
+        Aura* chargesAura = summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES);
+        if (!chargesAura)
+            return;
+
+        lightwell->CastSpell(GetHitUnit(), SPELL_PRIEST_LIGHTWELL_MISSILE);
+        chargesAura->ModStackAmount(-1);
+
+        if (!summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+            if (Creature* creature = lightwell->ToCreature())
+                creature->DespawnOrUnsummon();
+    }
+
+    void HandleEffectHit(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunchTarget += SpellEffectFn(spell_pri_lightspring_renew::HandleLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lightspring_renew::HandleEffectHit, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+    }
+};
+
+// 439820 - Lightwell (Missile)
+class spell_pri_lightwell_missile : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL, SPELL_PRIEST_RENEW, SPELL_PRIEST_BLESSED_BOLT })
+            && ValidateSpellEffect({ {SPELL_PRIEST_LIGHTWELL, EFFECT_2} });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        Unit* lightwell = GetCaster();
+        if (!lightwell)
+            return;
+
+        TempSummon* temp = lightwell->ToTempSummon();
+        if (!temp)
+            return;
+
+        Unit* summoner = temp->GetSummonerUnit();
+        if (!summoner)
+            return;
+
+        Unit* target = GetHitUnit();
+
+        int32 renewDuration = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_LIGHTWELL, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(summoner);
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
+        args.SetTriggeringSpell(GetSpell());
+        args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
+
+        lightwell->CastSpell(target, SPELL_PRIEST_RENEW, args);
+        lightwell->CastSpell(target, SPELL_PRIEST_BLESSED_BOLT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lightwell_missile::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 440616 - Lightwell (CD Reduction)
+class spell_pri_lightwell_cd_reduction : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/)
+    {
+        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_LIGHTWELL, Milliseconds(aurEff->GetAmount()));
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_lightwell_cd_reduction::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
@@ -3584,6 +3822,12 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
+    RegisterSpellScript(spell_pri_lightwell);
+    RegisterSpellScript(spell_pri_lightwell_charges_aura);
+    RegisterSpellScript(spell_pri_lightwell_trigger);
+    RegisterSpellScript(spell_pri_lightspring_renew);
+    RegisterSpellScript(spell_pri_lightwell_missile);
+    RegisterSpellScript(spell_pri_lightwell_cd_reduction);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_mind_devourer);
     RegisterSpellAndAuraScriptPair(spell_pri_mind_devourer_buff, spell_pri_mind_devourer_buff_aura);
