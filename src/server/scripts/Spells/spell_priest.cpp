@@ -3491,7 +3491,7 @@ class spell_pri_voice_of_harmony_trigger : public SpellScript
     void HandleHit() const
     {
         Unit* caster = GetCaster();
-        AuraEffect const* voiceOfHarmonyEff = caster->GetAura(SPELL_PRIEST_VOICE_OF_HARMONY)->GetEffect(_cdReductionEffIndex);
+        AuraEffect const* voiceOfHarmonyEff = caster->GetAuraEffect(SPELL_PRIEST_VOICE_OF_HARMONY, _cdReductionEffIndex);
         if (!voiceOfHarmonyEff)
             return;
 
