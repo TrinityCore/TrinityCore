@@ -1151,12 +1151,13 @@ private:
 };
 
 // 372760 - Divine Word
-// Triggered by 88625 - Holy Word: Chastise, 2050 - Holy Word: Serenity
-class spell_pri_divine_word : public SpellScript
+// Triggered by 88625 - Holy Word: Chastise
+class spell_pri_divine_word_chastise : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ _spellId });
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD, SPELL_PRIEST_DIVINE_FAVOR_CHASTISE })
+            && ValidateSpellEffect({ {SPELL_PRIEST_DIVINE_WORD, EFFECT_1} });
     }
 
     bool Load() override
@@ -1166,19 +1167,45 @@ class spell_pri_divine_word : public SpellScript
         return false;
     }
 
-    void HandleHit() const
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
-        GetCaster()->CastSpell(GetCaster(), _spellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        Unit* caster = GetCaster();
+        int32 cdReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DIVINE_WORD, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+
+        caster->CastSpell(caster, SPELL_PRIEST_DIVINE_FAVOR_CHASTISE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), Seconds(-cdReduction), true);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_divine_word::HandleHit);
+        OnEffectHit += SpellEffectFn(spell_pri_divine_word_chastise::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Triggered by 2050 - Holy Word: Serenity
+class spell_pri_divine_word_serenity : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD, SPELL_PRIEST_DIVINE_FAVOR_SERENITY });
     }
 
-    uint32 _spellId{};
-public:
-    explicit spell_pri_divine_word(uint32 spellId) : _spellId{ spellId } {}
+    bool Load() override
+    {
+        if (GetCaster()->HasAura(SPELL_PRIEST_DIVINE_WORD))
+            return true;
+        return false;
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_DIVINE_FAVOR_SERENITY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pri_divine_word_serenity::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
 };
 
 // 372784 - Divine Word: Sanctuary
@@ -1187,7 +1214,7 @@ class spell_pri_divine_word_sanctify : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER });
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD, SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER });
     }
 
     bool Load() override
@@ -1211,15 +1238,15 @@ class spell_pri_divine_word_sanctify : public SpellScript
 // 372784 - Divine Word: Sanctuary
 class spell_pri_divine_word_sanctuary : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL })
-            && ValidateSpellEffect({ {SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER, EFFECT_2} });
+        return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
     }
 
     void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
-        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_PRIEST_DIVINE_WORD_SANCTUARY_AREATRIGGER))
+        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(GetSpellInfo()->Id))
             GetTarget()->CastSpell(at->GetPosition(), SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL);
     }
 
@@ -3670,8 +3697,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
-    RegisterSpellScriptWithArgs(spell_pri_divine_word, "spell_pri_divine_word_chastise", SPELL_PRIEST_DIVINE_FAVOR_CHASTISE);
-    RegisterSpellScriptWithArgs(spell_pri_divine_word, "spell_pri_divine_word_serenity", SPELL_PRIEST_DIVINE_FAVOR_SERENITY);
+    RegisterSpellScript(spell_pri_divine_word_chastise);
+    RegisterSpellScript(spell_pri_divine_word_serenity);
     RegisterSpellScript(spell_pri_divine_word_sanctify);
     RegisterSpellScript(spell_pri_divine_word_sanctuary);
     RegisterSpellScript(spell_pri_divine_word_sanctuary_heal);
