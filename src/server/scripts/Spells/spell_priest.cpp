@@ -1603,28 +1603,26 @@ class spell_pri_lasting_words : public SpellScript
             && ValidateSpellEffect({ {SPELL_PRIEST_LASTING_WORDS, _spellEff} });
     }
 
-    void HandleHit() const
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
-        if (!target)
-            return;
 
-        AuraEffect const* lastingWordsEff = caster->GetAura(SPELL_PRIEST_LASTING_WORDS)->GetEffect(_spellEff);
+        AuraEffect const* lastingWordsEff = caster->GetAuraEffect(SPELL_PRIEST_LASTING_WORDS, _spellEff);
         if (!lastingWordsEff)
             return;
 
         int32 renewDuration = lastingWordsEff->GetAmount();
-        if (Aura* renew = caster->AddAura(SPELL_PRIEST_RENEW, target))
-        {
-            renew->SetMaxDuration(renewDuration);
-            renew->SetDuration(renewDuration);
-        }
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SetTriggeringSpell(GetSpell());
+        args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
+
+        caster->CastSpell(target, SPELL_PRIEST_RENEW, args);
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_lasting_words::HandleHit);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lasting_words::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 
     SpellEffIndex _spellEff{};
