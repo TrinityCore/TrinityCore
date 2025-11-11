@@ -1613,7 +1613,7 @@ class spell_pri_lasting_words : public SpellScript
             return;
 
         int32 renewDuration = lastingWordsEff->GetAmount();
-        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
         args.SetTriggeringSpell(GetSpell());
         args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
 
