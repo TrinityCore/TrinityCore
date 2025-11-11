@@ -145,6 +145,8 @@ struct boss_drakkari_colossus : public BossAI
         {
             if (me->HealthBelowPctDamaged(events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? 5 : 50, damage))
             {
+                if ((int64(me->GetHealth()) - int64(damage)) <= 0)
+                    damage = me->GetHealth() - 1;
                 events.SetPhase((events.IsInPhase(COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON) ? COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON : COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON));
 
                 // Freeze Colossus
@@ -197,10 +199,14 @@ struct boss_drakkari_colossus : public BossAI
 
     void JustSummoned(Creature* summon) override
     {
-        BossAI::JustSummoned(summon);
-
-        if (events.IsInPhase(COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON))
+        if (summon->GetEntry() == NPC_DRAKKARI_ELEMENTAL && events.IsInPhase(COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON))
+        {
             summon->SetHealth(summon->GetMaxHealth() / 2);
+            summon->LowerPlayerDamageReq(1);
+            DoZoneInCombat(summon);
+        }
+        else
+            BossAI::JustSummoned(summon);
     }
 };
 

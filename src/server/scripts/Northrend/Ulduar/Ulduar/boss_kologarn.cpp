@@ -368,7 +368,7 @@ class StoneGripTargetSelector
 
         bool operator()(WorldObject* target)
         {
-            if (target == _victim && _me->GetThreatManager().GetThreatListSize() > 1)
+            if (target == _victim && _me->GetThreatManager().GetThreatListPlayerCount() > 1)
                 return true;
 
             if (target->GetTypeId() != TYPEID_PLAYER)

@@ -138,7 +138,7 @@ struct boss_blackheart_the_inciter : public BossAI
             {
                 case EVENT_INCITE_CHAOS:
                 {
-                    if (me->GetThreatManager().GetThreatListSize() > 1)
+                    if (me->GetThreatManager().GetThreatListPlayerCount() > 1)
                     {
                         ResetThreatList();
                         DoCastSelf(SPELL_INCITE_CHAOS);
