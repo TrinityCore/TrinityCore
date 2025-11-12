@@ -11,7 +11,7 @@ INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `Sourc
 (29420, 0, 0, 0, 29418, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
 (29664, 0, 0, 0, 29420, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ''),
 (29421, 0, 0, 0, 29664, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
-(29422, 0, 0, 0, 29421, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+(29422, 0, 0, 0, 29421, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, '');
 
 UPDATE `quest_objectives_locale` SET `Description`='Blandón violeta encendido', `VerifiedBuild`=55461 WHERE (`ID`=255754 AND `locale`='esES');
 UPDATE `quest_objectives_locale` SET `Description`='Blandón azul encendido', `VerifiedBuild`=55461 WHERE (`ID`=255753 AND `locale`='esES');
