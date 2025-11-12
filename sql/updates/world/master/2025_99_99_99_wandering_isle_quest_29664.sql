@@ -6,11 +6,12 @@ INSERT INTO `quest_offer_reward_locale` (`ID`, `locale`, `RewardText`, `Verified
 (29664, 'esES', 'Esas llamas te darán la fuerza que aún no has obtenido. Iluminarán tu potencial.', 55461),
 (29420, 'esES', 'El objetivo de la vida no es encontrarse a uno mismo: es crearse a uno mismo. Un camino se extiende ante ti, pero eres tú quien debe elegir las pruebas a las que te enfrentarás... y las pruebas que superarás.', 55461);
 
-DELETE FROM `quest_template_addon` WHERE `ID` IN (29420, 29664, 29421);
+DELETE FROM `quest_template_addon` WHERE `ID` IN (29420, 29664, 29421, 29422);
 INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES 
 (29420, 0, 0, 0, 29418, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
 (29664, 0, 0, 0, 29420, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, ''),
-(29421, 0, 0, 0, 29664, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
+(29421, 0, 0, 0, 29664, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ''),
+(29422, 0, 0, 0, 29421, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '');
 
 UPDATE `quest_objectives_locale` SET `Description`='Blandón violeta encendido', `VerifiedBuild`=55461 WHERE (`ID`=255754 AND `locale`='esES');
 UPDATE `quest_objectives_locale` SET `Description`='Blandón azul encendido', `VerifiedBuild`=55461 WHERE (`ID`=255753 AND `locale`='esES');
