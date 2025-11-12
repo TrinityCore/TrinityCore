@@ -8,12 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(PRIVATE_SOURCES
-  TileAssembler.cpp
-  TileAssembler.h
-  VMapAssembler.cpp)
+add_executable(vmap4assembler)
 
-add_executable(vmap4assembler ${PRIVATE_SOURCES})
+CollectAndAddSourceFiles(
+  vmap4assembler
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(vmap4assembler
   PRIVATE
