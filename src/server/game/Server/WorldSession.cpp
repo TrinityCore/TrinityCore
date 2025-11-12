@@ -1134,6 +1134,8 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
     ByteBuffer addonInfo;
     addonInfo.resize(size);
 
+    _addons.SecureAddons.clear();
+
     if (uncompress(addonInfo.contents(), &uSize, data.contents() + pos, data.size() - pos) == Z_OK)
     {
         try
@@ -1182,9 +1184,8 @@ void WorldSession::ReadAddonsInfo(ByteBuffer &data)
 
             addonInfo.rpos(addonInfo.size() - 4);
 
-            uint32 lastBannedAddOnTimestamp;
-            addonInfo >> lastBannedAddOnTimestamp;
-            TC_LOG_DEBUG("addon", "AddOn: Newest banned addon timestamp: {}", lastBannedAddOnTimestamp);
+            addonInfo >> _addons.LastBannedAddOnTimestamp;
+            TC_LOG_DEBUG("addon", "AddOn: Newest banned addon timestamp: {}", _addons.LastBannedAddOnTimestamp);
         }
         catch (ByteBufferException const& e)
         {
@@ -1253,10 +1254,7 @@ void WorldSession::SendAddonsInfo()
     std::size_t sizePos = data.wpos();
     uint32 bannedAddonCount = 0;
     data << uint32(0);
-    auto itr = std::lower_bound(bannedAddons->begin(), bannedAddons->end(), _addons.LastBannedAddOnTimestamp, [](BannedAddon const& bannedAddon, uint32 timestamp)
-    {
-        return bannedAddon.Timestamp < timestamp;
-    });
+    auto itr = std::ranges::lower_bound(*bannedAddons, lastBannedAddOnTimestamp, std::ranges::less(), &BannedAddon::Timestamp);
     for (; itr != bannedAddons->end(); ++itr)
     {
         data << uint32(itr->Id);
