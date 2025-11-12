@@ -19,7 +19,7 @@
 #define _MMAP_MANAGER_H
 
 #include "Define.h"
-#include <DetourNavMesh.h>
+#include "MMapDefines.h"
 #include <DetourNavMeshQuery.h>
 #include <memory>
 #include <string_view>
@@ -45,7 +45,7 @@ namespace MMAP
 
     // singleton class
     // holds all all access to mmap loading unloading and meshes
-    class TC_COMMON_API MMapManager
+    class TC_MMAPS_COMMON_API MMapManager
     {
         public:
             MMapManager();
@@ -58,26 +58,29 @@ namespace MMAP
             static MMapManager* instance();
 
             void InitializeThreadUnsafe(std::unordered_map<uint32, std::vector<uint32>> const& mapData);
-            LoadResult loadMap(std::string_view basePath, uint32 mapId, int32 x, int32 y);
+            static LoadResult parseNavMeshParamsFile(std::string_view basePath, uint32 mapId, dtNavMeshParams* params, std::vector<OffMeshData>* offmeshConnections = nullptr);
+            LoadResult loadMap(std::string_view basePath, uint32 mapId, uint32 instanceId, int32 x, int32 y);
             bool loadMapInstance(std::string_view basePath, uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
-            bool unloadMap(uint32 mapId, int32 x, int32 y);
-            bool unloadMap(uint32 mapId);
-            bool unloadMapInstance(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
+            void unloadMap(uint32 mapId, int32 x, int32 y);
+            void unloadMap(uint32 mapId);
+            void unloadMapInstance(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
 
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
             dtNavMeshQuery const* GetNavMeshQuery(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId);
-            dtNavMesh const* GetNavMesh(uint32 mapId);
+            dtNavMesh* GetNavMesh(uint32 mapId, uint32 instanceId);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return uint32(loadedMMaps.size()); }
+
+            static bool isRebuildingTilesEnabledOnMap(uint32 mapId);
+
         private:
-            LoadResult loadMapData(std::string_view basePath, uint32 mapId);
+            LoadResult loadMapData(std::string_view basePath, uint32 mapId, uint32 instanceId);
             uint32 packTileID(int32 x, int32 y);
 
             MMapDataSet::const_iterator GetMMapData(uint32 mapId) const;
             MMapDataSet loadedMMaps;
             uint32 loadedTiles = 0;
-            bool thread_safe_environment = true;
 
             std::unordered_map<uint32, uint32> parentMapData;
     };

@@ -12,31 +12,41 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE_SOURCES)
 
-add_executable(mmaps_generator ${PRIVATE_SOURCES})
-
-target_link_libraries(mmaps_generator
-  PRIVATE
-    trinity-core-interface
-    extractor_common
-    mmaps_common)
+GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
 CollectIncludeDirectories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
+  PUBLIC_INCLUDES
+)
 
-target_include_directories(mmaps_generator
-  PUBLIC
-    ${PUBLIC_INCLUDES}
+add_library(mmaps_common ${PRIVATE_SOURCES})
+
+target_link_libraries(mmaps_common
   PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR})
+    trinity-core-interface
+  PUBLIC
+    common
+    Recast
+    Detour)
 
-set_target_properties(mmaps_generator
+target_include_directories(mmaps_common
+  PUBLIC
+    ${PUBLIC_INCLUDES})
+
+set_target_properties(mmaps_common
   PROPERTIES
     COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_MMAPS_COMMON
     FOLDER "tools")
 
-if(UNIX)
-  install(TARGETS mmaps_generator DESTINATION bin)
-elseif(WIN32)
-  install(TARGETS mmaps_generator DESTINATION "${CMAKE_INSTALL_PREFIX}")
+if(BUILD_SHARED_LIBS)
+  if(UNIX)
+    install(TARGETS mmaps_common
+      LIBRARY
+        DESTINATION lib)
+  elseif(WIN32)
+    install(TARGETS mmaps_common
+      RUNTIME
+        DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  endif()
 endif()

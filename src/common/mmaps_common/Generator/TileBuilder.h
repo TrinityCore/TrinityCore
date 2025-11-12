@@ -18,7 +18,8 @@
 #ifndef TRINITYCORE_TILE_BUILDER_H
 #define TRINITYCORE_TILE_BUILDER_H
 
-#include "Define.h"
+#include "Common.h"
+#include "Memory.h"
 #include "StringFormat.h"
 #include "TerrainBuilder.h"
 #include <DetourNavMesh.h>
@@ -28,10 +29,14 @@ namespace MMAP
 {
 struct TileConfig;
 
-class TileBuilder
+using detour_unique_ptr = std::unique_ptr<unsigned char, decltype(Trinity::unique_ptr_deleter<unsigned char*, &::dtFree>())>;
+
+class TC_MMAPS_COMMON_API TileBuilder
 {
 public:
-    TileBuilder(Optional<float> maxWalkableAngle,
+    TileBuilder(boost::filesystem::path const& inputDirectory,
+        boost::filesystem::path const& outputDirectory,
+        Optional<float> maxWalkableAngle,
         Optional<float> maxWalkableAngleNotSteep,
         bool skipLiquid,
         bool bigBaseUnit,
@@ -47,19 +52,29 @@ public:
     virtual ~TileBuilder();
 
     void buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh);
+
     // move map building
-    void buildMoveMapTile(uint32 mapID,
+    struct TileResult
+    {
+        detour_unique_ptr data;
+        int size = 0;
+    };
+    TileResult buildMoveMapTile(uint32 mapID,
         uint32 tileX,
         uint32 tileY,
         MeshData& meshData,
         float (&bmin)[3],
         float (&bmax)[3],
-        dtNavMesh* navMesh);
+        dtNavMeshParams const* navMeshParams,
+        std::string_view fileNameSuffix = ""sv);
+
+    void saveMoveMapTileToFile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh,
+        TileResult const& tileResult, std::string_view fileNameSuffix = ""sv);
 
     virtual bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const;
 
     static void getTileBounds(uint32 tileX, uint32 tileY,
-        float* verts, int vertCount,
+        float const* verts, std::size_t vertCount,
         float* bmin, float* bmax);
 
     rcConfig GetMapSpecificConfig(uint32 mapID, float const (&bmin)[3], float const (&bmax)[3], TileConfig const& tileConfig) const;
@@ -68,7 +83,8 @@ public:
 
     virtual void OnTileDone() { }
 
-private:
+protected:
+    boost::filesystem::path m_outputDirectory;
     Optional<float> m_maxWalkableAngle;
     Optional<float> m_maxWalkableAngleNotSteep;
     bool m_bigBaseUnit;

@@ -15,6 +15,7 @@ CollectSourceFiles(
   ${CMAKE_CURRENT_SOURCE_DIR}/Debugging/Windows
   ${CMAKE_CURRENT_SOURCE_DIR}/Platform
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
+  ${CMAKE_CURRENT_SOURCE_DIR}/mmaps_common
   ${CMAKE_CURRENT_SOURCE_DIR}/network)
 
 if(WIN32)
@@ -47,6 +48,7 @@ CollectIncludeDirectories(
   PUBLIC_INCLUDES
   # Exclude
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
+  ${CMAKE_CURRENT_SOURCE_DIR}/mmaps_common
   ${CMAKE_CURRENT_SOURCE_DIR}/network)
 
 target_include_directories(common
@@ -65,7 +67,6 @@ target_link_libraries(common
     boost
     fmt
     g3dlib
-    Detour
     sfmt
     utf8cpp
     openssl
@@ -104,4 +105,5 @@ unset(PRIVATE_SOURCES)
 unset(PRIVATE_PCH_HEADER)
 unset(PUBLIC_INCLUDES)
 
+add_subdirectory(mmaps_common)
 add_subdirectory(network)

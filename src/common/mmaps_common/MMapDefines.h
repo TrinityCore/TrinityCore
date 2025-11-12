@@ -19,22 +19,29 @@
 #define MMapDefines_h__
 
 #include "Define.h"
-#include "DetourNavMesh.h"
+#include <DetourNavMesh.h>
 
-const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 15
+inline uint32 constexpr MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
+inline uint32 constexpr MMAP_VERSION = 16;
+
+struct MmapNavMeshHeader
+{
+    uint32 mmapMagic = MMAP_MAGIC;
+    uint32 mmapVersion = MMAP_VERSION;
+    dtNavMeshParams params = { };
+    uint32 offmeshConnectionCount = 0;
+};
+
+static_assert(sizeof(MmapNavMeshHeader) == 40);
 
 struct MmapTileHeader
 {
-    uint32 mmapMagic;
-    uint32 dtVersion;
-    uint32 mmapVersion;
-    uint32 size;
-    char usesLiquids;
-    char padding[3];
-
-    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
-        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true), padding() { }
+    uint32 mmapMagic = MMAP_MAGIC;
+    uint32 dtVersion = DT_NAVMESH_VERSION;
+    uint32 mmapVersion = MMAP_VERSION;
+    uint32 size = 0;
+    char usesLiquids = true;
+    char padding[3] = { };
 };
 
 // All padding fields must be handled and initialized to ensure mmaps_generator will produce binary-identical *.mmtile files
@@ -60,13 +67,31 @@ enum NavArea
     NAV_AREA_ALL_MASK       = 0x3F // max allowed value
 };
 
-enum NavTerrainFlag
+enum NavTerrainFlag : uint16
 {
     NAV_EMPTY        = 0x00,
     NAV_GROUND       = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND),
     NAV_GROUND_STEEP = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_GROUND_STEEP),
     NAV_WATER        = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_WATER),
     NAV_MAGMA_SLIME  = 1 << (NAV_AREA_MAX_VALUE - NAV_AREA_MAGMA_SLIME)
+};
+
+enum OffMeshConnectionFlag : uint8
+{
+    OFFMESH_CONNECTION_FLAG_BIDIRECTIONAL   = 0x01
+};
+
+struct OffMeshData
+{
+    uint32 MapId;
+    uint32 TileX;
+    uint32 TileY;
+    float From[3];
+    float To[3];
+    float Radius;
+    OffMeshConnectionFlag ConnectionFlags;
+    uint8 AreaId;
+    NavTerrainFlag Flags;
 };
 
 #endif // MMapDefines_h__
