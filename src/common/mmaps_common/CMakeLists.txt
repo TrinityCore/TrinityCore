@@ -8,18 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES
-)
+add_library(mmaps_common)
 
-add_library(mmaps_common ${PRIVATE_SOURCES})
+CollectAndAddSourceFiles(
+  mmaps_common
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(mmaps_common
   PRIVATE
@@ -28,10 +23,6 @@ target_link_libraries(mmaps_common
     common
     Recast
     Detour)
-
-target_include_directories(mmaps_common
-  PUBLIC
-    ${PUBLIC_INCLUDES})
 
 set_target_properties(mmaps_common
   PROPERTIES
