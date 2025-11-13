@@ -2947,7 +2947,7 @@ void Creature::UpdateMovementCapabilities()
 
     // Some Amphibious creatures toggle swimming while engaged
     if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM) && IsEngaged())
-        if (!IsSwimPrevented() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
+        if (!CanOnlySwimIfTargetSwims() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
             SetUnitFlag(UNIT_FLAG_CAN_SWIM);
 
     SetSwim(IsInWater() && CanSwim());
@@ -3755,7 +3755,7 @@ void Creature::AtDisengage()
 
 void Creature::ForcePartyMembersIntoCombat()
 {
-    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT) || !IsEngaged())
+    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_RAID_COMBAT) || !IsEngaged())
         return;
 
     Trinity::Containers::FlatSet<Group const*> partiesToForceIntoCombat;

@@ -1628,7 +1628,7 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFl
         if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_CAN_SWIM))
             *unitFlags |= UNIT_FLAG_CAN_SWIM;
 
-        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_SWIM))
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANT_SWIM))
             *unitFlags |= UNIT_FLAG_CANT_SWIM;
     }
 
@@ -1638,7 +1638,7 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFl
         if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_TURN))
             *unitFlags2 |= UNIT_FLAG2_CANNOT_TURN;
 
-        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_PREVENT_SWIM))
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS))
             *unitFlags2 |= UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS;
 
         if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_INTERACT_WHILE_HOSTILE))
