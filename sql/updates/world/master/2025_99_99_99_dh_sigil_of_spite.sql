@@ -5,3 +5,8 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 DELETE FROM `areatrigger_template` WHERE (`IsCustom`=0 AND `Id` = 30889);
 INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `VerifiedBuild`) VALUES
 (30889, 0, 63834);
+
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dh_repeat_decree_conduit';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(307046, 'spell_dh_repeat_decree_conduit'),
+(389860, 'spell_dh_repeat_decree_conduit');

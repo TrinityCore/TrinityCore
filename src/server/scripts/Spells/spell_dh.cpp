@@ -170,6 +170,7 @@ enum DemonHunterSpells
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
     SPELL_DH_RAZOR_SPIKES                          = 210003,
+    SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
     SPELL_DH_SEVER                                 = 235964,
@@ -1450,6 +1451,25 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// 339895 - Repeat Decree (attached to 307046 - Elysian Decree and 389860 - Sigil of Spite)
+class spell_dh_repeat_decree_conduit : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_REPEAT_DECREE_CONDUIT });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_DH_REPEAT_DECREE_CONDUIT);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_dh_repeat_decree_conduit::PreventHitDefaultEffect, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 // Called by 162264 - Metamorphosis
 class spell_dh_restless_hunter : public AuraScript
 {
@@ -1779,6 +1799,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_know_your_enemy);
     RegisterSpellScript(spell_dh_last_resort);
     RegisterSpellScript(spell_dh_monster_rising);
+    RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
