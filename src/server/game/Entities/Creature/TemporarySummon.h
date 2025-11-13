@@ -71,8 +71,8 @@ class TC_GAME_API TempSummon : public Creature
         bool IsDismissedOnFlyingMount() const { return !HasFlag(CREATURE_STATIC_FLAG_5_DONT_DISMISS_ON_FLYING_MOUNT); }
         void SetDontDismissOnFlyingMount(bool dontDismissOnFlyingMount) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_DONT_DISMISS_ON_FLYING_MOUNT, dontDismissOnFlyingMount); }
 
-        bool IsAutoResummoned() const { return !HasFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON); }
-        void SetDontAutoResummon(bool dontAutoResummon) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON, dontAutoResummon); }
+        bool IsAutoResummoned() const { return !HasFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON_THIS_COMPANION_CREATURE); }
+        void SetDontAutoResummon(bool dontAutoResummon) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_6_DO_NOT_AUTO_RESUMMON_THIS_COMPANION_CREATURE, dontAutoResummon); }
 
         SummonPropertiesEntry const* const m_Properties;
 
