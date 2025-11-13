@@ -94,6 +94,7 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_DMG                   = 208645,
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
+    SPELL_DH_ELYSIAN_DECREE                        = 306830,
     SPELL_DH_ESSENCE_BREAK_DEBUFF                  = 320338,
     SPELL_DH_EYE_BEAM                              = 198013,
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
@@ -178,8 +179,8 @@ enum DemonHunterSpells
     SPELL_DH_SHATTER_SOUL_1                        = 209981,
     SPELL_DH_SHATTER_SOUL_2                        = 210038,
     SPELL_DH_SHATTERED_SOUL                        = 226258,
-    SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_1 = 228533,
-    SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_2 = 237867,
+    SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT           = 228533,
+    SPELL_DH_SHATTERED_SOUL_LESSER_LEFT            = 237867,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SIGIL_OF_CHAINS_AREA_SELECTOR         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_GRIP                  = 208674,
@@ -196,6 +197,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_MISERY_AOE                   = 207685,
     SPELL_DH_SIGIL_OF_SILENCE                      = 204490,
     SPELL_DH_SIGIL_OF_SILENCE_AOE                  = 204490,
+    SPELL_DH_SIGIL_OF_SPITE                        = 390163,
     SPELL_DH_SIGIL_OF_SPITE_AOE                    = 389860,
     SPELL_DH_SOUL_BARRIER                          = 227225,
     SPELL_DH_SOUL_CLEAVE                           = 228477,
@@ -844,6 +846,48 @@ class spell_dh_demon_spikes : public SpellScript
     {
         OnEffectHitTarget += SpellEffectFn(spell_dh_demon_spikes::HandleArmor, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+};
+
+// 307046 - Elysian Decree (Kyrian)
+// 389860 - Sigil of Spite
+class spell_dh_elysian_decree : public SpellScript
+{
+public:
+    spell_dh_elysian_decree(uint32 primarySpellId) : _primarySpellId(primarySpellId) { }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { _primarySpellId, EFFECT_2 } })
+            && sSpellMgr->AssertSpellInfo(_primarySpellId, DIFFICULTY_NONE)->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DUMMY);
+    }
+
+    bool Load() override
+    {
+        _maxFragmentsToCreate = sSpellMgr->AssertSpellInfo(_primarySpellId, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(GetCaster());
+        _fragmentsToCreate = _maxFragmentsToCreate;
+        return true;
+    }
+
+    void CreateLesserSoulFragments(SpellEffIndex effIndex)
+    {
+        int32 fragments = 1 + std::max(int32(_maxFragmentsToCreate - GetUnitTargetCountForEffect(effIndex)), 0);
+        fragments = std::min(fragments, _fragmentsToCreate);
+
+        for (int32 i = 0; i < fragments; ++i)
+            GetHitUnit()->CastSpell(GetCaster(), RAND(SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT), TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        _fragmentsToCreate -= fragments;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_elysian_decree::CreateLesserSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    uint32 _primarySpellId;
+    int32 _maxFragmentsToCreate = 0;
+    int32 _fragmentsToCreate = 0;
 };
 
 // 258860 - Essence Break
@@ -1783,6 +1827,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
+    RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
@@ -1803,6 +1848,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_sigil_of_chains);
+    RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);

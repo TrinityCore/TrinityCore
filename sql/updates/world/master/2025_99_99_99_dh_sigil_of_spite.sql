@@ -7,6 +7,10 @@ INSERT INTO `areatrigger_template` (`Id`, `IsCustom`, `VerifiedBuild`) VALUES
 (30889, 0, 63834);
 
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dh_repeat_decree_conduit';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dh_elysian_decree';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_dh_sigil_of_spite';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (307046, 'spell_dh_repeat_decree_conduit'),
-(389860, 'spell_dh_repeat_decree_conduit');
+(389860, 'spell_dh_repeat_decree_conduit'),
+(307046, 'spell_dh_elysian_decree'),
+(389860, 'spell_dh_sigil_of_spite');
