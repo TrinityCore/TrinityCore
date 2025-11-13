@@ -71,7 +71,7 @@
 #include "Timer.h"
 #include "TransportMgr.h"
 #include "VMapFactory.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "Vehicle.h"
 #include "World.h"
 #include "advstd.h"
@@ -1638,6 +1638,9 @@ void ObjectMgr::ChooseCreatureFlags(CreatureTemplate const* cInfo, uint64* npcFl
         if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_TURN))
             *unitFlags2 |= UNIT_FLAG2_CANNOT_TURN;
 
+        if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_PREVENT_SWIM))
+            *unitFlags2 |= UNIT_FLAG2_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS;
+
         if (staticFlags.HasFlag(CREATURE_STATIC_FLAG_5_INTERACT_WHILE_HOSTILE))
             *unitFlags2 |= UNIT_FLAG2_INTERACT_WHILE_HOSTILE;
     }
@@ -2197,7 +2200,7 @@ void ObjectMgr::LoadCreatures()
 
         if (sWorld->getBoolConfig(CONFIG_CREATURE_CHECK_INVALID_POSITION))
         {
-            if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+            if (VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
             {
                 if (vmgr->isMapLoadingEnabled() && !IsTransportMap(data.mapId))
                 {
@@ -2205,7 +2208,7 @@ void ObjectMgr::LoadCreatures()
                     int gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
                     int gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
-                    VMAP::LoadResult result = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), data.mapId, gx, gy);
+                    VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `creature` has creature (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
                             guid, data.id, data.mapId, data.spawnPoint.ToString());
@@ -2553,7 +2556,7 @@ void ObjectMgr::LoadGameObjects()
 
         if (sWorld->getBoolConfig(CONFIG_GAME_OBJECT_CHECK_INVALID_POSITION))
         {
-            if (VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
+            if (VMAP::VMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager())
             {
                 if (vmgr->isMapLoadingEnabled() && !IsTransportMap(data.mapId))
                 {
@@ -2561,7 +2564,7 @@ void ObjectMgr::LoadGameObjects()
                     int gx = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.x_coord;
                     int gy = (MAX_NUMBER_OF_GRIDS - 1) - gridCoord.y_coord;
 
-                    VMAP::LoadResult result = vmgr->existsMap((sWorld->GetDataPath() + "vmaps").c_str(), data.mapId, gx, gy);
+                    VMAP::LoadResult result = vmgr->existsMap(sWorld->GetDataPath() + "vmaps", data.mapId, gx, gy);
                     if (result != VMAP::LoadResult::Success)
                         TC_LOG_ERROR("sql.sql", "Table `gameobject` has gameobject (GUID: {} Entry: {} MapID: {}) spawned on a possible invalid position ({})",
                             guid, data.id, data.mapId, data.spawnPoint.ToString());
