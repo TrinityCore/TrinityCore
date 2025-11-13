@@ -1,1 +1,0 @@
-DROP PROCEDURE IF EXISTS apply_if_not_exists_2025_08_13_00;

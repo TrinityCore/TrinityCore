@@ -20,13 +20,14 @@
 
 #include "Define.h"
 #include "BoundingIntervalHierarchy.h"
+#include <span>
 #include <unordered_map>
 
 namespace VMAP
 {
     class ModelInstance;
     class GroupModel;
-    class VMapManager2;
+    class VMapManager;
     enum class LoadResult : uint8;
     enum class ModelIgnoreFlags : uint32;
 
@@ -60,27 +61,27 @@ namespace VMAP
             std::string iBasePath;
 
         private:
-            bool getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
+            bool getIntersectionTime(G3D::Ray const& pRay, float& pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags) const;
             //bool containsLoadedMapTile(unsigned int pTileIdent) const { return(iLoadedMapTiles.containsKey(pTileIdent)); }
         public:
-            static uint32 packTileID(uint32 tileX, uint32 tileY) { return tileX<<16 | tileY; }
-            static void unpackTileID(uint32 ID, uint32 &tileX, uint32 &tileY) { tileX = ID >> 16; tileY = ID & 0xFF; }
-            static LoadResult CanLoadMap(const std::string &basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager2* vm);
+            static uint32 packTileID(uint32 tileX, uint32 tileY) { return tileX << 16 | tileY; }
+            static void unpackTileID(uint32 ID, uint32& tileX, uint32& tileY) { tileX = ID >> 16; tileY = ID & 0xFF; }
+            static LoadResult CanLoadMap(std::string const& basePath, uint32 mapID, uint32 tileX, uint32 tileY, VMapManager* vm);
 
-            StaticMapTree(uint32 mapID, const std::string &basePath);
+            StaticMapTree(uint32 mapID, std::string const& basePath);
             ~StaticMapTree();
 
-            bool isInLineOfSight(const G3D::Vector3& pos1, const G3D::Vector3& pos2, ModelIgnoreFlags ignoreFlags) const;
-            bool getObjectHitPos(const G3D::Vector3& pos1, const G3D::Vector3& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
-            float getHeight(const G3D::Vector3& pPos, float maxSearchDist) const;
-            bool GetLocationInfo(const G3D::Vector3 &pos, LocationInfo &info) const;
+            bool isInLineOfSight(G3D::Vector3 const& pos1, G3D::Vector3 const& pos2, ModelIgnoreFlags ignoreFlags) const;
+            bool getObjectHitPos(G3D::Vector3 const& pos1, G3D::Vector3 const& pos2, G3D::Vector3& pResultHitPos, float pModifyDist) const;
+            float getHeight(G3D::Vector3 const& pPos, float maxSearchDist) const;
+            bool GetLocationInfo(G3D::Vector3 const& pos, LocationInfo& info) const;
 
             LoadResult InitMap(std::string const& fname);
             void UnloadMap();
-            LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
-            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm);
+            LoadResult LoadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
+            void UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager* vm);
             uint32 numLoadedTiles() const { return uint32(iLoadedTiles.size()); }
-            void getModelInstances(ModelInstance* &models, uint32 &count);
+            std::span<ModelInstance const> getModelInstances() const;
 
         private:
             StaticMapTree(StaticMapTree const& right) = delete;

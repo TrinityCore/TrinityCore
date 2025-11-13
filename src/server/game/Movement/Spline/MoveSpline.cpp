@@ -37,7 +37,7 @@ Location MoveSpline::computePosition(int32 time_point, int32 point_index) const
     c.orientation = initialOrientation;
     spline.evaluate_percent(point_index, u, c);
 
-    if (splineflags.Animation)
+    if (anim_tier)
         ;// MoveSplineFlag::Animation disables falling or parabolic movement
     else if (splineflags.Parabolic)
         computeParabolicElevation(time_point, c.z);
@@ -214,10 +214,10 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
 
     // init parabolic / animation
     // spline initialized, duration known and i able to compute parabolic acceleration
-    if (args.flags.HasFlag(MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::Animation | MoveSplineFlagEnum::FadeObject))
+    if (args.flags.HasFlag(MoveSplineFlagEnum::Parabolic | MoveSplineFlagEnum::FadeObject) || args.animTier)
     {
         int32 spline_duration = Duration();
-        effect_start_time = spline_duration * args.effect_start_time_percent + args.effect_start_time.count();
+        effect_start_time = spline.length(spline.first() + args.effect_start_point);
         if (effect_start_time > spline_duration)
             effect_start_time = spline_duration;
 
@@ -255,7 +255,7 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
 
     CHECK(path.size() > 1, unit->GetDebugInfo());
     CHECK(velocity >= 0.01f, unit->GetDebugInfo());
-    CHECK(effect_start_time_percent >= 0.f && effect_start_time_percent <= 1.f, unit->GetDebugInfo());
+    CHECK(effect_start_point < std::ssize(path), unit->GetDebugInfo());
     CHECK(_checkPathLengths(), unit->GetGUID().ToString());
     if (spellEffectExtra)
     {
@@ -269,22 +269,18 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
 // check path lengths - why are we even starting such short movement?
 bool MoveSplineInitArgs::_checkPathLengths()
 {
-    constexpr float MIN_XY_OFFSET = -(1 << 11) / 4.0f;
-    constexpr float MIN_Z_OFFSET = -(1 << 10) / 4.0f;
-
-    // positive values have 1 less bit limit (if the highest bit was set, value would be sign extended into negative when decompressing)
     constexpr float MAX_XY_OFFSET = (1 << 10) / 4.0f;
     constexpr float MAX_Z_OFFSET = (1 << 9) / 4.0f;
 
-    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > MIN_XY_OFFSET && coord < MAX_XY_OFFSET; };
-    auto isValidPackedZOffset = [](float coord) -> bool { return coord > MIN_Z_OFFSET && coord < MAX_Z_OFFSET; };
+    auto isValidPackedXYOffset = [](float coord) -> bool { return coord > -MAX_XY_OFFSET && coord < MAX_XY_OFFSET; };
+    auto isValidPackedZOffset = [](float coord) -> bool { return coord > -MAX_Z_OFFSET && coord < MAX_Z_OFFSET; };
 
     if (path.size() > 2)
     {
         Vector3 middle = (path.front() + path.back()) / 2;
         for (uint32 i = 1; i < path.size() - 1; ++i)
         {
-            if ((path[i + 1] - path[i]).length() < 0.1f)
+            if ((path[i + 1] - path[i]).squaredLength() < 0.01f)
                 return false;
 
             // when compression is enabled, each point coord is packed into 11 bits (10 for Z)
@@ -299,7 +295,7 @@ bool MoveSplineInitArgs::_checkPathLengths()
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs() : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_time_percent(0.f), effect_start_time(0ms),
+parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_point(0),
 splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {

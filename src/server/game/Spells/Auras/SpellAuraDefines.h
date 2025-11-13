@@ -308,7 +308,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_REMOVE_TRANSMOG_COST                         = 222,
     SPELL_AURA_REMOVE_BARBER_SHOP_COST                      = 223,
-    SPELL_AURA_LEARN_TALENT                                 = 224,  // NYI
+    SPELL_AURA_MOD_TRAIT_NODE_ENTRY_RANK                    = 224,  // NYI; Amount = ranks, MiscValue[0] = TraitNodeEntryID, MiscValue[1] = TraitNodeID (there are leftover deprecated spells that still have data referring to its old implementation, SPELL_AURA_LEARN_TALENT)
     SPELL_AURA_MOD_VISIBILITY_RANGE                         = 225,
     SPELL_AURA_PERIODIC_DUMMY                               = 226,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,

@@ -65,7 +65,7 @@
 #include "Util.h"
 #include "VMapFactory.h"
 #include "Vehicle.h"
-#include "VMapManager2.h"
+#include "VMapManager.h"
 #include "World.h"
 #include "WorldSession.h"
 #include <numeric>
@@ -6393,7 +6393,7 @@ SpellCastResult Spell::CheckCast(bool strict, int32* param1 /*= nullptr*/, int32
                     else if (m_preGeneratedPath->IsInvalidDestinationZ(target)) // Check position z, if not in a straight line
                         return SPELL_FAILED_NOPATH;
 
-                    m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target), objSize); // move back
+                    m_preGeneratedPath->ShortenPathUntilDist(PositionToVector3(target->GetPosition()), objSize); // move back
                 }
                 break;
             }

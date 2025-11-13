@@ -88,12 +88,9 @@ foreach(GRAPH_KEY ${GRAPH_KEYS})
   message("    |")
 endforeach()
 
-# Base sources which are used by every script project
-if(USE_SCRIPTPCH)
-  set(PRIVATE_PCH_HEADER ScriptPCH.h)
-endif()
-
 GroupSources(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_library(scripts STATIC)
 
 # Configures the scriptloader with the given name and stores the output in the LOADER_OUT variable.
 # It is possible to expose multiple subdirectories from the same scriptloader through passing
@@ -145,31 +142,27 @@ foreach(SCRIPT_MODULE ${SCRIPT_MODULE_LIST})
       # Add the module name to STATIC_SCRIPT_MODULES
       list(APPEND STATIC_SCRIPT_MODULES ${SCRIPT_MODULE})
       # Add the module content to the whole static module
-      CollectSourceFiles(${SCRIPT_MODULE_PATH} PRIVATE_SOURCES)
+      CollectAndAddSourceFiles(scripts ${SCRIPT_MODULE_PATH})
     endif()
   elseif(${SCRIPT_MODULE_VARIABLE} STREQUAL "dynamic")
     # Generate an own dynamic module which is loadable on runtime
-    # Add the module content to the whole static module
-    unset(SCRIPT_MODULE_PRIVATE_SOURCES)
-    CollectSourceFiles(${SCRIPT_MODULE_PATH} SCRIPT_MODULE_PRIVATE_SOURCES)
     # Configure the scriptloader
     ConfigureScriptLoader(${SCRIPT_MODULE} SCRIPT_MODULE_PRIVATE_SCRIPTLOADER ON ${SCRIPT_MODULE})
     GetProjectNameOfScriptModule(${SCRIPT_MODULE} SCRIPT_MODULE_PROJECT_NAME)
     # Add the module name to DYNAMIC_SCRIPT_MODULES
     list(APPEND DYNAMIC_SCRIPT_MODULE_PROJECTS ${SCRIPT_MODULE_PROJECT_NAME})
     # Create the script module project
-    add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED
-      ${SCRIPT_MODULE_PRIVATE_SOURCES}
-      ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
+    add_library(${SCRIPT_MODULE_PROJECT_NAME} SHARED)
+    CollectAndAddSourceFiles(${SCRIPT_MODULE_PROJECT_NAME} ${SCRIPT_MODULE_PATH})
+    target_sources(${SCRIPT_MODULE_PROJECT_NAME}
+      PUBLIC
+        FILE_SET HEADERS FILES ScriptLoader.h)
+
     target_link_libraries(${SCRIPT_MODULE_PROJECT_NAME}
       PRIVATE
         trinity-core-interface
       PUBLIC
         game)
-
-    target_include_directories(${SCRIPT_MODULE_PROJECT_NAME}
-      PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR})
 
     set_target_properties(${SCRIPT_MODULE_PROJECT_NAME}
       PROPERTIES
@@ -203,20 +196,19 @@ set(WORLDSERVER_DYNAMIC_SCRIPT_MODULES_DEPENDENCIES ${DYNAMIC_SCRIPT_MODULE_PROJ
 
 ConfigureScriptLoader("static" SCRIPT_MODULE_PRIVATE_SCRIPTLOADER OFF ${STATIC_SCRIPT_MODULES})
 
-add_library(scripts STATIC
-  ScriptLoader.h
-  ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER}
-  ${PRIVATE_SOURCES})
+target_sources(scripts
+  PRIVATE
+    ${SCRIPT_MODULE_PRIVATE_SCRIPTLOADER})
+
+target_sources(scripts
+  PUBLIC
+    FILE_SET HEADERS FILES ScriptLoader.h)
 
 target_link_libraries(scripts
   PRIVATE
     trinity-core-interface
   PUBLIC
     game-interface)
-
-target_include_directories(scripts
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR})
 
 set_target_properties(scripts
   PROPERTIES
@@ -225,7 +217,7 @@ set_target_properties(scripts
 
 # Generate precompiled header
 if(USE_SCRIPTPCH)
-  add_cxx_pch("scripts" ${PRIVATE_PCH_HEADER} ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
+  add_cxx_pch("scripts" ScriptPCH.h ${DYNAMIC_SCRIPT_MODULE_PROJECTS})
   reuse_cxx_pch("${DYNAMIC_SCRIPT_MODULE_PROJECTS}" scripts)
 endif()
 
