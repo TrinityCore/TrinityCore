@@ -1596,6 +1596,12 @@ struct areatrigger_dh_generic_sigil : AreaTriggerAI
     }
 };
 
+using areatrigger_dh_sigil_of_chains = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>;
+using areatrigger_dh_sigil_of_flame = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>;
+using areatrigger_dh_sigil_of_silence = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>;
+using areatrigger_dh_sigil_of_misery = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>;
+using areatrigger_dh_sigil_of_spite = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SPITE_AOE>;
+
 // 208673 - Sigil of Chains
 class spell_dh_sigil_of_chains : public SpellScript
 {
@@ -1783,11 +1789,11 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_violent_transformation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>>("areatrigger_dh_sigil_of_chains");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>>("areatrigger_dh_sigil_of_flame");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>>("areatrigger_dh_sigil_of_silence");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>>("areatrigger_dh_sigil_of_misery");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SPITE_AOE>>("areatrigger_dh_sigil_of_spite");
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_flame);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_silence);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_misery);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_spite);
 
     // Havoc
 
