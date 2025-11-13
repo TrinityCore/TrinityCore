@@ -124,6 +124,7 @@ enum PriestSpells
     SPELL_PRIEST_LIGHTS_WRATH_VISUAL                = 215795,
     SPELL_PRIEST_LIGHTWELL                          = 372835,
     SPELL_PRIEST_LIGHTWELL_CHARGES                  = 372838,
+    SPELL_PRIEST_LIGHTWELL_DRIVER                   = 372840,
     SPELL_PRIEST_LIGHTWELL_MISSILE                  = 439820,
     SPELL_PRIEST_LIGHTWELL_TRIGGER                  = 372845,
     SPELL_PRIEST_LIGHTSPRING_RENEW                  = 126141,
@@ -225,7 +226,8 @@ enum PriestSummons
 {
     NPC_PRIEST_DIVINE_IMAGE                         = 198236,
     NPC_PRIEST_MINDBENDER                           = 62982,
-    NPC_PRIEST_SHADOWFIEND                          = 19668
+    NPC_PRIEST_SHADOWFIEND                          = 19668,
+    NPC_PRIEST_LIGHTWELL                            = 189820
 };
 
 class RaidCheck
@@ -1739,11 +1741,7 @@ class spell_pri_lightwell_trigger : public SpellScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL, SPELL_PRIEST_LIGHTSPRING_RENEW })
-            && ValidateSpellEffect
-            ({
-                {SPELL_PRIEST_LIGHTWELL, EFFECT_1},
-                {SPELL_PRIEST_LIGHTWELL, EFFECT_2}
-                });
+            && ValidateSpellEffect({ {SPELL_PRIEST_LIGHTWELL, EFFECT_1} });
     }
 
     void FilterTarget(std::list<WorldObject*>& targets)
@@ -1789,15 +1787,16 @@ class spell_pri_lightwell_trigger : public SpellScript
             if (spell_pri_lightwell_charges_aura* script = chargesAura->GetScript<spell_pri_lightwell_charges_aura>())
                 script->SetLightwellTarget(target->GetGUID());
 
-        lightwell->CastSpell(target, SPELL_PRIEST_LIGHTSPRING_RENEW);
+        lightwell->CastSpell(target, SPELL_PRIEST_LIGHTSPRING_RENEW, TRIGGERED_FULL_MASK);
     }
 
-    static std::array<Trinity::TargetPriorityRule, 4> GetLightwellRules(Unit const* summoner, int32 healthPct)
+    static std::array<Trinity::TargetPriorityRule, 5> GetLightwellRules(Unit const* summoner, int32 healthPct)
     {
         return
         {
             [summoner](WorldObject const* target) { return summoner->IsValidAssistTarget(target); },
             [healthPct](Unit const* target) {return target->GetHealthPct() < healthPct; },
+            [](Unit const* target) { return !target->IsFullHealth(); },
             [](WorldObject const* target) { return target->IsPlayer() || (target->IsCreature() && target->ToCreature()->IsTreatedAsRaidUnit()); },
             [summoner](Unit const* target) { return target->IsInRaidWith(summoner); }
         };
@@ -1810,53 +1809,6 @@ class spell_pri_lightwell_trigger : public SpellScript
     }
 
     int32 _healthPct{};
-};
-
-// 126141 - Lightspring Renew (Lightwell)
-class spell_pri_lightspring_renew : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_PRIEST_LIGHTWELL_CHARGES })
-            && ValidateSpellEffect({ {SPELL_PRIEST_LIGHTSPRING_RENEW, EFFECT_1} });
-    }
-
-    void HandleLaunch(SpellEffIndex /*effIndex*/)
-    {
-        Unit* lightwell = GetCaster();
-        if (!lightwell)
-            return;
-
-        TempSummon* temp = lightwell->ToTempSummon();
-        if (!temp)
-            return;
-
-        Unit* summoner = temp->GetSummonerUnit();;
-        if (!summoner)
-            return;
-
-        Aura* chargesAura = summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES);
-        if (!chargesAura)
-            return;
-
-        lightwell->CastSpell(GetHitUnit(), SPELL_PRIEST_LIGHTWELL_MISSILE);
-        chargesAura->ModStackAmount(-1);
-
-        if (!summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
-            if (Creature* creature = lightwell->ToCreature())
-                creature->DespawnOrUnsummon();
-    }
-
-    void HandleEffectHit(SpellEffIndex effIndex)
-    {
-        PreventHitDefaultEffect(effIndex);
-    }
-
-    void Register() override
-    {
-        OnEffectLaunchTarget += SpellEffectFn(spell_pri_lightspring_renew::HandleLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
-        OnEffectHitTarget += SpellEffectFn(spell_pri_lightspring_renew::HandleEffectHit, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
-    }
 };
 
 // 439820 - Lightwell (Missile)
@@ -1882,15 +1834,31 @@ class spell_pri_lightwell_missile : public SpellScript
         if (!summoner)
             return;
 
-        Unit* target = GetHitUnit();
+        Unit* target = nullptr;
+        if (Aura* chargesAura = summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+            if (spell_pri_lightwell_charges_aura* script = chargesAura->GetScript<spell_pri_lightwell_charges_aura>())
+                target = script->GetLightwellTarget();
+
+        if (!target)
+            return;
 
         int32 renewDuration = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_LIGHTWELL, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(summoner);
         CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
         args.SetTriggeringSpell(GetSpell());
         args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
 
-        lightwell->CastSpell(target, SPELL_PRIEST_RENEW, args);
-        lightwell->CastSpell(target, SPELL_PRIEST_BLESSED_BOLT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD);
+        summoner->CastSpell(target, SPELL_PRIEST_RENEW, args);
+        summoner->CastSpell(target, SPELL_PRIEST_BLESSED_BOLT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD);
+
+        Aura* chargesAura = summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES);
+        if (!chargesAura)
+            return;
+
+        chargesAura->ModStackAmount(-1);
+
+        if (!summoner->GetAura(SPELL_PRIEST_LIGHTWELL_CHARGES))
+            if (Creature* creature = lightwell->ToCreature())
+                creature->DespawnOrUnsummon();
     }
 
     void Register() override
@@ -3825,7 +3793,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_lightwell);
     RegisterSpellScript(spell_pri_lightwell_charges_aura);
     RegisterSpellScript(spell_pri_lightwell_trigger);
-    RegisterSpellScript(spell_pri_lightspring_renew);
     RegisterSpellScript(spell_pri_lightwell_missile);
     RegisterSpellScript(spell_pri_lightwell_cd_reduction);
     RegisterSpellScript(spell_pri_mind_bomb);
