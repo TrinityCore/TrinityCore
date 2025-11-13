@@ -29,11 +29,13 @@ INSERT INTO `quest_request_items` (`ID`, `EmoteOnComplete`, `EmoteOnIncomplete`,
 -- Creature
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=536871168, `VerifiedBuild`=55461 WHERE (`Entry`=57625 AND `DifficultyID`=0); -- 57625 (Generic Sparkle Bunny (CSA)) - Sessile, Floating
 
--- Gameobjects
-DELETE FROM `gameobject_template_addon` WHERE `entry` IN (209369, 209803, 209802, 209801);
+-- Duolicate spawns
 DELETE FROM `gameobject` WHERE `guid` IN (300150, 300151, 300153); -- Duplicated spawns
+DELETE FROM `gameobject_template_addon` WHERE `entry` IN (209369, 209803, 209802, 209801);
 DELETE FROM `creature` WHERE `guid` IN (450604, 450603, 450602); -- Duplicated spawns
+DELETE FROM `creature_addon` WHERE `guid` IN (450604, 450603, 450602); -- Duplicated spawns
 
+-- GameObjects
 UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHERE `entry`=209803; -- Brazier of the Violet Flame
 UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHERE `entry`=209801; -- Brazier of the Red Flame
 UPDATE `gameobject_template` SET `ContentTuningId`=80, `VerifiedBuild`=55461 WHERE `entry`=209369; -- Brazier of the Flickering Flame
