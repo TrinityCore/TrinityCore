@@ -183,6 +183,10 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOUL                        = 226258,
     SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT           = 228533,
     SPELL_DH_SHATTERED_SOUL_LESSER_LEFT            = 237867,
+    SPELL_DH_SHATTERED_SOULS_HAVOC                 = 209651,
+    SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER   = 226370,
+    SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER = 209687,
+    SPELL_DH_SHATTERED_SOULS_MARKER                = 221461,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SIGIL_OF_CHAINS_AREA_SELECTOR         = 204834,
     SPELL_DH_SIGIL_OF_CHAINS_GRIP                  = 208674,
@@ -1594,6 +1598,68 @@ private:
     int32 _furySpent = 0;
 };
 
+// 178940 - Shattered Souls
+class spell_dh_shattered_souls_havoc : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_HAVOC });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetProcTarget();
+
+        if (!caster || !target)
+            return;
+
+        target->CastSpell(caster, SPELL_DH_SHATTERED_SOULS_HAVOC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_havoc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 209651 - Shattered Souls
+class spell_dh_shattered_souls_havoc_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER, SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER });
+    }
+
+    void HandleSoulFragment(SpellEffIndex /*effIndex*/) const
+    {
+        if (Unit* target = GetExplTargetUnit())
+            target->CastSpell(GetHitDest()->GetPosition(), GetCaster()->GetCreatureType() == CREATURE_TYPE_DEMON ? SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER : SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_dh_shattered_souls_havoc_trigger::HandleSoulFragment, EFFECT_1, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 209693 - Shattered Souls and 209788 - Shattered Souls
+// Id - 3680 and 6659
+template<uint32 SpellId>
+struct at_dh_shattered_souls : public AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitEnter(Unit* unit) override
+    {
+        unit->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        at->Remove();
+    }
+};
+
 // 391166 - Soul Furnace
 class spell_dh_soul_furnace : public AuraScript
 {
@@ -1852,6 +1918,10 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
+    RegisterSpellScript(spell_dh_shattered_souls_havoc);
+    RegisterSpellScript(spell_dh_shattered_souls_havoc_trigger);
+    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_SHATTERED>>("at_dh_shattered_souls_havoc_shattered");
+    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_DEMON>>("at_dh_shattered_souls_havoc_demon");
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
     RegisterSpellScript(spell_dh_student_of_suffering);
