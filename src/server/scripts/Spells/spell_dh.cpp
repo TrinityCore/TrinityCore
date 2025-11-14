@@ -183,9 +183,9 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOUL                        = 226258,
     SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT           = 228533,
     SPELL_DH_SHATTERED_SOUL_LESSER_LEFT            = 237867,
-    SPELL_DH_SHATTERED_SOULS                       = 209651,
-    SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER         = 226370,
-    SPELL_DH_SHATTERED_SOULS_SHATTERED_TRIGGER     = 209687,
+    SPELL_DH_SHATTERED_SOULS_HAVOC                 = 209651,
+    SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER   = 226370,
+    SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER = 209687,
     SPELL_DH_SHATTERED_SOULS_MARKER                = 221461,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SIGIL_OF_CHAINS_AREA_SELECTOR         = 204834,
@@ -1603,15 +1603,10 @@ class spell_dh_shattered_souls : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS });
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_HAVOC });
     }
 
-    bool CheckProc(ProcEventInfo& /*eventInfo*/) const
-    {
-        return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-    }
-
-    void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo) const
+    static void HandleProc(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
@@ -1619,12 +1614,11 @@ class spell_dh_shattered_souls : public AuraScript
         if (!caster || !target)
             return;
 
-        target->CastSpell(caster, SPELL_DH_SHATTERED_SOULS, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->CastSpell(caster, SPELL_DH_SHATTERED_SOULS_HAVOC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_dh_shattered_souls::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1634,13 +1628,13 @@ class spell_dh_shattered_souls_trigger : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER, SPELL_DH_SHATTERED_SOULS_SHATTERED_TRIGGER });
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER, SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER });
     }
 
     void HandleSoulFragment(SpellEffIndex /*effIndex*/) const
     {
         if (Unit* target = GetExplTargetUnit())
-            target->CastSpell(GetHitDest()->GetPosition(), GetCaster()->GetCreatureType() == CREATURE_TYPE_DEMON ? SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER : SPELL_DH_SHATTERED_SOULS_SHATTERED_TRIGGER, CastSpellExtraArgsInit{
+            target->CastSpell(GetHitDest()->GetPosition(), GetCaster()->GetCreatureType() == CREATURE_TYPE_DEMON ? SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER : SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
             });
