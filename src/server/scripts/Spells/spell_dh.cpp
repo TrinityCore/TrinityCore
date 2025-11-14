@@ -95,6 +95,7 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
     SPELL_DH_ELYSIAN_DECREE                        = 306830,
+    SPELL_DH_ELYSIAN_DECREE_AOE                    = 307046,
     SPELL_DH_ESSENCE_BREAK_DEBUFF                  = 320338,
     SPELL_DH_EYE_BEAM                              = 198013,
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
@@ -870,6 +871,7 @@ public:
 
     void CreateLesserSoulFragments(SpellEffIndex effIndex)
     {
+        // spawn more than 1 fragment per target if there are less than 3 total targets
         int32 fragments = 1 + std::max(int32(_maxFragmentsToCreate - GetUnitTargetCountForEffect(effIndex)), 0);
         fragments = std::min(fragments, _fragmentsToCreate);
 
@@ -1660,6 +1662,7 @@ struct areatrigger_dh_generic_sigil : AreaTriggerAI
     }
 };
 
+using at_dh_elysian_decree = areatrigger_dh_generic_sigil<SPELL_DH_ELYSIAN_DECREE_AOE>;
 using areatrigger_dh_sigil_of_chains = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>;
 using areatrigger_dh_sigil_of_flame = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>;
 using areatrigger_dh_sigil_of_silence = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>;
@@ -1828,6 +1831,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
+    RegisterAreaTriggerAI(at_dh_elysian_decree);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
