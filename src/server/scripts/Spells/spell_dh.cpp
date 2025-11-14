@@ -23,6 +23,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "PathGenerator.h"
 #include "Player.h"
@@ -94,6 +95,8 @@ enum DemonHunterSpells
     SPELL_DH_DEMONIC_TRAMPLE_DMG                   = 208645,
     SPELL_DH_DEMONIC_TRAMPLE_STUN                  = 213491,
     SPELL_DH_DEMONS_BITE                           = 162243,
+    SPELL_DH_ELYSIAN_DECREE                        = 306830,
+    SPELL_DH_ELYSIAN_DECREE_AOE                    = 307046,
     SPELL_DH_ESSENCE_BREAK_DEBUFF                  = 320338,
     SPELL_DH_EYE_BEAM                              = 198013,
     SPELL_DH_EYE_BEAM_DAMAGE                       = 198030,
@@ -170,6 +173,7 @@ enum DemonHunterSpells
     SPELL_DH_RAIN_OF_CHAOS                         = 205628,
     SPELL_DH_RAIN_OF_CHAOS_IMPACT                  = 232538,
     SPELL_DH_RAZOR_SPIKES                          = 210003,
+    SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
     SPELL_DH_SEVER                                 = 235964,
@@ -177,8 +181,8 @@ enum DemonHunterSpells
     SPELL_DH_SHATTER_SOUL_1                        = 209981,
     SPELL_DH_SHATTER_SOUL_2                        = 210038,
     SPELL_DH_SHATTERED_SOUL                        = 226258,
-    SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_1 = 228533,
-    SPELL_DH_SHATTERED_SOUL_LESSER_SOUL_FRAGMENT_2 = 237867,
+    SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT           = 228533,
+    SPELL_DH_SHATTERED_SOUL_LESSER_LEFT            = 237867,
     SPELL_DH_SHATTERED_SOULS                       = 209651,
     SPELL_DH_SHATTERED_SOULS_DEMON_TRIGGER         = 226370,
     SPELL_DH_SHATTERED_SOULS_SHATTERED_TRIGGER     = 209687,
@@ -199,6 +203,8 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_MISERY_AOE                   = 207685,
     SPELL_DH_SIGIL_OF_SILENCE                      = 204490,
     SPELL_DH_SIGIL_OF_SILENCE_AOE                  = 204490,
+    SPELL_DH_SIGIL_OF_SPITE                        = 390163,
+    SPELL_DH_SIGIL_OF_SPITE_AOE                    = 389860,
     SPELL_DH_SOUL_BARRIER                          = 227225,
     SPELL_DH_SOUL_CLEAVE                           = 228477,
     SPELL_DH_SOUL_CLEAVE_DMG                       = 228478,
@@ -848,6 +854,49 @@ class spell_dh_demon_spikes : public SpellScript
     }
 };
 
+// 307046 - Elysian Decree (Kyrian)
+// 389860 - Sigil of Spite
+class spell_dh_elysian_decree : public SpellScript
+{
+public:
+    spell_dh_elysian_decree(uint32 primarySpellId) : _primarySpellId(primarySpellId) { }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { _primarySpellId, EFFECT_2 } })
+            && sSpellMgr->AssertSpellInfo(_primarySpellId, DIFFICULTY_NONE)->GetEffect(EFFECT_2).IsEffect(SPELL_EFFECT_DUMMY);
+    }
+
+    bool Load() override
+    {
+        _maxFragmentsToCreate = sSpellMgr->AssertSpellInfo(_primarySpellId, GetCastDifficulty())->GetEffect(EFFECT_2).CalcValue(GetCaster());
+        _fragmentsToCreate = _maxFragmentsToCreate;
+        return true;
+    }
+
+    void CreateLesserSoulFragments(SpellEffIndex effIndex)
+    {
+        // spawn more than 1 fragment per target if there are less than 3 total targets
+        int32 fragments = 1 + std::max(int32(_maxFragmentsToCreate - GetUnitTargetCountForEffect(effIndex)), 0);
+        fragments = std::min(fragments, _fragmentsToCreate);
+
+        for (int32 i = 0; i < fragments; ++i)
+            GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(std::array{ SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT }), TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        _fragmentsToCreate -= fragments;
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_elysian_decree::CreateLesserSoulFragments, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    uint32 _primarySpellId;
+    int32 _maxFragmentsToCreate = 0;
+    int32 _fragmentsToCreate = 0;
+};
+
 // 258860 - Essence Break
 class spell_dh_essence_break : public SpellScript
 {
@@ -1453,6 +1502,25 @@ class spell_dh_glide_timer : public AuraScript
     }
 };
 
+// 339895 - Repeat Decree (attached to 307046 - Elysian Decree and 389860 - Sigil of Spite)
+class spell_dh_repeat_decree_conduit : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_REPEAT_DECREE_CONDUIT });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_DH_REPEAT_DECREE_CONDUIT);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_dh_repeat_decree_conduit::PreventHitDefaultEffect, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+    }
+};
+
 // Called by 162264 - Metamorphosis
 class spell_dh_restless_hunter : public AuraScript
 {
@@ -1657,6 +1725,7 @@ class spell_dh_soul_furnace_conduit : public AuraScript
 // 204596 - Sigil of Flame
 // 207684 - Sigil of Misery
 // 202137 - Sigil of Silence
+// 390163 - Sigil of Spite
 template<uint32 TriggerSpellId, uint32 TriggerSpellId2 = 0>
 struct areatrigger_dh_generic_sigil : AreaTriggerAI
 {
@@ -1666,12 +1735,19 @@ struct areatrigger_dh_generic_sigil : AreaTriggerAI
     {
         if (Unit* caster = at->GetCaster())
         {
-            caster->CastSpell(at->GetPosition(), TriggerSpellId);
+            caster->CastSpell(at->GetPosition(), TriggerSpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
             if constexpr (TriggerSpellId2 != 0)
-                caster->CastSpell(at->GetPosition(), TriggerSpellId2);
+                caster->CastSpell(at->GetPosition(), TriggerSpellId2, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         }
     }
 };
+
+using at_dh_elysian_decree = areatrigger_dh_generic_sigil<SPELL_DH_ELYSIAN_DECREE_AOE>;
+using areatrigger_dh_sigil_of_chains = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>;
+using areatrigger_dh_sigil_of_flame = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>;
+using areatrigger_dh_sigil_of_silence = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>;
+using areatrigger_dh_sigil_of_misery = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>;
+using areatrigger_dh_sigil_of_spite = areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SPITE_AOE>;
 
 // 208673 - Sigil of Chains
 class spell_dh_sigil_of_chains : public SpellScript
@@ -1834,6 +1910,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
     RegisterSpellScript(spell_dh_demon_spikes);
+    RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
+    RegisterAreaTriggerAI(at_dh_elysian_decree);
     RegisterSpellScript(spell_dh_essence_break);
     RegisterSpellScript(spell_dh_eye_beam);
     RegisterSpellScript(spell_dh_feast_of_souls);
@@ -1850,6 +1928,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_know_your_enemy);
     RegisterSpellScript(spell_dh_last_resort);
     RegisterSpellScript(spell_dh_monster_rising);
+    RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScript(spell_dh_shattered_souls);
@@ -1857,6 +1936,7 @@ void AddSC_demon_hunter_spell_scripts()
     new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_SHATTERED>>("at_dh_shattered_souls_shattered");
     new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_DEMON>>("at_dh_shattered_souls_demon");
     RegisterSpellScript(spell_dh_sigil_of_chains);
+    RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
@@ -1864,10 +1944,11 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_violent_transformation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_CHAINS_TARGET_SELECT, SPELL_DH_SIGIL_OF_CHAINS_VISUAL>>("areatrigger_dh_sigil_of_chains");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_FLAME_AOE, SPELL_DH_SIGIL_OF_FLAME_VISUAL>>("areatrigger_dh_sigil_of_flame");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_SILENCE_AOE>>("areatrigger_dh_sigil_of_silence");
-    new GenericAreaTriggerEntityScript<areatrigger_dh_generic_sigil<SPELL_DH_SIGIL_OF_MISERY_AOE>>("areatrigger_dh_sigil_of_misery");
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_flame);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_silence);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_misery);
+    RegisterAreaTriggerAI(areatrigger_dh_sigil_of_spite);
 
     // Havoc
 

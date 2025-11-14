@@ -22,57 +22,17 @@
 #include "Optional.h"
 #include "ProducerConsumerQueue.h"
 #include "TerrainBuilder.h"
+#include "TileBuilder.h"
+#include <boost/filesystem/path.hpp>
 #include <DetourNavMesh.h>
-#include <Recast.h>
 #include <atomic>
 #include <span>
 #include <thread>
 #include <vector>
 
-using namespace VMAP;
-
 namespace MMAP
 {
     typedef std::unordered_map<uint32, Trinity::Containers::FlatSet<uint32>> TileList;
-
-    struct Tile
-    {
-        Tile() : chf(nullptr), solid(nullptr), cset(nullptr), pmesh(nullptr), dmesh(nullptr) {}
-        ~Tile()
-        {
-            rcFreeCompactHeightfield(chf);
-            rcFreeContourSet(cset);
-            rcFreeHeightField(solid);
-            rcFreePolyMesh(pmesh);
-            rcFreePolyMeshDetail(dmesh);
-        }
-        rcCompactHeightfield* chf;
-        rcHeightfield* solid;
-        rcContourSet* cset;
-        rcPolyMesh* pmesh;
-        rcPolyMeshDetail* dmesh;
-    };
-
-    struct TileConfig
-    {
-        TileConfig(bool bigBaseUnit)
-        {
-            // these are WORLD UNIT based metrics
-            // this are basic unit dimentions
-            // value have to divide GRID_SIZE(533.3333f) ( aka: 0.5333, 0.2666, 0.3333, 0.1333, etc )
-            BASE_UNIT_DIM = bigBaseUnit ? 0.5333333f : 0.2666666f;
-
-            // All are in UNIT metrics!
-            VERTEX_PER_MAP = int(GRID_SIZE / BASE_UNIT_DIM + 0.5f);
-            VERTEX_PER_TILE = bigBaseUnit ? 40 : 80; // must divide VERTEX_PER_MAP
-            TILES_PER_MAP = VERTEX_PER_MAP / VERTEX_PER_TILE;
-        }
-
-        float BASE_UNIT_DIM;
-        int VERTEX_PER_MAP;
-        int VERTEX_PER_TILE;
-        int TILES_PER_MAP;
-    };
 
     struct TileInfo
     {
@@ -86,49 +46,42 @@ namespace MMAP
 
     // ToDo: move this to its own file. For now it will stay here to keep the changes to a minimum, especially in the cpp file
     class MapBuilder;
-    class TileBuilder
+
+    class MapTileBuilder : public TileBuilder
     {
         public:
-            TileBuilder(MapBuilder* mapBuilder,
+            MapTileBuilder(MapBuilder* mapBuilder,
+                Optional<float> maxWalkableAngle,
+                Optional<float> maxWalkableAngleNotSteep,
                 bool skipLiquid,
                 bool bigBaseUnit,
-                bool debugOutput);
-
-            TileBuilder(TileBuilder&&) = default;
-            ~TileBuilder();
+                bool debugOutput,
+                std::vector<OffMeshData> const* offMeshConnections);
+            ~MapTileBuilder();
 
             void WorkerThread();
             void WaitCompletion();
 
-            void buildTile(uint32 mapID, uint32 tileX, uint32 tileY, dtNavMesh* navMesh);
-            // move map building
-            void buildMoveMapTile(uint32 mapID,
-                uint32 tileX,
-                uint32 tileY,
-                MeshData& meshData,
-                float bmin[3],
-                float bmax[3],
-                dtNavMesh* navMesh);
+            bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const override;
 
-            bool shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const;
+            std::string GetProgressText() const override;
+
+            void OnTileDone() override;
 
         private:
-            bool m_bigBaseUnit;
-            bool m_debugOutput;
-
             MapBuilder* m_mapBuilder;
-            TerrainBuilder* m_terrainBuilder;
             std::thread m_workerThread;
-            // build performance - not really used for now
-            rcContext* m_rcContext;
     };
 
     class MapBuilder
     {
         friend class TileBuilder;
+        friend class MapTileBuilder;
 
         public:
-            MapBuilder(Optional<float> maxWalkableAngle,
+            MapBuilder(boost::filesystem::path const& inputDirectory,
+                boost::filesystem::path const& outputDirectory,
+                Optional<float> maxWalkableAngle,
                 Optional<float> maxWalkableAngleNotSteep,
                 bool skipLiquid,
                 bool skipContinents,
@@ -142,7 +95,7 @@ namespace MMAP
 
             ~MapBuilder();
 
-            void buildMeshFromFile(char* name);
+            void buildMeshFromFile(char const* name);
 
             // builds an mmap tile for the specified map and its mesh
             void buildSingleTile(uint32 mapID, uint32 tileX, uint32 tileY);
@@ -159,26 +112,21 @@ namespace MMAP
 
             void buildNavMesh(uint32 mapID, dtNavMesh* &navMesh);
 
-            void getTileBounds(uint32 tileX, uint32 tileY,
-                float* verts, int vertCount,
-                float* bmin, float* bmax) const;
-
             bool shouldSkipMap(uint32 mapID) const;
             bool isTransportMap(uint32 mapID) const;
             bool isDevMap(uint32 mapID) const;
             bool isBattlegroundMap(uint32 mapID) const;
             bool isContinentMap(uint32 mapID) const;
 
-            rcConfig GetMapSpecificConfig(uint32 mapID, float bmin[3], float bmax[3], const TileConfig &tileConfig) const;
-
             uint32 percentageDone(uint32 totalTiles, uint32 totalTilesDone) const;
             uint32 currentPercentageDone() const;
 
             void ParseOffMeshConnectionsFile(char const* offMeshFilePath);
 
-            TerrainBuilder* m_terrainBuilder;
             TileList m_tiles;
 
+            boost::filesystem::path m_inputDirectory;
+            boost::filesystem::path m_outputDirectory;
             bool m_debugOutput;
 
             std::vector<OffMeshData> m_offMeshConnections;
@@ -197,10 +145,7 @@ namespace MMAP
             uint32 m_totalTiles;
             std::atomic<uint32> m_totalTilesProcessed;
 
-            // build performance - not really used for now
-            rcContext* m_rcContext;
-
-            std::vector<TileBuilder*> m_tileBuilders;
+            std::vector<std::unique_ptr<TileBuilder>> m_tileBuilders;
             ProducerConsumerQueue<TileInfo> _queue;
             std::atomic<bool> _cancelationToken;
     };
