@@ -1599,7 +1599,7 @@ private:
 };
 
 // 178940 - Shattered Souls
-class spell_dh_shattered_souls : public AuraScript
+class spell_dh_shattered_souls_havoc : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1619,12 +1619,12 @@ class spell_dh_shattered_souls : public AuraScript
 
     void Register() override
     {
-        OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_dh_shattered_souls_havoc::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
 
 // 209651 - Shattered Souls
-class spell_dh_shattered_souls_trigger : public SpellScript
+class spell_dh_shattered_souls_havoc_trigger : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
@@ -1642,7 +1642,7 @@ class spell_dh_shattered_souls_trigger : public SpellScript
 
     void Register() override
     {
-        OnEffectLaunch += SpellEffectFn(spell_dh_shattered_souls_trigger::HandleSoulFragment, EFFECT_1, SPELL_EFFECT_DUMMY);
+        OnEffectLaunch += SpellEffectFn(spell_dh_shattered_souls_havoc_trigger::HandleSoulFragment, EFFECT_1, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -1918,10 +1918,10 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_shattered_destiny);
-    RegisterSpellScript(spell_dh_shattered_souls);
-    RegisterSpellScript(spell_dh_shattered_souls_trigger);
-    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_SHATTERED>>("at_dh_shattered_souls_shattered");
-    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_DEMON>>("at_dh_shattered_souls_demon");
+    RegisterSpellScript(spell_dh_shattered_souls_havoc);
+    RegisterSpellScript(spell_dh_shattered_souls_havoc_trigger);
+    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_SHATTERED>>("at_dh_shattered_souls_havoc_shattered");
+    new GenericAreaTriggerEntityScript<at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_DEMON>>("at_dh_shattered_souls_havoc_demon");
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
     RegisterSpellScript(spell_dh_student_of_suffering);
