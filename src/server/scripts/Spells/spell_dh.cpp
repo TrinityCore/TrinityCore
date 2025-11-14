@@ -23,6 +23,7 @@
 
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
+#include "Containers.h"
 #include "DB2Stores.h"
 #include "PathGenerator.h"
 #include "Player.h"
