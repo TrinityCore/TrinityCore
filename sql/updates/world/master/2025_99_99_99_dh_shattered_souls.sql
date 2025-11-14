@@ -8,5 +8,9 @@ INSERT INTO `areatrigger_create_properties` (`Id`, `IsCustom`, `AreaTriggerId`, 
 (3680, 0, 8352, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 30000, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 'at_dh_shattered_souls_shattered', 60822), -- Spell: 209693 (Shattered Souls)
 (6659, 0, 11231, 0, 0, 0, 0, 0, 0, -1, 0, 0, NULL, 30000, 0, 0, 10, 10, 0, 0, 0, 0, 0, 0, 'at_dh_shattered_souls_demon', 60822); -- Spell: 209788 (Shattered Souls)
 
-UPDATE `areatrigger_template` SET `VerifiedBuild`=60822 WHERE (`Id`=11231 AND `IsCustom`=0);
-UPDATE `areatrigger_template` SET `VerifiedBuild`=60822 WHERE (`Id`=8352 AND `IsCustom`=0);
+UPDATE `areatrigger_template` SET `ActionSetFlags`=1,`VerifiedBuild`=60822 WHERE `Id` IN (8352,11231) AND `IsCustom`=0;
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=28 AND `SourceGroup` IN (8352,11231) AND `SourceEntry`=0;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(28,  8352, 0, 0, 0, 1, 0, 221461, 0, 0, '', 1, 0, 0, '', 'Only trigger Consume Soul without aura 221461'),
+(28, 11231, 0, 0, 0, 1, 0, 221461, 0, 0, '', 1, 0, 0, '', 'Only trigger Consume Soul without aura 221461');

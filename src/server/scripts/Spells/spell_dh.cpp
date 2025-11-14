@@ -1661,14 +1661,7 @@ struct at_dh_shattered_souls : public AreaTriggerAI
 
     void OnUnitEnter(Unit* unit) override
     {
-        Unit* caster = at->GetCaster();
-        if (!caster || caster != unit)
-            return;
-
-        if (caster->HasAura(SPELL_DH_SHATTERED_SOULS_MARKER))
-            return;
-
-        caster->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        unit->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         at->Remove();
     }
 };
