@@ -876,7 +876,7 @@ public:
         fragments = std::min(fragments, _fragmentsToCreate);
 
         for (int32 i = 0; i < fragments; ++i)
-            GetHitUnit()->CastSpell(GetCaster(), RAND(SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT), TRIGGERED_DONT_REPORT_CAST_ERROR);
+            GetHitUnit()->CastSpell(GetCaster(), Trinity::Containers::SelectRandomContainerElement(std::array{ SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT }), TRIGGERED_DONT_REPORT_CAST_ERROR);
 
         _fragmentsToCreate -= fragments;
     }
