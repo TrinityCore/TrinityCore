@@ -90,6 +90,8 @@ enum DemonHunterSpells
     SPELL_DH_DEMON_SPIKES                          = 203819,
     SPELL_DH_DEMON_SPIKES_TRIGGER                  = 203720,
     SPELL_DH_DEMONIC                               = 213410,
+    SPELL_DH_DEMONIC_APPETITE                      = 206478,
+    SPELL_DH_DEMONIC_APPETITE_ENERGIZE             = 210041,
     SPELL_DH_DEMONIC_ORIGINS                       = 235893,
     SPELL_DH_DEMONIC_ORIGINS_BUFF                  = 235894,
     SPELL_DH_DEMONIC_TRAMPLE_DMG                   = 208645,
@@ -830,6 +832,52 @@ class spell_dh_demonic : public SpellScript
 
 public:
     explicit spell_dh_demonic(uint32 transformSpellId) : _transformSpellId(transformSpellId) { }
+};
+
+// 206478 - Demonic Appetite
+class spell_dh_demonic_appetite : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT });
+    }
+
+    static void ShatterLesserSoulFragment(AuraScript const&, ProcEventInfo const& procEvent)
+    {
+        procEvent.GetActionTarget()->CastSpell(procEvent.GetActor(),
+            Trinity::Containers::SelectRandomContainerElement(std::array{ SPELL_DH_SHATTERED_SOUL_LESSER_RIGHT, SPELL_DH_SHATTERED_SOUL_LESSER_LEFT }),
+            TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_dh_demonic_appetite::ShatterLesserSoulFragment);
+    }
+};
+
+// 178963 - Consume Soul
+// 202644 - Consume Soul
+// 228532 - Consume Soul
+// 328953 - Consume Soul
+// 1238743 - Consume Soul
+class spell_dh_demonic_appetite_energize : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_DEMONIC_APPETITE_ENERGIZE });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_DH_DEMONIC_APPETITE);
+    }
+
+    void Register() override
+    {
+        for (SpellEffectInfo const& spellEffectInfo : sSpellMgr->AssertSpellInfo(m_scriptSpellId, DIFFICULTY_NONE)->GetEffects())
+            if (spellEffectInfo.IsEffect(SPELL_EFFECT_TRIGGER_SPELL) && spellEffectInfo.TriggerSpell == SPELL_DH_DEMONIC_APPETITE_ENERGIZE)
+                OnEffectLaunchTarget += SpellEffectFn(spell_dh_demonic_appetite_energize::PreventHitDefaultEffect, spellEffectInfo.EffectIndex, SPELL_EFFECT_TRIGGER_SPELL);
+    }
 };
 
 // 203720 - Demon Spikes
@@ -1896,6 +1944,8 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_deflecting_spikes);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_havoc", SPELL_DH_METAMORPHOSIS_TRANSFORM);
     RegisterSpellScriptWithArgs(spell_dh_demonic, "spell_dh_demonic_vengeance", SPELL_DH_METAMORPHOSIS_VENGEANCE_TRANSFORM);
+    RegisterSpellScript(spell_dh_demonic_appetite);
+    RegisterSpellScript(spell_dh_demonic_appetite_energize);
     RegisterSpellScript(spell_dh_demon_spikes);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_elysian_decree", SPELL_DH_ELYSIAN_DECREE);
     RegisterAreaTriggerAI(at_dh_elysian_decree);
