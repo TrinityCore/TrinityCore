@@ -155,6 +155,14 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_PREMONITION_OF_INSIGHT             = 428933,
+    SPELL_PRIEST_PREMONITION_OF_PIETY               = 428930,
+    SPELL_PRIEST_PREMONITION_OF_PIETY_HEAL          = 443126,
+    SPELL_PRIEST_PREMONITION_OF_SOLACE              = 428934,
+    SPELL_PRIEST_PREMONITION_OF_SOLACE_ABSORB       = 443526,
+    SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR   = 438734,
+    SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR     = 438733,
+    SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR    = 438854,
     SPELL_PRIEST_PROTECTIVE_LIGHT_AURA              = 193065,
     SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
     SPELL_PRIEST_PURGE_THE_WICKED_DUMMY             = 204215,
@@ -212,7 +220,8 @@ enum PriestSpells
 enum PriestSpellVisuals
 {
     SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE         = 52872,
-    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945
+    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945,
+    SPELL_VISUAL_PRIEST_NEXT_PREMONITION            = 450796
 };
 
 enum PriestSummons
@@ -220,6 +229,14 @@ enum PriestSummons
     NPC_PRIEST_DIVINE_IMAGE                         = 198236,
     NPC_PRIEST_MINDBENDER                           = 62982,
     NPC_PRIEST_SHADOWFIEND                          = 19668
+};
+
+// temporary
+enum PriestCorePassives
+{
+    CORE_PASSIVE_PRIEST_DISCIPLINE                  = 137032,
+    CORE_PASSIVE_PRIEST_HOLY_FIRST                  = 137031,
+    CORE_PASSIVE_PRIEST_HOLY_SECOND                 = 1238052,
 };
 
 class RaidCheck
@@ -2466,6 +2483,328 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 428924 - Premonition (Talent) - TODO fix
+class spell_pri_premonition_talent : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spell*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR });
+    }
+
+    void OnPrecast() override
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        caster->RemoveAura(SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR);
+        caster->RemoveAura(SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR);
+        if (!caster->HasAura(SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR))
+            caster->CastSpell(caster, SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override {}
+};
+
+// 428924 - Premonition
+// Triggered by 428933 - Premonition of Insight, 428930 - Premonition of Piety, 428934 - Premonition of Solace
+class spell_pri_premonition : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ _removeSpellId, _applySpellId });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+
+        caster->RemoveAura(_removeSpellId);
+        caster->CastSpell(caster, _applySpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_premonition::HandleEffectHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+    }
+
+    uint32 _removeSpellId{};
+    uint32 _applySpellId{};
+public:
+    explicit spell_pri_premonition(uint32 rmSpellId, uint32 appSpellId) : _removeSpellId{ rmSpellId }, _applySpellId{ appSpellId } {}
+};
+
+// 428933 - Premonition of Insight
+class spell_pri_premonition_of_insight_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ {SPELL_PRIEST_PREMONITION_OF_INSIGHT, EFFECT_1} });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor()->GetSpellHistory()->HasCooldown(eventInfo.GetSpellInfo()->Id);
+    }
+
+    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        GetAura()->SetStackAmount(GetEffectInfo(EFFECT_1).CalcValue(caster));
+    }
+
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+
+        int32 cdReduction = GetEffectInfo(EFFECT_0).CalcValue(caster);
+        caster->GetSpellHistory()->ModifyCooldown(eventInfo.GetSpellInfo()->Id, Milliseconds(cdReduction));
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_premonition_of_insight_aura::CheckProc);
+        OnEffectApply += AuraEffectApplyFn(spell_pri_premonition_of_insight_aura::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(spell_pri_premonition_of_insight_aura::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 428930 - Premonition of Piety
+class spell_pri_premonition_of_piety_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect(
+        {
+            {SPELL_PRIEST_PREMONITION_OF_PIETY, EFFECT_2},
+            {SPELL_PRIEST_PREMONITION_OF_PIETY, EFFECT_3}
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        return healInfo && healInfo->GetHeal() && (static_cast<int32>(healInfo->GetHeal()) - healInfo->GetEffectiveHeal()) > 0;
+    }
+
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        HealInfo* healInfo = eventInfo.GetHealInfo();
+        int32 overheal = static_cast<int32>(healInfo->GetHeal()) - healInfo->GetEffectiveHeal();
+
+        int32 overhealToRedistribute = CalculatePct(overheal, aurEff->GetAmount());
+        _overhealQueue.push(overhealToRedistribute);
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (_overhealQueue.empty())
+            return;
+
+        int32 healAmount = _overhealQueue.front();
+        _overhealQueue.pop();
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(healAmount);
+        caster->CastSpell(caster, SPELL_PRIEST_PREMONITION_OF_PIETY_HEAL, args);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_premonition_of_piety_aura::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_premonition_of_piety_aura::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_premonition_of_piety_aura::HandleEffectPeriodic, EFFECT_3, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+    std::queue<int32> _overhealQueue;
+};
+
+// 443126 - Premonition of Piety
+class spell_pri_premonition_of_piety_heal : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ {SPELL_PRIEST_PREMONITION_OF_PIETY, EFFECT_3} });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        Unit* caster = GetCaster();
+        targets.remove_if([caster](WorldObject* obj) -> bool
+        {
+            Unit* target = obj->ToUnit();
+            if (!target || caster == target || !caster->IsValidAssistTarget(target))
+                return true;
+
+            return target->GetTypeId() != TYPEID_PLAYER && !target->IsControlledByPlayer();
+        });
+
+        if (targets.empty())
+            return;
+
+        targets.sort([](WorldObject const* targetA, WorldObject const* targetB) -> bool
+        {
+            return targetA->ToUnit()->GetHealth() < targetB->ToUnit()->GetHealth();
+        });
+
+        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PREMONITION_OF_PIETY, GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster);
+        if (targets.size() > maxTargets)
+            targets.resize(maxTargets);
+
+        _targetCount = targets.size();
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        if (_targetCount == 0)
+            return;
+
+        int32 totalHeal = GetSpellValue()->EffectBasePoints[EFFECT_0];
+        int32 healPerTarget = totalHeal / _targetCount;
+        SetHitHeal(healPerTarget);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_premonition_of_piety_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_premonition_of_piety_heal::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+
+    int32 _targetCount{};
+};
+
+// 428934 - Premonition of Solace
+class spell_pri_premonition_of_solace_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return true;
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetHealInfo() && !eventInfo.GetSpellInfo()->IsTargetingArea();
+    }
+
+    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_PREMONITION_OF_SOLACE_ABSORB, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_premonition_of_solace_aura::CheckProc);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_pri_premonition_of_solace_aura::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 443526 - Premonition of Solace (Absorb)
+class spell_pri_premonition_of_solace_absorb : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            CORE_PASSIVE_PRIEST_DISCIPLINE,
+            CORE_PASSIVE_PRIEST_HOLY_FIRST,
+            CORE_PASSIVE_PRIEST_HOLY_SECOND
+        })
+        && ValidateSpellEffect(
+        {
+            {CORE_PASSIVE_PRIEST_DISCIPLINE, EFFECT_2},
+            {CORE_PASSIVE_PRIEST_HOLY_FIRST, EFFECT_2},
+            {CORE_PASSIVE_PRIEST_HOLY_SECOND, EFFECT_2}
+        });
+    }
+
+    void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        // until absorb calc (BonusCoefficient for absorbs) fixed
+        float modifiedAmount = caster->SpellBaseDamageBonusDone(GetSpellInfo()->GetSchoolMask()) * 23.8f;
+        if (Player* player = caster->ToPlayer())
+        {
+            AddPct(modifiedAmount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE));
+
+            if (AuraEffect const* masteryGraceEffect = caster->GetAuraEffect(SPELL_PRIEST_MASTERY_GRACE, EFFECT_0))
+                if (GetUnitOwner()->HasAura(SPELL_PRIEST_ATONEMENT_EFFECT))
+                    AddPct(modifiedAmount, masteryGraceEffect->GetAmount());
+
+            switch (player->GetPrimarySpecialization())
+            {
+                case ChrSpecialization::PriestDiscipline:
+                    if (AuraEffect const* discPassive = caster->GetAuraEffect(CORE_PASSIVE_PRIEST_DISCIPLINE, EFFECT_2))
+                        AddPct(modifiedAmount, discPassive->GetAmount());
+                    break;
+                case ChrSpecialization::PriestHoly:
+                    if (AuraEffect const* holyPassive = caster->GetAuraEffect(CORE_PASSIVE_PRIEST_HOLY_FIRST, EFFECT_2))
+                        AddPct(modifiedAmount, holyPassive->GetAmount());
+                    if (AuraEffect const* holyPassive = caster->GetAuraEffect(CORE_PASSIVE_PRIEST_HOLY_SECOND, EFFECT_2))
+                        AddPct(modifiedAmount, holyPassive->GetAmount());
+                    break;
+                default:
+                    break;
+            }
+
+            if (caster->HasAura(SPELL_PVP_RULES_ENABLED_HARDCODED))
+                modifiedAmount *= 0.64f;
+        }
+
+        float critChanceDone = caster->SpellCritChanceDone(nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), GetSpellInfo()->GetAttackType());
+        float critChanceTaken = GetUnitOwner()->SpellCritChanceTaken(caster, nullptr, aurEff, GetSpellInfo()->GetSchoolMask(), critChanceDone, GetSpellInfo()->GetAttackType());
+
+        if (roll_chance_f(critChanceTaken))
+            modifiedAmount *= 2;
+
+        amount = modifiedAmount;
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_premonition_of_solace_absorb::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
+// 450796 Premonition (Visual Next Premonition) - TODO fix
+class spell_pri_premonition_visual_next : public AuraScript
+{
+    void HandleCombat(bool isNowInCombat)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        TC_LOG_ERROR("test", "is in combat?? {}", isNowInCombat);
+        if (!isNowInCombat && caster->HasAura(SPELL_VISUAL_PRIEST_NEXT_PREMONITION))
+            caster->RemoveAurasDueToSpell(SPELL_VISUAL_PRIEST_NEXT_PREMONITION);
+        else
+            caster->CastSpell(caster, SPELL_VISUAL_PRIEST_NEXT_PREMONITION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_pri_premonition_visual_next::HandleCombat);
+    }
+};
+
 // 193063 - Protective Light (Aura)
 class spell_pri_protective_light : public AuraScript
 {
@@ -3603,6 +3942,16 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
     RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_premonition_talent);
+    RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_insight", SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR);
+    RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_piety", SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR);
+    RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_solace", SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR);
+    RegisterSpellScript(spell_pri_premonition_of_insight_aura);
+    RegisterSpellScript(spell_pri_premonition_of_piety_aura);
+    RegisterSpellScript(spell_pri_premonition_of_piety_heal);
+    RegisterSpellScript(spell_pri_premonition_of_solace_aura);
+    RegisterSpellScript(spell_pri_premonition_of_solace_absorb);
+    RegisterSpellScript(spell_pri_premonition_visual_next);
     RegisterSpellScript(spell_pri_protective_light);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc_chooser);
