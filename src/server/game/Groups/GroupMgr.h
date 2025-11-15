@@ -47,7 +47,7 @@ public:
     void   FreeGroupDbStoreId(Group* group);
     void   SetNextGroupDbStoreId(uint32 storageId) { NextGroupDbStoreId = storageId; };
     Group* GetGroupByDbStoreId(uint32 storageId) const;
-    void   SetGroupDbStoreSize(uint32 newSize) { GroupDbStore.resize(newSize); }
+    void   SetGroupDbStoreSize(uint32 newSize);
 
     void Update(uint32 diff);
 

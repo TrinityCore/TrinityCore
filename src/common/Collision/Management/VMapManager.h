@@ -182,6 +182,8 @@ namespace VMAP
 
             typedef bool(*IsVMAPDisabledForFn)(uint32 entry, uint8 flags);
             IsVMAPDisabledForFn IsVMAPDisabledForPtr;
+
+            bool LoadPathOnlyModels;
     };
 }
 

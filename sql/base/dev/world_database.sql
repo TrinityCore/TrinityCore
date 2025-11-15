@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.42, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.43, for Linux (x86_64)
 --
 -- Host: localhost    Database: world
 -- ------------------------------------------------------
--- Server version	8.0.42-0ubuntu0.22.04.2
+-- Server version	8.0.43-0ubuntu0.22.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -157,6 +157,7 @@ CREATE TABLE `areatrigger_create_properties` (
   `SpellForVisuals` int DEFAULT NULL,
   `TimeToTargetScale` int unsigned NOT NULL DEFAULT '0',
   `Speed` float NOT NULL DEFAULT '1',
+  `SpeedIsTime` tinyint unsigned NOT NULL DEFAULT '0',
   `Shape` tinyint unsigned NOT NULL DEFAULT '0',
   `ShapeData0` float NOT NULL DEFAULT '0',
   `ShapeData1` float NOT NULL DEFAULT '0',
@@ -1404,6 +1405,7 @@ CREATE TABLE `game_event` (
   `length` bigint unsigned NOT NULL DEFAULT '2592000' COMMENT 'Length in minutes of the event',
   `holiday` int unsigned NOT NULL DEFAULT '0' COMMENT 'Client side holiday id',
   `holidayStage` tinyint unsigned NOT NULL DEFAULT '0',
+  `WorldStateId` int DEFAULT NULL,
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Description of the event displayed in console',
   `world_event` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '0 if normal event, 1 if world event',
   `announce` tinyint unsigned DEFAULT '2' COMMENT '0 dont announce, 1 announce, 2 value from config',
@@ -1631,7 +1633,7 @@ CREATE TABLE `game_tele` (
   `map` smallint unsigned NOT NULL DEFAULT '0',
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2305 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
+) ENGINE=InnoDB AUTO_INCREMENT=2308 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tele Command';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2183,6 +2185,7 @@ CREATE TABLE `jump_charge_params` (
   `spellVisualId` int DEFAULT NULL,
   `progressCurveId` int DEFAULT NULL,
   `parabolicCurveId` int DEFAULT NULL,
+  `triggerSpellId` int DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -5063,4 +5066,4 @@ CREATE TABLE `world_state` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-16 14:58:26
+-- Dump completed on 2025-10-29  6:57:05
