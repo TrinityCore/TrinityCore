@@ -19,7 +19,6 @@
 #include "Config.h"
 #include "NetworkThread.h"
 #include "ScriptMgr.h"
-#include "WorldSocket.h"
 #include <boost/system/error_code.hpp>
 
 class WorldSocketThread : public Trinity::Net::NetworkThread<WorldSocket>

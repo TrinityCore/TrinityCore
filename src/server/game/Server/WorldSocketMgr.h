@@ -19,8 +19,7 @@
 #define TRINITYCORE_WORLD_SOCKET_MGR_H
 
 #include "SocketMgr.h"
-
-class WorldSocket;
+#include "WorldSocket.h"
 
 /// Manages all sockets connected to peers and network threads
 class TC_GAME_API WorldSocketMgr : public Trinity::Net::SocketMgr<WorldSocket>

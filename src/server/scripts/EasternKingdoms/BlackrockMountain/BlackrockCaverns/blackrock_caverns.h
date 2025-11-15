@@ -45,10 +45,10 @@ enum BRCCreatureIds
     NPC_ROMOGG_BONECRUSHER              = 39665
 };
 
-template<typename AI>
-inline AI* GetBlackrockCavernsAI(Creature* creature)
+template <class AI, class T>
+inline AI* GetBlackrockCavernsAI(T* obj)
 {
-    return GetInstanceAI<AI>(creature, BCScriptName);
+    return GetInstanceAI<AI>(obj, BCScriptName);
 }
 
 #endif // BLACKROCKCAVERNS_H_
