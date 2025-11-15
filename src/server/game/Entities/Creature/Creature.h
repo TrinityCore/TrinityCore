@@ -150,11 +150,11 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CannotPenetrateWater() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER); }
         void SetCannotPenetrateWater(bool cannotPenetrateWater) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_3_CANNOT_PENETRATE_WATER, cannotPenetrateWater); }
 
-        // Returns true if CREATURE_STATIC_FLAG_3_CANNOT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged
-        bool IsSwimDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANNOT_SWIM); }
+        // Returns true if CREATURE_STATIC_FLAG_3_CANT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged
+        bool IsSwimDisabled() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_3_CANT_SWIM); }
 
-        // Returns true if CREATURE_STATIC_FLAG_4_PREVENT_SWIM is set which prevents 'Amphibious' creatures from swimming when engaged until the victim is no longer on the ocean floor
-        bool IsSwimPrevented() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_PREVENT_SWIM); }
+        // Returns true if CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS is set which prevents 'Amphibious' creatures from swimming when engaged until the victim is no longer on the ocean floor
+        bool CanOnlySwimIfTargetSwims() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_4_AI_WILL_ONLY_SWIM_IF_TARGET_SWIMS); }
 
         bool CanSwim() const override;
         bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); };
@@ -217,8 +217,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool IsInEvadeMode() const { return HasUnitState(UNIT_STATE_EVADE); }
         bool IsEvadingAttacks() const { return IsInEvadeMode() || CanNotReachTarget(); }
 
-        bool IsStateRestoredOnEvade() const { return !HasFlag(CREATURE_STATIC_FLAG_5_NO_LEAVECOMBAT_STATE_RESTORE); }
-        void SetRestoreStateOnEvade(bool restoreOnEvade) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_LEAVECOMBAT_STATE_RESTORE, !restoreOnEvade); }
+        bool IsStateRestoredOnEvade() const { return !HasFlag(CREATURE_STATIC_FLAG_5_NO_LEAVE_COMBAT_STATE_RESTORE); }
+        void SetRestoreStateOnEvade(bool restoreOnEvade) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_5_NO_LEAVE_COMBAT_STATE_RESTORE, !restoreOnEvade); }
 
         bool AIM_Destroy();
         bool AIM_Create(CreatureAI* ai = nullptr);
@@ -375,8 +375,8 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
         float GetPetChaseDistance() const;
 
-        bool IsIgnoringChaseRange() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_6_ALWAYS_STAND_ON_TOP_OF_TARGET); }
-        void SetIgnoreChaseRange(bool ignoreChaseRange) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_6_ALWAYS_STAND_ON_TOP_OF_TARGET, ignoreChaseRange); }
+        bool IsIgnoringChaseRange() const { return _staticFlags.HasFlag(CREATURE_STATIC_FLAG_6_ALWAYS_STAND_ON_TARGET); }
+        void SetIgnoreChaseRange(bool ignoreChaseRange) { _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_6_ALWAYS_STAND_ON_TARGET, ignoreChaseRange); }
 
         void SetCannotReachTarget(bool cannotReach);
         bool CanNotReachTarget() const { return m_cannotReachTarget; }
