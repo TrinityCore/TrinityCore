@@ -2678,6 +2678,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             }
             break;
         }
+        case SMART_ACTION_FALL:
+        {
+            std::shared_ptr<MultiActionResult<MovementStopReason>> waitEvent = CreateTimedActionListWaitEventFor<void, MultiActionResult<MovementStopReason>>(e, targets.size());
+
+            for (WorldObject* target : targets)
+            {
+                if (Unit* unitTarget = target->ToUnit())
+                {
+                    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> actionResultSetter;
+                    if (waitEvent)
+                        actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter({ waitEvent, &waitEvent->Results.emplace_back() });
+
+                    unitTarget->GetMotionMaster()->MoveFall(e.action.fall.pointId, std::move(actionResultSetter));
+                }
+            }
+
+            if (waitEvent && !waitEvent->Results.empty())
+                mTimedActionWaitEvent = std::move(waitEvent);
+            break;
+        }
         default:
             TC_LOG_ERROR("sql.sql", "SmartScript::ProcessAction: Entry {} SourceType {}, Event {}, Unhandled Action type {}", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;

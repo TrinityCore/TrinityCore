@@ -321,7 +321,7 @@ enum DisplayIds
     THORIM_WEAPON_DISPLAY_ID                = 45900
 };
 
-Position const LightningOrbPath[] =
+G3D::Vector3 const LightningOrbPath[] =
 {
     { 2134.889893f, -298.632996f, 438.247467f },
     { 2134.570068f, -440.317993f, 438.247467f },
@@ -332,7 +332,6 @@ Position const LightningOrbPath[] =
     { 2202.208008f, -262.939270f, 412.168976f },
     { 2182.310059f, -263.233093f, 414.739410f }
 };
-std::size_t const LightningOrbPathSize = std::extent<decltype(LightningOrbPath)>::value;
 
 // used for trash jump calculation
 Position const ArenaCenter = { 2134.77f, -262.307f };
@@ -635,14 +634,7 @@ class boss_thorim : public CreatureScript
 
                         std::function<void(Movement::MoveSplineInit&)> initializer = [](Movement::MoveSplineInit& init)
                         {
-                            Movement::PointsArray path;
-                            path.reserve(LightningOrbPathSize);
-                            std::transform(std::begin(LightningOrbPath), std::end(LightningOrbPath), std::back_inserter(path), [](Position const& pos)
-                            {
-                                return G3D::Vector3(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ());
-                            });
-
-                            init.MovebyPath(path);
+                            init.MovebyPath(LightningOrbPath);
                         };
                         summon->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 0, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                         break;

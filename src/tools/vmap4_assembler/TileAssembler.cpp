@@ -242,8 +242,8 @@ namespace VMAP
         {
             uint32 x, y;
             StaticMapTree::unpackTileID(tileId, x, y);
-            auto tileFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtile", data.MapId, y, x), "wb");
-            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, y, x), "wb");
+            auto tileFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtile", data.MapId, x, y), "wb");
+            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, x, y), "wb");
             if (tileFile && tileSpawnIndicesFile)
             {
                 std::set<uint32> const& parentTileEntries = data.ParentTileEntries[tileId];
@@ -288,7 +288,7 @@ namespace VMAP
 
             uint32 x, y;
             StaticMapTree::unpackTileID(tileId, x, y);
-            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, y, x), "wb");
+            auto tileSpawnIndicesFile = OpenFile(mapDestDir / Trinity::StringFormat("{:04}_{:02}_{:02}.vmtileidx", data.MapId, x, y), "wb");
             if (tileSpawnIndicesFile)
             {
                 uint32 nSpawns = spawns.size();

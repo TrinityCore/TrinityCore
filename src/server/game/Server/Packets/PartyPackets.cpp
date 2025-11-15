@@ -821,7 +821,7 @@ void SendPingWorldPoint::Read()
     _worldPacket >> SenderGUID;
     _worldPacket >> MapID;
     _worldPacket >> Point;
-    _worldPacket >> As<int32>(Type);
+    _worldPacket >> As<int8>(Type);
     _worldPacket >> PinFrameID;
     _worldPacket >> Transport;
     _worldPacket >> PingDuration;
