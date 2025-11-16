@@ -134,7 +134,7 @@ enum{
 
 struct CommonInitializer
 {
-    CommonInitializer(float _velocity) : velocityInv(1000.f/std::abs(_velocity)), time(minimal_duration) { }
+    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) { }
     float velocityInv;
     int32 time;
     inline int32 operator()(Spline<int32>& s, int32 i)
@@ -254,7 +254,7 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
     }()
 
     CHECK(path.size() > 1, unit->GetDebugInfo());
-    CHECK(std::abs(velocity) >= 0.01f, unit->GetDebugInfo());
+    CHECK(velocity >= 0.01f, unit->GetDebugInfo());
     CHECK(effect_start_point < std::ssize(path), unit->GetDebugInfo());
     CHECK(_checkPathLengths(), unit->GetGUID().ToString());
     if (spellEffectExtra)
