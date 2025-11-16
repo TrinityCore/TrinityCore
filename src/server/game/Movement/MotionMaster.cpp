@@ -818,7 +818,7 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     }
 
     if (speedZ < 0)
-        speedZ = -speedZ; // not supported
+        speedZ = -speedZ; // doesn't seem to be supported on official servers - packet sent for knockback with positive and negative speed has the same flags and JumpGravity
 
     float moveTimeHalf = speedZ / Movement::gravity;
     float dist = 2 * moveTimeHalf * speedXY;
