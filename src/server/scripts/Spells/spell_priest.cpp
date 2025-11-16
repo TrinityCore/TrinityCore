@@ -2483,27 +2483,44 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
-// 428924 - Premonition (Talent) - TODO fix
-class spell_pri_premonition_talent : public SpellScript
+// 443056 - Premonition (Passive)
+class spell_pri_premonition_passive : public AuraScript
 {
     bool Validate(SpellInfo const* /*spell*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR });
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR,
+            SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR,
+            SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR
+        });
     }
 
-    void OnPrecast() override
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* target = GetTarget();
 
-        caster->RemoveAura(SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR);
-        caster->RemoveAura(SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR);
-        if (!caster->HasAura(SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR))
-            caster->CastSpell(caster, SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        target->RemoveAura(SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR);
+        target->RemoveAura(SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR);
+        if (!target->HasAura(SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR))
+            target->CastSpell(target, SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
-    void Register() override {}
+    void HandleCombatState(bool isNowInCombat) const
+    {
+        Unit* target = GetTarget();
+
+        if (isNowInCombat)
+            target->CastSpell(target, SPELL_VISUAL_PRIEST_NEXT_PREMONITION, TRIGGERED_FULL_MASK);
+        else
+            target->RemoveAurasDueToSpell(SPELL_VISUAL_PRIEST_NEXT_PREMONITION);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_premonition_passive::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_pri_premonition_passive::HandleCombatState);
+    }
 };
 
 // 428924 - Premonition
@@ -2544,7 +2561,7 @@ class spell_pri_premonition_of_insight_aura : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetActor()->GetSpellHistory()->HasCooldown(eventInfo.GetSpellInfo()->Id);
+        return eventInfo.GetSpellInfo()->ChargeCategoryId != 0 || eventInfo.GetSpellInfo()->GetRecoveryTime() != 0;
     }
 
     void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -2780,28 +2797,6 @@ class spell_pri_premonition_of_solace_absorb : public AuraScript
     void Register() override
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_premonition_of_solace_absorb::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-    }
-};
-
-// 450796 Premonition (Visual Next Premonition) - TODO fix
-class spell_pri_premonition_visual_next : public AuraScript
-{
-    void HandleCombat(bool isNowInCombat)
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        TC_LOG_ERROR("test", "is in combat?? {}", isNowInCombat);
-        if (!isNowInCombat && caster->HasAura(SPELL_VISUAL_PRIEST_NEXT_PREMONITION))
-            caster->RemoveAurasDueToSpell(SPELL_VISUAL_PRIEST_NEXT_PREMONITION);
-        else
-            caster->CastSpell(caster, SPELL_VISUAL_PRIEST_NEXT_PREMONITION, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-    }
-
-    void Register() override
-    {
-        OnEnterLeaveCombat += AuraEnterLeaveCombatFn(spell_pri_premonition_visual_next::HandleCombat);
     }
 };
 
@@ -3942,7 +3937,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
     RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
-    RegisterSpellScript(spell_pri_premonition_talent);
+    RegisterSpellScript(spell_pri_premonition_passive);
     RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_insight", SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR);
     RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_piety", SPELL_PRIEST_PREMONITION_OF_PIETY_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR);
     RegisterSpellScriptWithArgs(spell_pri_premonition, "spell_pri_premonition_of_solace", SPELL_PRIEST_PREMONITION_OF_SOLACE_ACTIONBAR, SPELL_PRIEST_PREMONITION_OF_INSIGHT_ACTIONBAR);
@@ -3951,7 +3946,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_premonition_of_piety_heal);
     RegisterSpellScript(spell_pri_premonition_of_solace_aura);
     RegisterSpellScript(spell_pri_premonition_of_solace_absorb);
-    RegisterSpellScript(spell_pri_premonition_visual_next);
     RegisterSpellScript(spell_pri_protective_light);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc_chooser);
