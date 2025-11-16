@@ -581,7 +581,6 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // TODO: migrate these in DB
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT, (GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0);
     SetIgnoreFeignDeath((creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH) != 0);
-    SetInteractionAllowedInCombat((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT) != 0);
     SetTreatAsRaidUnit((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0);
 
     return true;
