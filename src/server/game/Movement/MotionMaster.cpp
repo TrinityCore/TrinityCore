@@ -844,7 +844,7 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
-        init.MovebyPath({ path.begin(), path.end() });
+        init.MovebyPath({ path.data(), path.size() });
         init.SetParabolic(max_height, 0);
         init.SetOrientationFixed(true);
         init.SetVelocity(speedXY);
