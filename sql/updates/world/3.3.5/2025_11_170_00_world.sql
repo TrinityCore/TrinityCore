@@ -1,0 +1,50 @@
+--
+UPDATE `creature_template` SET `unit_flags` = 768 WHERE `entry` = 38374;
+UPDATE `creature_template_addon` SET `SheathState` = 1 WHERE `entry` = 38374;
+
+DELETE FROM `spell_scripts` WHERE `id` IN (71848,71874);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_pet_gen_toxic_wasteling_find_target',
+'spell_pet_gen_toxic_wasteling_devour');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(71848, 'spell_pet_gen_toxic_wasteling_find_target'),
+(71874, 'spell_pet_gen_toxic_wasteling_devour');
+
+UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 38374;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 38374 AND `source_type` = 0;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 3837400 AND `source_type` = 9;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(38374,0,0,0,31,0,100,0,71847,0,0,0,0,80,3837400,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Toxic Wasteling - On Target Spellhit 'Toxic Wasteling Attack' - Run Script"),
+-- After jumping default follow movement is launched, making it work not like on retail
+(3837400,9,0,0,0,0,100,0,0,0,0,0,0,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Toxic Wasteling - On Script - Stop Follow"),
+(3837400,9,1,0,0,0,100,0,1500,1500,0,0,0,11,71874,0,0,0,0,0,7,0,0,0,0,0,0,0,0,"Toxic Wasteling - On Script - Cast 'Toxic Wasteling Devour'"),
+(3837400,9,3,0,0,0,100,0,1500,1500,0,0,0,11,71854,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Toxic Wasteling - On Script - Cast 'Toxic Wasteling Grow'"),
+(3837400,9,4,0,0,0,100,0,2500,2500,0,0,0,29,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,"Toxic Wasteling - On Script - Follow Owner");
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 50499;
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_item_disco_ball_listening_to_music_periodic',
+'spell_item_disco_ball_listening_to_music_check',
+'spell_item_disco_ball_listening_to_music_parent');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(50493, 'spell_item_disco_ball_listening_to_music_periodic'),
+(50492, 'spell_item_disco_ball_listening_to_music_check'),
+(50499, 'spell_item_disco_ball_listening_to_music_parent');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` = 50492;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,50492,0,0,31,0,3,27989,0,0,0,0,"","Group 0: Spell 'Listening to Music CHECK' (Effect 0) targets creature 'D.I.S.C.O.'");
+
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (50493,50317,-50493,-50314);
+
+UPDATE `creature_template` SET `AIName` = 'SmartAI' WHERE `entry` = 27989;
+DELETE FROM `smart_scripts` WHERE `entryorguid` = 27989 AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(27989,0,0,0,11,0,100,0,0,0,0,0,0,11,50314,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"D.I.S.C.O. - On Spawn - Cast 'Disco Ball'"),
+(27989,0,1,0,11,0,100,0,0,0,0,0,0,11,50487,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"D.I.S.C.O. - On Spawn - Cast 'Create Disco Ball Visual Object'"),
+(27989,0,2,0,11,0,100,0,0,0,0,0,0,11,50493,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"D.I.S.C.O. - On Spawn - Cast 'Listening to Music'"),
+(27989,0,3,0,11,0,100,0,0,0,0,0,0,11,28782,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"D.I.S.C.O. - On Spawn - Cast 'Stun Self + Immune'");
+
+UPDATE `creature_template_addon` SET `auras` = '' WHERE `entry` = 27989;
