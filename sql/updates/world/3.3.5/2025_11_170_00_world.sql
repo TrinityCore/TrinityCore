@@ -48,3 +48,18 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (27989,0,3,0,11,0,100,0,0,0,0,0,0,11,28782,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"D.I.S.C.O. - On Spawn - Cast 'Stun Self + Immune'");
 
 UPDATE `creature_template_addon` SET `auras` = '' WHERE `entry` = 27989;
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 49899;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_wintergrasp_activate_robotic_arms';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(49899, 'spell_wintergrasp_activate_robotic_arms');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` IN (49625,49634);
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_fjord_braves_flare',
+'spell_fjord_sergeants_flare');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(49625, 'spell_fjord_braves_flare'),
+(49634, 'spell_fjord_sergeants_flare');
