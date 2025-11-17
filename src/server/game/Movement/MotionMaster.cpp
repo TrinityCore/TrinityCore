@@ -29,6 +29,7 @@
 #include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptSystem.h"
+#include <boost/container/static_vector.hpp>
 #include <algorithm>
 #include <iterator>
 
@@ -806,7 +807,7 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     if (_owner->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    if (std::abs(speedXY) < 0.01f /* && std::abs(speedZ) < 0.01f */)
+    if (std::abs(speedXY) < 0.01f && std::abs(speedZ) < 0.01f)
         return;
 
     Position dest = _owner->GetPosition();
@@ -824,16 +825,29 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
 
-    // Use a mmap raycast to get a valid destination.
-    _owner->MovePositionToFirstCollision(dest, dist, o);
+    boost::container::static_vector<G3D::Vector3, 3> path;
+    path.push_back(PositionToVector3(dest));
+
+    if (dist > 0.01f)
+    {
+        // Use a mmap raycast to get a valid destination.
+        _owner->MovePositionToFirstCollision(dest, dist, o);
+        path.push_back(PositionToVector3(dest));
+    }
+    else
+    {
+        // vertical knockbacks get a fake 0.5 higher additional point to avoid clientside spline length checks
+        // sniffs confirmed that it is always 0.5, no matter what the max height is
+        path.push_back(PositionToVector3(dest.GetPositionWithOffset({ 0.0f, 0.0f, 0.5f })));
+        path.push_back(PositionToVector3(dest));
+    }
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
-        init.MoveTo(dest.GetPositionX(), dest.GetPositionY(), dest.GetPositionZ(), false);
+        init.MovebyPath(path);
         init.SetParabolic(max_height, 0);
         init.SetOrientationFixed(true);
-        if (speedXY >= 0.01f)
-            init.SetVelocity(speedXY);
+        init.SetVelocity(speedXY);
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };

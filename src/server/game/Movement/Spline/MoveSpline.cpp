@@ -120,9 +120,8 @@ void MoveSpline::computeFallElevation(int32 time_point, float& el) const
 
 struct FallInitializer
 {
-    FallInitializer(float _start_elevation) : start_elevation(_start_elevation) { }
     float start_elevation;
-    inline int32 operator()(Spline<int32>& s, int32 i)
+    inline int32 operator()(Spline<int32> const& s, int32 i) const
     {
         return Movement::computeFallTime(start_elevation - s.getPoint(i+1).z, false) * 1000.f;
     }
@@ -132,11 +131,21 @@ enum{
     minimal_duration = 1
 };
 
+struct ParabolicInPlaceInitializer
+{
+    float parabolic_amplitude;
+    inline int32 operator()(Spline<int32> const& /*s*/, int32 /*i*/)
+    {
+        return time += Movement::computeFallTime(parabolic_amplitude, false) * 1000.f;
+    }
+
+    int32 time = minimal_duration;
+};
+
 struct CommonInitializer
 {
-    CommonInitializer(float _velocity) : velocityInv(1000.f/_velocity), time(minimal_duration) { }
     float velocityInv;
-    int32 time;
+    int32 time = minimal_duration;
     inline int32 operator()(Spline<int32>& s, int32 i)
     {
         time += (s.SegLength(i) * velocityInv);
@@ -160,12 +169,17 @@ void MoveSpline::init_spline(MoveSplineInitArgs const& args)
     // init spline timestamps
     if (splineflags.Falling)
     {
-        FallInitializer init(spline.getPoint(spline.first()).z);
+        FallInitializer init{ .start_elevation = spline.getPoint(spline.first()).z };
+        spline.initLengths(init);
+    }
+    else if (splineflags.Parabolic && args.velocity < 0.01f)
+    {
+        ParabolicInPlaceInitializer init{ .parabolic_amplitude = args.parabolic_amplitude };
         spline.initLengths(init);
     }
     else
     {
-        CommonInitializer init(args.velocity);
+        CommonInitializer init{ .velocityInv = 1000.0f / args.velocity };
         spline.initLengths(init);
     }
 
@@ -254,7 +268,7 @@ bool MoveSplineInitArgs::Validate(Unit const* unit)
     }()
 
     CHECK(path.size() > 1, unit->GetDebugInfo());
-    CHECK(velocity >= 0.01f, unit->GetDebugInfo());
+    CHECK(velocity >= 0.01f || (flags.Parabolic && parabolic_amplitude != 0.0f), unit->GetDebugInfo());
     CHECK(effect_start_point < std::ssize(path), unit->GetDebugInfo());
     CHECK(_checkPathLengths(), unit->GetGUID().ToString());
     if (spellEffectExtra)
