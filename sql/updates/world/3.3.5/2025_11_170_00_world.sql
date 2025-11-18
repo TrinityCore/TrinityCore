@@ -106,3 +106,9 @@ DELETE FROM `spell_scripts` WHERE `id` = 51662;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_hunger_for_blood';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (51662, 'spell_rog_hunger_for_blood');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 40109;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_kfc_the_bolt';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(40109, 'spell_bem_kfc_the_bolt');

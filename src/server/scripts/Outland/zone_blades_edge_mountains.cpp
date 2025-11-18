@@ -1201,11 +1201,33 @@ class spell_bem_q10720_poison_keg : public SpellScript
 
 enum BombingRun
 {
+    SPELL_FEL_FLAK_FIRE       = 40075,
     SPELL_FLAK_CANNON_TRIGGER = 40110,
     SPELL_CHOOSE_LOC          = 40056,
     SPELL_AGGRO_CHECK         = 40112,
 
     NPC_FEL_CANNON2           = 23082
+};
+
+// 40109 - Knockdown Fel Cannon: The Bolt
+class spell_bem_kfc_the_bolt : public SpellScript
+{
+    PrepareSpellScript(spell_bem_kfc_the_bolt);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEL_FLAK_FIRE });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetHitUnit(), SPELL_FEL_FLAK_FIRE, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_kfc_the_bolt::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
 };
 
 // 40113 - Knockdown Fel Cannon: The Aggro Check Aura
@@ -1405,6 +1427,7 @@ void AddSC_blades_edge_mountains()
     RegisterSpellScript(spell_bem_coax_marmot);
     RegisterSpellScript(spell_bem_charm_rexxars_rodent);
     RegisterSpellScript(spell_bem_q10720_poison_keg);
+    RegisterSpellScript(spell_bem_kfc_the_bolt);
     RegisterSpellScript(spell_bem_aggro_check_aura);
     RegisterSpellScript(spell_bem_aggro_check);
     RegisterSpellScript(spell_bem_aggro_burst);
