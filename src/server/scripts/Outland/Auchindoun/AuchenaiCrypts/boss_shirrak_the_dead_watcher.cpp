@@ -29,8 +29,7 @@ enum ShirrakTexts
 
 enum ShirrakSpells
 {
-    SPELL_INHIBIT_MAGIC_PERIODIC   = 33460,
-    SPELL_INHIBIT_MAGIC            = 32264,
+    SPELL_INHIBIT_MAGIC            = 33460,
 
     SPELL_ATTRACT_MAGIC            = 32265,
     SPELL_CARNIVOROUS_BITE         = 36383,
@@ -58,13 +57,14 @@ struct boss_shirrak_the_dead_watcher : public BossAI
 
     void Reset() override
     {
-        DoCastSelf(SPELL_INHIBIT_MAGIC_PERIODIC);
+        DoCastSelf(SPELL_INHIBIT_MAGIC);
         _Reset();
     }
 
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
+
         events.ScheduleEvent(EVENT_ATTRACT_MAGIC, 30s);
         events.ScheduleEvent(EVENT_CARNIVOROUS_BITE, 5s, 10s);
         events.ScheduleEvent(EVENT_FOCUS_FIRE, 20s, 30s);
@@ -124,14 +124,23 @@ struct npc_focus_fire : public ScriptedAI
 
     void JustAppeared() override
     {
-        // Should be in this sniffed order but makes it ignore other spell casts, so disabled
-        // DoCastSelf(SPELL_BIRTH);
-        DoCastSelf(SPELL_FOCUS_TARGET_VISUAL);
-
-        _scheduler.Schedule(5s, [this](TaskContext /*task*/)
-        {
-            DoCastSelf(SPELL_PING_SHIRRAK);
-        });
+        _scheduler
+            .SetValidator([this]
+            {
+                return !me->HasUnitState(UNIT_STATE_CASTING);
+            })
+            .Schedule(0s, [this](TaskContext /*task*/)
+            {
+                DoCastSelf(SPELL_BIRTH);
+            })
+            .Schedule(0s, [this](TaskContext /*task*/)
+            {
+                DoCastSelf(SPELL_FOCUS_TARGET_VISUAL);
+            })
+            .Schedule(5s, [this](TaskContext /*task*/)
+            {
+                DoCastSelf(SPELL_PING_SHIRRAK);
+            });
     }
 
     void SpellHit(WorldObject* /*caster*/, SpellInfo const* spellInfo) override
