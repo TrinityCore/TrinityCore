@@ -2151,11 +2151,7 @@ class spell_pri_power_surge_periodic : public AuraScript
 
     void HandleEffectProc(AuraEffect const* /*aurEff*/)
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        caster->CastSpell(caster, _spellId, TRIGGERED_FULL_MASK);
+        GetTarget()->CastSpell(GetTarget(), _spellId, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
