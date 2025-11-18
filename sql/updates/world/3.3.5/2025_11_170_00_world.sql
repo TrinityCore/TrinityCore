@@ -82,3 +82,27 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_sholazar_mount_mammoth_cue';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (51656, 'spell_sholazar_mount_mammoth_cue');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 21977;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_warr_warriors_wrath';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(21977, 'spell_warr_warriors_wrath');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 49203;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_dk_hungering_cold_init';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(49203, 'spell_dk_hungering_cold_init');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 31231;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_cheat_death_cooldown';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(31231, 'spell_rog_cheat_death_cooldown');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` = 51662;
+DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_rog_hunger_for_blood';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(51662, 'spell_rog_hunger_for_blood');
