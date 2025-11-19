@@ -174,9 +174,9 @@ protected:
         Ret(* Thunk)(BaseClass&, Args..., StorageType);
     };
 
-    uint8 m_currentScriptState;
     std::string_view m_scriptName;
     uint32 m_scriptSpellId;
+    uint8 m_currentScriptState;
 
 private:
 
