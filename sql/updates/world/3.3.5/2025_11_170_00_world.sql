@@ -118,3 +118,27 @@ DELETE FROM `spell_scripts` WHERE `id` = 38173;
 DELETE FROM `spell_script_names` WHERE `ScriptName` = 'spell_bem_summon_spirit';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (38173, 'spell_bem_summon_spirit');
+
+--
+DELETE FROM `spell_scripts` WHERE `id` IN (45685,45691);
+
+UPDATE `spell_script_names` SET `ScriptName` = 'spell_borean_tundra_shortening_blaster' WHERE `ScriptName` = 'spell_q11653_shortening_blaster';
+
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN (
+'spell_borean_tundra_magnataur_on_death_1',
+'spell_borean_tundra_magnataur_on_death_2');
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(45691, 'spell_borean_tundra_magnataur_on_death_1'),
+(45685, 'spell_borean_tundra_magnataur_on_death_2');
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` IN (25432,25434) AND `SourceId` = 0;
+
+DELETE FROM `smart_scripts` WHERE `entryorguid` IN (25432,25434) AND `source_type` = 0;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`event_param5`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_param4`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
+(25432,0,0,0,2,0,100,1,0,30,0,0,0,11,50420,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mate of Magmothregar - Between 0-30% Health - Cast 'Enrage' (No Repeat)"),
+(25432,0,1,0,83,0,100,0,50420,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mate of Magmothregar - On Spell Cast 'Enrage' - Say Line 0"),
+(25432,0,2,0,6,0,100,0,0,0,0,0,0,11,45691,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Mate of Magmothregar - On Death - Cast 'Hah... : Magnataur On Death 1'"),
+
+(25434,0,0,0,0,0,100,0,0,5000,10000,15000,0,11,50413,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Magmoth Crusher - In Combat - Cast 'Magnataur Charge'"),
+(25434,0,1,0,0,0,100,0,5000,10000,10000,15000,0,11,50410,0,0,0,0,0,2,0,0,0,0,0,0,0,0,"Magmoth Crusher - In Combat - Cast 'Tusk Strike'"),
+(25434,0,2,0,6,0,100,0,0,0,0,0,0,11,45691,0,0,0,0,0,1,0,0,0,0,0,0,0,0,"Magmoth Crusher - On Death - Cast 'Hah... : Magnataur On Death 1'");
