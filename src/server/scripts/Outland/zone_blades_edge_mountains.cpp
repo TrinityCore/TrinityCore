@@ -1411,6 +1411,37 @@ class spell_bem_vision_guide : public AuraScript
     }
 };
 
+/*######
+## Quest 10714: On Spirit's Wings
+######*/
+
+enum OnSpiritsWings
+{
+    SPELL_REXXARS_BIRD_EFFECT   = 39074
+};
+
+// 38173 - Summon Spirit
+class spell_bem_summon_spirit : public SpellScript
+{
+    PrepareSpellScript(spell_bem_summon_spirit);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_REXXARS_BIRD_EFFECT });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        // This spell script requires sniff verification
+        GetCaster()->CastSpell(GetCaster(), SPELL_REXXARS_BIRD_EFFECT);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_bem_summon_spirit::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1435,4 +1466,5 @@ void AddSC_blades_edge_mountains()
     RegisterSpellScript(spell_bem_check_fly_mount);
     RegisterSpellScript(spell_bem_apexis_swiftness);
     RegisterSpellScript(spell_bem_vision_guide);
+    RegisterSpellScript(spell_bem_summon_spirit);
 }
