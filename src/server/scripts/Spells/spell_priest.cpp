@@ -178,6 +178,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
+    SPELL_PRIEST_SHADOWY_APPARITION_DUMMY           = 341263,
+    SPELL_PRIEST_SHADOWY_APPARITION_MISSILE         = 148859,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
     SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT           = 47755,
     SPELL_PRIEST_SIN_AND_PUNISHMENT                 = 87204,
@@ -212,7 +214,8 @@ enum PriestSpells
 enum PriestSpellVisuals
 {
     SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE         = 52872,
-    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945
+    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION          = 33572,
 };
 
 enum PriestSummons
@@ -3100,6 +3103,58 @@ class spell_pri_shadow_word_death : public SpellScript
     }
 };
 
+// 341491 - Shadowy Apparitions
+class spell_pri_shadowy_apparitions : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOWY_APPARITION_DUMMY });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        caster->CastSpell(caster, SPELL_PRIEST_SHADOWY_APPARITION_DUMMY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_shadowy_apparitions::HandleProc);
+    }
+};
+
+// 341263 - Shadowy Apparition (Dummy)
+class spell_pri_shadowy_apparition_dummy : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH, SPELL_PRIEST_SHADOWY_APPARITION_MISSILE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([](WorldObject* target)
+        {
+            return !target->ToUnit()->HasAura(SPELL_PRIEST_VAMPIRIC_TOUCH);
+        });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_PRIEST_SHADOWY_APPARITION_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        caster->SendPlaySpellVisual(target, SPELL_VISUAL_PRIEST_SHADOWY_APPARITION, 0, 0, 6.f);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadowy_apparition_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadowy_apparition_dummy::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
@@ -3622,6 +3677,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
     RegisterSpellScript(spell_pri_shadow_word_death);
+    RegisterSpellScript(spell_pri_shadowy_apparitions);
+    RegisterSpellScript(spell_pri_shadowy_apparition_dummy);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
