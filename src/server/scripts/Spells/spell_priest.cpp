@@ -193,6 +193,8 @@ enum PriestSpells
     SPELL_PRIEST_TRAIL_OF_LIGHT_HEAL                = 234946,
     SPELL_PRIEST_TRINITY                            = 214205,
     SPELL_PRIEST_TRINITY_EFFECT                     = 290793,
+    SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_HOLY          = 390706,
+    SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_SHADOW        = 390707,
     SPELL_PRIEST_ULTIMATE_PENITENCE                 = 421453,
     SPELL_PRIEST_ULTIMATE_PENITENCE_DAMAGE          = 421543,
     SPELL_PRIEST_ULTIMATE_PENITENCE_HEAL            = 421544,
@@ -3324,6 +3326,36 @@ class spell_pri_train_of_thought : public AuraScript
     }
 };
 
+// 390705 - Twilight Equilibrium
+class spell_pri_twilight_equilibrium : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_HOLY, SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_SHADOW });
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = GetCaster();
+
+        if (eventInfo.GetActor() != caster)
+            return;
+
+        if (!eventInfo.GetDamageInfo() || !eventInfo.GetDamageInfo()->GetDamage())
+            return;
+
+        if (eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_SHADOW)
+            caster->CastSpell(caster, SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_HOLY, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        else if (eventInfo.GetDamageInfo()->GetSchoolMask() & SPELL_SCHOOL_MASK_HOLY)
+            caster->CastSpell(caster, SPELL_PRIEST_TWILIGHT_EQUILIBRIUM_SHADOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_twilight_equilibrium::HandleProc);
+    }
+};
+
 // 109142 - Twist of Fate (Shadow)
 // 265259 - Twist of Fate (Discipline)
 class spell_pri_twist_of_fate : public AuraScript
@@ -3628,6 +3660,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_t3_4p_bonus);
     RegisterSpellScript(spell_pri_t5_heal_2p_bonus);
     RegisterSpellScript(spell_pri_t10_heal_2p_bonus);
+    RegisterSpellScript(spell_pri_twilight_equilibrium);
     RegisterSpellScript(spell_pri_twist_of_fate);
     RegisterSpellScript(spell_pri_unfurling_darkness);
     RegisterSpellScript(spell_pri_vampiric_embrace);
