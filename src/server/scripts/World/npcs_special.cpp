@@ -1870,7 +1870,6 @@ enum TrainWrecker
     SPELL_TOY_TRAIN_PULSE =  61551,
     SPELL_WRECK_TRAIN     =  62943,
     EVENT_DO_JUMP         =      1,
-    EVENT_DO_FACING       =      2,
     EVENT_DO_WRECK        =      3,
     EVENT_DO_DANCE        =      4,
     MOVEID_CHASE          =      1,
@@ -1908,8 +1907,8 @@ class npc_train_wrecker : public CreatureScript
                         {
                             _isSearching = false;
                             _target = target->GetGUID();
-                            me->SetWalk(true);
-                            me->GetMotionMaster()->MovePoint(MOVEID_CHASE, target->GetNearPosition(3.0f, target->GetAbsoluteAngle(me)));
+                            me->GetMotionMaster()->MovePoint(MOVEID_CHASE, target->GetNearPosition(1.0f, target->GetAbsoluteAngle(me)),
+                                true, {}, {}, MovementWalkRunSpeedSelectionMode::ForceWalk);
                         }
                         else
                             _timer = 3 * IN_MILLISECONDS;
@@ -1924,31 +1923,10 @@ class npc_train_wrecker : public CreatureScript
                                 me->GetMotionMaster()->MoveJump(*target, 5.0, 10.0, MOVEID_JUMP);
                             _nextAction = 0;
                             break;
-                        case EVENT_DO_FACING:
-                            if (GameObject* target = VerifyTarget())
-                            {
-                                me->SetFacingTo(target->GetOrientation());
-                                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
-                                _timer = 1.5 * AsUnderlyingType(IN_MILLISECONDS);
-                                _nextAction = EVENT_DO_WRECK;
-                            }
-                            else
-                                _nextAction = 0;
-                            break;
                         case EVENT_DO_WRECK:
-                            if (diff < _timer)
-                            {
-                                _timer -= diff;
-                                break;
-                            }
+                            _nextAction = 0;
                             if (GameObject* target = VerifyTarget())
-                            {
                                 me->CastSpell(target, SPELL_WRECK_TRAIN, false);
-                                _timer = 2 * IN_MILLISECONDS;
-                                _nextAction = EVENT_DO_DANCE;
-                            }
-                            else
-                                _nextAction = 0;
                             break;
                         case EVENT_DO_DANCE:
                             if (diff < _timer)
@@ -1956,8 +1934,7 @@ class npc_train_wrecker : public CreatureScript
                                 _timer -= diff;
                                 break;
                             }
-                            me->UpdateEntry(NPC_EXULTING_WIND_UP_TRAIN_WRECKER);
-                            me->SetEmoteState(EMOTE_ONESHOT_DANCE);
+                            me->SetEmoteState(EMOTE_STATE_DANCE);
                             me->DespawnOrUnsummon(5s);
                             _nextAction = 0;
                             break;
@@ -1972,7 +1949,17 @@ class npc_train_wrecker : public CreatureScript
                 if (id == MOVEID_CHASE)
                     _nextAction = EVENT_DO_JUMP;
                 else if (id == MOVEID_JUMP)
-                    _nextAction = EVENT_DO_FACING;
+                    _nextAction = EVENT_DO_WRECK;
+            }
+
+            void SpellHitTarget(WorldObject*, SpellInfo const* spellInfo) override
+            {
+                if (spellInfo->Id == SPELL_WRECK_TRAIN)
+                {
+                    me->UpdateEntry(NPC_EXULTING_WIND_UP_TRAIN_WRECKER);
+                    _timer = 4 * IN_MILLISECONDS;
+                    _nextAction = EVENT_DO_DANCE;
+                }
             }
 
         private:
