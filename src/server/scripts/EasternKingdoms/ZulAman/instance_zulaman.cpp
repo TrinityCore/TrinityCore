@@ -114,6 +114,9 @@ class instance_zulaman : public InstanceMapScript
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
 
+                for (uint8 i = 0; i < 4; ++i)
+                    killedUnitInWaveCounter[i] = 0;
+
                 QuestTimer = 0;
                 QuestMinute = 0;
                 ChestLooted = 0;
@@ -149,6 +152,51 @@ class instance_zulaman : public InstanceMapScript
                         break;
                     default:
                         break;
+                }
+            }
+
+            void OnUnitDeath(Unit* unit) override
+            {
+                InstanceScript::OnUnitDeath(unit);
+
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                if (creature->HasStringId("NalorakkWave1"))
+                {
+                    ++killedUnitInWaveCounter[0];
+
+                    if (killedUnitInWaveCounter[0] == 3)
+                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
+                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_1);
+                }
+
+                if (creature->HasStringId("NalorakkWave2"))
+                {
+                    ++killedUnitInWaveCounter[1];
+
+                    if (killedUnitInWaveCounter[1] == 4)
+                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
+                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_2);
+                }
+
+                if (creature->HasStringId("NalorakkWave3"))
+                {
+                    ++killedUnitInWaveCounter[2];
+
+                    if (killedUnitInWaveCounter[2] == 2)
+                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
+                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_3);
+                }
+
+                if (creature->HasStringId("NalorakkWave4"))
+                {
+                    ++killedUnitInWaveCounter[3];
+
+                    if (killedUnitInWaveCounter[3] == 4)
+                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
+                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_4);
                 }
             }
 
@@ -310,6 +358,9 @@ class instance_zulaman : public InstanceMapScript
                     QuestTimer -= diff;
                 }
             }
+
+        protected:
+            std::array<uint32, 4> killedUnitInWaveCounter;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
