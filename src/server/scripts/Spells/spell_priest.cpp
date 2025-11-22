@@ -85,6 +85,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
+    SPELL_PRIEST_DIVINITY                           = 1215241,
+    SPELL_PRIEST_DIVINITY_AURA                      = 1216314,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_EPIPHANY                           = 414553,
     SPELL_PRIEST_EPIPHANY_HIGHLIGHT                 = 414556,
@@ -1143,6 +1145,40 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
+};
+
+// 1215241 - Divinity
+class spell_pri_divinity : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_APOTHEOSIS;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_divinity::CheckProc);
+    }
+};
+
+// 1216314 - Divinity (Aura)
+class spell_pri_divinity_aura : public AuraScript
+{
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Aura* aura = GetAura();
+        aura->SetStackAmount(aura->CalcMaxStackAmount());
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_pri_divinity_aura::HandleApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+    }
 };
 
 // 391339 - Empowered Renew
@@ -3566,6 +3602,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
+    RegisterSpellScript(spell_pri_divinity);
+    RegisterSpellScript(spell_pri_divinity_aura);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
