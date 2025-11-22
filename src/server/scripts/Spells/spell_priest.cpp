@@ -59,6 +59,7 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_CASTIGATION                        = 193134,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION_HEAL        = 373462,
@@ -102,6 +103,8 @@ enum PriestSpells
     SPELL_PRIEST_HALO_HOLY_HEAL                     = 120692,
     SPELL_PRIEST_HALO_SHADOW_DAMAGE                 = 390964,
     SPELL_PRIEST_HALO_SHADOW_HEAL                   = 390971,
+    SPELL_PRIEST_HARSH_DISCIPLINE                   = 373180,
+    SPELL_PRIEST_HARSH_DISCIPLINE_AURA              = 373183,
     SPELL_PRIEST_HEAL                               = 2060,
     SPELL_PRIEST_HEALING_LIGHT                      = 196809,
     SPELL_PRIEST_HEAVENS_WRATH                      = 421558,
@@ -1327,6 +1330,102 @@ class spell_pri_guardian_spirit : public AuraScript
     {
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_guardian_spirit::CalculateAmount, EFFECT_1, SPELL_AURA_SCHOOL_ABSORB);
         OnEffectAbsorb += AuraEffectAbsorbFn(spell_pri_guardian_spirit::Absorb, EFFECT_1);
+    }
+};
+
+// 373180 - Harsh Discipline
+// Triggered by 194509 - Power Word: Radiance
+class spell_pri_harsh_discipline : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE, SPELL_PRIEST_HARSH_DISCIPLINE_AURA });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Aura* aura = caster->GetAura(SPELL_PRIEST_HARSH_DISCIPLINE);
+        if (!aura)
+            return;
+
+        int32 rankStacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        caster->CastSpell(caster, SPELL_PRIEST_HARSH_DISCIPLINE_AURA, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT1, rankStacks }}
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_pri_harsh_discipline::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 373183 - Harsh Discipline (Aura)
+class spell_pri_harsh_discipline_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_HARSH_DISCIPLINE,
+            SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE,
+            SPELL_PRIEST_PENANCE_CHANNEL_HEALING,
+            SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE,
+            SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING
+        })
+        && ValidateSpellEffect
+        ({
+            {SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1},
+            {SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1}
+        });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        uint32 spellId = eventInfo.GetSpellInfo()->Id;
+        return spellId == SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE || spellId == SPELL_PRIEST_PENANCE_CHANNEL_HEALING
+            || spellId == SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE || spellId == SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING;
+    }
+
+    void CalculateAmount(AuraEffect const* /*auraEff*/, int32& amount, bool& canBeRecalculated) const
+    {
+        canBeRecalculated = false;
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        SpellInfo const* harshDiscipline = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty());
+        int32 additionalBolts = harshDiscipline->GetEffect(EFFECT_1).CalcValue(caster);
+
+        SpellInfo const* penanceChannel = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, GetCastDifficulty());
+        int32 channelDuration = penanceChannel->GetDuration();
+        int32 channelPeriod = penanceChannel->GetEffect(EFFECT_1).ApplyAuraPeriod;
+
+        int32 baseBolts = (channelDuration / channelPeriod) + 1;
+        if (caster->HasAura(SPELL_PRIEST_CASTIGATION))
+            ++baseBolts;
+
+        int32 basePeriod = channelDuration / (baseBolts - 1);
+        int32 totalBolts = baseBolts + additionalBolts;
+
+        float newPeriod = static_cast<float>(channelDuration) / (totalBolts - 1);
+        float pctDiff = (newPeriod - basePeriod) / basePeriod;
+
+        amount = static_cast<int32>(std::floor(pctDiff * 100.f));
+    }
+
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
+    {
+        ModStackAmount(-1);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_harsh_discipline_aura::CheckProc);
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_harsh_discipline_aura::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
+        OnProc += AuraProcFn(spell_pri_harsh_discipline_aura::HandleProc);
     }
 };
 
@@ -3575,6 +3674,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_guardian_spirit);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
+    RegisterSpellScript(spell_pri_harsh_discipline);
+    RegisterSpellScript(spell_pri_harsh_discipline_aura);
     RegisterSpellScript(spell_pri_heavens_wrath);
     RegisterSpellScript(spell_pri_holy_mending);
     RegisterSpellScript(spell_pri_holy_words);
