@@ -794,6 +794,49 @@ class spell_pri_dark_indulgence : public SpellScript
     }
 };
 
+// 1240364 - Death's Torment
+class spell_pri_deaths_torment : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (!eventInfo.GetDamageInfo() || !eventInfo.GetDamageInfo()->GetDamage())
+            return false;
+
+        if (eventInfo.GetProcSpell()->m_customArg.has_value())
+            return false;
+
+        return true;
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+
+        int32 maxHits = GetEffect(EFFECT_0)->GetAmount();
+        int32 effectiveness = GetEffect(EFFECT_1)->GetAmount();
+
+        CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
+        args.SetOriginalCastId(eventInfo.GetProcSpell()->m_castId);
+        args.SetCustomArg(effectiveness);
+
+        for (int i = 0; i < maxHits; ++i)
+            caster->CastSpell(target, SPELL_PRIEST_SHADOW_WORD_DEATH, args);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_deaths_torment::CheckProc);
+        OnProc += AuraProcFn(spell_pri_deaths_torment::HandleProc);
+    }
+};
+
 namespace DivineImageHelpers
 {
 Unit* GetSummon(Unit const* owner)
@@ -3071,6 +3114,13 @@ class spell_pri_shadow_word_death : public SpellScript
     {
         if (victim->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
             AddPct(pctMod, GetEffectInfo(EFFECT_3).CalcValue(GetCaster()));
+
+        // handles Death's Torment talent
+        if (GetSpell()->m_customArg.has_value())
+        {
+            _effectiveness = *std::any_cast<int32>(&GetSpell()->m_customArg);
+            ApplyPct(pctMod, _effectiveness);
+        }
     }
 
     void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
@@ -3080,6 +3130,11 @@ class spell_pri_shadow_word_death : public SpellScript
         {
             Unit* caster = GetCaster();
             int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_5).CalcValue(caster));
+
+            // Death's Torment effectiveness on backlash too
+            if (_effectiveness)
+                backlashDamage = CalculatePct(backlashDamage, _effectiveness);
+
             caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
             {
                 caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()
@@ -3098,6 +3153,8 @@ class spell_pri_shadow_word_death : public SpellScript
         // abuse OnCalculateResistAbsorb to determine if this spell will kill target or not (its still not perfect - happens before absorbs are applied)
         OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_pri_shadow_word_death::DetermineKillStatus);
     }
+
+    mutable int32 _effectiveness{};
 };
 
 // 109186 - Surge of Light
@@ -3559,6 +3616,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
+    RegisterSpellScript(spell_pri_deaths_torment);
     RegisterSpellScript(spell_pri_divine_aegis);
     RegisterSpellScript(spell_pri_divine_image);
     RegisterSpellScript(spell_pri_divine_image_spell_triggered);
