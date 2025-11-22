@@ -85,6 +85,8 @@ DB2Storage<BattlemasterListEntry>               sBattlemasterListStore("Battlema
 DB2Storage<BattlemasterListXMapEntry>           sBattlemasterListXMapStore("BattlemasterListXMap.db2", &BattlemasterListXMapLoadInfo::Instance);
 DB2Storage<BroadcastTextEntry>                  sBroadcastTextStore("BroadcastText.db2", &BroadcastTextLoadInfo::Instance);
 DB2Storage<BroadcastTextDurationEntry>          sBroadcastTextDurationStore("BroadcastTextDuration.db2", &BroadcastTextDurationLoadInfo::Instance);
+DB2Storage<CampaignEntry>                       sCampaignStore("Campaign.db2", &CampaignLoadInfo::Instance);
+DB2Storage<CampaignXQuestLineEntry>             sCampaignXQuestLineStore("CampaignXQuestLine.db2", &CampaignXQuestLineLoadInfo::Instance);
 DB2Storage<Cfg_CategoriesEntry>                 sCfgCategoriesStore("Cfg_Categories.db2", &CfgCategoriesLoadInfo::Instance);
 DB2Storage<Cfg_RegionsEntry>                    sCfgRegionsStore("Cfg_Regions.db2", &CfgRegionsLoadInfo::Instance);
 DB2Storage<ChallengeModeItemBonusOverrideEntry> sChallengeModeItemBonusOverrideStore("ChallengeModeItemBonusOverride.db2", &ChallengeModeItemBonusOverrideLoadInfo::Instance);
@@ -384,6 +386,7 @@ DB2Storage<TransmogSetGroupEntry>               sTransmogSetGroupStore("Transmog
 DB2Storage<TransmogSetItemEntry>                sTransmogSetItemStore("TransmogSetItem.db2", &TransmogSetItemLoadInfo::Instance);
 DB2Storage<TransportAnimationEntry>             sTransportAnimationStore("TransportAnimation.db2", &TransportAnimationLoadInfo::Instance);
 DB2Storage<TransportRotationEntry>              sTransportRotationStore("TransportRotation.db2", &TransportRotationLoadInfo::Instance);
+DB2Storage<UIChromieTimeExpansionInfoEntry>     sUIChromieTimeExpansionInfoStore("UIChromieTimeExpansionInfo.db2", &UiChromieTimeExpansionInfoLoadInfo::Instance);
 DB2Storage<UiMapEntry>                          sUiMapStore("UiMap.db2", &UiMapLoadInfo::Instance);
 DB2Storage<UiMapAssignmentEntry>                sUiMapAssignmentStore("UiMapAssignment.db2", &UiMapAssignmentLoadInfo::Instance);
 DB2Storage<UiMapLinkEntry>                      sUiMapLinkStore("UiMapLink.db2", &UiMapLinkLoadInfo::Instance);
@@ -474,6 +477,8 @@ namespace
     std::unordered_map<uint32 /*azeritePowerSetId*/, std::vector<AzeritePowerSetMemberEntry const*>> _azeritePowers;
     std::unordered_map<std::pair<uint32 /*azeriteUnlockSetId*/, ItemContext>, std::array<uint8, MAX_AZERITE_EMPOWERED_TIER>> _azeriteTierUnlockLevels;
     std::unordered_map<std::pair<uint32 /*broadcastTextId*/, CascLocaleBit /*cascLocaleBit*/>, int32> _broadcastTextDurations;
+    std::unordered_map<uint32 /*questLineId*/, CampaignXQuestLineEntry const*> _campaignsByQuestLine;
+    std::unordered_map<uint32, CampaignEntry const*> _campaigns;
     std::unordered_map<std::pair<uint8, uint8>, CharBaseInfoEntry const*> _charBaseInfoByRaceAndClass;
     std::array<ChrClassUIDisplayEntry const*, MAX_CLASSES> _uiDisplayByClass;
     std::array<std::array<uint32, MAX_POWERS>, MAX_CLASSES> _powersByClass;
@@ -520,6 +525,7 @@ namespace
     std::unordered_map<uint32, uint8> _pvpItemBonus;
     PvpTalentSlotUnlockEntry const* _pvpTalentSlotUnlock[MAX_PVP_TALENT_SLOTS];
     std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questsByQuestLine;
+    std::unordered_map<uint32, std::vector<QuestLineXQuestEntry const*>> _questLinesByQuest;
     QuestPackageItemContainer _questPackages;
     std::unordered_map<uint32, std::vector<RewardPackXCurrencyTypeEntry const*>> _rewardPackCurrencyTypes;
     std::unordered_map<uint32, std::vector<RewardPackXItemEntry const*>> _rewardPackItems;
@@ -538,6 +544,7 @@ namespace
     std::unordered_map<uint32, TransmogIllusionEntry const*> _transmogIllusionsByEnchantmentId;
     std::unordered_map<uint32, std::vector<TransmogSetEntry const*>> _transmogSetsByItemModifiedAppearance;
     std::unordered_map<uint32, std::vector<TransmogSetItemEntry const*>> _transmogSetItemsByTransmogSet;
+    std::unordered_map<uint32, UIChromieTimeExpansionInfoEntry const*> _chromieTimeExpansionInfo;
     std::unordered_map<int32, UiMapBounds> _uiMapBounds;
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByMap[MAX_UI_MAP_SYSTEM];
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> _uiMapAssignmentByArea[MAX_UI_MAP_SYSTEM];
@@ -715,6 +722,8 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sBattlemasterListXMapStore);
     LOAD_DB2(sBroadcastTextStore);
     LOAD_DB2(sBroadcastTextDurationStore);
+    LOAD_DB2(sCampaignStore);
+    LOAD_DB2(sCampaignXQuestLineStore);
     LOAD_DB2(sCfgCategoriesStore);
     LOAD_DB2(sCfgRegionsStore);
     LOAD_DB2(sChallengeModeItemBonusOverrideStore);
@@ -1014,6 +1023,7 @@ uint32 DB2Manager::LoadStores(std::string const& dataPath, LocaleConstant defaul
     LOAD_DB2(sTransmogSetItemStore);
     LOAD_DB2(sTransportAnimationStore);
     LOAD_DB2(sTransportRotationStore);
+    LOAD_DB2(sUIChromieTimeExpansionInfoStore);
     LOAD_DB2(sUiMapStore);
     LOAD_DB2(sUiMapAssignmentStore);
     LOAD_DB2(sUiMapLinkStore);
@@ -1128,6 +1138,9 @@ void DB2Manager::IndexLoadedStores()
     _broadcastTextDurations.reserve(sBroadcastTextDurationStore.GetNumRows());
     for (BroadcastTextDurationEntry const* broadcastTextDuration : sBroadcastTextDurationStore)
         _broadcastTextDurations[{ broadcastTextDuration->BroadcastTextID, CascLocaleBit(broadcastTextDuration->Locale) }] = broadcastTextDuration->Duration;
+
+    for (CampaignXQuestLineEntry const* entry : sCampaignXQuestLineStore)
+        _campaignsByQuestLine[entry->QuestLineID] = entry;
 
     for (CharBaseInfoEntry const* charBaseInfo : sCharBaseInfoStore)
         _charBaseInfoByRaceAndClass[{ charBaseInfo->RaceID, charBaseInfo->ClassID }] = charBaseInfo;
@@ -1502,10 +1515,25 @@ void DB2Manager::IndexLoadedStores()
 
     {
         for (QuestLineXQuestEntry const* questLineQuest : sQuestLineXQuestStore)
+        {
             _questsByQuestLine[questLineQuest->QuestLineID].push_back(questLineQuest);
+            _questLinesByQuest[questLineQuest->QuestID].push_back(questLineQuest);
+        }
 
         for (auto& [questLineId, questLineQuests] : _questsByQuestLine)
             std::ranges::sort(questLineQuests, std::ranges::less(), &QuestLineXQuestEntry::OrderIndex);
+    }
+
+    for (CampaignXQuestLineEntry const* campaignXquestLine : sCampaignXQuestLineStore)
+    {
+        auto it = _campaignsByQuestLine.find(campaignXquestLine->QuestLineID);
+        if (it == _campaignsByQuestLine.end() || campaignXquestLine->OrderIndex < it->second->OrderIndex)
+            _campaignsByQuestLine[campaignXquestLine->QuestLineID] = campaignXquestLine;
+    }
+
+    {
+        for (CampaignEntry const* campaign : sCampaignStore)
+            _campaigns[campaign->ID] = campaign;
     }
 
     for (QuestPackageItemEntry const* questPackageItem : sQuestPackageItemStore)
@@ -1595,6 +1623,9 @@ void DB2Manager::IndexLoadedStores()
         _transmogSetsByItemModifiedAppearance[transmogSetItem->ItemModifiedAppearanceID].push_back(set);
         _transmogSetItemsByTransmogSet[transmogSetItem->TransmogSetID].push_back(transmogSetItem);
     }
+
+    for (UIChromieTimeExpansionInfoEntry const* uiChromieTimeExpansion : sUIChromieTimeExpansionInfoStore)
+        _chromieTimeExpansionInfo.emplace(uiChromieTimeExpansion->ID, uiChromieTimeExpansion);
 
     std::unordered_multimap<int32, UiMapAssignmentEntry const*> uiMapAssignmentByUiMap;
     for (UiMapAssignmentEntry const* uiMapAssignment : sUiMapAssignmentStore)
@@ -2111,6 +2142,24 @@ char const* DB2Manager::GetBroadcastTextValue(BroadcastTextEntry const* broadcas
 int32 const* DB2Manager::GetBroadcastTextDuration(uint32 broadcastTextId, LocaleConstant locale /*= DEFAULT_LOCALE*/) const
 {
     return Trinity::Containers::MapGetValuePtr(_broadcastTextDurations, { broadcastTextId, WowLocaleToCascLocaleBit[locale] });
+}
+
+std::vector<QuestLineXQuestEntry const*> const* DB2Manager::GetQuestLineXQuestsForQuest(uint32 questId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_questLinesByQuest, questId);
+}
+
+CampaignXQuestLineEntry const* DB2Manager::GetCampaignForQuestLine(uint32 questLineId) const
+{
+    auto itr = _campaignsByQuestLine.find(questLineId);
+    if (itr != _campaignsByQuestLine.end())
+        return itr->second;
+    return nullptr;
+}
+
+CampaignEntry const* DB2Manager::GetCampaign(uint32 campaignId) const
+{
+    return Trinity::Containers::MapGetValuePtr(_campaigns, campaignId);
 }
 
 CharBaseInfoEntry const* DB2Manager::GetCharBaseInfo(Races race, Classes class_)
