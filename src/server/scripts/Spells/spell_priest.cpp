@@ -115,6 +115,9 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
+    SPELL_PRIEST_HORRIFIC_VISIONS_STACK             = 1243069,
+    SPELL_PRIEST_HORRIFIC_VISION_DAMAGE             = 1243105,
+    SPELL_PRIEST_HORRIFIC_VISION_ENERGIZE           = 1243113,
     SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -201,6 +204,8 @@ enum PriestSpells
     SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
+    SPELL_PRIEST_VISION_OF_NZOTH_DAMAGE             = 1243106,
+    SPELL_PRIEST_VISION_OF_NZOTH_ENERGIZE           = 1243114,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
@@ -1565,6 +1570,72 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
     }
+};
+
+// 373280 - Idol of N'Zoth
+class spell_pri_idol_of_nzoth : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/)
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_PRIEST_HORRIFIC_VISIONS_STACK,
+            SPELL_PRIEST_HORRIFIC_VISION_DAMAGE,
+            SPELL_PRIEST_HORRIFIC_VISION_ENERGIZE,
+            SPELL_PRIEST_VISION_OF_NZOTH_DAMAGE,
+            SPELL_PRIEST_VISION_OF_NZOTH_ENERGIZE
+        });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        _nightmareThreshold = GetEffect(EFFECT_0)->GetAmount();
+        _maxStacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HORRIFIC_VISIONS_STACK, GetCastDifficulty())->StackAmount;
+    }
+
+    void HandleOnProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!caster || !target)
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        Aura* horrificAura = target->GetAura(SPELL_PRIEST_HORRIFIC_VISIONS_STACK, caster->GetGUID());
+        if (!horrificAura)
+        {
+            caster->CastSpell(target, SPELL_PRIEST_HORRIFIC_VISIONS_STACK, args);
+            return;
+        }
+
+        uint32 oldStacks = horrificAura->GetStackAmount();
+        if (oldStacks >= _maxStacks)
+        {
+            horrificAura->Remove();
+            caster->CastSpell(target, SPELL_PRIEST_VISION_OF_NZOTH_DAMAGE, args);
+            caster->CastSpell(caster, SPELL_PRIEST_VISION_OF_NZOTH_ENERGIZE, args);
+            return;
+        }
+
+        horrificAura->ModStackAmount(1);
+        uint32 newStacks = horrificAura->GetStackAmount();
+
+        if (oldStacks < _nightmareThreshold && newStacks >= _nightmareThreshold)
+        {
+            caster->CastSpell(target, SPELL_PRIEST_HORRIFIC_VISION_DAMAGE, args);
+            caster->CastSpell(caster, SPELL_PRIEST_HORRIFIC_VISION_ENERGIZE, args);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_idol_of_nzoth::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnProc += AuraProcFn(spell_pri_idol_of_nzoth::HandleOnProc);
+    }
+
+    uint32 _nightmareThreshold{};
+    uint32 _maxStacks{};
 };
 
 // 40438 - Priest Tier 6 Trinket
@@ -3580,6 +3651,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_idol_of_nzoth);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
