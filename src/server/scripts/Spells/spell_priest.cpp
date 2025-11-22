@@ -116,6 +116,9 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
     SPELL_PRIEST_INDEMNITY                          = 373049,
+    SPELL_PRIEST_INESCAPABLE_TORMENT                = 373427,
+    SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT       = 373441,
+    SPELL_PRIEST_INESCAPABLE_TORMENT_DAMAGE         = 373442,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
@@ -1564,6 +1567,106 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
+    }
+};
+
+namespace InescapableTormentHelper
+{
+    Unit* GetSummon(Unit const* owner)
+    {
+        for (Unit* summon : owner->m_Controlled)
+            if (summon->GetEntry() == NPC_PRIEST_SHADOWFIEND || summon->GetEntry() == NPC_PRIEST_MINDBENDER)
+                return summon;
+        return nullptr;
+    }
+
+    void Trigger(Unit const* caster, Unit* target)
+    {
+        Unit* summon = GetSummon(caster);
+        if (!summon || !target)
+            return;
+
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SetOriginalCaster(caster->GetGUID());
+        summon->CastSpell(target, SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT, args);
+
+        TempSummon* tempSummon = summon->ToTempSummon();
+        if (!tempSummon)
+            return;
+
+        int32 durationExtend = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(caster);
+        tempSummon->ModifyTimer(Milliseconds(durationExtend));
+    }
+}
+
+// 373427 - Inescapable Torment
+// Triggered by 8092 - Mind Blast, 32379 - Shadow Word: Death
+class spell_pri_inescapable_torment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_INESCAPABLE_TORMENT, EFFECT_1} });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_INESCAPABLE_TORMENT);
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        InescapableTormentHelper::Trigger(GetCaster(), GetHitUnit());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// Triggered by 47758 - Penance (Channel) and 373129 - Dark Reprimand (Channel)
+class spell_pri_inescapable_torment_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_INESCAPABLE_TORMENT, EFFECT_1} });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_PRIEST_INESCAPABLE_TORMENT))
+            return;
+
+        InescapableTormentHelper::Trigger(caster, GetTarget());
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_inescapable_torment_aura::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 373442 - Inescapable Torment (Damage)
+class spell_pri_inescapable_torment_damage : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_INESCAPABLE_TORMENT });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster());
+        if (targets.size() > maxTargets)
+            Trinity::Containers::RandomResize(targets, maxTargets);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_inescapable_torment_damage::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
     }
 };
 
@@ -3580,6 +3683,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_inescapable_torment);
+    RegisterSpellScript(spell_pri_inescapable_torment_aura);
+    RegisterSpellScript(spell_pri_inescapable_torment_damage);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
