@@ -1617,8 +1617,6 @@ struct go_silverpine_abandoned_outhouse : public GameObjectAI
 
 Position const YorickReadyPosition = { 1313.7f, 1211.99f, 58.5f, 4.564474f };
 
-Position const YorickDeathPosition = { 1295.52f, 1206.58f, 58.501f };
-
 enum DeathstalkerRaneYorick
 {
     PHASE_WAITING_TO_EXSANGUINATE           = 265,
@@ -1822,7 +1820,6 @@ struct npc_silverpine_deathstalker_rane_yorick : public ScriptedAI
                 }
 
                 case EVENT_RANE_LAST_MOVE:
-                    me->GetMotionMaster()->MoveJump(YorickDeathPosition, 10.0f, 10.0f);
                     DoCastSelf(SPELL_PERMANENT_FEIGN_DEATH);
                     _events.ScheduleEvent(EVENT_RANE_LAST_MOVE + 1, 2s);
                     break;
@@ -3937,7 +3934,6 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
     void JustAppeared() override
     {
         me->SetDisableGravity(true);
-        me->SetHover(true);
 
         _lurkingOnCeilingPos = me->GetPosition();
 
@@ -3953,16 +3949,9 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
 
     void JustReachedHome() override
     {
-        me->SetDisableGravity(true);
-        me->SetHover(true);
+        me->SetFacingTo(0.820305f);
 
-        me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
-
-        me->SetAIAnimKitId(ANIMKIT_MATRIARCH_HANGING_BY_WEB);
-
-        me->GetMotionMaster()->MoveJump(_lurkingOnCeilingPos, 8.0f, 8.0f);
-
-        _events.ScheduleEvent(EVENT_RESET_POSITION, 1s + 500ms);
+        _events.ScheduleEvent(EVENT_RESET_POSITION, 1s);
     }
 
     void JustSummoned(Creature* summon) override
@@ -3993,13 +3982,11 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
             {
                 case EVENT_MATRIARCH_AGGRO:
                     me->SetDisableGravity(false);
-                    me->SetHover(false);
                     me->GetMotionMaster()->MoveFall();
                     _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 1, 1s);
                     break;
 
                 case EVENT_MATRIARCH_AGGRO + 1:
-                    me->PlayOneShotAnimKitId(ANIMKIT_MATRIARCH_INTERACT);
                     me->CastStop();
                     me->SetHomePosition(me->GetPosition());
                     _events.ScheduleEvent(EVENT_MATRIARCH_AGGRO + 2, 1s + 500ms);
@@ -4011,8 +3998,10 @@ struct npc_silverpine_skitterweb_matriarch : public ScriptedAI
                     break;
 
                 case EVENT_RESET_POSITION:
-                    me->SetFacingTo(0.820305f);
+                    me->SetDisableGravity(true);
+                    me->NearTeleportTo(_lurkingOnCeilingPos);
                     me->SetHomePosition(me->GetPosition());
+                    me->CastSpell(nullptr, SPELL_SKITTERWEB, true);
                     me->SetAIAnimKitId(ANIMKIT_MATRIARCH_LURKING_ON_CEILING);
                     break;
 
