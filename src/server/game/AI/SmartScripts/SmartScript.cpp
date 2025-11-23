@@ -1930,7 +1930,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     {}, false, nullptr, nullptr, std::move(actionResultSetter));
             }
             else
-                me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId,
+                me->GetMotionMaster()->MoveJump_OLD_DEPRECATED(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId,
                     {}, false, nullptr, nullptr, std::move(actionResultSetter));
 
             mTimedActionWaitEvent = std::move(waitEvent);

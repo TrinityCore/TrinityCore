@@ -480,7 +480,7 @@ struct npc_silverpine_grand_executor_mortuus : public ScriptedAI
                 {
                     if (Creature* garrosh = ObjectAccessor::GetCreature(*me, _garroshGUID))
                     {
-                        garrosh->GetMotionMaster()->MoveJump(GarroshJumpPos, 15.595897f, 15.595897f);
+                        garrosh->GetMotionMaster()->MoveJump(EVENT_JUMP, GarroshJumpPos, 16.0f);
 
                         _events.ScheduleEvent(EVENT_SCENE_TALK_COMETH + 3, 2s + 500ms);
                     }

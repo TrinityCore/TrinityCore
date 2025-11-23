@@ -1015,7 +1015,7 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 me->SetReactState(REACT_PASSIVE);
                 me->AttackStop();
                 events.SetPhase(PHASE_CHARGE);
-                me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, POINT_MIDDLE);
+                me->GetMotionMaster()->MoveJump(POINT_MIDDLE, ToCCommonLoc[1], 50.0f, 2.0f);
                 break;
             case EVENT_SELECT_CHARGE_TARGET:
                 if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
