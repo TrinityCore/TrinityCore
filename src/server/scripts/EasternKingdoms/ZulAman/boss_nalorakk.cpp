@@ -23,6 +23,7 @@
 
 #include "ScriptMgr.h"
 #include "Containers.h"
+#include "Map.h"
 #include "MotionMaster.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -66,7 +67,7 @@ enum NalorakkSpells
 
     // Scripts
     SPELL_SURGE_CHARGE              = 42402,
-	SPELL_SURGE_HASTE               = 44960
+    SPELL_SURGE_HASTE               = 44960
 };
 
 enum NalorakkEvents

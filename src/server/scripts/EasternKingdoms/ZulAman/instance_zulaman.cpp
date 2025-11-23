@@ -23,6 +23,7 @@ SDCategory: Zul'Aman
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "CreatureAI.h"
 #include "GameObject.h"
 #include "InstanceScript.h"
 #include "Log.h"
@@ -113,9 +114,6 @@ class instance_zulaman : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 LoadObjectData(creatureData, gameObjectData);
-
-                for (uint8 i = 0; i < 4; ++i)
-                    killedUnitInWaveCounter[i] = 0;
 
                 QuestTimer = 0;
                 QuestMinute = 0;
@@ -360,7 +358,7 @@ class instance_zulaman : public InstanceMapScript
             }
 
         protected:
-            std::array<uint32, 4> killedUnitInWaveCounter;
+            std::array<uint8, 4> killedUnitInWaveCounter = { };
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override
