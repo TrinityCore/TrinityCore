@@ -400,9 +400,6 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
     void GiveClue(Player* player)
     {
-        if (!player)
-            return;
-
         _events.CancelEventGroup(Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
         me->SetFacingToObject(player);
 
@@ -464,8 +461,8 @@ struct npc_westfall_hobo_witness : public ScriptedAI
 
     void JustDied(Unit* who) override
     {
-        if (who->IsCreature() && who->ToCreature()->IsAIEnabled())
-            who->ToCreature()->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroActionDone);
+        if (Creature* creature = who->ToCreature())
+            creature->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroActionDone);
         DoCastSelf(Spells::SummonRagamuffinLooter);
     }
 
@@ -626,8 +623,7 @@ class spell_westfall_aggro_hobo : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         if (Creature* creature = GetHitCreature())
-            if (creature->IsAIEnabled())
-                creature->AI()->SetGUID(GetCaster()->GetGUID(), 0);
+            creature->AI()->SetGUID(GetCaster()->GetGUID(), 0);
     }
 
     void Register() override
