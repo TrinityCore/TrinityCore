@@ -63,11 +63,6 @@ namespace Spells
 
 namespace Gossip
 {
-    namespace GossipMenu
-    {
-        static constexpr uint32 HoboGossipMenu = 11635;
-    }
-
     namespace GossipOption
     {
         static constexpr uint32 GossipOption0 = 0;
