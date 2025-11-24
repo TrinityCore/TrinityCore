@@ -18,6 +18,7 @@
 #include "CombatAI.h"
 #include "Containers.h"
 #include "CreatureAIImpl.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
