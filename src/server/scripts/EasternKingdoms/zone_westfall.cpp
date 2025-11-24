@@ -390,7 +390,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
             GiveClue(player);
         else
         {
-            me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetImmuneToPC(false);
             AttackStart(player);
         }
 
@@ -465,7 +465,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
     {
         if (who->IsCreature() && who->ToCreature()->IsAIEnabled())
             who->ToCreature()->AI()->DoAction(Actions::MurderWasTheCaseThatTheyGaveMe::HoboAggroActionDone);
-        me->CastSpell(me, Spells::SummonRagamuffinLooter);
+        DoCastSelf(Spells::SummonRagamuffinLooter);
     }
 
     void Reset() override
@@ -476,7 +476,7 @@ struct npc_westfall_hobo_witness : public ScriptedAI
         _hoboRage = false;
         _flee = false;
         me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+        me->SetImmuneToPC(true);
         _events.ScheduleEvent(Events::MurderWasTheCaseThatTheyGaveMe::ResumeMove, 100ms, Events::MurderWasTheCaseThatTheyGaveMe::GroupOOC);
     }
 
