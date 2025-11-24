@@ -1926,7 +1926,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (e.action.jump.Gravity || e.action.jump.UseDefaultGravity)
             {
                 float gravity = e.action.jump.UseDefaultGravity ? Movement::gravity : e.action.jump.Gravity;
-                me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId,
+                me->GetMotionMaster()->MoveJumpWithGravity_OLD_DEPRECATED(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId,
                     {}, false, nullptr, nullptr, std::move(actionResultSetter));
             }
             else
