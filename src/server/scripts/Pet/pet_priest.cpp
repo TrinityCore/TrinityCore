@@ -32,7 +32,9 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_PASSIVE          = 195178,
     SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216,
     SPELL_PRIEST_INVOKE_THE_NAARU           = 196687,
-    SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
+    SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907,
+    SPELL_PRIEST_MIND_FLAY_PERMANENT        = 466316,
+    SPELL_PRIEST_MIND_SEAR_PERMANENT        = 466317
 };
 
 // 198236 - Divine Image
@@ -91,9 +93,43 @@ struct npc_pet_pri_shadowfiend_mindbender : public PetAI
     }
 };
 
+// 192337 - Void Tendril
+struct npc_pet_pri_void_tendril : public PassiveAI
+{
+    npc_pet_pri_void_tendril(Creature* creature) : PassiveAI(creature) {}
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
+
+        me->SetControlled(true, UNIT_STATE_ROOT);
+        DoCastSelf(SPELL_PRIEST_MIND_FLAY_PERMANENT, TRIGGERED_FULL_MASK);
+    }
+};
+
+// 198757 - Void Lasher
+struct npc_pet_pri_void_lasher : public PassiveAI
+{
+    npc_pet_pri_void_lasher(Creature* creature) : PassiveAI(creature) {}
+
+    void IsSummonedBy(WorldObject* summonerWO) override
+    {
+        Unit* summoner = summonerWO->ToUnit();
+        if (!summoner)
+            return;
+
+        me->SetControlled(true, UNIT_STATE_ROOT);
+        DoCastSelf(SPELL_PRIEST_MIND_SEAR_PERMANENT, TRIGGERED_FULL_MASK);
+    }
+};
+
 void AddSC_priest_pet_scripts()
 {
     RegisterCreatureAI(npc_pet_pri_divine_image);
     RegisterCreatureAI(npc_pet_pri_lightwell);
     RegisterCreatureAI(npc_pet_pri_shadowfiend_mindbender);
+    RegisterCreatureAI(npc_pet_pri_void_tendril);
+    RegisterCreatureAI(npc_pet_pri_void_lasher);
 }

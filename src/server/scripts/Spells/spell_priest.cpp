@@ -115,6 +115,10 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
+    SPELL_PRIEST_IDOL_OF_CTHUN_ENERGIZE             = 377358,
+    SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY            = 193473,
+    SPELL_PRIEST_IDOL_OF_CTHUN_VOID_LASHER          = 377357,
+    SPELL_PRIEST_IDOL_OF_CTHUN_VOID_TENDRIL         = 377355,
     SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -131,6 +135,9 @@ enum PriestSpells
     SPELL_PRIEST_MINDGAMES                          = 375901,
     SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
+    SPELL_PRIEST_MIND_FLAY                          = 15407,
+    SPELL_PRIEST_MIND_SEAR                          = 394976,
+    SPELL_PRIEST_MIND_SEAR_DAMAGE                   = 394979,
     SPELL_PRIEST_MISERY                             = 238558,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PAIN_TRANSFORMATION                = 372991,
@@ -203,6 +210,8 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_VOID_TORRENT                       = 263165,
+    SPELL_PRIEST_VOID_VOLLEY                        = 1240401,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
     SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
     SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
@@ -1565,6 +1574,58 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
     }
+};
+
+// 377349 - Idol of C'Thun
+class spell_pri_idol_of_cthun : public AuraScript
+{
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        _targetsThreshold = aurEff->GetAmount();
+        TC_LOG_ERROR("test", "threshold {}", _targetsThreshold);
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        if (eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_VOID_TORRENT || eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_VOID_VOLLEY)
+        {
+            TC_LOG_ERROR("test", "proc check spell ID?? {} ppm? {}", eventInfo.GetSpellInfo()->Id, _ppm);
+            _ppm = 100.f;
+        }
+        else
+        {
+            TC_LOG_ERROR("test", "mind flay???? {}", eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_MIND_FLAY);
+            _ppm = GetAura()->CalcPPMProcChance(eventInfo.GetActor());
+            TC_LOG_ERROR("test", "ppm flay? {}", _ppm);
+        }
+        
+        return roll_chance_f(_ppm);
+    }
+
+    void HandleOnProc(ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+
+        std::list<Unit*> enemies;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck check(target, caster, 10.f);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, enemies, check);
+        Cell::VisitAllObjects(target, searcher, 10.f);
+        TC_LOG_ERROR("test", "targets?? {}", enemies.size());
+        uint32 spellId = (enemies.size() >= _targetsThreshold) ? SPELL_PRIEST_IDOL_OF_CTHUN_VOID_LASHER : SPELL_PRIEST_IDOL_OF_CTHUN_VOID_TENDRIL;
+        TC_LOG_ERROR("test", "spellId {}", spellId);
+        caster->CastSpell(target, spellId);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_idol_of_cthun::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        DoCheckProc += AuraCheckProcFn(spell_pri_idol_of_cthun::CheckProc);
+        OnProc += AuraProcFn(spell_pri_idol_of_cthun::HandleOnProc);
+    }
+
+    int32 _targetsThreshold{};
+    float _ppm{};
 };
 
 // 40438 - Priest Tier 6 Trinket
@@ -3580,6 +3641,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_idol_of_cthun);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
