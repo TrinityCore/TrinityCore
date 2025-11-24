@@ -976,7 +976,7 @@ void MotionMaster::MoveJump(uint32 id, Position const& pos, std::variant<std::mo
     Add(movement);
 }
 
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
+void MotionMaster::MoveJumpWithGravity_OLD_DEPRECATED(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
     bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {

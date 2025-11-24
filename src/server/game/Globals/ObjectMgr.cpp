@@ -12030,76 +12030,84 @@ void ObjectMgr::LoadJumpChargeParams()
     // need for reload case
     _jumpChargeParams.clear();
 
-    //                                               0   1      2                            3            4              5                6                 7
-    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, minHeight, maxHeight, unlimitedSpeed, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
     if (!result)
     {
         return;
     }
 
+    DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (id)(speed)(treatSpeedAsMoveTimeSeconds)(minHeight)(maxHeight)(unlimitedSpeed)
+        (spellVisualId)(progressCurveId)(parabolicCurveId)(triggerSpellId)) fields { *result };
+
     do
     {
-        Field* fields = result->Fetch();
+        int32 id = fields.id().GetInt32();
+        JumpChargeParams& params = _jumpChargeParams[id];
+        params.Speed = fields.speed().GetFloat();
+        params.TreatSpeedAsMoveTimeSeconds = fields.treatSpeedAsMoveTimeSeconds().GetBool();
+        params.UnlimitedSpeed = fields.unlimitedSpeed().GetBool();
+        params.MinHeight = fields.minHeight().GetFloatOrNull();
+        params.MaxHeight = fields.maxHeight().GetFloatOrNull();
+        params.SpellVisualId = fields.spellVisualId().GetInt32OrNull();
+        params.ProgressCurveId = fields.progressCurveId().GetInt32OrNull();
+        params.ParabolicCurveId = fields.parabolicCurveId().GetInt32OrNull();
+        params.TriggerSpellId = fields.triggerSpellId().GetInt32OrNull();
 
-        int32 id = fields[0].GetInt32();
-        float speed = fields[1].GetFloat();
-        bool treatSpeedAsMoveTimeSeconds = fields[2].GetBool();
-        float jumpGravity = fields[3].GetFloat();
-        Optional<int32> spellVisualId = fields[4].GetInt32OrNull();
-        Optional<int32> progressCurveId = fields[5].GetInt32OrNull();
-        Optional<int32> parabolicCurveId = fields[6].GetInt32OrNull();
-        Optional<int32> triggerSpellId = fields[7].GetInt32OrNull();
-
-        if (speed <= 0.0f)
+        if (params.Speed <= 0.0f)
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid speed {} for id {}, set to default charge speed {}.",
-                speed, id, SPEED_CHARGE);
-            speed = SPEED_CHARGE;
+                params.Speed, id, SPEED_CHARGE);
+            params.Speed = SPEED_CHARGE;
         }
 
-        if (jumpGravity <= 0.0f)
+        if (params.MinHeight && *params.MinHeight <= 0.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid jump gravity {} for id {}, set to default {}.",
-                jumpGravity, id, Movement::gravity);
-            jumpGravity = Movement::gravity;
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid min height {} for id {}, set to none.",
+                params.MinHeight, id);
+            params.MinHeight.reset();
         }
 
-        if (spellVisualId && !sSpellVisualStore.LookupEntry(*spellVisualId))
+        if (params.MaxHeight && *params.MaxHeight <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid max height {} for id {}, set to none.",
+                params.MaxHeight, id);
+            params.MaxHeight.reset();
+        }
+
+        if (params.MinHeight && params.MaxHeight && *params.MinHeight >= *params.MaxHeight)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid max height {} (must be greated than min height {}) for id {}, set to none.",
+                params.MaxHeight, params.MinHeight, id);
+            params.MaxHeight.reset();
+        }
+
+        if (params.SpellVisualId && !sSpellVisualStore.LookupEntry(*params.SpellVisualId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing SpellVisual: {} for id {}, ignored.",
-                *spellVisualId, id);
-            spellVisualId.reset();
+                *params.SpellVisualId, id);
+            params.SpellVisualId.reset();
         }
 
-        if (progressCurveId && !sCurveStore.LookupEntry(*progressCurveId))
+        if (params.ProgressCurveId && !sCurveStore.LookupEntry(*params.ProgressCurveId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing progress Curve: {} for id {}, ignored.",
-                *progressCurveId, id);
-            progressCurveId.reset();
+                *params.ProgressCurveId, id);
+            params.ProgressCurveId.reset();
         }
 
-        if (parabolicCurveId && !sCurveStore.LookupEntry(*parabolicCurveId))
+        if (params.ParabolicCurveId && !sCurveStore.LookupEntry(*params.ParabolicCurveId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing parabolic Curve: {} for id {}, ignored.",
-                *parabolicCurveId, id);
-            parabolicCurveId.reset();
+                *params.ParabolicCurveId, id);
+            params.ParabolicCurveId.reset();
         }
 
-        if (triggerSpellId && !sSpellMgr->GetSpellInfo(*triggerSpellId, DIFFICULTY_NONE))
+        if (params.TriggerSpellId && !sSpellMgr->GetSpellInfo(*params.TriggerSpellId, DIFFICULTY_NONE))
         {
             TC_LOG_DEBUG("sql.sql", "Table `jump_charge_params` references non-existing trigger spell id: {} for id {}, ignored.",
-                *triggerSpellId, id);
-            triggerSpellId.reset();
+                *params.TriggerSpellId, id);
+            params.TriggerSpellId.reset();
         }
-
-        JumpChargeParams& params = _jumpChargeParams[id];
-        params.Speed = speed;
-        params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
-        params.JumpGravity = jumpGravity;
-        params.SpellVisualId = spellVisualId;
-        params.ProgressCurveId = progressCurveId;
-        params.ParabolicCurveId = parabolicCurveId;
-        params.TriggerSpellId = triggerSpellId;
 
     } while (result->NextRow());
 

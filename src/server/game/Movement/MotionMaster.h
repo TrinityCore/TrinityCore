@@ -199,7 +199,7 @@ class TC_GAME_API MotionMaster
             MovementFacingTarget const& facing = {}, bool orientationFixed = false, bool unlimitedSpeed = false, Optional<float> speedMultiplier = {},
             JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
-        void MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id = EVENT_JUMP, MovementFacingTarget const& facing = {},
+        void MoveJumpWithGravity_OLD_DEPRECATED(Position const& pos, float speedXY, float gravity, uint32 id = EVENT_JUMP, MovementFacingTarget const& facing = {},
             bool orientationFixed = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount,

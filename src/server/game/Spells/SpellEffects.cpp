@@ -5877,9 +5877,13 @@ void Spell::EffectJumpCharge()
     if (!params)
         return;
 
-    float speed = params->Speed;
-    if (params->TreatSpeedAsMoveTimeSeconds)
-        speed = unitCaster->GetExactDist(destTarget) / params->MoveTimeInSec;
+    std::variant<std::monostate, float, Milliseconds> speedOrTime = [params]() -> std::variant<std::monostate, float, Milliseconds>
+    {
+        if (params->TreatSpeedAsMoveTimeSeconds)
+            return duration_cast<Milliseconds>(FloatSeconds(params->MoveTimeInSec));
+
+        return params->Speed;
+    }();
 
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
@@ -5910,8 +5914,8 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, facing,
-        m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *destTarget, speedOrTime, params->MinHeight, params->MaxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), params->UnlimitedSpeed, {},
         arrivalCast ? &*arrivalCast : nullptr,
         effectExtra ? &*effectExtra : nullptr);
 }
