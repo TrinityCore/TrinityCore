@@ -80,7 +80,7 @@ namespace Movement
 
     typedef counter<uint32, 0xFFFFFFFF> UInt32Counter;
 
-    float constexpr gravity = static_cast<float>(19.29110527038574);
+    float constexpr gravity = static_cast<float>(19.291103363037109375);
     TC_GAME_API extern UInt32Counter splineIdGen;
     TC_GAME_API extern std::string MovementFlags_ToString(MovementFlags flags);
     TC_GAME_API extern std::string MovementFlags_ToString(MovementFlags2 flags);
