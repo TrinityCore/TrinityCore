@@ -3387,7 +3387,8 @@ INSERT INTO `updates` VALUES
 ('2024_12_13_00_characters.sql','4A00C51BA33639F5555AAE40EC672AE47126F7B6','ARCHIVED','2024-12-13 00:17:03',0),
 ('2025_02_13_00_characters.sql','52DC4928863A53ED85BEC39C35F4F4EF779872D2','ARCHIVED','2025-02-13 16:45:59',0),
 ('2025_04_15_00_characters.sql','332E776137FC0A0056C370601619141C9A0BE1F4','ARCHIVED','2025-04-15 19:12:00',0),
-('2025_05_11_00_characters.sql','726C64A997C1B4D9B2CC69F2C4F4123762717517','ARCHIVED','2025-05-11 10:42:33',0);
+('2025_05_11_00_characters.sql','726C64A997C1B4D9B2CC69F2C4F4123762717517','ARCHIVED','2025-05-11 10:42:33',0),
+('2025_11_25_00_characters.sql','A0C04B2404B1832421402F78436DDC4AA18EBAD8','RELEASED','2025-11-25 22:28:32',0);
 /*!40000 ALTER TABLE `updates` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3421,29 +3422,6 @@ INSERT INTO `updates_include` VALUES
 ('$/sql/old/9.x/characters','ARCHIVED'),
 ('$/sql/updates/characters','RELEASED');
 /*!40000 ALTER TABLE `updates_include` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `warden_action`
---
-
-DROP TABLE IF EXISTS `warden_action`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `warden_action` (
-  `wardenId` smallint unsigned NOT NULL,
-  `action` tinyint unsigned DEFAULT NULL,
-  PRIMARY KEY (`wardenId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `warden_action`
---
-
-LOCK TABLES `warden_action` WRITE;
-/*!40000 ALTER TABLE `warden_action` DISABLE KEYS */;
-/*!40000 ALTER TABLE `warden_action` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
