@@ -191,16 +191,10 @@ class TC_GAME_API MotionMaster
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, float angle = M_PI, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
-        void MoveJump_OLD_DEPRECATED(Position const& pos, float speedXY, float speedZ, uint32 id = EVENT_JUMP, MovementFacingTarget const& facing = {},
-            bool orientationFixed = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         void MoveJump(uint32 id, Position const& pos, std::variant<std::monostate, float, Milliseconds> speedOrTime = {},
             Optional<float> minHeight = {}, Optional<float> maxHeight = {},
             MovementFacingTarget const& facing = {}, bool orientationFixed = false, bool unlimitedSpeed = false, Optional<float> speedMultiplier = {},
             JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
-        void MoveJumpWithGravity_OLD_DEPRECATED(Position const& pos, float speedXY, float gravity, uint32 id = EVENT_JUMP, MovementFacingTarget const& facing = {},
-            bool orientationFixed = false, JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount,
             Optional<Milliseconds> duration = {}, Optional<float> speed = {},
