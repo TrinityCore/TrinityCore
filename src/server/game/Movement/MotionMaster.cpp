@@ -859,47 +859,6 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     Add(movement);
 }
 
-void MotionMaster::MoveJump_OLD_DEPRECATED(Position const& pos, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, MovementFacingTarget const& facing /*= {}*/,
-    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos.ToString());
-    if (speedXY < 0.01f)
-    {
-        if (scriptResult)
-            scriptResult->SetResult(MovementStopReason::Interrupted);
-        return;
-    }
-
-    float moveTimeHalf = speedZ / Movement::gravity;
-    float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-        init.SetParabolic(max_height, 0);
-        init.SetVelocity(speedXY);
-        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
-        init.SetJumpOrientationFixed(orientationFixed);
-        if (effect)
-            init.SetSpellEffectExtraData(*effect);
-    };
-
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
-    }
-
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
-        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
-    movement->Priority = MOTION_PRIORITY_HIGHEST;
-    movement->BaseUnitState = UNIT_STATE_JUMPING;
-    Add(movement);
-}
-
 void MotionMaster::MoveJump(uint32 id, Position const& pos, std::variant<std::monostate, float, Milliseconds> speedOrTime /*= {}*/,
     Optional<float> minHeight /*= {}*/, Optional<float> maxHeight /*= {}*/,
     MovementFacingTarget const& facing /*= {}*/, bool orientationFixed, bool unlimitedSpeed /*= false*/, Optional<float> speedMultiplier /*= {}*/,
@@ -973,47 +932,6 @@ void MotionMaster::MoveJump(uint32 id, Position const& pos, std::variant<std::mo
         { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
-    Add(movement);
-}
-
-void MotionMaster::MoveJumpWithGravity_OLD_DEPRECATED(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
-    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos.ToString());
-    if (speedXY < 0.01f)
-    {
-        if (scriptResult)
-            scriptResult->SetResult(MovementStopReason::Interrupted);
-        return;
-    }
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-        init.SetParabolicVerticalAcceleration(gravity, 0);
-        init.SetUncompressed();
-        init.SetVelocity(speedXY);
-        init.SetUnlimitedSpeed();
-        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
-        init.SetJumpOrientationFixed(orientationFixed);
-        if (effect)
-            init.SetSpellEffectExtraData(*effect);
-    };
-
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
-    }
-
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
-        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
-    movement->Priority = MOTION_PRIORITY_HIGHEST;
-    movement->BaseUnitState = UNIT_STATE_JUMPING;
-    movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
