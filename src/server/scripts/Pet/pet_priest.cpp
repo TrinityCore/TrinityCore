@@ -33,8 +33,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216,
     SPELL_PRIEST_INVOKE_THE_NAARU           = 196687,
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907,
-    SPELL_PRIEST_MIND_FLAY_PERMANENT        = 466316,
-    SPELL_PRIEST_MIND_SEAR_PERMANENT        = 466317
+    SPELL_PRIEST_MIND_FLAY_PERIODIC         = 466316,
+    SPELL_PRIEST_MIND_SEAR_PERIODIC         = 466317
 };
 
 // 198236 - Divine Image
@@ -105,7 +105,7 @@ struct npc_pet_pri_void_tendril : public PassiveAI
             return;
 
         me->SetControlled(true, UNIT_STATE_ROOT);
-        DoCastSelf(SPELL_PRIEST_MIND_FLAY_PERMANENT, TRIGGERED_FULL_MASK);
+        DoCastSelf(SPELL_PRIEST_MIND_FLAY_PERIODIC, TRIGGERED_FULL_MASK);
     }
 };
 
@@ -121,7 +121,7 @@ struct npc_pet_pri_void_lasher : public PassiveAI
             return;
 
         me->SetControlled(true, UNIT_STATE_ROOT);
-        DoCastSelf(SPELL_PRIEST_MIND_SEAR_PERMANENT, TRIGGERED_FULL_MASK);
+        DoCastSelf(SPELL_PRIEST_MIND_SEAR_PERIODIC, TRIGGERED_FULL_MASK);
     }
 };
 
