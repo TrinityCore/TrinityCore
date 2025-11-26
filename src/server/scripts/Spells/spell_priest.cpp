@@ -201,6 +201,8 @@ enum PriestSpells
     SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
+    SPELL_PRIEST_VOID_VOLLEY_DAMAGE                 = 1242189,
+    SPELL_PRIEST_VOID_VOLLEY_ACTIONBAR              = 1242171,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
@@ -3471,6 +3473,57 @@ class spell_pri_vampiric_touch : public AuraScript
     }
 };
 
+// 1240401 - Void Volley (Passive)
+class spell_pri_void_volley_passive : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VOID_VOLLEY_ACTIONBAR });
+    }
+
+    void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_PRIEST_VOID_VOLLEY_ACTIONBAR);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_void_volley_passive::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 1242173 - Void Volley
+class spell_pri_void_volley : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VOID_VOLLEY_DAMAGE, SPELL_PRIEST_VOID_VOLLEY_ACTIONBAR })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        int32 bolts = (target == GetExplTargetUnit()) ? GetEffectInfo().CalcValue(caster) : GetEffectInfo(EFFECT_2).CalcValue(caster);
+        for (int i = 0; i < bolts; ++i)
+            caster->CastSpell(target, SPELL_PRIEST_VOID_VOLLEY_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_PRIEST_VOID_VOLLEY_ACTIONBAR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_void_volley::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+        AfterCast += SpellCastFn(spell_pri_void_volley::HandleAfterCast);
+    }
+};
+
 // 205385 - Shadow Crash
 class spell_pri_whispering_shadows : public SpellScript
 {
@@ -3633,6 +3686,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
+    RegisterSpellScript(spell_pri_void_volley);
+    RegisterSpellScript(spell_pri_void_volley_passive);
     RegisterSpellScript(spell_pri_whispering_shadows);
     RegisterSpellScript(spell_pri_whispering_shadows_effect);
 }
