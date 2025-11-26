@@ -105,6 +105,11 @@ struct npc_pet_pri_void_tendril : public PassiveAI
             return;
 
         me->SetControlled(true, UNIT_STATE_ROOT);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+
+        if (me->ToTempSummon()->IsGuardian())
+            static_cast<Guardian*>(me)->SetBonusDamage(summoner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW));
+
         DoCastSelf(SPELL_PRIEST_MIND_FLAY_PERIODIC, TRIGGERED_FULL_MASK);
     }
 };
@@ -121,6 +126,11 @@ struct npc_pet_pri_void_lasher : public PassiveAI
             return;
 
         me->SetControlled(true, UNIT_STATE_ROOT);
+        me->SetUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
+
+        if (me->ToTempSummon()->IsGuardian())
+            static_cast<Guardian*>(me)->SetBonusDamage(summoner->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW));
+
         DoCastSelf(SPELL_PRIEST_MIND_SEAR_PERIODIC, TRIGGERED_FULL_MASK);
     }
 };
