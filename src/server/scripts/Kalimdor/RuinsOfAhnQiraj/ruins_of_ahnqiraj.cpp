@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "InstanceScript.h"
 #include "MotionMaster.h"
 #include "Player.h"
 #include "ruins_of_ahnqiraj.h"
