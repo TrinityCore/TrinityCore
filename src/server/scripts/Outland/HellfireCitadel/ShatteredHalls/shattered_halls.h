@@ -128,5 +128,6 @@ inline AI* GetShatteredHallsAI(T* obj)
 }
 
 #define RegisterShatteredHallsCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetShatteredHallsAI)
+#define RegisterShatteredHallsGameObjectAI(ai_name) RegisterGameObjectAIWithFactory(ai_name, GetShatteredHallsAI)
 
 #endif
