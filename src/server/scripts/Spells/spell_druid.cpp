@@ -115,6 +115,7 @@ enum DruidSpells
     SPELL_DRUID_MANGLE                         = 33917,
     SPELL_DRUID_MANGLE_TALENT                  = 231064,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
+    SPELL_DRUID_MATTED_FUR                     = 385786,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
     SPELL_DRUID_NEW_MOON                       = 274281,
@@ -1422,6 +1423,33 @@ class spell_dru_mangle : public SpellScript
     }
 };
 
+// 385787 - Matted Fur (Absorb)
+class spell_dru_matted_fur_absorb : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MATTED_FUR });
+    }
+
+    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    {
+        canBeRecalculated = false;
+
+        Player* player = Object::ToPlayer(GetUnitOwner());
+        if (!player)
+            return;
+
+        int32 baseVal = player->GetAuraEffect(SPELL_DRUID_MATTED_FUR, EFFECT_0)->GetAmount();
+        amount = static_cast<int32>((baseVal / 100.f) * 1.25f * player->GetTotalAttackPowerValue(BASE_ATTACK));
+        AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_matted_fur_absorb::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+    }
+};
+
 //  8921 - Moonfire
 class spell_dru_moonfire : public SpellScript
 {
@@ -2593,6 +2621,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_lunar_inspiration);
     RegisterSpellScript(spell_dru_luxuriant_soil);
     RegisterSpellScript(spell_dru_mangle);
+    RegisterSpellScript(spell_dru_matted_fur_absorb);
     RegisterSpellScript(spell_dru_moonfire);
     RegisterSpellScript(spell_dru_natures_grace);
     RegisterSpellScript(spell_dru_natures_grace_eclipse);
