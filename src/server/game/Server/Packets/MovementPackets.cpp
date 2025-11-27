@@ -320,7 +320,7 @@ ByteBuffer& operator<<(ByteBuffer& data, MonsterSplineAnimTierTransition const& 
     data << int32(animTierTransition.TierTransitionID);
     data << uint8(animTierTransition.AnimTier);
     data << uint32(animTierTransition.StartTime);
-    data << uint32(animTierTransition.EndTime);
+    data << uint32(animTierTransition.ExtraDuration);
 
     return data;
 }

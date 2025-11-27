@@ -581,7 +581,6 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
     // TODO: migrate these in DB
     _staticFlags.ApplyFlag(CREATURE_STATIC_FLAG_2_ALLOW_MOUNTED_COMBAT, (GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0);
     SetIgnoreFeignDeath((creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_IGNORE_FEIGN_DEATH) != 0);
-    SetInteractionAllowedInCombat((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT) != 0);
     SetTreatAsRaidUnit((GetCreatureDifficulty()->TypeFlags & CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0);
 
     return true;
@@ -2947,7 +2946,7 @@ void Creature::UpdateMovementCapabilities()
 
     // Some Amphibious creatures toggle swimming while engaged
     if (IsAmphibious() && !HasUnitFlag(UNIT_FLAG_CANT_SWIM) && !HasUnitFlag(UNIT_FLAG_CAN_SWIM) && IsEngaged())
-        if (!IsSwimPrevented() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
+        if (!CanOnlySwimIfTargetSwims() || (GetVictim() && !GetVictim()->IsOnOceanFloor()))
             SetUnitFlag(UNIT_FLAG_CAN_SWIM);
 
     SetSwim(IsInWater() && CanSwim());
@@ -3755,7 +3754,7 @@ void Creature::AtDisengage()
 
 void Creature::ForcePartyMembersIntoCombat()
 {
-    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_PARTY_MEMBERS_INTO_COMBAT) || !IsEngaged())
+    if (!_staticFlags.HasFlag(CREATURE_STATIC_FLAG_2_FORCE_RAID_COMBAT) || !IsEngaged())
         return;
 
     Trinity::Containers::FlatSet<Group const*> partiesToForceIntoCombat;

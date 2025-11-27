@@ -5016,7 +5016,7 @@ enum CreatureTypeFlags
 {
     CREATURE_TYPE_FLAG_TAMEABLE                          = 0x00000001, // Makes the mob tameable (must also be a beast and have family set)
     CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS                 = 0x00000002, // Creature is also visible for not alive player. Allows gossip interaction if npcflag allows?
-    CREATURE_TYPE_FLAG_BOSS_MOB                          = 0x00000004, // Changes creature's visible level to "??" in the creature's portrait - Immune Knockback.
+    CREATURE_TYPE_FLAG_BOSS_MOB                          = 0x00000004, // Changes creature's visible level to "??" in the creature's portrait
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM            = 0x00000008,
     CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP                = 0x00000010,
     CREATURE_TYPE_FLAG_MORE_AUDIBLE                      = 0x00000020, // Sound related
@@ -5050,12 +5050,12 @@ enum CreatureTypeFlags
 
 enum CreatureTypeFlags2
 {
-    CREATURE_TYPE_FLAG_2_UNK1 = 0x00000001,
-    CREATURE_TYPE_FLAG_2_UNK2 = 0x00000002,
-    CREATURE_TYPE_FLAG_2_UNK3 = 0x00000004,
-    CREATURE_TYPE_FLAG_2_UNK4 = 0x00000008,
-    CREATURE_TYPE_FLAG_2_UNK5 = 0x00000010,
-    CREATURE_TYPE_FLAG_2_UNK6 = 0x00000020,
+    CREATURE_TYPE_FLAG_2_PREDICTIVE_POWER_REGEN          = 0x00000001,
+    CREATURE_TYPE_FLAG_2_HIDE_LEVEL_INFO_IN_TOOLTIP      = 0x00000002,
+    CREATURE_TYPE_FLAG_2_HIDE_HEALTH_BAR_UNDER_TOOLTIP   = 0x00000004,
+    CREATURE_TYPE_FLAG_2_NEVER_DISPLAY_EMOTE_OR_CHAT_TEXT_IN_A_CHAT_BUBBLE = 0x00000008,
+    CREATURE_TYPE_FLAG_2_NO_DEATH_THUD = 0x00000010,
+    CREATURE_TYPE_FLAG_2_NO_INTERACT_ON_LEFT_CLICK = 0x00000020,
     CREATURE_TYPE_FLAG_2_UNK7 = 0x00000040,
     CREATURE_TYPE_FLAG_2_UNK8 = 0x00000080
 };

@@ -1130,8 +1130,8 @@ struct areatrigger_pri_divine_star : AreaTriggerAI
 
             Movement::PointsArray returnSplinePoints;
 
-            returnSplinePoints.push_back(PositionToVector3(at));
-            returnSplinePoints.push_back(PositionToVector3(caster));
+            returnSplinePoints.push_back(PositionToVector3(at->GetPosition()));
+            returnSplinePoints.push_back(PositionToVector3(caster->GetPosition()));
 
             at->InitSplines(returnSplinePoints);
 

@@ -53,7 +53,6 @@
 #include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "WardenWin.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include <boost/circular_buffer.hpp>
@@ -458,29 +457,28 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         }
         catch (WorldPackets::InvalidHyperlinkException const& ihe)
         {
-            TC_LOG_ERROR("network", "{} sent {} with an invalid link:\n{}", GetPlayerInfo(),
-                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), ihe.GetInvalidValue());
+            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException {} occured while parsing a packet (opcode: {}) from {} address {}. Skipped packet.",
+                ihe.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo(), GetRemoteAddress());
 
             if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-                KickPlayer("WorldSession::Update Invalid chat link");
+            {
+                switch (ihe.GetReason())
+                {
+                    case WorldPackets::InvalidHyperlinkException::Malformed:
+                        KickPlayer("WorldSession::Update Invalid chat link");
+                        break;
+                    case WorldPackets::InvalidHyperlinkException::NotAllowed:
+                        KickPlayer("WorldSession::Update Illegal chat link");
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
-        catch (WorldPackets::IllegalHyperlinkException const& ihe)
+        catch (ByteBufferException const& bbe)
         {
-            TC_LOG_ERROR("network", "{} sent {} which illegally contained a hyperlink:\n{}", GetPlayerInfo(),
-                GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), ihe.GetInvalidValue());
-
-            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_KICK))
-                KickPlayer("WorldSession::Update Illegal chat link");
-        }
-        catch (WorldPackets::PacketArrayMaxCapacityException const& pamce)
-        {
-            TC_LOG_ERROR("network", "PacketArrayMaxCapacityException: {} while parsing {} from {}.",
-                pamce.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo());
-        }
-        catch (ByteBufferException const&)
-        {
-            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException occured while parsing a packet (opcode: {}) from client {}, accountid={}. Skipped packet.",
-                    packet->GetOpcode(), GetRemoteAddress(), GetAccountId());
+            TC_LOG_ERROR("network", "WorldSession::Update ByteBufferException {} occured while parsing a packet (opcode: {}) from {} address {}. Skipped packet.",
+                bbe.what(), GetOpcodeNameForLogging(static_cast<OpcodeClient>(packet->GetOpcode())), GetPlayerInfo(), GetRemoteAddress());
             packet->hexlike();
         }
 
@@ -519,9 +517,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
-        if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
-            _warden->Update(diff);
-
         ///- If necessary, log the player out
         if (ShouldLogOut(currentTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
@@ -530,9 +525,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if ((m_Socket[CONNECTION_TYPE_REALM] && !m_Socket[CONNECTION_TYPE_REALM]->IsOpen()) ||
             (m_Socket[CONNECTION_TYPE_INSTANCE] && !m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen()))
         {
-            if (GetPlayer() && _warden)
-                _warden->Update(diff);
-
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
@@ -714,16 +706,15 @@ void WorldSession::LogoutPlayer(bool save)
 }
 
 /// Kick a player out of the World
-void WorldSession::KickPlayer(std::string const& reason)
+void WorldSession::KickPlayer(std::string_view reason)
 {
-    TC_LOG_INFO("network.kick", "Account: {} Character: '{}' {} kicked with reason: {}", GetAccountId(), _player ? _player->GetName() : "<none>",
-        _player ? _player->GetGUID().ToString() : "", reason);
+    TC_LOG_INFO("network.kick", "{} kicked with reason: {}", GetPlayerInfo(), reason);
 
-    for (uint8 i = 0; i < 2; ++i)
+    for (std::shared_ptr<WorldSocket> const& socket : m_Socket)
     {
-        if (m_Socket[i])
+        if (socket)
         {
-            m_Socket[i]->CloseSocket();
+            socket->CloseSocket();
             forceExit = true;
         }
     }
@@ -1193,23 +1184,6 @@ SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallb
 bool WorldSession::CanAccessAlliedRaces() const
 {
     return GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
-}
-
-void WorldSession::InitWarden(SessionKey const& k)
-{
-    if (_os == "Win")
-    {
-        _warden = std::make_unique<WardenWin>();
-        _warden->Init(this, k);
-    }
-    else if (_os == "Wn64")
-    {
-        // Not implemented
-    }
-    else if (_os == "Mc64")
-    {
-        // Not implemented
-    }
 }
 
 void WorldSession::LoadPermissions()
