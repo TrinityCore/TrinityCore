@@ -7589,15 +7589,15 @@ int32 Unit::SpellBaseAbsorbBonusDone(SpellSchoolMask schoolMask) const
     return SpellBaseHealingBonusDone(schoolMask);
 }
 
-int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int32 absorbamount, SpellEffectInfo const& spellEffectInfo, uint32 stack /*= 1*/, Spell* spell /*= nullptr*/, AuraEffect const* aurEff /*= nullptr*/) const
+int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int32 absorbamount, SpellEffectInfo const& spellEffectInfo, uint32 stack /*= 1*/, AuraEffect const* aurEff /*= nullptr*/) const
 {
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
-            return owner->SpellAbsorbBonusDone(victim, spellProto, absorbamount, spellEffectInfo, stack, spell, aurEff);
+            return owner->SpellAbsorbBonusDone(victim, spellProto, absorbamount, spellEffectInfo, stack, aurEff);
 
-    if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) ||
-        spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS) ||
-        spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
+    if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)
+        || spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS)
+        || spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
         return absorbamount;
 
     int32 doneTotal = 0;
@@ -7635,11 +7635,6 @@ float Unit::SpellAbsorbPctDone(Unit* victim, SpellInfo const* spellProto) const
     if (GetTypeId() == TYPEID_UNIT && IsTotem())
         if (Unit* owner = GetOwner())
             return owner->SpellAbsorbPctDone(victim, spellProto);
-
-    if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS) ||
-        spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS) ||
-        spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
-        return 1.0f;
 
     float doneTotalMod = 1.f;
 

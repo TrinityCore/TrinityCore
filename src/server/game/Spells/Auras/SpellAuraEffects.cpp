@@ -781,17 +781,16 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount = int32(unitOwner->CountPctFromMaxHealth(10));
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
-        case SPELL_AURA_MANA_SHIELD:
-        {
             m_canBeRecalculated = false;
             if (!caster || !unitOwner)
                 break;
 
-            amount = caster->SpellAbsorbBonusDone(unitOwner, m_spellInfo, amount, m_effectInfo, 1, nullptr, this);
+            amount = caster->SpellAbsorbBonusDone(unitOwner, m_spellInfo, amount, m_effectInfo, 1, this);
             amount = unitOwner->SpellAbsorbBonusTaken(caster, m_spellInfo, amount);
-
             break;
-        }
+        case SPELL_AURA_MANA_SHIELD:
+            m_canBeRecalculated = false;
+            break;
         case SPELL_AURA_MOUNTED:
         {
             uint32 mountType = uint32(GetMiscValueB());
