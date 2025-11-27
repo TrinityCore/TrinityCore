@@ -141,6 +141,9 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR                    = 77758,
     SPELL_DRUID_THRASH_BEAR_AURA               = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
+    SPELL_DRUID_TWIN_MOONS                     = 279620,
+    SPELL_DRUID_TWIN_MOONS_EFFECT              = 281847,
+    SPELL_DRUID_TWIN_MOONFIRE                  = 372567,
     SPELL_DRUID_UMBRAL_EMBRACE                 = 393763,
     SPELL_DRUID_UMBRAL_INSPIRATION_TALENT      = 450418,
     SPELL_DRUID_UMBRAL_INSPIRATION_AURA        = 450419,
@@ -2350,6 +2353,102 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 372567 - Twin Moonfire
+// Triggered by 8921 - Moonfire
+class spell_dru_twin_moonfire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_TWIN_MOONFIRE, SPELL_DRUID_TWIN_MOONS_EFFECT });
+    }
+
+    bool Load() override
+    {
+        return !GetSpell()->IsTriggered() && GetCaster()->HasAura(SPELL_DRUID_TWIN_MOONFIRE);
+    }
+
+    void HandleAfterHit()
+    {
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_TWIN_MOONS_EFFECT);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_dru_twin_moonfire::HandleAfterHit);
+    }
+};
+
+// 281847 - Twin Moons (Effect)
+class spell_dru_twin_moons_effect : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_MOONFIRE_DAMAGE, SPELL_DRUID_TWIN_MOONS });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        Unit* caster = GetCaster();
+        Unit* explTarget = GetExplTargetUnit();
+
+        targets.remove_if([explTarget](WorldObject* obj) -> bool
+        {
+            Unit* target = obj->ToUnit();
+            return !target || target == explTarget || target->HasBreakableByDamageCrowdControlAura();
+        });
+
+        if (targets.empty())
+            return;
+
+        float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+        uint32 maxTargets = 1;
+
+        targets.remove_if([explTarget, maxRange](WorldObject* obj)
+        {
+            return explTarget->GetExactDist(obj) > maxRange;
+        });
+
+        targets.sort([caster, explTarget](WorldObject const* lhs, WorldObject const* rhs) -> bool
+        {
+            Unit const* targetA = lhs->ToUnit();
+            Unit const* targetB = rhs->ToUnit();
+
+            Aura* auraA = targetA->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, caster->GetGUID());
+            Aura* auraB = targetB->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, caster->GetGUID());
+
+            if (!auraA)
+            {
+                if (auraB)
+                    return true;
+                return explTarget->GetExactDist(targetA) < explTarget->GetExactDist(targetB);
+            }
+
+            if (!auraB)
+                return false;
+
+            return auraA->GetDuration() < auraB->GetDuration();
+        });
+
+        if (targets.size() > maxTargets)
+            targets.resize(maxTargets);
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        uint32 moonfireSpell = GetEffectInfo(EFFECT_0).CalcValue(caster);
+        caster->CastSpell(target, moonfireSpell, TRIGGERED_FULL_MASK);
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_twin_moons_effect::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_twin_moons_effect::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 // 393763 - Umbral Embrace
 class spell_dru_umbral_embrace : public AuraScript
 {
@@ -2626,6 +2725,8 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_twin_moonfire);
+    RegisterSpellScript(spell_dru_twin_moons_effect);
     RegisterSpellScript(spell_dru_umbral_embrace);
     RegisterSpellScript(spell_dru_umbral_embrace_damage);
     RegisterSpellScript(spell_dru_umbral_inspiration);
