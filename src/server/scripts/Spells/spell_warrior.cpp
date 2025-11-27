@@ -1676,7 +1676,9 @@ class spell_warr_frothing_berserker : public AuraScript
             return;
 
         int32 actualCost = *spentRage / 10;
-        int32 refundRage = actualCost / 10;
+        SpellInfo const* procInfo = procSpell->GetSpellInfo();
+        int32 refundPct = (procInfo && procInfo->Id == SPELL_WARRIOR_REVENGE) ? 50 : 10;
+        int32 refundRage = (actualCost * refundPct) / 100;
         if (refundRage <= 0)
             return;
 
