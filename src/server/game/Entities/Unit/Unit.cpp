@@ -7556,11 +7556,11 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
     }
 
     int32 advertisedBenefit = GetTotalAuraModifier(SPELL_AURA_MOD_HEALING_DONE, [schoolMask](AuraEffect const* aurEff) -> bool
-        {
-            if (!aurEff->GetMiscValue() || (aurEff->GetMiscValue() & schoolMask) != 0)
-                return true;
-            return false;
-        });
+    {
+        if (!aurEff->GetMiscValue() || (aurEff->GetMiscValue() & schoolMask) != 0)
+            return true;
+        return false;
+    });
 
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
@@ -7682,20 +7682,20 @@ int32 Unit::SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int
     if (caster)
     {
         takenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto, allowPositive, allowNegative](AuraEffect const* aurEff)
+        {
+            if (caster->GetGUID() != aurEff->GetCasterGUID() || !aurEff->IsAffectingSpell(spellProto))
+                return false;
+
+            if (aurEff->GetAmount() > 0)
             {
-                if (caster->GetGUID() != aurEff->GetCasterGUID() || !aurEff->IsAffectingSpell(spellProto))
+                if (!allowPositive)
                     return false;
+            }
+            else if (!allowNegative)
+                return false;
 
-                if (aurEff->GetAmount() > 0)
-                {
-                    if (!allowPositive)
-                        return false;
-                }
-                else if (!allowNegative)
-                    return false;
-
-                return true;
-            });
+            return true;
+        });
     }
 
     float absorb = absorbamount * takenTotalMod;
