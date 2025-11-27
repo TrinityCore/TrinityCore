@@ -19,6 +19,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "ruins_of_ahnqiraj.h"
 
 ObjectData const creatureData[] =
