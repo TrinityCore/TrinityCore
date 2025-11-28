@@ -6833,12 +6833,12 @@ int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int3
     // Check for table values
     if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
     {
-        float ApCoeffMod = spellEffectInfo.BonusCoefficientFromAP;
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
         if (Player* modOwner = GetSpellModOwner())
         {
-            ApCoeffMod *= 100.0f;
-            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, ApCoeffMod);
-            ApCoeffMod /= 100.0f;
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
         }
 
         WeaponAttackType const attType = [&]()
@@ -6851,9 +6851,9 @@ int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int3
 
             return BASE_ATTACK;
         }();
-        float APbonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
-        DoneTotal += int32(stack * ApCoeffMod * APbonus);
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        DoneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
     }
 
     // Default calculation
@@ -7352,11 +7352,27 @@ int32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int
     // Check for table values
     if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
     {
-        WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-        float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
+        }
 
-        DoneTotal += int32(spellEffectInfo.BonusCoefficientFromAP * stack * APbonus);
+        WeaponAttackType const attType = [&]()
+        {
+            if ((spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE))
+                return RANGED_ATTACK;
+
+            if (spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) && !spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
+                return OFF_ATTACK;
+
+            return BASE_ATTACK;
+        }();
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        DoneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
     }
 
     // Default calculation
@@ -7608,6 +7624,31 @@ int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int3
 
     if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
         doneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
+
+    if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
+    {
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
+        }
+
+        WeaponAttackType const attType = [&]()
+        {
+            if ((spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE))
+                return RANGED_ATTACK;
+
+            if (spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) && !spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
+                return OFF_ATTACK;
+
+            return BASE_ATTACK;
+        }();
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        doneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
+    }
 
     if (doneAdvertisedBenefit)
     {
