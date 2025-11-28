@@ -6833,12 +6833,12 @@ int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int3
     // Check for table values
     if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
     {
-        float ApCoeffMod = spellEffectInfo.BonusCoefficientFromAP;
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
         if (Player* modOwner = GetSpellModOwner())
         {
-            ApCoeffMod *= 100.0f;
-            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, ApCoeffMod);
-            ApCoeffMod /= 100.0f;
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
         }
 
         WeaponAttackType const attType = [&]()
@@ -6851,9 +6851,9 @@ int32 Unit::SpellDamageBonusDone(Unit* victim, SpellInfo const* spellProto, int3
 
             return BASE_ATTACK;
         }();
-        float APbonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
-        DoneTotal += int32(stack * ApCoeffMod * APbonus);
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        DoneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
     }
 
     // Default calculation
@@ -7352,11 +7352,27 @@ int32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, int
     // Check for table values
     if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
     {
-        WeaponAttackType const attType = (spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE) ? RANGED_ATTACK : BASE_ATTACK;
-        float APbonus = float(victim->GetTotalAuraModifier(attType == BASE_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
-        APbonus += GetTotalAttackPowerValue(attType);
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
+        }
 
-        DoneTotal += int32(spellEffectInfo.BonusCoefficientFromAP * stack * APbonus);
+        WeaponAttackType const attType = [&]()
+        {
+            if ((spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE))
+                return RANGED_ATTACK;
+
+            if (spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) && !spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
+                return OFF_ATTACK;
+
+            return BASE_ATTACK;
+        }();
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        DoneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
     }
 
     // Default calculation
@@ -7582,6 +7598,149 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask) const
         }
     }
     return advertisedBenefit;
+}
+
+int32 Unit::SpellBaseAbsorbBonusDone(SpellSchoolMask schoolMask) const
+{
+    return SpellBaseHealingBonusDone(schoolMask);
+}
+
+int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int32 absorbamount, SpellEffectInfo const& spellEffectInfo, uint32 stack /*= 1*/, AuraEffect const* aurEff /*= nullptr*/) const
+{
+    if (GetTypeId() == TYPEID_UNIT && IsTotem())
+        if (Unit* owner = GetOwner())
+            return owner->SpellAbsorbBonusDone(victim, spellProto, absorbamount, spellEffectInfo, stack, aurEff);
+
+    if (spellProto->HasAttribute(SPELL_ATTR3_IGNORE_CASTER_MODIFIERS)
+        || spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS)
+        || spellProto->HasAttribute(SPELL_ATTR9_IGNORE_CASTER_HEALING_MODIFIERS))
+        return absorbamount;
+
+    int32 doneTotal = 0;
+    float doneTotalMod = 1.f;
+
+    int32 doneAdvertisedBenefit = SpellBaseAbsorbBonusDone(spellProto->GetSchoolMask());
+    doneAdvertisedBenefit += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_HEALING, spellProto->GetSchoolMask());
+
+    if (HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+        doneAdvertisedBenefit += static_cast<Guardian const*>(this)->GetBonusDamage();
+
+    if (spellEffectInfo.BonusCoefficientFromAP > 0.0f)
+    {
+        float attackPowerCoeff = spellEffectInfo.BonusCoefficientFromAP;
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            attackPowerCoeff *= 100.0f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, attackPowerCoeff);
+            attackPowerCoeff /= 100.0f;
+        }
+
+        WeaponAttackType const attType = [&]()
+        {
+            if ((spellProto->IsRangedWeaponSpell() && spellProto->DmgClass != SPELL_DAMAGE_CLASS_MELEE))
+                return RANGED_ATTACK;
+
+            if (spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_OFF_HAND_WEAPON) && !spellProto->HasAttribute(SPELL_ATTR3_REQUIRES_MAIN_HAND_WEAPON))
+                return OFF_ATTACK;
+
+            return BASE_ATTACK;
+        }();
+        float attackPowerBonus = float(victim->GetTotalAuraModifier(attType != RANGED_ATTACK ? SPELL_AURA_MELEE_ATTACK_POWER_ATTACKER_BONUS : SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS));
+        attackPowerBonus += GetTotalAttackPowerValue(attType);
+        doneTotal += int32(stack * attackPowerCoeff * attackPowerBonus);
+    }
+
+    if (doneAdvertisedBenefit)
+    {
+        float coeff = spellEffectInfo.BonusCoefficient;
+
+        if (Player* modOwner = GetSpellModOwner())
+        {
+            coeff *= 100.f;
+            modOwner->ApplySpellMod(spellProto, SpellModOp::BonusCoefficient, coeff);
+            coeff /= 100.f;
+        }
+
+        doneTotal += int32(doneAdvertisedBenefit * coeff * stack);
+    }
+
+    doneTotalMod = SpellAbsorbPctDone(victim, spellProto);
+
+    float absorbAmount = float(absorbamount + doneTotal) * doneTotalMod;
+
+    return static_cast<int32>(std::round(absorbAmount));
+}
+
+float Unit::SpellAbsorbPctDone(Unit* victim, SpellInfo const* spellProto) const
+{
+    if (GetTypeId() == TYPEID_UNIT && IsTotem())
+        if (Unit* owner = GetOwner())
+            return owner->SpellAbsorbPctDone(victim, spellProto);
+
+    float doneTotalMod = 1.f;
+
+    if (Player* modOwner = GetSpellModOwner())
+        AddPct(doneTotalMod, modOwner->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + modOwner->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+
+    if (Player const* thisPlayer = ToPlayer())
+    {
+        float maxModHealingPercentSchool = 0.f;
+        for (uint32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+            if (spellProto->GetSchoolMask() & (1 << i))
+                maxModHealingPercentSchool = std::max(maxModHealingPercentSchool, thisPlayer->m_activePlayerData->ModHealingDonePercent[i]);
+
+        doneTotalMod *= maxModHealingPercentSchool;
+    }
+    else
+        doneTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+
+    return doneTotalMod;
+}
+
+int32 Unit::SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 absorbamount) const
+{
+    bool allowPositive = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS);
+    bool allowNegative = !spellProto->HasAttribute(SPELL_ATTR6_IGNORE_HEALING_MODIFIERS) || spellProto->HasAttribute(SPELL_ATTR13_ALWAYS_ALLOW_NEGATIVE_HEALING_PERCENT_MODIFIERS);
+    if (!allowPositive && !allowNegative)
+        return absorbamount;
+
+    float takenTotalMod = 1.f;
+
+    if (allowNegative)
+    {
+        float minval = float(GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+        if (minval)
+            AddPct(takenTotalMod, minval);
+    }
+
+    if (allowPositive)
+    {
+        float maxval = float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT));
+        if (maxval)
+            AddPct(takenTotalMod, maxval);
+    }
+
+    if (caster)
+    {
+        takenTotalMod *= GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_RECEIVED, [caster, spellProto, allowPositive, allowNegative](AuraEffect const* aurEff)
+        {
+            if (caster->GetGUID() != aurEff->GetCasterGUID() || !aurEff->IsAffectingSpell(spellProto))
+                return false;
+
+            if (aurEff->GetAmount() > 0)
+            {
+                if (!allowPositive)
+                    return false;
+            }
+            else if (!allowNegative)
+                return false;
+
+            return true;
+        });
+    }
+
+    float absorb = absorbamount * takenTotalMod;
+    return static_cast<int32>(std::round(absorb));
 }
 
 bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute /*= false*/) const

@@ -1661,6 +1661,11 @@ class TC_GAME_API Unit : public WorldObject
         float SpellHealingPctDone(Unit* victim, SpellInfo const* spellProto) const;
         int32 SpellHealingBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 healamount, DamageEffectType damagetype) const;
 
+        int32 SpellBaseAbsorbBonusDone(SpellSchoolMask schoolMask) const;
+        int32 SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int32 absorbamount, SpellEffectInfo const& spellEffectInfo, uint32 stack = 1, AuraEffect const* aurEff = nullptr) const;
+        float SpellAbsorbPctDone(Unit* victim, SpellInfo const* spellProto) const;
+        int32 SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int32 absorbamount) const;
+
         int32 MeleeDamageBonusDone(Unit* pVictim, int32 damage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellEffectInfo const* spellEffectInfo = nullptr, Mechanics mechanic = MECHANIC_NONE, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL, Spell* spell = nullptr, AuraEffect const* aurEff = nullptr);
         int32 MeleeDamageBonusTaken(Unit* attacker, int32 pdamage, WeaponAttackType attType, DamageEffectType damagetype, SpellInfo const* spellProto = nullptr, SpellSchoolMask damageSchoolMask = SPELL_SCHOOL_MASK_NORMAL);
 
