@@ -7617,7 +7617,7 @@ int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int3
         return absorbamount;
 
     int32 doneTotal = 0;
-    float doneTotalMod = 1.f;
+    float doneTotalMod = SpellAbsorbPctDone(victim, spellProto);
 
     int32 doneAdvertisedBenefit = SpellBaseAbsorbBonusDone(spellProto->GetSchoolMask());
     doneAdvertisedBenefit += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_HEALING, spellProto->GetSchoolMask());
@@ -7664,7 +7664,8 @@ int32 Unit::SpellAbsorbBonusDone(Unit* victim, SpellInfo const* spellProto, int3
         doneTotal += int32(doneAdvertisedBenefit * coeff * stack);
     }
 
-    doneTotalMod = SpellAbsorbPctDone(victim, spellProto);
+    if (aurEff)
+        aurEff->GetBase()->CallScriptCalcDamageAndHealingHandlers(aurEff, aurEff->GetBase()->GetApplicationOfTarget(victim->GetGUID()), victim, absorbamount, doneTotal, doneTotalMod);
 
     float absorbAmount = float(absorbamount + doneTotal) * doneTotalMod;
 

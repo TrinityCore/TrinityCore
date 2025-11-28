@@ -1727,13 +1727,14 @@ public:
     HookList<EffectCalcCritChanceHandler> DoEffectCalcCritChance;
     #define AuraEffectCalcCritChanceFn(F, I, N) EffectCalcCritChanceHandler(&F, I, N)
 
-    // executed when aura effect calculates damage or healing for dots and hots
+    // executed when aura effect calculates damage or healing for dots and hots or initial absorb aura amount calculation
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // where function is: void function(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
     HookList<EffectCalcDamageAndHealingHandler> DoEffectCalcDamageAndHealing;
     #define AuraEffectCalcDamageFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
     #define AuraEffectCalcHealingFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
+    #define AuraEffectCalcAbsorbFn(F, I) EffectCalcDamageAndHealingHandler(&F, I, SPELL_AURA_SCHOOL_ABSORB)
 
     // executed when absorb aura effect is going to reduce damage
     // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
