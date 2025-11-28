@@ -762,7 +762,7 @@ class TC_GAME_API Guild
 
         // Handle client commands
         void HandleRoster(WorldSession* session);
-        void SendQueryResponse(WorldSession* session);
+        void HandleQuery(WorldSession* session);
         void HandleSetAchievementTracking(WorldSession* session, uint32 const* achievementIdsBegin, uint32 const* achievementIdsEnd);
         void HandleGetAchievementMembers(WorldSession* session, uint32 achievementId) const;
         void HandleSetMOTD(WorldSession* session, std::string_view motd);
