@@ -44,11 +44,11 @@ void NormalizeFileName(std::string& name)
     auto ptr = name.begin() + (name.length() - 1);
 
     //extension in lowercase
-    for (; *ptr != '.' && ptr >= name.begin(); --ptr)
+    for (; *ptr != '.' && ptr > name.begin(); --ptr)
         if (*ptr >= 'A' && *ptr <= 'Z')
             *ptr |= 0x20;
 
-    for (; ptr >= name.begin(); --ptr)
+    for (; ptr > name.begin(); --ptr)
     {
         if (ptr > name.begin() && *ptr >= 'A' && *ptr <= 'Z' && isalpha(*(ptr - 1)))
             *ptr |= 0x20;
