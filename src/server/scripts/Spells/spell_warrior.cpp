@@ -108,7 +108,8 @@ enum WarriorSpells
     SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
-    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
+    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203
 };
 
 enum WarriorMisc
@@ -1626,6 +1627,33 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// 6343 - Thunder Clap
+class spell_warr_thunder_clap : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_THUNDER_CLAP_SLOW });
+    }
+
+    void HandleSlow(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+        if (!caster || !target)
+            return;
+
+        caster->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1677,4 +1705,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_thunder_clap);
 }
