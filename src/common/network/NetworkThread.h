@@ -84,7 +84,7 @@ public:
 
     void AddSocket(std::shared_ptr<SocketType> sock)
     {
-        std::lock_guard<std::mutex> lock(_newSocketsLock);
+        std::scoped_lock lock(_newSocketsLock);
 
         ++_connections;
         SocketAdded(_newSockets.emplace_back(std::move(sock)));
@@ -98,7 +98,7 @@ protected:
 
     void AddNewSockets()
     {
-        std::lock_guard<std::mutex> lock(_newSocketsLock);
+        std::scoped_lock lock(_newSocketsLock);
 
         if (_newSockets.empty())
             return;

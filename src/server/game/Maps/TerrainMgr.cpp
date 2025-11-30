@@ -158,7 +158,7 @@ void TerrainInfo::LoadMapAndVMap(int32 gx, int32 gy)
     if (++_referenceCountFromMap[gx][gy] != 1)    // check if already loaded
         return;
 
-    std::lock_guard<std::mutex> lock(_loadMutex);
+    std::scoped_lock lock(_loadMutex);
     LoadMapAndVMapImpl(gx, gy);
 }
 
@@ -301,7 +301,7 @@ GridMap* TerrainInfo::GetGrid(uint32 mapId, float x, float y, bool loadIfMissing
     // ensure GridMap is loaded
     if (!(_loadedGrids[gx] & (UI64LIT(1) << gy)) && loadIfMissing)
     {
-        std::lock_guard<std::mutex> lock(_loadMutex);
+        std::scoped_lock lock(_loadMutex);
         LoadMapAndVMapImpl(gx, gy);
     }
 

@@ -180,7 +180,7 @@ static std::map<std::pair<uint32, uint16>, uint32> UniqueObjectIds;
 uint32 GenerateUniqueObjectId(uint32 clientId, uint16 clientDoodadId, bool isWmo)
 {
     uint32 newId = isWmo ? clientId : UniqueObjectIdGenerator--;
-    std::lock_guard lock(UniqueObjectIdsMutex);
+    std::scoped_lock lock(UniqueObjectIdsMutex);
     return UniqueObjectIds.emplace(std::make_pair(clientId, clientDoodadId), newId).first->second;
 }
 
@@ -189,7 +189,7 @@ std::unordered_map<std::string, ExtractedModelData> ExtractedModels;
 
 std::pair<ExtractedModelData*, bool> BeginModelExtraction(std::string const& outputName)
 {
-    std::lock_guard lock(ExtractedModelsMutex);
+    std::scoped_lock lock(ExtractedModelsMutex);
     auto [itr, isNew] = ExtractedModels.try_emplace(outputName);
     return { &itr->second, isNew };
 }

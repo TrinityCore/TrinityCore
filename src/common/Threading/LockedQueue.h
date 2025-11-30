@@ -39,14 +39,14 @@ public:
     //! Adds an item to the queue.
     void add(T const& item)
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         _queue.push_back(item);
     }
 
     //! Adds an item to the queue.
     void add(T&& item)
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         _queue.push_back(std::move(item));
     }
 
@@ -54,14 +54,14 @@ public:
     template<std::input_iterator Iterator>
     void readd(Iterator begin, Iterator end)
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         _queue.insert(_queue.begin(), begin, end);
     }
 
     //! Gets the next result in the queue, if any.
     bool next(T& result)
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         if (_queue.empty())
             return false;
 
@@ -73,7 +73,7 @@ public:
     template<class Checker>
     bool next(T& result, Checker& check)
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         if (_queue.empty())
             return false;
 
@@ -89,28 +89,28 @@ public:
     //! Cancels the queue.
     void cancel()
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         _canceled = true;
     }
 
     //! Checks if the queue is cancelled.
     bool cancelled()
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         return _canceled;
     }
 
     ///! Calls pop_front of the queue
     void pop_front()
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         _queue.pop_front();
     }
 
     ///! Checks if we're empty or not with locks held
     bool empty()
     {
-        std::lock_guard<std::mutex> lock(_lock);
+        std::scoped_lock lock(_lock);
         return _queue.empty();
     }
 };

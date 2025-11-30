@@ -165,7 +165,7 @@ struct TileCache
 private:
     void OnCacheCleanupTimerTick(boost::system::error_code const& error)
     {
-        if (error)
+        if (error || !_builderThread.joinable() /*shutting down*/)
             return;
 
         TimePoint now = GameTime::Now();
@@ -176,7 +176,7 @@ private:
 
     void RemoveOldCacheEntries(TimePoint oldestPreservedEntryTimestamp)
     {
-        std::lock_guard lock(TilesMutex);
+        std::scoped_lock lock(TilesMutex);
         Trinity::Containers::EraseIf(Tiles, [=](std::unordered_map<TileCacheKey, Tile>::value_type const& kv)
         {
             return kv.second.LastAccessed < oldestPreservedEntryTimestamp;
@@ -306,7 +306,7 @@ std::weak_ptr<DynamicTileBuilder::AsyncTileResult> DynamicTileBuilder::BuildTile
     cacheKey.CachedHash = std::hash<TileCacheKey>::Compute(cacheKey);
 
     TileCache* tileCache = TileCache::Instance();
-    std::lock_guard lock(tileCache->TilesMutex);
+    std::scoped_lock lock(tileCache->TilesMutex);
     auto [itr, isNew] = tileCache->Tiles.try_emplace(std::move(cacheKey));
     itr->second.LastAccessed = GameTime::Now();
     if (!isNew)
