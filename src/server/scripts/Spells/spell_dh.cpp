@@ -171,6 +171,8 @@ enum DemonHunterSpells
     SPELL_DH_REPEAT_DECREE_CONDUIT                 = 339895,
     SPELL_DH_RESTLESS_HUNTER_TALENT                = 390142,
     SPELL_DH_RESTLESS_HUNTER_BUFF                  = 390212,
+    SPELL_DH_RETALIATION_TALENT                    = 389729,
+    SPELL_DH_RETALIATION_PROC                      = 391160,
     SPELL_DH_SEVER                                 = 235964,
     SPELL_DH_SHATTER_SOUL                          = 210038,
     SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT    = 209980,
@@ -1669,6 +1671,40 @@ class spell_dh_restless_hunter : public AuraScript
     }
 };
 
+// 389729 - Retaliation (attached to 203819 - Demon Spikes)
+class spell_dh_retaliation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_RETALIATION_TALENT, SPELL_DH_RETALIATION_PROC });
+    }
+
+    bool Load() override
+    {
+        return GetUnitOwner()->HasAura(SPELL_DH_RETALIATION_TALENT);
+    }
+
+    void HandleAfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_RETALIATION_PROC, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void HandleAfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DH_RETALIATION_PROC);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_retaliation::HandleAfterApply, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_retaliation::HandleAfterRemove, EFFECT_0, SPELL_AURA_MOD_PARRY_PERCENT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+    }
+};
+
 // 388116 - Shattered Destiny
 class spell_dh_shattered_destiny : public AuraScript
 {
@@ -2114,6 +2150,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_monster_rising);
     RegisterSpellScript(spell_dh_repeat_decree_conduit);
     RegisterSpellScript(spell_dh_restless_hunter);
+    RegisterSpellScript(spell_dh_retaliation);
     RegisterSpellScript(spell_dh_shattered_destiny);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_havoc", SPELL_DH_SHATTERED_SOULS_HAVOC);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_vengeance", SPELL_DH_SHATTER_SOUL);
