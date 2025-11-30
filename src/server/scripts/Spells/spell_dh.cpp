@@ -1789,6 +1789,7 @@ struct at_dh_shattered_souls : public AreaTriggerAI
     void OnUnitEnter(Unit* unit) override
     {
         unit->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        unit->RemoveAuraFromStack(SPELL_DH_SOUL_FRAGMENT_COUNTER);
         at->Remove();
     }
 };
@@ -1805,7 +1806,8 @@ class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ { SPELL_DH_SHEAR_PASSIVE, EFFECT_3 } });
+        return ValidateSpellInfo({ SPELL_DH_SOUL_FRAGMENT_COUNTER })
+            && ValidateSpellEffect({ { SPELL_DH_SHEAR_PASSIVE, EFFECT_3 } });
     }
 
     bool Load() override
@@ -1841,12 +1843,22 @@ class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
         _damagePerSecond[0] += eventInfo.GetDamageInfo()->GetDamage();
     }
 
+    void HandleAfterApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_DH_SOUL_FRAGMENT_COUNTER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_dh_soul_fragments_damage_taken_tracker::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_dh_soul_fragments_damage_taken_tracker::HandleProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dh_soul_fragments_damage_taken_tracker::HandleCalcAmount, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_dh_soul_fragments_damage_taken_tracker::Update, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_soul_fragments_damage_taken_tracker::HandleAfterApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
     }
 
 private:
