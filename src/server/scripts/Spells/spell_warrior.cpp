@@ -1637,12 +1637,7 @@ class spell_warr_thunder_clap : public SpellScript
 
     void HandleSlow(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
-
-        caster->CastSpell(target, SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
             });
