@@ -1680,6 +1680,36 @@ class spell_pri_lights_wrath : public SpellScript
     }
 };
 
+// 375994 - Mental Decay
+class spell_pri_mental_decay : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_PAIN, SPELL_PRIEST_VAMPIRIC_TOUCH });
+    }
+
+    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+        if (!caster || !target)
+            return;
+
+        int32 durationExtend = aurEff->GetAmount() * IN_MILLISECONDS;
+
+        if (Aura* shadowWordPain = target->GetOwnedAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
+            shadowWordPain->SetDuration(shadowWordPain->GetDuration() + durationExtend);
+
+        if (Aura* vampiricTouch = target->GetOwnedAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()))
+            vampiricTouch->SetDuration(vampiricTouch->GetDuration() + durationExtend);
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_mental_decay::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 205369 - Mind Bomb
 class spell_pri_mind_bomb : public AuraScript
 {
@@ -3584,6 +3614,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
+    RegisterSpellScript(spell_pri_mental_decay);
     RegisterSpellScript(spell_pri_mind_bomb);
     RegisterSpellScript(spell_pri_mind_devourer);
     RegisterSpellAndAuraScriptPair(spell_pri_mind_devourer_buff, spell_pri_mind_devourer_buff_aura);
