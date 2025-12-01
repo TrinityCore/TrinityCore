@@ -2367,14 +2367,14 @@ class spell_dru_twin_moonfire : public SpellScript
         return !GetSpell()->IsTriggered() && GetCaster()->HasAura(SPELL_DRUID_TWIN_MOONFIRE);
     }
 
-    void HandleAfterHit()
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_TWIN_MOONS_EFFECT);
+        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), SPELL_DRUID_TWIN_MOONS_EFFECT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_GCD);
     }
 
     void Register() override
     {
-        AfterHit += SpellHitFn(spell_dru_twin_moonfire::HandleAfterHit);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_twin_moonfire::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
