@@ -2153,7 +2153,7 @@ class spell_dru_thrash : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        uint32 bleedSpell = (caster->GetShapeshiftForm() == FORM_CAT_FORM)
+        uint32 bleedSpell = (GetSpellInfo()->Id == SPELL_DRUID_THRASH_CAT)
             ? SPELL_DRUID_THRASH_CAT_BLEED : SPELL_DRUID_THRASH_BEAR_BLEED;
 
         caster->CastSpell(target, bleedSpell);
