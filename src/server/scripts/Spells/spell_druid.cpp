@@ -76,6 +76,7 @@ enum DruidSpells
     SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
     SPELL_DRUID_ELUNES_FAVORED                 = 370586,
+    SPELL_DRUID_ELUNES_FAVORED_PROC            = 370588,
     SPELL_DRUID_ELUNES_FAVORED_HEAL            = 370602,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL      = 392147,
@@ -761,6 +762,26 @@ class spell_dru_efflorescence_heal : public SpellScript
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+    }
+};
+
+// 370586 - Elune's Favored
+class spell_dru_elunes_favored : public AuraScript
+{
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_ELUNES_FAVORED_PROC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DRUID_ELUNES_FAVORED_PROC);
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_dru_elunes_favored::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectRemoveFn(spell_dru_elunes_favored::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2622,6 +2643,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence_dummy);
     RegisterSpellScript(spell_dru_efflorescence_heal);
+    RegisterSpellScript(spell_dru_elunes_favored);
     RegisterSpellScript(spell_dru_elunes_favored_proc);
     RegisterSpellScript(spell_dru_embrace_of_the_dream);
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);

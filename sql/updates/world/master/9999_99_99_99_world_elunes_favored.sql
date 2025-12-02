@@ -1,5 +1,6 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dru_elunes_favored_proc');
+DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_dru_elunes_favored', 'spell_dru_elunes_favored_proc');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(370586, 'spell_dru_elunes_favored'),
 (370588, 'spell_dru_elunes_favored_proc');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (370588);
