@@ -768,7 +768,7 @@ class spell_dru_efflorescence_heal : public SpellScript
 // 370586 - Elune's Favored
 class spell_dru_elunes_favored : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED_PROC });
     }
