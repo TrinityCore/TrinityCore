@@ -969,21 +969,25 @@ class spell_dru_flower_walk_heal : public SpellScript
         Unit* caster = GetCaster();
         int32 maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster);
 
-        targets.remove(caster);
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
+
+        if (targets.size() > 1)
+            targets.remove(caster);
+
+        if (targets.empty())
+            targets.push_back(caster);
     }
 
-    void HandleEffectHit(SpellEffIndex effIndex)
+    void PreventEffect(WorldObject*& target)
     {
-        if (GetHitUnit() == GetCaster())
-            if (GetSpell()->GetUnitTargetCountForEffect(effIndex) > 1)
-                PreventHitHeal();
+        if (target->ToUnit() == GetCaster())
+            target = nullptr;
     }
 
     void Register() override
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_flower_walk_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
-        OnEffectHitTarget += SpellEffectFn(spell_dru_flower_walk_heal::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_dru_flower_walk_heal::PreventEffect, EFFECT_0, TARGET_UNIT_TARGET_ALLY);
     }
 };
 
