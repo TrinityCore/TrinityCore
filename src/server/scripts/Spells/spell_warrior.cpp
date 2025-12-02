@@ -1638,12 +1638,7 @@ class spell_warr_intervene : public SpellScript
 
     void HandleDummy(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
-
-        caster->CastSpell(target, SPELL_WARRIOR_INTERVENE_CHARGE, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_INTERVENE_CHARGE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
@@ -1663,14 +1658,9 @@ class spell_warr_intervene_charge : public SpellScript
         return ValidateSpellInfo({ SPELL_WARRIOR_INTERVENE_AURA });
     }
 
-    void HandleCharge(SpellEffIndex /*effIndex*/) const
+    void HandleAura(SpellEffIndex /*effIndex*/) const
     {
-        Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-        if (!caster || !target)
-            return;
-
-        caster->CastSpell(target, SPELL_WARRIOR_INTERVENE_AURA, CastSpellExtraArgsInit{
+        GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_INTERVENE_AURA, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_FULL_MASK & ~TRIGGERED_CAST_DIRECTLY,
             .TriggeringSpell = GetSpell()
         });
@@ -1678,7 +1668,7 @@ class spell_warr_intervene_charge : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_warr_intervene_charge::HandleCharge, EFFECT_0, SPELL_EFFECT_CHARGE);
+        OnEffectHitTarget += SpellEffectFn(spell_warr_intervene_charge::HandleAura, EFFECT_0, SPELL_EFFECT_CHARGE);
     }
 };
 
