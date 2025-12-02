@@ -768,9 +768,14 @@ class spell_dru_efflorescence_heal : public SpellScript
 // 370586 - Elune's Favored
 class spell_dru_elunes_favored : public AuraScript
 {
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED_PROC });
+    }
+
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_ELUNES_FAVORED_PROC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_ELUNES_FAVORED_PROC);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
