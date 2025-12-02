@@ -109,7 +109,9 @@ enum WarriorSpells
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
     SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
-    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203
+    SPELL_WARRIOR_THUNDER_CLAP_SLOW                 = 435203,
+    SPELL_WARRIOR_REND                              = 772,
+    SPELL_WARRIOR_REND_AURA                         = 388539
 };
 
 enum WarriorMisc
@@ -1640,12 +1642,47 @@ class spell_warr_thunder_clap : public SpellScript
         GetCaster()->CastSpell(GetHitUnit(), SPELL_WARRIOR_THUNDER_CLAP_SLOW, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
-            });
+        });
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap::HandleSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 6343 - Thunder Clap (Rend)
+class spell_warr_thunder_clap_rend : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_WARRIOR_REND,
+            SPELL_WARRIOR_REND_AURA
+        });
+    }
+
+    bool Load() override
+    {
+        Player* player = GetCaster()->ToPlayer();
+        if (!player->HasSpell(SPELL_WARRIOR_REND))
+            return true;
+    }
+
+    void HandleRend(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_WARRIOR_REND_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap_rend::HandleRend, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
 
@@ -1701,4 +1738,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
     RegisterSpellScript(spell_warr_thunder_clap);
+    RegisterSpellScript(spell_warr_thunder_clap_rend);
 }
