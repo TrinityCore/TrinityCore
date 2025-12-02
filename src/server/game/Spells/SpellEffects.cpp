@@ -901,21 +901,6 @@ void Spell::EffectTriggerRitualOfSummoning()
         .SetTriggeringSpell(this));
 }
 
-void Spell::CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ)
-{
-    Unit* unitCaster = GetUnitCasterForEffectHandlers();
-    ASSERT(unitCaster);
-
-    float multiplier = effInfo->Amplitude;
-    if (multiplier <= 0.0f)
-        multiplier = 1.0f;
-
-    float minHeight = effInfo->MiscValue  ? effInfo->MiscValue  / 10.0f :    0.5f; // Lower bound is blizzlike
-    float maxHeight = effInfo->MiscValueB ? effInfo->MiscValueB / 10.0f : 1000.0f; // Upper bound is unknown
-
-    unitCaster->GetMotionMaster()->CalculateJumpSpeeds(dist, MOVE_RUN, multiplier, minHeight, maxHeight, speedXY, speedZ);
-}
-
 void Spell::EffectJump()
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
@@ -931,8 +916,10 @@ void Spell::EffectJump()
     if (!unitTarget)
         return;
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(unitTarget), speedXY, speedZ);
+    Optional<float> speedMultiplier = effectInfo->Amplitude > 0.0f ? Optional<float>(effectInfo->Amplitude) : std::nullopt;
+    Optional<float> minHeight = effectInfo->MiscValue ? Optional<float>(effectInfo->MiscValue / 10.0f) : std::nullopt;
+    Optional<float> maxHeight = effectInfo->MiscValueB ? Optional<float>(effectInfo->MiscValueB / 10.0f) : std::nullopt;
+
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
     {
@@ -943,7 +930,9 @@ void Spell::EffectJump()
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
     arrivalCast.Target = unitTarget->GetGUID();
-    unitCaster->GetMotionMaster()->MoveJump(*unitTarget, speedXY, speedZ, EVENT_JUMP, facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *unitTarget, {}, minHeight, maxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+        false, speedMultiplier, &arrivalCast);
 }
 
 void Spell::EffectJumpDest()
@@ -961,8 +950,10 @@ void Spell::EffectJumpDest()
     if (!m_targets.HasDst())
         return;
 
-    float speedXY, speedZ;
-    CalculateJumpSpeeds(effectInfo, unitCaster->GetExactDist2d(destTarget), speedXY, speedZ);
+    Optional<float> speedMultiplier = effectInfo->Amplitude > 0.0f ? Optional<float>(effectInfo->Amplitude) : std::nullopt;
+    Optional<float> minHeight = effectInfo->MiscValue ? Optional<float>(effectInfo->MiscValue / 10.0f) : std::nullopt;
+    Optional<float> maxHeight = effectInfo->MiscValueB ? Optional<float>(effectInfo->MiscValueB / 10.0f) : std::nullopt;
+
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
     {
@@ -974,7 +965,9 @@ void Spell::EffectJumpDest()
 
     JumpArrivalCastArgs arrivalCast;
     arrivalCast.SpellId = effectInfo->TriggerSpell;
-    unitCaster->GetMotionMaster()->MoveJump(*destTarget, speedXY, speedZ, EVENT_JUMP, facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), &arrivalCast);
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *destTarget, {}, minHeight, maxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+        false, speedMultiplier, &arrivalCast);
 }
 
 TeleportToOptions GetTeleportOptions(WorldObject const* caster, Unit const* unitTarget, SpellDestination const& targetDest)
@@ -4040,9 +4033,9 @@ void Spell::EffectKnockBack()
         return;
 
     float ratio = 0.1f;
-    float speedxy = float(effectInfo->MiscValue) * ratio;
-    float speedz = float(damage) * ratio;
-    if (speedxy < 0.01f && speedz < 0.01f)
+    float speedXY = float(effectInfo->MiscValue) * ratio;
+    float speedZ = float(damage) * ratio;
+    if (std::abs(speedXY) < 0.01f && std::abs(speedZ) < 0.01f)
         return;
 
     Position origin;
@@ -4056,7 +4049,7 @@ void Spell::EffectKnockBack()
     else //if (effectInfo->Effect == SPELL_EFFECT_KNOCK_BACK)
         origin = m_caster->GetPosition();
 
-    unitTarget->KnockbackFrom(origin, speedxy, speedz);
+    unitTarget->KnockbackFrom(origin, speedXY, speedZ);
 
     Unit::ProcSkillsAndAuras(GetUnitCasterForEffectHandlers(), unitTarget, PROC_FLAG_NONE, { PROC_FLAG_NONE, PROC_FLAG_2_KNOCKBACK },
         PROC_SPELL_TYPE_MASK_ALL, PROC_SPELL_PHASE_HIT, PROC_HIT_NONE, nullptr, nullptr, nullptr);
@@ -4072,8 +4065,9 @@ void Spell::EffectLeapBack()
 
     float speedxy = effectInfo->MiscValue / 10.f;
     float speedz = damage / 10.f;
+
     // Disengage
-    unitTarget->JumpTo(speedxy, speedz, effectInfo->PositionFacing);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedxy, speedz, effectInfo->PositionFacing);
 
     // changes fall time
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4162,7 +4156,7 @@ void Spell::EffectPullTowards()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, 0.0f, pos);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedXY, speedZ, unitTarget->GetRelativeAngle(pos));
 }
 
 void Spell::EffectPullTowardsDest()
@@ -4198,7 +4192,7 @@ void Spell::EffectPullTowardsDest()
         return;
     }
 
-    unitTarget->JumpTo(speedXY, speedZ, 0.0f, *pos);
+    unitTarget->KnockbackFrom(unitTarget->GetPosition(), speedXY, speedZ, unitTarget->GetRelativeAngle(pos));
 }
 
 void Spell::EffectChangeRaidMarker()
@@ -5883,9 +5877,13 @@ void Spell::EffectJumpCharge()
     if (!params)
         return;
 
-    float speed = params->Speed;
-    if (params->TreatSpeedAsMoveTimeSeconds)
-        speed = unitCaster->GetExactDist(destTarget) / params->MoveTimeInSec;
+    std::variant<std::monostate, float, Milliseconds> speedOrTime = [params]() -> std::variant<std::monostate, float, Milliseconds>
+    {
+        if (params->TreatSpeedAsMoveTimeSeconds)
+            return duration_cast<Milliseconds>(FloatSeconds(params->MoveTimeInSec));
+
+        return params->Speed;
+    }();
 
     MovementFacingTarget facing;
     if (Unit const* target = m_targets.GetUnitTarget())
@@ -5916,8 +5914,8 @@ void Spell::EffectJumpCharge()
             effectExtra->ParabolicCurveId = *params->ParabolicCurveId;
     }
 
-    unitCaster->GetMotionMaster()->MoveJumpWithGravity(*destTarget, speed, params->JumpGravity, EVENT_JUMP, facing,
-        m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL),
+    unitCaster->GetMotionMaster()->MoveJump(EVENT_JUMP, *destTarget, speedOrTime, params->MinHeight, params->MaxHeight,
+        facing, m_spellInfo->HasAttribute(SPELL_ATTR9_JUMPCHARGE__NO_FACING_CONTROL), params->UnlimitedSpeed, {},
         arrivalCast ? &*arrivalCast : nullptr,
         effectExtra ? &*effectExtra : nullptr);
 }

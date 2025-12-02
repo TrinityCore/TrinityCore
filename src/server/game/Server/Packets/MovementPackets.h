@@ -101,7 +101,7 @@ namespace WorldPackets
         {
             int32 TierTransitionID = 0;
             uint32 StartTime = 0;
-            uint32 EndTime = 0;
+            uint32 ExtraDuration = 0;        ///< Duration of the transition (unit does not move during this time)
             uint8 AnimTier = 0;
         };
 

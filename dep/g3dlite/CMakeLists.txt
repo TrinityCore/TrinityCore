@@ -8,57 +8,71 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(g3dlib_STAT_SRCS
-  source/AABox.cpp
-  source/Any.cpp
-  source/AnyTableReader.cpp
-  source/BinaryFormat.cpp
-  source/BinaryInput.cpp
-  source/BinaryOutput.cpp
-  source/Box.cpp
-  source/Capsule.cpp
-  source/CollisionDetection.cpp
-  source/CoordinateFrame.cpp
-  source/Crypto.cpp
-  source/Cylinder.cpp
-  source/debugAssert.cpp
-  source/FileSystem.cpp
-  source/fileutils.cpp
-  source/format.cpp
-  source/g3dfnmatch.cpp
-  source/g3dmath.cpp
-  source/GThread.cpp
-  source/Line.cpp
-  source/LineSegment.cpp
-  source/Log.cpp
-  source/Matrix3.cpp
-  source/Matrix4.cpp
-  source/MemoryManager.cpp
-  source/PhysicsFrame.cpp
-  source/Plane.cpp
-  source/prompt.cpp
-  source/Quat.cpp
-  source/Random.cpp
-  source/Ray.cpp
-  source/RegistryUtil.cpp
-  source/Sphere.cpp
-  source/stringutils.cpp
-  source/System.cpp
-  source/TextInput.cpp
-  source/TextOutput.cpp
-  source/Triangle.cpp
-  source/uint128.cpp
-  source/UprightFrame.cpp
-  source/Vector2.cpp
-  source/Vector3.cpp
-  source/Vector4.cpp
-)
+add_library(g3dlib STATIC)
 
-add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
+target_sources(g3dlib
+  PRIVATE
+    source/AABox.cpp
+    source/Any.cpp
+    source/AnyTableReader.cpp
+    source/BinaryFormat.cpp
+    source/BinaryInput.cpp
+    source/BinaryOutput.cpp
+    source/Box.cpp
+    source/Capsule.cpp
+    source/CollisionDetection.cpp
+    source/CoordinateFrame.cpp
+    source/Crypto.cpp
+    source/Cylinder.cpp
+    source/debugAssert.cpp
+    source/FileSystem.cpp
+    source/fileutils.cpp
+    source/format.cpp
+    source/g3dfnmatch.cpp
+    source/g3dmath.cpp
+    source/GThread.cpp
+    source/Line.cpp
+    source/LineSegment.cpp
+    source/Log.cpp
+    source/Matrix3.cpp
+    source/Matrix4.cpp
+    source/MemoryManager.cpp
+    source/PhysicsFrame.cpp
+    source/Plane.cpp
+    source/prompt.cpp
+    source/Quat.cpp
+    source/Random.cpp
+    source/Ray.cpp
+    source/RegistryUtil.cpp
+    source/Sphere.cpp
+    source/stringutils.cpp
+    source/System.cpp
+    source/TextInput.cpp
+    source/TextOutput.cpp
+    source/Triangle.cpp
+    source/uint128.cpp
+    source/UprightFrame.cpp
+    source/Vector2.cpp
+    source/Vector3.cpp
+    source/Vector4.cpp)
 
-target_include_directories(g3dlib
+target_sources(g3dlib
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    FILE_SET HEADERS
+    BASE_DIRS include
+    FILES
+      include/G3D/AABox.h
+      include/G3D/BoundsTrait.h
+      include/G3D/Box.h
+      include/G3D/CoordinateFrame.h
+      include/G3D/g3dmath.h
+      include/G3D/Matrix3.h
+      include/G3D/Matrix4.h
+      include/G3D/Plane.h
+      include/G3D/Quat.h
+      include/G3D/Ray.h
+      include/G3D/Vector3.h
+      include/G3D/Vector4.h)
 
 if((CMAKE_SYSTEM_NAME MATCHES "Linux" AND NOT NOJEM) OR TSAN)
   target_compile_definitions(g3dlib

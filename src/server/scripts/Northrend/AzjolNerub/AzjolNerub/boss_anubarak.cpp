@@ -473,7 +473,7 @@ struct npc_anubarak_anub_ar_assassin : public npc_anubarak_pet_template
             do
                 jumpTo = GetRandomPositionAround(anubarak);
             while (!CreatureAI::IsInBounds(*boundary, &jumpTo));
-            me->GetMotionMaster()->MoveJump(jumpTo, 40.0f, 40.0f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, jumpTo, 24.0f, 20.0f, 30.0f);
             DoCastSelf(SPELL_ASSASSIN_VISUAL, true);
         }
     }

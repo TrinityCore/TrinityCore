@@ -51,7 +51,6 @@ class LoginQueryHolder;
 class MessageBuffer;
 class Player;
 class Unit;
-class Warden;
 class WorldPacket;
 class WorldSession;
 class WorldSocket;
@@ -827,11 +826,6 @@ namespace WorldPackets
         class MoveSetVehicleRecIdAck;
     }
 
-    namespace Warden
-    {
-        class WardenData;
-    }
-
     namespace Who
     {
         class WhoIsRequest;
@@ -1023,10 +1017,6 @@ class TC_GAME_API WorldSession
         ClientBuild::VariantId const& GetClientBuildVariant() const { return _clientBuildVariant; }
 
         bool CanAccessAlliedRaces() const;
-        Warden* GetWarden() { return _warden.get(); }
-        Warden const* GetWarden() const { return _warden.get(); }
-
-        void InitWarden(SessionKey const& k);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -1047,7 +1037,7 @@ class TC_GAME_API WorldSession
         }
 
         void LogoutPlayer(bool save);
-        void KickPlayer(std::string const& reason);
+        void KickPlayer(std::string_view reason);
         // Returns true if all contained hyperlinks are valid
         // May kick player on false depending on world config (handler should abort)
         bool ValidateHyperlinksAndMaybeKick(std::string const& str);
@@ -1854,9 +1844,6 @@ class TC_GAME_API WorldSession
         void HandleBattlePetUpdateNotify(WorldPackets::BattlePet::BattlePetUpdateNotify& battlePetUpdateNotify);
         void HandleCageBattlePet(WorldPackets::BattlePet::CageBattlePet& cageBattlePet);
 
-        // Warden
-        void HandleWardenData(WorldPackets::Warden::WardenData& packet);
-
         // Battlenet
         void HandleBattlenetChangeRealmTicket(WorldPackets::Battlenet::ChangeRealmTicket& changeRealmTicket);
         void HandleBattlenetRequest(WorldPackets::Battlenet::Request& request);
@@ -1988,9 +1975,6 @@ class TC_GAME_API WorldSession
         std::unordered_map<uint32 /*realmAddress*/, uint8> _realmCharacterCounts;
         std::unordered_map<uint32, std::function<void(MessageBuffer)>> _battlenetResponseCallbacks;
         uint32 _battlenetRequestToken;
-
-        // Warden
-        std::unique_ptr<Warden> _warden;                                    // Remains NULL if Warden system is not enabled by config
 
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
