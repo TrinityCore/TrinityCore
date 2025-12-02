@@ -1654,19 +1654,20 @@ class spell_warr_thunder_clap : public SpellScript
 // 6343 - Thunder Clap (Rend)
 class spell_warr_thunder_clap_rend : public SpellScript
 {
+public:
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({
             SPELL_WARRIOR_REND,
             SPELL_WARRIOR_REND_AURA
-        });
+            });
     }
 
     bool Load() override
     {
-        Player* player = GetCaster()->ToPlayer();
-        if (!player->HasSpell(SPELL_WARRIOR_REND))
-            return true;
+        if (Player* player = GetCaster()->ToPlayer())
+            return player->HasSpell(SPELL_WARRIOR_REND);
+        return false;
     }
 
     void HandleRend(SpellEffIndex /*effIndex*/)
@@ -1674,16 +1675,24 @@ class spell_warr_thunder_clap_rend : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
+        if (_applicationCount >= 5)
+            return;
+
         caster->CastSpell(target, SPELL_WARRIOR_REND_AURA, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
-        });
+            });
+
+        ++_applicationCount;
     }
 
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_thunder_clap_rend::HandleRend, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
+
+private:
+    uint8 _applicationCount = 0;
 };
 
 void AddSC_warrior_spell_scripts()
