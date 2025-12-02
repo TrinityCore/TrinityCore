@@ -75,6 +75,8 @@ enum DruidSpells
     SPELL_DRUID_ECLIPSE_VISUAL_SOLAR           = 93430,
     SPELL_DRUID_EFFLORESCENCE_AURA             = 81262,
     SPELL_DRUID_EFFLORESCENCE_HEAL             = 81269,
+    SPELL_DRUID_ELUNES_FAVORED                 = 370586,
+    SPELL_DRUID_ELUNES_FAVORED_HEAL            = 370602,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_EFFECT    = 392146,
     SPELL_DRUID_EMBRACE_OF_THE_DREAM_HEAL      = 392147,
     SPELL_DRUID_ENTANGLING_ROOTS               = 339,
@@ -760,6 +762,53 @@ class spell_dru_efflorescence_heal : public SpellScript
     {
         OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_efflorescence_heal::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
     }
+};
+
+// 370588 - Elune's Favored (Proc)
+class spell_dru_elunes_favored_proc : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED, SPELL_DRUID_ELUNES_FAVORED_HEAL })
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_DRUID_BEAR_FORM);
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        DamageInfo* damageInfo = eventInfo.GetDamageInfo();
+        if (damageInfo && damageInfo->GetDamage())
+            _arcaneDamage += damageInfo->GetDamage();
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff)
+    {
+        Unit* caster = GetTarget();
+        if (!_arcaneDamage)
+            return;
+
+        int32 healPct = sSpellMgr->AssertSpellInfo(SPELL_DRUID_ELUNES_FAVORED, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+        int32 heal = CalculatePct(_arcaneDamage, healPct);
+
+        CastSpellExtraArgs args(aurEff);
+        args.AddSpellBP0(heal);
+        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_HEAL, args);
+
+        _arcaneDamage = 0;
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dru_elunes_favored_proc::CheckProc);
+        OnProc += AuraProcFn(spell_dru_elunes_favored_proc::HandleProc);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dru_elunes_favored_proc::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+    uint32 _arcaneDamage{};
 };
 
 // 392124 - Embrace of the Dream
@@ -2573,6 +2622,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_efflorescence);
     RegisterSpellScript(spell_dru_efflorescence_dummy);
     RegisterSpellScript(spell_dru_efflorescence_heal);
+    RegisterSpellScript(spell_dru_elunes_favored_proc);
     RegisterSpellScript(spell_dru_embrace_of_the_dream);
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
