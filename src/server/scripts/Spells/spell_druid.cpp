@@ -969,6 +969,7 @@ class spell_dru_flower_walk_heal : public SpellScript
         Unit* caster = GetCaster();
         int32 maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster);
 
+        targets.remove(caster);
         Trinity::SelectRandomInjuredTargets(targets, maxTargets, true, caster);
     }
 
