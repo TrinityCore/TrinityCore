@@ -258,6 +258,31 @@ class spell_warr_avatar : public SpellScript
     }
 };
 
+// 107574 - Avatar
+// 390140 - Warlord's Torment
+class spell_warr_warlords_torment : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_RECKLESSNESS });
+    }
+
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* caster = GetCaster();
+        int32 durationMs = GetEffectInfo(EFFECT_0).CalcValue(caster);
+
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.SpellValueOverrides.emplace_back(SPELLVALUE_DURATION, durationMs);
+        caster->CastSpell(caster, SPELL_WARRIOR_RECKLESSNESS, args);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warr_warlords_torment::HandleProc);
+    }
+};
+
 // 23881 - Bloodthirst
 // 335096 - Bloodbath
 class spell_warr_bloodthirst : public SpellScript
@@ -1677,4 +1702,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_warlords_torment);
 }
