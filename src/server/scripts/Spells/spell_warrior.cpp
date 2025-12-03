@@ -1666,9 +1666,16 @@ class spell_warr_intervene_charge : public SpellScript
         });
     }
 
+    void HandleStopAttack()
+    {
+        // Prevent caster from attacking the friendly target
+        GetCaster()->AttackStop();
+    }
+
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_intervene_charge::HandleAura, EFFECT_0, SPELL_EFFECT_CHARGE);
+        AfterHit += SpellHitFn(spell_warr_intervene_charge::HandleStopAttack);
     }
 };
 
