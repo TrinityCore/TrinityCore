@@ -2134,6 +2134,26 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
     }
 };
 
+// 400223 - Thorns of Iron (Damage)
+class spell_dru_thorns_of_iron_damage : public SpellScript
+{
+    void HandleEffectHit(SpellEffIndex effIndex)
+    {
+        Unit* caster = GetCaster();
+
+        int32 noTargets = GetUnitTargetCountForEffect(effIndex);
+        int32 pct = GetTriggeringSpell()->GetEffect(effIndex).CalcValue(caster);
+        int32 damage = CalculatePct(caster->GetArmor(), pct) / noTargets;
+
+        SetHitDamage(damage);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_thorns_of_iron_damage::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 77758 - Thrash
 class spell_dru_thrash : public SpellScript
 {
@@ -2621,6 +2641,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_t10_balance_4p_bonus);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus);
     RegisterSpellScript(spell_dru_t10_restoration_4p_bonus_dummy);
+    RegisterSpellScript(spell_dru_thorns_of_iron_damage);
     RegisterSpellScript(spell_dru_thrash);
     RegisterSpellScript(spell_dru_thrash_aura);
     RegisterSpellScript(spell_dru_travel_form);
