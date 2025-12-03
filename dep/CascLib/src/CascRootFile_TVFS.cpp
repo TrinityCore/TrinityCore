@@ -113,10 +113,10 @@ typedef struct _TVFS_PATH_TABLE_ENTRY
 
 typedef struct _TVFS_WOW_ENTRY
 {
-    DWORD  LocaleFlags;
-    USHORT ContentFlags;
-    DWORD  FileDataId;
-    BYTE   ContentKey[MD5_HASH_SIZE];
+    DWORD LocaleFlags;
+    DWORD ContentFlags;
+    DWORD FileDataId;
+    BYTE  ContentKey[MD5_HASH_SIZE];
 } TVFS_WOW_ENTRY, *PTVFS_WOW_ENTRY;
 
 //-----------------------------------------------------------------------------
@@ -733,36 +733,45 @@ struct TRootHandler_TVFS : public TFileTreeRoot
     DWORD CheckWoWGenericName(const CASC_PATH<char> & PathBuffer, TVFS_WOW_ENTRY & WowEntry)
     {
         size_t nPathLength = PathBuffer.Length();
-        BYTE BinaryBuffer[4+2+4+16];
 
         //
         // WoW Build 45779: 000000020000:000C472F02BA924C604A670B253AA02DBCD9441  (Bug: Missing last digit of the CKey)
         // WoW Build 46144: 000000020000:000C472F02BA924C604A670B253AA02DBCD9441C
         //                  LLLLLLLLCCCC IIIIIIIIKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
+        // 
+        // WoW Build 63728: 0000000200000000:005096B78ECBF6630B7A282B01358857C6DDF2B2
+        //                  LLLLLLLLCCCCCCCC IIIIIIIIKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
         //
         //                  L = Locale flags, C = Content flags, I = File Data ID, K = CKey
         //
 
-        if(nPathLength == 52 || nPathLength == 53)
+        if(nPathLength == 52 || nPathLength == 53 || nPathLength == 57)
         {
-            if(PathBuffer[12] == ':')
+            const char * pColonPosition = strchr(PathBuffer, ':');
+            const char * szFileName = PathBuffer;
+            size_t nColonPos = pColonPosition - szFileName;
+            BYTE NamePart1[4 + 4];          // Content flags, locale flags
+            BYTE NamePart2[4 + 16];         // File data ID, CKey
+
+            // Is there colon (':') at position 12 or 16?
+            if(nColonPos == 12 || nColonPos == 16)
             {
-                // Check the first part of the TVFS name
-                if(BinaryFromString(&PathBuffer[00], 12, (LPBYTE)(&BinaryBuffer[0])) != ERROR_SUCCESS)
+                // Check the locale flags and content flags
+                if(BinaryFromString(szFileName, nColonPos, NamePart1) != ERROR_SUCCESS)
                     return ERROR_REPARSE_ROOT;
 
-                // Check the second part of the file name
-                if(BinaryFromString(&PathBuffer[13], 40, (LPBYTE)(&BinaryBuffer[6])) != ERROR_SUCCESS)
+                // Check the file data ID from the TVFS name
+                if(BinaryFromString(pColonPosition + 1, 40, NamePart2) != ERROR_SUCCESS)
                     return ERROR_REPARSE_ROOT;
 
 #ifdef TVFS_PARSE_WOW_ROOT
-                // We accept strings with length 53 chars
-                if(nPathLength == 53)
+                // We accept strings with length 53 or 57 chars
+                if(nPathLength == 53 || nPathLength == 57)
                 {
-                    WowEntry.LocaleFlags  = ConvertBytesToInteger_4(BinaryBuffer + 0x00);
-                    WowEntry.ContentFlags = ConvertBytesToInteger_2(BinaryBuffer + 0x04);
-                    WowEntry.FileDataId   = ConvertBytesToInteger_4(BinaryBuffer + 0x06);
-                    memcpy(WowEntry.ContentKey, BinaryBuffer + 0x0A, MD5_HASH_SIZE);
+                    WowEntry.LocaleFlags  = ConvertBytesToInteger_4(&NamePart1[0]);
+                    WowEntry.ContentFlags = ConvertBytesToInteger_X(&NamePart1[4], (nColonPos - 8) / 2);
+                    WowEntry.FileDataId   = ConvertBytesToInteger_4(&NamePart2[0]);
+                    memcpy(WowEntry.ContentKey, &NamePart2[4], MD5_HASH_SIZE);
                     return ERROR_SUCCESS;
                 }
 #endif  // TVFS_PARSE_WOW_ROOT
