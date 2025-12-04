@@ -271,8 +271,6 @@ class spell_warr_bladesmasters_torment : public AuraScript
     void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
         Unit* target = GetTarget();
-
-        // Get BasePoints and set as duration for Sweeping Strikes
         int32 durationMs = GetEffectInfo(EFFECT_0).CalcValue(target);
 
         CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
