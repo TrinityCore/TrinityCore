@@ -270,14 +270,14 @@ class spell_warr_bladesmasters_torment : public AuraScript
 
     void HandleProc(ProcEventInfo& /*eventInfo*/)
     {
-        Unit* caster = GetCaster();
+        Unit* target = GetTarget();
 
         // Get BasePoints and set as duration for Sweeping Strikes
-        int32 durationMs = GetEffectInfo(EFFECT_0).CalcValue(caster);
+        int32 durationMs = GetEffectInfo(EFFECT_0).CalcValue(target);
 
         CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.SpellValueOverrides.emplace_back(SPELLVALUE_DURATION, durationMs);
-        caster->CastSpell(caster, SPELL_WARRIOR_SWEEPING_STRIKES, args);
+        args.AddSpellMod(SPELLVALUE_DURATION, durationMs);
+        target->CastSpell(target, SPELL_WARRIOR_SWEEPING_STRIKES, args);
     }
 
     void Register() override
