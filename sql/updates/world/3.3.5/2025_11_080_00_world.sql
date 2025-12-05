@@ -1,7 +1,7 @@
 --
 UPDATE `creature_template` SET `speed_walk` = 1.6, `speed_run` = 2.28571, `BaseAttackTime` = 2000 WHERE `entry` = 17767;
 UPDATE `creature_template` SET `speed_walk` = 1.6, `speed_run` = 1.71429, `BaseAttackTime` = 2000 WHERE `entry` = 17808;
-UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.857143, `BaseAttackTime` = 2500, `RangeAttackTime` = 2500 WHERE `entry` = 17818;
+UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.857143, `BaseAttackTime` = 2500 WHERE `entry` = 17818;
 UPDATE `creature_template` SET `speed_walk` = 2.4, `speed_run` = 1.71429, `BaseAttackTime` = 2000 WHERE `entry` = 17888;
 UPDATE `creature_template` SET `speed_walk` = 2.4, `speed_run` = 2.14286, `BaseAttackTime` = 2000 WHERE `entry` = 17842;
 UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 0.857143 WHERE `entry` = 17864;
