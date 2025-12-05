@@ -5030,6 +5030,19 @@ void SpellMgr::LoadSpellInfoCorrections()
     //
 
     //
+    // TERRACE OF ENDLESS SPRING SPELLS
+    //
+
+    // Lightning Storm
+    ApplySpellFix({ 118077 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->ChannelInterruptFlags = SpellAuraInterruptFlags::Moving;
+    });
+
+    // END OF TERRACE OF ENDLESS SPRING SPELLS
+    //
+
+    //
     // THE WANDERING ISLE SPELLS
     //
 
