@@ -312,6 +312,34 @@ void AuraApplication::ClientUpdate(bool remove)
     _target->SendMessageToSet(update.Write(), true);
 }
 
+void AuraApplication::AddLossOfControlAuraData(std::vector<WorldPackets::Spells::LossOfControlAuraData>& lossOfControlAuraData)
+{
+    Aura* aura = GetBase();
+    for (AuraEffect const* aurEff : aura->GetAuraEffects())
+    {
+        if (!aurEff)
+            continue;
+
+        LossOfControlType locType = aurEff->GetLossOfControlType();
+        if (locType == LossOfControlType::None)
+            continue;
+
+        WorldPackets::Spells::LossOfControlAuraData locAuraData;
+        locAuraData.Duration = aura->GetDuration();
+        locAuraData.AuraSlot = GetSlot();
+        locAuraData.EffectIndex = aurEff->GetEffIndex();
+
+        if (aurEff->GetSpellEffectInfo().Mechanic != Mechanics::MECHANIC_NONE)
+            locAuraData.EffectMechanic = uint8(aurEff->GetSpellEffectInfo().Mechanic);
+        else
+            locAuraData.EffectMechanic = uint8(aura->GetSpellInfo()->Mechanic);
+
+        locAuraData.LocType = locType;
+
+        lossOfControlAuraData.push_back(locAuraData);
+    }
+}
+
 std::string AuraApplication::GetDebugInfo() const
 {
     std::stringstream sstr;
