@@ -1626,6 +1626,20 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// 382551 - Pain and Gain (heal)
+class spell_warr_pain_and_gain_heal : public SpellScript
+{
+    void CalculateHeal(SpellEffectInfo const& /*effInfo*/, Unit const* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        pctMod *= 0.1f;
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcDamageFn(spell_warr_pain_and_gain_heal::CalculateHeal);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1677,4 +1691,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_pain_and_gain_heal);
 }
