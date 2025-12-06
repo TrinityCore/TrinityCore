@@ -150,7 +150,7 @@ void WorldSession::SendLfgPlayerLockInfo()
 
     // Get player locked Dungeons
     for (auto const& lock : sLFGMgr->GetLockedDungeons(_player->GetGUID()))
-        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 0);
+        lfgPlayerInfo.BlackList.Slot.emplace_back(lock.first, lock.second.lockStatus, lock.second.requiredItemLevel, lock.second.currentItemLevel, 1);
 
     for (uint32 slot : randomDungeons)
     {
