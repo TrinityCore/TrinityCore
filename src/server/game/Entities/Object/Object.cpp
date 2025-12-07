@@ -70,7 +70,6 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
 Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
-    m_objectType        = TYPEMASK_OBJECT;
     m_updateFlag.Clear();
 
     m_entityFragments.Add(WowCS::EntityFragment::CGObject, false);

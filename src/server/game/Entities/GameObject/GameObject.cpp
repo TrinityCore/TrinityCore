@@ -835,7 +835,6 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
-    m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag.Stationary = true;

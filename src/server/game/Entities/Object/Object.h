@@ -189,6 +189,8 @@ static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
 class TC_GAME_API Object
 {
+        ObjectGuid m_guid;
+
     public:
         virtual ~Object();
 
@@ -212,7 +214,7 @@ class TC_GAME_API Object
         void ReplaceAllDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
 
         TypeID GetTypeId() const { return m_objectTypeId; }
-        bool isType(uint16 mask) const { return (mask & m_objectType) != 0; }
+        bool isType(TypeMask mask) const { return (ObjectTypeMask[m_objectTypeId] & mask) != 0; }
 
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void SendUpdateToPlayer(Player* player);
@@ -451,8 +453,6 @@ class TC_GAME_API Object
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
     protected:
-        uint16 m_objectType;
-
         TypeID m_objectTypeId;
         CreateObjectBits m_updateFlag;
         WowCS::EntityFragmentsHolder m_entityFragments;
@@ -464,7 +464,6 @@ class TC_GAME_API Object
         bool m_objectUpdated;
 
     private:
-        ObjectGuid m_guid;
         bool m_inWorld;
         bool m_isNewObject;
         bool m_isDestroyedObject;
