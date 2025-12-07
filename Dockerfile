@@ -7,9 +7,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     git clang cmake make gcc g++ libmariadb-dev libssl-dev \
     libbz2-dev libreadline-dev libncurses-dev \
-    libboost-all-dev p7zip default-libmysqlclient-dev \
+    libboost-all-dev p7zip \
     libmariadb-dev-compat gettext curl unzip \
     && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /usr/src
 
