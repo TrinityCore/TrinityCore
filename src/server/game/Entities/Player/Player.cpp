@@ -155,7 +155,6 @@ uint64 const MAX_MONEY_AMOUNT = 99999999999ULL;
 
 Player::Player(WorldSession* session) : Unit(true), m_sceneMgr(this)
 {
-    m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_Player, false);

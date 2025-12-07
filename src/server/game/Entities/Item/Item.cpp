@@ -328,7 +328,6 @@ ItemModifier const SecondaryAppearanceModifierSlotBySpec[MAX_SPECIALIZATIONS] =
 
 Item::Item()
 {
-    m_objectType |= TYPEMASK_ITEM;
     m_objectTypeId = TYPEID_ITEM;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_Item, false);
