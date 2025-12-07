@@ -1,74 +1,59 @@
-# --- Stage 1: Builder ---
-# Wir nutzen jetzt Ubuntu 24.04, da dies CMake 3.28 enthält (Trinity braucht 3.24+)
-FROM ubuntu:24.04 AS builder
+name: Docker Build and Push
 
-ENV DEBIAN_FRONTEND=noninteractive
+on:
+  push:
+    branches: [ "master" ]
+  workflow_dispatch:
 
-# Abhängigkeiten für Ubuntu 24.04
-# libmariadb-dev-compat wird genutzt, default-libmysqlclient-dev ist entfernt
-RUN apt-get update && apt-get install -y \
-    git clang cmake make gcc g++ libmariadb-dev libssl-dev \
-    libbz2-dev libreadline-dev libncurses-dev \
-    libboost-all-dev p7zip \
-    libmariadb-dev-compat gettext curl unzip \
-    && rm -rf /var/lib/apt/lists/*
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
-WORKDIR /usr/src
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-# TrinityCore Master klonen
-RUN git clone -b master --depth 1 https://github.com/TrinityCore/TrinityCore.git
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-WORKDIR /usr/src/TrinityCore/build
+      # WICHTIG: Swap erstellen für RAM
+      - name: Create Swap Space
+        run: |
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
 
-# CMake konfigurieren
-RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
-    -DWITH_WARNINGS=0 \
-    -DTOOLS=1 \
-    -DSCRIPTS=static
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-# Kompilieren (GitHub Action regelt die Kerne, sonst nproc)
-RUN make -j$(nproc) && make install
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,format=long
 
-# SQL Dateien sichern
-RUN cp -r /usr/src/TrinityCore/sql /opt/trinitycore/sql
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-
-# --- Stage 2: Runtime ---
-FROM ubuntu:24.04
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Laufzeit-Abhängigkeiten für Ubuntu 24.04 (angepasste Paketnamen!)
-# Beachte: libssl3t64 und Boost 1.83.0 sind spezifisch für Ubuntu 24.04
-RUN apt-get update && apt-get install -y \
-    libmariadb3 \
-    libssl3t64 \
-    libboost-system1.83.0 \
-    libboost-filesystem1.83.0 \
-    libboost-thread1.83.0 \
-    libboost-program-options1.83.0 \
-    libboost-iostreams1.83.0 \
-    libreadline8t64 \
-    libncurses6 \
-    netcat-openbsd iputils-ping \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /opt/trinitycore
-
-# Kopiere die kompilierten Dateien
-COPY --from=builder /opt/trinitycore /opt/trinitycore
-
-# Kopiere Script
-COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# User anlegen
-RUN groupadd -r trinity && useradd -r -g trinity trinity
-RUN chown -R trinity:trinity /opt/trinitycore
-
-# Ports
-EXPOSE 3724 8085
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
