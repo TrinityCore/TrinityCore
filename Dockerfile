@@ -1,16 +1,15 @@
 # --- Stage 1: Builder ---
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Abhängigkeiten installieren
+# Abhängigkeiten installieren (Ubuntu 24.04)
 RUN apt-get update && apt-get install -y \
     git clang cmake make gcc g++ libmariadb-dev libssl-dev \
     libbz2-dev libreadline-dev libncurses-dev \
     libboost-all-dev p7zip \
     libmariadb-dev-compat gettext curl unzip \
     && rm -rf /var/lib/apt/lists/*
-
 
 WORKDIR /usr/src
 
@@ -27,32 +26,40 @@ RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
     -DTOOLS=1 \
     -DSCRIPTS=static
 
-# Kompilieren (nutzt nproc, GitHub Action regelt RAM via Swap)
+# Kompilieren
 RUN make -j$(nproc) && make install
 
 # SQL Dateien sichern
 RUN cp -r /usr/src/TrinityCore/sql /opt/trinitycore/sql
 
+
 # --- Stage 2: Runtime ---
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Laufzeit-Abhängigkeiten (Ubuntu 24.04)
 RUN apt-get update && apt-get install -y \
-    libmariadb3 libssl3 libboost-system1.74.0 \
-    libboost-filesystem1.74.0 libboost-thread1.74.0 libboost-program-options1.74.0 \
-    libboost-iostreams1.74.0 libreadline8 libncurses6 \
-    netcat iputils-ping \
+    libmariadb3 \
+    libssl3t64 \
+    libboost-system1.83.0 \
+    libboost-filesystem1.83.0 \
+    libboost-thread1.83.0 \
+    libboost-program-options1.83.0 \
+    libboost-iostreams1.83.0 \
+    libreadline8t64 \
+    libncurses6 \
+    netcat-openbsd iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/trinitycore
 
+# Kopiere Dateien
 COPY --from=builder /opt/trinitycore /opt/trinitycore
-
-# Hier kopieren wir das Skript aus dem Ordner "scripts"
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# User & Permissions
 RUN groupadd -r trinity && useradd -r -g trinity trinity
 RUN chown -R trinity:trinity /opt/trinitycore
 
