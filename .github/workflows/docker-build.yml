@@ -20,7 +20,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # WICHTIG: Swap erstellen für RAM
+      # NEU: Platz schaffen! Löscht unnötige vorinstallierte Tools (~20GB Gewinn)
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space-action@v1.3.1
+        with:
+          # Wir brauchen keine Android/Dotnet Sachen, weg damit
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: false # Wir erstellen unseren eigenen Swap gleich
+
+      # Swap erstellen für RAM (wie vorher, aber jetzt haben wir Platz dafür)
       - name: Create Swap Space
         run: |
           sudo fallocate -l 4G /swapfile
