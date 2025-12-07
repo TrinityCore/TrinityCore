@@ -34,7 +34,6 @@
 
 Conversation::Conversation() : WorldObject(false), _duration(0), _textureKitId(0)
 {
-    m_objectType |= TYPEMASK_CONVERSATION;
     m_objectTypeId = TYPEID_CONVERSATION;
 
     m_updateFlag.Stationary = true;

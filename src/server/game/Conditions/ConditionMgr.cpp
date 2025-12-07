@@ -449,7 +449,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TYPE_MASK:
         {
-            condMeets = object->isType(ConditionValue1);
+            condMeets = object->isType(TypeMask(ConditionValue1));
             break;
         }
         case CONDITION_RELATION_TO:
