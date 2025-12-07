@@ -1,0 +1,48 @@
+name: Mirror TDB Release
+
+on:
+  workflow_dispatch: # Manuell startbar
+  schedule:
+    - cron: '0 0 * * 0' # Einmal pro Woche (Sonntags) prüfen
+
+jobs:
+  mirror-tdb:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wichtig, um Releases zu erstellen
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get install -y jq curl
+
+      - name: Find and Download latest TDB
+        id: download
+        run: |
+          # 1. Hole die URL des neuesten Releases von TrinityCore
+          LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/TrinityCore/TrinityCore/releases/latest | jq -r '.assets[] | select(.name | contains("TDB_full_world")) | .browser_download_url')
+          FILE_NAME=$(basename "$LATEST_RELEASE_URL")
+          
+          echo "Gefundene TDB: $FILE_NAME"
+          echo "Download URL: $LATEST_RELEASE_URL"
+          
+          # 2. Herunterladen
+          curl -L -o "$FILE_NAME" "$LATEST_RELEASE_URL"
+          
+          # 3. Variablen für den nächsten Schritt setzen
+          echo "file_path=$FILE_NAME" >> $GITHUB_OUTPUT
+          echo "tag_name=$(date +'%Y-%m-%d')-TDB" >> $GITHUB_OUTPUT
+
+      - name: Create Release in my Repo
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.download.outputs.tag_name }}
+          name: TDB Mirror ${{ steps.download.outputs.tag_name }}
+          body: |
+            Automatischer Mirror der offiziellen TrinityCore TDB.
+            Originalquelle: https://github.com/TrinityCore/TrinityCore/releases
+          files: ${{ steps.download.outputs.file_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
