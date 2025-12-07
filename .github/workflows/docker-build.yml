@@ -1,0 +1,69 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ "master" ]
+    # Optional: Build auch bei Tags auslösen
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch: # Erlaubt manuellen Start via Button
+
+env:
+  # Nutzt GitHub Container Registry
+  REGISTRY: ghcr.io
+  # Bildname ist standardmäßig repository-name
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # WICHTIG: Swap erstellen, da TrinityCore Compile viel RAM braucht
+      # Free Runners haben nur ~7GB RAM, das reicht oft nicht zum Linken.
+      - name: Create Swap Space
+        run: |
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          sudo swapon --show
+
+      # Docker Login bei GitHub Container Registry
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Docker Metadaten extrahieren (Tags, Labels)
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,format=long
+
+      # Setup Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build und Push
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Caching nutzen, um zukünftige Builds zu beschleunigen
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
