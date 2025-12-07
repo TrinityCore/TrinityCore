@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mariadb:10.11
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: trinity
+    volumes:
+      - ./database:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  authserver:
+    # Hier ist jetzt dein exakter Pfad (alles kleingeschrieben!)
+    image: ghcr.io/magidraconis/trinitycore:master
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./server:/opt/trinitycore/etc
+    command: auth
+    ports:
+      - "3724:3724"
+
+  worldserver:
+    # Hier ist jetzt dein exakter Pfad (alles kleingeschrieben!)
+    image: ghcr.io/magidraconis/trinitycore:master
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./server:/opt/trinitycore/etc
+      - ./data:/opt/trinitycore/data
+    command: world
+    ports:
+      - "8085:8085"
+    stdin_open: true
+    tty: true
