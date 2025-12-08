@@ -1,11 +1,11 @@
 name: Build Windows Tools Only
 
 on:
-  workflow_dispatch: # Manually trigger via GitHub Actions Tab
+  workflow_dispatch:
   push:
     branches: [ "master" ]
     paths:
-      - 'src/tools/**' # Only run if tools code changes
+      - 'src/tools/**'
       - '.github/workflows/windows-tools.yml'
 
 jobs:
@@ -17,17 +17,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Comment: Install OpenSSL dependency via Chocolatey (Windows package manager)
-      # We need this to link the binaries correctly during the build process
+      # Comment: Install OpenSSL dependency via Chocolatey
       - name: Install Dependencies
         run: |
           choco install openssl --version 1.1.1.2100 -y --no-progress
-          
+      
+      # Comment: Find the pre-installed Boost version on the GitHub Runner.
+      # GitHub stores it in variables like BOOST_ROOT_1_83_0, but CMake needs BOOST_ROOT.
+      - name: Set Boost Environment
+        shell: pwsh
+        run: |
+          $boostVar = Get-ChildItem env: | Where-Object { $_.Name -match '^BOOST_ROOT_\d+_\d+_\d+$' } | Sort-Object Name -Descending | Select-Object -First 1
+          if ($boostVar) {
+              Write-Host "Found pre-installed Boost: $($boostVar.Name) at $($boostVar.Value)"
+              echo "BOOST_ROOT=$($boostVar.Value)" >> $env:GITHUB_ENV
+          } else {
+              Write-Error "No Boost installation found on this runner!"
+              exit 1
+          }
+
       - name: Configure CMake
         shell: cmd
-        # Comment: Configure the build explicitly for tools only.
-        # We disable SERVERS and SCRIPTS to optimise build time significantly.
-        # Pointing CMake to the OpenSSL installation directory is strictly required on Windows.
+        # Comment: Configure CMake explicitly.
+        # We pass -DBOOST_ROOT using the variable we found in the previous step.
         run: |
           mkdir build
           cd build
@@ -38,21 +50,20 @@ jobs:
             -DSERVERS=0 ^
             -DSCRIPTS=0 ^
             -DWITH_WARNINGS=0 ^
+            -DBOOST_ROOT="%BOOST_ROOT%" ^
             -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL-Win64" ^
             -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL-Win64/include"
 
       - name: Build Tools
         shell: cmd
-        # Comment: Build the specific targets in Release mode.
-        # This step will generate the .exe files for extraction.
+        # Comment: Build the tools in Release mode
         run: |
           cd build
           cmake --build . --config Release --target mapextractor vmap4extractor vmap4assembler mmaps_generator --parallel 4
 
       - name: Package Tools
         shell: cmd
-        # Comment: Organise the binaries and required DLLs into a clean folder.
-        # This ensures the end-user can simply run the tools without missing library errors.
+        # Comment: Copy the binaries and the required DLLs into one folder
         run: |
           mkdir TrinityTools
           
@@ -68,7 +79,6 @@ jobs:
           
           echo Tools packaged successfully.
 
-      # Comment: Upload the packaged folder as a downloadable artefact.
       - name: Upload Tools Artifact
         uses: actions/upload-artifact@v4
         with:
