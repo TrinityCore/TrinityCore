@@ -1,25 +1,18 @@
-name: Windows Tools Only
+name: Windows x64
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "master" ]
-    paths:
-      - 'src/tools/**'
-      - '.github/workflows/windows-tools.yml'
+  pull_request:
 
 jobs:
   build:
-    # Use the latest Windows runner
     runs-on: windows-latest
     env:
-      # We use Release mode for smaller, faster binaries
-      CMAKE_BUILD_TYPE: Release
+      CMAKE_BUILD_TYPE: RelWithDebInfo
       MYSQL_ROOT_DIR: C:/Program Files/MySQL/MySQL Server 8.0
       OPENSSL_ROOT_DIR: C:/libs/openssl
-    
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set reusable strings
       id: strings
@@ -27,7 +20,6 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    # --- OpenSSL Handling (Smart Script from your snippet) ---
     - name: Get current OpenSSL version
       id: openssl-info
       run: |
@@ -54,13 +46,15 @@ jobs:
         path: ${{ env.OPENSSL_ROOT_DIR }}
         key: ${{ steps.openssl-info.outputs.cache-key }}
 
-    - name: Download and install OpenSSL
+    - name: Download and install Openssl 3.x
       if: ${{ steps.cache-openssl.outputs.cache-hit != 'true' }}
       run: |
         (New-Object System.Net.WebClient).DownloadFile("${{ steps.openssl-info.outputs.url }}", "${{ env.TEMP }}\openssl.exe")
         Start-Process -Wait -FilePath "${{ env.TEMP }}\openssl.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES",/DIR=${{ env.OPENSSL_ROOT_DIR }}
 
-    # --- Boost Handling (Reliable Action) ---
+        # Quick Openssl install test
+        & ${{ env.OPENSSL_ROOT_DIR }}/bin/openssl.exe version
+
     - name: Download and install Boost
       uses: MarkusJx/install-boost@v2
       id: install-boost
@@ -70,34 +64,40 @@ jobs:
         platform_version: 2022
         toolset: msvc
 
-    # --- Environment Setup ---
     - name: Initialize Visual Studio Environment
       uses: egor-tensin/vs-shell@v2
       with:
         arch: x64
 
-    # --- Configure & Build ---
     - name: Configure CMake
       env:
         BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-      # Comment: Configuration adapted to build ONLY tools (-DTOOLS=1, -DSERVERS=0)
       run: >
-        cmake -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
-        -G "Visual Studio 17 2022" -A x64
-        -DTOOLS=1
-        -DSERVERS=0
-        -DSCRIPTS=0
-        -DWITH_WARNINGS=0
-        -DOPENSSL_ROOT_DIR="${{ env.OPENSSL_ROOT_DIR }}"
-        -DMYSQL_INCLUDE_DIR="${{ env.MYSQL_ROOT_DIR }}/include"
-        -DMYSQL_LIBRARY="${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.lib"
+        cmake -GNinja -S ${{ github.workspace }} -B ${{ steps.strings.outputs.build-output-dir }}
+        -DWITH_WARNINGS_AS_ERRORS=ON -DTOOLS=ON
 
-    - name: Build Tools
-      # Comment: Explicitly target the extractors to save time
+    - name: Build
       run: |
-        cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ env.CMAKE_BUILD_TYPE }} --target mapextractor vmap4extractor vmap4assembler mmaps_generator --parallel 4
+        cmake --build ${{ steps.strings.outputs.build-output-dir }}
 
-    # --- Packaging ---
-    - name: Package Tools
-      shell: pwsh
+    - name: Copy Dependencies
       run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
+        copy "${{ env.MYSQL_ROOT_DIR }}/lib/libmysql.dll" libmysql.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libssl-3-x64.dll" libssl-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/libcrypto-3-x64.dll" libcrypto-3-x64.dll
+        copy "${{ env.OPENSSL_ROOT_DIR }}/bin/legacy.dll" legacy.dll
+      
+    - name: Check binaries
+      run: |
+        cd ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
+        ./bnetserver --version
+        ./worldserver --version
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        path: ${{ steps.strings.outputs.build-output-dir }}/bin/${{ env.CMAKE_BUILD_TYPE }}
+        name: TrinityCoreMasterWin64VS2022
+        # Set a custom retention for artifacts
+        #retention-days: 7
