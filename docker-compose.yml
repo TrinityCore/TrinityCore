@@ -15,7 +15,7 @@ services:
       retries: 5
 
   authserver:
-    image: ghcr.io/dein-user/dein-repo:master
+    image: ghcr.io/MagiDraconis/TrinityCore:master
     restart: unless-stopped
     depends_on:
       db:
@@ -30,7 +30,7 @@ services:
       - "3724:3724"
 
   worldserver:
-    image: ghcr.io/dein-user/dein-repo:master
+    image: ghcr.io/MagiDraconis/TrinityCore:master
     restart: unless-stopped
     depends_on:
       db:
