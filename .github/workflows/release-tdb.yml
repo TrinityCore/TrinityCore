@@ -1,15 +1,15 @@
 name: Mirror TDB Release
 
 on:
-  workflow_dispatch: # Manuell startbar
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0' # Einmal pro Woche (Sonntags) prüfen
+    - cron: '0 0 * * 0'
 
 jobs:
   mirror-tdb:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Wichtig, um Releases zu erstellen
+      contents: write
     
     steps:
       - name: Checkout
@@ -20,18 +20,34 @@ jobs:
 
       - name: Find and Download latest TDB
         id: download
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1. Hole die URL des neuesten Releases von TrinityCore
-          LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/TrinityCore/TrinityCore/releases/latest | jq -r '.assets[] | select(.name | contains("TDB_full_world")) | .browser_download_url')
+          echo "Hole Release-Info von TrinityCore..."
+          
+          # 1. API Abfrage mit Token (verhindert Rate-Limits)
+          API_RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/TrinityCore/TrinityCore/releases/latest)
+          
+          # 2. URL extrahieren - Filter angepasst auf "TDB_full_"
+          # head -n 1 sorgt dafür, dass wir nur eine URL bekommen, falls mehrere passen
+          LATEST_RELEASE_URL=$(echo "$API_RESPONSE" | jq -r '.assets[] | select(.name | contains("TDB_full_")) | .browser_download_url' | head -n 1)
+          
+          # 3. Prüfung ob URL gefunden wurde
+          if [ -z "$LATEST_RELEASE_URL" ] || [ "$LATEST_RELEASE_URL" == "null" ]; then
+            echo "Fehler: Keine TDB Download URL gefunden."
+            echo "Geprüfter Suchbegriff: 'TDB_full_'"
+            exit 1
+          fi
+
           FILE_NAME=$(basename "$LATEST_RELEASE_URL")
           
           echo "Gefundene TDB: $FILE_NAME"
           echo "Download URL: $LATEST_RELEASE_URL"
           
-          # 2. Herunterladen
+          # 4. Herunterladen
           curl -L -o "$FILE_NAME" "$LATEST_RELEASE_URL"
           
-          # 3. Variablen für den nächsten Schritt setzen
+          # 5. Variablen für den nächsten Schritt
           echo "file_path=$FILE_NAME" >> $GITHUB_OUTPUT
           echo "tag_name=$(date +'%Y-%m-%d')-TDB" >> $GITHUB_OUTPUT
 
@@ -42,6 +58,7 @@ jobs:
           name: TDB Mirror ${{ steps.download.outputs.tag_name }}
           body: |
             Automatischer Mirror der offiziellen TrinityCore TDB.
+            Datei: ${{ steps.download.outputs.file_path }}
             Originalquelle: https://github.com/TrinityCore/TrinityCore/releases
           files: ${{ steps.download.outputs.file_path }}
         env:
