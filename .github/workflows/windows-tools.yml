@@ -17,29 +17,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Comment: Install OpenSSL dependency via Chocolatey
+      # Comment: Install OpenSSL and Boost explicitly using Chocolatey.
+      # This guarantees we know exactly where they are installed.
+      # boost-msvc-14.3 matches Visual Studio 2022 (v143).
       - name: Install Dependencies
         run: |
           choco install openssl --version 1.1.1.2100 -y --no-progress
+          choco install boost-msvc-14.3 -y --no-progress
       
-      # Comment: Find the pre-installed Boost version on the GitHub Runner.
-      # GitHub stores it in variables like BOOST_ROOT_1_83_0, but CMake needs BOOST_ROOT.
-      - name: Set Boost Environment
-        shell: pwsh
-        run: |
-          $boostVar = Get-ChildItem env: | Where-Object { $_.Name -match '^BOOST_ROOT_\d+_\d+_\d+$' } | Sort-Object Name -Descending | Select-Object -First 1
-          if ($boostVar) {
-              Write-Host "Found pre-installed Boost: $($boostVar.Name) at $($boostVar.Value)"
-              echo "BOOST_ROOT=$($boostVar.Value)" >> $env:GITHUB_ENV
-          } else {
-              Write-Error "No Boost installation found on this runner!"
-              exit 1
-          }
-
       - name: Configure CMake
         shell: cmd
-        # Comment: Configure CMake explicitly.
-        # We pass -DBOOST_ROOT using the variable we found in the previous step.
+        # Comment: Configure CMake with fixed paths.
+        # Chocolatey installs OpenSSL to C:/Program Files/OpenSSL
+        # Chocolatey installs Boost to C:/local/boost_<version> usually, but we let CMake find it now that it's standard.
         run: |
           mkdir build
           cd build
@@ -50,9 +40,8 @@ jobs:
             -DSERVERS=0 ^
             -DSCRIPTS=0 ^
             -DWITH_WARNINGS=0 ^
-            -DBOOST_ROOT="%BOOST_ROOT%" ^
-            -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL-Win64" ^
-            -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL-Win64/include"
+            -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL" ^
+            -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL/include"
 
       - name: Build Tools
         shell: cmd
@@ -63,7 +52,8 @@ jobs:
 
       - name: Package Tools
         shell: cmd
-        # Comment: Copy the binaries and the required DLLs into one folder
+        # Comment: Package binaries and DLLs.
+        # Note: OpenSSL path updated to C:\Program Files\OpenSSL
         run: |
           mkdir TrinityTools
           
@@ -74,9 +64,14 @@ jobs:
           copy build\bin\Release\mmaps_generator.exe TrinityTools\
           
           echo Copying OpenSSL DLLs...
-          copy "C:\Program Files\OpenSSL-Win64\bin\libcrypto-1_1-x64.dll" TrinityTools\
-          copy "C:\Program Files\OpenSSL-Win64\bin\libssl-1_1-x64.dll" TrinityTools\
-          
+          if exist "C:\Program Files\OpenSSL\bin\libcrypto-1_1-x64.dll" (
+              copy "C:\Program Files\OpenSSL\bin\libcrypto-1_1-x64.dll" TrinityTools\
+              copy "C:\Program Files\OpenSSL\bin\libssl-1_1-x64.dll" TrinityTools\
+          ) else (
+              echo WARNING: OpenSSL DLLs not found in expected path. Listing bin dir:
+              dir "C:\Program Files\OpenSSL\bin"
+          )
+
           echo Tools packaged successfully.
 
       - name: Upload Tools Artifact
