@@ -1,0 +1,78 @@
+name: Build Windows Tools Only
+
+on:
+  workflow_dispatch: # Manually trigger via GitHub Actions Tab
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'src/tools/**' # Only run if tools code changes
+      - '.github/workflows/windows-tools.yml'
+
+jobs:
+  build-tools:
+    name: Build Tools (Windows)
+    runs-on: windows-2022
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Comment: Install OpenSSL dependency via Chocolatey (Windows package manager)
+      # We need this to link the binaries correctly during the build process
+      - name: Install Dependencies
+        run: |
+          choco install openssl --version 1.1.1.2100 -y --no-progress
+          
+      - name: Configure CMake
+        shell: cmd
+        # Comment: Configure the build explicitly for tools only.
+        # We disable SERVERS and SCRIPTS to optimise build time significantly.
+        # Pointing CMake to the OpenSSL installation directory is strictly required on Windows.
+        run: |
+          mkdir build
+          cd build
+          cmake ../ ^
+            -G "Visual Studio 17 2022" ^
+            -A x64 ^
+            -DTOOLS=1 ^
+            -DSERVERS=0 ^
+            -DSCRIPTS=0 ^
+            -DWITH_WARNINGS=0 ^
+            -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL-Win64" ^
+            -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL-Win64/include"
+
+      - name: Build Tools
+        shell: cmd
+        # Comment: Build the specific targets in Release mode.
+        # This step will generate the .exe files for extraction.
+        run: |
+          cd build
+          cmake --build . --config Release --target mapextractor vmap4extractor vmap4assembler mmaps_generator --parallel 4
+
+      - name: Package Tools
+        shell: cmd
+        # Comment: Organise the binaries and required DLLs into a clean folder.
+        # This ensures the end-user can simply run the tools without missing library errors.
+        run: |
+          mkdir TrinityTools
+          
+          echo Copying executables...
+          copy build\bin\Release\mapextractor.exe TrinityTools\
+          copy build\bin\Release\vmap4extractor.exe TrinityTools\
+          copy build\bin\Release\vmap4assembler.exe TrinityTools\
+          copy build\bin\Release\mmaps_generator.exe TrinityTools\
+          
+          echo Copying OpenSSL DLLs...
+          copy "C:\Program Files\OpenSSL-Win64\bin\libcrypto-1_1-x64.dll" TrinityTools\
+          copy "C:\Program Files\OpenSSL-Win64\bin\libssl-1_1-x64.dll" TrinityTools\
+          
+          echo Tools packaged successfully.
+
+      # Comment: Upload the packaged folder as a downloadable artefact.
+      - name: Upload Tools Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrinityCore-Windows-Tools
+          path: TrinityTools
+          compression-level: 9
+          retention-days: 5
