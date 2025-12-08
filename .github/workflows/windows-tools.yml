@@ -17,62 +17,85 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Comment: Install OpenSSL and Boost explicitly using Chocolatey.
-      # This guarantees we know exactly where they are installed.
-      # boost-msvc-14.3 matches Visual Studio 2022 (v143).
+      # Comment: Install dependencies adhering to TrinityCore Windows Requirements.
+      # We use Chocolatey to fetch the exact libraries needed for Visual Studio 2022.
       - name: Install Dependencies
+        shell: pwsh
         run: |
+          # Install OpenSSL (Lightweight)
+          Write-Host "Installing OpenSSL..."
           choco install openssl --version 1.1.1.2100 -y --no-progress
+          
+          # Install MySQL (Required for Common linking, even if Tools don't use DB directly)
+          Write-Host "Installing MySQL..."
+          choco install mysql --version 8.0.28 -y --no-progress
+
+          # Install Boost for MSVC 14.3 (VS2022)
+          # This installs to C:\local\boost_1_83_0 (or similar)
+          Write-Host "Installing Boost..."
           choco install boost-msvc-14.3 -y --no-progress
-      
+
       - name: Configure CMake
-        shell: cmd
-        # Comment: Configure CMake with fixed paths.
-        # Chocolatey installs OpenSSL to C:/Program Files/OpenSSL
-        # Chocolatey installs Boost to C:/local/boost_<version> usually, but we let CMake find it now that it's standard.
+        shell: pwsh
+        # Comment: We dynamically find the installation paths to ensure CMake does not fail.
+        # This aligns with the manual setup described in the docs, but automated.
         run: |
-          mkdir build
-          cd build
-          cmake ../ ^
-            -G "Visual Studio 17 2022" ^
-            -A x64 ^
-            -DTOOLS=1 ^
-            -DSERVERS=0 ^
-            -DSCRIPTS=0 ^
-            -DWITH_WARNINGS=0 ^
-            -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL" ^
-            -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL/include"
+          # Find the Boost directory in C:\local (standard Chocolatey install path)
+          $boostPath = Get-ChildItem -Path "C:\local" -Filter "boost_*" | Select-Object -ExpandProperty FullName | Select-Object -First 1
+          if (-not $boostPath) { Write-Error "Boost not found in C:\local"; exit 1 }
+          Write-Host "Boost found at: $boostPath"
+
+          # Create build directory
+          New-Item -ItemType Directory -Force -Path "build" | Out-Null
+          Set-Location build
+
+          # Configure CMake with explicit paths
+          cmake ../ `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DTOOLS=1 `
+            -DSERVERS=0 `
+            -DSCRIPTS=0 `
+            -DWITH_WARNINGS=0 `
+            -DBOOST_ROOT="$boostPath" `
+            -DOPENSSL_ROOT_DIR="C:/Program Files/OpenSSL" `
+            -DOPENSSL_INCLUDE_DIR="C:/Program Files/OpenSSL/include" `
+            -DMYSQL_INCLUDE_DIR="C:/Program Files/MySQL/MySQL Server 8.0/include" `
+            -DMYSQL_LIBRARY="C:/Program Files/MySQL/MySQL Server 8.0/lib/libmysql.lib"
 
       - name: Build Tools
         shell: cmd
-        # Comment: Build the tools in Release mode
+        # Comment: Compile the specific tool targets in Release mode.
         run: |
           cd build
           cmake --build . --config Release --target mapextractor vmap4extractor vmap4assembler mmaps_generator --parallel 4
 
       - name: Package Tools
-        shell: cmd
-        # Comment: Package binaries and DLLs.
-        # Note: OpenSSL path updated to C:\Program Files\OpenSSL
+        shell: pwsh
+        # Comment: Gather all necessary binaries and DLLs into a distribution folder.
+        # This ensures the user does not need to install OpenSSL/MySQL locally to run the tools.
         run: |
-          mkdir TrinityTools
+          New-Item -ItemType Directory -Force -Path "TrinityTools" | Out-Null
           
-          echo Copying executables...
-          copy build\bin\Release\mapextractor.exe TrinityTools\
-          copy build\bin\Release\vmap4extractor.exe TrinityTools\
-          copy build\bin\Release\vmap4assembler.exe TrinityTools\
-          copy build\bin\Release\mmaps_generator.exe TrinityTools\
+          $buildBin = "build\bin\Release"
           
-          echo Copying OpenSSL DLLs...
-          if exist "C:\Program Files\OpenSSL\bin\libcrypto-1_1-x64.dll" (
-              copy "C:\Program Files\OpenSSL\bin\libcrypto-1_1-x64.dll" TrinityTools\
-              copy "C:\Program Files\OpenSSL\bin\libssl-1_1-x64.dll" TrinityTools\
-          ) else (
-              echo WARNING: OpenSSL DLLs not found in expected path. Listing bin dir:
-              dir "C:\Program Files\OpenSSL\bin"
-          )
+          Write-Host "Copying Executables..."
+          Copy-Item "$buildBin\mapextractor.exe" -Destination "TrinityTools"
+          Copy-Item "$buildBin\vmap4extractor.exe" -Destination "TrinityTools"
+          Copy-Item "$buildBin\vmap4assembler.exe" -Destination "TrinityTools"
+          Copy-Item "$buildBin\mmaps_generator.exe" -Destination "TrinityTools"
+          
+          Write-Host "Copying Required DLLs..."
+          # OpenSSL DLLs
+          Copy-Item "C:\Program Files\OpenSSL\bin\libcrypto-1_1-x64.dll" -Destination "TrinityTools"
+          Copy-Item "C:\Program Files\OpenSSL\bin\libssl-1_1-x64.dll" -Destination "TrinityTools"
+          
+          # MySQL DLL (Often required by Common.lib)
+          if (Test-Path "C:\Program Files\MySQL\MySQL Server 8.0\lib\libmysql.dll") {
+              Copy-Item "C:\Program Files\MySQL\MySQL Server 8.0\lib\libmysql.dll" -Destination "TrinityTools"
+          }
 
-          echo Tools packaged successfully.
+          Write-Host "Tools packaged successfully."
 
       - name: Upload Tools Artifact
         uses: actions/upload-artifact@v4
