@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "Map.h"
 #include "molten_core.h"
 #include "Player.h"
 #include "ScriptedCreature.h"

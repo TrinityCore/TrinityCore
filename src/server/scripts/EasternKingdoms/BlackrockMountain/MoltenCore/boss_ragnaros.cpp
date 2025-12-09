@@ -194,6 +194,7 @@ struct boss_ragnaros : public BossAI
             case SPELL_WRATH_OF_RAGNAROS:
                 Talk(SAY_WRATH);
                 ResetThreatList();
+                break;
             default:
                 break;
         }
