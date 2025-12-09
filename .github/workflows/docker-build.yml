@@ -1,4 +1,4 @@
-name: Docker Build Multi-Arch
+name: Docker Build and Push
 
 on:
   push:
@@ -20,10 +20,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Free Disk Space
-      # Comment: Clearing disk space is critical. Building for two architectures (amd64/arm64)
-      # creates massive temporary build artifacts that can fill up the runner.
-      - name: Free Disk Space
+      # 1. Free Disk Space (Manual)
+      # Comment: Essential for Multi-Arch builds to prevent disk space exhaustion
+      - name: Free Disk Space (Manual)
         run: |
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /usr/share/dotnet
@@ -32,28 +31,23 @@ jobs:
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
           df -h
 
-      # 2. Maximize Swap Space
-      # Comment: QEMU emulation for ARM64 adds significant memory overhead during linking.
-      # We use 7GB swap to prevent the linker from being killed by the OOM killer.
+      # 2. Create Swap Space
+      # Comment: QEMU requires RAM overhead. Increased to 6GB as per your working config.
       - name: Create Swap Space
         run: |
-          sudo fallocate -l 7G /swapfile
+          sudo fallocate -l 6G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
           sudo swapon --show
 
-      # 3. Set up QEMU
-      # Comment: This action installs the QEMU emulators required to build ARM64 images on an AMD64 runner.
+      # 3. Set up QEMU (for ARM64 Support)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       # 4. Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          # Comment: Optimize garbage collection to keep disk usage in check
-          buildkitd-flags: --debug
 
       - name: Log into registry ${{ env.REGISTRY }}
         uses: docker/login-action@v3
@@ -62,26 +56,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Extract Metadata (Tags)
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # Comment: Configure tagging behaviour:
-          # - type=ref,event=branch: Creates a tag for the branch (e.g. :master)
-          # - type=raw,value=latest: Automatically adds :latest if this is the default branch
+          # Comment: Updated Tagging Logic:
+          # - v1.0.RUN_NUMBER (auto-incrementing version)
+          # - latest (automatically updated on default branch)
           tags: |
-            type=ref,event=branch
+            type=raw,value=v1.0.${{ github.run_number }}
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # 6. Build and Push
+      # 5. Build and Push
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Comment: Build targets for both standard servers (AMD64) and ARM devices (RPi/Apple Silicon).
-          # Warning: The ARM64 build via QEMU is very slow.
+          # Comment: Building for both architectures as requested
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
