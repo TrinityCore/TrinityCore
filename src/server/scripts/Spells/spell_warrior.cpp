@@ -108,7 +108,13 @@ enum WarriorSpells
     SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
-    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
+    SPELL_WARRIOR_SEISMIC_REVERBERATION             = 382956,
+    SPELL_WARRIOR_WHIRLWIND_ARMS_DAMAGE             = 385228,
+    SPELL_WARRIOR_WHIRLWIND_FURY_DAMAGE             = 385233,
+    SPELL_WARRIOR_WHIRLWIND_OFFHAND_DAMAGE          = 385234,
+    SPELL_WARRIOR_CLEAVE_DAMAGE                     = 458459,
+    SPELL_WARRIOR_REVENGE_DAMAGE                    = 1215174
 };
 
 enum WarriorMisc
@@ -1626,6 +1632,182 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
+// 845 - Cleave
+// 382956 - Seismic Reverbation
+class spell_warr_cleave_seismic_reverberation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_CLEAVE_DAMAGE, SPELL_WARRIOR_SEISMIC_REVERBERATION });
+    }
+
+    void HandleExtraHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_SEISMIC_REVERBERATION))
+            return;
+
+        int32 minTargets = 3;
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < minTargets)
+            return;
+
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_CLEAVE_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_cleave_seismic_reverberation::HandleExtraHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 1680 - Whirlwind
+// 199658 - Whirlwind triggered spell
+// 382956 - Seismic Reverbation
+class spell_warr_whirlwind_1680_seismic_reverberation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_WHIRLWIND_ARMS_DAMAGE, SPELL_WARRIOR_SEISMIC_REVERBERATION });
+    }
+
+    void HandleExtraHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_SEISMIC_REVERBERATION))
+            return;
+
+        int32 minTargets = 3;
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < minTargets)
+            return;
+
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_WHIRLWIND_ARMS_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_whirlwind_1680_seismic_reverberation::HandleExtraHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 190411 - Whirlwind
+// 382956 - Seismic Reverberation
+class spell_warr_whirlwind_190411_seismic_reverberation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_WHIRLWIND_FURY_DAMAGE, SPELL_WARRIOR_SEISMIC_REVERBERATION });
+    }
+
+    void HandleExtraHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_SEISMIC_REVERBERATION))
+            return;
+
+        constexpr int32 minTargets = 3;
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < minTargets)
+            return;
+
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_WHIRLWIND_FURY_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_whirlwind_190411_seismic_reverberation::HandleExtraHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 190411 - Whirlwind
+// 382956 - Seismic Reverberation
+class spell_warr_whirlwind_190411_offhand_seismic_reverberation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_WHIRLWIND_OFFHAND_DAMAGE, SPELL_WARRIOR_SEISMIC_REVERBERATION });
+    }
+
+    void HandleExtraHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_SEISMIC_REVERBERATION))
+            return;
+
+        constexpr int32 minTargets = 3;
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < minTargets)
+            return;
+
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        };
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_WHIRLWIND_OFFHAND_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_whirlwind_190411_offhand_seismic_reverberation::HandleExtraHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+// 6572 - Revenge
+// 382956 - Seismic Reverberation
+class spell_warr_revenge_seismic_reverberation : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_REVENGE_DAMAGE, SPELL_WARRIOR_SEISMIC_REVERBERATION });
+    }
+
+    void HandleExtraHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_SEISMIC_REVERBERATION))
+            return;
+
+        constexpr int32 minTargets = 3;
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < minTargets)
+            return;
+
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_POWER_COST,
+            .TriggeringSpell = GetSpell()
+        };
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_REVENGE_DAMAGE, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_revenge_seismic_reverberation::HandleExtraHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1677,4 +1859,9 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_cleave_seismic_reverberation);
+    RegisterSpellScript(spell_warr_whirlwind_1680_seismic_reverberation);
+    RegisterSpellScript(spell_warr_whirlwind_190411_seismic_reverberation);
+    RegisterSpellScript(spell_warr_whirlwind_190411_offhand_seismic_reverberation);
+    RegisterSpellScript(spell_warr_revenge_seismic_reverberation);
 }
