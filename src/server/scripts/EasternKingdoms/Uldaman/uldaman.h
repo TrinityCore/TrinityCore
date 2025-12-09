@@ -23,19 +23,16 @@
 #define UldamanScriptName "instance_uldaman"
 #define DataHeader "UD"
 
-uint32 constexpr EncounterCount = 2;
+uint32 constexpr EncounterCount = 3;
 
 enum UDDataTypes
 {
     DATA_IRONAYA                        = 0,
-    DATA_ARCHAEDAS                      = 1,
+    DATA_STONE_KEEPERS                  = 1,
+    DATA_ARCHAEDAS                      = 2,
 
-    DATA_IRONAYA_INTRO                  = 2,
-    DATA_STONE_KEEPERS                  = 3,
-
-    DATA_IRONAYA_SEAL_DOOR,
-    DATA_TEMPLE_DOOR_TO_KEEPERS,
-    DATA_TEMPLE_DOOR_TO_ARCHAEDAS
+    DATA_IRONAYA_INTRO,
+    DATA_IRONAYA_SEAL_DOOR
 };
 
 enum UDCreatureIds

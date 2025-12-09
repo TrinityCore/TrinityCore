@@ -25,9 +25,11 @@
 
 DoorData const doorData[] =
 {
-    { GO_TEMPLE_DOOR_ARCHAEDAS,   DATA_ARCHAEDAS,  DOOR_TYPE_ROOM    },
-    { GO_ANCIENT_VAULT_DOOR,      DATA_ARCHAEDAS,  DOOR_TYPE_PASSAGE },
-    { 0,                          0,               DOOR_TYPE_ROOM    } // END
+    { GO_TEMPLE_DOOR_TO_KEEPERS,    DATA_STONE_KEEPERS,  DOOR_TYPE_ROOM    },
+    { GO_TEMPLE_DOOR_TO_ARCHAEDAS,  DATA_STONE_KEEPERS,  DOOR_TYPE_PASSAGE },
+    { GO_TEMPLE_DOOR_ARCHAEDAS,     DATA_ARCHAEDAS,      DOOR_TYPE_ROOM    },
+    { GO_ANCIENT_VAULT_DOOR,        DATA_ARCHAEDAS,      DOOR_TYPE_PASSAGE },
+    { 0,                            0,                   DOOR_TYPE_ROOM    } // END
 };
 
 ObjectData const creatureData[] =
@@ -39,8 +41,6 @@ ObjectData const creatureData[] =
 ObjectData const gameObjectData[] =
 {
     { GO_IRONAYA_SEAL_DOOR,         DATA_IRONAYA_SEAL_DOOR        },
-    { GO_TEMPLE_DOOR_TO_KEEPERS,    DATA_TEMPLE_DOOR_TO_KEEPERS   },
-    { GO_TEMPLE_DOOR_TO_ARCHAEDAS,  DATA_TEMPLE_DOOR_TO_ARCHAEDAS },
     { 0,                            0                             } // END
 };
 
@@ -59,7 +59,6 @@ class instance_uldaman : public InstanceMapScript
                 LoadDoorData(doorData);
 
                 IronayaIntroState = 0;
-                StoneKeepersEventState = 0;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -128,10 +127,6 @@ class instance_uldaman : public InstanceMapScript
                             go->SetFlag(GO_FLAG_INTERACT_COND);
                         }
                         break;
-                    case GO_TEMPLE_DOOR_TO_ARCHAEDAS:
-                        if (GetData(DATA_STONE_KEEPERS) == DONE)
-                            HandleGameObject(ObjectGuid::Empty, true, go);
-                        break;
                     default:
                         break;
                 }
@@ -162,7 +157,7 @@ class instance_uldaman : public InstanceMapScript
                                 keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
 
                         if (creature->GetGUID() == StoneKeeperGuid[3])
-                            SetData(DATA_STONE_KEEPERS, DONE);
+                            SetBossState(DATA_STONE_KEEPERS, DONE);
                         break;
                     }
                     default:
@@ -170,23 +165,58 @@ class instance_uldaman : public InstanceMapScript
                 }
             }
 
-            bool SetBossState(uint32 type, EncounterState state) override
+            bool SetBossState(uint32 bossId, EncounterState state) override
             {
-                if (!InstanceScript::SetBossState(type, state))
+                if (!InstanceScript::SetBossState(bossId, state))
                     return false;
 
-                if (type == DATA_ARCHAEDAS)
+                switch (bossId)
                 {
-                    if (state == FAIL)
-                    {
-                        for (ObjectGuid guid : ArchaedasMinionsGuidSet)
-                            if (Creature* minion = instance->GetCreature(guid))
+                    case DATA_ARCHAEDAS:
+                        if (state == FAIL)
+                        {
+                            for (ObjectGuid guid : ArchaedasMinionsGuidSet)
+                                if (Creature* minion = instance->GetCreature(guid))
+                                {
+                                    if (minion->isDead())
+                                        minion->Respawn();
+                                }
+                        }
+                        break;
+                    case DATA_STONE_KEEPERS:
+                        if (state == FAIL)
+                        {
+                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
                             {
-                                if (minion->isDead())
-                                    minion->Respawn();
+                                if (!keeper->IsAlive())
+                                {
+                                    StoneKeeperGuid[0].Clear();
+                                    keeper->Respawn();
+                                }
                             }
-                    }
+                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[1]))
+                            {
+                                if (!keeper->IsAlive())
+                                {
+                                    StoneKeeperGuid[1].Clear();
+                                    keeper->Respawn();
+                                }
+                            }
+                            if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[2]))
+                            {
+                                if (!keeper->IsAlive())
+                                {
+                                    StoneKeeperGuid[2].Clear();
+                                    keeper->Respawn();
+                                }
+                            }
+
+                            SetBossState(DATA_STONE_KEEPERS, NOT_STARTED);
+                        }
+                    default:
+                        break;
                 }
+
                 return true;
             }
 
@@ -209,54 +239,6 @@ class instance_uldaman : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_STONE_KEEPERS:
-                        StoneKeepersEventState = data;
-                        switch (data)
-                        {
-                            case IN_PROGRESS:
-                                HandleGameObject(ObjectGuid::Empty, false, GetGameObject(DATA_TEMPLE_DOOR_TO_KEEPERS));
-                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
-                                    keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
-                                break;
-                            case DONE:
-                                HandleGameObject(ObjectGuid::Empty, true, GetGameObject(DATA_TEMPLE_DOOR_TO_KEEPERS));
-                                HandleGameObject(ObjectGuid::Empty, true, GetGameObject(DATA_TEMPLE_DOOR_TO_ARCHAEDAS));
-                                SaveToDB();
-                                break;
-                            case FAIL:
-                            {
-                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
-                                {
-                                    if (!keeper->IsAlive())
-                                    {
-                                        StoneKeeperGuid[0].Clear();
-                                        keeper->Respawn();
-                                    }
-                                }
-                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[1]))
-                                {
-                                    if (!keeper->IsAlive())
-                                    {
-                                        StoneKeeperGuid[1].Clear();
-                                        keeper->Respawn();
-                                    }
-                                }
-                                if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[2]))
-                                {
-                                    if (!keeper->IsAlive())
-                                    {
-                                        StoneKeeperGuid[2].Clear();
-                                        keeper->Respawn();
-                                    }
-                                }
-
-                                HandleGameObject(ObjectGuid::Empty, true, GetGameObject(DATA_TEMPLE_DOOR_TO_KEEPERS));
-                                break;
-                            }
-                            default:
-                                break;
-                        }
-                        break;
                 }
             }
 
@@ -265,7 +247,8 @@ class instance_uldaman : public InstanceMapScript
                 switch (eventId)
                 {
                     case EVENT_SUB_BOSS_AGGRO:
-                        SetData(DATA_STONE_KEEPERS, IN_PROGRESS);
+                        if (Creature* keeper = instance->GetCreature(StoneKeeperGuid[0]))
+                            keeper->AI()->DoAction(ACTION_KEEPER_ACTIVATED);
                         break;
                     case EVENT_BOSS_AGGRO:
                         if (Creature* archaedas = GetCreature(DATA_ARCHAEDAS))
@@ -278,12 +261,12 @@ class instance_uldaman : public InstanceMapScript
 
             void WriteSaveDataMore(std::ostringstream& stream) override
             {
-                stream << IronayaIntroState << ' ' << StoneKeepersEventState;
+                stream << IronayaIntroState;
             }
 
             void ReadSaveDataMore(std::istringstream& stream) override
             {
-                stream >> IronayaIntroState >> StoneKeepersEventState;
+                stream >> IronayaIntroState;
             }
 
             uint32 GetData(uint32 type) const override
@@ -292,8 +275,6 @@ class instance_uldaman : public InstanceMapScript
                 {
                     case DATA_IRONAYA_INTRO:
                         return IronayaIntroState;
-                    case DATA_STONE_KEEPERS:
-                        return StoneKeepersEventState;
                 }
                 return 0;
             }
@@ -302,7 +283,6 @@ class instance_uldaman : public InstanceMapScript
             ObjectGuid StoneKeeperGuid[4] = { };
             GuidSet ArchaedasMinionsGuidSet;
             uint32 IronayaIntroState;
-            uint32 StoneKeepersEventState;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

@@ -50,6 +50,8 @@ struct npc_stone_keeper : public ScriptedAI
 
     void JustEngagedWith(Unit* /*who*/) override
     {
+        _instance->SetBossState(DATA_STONE_KEEPERS, IN_PROGRESS);
+
         _scheduler.Schedule(10s, 15s, [this](TaskContext task)
         {
             DoCastSelf(SPELL_TRAMPLE);
@@ -82,7 +84,7 @@ struct npc_stone_keeper : public ScriptedAI
     void EnterEvadeMode(EvadeReason why) override
     {
         ScriptedAI::EnterEvadeMode(why);
-        _instance->SetData(DATA_STONE_KEEPERS, FAIL);
+        _instance->SetBossState(DATA_STONE_KEEPERS, FAIL);
     }
 
     void JustDied(Unit* /*killer*/) override
