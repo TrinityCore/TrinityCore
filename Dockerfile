@@ -1,4 +1,5 @@
 # --- Stage 1: Builder ---
+# Automatically selects the correct architecture (amd64/arm64)
 FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -20,6 +21,7 @@ RUN git clone -b master --depth 1 https://github.com/TrinityCore/TrinityCore.git
 WORKDIR /usr/src/TrinityCore/build
 
 # Configure CMake (Release mode, Tools enabled)
+# CMake detects the CPU architecture automatically
 RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
     -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_COMPILER=clang++ \
@@ -29,9 +31,10 @@ RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
     -DCMAKE_BUILD_TYPE=Release
 
 # Compile and Install
+# Using all available cores for faster compilation
 RUN make -j$(nproc) && make install
 
-# Copy SQL files for auto-setup
+# Copy SQL files for the auto-setup script
 RUN cp -r /usr/src/TrinityCore/sql /opt/trinitycore/sql
 
 
@@ -40,7 +43,8 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install runtime dependencies (Critical: mariadb-client, curl, jq, p7zip)
+# Install runtime dependencies
+# These packages are available for both amd64 and arm64 architectures
 RUN apt-get update && apt-get install -y \
     libmariadb3 \
     libssl3t64 \
@@ -57,17 +61,18 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /opt/trinitycore
 
-# Copy compiled files from builder
+# Copy compiled artifacts from the builder stage
 COPY --from=builder /opt/trinitycore /opt/trinitycore
 
-# Backup config files to prevent them from being hidden by volume mounts
+# Create a backup of the configuration files.
+# This is critical to restore files if the user mounts an empty volume to /etc.
 RUN mkdir -p /opt/trinitycore/etc-backup && \
     cp -r /opt/trinitycore/etc/* /opt/trinitycore/etc-backup/
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Set up user and permissions
+# Create a non-root user for security
 RUN groupadd -r trinity && useradd -r -g trinity trinity
 RUN chown -R trinity:trinity /opt/trinitycore
 
