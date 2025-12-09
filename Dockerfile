@@ -1,5 +1,4 @@
 # --- Stage 1: Builder ---
-# Automatically selects the correct architecture (amd64/arm64)
 FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -20,8 +19,7 @@ RUN git clone -b master --depth 1 https://github.com/TrinityCore/TrinityCore.git
 
 WORKDIR /usr/src/TrinityCore/build
 
-# Configure CMake (Release mode, Tools enabled)
-# CMake detects the CPU architecture automatically
+# Configure CMake
 RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
     -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_COMPILER=clang++ \
@@ -31,10 +29,13 @@ RUN cmake ../ -DCMAKE_INSTALL_PREFIX=/opt/trinitycore \
     -DCMAKE_BUILD_TYPE=Release
 
 # Compile and Install
-# Using all available cores for faster compilation
 RUN make -j$(nproc) && make install
 
-# Copy SQL files for the auto-setup script
+# Comment: Critical step! We delete the huge build directory BEFORE copying the SQL files.
+# This prevents the "No space left on device" error during the Docker build.
+RUN rm -rf /usr/src/TrinityCore/build
+
+# Copy SQL files
 RUN cp -r /usr/src/TrinityCore/sql /opt/trinitycore/sql
 
 
@@ -44,7 +45,6 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install runtime dependencies
-# These packages are available for both amd64 and arm64 architectures
 RUN apt-get update && apt-get install -y \
     libmariadb3 \
     libssl3t64 \
@@ -61,18 +61,17 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /opt/trinitycore
 
-# Copy compiled artifacts from the builder stage
+# Copy compiled files
 COPY --from=builder /opt/trinitycore /opt/trinitycore
 
-# Create a backup of the configuration files.
-# This is critical to restore files if the user mounts an empty volume to /etc.
+# Backup config files (Fix for empty volume issue)
 RUN mkdir -p /opt/trinitycore/etc-backup && \
     cp -r /opt/trinitycore/etc/* /opt/trinitycore/etc-backup/
 
 COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Create a non-root user for security
+# User setup
 RUN groupadd -r trinity && useradd -r -g trinity trinity
 RUN chown -R trinity:trinity /opt/trinitycore
 
