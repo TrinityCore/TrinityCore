@@ -213,6 +213,7 @@ class instance_uldaman : public InstanceMapScript
 
                             SetBossState(DATA_STONE_KEEPERS, NOT_STARTED);
                         }
+                        break;
                     default:
                         break;
                 }
