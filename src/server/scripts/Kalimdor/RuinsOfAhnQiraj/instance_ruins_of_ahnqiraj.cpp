@@ -47,7 +47,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadObjectData(creatureData, nullptr);
 
-                AndorovEventState = EVENT_STATE_NOT_STARTED;
+                AndorovEventState = NOT_STARTED;
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -210,9 +210,9 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                             /// @todo: This part requires additional research. Here we check if Andorov's event was started
                             /// and only then change it to finished to enable vendor. Otherwise players can complete
                             /// Rajaxx's encounter without Andorov and then talk to him to buy items, doubt that should happen
-                            if (GetData(DATA_ANDOROV_EVENT_STATE) == EVENT_STATE_STARTED)
+                            if (GetData(DATA_ANDOROV_EVENT_STATE) == IN_PROGRESS)
                             {
-                                SetData(DATA_ANDOROV_EVENT_STATE, EVENT_STATE_FINISHED);
+                                SetData(DATA_ANDOROV_EVENT_STATE, DONE);
 
                                 if (Creature* andorov = GetCreature(DATA_ANDOROV))
                                     andorov->AI()->DoAction(ACTION_RAJAXX_DEFEATED);
@@ -229,7 +229,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 if (type == DATA_ANDOROV_EVENT_STATE)
                 {
                     AndorovEventState = data;
-                    if (data == EVENT_STATE_STARTED)
+                    if (data == IN_PROGRESS)
                     {
                         // Wave 1
                         for (ObjectGuid guid : WaveGuidList[0])

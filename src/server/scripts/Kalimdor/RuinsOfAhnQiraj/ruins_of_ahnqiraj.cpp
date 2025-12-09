@@ -143,7 +143,7 @@ struct npc_andorov : public ScriptedAI
 
                     case EVENT_PROGRESS_1:
                     {
-                        _instance->SetData(DATA_ANDOROV_EVENT_STATE, EVENT_STATE_PREPARATION);
+                        _instance->SetData(DATA_ANDOROV_EVENT_STATE, SPECIAL);
 
                         Talk(SAY_PROGRESS_1);
 
@@ -174,7 +174,7 @@ struct npc_andorov : public ScriptedAI
                         break;
                     case EVENT_PROGRESS_6:
                     {
-                        _instance->SetData(DATA_ANDOROV_EVENT_STATE, EVENT_STATE_STARTED);
+                        _instance->SetData(DATA_ANDOROV_EVENT_STATE, IN_PROGRESS);
 
                         std::vector<Creature*> elites;
                         GetCreatureListWithEntryInGrid(elites, me, NPC_KALDOREI_ELITE, 50.0f);
@@ -244,16 +244,16 @@ struct npc_andorov : public ScriptedAI
     {
         switch (_instance->GetData(DATA_ANDOROV_EVENT_STATE))
         {
-            case EVENT_STATE_NOT_STARTED:
+            case NOT_STARTED:
                 player->PrepareGossipMenu(me, GOSSIP_MENU_NOT_STARTED, true);
                 player->SendPreparedGossip(me);
                 return true;
-            case EVENT_STATE_PREPARATION:
-            case EVENT_STATE_STARTED:
+            case SPECIAL:
+            case IN_PROGRESS:
                 player->PrepareGossipMenu(me, GOSSIP_MENU_IN_PROGRESS, true);
                 player->SendPreparedGossip(me);
                 return true;
-            case EVENT_STATE_FINISHED:
+            case DONE:
                 player->PrepareGossipMenu(me, GOSSIP_MENU_FINISHED, true);
                 player->SendPreparedGossip(me);
                 return true;

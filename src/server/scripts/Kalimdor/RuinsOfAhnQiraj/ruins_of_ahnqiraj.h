@@ -61,14 +61,6 @@ enum AQRSpawnGroups
     SPAWN_GROUP_ANDOROV         = 333
 };
 
-enum AQRMisc
-{
-    EVENT_STATE_NOT_STARTED     = 0,
-    EVENT_STATE_PREPARATION     = 1,
-    EVENT_STATE_STARTED         = 2,
-    EVENT_STATE_FINISHED        = 3
-};
-
 enum AQRActionIds
 {
     ACTION_WAVE_STARTS_3        = 0,
