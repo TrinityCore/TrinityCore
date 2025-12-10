@@ -302,7 +302,7 @@ class spell_pet_gen_toxic_wasteling_find_target : public SpellScript
 
     void HandleScript(SpellEffIndex /*effIndex*/)
     {
-        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()));
+        GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
     }
 
     void Register() override

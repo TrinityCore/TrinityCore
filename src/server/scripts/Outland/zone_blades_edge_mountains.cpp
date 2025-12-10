@@ -1433,7 +1433,7 @@ class spell_bem_summon_spirit : public SpellScript
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         // This spell script requires sniff verification
-        GetCaster()->CastSpell(GetCaster(), SPELL_REXXARS_BIRD_EFFECT);
+        GetCaster()->CastSpell(GetCaster(), SPELL_REXXARS_BIRD_EFFECT, true);
     }
 
     void Register() override
