@@ -11073,19 +11073,6 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest
     // in specific slot
     if (bag != NULL_BAG && slot != NULL_SLOT)
     {
-        if (slot >= BANK_SLOT_BAG_START && slot < BANK_SLOT_BAG_END)
-        {
-            if (!pItem->IsBag())
-                return EQUIP_ERR_WRONG_SLOT;
-
-            if (slot - BANK_SLOT_BAG_START >= GetCharacterBankTabCount())
-                return EQUIP_ERR_NO_BANK_SLOT;
-
-            res = CanUseItem(pItem, not_loading);
-            if (res != EQUIP_ERR_OK)
-                return res;
-        }
-
         res = CanStoreItem_InSpecificSlot(bag, slot, dest, pProto, count, swap, pItem);
         if (res != EQUIP_ERR_OK)
             return res;
