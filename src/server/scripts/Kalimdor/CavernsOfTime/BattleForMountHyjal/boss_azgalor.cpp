@@ -71,7 +71,6 @@ struct boss_azgalor : public BossAI
     void JustAppeared() override
     {
         Talk(SAY_INTRO);
-        me->setActive(true);
         me->GetMotionMaster()->MovePath(RAND(PATH_HORDE_BOSS_INITIAL_1, PATH_HORDE_BOSS_INITIAL_2, PATH_HORDE_BOSS_INITIAL_3), false);
     }
 

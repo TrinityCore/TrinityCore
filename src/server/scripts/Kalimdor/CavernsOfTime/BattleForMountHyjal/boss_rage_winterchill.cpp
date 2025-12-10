@@ -60,7 +60,6 @@ struct boss_rage_winterchill : public BossAI
     void JustAppeared() override
     {
         Talk(SAY_INTRO);
-        me->setActive(true);
         me->GetMotionMaster()->MovePath(RAND(PATH_ALLY_INITIAL_1, PATH_ALLY_INITIAL_2, PATH_ALLY_INITIAL_3), false);
     }
 
