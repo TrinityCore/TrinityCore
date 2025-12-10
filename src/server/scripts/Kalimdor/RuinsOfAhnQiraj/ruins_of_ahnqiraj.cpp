@@ -36,9 +36,6 @@
  * There is a bug on retail when all waves respawn. It is unclear how exactly waves should respawn, NYI
  * According to patch notes, Andorov should respawn after 15 min if killed, NYI
  * It is unclear if next wave should be started after specific amount of time even if previous is not yet defeated
- * Regarding custom event states. We want to use one data for entire event. The problem is Andorov's gossip menu is changed
-   imediately after starting event, but the first wave is engaged later, making it impossible to script it only
-   with Not Started \ In Progress \ Done data states
  * Entire event requires additional research since some things may be missing or implemented wrongly
  */
 
