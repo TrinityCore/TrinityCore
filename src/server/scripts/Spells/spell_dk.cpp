@@ -66,6 +66,7 @@ enum DeathKnightSpells
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
     SPELL_DK_GLYPH_OF_DISEASE                   = 63334,
     SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
+    SPELL_DK_HUNGERING_COLD_PROC                = 51209,
     SPELL_DK_IMPROVED_BLOOD_PRESENCE_R1         = 50365,
     SPELL_DK_IMPROVED_FROST_PRESENCE_R1         = 50384,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_R1        = 50391,
@@ -1086,6 +1087,27 @@ class spell_dk_hungering_cold : public AuraScript
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_dk_hungering_cold::CheckProc);
+    }
+};
+
+// 49203 - Hungering Cold
+class spell_dk_hungering_cold_init : public SpellScript
+{
+    PrepareSpellScript(spell_dk_hungering_cold_init);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_HUNGERING_COLD_PROC });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_DK_HUNGERING_COLD_PROC, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_dk_hungering_cold_init::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
 
@@ -2774,6 +2796,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_hysteria);
     RegisterSpellScript(spell_dk_frost_fever);
     RegisterSpellScript(spell_dk_hungering_cold);
+    RegisterSpellScript(spell_dk_hungering_cold_init);
     RegisterSpellScript(spell_dk_icebound_fortitude);
     RegisterSpellScript(spell_dk_improved_blood_presence);
     RegisterSpellScript(spell_dk_improved_blood_presence_triggered);
