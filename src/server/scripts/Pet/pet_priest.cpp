@@ -32,7 +32,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT_PASSIVE          = 195178,
     SPELL_PRIEST_DIVINE_IMAGE_SPELL_CHECK   = 405216,
     SPELL_PRIEST_INVOKE_THE_NAARU           = 196687,
-    SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
+    SPELL_PRIEST_LIGHTWELL_DRIVER           = 372840
 };
 
 // 198236 - Divine Image
@@ -58,9 +58,12 @@ struct npc_pet_pri_divine_image : public PassiveAI
 // 189820 - Lightwell
 struct npc_pet_pri_lightwell : public PassiveAI
 {
-    npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature)
+    npc_pet_pri_lightwell(Creature* creature) : PassiveAI(creature) {}
+
+    void JustAppeared() override
     {
-        DoCast(me, SPELL_PRIEST_LIGHTWELL_CHARGES, false);
+        me->SetUninteractible(true);
+        DoCastSelf(SPELL_PRIEST_LIGHTWELL_DRIVER);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
