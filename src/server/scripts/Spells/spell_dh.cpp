@@ -600,18 +600,17 @@ class spell_dh_critical_chaos : public AuraScript
 // 389718 - Cycle of Binding
 class spell_dh_cycle_of_binding : public AuraScript
 {
+    static constexpr std::array<uint32, 5> SigilSpellsIds = { SPELL_DH_SIGIL_OF_CHAINS, SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_SIGIL_OF_MISERY, SPELL_DH_SIGIL_OF_SILENCE, SPELL_DH_SIGIL_OF_SPITE };
+
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SIGIL_OF_CHAINS, SPELL_DH_SIGIL_OF_FLAME, SPELL_DH_SIGIL_OF_MISERY, SPELL_DH_SIGIL_OF_SILENCE, SPELL_DH_SIGIL_OF_SPITE });
+        return ValidateSpellInfo({ SigilSpellsIds });
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_DH_SIGIL_OF_CHAINS, -Seconds(aurEff->GetAmount()));
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_DH_SIGIL_OF_FLAME, -Seconds(aurEff->GetAmount()));
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_DH_SIGIL_OF_MISERY, -Seconds(aurEff->GetAmount()));
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_DH_SIGIL_OF_SILENCE, -Seconds(aurEff->GetAmount()));
-        GetTarget()->GetSpellHistory()->ModifyCooldown(SPELL_DH_SIGIL_OF_SPITE, -Seconds(aurEff->GetAmount()));
+        for (uint32 spellId : SigilSpellsIds)
+            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Seconds(aurEff->GetAmount()));
     }
 
     void Register() override
