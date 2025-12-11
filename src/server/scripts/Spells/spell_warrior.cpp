@@ -97,6 +97,7 @@ enum WarriorSpells
     SPELL_WARRIOR_STRATEGIST                        = 384041,
     SPELL_WARRIOR_SUDDEN_DEATH                      = 280721,
     SPELL_WARRIOR_SUDDEN_DEATH_BUFF                 = 280776,
+    SPELL_WARRIOR_SWEEPING_STRIKES                  = 260708,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_1   = 12723,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK_2   = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
@@ -255,6 +256,31 @@ class spell_warr_avatar : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_avatar::HandleRemoveImpairingAuras, EFFECT_5, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+// 107574 - Avatar
+// 390138 - Blademaster's Torment
+class spell_warr_bladesmasters_torment : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SWEEPING_STRIKES });
+    }
+
+    void HandleProc(ProcEventInfo& /*eventInfo*/)
+    {
+        Unit* target = GetTarget();
+        int32 durationMs = GetEffectInfo(EFFECT_0).CalcValue(target);
+
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        args.AddSpellMod(SPELLVALUE_DURATION, durationMs);
+        target->CastSpell(target, SPELL_WARRIOR_SWEEPING_STRIKES, args);
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_warr_bladesmasters_torment::HandleProc);
     }
 };
 
@@ -1677,4 +1703,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
+    RegisterSpellScript(spell_warr_bladesmasters_torment);
 }
