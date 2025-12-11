@@ -609,8 +609,11 @@ class spell_dh_cycle_of_binding : public AuraScript
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
     {
+        SpellHistory* history = GetTarget()->GetSpellHistory();
+        int32 amount = aurEff->GetAmount();
+
         for (uint32 spellId : SigilSpellsIds)
-            GetTarget()->GetSpellHistory()->ModifyCooldown(spellId, -Seconds(aurEff->GetAmount()));
+            history->ModifyCooldown(spellId, -Seconds(amount));
     }
 
     void Register() override
