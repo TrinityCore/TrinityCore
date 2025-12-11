@@ -604,7 +604,7 @@ class spell_dh_cycle_of_binding : public AuraScript
 
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SigilSpellsIds });
+        return ValidateSpellInfo(SigilSpellsIds);
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
