@@ -508,7 +508,6 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         creature->SetWalk(false);
-        ENSURE_AI(hyjal_trashAI, creature->AI())->SetRun();
         creature->setActive(true);
         creature->SetFarVisible(true);
         switch (entry)
@@ -628,7 +627,7 @@ void hyjalAI::Retreat()
         instance->SetData(DATA_ALLIANCE_RETREAT, 1);
         AddWaypoint(0, JainaWPs[0][0], JainaWPs[0][1], JainaWPs[0][2]);
         AddWaypoint(1, JainaWPs[1][0], JainaWPs[1][1], JainaWPs[1][2]);
-        Start(false, false);
+        Start(false);
         SetDespawnAtEnd(false);//move to center of alliance base
     }
     if (Faction == 1)
@@ -642,7 +641,7 @@ void hyjalAI::Retreat()
             DummyGuid = JainaDummy->GetGUID();
         }
         AddWaypoint(0, JainaDummySpawn[1][0], JainaDummySpawn[1][1], JainaDummySpawn[1][2]);
-        Start(false, false);
+        Start(false);
         SetDespawnAtEnd(false);//move to center of alliance base
     }
     SpawnVeins();

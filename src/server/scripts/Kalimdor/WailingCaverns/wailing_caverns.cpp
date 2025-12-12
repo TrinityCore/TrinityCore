@@ -74,6 +74,8 @@ enum Enums
     NPC_DEVIATE_MOCCASIN          = 5762,
     NPC_NIGHTMARE_ECTOPLASM       = 5763,
     NPC_MUTANUS_THE_DEVOURER      = 3654,
+
+    PATH_ESCORT_NARALEX_DISCIPLE  = 29426,
 };
 
 class npc_disciple_of_naralex : public CreatureScript
@@ -281,7 +283,6 @@ public:
                                     naralex->AI()->Talk(SAY_FAREWELL);
                                     naralex->AddAura(SPELL_FLIGHT_FORM, naralex);
                                 }
-                                SetRun();
                                 me->SetStandState(UNIT_STAND_STATE_STAND);
                                 me->AddAura(SPELL_FLIGHT_FORM, me);
                             }
@@ -335,7 +336,8 @@ public:
                 me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_ACTIVE);
                 me->SetImmuneToPC(false);
 
-                Start(false, false, player->GetGUID());
+                LoadPath(PATH_ESCORT_NARALEX_DISCIPLE);
+                Start(false, player->GetGUID());
                 SetDespawnAtFar(false);
                 SetDespawnAtEnd(false);
             }
