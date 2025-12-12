@@ -11031,7 +11031,7 @@ InventoryResult Player::CanUnequipItem(uint16 pos, bool swap) const
     return EQUIP_ERR_OK;
 }
 
-InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool not_loading /*= true*/, bool reagentBankOnly /*= false*/) const
+InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, Item* pItem, bool swap, bool reagentBankOnly /*= false*/) const
 {
     if (!pItem)
         return swap ? EQUIP_ERR_CANT_SWAP : EQUIP_ERR_ITEM_NOT_FOUND;
@@ -18949,7 +18949,7 @@ void Player::_LoadInventory(PreparedQueryResult result, PreparedQueryResult arti
                     else if (IsBankPos(INVENTORY_SLOT_BAG_0, slot))
                     {
                         ItemPosCountVec dest;
-                        err = CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        err = CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false);
                         if (err == EQUIP_ERR_OK)
                             item = BankItem(dest, item, true);
                     }

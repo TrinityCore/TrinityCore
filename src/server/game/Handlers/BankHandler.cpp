@@ -282,7 +282,7 @@ void WorldSession::HandleAutoDepositCharacterBank(WorldPackets::Bank::AutoDeposi
     for (Item* item : _player->GetCraftingReagentItemsToDeposit())
     {
         ItemPosCountVec dest;
-        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true, true);
+        InventoryResult msg = _player->CanBankItem(NULL_BAG, NULL_SLOT, dest, item, false, true);
         if (msg != EQUIP_ERR_OK)
         {
             if (msg != EQUIP_ERR_REAGENT_BANK_FULL || !anyDeposited)
