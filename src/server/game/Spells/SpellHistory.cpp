@@ -1105,6 +1105,12 @@ void SpellHistory::SendClearCooldowns(std::vector<int32> const& cooldowns) const
     }
 }
 
+SpellHistory::CooldownStorageType::iterator SpellHistory::EraseCooldown(CooldownStorageType::iterator itr)
+{
+    _categoryCooldowns.erase(itr->second.CategoryId);
+    return _spellCooldowns.erase(itr);
+}
+
 void SpellHistory::SendSetSpellCharges(uint32 chargeCategoryId, ChargeEntryCollection const& chargeCollection) const
 {
     if (Player* player = GetPlayerOwner())
