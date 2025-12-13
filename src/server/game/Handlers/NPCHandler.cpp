@@ -419,3 +419,88 @@ void WorldSession::HandleRepairItemOpcode(WorldPackets::Item::RepairItem& packet
         _player->DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
     }
 }
+
+void WorldSession::HandleChromieTimeSelectExpansion(WorldPackets::NPC::ChromieTimeSelectExpansion& expansion)
+{
+    Player* player = GetPlayer();
+    if (!player)
+        return;
+
+    uint32 questId = 0;
+    uint32 conversationId = 0;
+
+    UIChromieTimeExpansionInfoEntry const* expansionInfo = sUIChromieTimeExpansionInfoStore.LookupEntry(expansion.Expansion);
+    if (!expansionInfo)
+    {
+        TC_LOG_INFO("server", "Player {} sent invalid ChromieTime ExpansionID {}", player->GetGUID().ToString(), expansion.Expansion);
+        return;
+    }
+
+    if (expansionInfo->RecommendPlayerConditionID > 0 &&
+        !sConditionMgr->IsPlayerMeetingCondition(player, expansionInfo->RecommendPlayerConditionID))
+    {
+        
+    }
+
+    if (expansionInfo->SpellID > 0)
+    {
+        SpellCastResult result = player->CastSpell(player, expansionInfo->SpellID);
+        if (result != SPELL_CAST_OK)
+        {
+            TC_LOG_INFO("server", "ChromieTime Spell cast failed for player {} SpellID {} result {}",
+                player->GetGUID().ToString(), expansionInfo->SpellID, result);
+        }
+    }
+
+    switch (expansion.Expansion)
+    {
+    case 5:
+        questId = 60891;
+        conversationId = 14405;
+        break;
+    case 6:
+        questId = 60120;
+        conversationId = 14304;
+        break;
+    case 7:
+        questId = 60096;
+        conversationId = 14278;
+        break;
+    case 8:
+        questId = 60965;
+        conversationId = 14303;
+        break;
+    case 9:
+        questId = 34398;
+        conversationId = 14300;
+        break;
+    case 10:
+        questId = 40519;
+        conversationId = 14406;
+        break;
+    case 14:
+        questId = 60545;
+        conversationId = 20312;
+        break;
+    case 15:
+        questId = 46727;
+        break;
+    case 16:
+        questId = 65436;
+        break;
+    default:
+        break;
+    }
+
+    if (questId)
+        if (_player->GetQuestStatus(questId) == QUEST_STATUS_NONE)
+            if (Quest const* quest = sObjectMgr->GetQuestTemplate(questId))
+                if (Creature* chromie = ObjectAccessor::GetCreature(*_player, expansion.GUID))
+                    _player->AddQuest(quest, chromie);
+
+    if (conversationId)
+        Conversation::CreateConversation(conversationId, _player, *_player, { _player->GetGUID() });
+
+    WorldPackets::NPC::ChromieTimeSelectExpansionSuccess success;
+    SendPacket(success.Write());
+}

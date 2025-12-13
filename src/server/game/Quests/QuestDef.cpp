@@ -508,6 +508,36 @@ bool Quest::IsMeta() const
     return false;
 }
 
+bool Quest::IsCampaign(Player const* player) const
+{
+    if (auto const* questLineEntries = sDB2Manager.GetQuestLineXQuestsForQuest(GetQuestId()))
+    {
+        for (QuestLineXQuestEntry const* questLineEntry : *questLineEntries)
+        {
+            if (CampaignXQuestLineEntry const* cxql = sDB2Manager.GetCampaignForQuestLine(questLineEntry->QuestLineID))
+            {
+                if (CampaignEntry const* campaign = sDB2Manager.GetCampaign(cxql->CampaignID))
+                {
+                    if (campaign->Prerequisite > 0 && !player->MeetPlayerCondition(campaign->Prerequisite))
+                        return false;
+
+                    if (campaign->Completed > 0 && player->MeetPlayerCondition(campaign->Completed))
+                        return false;
+
+                    if (campaign->OnlyStallIf > 0 && player->MeetPlayerCondition(campaign->OnlyStallIf))
+                        return false;
+
+                    if (campaign->RewardQuestID > 0 && player->GetQuestRewardStatus(campaign->RewardQuestID))
+                        return false;
+
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void Quest::BuildQuestRewards(WorldPackets::Quest::QuestRewards& rewards, Player* player) const
 {
     rewards.ChoiceItemCount         = GetRewChoiceItemsCount();
