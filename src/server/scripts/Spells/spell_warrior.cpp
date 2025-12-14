@@ -509,6 +509,40 @@ class spell_warr_critical_thinking : public AuraScript
     }
 };
 
+// 262115 - Deep Wounds
+// 384361 - Bloodsurge
+class spell_warr_deep_wounds_bloodsurge : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_BLOODSURGE, SPELL_WARRIOR_BLOODSURGE_ENERGIZE });
+    }
+
+    void HandlePeriodic(AuraEffect const* aurEff) const
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        if (!caster->HasAura(SPELL_WARRIOR_BLOODSURGE))
+            return;
+
+        int32 chance = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODSURGE, GetCastDifficulty())->GetEffect(EFFECT_0).BasePoints;
+        if (!roll_chance_i(chance))
+            return;
+
+        caster->CastSpell(caster, SPELL_WARRIOR_BLOODSURGE_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_deep_wounds_bloodsurge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
+
 // 383295 - Deft Experience (attached to 23881 - Bloodthirst)
 // 383295 - Deft Experience (attached to 335096 - Bloodbath)
 class spell_warr_deft_experience : public SpellScript
@@ -1628,40 +1662,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// 262115 - Deep Wounds
-// 384361 - Bloodsurge
-class spell_warr_deep_wounds_bloodsurge : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_BLOODSURGE, SPELL_WARRIOR_BLOODSURGE_ENERGIZE });
-    }
-
-    void HandlePeriodic(AuraEffect const* aurEff) const
-    {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (!caster->HasAura(SPELL_WARRIOR_BLOODSURGE))
-            return;
-
-        int32 chance = sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_BLOODSURGE, GetCastDifficulty())->GetEffect(EFFECT_0).BasePoints;
-        if (!roll_chance_i(chance))
-            return;
-
-        caster->CastSpell(caster, SPELL_WARRIOR_BLOODSURGE_ENERGIZE, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-            });
-    }
-
-    void Register() override
-    {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_warr_deep_wounds_bloodsurge::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1669,6 +1669,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_avatar);
     RegisterSpellScript(spell_warr_bloodthirst);
     RegisterSpellScript(spell_warr_brutal_vitality);
+    RegisterSpellScript(spell_warr_deep_wounds_bloodsurge);
     RegisterSpellScript(spell_warr_charge);
     RegisterSpellScript(spell_warr_charge_drop_fire_periodic);
     RegisterSpellScript(spell_warr_charge_effect);
@@ -1713,5 +1714,4 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_deep_wounds_bloodsurge);
 }
