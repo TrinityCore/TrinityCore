@@ -108,8 +108,7 @@ enum WarriorSpells
     SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
-    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
-    SPELL_WARRIOR_OVERPOWER                         = 7384
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
 };
 
 enum WarriorMisc
@@ -664,6 +663,25 @@ class spell_warr_execute_damage : public SpellScript
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_warr_execute_damage::CalculateExecuteDamage);
+    }
+};
+
+// 400205 - Finishing Blows
+class spell_warr_finishing_blows : public AuraScript
+{
+    bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Unit* target = eventInfo.GetActionTarget();
+        return target && target->HealthBelowPct(35);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_finishing_blows::CheckProc);
     }
 };
 
@@ -1627,33 +1645,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// 400205 - Finishing Blows
-class spell_warr_finishing_blows : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_OVERPOWER });
-    }
-
-    bool CheckProc(ProcEventInfo const& eventInfo)
-    {
-        Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return false;
-
-        if (procSpell->GetSpellInfo()->Id != SPELL_WARRIOR_OVERPOWER)
-            return false;
-
-        Unit* target = eventInfo.GetActionTarget();
-        return target && target->HealthBelowPct(35);
-    }
-
-    void Register() override
-    {
-        DoCheckProc += AuraCheckProcFn(spell_warr_finishing_blows::CheckProc);
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1671,6 +1662,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
+    RegisterSpellScript(spell_warr_finishing_blows);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
@@ -1705,5 +1697,4 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_finishing_blows);
 }
