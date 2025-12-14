@@ -103,10 +103,6 @@ struct boss_high_king_maulgar : public BossAI
         Talk(SAY_AGGRO);
 
         scheduler
-            .SetValidator([this]
-            {
-                return !me->HasUnitState(UNIT_STATE_CASTING);
-            })
             .Schedule(15s, 20s, [this](TaskContext task)
             {
                 DoCastVictim(SPELL_MIGHTY_BLOW);
