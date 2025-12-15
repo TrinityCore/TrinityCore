@@ -47,10 +47,14 @@ enum TypeID : uint8
     TYPEID_CORPSE                 = 10,
     TYPEID_AREATRIGGER            = 11,
     TYPEID_SCENEOBJECT            = 12,
-    TYPEID_CONVERSATION           = 13
+    TYPEID_CONVERSATION           = 13,
+    TYPEID_MESH_OBJECT            = 14,
+    TYPEID_AI_GROUP               = 15,
+    TYPEID_SCENARIO               = 16,
+    TYPEID_LOOT_OBJECT            = 17
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             14
+#define NUM_CLIENT_OBJECT_TYPES             18
 
 enum TypeMask
 {
@@ -68,6 +72,10 @@ enum TypeMask
     TYPEMASK_AREATRIGGER            = 1 << TYPEID_AREATRIGGER,
     TYPEMASK_SCENEOBJECT            = 1 << TYPEID_SCENEOBJECT,
     TYPEMASK_CONVERSATION           = 1 << TYPEID_CONVERSATION,
+    TYPEMASK_MESH_OBJECT            = 1 << TYPEID_MESH_OBJECT,
+    TYPEMASK_AI_GROUP               = 1 << TYPEID_AI_GROUP,
+    TYPEMASK_SCENARIO               = 1 << TYPEID_SCENARIO,
+    TYPEMASK_LOOT_OBJECT            = 1 << TYPEID_LOOT_OBJECT,
 
     TYPEMASK_SEER                   = TYPEMASK_UNIT | TYPEMASK_PLAYER | TYPEMASK_DYNAMICOBJECT,
     TYPEMASK_WORLDOBJECT            = TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_DYNAMICOBJECT | TYPEMASK_CORPSE | TYPEMASK_AREATRIGGER | TYPEMASK_SCENEOBJECT | TYPEMASK_CONVERSATION
@@ -88,7 +96,11 @@ inline constexpr std::array<uint32, NUM_CLIENT_OBJECT_TYPES> ObjectTypeMask =
     TYPEMASK_OBJECT | TYPEMASK_CORPSE,
     TYPEMASK_OBJECT | TYPEMASK_AREATRIGGER,
     TYPEMASK_OBJECT | TYPEMASK_SCENEOBJECT,
-    TYPEMASK_OBJECT | TYPEMASK_CONVERSATION
+    TYPEMASK_OBJECT | TYPEMASK_CONVERSATION,
+    TYPEMASK_OBJECT | TYPEMASK_MESH_OBJECT,
+    TYPEMASK_OBJECT | TYPEMASK_AI_GROUP,
+    TYPEMASK_OBJECT | TYPEMASK_SCENARIO,
+    TYPEMASK_OBJECT | TYPEMASK_LOOT_OBJECT,
 };
 
 enum class HighGuid
@@ -148,6 +160,9 @@ enum class HighGuid
     ArenaTeam        = 52,
     LMMParty         = 53,
     LMMLobby         = 54,
+    Housing          = 55,
+    MeshObject       = 56,
+    Entity           = 57,
 
     Count,
 };
@@ -183,6 +198,7 @@ enum class ObjectGuidFormatType
     ToolsClient,
     WorldLayer,
     LMMLobby,
+    Housing,
 };
 
 template<HighGuid high>
@@ -254,6 +270,9 @@ MAKE_GUID_TRAIT(HighGuid::WorldLayer, ObjectGuidSequenceSource::Global, ObjectGu
 MAKE_GUID_TRAIT(HighGuid::ArenaTeam, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Guild);
 MAKE_GUID_TRAIT(HighGuid::LMMParty, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::Client);
 MAKE_GUID_TRAIT(HighGuid::LMMLobby, ObjectGuidSequenceSource::Realm, ObjectGuidFormatType::LMMLobby);
+MAKE_GUID_TRAIT(HighGuid::Housing, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::Housing);
+MAKE_GUID_TRAIT(HighGuid::MeshObject, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::WorldObject);
+MAKE_GUID_TRAIT(HighGuid::Entity, ObjectGuidSequenceSource::Map, ObjectGuidFormatType::WorldObject);
 
 class ByteBuffer;
 class ObjectGuid;
@@ -280,6 +299,7 @@ public:
     static ObjectGuid CreateToolsClient(uint16 mapId, uint32 serverId, uint64 counter);
     static ObjectGuid CreateWorldLayer(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4);
     static ObjectGuid CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 arg3, uint8 arg4, uint64 counter);
+    static ObjectGuid CreateHousing(uint32 subType, uint32 arg1, uint32 arg2, uint64 arg3);
 };
 
 class TC_GAME_API ObjectGuid
@@ -397,6 +417,7 @@ class TC_GAME_API ObjectGuid
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::ToolsClient, int32> = 0> static ObjectGuid Create(uint16 mapId, uint32 serverId, LowType counter) { return ObjectGuidFactory::CreateToolsClient(mapId, serverId, counter); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::WorldLayer, int32> = 0> static ObjectGuid Create(uint32 arg1, uint16 arg2, uint8 arg3, uint32 arg4) { return ObjectGuidFactory::CreateWorldLayer(arg1, arg2, arg3, arg4); }
         template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::LMMLobby, int32> = 0> static ObjectGuid Create(uint32 arg2, uint8 arg3, uint8 arg4, LowType counter) { return ObjectGuidFactory::CreateLMMLobby(0, arg2, arg3, arg4, counter); }
+        template <HighGuid type, std::enable_if_t<ObjectGuidTraits<type>::Format::value == ObjectGuidFormatType::Housing, int32> = 0> static ObjectGuid Create(uint32 subType, uint32 arg1, uint32 arg2, uint64 arg3) { return ObjectGuidFactory::CreateHousing(subType, arg1, arg2, arg3); }
 
     protected:
         constexpr ObjectGuid(uint64 high, uint64 low) : _data({{ low, high }})
