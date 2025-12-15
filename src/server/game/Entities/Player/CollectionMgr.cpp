@@ -491,7 +491,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 
         } while (knownAppearances->NextRow());
 
-        _appearances->init_from_block_range(blocks.begin(), blocks.end());
+        boost::from_block_range(blocks.begin(), blocks.end(), *_appearances);
     }
 
     if (favoriteAppearances)
@@ -901,7 +901,7 @@ void CollectionMgr::LoadAccountTransmogIllusions(PreparedQueryResult knownTransm
 
         } while (knownTransmogIllusions->NextRow());
 
-        _transmogIllusions->init_from_block_range(blocks.begin(), blocks.end());
+        boost::from_block_range(blocks.begin(), blocks.end(), *_transmogIllusions);
     }
 
     // Static illusions known by every player
