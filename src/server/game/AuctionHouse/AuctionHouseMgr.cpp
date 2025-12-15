@@ -1146,9 +1146,8 @@ void AuctionHouseObject::BuildListBuckets(WorldPackets::AuctionHouse::AuctionLis
     if (filters.HasFlag(AuctionHouseFilterMask::UncollectedOnly))
     {
         knownAppearanceIds = player->GetSession()->GetCollectionMgr()->GetAppearanceIds();
+        knownPetSpecies.resize(std::max(knownPetSpecies.size() * 32, std::size_t(sBattlePetSpeciesStore.GetNumRows())));
         boost::from_block_range(knownPetBits.begin(), knownPetBits.end(), knownPetSpecies);
-        if (knownPetSpecies.size() < sBattlePetSpeciesStore.GetNumRows())
-            knownPetSpecies.resize(sBattlePetSpeciesStore.GetNumRows());
     }
 
     AuctionsResultBuilder<AuctionsBucketData> builder(offset, player->GetSession()->GetSessionDbcLocale(), sorts, AuctionHouseResultLimits::Browse);
