@@ -491,6 +491,7 @@ void CollectionMgr::LoadAccountItemAppearances(PreparedQueryResult knownAppearan
 
         } while (knownAppearances->NextRow());
 
+        _appearances->resize(blocks.size() * 32);
         boost::from_block_range(blocks.begin(), blocks.end(), *_appearances);
     }
 
@@ -901,6 +902,7 @@ void CollectionMgr::LoadAccountTransmogIllusions(PreparedQueryResult knownTransm
 
         } while (knownTransmogIllusions->NextRow());
 
+        _transmogIllusions->resize(blocks.size() * 32);
         boost::from_block_range(blocks.begin(), blocks.end(), *_transmogIllusions);
     }
 
