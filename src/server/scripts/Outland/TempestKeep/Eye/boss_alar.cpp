@@ -168,6 +168,11 @@ struct boss_alar : public BossAI
     boss_alar(Creature* creature) : BossAI(creature, DATA_ALAR),
         _isFirstPhase(true), _isInTransition(false), _isFirstPlatform(true), _shouldSpawnEmber(false), _currentPlatform(0) { }
 
+    void JustAppeared() override
+    {
+        me->SetDisableGravity(true);
+    }
+
     void JustEngagedWith(Unit* who) override
     {
         BossAI::JustEngagedWith(who);
