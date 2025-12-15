@@ -139,7 +139,7 @@ struct boss_nalorakk : public BossAI
         if (_waveEventInProgress)
         {
             me->SetImmuneToAll(true);
-            me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_1);
+            me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_1, true);
         }
     }
 
@@ -241,21 +241,21 @@ struct boss_nalorakk : public BossAI
                 Talk(SAY_WAVE_DONE);
                 _isMovingToLocation = true;
                 _isWaiting = false;
-                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_2);
+                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_2, true);
                 events.ScheduleEvent(EVENT_WAVE_DONE_1, 2s);
                 break;
             case ACTION_WAVE_DONE_2:
                 Talk(SAY_WAVE_DONE);
                 _isMovingToLocation = true;
                 _isWaiting = false;
-                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_3);
+                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_3, true);
                 events.ScheduleEvent(EVENT_WAVE_DONE_2, 2s);
                 break;
             case ACTION_WAVE_DONE_3:
                 Talk(SAY_WAVE_DONE);
                 _isMovingToLocation = true;
                 _isWaiting = false;
-                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_4);
+                me->GetMap()->SpawnGroupSpawn(SPAWN_GROUP_NALORAKK_WAVE_4, true);
                 events.ScheduleEvent(EVENT_WAVE_DONE_3, 2s);
                 break;
             case ACTION_WAVE_DONE_4:
