@@ -49,7 +49,7 @@ enum RizzleSprysprocketData
     GOSSIP_MENU_GET_MOONSTONE       = 57025,
     GOSSIP_OPTION_GET_MOONSTONE     = 0,
 
-    PATH_RIZZLE                     = 2300200
+    PATH_RIZZLE                     = 18401600
 };
 
 struct npc_rizzle_sprysprocket : public ScriptedAI

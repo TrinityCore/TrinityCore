@@ -332,18 +332,8 @@ void Spell::EffectSchoolDMG()
                 // Meteor like spells (divided damage to targets)
                 if (m_spellInfo->HasAttribute(SPELL_ATTR0_CU_SHARE_DAMAGE))
                 {
-                    uint32 count = 0;
-                    for (auto ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                    {
-                        if (ihit->MissCondition != SPELL_MISS_NONE)
-                            continue;
-
-                        if (ihit->EffectMask & (1 << effectInfo->EffectIndex))
-                            ++count;
-                    }
-
                     // divide to all targets
-                    if (count)
+                    if (int64 count = GetUnitTargetCountForEffect(SpellEffIndex(effectInfo->EffectIndex)))
                         damage /= count;
                 }
 

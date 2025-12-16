@@ -74,6 +74,7 @@ enum DeathKnightSpells
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
+    SPELL_DK_LICHBORNE                          = 50397,
     SPELL_DK_MASTER_OF_GHOULS                   = 52143,
     SPELL_DK_BLOOD_PLAGUE                       = 55078,
     SPELL_DK_RAISE_DEAD_USE_REAGENT             = 48289,
@@ -1296,6 +1297,33 @@ class spell_dk_improved_unholy_presence : public AuraScript
     {
         AfterEffectApply += AuraEffectApplyFn(spell_dk_improved_unholy_presence::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dk_improved_unholy_presence::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
+// 49039 - Lichborne
+class spell_dk_lichborne : public AuraScript
+{
+    PrepareAuraScript(spell_dk_lichborne);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DK_LICHBORNE });
+    }
+
+    void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_DK_LICHBORNE, true);
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->RemoveAurasDueToSpell(SPELL_DK_LICHBORNE);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_dk_lichborne::AfterApply, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dk_lichborne::AfterRemove, EFFECT_0, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -2751,6 +2779,7 @@ void AddSC_deathknight_spell_scripts()
     RegisterSpellScript(spell_dk_improved_blood_presence_triggered);
     RegisterSpellScript(spell_dk_improved_frost_presence);
     RegisterSpellScript(spell_dk_improved_unholy_presence);
+    RegisterSpellScript(spell_dk_lichborne);
     RegisterSpellScript(spell_dk_pvp_4p_bonus);
     RegisterSpellScript(spell_dk_mark_of_blood);
     RegisterSpellScript(spell_dk_necrosis);
