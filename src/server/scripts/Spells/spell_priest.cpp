@@ -2287,9 +2287,6 @@ class spell_pri_divine_procession : public AuraScript
             return atonementEffect->GetDuration();
         });
 
-        if (it == atonementTargets.end())
-            return;
-
         if (Unit const* target = ObjectAccessor::GetUnit(*caster, *it))
         {
             if (Aura* atonement = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()))
