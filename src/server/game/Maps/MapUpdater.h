@@ -19,10 +19,11 @@
 #define _MAP_UPDATER_H_INCLUDED
 
 #include "Define.h"
+#include "ProducerConsumerQueue.h"
+#include <condition_variable>
 #include <mutex>
 #include <thread>
-#include <condition_variable>
-#include "ProducerConsumerQueue.h"
+#include <vector>
 
 class MapUpdateRequest;
 class Map;
@@ -44,7 +45,7 @@ class TC_GAME_API MapUpdater
 
         void deactivate();
 
-        bool activated();
+        bool activated() const;
 
     private:
 

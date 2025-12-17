@@ -77,6 +77,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EuropaTicketConfig const& europaTicketS
     data << Bits<1>(europaTicketSystemStatus.SuggestionsEnabled);
 
     data << europaTicketSystemStatus.ThrottleState;
+    data << europaTicketSystemStatus.Unused1127;
 
     return data;
 }
@@ -86,6 +87,15 @@ ByteBuffer& operator<<(ByteBuffer& data, SquelchInfo const& squelch)
     data << Bits<1>(squelch.IsSquelched);
     data << squelch.BnetAccountGuid;
     data << squelch.GuildGuid;
+
+    return data;
+}
+
+ByteBuffer& operator<<(ByteBuffer& data, GameModeData const& gameMode)
+{
+    data << uint8(gameMode.GameMode);
+    data << int32(gameMode.Unused1127);
+    data << int32(gameMode.GameModeRecordID);
 
     return data;
 }
@@ -131,6 +141,7 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << uint32(ClubPresenceUnsubscribeDelay);
 
     _worldPacket << int32(ContentSetID);
+    _worldPacket << Size<uint32>(DisabledGameModes);
     _worldPacket << Size<uint32>(GameRules);
     _worldPacket << int32(ActiveTimerunningSeasonID);
     _worldPacket << int32(RemainingTimerunningSeasonSeconds);
@@ -152,6 +163,9 @@ WorldPacket const* FeatureSystemStatus::Write()
     _worldPacket << float(AddonPerformanceMsgWarning);
     _worldPacket << float(AddonPerformanceMsgError);
     _worldPacket << float(AddonPerformanceMsgOverall);
+
+    for (GameModeData const& disabledGameMode : DisabledGameModes)
+        _worldPacket << disabledGameMode;
 
     for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
@@ -292,7 +306,9 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     _worldPacket << int32(MinimumExpansionLevel);
     _worldPacket << int32(MaximumExpansionLevel);
     _worldPacket << int32(ContentSetID);
+    _worldPacket << Size<uint32>(DisabledGameModes);
     _worldPacket << Size<uint32>(GameRules);
+    _worldPacket << Size<uint32>(AvailableGameModeIDs);
     _worldPacket << int32(ActiveTimerunningSeasonID);
     _worldPacket << int32(RemainingTimerunningSeasonSeconds);
     _worldPacket << TimerunningConversionMinCharacterAge;
@@ -312,8 +328,14 @@ WorldPacket const* FeatureSystemStatusGlueScreen::Write()
     if (!LiveRegionCharacterCopySourceRegions.empty())
         _worldPacket.append(LiveRegionCharacterCopySourceRegions.data(), LiveRegionCharacterCopySourceRegions.size());
 
+    for (GameModeData const& disabledGameMode : DisabledGameModes)
+        _worldPacket << disabledGameMode;
+
     for (GameRuleValuePair const& gameRuleValue : GameRules)
         _worldPacket << gameRuleValue;
+
+    if (!AvailableGameModeIDs.empty())
+        _worldPacket.append(AvailableGameModeIDs.data(), AvailableGameModeIDs.size());
 
     for (DebugTimeEventInfo const& debugTimeEventInfo : DebugTimeEvents)
         _worldPacket << debugTimeEventInfo;
@@ -339,6 +361,22 @@ WorldPacket const* MirrorVars::Write()
     _worldPacket << Size<uint32>(Variables);
     for (MirrorVarSingle const& variable : Variables)
         _worldPacket << variable;
+
+    return &_worldPacket;
+}
+
+WorldPacket const* MOTD::Write()
+{
+    _worldPacket << BitsSize<4>(*Text);
+    _worldPacket.FlushBits();
+
+    for (std::string const& line : *Text)
+    {
+        _worldPacket << SizedString::BitsSize<7>(line);
+        _worldPacket.FlushBits();
+
+        _worldPacket << SizedString::Data(line);
+    }
 
     return &_worldPacket;
 }

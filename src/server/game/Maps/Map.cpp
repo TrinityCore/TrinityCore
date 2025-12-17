@@ -25,6 +25,7 @@
 #include "DB2Stores.h"
 #include "DatabaseEnv.h"
 #include "DynamicTree.h"
+#include "DynamicMMapTileBuilder.h"
 #include "GameObjectModel.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -36,6 +37,7 @@
 #include "InstanceScenario.h"
 #include "InstanceScript.h"
 #include "Log.h"
+#include "MMapManager.h"
 #include "MapManager.h"
 #include "MapUtils.h"
 #include "Metric.h"
@@ -153,6 +155,9 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     sTransportMgr->CreateTransportsForMap(this);
 
     m_terrain->LoadMMapInstance(GetId(), GetInstanceId());
+
+    if (MMAP::MMapManager::isRebuildingTilesEnabledOnMap(GetId()))
+        m_mmapTileRebuilder = std::make_shared<MMAP::DynamicTileBuilder>(this, MMAP::MMapManager::instance()->GetNavMesh(GetId(), GetInstanceId()));
 
     _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 }
@@ -290,6 +295,7 @@ void Map::EnsureGridCreated(GridCoord const& p)
         int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
 
         m_terrain->LoadMapAndVMap(gx, gy);
+        m_terrain->LoadMMap(GetInstanceId(), gx, gy);
     }
 }
 
@@ -647,6 +653,9 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 void Map::Update(uint32 t_diff)
 {
     _dynamicTree.update(t_diff);
+    if (m_mmapTileRebuilder)
+        m_mmapTileRebuilder->Update(Milliseconds(t_diff));
+
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
@@ -1761,6 +1770,28 @@ bool Map::getObjectHitPos(PhaseShift const& phaseShift, float x1, float y1, floa
     ry = resultPos.y;
     rz = resultPos.z;
     return result;
+}
+
+void Map::RequestRebuildNavMeshOnGameObjectModelChange(GameObjectModel const& model, PhaseShift const& phaseShift)
+{
+    if (!m_mmapTileRebuilder)
+        return;
+
+    uint32 terrainMapId = PhasingHandler::GetTerrainMapId(phaseShift, GetId(), m_terrain.get(), model.GetPosition().x, model.GetPosition().y);
+
+    G3D::AABox const& bounds = model.getBounds();
+
+    GridCoord low = Trinity::ComputeGridCoord(bounds.high().x, bounds.high().y);
+    low.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.x_coord;
+    low.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - low.y_coord;
+
+    GridCoord high = Trinity::ComputeGridCoord(bounds.low().x, bounds.low().y);
+    high.x_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.x_coord;
+    high.y_coord = (MAX_NUMBER_OF_GRIDS - 1) - high.y_coord;
+
+    for (uint32 x = low.x_coord; x <= high.x_coord; ++x)
+        for (uint32 y = low.y_coord; y <= high.y_coord; ++y)
+            m_mmapTileRebuilder->AddTile(terrainMapId, x, y);
 }
 
 TransferAbortParams Map::PlayerCannotEnter(uint32 mapid, Player* player)
