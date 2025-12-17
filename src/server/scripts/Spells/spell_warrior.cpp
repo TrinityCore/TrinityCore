@@ -57,6 +57,7 @@ enum WarriorSpells
     SPELL_WARRIOR_FRENZY_BUFF                       = 335082,
     SPELL_WARRIOR_FRESH_MEAT_DEBUFF                 = 316044,
     SPELL_WARRIOR_FRESH_MEAT_TALENT                 = 215568,
+    SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE       = 392793,
     SPELL_WARRIOR_FUELED_BY_VIOLENCE_HEAL           = 383104,
     SPELL_WARRIOR_GLYPH_OF_THE_BLAZING_TRAIL        = 123779,
     SPELL_WARRIOR_GLYPH_OF_HEROIC_LEAP              = 159708,
@@ -81,6 +82,7 @@ enum WarriorSpells
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
+    SPELL_WARRIOR_REVENGE                           = 6572,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -748,6 +750,65 @@ class spell_warr_frenzy_rampage : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_warr_frenzy_rampage::HandleAfterCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+// 392792 - Frothing Berserker
+class spell_warr_frothing_berserker : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({
+            SPELL_WARRIOR_REVENGE,
+            SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE
+        });
+    }
+
+    bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Optional<int32> spentRage = procSpell->GetPowerTypeCostAmount(POWER_RAGE);
+        return spentRage && *spentRage > 0;
+    }
+
+    void HandleProc(ProcEventInfo& eventInfo)
+    {
+        Unit* target = GetTarget();
+
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return;
+
+        Optional<int32> spentRage = procSpell->GetPowerTypeCostAmount(POWER_RAGE);
+        if (!spentRage || *spentRage <= 0)
+            return;
+
+        int32 actualCost = *spentRage / 10;
+        SpellInfo const* procInfo = procSpell->GetSpellInfo();
+
+        // Determine refund percentage
+        int32 refundPct = GetEffectInfo(EFFECT_0).CalcValue(target);
+        if (procInfo->SpellFamilyFlags[0] & 0x400) 
+            refundPct = GetEffectInfo(EFFECT_2).CalcValue(GetTarget()); //50% for Revenge
+
+        int32 refundRage = (actualCost * refundPct) / 100;
+        if (refundRage <= 0)
+            return;
+
+        target->CastSpell(target, SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = procSpell,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, refundRage * 10 } }
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_frothing_berserker::CheckProc);
+        OnProc += AuraProcFn(spell_warr_frothing_berserker::HandleProc);
     }
 };
 
@@ -1646,6 +1707,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
+    RegisterSpellScript(spell_warr_frothing_berserker);
     RegisterSpellScript(spell_warr_fueled_by_violence);
     RegisterSpellScript(spell_warr_heroic_leap);
     RegisterSpellScript(spell_warr_heroic_leap_damage);
