@@ -163,11 +163,12 @@ enum Classes : uint8
     CLASS_DRUID         = 11, // TITLE Druid
     CLASS_DEMON_HUNTER  = 12, // TITLE Demon Hunter
     CLASS_EVOKER        = 13, // TITLE Evoker
-    CLASS_ADVENTURER    = 14  // TITLE Adventurer
+    CLASS_ADVENTURER    = 14, // TITLE Adventurer
+    CLASS_TRAVELER      = 15  // TITLE Traveler
 };
 
 // max+1 for player class
-#define MAX_CLASSES       15
+#define MAX_CLASSES       16
 
 #define CLASSMASK_ALL_PLAYABLE     \
     ((1<<(CLASS_WARRIOR-1))      | \
@@ -1643,6 +1644,15 @@ enum SpellEffectName
     SPELL_EFFECT_343                                = 343,
     SPELL_EFFECT_344                                = 344, // some kind of teleport
     SPELL_EFFECT_ASSIST_ACTION                      = 345, // MiscValue[0] = AssistActionType, MiscValue[1] = ID, depends on type
+    SPELL_EFFECT_346                                = 346,
+    SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT              = 347, // MiscValue[0] = TransmogOutfitEntry
+    SPELL_EFFECT_GIVE_HOUSE_LEVEL                   = 348,
+    SPELL_EFFECT_LEARN_HOUSE_ROOM                   = 349, // MiscValue[0] = HouseRoom
+    SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT     = 350, // MiscValue[0] = ExteriorComponent
+    SPELL_EFFECT_LEARN_HOUSE_THEME                  = 351, // MiscValue[0] = HouseTheme
+    SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE = 352, // MiscValue[0] = RoomComponentTexture
+
+    //                                              = 354, // MiscValue[0] = NeighborhoodInitiative
     TOTAL_SPELL_EFFECTS
 };
 
@@ -5016,7 +5026,7 @@ enum CreatureTypeFlags
 {
     CREATURE_TYPE_FLAG_TAMEABLE                          = 0x00000001, // Makes the mob tameable (must also be a beast and have family set)
     CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS                 = 0x00000002, // Creature is also visible for not alive player. Allows gossip interaction if npcflag allows?
-    CREATURE_TYPE_FLAG_BOSS_MOB                          = 0x00000004, // Changes creature's visible level to "??" in the creature's portrait - Immune Knockback.
+    CREATURE_TYPE_FLAG_BOSS_MOB                          = 0x00000004, // Changes creature's visible level to "??" in the creature's portrait
     CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM            = 0x00000008,
     CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP                = 0x00000010,
     CREATURE_TYPE_FLAG_MORE_AUDIBLE                      = 0x00000020, // Sound related
@@ -5050,12 +5060,12 @@ enum CreatureTypeFlags
 
 enum CreatureTypeFlags2
 {
-    CREATURE_TYPE_FLAG_2_UNK1 = 0x00000001,
-    CREATURE_TYPE_FLAG_2_UNK2 = 0x00000002,
-    CREATURE_TYPE_FLAG_2_UNK3 = 0x00000004,
-    CREATURE_TYPE_FLAG_2_UNK4 = 0x00000008,
-    CREATURE_TYPE_FLAG_2_UNK5 = 0x00000010,
-    CREATURE_TYPE_FLAG_2_UNK6 = 0x00000020,
+    CREATURE_TYPE_FLAG_2_PREDICTIVE_POWER_REGEN          = 0x00000001,
+    CREATURE_TYPE_FLAG_2_HIDE_LEVEL_INFO_IN_TOOLTIP      = 0x00000002,
+    CREATURE_TYPE_FLAG_2_HIDE_HEALTH_BAR_UNDER_TOOLTIP   = 0x00000004,
+    CREATURE_TYPE_FLAG_2_NEVER_DISPLAY_EMOTE_OR_CHAT_TEXT_IN_A_CHAT_BUBBLE = 0x00000008,
+    CREATURE_TYPE_FLAG_2_NO_DEATH_THUD = 0x00000010,
+    CREATURE_TYPE_FLAG_2_NO_INTERACT_ON_LEFT_CLICK = 0x00000020,
     CREATURE_TYPE_FLAG_2_UNK7 = 0x00000040,
     CREATURE_TYPE_FLAG_2_UNK8 = 0x00000080
 };
@@ -8549,7 +8559,28 @@ enum class GameError : uint32
     ERR_CURRENCY_TRANSFER_UNMET_REQUIREMENTS                        = 1199,
     ERR_CURRENCY_TRANSFER_TRANSACTION_IN_PROGRESS                   = 1200,
     ERR_CURRENCY_TRANSFER_DISABLED                                  = 1201,
-    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1202,
+    ERR_NO_OWNED_HOUSE_IN_THIS_NEIGHBORHOOD_MAP                     = 1202,
+    ERR_HOUSING_RESULT_NEIGHBORHOOD_NOT_FOUND                       = 1203,
+    ERR_INVITED_TO_NEIGHBORHOOD                                     = 1204,
+    ERR_NEIGHBORHOOD_OWNER_TRANSFERRED_S                            = 1205,
+    ERR_NOT_WHILE_HOUSE_EDIT                                        = 1206,
+    ERR_NEW_PARTY_NEIGHBORHOOD_RESERVATION                          = 1207,
+    ERR_HOUSE_MOVED                                                 = 1208,
+    ERR_CHARTER_SIGNATURE_REQUEST_SENT                              = 1209,
+    ERR_CHARTER_SIGNATURE_RECEIVED                                  = 1210,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_MISSING_EXPANSION          = 1211,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_DUPLICATE_SIGNATURE        = 1212,
+    ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1213,
+    ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1214,
+    ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1215,
+    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1216,
+    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1217,
+    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1218,
+    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1219,
+    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1220,
+    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1221,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1222,
+    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1223,
 };
 
 enum class MountResult : uint32

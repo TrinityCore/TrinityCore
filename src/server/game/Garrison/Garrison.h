@@ -23,6 +23,7 @@
 #include "GarrisonPackets.h"
 #include "Optional.h"
 #include "QuaternionData.h"
+#include "SharedDefines.h"
 #include <unordered_map>
 
 class GameObject;
@@ -228,6 +229,7 @@ public:
     void Enter() const;
     void Leave() const;
 
+    static constexpr GarrisonFactionIndex GetFaction(Team team) { return team == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE; }
     GarrisonFactionIndex GetFaction() const;
     GarrisonType GetType() const { return GARRISON_TYPE_GARRISON; }
     GarrSiteLevelEntry const* GetSiteLevel() const { return _siteLevel; }
@@ -259,7 +261,7 @@ public:
         return count;
     }
 
-    void SendInfo();
+    void BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const;
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendMapData(Player* receiver) const;

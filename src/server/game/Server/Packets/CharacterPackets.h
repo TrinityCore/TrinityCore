@@ -120,6 +120,7 @@ namespace WorldPackets
         {
             uint32 WarbandScenePlacementID = 0;
             int32 Type = 0;
+            int32 ContentSetID = 0;
             ObjectGuid Guid;
         };
 
@@ -129,6 +130,7 @@ namespace WorldPackets
             uint8 OrderIndex = 0;
             uint32 WarbandSceneID = 0;
             uint32 Flags = 0;    ///< enum WarbandGroupFlags { Collapsed = 1 }
+            int32 ContentSetID = 0;
             std::vector<WarbandGroupMember> Members;
             std::string_view Name;
         };
@@ -205,8 +207,7 @@ namespace WorldPackets
                 uint32 RestrictionFlags  = 0;
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
-                bool RpeResetAvailable = false;
-                bool RpeResetQuestClearAvailable = false;
+                bool RpeAvailable = false;
             };
 
             struct CharacterInfo
@@ -255,7 +256,7 @@ namespace WorldPackets
                 };
 
                 int8 RaceID = 0;
-                int32 Reason = 0;
+                int8 Reason = 0;
             };
 
             explicit EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
@@ -269,6 +270,7 @@ namespace WorldPackets
             bool IsRestrictedNewPlayer            = false; ///< forbids using level boost and class trials
             bool IsNewcomerChatCompleted          = false; ///< forbids hero classes and allied races
             bool IsRestrictedTrial                = false;
+            bool Unused1127                       = false;
             bool DontCreateCharacterDisplays      = false;
 
             int32 MaxCharacterLevel     = 1;
@@ -547,6 +549,7 @@ namespace WorldPackets
 
             ObjectGuid Guid;      ///< Guid of the player that is logging in
             float FarClip = 0.0f; ///< Visibility distance (for terrain)
+            bool RPE = false;
         };
 
         class LoginVerifyWorld final : public ServerPacket
