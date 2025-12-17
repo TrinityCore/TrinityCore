@@ -6540,7 +6540,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         return false;
 
     ObjectGuid victim_guid;
-    uint32 victim_rank = 0;
+    int32 victim_rank = 0;
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -6571,26 +6571,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             if (v_level <= k_grey)
                 return false;
 
-            // PLAYER_CHOSEN_TITLE VALUES DESCRIPTION
-            //  [0]      Just name
-            //  [1..14]  Alliance honor titles and player name
-            //  [15..28] Horde honor titles and player name
-            //  [29..38] Other title and player name
-            //  [39+]    Nothing
-            uint32 victim_title = victim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
-                                                        // Get Killer titles, CharTitlesEntry::MaskID
-            // Ranks:
-            //  title[1..14]  -> rank[5..18]
-            //  title[15..28] -> rank[5..18]
-            //  title[other]  -> 0
-            if (victim_title == 0)
-                victim_guid.Clear();                     // Don't show HK: <rank> message, only log.
-            else if (victim_title < 15)
-                victim_rank = victim_title + 4;
-            else if (victim_title < 29)
-                victim_rank = victim_title - 14 + 4;
-            else
-                victim_guid.Clear();                     // Don't show HK: <rank> message, only log.
+            victim_rank = victim->GetByteValue(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTES_OFFSET_LIFETIME_MAX_PVP_RANK);
 
             honor_f = std::ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
@@ -6635,7 +6616,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     WorldPacket data(SMSG_PVP_CREDIT, 4+8+4);
     data << uint32(honor);
     data << victim_guid;
-    data << uint32(victim_rank);
+    data << int32(victim_rank);
 
     SendDirectMessage(&data);
 
@@ -26378,96 +26359,6 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
             return true;
 
     return false;
-}
-
-bool Player::SetDisableGravity(bool disable, bool packetOnly /*= false*/, bool updateAnimTier /*= true*/)
-{
-    if (!packetOnly && !Unit::SetDisableGravity(disable, packetOnly, updateAnimTier))
-        return false;
-
-    WorldPacket data(disable ? SMSG_MOVE_GRAVITY_DISABLE : SMSG_MOVE_GRAVITY_ENABLE, 12);
-    data << GetPackGUID();
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
-
-    data.Initialize(MSG_MOVE_GRAVITY_CHNG, 64);
-    data << GetPackGUID();
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Player::SetCanFly(bool apply, bool packetOnly /*= false*/)
-{
-    if (!apply)
-        SetFallInformation(0, GetPositionZ());
-
-    WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
-    data << GetPackGUID();
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
-
-    if (packetOnly || Unit::SetCanFly(apply))
-    {
-        data.Initialize(MSG_MOVE_UPDATE_CAN_FLY, 64);
-        data << GetPackGUID();
-        BuildMovementPacket(&data);
-        SendMessageToSet(&data, false);
-        return true;
-    }
-    else
-        return false;
-}
-
-bool Player::SetHover(bool apply, bool packetOnly /*= false*/, bool updateAnimTier /*= true*/)
-{
-    if (!packetOnly && !Unit::SetHover(apply, packetOnly, updateAnimTier))
-        return false;
-
-    WorldPacket data(apply ? SMSG_MOVE_SET_HOVER : SMSG_MOVE_UNSET_HOVER, 12);
-    data << GetPackGUID();
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
-
-    data.Initialize(MSG_MOVE_HOVER, 64);
-    data << GetPackGUID();
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Player::SetWaterWalking(bool apply, bool packetOnly /*= false*/)
-{
-    if (!packetOnly && !Unit::SetWaterWalking(apply))
-        return false;
-
-    WorldPacket data(apply ? SMSG_MOVE_WATER_WALK : SMSG_MOVE_LAND_WALK, 12);
-    data << GetPackGUID();
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
-
-    data.Initialize(MSG_MOVE_WATER_WALK, 64);
-    data << GetPackGUID();
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-    return true;
-}
-
-bool Player::SetFeatherFall(bool apply, bool packetOnly /*= false*/)
-{
-    if (!packetOnly && !Unit::SetFeatherFall(apply))
-        return false;
-
-    WorldPacket data(apply ? SMSG_MOVE_FEATHER_FALL : SMSG_MOVE_NORMAL_FALL, 12);
-    data << GetPackGUID();
-    data << uint32(0);          //! movement counter
-    SendDirectMessage(&data);
-
-    data.Initialize(MSG_MOVE_FEATHER_FALL, 64);
-    data << GetPackGUID();
-    BuildMovementPacket(&data);
-    SendMessageToSet(&data, false);
-    return true;
 }
 
 void Player::SendMovementSetCollisionHeight(float height)

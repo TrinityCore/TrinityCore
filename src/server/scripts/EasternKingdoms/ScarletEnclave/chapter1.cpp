@@ -438,15 +438,12 @@ struct npc_eye_of_acherus : public ScriptedAI
     {
         creature->SetDisplayId(creature->GetCreatureTemplate()->Modelid1);
         creature->SetReactState(REACT_PASSIVE);
-        creature->SetDisableGravity(true);
-        creature->SetCanFly(true);
-        creature->SetSpeed(MOVE_FLIGHT, 35.f);
     }
 
-    void Reset() override
+    void InitializeAI() override
     {
-        DoCastSelf(SPELL_EYE_OF_ACHERUS_VISUAL);
         DoCastSelf(SPELL_ROOT_SELF);
+        DoCastSelf(SPELL_EYE_OF_ACHERUS_VISUAL);
         _events.ScheduleEvent(EVENT_ANNOUNCE_LAUNCH_TO_DESTINATION, 7s);
     }
 
@@ -459,11 +456,6 @@ struct npc_eye_of_acherus : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason why) override
-    {
-        _EnterEvadeMode(why);
-    }
-
     void UpdateAI(uint32 diff) override
     {
         _events.Update(diff);
@@ -473,33 +465,33 @@ struct npc_eye_of_acherus : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_ANNOUNCE_LAUNCH_TO_DESTINATION:
-                    //DoCastSelf(SPELL_EYE_OF_ACHERUS_FLIGHT_BOOST);
                     if (Unit* owner = me->GetCharmerOrOwner())
                         Talk(SAY_LAUNCH_TOWARDS_DESTINATION, owner);
                     _events.ScheduleEvent(EVENT_UNROOT, 1s + 200ms);
                     break;
                 case EVENT_UNROOT:
                     me->RemoveAurasDueToSpell(SPELL_ROOT_SELF);
-                    _events.ScheduleEvent(EVENT_LAUNCH_TOWARDS_DESTINATION, 1ms);
+                    DoCastSelf(SPELL_EYE_OF_ACHERUS_FLIGHT_BOOST);
+                    _events.ScheduleEvent(EVENT_LAUNCH_TOWARDS_DESTINATION, 1s + 200ms);
                     break;
                 case EVENT_LAUNCH_TOWARDS_DESTINATION:
                 {
-                    std::function<void(Movement::MoveSplineInit&)> initializer = [=](Movement::MoveSplineInit& init)
+                    std::function<void(Movement::MoveSplineInit&)> initializer = [=, me = me](Movement::MoveSplineInit& init)
                     {
                         Movement::PointsArray path(EyeOfAcherusPath, EyeOfAcherusPath + EyeOfAcherusPathSize);
                         init.MovebyPath(path);
                         init.SetFly();
-                        init.SetSwim();
-                        init.SetVelocity(35.f);
+                        if (Unit* owner = me->GetCharmerOrOwner())
+                            init.SetVelocity(owner->GetSpeed(MOVE_RUN));
                     };
 
                     me->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), POINT_NEW_AVALON, MOTION_PRIORITY_NORMAL, POINT_MOTION_TYPE);
                     break;
                 }
                 case EVENT_GRANT_CONTROL:
-                    //me->RemoveAurasDueToSpell(SPELL_EYE_OF_ACHERUS_FLIGHT_BOOST);
-                    //DoCastSelf(SPELL_EYE_OF_ACHERUS_FLIGHT);
                     me->RemoveAurasDueToSpell(SPELL_ROOT_SELF);
+                    DoCastSelf(SPELL_EYE_OF_ACHERUS_FLIGHT);
+                    me->RemoveAurasDueToSpell(SPELL_EYE_OF_ACHERUS_FLIGHT_BOOST);
                     if (Unit* owner = me->GetCharmerOrOwner())
                         Talk(SAY_EYE_UNDER_CONTROL, owner);
                     break;

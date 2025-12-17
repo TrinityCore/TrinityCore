@@ -261,7 +261,7 @@ struct npc_koltira_deathweaver : public ScriptedAI
                     me->SetWalk(false);
                     me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
                     DoCastSelf(SPELL_HERO_AGGRO);
-                    me->GetMotionMaster()->MovePath(NPC_KOLTIRA, false);
+                    me->GetMotionMaster()->MovePath(NPC_KOLTIRA << 3, false);
 
                     break;
                 case EVENT_CHECK_PLAYER:
