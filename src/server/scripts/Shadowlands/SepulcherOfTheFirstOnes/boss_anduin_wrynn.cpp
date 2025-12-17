@@ -2999,7 +2999,7 @@ struct at_anduin_wrynn_empowered_wicked_star : public at_anduin_wrynn_wicked_sta
         at->MovePositionToFirstCollision(destPos, 100.0f, angle);
 
         std::vector<G3D::Vector3> splinePoints;
-        splinePoints.push_back(PositionToVector3(at));
+        splinePoints.push_back(PositionToVector3(at->GetPosition()));
         splinePoints.push_back(PositionToVector3(destPos));
 
         at->InitSplines(splinePoints);

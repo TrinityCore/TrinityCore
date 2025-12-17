@@ -1923,15 +1923,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (waitEvent)
                 actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
 
-            if (e.action.jump.Gravity || e.action.jump.UseDefaultGravity)
-            {
-                float gravity = e.action.jump.UseDefaultGravity ? Movement::gravity : e.action.jump.Gravity;
-                me->GetMotionMaster()->MoveJumpWithGravity(pos, float(e.action.jump.SpeedXY), gravity, e.action.jump.PointId,
-                    {}, false, nullptr, nullptr, std::move(actionResultSetter));
-            }
-            else
-                me->GetMotionMaster()->MoveJump(pos, float(e.action.jump.SpeedXY), float(e.action.jump.SpeedZ), e.action.jump.PointId,
-                    {}, false, nullptr, nullptr, std::move(actionResultSetter));
+            me->GetMotionMaster()->MoveJump(e.action.jump.PointId, pos, float(e.action.jump.SpeedXY),
+                e.action.jump.minHeight ? Optional<float>(e.action.jump.minHeight) : std::nullopt,
+                e.action.jump.maxHeight ? Optional<float>(e.action.jump.maxHeight) : std::nullopt,
+                {}, false, false, {}, nullptr, nullptr, std::move(actionResultSetter));
 
             mTimedActionWaitEvent = std::move(waitEvent);
             break;
