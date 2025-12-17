@@ -2254,12 +2254,12 @@ class spell_pri_divine_procession : public AuraScript
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ATONEMENT, SPELL_PRIEST_ATONEMENT_EFFECT })
-            && ValidateSpellEffect({ {SPELL_PRIEST_ATONEMENT_EFFECT, EFFECT_2} });
+            && ValidateSpellEffect({ { SPELL_PRIEST_ATONEMENT_EFFECT, EFFECT_2 } });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& /*eventInfo*/)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/) const
     {
-        Unit* caster = GetCaster();
+        Unit* caster = GetTarget();
 
         Aura const* atonementAura = caster->GetAura(SPELL_PRIEST_ATONEMENT);
         if (!atonementAura)
@@ -2274,40 +2274,34 @@ class spell_pri_divine_procession : public AuraScript
             return;
 
         // smallest Atonement duration should get increased
-        auto it = std::min_element(atonementTargets.begin(), atonementTargets.end(), [caster](ObjectGuid const& guidA, ObjectGuid const& guidB)
-            {
-                Unit const* targetA = ObjectAccessor::GetUnit(*caster, guidA);
-                Unit const* targetB = ObjectAccessor::GetUnit(*caster, guidB);
+        auto it = std::ranges::min_element(atonementTargets, std::ranges::less(), [caster](ObjectGuid const& guidA)
+        {
+            Unit const* target = ObjectAccessor::GetUnit(*caster, guidA);
+            if (!target)
+                return std::numeric_limits<int32>::max();
 
-                if (!targetA)
-                    return false;
-                if (!targetB)
-                    return true;
+            Aura const* atonementEffect = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
+            if (!atonementEffect)
+                return std::numeric_limits<int32>::max();
 
-                Aura const* auraA = targetA->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
-                Aura const* auraB = targetB->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID());
-
-                if (!auraA)
-                    return false;
-                if (!auraB)
-                    return true;
-
-                return auraA->GetDuration() < auraB->GetDuration();
-            });
+            return atonementEffect->GetDuration();
+        });
 
         if (it == atonementTargets.end())
             return;
 
         if (Unit const* target = ObjectAccessor::GetUnit(*caster, *it))
+        {
             if (Aura* atonement = target->GetAura(SPELL_PRIEST_ATONEMENT_EFFECT, caster->GetGUID()))
             {
-                int32 baseDuration = atonement->GetEffect(EFFECT_2)->GetBaseAmount();
-                int32 maxDuration = (baseDuration + static_cast<int32>(std::floor(baseDuration * 1.25f))) * IN_MILLISECONDS; // +125% from base duration
-
-                int32 newDuration = atonement->GetDuration() + aurEff->GetAmount();
-                if (newDuration <= maxDuration)
+                if (atonement->GetDuration() < 30 * IN_MILLISECONDS)
+                {
+                    int32 newDuration = atonement->GetDuration() + aurEff->GetAmount();
                     atonement->SetDuration(newDuration);
+                    atonement->SetMaxDuration(newDuration);
+                }
             }
+        }
     }
 
     void Register() override
