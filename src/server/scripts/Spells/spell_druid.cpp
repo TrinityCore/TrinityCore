@@ -2400,7 +2400,7 @@ class spell_dru_twin_moons_effect : public SpellScript
         if (targets.empty())
             return;
 
-        float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+        float maxRange = sSpellMgr->GetSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
         uint32 maxTargets = 1;
 
         targets.remove_if([explTarget, maxRange](WorldObject* obj)
