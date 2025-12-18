@@ -3508,7 +3508,7 @@ class spell_pri_void_volley : public SpellScript
         Unit* target = GetHitUnit();
 
         int32 bolts = (target == GetExplTargetUnit()) ? GetEffectInfo().CalcValue(caster) : GetEffectInfo(EFFECT_2).CalcValue(caster);
-        for (int i = 0; i < bolts; ++i)
+        for (uint8 i = 0; i < bolts; ++i)
             caster->CastSpell(target, SPELL_PRIEST_VOID_VOLLEY_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
