@@ -247,7 +247,7 @@ class spell_pri_angelic_bulwark : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ANGELIC_BULWARK_BUFF, SPELL_PRIEST_ANGELIC_BULWARK_DEBUFF })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_0}, {spellInfo->Id, EFFECT_1} });
+            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
