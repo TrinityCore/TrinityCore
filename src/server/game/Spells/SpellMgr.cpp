@@ -5458,6 +5458,18 @@ void SpellMgr::LoadSpellInfoTargetCaps()
         spellInfo->_LoadSqrtTargetLimit(5, 0, 190411, EFFECT_2, {}, {});
     });
 
+    // Elysian Decree (Kyrian)
+    ApplySpellFix({ 307046 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 306830, EFFECT_0, {}, {});
+    });
+
+    // Sigil of Spite
+    ApplySpellFix({ 389860 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_LoadSqrtTargetLimit(5, 0, 390163, EFFECT_0, {}, {});
+    });
+
     TC_LOG_INFO("server.loading", ">> Loaded SpellInfo target caps in {} ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
