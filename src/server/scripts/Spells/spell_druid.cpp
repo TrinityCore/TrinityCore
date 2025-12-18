@@ -1667,7 +1667,7 @@ class spell_dru_pulverize_thrash : public SpellScript
             SPELL_DRUID_PULVERIZE,
             SPELL_DRUID_THRASH_PULVERIZE_TRIGGER
         })
-        && ValidateSpellEffect({ {SPELL_DRUID_PULVERIZE, EFFECT_2} });
+        && ValidateSpellEffect({ { SPELL_DRUID_PULVERIZE, EFFECT_2 } });
     }
 
     bool Load() override
