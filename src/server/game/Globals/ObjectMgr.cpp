@@ -4673,9 +4673,9 @@ void ObjectMgr::LoadQuests()
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
 
-        // 0           1      2        3                4            5          6         7          8                     9
-        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.Description, "
-        //   10                11            12                   13                     14
+        // 0           1      2        3                4            5          6                   7         8          9                     10                    11          12
+        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.SecondaryAmount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.ParentObjectiveID, qo.Visible, qo.Description, "
+        //   13                14            15                   16                     17
             "qoce.GameEventID, qoce.SpellID, qoce.ConversationID, qoce.UpdatePhaseShift, qoce.UpdateZoneAuras",                                                           "quest_objectives qo",  "LEFT JOIN quest_objectives_completion_effect qoce ON qo.ID = qoce.ObjectiveID ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     },
 
         // 0        1                  2                     3       4
@@ -4691,7 +4691,13 @@ void ObjectMgr::LoadQuests()
         { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_completion_log_conditional", "ORDER BY OrderIndex",        "conditional completion log", &Quest::LoadConditionalConditionalQuestCompletionLog },
 
         // 0        1
-        { "QuestID, TreasurePickerID",                                                                                                                                    "quest_treasure_pickers", "ORDER BY OrderIndex",                  "treasure pickers", &Quest::LoadTreasurePickers }
+        { "QuestID, TreasurePickerID",                                                                                                                                    "quest_treasure_pickers", "ORDER BY OrderIndex",                  "treasure pickers", &Quest::LoadTreasurePickers },
+
+        // 0        1
+        { "QuestID, HouseRoomID",                                                                                                                                         "quest_reward_house_room", "ORDER BY OrderIndex",                 "house room rewards", &Quest::LoadRewardHouseRoom },
+
+        // 0        1
+        { "QuestID, HouseDecorID",                                                                                                                                        "quest_reward_house_decor", "ORDER BY OrderIndex",                "house decor rewards", &Quest::LoadRewardHouseDecor }
     };
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
@@ -7664,8 +7670,9 @@ void ObjectMgr::LoadGameObjectTemplate()
         go.name = db2go->Name[sWorld->GetDefaultDbcLocale()];
         go.size = db2go->Scale;
         memset(go.raw.data, 0, sizeof(go.raw.data));
-        std::copy(db2go->PropValue.begin(), db2go->PropValue.end(), std::begin(go.raw.data));
+        std::ranges::copy(db2go->PropValue, std::begin(go.raw.data));
         go.ContentTuningId = 0;
+        go.RequiredLevel = 0;
         go.ScriptId = 0;
     }
 
@@ -7675,8 +7682,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                        21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                        37      38       39     40      41      42      43               44      45          46
-                                             "Data29, Data30, Data31, Data32, Data33, Data34, ContentTuningId, AIName, ScriptName, StringId "
+    //                                        37      38       39     40      41      42      43               44             45      46          47
+                                             "Data29, Data30, Data31, Data32, Data33, Data34, ContentTuningId, RequiredLevel, AIName, ScriptName, StringId "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7706,9 +7713,10 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
         got.ContentTuningId = fields[43].GetInt32();
-        got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetStringView());
-        got.StringId = fields[46].GetString();
+        got.RequiredLevel = fields[44].GetInt32();
+        got.AIName = fields[45].GetString();
+        got.ScriptId = GetScriptId(fields[46].GetStringView());
+        got.StringId = fields[47].GetString();
 
         // Checks
         if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))

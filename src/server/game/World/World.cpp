@@ -268,7 +268,7 @@ std::vector<std::string> const& World::GetMotd() const
 void World::TriggerGuidWarning()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     time_t gameTime = GameTime::GetGameTime();
     time_t today = (gameTime / DAY) * DAY;
@@ -287,7 +287,7 @@ void World::TriggerGuidWarning()
 void World::TriggerGuidAlert()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     DoGuidAlertRestart();
     _guidAlert = true;

@@ -434,6 +434,13 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //343 SPELL_EFFECT_343
     &Spell::EffectNULL,                                     //344 SPELL_EFFECT_344
     &Spell::EffectNULL,                                     //345 SPELL_EFFECT_ASSIST_ACTION
+    &Spell::EffectNULL,                                     //346 SPELL_EFFECT_346
+    &Spell::EffectNULL,                                     //347 SPELL_EFFECT_EQUIP_TRANSMOG_OUTFIT
+    &Spell::EffectNULL,                                     //348 SPELL_EFFECT_GIVE_HOUSE_LEVEL
+    &Spell::EffectNULL,                                     //349 SPELL_EFFECT_LEARN_HOUSE_ROOM
+    &Spell::EffectNULL,                                     //350 SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT
+    &Spell::EffectNULL,                                     //351 SPELL_EFFECT_LEARN_HOUSE_THEME
+    &Spell::EffectNULL,                                     //352 SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE
 };
 
 void Spell::EffectNULL()

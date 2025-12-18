@@ -29,6 +29,7 @@ jobs:
       id: strings
       shell: bash
       run: |
+        echo "build-start=$EPOCHSECONDS" >> "$GITHUB_OUTPUT"
         echo "build-output-dir=${{ github.workspace }}/bin" >> "$GITHUB_OUTPUT"
         echo "ccache-key-prefix=ubuntu-${{ matrix.cc }}-${{ github.base_ref || github.ref_name }}" >> "$GITHUB_OUTPUT"
     - name: Dependencies
@@ -65,6 +66,7 @@ jobs:
         ccache -z
         cmake --build ${{ steps.strings.outputs.build-output-dir }}
         ccache -s
+        ccache --evict-older-than $(($EPOCHSECONDS - ${{ steps.strings.outputs.build-start }}))s
     - name: Unit tests
       run: |
         cmake --build ${{ steps.strings.outputs.build-output-dir }} --target test

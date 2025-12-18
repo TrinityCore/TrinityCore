@@ -562,6 +562,8 @@ bool Creature::InitEntry(uint32 entry, CreatureData const* data /*= nullptr*/)
 
     SetCanDualWield(creatureInfo->flags_extra & CREATURE_FLAG_EXTRA_USE_OFFHAND_ATTACK);
 
+    UpdateCreatureType();
+
     // checked at loading
     m_defaultMovementType = MovementGeneratorType(data ? data->movementType : creatureInfo->MovementType);
     if (!m_wanderDistance && m_defaultMovementType == RANDOM_MOTION_TYPE)
@@ -3048,7 +3050,7 @@ void Creature::ApplyLevelScaling()
 {
     CreatureDifficulty const* creatureDifficulty = GetCreatureDifficulty();
 
-    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, 0))
+    if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(creatureDifficulty->ContentTuningID, {}))
     {
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMin), levels->MinLevel);
         SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::ScalingLevelMax), levels->MaxLevel);
