@@ -117,6 +117,7 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
     SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
+    SPELL_PRIEST_LASTING_WORDS                      = 471504,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
     SPELL_PRIEST_LEVITATE_EFFECT                    = 111759,
     SPELL_PRIEST_LIGHT_ERUPTION                     = 196812,
@@ -1592,6 +1593,43 @@ class spell_pri_item_t6_trinket : public AuraScript
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_item_t6_trinket::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
+};
+
+// 471504 - Lasting Words
+// Triggered by 2050 - Holy Word: Serenity and 34861 - Holy Word: Sanctify
+class spell_pri_lasting_words : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_LASTING_WORDS })
+            && ValidateSpellEffect({ {SPELL_PRIEST_LASTING_WORDS, _spellEff} });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        AuraEffect const* lastingWordsEff = caster->GetAuraEffect(SPELL_PRIEST_LASTING_WORDS, _spellEff);
+        if (!lastingWordsEff)
+            return;
+
+        int32 renewDuration = lastingWordsEff->GetAmount();
+        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
+        args.SetTriggeringSpell(GetSpell());
+        args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
+
+        caster->CastSpell(target, SPELL_PRIEST_RENEW, args);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_lasting_words::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
+    }
+
+    SpellEffIndex _spellEff{};
+public:
+    explicit spell_pri_lasting_words(SpellEffIndex spellEff) : _spellEff{ spellEff } {}
 };
 
 // 92833 - Leap of Faith
@@ -3682,6 +3720,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
     RegisterSpellScript(spell_pri_item_t6_trinket);
+    RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_serenity", EFFECT_0);
+    RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_sanctify", EFFECT_1);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
     RegisterSpellScript(spell_pri_lights_wrath);
