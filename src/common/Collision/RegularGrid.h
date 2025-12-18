@@ -23,6 +23,7 @@
 #include <G3D/Ray.h>
 #include <G3D/BoundsTrait.h>
 #include <memory>
+#include <span>
 #include <unordered_map>
 
 template<class Node>

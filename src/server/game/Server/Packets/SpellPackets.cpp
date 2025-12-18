@@ -169,7 +169,9 @@ ByteBuffer& operator>>(ByteBuffer& buffer, SpellTargetData& targetData)
     buffer >> targetData.Flags;
     buffer >> targetData.Unit;
     buffer >> targetData.Item;
+    buffer >> targetData.Unknown1127_1;
 
+    buffer >> Bits<1>(targetData.Unknown1127_2);
     buffer >> OptionalInit(targetData.SrcLocation);
     buffer >> OptionalInit(targetData.DstLocation);
     buffer >> OptionalInit(targetData.Orientation);
@@ -309,7 +311,9 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
     data << uint32(spellTargetData.Flags);
     data << spellTargetData.Unit;
     data << spellTargetData.Item;
+    data << spellTargetData.Unknown1127_1;
 
+    data << Bits<1>(spellTargetData.Unknown1127_2);
     data << OptionalInit(spellTargetData.SrcLocation);
     data << OptionalInit(spellTargetData.DstLocation);
     data << OptionalInit(spellTargetData.Orientation);

@@ -484,9 +484,12 @@ struct QuestObjective
     int8   StorageIndex = 0;
     int32  ObjectID     = 0;
     int32  Amount       = 0;
+    int32  SecondaryAmount = 0;
     uint32 Flags        = 0;
     uint32 Flags2       = 0;
     float  ProgressBarWeight = 0.0f;
+    int32  ParentObjectiveID = 0;
+    bool   Visible      = false;
     std::string Description;
     std::vector<int32> VisualEffects;
     QuestObjectiveAction* CompletionEffect = nullptr;
@@ -600,6 +603,8 @@ class TC_GAME_API Quest
         void LoadConditionalConditionalOfferRewardText(Field* fields);
         void LoadConditionalConditionalQuestCompletionLog(Field* fields);
         void LoadTreasurePickers(Field* fields);
+        void LoadRewardHouseRoom(Field* fields);
+        void LoadRewardHouseDecor(Field* fields);
 
         uint32 XPValue(Player const* player) const;
         static uint32 XPValue(Player const* player, uint32 contentTuningId, uint32 xpDifficulty, float xpMultiplier = 1.0f, int32 expansion = -1);
@@ -716,6 +721,8 @@ class TC_GAME_API Quest
         int32 GetQuestGiverPortraitMount() const { return _questGiverPortraitMount; }
         int32 GetQuestGiverPortraitModelSceneId() const { return _questGiverPortraitModelSceneId; }
         uint32 GetQuestTurnInPortrait() const { return _questTurnInPortrait; }
+        std::vector<int32> const& GetRewardHouseRoomIds() const { return _rewardHouseRoomIDs; }
+        std::vector<int32> const& GetRewardRewardHouseDecorIds() const { return _rewardHouseDecorIDs; }
         bool IsDaily() const { return (_flags & QUEST_FLAGS_DAILY) != 0; }
         bool IsWeekly() const { return (_flags & QUEST_FLAGS_WEEKLY) != 0; }
         bool IsMonthly() const { return (_specialFlags & QUEST_SPECIAL_FLAGS_MONTHLY) != 0; }
@@ -823,6 +830,8 @@ class TC_GAME_API Quest
         int32 _expansion = 0;
         int32 _managedWorldStateID = 0;
         int32 _questSessionBonus = 0;
+        std::vector<int32> _rewardHouseRoomIDs;
+        std::vector<int32> _rewardHouseDecorIDs;
         std::string _logTitle;
         std::string _logDescription;
         std::string _questDescription;
