@@ -1172,7 +1172,7 @@ class spell_pri_divine_word_chastise : public SpellScript
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        int32 cdReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_DIVINE_WORD, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        int32 cdReduction = sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_WORD, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
 
         caster->CastSpell(caster, SPELL_PRIEST_DIVINE_FAVOR_CHASTISE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         caster->GetSpellHistory()->ModifyCooldown(GetSpellInfo(), Seconds(-cdReduction), true);
