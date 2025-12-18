@@ -676,7 +676,7 @@ class spell_pri_binding_heals : public AuraScript
 
     bool CheckProc(ProcEventInfo& eventInfo)
     {
-        return eventInfo.GetCaster() != eventInfo.GetProcTarget();
+        return eventInfo.GetActor() != eventInfo.GetProcTarget();
     }
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
