@@ -1233,10 +1233,11 @@ class spell_pri_eternal_sanctity : public AuraScript
 
     void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
     {
-        int32 extraDuration = aurEff->GetAmount();
         Aura* apotheosisAura = eventInfo.GetActor()->GetAura(SPELL_PRIEST_APOTHEOSIS);
+        if (!apotheosisAura)
+            return;
 
-        apotheosisAura->SetDuration(apotheosisAura->GetDuration() + extraDuration);
+        apotheosisAura->SetDuration(apotheosisAura->GetDuration() + aurEff->GetAmount());
     }
 
     void Register() override
