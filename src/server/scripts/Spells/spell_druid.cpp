@@ -818,7 +818,7 @@ class spell_dru_elunes_favored_proc : public AuraScript
         if (!_arcaneDamage)
             return;
 
-        int32 healPct = sSpellMgr->AssertSpellInfo(SPELL_DRUID_ELUNES_FAVORED, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+        int32 healPct = sSpellMgr->GetSpellInfo(SPELL_DRUID_ELUNES_FAVORED, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
         int32 heal = CalculatePct(_arcaneDamage, healPct);
 
         CastSpellExtraArgs args(aurEff);
