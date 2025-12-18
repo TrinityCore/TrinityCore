@@ -1147,6 +1147,14 @@ private:
     std::vector<ObjectGuid> _affectedUnits;
 };
 
+struct spell_pri_holy_words_base
+{
+    static void ModifyCooldown(Unit* priest, SpellInfo const* spellInfo, Milliseconds cooldownMod)
+    {
+        priest->GetSpellHistory()->ModifyCooldown(spellInfo, cooldownMod, true);
+    }
+};
+
 // 391339 - Empowered Renew
 class spell_pri_empowered_renew : public AuraScript
 {
@@ -1157,13 +1165,10 @@ class spell_pri_empowered_renew : public AuraScript
             && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_RENEW, DIFFICULTY_NONE)->GetEffect(EFFECT_0).IsAura(SPELL_AURA_PERIODIC_HEAL);
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo const& eventInfo) const
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        Unit* caster = eventInfo.GetActor();
-
-        SpellInfo const* sanct = sSpellMgr->GetSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, GetCastDifficulty());
-        int32 cdReduction = aurEff->GetAmount();
-        caster->GetSpellHistory()->ModifyCooldown(sanct, Milliseconds(-cdReduction));
+        spell_pri_holy_words_base::ModifyCooldown(eventInfo.GetActor(), sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HOLY_WORD_SANCTIFY, GetCastDifficulty()),
+            Milliseconds(-aurEff->GetAmount()));
     }
 
     void Register() override
@@ -1173,25 +1178,23 @@ class spell_pri_empowered_renew : public AuraScript
 };
 
 // 139 - Renew
-class spell_pri_renew : public AuraScript
+class spell_pri_empowered_renew_heal : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ {SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1} });
+        return ValidateSpellEffect({ { SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1 } });
     }
 
-    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit* /*victim*/, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
-        AuraEffect const* empRenew = GetCaster()->GetAuraEffect(SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1);
-        if (!empRenew)
-            return;
-
-        AddPct(pctMod, empRenew->GetAmount());
+        if (Unit* caster = GetCaster())
+            if (AuraEffect const* empRenew = caster->GetAuraEffect(SPELL_PRIEST_EMPOWERED_RENEW, EFFECT_1))
+                AddPct(pctMod, empRenew->GetAmount());
     }
 
     void Register() override
     {
-        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pri_renew::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pri_empowered_renew_heal::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1500,7 +1503,7 @@ class spell_pri_holy_words : public AuraScript
 
         SpellInfo const* targetSpellInfo = sSpellMgr->AssertSpellInfo(targetSpellId, GetCastDifficulty());
         int32 cdReduction = targetSpellInfo->GetEffect(cdReductionEffIndex).CalcValue(GetTarget());
-        GetTarget()->GetSpellHistory()->ModifyCooldown(targetSpellInfo, Seconds(-cdReduction), true);
+        spell_pri_holy_words_base::ModifyCooldown(GetTarget(), targetSpellInfo, Seconds(-cdReduction));
     }
 
     void Register() override
@@ -3687,6 +3690,7 @@ void AddSC_priest_spell_scripts()
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_divine_procession);
     RegisterSpellScript(spell_pri_empowered_renew);
+    RegisterSpellScript(spell_pri_empowered_renew_heal);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
     RegisterSpellScript(spell_pri_evangelism);
@@ -3731,7 +3735,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_purge_the_wicked);
     RegisterSpellScript(spell_pri_purge_the_wicked_dummy);
     RegisterSpellScript(spell_pri_rapture);
-    RegisterSpellScript(spell_pri_renew);
     RegisterSpellScript(spell_pri_sanctuary_absorb);
     RegisterSpellScript(spell_pri_sanctuary_trigger);
     RegisterSpellScript(spell_pri_rhapsody);
