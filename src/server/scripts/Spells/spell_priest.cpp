@@ -800,7 +800,7 @@ class spell_pri_deaths_torment : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
