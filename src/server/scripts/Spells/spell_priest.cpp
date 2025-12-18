@@ -1659,7 +1659,7 @@ class spell_pri_inescapable_torment_damage : public SpellScript
 
     void FilterTargets(std::list<WorldObject*>& targets)
     {
-        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster());
+        int32 maxTargets = sSpellMgr->GetSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(GetCaster());
         if (targets.size() > maxTargets)
             Trinity::Containers::RandomResize(targets, maxTargets);
     }
