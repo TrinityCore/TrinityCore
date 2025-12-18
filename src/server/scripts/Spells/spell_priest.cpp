@@ -2117,27 +2117,26 @@ class spell_pri_power_surge : public AuraScript
     {
         Unit* caster = eventInfo.GetActor();
 
+        uint32 spellId{};
         switch (eventInfo.GetSpellInfo()->Id)
         {
             case SPELL_PRIEST_HALO_HOLY:
-                _spellId = SPELL_PRIEST_POWER_SURGE_PERIODIC_HOLY;
+                spellId = SPELL_PRIEST_POWER_SURGE_PERIODIC_HOLY;
                 break;
             case SPELL_PRIEST_HALO_SHADOW:
-                _spellId = SPELL_PRIEST_POWER_SURGE_PERIODIC_SHADOW;
+                spellId = SPELL_PRIEST_POWER_SURGE_PERIODIC_SHADOW;
                 break;
             default:
                 return;
         }
 
-        caster->CastSpell(caster, _spellId);
+        caster->CastSpell(caster, spellId);
     }
 
     void Register() override
     {
         OnProc += AuraProcFn(spell_pri_power_surge::HandleProc);
     }
-
-    uint32 _spellId{};
 };
 
 // 453112 - Power Surge (Holy - Periodic)
@@ -2149,14 +2148,14 @@ class spell_pri_power_surge_periodic : public AuraScript
         return ValidateSpellInfo({ _spellId });
     }
 
-    void HandleEffectProc(AuraEffect const* /*aurEff*/)
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
     {
         GetTarget()->CastSpell(GetTarget(), _spellId, TRIGGERED_FULL_MASK);
     }
 
     void Register() override
     {
-        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_power_surge_periodic::HandleEffectProc, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_power_surge_periodic::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
     uint32 _spellId{};
