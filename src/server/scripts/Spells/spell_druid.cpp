@@ -775,7 +775,8 @@ class spell_dru_elunes_favored : public AuraScript
 
     void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
-        GetTarget()->CastSpell(GetTarget(), SPELL_DRUID_ELUNES_FAVORED_PROC);
+        Unit* caster = GetTarget();
+        caster->CastSpell(caster, SPELL_DRUID_ELUNES_FAVORED_PROC);
     }
 
     void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -796,7 +797,7 @@ class spell_dru_elunes_favored_proc : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_DRUID_ELUNES_FAVORED, SPELL_DRUID_ELUNES_FAVORED_HEAL })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
