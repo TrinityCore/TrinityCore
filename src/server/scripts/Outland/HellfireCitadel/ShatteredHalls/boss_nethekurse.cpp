@@ -491,19 +491,19 @@ class spell_grand_warlock_nethekurse_target_fissures : public SpellScript
 };
 
 // 4347
-class at_the_sewer : public AreaTriggerScript
+class at_shattered_halls_the_sewer : public AreaTriggerScript
 {
-    public:
-        at_the_sewer() : AreaTriggerScript("at_the_sewer") { }
+public:
+    at_shattered_halls_the_sewer() : AreaTriggerScript("at_shattered_halls_the_sewer") { }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
-        {
-            if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* nethekurse = instance->GetCreature(DATA_NETHEKURSE))
-                    nethekurse->AI()->DoAction(ACTION_START_INTRO);
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (Creature* nethekurse = instance->GetCreature(DATA_NETHEKURSE))
+                nethekurse->AI()->DoAction(ACTION_START_INTRO);
 
-            return true;
-        }
+        return true;
+    }
 };
 
 void AddSC_boss_grand_warlock_nethekurse()
@@ -514,5 +514,5 @@ void AddSC_boss_grand_warlock_nethekurse()
     RegisterShatteredHallsCreatureAI(npc_wild_shadow_fissure);
     RegisterShatteredHallsGameObjectAI(go_grand_warlock_chamber_door);
     RegisterSpellScript(spell_grand_warlock_nethekurse_target_fissures);
-    new at_the_sewer();
+    new at_shattered_halls_the_sewer();
 }

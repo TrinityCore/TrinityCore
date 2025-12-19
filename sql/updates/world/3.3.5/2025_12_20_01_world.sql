@@ -4,11 +4,11 @@ UPDATE `creature_template` SET `minlevel` = 70, `maxlevel` = 70, `unit_flags` = 
 UPDATE `creature_template` SET `minlevel` = 71, `maxlevel` = 71, `unit_flags` = 0x02000000 WHERE `entry` = 20598;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` IN (30735,30741,32251,30745);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13,1,30735,0,0,31,0,3,17083,0,0,0,0,"","Group 0: Spell 'Shadow Sear' (Effect 0) targets creature 'Fel Orc Convert'"),
-(13,3,30741,0,0,31,0,3,17083,0,0,0,0,"","Group 0: Spell 'Death Coil' (Effect 0, 1) targets creature 'Fel Orc Convert'"),
-(13,1,32251,0,0,31,0,3,17083,0,0,0,0,"","Group 0: Spell 'Consumption' (Effect 0) targets creature 'Fel Orc Convert'"),
-(13,1,30745,0,0,31,0,3,17083,0,0,0,0,"","Group 0: Spell 'Target Fissures' (Effect 0) targets creature 'Fel Orc Convert'");
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ConditionStringValue1`,`NegativeCondition`,`ErrorType`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,1,30735,0,0,58,0,0,0,0,"FelOrcConvertNethekurseEvent",0,0,0,"","Group 0: Spell 'Shadow Sear' (Effect 0) targets creature 'Fel Orc Convert'"),
+(13,3,30741,0,0,58,0,0,0,0,"FelOrcConvertNethekurseEvent",0,0,0,"","Group 0: Spell 'Death Coil' (Effect 0, 1) targets creature 'Fel Orc Convert'"),
+(13,1,32251,0,0,58,0,0,0,0,"FelOrcConvertNethekurseEvent",0,0,0,"","Group 0: Spell 'Consumption' (Effect 0) targets creature 'Fel Orc Convert'"),
+(13,1,30745,0,0,58,0,0,0,0,"FelOrcConvertNethekurseEvent",0,0,0,"","Group 0: Spell 'Target Fissures' (Effect 0) targets creature 'Fel Orc Convert'");
 
 UPDATE `creature` SET `StringId` = 'FelOrcConvertNethekurseEvent' WHERE `guid` IN (59478,59479,59480,59481) AND `id` = 17083;
 
@@ -51,7 +51,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 DELETE FROM `areatrigger_scripts` WHERE `entry` = 4347;
 INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES
-(4347, 'at_the_sewer');
+(4347, 'at_shattered_halls_the_sewer');
 
 UPDATE `gameobject_template` SET `ScriptName` = 'go_grand_warlock_chamber_door' WHERE `entry` = 182539;
 
