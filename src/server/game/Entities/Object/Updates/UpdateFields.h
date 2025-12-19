@@ -1383,7 +1383,7 @@ struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 struct ForceSetAreaTriggerPositionAndRotation : public IsUpdateFieldStructureTag
 {
     ObjectGuid TriggerGUID;
-    TaggedPosition<Position::XYZ> Position;
+    TaggedPosition<::Position::XYZ> Position;
     QuaternionData Rotation;
 
     void WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player const* receiver) const;
