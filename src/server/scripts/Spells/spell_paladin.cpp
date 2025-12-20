@@ -699,10 +699,10 @@ class spell_pal_eternal_flame : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
+    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         Unit* caster = GetCaster();
         if (victim == caster)
@@ -719,10 +719,10 @@ class spell_pal_eternal_flame_aura : public AuraScript
 {
     bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_2} });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
     }
 
-    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod)
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
     {
         Unit* caster = GetCaster();
         if (victim == caster)
