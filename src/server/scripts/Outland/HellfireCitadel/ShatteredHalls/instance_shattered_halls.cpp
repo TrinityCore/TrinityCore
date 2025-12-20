@@ -38,8 +38,9 @@ static constexpr DoorData doorData[] =
 
 static constexpr ObjectData creatureData[] =
 {
-    { NPC_LEFT_HEAD,             DATA_LEFT_HEAD  },
-    { NPC_RIGHT_HEAD,            DATA_RIGHT_HEAD },
+    { NPC_GRAND_WARLOCK_NETHEKURSE,   DATA_NETHEKURSE },
+    { NPC_LEFT_HEAD,                  DATA_LEFT_HEAD  },
+    { NPC_RIGHT_HEAD,                 DATA_RIGHT_HEAD },
 };
 
 static constexpr DungeonEncounterData encounters[] =
@@ -107,9 +108,6 @@ class instance_shattered_halls : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
-                    case NPC_GRAND_WARLOCK_NETHEKURSE:
-                        nethekurseGUID = creature->GetGUID();
-                        break;
                     case NPC_KARGATH_BLADEFIST:
                         kargathGUID = creature->GetGUID();
                         break;
@@ -171,8 +169,6 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 switch (data)
                 {
-                    case NPC_GRAND_WARLOCK_NETHEKURSE:
-                        return nethekurseGUID;
                     case NPC_KARGATH_BLADEFIST:
                         return kargathGUID;
                     case NPC_SHATTERED_EXECUTIONER:
@@ -237,7 +233,6 @@ class instance_shattered_halls : public InstanceMapScript
             }
 
         private:
-            ObjectGuid nethekurseGUID;
             ObjectGuid kargathGUID;
             ObjectGuid executionerGUID;
             ObjectGuid victimsGUID[3];
