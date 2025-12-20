@@ -99,6 +99,9 @@ struct CreateObjectBits
     bool SceneObject : 1;
     bool ActivePlayer : 1;
     bool Conversation : 1;
+    bool Room : 1;
+    bool Decor : 1;
+    bool MeshObject : 1;
 
     void Clear()
     {

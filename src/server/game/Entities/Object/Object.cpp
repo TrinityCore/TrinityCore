@@ -320,6 +320,9 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     data->WriteBit(flags.SceneObject);
     data->WriteBit(flags.ActivePlayer);
     data->WriteBit(flags.Conversation);
+    data->WriteBit(flags.Room);
+    data->WriteBit(flags.Decor);
+    data->WriteBit(flags.MeshObject);
     data->FlushBits();
 
     if (flags.MovementUpdate)
@@ -493,6 +496,21 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
         GameObject const* gameObject = static_cast<GameObject const*>(this);
         *data << uint64(gameObject->GetPackedLocalRotation());          // Rotation
     }
+
+    //if (flags.Room)
+    //    *data << ObjectGuid(HouseGUID);
+
+    //if (flags.Decor)
+    //    *data << ObjectGuid(RoomGUID);
+
+    //if (flags.MeshObject)
+    //{
+    //    *data << ObjectGuid(AttachParentGUID);
+    //    *data << TaggedPosition<Position::XYZ>(PositionLocalSpace);
+    //    *data << QuaternionData(RotationLocalSpace);
+    //    *data << float(ScaleLocalSpace);
+    //    *data << uint8(AttachmentFlags);
+    //}
 
     if (PauseTimes && !PauseTimes->empty())
         data->append(PauseTimes->data(), PauseTimes->size());
