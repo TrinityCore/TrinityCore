@@ -459,7 +459,7 @@ struct Connect
         else
         {
 #if BOOST_VERSION >= 107700
-            if (handler.cancelled() != boost::asio::cancellation_type::none)
+            if (handler.get_cancellation_state().cancelled() != boost::asio::cancellation_type::none)
             {
                 Connect::HandleError(socket.get(), "connect cancelled");
                 error = boost::asio::error::operation_aborted;

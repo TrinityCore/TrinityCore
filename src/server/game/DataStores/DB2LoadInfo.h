@@ -1305,16 +1305,17 @@ struct ConditionalChrModelLoadInfo
 
 struct ConditionalContentTuningLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "OrderIndex" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RedirectContentTuningID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RedirectFlag" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "RedirectEnum" },
         { .IsSigned = false, .Type = FT_INT, .Name = "ParentContentTuningID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &ConditionalContentTuningMeta::Instance, HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ConditionalContentTuningMeta::Instance, HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING };
 };
 
 struct ContentTuningLoadInfo
@@ -2463,7 +2464,7 @@ struct GlyphRequiredSpecLoadInfo
 
 struct GossipNpcOptionLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[17] =
+    static constexpr DB2FieldMeta Fields[18] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "GossipNpcOption" },
@@ -2481,10 +2482,11 @@ struct GossipNpcOptionLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "TraitTreeID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ProfessionID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Unknown_1002_14" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "NeighborhoodMapID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "SkillLineID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 17, &GossipNPCOptionMeta::Instance, HOTFIX_SEL_GOSSIP_NPC_OPTION };
+    static constexpr DB2LoadInfo Instance{ Fields, 18, &GossipNPCOptionMeta::Instance, HOTFIX_SEL_GOSSIP_NPC_OPTION };
 };
 
 struct GuildColorBackgroundLoadInfo
@@ -2681,7 +2683,7 @@ struct ImportPriceWeaponLoadInfo
 
 struct ItemLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[12] =
+    static constexpr DB2FieldMeta Fields[13] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ClassID" },
@@ -2695,9 +2697,10 @@ struct ItemLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "ContentTuningID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingReagentItemID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "CraftingQualityID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1127" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 12, &ItemMeta::Instance, HOTFIX_SEL_ITEM };
+    static constexpr DB2LoadInfo Instance{ Fields, 13, &ItemMeta::Instance, HOTFIX_SEL_ITEM };
 };
 
 struct ItemAppearanceLoadInfo
@@ -3031,7 +3034,7 @@ struct ItemDisenchantLootLoadInfo
 
 struct ItemEffectLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[9] =
+    static constexpr DB2FieldMeta Fields[10] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_BYTE, .Name = "LegacySlotIndex" },
@@ -3042,9 +3045,10 @@ struct ItemEffectLoadInfo
         { .IsSigned = false, .Type = FT_SHORT, .Name = "SpellCategoryID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "SpellID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "ChrSpecializationID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "PlayerConditionID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 9, &ItemEffectMeta::Instance, HOTFIX_SEL_ITEM_EFFECT };
+    static constexpr DB2LoadInfo Instance{ Fields, 10, &ItemEffectMeta::Instance, HOTFIX_SEL_ITEM_EFFECT };
 };
 
 struct ItemExtendedCostLoadInfo
@@ -3217,16 +3221,17 @@ struct ItemPriceBaseLoadInfo
 
 struct ItemScalingConfigLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[5] =
+    static constexpr DB2FieldMeta Fields[6] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ItemOffsetCurveID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ItemLevel" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RequiredLevel" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1125" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 5, &ItemScalingConfigMeta::Instance, HOTFIX_SEL_ITEM_SCALING_CONFIG };
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ItemScalingConfigMeta::Instance, HOTFIX_SEL_ITEM_SCALING_CONFIG };
 };
 
 struct ItemSearchNameLoadInfo
@@ -3304,7 +3309,7 @@ struct ItemSetSpellLoadInfo
 
 struct ItemSparseLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[101] =
+    static constexpr DB2FieldMeta Fields[102] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = true, .Type = FT_LONG, .Name = "AllowableRace" },
@@ -3372,6 +3377,7 @@ struct ItemSparseLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "PlayerLevelToItemLevelCurveID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ItemLevelOffsetCurveID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "ItemLevelOffsetItemLevel" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unknown1127" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "ItemNameDescriptionID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "RequiredTransmogHoliday" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "RequiredHoliday" },
@@ -3409,7 +3415,7 @@ struct ItemSparseLoadInfo
         { .IsSigned = true, .Type = FT_BYTE, .Name = "OverallQualityID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 101, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
+    static constexpr DB2LoadInfo Instance{ Fields, 102, &ItemSparseMeta::Instance, HOTFIX_SEL_ITEM_SPARSE };
 };
 
 struct ItemSpecLoadInfo
@@ -3869,17 +3875,20 @@ struct MapLoadInfo
 
 struct MapChallengeModeLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[21] =
+    static constexpr DB2FieldMeta Fields[24] =
     {
         { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_SHORT, .Name = "MapID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "MaxMedals" },
         { .IsSigned = false, .Type = FT_INT, .Name = "ExpansionLevel" },
         { .IsSigned = true, .Type = FT_INT, .Name = "RequiredWorldStateID" },
         { .IsSigned = true, .Type = FT_SHORT, .Name = "CriteriaCount1" },
         { .IsSigned = true, .Type = FT_SHORT, .Name = "CriteriaCount2" },
         { .IsSigned = true, .Type = FT_SHORT, .Name = "CriteriaCount3" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "CriteriaCount4" },
+        { .IsSigned = true, .Type = FT_SHORT, .Name = "CriteriaCount5" },
         { .IsSigned = true, .Type = FT_INT, .Name = "FirstRewardQuestID1" },
         { .IsSigned = true, .Type = FT_INT, .Name = "FirstRewardQuestID2" },
         { .IsSigned = true, .Type = FT_INT, .Name = "FirstRewardQuestID3" },
@@ -3894,7 +3903,7 @@ struct MapChallengeModeLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "RewardQuestID6" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 21, &MapChallengeModeMeta::Instance, HOTFIX_SEL_MAP_CHALLENGE_MODE };
+    static constexpr DB2LoadInfo Instance{ Fields, 24, &MapChallengeModeMeta::Instance, HOTFIX_SEL_MAP_CHALLENGE_MODE };
 };
 
 struct MapDifficultyLoadInfo
@@ -5803,7 +5812,7 @@ struct SpellTotemsLoadInfo
 
 struct SpellVisualLoadInfo
 {
-    static constexpr DB2FieldMeta Fields[21] =
+    static constexpr DB2FieldMeta Fields[22] =
     {
         { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "MissileCastOffset1" },
@@ -5812,6 +5821,7 @@ struct SpellVisualLoadInfo
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "MissileImpactOffset1" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "MissileImpactOffset2" },
         { .IsSigned = false, .Type = FT_FLOAT, .Name = "MissileImpactOffset3" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "StateKit" },
         { .IsSigned = false, .Type = FT_INT, .Name = "AnimEventSoundID" },
         { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
         { .IsSigned = true, .Type = FT_BYTE, .Name = "MissileAttachment" },
@@ -5828,7 +5838,7 @@ struct SpellVisualLoadInfo
         { .IsSigned = true, .Type = FT_INT, .Name = "ReducedUnexpectedCameraMovementSpellVisualID" },
     };
 
-    static constexpr DB2LoadInfo Instance{ Fields, 21, &SpellVisualMeta::Instance, HOTFIX_SEL_SPELL_VISUAL };
+    static constexpr DB2LoadInfo Instance{ Fields, 22, &SpellVisualMeta::Instance, HOTFIX_SEL_SPELL_VISUAL };
 };
 
 struct SpellVisualEffectNameLoadInfo

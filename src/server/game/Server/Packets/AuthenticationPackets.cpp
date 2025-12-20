@@ -312,6 +312,8 @@ WorldPacket const* ConnectTo::Write()
     _worldPacket << uint32(Serial);
     _worldPacket << uint8(Con);
     _worldPacket << uint64(Key);
+    _worldPacket << uint32(NativeRealmAddress);
+    _worldPacket << uint32(Key3);
 
     return &_worldPacket;
 }
@@ -319,9 +321,11 @@ WorldPacket const* ConnectTo::Write()
 void AuthContinuedSession::Read()
 {
     _worldPacket >> DosResponse;
-    _worldPacket >> Key;
     _worldPacket.read(LocalChallenge.data(), LocalChallenge.size());
     _worldPacket.read(Digest.data(), Digest.size());
+    _worldPacket >> Key;
+    _worldPacket >> NativeRealmAddress;
+    _worldPacket >> Key3;
 }
 
 void ConnectToFailed::Read()

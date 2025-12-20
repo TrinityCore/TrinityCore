@@ -449,7 +449,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_TYPE_MASK:
         {
-            condMeets = object->isType(ConditionValue1);
+            condMeets = object->isType(TypeMask(ConditionValue1));
             break;
         }
         case CONDITION_RELATION_TO:
@@ -3977,7 +3977,7 @@ int32 GetUnitConditionVariable(Unit const* unit, Unit const* otherUnit, UnitCond
         case UnitConditionVariable::Sex:
             return unit->GetGender();
         case UnitConditionVariable::LevelWithinContentTuning:
-            if (Optional<ContentTuningLevels> levelRange = sDB2Manager.GetContentTuningData(value, 0))
+            if (Optional<ContentTuningLevels> levelRange = sDB2Manager.GetContentTuningData(value, {}))
                 return unit->GetLevel() >= levelRange->MinLevel && unit->GetLevel() <= levelRange->MaxLevel ? value : 0;
             return 0;
         case UnitConditionVariable::IsFlying:
