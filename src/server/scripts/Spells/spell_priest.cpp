@@ -821,7 +821,8 @@ class spell_pri_dispersing_light : public AuraScript
         {
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringAura = aurEff,
-            .SpellValueOverrides = {
+            .SpellValueOverrides =
+            {
                 { SPELLVALUE_BASE_POINT0, int32(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount())) },
                 { SPELLVALUE_MAX_TARGETS, GetEffectInfo(EFFECT_1).CalcValue(caster) }
             },
