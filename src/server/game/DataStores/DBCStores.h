@@ -92,7 +92,6 @@ TC_GAME_API extern DBCStorage <AchievementEntry>             sAchievementStore;
 TC_GAME_API extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 TC_GAME_API extern DBCStorage <AreaTableEntry>               sAreaTableStore;
 TC_GAME_API extern DBCStorage <AreaGroupEntry>               sAreaGroupStore;
-TC_GAME_API extern DBCStorage <AreaPOIEntry>                 sAreaPOIStore;
 TC_GAME_API extern DBCStorage <AreaTriggerEntry>             sAreaTriggerStore;
 TC_GAME_API extern DBCStorage <AuctionHouseEntry>            sAuctionHouseStore;
 TC_GAME_API extern DBCStorage <BankBagSlotPricesEntry>       sBankBagSlotPricesStore;

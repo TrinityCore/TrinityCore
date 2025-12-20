@@ -768,11 +768,11 @@ enum Thassarian
     SAY_LERYSSA_3               = 2,
     SAY_LERYSSA_4               = 3,
 
-    PATH_THASSARIAN             = 1013030,
-    PATH_ARTHAS                 = 1013031,
-    PATH_TALBOT                 = 1013032,
-    PATH_ARLOS                  = 1013033,
-    PATH_LERYSSA                = 1013034
+    PATH_THASSARIAN             = 8104240,
+    PATH_ARTHAS                 = 8104248,
+    PATH_TALBOT                 = 8104256,
+    PATH_ARLOS                  = 8104264,
+    PATH_LERYSSA                = 8104272
 };
 
 struct npc_thassarian : public ScriptedAI
@@ -2009,6 +2009,36 @@ class spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield : public AuraS
     }
 };
 
+/*######
+## Quest 11712: Re-Cursive
+######*/
+
+enum ReCursive
+{
+    SPELL_SUMMON_FIZZCRANK_SURVIVOR     = 46022
+};
+
+// 45980 - Re-Cursive Transmatter Injection
+class spell_borean_tundra_re_cursive_transmatter_injection : public SpellScript
+{
+    PrepareSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_FIZZCRANK_SURVIVOR });
+    }
+
+    void HandleDummy(SpellEffIndex /*effIndex*/)
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SUMMON_FIZZCRANK_SURVIVOR);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_borean_tundra_re_cursive_transmatter_injection::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 void AddSC_borean_tundra()
 {
     RegisterCreatureAI(npc_beryl_sorcerer);
@@ -2044,4 +2074,5 @@ void AddSC_borean_tundra()
     RegisterSpellScript(spell_borean_tundra_land_mine_barrier);
     RegisterSpellScript(spell_borean_tundra_taxi_amber_ledge_to_beryl_point_platform);
     RegisterSpellScript(spell_borean_tundra_taxi_coldarra_ledge_to_transitus_shield);
+    RegisterSpellScript(spell_borean_tundra_re_cursive_transmatter_injection);
 }

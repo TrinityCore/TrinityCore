@@ -64,7 +64,7 @@ enum Events
 enum Misc
 {
     MODEL_OHGAN_MOUNT         = 15271,
-    PATH_MANDOKIR             = 492861,
+    PATH_MANDOKIR             = 3942888,
     POINT_MANDOKIR_END        = 24,
     CHAINED_SPIRT_COUNT       = 20
 };
