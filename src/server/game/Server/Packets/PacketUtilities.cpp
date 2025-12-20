@@ -20,20 +20,29 @@
 #include "StringFormat.h"
 #include <utf8.h>
 
-WorldPackets::InvalidStringValueException::InvalidStringValueException(std::string_view value) : ByteBufferInvalidValueException("string", value), _value(value)
+WorldPackets::InvalidStringValueException::InvalidStringValueException(char const* type, std::string_view value)
+    : ByteBufferInvalidValueException(type, value), _value(value)
 {
 }
 
-WorldPackets::InvalidUtf8ValueException::InvalidUtf8ValueException(std::string_view value) : InvalidStringValueException(value)
+WorldPackets::InvalidUtf8ValueException::InvalidUtf8ValueException(std::string_view value)
+    : InvalidStringValueException("utf8 string", value)
 {
 }
 
-WorldPackets::InvalidHyperlinkException::InvalidHyperlinkException(std::string_view value) : InvalidStringValueException(value)
+WorldPackets::InvalidHyperlinkException::InvalidHyperlinkException(std::string_view value, Reason reason)
+    : InvalidStringValueException(GetReasonText(reason), value), _reason(reason)
 {
 }
 
-WorldPackets::IllegalHyperlinkException::IllegalHyperlinkException(std::string_view value) : InvalidStringValueException(value)
+char const* WorldPackets::InvalidHyperlinkException::GetReasonText(Reason reason)
 {
+    switch (reason)
+    {
+        case Malformed: return "malformed hyperlink";
+        case NotAllowed: return "not allowed hyperlink";
+        default: return "hyperlink";
+    }
 }
 
 bool WorldPackets::Strings::Utf8::Validate(std::string_view value)
@@ -46,14 +55,14 @@ bool WorldPackets::Strings::Utf8::Validate(std::string_view value)
 bool WorldPackets::Strings::Hyperlinks::Validate(std::string_view value)
 {
     if (!Trinity::Hyperlinks::CheckAllLinks(value))
-        throw InvalidHyperlinkException(value);
+        throw InvalidHyperlinkException(value, InvalidHyperlinkException::Malformed);
     return true;
 }
 
 bool WorldPackets::Strings::NoHyperlinks::Validate(std::string_view value)
 {
     if (value.find('|') != std::string::npos)
-        throw IllegalHyperlinkException(value);
+        throw InvalidHyperlinkException(value, InvalidHyperlinkException::NotAllowed);
     return true;
 }
 

@@ -293,7 +293,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModDetaunt,                                //221 SPELL_AURA_MOD_DETAUNT
     &AuraEffect::HandleNoImmediateEffect,                         //222 SPELL_AURA_REMOVE_TRANSMOG_COST implemented in WorldSession::HandleTransmogrifyItems
     &AuraEffect::HandleNoImmediateEffect,                         //223 SPELL_AURA_REMOVE_BARBER_SHOP_COST implemented in Player::GetBarberShopCost
-    &AuraEffect::HandleNULL,                                      //224 SPELL_AURA_LEARN_TALENT
+    &AuraEffect::HandleNULL,                                      //224 SPELL_AURA_MOD_TRAIT_NODE_ENTRY_RANK
     &AuraEffect::HandleNULL,                                      //225 SPELL_AURA_MOD_VISIBILITY_RANGE
     &AuraEffect::HandleNoImmediateEffect,                         //226 SPELL_AURA_PERIODIC_DUMMY implemented in AuraEffect::PeriodicTick
     &AuraEffect::HandleNoImmediateEffect,                         //227 SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE implemented in AuraEffect::PeriodicTick
@@ -781,6 +781,13 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             amount = int32(unitOwner->CountPctFromMaxHealth(10));
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
+            m_canBeRecalculated = false;
+            if (!caster || !unitOwner)
+                break;
+
+            amount = caster->SpellAbsorbBonusDone(unitOwner, m_spellInfo, amount, m_effectInfo, 1, this);
+            amount = unitOwner->SpellAbsorbBonusTaken(caster, m_spellInfo, amount);
+            break;
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
             break;
