@@ -805,10 +805,10 @@ class spell_pri_dispersing_light : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_DISPERSING_LIGHT_HEAL })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
         HealInfo* healInfo = eventInfo.GetHealInfo();
         if (!healInfo || !healInfo->GetHeal())
@@ -817,17 +817,16 @@ class spell_pri_dispersing_light : public AuraScript
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
 
-        int32 healAmount = CalculatePct(healInfo->GetHeal(), aurEff->GetAmount());
-
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(healAmount);
-        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DISALLOW_PROC_EVENTS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.SetCustomArg(TriggerArgs{
-            .targetToExclude = target->GetGUID(),
-            .maxTargets = GetSpellInfo()->GetEffect(EFFECT_1).CalcValue(caster)
+        caster->CastSpell(nullptr, SPELL_PRIEST_DISPERSING_LIGHT_HEAL, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = {
+                { SPELLVALUE_BASE_POINT0, int32(CalculatePct(healInfo->GetHeal(), aurEff->GetAmount())) },
+                { SPELLVALUE_MAX_TARGETS, GetEffectInfo(EFFECT_1).CalcValue(caster) }
+            },
+            .CustomArg = TriggerArgs{ .TargetToExclude = target->GetGUID() }
         });
-
-        caster->CastSpell(nullptr, SPELL_PRIEST_DISPERSING_LIGHT_HEAL, args);
     }
 
     void Register() override
@@ -838,45 +837,20 @@ class spell_pri_dispersing_light : public AuraScript
 public:
     struct TriggerArgs
     {
-        ObjectGuid targetToExclude;
-        int32 maxTargets = 0;
+        ObjectGuid TargetToExclude;
     };
 };
 
 // 1215266 - Dispersing Light (Heal)
 class spell_pri_dispersing_light_heal : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    void FilterTargets(std::list<WorldObject*>& targets) const
     {
-        return ValidateSpellEffect({ {spellInfo->Id, EFFECT_0} });
-    }
-
-    void FilterTargets(std::list<WorldObject*>& targets)
-    {
-        Unit* caster = GetCaster();
-
         spell_pri_dispersing_light::TriggerArgs const* args = std::any_cast<spell_pri_dispersing_light::TriggerArgs>(&GetSpell()->m_customArg);
-        if (!args || args->targetToExclude.IsEmpty())
+        if (!args || args->TargetToExclude.IsEmpty())
             return;
 
-        float maxRange = GetSpellInfo()->GetEffect(EFFECT_0).TargetBRadiusEntry->RadiusMax;
-        targets.remove_if([caster, maxRange](WorldObject* obj)
-        {
-            return !caster->IsWithinDist(obj, maxRange);
-        });
-
-        ObjectGuid excludedTarget = args->targetToExclude;
-        targets.remove_if([excludedTarget](WorldObject* obj)
-        {
-            return obj->GetGUID() == excludedTarget;
-        });
-
-        uint32 maxTargets = args->maxTargets;
-        if (targets.size() > maxTargets)
-        {
-            targets.sort(Trinity::Predicates::HealthPctOrderPred());
-            targets.resize(maxTargets);
-        }
+        targets.remove_if(Trinity::ObjectGUIDCheck(args->TargetToExclude));
     }
 
     void Register() override
