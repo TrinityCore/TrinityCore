@@ -29,7 +29,6 @@
 
 AzeriteItem::AzeriteItem() : Item()
 {
-    m_objectType |= TYPEMASK_AZERITE_ITEM;
     m_objectTypeId = TYPEID_AZERITE_ITEM;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteItem, false);

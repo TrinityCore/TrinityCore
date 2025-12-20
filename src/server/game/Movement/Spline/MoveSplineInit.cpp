@@ -272,7 +272,7 @@ namespace Movement
         args.facing.type = MONSTER_MOVE_FACING_ANGLE;
     }
 
-    void MoveSplineInit::MovebyPath(PointsArray const& path, int32 pointId)
+    void MoveSplineInit::MovebyPath(std::span<Vector3 const> path, int32 pointId)
     {
         args.path_Idx_offset = pointId;
         args.path.resize(path.size());

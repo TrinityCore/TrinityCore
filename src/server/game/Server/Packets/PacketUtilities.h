@@ -30,7 +30,7 @@ namespace WorldPackets
     class InvalidStringValueException : public ByteBufferInvalidValueException
     {
     public:
-        InvalidStringValueException(std::string_view value);
+        explicit InvalidStringValueException(char const* type, std::string_view value);
 
         std::string const& GetInvalidValue() const { return _value; }
 
@@ -41,19 +41,26 @@ namespace WorldPackets
     class InvalidUtf8ValueException : public InvalidStringValueException
     {
     public:
-        InvalidUtf8ValueException(std::string_view value);
+        explicit InvalidUtf8ValueException(std::string_view value);
     };
 
     class InvalidHyperlinkException : public InvalidStringValueException
     {
     public:
-        InvalidHyperlinkException(std::string_view value);
-    };
+        enum Reason : uint8
+        {
+            Malformed,
+            NotAllowed
+        };
 
-    class IllegalHyperlinkException : public InvalidStringValueException
-    {
-    public:
-        IllegalHyperlinkException(std::string_view value);
+        explicit InvalidHyperlinkException(std::string_view value, Reason reason);
+
+        Reason GetReason() const { return _reason; }
+
+    private:
+        static char const* GetReasonText(Reason reason);
+
+        Reason _reason;
     };
 
     namespace Strings

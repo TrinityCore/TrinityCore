@@ -15,18 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "vmapexport.h"
+#include "wmo.h"
 #include "adtfile.h"
 #include "cascfile.h"
 #include "Errors.h"
 #include "StringFormat.h"
-#include "vec3d.h"
-#include "VMapDefinitions.h"
-#include "wmo.h"
 #include "Util.h"
+#include "VMapDefinitions.h"
+#include "vmapexport.h"
 #include <algorithm>
-#include <fstream>
-#include <map>
 #include <cstdio>
 #include <cstdlib>
 
@@ -50,19 +47,18 @@ bool WMORoot::open()
     }
 
     uint32 size;
-    char fourcc[5];
+    char fourcc[4];
 
     while (!f.isEof())
     {
         f.read(fourcc,4);
         f.read(&size, 4);
 
-        flipcc(fourcc);
-        fourcc[4] = 0;
+        std::ranges::reverse(fourcc);
 
         size_t nextpos = f.getPos() + size;
 
-        if (!strcmp(fourcc,"MOHD")) // header
+        if (!memcmp(fourcc, "MOHD", 4)) // header
         {
             f.read(&nTextures, 4);
             f.read(&nGroups, 4);
@@ -78,12 +74,12 @@ bool WMORoot::open()
             f.read(&flags, 2);
             f.read(&numLod, 2);
         }
-        else if (!strcmp(fourcc, "MODS"))
+        else if (!memcmp(fourcc, "MODS", 4))
         {
             DoodadData.Sets.resize(size / sizeof(WMO::MODS));
             f.read(DoodadData.Sets.data(), size);
         }
-        else if (!strcmp(fourcc,"MODN"))
+        else if (!memcmp(fourcc, "MODN", 4))
         {
             ASSERT(!DoodadData.FileDataIds);
 
@@ -103,7 +99,7 @@ bool WMORoot::open()
                     ValidDoodadNames.insert(doodadNameIndex);
             }
         }
-        else if (!strcmp(fourcc, "MODI"))
+        else if (!memcmp(fourcc, "MODI", 4))
         {
             ASSERT(!DoodadData.Paths);
 
@@ -120,17 +116,17 @@ bool WMORoot::open()
                     ValidDoodadNames.insert(i);
             }
         }
-        else if (!strcmp(fourcc,"MODD"))
+        else if (!memcmp(fourcc, "MODD", 4))
         {
             DoodadData.Spawns.resize(size / sizeof(WMO::MODD));
             f.read(DoodadData.Spawns.data(), size);
         }
-        else if (!strcmp(fourcc, "MOGN"))
+        else if (!memcmp(fourcc, "MOGN", 4))
         {
             GroupNames.resize(size);
             f.read(GroupNames.data(), size);
         }
-        else if (!strcmp(fourcc, "GFID"))
+        else if (!memcmp(fourcc, "GFID", 4))
         {
             // full LOD reading code for reference
             // commented out as we are not interested in any of them beyond first, most detailed
@@ -156,31 +152,31 @@ bool WMORoot::open()
             //}
         }
         /*
-        else if (!strcmp(fourcc,"MOTX"))
+        else if (!memcmp(fourcc, "MOTX", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOMT"))
+        else if (!memcmp(fourcc, "MOMT", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOGI"))
+        else if (!memcmp(fourcc, "MOGI", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOLT"))
+        else if (!memcmp(fourcc, "MOLT", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOSB"))
+        else if (!memcmp(fourcc, "MOSB", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOPV"))
+        else if (!memcmp(fourcc, "MOPV", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOPT"))
+        else if (!memcmp(fourcc, "MOPT", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOPR"))
+        else if (!memcmp(fourcc, "MOPR", 4))
         {
         }
-        else if (!strcmp(fourcc,"MFOG"))
+        else if (!memcmp(fourcc, "MFOG", 4))
         {
         }
         */
@@ -208,7 +204,9 @@ WMOGroup::WMOGroup(const std::string &filename) :
     filename(filename), MPY2(nullptr), MOVX(nullptr), MOVT(nullptr), MOBA(nullptr), MobaEx(nullptr),
     hlq(nullptr), LiquEx(nullptr), LiquBytes(nullptr), groupName(0), descGroupName(0), mogpFlags(0),
     moprIdx(0), moprNItems(0), nBatchA(0), nBatchB(0), nBatchC(0), fogIdx(0),
-    groupLiquid(0), groupWMOID(0), moba_size(0), LiquEx_size(0),
+    groupLiquid(0), groupWMOID(0), mogpFlags2(0),
+    parentOrFirstChildSplitGroupIndex(0), nextSplitChildGroupIndex(0),
+    moba_size(0), LiquEx_size(0),
     nVertices(0), nTriangles(0), liquflags(0)
 {
     memset(bbcorn1, 0, sizeof(bbcorn1));
@@ -224,17 +222,17 @@ bool WMOGroup::open(WMORoot* rootWMO)
         return false;
     }
     uint32 size;
-    char fourcc[5] = { };
+    char fourcc[4] = { };
     while (!f.isEof())
     {
         f.read(fourcc,4);
         f.read(&size, 4);
-        flipcc(fourcc);
-        if (!strcmp(fourcc,"MOGP")) //size specified in MOGP chunk is all the other chunks combined, adjust to read MOGP-only
+        std::ranges::reverse(fourcc);
+        if (!memcmp(fourcc, "MOGP", 4)) //size specified in MOGP chunk is all the other chunks combined, adjust to read MOGP-only
             size = 68;
 
         size_t nextpos = f.getPos() + size;
-        if (!strcmp(fourcc,"MOGP"))//header
+        if (!memcmp(fourcc, "MOGP", 4))//header
         {
             f.read(&groupName, 4);
             f.read(&descGroupName, 4);
@@ -264,7 +262,7 @@ bool WMOGroup::open(WMORoot* rootWMO)
             if (groupLiquid && !IsLiquidIgnored(groupLiquid))
                 liquflags |= 2;
         }
-        else if (!strcmp(fourcc,"MOPY"))
+        else if (!memcmp(fourcc, "MOPY", 4))
         {
             MPY2 = std::make_unique<uint16[]>(size);
             std::unique_ptr<uint8[]> MOPY = std::make_unique<uint8[]>(size);
@@ -272,48 +270,48 @@ bool WMOGroup::open(WMORoot* rootWMO)
             f.read(MOPY.get(), size);
             std::copy_n(MOPY.get(), size, MPY2.get());
         }
-        else if (!strcmp(fourcc,"MPY2"))
+        else if (!memcmp(fourcc, "MPY2", 4))
         {
             MPY2 = std::make_unique<uint16[]>(size / 2);
             nTriangles = (int)size / 4;
             f.read(MPY2.get(), size);
         }
-        else if (!strcmp(fourcc,"MOVI"))
+        else if (!memcmp(fourcc, "MOVI", 4))
         {
             MOVX = std::make_unique<uint32[]>(size / 2);
             std::unique_ptr<uint16[]> MOVI = std::make_unique<uint16[]>(size / 2);
             f.read(MOVI.get(), size);
             std::copy_n(MOVI.get(), size / 2, MOVX.get());
         }
-        else if (!strcmp(fourcc,"MOVX"))
+        else if (!memcmp(fourcc, "MOVX", 4))
         {
             MOVX = std::make_unique<uint32[]>(size / 4);
             f.read(MOVX.get(), size);
         }
-        else if (!strcmp(fourcc,"MOVT"))
+        else if (!memcmp(fourcc, "MOVT", 4))
         {
-            MOVT = new float[size/4];
+            MOVT = new float[size / 4];
             f.read(MOVT, size);
             nVertices = (int)size / 12;
         }
-        else if (!strcmp(fourcc,"MONR"))
+        else if (!memcmp(fourcc, "MONR", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOTV"))
+        else if (!memcmp(fourcc, "MOTV", 4))
         {
         }
-        else if (!strcmp(fourcc,"MOBA"))
+        else if (!memcmp(fourcc, "MOBA", 4))
         {
-            MOBA = new uint16[size/2];
-            moba_size = size/2;
+            MOBA = new uint16[size / 2];
+            moba_size = size / 2;
             f.read(MOBA, size);
         }
-        else if (!strcmp(fourcc,"MODR"))
+        else if (!memcmp(fourcc, "MODR", 4))
         {
             DoodadReferences.resize(size / sizeof(uint16));
             f.read(DoodadReferences.data(), size);
         }
-        else if (!strcmp(fourcc,"MLIQ"))
+        else if (!memcmp(fourcc, "MLIQ", 4))
         {
             liquflags |= 1;
             hlq = new WMOLiquidHeader();
@@ -341,12 +339,16 @@ bool WMOGroup::open(WMORoot* rootWMO)
             if (IsLiquidIgnored(groupLiquid))
                 liquflags = 0;
 
-            /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
-            llog << filename;
-            llog << "\nbbox: " << bbcorn1[0] << ", " << bbcorn1[1] << ", " << bbcorn1[2] << " | " << bbcorn2[0] << ", " << bbcorn2[1] << ", " << bbcorn2[2];
-            llog << "\nlpos: " << hlq->pos_x << ", " << hlq->pos_y << ", " << hlq->pos_z;
-            llog << "\nx-/yvert: " << hlq->xverts << "/" << hlq->yverts << " size: " << size << " expected size: " << 30 + hlq->xverts*hlq->yverts*8 + hlq->xtiles*hlq->ytiles << std::endl;
-            llog.close(); */
+            /*
+            if (auto llog = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen("Buildings/liquid.log", "a")))
+            {
+                fprintf(llog.get(), "%s\n", filename.c_str());
+                fprintf(llog.get(), "type: %u\n", groupLiquid);
+                fprintf(llog.get(), "bbox: %f, %f, %f | %f, %f, %f\n", bbcorn1[0], bbcorn1[1], bbcorn1[2], bbcorn2[0], bbcorn2[1], bbcorn2[2]);
+                fprintf(llog.get(), "lpos: %f, %f, %f\n", hlq->pos_x, hlq->pos_y, hlq->pos_z);
+                fprintf(llog.get(), "x/y vert: %d/%d\n", hlq->xverts, hlq->yverts);
+            }
+            */
         }
         f.seek((int)nextpos);
     }
@@ -523,11 +525,6 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE* output, bool preciseVectorData)
         int LIQU_h[] = { 0x5551494C, LIQU_totalSize };// "LIQU"
         fwrite(LIQU_h, 4, 2, output);
 
-        /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
-        llog << filename;
-        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->flags << " group:" << flags << ")\n";
-        llog.close(); */
-
         fwrite(&groupLiquid, sizeof(uint32), 1, output);
         if (liquflags & 1)
         {
@@ -569,7 +566,7 @@ bool WMOGroup::ShouldSkip(WMORoot const* root) const
     if (mogpFlags & 0x4000000)
         return true;
 
-    if (groupName < int32(root->GroupNames.size()) && !strcmp(&root->GroupNames[groupName], "antiportal"))
+    if (groupName < std::ssize(root->GroupNames) && !strcmp(&root->GroupNames[groupName], "antiportal"))
         return true;
 
     return false;
