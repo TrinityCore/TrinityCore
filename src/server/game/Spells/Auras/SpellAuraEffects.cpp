@@ -2236,6 +2236,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
             if (target->IsMounted())
                 target->RemoveAurasByType(SPELL_AURA_MOUNTED);
         }
+
+        target->RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags2::Transform);
     }
     else
     {
