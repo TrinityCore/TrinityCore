@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "Containers.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
 #include "the_eye.h"
@@ -101,7 +102,7 @@ struct boss_void_reaver : public BossAI
                 case EVENT_ARCANE_ORB:
                 {
                     std::vector<Unit*> target_list;
-                    for (auto* ref : me->GetThreatManager().GetUnsortedThreatList())
+                    for (ThreatReference const* ref : me->GetThreatManager().GetUnsortedThreatList())
                     {
                         Unit* target = ref->GetVictim();
                         if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
@@ -110,7 +111,7 @@ struct boss_void_reaver : public BossAI
 
                     Unit* target;
                     if (!target_list.empty())
-                        target = *(target_list.begin() + rand32() % target_list.size());
+                        target = Trinity::Containers::SelectRandomContainerElement(target_list);
                     else
                         target = me->GetVictim();
 
