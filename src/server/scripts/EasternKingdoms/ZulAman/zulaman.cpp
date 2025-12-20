@@ -168,9 +168,9 @@ enum Events
 
 enum Waypoints
 {
-    HARRISON_MOVE_1                   = 860440,
-    HARRISON_MOVE_2                   = 860441,
-    HARRISON_MOVE_3                   = 860442
+    HARRISON_MOVE_1                   = 6883520,
+    HARRISON_MOVE_2                   = 6883528,
+    HARRISON_MOVE_3                   = 6883536
 };
 
 enum DisplayIds
