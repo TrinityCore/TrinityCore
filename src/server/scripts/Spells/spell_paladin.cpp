@@ -71,6 +71,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM_DAMAGE            = 224239,
     SPELL_PALADIN_ENDURING_LIGHT                 = 40471,
     SPELL_PALADIN_ENDURING_JUDGEMENT             = 40472,
+    SPELL_PALADIN_ETERNAL_FLAME                  = 156322,
     SPELL_PALADIN_EXECUTION_SENTENCE_DAMAGE      = 387113,
     SPELL_PALADIN_EXECUTION_SENTENCE_11_SECONDS  = 406919,
     SPELL_PALADIN_EXECUTION_SENTENCE_8_SECONDS   = 386579,
@@ -690,6 +691,47 @@ class spell_pal_divine_storm : public SpellScript
     void Register() override
     {
         OnCast += SpellCastFn(spell_pal_divine_storm::HandleOnCast);
+    }
+};
+
+// 156322 - Eternal Flame
+class spell_pal_eternal_flame : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pal_eternal_flame::CalculateHealing);
+    }
+};
+
+class spell_pal_eternal_flame_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void CalculateHealing(AuraEffect const* /*aurEff*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        Unit* caster = GetCaster();
+        if (victim == caster)
+            AddPct(pctMod, GetEffectInfo(EFFECT_2).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pal_eternal_flame_aura::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
     }
 };
 
@@ -1806,6 +1848,7 @@ void AddSC_paladin_spell_scripts()
     RegisterSpellScript(spell_pal_divine_shield);
     RegisterSpellScript(spell_pal_divine_steed);
     RegisterSpellScript(spell_pal_divine_storm);
+    RegisterSpellAndAuraScriptPair(spell_pal_eternal_flame, spell_pal_eternal_flame_aura);
     RegisterSpellAndAuraScriptPair(spell_pal_execution_sentence, spell_pal_execution_sentence_aura);
     RegisterSpellScript(spell_pal_eye_for_an_eye);
     RegisterSpellScript(spell_pal_final_verdict);
