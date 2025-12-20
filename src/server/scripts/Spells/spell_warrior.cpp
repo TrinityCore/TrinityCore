@@ -668,6 +668,43 @@ class spell_warr_execute_damage : public SpellScript
     }
 };
 
+// 202316 - Fervor of Battle
+class spell_warr_fervor_of_battle : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_SLAM, SPELL_WARRIOR_FERVOR_OF_BATTLE });
+    }
+
+    void HandleSlam(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster || !caster->HasAura(SPELL_WARRIOR_FERVOR_OF_BATTLE))
+            return;
+
+        SpellInfo const* fervorInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_FERVOR_OF_BATTLE, GetCastDifficulty());
+        int32 fervorBP0 = fervorInfo->GetEffect(EFFECT_0).CalcValue(caster);
+
+        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
+        if (targetsHit < fervorBP0)
+            return;
+
+        Unit* target = GetExplTargetUnit();
+        caster->CastSpell(target, SPELL_WARRIOR_SLAM, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS
+                          | TRIGGERED_DONT_REPORT_CAST_ERROR
+                          | TRIGGERED_IGNORE_POWER_COST
+                          | TRIGGERED_CAST_DIRECTLY,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHit += SpellEffectFn(spell_warr_fervor_of_battle::HandleSlam, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
 // 383848 - Frenzied Enrage (attached to 184362 - Enrage)
 class spell_warr_frenzied_enrage : public SpellScript
 {
@@ -1628,76 +1665,6 @@ class spell_warr_victory_rush : public SpellScript
     }
 };
 
-// 845 - Cleave
-// 202316 - Fervor of Battle
-class spell_warr_cleave_fervor_of_battle : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SLAM, SPELL_WARRIOR_FERVOR_OF_BATTLE });
-    }
-
-    void HandleSlam(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (!caster || !caster->HasAura(SPELL_WARRIOR_FERVOR_OF_BATTLE))
-            return;
-
-        SpellInfo const* fervorInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_FERVOR_OF_BATTLE, GetCastDifficulty());
-        int32 fervorBP0 = fervorInfo->GetEffect(EFFECT_0).CalcValue(caster);
-
-        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
-        if (targetsHit < fervorBP0)
-            return;
-
-        Unit* target = GetExplTargetUnit();
-        caster->CastSpell(target, SPELL_WARRIOR_SLAM, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_POWER_COST,
-            .TriggeringSpell = GetSpell()
-            });
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_warr_cleave_fervor_of_battle::HandleSlam, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
-// 199658 - Whirlwind
-// 202316 - Fervor of Battle
-class spell_warr_whirlwind_fervor_of_battle : public SpellScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellInfo({ SPELL_WARRIOR_SLAM, SPELL_WARRIOR_FERVOR_OF_BATTLE });
-    }
-
-    void HandleSlam(SpellEffIndex /*effIndex*/)
-    {
-        Unit* caster = GetCaster();
-        if (!caster || !caster->HasAura(SPELL_WARRIOR_FERVOR_OF_BATTLE))
-            return;
-
-        SpellInfo const* fervorInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_FERVOR_OF_BATTLE, GetCastDifficulty());
-        int32 fervorBP0 = fervorInfo->GetEffect(EFFECT_0).CalcValue(caster);
-
-        int64 const targetsHit = GetUnitTargetCountForEffect(EFFECT_0);
-        if (targetsHit < fervorBP0)
-            return;
-
-        Unit* target = GetExplTargetUnit();
-        caster->CastSpell(target, SPELL_WARRIOR_SLAM, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_POWER_COST,
-            .TriggeringSpell = GetSpell()
-            });
-    }
-
-    void Register() override
-    {
-        OnEffectHit += SpellEffectFn(spell_warr_whirlwind_fervor_of_battle::HandleSlam, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-    }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     RegisterSpellScript(spell_warr_anger_management_proc);
@@ -1749,6 +1716,5 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_vicious_contempt);
     RegisterSpellScript(spell_warr_victorious_state);
     RegisterSpellScript(spell_warr_victory_rush);
-    RegisterSpellScript(spell_warr_cleave_fervor_of_battle);
-    RegisterSpellScript(spell_warr_whirlwind_fervor_of_battle);
+    RegisterSpellScript(spell_warr_fervor_of_battle);
 }
