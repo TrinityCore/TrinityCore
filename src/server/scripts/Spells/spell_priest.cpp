@@ -1242,6 +1242,35 @@ class spell_pri_essence_devourer_heal : public SpellScript
     }
 };
 
+// 1215245 - Eternal Sanctity
+class spell_pri_eternal_sanctity : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS });
+    }
+
+    bool CheckProc(ProcEventInfo& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_PRIEST_APOTHEOSIS);
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    {
+        Aura* apotheosisAura = eventInfo.GetActor()->GetAura(SPELL_PRIEST_APOTHEOSIS);
+        if (!apotheosisAura)
+            return;
+
+        apotheosisAura->SetDuration(apotheosisAura->GetDuration() + aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_eternal_sanctity::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_eternal_sanctity::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 246287 - Evangelism
 class spell_pri_evangelism : public SpellScript
 {
@@ -3693,6 +3722,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_empowered_renew_heal);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
+    RegisterSpellScript(spell_pri_eternal_sanctity);
     RegisterSpellScript(spell_pri_evangelism);
     RegisterSpellScript(spell_pri_focused_mending);
     RegisterSpellScript(spell_pri_from_darkness_comes_light);
