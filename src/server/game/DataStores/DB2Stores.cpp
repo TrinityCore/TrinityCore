@@ -421,7 +421,7 @@ typedef std::unordered_map<uint32, HeirloomEntry const*> HeirloomItemsContainer;
 typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<uint32>> GlyphBindableSpellsContainer;
 typedef std::unordered_map<uint32 /*glyphPropertiesId*/, std::vector<ChrSpecialization>> GlyphRequiredSpecsContainer;
 typedef std::unordered_map<uint32 /*itemId*/, ItemChildEquipmentEntry const*> ItemChildEquipmentContainer;
-typedef std::array<ItemClassEntry const*, 20> ItemClassByOldEnumContainer;
+typedef std::array<ItemClassEntry const*, 21> ItemClassByOldEnumContainer;
 typedef std::unordered_map<uint32, std::vector<ItemLimitCategoryConditionEntry const*>> ItemLimitCategoryConditionContainer;
 typedef std::unordered_map<uint32 /*itemId | appearanceMod << 24*/, ItemModifiedAppearanceEntry const*> ItemModifiedAppearanceByItemContainer;
 typedef std::unordered_map<uint32, std::vector<ItemSetSpellEntry const*>> ItemSetSpellContainer;
@@ -2188,17 +2188,26 @@ ChrSpecializationEntry const* DB2Manager::GetDefaultChrSpecializationForClass(ui
     return GetChrSpecializationByIndex(class_, INITIAL_SPECIALIZATION_INDEX);
 }
 
-uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const
+uint32 DB2Manager::GetRedirectedContentTuningId(uint32 contentTuningId, std::span<uint32 const> redirectFlag) const
 {
     if (std::vector<ConditionalContentTuningEntry const*> const* conditionalContentTunings = Trinity::Containers::MapGetValuePtr(_conditionalContentTuning, contentTuningId))
+    {
         for (ConditionalContentTuningEntry const* conditionalContentTuning : *conditionalContentTunings)
-            if (conditionalContentTuning->RedirectFlag & redirectFlag)
+        {
+            uint32 block = conditionalContentTuning->RedirectEnum / 32;
+            uint32 flag = conditionalContentTuning->RedirectEnum % 32;
+            if (block >= redirectFlag.size())
+                continue;
+
+            if (flag & redirectFlag[block])
                 return conditionalContentTuning->RedirectContentTuningID;
+        }
+    }
 
     return contentTuningId;
 }
 
-Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem /*= false*/) const
+Optional<ContentTuningLevels> DB2Manager::GetContentTuningData(uint32 contentTuningId, std::span<uint32 const> redirectFlag, bool forItem /*= false*/) const
 {
     ContentTuningEntry const* contentTuning = sContentTuningStore.LookupEntry(GetRedirectedContentTuningId(contentTuningId, redirectFlag));
     if (!contentTuning)

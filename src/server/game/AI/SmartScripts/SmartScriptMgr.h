@@ -1005,9 +1005,9 @@ struct SmartAction
         struct
         {
             uint32 SpeedXY;
-            uint32 SpeedZ;
-            uint32 Gravity;
-            SAIBool UseDefaultGravity;
+            uint32 minHeight;
+            uint32 maxHeight;
+            uint32 unused;
             uint32 PointId;
             uint32 ContactDistance;
         } jump;

@@ -37,7 +37,7 @@ namespace MMAP
 {
     MapTileBuilder::MapTileBuilder(MapBuilder* mapBuilder, Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep,
         bool skipLiquid, bool bigBaseUnit, bool debugOutput, std::vector<OffMeshData> const* offMeshConnections) :
-        TileBuilder(maxWalkableAngle, maxWalkableAngleNotSteep, skipLiquid, bigBaseUnit, debugOutput, offMeshConnections),
+        TileBuilder(mapBuilder->m_inputDirectory, mapBuilder->m_outputDirectory, maxWalkableAngle, maxWalkableAngleNotSteep, skipLiquid, bigBaseUnit, debugOutput, offMeshConnections),
         m_mapBuilder(mapBuilder),
         m_workerThread(&MapTileBuilder::WorkerThread, this)
     {
@@ -59,9 +59,12 @@ namespace MMAP
         ++m_mapBuilder->m_totalTilesProcessed;
     }
 
-    MapBuilder::MapBuilder(Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
+    MapBuilder::MapBuilder(boost::filesystem::path const& inputDirectory, boost::filesystem::path const& outputDirectory,
+        Optional<float> maxWalkableAngle, Optional<float> maxWalkableAngleNotSteep, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, int mapid, char const* offMeshFilePath, unsigned int threads) :
+        m_inputDirectory     (inputDirectory),
+        m_outputDirectory    (outputDirectory),
         m_debugOutput        (debugOutput),
         m_threads            (threads),
         m_skipContinents     (skipContinents),
@@ -100,7 +103,7 @@ namespace MMAP
     void MapBuilder::discoverTiles()
     {
         boost::filesystem::directory_iterator end;
-        for (auto itr = boost::filesystem::directory_iterator("maps"); itr != end; ++itr)
+        for (auto itr = boost::filesystem::directory_iterator(m_inputDirectory / "maps"); itr != end; ++itr)
         {
             if (!boost::filesystem::is_regular_file(*itr))
                 continue;
@@ -138,7 +141,7 @@ namespace MMAP
             }
         }
 
-        for (auto itr = boost::filesystem::directory_iterator("vmaps"); itr != end; ++itr)
+        for (auto itr = boost::filesystem::directory_iterator(m_inputDirectory / "vmaps"); itr != end; ++itr)
         {
             if (!boost::filesystem::is_directory(*itr))
                 continue;
@@ -194,11 +197,11 @@ namespace MMAP
             OffMeshData offMesh;
             int32 scanned = sscanf(buf, "%u %u,%u (%f %f %f) (%f %f %f) %f %hhu %hu", &offMesh.MapId, &offMesh.TileX, &offMesh.TileY,
                 &offMesh.From[0], &offMesh.From[1], &offMesh.From[2], &offMesh.To[0], &offMesh.To[1], &offMesh.To[2],
-                &offMesh.Radius, &offMesh.AreaId, &offMesh.Flags);
+                &offMesh.Radius, &offMesh.AreaId, reinterpret_cast<std::underlying_type_t<NavTerrainFlag>*>(&offMesh.Flags));
             if (scanned < 10)
                 continue;
 
-            offMesh.Bidirectional = true;
+            offMesh.ConnectionFlags = OFFMESH_CONNECTION_FLAG_BIDIRECTIONAL;
             if (scanned < 12)
                 offMesh.Flags = NAV_GROUND;
 
@@ -278,7 +281,7 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void MapBuilder::buildMeshFromFile(char* name)
+    void MapBuilder::buildMeshFromFile(char const* name)
     {
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(name, "rb"));
         if (!file)
@@ -328,7 +331,9 @@ namespace MMAP
         // build navmesh tile
         MapTileBuilder tileBuilder(this, m_maxWalkableAngle, m_maxWalkableAngleNotSteep,
             m_skipLiquid, m_bigBaseUnit, m_debugOutput, &m_offMeshConnections);
-        tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        TileBuilder::TileResult tileResult = tileBuilder.buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh->getParams());
+        if (tileResult.data)
+            tileBuilder.saveMoveMapTileToFile(mapId, tileX, tileY, navMesh, tileResult);
     }
 
     /**************************************************************************/
@@ -442,23 +447,22 @@ namespace MMAP
         /***       now create the navmesh       ***/
 
         // navmesh creation params
-        dtNavMeshParams navMeshParams;
-        memset(&navMeshParams, 0, sizeof(dtNavMeshParams));
-        navMeshParams.tileWidth = GRID_SIZE;
-        navMeshParams.tileHeight = GRID_SIZE;
-        rcVcopy(navMeshParams.orig, bmin);
-        navMeshParams.maxTiles = maxTiles;
-        navMeshParams.maxPolys = maxPolysPerTile;
+        MmapNavMeshHeader fileHeader;
+        fileHeader.params.tileWidth = GRID_SIZE;
+        fileHeader.params.tileHeight = GRID_SIZE;
+        rcVcopy(fileHeader.params.orig, bmin);
+        fileHeader.params.maxTiles = maxTiles;
+        fileHeader.params.maxPolys = maxPolysPerTile;
 
         navMesh = dtAllocNavMesh();
         TC_LOG_INFO("maps.mmapgen", "[Map {:04}] Creating navMesh...", mapID);
-        if (!navMesh->init(&navMeshParams))
+        if (!navMesh->init(&fileHeader.params))
         {
             TC_LOG_ERROR("maps.mmapgen", "[Map {:04}] Failed creating navmesh!", mapID);
             return;
         }
 
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}.mmap", mapID);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}.mmap", m_outputDirectory.generic_string(), mapID);
 
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "wb"));
         if (!file)
@@ -469,8 +473,14 @@ namespace MMAP
             return;
         }
 
+        std::vector<OffMeshData> offMeshConnections;
+        std::ranges::copy_if(m_offMeshConnections, std::back_inserter(offMeshConnections), [mapID](OffMeshData const& offMeshData) { return offMeshData.MapId == mapID; });
+
+        fileHeader.offmeshConnectionCount = offMeshConnections.size();
+
         // now that we know navMesh params are valid, we can write them to file
-        fwrite(&navMeshParams, sizeof(dtNavMeshParams), 1, file.get());
+        fwrite(&fileHeader, sizeof(MmapNavMeshHeader), 1, file.get());
+        fwrite(offMeshConnections.data(), sizeof(OffMeshData), offMeshConnections.size(), file.get());
     }
 
     /**************************************************************************/
@@ -561,7 +571,7 @@ namespace MMAP
     /**************************************************************************/
     bool MapTileBuilder::shouldSkipTile(uint32 mapID, uint32 tileX, uint32 tileY) const
     {
-        std::string fileName = Trinity::StringFormat("mmaps/{:04}{:02}{:02}.mmtile", mapID, tileX, tileY);
+        std::string fileName = Trinity::StringFormat("{}/mmaps/{:04}_{:02}_{:02}.mmtile", m_outputDirectory.generic_string(), mapID, tileX, tileY);
         auto file = Trinity::make_unique_ptr_with_deleter<&::fclose>(fopen(fileName.c_str(), "rb"));
         if (!file)
             return false;

@@ -1192,8 +1192,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder const& holder)
 
     // Send MOTD
     {
-        for (std::string const& motdLine : sWorld->GetMotd())
-            sWorld->SendServerMessage(SERVER_MSG_STRING, motdLine, pCurrChar);
+        WorldPackets::System::MOTD motd;
+        motd.Text = &sWorld->GetMotd();
+        SendPacket(motd.Write());
     }
 
     SendSetTimeZoneInformation();

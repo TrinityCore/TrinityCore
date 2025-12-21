@@ -34,7 +34,7 @@ void WorldSession::HandleGuildQueryOpcode(WorldPackets::Guild::QueryGuildInfo& q
 
     if (Guild* guild = sGuildMgr->GetGuildByGuid(query.GuildGuid))
     {
-        guild->SendQueryResponse(this);
+        guild->HandleQuery(this);
         return;
     }
 

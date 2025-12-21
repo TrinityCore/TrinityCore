@@ -8,39 +8,47 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-# Collects all source files into the given variable,
-# which is useful to include all sources in subdirectories.
-# Ignores full qualified directories listed in the variadic arguments.
+# Adds all found source files to a given target
 #
 # Use it like:
-# CollectSourceFiles(
+# CollectAndAddSourceFiles(
+#   common
 #   ${CMAKE_CURRENT_SOURCE_DIR}
-#   COMMON_PRIVATE_SOURCES
-#   # Exclude
+#   EXCLUDE
 #   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
 #   ${CMAKE_CURRENT_SOURCE_DIR}/Platform)
 #
-function(CollectSourceFiles current_dir variable)
-  list(FIND ARGN "${current_dir}" IS_EXCLUDED)
+function(CollectAndAddSourceFiles target_name current_dir)
+  cmake_parse_arguments(PARSE_ARGV 2 arg "" "BASE_DIR" "EXCLUDE")
+  if(NOT arg_BASE_DIR)
+    set(arg_BASE_DIR "${current_dir}")
+  endif()
+  list(FIND arg_EXCLUDE "${current_dir}" IS_EXCLUDED)
   if(IS_EXCLUDED EQUAL -1)
-    file(GLOB COLLECTED_SOURCES
+    cmake_path(RELATIVE_PATH current_dir BASE_DIRECTORY "${arg_BASE_DIR}" OUTPUT_VARIABLE fileset_name)
+    # normalize file set name
+    string(REGEX REPLACE "[./\\]" "_" fileset_name "${fileset_name}")
+
+    file(GLOB private_source_files
       ${current_dir}/*.c
       ${current_dir}/*.cc
-      ${current_dir}/*.cpp
+      ${current_dir}/*.cpp)
+
+    file(GLOB public_header_files
       ${current_dir}/*.inl
-      ${current_dir}/*.def
       ${current_dir}/*.h
       ${current_dir}/*.hh
       ${current_dir}/*.hpp)
-    list(APPEND ${variable} ${COLLECTED_SOURCES})
+
+    target_sources(${target_name} PRIVATE ${private_source_files})
+    target_sources(${target_name} PUBLIC FILE_SET "headers_${fileset_name}" TYPE HEADERS BASE_DIRS ${current_dir} FILES ${public_header_files})
 
     file(GLOB SUB_DIRECTORIES ${current_dir}/*)
     foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})
       if(IS_DIRECTORY ${SUB_DIRECTORY})
-        CollectSourceFiles("${SUB_DIRECTORY}" "${variable}" "${ARGN}")
+        CollectAndAddSourceFiles("${target_name}" "${SUB_DIRECTORY}" BASE_DIR ${arg_BASE_DIR} EXCLUDE ${arg_EXCLUDE})
       endif()
     endforeach()
-    set(${variable} ${${variable}} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -52,20 +60,21 @@ endfunction()
 # CollectIncludeDirectories(
 #   ${CMAKE_CURRENT_SOURCE_DIR}
 #   COMMON_PUBLIC_INCLUDES
-#   # Exclude
+#   EXCLUDE
 #   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
 #   ${CMAKE_CURRENT_SOURCE_DIR}/Platform)
 #
-function(CollectIncludeDirectories current_dir variable)
-  list(FIND ARGN "${current_dir}" IS_EXCLUDED)
+function(CollectIncludeDirectories current_dir sources_variable)
+  cmake_parse_arguments(PARSE_ARGV 2 arg "" "" "EXCLUDE")
+  list(FIND arg_EXCLUDE "${current_dir}" IS_EXCLUDED)
   if(IS_EXCLUDED EQUAL -1)
-    list(APPEND ${variable} ${current_dir})
+    list(APPEND ${sources_variable} ${current_dir})
     file(GLOB SUB_DIRECTORIES ${current_dir}/*)
     foreach(SUB_DIRECTORY ${SUB_DIRECTORIES})
       if(IS_DIRECTORY ${SUB_DIRECTORY})
-        CollectIncludeDirectories("${SUB_DIRECTORY}" "${variable}" "${ARGN}")
+        CollectIncludeDirectories("${SUB_DIRECTORY}" "${sources_variable}" EXCLUDE ${arg_EXCLUDE})
       endif()
     endforeach()
-    set(${variable} ${${variable}} PARENT_SCOPE)
+    set(${sources_variable} ${${sources_variable}} PARENT_SCOPE)
   endif()
 endfunction()

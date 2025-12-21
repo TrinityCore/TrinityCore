@@ -257,6 +257,8 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 Key = 0;
+            uint32 NativeRealmAddress = 0;
+            uint32 Key3 = 0;
             ConnectToSerial Serial = ConnectToSerial::None;
             ConnectPayload Payload;
             uint8 Con = 0;
@@ -271,6 +273,8 @@ namespace WorldPackets
 
             uint64 DosResponse = 0;
             uint64 Key = 0;
+            uint32 NativeRealmAddress = 0;
+            uint32 Key3 = 0;
             std::array<uint8, 32> LocalChallenge = { };
             std::array<uint8, DigestLength> Digest = { };
 
