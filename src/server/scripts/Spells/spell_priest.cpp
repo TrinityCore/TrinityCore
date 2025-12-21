@@ -1346,8 +1346,13 @@ class spell_pri_expiation : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_EXPIATION_DAMAGE, SPELL_PRIEST_SHADOW_WORD_PAIN })
-            && ValidateSpellEffect({ {SPELL_PRIEST_EXPIATION, EFFECT_0}, {SPELL_PRIEST_EXPIATION, EFFECT_1}, {SPELL_PRIEST_SHADOW_WORD_PAIN, EFFECT_1} });
+        return ValidateSpellInfo({ SPELL_PRIEST_EXPIATION_DAMAGE })
+            && ValidateSpellEffect({ { SPELL_PRIEST_EXPIATION, EFFECT_1 }, { SPELL_PRIEST_SHADOW_WORD_PAIN, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_EXPIATION);
     }
 
     void HandleHitTarget(SpellEffIndex /*effIndex*/) const
@@ -1355,40 +1360,36 @@ class spell_pri_expiation : public SpellScript
         Unit* caster = GetCaster();
         Unit* target = GetHitUnit();
 
-        AuraEffect const* expiationConsume = GetCaster()->GetAuraEffect(SPELL_PRIEST_EXPIATION, EFFECT_0);
-        AuraEffect const* expiationDmgMul = GetCaster()->GetAuraEffect(SPELL_PRIEST_EXPIATION, EFFECT_1);
+        Aura const* expiation = caster->GetAura(SPELL_PRIEST_EXPIATION);
+        if (!expiation)
+            return;
+
+        AuraEffect const* expiationConsume = expiation->GetEffect(EFFECT_0);
+        AuraEffect const* expiationDmgMul = expiation->GetEffect(EFFECT_1);
         if (!expiationConsume || !expiationDmgMul)
             return;
 
-        Aura* swPainAura = target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID());
-        if (!swPainAura)
-            return;
-
-        AuraEffect* swPainAuraEffect = swPainAura->GetEffect(EFFECT_1);
+        AuraEffect const* swPainAuraEffect = target->GetAuraEffect(SPELL_PRIEST_SHADOW_WORD_PAIN, EFFECT_1, caster->GetGUID());
         if (!swPainAuraEffect)
             return;
 
+        Aura* swPainAura = swPainAuraEffect->GetBase();
         int32 debuffDuration = swPainAura->GetDuration();
-        int32 debuffTickPeriodic = swPainAuraEffect->GetPeriod();
         int32 consumeDuration = std::min(debuffDuration, expiationConsume->GetAmount() * IN_MILLISECONDS);
         if (consumeDuration == 0)
             return;
 
-        float ticksConsumed = static_cast<float>(consumeDuration) / debuffTickPeriodic;
-        if (ticksConsumed == 0)
-            return;
-
-        float damagePerTick = swPainAuraEffect->GetEstimatedAmount().value_or(swPainAuraEffect->GetAmount());
+        float ticksConsumed = static_cast<float>(consumeDuration) / swPainAuraEffect->GetPeriod();
+        float damagePerTick = swPainAuraEffect->CalculateEstimatedAmount(caster, swPainAuraEffect->GetAmount()).value_or(swPainAuraEffect->GetAmount());
         int32 totalDamage = static_cast<int32>(damagePerTick * ticksConsumed);
-        int32 calculateDamage = CalculatePct(totalDamage, expiationDmgMul->GetAmount());
 
-        swPainAura->SetDuration(swPainAura->GetDuration() - consumeDuration);
+        swPainAura->SetDuration(debuffDuration - consumeDuration);
 
-        CastSpellExtraArgs args;
-        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.AddSpellBP0(calculateDamage);
-
-        caster->CastSpell(target, SPELL_PRIEST_EXPIATION_DAMAGE, args);
+        caster->CastSpell(target, SPELL_PRIEST_EXPIATION_DAMAGE, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, CalculatePct(totalDamage, expiationDmgMul->GetAmount()) } }
+        });
     }
 
     void Register() override
