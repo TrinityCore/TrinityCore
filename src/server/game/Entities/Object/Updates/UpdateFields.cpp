@@ -7411,7 +7411,7 @@ void VisualAnim::ClearChangesMask()
 void ForceSetAreaTriggerPositionAndRotation::WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player const* receiver) const
 {
     data << TriggerGUID;
-    data << Position;
+    data << Pos;
     data << float(Rotation.x);
     data << float(Rotation.y);
     data << float(Rotation.z);
@@ -7421,7 +7421,7 @@ void ForceSetAreaTriggerPositionAndRotation::WriteCreate(ByteBuffer& data, AreaT
 void ForceSetAreaTriggerPositionAndRotation::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, AreaTrigger const* owner, Player const* receiver) const
 {
     data << TriggerGUID;
-    data << Position;
+    data << Pos;
     data << float(Rotation.x);
     data << float(Rotation.y);
     data << float(Rotation.z);
@@ -7431,7 +7431,7 @@ void ForceSetAreaTriggerPositionAndRotation::WriteUpdate(ByteBuffer& data, bool 
 bool ForceSetAreaTriggerPositionAndRotation::operator==(ForceSetAreaTriggerPositionAndRotation const& right) const
 {
     return TriggerGUID == right.TriggerGUID
-        && Position == right.Position
+        && Pos == right.Pos
         && Rotation == right.Rotation;
 }
 
@@ -8614,6 +8614,7 @@ void DecorStoragePersistedData::WriteCreate(ByteBuffer& data, Object const* owne
     data << *HouseGUID;
     data << uint8(Field_20);
     data.WriteBits(Dyes.has_value(), 1);
+    data.FlushBits();
     if (Dyes.has_value())
     {
         Dyes->WriteCreate(data, owner, receiver);
@@ -8626,26 +8627,24 @@ void DecorStoragePersistedData::WriteUpdate(ByteBuffer& data, bool ignoreChanges
     if (ignoreChangesMask)
         changesMask.SetAll();
 
-    data.WriteBits(changesMask.GetBlock(0), 4);
+    data.WriteBits(changesMask.GetBlock(0), 3);
 
     data.FlushBits();
     if (changesMask[0])
     {
-        if (changesMask[1])
+        data << *HouseGUID;
+    }
+    if (changesMask[2])
+    {
+        data << uint8(Field_20);
+    }
+    data.WriteBits(Dyes.has_value(), 1);
+    data.FlushBits();
+    if (changesMask[1])
+    {
+        if (Dyes.has_value())
         {
-            data << *HouseGUID;
-        }
-        if (changesMask[3])
-        {
-            data << uint8(Field_20);
-        }
-        data.WriteBits(Dyes.has_value(), 1);
-        if (changesMask[2])
-        {
-            if (Dyes.has_value())
-            {
-                Dyes->WriteUpdate(data, ignoreChangesMask, owner, receiver);
-            }
+            Dyes->WriteUpdate(data, ignoreChangesMask, owner, receiver);
         }
     }
 }
@@ -8663,8 +8662,9 @@ void HousingDecorData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> f
     data << *DecorGUID;
     data << *AttachParentGUID;
     data << uint8(Flags);
-    data << *Field_68;
+    data << *TargetGameObjectGUID;
     data.WriteBits(PersistedData.has_value(), 1);
+    data.FlushBits();
     if (PersistedData.has_value())
     {
         PersistedData->WriteCreate(data, owner, receiver);
@@ -8697,9 +8697,10 @@ void HousingDecorData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bo
         }
         if (changesMask[5])
         {
-            data << *Field_68;
+            data << *TargetGameObjectGUID;
         }
         data.WriteBits(PersistedData.has_value(), 1);
+        data.FlushBits();
         if (changesMask[4])
         {
             if (PersistedData.has_value())
@@ -8716,7 +8717,7 @@ void HousingDecorData::ClearChangesMask()
     Base::ClearChangesMask(AttachParentGUID);
     Base::ClearChangesMask(Flags);
     Base::ClearChangesMask(PersistedData);
-    Base::ClearChangesMask(Field_68);
+    Base::ClearChangesMask(TargetGameObjectGUID);
     _changesMask.ResetAll();
 }
 

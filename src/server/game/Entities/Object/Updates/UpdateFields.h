@@ -1383,7 +1383,7 @@ struct VisualAnim : public IsUpdateFieldStructureTag, public HasChangesMask<5>
 struct ForceSetAreaTriggerPositionAndRotation : public IsUpdateFieldStructureTag
 {
     ObjectGuid TriggerGUID;
-    TaggedPosition<::Position::XYZ> Position;
+    TaggedPosition<Position::XYZ> Pos;
     QuaternionData Rotation;
 
     void WriteCreate(ByteBuffer& data, AreaTrigger const* owner, Player const* receiver) const;
@@ -1649,11 +1649,11 @@ struct DecorStoragePersistedDataDyes : public IsUpdateFieldStructureTag
     bool operator!=(DecorStoragePersistedDataDyes const& right) const { return !(*this == right); }
 };
 
-struct DecorStoragePersistedData : public IsUpdateFieldStructureTag, public HasChangesMask<4>
+struct DecorStoragePersistedData : public IsUpdateFieldStructureTag, public HasChangesMask<3>
 {
-    UpdateField<ObjectGuid, 0, 1> HouseGUID;
-    OptionalUpdateField<UF::DecorStoragePersistedDataDyes, 0, 2> Dyes;
-    UpdateField<uint8, 0, 3> Field_20;
+    UpdateField<ObjectGuid, -1, 0> HouseGUID;
+    OptionalUpdateField<UF::DecorStoragePersistedDataDyes, -1, 1> Dyes;
+    UpdateField<uint8, -1, 2> Field_20;
 
     void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
@@ -1666,7 +1666,7 @@ struct HousingDecorData : public IsUpdateFieldStructureTag, public HasChangesMas
     UpdateField<ObjectGuid, 0, 2> AttachParentGUID;
     UpdateField<uint8, 0, 3> Flags;
     OptionalUpdateField<UF::DecorStoragePersistedData, 0, 4> PersistedData;
-    UpdateField<ObjectGuid, 0, 5> Field_68;
+    UpdateField<ObjectGuid, 0, 5> TargetGameObjectGUID;
 
     void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
     void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
