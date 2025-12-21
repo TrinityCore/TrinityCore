@@ -250,6 +250,22 @@ ByteBuffer& operator>>(ByteBuffer& data, SupportTicketArenaTeamInfo& arenaTeam)
     return data;
 }
 
+ByteBuffer& operator>>(ByteBuffer& data, SupportTicketHouseInfo& houseInfo)
+{
+    data.ResetBitPos();
+
+    data >> SizedString::BitsSize<8>(houseInfo.NeighborhoodName);
+
+    data >> houseInfo.Unknown_1127_1;
+    data >> houseInfo.Unknown_1127_2;
+    data >> houseInfo.Unknown_1127_3;
+    data >> houseInfo.Unknown_1127_4;
+
+    data >> SizedString::Data(houseInfo.NeighborhoodName);
+
+    return data;
+}
+
 void SupportTicketSubmitComplaint::Read()
 {
     _worldPacket >> Header;
@@ -269,6 +285,7 @@ void SupportTicketSubmitComplaint::Read()
     _worldPacket >> OptionalInit(VoiceChatInfo);
     _worldPacket >> OptionalInit(ClubFinderInfo);
     _worldPacket >> OptionalInit(ArenaTeamInfo);
+    _worldPacket >> OptionalInit(HouseInfo);
 
     if (VoiceChatInfo)
     {
@@ -303,6 +320,9 @@ void SupportTicketSubmitComplaint::Read()
 
     if (ArenaTeamInfo)
         _worldPacket >> *ArenaTeamInfo;
+
+    if (HouseInfo)
+        _worldPacket >> *HouseInfo;
 }
 
 ByteBuffer& operator>>(ByteBuffer& data, Complaint::ComplaintOffender& complaintOffender)

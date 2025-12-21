@@ -28,7 +28,6 @@
 
 SceneObject::SceneObject() : WorldObject(false)
 {
-    m_objectType |= TYPEMASK_SCENEOBJECT;
     m_objectTypeId = TYPEID_SCENEOBJECT;
 
     m_updateFlag.Stationary = true;
