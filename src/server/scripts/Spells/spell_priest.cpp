@@ -257,16 +257,16 @@ class spell_pri_angelic_bulwark : public AuraScript
     bool Validate(SpellInfo const* spellInfo) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_ANGELIC_BULWARK_BUFF, SPELL_PRIEST_ANGELIC_BULWARK_DEBUFF })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    bool CheckProc(ProcEventInfo const& eventInfo) const
     {
         return eventInfo.GetDamageInfo() && !eventInfo.GetActionTarget()->HasAura(SPELL_PRIEST_ANGELIC_BULWARK_DEBUFF)
             && eventInfo.GetActionTarget()->HealthBelowPctDamaged(GetEffect(EFFECT_0)->GetAmount(), eventInfo.GetDamageInfo()->GetDamage());
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    void HandleProc(ProcEventInfo const& eventInfo) const
     {
         Unit* caster = eventInfo.GetActionTarget();
         if (!caster)
@@ -274,10 +274,11 @@ class spell_pri_angelic_bulwark : public AuraScript
 
         int32 absorb = caster->CountPctFromMaxHealth(GetEffect(EFFECT_1)->GetAmount());
 
-        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        args.AddSpellBP0(absorb);
-
-        caster->CastSpell(caster, SPELL_PRIEST_ANGELIC_BULWARK_BUFF, args);
+        caster->CastSpell(caster, SPELL_PRIEST_ANGELIC_BULWARK_BUFF, CastSpellExtraArgsInit
+        {
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, absorb } }
+        });
         caster->CastSpell(caster, SPELL_PRIEST_ANGELIC_BULWARK_DEBUFF, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
