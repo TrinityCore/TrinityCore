@@ -2848,15 +2848,14 @@ class spell_pri_protector_of_the_frail : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL })
-            && ValidateSpellEffect({ {SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, EFFECT_1} });
+        return ValidateSpellEffect({ { SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, EFFECT_1 } });
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
 
-        int32 cdReduction = sSpellMgr->GetSpellInfo(SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        int32 cdReduction = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
         caster->GetSpellHistory()->ModifyCooldown(SPELL_PRIEST_PAIN_SUPPRESSION, Milliseconds(cdReduction));
     }
 
