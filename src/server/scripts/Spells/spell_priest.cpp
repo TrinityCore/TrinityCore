@@ -3143,7 +3143,7 @@ class spell_pri_shadow_covenant : public SpellScript
     void HandleAfterCast() const
     {
         GetCaster()->CastSpell(GetCaster(), SPELL_PRIEST_SHADOW_COVENANT_EFFECT, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_SHAPESHIFT,
             .TriggeringSpell = GetSpell()
         });
     }
