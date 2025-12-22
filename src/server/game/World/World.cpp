@@ -100,7 +100,6 @@
 #include "UpdateTime.h"
 #include "VMapFactory.h"
 #include "VMapManager.h"
-#include "WardenCheckMgr.h"
 #include "WaypointManager.h"
 #include "WeatherMgr.h"
 #include "WhoListStorage.h"
@@ -269,7 +268,7 @@ std::vector<std::string> const& World::GetMotd() const
 void World::TriggerGuidWarning()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     time_t gameTime = GameTime::GetGameTime();
     time_t today = (gameTime / DAY) * DAY;
@@ -288,7 +287,7 @@ void World::TriggerGuidWarning()
 void World::TriggerGuidAlert()
 {
     // Lock this only to prevent multiple maps triggering at the same time
-    std::lock_guard<std::mutex> lock(_guidAlertLock);
+    std::scoped_lock lock(_guidAlertLock);
 
     DoGuidAlertRestart();
     _guidAlert = true;
@@ -663,7 +662,6 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "ShowKickInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_KICK_IN_WORLD },
         { .Name = "ShowMuteInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_MUTE_IN_WORLD },
         { .Name = "ShowBanInWorld"sv, .DefaultValue = false, .Index = CONFIG_SHOW_BAN_IN_WORLD },
-        { .Name = "Warden.Enabled"sv, .DefaultValue = false, .Index = CONFIG_WARDEN_ENABLED },
         { .Name = "FeatureSystem.CharacterUndelete.Enabled"sv, .DefaultValue = false, .Index = CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_ENABLED },
         { .Name = "DBC.EnforceItemAttributes"sv, .DefaultValue = true, .Index = CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES },
         { .Name = "InstancesResetAnnounce"sv, .DefaultValue = false, .Index = CONFIG_INSTANCES_RESET_ANNOUNCE },
@@ -859,13 +857,6 @@ void World::LoadConfigSettings(bool reload)
         { .Name = "PvPToken.ItemCount"sv, .DefaultValue = 1, .Index = CONFIG_PVP_TOKEN_COUNT, .Min = 1 },
         { .Name = "MapUpdate.Threads"sv, .DefaultValue = 1, .Index = CONFIG_NUMTHREADS, .Min = 1 },
         { .Name = "Command.LookupMaxResults"sv, .DefaultValue = 0, .Index = CONFIG_MAX_RESULTS_LOOKUP_COMMANDS },
-        { .Name = "Warden.NumInjectionChecks"sv, .DefaultValue = 9, .Index = CONFIG_WARDEN_NUM_INJECT_CHECKS },
-        { .Name = "Warden.NumLuaSandboxChecks"sv, .DefaultValue = 1, .Index = CONFIG_WARDEN_NUM_LUA_CHECKS },
-        { .Name = "Warden.NumClientModChecks"sv, .DefaultValue = 1, .Index = CONFIG_WARDEN_NUM_CLIENT_MOD_CHECKS },
-        { .Name = "Warden.BanDuration"sv, .DefaultValue = 86400, .Index = CONFIG_WARDEN_CLIENT_BAN_DURATION },
-        { .Name = "Warden.ClientCheckHoldOff"sv, .DefaultValue = 30, .Index = CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF },
-        { .Name = "Warden.ClientCheckFailAction"sv, .DefaultValue = 0, .Index = CONFIG_WARDEN_CLIENT_FAIL_ACTION },
-        { .Name = "Warden.ClientResponseDelay"sv, .DefaultValue = 600, .Index = CONFIG_WARDEN_CLIENT_RESPONSE_DELAY },
         { .Name = "FeatureSystem.CharacterUndelete.Cooldown"sv, .DefaultValue = 2592000, .Index = CONFIG_FEATURE_SYSTEM_CHARACTER_UNDELETE_COOLDOWN },
         { .Name = "DungeonFinder.OptionsMask"sv, .DefaultValue = 1, .Index = CONFIG_LFG_OPTIONSMASK },
         { .Name = "Account.PasswordChangeSecurity"sv, .DefaultValue = 0, .Index = CONFIG_ACC_PASSCHANGESEC },
@@ -2033,13 +2024,6 @@ bool World::SetInitialWorldSettings()
     ///- Initialize Battlefield
     TC_LOG_INFO("server.loading", "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
-
-    ///- Initialize Warden
-    TC_LOG_INFO("server.loading", "Loading Warden Checks...");
-    sWardenCheckMgr->LoadWardenChecks();
-
-    TC_LOG_INFO("server.loading", "Loading Warden Action Overrides...");
-    sWardenCheckMgr->LoadWardenOverrides();
 
     TC_LOG_INFO("server.loading", "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query

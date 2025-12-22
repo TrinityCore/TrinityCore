@@ -53,7 +53,6 @@
 #include "RealmList.h"
 #include "ScriptMgr.h"
 #include "SocialMgr.h"
-#include "WardenWin.h"
 #include "World.h"
 #include "WorldSocket.h"
 #include <boost/circular_buffer.hpp>
@@ -518,32 +517,23 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //logout procedure should happen only in World::UpdateSessions() method!!!
     if (updater.ProcessUnsafe())
     {
-        if (m_Socket[CONNECTION_TYPE_REALM] && m_Socket[CONNECTION_TYPE_REALM]->IsOpen() && _warden)
-            _warden->Update(diff);
-
         ///- If necessary, log the player out
         if (ShouldLogOut(currentTime) && m_playerLoading.IsEmpty())
             LogoutPlayer(true);
 
         ///- Cleanup socket pointer if need
-        if ((m_Socket[CONNECTION_TYPE_REALM] && !m_Socket[CONNECTION_TYPE_REALM]->IsOpen()) ||
-            (m_Socket[CONNECTION_TYPE_INSTANCE] && !m_Socket[CONNECTION_TYPE_INSTANCE]->IsOpen()))
+        if (std::ranges::any_of(m_Socket, [](std::shared_ptr<WorldSocket> const& s) { return s && !s->IsOpen(); }))
         {
-            if (GetPlayer() && _warden)
-                _warden->Update(diff);
-
             expireTime -= expireTime > diff ? diff : expireTime;
             if (expireTime < diff || forceExit || !GetPlayer())
             {
-                if (m_Socket[CONNECTION_TYPE_REALM])
+                for (std::shared_ptr<WorldSocket>& socket : m_Socket)
                 {
-                    m_Socket[CONNECTION_TYPE_REALM]->CloseSocket();
-                    m_Socket[CONNECTION_TYPE_REALM].reset();
-                }
-                if (m_Socket[CONNECTION_TYPE_INSTANCE])
-                {
-                    m_Socket[CONNECTION_TYPE_INSTANCE]->CloseSocket();
-                    m_Socket[CONNECTION_TYPE_INSTANCE].reset();
+                    if (socket)
+                    {
+                        socket->CloseSocket();
+                        socket.reset();
+                    }
                 }
             }
         }
@@ -833,6 +823,7 @@ void WorldSession::SendConnectToInstance(WorldPackets::Auth::ConnectToSerial ser
 
     WorldPackets::Auth::ConnectTo connectTo;
     connectTo.Key = _instanceConnectKey.Raw;
+    connectTo.NativeRealmAddress = GetVirtualRealmAddress();
     connectTo.Serial = serial;
     connectTo.Payload.Port = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     if (instanceAddress.is_v4())
@@ -1191,23 +1182,6 @@ SQLQueryHolderCallback& WorldSession::AddQueryHolderCallback(SQLQueryHolderCallb
 bool WorldSession::CanAccessAlliedRaces() const
 {
     return GetAccountExpansion() >= EXPANSION_BATTLE_FOR_AZEROTH;
-}
-
-void WorldSession::InitWarden(SessionKey const& k)
-{
-    if (_os == "Win")
-    {
-        _warden = std::make_unique<WardenWin>();
-        _warden->Init(this, k);
-    }
-    else if (_os == "Wn64")
-    {
-        // Not implemented
-    }
-    else if (_os == "Mc64")
-    {
-        // Not implemented
-    }
 }
 
 void WorldSession::LoadPermissions()

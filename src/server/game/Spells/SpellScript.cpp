@@ -21,7 +21,6 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "StringConvert.h"
 #include "Unit.h"
 #include <string>
 
@@ -35,7 +34,7 @@ bool SpellScriptBase::_Validate(SpellInfo const* entry)
     return true;
 }
 
-SpellScriptBase::SpellScriptBase() noexcept : m_currentScriptState(SPELL_SCRIPT_STATE_NONE), m_scriptSpellId(0)
+SpellScriptBase::SpellScriptBase() noexcept : m_scriptSpellId(0), m_currentScriptState(SPELL_SCRIPT_STATE_NONE)
 {
 }
 
