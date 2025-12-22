@@ -124,6 +124,7 @@ ConditionMgr::ConditionTypeInfo const ConditionMgr::StaticConditionTypeData[COND
     { "On Scenario Step",          true, false, false, false },
     { "Scene In Progress",         true, false, false, false },
     { "Player Condition",          true, false, false, false },
+    { "Private Object",           false, false, false, false },
     { "String ID",                false, false, false,  true },
     { "Label",                    false, false, false, false },
 };
