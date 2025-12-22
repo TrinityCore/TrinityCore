@@ -16,7 +16,6 @@
  */
 
 #include "SessionManager.h"
-#include "Util.h"
 
 bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount)
 {
@@ -30,9 +29,9 @@ bool Battlenet::SessionManager::StartNetwork(Trinity::Asio::IoContext& ioContext
     return true;
 }
 
-Trinity::Net::NetworkThread<Battlenet::Session>* Battlenet::SessionManager::CreateThreads() const
+Battlenet::SessionNetworkThread* Battlenet::SessionManager::CreateThreads() const
 {
-    return new Trinity::Net::NetworkThread<Session>[GetNetworkThreadCount()];
+    return new SessionNetworkThread[GetNetworkThreadCount()];
 }
 
 Battlenet::SessionManager& Battlenet::SessionManager::Instance()
