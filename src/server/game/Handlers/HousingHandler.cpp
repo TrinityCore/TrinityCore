@@ -15,29 +15,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _WARDEN_MAC_H
-#define _WARDEN_MAC_H
+#include "WorldSession.h"
+#include "HousingPackets.h"
+#include "Player.h"
 
-#include "ARC4.h"
-#include "Warden.h"
-
-class WorldSession;
-class Warden;
-
-class TC_GAME_API WardenMac : public Warden
+void WorldSession::HandleDeclineNeighborhoodInvites(WorldPackets::Housing::DeclineNeighborhoodInvites const& declineNeighborhoodInvites)
 {
-    public:
-        WardenMac();
-        ~WardenMac();
-
-        void Init(WorldSession* session, SessionKey const& k) override;
-        void InitializeModuleForClient(ClientWardenModule& module) override;
-        void InitializeModule() override;
-        void RequestHash() override;
-        void HandleHashResult(ByteBuffer& buff) override;
-        void RequestChecks() override;
-        size_t DEBUG_ForceSpecificChecks(std::vector<uint16> const& /*checks*/) override { return 0; }
-        void HandleCheckResult(ByteBuffer& buff) override;
-};
-
-#endif
+    if (declineNeighborhoodInvites.Allow)
+        GetPlayer()->SetPlayerFlagEx(PLAYER_FLAGS_EX_AUTO_DECLINE_NEIGHBORHOOD);
+    else
+        GetPlayer()->RemovePlayerFlagEx(PLAYER_FLAGS_EX_AUTO_DECLINE_NEIGHBORHOOD);
+}

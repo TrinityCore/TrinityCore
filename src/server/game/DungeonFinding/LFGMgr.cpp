@@ -2200,7 +2200,7 @@ uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
     return 0;
 }
 
-LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, uint32 contentTuningReplacementConditionMask)
+LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion, std::span<uint32 const> contentTuningReplacementConditionMask)
 {
     LfgDungeonSet randomDungeons;
     for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)

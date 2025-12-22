@@ -8,11 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-CollectSourceFiles(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE_SOURCES)
+add_executable(mmaps_generator)
 
-add_executable(mmaps_generator ${PRIVATE_SOURCES})
+CollectAndAddSourceFiles(
+  mmaps_generator
+  ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(mmaps_generator
   PRIVATE
@@ -20,13 +20,7 @@ target_link_libraries(mmaps_generator
     extractor_common
     mmaps_common)
 
-CollectIncludeDirectories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC_INCLUDES)
-
 target_include_directories(mmaps_generator
-  PUBLIC
-    ${PUBLIC_INCLUDES}
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 

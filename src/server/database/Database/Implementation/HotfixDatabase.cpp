@@ -459,8 +459,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONDITIONAL_CHR_MODEL, "SELECT MAX(ID) + 1 FROM conditional_chr_model", CONNECTION_SYNCH);
 
     // ConditionalContentTuning.db2
-    PrepareStatement(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT ID, OrderIndex, RedirectContentTuningID, RedirectFlag, ParentContentTuningID"
-        " FROM conditional_content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT ID, OrderIndex, RedirectContentTuningID, RedirectFlag, RedirectEnum, "
+        "ParentContentTuningID FROM conditional_content_tuning WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_CONDITIONAL_CONTENT_TUNING, "SELECT MAX(ID) + 1 FROM conditional_content_tuning", CONNECTION_SYNCH);
 
     // ContentTuning.db2
@@ -799,7 +799,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     // GossipNpcOption.db2
     PrepareStatement(HOTFIX_SEL_GOSSIP_NPC_OPTION, "SELECT ID, GossipNpcOption, LFGDungeonsID, TrainerID, GarrFollowerTypeID, CharShipmentID, "
         "GarrTalentTreeID, UiMapID, UiItemInteractionID, Unknown_1000_8, Unknown_1000_9, CovenantID, GossipOptionID, TraitTreeID, ProfessionID, "
-        "Unknown_1002_14, SkillLineID FROM gossip_npc_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "Unknown_1002_14, NeighborhoodMapID, SkillLineID FROM gossip_npc_option WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_GOSSIP_NPC_OPTION, "SELECT MAX(ID) + 1 FROM gossip_npc_option", CONNECTION_SYNCH);
 
     // GuildColorBackground.db2
@@ -854,7 +854,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // Item.db2
     PrepareStatement(HOTFIX_SEL_ITEM, "SELECT ID, ClassID, SubclassID, Material, InventoryType, SheatheType, SoundOverrideSubclassID, IconFileDataID, "
-        "ItemGroupSoundsID, ContentTuningID, ModifiedCraftingReagentItemID, CraftingQualityID FROM item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "ItemGroupSoundsID, ContentTuningID, ModifiedCraftingReagentItemID, CraftingQualityID, Unknown1127 FROM item WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM, "SELECT MAX(ID) + 1 FROM item", CONNECTION_SYNCH);
 
     // ItemAppearance.db2
@@ -963,7 +963,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // ItemEffect.db2
     PrepareStatement(HOTFIX_SEL_ITEM_EFFECT, "SELECT ID, LegacySlotIndex, TriggerType, Charges, CoolDownMSec, CategoryCoolDownMSec, SpellCategoryID, "
-        "SpellID, ChrSpecializationID FROM item_effect WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "SpellID, ChrSpecializationID, PlayerConditionID FROM item_effect WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_EFFECT, "SELECT MAX(ID) + 1 FROM item_effect", CONNECTION_SYNCH);
 
     // ItemExtendedCost.db2
@@ -1024,8 +1024,8 @@ void HotfixDatabaseConnection::DoPrepareStatements()
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_PRICE_BASE, "SELECT MAX(ID) + 1 FROM item_price_base", CONNECTION_SYNCH);
 
     // ItemScalingConfig.db2
-    PrepareStatement(HOTFIX_SEL_ITEM_SCALING_CONFIG, "SELECT ID, ItemOffsetCurveID, ItemLevel, RequiredLevel, Unknown1125 FROM item_scaling_config"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_ITEM_SCALING_CONFIG, "SELECT ID, ItemOffsetCurveID, ItemLevel, RequiredLevel, Unknown1125, Flags"
+        " FROM item_scaling_config WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_SCALING_CONFIG, "SELECT MAX(ID) + 1 FROM item_scaling_config", CONNECTION_SYNCH);
 
     // ItemSearchName.db2
@@ -1058,11 +1058,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "StatModifierBonusStat6, StatModifierBonusStat7, StatModifierBonusStat8, StatModifierBonusStat9, StatModifierBonusStat10, Stackable, "
         "MaxCount, MinReputation, RequiredAbility, SellPrice, BuyPrice, VendorStackCount, PriceVariance, PriceRandomValue, Flags1, Flags2, Flags3, "
         "Flags4, Flags5, FactionRelated, ModifiedCraftingReagentItemID, ContentTuningID, PlayerLevelToItemLevelCurveID, ItemLevelOffsetCurveID, "
-        "ItemLevelOffsetItemLevel, ItemNameDescriptionID, RequiredTransmogHoliday, RequiredHoliday, GemProperties, SocketMatchEnchantmentId, "
-        "TotemCategoryID, InstanceBound, ZoneBound1, ZoneBound2, ItemSet, LockID, PageID, ItemDelay, MinFactionID, RequiredSkillRank, RequiredSkill, "
-        "ItemLevel, AllowableClass, ArtifactID, SpellWeight, SpellWeightCategory, SocketType1, SocketType2, SocketType3, SheatheType, Material, "
-        "PageMaterialID, Bonding, DamageDamageType, ContainerSlots, RequiredPVPMedal, RequiredPVPRank, RequiredLevel, InventoryType, "
-        "OverallQualityID FROM item_sparse WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+        "ItemLevelOffsetItemLevel, Unknown1127, ItemNameDescriptionID, RequiredTransmogHoliday, RequiredHoliday, GemProperties, "
+        "SocketMatchEnchantmentId, TotemCategoryID, InstanceBound, ZoneBound1, ZoneBound2, ItemSet, LockID, PageID, ItemDelay, MinFactionID, "
+        "RequiredSkillRank, RequiredSkill, ItemLevel, AllowableClass, ArtifactID, SpellWeight, SpellWeightCategory, SocketType1, SocketType2, "
+        "SocketType3, SheatheType, Material, PageMaterialID, Bonding, DamageDamageType, ContainerSlots, RequiredPVPMedal, RequiredPVPRank, "
+        "RequiredLevel, InventoryType, OverallQualityID FROM item_sparse WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT MAX(ID) + 1 FROM item_sparse", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_ITEM_SPARSE, "SELECT ID, Description_lang, Display3_lang, Display2_lang, Display1_lang, Display_lang"
         " FROM item_sparse_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
@@ -1183,10 +1183,10 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "PvpLongDescription_lang FROM map_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?", CONNECTION_SYNCH);
 
     // MapChallengeMode.db2
-    PrepareStatement(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT Name, ID, MapID, Flags, ExpansionLevel, RequiredWorldStateID, CriteriaCount1, "
-        "CriteriaCount2, CriteriaCount3, FirstRewardQuestID1, FirstRewardQuestID2, FirstRewardQuestID3, FirstRewardQuestID4, FirstRewardQuestID5, "
-        "FirstRewardQuestID6, RewardQuestID1, RewardQuestID2, RewardQuestID3, RewardQuestID4, RewardQuestID5, RewardQuestID6 FROM map_challenge_mode"
-        " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PrepareStatement(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT Name, ID, MapID, Flags, MaxMedals, ExpansionLevel, RequiredWorldStateID, CriteriaCount1, "
+        "CriteriaCount2, CriteriaCount3, CriteriaCount4, CriteriaCount5, FirstRewardQuestID1, FirstRewardQuestID2, FirstRewardQuestID3, "
+        "FirstRewardQuestID4, FirstRewardQuestID5, FirstRewardQuestID6, RewardQuestID1, RewardQuestID2, RewardQuestID3, RewardQuestID4, "
+        "RewardQuestID5, RewardQuestID6 FROM map_challenge_mode WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT MAX(ID) + 1 FROM map_challenge_mode", CONNECTION_SYNCH);
     PREPARE_LOCALE_STMT(HOTFIX_SEL_MAP_CHALLENGE_MODE, "SELECT ID, Name_lang FROM map_challenge_mode_locale WHERE (`VerifiedBuild` > 0) = ?"
         " AND locale = ?", CONNECTION_SYNCH);
@@ -1760,7 +1760,7 @@ void HotfixDatabaseConnection::DoPrepareStatements()
 
     // SpellVisual.db2
     PrepareStatement(HOTFIX_SEL_SPELL_VISUAL, "SELECT ID, MissileCastOffset1, MissileCastOffset2, MissileCastOffset3, MissileImpactOffset1, "
-        "MissileImpactOffset2, MissileImpactOffset3, AnimEventSoundID, Flags, MissileAttachment, MissileDestinationAttachment, "
+        "MissileImpactOffset2, MissileImpactOffset3, StateKit, AnimEventSoundID, Flags, MissileAttachment, MissileDestinationAttachment, "
         "MissileCastPositionerID, MissileImpactPositionerID, MissileTargetingKit, HostileSpellVisualID, CasterSpellVisualID, SpellVisualMissileSetID, "
         "DamageNumberDelay, LowViolenceSpellVisualID, RaidSpellVisualMissileSetID, ReducedUnexpectedCameraMovementSpellVisualID FROM spell_visual"
         " WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
