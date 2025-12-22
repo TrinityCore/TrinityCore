@@ -23,9 +23,13 @@
 
 namespace Battlenet
 {
-    class SessionManager : public Trinity::Net::SocketMgr<Session>
+    class SessionNetworkThread final : public Trinity::Net::NetworkThread<Session>
     {
-        typedef SocketMgr<Session> BaseSocketMgr;
+    };
+
+    class SessionManager final : public Trinity::Net::SocketMgr<Session, SessionNetworkThread>
+    {
+        using BaseSocketMgr = SocketMgr;
 
     public:
         static SessionManager& Instance();
@@ -33,7 +37,7 @@ namespace Battlenet
         bool StartNetwork(Trinity::Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int threadCount = 1) override;
 
     protected:
-        Trinity::Net::NetworkThread<Session>* CreateThreads() const override;
+        SessionNetworkThread* CreateThreads() const override;
     };
 }
 

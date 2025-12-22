@@ -17,24 +17,19 @@
 
 #include "WorldSocketMgr.h"
 #include "Config.h"
-#include "NetworkThread.h"
 #include "ScriptMgr.h"
 #include <boost/system/error_code.hpp>
 
-class WorldSocketThread : public Trinity::Net::NetworkThread<WorldSocket>
+void WorldSocketThread::SocketAdded(std::shared_ptr<WorldSocket> const& sock)
 {
-public:
-    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override
-    {
-        sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
-        sScriptMgr->OnSocketOpen(sock);
-    }
+    sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
+    sScriptMgr->OnSocketOpen(sock);
+}
 
-    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override
-    {
-        sScriptMgr->OnSocketClose(sock);
-    }
-};
+void WorldSocketThread::SocketRemoved(std::shared_ptr<WorldSocket>const& sock)
+{
+    sScriptMgr->OnSocketClose(sock);
+}
 
 WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
@@ -114,7 +109,7 @@ void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint3
     BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
 }
 
-Trinity::Net::NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
+WorldSocketThread* WorldSocketMgr::CreateThreads() const
 {
     return new WorldSocketThread[GetNetworkThreadCount()];
 }
