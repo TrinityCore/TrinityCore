@@ -94,12 +94,6 @@ SET @PATHID := 138498;
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_WALK WHERE `id`=@PATHID;
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `point` >= 28;
 
--- Wizzlecrank Shredder, zone_the_barrens.cpp
-SET @PATHID := 27514;
-UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID;
-UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_WALK WHERE `id`=@PATHID AND `point` BETWEEN 9 AND 17;
-UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `point` >= 18;
-
 -- Brann Bronzebeard, halls_of_stone.cpp
 SET @PATHID := 224562;
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `point` >= 1;
@@ -107,6 +101,10 @@ UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `po
 -- Maghar Captive, zone_nagrand.cpp
 SET @PATHID := 145682;
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `point` >= 16;
+
+-- Rin'ji, zone_hinterlands.cpp
+SET @PATHID := 62242;
+UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=@PATHID AND `point` >= 17;
 
 -- ------------------------------------------------------------------------------------------------
 
@@ -142,9 +140,6 @@ UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=266962;
 
 -- Icefang, zone_storm_peaks.cpp
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=236818;
-
--- Garments of quests, npcs_special.cpp
-UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id` IN(99386,99418,99426,99434,99442);
 
 -- Taretha, old_hillsbrad.cpp
 UPDATE `waypoint_data` SET `move_type`=@MOVE_TYPE_RUN WHERE `id`=151098;
