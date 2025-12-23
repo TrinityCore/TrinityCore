@@ -508,7 +508,8 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         ++EnemyCount;
 
         creature->SetWalk(false);
-        ENSURE_AI(hyjal_trashAI, creature->AI())->SetRun();
+        if (hyjal_trashAI* ai = CAST_AI(hyjal_trashAI, creature->AI()))
+            ai->SetRun();
         creature->setActive(true);
         creature->SetFarVisible(true);
         switch (entry)
@@ -526,7 +527,8 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
             case ANETHERON:
             case KAZROGAL:
             case AZGALOR:
-                ENSURE_AI(hyjal_trashAI, creature->AI())->IsEvent = true;
+                if (hyjal_trashAI* ai = CAST_AI(hyjal_trashAI, creature->AI()))
+                    ai->IsEvent = true;
                 break;
         }
         if (instance->GetData(DATA_RAIDDAMAGE) < MINRAIDDAMAGE)
