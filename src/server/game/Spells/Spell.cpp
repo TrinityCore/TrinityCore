@@ -2362,6 +2362,30 @@ void Spell::AddDestTarget(SpellDestination const& dest, uint32 effIndex)
     m_destTargets[effIndex] = dest;
 }
 
+int64 Spell::GetUnitTargetCountForEffect(SpellEffIndex effect) const
+{
+    return std::count_if(m_UniqueTargetInfo.begin(), m_UniqueTargetInfo.end(), [effect](TargetInfo const& targetInfo)
+    {
+        return targetInfo.EffectMask & (1 << effect);
+    });
+}
+
+int64 Spell::GetGameObjectTargetCountForEffect(SpellEffIndex effect) const
+{
+    return std::count_if(m_UniqueGOTargetInfo.begin(), m_UniqueGOTargetInfo.end(), [effect](GOTargetInfo const& targetInfo)
+    {
+        return targetInfo.EffectMask & (1 << effect);
+    });
+}
+
+int64 Spell::GetItemTargetCountForEffect(SpellEffIndex effect) const
+{
+    return std::count_if(m_UniqueItemInfo.begin(), m_UniqueItemInfo.end(), [effect](ItemTargetInfo const& targetInfo)
+    {
+        return targetInfo.EffectMask & (1 << effect);
+    });
+}
+
 void Spell::TargetInfo::PreprocessTarget(Spell* spell)
 {
     Unit* unit = spell->m_caster->GetGUID() == TargetGUID ? spell->m_caster->ToUnit() : ObjectAccessor::GetUnit(*spell->m_caster, TargetGUID);
@@ -7784,7 +7808,7 @@ void Spell::DoEffectOnLaunchTarget(TargetInfo& targetInfo, float multiplier, Spe
             if (m_originalCaster->GetTypeId() == TYPEID_PLAYER)
             {
                 // cap damage of player AOE
-                uint32 targetAmount = m_UniqueTargetInfo.size();
+                int64 targetAmount = GetUnitTargetCountForEffect(spellEffectInfo.EffectIndex);
                 if (targetAmount > 10)
                     m_damage = m_damage * 10 / targetAmount;
             }

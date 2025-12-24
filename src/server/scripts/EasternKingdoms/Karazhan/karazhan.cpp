@@ -37,6 +37,7 @@ EndContentData */
 #include "Player.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "SpellScript.h"
 #include "TemporarySummon.h"
 
 enum Spells
@@ -122,6 +123,8 @@ float Spawns[6][2]=
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738f
 
+static constexpr uint32 PATH_ESCORT_BARNES = 134498;
+
 class npc_barnes : public CreatureScript
 {
 public:
@@ -175,7 +178,8 @@ public:
             if (m_uiEventId == EVENT_OZ)
                 instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, IN_PROGRESS);
 
-            Start(false, false);
+            LoadPath(PATH_ESCORT_BARNES);
+            Start(false);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -619,8 +623,35 @@ public:
     };
 };
 
+enum KarazhanCharge
+{
+    SPELL_FEAR      = 29321
+};
+
+// 29320 - Charge
+class spell_karazhan_charge : public SpellScript
+{
+    PrepareSpellScript(spell_karazhan_charge);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_FEAR });
+    }
+
+    void HandleAfterHit()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_FEAR);
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_karazhan_charge::HandleAfterHit);
+    }
+};
+
 void AddSC_karazhan()
 {
     new npc_barnes();
     new npc_image_of_medivh();
+    RegisterSpellScript(spell_karazhan_charge);
 }
