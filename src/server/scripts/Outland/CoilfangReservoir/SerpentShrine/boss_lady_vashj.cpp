@@ -104,8 +104,8 @@ enum VashjSpells
     SPELL_SUMMON_WAVE_D_MOB              = 38244,
 
     SPELL_SUMMON_WAVE_E_MOB_1            = 38489,
-	SPELL_SUMMON_WAVE_E_MOB_2            = 38492,
-	SPELL_SUMMON_WAVE_E_MOB_3            = 38493,
+    SPELL_SUMMON_WAVE_E_MOB_2            = 38492,
+    SPELL_SUMMON_WAVE_E_MOB_3            = 38493,
 
     SPELL_TOXIC_SPORES                   = 38574,
 
@@ -155,8 +155,8 @@ enum VashjCreatures
     NPC_WORLD_TRIGGER_TINY               = 21987,
     NPC_ENCHANTED_ELEMENTAL              = 21958,
     NPC_TAINTED_ELEMENTAL                = 22009,
-	NPC_COILFANG_ELITE                   = 22055,
-	NPC_COILFANG_STRIDER                 = 22056,
+    NPC_COILFANG_ELITE                   = 22055,
+    NPC_COILFANG_STRIDER                 = 22056,
     NPC_TOXIC_SPOREBAT                   = 22140,
     NPC_SPORE_DROP_TRIGGER               = 22207
 };
