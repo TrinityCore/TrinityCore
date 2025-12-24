@@ -11472,9 +11472,18 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
         return EQUIP_ERR_CLIENT_LOCKED_OUT;
 
     // learning (recipes, mounts, pets, etc.)
-    if (proto->Spells[0].SpellId == 483 || proto->Spells[0].SpellId == 55884)
-        if (HasSpell(proto->Spells[1].SpellId))
-            return EQUIP_ERR_NONE;
+    uint32 learnableCount = 0;
+    uint32 learnedCount = 0;
+    for (_Spell const& itemEffect : proto->Spells)
+    {
+        if (itemEffect.SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+            continue;
+
+        ++learnableCount;
+        learnedCount += HasSpell(itemEffect.SpellId) ? 1 : 0;
+    }
+    if (learnableCount && learnedCount == learnableCount)
+        return EQUIP_ERR_NONE;
 
     return EQUIP_ERR_OK;
 }
