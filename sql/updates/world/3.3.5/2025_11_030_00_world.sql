@@ -60,7 +60,7 @@ INSERT INTO `creature_summon_groups` (`summonerId`,`summonerType`,`groupId`,`ent
 
 (3678,0,4,3654,150.943,262.797,-103.90366,3.700098,6,300000,"Disciple of Naralex - Group 4 - Mutanus the Devourer");
 
-DELETE FROM `script_waypoint` WHERE `entry` = 3678;
+DELETE FROM `waypoint_data` WHERE `id` = 29426;
 
 DELETE FROM `waypoint_data` WHERE `id` IN (367800,367801,367802,367803,367804,367900);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
