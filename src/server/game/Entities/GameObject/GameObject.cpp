@@ -4170,6 +4170,8 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
     else
         _animKitId = 0;
 
+    m_updateFlag.AnimKit = _animKitId != 0;
+
     WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
     activateAnimKit.ObjectGUID = GetGUID();
     activateAnimKit.AnimKitID = animKitId;

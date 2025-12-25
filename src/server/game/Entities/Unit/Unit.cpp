@@ -313,7 +313,7 @@ Unit::Unit(bool isWorldObject) :
     m_unitMovedByMe(nullptr), m_playerMovingMe(nullptr), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(std::make_unique<MotionMaster>(this)), m_vehicle(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this),
-    m_threatManager(this), m_aiLocked(false), _playHoverAnim(false), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
+    m_threatManager(this), m_aiLocked(false), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
     _spellHistory(std::make_unique<SpellHistory>(this))
 {
     m_objectTypeId = TYPEID_UNIT;
@@ -5885,6 +5885,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     m_attacking = victim;
     m_attacking->_addAttacker(this);
+    m_updateFlag.CombatVictim = true;
 
     // Set our target
     SetTarget(victim->GetGUID());
@@ -5935,6 +5936,7 @@ bool Unit::AttackStop()
 
     Unit* victim = m_attacking;
 
+    m_updateFlag.CombatVictim = false;
     m_attacking->_removeAttacker(this);
     m_attacking = nullptr;
 
@@ -11072,6 +11074,7 @@ void Unit::SetAIAnimKitId(uint16 animKitId)
         return;
 
     _aiAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetAIAnimKit data;
     data.Unit = GetGUID();
@@ -11088,6 +11091,7 @@ void Unit::SetMovementAnimKitId(uint16 animKitId)
         return;
 
     _movementAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetMovementAnimKit data;
     data.Unit = GetGUID();
@@ -11104,6 +11108,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         return;
 
     _meleeAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetMeleeAnimKit data;
     data.Unit = GetGUID();
@@ -14033,7 +14038,7 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
     if (IsPlayingHoverAnim() == enable)
         return;
 
-    _playHoverAnim = enable;
+    m_updateFlag.PlayHoverAnim = enable;
 
     if (!sendUpdate)
         return;
