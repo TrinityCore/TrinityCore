@@ -235,7 +235,10 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     }
 
     if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
+    {
         m_movementInfo.transport.guid = target->GetGUID();
+        m_updateFlag.MovementTransport = true;
+    }
 
     if (!IsStaticSpawn())
         UpdatePositionData();

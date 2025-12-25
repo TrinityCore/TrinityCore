@@ -1138,7 +1138,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
 
-        bool IsPlayingHoverAnim() const { return _playHoverAnim; }
+        bool IsPlayingHoverAnim() const { return m_updateFlag.PlayHoverAnim; }
         void SetPlayHoverAnim(bool enable, bool sendUpdate = true);
         void CalculateHoverHeight();
         void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
@@ -2029,8 +2029,6 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
-
-        bool _playHoverAnim;
 
         uint16 _aiAnimKitId;
         uint16 _movementAnimKitId;

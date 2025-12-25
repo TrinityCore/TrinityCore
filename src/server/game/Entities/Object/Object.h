@@ -921,7 +921,7 @@ class TC_GAME_API WorldObject : public Object, public WorldLocation
         uint32 GetTransTime()   const { return m_movementInfo.transport.time; }
         int8 GetTransSeat()     const { return m_movementInfo.transport.seat; }
         virtual ObjectGuid GetTransGUID() const;
-        void SetTransport(TransportBase* t) { m_transport = t; }
+        void SetTransport(TransportBase* t);
 
         MovementInfo m_movementInfo;
 

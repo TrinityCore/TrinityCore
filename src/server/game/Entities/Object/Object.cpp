@@ -152,22 +152,8 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (IsWorldObject())
     {
         WorldObject const* worldObject = static_cast<WorldObject const*>(this);
-        if (!flags.MovementUpdate && !worldObject->m_movementInfo.transport.guid.IsEmpty())
-            flags.MovementTransport = true;
-
-        if (worldObject->GetAIAnimKitId() || worldObject->GetMovementAnimKitId() || worldObject->GetMeleeAnimKitId())
-            flags.AnimKit = true;
-
         if (worldObject->GetSmoothPhasing() && worldObject->GetSmoothPhasing()->GetInfoForSeer(target->GetGUID()))
             flags.SmoothPhasing = true;
-    }
-
-    if (Unit const* unit = ToUnit())
-    {
-        flags.PlayHoverAnim = unit->IsPlayingHoverAnim();
-
-        if (unit->GetVictim())
-            flags.CombatVictim = true;
     }
 
     ByteBuffer& buf = data->GetBuffer();
@@ -3745,6 +3731,12 @@ ObjectGuid WorldObject::GetTransGUID() const
     if (GetTransport())
         return GetTransport()->GetTransportGUID();
     return ObjectGuid::Empty;
+}
+
+void WorldObject::SetTransport(TransportBase* t)
+{
+    m_transport = t;
+    m_updateFlag.MovementTransport = !m_updateFlag.MovementUpdate && t != nullptr;
 }
 
 float WorldObject::GetFloorZ() const
