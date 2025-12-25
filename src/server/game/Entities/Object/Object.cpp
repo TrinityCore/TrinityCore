@@ -2591,10 +2591,10 @@ SpellMissInfo WorldObject::MagicSpellHitResult(Unit* victim, SpellInfo const* sp
 //   Parry
 // For spells
 //   Resist
-SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect /*= false*/) const
+SpellMissInfo WorldObject::SpellHitResult(Unit* victim, SpellInfo const* spellInfo, bool canReflect, bool canImmune) const
 {
     // Check for immune
-    if (victim->IsImmunedToSpell(spellInfo, this))
+    if (canImmune && victim->IsImmunedToSpell(spellInfo, MAX_EFFECT_MASK, this))
         return SPELL_MISS_IMMUNE;
 
     // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
