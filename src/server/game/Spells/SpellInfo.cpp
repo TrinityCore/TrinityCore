@@ -3649,7 +3649,7 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
 
         if (apply && HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
         {
-            target->RemoveAppliedAuras([this, target, schoolImmunity](AuraApplication const* aurApp) -> bool
+            target->RemoveAppliedAuras([this, schoolImmunity](AuraApplication const* aurApp) -> bool
             {
                 SpellInfo const* auraSpellInfo = aurApp->GetBase()->GetSpellInfo();
                 if (auraSpellInfo->Id == Id)                                      // Don't remove self
@@ -3660,12 +3660,8 @@ void SpellInfo::ApplyAllSpellImmunitiesTo(Unit* target, SpellEffectInfo const& s
                     return false;
                 if (!CanDispelAura(auraSpellInfo))
                     return false;
-                if (!HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS))
-                {
-                    WorldObject const* existingAuraCaster = aurApp->GetBase()->GetWorldObjectCaster();
-                    if (existingAuraCaster && existingAuraCaster->IsFriendlyTo(target)) // Check spell vs aura possitivity
-                        return false;
-                }
+                if (aurApp->IsPositive() && !HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)) // Check spell vs aura possitivity
+                    return false;
                 return true;
             });
         }

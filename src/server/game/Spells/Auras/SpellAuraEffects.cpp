@@ -5856,7 +5856,7 @@ void AuraEffect::HandlePeriodicHealthFunnelAuraTick(Unit* target, Unit* caster) 
     if (!caster || !caster->IsAlive() || !target->IsAlive())
         return;
 
-    if (target->IsImmunedToAuraPeriodicTick(caster, GetSpellInfo(), &GetSpellEffectInfo()))
+    if (target->IsImmunedToAuraPeriodicTick(caster, this))
     {
         SendTickImmune(target, caster);
         return;
@@ -5886,7 +5886,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     if (!target->IsAlive())
         return;
 
-    if (target->IsImmunedToAuraPeriodicTick(caster, GetSpellInfo(), &GetSpellEffectInfo()))
+    if (target->IsImmunedToAuraPeriodicTick(caster, this))
     {
         SendTickImmune(target, caster);
         return;
@@ -5946,7 +5946,7 @@ void AuraEffect::HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) con
     if (!caster || !caster->IsAlive() || !target->IsAlive() || target->GetPowerType() != powerType)
         return;
 
-    if (target->IsImmunedToAuraPeriodicTick(caster, GetSpellInfo(), &GetSpellEffectInfo()))
+    if (target->IsImmunedToAuraPeriodicTick(caster, this))
     {
         SendTickImmune(target, caster);
         return;
@@ -6009,7 +6009,7 @@ void AuraEffect::HandleObsModPowerAuraTick(Unit* target, Unit* caster) const
     if (!target->IsAlive() || !target->GetMaxPower(powerType))
         return;
 
-    if (target->IsImmunedToAuraPeriodicTick(caster, GetSpellInfo(), &GetSpellEffectInfo()))
+    if (target->IsImmunedToAuraPeriodicTick(caster, this))
     {
         SendTickImmune(target, caster);
         return;
@@ -6047,7 +6047,7 @@ void AuraEffect::HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) cons
     if (!target->IsAlive() || !target->GetMaxPower(powerType))
         return;
 
-    if (target->IsImmunedToAuraPeriodicTick(caster, GetSpellInfo(), &GetSpellEffectInfo()))
+    if (target->IsImmunedToAuraPeriodicTick(caster, this))
     {
         SendTickImmune(target, caster);
         return;
