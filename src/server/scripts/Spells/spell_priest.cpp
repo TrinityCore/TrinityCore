@@ -122,6 +122,13 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_2P_CHOOSER     = 411097,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
+    SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY_PERIODIC   = 466316,
+    SPELL_PRIEST_IDOL_OF_CTHUN_MIND_SEAR_PERIODIC   = 466317,
+    SPELL_PRIEST_IDOL_OF_CTHUN                      = 377349,
+    SPELL_PRIEST_IDOL_OF_CTHUN_ENERGIZE             = 377358,
+    SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY            = 193473,
+    SPELL_PRIEST_IDOL_OF_CTHUN_VOID_LASHER          = 377357,
+    SPELL_PRIEST_IDOL_OF_CTHUN_VOID_TENDRIL         = 377355,
     SPELL_PRIEST_INDEMNITY                          = 373049,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -138,6 +145,9 @@ enum PriestSpells
     SPELL_PRIEST_MINDGAMES                          = 375901,
     SPELL_PRIEST_MINDGAMES_VENTHYR                  = 323673,
     SPELL_PRIEST_MIND_BOMB_STUN                     = 226943,
+    SPELL_PRIEST_MIND_FLAY                          = 15407,
+    SPELL_PRIEST_MIND_SEAR                          = 394976,
+    SPELL_PRIEST_MIND_SEAR_DAMAGE                   = 394979,
     SPELL_PRIEST_MISERY                             = 238558,
     SPELL_PRIEST_ORACULAR_HEAL                      = 26170,
     SPELL_PRIEST_PAIN_SUPPRESSION                   = 33206,
@@ -217,6 +227,8 @@ enum PriestSpells
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
+    SPELL_PRIEST_VOID_TORRENT                       = 263165,
+    SPELL_PRIEST_VOID_VOLLEY                        = 1240401,
     SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
     SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
     SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
@@ -1758,6 +1770,169 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
     }
+};
+
+// 377349 - Idol of C'Thun
+class spell_pri_idol_of_cthun : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_IDOL_OF_CTHUN_VOID_LASHER,
+            SPELL_PRIEST_IDOL_OF_CTHUN_VOID_TENDRIL
+        })
+        && ValidateSpellEffect({ {SPELL_PRIEST_MIND_SEAR, EFFECT_1} });
+    }
+
+    void HandleOnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* caster = GetCaster();
+        if (!caster)
+            return;
+
+        _targetsThreshold = aurEff->GetAmount();
+        _searchRange = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_MIND_SEAR, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+    }
+
+    void HandleOnProc(ProcEventInfo& eventInfo)
+    {
+        SummonIdolPet(eventInfo.GetActor(), eventInfo.GetActionTarget());
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_idol_of_cthun::HandleOnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnProc += AuraProcFn(spell_pri_idol_of_cthun::HandleOnProc);
+    }
+
+    int32 _targetsThreshold{};
+    float _searchRange{};
+
+public:
+    void SummonIdolPet(Unit* caster, Unit* target)
+    {
+        std::list<Unit*> enemies;
+        Trinity::AnyUnfriendlyUnitInObjectRangeCheck check(target, caster, _searchRange);
+        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(target, enemies, check);
+        Cell::VisitAllObjects(target, searcher, _searchRange);
+
+        uint32 spellId = (enemies.size() >= _targetsThreshold) ? SPELL_PRIEST_IDOL_OF_CTHUN_VOID_LASHER : SPELL_PRIEST_IDOL_OF_CTHUN_VOID_TENDRIL;
+
+        caster->CastSpell(caster, spellId);
+    }
+};
+
+// Triggered by 263165 - Void Torrent or 1240401 - Void Volley
+class spell_pri_idol_of_cthun_trigger : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_IDOL_OF_CTHUN });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_IDOL_OF_CTHUN);
+    }
+
+    void HandleOnCast()
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        Aura const* idolAura = caster->GetAura(SPELL_PRIEST_IDOL_OF_CTHUN);
+        spell_pri_idol_of_cthun* script = idolAura->GetScript<spell_pri_idol_of_cthun>();
+        if (!script)
+            return;
+
+        script->SummonIdolPet(caster, target);
+    }
+
+    void Register() override
+    {
+        OnCast += SpellCastFn(spell_pri_idol_of_cthun_trigger::HandleOnCast);
+    }
+};
+
+// 466316 - Mind Flay (Void Tendril Channel)
+// 466317 - Mind Sear (Void Lasher Channel)
+class spell_pri_idol_of_cthun_periodic_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY_PERIODIC,
+            SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY,
+            SPELL_PRIEST_MIND_SEAR,
+        });
+    }
+
+    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        Unit* summon = GetTarget();
+        Unit* summoner = summon->GetOwner();
+        if (!summon || !summoner)
+            return;
+
+        _targetGUID = summoner->GetTarget();
+        Unit* target = ObjectAccessor::GetUnit(*summoner, _targetGUID);
+        if (!target || !target->IsAlive())
+            return;
+
+        _spellId = (GetId() == SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY_PERIODIC) ? SPELL_PRIEST_IDOL_OF_CTHUN_MIND_FLAY : SPELL_PRIEST_MIND_SEAR;
+        _maxRange = sSpellMgr->AssertSpellInfo(_spellId, GetCastDifficulty())->GetMaxRange(true);
+
+        SpellCastResult result = summon->CastSpell(target, _spellId, TRIGGERED_FULL_MASK);
+
+        if (result != SPELL_CAST_OK)
+            TC_LOG_ERROR("test", "FAILED result {}", uint32(result));
+    }
+
+    void HandlePeriodic(AuraEffect const* /*aurEff*/)
+    {
+        Unit* summon = GetTarget();
+        Unit* summoner = summon->GetOwner();
+        if (!summon || !summoner)
+            return;
+
+        Unit* target = ObjectAccessor::GetUnit(*summoner, _targetGUID);
+        if (!target || !target->IsAlive())
+        {
+            std::list<Unit*> enemies;
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck check(summon, summoner, _maxRange);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(summon, enemies, check);
+            Cell::VisitAllObjects(summon, searcher, _maxRange);
+
+            enemies.remove_if([summoner](Unit const* target)
+            {
+                return !target || !target->IsAlive() || !summoner->IsValidAttackTarget(target) || !summoner->IsInCombatWith(target);
+            });
+
+            if (enemies.empty())
+                return;
+
+            target = ObjectAccessor::GetUnit(*summon, summoner->GetTarget());
+            if (!target || !target->IsAlive())
+                target = Trinity::Containers::SelectRandomContainerElement(enemies);
+            _targetGUID = target->GetGUID();
+
+            summon->CastSpell(target, _spellId, TRIGGERED_FULL_MASK);
+        }
+    }
+
+    void Register() override
+    {
+        OnEffectApply += AuraEffectApplyFn(spell_pri_idol_of_cthun_periodic_aura::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_idol_of_cthun_periodic_aura::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+    }
+
+    ObjectGuid _targetGUID;
+    uint32 _spellId{};
+    float _maxRange{};
 };
 
 // 40438 - Priest Tier 6 Trinket
@@ -4065,6 +4240,9 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_words);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_idol_of_cthun);
+    RegisterSpellScript(spell_pri_idol_of_cthun_trigger);
+    RegisterSpellScript(spell_pri_idol_of_cthun_periodic_aura);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScript(spell_pri_leap_of_faith_effect_trigger);
     RegisterSpellScript(spell_pri_levitate);
