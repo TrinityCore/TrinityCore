@@ -430,9 +430,9 @@ public:
         return 1;
     }
 
-    std::vector<uint32> const* GetPauseTimes() const
+    std::span<uint32 const> GetPauseTimes() const
     {
-        return &_stopFrames;
+        return _stopFrames;
     }
 
     ObjectGuid GetTransportGUID() const override { return _owner.GetGUID(); }
@@ -4136,12 +4136,13 @@ void GameObject::ClearUpdateMask(bool remove)
     Object::ClearUpdateMask(remove);
 }
 
-std::vector<uint32> const* GameObject::GetPauseTimes() const
+std::span<uint32 const> GameObject::GetPauseTimes() const
 {
+    std::span<uint32 const> result;
     if (GameObjectType::Transport const* transport = dynamic_cast<GameObjectType::Transport const*>(m_goTypeImpl.get()))
-        return transport->GetPauseTimes();
+        result = transport->GetPauseTimes();
 
-    return nullptr;
+    return result;
 }
 
 void GameObject::SetPathProgressForClient(float progress)

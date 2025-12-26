@@ -284,9 +284,9 @@ void Object::SendOutOfRangeForPlayer(Player* target) const
 
 void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const
 {
-    std::vector<uint32> const* PauseTimes = nullptr;
-    if (GameObject const* go = ToGameObject())
-        PauseTimes = go->GetPauseTimes();
+    std::span<uint32 const> PauseTimes;
+    if (IsGameObject())
+        PauseTimes = static_cast<GameObject const*>(this)->GetPauseTimes();
 
     data->WriteBit(IsWorldObject()); // HasPositionFragment
     data->WriteBit(flags.NoBirthAnim);
@@ -445,7 +445,7 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
             WorldPackets::Movement::CommonMovement::WriteCreateObjectSplineDataBlock(*unit->movespline, *data);
     }
 
-    *data << uint32(PauseTimes ? PauseTimes->size() : 0);
+    *data << uint32(PauseTimes.size());
 
     if (flags.Stationary)
     {
@@ -498,8 +498,8 @@ void Object::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Playe
     //    *data << uint8(AttachmentFlags);
     //}
 
-    if (PauseTimes && !PauseTimes->empty())
-        data->append(PauseTimes->data(), PauseTimes->size());
+    if (!PauseTimes.empty())
+        data->append(PauseTimes.data(), PauseTimes.size());
 
     if (flags.MovementTransport)
     {
