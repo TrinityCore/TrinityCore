@@ -260,7 +260,7 @@ ByteBuffer& Object::PrepareValuesUpdateBuffer(UpdateData* data) const
     return buffer;
 }
 
-void Object::DestroyForPlayer(Player* target) const
+void Object::DestroyForPlayer(Player const* target) const
 {
     ASSERT(target);
 
@@ -271,7 +271,7 @@ void Object::DestroyForPlayer(Player* target) const
     target->SendDirectMessage(&packet);
 }
 
-void Object::SendOutOfRangeForPlayer(Player* target) const
+void Object::SendOutOfRangeForPlayer(Player const* target) const
 {
     ASSERT(target);
 

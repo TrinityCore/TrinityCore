@@ -228,8 +228,8 @@ class TC_GAME_API Object
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
         ByteBuffer& PrepareValuesUpdateBuffer(UpdateData* data) const;
 
-        virtual void DestroyForPlayer(Player* target) const;
-        void SendOutOfRangeForPlayer(Player* target) const;
+        virtual void DestroyForPlayer(Player const* target) const;
+        void SendOutOfRangeForPlayer(Player const* target) const;
 
         virtual void ClearUpdateMask(bool remove);
 
