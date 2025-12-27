@@ -176,7 +176,7 @@ void Conversation::Create(ObjectGuid::LowType lowGuid, uint32 conversationEntry,
     Relocate(pos);
     RelocateStationaryPosition(pos);
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
+    _Create(ObjectGuid::Create<HighGuid::Conversation>(GetMapId(), conversationEntry, lowGuid));
     PhasingHandler::InheritPhaseShift(this, creator);
 
     UpdatePositionData();

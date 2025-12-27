@@ -1023,7 +1023,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         m_updateFlag.ServerTime = true;
     }
 
-    Object::_Create(guid);
+    _Create(guid);
 
     m_goInfo = goInfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(entry);

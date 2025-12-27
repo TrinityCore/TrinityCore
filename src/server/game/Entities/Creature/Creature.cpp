@@ -1829,9 +1829,9 @@ bool Creature::CreateFromProto(ObjectGuid::LowType guidlow, uint32 entry, Creatu
     SetOriginalEntry(entry);
 
     if (vehId || cinfo->VehicleId)
-        Object::_Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Vehicle>(GetMapId(), entry, guidlow));
     else
-        Object::_Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
+        _Create(ObjectGuid::Create<HighGuid::Creature>(GetMapId(), entry, guidlow));
 
     if (!UpdateEntry(entry, data))
         return false;

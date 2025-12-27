@@ -506,7 +506,7 @@ Item::~Item() = default;
 
 bool Item::Create(ObjectGuid::LowType guidlow, uint32 itemId, ItemContext context, Player const* owner)
 {
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     SetEntry(itemId);
     SetObjectScale(1.0f);
@@ -922,7 +922,7 @@ bool Item::LoadFromDB(ObjectGuid::LowType guid, ObjectGuid ownerGuid, Field* fie
 
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guid));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guid));
 
     // Set entry, MUST be before proto check
     SetEntry(entry);

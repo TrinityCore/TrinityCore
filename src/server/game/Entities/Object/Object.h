@@ -18,6 +18,7 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
+#include "BaseEntity.h"
 #include "Common.h"
 #include "Duration.h"
 #include "Errors.h"
@@ -26,17 +27,13 @@
 #include "ModelIgnoreFlags.h"
 #include "MovementInfo.h"
 #include "ObjectDefines.h"
-#include "ObjectGuid.h"
 #include "Optional.h"
 #include "PhaseShift.h"
 #include "Position.h"
 #include "SharedDefines.h"
 #include "SpellDefines.h"
 #include "UniqueTrackablePtr.h"
-#include "UpdateFields.h"
-#include "WowCSEntityDefinitions.h"
 #include <list>
-#include <unordered_map>
 
 class AreaTrigger;
 class Conversation;
@@ -78,132 +75,17 @@ namespace WorldPackets
     }
 }
 
-typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
-
-struct CreateObjectBits
-{
-    bool NoBirthAnim : 1;
-    bool EnablePortals : 1;
-    bool PlayHoverAnim : 1;
-    bool MovementUpdate : 1;
-    bool MovementTransport : 1;
-    bool Stationary : 1;
-    bool CombatVictim : 1;
-    bool ServerTime : 1;
-    bool Vehicle : 1;
-    bool AnimKit : 1;
-    bool Rotation : 1;
-    bool GameObject : 1;
-    bool SmoothPhasing : 1;
-    bool ThisIsYou : 1;
-    bool SceneObject : 1;
-    bool ActivePlayer : 1;
-    bool Conversation : 1;
-    bool Room : 1;
-    bool Decor : 1;
-    bool MeshObject : 1;
-
-    void Clear()
-    {
-        memset(this, 0, sizeof(CreateObjectBits));
-    }
-};
-
-namespace UF
-{
-    class UpdateFieldHolder
-    {
-    public:
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline MutableFieldReference<T, false> ModifyValue(UpdateField<T, BlockBit, Bit>(Derived::* field));
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline OptionalUpdateFieldSetter<T> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline MutableFieldReference<T, false> ModifyValue(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field), uint32 /*dummy*/);
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline void ClearChangesMask(UpdateField<T, BlockBit, Bit>(Derived::* field));
-
-        template<typename Derived, typename T, int32 BlockBit, uint32 Bit>
-        inline void ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit>(Derived::* field));
-
-        uint32 GetChangedObjectTypeMask() const { return _changesMask; }
-
-        bool HasChanged(uint32 index) const { return (_changesMask & UpdateMaskHelpers::GetBlockFlag(index)) != 0; }
-
-        inline Object* GetOwner();
-
-    private:
-        friend Object;
-
-        // This class is tightly tied to Object::m_values member, do not construct elsewhere
-        UpdateFieldHolder() : _changesMask(0) { }
-
-        uint32 _changesMask;
-    };
-
-    template<typename T>
-    inline bool SetUpdateFieldValue(UpdateFieldPrivateSetter<T>& setter, typename UpdateFieldPrivateSetter<T>::value_type&& value)
-    {
-        return setter.SetValue(std::move(value));
-    }
-
-    template<typename T>
-    inline typename DynamicUpdateFieldSetter<T>::insert_result AddDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter)
-    {
-        return setter.AddValue();
-    }
-
-    template<typename T>
-    inline typename DynamicUpdateFieldSetter<T>::insert_result InsertDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
-    {
-        return setter.InsertValue(index);
-    }
-
-    template<typename T>
-    inline void RemoveDynamicUpdateFieldValue(DynamicUpdateFieldSetter<T>& setter, uint32 index)
-    {
-        setter.RemoveValue(index);
-    }
-
-    template<typename T>
-    inline void ClearDynamicUpdateFieldValues(DynamicUpdateFieldSetter<T>& setter)
-    {
-        setter.Clear();
-    }
-
-    template<typename K, typename V>
-    inline void RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
-    {
-        setter.RemoveKey(key);
-    }
-
-    template<typename T>
-    inline void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
-    {
-        setter.RemoveValue();
-    }
-}
-
 float const DEFAULT_COLLISION_HEIGHT = 2.03128f; // Most common value in dbc
 static constexpr Milliseconds const HEARTBEAT_INTERVAL = 5s + 200ms;
 
-class TC_GAME_API Object
+class TC_GAME_API Object : public BaseEntity
 {
-        ObjectGuid m_guid;
-
     public:
         virtual ~Object();
 
-        bool IsInWorld() const { return m_inWorld; }
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-        virtual void AddToWorld();
-        virtual void RemoveFromWorld();
-
-        static ObjectGuid GetGUID(Object const* o) { return o ? o->GetGUID() : ObjectGuid::Empty; }
-        ObjectGuid const& GetGUID() const { return m_guid; }
         uint32 GetEntry() const { return m_objectData->EntryID; }
         void SetEntry(uint32 entry) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::EntryID), entry); }
 
@@ -216,110 +98,71 @@ class TC_GAME_API Object
         void RemoveDynamicFlag(uint32 flag) { RemoveUpdateFieldFlagValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
         void ReplaceAllDynamicFlags(uint32 flag) { SetUpdateFieldValue(m_values.ModifyValue(&Object::m_objectData).ModifyValue(&UF::ObjectData::DynamicFlags), flag); }
 
-        TypeID GetTypeId() const { return m_objectTypeId; }
-        bool isType(TypeMask mask) const { return (ObjectTypeMask[m_objectTypeId] & mask) != 0; }
-
-        virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
-        void SendUpdateToPlayer(Player* player);
-
-        void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const* target) const;
         void BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::UpdateFieldFlag flags, Player const* target) const;
-        void BuildDestroyUpdateBlock(UpdateData* data) const;
-        void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
-        ByteBuffer& PrepareValuesUpdateBuffer(UpdateData* data) const;
 
-        virtual void DestroyForPlayer(Player const* target) const;
-        void SendOutOfRangeForPlayer(Player const* target) const;
-
-        virtual void ClearUpdateMask(bool remove);
-
-        virtual std::string GetNameForLocaleIdx(LocaleConstant locale) const = 0;
+        void ClearUpdateMask(bool remove) override;
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
-        void SetIsNewObject(bool enable) { m_isNewObject = enable; }
-        bool IsDestroyedObject() const { return m_isDestroyedObject; }
-        void SetDestroyedObject(bool destroyed) { m_isDestroyedObject = destroyed; }
-        virtual void BuildUpdate(UpdateDataMapType&) { }
-        void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
-        inline bool IsWorldObject() const { return isType(TYPEMASK_WORLDOBJECT); }
         static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
         static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
         WorldObject* ToWorldObject() { if (IsWorldObject()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
         WorldObject const* ToWorldObject() const { if (IsWorldObject()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
 
-        inline bool IsItem() const { return isType(TYPEMASK_ITEM); }
         static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
         static Item const* ToItem(Object const* o) { return o ? o->ToItem() : nullptr; }
         Item* ToItem() { if (IsItem()) return reinterpret_cast<Item*>(this); else return nullptr; }
         Item const* ToItem() const { if (IsItem()) return reinterpret_cast<Item const*>(this); else return nullptr; }
 
-        inline bool IsPlayer() const { return GetTypeId() == TYPEID_PLAYER; }
         static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
         static Player const* ToPlayer(Object const* o) { return o ? o->ToPlayer() : nullptr; }
         Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
         Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }
 
-        inline bool IsCreature() const { return GetTypeId() == TYPEID_UNIT; }
         static Creature* ToCreature(Object* o) { return o ? o->ToCreature() : nullptr; }
         static Creature const* ToCreature(Object const* o) { return o ? o->ToCreature() : nullptr; }
         Creature* ToCreature() { if (IsCreature()) return reinterpret_cast<Creature*>(this); else return nullptr; }
         Creature const* ToCreature() const { if (IsCreature()) return reinterpret_cast<Creature const*>(this); else return nullptr; }
 
-        inline bool IsUnit() const { return isType(TYPEMASK_UNIT); }
         static Unit* ToUnit(Object* o) { return o ? o->ToUnit() : nullptr; }
         static Unit const* ToUnit(Object const* o) { return o ? o->ToUnit() : nullptr; }
         Unit* ToUnit() { if (IsUnit()) return reinterpret_cast<Unit*>(this); else return nullptr; }
         Unit const* ToUnit() const { if (IsUnit()) return reinterpret_cast<Unit const*>(this); else return nullptr; }
 
-        inline bool IsGameObject() const { return GetTypeId() == TYPEID_GAMEOBJECT; }
         static GameObject* ToGameObject(Object* o) { return o ? o->ToGameObject() : nullptr; }
         static GameObject const* ToGameObject(Object const* o) { return o ? o->ToGameObject() : nullptr; }
         GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
         GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
 
-        inline bool IsCorpse() const { return GetTypeId() == TYPEID_CORPSE; }
         static Corpse* ToCorpse(Object* o) { return o ? o->ToCorpse() : nullptr; }
         static Corpse const* ToCorpse(Object const* o) { return o ? o->ToCorpse() : nullptr; }
         Corpse* ToCorpse() { if (IsCorpse()) return reinterpret_cast<Corpse*>(this); else return nullptr; }
         Corpse const* ToCorpse() const { if (IsCorpse()) return reinterpret_cast<Corpse const*>(this); else return nullptr; }
 
-        inline bool IsDynObject() const { return GetTypeId() == TYPEID_DYNAMICOBJECT; }
         static DynamicObject* ToDynObject(Object* o) { return o ? o->ToDynObject() : nullptr; }
         static DynamicObject const* ToDynObject(Object const* o) { return o ? o->ToDynObject() : nullptr; }
         DynamicObject* ToDynObject() { if (IsDynObject()) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
         DynamicObject const* ToDynObject() const { if (IsDynObject()) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
 
-        inline bool IsAreaTrigger() const { return GetTypeId() == TYPEID_AREATRIGGER; }
         static AreaTrigger* ToAreaTrigger(Object* o) { return o ? o->ToAreaTrigger() : nullptr; }
         static AreaTrigger const* ToAreaTrigger(Object const* o) { return o ? o->ToAreaTrigger() : nullptr; }
         AreaTrigger* ToAreaTrigger() { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger*>(this); else return nullptr; }
         AreaTrigger const* ToAreaTrigger() const { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger const*>(this); else return nullptr; }
 
-        inline bool IsSceneObject() const { return GetTypeId() == TYPEID_SCENEOBJECT; }
         static SceneObject* ToSceneObject(Object* o) { return o ? o->ToSceneObject() : nullptr; }
         static SceneObject const* ToSceneObject(Object const* o) { return o ? o->ToSceneObject() : nullptr; }
         SceneObject* ToSceneObject() { if (IsSceneObject()) return reinterpret_cast<SceneObject*>(this); else return nullptr; }
         SceneObject const* ToSceneObject() const { if (IsSceneObject()) return reinterpret_cast<SceneObject const*>(this); else return nullptr; }
 
-        inline bool IsConversation() const { return GetTypeId() == TYPEID_CONVERSATION; }
         static Conversation* ToConversation(Object* o) { return o ? o->ToConversation() : nullptr; }
         static Conversation const* ToConversation(Object const* o) { return o ? o->ToConversation() : nullptr; }
         Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
         Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
 
-        friend UF::UpdateFieldHolder;
-        UF::UpdateFieldHolder m_values;
         UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 
-        template<typename T>
-        void ForceUpdateFieldChange(UF::UpdateFieldPrivateSetter<T> const& /*setter*/)
-        {
-            AddToObjectUpdateIfNeeded();
-        }
-
-        virtual std::string GetDebugInfo() const;
+        std::string GetDebugInfo() const override;
 
         Trinity::unique_weak_ptr<Object> GetWeakPtr() const { return m_scriptRef; }
 
@@ -330,241 +173,18 @@ class TC_GAME_API Object
     protected:
         Object();
 
-        void _Create(ObjectGuid const& guid);
-
-        template<typename T>
-        void SetUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
-        {
-            if (UF::SetUpdateFieldValue(setter, std::move(value)))
-                AddToObjectUpdateIfNeeded();
-        }
-
-        template<typename T>
-        void SetUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
-        {
-            static_assert(std::is_integral<T>::value, "SetUpdateFieldFlagValue must be used with integral types");
-            SetUpdateFieldValue(setter, setter.GetValue() | flag);
-        }
-
-        template<typename T>
-        void RemoveUpdateFieldFlagValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type flag)
-        {
-            static_assert(std::is_integral<T>::value, "RemoveUpdateFieldFlagValue must be used with integral types");
-            SetUpdateFieldValue(setter, setter.GetValue() & ~flag);
-        }
-
-        template<typename T>
-        typename UF::DynamicUpdateFieldSetter<T>::insert_result AddDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            return UF::AddDynamicUpdateFieldValue(setter);
-        }
-
-        template<typename T>
-        typename UF::DynamicUpdateFieldSetter<T>::insert_result InsertDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
-        {
-            AddToObjectUpdateIfNeeded();
-            return UF::InsertDynamicUpdateFieldValue(setter, index);
-        }
-
-        template<typename T>
-        void RemoveDynamicUpdateFieldValue(UF::DynamicUpdateFieldSetter<T> setter, uint32 index)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveDynamicUpdateFieldValue(setter, index);
-        }
-
-        template<typename K, typename V>
-        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveMapUpdateFieldValue(setter, key);
-        }
-
-        template<typename T>
-        void ClearDynamicUpdateFieldValues(UF::DynamicUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::ClearDynamicUpdateFieldValues(setter);
-        }
-
-        template<typename T>
-        void RemoveOptionalUpdateFieldValue(UF::OptionalUpdateFieldSetter<T> setter)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveOptionalUpdateFieldValue(setter);
-        }
-
-        // stat system helpers
-        template<typename T>
-        void SetUpdateFieldStatValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type value)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-            SetUpdateFieldValue(setter, std::max(value, T(0)));
-        }
-
-        template<typename T>
-        void ApplyModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, typename UF::UpdateFieldPrivateSetter<T>::value_type mod, bool apply)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-
-            T value = setter.GetValue();
-            if (apply)
-                value += mod;
-            else
-                value -= mod;
-
-            SetUpdateFieldValue(setter, value);
-        }
-
-        template<typename T>
-        void ApplyPercentModUpdateFieldValue(UF::UpdateFieldPrivateSetter<T> setter, float percent, bool apply)
-        {
-            static_assert(std::is_arithmetic<T>::value, "SetUpdateFieldStatValue must be used with arithmetic types");
-
-            T value = setter.GetValue();
-
-            // don't want to include Util.h here
-            //ApplyPercentModFloatVar(value, percent, apply);
-            if (percent == -100.0f)
-                percent = -99.99f;
-            value *= (apply ? (100.0f + percent) / 100.0f : 100.0f / (100.0f + percent));
-
-            SetUpdateFieldValue(setter, value);
-        }
-
-        template<typename Action>
-        void DoWithSuppressingObjectUpdates(Action&& action)
-        {
-            bool wasUpdatedBeforeAction = m_objectUpdated;
-            action();
-            if (m_objectUpdated && !wasUpdatedBeforeAction)
-            {
-                RemoveFromObjectUpdate();
-                m_objectUpdated = false;
-            }
-        }
-
-        void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
-        virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
+        void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override = 0;
+        void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const override = 0;
         void BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const;
 
     public:
         virtual void BuildValuesUpdateWithFlag(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const;
 
-    protected:
-        TypeID m_objectTypeId;
-        CreateObjectBits m_updateFlag;
-        WowCS::EntityFragmentsHolder m_entityFragments;
-
-        virtual bool AddToObjectUpdate() = 0;
-        virtual void RemoveFromObjectUpdate() = 0;
-        void AddToObjectUpdateIfNeeded();
-
-        bool m_objectUpdated;
-
     private:
-        bool m_inWorld;
-        bool m_isNewObject;
-        bool m_isDestroyedObject;
 
         struct NoopObjectDeleter { void operator()(Object*) const { /*noop - not managed*/ } };
         Trinity::unique_trackable_ptr<Object> m_scriptRef;
-
-        Object(Object const& right) = delete;
-        Object(Object&& right) = delete;
-        Object& operator=(Object const& right) = delete;
-        Object& operator=(Object&& right) = delete;
 };
-
-inline Object* UF::UpdateFieldHolder::GetOwner()
-{
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
-
-    return reinterpret_cast<Object*>(reinterpret_cast<std::byte*>(this) - offsetof(Object, m_values));
-
-#if TRINITY_COMPILER == TRINITY_COMPILER_GNU
-#pragma GCC diagnostic pop
-#endif
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    Object* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
-
-    return { (static_cast<Derived*>(owner)->*field)._value };
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline UF::OptionalUpdateFieldSetter<T> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    Object* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
-
-    return { static_cast<Derived*>(owner)->*field };
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field, uint32 /*dummy*/)
-{
-    Object* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-        _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
-
-    auto& uf = (static_cast<Derived*>(owner)->*field);
-    if (!uf.has_value())
-        uf.ConstructValue();
-
-    return { *uf._value };
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    Object* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-    {
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-        if (!_changesMask)
-            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    }
-    else
-        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-
-    (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
-}
-
-template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
-inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
-{
-    Object* owner = GetOwner();
-    if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-    {
-        _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-        if (!_changesMask)
-            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    }
-    else
-        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-
-    auto& uf = (static_cast<Derived*>(owner)->*field);
-    if (uf.has_value())
-        uf._value->ClearChangesMask();
-}
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, size_t ARRAY_SIZE>
 class FlaggedValuesArray32
