@@ -730,6 +730,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPackets::Chat::CTextEmote& packet)
             break;
         case EMOTE_STATE_DANCE:
         case EMOTE_STATE_READ:
+        case EMOTE_STATE_LEAN:
             _player->SetEmoteState(emote);
             break;
         default:
