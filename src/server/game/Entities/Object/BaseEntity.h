@@ -33,9 +33,11 @@ typedef std::unordered_map<Player*, UpdateData> UpdateDataMapType;
 
 struct CreateObjectBits
 {
+    bool HasEntityPosition : 1;
     bool NoBirthAnim : 1;
     bool EnablePortals : 1;
     bool PlayHoverAnim : 1;
+    bool ThisIsYou : 1;
     bool MovementUpdate : 1;
     bool MovementTransport : 1;
     bool Stationary : 1;
@@ -46,7 +48,6 @@ struct CreateObjectBits
     bool Rotation : 1;
     bool GameObject : 1;
     bool SmoothPhasing : 1;
-    bool ThisIsYou : 1;
     bool SceneObject : 1;
     bool ActivePlayer : 1;
     bool Conversation : 1;

@@ -198,7 +198,7 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, P
     if (IsGameObject())
         PauseTimes = static_cast<GameObject const*>(this)->GetPauseTimes();
 
-    data->WriteBit(IsWorldObject()); // HasPositionFragment
+    data->WriteBit(flags.HasEntityPosition);
     data->WriteBit(flags.NoBirthAnim);
     data->WriteBit(flags.EnablePortals);
     data->WriteBit(flags.PlayHoverAnim);
