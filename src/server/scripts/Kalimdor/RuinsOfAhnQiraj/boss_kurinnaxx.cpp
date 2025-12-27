@@ -22,7 +22,6 @@
 #include "ScriptMgr.h"
 #include "Containers.h"
 #include "InstanceScript.h"
-#include "ObjectAccessor.h"
 #include "ruins_of_ahnqiraj.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
@@ -91,13 +90,6 @@ struct boss_kurinnaxx : public BossAI
     {
         if (spell->Id == SPELL_FRENZY)
             Talk(EMOTE_FRENZY);
-    }
-
-    void JustDied(Unit* /*killer*/) override
-    {
-        _JustDied();
-        if (Creature* ossirian = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_OSSIRIAN)))
-            ossirian->AI()->Talk(SAY_KURINAXX_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
