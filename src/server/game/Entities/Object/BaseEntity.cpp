@@ -637,7 +637,7 @@ void BaseEntity::ClearUpdateMask(bool remove)
 
 void BaseEntity::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
-    UpdateDataMapType::iterator iter = data_map.try_emplace(player, player->GetMapId()).first;
+    UpdateDataMapType::iterator iter = data_map.emplace(player, player->GetMapId()).first;
     BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
