@@ -50,6 +50,8 @@ INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Lan
 (17842,2,2,"Don't fight it.",14,0,100,0,0,11048,18255,0,"Azgalor - SAY_SLAY_3"),
 (17842,3,0,"Your time is almost... up.",14,0,100,0,0,11002,18248,0,"Azgalor - SAY_DEATH");
 
+DELETE FROM `waypoint_data` WHERE `id` IN (142466,142738,143106,142138);
+
 DELETE FROM `waypoint_data` WHERE `id` IN (100,101,102,103,104,105,106,107,108,109,110,111);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_type`,`action`,`action_chance`,`wpguid`) VALUES
 (100,1,4895.428,-1590.809,1332.106,NULL,0,1,0,100,0),
