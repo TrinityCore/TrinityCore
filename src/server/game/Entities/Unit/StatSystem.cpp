@@ -626,6 +626,11 @@ void Player::UpdateBlockPercentage()
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_BLOCK) : value;
 
+        // Hard cap block at 35%
+        static constexpr float BLOCK_CAP = 35.0f;
+        if (value > BLOCK_CAP)
+            value = BLOCK_CAP;
+
         value = value < 0.0f ? 0.0f : value;
     }
     SetStatFloatValue(PLAYER_BLOCK_PERCENTAGE, value);
@@ -784,6 +789,11 @@ void Player::UpdateParryPercentage()
         if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_PARRY) : value;
 
+        // Hard cap parry at 75%
+        static constexpr float PARRY_CAP = 75.0f;
+        if (value > PARRY_CAP)
+            value = PARRY_CAP;
+
         value = value < 0.0f ? 0.0f : value;
     }
     SetStatFloatValue(PLAYER_PARRY_PERCENTAGE, value);
@@ -821,6 +831,11 @@ void Player::UpdateDodgePercentage()
 
     if (sWorld->getBoolConfig(CONFIG_STATS_LIMITS_ENABLE))
          value = value > sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) ? sWorld->getFloatConfig(CONFIG_STATS_LIMITS_DODGE) : value;
+
+    // Hard cap dodge at 75%
+    static constexpr float DODGE_CAP = 75.0f;
+    if (value > DODGE_CAP)
+        value = DODGE_CAP;
 
     value = value < 0.0f ? 0.0f : value;
     SetStatFloatValue(PLAYER_DODGE_PERCENTAGE, value);
