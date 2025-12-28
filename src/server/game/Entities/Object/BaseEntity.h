@@ -189,6 +189,7 @@ class TC_GAME_API BaseEntity
         bool IsDestroyedObject() const { return m_isDestroyedObject; }
         void SetDestroyedObject(bool destroyed) { m_isDestroyedObject = destroyed; }
         virtual void BuildUpdate([[maybe_unused]] UpdateDataMapType& data_map) { }
+        void BuildUpdateChangesMask();
         void BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const;
 
         friend UF::UpdateFieldHolder;
@@ -322,8 +323,6 @@ class TC_GAME_API BaseEntity
 
         void BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, Player const* target) const;
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
-        virtual void BuildValuesCreate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
-        virtual void BuildValuesUpdate(ByteBuffer* data, UF::UpdateFieldFlag flags, Player const* target) const = 0;
         static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
 
         TypeID m_objectTypeId = static_cast<TypeID>(NUM_CLIENT_OBJECT_TYPES);
@@ -365,7 +364,6 @@ template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(UpdateField<T, BlockBit, Bit> Derived::* field)
 {
     BaseEntity* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
         _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
 
@@ -376,7 +374,6 @@ template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline UF::OptionalUpdateFieldSetter<T> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field)
 {
     BaseEntity* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
         _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
 
@@ -387,7 +384,6 @@ template <typename Derived, typename T, int32 BlockBit, uint32 Bit>
 inline UF::MutableFieldReference<T, false> UF::UpdateFieldHolder::ModifyValue(OptionalUpdateField<T, BlockBit, Bit> Derived::* field, uint32 /*dummy*/)
 {
     BaseEntity* owner = GetOwner();
-    owner->m_entityFragments.ContentsChangedMask |= owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
         _changesMask |= UpdateMaskHelpers::GetBlockFlag(Bit);
 
@@ -403,13 +399,7 @@ inline void UF::UpdateFieldHolder::ClearChangesMask(UpdateField<T, BlockBit, Bit
 {
     BaseEntity* owner = GetOwner();
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-    {
         _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-        if (!_changesMask)
-            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    }
-    else
-        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
 
     (static_cast<Derived*>(owner)->*field)._value.ClearChangesMask();
 }
@@ -419,13 +409,7 @@ inline void UF::UpdateFieldHolder::ClearChangesMask(OptionalUpdateField<T, Block
 {
     BaseEntity* owner = GetOwner();
     if constexpr (WowCS::EntityFragment(BlockBit) == WowCS::EntityFragment::CGObject)
-    {
         _changesMask &= ~UpdateMaskHelpers::GetBlockFlag(Bit);
-        if (!_changesMask)
-            owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
-    }
-    else
-        owner->m_entityFragments.ContentsChangedMask &= ~owner->m_entityFragments.GetUpdateMaskFor(WowCS::EntityFragment(BlockBit));
 
     auto& uf = (static_cast<Derived*>(owner)->*field);
     if (uf.has_value())

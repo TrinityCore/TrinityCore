@@ -64,9 +64,9 @@ constexpr float VisibilityDistances[AsUnderlyingType(VisibilityDistanceType::Max
 Object::Object() : m_scriptRef(this, NoopObjectDeleter())
 {
     m_objectTypeId      = TYPEID_OBJECT;
-    m_updateFlag.Clear();
 
-    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false);
+    m_entityFragments.Add(WowCS::EntityFragment::CGObject, false,
+        &Object::BuildObjectFragmentCreate, &Object::BuildObjectFragmentUpdate, &Object::IsObjectFragmentChanged);
 }
 
 Object::~Object() = default;
@@ -103,10 +103,15 @@ void Object::BuildValuesUpdateBlockForPlayerWithFlag(UpdateData* data, UF::Updat
 
 void Object::BuildEntityFragmentsForValuesUpdateForPlayerWithMask(ByteBuffer* data, EnumFlag<UF::UpdateFieldFlag> flags) const
 {
-    uint8 contentsChangedMask = WowCS::CGObjectChangedMask;
-    for (WowCS::EntityFragment updateableFragmentId : m_entityFragments.GetUpdateableIds())
-        if (WowCS::IsIndirectFragment(updateableFragmentId))
-            contentsChangedMask |= m_entityFragments.GetUpdateMaskFor(updateableFragmentId) >> 1;   // set the "fragment exists" bit
+    uint8 contentsChangedMask = 0;
+    for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
+    {
+        if (WowCS::IsIndirectFragment(m_entityFragments.Updateable.Ids[i]))
+            contentsChangedMask |= m_entityFragments.Updateable.Masks[i] >> 1;   // set the "fragment exists" bit
+
+        if (m_entityFragments.Updateable.Ids[i] == WowCS::EntityFragment::CGObject)
+            contentsChangedMask |= m_entityFragments.Updateable.Masks[i];
+    }
 
     *data << uint8(flags.HasFlag(UF::UpdateFieldFlag::Owner));
     *data << uint8(false);                                  // m_entityFragments.IdsChanged
@@ -122,6 +127,21 @@ void Object::ClearUpdateMask(bool remove)
 {
     m_values.ClearChangesMask(&Object::m_objectData);
     BaseEntity::ClearUpdateMask(remove);
+}
+
+void Object::BuildObjectFragmentCreate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+{
+    static_cast<Object const*>(entity)->BuildValuesCreate(&data, flags, target);
+}
+
+void Object::BuildObjectFragmentUpdate(BaseEntity const* entity, ByteBuffer& data, UF::UpdateFieldFlag flags, Player const* target)
+{
+    static_cast<Object const*>(entity)->BuildValuesUpdate(&data, flags, target);
+}
+
+bool Object::IsObjectFragmentChanged(BaseEntity const* entity)
+{
+    return entity->m_values.GetChangedObjectTypeMask() != 0;
 }
 
 std::string Object::GetDebugInfo() const
@@ -3097,6 +3117,8 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
+    Object::BuildUpdateChangesMask();
+
     WorldObjectChangeAccumulator notifier(*this, data_map);
     WorldObjectVisibleChangeVisitor visitor(notifier);
     //we must build packets for all visible players

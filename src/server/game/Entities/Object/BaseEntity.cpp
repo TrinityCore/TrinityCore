@@ -103,8 +103,16 @@ void BaseEntity::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* targe
     buf << uint32(0);
     buf << uint8(fieldFlags);
     BuildEntityFragments(&buf, m_entityFragments.GetIds());
-    buf << uint8(1);  // IndirectFragmentActive: CGObject
-    BuildValuesCreate(&buf, fieldFlags, target);
+
+    for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
+    {
+        WowCS::EntityFragment fragmentId = m_entityFragments.Updateable.Ids[i];
+        if (WowCS::IsIndirectFragment(fragmentId))
+            buf << uint8(1);  // IndirectFragmentActive
+
+        m_entityFragments.Updateable.SerializeCreate[i](this, buf, fieldFlags, target);
+    }
+
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
@@ -140,13 +148,20 @@ void BaseEntity::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player const*
     }
     buf << uint8(m_entityFragments.ContentsChangedMask);
 
-    BuildValuesUpdate(&buf, fieldFlags, target);
+    for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
+    {
+        if (!(m_entityFragments.ContentsChangedMask & m_entityFragments.Updateable.Masks[i]))
+            continue;
+
+        m_entityFragments.Updateable.SerializeUpdate[i](this, buf, fieldFlags, target);
+    }
+
     buf.put<uint32>(sizePos, buf.wpos() - sizePos - 4);
 
     data->AddUpdateBlock();
 }
 
-void BaseEntity::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
+inline void BaseEntity::BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments)
 {
     data->append(fragments.data(), fragments.size());
     *data << uint8(WowCS::EntityFragment::End);
@@ -632,6 +647,17 @@ void BaseEntity::ClearUpdateMask(bool remove)
         if (remove)
             RemoveFromObjectUpdate();
         m_objectUpdated = false;
+    }
+}
+
+void BaseEntity::BuildUpdateChangesMask()
+{
+    for (std::size_t i = 0; i < m_entityFragments.UpdateableCount; ++i)
+    {
+        if (m_entityFragments.Updateable.IsChanged[i](this))
+            m_entityFragments.ContentsChangedMask |= m_entityFragments.Updateable.Masks[i];
+        else
+            m_entityFragments.ContentsChangedMask &= ~m_entityFragments.Updateable.Masks[i];
     }
 }
 
