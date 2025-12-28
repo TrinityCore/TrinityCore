@@ -17,6 +17,7 @@
 
 #include "Player.h"
 #include "AreaTrigger.h"
+#include "Account.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -1540,6 +1541,8 @@ void Player::AddToWorld()
     for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
         if (m_items[i])
             m_items[i]->AddToWorld();
+
+    GetSession()->GetBattlenetAccount().AddToWorld();
 }
 
 void Player::RemoveFromWorld()
@@ -1558,6 +1561,8 @@ void Player::RemoveFromWorld()
         sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
+
+    GetSession()->GetBattlenetAccount().RemoveFromWorld();
 
     // Remove items from world before self - player must be found in Item::RemoveFromObjectUpdate
     for (uint8 i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
@@ -3592,6 +3597,8 @@ void Player::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
         for (Item* item : m_items)
             if (item)
                 item->BuildCreateUpdateBlockForPlayer(data, target);
+
+        GetSession()->GetBattlenetAccount().BuildCreateUpdateBlockForPlayer(data, target);
     }
 
     Unit::BuildCreateUpdateBlockForPlayer(data, target);

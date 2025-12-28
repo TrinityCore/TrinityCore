@@ -1786,7 +1786,7 @@ bool Item::IsBindedNotWith(Player const* player) const
 
 void Item::BuildUpdate(UpdateDataMapType& data_map)
 {
-    Object::BuildUpdateChangesMask();
+    BuildUpdateChangesMask();
 
     if (Player* owner = GetOwner())
         BuildFieldsUpdate(owner, data_map);

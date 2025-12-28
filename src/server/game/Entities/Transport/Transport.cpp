@@ -689,7 +689,7 @@ void Transport::UpdatePassengerPositions(PassengerSet const& passengers)
 
 void Transport::BuildUpdate(UpdateDataMapType& data_map)
 {
-    Object::BuildUpdateChangesMask();
+    BuildUpdateChangesMask();
 
     for (MapReference const& playerReference : GetMap()->GetPlayers())
         if (playerReference.GetSource()->InSamePhase(this))

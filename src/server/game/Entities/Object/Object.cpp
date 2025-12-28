@@ -3117,7 +3117,7 @@ struct WorldObjectChangeAccumulator
 
 void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
 {
-    Object::BuildUpdateChangesMask();
+    BuildUpdateChangesMask();
 
     WorldObjectChangeAccumulator notifier(*this, data_map);
     WorldObjectVisibleChangeVisitor visitor(notifier);
