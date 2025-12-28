@@ -19,10 +19,9 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "InstanceScript.h"
-#include "Map.h"
 #include "wailing_caverns.h"
 
-ObjectData const creatureData[] =
+static constexpr ObjectData creatureData[] =
 {
     { NPC_DISCIPLE,              DATA_DISCIPLE },
     { NPC_NARALEX,               DATA_NARALEX  },
@@ -61,10 +60,8 @@ public:
                 case DATA_LORD_SERPENTIS:
                     if (state == DONE)
                     {
-                        if (GetBossState(DATA_LORD_COBRAHN) == DONE &&
-                            GetBossState(DATA_LORD_PYTHAS) == DONE &&
-                            GetBossState(DATA_LADY_ANACONDRA) == DONE &&
-                            GetBossState(DATA_LORD_SERPENTIS) == DONE)
+                        if (GetBossState(DATA_LORD_COBRAHN) == DONE && GetBossState(DATA_LORD_PYTHAS) == DONE
+                            && GetBossState(DATA_LADY_ANACONDRA) == DONE && GetBossState(DATA_LORD_SERPENTIS) == DONE)
                         {
                             if (Creature* disciple = GetCreature(DATA_DISCIPLE))
                                 disciple->AI()->DoAction(ACTION_ALL_DONE);

@@ -23,7 +23,7 @@
 #define WCScriptName "instance_wailing_caverns"
 #define DataHeader "WC"
 
-uint32 const EncounterCount = 5;
+constexpr uint32 EncounterCount = 5;
 
 enum WCDataTypes
 {

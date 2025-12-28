@@ -360,8 +360,8 @@ struct npc_disciple_of_naralex : public ScriptedAI
     {
         DoCast(player, SPELL_MARK_OF_THE_WILD);
 
-        if ((_instance->GetBossState(DATA_LORD_COBRAHN) == DONE) && (_instance->GetBossState(DATA_LORD_PYTHAS) == DONE) &&
-            (_instance->GetBossState(DATA_LADY_ANACONDRA) == DONE) && (_instance->GetBossState(DATA_LORD_SERPENTIS) == DONE))
+        if (_instance->GetBossState(DATA_LORD_COBRAHN) == DONE && _instance->GetBossState(DATA_LORD_PYTHAS) == DONE
+            && _instance->GetBossState(DATA_LADY_ANACONDRA) == DONE && _instance->GetBossState(DATA_LORD_SERPENTIS) == DONE)
         {
             player->PrepareGossipMenu(me, GOSSIP_MENU_EVENT, true);
             player->SendPreparedGossip(me);
