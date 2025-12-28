@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef UpdateFields_h__
-#define UpdateFields_h__
+#ifndef TRINITYCORE_UPDATE_FIELDS_H
+#define TRINITYCORE_UPDATE_FIELDS_H
 
 #include "EnumFlag.h"
 #include "ItemPacketsCommon.h"
@@ -34,6 +34,7 @@ class AreaTrigger;
 class AzeriteEmpoweredItem;
 class AzeriteItem;
 class Bag;
+class BaseEntity;
 class ByteBuffer;
 class Conversation;
 class Corpse;
@@ -1610,8 +1611,8 @@ struct AaBox : public IsUpdateFieldStructureTag
     TaggedPosition<Position::XYZ> Low;
     TaggedPosition<Position::XYZ> High;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     bool operator==(AaBox const& right) const;
     bool operator!=(AaBox const& right) const { return !(*this == right); }
 };
@@ -1641,10 +1642,10 @@ struct VendorData : public IsUpdateFieldStructureTag, public HasChangesMask<2>
 
 struct DecorStoragePersistedDataDyes : public IsUpdateFieldStructureTag
 {
-    int32 DyeColorID[3];
+    std::array<int32, 3> DyeColorID;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     bool operator==(DecorStoragePersistedDataDyes const& right) const;
     bool operator!=(DecorStoragePersistedDataDyes const& right) const { return !(*this == right); }
 };
@@ -1655,8 +1656,8 @@ struct DecorStoragePersistedData : public IsUpdateFieldStructureTag, public HasC
     OptionalUpdateField<UF::DecorStoragePersistedDataDyes, -1, 1> Dyes;
     UpdateField<uint8, -1, 2> Field_20;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1681,8 +1682,8 @@ struct HousingDoorData : public IsUpdateFieldStructureTag, public HasChangesMask
     UpdateField<uint8, 0, 3> RoomComponentType;
     UpdateField<ObjectGuid, 0, 4> AttachedRoomGUID;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1695,9 +1696,9 @@ struct HousingRoomData : public IsUpdateFieldStructureTag, public HasChangesMask
     UpdateField<int32, 0, 5> Flags;
     UpdateField<int32, 0, 6> FloorIndex;
 
-    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1731,9 +1732,9 @@ struct HousingPlayerHouseData : public IsUpdateFieldStructureTag, public HasChan
     UpdateField<uint32, 0, 8> RoomPlacementBudget;
     UpdateField<ObjectGuid, 0, 9> EntityGUID;
 
-    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1766,8 +1767,8 @@ struct PlayerHouseInfo : public IsUpdateFieldStructureTag
     ObjectGuid HouseGUID;
     ObjectGuid OwnerGUID;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     bool operator==(PlayerHouseInfo const& right) const;
     bool operator!=(PlayerHouseInfo const& right) const { return !(*this == right); }
 };
@@ -1777,8 +1778,8 @@ struct HousingOwner : public IsUpdateFieldStructureTag
     ObjectGuid BnetAccountGUID;
     ObjectGuid PlayerGUID;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     bool operator==(HousingOwner const& right) const;
     bool operator!=(HousingOwner const& right) const { return !(*this == right); }
 };
@@ -1790,9 +1791,9 @@ struct NeighborhoodMirrorData : public IsUpdateFieldStructureTag, public HasChan
     UpdateField<ObjectGuid, 0, 4> OwnerGUID;
     UpdateField<std::string, 0, 3> Name;
 
-    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1804,8 +1805,8 @@ struct MirroredMeshObjectData : public IsUpdateFieldStructureTag, public HasChan
     UpdateField<float, 0, 4> ScaleLocalSpace;
     UpdateField<uint8, 0, 5> AttachmentFlags;
 
-    void WriteCreate(ByteBuffer& data, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1813,9 +1814,9 @@ struct MirroredPositionData : public IsUpdateFieldStructureTag, public HasChange
 {
     UpdateField<UF::MirroredMeshObjectData, 0, 1> PositionData;
 
-    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1880,9 +1881,9 @@ struct HousingStorageData : public IsUpdateFieldStructureTag, public HasChangesM
     MapUpdateField<ObjectGuid, UF::DecorStoragePersistedData, 0, 1> Decor;
     UpdateField<uint32, 0, 2> DecorMaxOwnedCount;
 
-    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const;
-    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, Object const* owner, Player const* receiver) const;
+    void WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, BaseEntity const* owner, Player const* receiver) const;
+    void WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool ignoreNestedChangesMask, BaseEntity const* owner, Player const* receiver) const;
     void ClearChangesMask();
 };
 
@@ -1907,4 +1908,4 @@ struct HousingFixtureData : public IsUpdateFieldStructureTag, public HasChangesM
 
 }
 
-#endif // UpdateFields_h__
+#endif // TRINITYCORE_UPDATE_FIELDS_H
