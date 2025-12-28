@@ -11077,8 +11077,7 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                         loot->gold = 0;
                     }
 
-                    // Auto-distribute items (round-robin among eligible players)
-                    size_t playerIndex = 0;
+                    // Auto-distribute items (all eligible players receive same loot)
                     for (size_t i = 0; i < loot->items.size(); ++i)
                     {
                         LootItem& item = loot->items[i];
@@ -11101,15 +11100,10 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                         if (item.follow_loot_rules)
                             continue;
 
-                        // Try to give item to eligible players in round-robin fashion
-                        bool itemDistributed = false;
-                        size_t attempts = 0;
-                        while (!itemDistributed && attempts < eligiblePlayers.size())
+                        // Give each eligible player a copy of this item
+                        bool anyPlayerReceivedItem = false;
+                        for (Player* recipient : eligiblePlayers)
                         {
-                            Player* recipient = eligiblePlayers[playerIndex % eligiblePlayers.size()];
-                            playerIndex++;
-                            attempts++;
-
                             // Check if player can receive this item
                             if (!item.AllowedForPlayer(recipient))
                                 continue;
@@ -11122,11 +11116,16 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                                 if (newItem)
                                 {
                                     recipient->SendNewItem(newItem, item.count, false, false);
-                                    item.is_looted = true;
-                                    --loot->unlootedCount;
-                                    itemDistributed = true;
+                                    anyPlayerReceivedItem = true;
                                 }
                             }
+                        }
+
+                        // Mark item as looted if at least one player received it
+                        if (anyPlayerReceivedItem)
+                        {
+                            item.is_looted = true;
+                            --loot->unlootedCount;
                         }
                     }
 
