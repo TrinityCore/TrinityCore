@@ -89,12 +89,33 @@ bool LootItem::AllowedForPlayer(Player const* player, bool isGivenByMasterLooter
     }
 
     // Don't allow loot for players without profession or those who already know the recipe
-    if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
-        return false;
+    if (pProto->HasFlag(ITEM_FLAG_HIDE_UNUSABLE_RECIPE))
+    {
+        if (!player->HasSkill(pProto->RequiredSkill))
+            return false;
+
+        for (_Spell const& itemEffect : pProto->Spells)
+        {
+            if (itemEffect.SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect.SpellId))
+                return false;
+        }
+    }
 
     // Don't allow to loot soulbound recipes that the player has already learned
-    if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP && pProto->Spells[1].SpellId != 0 && player->HasSpell(pProto->Spells[1].SpellId))
-        return false;
+    if (pProto->Class == ITEM_CLASS_RECIPE && pProto->Bonding == BIND_WHEN_PICKED_UP)
+    {
+        for (_Spell const& itemEffect : pProto->Spells)
+        {
+            if (itemEffect.SpellTrigger != ITEM_SPELLTRIGGER_LEARN_SPELL_ID)
+                continue;
+
+            if (player->HasSpell(itemEffect.SpellId))
+                return false;
+        }
+    }
 
     if (needs_quest && !freeforall && player->GetGroup() && (player->GetGroup()->GetLootMethod() == GROUP_LOOT || player->GetGroup()->GetLootMethod() == ROUND_ROBIN) && !ownerGuid.IsEmpty() && ownerGuid != player->GetGUID())
         return false;

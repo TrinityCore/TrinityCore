@@ -139,9 +139,6 @@ bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)
 
             target->GetNearPoint(owner, x, y, z, _range, target->ToAbsoluteAngle(tAngle));
 
-            if (owner->IsHovering())
-                owner->UpdateAllowedPositionZ(x, y, z);
-
             // pets are allowed to "cheat" on pathfinding when following their master
             bool allowShortcut = false;
             if (Pet* oPet = owner->ToPet())

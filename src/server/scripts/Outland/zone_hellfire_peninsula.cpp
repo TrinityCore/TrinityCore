@@ -954,6 +954,36 @@ class spell_hellfire_peninsula_absorb_eye_of_grillok : public AuraScript
     }
 };
 
+/*######
+## Quest 10838: The Demoniac Scryer
+######*/
+
+enum TheDemoniacScryer
+{
+    SPELL_SUMMON_DEMONAIC_VISITATION      = 38991
+};
+
+// 38708 - Demonaic Visitation
+class spell_hellfire_peninsula_demonaic_visitation : public AuraScript
+{
+    PrepareAuraScript(spell_hellfire_peninsula_demonaic_visitation);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SUMMON_DEMONAIC_VISITATION });
+    }
+
+    void AfterRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->CastSpell(GetTarget(), SPELL_SUMMON_DEMONAIC_VISITATION, true);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_hellfire_peninsula_demonaic_visitation::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_hellfire_peninsula()
 {
     new npc_colonel_jules();
@@ -968,4 +998,5 @@ void AddSC_hellfire_peninsula()
     RegisterSpellScriptWithArgs(spell_hellfire_peninsula_translocation_falcon_watch, "spell_hellfire_peninsula_translocation_falcon_watch_tower_up", SPELL_TRANSLOCATION_FALCON_WATCH_TOWER_UP);
     RegisterSpellScript(spell_hellfire_peninsula_purify_helboar_meat);
     RegisterSpellScript(spell_hellfire_peninsula_absorb_eye_of_grillok);
+    RegisterSpellScript(spell_hellfire_peninsula_demonaic_visitation);
 }
