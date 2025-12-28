@@ -5277,22 +5277,67 @@ void Player::ApplyRatingMod(CombatRating combatRating, int32 value, bool apply)
     float const multiplier = GetRatingMultiplier(combatRating);
     float const oldVal = oldRating * multiplier;
     float const newVal = m_baseRatingValue[combatRating] * multiplier;
+
+    // Haste cap: 1770 rating
+    // Melee/Ranged: instant attacks (99.99% reduction)
+    // Spell: 80% reduction (0.5s minimum cast time for 2.5s spells)
+    static constexpr int32 HASTE_RATING_CAP = 1770;
+    static constexpr float MAX_MELEE_HASTE_PERCENT = 99.99f;  // Nearly instant attacks
+    static constexpr float MAX_SPELL_HASTE_PERCENT = 80.0f;   // 0.5s minimum cast time
+
     switch (combatRating)
     {
         case CR_HASTE_MELEE:
+        {
             ApplyAttackTimePercentMod(BASE_ATTACK, oldVal, false);
             ApplyAttackTimePercentMod(OFF_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
-            ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+
+            // Check if we've reached the haste cap
+            if (m_baseRatingValue[CR_HASTE_MELEE] >= HASTE_RATING_CAP)
+            {
+                // Apply maximum haste for instant attacks
+                ApplyAttackTimePercentMod(BASE_ATTACK, MAX_MELEE_HASTE_PERCENT, true);
+                ApplyAttackTimePercentMod(OFF_ATTACK, MAX_MELEE_HASTE_PERCENT, true);
+            }
+            else
+            {
+                ApplyAttackTimePercentMod(BASE_ATTACK, newVal, true);
+                ApplyAttackTimePercentMod(OFF_ATTACK, newVal, true);
+            }
             break;
+        }
         case CR_HASTE_RANGED:
+        {
             ApplyAttackTimePercentMod(RANGED_ATTACK, oldVal, false);
-            ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+
+            // Check if we've reached the haste cap
+            if (m_baseRatingValue[CR_HASTE_RANGED] >= HASTE_RATING_CAP)
+            {
+                // Apply maximum haste for instant attacks
+                ApplyAttackTimePercentMod(RANGED_ATTACK, MAX_MELEE_HASTE_PERCENT, true);
+            }
+            else
+            {
+                ApplyAttackTimePercentMod(RANGED_ATTACK, newVal, true);
+            }
             break;
+        }
         case CR_HASTE_SPELL:
+        {
             ApplyCastTimePercentMod(oldVal, false);
-            ApplyCastTimePercentMod(newVal, true);
+
+            // Check if we've reached the haste cap
+            if (m_baseRatingValue[CR_HASTE_SPELL] >= HASTE_RATING_CAP)
+            {
+                // Apply capped spell haste (80% = 0.5s min cast for 2.5s spells)
+                ApplyCastTimePercentMod(MAX_SPELL_HASTE_PERCENT, true);
+            }
+            else
+            {
+                ApplyCastTimePercentMod(newVal, true);
+            }
             break;
+        }
         default:
             break;
     }

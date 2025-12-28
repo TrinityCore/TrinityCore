@@ -11040,6 +11040,100 @@ bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
                 if (!loot->empty())
                     group->UpdateLooterGuid(creature);
             }
+
+            // Auto-loot system: automatically distribute loot to players
+            if (sWorld->getBoolConfig(CONFIG_AUTO_LOOT_ENABLE) && looter)
+            {
+                // Get list of eligible players
+                std::vector<Player*> eligiblePlayers;
+                if (group)
+                {
+                    Group::MemberSlotList const& members = group->GetMemberSlots();
+                    for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+                    {
+                        if (Player* member = ObjectAccessor::FindPlayer(itr->guid))
+                        {
+                            if (member->IsAtLootRewardDistance(creature))
+                                eligiblePlayers.push_back(member);
+                        }
+                    }
+                }
+                else
+                {
+                    eligiblePlayers.push_back(looter);
+                }
+
+                if (!eligiblePlayers.empty())
+                {
+                    // Auto-distribute gold (split among eligible players)
+                    if (loot->gold > 0)
+                    {
+                        uint32 goldPerPlayer = loot->gold / eligiblePlayers.size();
+                        for (Player* recipient : eligiblePlayers)
+                        {
+                            recipient->ModifyMoney(goldPerPlayer);
+                            recipient->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, goldPerPlayer);
+                        }
+                        loot->gold = 0;
+                    }
+
+                    // Auto-distribute items (all eligible players receive same loot)
+                    for (size_t i = 0; i < loot->items.size(); ++i)
+                    {
+                        LootItem& item = loot->items[i];
+                        if (item.is_looted)
+                            continue;
+
+                        // Skip quest items - they require manual looting
+                        if (item.needs_quest)
+                            continue;
+
+                        // Skip items that require rolling (boss drops, event items)
+                        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(item.itemid);
+                        if (!itemTemplate)
+                            continue;
+
+                        if (itemTemplate->HasFlag(ITEM_FLAGS_CU_REQUIRES_ROLL))
+                            continue;
+
+                        // Skip items that follow loot rules (require manual rolling)
+                        if (item.follow_loot_rules)
+                            continue;
+
+                        // Give each eligible player a copy of this item
+                        bool anyPlayerReceivedItem = false;
+                        for (Player* recipient : eligiblePlayers)
+                        {
+                            // Check if player can receive this item
+                            if (!item.AllowedForPlayer(recipient))
+                                continue;
+
+                            ItemPosCountVec dest;
+                            InventoryResult msg = recipient->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
+                            if (msg == EQUIP_ERR_OK)
+                            {
+                                Item* newItem = recipient->StoreNewItem(dest, item.itemid, true, item.randomPropertyId, item.GetAllowedLooters());
+                                if (newItem)
+                                {
+                                    recipient->SendNewItem(newItem, item.count, false, false);
+                                    anyPlayerReceivedItem = true;
+                                }
+                            }
+                        }
+
+                        // Mark item as looted if at least one player received it
+                        if (anyPlayerReceivedItem)
+                        {
+                            item.is_looted = true;
+                            --loot->unlootedCount;
+                        }
+                    }
+
+                    // Mark corpse as fully looted if everything was auto-looted
+                    if (loot->isLooted())
+                        creature->AllLootRemovedFromCorpse();
+                }
+            }
         }
 
         player->RewardPlayerAndGroupAtKill(victim, false);
