@@ -1359,19 +1359,15 @@ class spell_pri_entropic_rift_aura : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER });
     }
 
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        if (AreaTrigger* at = caster->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER))
-            at->SetDuration(GetDuration());
+        if (AreaTrigger* at = GetTarget()->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER))
+            at->Remove();
     }
 
     void Register() override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_pri_entropic_rift_aura::HandleApply, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
+        OnEffectRemove += AuraEffectApplyFn(spell_pri_entropic_rift_aura::HandleRemove, EFFECT_0, SPELL_AURA_MOD_SPEED_ALWAYS, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
