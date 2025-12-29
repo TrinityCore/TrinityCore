@@ -1163,4 +1163,21 @@ void KeyboundOverride::Read()
 {
     _worldPacket >> OverrideID;
 }
+
+WorldPacket const* LossOfControlAuraUpdate::Write()
+{
+    _worldPacket << AffectedGUID;
+    _worldPacket << uint32(LossOfControlInfo.size());
+
+    for (LossOfControlAuraData data : LossOfControlInfo)
+    {
+        _worldPacket << uint32(data.Duration);
+        _worldPacket << uint8(data.AuraSlot);
+        _worldPacket << uint8(data.EffectIndex);
+        _worldPacket << uint8(data.LocType);
+        _worldPacket << uint8(data.EffectMechanic);
+    }
+
+    return &_worldPacket;
+}
 }
