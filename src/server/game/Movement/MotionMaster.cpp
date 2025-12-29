@@ -29,6 +29,7 @@
 #include "PathGenerator.h"
 #include "Player.h"
 #include "ScriptSystem.h"
+#include "Types.h"
 #include <boost/container/static_vector.hpp>
 #include <algorithm>
 #include <iterator>
@@ -858,11 +859,43 @@ void MotionMaster::MoveKnockbackFrom(Position const& origin, float speedXY, floa
     Add(movement);
 }
 
-void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, uint32 id /*= EVENT_JUMP*/, MovementFacingTarget const& facing /*= {}*/,
-    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
+void MotionMaster::MoveJump(uint32 id, Position const& pos, std::variant<std::monostate, float, Milliseconds> speedOrTime /*= {}*/,
+    Optional<float> minHeight /*= {}*/, Optional<float> maxHeight /*= {}*/,
+    MovementFacingTarget const& facing /*= {}*/, bool orientationFixed, bool unlimitedSpeed /*= false*/, Optional<float> speedMultiplier /*= {}*/,
+    JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
     TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJump: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos.ToString());
+
+    float dist = _owner->GetExactDist(pos);
+
+    float speedXY = std::visit([owner = _owner, speedMultiplier = speedMultiplier.value_or(1.0f), dist]<typename T>(T speedOrTime) noexcept -> float
+    {
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+            float baseSpeed = owner->IsControlledByPlayer() ? playerBaseMoveSpeed[MOVE_RUN] : baseMoveSpeed[MOVE_RUN];
+            if (Creature* creature = owner->ToCreature())
+                baseSpeed *= creature->GetCreatureTemplate()->speed_run;
+
+            return baseSpeed * 3.0f * speedMultiplier;
+        }
+        else if constexpr (std::is_same_v<T, float>)
+        {
+            return speedOrTime;
+        }
+        else if constexpr (std::is_same_v<T, Milliseconds>)
+        {
+            return dist / duration_cast<FloatSeconds>(speedOrTime).count();
+        }
+        else
+        {
+            static_assert(Trinity::dependant_false_v<T>, "Unhandled type");
+        }
+    }, speedOrTime);
+
+    if (!unlimitedSpeed)
+        speedXY = std::min(speedXY, 50.0f);
+
     if (speedXY < 0.01f)
     {
         if (scriptResult)
@@ -870,16 +903,19 @@ void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, ui
         return;
     }
 
-    float moveTimeHalf = speedZ / Movement::gravity;
-    float max_height = -Movement::computeFallElevation(moveTimeHalf, false, -speedZ);
+    float duration = dist / speedXY;
+    float durationSqr = duration * duration;
+    float height = std::clamp(Movement::gravity * durationSqr / 8, minHeight.value_or(0.5f), maxHeight.value_or(1000.0f));
 
     std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
     {
         init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-        init.SetParabolic(max_height, 0);
+        init.SetParabolic(height, 0);
         init.SetVelocity(speedXY);
         std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
         init.SetJumpOrientationFixed(orientationFixed);
+        if (unlimitedSpeed)
+            init.SetUnlimitedSpeed();
         if (effect)
             init.SetSpellEffectExtraData(*effect);
     };
@@ -896,47 +932,6 @@ void MotionMaster::MoveJump(Position const& pos, float speedXY, float speedZ, ui
         { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
     movement->Priority = MOTION_PRIORITY_HIGHEST;
     movement->BaseUnitState = UNIT_STATE_JUMPING;
-    Add(movement);
-}
-
-void MotionMaster::MoveJumpWithGravity(Position const& pos, float speedXY, float gravity, uint32 id/* = EVENT_JUMP*/, MovementFacingTarget const& facing/* = {}*/,
-    bool orientationFixed /*= false*/, JumpArrivalCastArgs const* arrivalCast /*= nullptr*/, Movement::SpellEffectExtraData const* spellEffectExtraData /*= nullptr*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
-{
-    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveJumpWithGravity: '{}', jumps to point Id: {} ({})", _owner->GetGUID(), id, pos.ToString());
-    if (speedXY < 0.01f)
-    {
-        if (scriptResult)
-            scriptResult->SetResult(MovementStopReason::Interrupted);
-        return;
-    }
-
-    std::function<void(Movement::MoveSplineInit&)> initializer = [=, effect = (spellEffectExtraData ? Optional<Movement::SpellEffectExtraData>(*spellEffectExtraData) : Optional<Movement::SpellEffectExtraData>())](Movement::MoveSplineInit& init)
-    {
-        init.MoveTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), false);
-        init.SetParabolicVerticalAcceleration(gravity, 0);
-        init.SetUncompressed();
-        init.SetVelocity(speedXY);
-        init.SetUnlimitedSpeed();
-        std::visit(Movement::MoveSplineInitFacingVisitor(init), facing);
-        init.SetJumpOrientationFixed(orientationFixed);
-        if (effect)
-            init.SetSpellEffectExtraData(*effect);
-    };
-
-    uint32 arrivalSpellId = 0;
-    ObjectGuid arrivalSpellTargetGuid;
-    if (arrivalCast)
-    {
-        arrivalSpellId = arrivalCast->SpellId;
-        arrivalSpellTargetGuid = arrivalCast->Target;
-    }
-
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id,
-        { .ArrivalSpellId = arrivalSpellId, .ArrivalSpellTarget = arrivalSpellTargetGuid, .ScriptResult = std::move(scriptResult) });
-    movement->Priority = MOTION_PRIORITY_HIGHEST;
-    movement->BaseUnitState = UNIT_STATE_JUMPING;
-    movement->AddFlag(MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH);
     Add(movement);
 }
 
@@ -1199,27 +1194,6 @@ void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit&
     GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), type, id);
     movement->Priority = priority;
     Add(movement);
-}
-
-void MotionMaster::CalculateJumpSpeeds(float dist, UnitMoveType moveType, float speedMultiplier, float minHeight, float maxHeight, float& speedXY, float& speedZ) const
-{
-    float baseSpeed = _owner->IsControlledByPlayer() ? playerBaseMoveSpeed[moveType] : baseMoveSpeed[moveType];
-    if (Creature* creature = _owner->ToCreature())
-        baseSpeed *= creature->GetCreatureTemplate()->speed_run;
-
-    speedXY = std::min(baseSpeed * 3.0f * speedMultiplier, std::max(28.0f, _owner->GetSpeed(moveType) * 4.0f));
-
-    float duration = dist / speedXY;
-    float durationSqr = duration * duration;
-    float height;
-    if (durationSqr < minHeight * 8 / Movement::gravity)
-        height = minHeight;
-    else if (durationSqr > maxHeight * 8 / Movement::gravity)
-        height = maxHeight;
-    else
-        height = Movement::gravity * durationSqr / 8;
-
-    speedZ = std::sqrt(2 * Movement::gravity * height);
 }
 
 /******************** Private methods ********************/
