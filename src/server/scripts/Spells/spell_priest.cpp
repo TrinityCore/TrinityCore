@@ -1383,30 +1383,20 @@ class spell_pri_entropic_rift_periodic : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE });
     }
 
-    void HandlePeriodic(AuraEffect const* aurEff)
+    void HandlePeriodic(AuraEffect const* /*aurEff*/) const
     {
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
+        Unit* caster = GetTarget();
 
-        AreaTrigger* at = caster->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER);
+        AreaTrigger const* at = caster->GetAreaTrigger(SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER);
         if (!at)
             return;
 
-        float radius = at->GetMaxSearchRadius();
-        std::list<Unit*> targets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, radius);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
-        Cell::VisitAllObjects(at, searcher, radius);
+        SpellInfo const* damageSpell = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE, GetCastDifficulty());
 
-        targets.remove_if([caster](Unit const* target)
-        {
-            return !caster->IsValidAttackTarget(target);
-        });
-
-        for (Unit* target : targets)
-            caster->CastSpell(target, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE,
-                CastSpellExtraArgs(aurEff).SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR));
+        for (ObjectGuid const& unitInAreaTrigger : at->GetInsideUnits())
+            if (Unit* target = ObjectAccessor::GetUnit(*at, unitInAreaTrigger))
+                if (caster->IsValidAttackTarget(target, damageSpell))
+                    caster->CastSpell(target, SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
