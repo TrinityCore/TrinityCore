@@ -727,29 +727,31 @@ class spell_pri_benediction : public SpellScript
 // 368275 - Binding Heals
 class spell_pri_binding_heals : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_BINDING_HEALS_HEAL })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_0} });
+        return ValidateSpellInfo({ SPELL_PRIEST_BINDING_HEALS_HEAL });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetActor() != eventInfo.GetProcTarget();
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
 
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount()));
-        caster->CastSpell(caster, SPELL_PRIEST_BINDING_HEALS_HEAL, args);
+        caster->CastSpell(caster, SPELL_PRIEST_BINDING_HEALS_HEAL, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, int32(CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount())) } }
+        });
     }
 
     void Register() override
     {
-        DoCheckProc += AuraProcFn(spell_pri_binding_heals::CheckProc);
+        DoCheckProc += AuraCheckProcFn(spell_pri_binding_heals::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_binding_heals::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
