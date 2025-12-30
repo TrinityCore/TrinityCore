@@ -299,7 +299,7 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
     if (caster)
         caster->_RegisterAreaTrigger(this);
 
-    _ai->OnCreate(spell ? spell : nullptr);
+    _ai->OnCreate(spell);
 
     return true;
 }
@@ -1380,26 +1380,8 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
     if (_reachedDestination)
         return;
 
-    if (GetElapsedTimeForMovement() >= GetTimeToTarget())
-    {
-        _reachedDestination = true;
-        _lastSplineIndex = int32(spline.last());
-
-        G3D::Vector3 lastSplinePosition = spline.getPoint(_lastSplineIndex);
-        GetMap()->AreaTriggerRelocation(this, lastSplinePosition.x, lastSplinePosition.y, lastSplinePosition.z, GetOrientation());
-#ifdef TRINITY_DEBUG
-        DebugVisualizePosition();
-#endif
-
-        _ai->OnSplineIndexReached(_lastSplineIndex);
-        _ai->OnDestinationReached();
-        return;
-    }
-
-    float currentTimePercent = float(GetElapsedTimeForMovement()) / float(GetTimeToTarget());
-
-    if (currentTimePercent <= 0.f)
-        return;
+    float currentTimePercent = std::clamp(float(GetElapsedTimeForMovement()) / float(GetTimeToTarget()), 0.0f, 1.0f);
+    _reachedDestination = currentTimePercent >= 1.0f;
 
     if (m_areaTriggerData->MoveCurveId)
     {
@@ -1438,10 +1420,16 @@ void AreaTrigger::UpdateSplinePosition(Movement::Spline<float>& spline)
     DebugVisualizePosition();
 #endif
 
-    if (_lastSplineIndex != lastPositionIndex)
+    if (_lastSplineIndex != lastPositionIndex || _reachedDestination)
     {
         _lastSplineIndex = lastPositionIndex;
-        _ai->OnSplineIndexReached(_lastSplineIndex);
+        _ai->OnSplineIndexReached(_lastSplineIndex - _spline->first() /*translate to index of the input array used for AreaTrigger::InitSplines*/);
+        if (_reachedDestination)
+        {
+            _ai->OnDestinationReached();
+            _spline = nullptr;
+            SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::PathType), int32(AreaTriggerPathType::None));
+        }
     }
 }
 
