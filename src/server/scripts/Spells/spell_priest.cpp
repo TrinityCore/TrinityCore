@@ -26,7 +26,6 @@
 #include "Containers.h"
 #include "G3DPosition.hpp"
 #include "GridNotifiers.h"
-#include "ListUtils.h"
 #include "Log.h"
 #include "MoveSplineInitArgs.h"
 #include "ObjectAccessor.h"
@@ -1323,24 +1322,28 @@ class spell_pri_entropic_rift : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellEffect({ {SPELL_PRIEST_MIND_BLAST, EFFECT_0}, {SPELL_PRIEST_VOID_TORRENT, EFFECT_0} });
+        return ValidateSpellInfo({ SPELL_PRIEST_ENTROPIC_RIFT });
     }
 
-    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    bool Load() override
     {
         Unit* caster = GetCaster();
-        if (!caster->HasAura(SPELL_PRIEST_ENTROPIC_RIFT))
-            return;
+        return caster->HasAura(SPELL_PRIEST_ENTROPIC_RIFT)
+            && caster->IsPlayer()
+            && GetSpellInfo()->Id == uint32(caster->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::PriestShadow
+                ? SPELL_PRIEST_VOID_TORRENT
+                : SPELL_PRIEST_MIND_BLAST);
+    }
 
-        if (caster->ToPlayer()->GetPrimarySpecialization() == ChrSpecialization::PriestShadow && m_scriptSpellId == SPELL_PRIEST_MIND_BLAST)
-            return;
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* target = GetHitUnit();
 
-        Unit* target = GetExplTargetUnit();
-        ObjectGuid targetGUID = target ? target->GetGUID() : ObjectGuid::Empty;
-
-        caster->CastSpell(target ? target : caster, SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER,
-            CastSpellExtraArgs(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR).SetCustomArg(targetGUID));
-        }
+        GetCaster()->CastSpell(target->GetPosition(), SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .CustomArg = target->GetGUID()
+        });
+    }
 
     void Register() override
     {
@@ -1406,14 +1409,11 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
 {
     using AreaTriggerAI::AreaTriggerAI;
 
-    void OnInitialize() override
-    {
-        _scheduler.Schedule(100ms, [this](TaskContext task)
-        {
-            UpdateMovement();
-            task.Repeat(250ms);
-        });
-    }
+    static constexpr std::array<DBCPosition2D, 2> OverrideScaleCurve =
+    {{
+        { .X = 0.0f, .Y = 1.0f },
+        { .X = 1.0f, .Y = 1.0f },
+    }};
 
     void OnCreate(Spell const* creatingSpell) override
     {
@@ -1421,15 +1421,28 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         if (!caster)
             return;
 
-        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_PERIODIC, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        CastSpellExtraArgs args;
+        args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
 
         if (creatingSpell)
         {
+            args.OriginalCastId = creatingSpell->m_castId;
+
             if (ObjectGuid const* targetGUID = std::any_cast<ObjectGuid>(&creatingSpell->m_customArg))
-                _targetGuid = *targetGUID;
+                at->SetPathTarget(*targetGUID);
+
             _searchRadius = creatingSpell->GetSpellInfo()->GetMaxRange();
         }
+
+        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_AURA, args);
+        caster->CastSpell(caster, SPELL_PRIEST_ENTROPIC_RIFT_PERIODIC, args);
+
+        UpdateMovement();
+        _scheduler.Schedule(500ms, [this](TaskContext task)
+        {
+            UpdateMovement();
+            task.Repeat(500ms);
+        });
     }
 
     void OnUpdate(uint32 diff) override
@@ -1437,55 +1450,60 @@ struct areatrigger_pri_entropic_rift : public AreaTriggerAI
         _scheduler.Update(diff);
     }
 
+    void OnDestinationReached() override
+    {
+        _movementSpeed = 7.0f; // Entropic Rift moves slower after reaching its target
+    }
+
     void UpdateMovement()
     {
-        Unit* caster = at->GetCaster();
-        if (!caster)
+        at->SetOverrideScaleCurve(OverrideScaleCurve); // updates StartTimeOffset of the curve
+
+        Unit* target = UpdateTarget();
+        if (!target)
             return;
 
-        Unit* target = nullptr;
-        if (!_targetGuid.IsEmpty())
-            target = ObjectAccessor::GetUnit(*at, _targetGuid);
+        at->SetPathTarget(target->GetGUID());
 
-        if (!target || !target->IsAlive())
-        {
-            target = FindNewEnemy(caster);
-            if (!target)
-            {
-                _targetGuid = ObjectGuid::Empty;
-                return;
-            }
-
-            _targetGuid = target->GetGUID();
-        }
+        if (at->IsInDist2d(target, 0.5f))
+            return;
 
         PathGenerator path(at);
         path.CalculatePath(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), false);
-        at->InitSplines(path.GetPath());
+        at->InitSplines(path.GetPath(), _movementSpeed);
     }
 
-    Unit* FindNewEnemy(Unit const* caster)
+    Unit* UpdateTarget() const
     {
-        std::list<Unit*> targets;
-        Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(at, caster, _searchRadius);
-        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(at, targets, checker);
-        Cell::VisitAllObjects(at, searcher, _searchRadius);
-
-        targets.remove_if([caster](Unit const* target)
-        {
-            return !target || !target->IsAlive() || !caster->IsValidAttackTarget(target) || !caster->IsInCombatWith(target);
-        });
-
-        if (targets.empty())
+        SpellInfo const* damageSpell = sSpellMgr->GetSpellInfo(SPELL_PRIEST_ENTROPIC_RIFT_DAMAGE, DIFFICULTY_NONE);
+        if (!damageSpell || damageSpell->GetEffects().empty())
             return nullptr;
 
-        return Trinity::Containers::SelectRandomContainerElement(targets);
+        Unit* caster = at->GetCaster();
+        if (!caster)
+            return nullptr;
+
+        SpellEffectInfo const& damageEffect = damageSpell->GetEffect(EFFECT_0);
+        Trinity::WorldObjectSpellAreaTargetCheck check(_searchRadius, caster, caster, caster, damageSpell, TARGET_CHECK_ENEMY, damageEffect.ImplicitTargetConditions.get(), TARGET_OBJECT_TYPE_UNIT);
+
+        Unit* target = ObjectAccessor::GetUnit(*at, at->m_areaTriggerData->OrbitPathTarget);
+        if (!target || !check(target))
+        {
+            std::vector<Unit*> targets;
+            Trinity::UnitListSearcher searcher(at, targets, check);
+            Spell::SearchTargets(searcher, GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER, caster, caster, _searchRadius);
+            Trinity::Containers::EraseIf(targets, [caster](Unit const* target) { return !caster->IsInCombatWith(target); });
+            if (!targets.empty())
+                target = Trinity::Containers::SelectRandomContainerElement(targets);
+        }
+
+        return target;
     }
 
 private:
-    TaskScheduler _scheduler{};
-    ObjectGuid _targetGuid{};
-    float _searchRadius{};
+    TaskScheduler _scheduler;
+    float _movementSpeed = 12.0f;
+    float _searchRadius = 0.0f;
 };
 
 // 414553 - Epiphany
