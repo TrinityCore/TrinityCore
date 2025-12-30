@@ -1967,7 +1967,7 @@ void Map::SendObjectUpdates()
 
     while (!_updateObjects.empty())
     {
-        Object* obj = *_updateObjects.begin();
+        BaseEntity* obj = *_updateObjects.begin();
         ASSERT(obj->IsInWorld());
         _updateObjects.erase(_updateObjects.begin());
         obj->BuildUpdate(update_players);

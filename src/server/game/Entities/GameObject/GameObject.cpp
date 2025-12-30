@@ -105,6 +105,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
 
     memcpy(stats.Data.data(), raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
     stats.ContentTuningId = ContentTuningId;
+    stats.RequiredLevel = RequiredLevel;
 
     queryTemp.Write();
     queryTemp.ShrinkToFit();
@@ -322,7 +323,7 @@ public:
             }
 
             dst = dst * pathRotation;
-            dst += PositionToVector3(&_owner.GetStationaryPosition());
+            dst += PositionToVector3(_owner.GetStationaryPosition());
 
             _owner.GetMap()->GameObjectRelocation(&_owner, dst.x, dst.y, dst.z, _owner.GetOrientation());
         }
@@ -429,9 +430,9 @@ public:
         return 1;
     }
 
-    std::vector<uint32> const* GetPauseTimes() const
+    std::span<uint32 const> GetPauseTimes() const
     {
-        return &_stopFrames;
+        return _stopFrames;
     }
 
     ObjectGuid GetTransportGUID() const override { return _owner.GetGUID(); }
@@ -835,7 +836,6 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
-    m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag.Stationary = true;
@@ -1023,7 +1023,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         m_updateFlag.ServerTime = true;
     }
 
-    Object::_Create(guid);
+    _Create(guid);
 
     m_goInfo = goInfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(entry);
@@ -4136,12 +4136,13 @@ void GameObject::ClearUpdateMask(bool remove)
     Object::ClearUpdateMask(remove);
 }
 
-std::vector<uint32> const* GameObject::GetPauseTimes() const
+std::span<uint32 const> GameObject::GetPauseTimes() const
 {
+    std::span<uint32 const> result;
     if (GameObjectType::Transport const* transport = dynamic_cast<GameObjectType::Transport const*>(m_goTypeImpl.get()))
-        return transport->GetPauseTimes();
+        result = transport->GetPauseTimes();
 
-    return nullptr;
+    return result;
 }
 
 void GameObject::SetPathProgressForClient(float progress)
@@ -4252,6 +4253,8 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
         _animKitId = animKitId;
     else
         _animKitId = 0;
+
+    m_updateFlag.AnimKit = _animKitId != 0;
 
     WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
     activateAnimKit.ObjectGUID = GetGUID();

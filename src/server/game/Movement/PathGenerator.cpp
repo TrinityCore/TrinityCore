@@ -31,7 +31,7 @@
 PathGenerator::PathGenerator(WorldObject const* owner) :
     _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
     _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH), _useRaycast(false),
-    _startPosition(PositionToVector3(owner)), _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
+    _startPosition(PositionToVector3(owner->GetPosition())), _endPosition(G3D::Vector3::zero()), _source(owner), _navMesh(nullptr),
     _navMeshQuery(nullptr)
 {
     memset(_pathPolyRefs, 0, sizeof(_pathPolyRefs));
