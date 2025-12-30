@@ -3601,8 +3601,8 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
             maxTargetValueHolder = sSpellMgr->GetSpellInfo(*maxTargetsValueHolderSpell, Difficulty);
 
         if (!maxTargetValueHolder)
-            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not exist", maxTargetsValueHolderSpell);
-        else if (maxTargetsValueHolderEffect >= maxTargetValueHolder->GetEffects().size())
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not exist", *maxTargetsValueHolderSpell);
+        else if (*maxTargetsValueHolderEffect >= maxTargetValueHolder->GetEffects().size())
             TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(maxTargets): Spell {} does not have effect {}",
                 maxTargetValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect));
         else
@@ -3622,10 +3622,10 @@ void SpellInfo::_LoadSqrtTargetLimit(int32 maxTargets, int32 numNonDiminishedTar
             numNonDiminishedTargetsValueHolder = sSpellMgr->GetSpellInfo(*numNonDiminishedTargetsValueHolderSpell, Difficulty);
 
         if (!numNonDiminishedTargetsValueHolder)
-            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not exist", maxTargetsValueHolderSpell);
-        else if (numNonDiminishedTargetsValueHolderEffect >= numNonDiminishedTargetsValueHolder->GetEffects().size())
+            TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not exist", *numNonDiminishedTargetsValueHolderSpell);
+        else if (*numNonDiminishedTargetsValueHolderEffect >= numNonDiminishedTargetsValueHolder->GetEffects().size())
             TC_LOG_ERROR("spells", "SpellInfo::_LoadSqrtTargetLimit(numNonDiminishedTargets): Spell {} does not have effect {}",
-                numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*maxTargetsValueHolderEffect));
+                numNonDiminishedTargetsValueHolder->Id, AsUnderlyingType(*numNonDiminishedTargetsValueHolderEffect));
         else
         {
             SpellEffectInfo const& valueHolder = numNonDiminishedTargetsValueHolder->GetEffect(*numNonDiminishedTargetsValueHolderEffect);
