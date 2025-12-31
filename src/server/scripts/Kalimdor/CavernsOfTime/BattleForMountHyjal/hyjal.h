@@ -91,24 +91,24 @@ enum HYGameobjectIds
 
 enum HYPathIds
 {
-    // These paths requires to be re-sniffed
     // For bosses and other
-    PATH_ALLY_INITIAL_1         = 100,
-    PATH_ALLY_INITIAL_2         = 101,
-    PATH_ALLY_INITIAL_3         = 102,
+    PATH_ALLY_INITIAL_1         = 53400,
+    PATH_ALLY_INITIAL_2         = 53401,
+    PATH_ALLY_INITIAL_3         = 53402,
 
-    PATH_ALLY_BASE_1            = 103,
-    PATH_ALLY_BASE_2            = 104,
-    PATH_ALLY_BASE_3            = 105,
+    PATH_ALLY_BASE_1            = 53403,
+    PATH_ALLY_BASE_2            = 53404,
+    PATH_ALLY_BASE_3            = 53405,
 
-    // For bosses only (bosses walk, trash run)
-    PATH_HORDE_BOSS_INITIAL_1   = 106,
-    PATH_HORDE_BOSS_INITIAL_2   = 107,
-    PATH_HORDE_BOSS_INITIAL_3   = 108,
+    PATH_HORDE_INITIAL_1        = 53406,
+    PATH_HORDE_INITIAL_2        = 53407,
+    PATH_HORDE_INITIAL_3        = 53408,
 
-    PATH_HORDE_BOSS_BASE_1      = 109,
-    PATH_HORDE_BOSS_BASE_2      = 110,
-    PATH_HORDE_BOSS_BASE_3      = 111
+    PATH_HORDE_BASE_1           = 53409,
+    PATH_HORDE_BASE_2           = 53410,
+    PATH_HORDE_BASE_3           = 53411,
+
+    PATH_HORDE_BOSS             = 53412
 };
 
 #define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies

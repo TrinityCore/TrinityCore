@@ -285,7 +285,7 @@ class spell_anetheron_sleep : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+        return GetCaster()->IsUnit();
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)

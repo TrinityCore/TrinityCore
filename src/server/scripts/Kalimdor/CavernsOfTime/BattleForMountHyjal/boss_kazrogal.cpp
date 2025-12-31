@@ -65,7 +65,7 @@ struct boss_kazrogal : public BossAI
     void JustAppeared() override
     {
         Talk(SAY_INTRO);
-        me->GetMotionMaster()->MovePath(RAND(PATH_HORDE_BOSS_INITIAL_1, PATH_HORDE_BOSS_INITIAL_2, PATH_HORDE_BOSS_INITIAL_3), false);
+        me->GetMotionMaster()->MovePath(PATH_HORDE_BOSS, false);
     }
 
     void Reset() override
@@ -89,20 +89,6 @@ struct boss_kazrogal : public BossAI
     {
         if (spellInfo->Id == SPELL_MARK_OF_KAZROGAL)
             Talk(SAY_MARK);
-    }
-
-    void WaypointPathEnded(uint32 /*waypointId*/, uint32 pathId) override
-    {
-        switch (pathId)
-        {
-            case PATH_HORDE_BOSS_INITIAL_1:
-            case PATH_HORDE_BOSS_INITIAL_2:
-            case PATH_HORDE_BOSS_INITIAL_3:
-                me->GetMotionMaster()->MovePath(RAND(PATH_HORDE_BOSS_BASE_1, PATH_HORDE_BOSS_BASE_2, PATH_HORDE_BOSS_BASE_3), true);
-                break;
-            default:
-                break;
-        }
     }
 
     // Do not reset SetActive, we want boss to be active all the time
@@ -177,7 +163,7 @@ class MarkTargetFilter
         {
             if (Unit* unit = target->ToUnit())
                 return unit->GetPowerType() != POWER_MANA;
-            return false;
+            return true;
         }
 };
 

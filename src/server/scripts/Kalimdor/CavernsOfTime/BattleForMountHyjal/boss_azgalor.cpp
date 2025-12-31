@@ -71,7 +71,7 @@ struct boss_azgalor : public BossAI
     void JustAppeared() override
     {
         Talk(SAY_INTRO);
-        me->GetMotionMaster()->MovePath(RAND(PATH_HORDE_BOSS_INITIAL_1, PATH_HORDE_BOSS_INITIAL_2, PATH_HORDE_BOSS_INITIAL_3), false);
+        me->GetMotionMaster()->MovePath(PATH_HORDE_BOSS, false);
     }
 
     void JustEngagedWith(Unit* who) override
@@ -89,20 +89,6 @@ struct boss_azgalor : public BossAI
     {
         if (spellInfo->Id == SPELL_DOOM)
             Talk(SAY_DOOM);
-    }
-
-    void WaypointPathEnded(uint32 /*waypointId*/, uint32 pathId) override
-    {
-        switch (pathId)
-        {
-            case PATH_HORDE_BOSS_INITIAL_1:
-            case PATH_HORDE_BOSS_INITIAL_2:
-            case PATH_HORDE_BOSS_INITIAL_3:
-                me->GetMotionMaster()->MovePath(RAND(PATH_HORDE_BOSS_BASE_1, PATH_HORDE_BOSS_BASE_2, PATH_HORDE_BOSS_BASE_3), true);
-                break;
-            default:
-                break;
-        }
     }
 
     // Do not reset SetActive, we want boss to be active all the time
@@ -224,7 +210,7 @@ class spell_azgalor_doom : public SpellScript
 
     bool Load() override
     {
-        return GetCaster()->GetTypeId() == TYPEID_UNIT;
+        return GetCaster()->IsUnit();
     }
 
     void FilterTargets(std::list<WorldObject*>& targets)
