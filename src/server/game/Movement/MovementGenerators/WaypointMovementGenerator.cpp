@@ -554,7 +554,7 @@ void WaypointMovementGenerator<Creature>::StartMove(Creature* owner, bool relaun
         && (lastWaypointForSegment->Delay || (_isReturningToStart ? _currentNode == 0 : _currentNode == path->Nodes.size() - 1)))
         init.SetFacing(*lastWaypointForSegment->Orientation);
 
-    switch (path->MoveType)
+    switch (lastWaypointForSegment->MoveType.value_or(path->MoveType))
     {
         case WaypointMoveType::Land:
             init.SetAnimation(AnimTier::Ground);
