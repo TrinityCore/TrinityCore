@@ -89,6 +89,28 @@ enum HYGameobjectIds
     GO_ROARING_FLAME            = 182592
 };
 
+enum HYPathIds
+{
+    // For bosses and other
+    PATH_ALLY_INITIAL_1         = 53400,
+    PATH_ALLY_INITIAL_2         = 53401,
+    PATH_ALLY_INITIAL_3         = 53402,
+
+    PATH_ALLY_BASE_1            = 53403,
+    PATH_ALLY_BASE_2            = 53404,
+    PATH_ALLY_BASE_3            = 53405,
+
+    PATH_HORDE_INITIAL_1        = 53406,
+    PATH_HORDE_INITIAL_2        = 53407,
+    PATH_HORDE_INITIAL_3        = 53408,
+
+    PATH_HORDE_BASE_1           = 53409,
+    PATH_HORDE_BASE_2           = 53410,
+    PATH_HORDE_BASE_3           = 53411,
+
+    PATH_HORDE_BOSS             = 53412
+};
+
 #define MINRAIDDAMAGE 700000 // minimal damage before trash can drop loot and reputation, resets if faction leader dies
 
 template <class AI, class T>
@@ -96,5 +118,7 @@ inline AI* GetHyjalAI(T* obj)
 {
     return GetInstanceAI<AI>(obj, HyjalScriptName);
 }
+
+#define RegisterHyjalCreatureAI(ai_name) RegisterCreatureAIWithFactory(ai_name, GetHyjalAI)
 
 #endif
