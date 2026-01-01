@@ -174,6 +174,7 @@ enum PriestSpells
     SPELL_PRIEST_PRAYER_OF_MENDING_AURA             = 41635,
     SPELL_PRIEST_PRAYER_OF_MENDING_HEAL             = 33110,
     SPELL_PRIEST_PRAYER_OF_MENDING_JUMP             = 155793,
+    SPELL_PRIEST_PRAYERFUL_LITANY                   = 391209,
     SPELL_PRIEST_PROTECTIVE_LIGHT_AURA              = 193065,
     SPELL_PRIEST_PROTECTOR_OF_THE_FRAIL             = 373035,
     SPELL_PRIEST_PURGE_THE_WICKED                   = 204197,
@@ -2981,6 +2982,32 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
+// 391209 - Prayerful Litany (attached to 596 - Prayer of Healing)
+class spell_pri_prayerful_litany : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0);
+    }
+
+    void CalcPrimaryTargetHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (victim == GetExplTargetUnit())
+            if (AuraEffect const* prayerfulLitanyEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0))
+                AddPct(pctMod, prayerfulLitanyEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_pri_prayerful_litany::CalcPrimaryTargetHealing);
+    }
+};
+
 // 193063 - Protective Light (Aura)
 class spell_pri_protective_light : public AuraScript
 {
@@ -4436,6 +4463,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_prayer_of_mending_dummy);
     RegisterSpellAndAuraScriptPair(spell_pri_prayer_of_mending, spell_pri_prayer_of_mending_aura);
     RegisterSpellScript(spell_pri_prayer_of_mending_jump);
+    RegisterSpellScript(spell_pri_prayerful_litany);
     RegisterSpellScript(spell_pri_protective_light);
     RegisterSpellScript(spell_pri_protector_of_the_frail);
     RegisterSpellScript(spell_pri_holy_10_1_class_set_2pc);
