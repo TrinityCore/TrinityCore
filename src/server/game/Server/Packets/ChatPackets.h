@@ -53,10 +53,11 @@ namespace WorldPackets
         };
 
         // CMSG_CHAT_MESSAGE_WHISPER
+        // CMSG_MESSAGE_WHISPER
         class ChatMessageWhisper final : public ClientPacket
         {
         public:
-            explicit ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(CMSG_CHAT_MESSAGE_WHISPER, std::move(packet)) { }
+            explicit ChatMessageWhisper(WorldPacket&& packet) : ClientPacket(std::move(packet)) { }
 
             void Read() override;
 

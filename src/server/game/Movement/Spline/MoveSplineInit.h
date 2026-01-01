@@ -19,6 +19,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include <span>
 #include <variant>
 
 class ObjectGuid;
@@ -58,12 +59,6 @@ namespace Movement
          * can't be combined with final animation
          */
         void SetParabolic(float amplitude, int32 start_point);
-        /** Adds movement by parabolic trajectory
-         * @param vertical_acceleration  vertical acceleration
-         * @param start_point            point index on the path where parabolic movement starts
-         * can't be combined with final animation
-         */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
@@ -82,7 +77,7 @@ namespace Movement
          * @param path - array of points, shouldn't be empty
          * @param pointId - Id of fisrt point of the path. Example: when third path point will be done it will notify that pointId + 3 done
          */
-        void MovebyPath(PointsArray const& path, int32 pointId = 0);
+        void MovebyPath(std::span<Vector3 const> path, int32 pointId = 0);
 
         /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
@@ -188,26 +183,18 @@ namespace Movement
     {
         args.effect_start_point = start_point;
         args.parabolic_amplitude = amplitude;
-        args.vertical_acceleration = 0.0f;
         args.flags.Parabolic = true;
-    }
-
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point)
-    {
-        args.effect_start_point = start_point;
-        args.parabolic_amplitude = 0.0f;
-        args.vertical_acceleration = vertical_acceleration;
-        args.flags.Parabolic = true;
+        args.animTier.reset();
     }
 
     inline void MoveSplineInit::SetAnimation(AnimTier anim, uint32 tierTransitionId /*= 0*/, int32 transitionStartPoint /*= 0*/)
     {
         args.effect_start_point = transitionStartPoint;
-        args.animTier.emplace();
-        args.animTier->TierTransitionId = tierTransitionId;
-        args.animTier->AnimTier = anim;
-        if (!tierTransitionId)
-            args.flags.Animation = true;
+        AnimTierTransition& animTier = args.animTier.emplace();
+        animTier.TierTransitionId = tierTransitionId;
+        animTier.AnimTier = anim;
+        args.flags.Raw &= ~args.flags.Animation.DisallowedFlag;
+        args.flags.Animation = tierTransitionId == 0;
     }
 
     inline void MoveSplineInit::DisableTransportPathTransformations() { args.TransformForTransport = false; }
