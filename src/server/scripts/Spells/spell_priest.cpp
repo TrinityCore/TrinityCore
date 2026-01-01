@@ -1927,13 +1927,15 @@ class spell_pri_holy_word_chastise : public SpellScript
         });
     }
 
-    void HandleAfterHit()
+    void HandleAfterHit() const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
-
         uint32 spellId = caster->HasAura(SPELL_PRIEST_CENSURE) ? SPELL_PRIEST_HOLY_WORD_CHASTISE_STUN : SPELL_PRIEST_HOLY_WORD_CHASTISE_INCAPACITATE;
-        caster->CastSpell(target, spellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+
+        caster->CastSpell(GetHitUnit(), spellId, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
