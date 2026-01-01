@@ -2982,34 +2982,29 @@ class spell_pri_prayer_of_mending_jump : public spell_pri_prayer_of_mending_Spel
     }
 };
 
-// 391209 - Prayerful Litany
-// Triggered by 596 - Prayer of Healing
+// 391209 - Prayerful Litany (attached to 596 - Prayer of Healing)
 class spell_pri_prayerful_litany : public SpellScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_PRAYERFUL_LITANY })
-            && ValidateSpellEffect({ {spellInfo->Id, EFFECT_1} });
+        return ValidateSpellEffect({ { SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0 } });
     }
 
-    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    bool Load() override
     {
-        Unit* caster = GetCaster();
-        AuraEffect const* prayerfulLitanyEff = caster->GetAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0);
-        if (!prayerfulLitanyEff)
-            return;
+        return GetCaster()->HasAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0);
+    }
 
-        if (GetHitUnit() != GetExplTargetUnit())
-            return;
-
-        int32 heal = GetHitHeal();
-        AddPct(heal, prayerfulLitanyEff->GetAmount());
-        SetHitHeal(heal);
+    void CalcPrimaryTargetHealing(SpellEffectInfo const& /*effectInfo*/, Unit const* victim, int32& /*healing*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (victim == GetExplTargetUnit())
+            if (AuraEffect const* prayerfulLitanyEff = GetCaster()->GetAuraEffect(SPELL_PRIEST_PRAYERFUL_LITANY, EFFECT_0))
+                AddPct(pctMod, prayerfulLitanyEff->GetAmount());
     }
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_prayerful_litany::HandleEffectHit, EFFECT_1, SPELL_EFFECT_HEAL);
+        CalcHealing += SpellCalcHealingFn(spell_pri_prayerful_litany::CalcPrimaryTargetHealing);
     }
 };
 
