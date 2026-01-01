@@ -27,7 +27,6 @@
 
 Bag::Bag(): Item()
 {
-    m_objectType |= TYPEMASK_CONTAINER;
     m_objectTypeId = TYPEID_CONTAINER;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_Container, false);
@@ -76,7 +75,7 @@ bool Bag::Create(ObjectGuid::LowType guidlow, uint32 itemid, ItemContext context
     if (!itemProto || itemProto->GetContainerSlots() > MAX_BAG_SIZE)
         return false;
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Item>(guidlow));
 
     _bonusData.Initialize(itemProto);
 

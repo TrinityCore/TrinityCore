@@ -15,25 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_WARDEN_PACKETS_H
-#define TRINITYCORE_WARDEN_PACKETS_H
+#include "HousingPackets.h"
+#include "PacketOperators.h"
 
-#include "Packet.h"
-
-namespace WorldPackets
+namespace WorldPackets::Housing
 {
-    namespace Warden
-    {
-        class WardenData final : public ClientPacket
-        {
-        public:
-            explicit WardenData(WorldPacket&& packet) : ClientPacket(CMSG_WARDEN3_DATA, std::move(packet)) { }
-
-            void Read() override;
-
-            ByteBuffer Data;
-        };
-    }
+void DeclineNeighborhoodInvites::Read()
+{
+    _worldPacket >> Bits<1>(Allow);
 }
-
-#endif // TRINITYCORE_WARDEN_PACKETS_H
+}

@@ -18,6 +18,13 @@
 #include "SmoothPhasing.h"
 #include "MapUtils.h"
 
+SmoothPhasing::SmoothPhasing() = default;
+SmoothPhasing::SmoothPhasing(SmoothPhasing const&) = default;
+SmoothPhasing::SmoothPhasing(SmoothPhasing&&) noexcept = default;
+SmoothPhasing& SmoothPhasing::operator=(SmoothPhasing const&) = default;
+SmoothPhasing& SmoothPhasing::operator=(SmoothPhasing&&) noexcept = default;
+SmoothPhasing::~SmoothPhasing() = default;
+
 void SmoothPhasing::SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo const& info)
 {
     if (!std::holds_alternative<SmoothPhasingInfoViewerDependent>(_storage))

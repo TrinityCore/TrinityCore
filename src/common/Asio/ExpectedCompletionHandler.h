@@ -232,7 +232,7 @@ public:
     static inline auto initiate(Initiation&& initiation, RawCompletionToken&& token, Args&&... args)
     {
         return async_initiate<
-            conditional_t<
+            std::conditional_t<
             is_const<remove_reference_t<RawCompletionToken>>::value,
             CompletionToken const, CompletionToken>,
             typename Trinity::Asio::Impl::AsExpectedSignature<Signatures>::type...>(
@@ -311,7 +311,7 @@ public:
     static inline auto initiate(Initiation&& initiation, RawCompletionToken&& token, Args&&... args)
     {
         return async_initiate<
-            conditional_t<
+            std::conditional_t<
             is_const<remove_reference_t<RawCompletionToken>>::value,
             CompletionToken const, CompletionToken>,
             typename Trinity::Asio::Impl::AsExpectedSignature<Signature>::type>(

@@ -1519,7 +1519,7 @@ struct npc_murloc_spearhunter_watershaper_higher_ground : public ScriptedAI
 
     void JustEngagedWith(Unit* who) override
     {
-        me->GetMotionMaster()->MoveJump(who->GetPosition(), 16.0f, 6.2f);
+        me->GetMotionMaster()->MoveJump(EVENT_JUMP, who->GetPosition(), 16.0f, 0.1f);
     }
 };
 
@@ -4423,7 +4423,7 @@ struct npc_briarpatch_prisoner : public ScriptedAI
             me->RemoveAllAuras();
             me->SetDisableGravity(false);
             me->SetControlled(false, UNIT_STATE_ROOT);
-            me->GetMotionMaster()->MoveJump(BriarpatchPrisonerJumpToPosition, 7.9894905f, 19.29110336303710937f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, BriarpatchPrisonerJumpToPosition, 8.0f);
             Talk(SAY_GET_OUT_OF_HERE);
             _events.ScheduleEvent(EVENT_RUN_TO_PLAINS, 4s);
         }
@@ -4778,7 +4778,7 @@ struct npc_gnome_goblin_plains_make_copter_private : public ScriptedAI
                     }
 
                     if (Creature* copter = ObjectAccessor::GetCreature(*me, _copterGUID))
-                        copter->GetMotionMaster()->MoveJump(MiniChopperJumpPosition, 19.29f, 6.99f);
+                        copter->GetMotionMaster()->MoveJump(EVENT_JUMP, MiniChopperJumpPosition, 7.0f, 6.99f);
 
                     _events.ScheduleEvent(EVENT_RESIZE_COPTER_1, 6s);
                     break;

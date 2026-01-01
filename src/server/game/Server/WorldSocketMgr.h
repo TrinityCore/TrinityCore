@@ -19,13 +19,20 @@
 #define TRINITYCORE_WORLD_SOCKET_MGR_H
 
 #include "SocketMgr.h"
+#include "WorldSocket.h"
 
-class WorldSocket;
+class WorldSocketThread final : public Trinity::Net::NetworkThread<WorldSocket>
+{
+public:
+    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override;
+
+    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override;
+};
 
 /// Manages all sockets connected to peers and network threads
-class TC_GAME_API WorldSocketMgr : public Trinity::Net::SocketMgr<WorldSocket>
+class TC_GAME_API WorldSocketMgr final : public Trinity::Net::SocketMgr<WorldSocket, WorldSocketThread>
 {
-    typedef SocketMgr<WorldSocket> BaseSocketMgr;
+    using BaseSocketMgr = SocketMgr;
 
 public:
     ~WorldSocketMgr();
@@ -45,7 +52,7 @@ public:
 protected:
     WorldSocketMgr();
 
-    Trinity::Net::NetworkThread<WorldSocket>* CreateThreads() const override;
+    WorldSocketThread* CreateThreads() const override;
 
 private:
     int32 _socketSystemSendBufferSize;
