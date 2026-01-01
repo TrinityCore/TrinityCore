@@ -62,6 +62,7 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE           = 400370,
     SPELL_PRIEST_CENSURE                            = 200199,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
     SPELL_PRIEST_CRYSTALLINE_REFLECTION             = 373457,
@@ -786,6 +787,30 @@ class spell_pri_blaze_of_light : public AuraScript
     void Register() override
     {
         OnProc += AuraProcFn(spell_pri_blaze_of_light::HandleProc);
+    }
+};
+
+// 372307 - Burning Vehemence
+class spell_pri_burning_vehemence : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE });
+    }
+
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
+    {
+        GetTarget()->CastSpell(eventInfo.GetActionTarget()->GetPosition(), SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount())) } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_burning_vehemence::HandleEffectProc, EFFECT_2, SPELL_AURA_DUMMY);
     }
 };
 
@@ -4300,6 +4325,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_binding_heals);
     RegisterSpellScript(spell_pri_blaze_of_light);
+    RegisterSpellScript(spell_pri_burning_vehemence);
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
