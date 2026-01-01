@@ -196,6 +196,8 @@ class TC_GAME_API AreaTrigger final : public WorldObject, public GridObject<Area
         bool HasOrbit() const { return m_areaTriggerData->PathData.Is<UF::AreaTriggerOrbit>(); }
         UF::AreaTriggerOrbit const& GetOrbit() const { return *m_areaTriggerData->PathData.Get<UF::AreaTriggerOrbit>(); }
 
+        void SetPathTarget(ObjectGuid pathTarget) { SetUpdateFieldValue(m_values.ModifyValue(&AreaTrigger::m_areaTriggerData).ModifyValue(&UF::AreaTriggerData::OrbitPathTarget), pathTarget); }
+
         bool HasOverridePosition() const;
 
         void UpdateShape();

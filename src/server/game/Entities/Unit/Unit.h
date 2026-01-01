@@ -1138,7 +1138,7 @@ class TC_GAME_API Unit : public WorldObject
 
         void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false);
 
-        bool IsPlayingHoverAnim() const { return _playHoverAnim; }
+        bool IsPlayingHoverAnim() const { return m_updateFlag.PlayHoverAnim; }
         void SetPlayHoverAnim(bool enable, bool sendUpdate = true);
         void CalculateHoverHeight();
         void SetHoverHeight(float hoverHeight) { SetUpdateFieldValue(m_values.ModifyValue(&Unit::m_unitData).ModifyValue(&UF::UnitData::HoverHeight), hoverHeight); }
@@ -1677,7 +1677,7 @@ class TC_GAME_API Unit : public WorldObject
         static uint32 SpellCriticalHealingBonus(Unit const* caster, SpellInfo const* spellProto, uint32 damage, Unit* victim);
 
         void ApplySpellImmune(uint32 spellId, SpellImmunity op, uint32 type, bool apply);
-        bool IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
+        bool IsImmunedToSpell(SpellInfo const* spellInfo, uint32 effectMask, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
         uint32 GetSchoolImmunityMask() const;
         uint32 GetDamageImmunityMask() const;
         uint64 GetMechanicImmunityMask() const;
@@ -1687,7 +1687,7 @@ class TC_GAME_API Unit : public WorldObject
         bool IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
         virtual bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute = false) const;
 
-        bool IsImmunedToAuraPeriodicTick(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo = nullptr) const;
+        bool IsImmunedToAuraPeriodicTick(WorldObject const* caster, AuraEffect const* auraEffect) const;
 
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellInfo const* spellInfo = nullptr);
         static uint32 CalcArmorReducedDamage(Unit const* attacker, Unit* victim, uint32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType = MAX_ATTACK, uint8 attackerLevel = 0);
@@ -1878,7 +1878,7 @@ class TC_GAME_API Unit : public WorldObject
 
         UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const override;
 
-        void DestroyForPlayer(Player* target) const override;
+        void DestroyForPlayer(Player const* target) const override;
         void ClearUpdateMask(bool remove) override;
 
         void _UpdateSpells(uint32 time);
@@ -2029,8 +2029,6 @@ class TC_GAME_API Unit : public WorldObject
 
         uint32 _oldFactionId;           ///< faction before charm
         bool _isWalkingBeforeCharm;     ///< Are we walking before we were charmed?
-
-        bool _playHoverAnim;
 
         uint16 _aiAnimKitId;
         uint16 _movementAnimKitId;

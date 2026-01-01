@@ -42,7 +42,7 @@ enum class BanMode
     BAN_ACCOUNT = 1
 };
 
-class LoginRESTService : public Trinity::Net::Http::HttpService<LoginHttpSession>
+class LoginRESTService final : public Trinity::Net::Http::HttpService<LoginHttpSession>
 {
 public:
     using RequestHandlerResult = Trinity::Net::Http::RequestHandlerResult;
