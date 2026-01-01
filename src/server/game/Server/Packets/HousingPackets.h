@@ -15,20 +15,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WardenPackets.h"
-#include "PacketUtilities.h"
+#ifndef TRINITYCORE_HOUSING_PACKETS_H
+#define TRINITYCORE_HOUSING_PACKETS_H
 
-namespace WorldPackets::Warden
-{
-void WardenData::Read()
-{
-    uint32 requestedSize = _worldPacket.read<uint32>();
-    std::size_t pos = _worldPacket.rpos();
-    std::size_t remainingSize = _worldPacket.size() - pos;
-    if (requestedSize > remainingSize)
-        OnInvalidArraySize(requestedSize, remainingSize);
+#include "Packet.h"
 
-    Data.resize(requestedSize);
-    _worldPacket.read(Data.data(), requestedSize);
+namespace WorldPackets::Housing
+{
+    class DeclineNeighborhoodInvites final : public ClientPacket
+    {
+    public:
+        explicit DeclineNeighborhoodInvites(WorldPacket&& packet) : ClientPacket(CMSG_DECLINE_NEIGHBORHOOD_INVITES, std::move(packet)) { }
+
+        void Read() override;
+
+        bool Allow = false;
+    };
 }
-}
+
+#endif // TRINITYCORE_HOUSING_PACKETS_H

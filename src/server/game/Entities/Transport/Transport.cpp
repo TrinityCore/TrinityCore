@@ -107,7 +107,7 @@ bool Transport::Create(ObjectGuid::LowType guidlow, uint32 entry, float x, float
         return false;
     }
 
-    Object::_Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
+    _Create(ObjectGuid::Create<HighGuid::Transport>(guidlow));
 
     GameObjectTemplate const* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
     if (!goinfo)
@@ -689,6 +689,8 @@ void Transport::UpdatePassengerPositions(PassengerSet const& passengers)
 
 void Transport::BuildUpdate(UpdateDataMapType& data_map)
 {
+    BuildUpdateChangesMask();
+
     for (MapReference const& playerReference : GetMap()->GetPlayers())
         if (playerReference.GetSource()->InSamePhase(this))
             BuildFieldsUpdate(playerReference.GetSource(), data_map);

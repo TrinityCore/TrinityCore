@@ -68,6 +68,7 @@ enum MageSpells
     SPELL_MAGE_FIRE_BLAST                        = 108853,
     SPELL_MAGE_FIRESTARTER                       = 205026,
     SPELL_MAGE_FLAMESTRIKE                       = 2120,
+    SPELL_MAGE_FLAME_ACCELERANT                  = 453283,
     SPELL_MAGE_FLAME_PATCH_AREATRIGGER           = 205470,
     SPELL_MAGE_FLAME_PATCH_DAMAGE                = 205472,
     SPELL_MAGE_FLAME_PATCH_TALENT                = 205037,
@@ -809,6 +810,26 @@ class spell_mage_fire_blast : public SpellScript
     void Register() override
     {
         OnCalcCritChance += SpellOnCalcCritChanceFn(spell_mage_fire_blast::CalcCritChance);
+    }
+};
+
+// 453282 - Flame Accelerant
+class spell_mage_flame_accelerant : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_MAGE_FLAME_ACCELERANT });
+    }
+
+    void HandlePeriodicTick(AuraEffect const* /*aurEff*/) const
+    {
+        Unit* target = GetTarget();
+        target->CastSpell(target, SPELL_MAGE_FLAME_ACCELERANT, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_mage_flame_accelerant::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 };
 
@@ -2116,6 +2137,7 @@ void AddSC_mage_spell_scripts()
     RegisterSpellScript(spell_mage_firestarter);
     RegisterSpellScript(spell_mage_firestarter_dots);
     RegisterSpellScript(spell_mage_fire_blast);
+    RegisterSpellScript(spell_mage_flame_accelerant);
     RegisterSpellScript(spell_mage_flame_on);
     RegisterSpellScript(spell_mage_flame_patch);
     RegisterAreaTriggerAI(at_mage_flame_patch);

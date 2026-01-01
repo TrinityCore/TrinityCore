@@ -113,8 +113,27 @@ template<typename Callable, typename SessionImpl>
 concept HttpRequestHandler = invocable_r<Callable, RequestHandlerResult, std::shared_ptr<SessionImpl>, RequestContext&>;
 
 template<typename SessionImpl>
-class HttpService : public SocketMgr<SessionImpl>, public DispatcherService, public SessionService
+class HttpNetworkThread final : public NetworkThread<SessionImpl>
 {
+public:
+    explicit HttpNetworkThread(SessionService* service) : _service(service) { }
+
+protected:
+    void SocketRemoved(std::shared_ptr<SessionImpl> const& session) override
+    {
+        if (Optional<boost::uuids::uuid> id = session->GetSessionId())
+            _service->MarkSessionInactive(*id);
+    }
+
+private:
+    SessionService* _service = nullptr;
+};
+
+template<typename SessionImpl>
+class HttpService : public SocketMgr<SessionImpl, HttpNetworkThread<SessionImpl>>, public DispatcherService, public SessionService
+{
+    using BaseSocketMgr = SocketMgr<SessionImpl, HttpNetworkThread<SessionImpl>>;
+
 public:
     HttpService(std::string_view loggerSuffix) : DispatcherService(loggerSuffix), SessionService(loggerSuffix), _ioContext(nullptr), _logger("server.http.")
     {
@@ -123,7 +142,7 @@ public:
 
     bool StartNetwork(Asio::IoContext& ioContext, std::string const& bindIp, uint16 port, int32 threadCount = 1) override
     {
-        if (!SocketMgr<SessionImpl>::StartNetwork(ioContext, bindIp, port, threadCount))
+        if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
             return false;
 
         SessionService::Start(ioContext);
@@ -133,7 +152,7 @@ public:
     void StopNetwork() override
     {
         SessionService::Stop();
-        SocketMgr<SessionImpl>::StopNetwork();
+        BaseSocketMgr::StopNetwork();
     }
 
     // http handling
@@ -157,26 +176,11 @@ public:
     }
 
 protected:
-    class Thread : public NetworkThread<SessionImpl>
+    HttpNetworkThread<SessionImpl>* CreateThreads() const final
     {
-    protected:
-        void SocketRemoved(std::shared_ptr<SessionImpl> const& session) override
-        {
-            if (Optional<boost::uuids::uuid> id = session->GetSessionId())
-                _service->MarkSessionInactive(*id);
-        }
-
-    private:
-        friend HttpService;
-
-        SessionService* _service;
-    };
-
-    NetworkThread<SessionImpl>* CreateThreads() const override
-    {
-        Thread* threads = new Thread[this->GetNetworkThreadCount()];
+        HttpNetworkThread<SessionImpl>* threads = static_cast<HttpNetworkThread<SessionImpl>*>(::operator new(sizeof(HttpNetworkThread<SessionImpl>) * this->GetNetworkThreadCount()));
         for (int32 i = 0; i < this->GetNetworkThreadCount(); ++i)
-            threads[i]._service = const_cast<HttpService*>(this);
+            new (&threads[i]) HttpNetworkThread<SessionImpl>(const_cast<HttpService*>(this));
         return threads;
     }
 
