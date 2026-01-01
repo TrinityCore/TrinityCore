@@ -4240,42 +4240,55 @@ class spell_pri_vampiric_touch : public AuraScript
 };
 
 // 390994 - Voice of Harmony
-class spell_pri_voice_of_harmony_trigger : public SpellScript
+class spell_pri_voice_of_harmony : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo(
-        {
-            SPELL_PRIEST_VOICE_OF_HARMONY,
-            _targetSpellId
-        }) && ValidateSpellEffect(
-        {
-            { SPELL_PRIEST_VOICE_OF_HARMONY, EFFECT_1 },
-            { SPELL_PRIEST_VOICE_OF_HARMONY, EFFECT_2 }
+        return ValidateSpellInfo
+        ({
+            SPELL_PRIEST_HOLY_WORD_CHASTISE,
+            SPELL_PRIEST_HOLY_WORD_SANCTIFY,
+            SPELL_PRIEST_HOLY_WORD_SERENITY
         });
     }
 
-    void HandleHit() const
+    static bool CheckHolyWordSanctify(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        Unit* caster = GetCaster();
-        AuraEffect const* voiceOfHarmonyEff = caster->GetAuraEffect(SPELL_PRIEST_VOICE_OF_HARMONY, _cdReductionEffIndex);
-        if (!voiceOfHarmonyEff)
-            return;
+        // Divine Star
+        // Halo
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x0, 0x0, 0x0, 0x4040 });
+    }
 
-        int32 cdReduction = voiceOfHarmonyEff->GetAmount();
-        caster->GetSpellHistory()->ModifyCooldown(_targetSpellId, Seconds(-cdReduction), true);
+    static bool CheckHolyWordSerenity(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        // Power Word: Life
+        // Prayer of Mending
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x0, 0x0, 0x8000, 0x400000 });
+    }
+
+    static bool CheckHolyWordChastise(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
+    {
+        // Holy Fire
+        return eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x100000, 0x0, 0x0, 0x0 });
+    }
+
+    template <uint32 TargetSpellId>
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    {
+        SpellInfo const* targetSpellInfo = sSpellMgr->AssertSpellInfo(TargetSpellId, GetCastDifficulty());
+        int32 cdReduction = aurEff->GetAmount();
+        spell_pri_holy_words_base::ModifyCooldown(GetTarget(), targetSpellInfo, Seconds(-cdReduction));
     }
 
     void Register() override
     {
-        OnHit += SpellHitFn(spell_pri_voice_of_harmony_trigger::HandleHit);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_voice_of_harmony::CheckHolyWordSanctify, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_voice_of_harmony::CheckHolyWordSerenity, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_pri_voice_of_harmony::CheckHolyWordChastise, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_voice_of_harmony::HandleProc<SPELL_PRIEST_HOLY_WORD_SANCTIFY>, EFFECT_0, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_voice_of_harmony::HandleProc<SPELL_PRIEST_HOLY_WORD_SERENITY>, EFFECT_1, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_pri_voice_of_harmony::HandleProc<SPELL_PRIEST_HOLY_WORD_CHASTISE>, EFFECT_2, SPELL_AURA_DUMMY);
     }
-
-    uint32 _targetSpellId{};
-    SpellEffIndex _cdReductionEffIndex{};
-
-public:
-    explicit spell_pri_voice_of_harmony_trigger(uint32 spellId, SpellEffIndex effIndex) : _targetSpellId{ spellId }, _cdReductionEffIndex{ effIndex } {}
 };
 
 // 205385 - Shadow Crash
@@ -4459,11 +4472,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace);
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
-    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_prayer_of_mending_harmony", SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1);
-    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_power_word_life_harmony", SPELL_PRIEST_HOLY_WORD_SERENITY, EFFECT_1);
-    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_halo_harmony", SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_0);
-    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_divine_star_harmony", SPELL_PRIEST_HOLY_WORD_SANCTIFY, EFFECT_0);
-    RegisterSpellScriptWithArgs(spell_pri_voice_of_harmony_trigger, "spell_pri_holy_fire_harmony", SPELL_PRIEST_HOLY_WORD_CHASTISE, EFFECT_2);
+    RegisterSpellScript(spell_pri_voice_of_harmony);
     RegisterSpellScript(spell_pri_whispering_shadows);
     RegisterSpellScript(spell_pri_whispering_shadows_effect);
 }
