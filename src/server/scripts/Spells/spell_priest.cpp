@@ -62,7 +62,6 @@ enum PriestSpells
     SPELL_PRIEST_BLESSED_LIGHT                      = 196813,
     SPELL_PRIEST_BODY_AND_SOUL                      = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
-    SPELL_PRIEST_BURNING_VEHEMENCE                  = 372307,
     SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE           = 400370,
     SPELL_PRIEST_CENSURE                            = 200199,
     SPELL_PRIEST_CIRCLE_OF_HEALING                  = 204883,
@@ -796,21 +795,17 @@ class spell_pri_burning_vehemence : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE })
-            && ValidateSpellEffect({ {SPELL_PRIEST_BURNING_VEHEMENCE, EFFECT_2} });
+        return ValidateSpellInfo({ SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE });
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo) const
     {
-        Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetActionTarget();
-        if (!caster || !target)
-            return;
-
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellBP0(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
-        args.SetTriggerFlags(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        caster->CastSpell(target, SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE, args);
+        GetTarget()->CastSpell(eventInfo.GetActionTarget()->GetPosition(), SPELL_PRIEST_BURNING_VEHEMENCE_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount())) } }
+        });
     }
 
     void Register() override
