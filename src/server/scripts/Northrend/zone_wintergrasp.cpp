@@ -405,6 +405,22 @@ class spell_wintergrasp_grab_passenger : public SpellScript
     }
 };
 
+// 49899 - Activate Robotic Arms
+class spell_wintergrasp_activate_robotic_arms : public SpellScript
+{
+    PrepareSpellScript(spell_wintergrasp_activate_robotic_arms);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_05);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_wintergrasp_activate_robotic_arms::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
     public:
@@ -556,6 +572,7 @@ void AddSC_wintergrasp()
     RegisterGameObjectAI(go_wg_vehicle_teleporter);
     RegisterSpellScript(spell_wintergrasp_force_building);
     RegisterSpellScript(spell_wintergrasp_grab_passenger);
+    RegisterSpellScript(spell_wintergrasp_activate_robotic_arms);
     new achievement_wg_didnt_stand_a_chance();
     RegisterSpellScript(spell_wintergrasp_defender_teleport);
     RegisterSpellScript(spell_wintergrasp_defender_teleport_trigger);

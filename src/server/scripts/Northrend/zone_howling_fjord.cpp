@@ -837,6 +837,66 @@ class spell_fjord_worg_disguise_dummy : public AuraScript
     }
 };
 
+/*######
+## Quest 11259: Towers of Certain Doom
+######*/
+
+enum TowersOfCertainDoomHorde
+{
+    SPELL_BRAVES_FLARE_EFFECT    = 43106
+};
+
+// 49625 - Brave's Flare
+class spell_fjord_braves_flare : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_braves_flare);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_BRAVES_FLARE_EFFECT });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_BRAVES_FLARE_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_fjord_braves_flare::HandleAfterCast);
+    }
+};
+
+/*######
+## Quest 11245: Towers of Certain Doom
+######*/
+
+enum TowersOfCertainDoomAlliance
+{
+    SPELL_SERGEANTS_FLARE_EFFECT    = 43068
+};
+
+// 49634 - Sergeant's Flare
+class spell_fjord_sergeants_flare : public SpellScript
+{
+    PrepareSpellScript(spell_fjord_sergeants_flare);
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_SERGEANTS_FLARE_EFFECT });
+    }
+
+    void HandleAfterCast()
+    {
+        GetCaster()->CastSpell(GetCaster(), SPELL_SERGEANTS_FLARE_EFFECT, true);
+    }
+
+    void Register() override
+    {
+        AfterCast += SpellCastFn(spell_fjord_sergeants_flare::HandleAfterCast);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     RegisterCreatureAI(npc_daegarn);
@@ -860,4 +920,6 @@ void AddSC_howling_fjord()
     RegisterSpellScript(spell_fjord_taxi_to_explorers_league_outpost);
     RegisterSpellScript(spell_fjord_worg_disguise);
     RegisterSpellScript(spell_fjord_worg_disguise_dummy);
+    RegisterSpellScript(spell_fjord_braves_flare);
+    RegisterSpellScript(spell_fjord_sergeants_flare);
 }
