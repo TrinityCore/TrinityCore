@@ -325,7 +325,7 @@ class TC_GAME_API BaseEntity
         virtual UF::UpdateFieldFlag GetUpdateFieldFlagsFor(Player const* target) const;
         static void BuildEntityFragments(ByteBuffer* data, std::span<WowCS::EntityFragment const> fragments);
 
-        TypeID m_objectTypeId = static_cast<TypeID>(NUM_CLIENT_OBJECT_TYPES);
+        TypeID m_objectTypeId = NUM_CLIENT_OBJECT_TYPES;
         CreateObjectBits m_updateFlag = {};
         WowCS::EntityFragmentsHolder m_entityFragments;
 
