@@ -96,7 +96,15 @@ enum ItemModType
     ITEM_MOD_AGI_STR_INT              = 71,
     ITEM_MOD_AGI_STR                  = 72,
     ITEM_MOD_AGI_INT                  = 73,
-    ITEM_MOD_STR_INT                  = 74
+    ITEM_MOD_STR_INT                  = 74,
+    ITEM_MOD_PROFESSION_INSPIRATION   = 75,
+    ITEM_MOD_PROFESSION_RESOURCEFULNESS = 76,
+    ITEM_MOD_PROFESSION_FINESSE       = 77,
+    ITEM_MOD_PROFESSION_DEFTNESS      = 78,
+    ITEM_MOD_PROFESSION_PERCEPTION    = 79,
+    ITEM_MOD_PROFESSION_CRAFTING_SPEED = 80,
+    ITEM_MOD_PROFESSION_MULTICRAFT    = 81,
+    ITEM_MOD_PROFESSION_INGENUITY     = 82,
 };
 
 enum ItemSpelltriggerType
@@ -462,10 +470,11 @@ enum ItemClass : uint8
     ITEM_CLASS_GLYPH                            = 16,
     ITEM_CLASS_BATTLE_PETS                      = 17,
     ITEM_CLASS_WOW_TOKEN                        = 18,
-    ITEM_CLASS_PROFESSION                       = 19
+    ITEM_CLASS_PROFESSION                       = 19,
+    ITEM_CLASS_HOUSING                          = 20
 };
 
-#define MAX_ITEM_CLASS                            20
+#define MAX_ITEM_CLASS                            21
 
 enum ItemSubclassConsumable
 {
@@ -761,6 +770,18 @@ enum ItemSubclassProfession
 
 #define MAX_ITEM_SUBCLASS_PROFESSION              14
 
+enum ItemSubclassHousing
+{
+    ITEM_SUBCLASS_HOUSING_DECOR                     = 0,
+    ITEM_SUBCLASS_HOUSING_DYE                       = 1,
+    ITEM_SUBCLASS_HOUSING_ROOM                      = 2,
+    ITEM_SUBCLASS_HOUSING_ROOM_CUSTOMIZATION        = 3,
+    ITEM_SUBCLASS_HOUSING_EXTERIOR_CUSTOMIZATION    = 4,
+    ITEM_SUBCLASS_HOUSING_SERVICE_ITEM              = 5
+};
+
+#define MAX_ITEM_SUBCLASS_HOUSING                     6
+
 const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 {
     MAX_ITEM_SUBCLASS_CONSUMABLE,
@@ -782,7 +803,8 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
     MAX_ITEM_SUBCLASS_GLYPH,
     MAX_ITEM_SUBCLASS_BATTLE_PET,
     MAX_ITEM_SUBCLASS_WOW_TOKEN,
-    MAX_ITEM_SUBCLASS_PROFESSION
+    MAX_ITEM_SUBCLASS_PROFESSION,
+    MAX_ITEM_SUBCLASS_HOUSING
 };
 
 #define MAX_ITEM_SUBCLASS_TOTAL 21

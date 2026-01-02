@@ -273,8 +273,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::CharacterRestrict
     ASSERT(restrictionsAndMails.MailSenders.size() == restrictionsAndMails.MailSenderTypes.size());
 
     data << Bits<1>(restrictionsAndMails.BoostInProgress);
-    data << Bits<1>(restrictionsAndMails.RpeResetAvailable);
-    data << Bits<1>(restrictionsAndMails.RpeResetQuestClearAvailable);
+    data << Bits<1>(restrictionsAndMails.RpeAvailable);
     data.FlushBits();
 
     data << uint32(restrictionsAndMails.RestrictionFlags);
@@ -340,7 +339,7 @@ ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::UnlockedCondition
 ByteBuffer& operator<<(ByteBuffer& data, EnumCharactersResult::RaceLimitDisableInfo const& raceLimitDisableInfo)
 {
     data << int8(raceLimitDisableInfo.RaceID);
-    data << int32(raceLimitDisableInfo.Reason);
+    data << int8(raceLimitDisableInfo.Reason);
 
     return data;
 }
@@ -349,6 +348,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroupMember const& warbandGroupM
 {
     data << uint32(warbandGroupMember.WarbandScenePlacementID);
     data << int32(warbandGroupMember.Type);
+    data << int32(warbandGroupMember.ContentSetID);
     if (warbandGroupMember.Type == 0)
         data << warbandGroupMember.Guid;
 
@@ -361,6 +361,7 @@ ByteBuffer& operator<<(ByteBuffer& data, WarbandGroup const& warbandGroup)
     data << uint8(warbandGroup.OrderIndex);
     data << uint32(warbandGroup.WarbandSceneID);
     data << uint32(warbandGroup.Flags);
+    data << int32(warbandGroup.ContentSetID);
     data << Size<uint32>(warbandGroup.Members);
 
     for (WarbandGroupMember const& member : warbandGroup.Members)
@@ -393,6 +394,7 @@ WorldPacket const* EnumCharactersResult::Write()
     _worldPacket << Bits<1>(IsRestrictedNewPlayer);
     _worldPacket << Bits<1>(IsNewcomerChatCompleted);
     _worldPacket << Bits<1>(IsRestrictedTrial);
+    _worldPacket << Bits<1>(Unused1127);
     _worldPacket << OptionalInit(ClassDisableMask);
     _worldPacket << Bits<1>(DontCreateCharacterDisplays);
     _worldPacket << Size<uint32>(Characters);
@@ -631,6 +633,7 @@ void PlayerLogin::Read()
 {
     _worldPacket >> Guid;
     _worldPacket >> FarClip;
+    _worldPacket >> Bits<1>(RPE);
 }
 
 WorldPacket const* LoginVerifyWorld::Write()
