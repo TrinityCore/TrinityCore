@@ -105,60 +105,60 @@ class TC_GAME_API Object : public BaseEntity
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
 
-        static WorldObject* ToWorldObject(Object* o) { return o ? o->ToWorldObject() : nullptr; }
-        static WorldObject const* ToWorldObject(Object const* o) { return o ? o->ToWorldObject() : nullptr; }
-        WorldObject* ToWorldObject() { if (IsWorldObject()) return reinterpret_cast<WorldObject*>(this); else return nullptr; }
-        WorldObject const* ToWorldObject() const { if (IsWorldObject()) return reinterpret_cast<WorldObject const*>(this); else return nullptr; }
+        WorldObject* ToWorldObject() { return IsWorldObject() ? reinterpret_cast<WorldObject*>(this) : nullptr; }
+        WorldObject const* ToWorldObject() const { return IsWorldObject() ? reinterpret_cast<WorldObject const*>(this) : nullptr; }
+        static WorldObject* ToWorldObject(Object* o) { return o && o->IsWorldObject() ? reinterpret_cast<WorldObject*>(o) : nullptr; }
+        static WorldObject const* ToWorldObject(Object const* o) { return o && o->IsWorldObject() ? reinterpret_cast<WorldObject const*>(o) : nullptr; }
 
-        static Item* ToItem(Object* o) { return o ? o->ToItem() : nullptr; }
-        static Item const* ToItem(Object const* o) { return o ? o->ToItem() : nullptr; }
-        Item* ToItem() { if (IsItem()) return reinterpret_cast<Item*>(this); else return nullptr; }
-        Item const* ToItem() const { if (IsItem()) return reinterpret_cast<Item const*>(this); else return nullptr; }
+        Item* ToItem() { return IsItem() ? reinterpret_cast<Item*>(this) : nullptr; }
+        Item const* ToItem() const { return IsItem() ? reinterpret_cast<Item const*>(this) : nullptr; }
+        static Item* ToItem(Object* o) { return o && o->IsItem() ? reinterpret_cast<Item*>(o) : nullptr; }
+        static Item const* ToItem(Object const* o) { return o && o->IsItem() ? reinterpret_cast<Item const*>(o) : nullptr; }
 
-        static Player* ToPlayer(Object* o) { return o ? o->ToPlayer() : nullptr; }
-        static Player const* ToPlayer(Object const* o) { return o ? o->ToPlayer() : nullptr; }
-        Player* ToPlayer() { if (IsPlayer()) return reinterpret_cast<Player*>(this); else return nullptr; }
-        Player const* ToPlayer() const { if (IsPlayer()) return reinterpret_cast<Player const*>(this); else return nullptr; }
+        Unit* ToUnit() { return IsUnit() ? reinterpret_cast<Unit*>(this) : nullptr; }
+        Unit const* ToUnit() const { return IsUnit() ? reinterpret_cast<Unit const*>(this) : nullptr; }
+        static Unit* ToUnit(Object* o) { return o && o->IsUnit() ? reinterpret_cast<Unit*>(o) : nullptr; }
+        static Unit const* ToUnit(Object const* o) { return o && o->IsUnit() ? reinterpret_cast<Unit const*>(o) : nullptr; }
 
-        static Creature* ToCreature(Object* o) { return o ? o->ToCreature() : nullptr; }
-        static Creature const* ToCreature(Object const* o) { return o ? o->ToCreature() : nullptr; }
-        Creature* ToCreature() { if (IsCreature()) return reinterpret_cast<Creature*>(this); else return nullptr; }
-        Creature const* ToCreature() const { if (IsCreature()) return reinterpret_cast<Creature const*>(this); else return nullptr; }
+        Creature* ToCreature() { return IsCreature() ? reinterpret_cast<Creature*>(this) : nullptr; }
+        Creature const* ToCreature() const { return IsCreature() ? reinterpret_cast<Creature const*>(this) : nullptr; }
+        static Creature* ToCreature(Object* o) { return o && o->IsCreature() ? reinterpret_cast<Creature*>(o) : nullptr; }
+        static Creature const* ToCreature(Object const* o) { return o && o->IsCreature() ? reinterpret_cast<Creature const*>(o) : nullptr; }
 
-        static Unit* ToUnit(Object* o) { return o ? o->ToUnit() : nullptr; }
-        static Unit const* ToUnit(Object const* o) { return o ? o->ToUnit() : nullptr; }
-        Unit* ToUnit() { if (IsUnit()) return reinterpret_cast<Unit*>(this); else return nullptr; }
-        Unit const* ToUnit() const { if (IsUnit()) return reinterpret_cast<Unit const*>(this); else return nullptr; }
+        Player* ToPlayer() { return IsPlayer() ? reinterpret_cast<Player*>(this) : nullptr; }
+        Player const* ToPlayer() const { return IsPlayer() ? reinterpret_cast<Player const*>(this) : nullptr; }
+        static Player* ToPlayer(Object* o) { return o && o->IsPlayer() ? reinterpret_cast<Player*>(o) : nullptr; }
+        static Player const* ToPlayer(Object const* o) { return o && o->IsPlayer() ? reinterpret_cast<Player const*>(o) : nullptr; }
 
-        static GameObject* ToGameObject(Object* o) { return o ? o->ToGameObject() : nullptr; }
-        static GameObject const* ToGameObject(Object const* o) { return o ? o->ToGameObject() : nullptr; }
-        GameObject* ToGameObject() { if (IsGameObject()) return reinterpret_cast<GameObject*>(this); else return nullptr; }
-        GameObject const* ToGameObject() const { if (IsGameObject()) return reinterpret_cast<GameObject const*>(this); else return nullptr; }
+        GameObject* ToGameObject() { return IsGameObject() ? reinterpret_cast<GameObject*>(this) : nullptr; }
+        GameObject const* ToGameObject() const { return IsGameObject() ? reinterpret_cast<GameObject const*>(this) : nullptr; }
+        static GameObject* ToGameObject(Object* o) { return o && o->IsGameObject() ? reinterpret_cast<GameObject*>(o) : nullptr; }
+        static GameObject const* ToGameObject(Object const* o) { return o && o->IsGameObject() ? reinterpret_cast<GameObject const*>(o) : nullptr; }
 
-        static Corpse* ToCorpse(Object* o) { return o ? o->ToCorpse() : nullptr; }
-        static Corpse const* ToCorpse(Object const* o) { return o ? o->ToCorpse() : nullptr; }
-        Corpse* ToCorpse() { if (IsCorpse()) return reinterpret_cast<Corpse*>(this); else return nullptr; }
-        Corpse const* ToCorpse() const { if (IsCorpse()) return reinterpret_cast<Corpse const*>(this); else return nullptr; }
+        Corpse* ToCorpse() { return IsCorpse() ? reinterpret_cast<Corpse*>(this) : nullptr; }
+        Corpse const* ToCorpse() const { return IsCorpse() ? reinterpret_cast<Corpse const*>(this) : nullptr; }
+        static Corpse* ToCorpse(Object* o) { return o && o->IsCorpse() ? reinterpret_cast<Corpse*>(o) : nullptr; }
+        static Corpse const* ToCorpse(Object const* o) { return o && o->IsCorpse() ? reinterpret_cast<Corpse const*>(o) : nullptr; }
 
-        static DynamicObject* ToDynObject(Object* o) { return o ? o->ToDynObject() : nullptr; }
-        static DynamicObject const* ToDynObject(Object const* o) { return o ? o->ToDynObject() : nullptr; }
-        DynamicObject* ToDynObject() { if (IsDynObject()) return reinterpret_cast<DynamicObject*>(this); else return nullptr; }
-        DynamicObject const* ToDynObject() const { if (IsDynObject()) return reinterpret_cast<DynamicObject const*>(this); else return nullptr; }
+        DynamicObject* ToDynObject() { return IsDynObject() ? reinterpret_cast<DynamicObject*>(this) : nullptr; }
+        DynamicObject const* ToDynObject() const { return IsDynObject() ? reinterpret_cast<DynamicObject const*>(this) : nullptr; }
+        static DynamicObject* ToDynObject(Object* o) { return o && o->IsDynObject() ? reinterpret_cast<DynamicObject*>(o) : nullptr; }
+        static DynamicObject const* ToDynObject(Object const* o) { return o && o->IsDynObject() ? reinterpret_cast<DynamicObject const*>(o) : nullptr; }
 
-        static AreaTrigger* ToAreaTrigger(Object* o) { return o ? o->ToAreaTrigger() : nullptr; }
-        static AreaTrigger const* ToAreaTrigger(Object const* o) { return o ? o->ToAreaTrigger() : nullptr; }
-        AreaTrigger* ToAreaTrigger() { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger*>(this); else return nullptr; }
-        AreaTrigger const* ToAreaTrigger() const { if (IsAreaTrigger()) return reinterpret_cast<AreaTrigger const*>(this); else return nullptr; }
+        AreaTrigger* ToAreaTrigger() { return IsAreaTrigger() ? reinterpret_cast<AreaTrigger*>(this) : nullptr; }
+        AreaTrigger const* ToAreaTrigger() const { return IsAreaTrigger() ? reinterpret_cast<AreaTrigger const*>(this) : nullptr; }
+        static AreaTrigger* ToAreaTrigger(Object* o) { return o && o->IsAreaTrigger() ? reinterpret_cast<AreaTrigger*>(o) : nullptr; }
+        static AreaTrigger const* ToAreaTrigger(Object const* o) { return o && o->IsAreaTrigger() ? reinterpret_cast<AreaTrigger const*>(o) : nullptr; }
 
-        static SceneObject* ToSceneObject(Object* o) { return o ? o->ToSceneObject() : nullptr; }
-        static SceneObject const* ToSceneObject(Object const* o) { return o ? o->ToSceneObject() : nullptr; }
-        SceneObject* ToSceneObject() { if (IsSceneObject()) return reinterpret_cast<SceneObject*>(this); else return nullptr; }
-        SceneObject const* ToSceneObject() const { if (IsSceneObject()) return reinterpret_cast<SceneObject const*>(this); else return nullptr; }
+        SceneObject* ToSceneObject() { return IsSceneObject() ? reinterpret_cast<SceneObject*>(this) : nullptr; }
+        SceneObject const* ToSceneObject() const { return IsSceneObject() ? reinterpret_cast<SceneObject const*>(this) : nullptr; }
+        static SceneObject* ToSceneObject(Object* o) { return o && o->IsSceneObject() ? reinterpret_cast<SceneObject*>(o) : nullptr; }
+        static SceneObject const* ToSceneObject(Object const* o) { return o && o->IsSceneObject() ? reinterpret_cast<SceneObject const*>(o) : nullptr; }
 
-        static Conversation* ToConversation(Object* o) { return o ? o->ToConversation() : nullptr; }
-        static Conversation const* ToConversation(Object const* o) { return o ? o->ToConversation() : nullptr; }
-        Conversation* ToConversation() { if (IsConversation()) return reinterpret_cast<Conversation*>(this); else return nullptr; }
-        Conversation const* ToConversation() const { if (IsConversation()) return reinterpret_cast<Conversation const*>(this); else return nullptr; }
+        Conversation* ToConversation() { return IsConversation() ? reinterpret_cast<Conversation*>(this) : nullptr; }
+        Conversation const* ToConversation() const { return IsConversation() ? reinterpret_cast<Conversation const*>(this) : nullptr; }
+        static Conversation* ToConversation(Object* o) { return o && o->IsConversation() ? reinterpret_cast<Conversation*>(o) : nullptr; }
+        static Conversation const* ToConversation(Object const* o) { return o && o->IsConversation() ? reinterpret_cast<Conversation const*>(o) : nullptr; }
 
         UF::UpdateField<UF::ObjectData, int32(WowCS::EntityFragment::CGObject), TYPEID_OBJECT> m_objectData;
 

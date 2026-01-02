@@ -487,11 +487,11 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
             return nullptr;
         }
 
-        InstanceMap* ToInstanceMap() { if (IsDungeon()) return reinterpret_cast<InstanceMap*>(this); else return nullptr;  }
-        InstanceMap const* ToInstanceMap() const { if (IsDungeon()) return reinterpret_cast<InstanceMap const*>(this); return nullptr; }
+        InstanceMap* ToInstanceMap() { return IsDungeon() ? reinterpret_cast<InstanceMap*>(this) : nullptr; }
+        InstanceMap const* ToInstanceMap() const { return IsDungeon() ? reinterpret_cast<InstanceMap const*>(this) : nullptr; }
 
-        BattlegroundMap* ToBattlegroundMap() { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap*>(this); else return nullptr;  }
-        BattlegroundMap const* ToBattlegroundMap() const { if (IsBattlegroundOrArena()) return reinterpret_cast<BattlegroundMap const*>(this); return nullptr; }
+        BattlegroundMap* ToBattlegroundMap() { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap*>(this) : nullptr; }
+        BattlegroundMap const* ToBattlegroundMap() const { return IsBattlegroundOrArena() ? reinterpret_cast<BattlegroundMap const*>(this) : nullptr; }
 
         bool isInLineOfSight(PhaseShift const& phaseShift, float x1, float y1, float z1, float x2, float y2, float z2, LineOfSightChecks checks, VMAP::ModelIgnoreFlags ignoreFlags) const;
         void Balance() { _dynamicTree.balance(); }

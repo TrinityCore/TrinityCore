@@ -1812,14 +1812,14 @@ class TC_GAME_API Unit : public WorldObject
         virtual bool IsLoading() const { return false; }
         bool IsDuringRemoveFromWorld() const {return m_duringRemoveFromWorld;}
 
-        Pet* ToPet() { if (IsPet()) return reinterpret_cast<Pet*>(this); else return nullptr; }
-        Pet const* ToPet() const { if (IsPet()) return reinterpret_cast<Pet const*>(this); else return nullptr; }
+        Pet* ToPet() { return IsPet() ? reinterpret_cast<Pet*>(this) : nullptr; }
+        Pet const* ToPet() const { return IsPet() ? reinterpret_cast<Pet const*>(this) : nullptr; }
 
-        Totem* ToTotem() { if (IsTotem()) return reinterpret_cast<Totem*>(this); else return nullptr; }
-        Totem const* ToTotem() const { if (IsTotem()) return reinterpret_cast<Totem const*>(this); else return nullptr; }
+        Totem* ToTotem() { return IsTotem() ? reinterpret_cast<Totem*>(this) : nullptr; }
+        Totem const* ToTotem() const { return IsTotem() ? reinterpret_cast<Totem const*>(this) : nullptr; }
 
-        TempSummon* ToTempSummon() { if (IsSummon()) return reinterpret_cast<TempSummon*>(this); else return nullptr; }
-        TempSummon const* ToTempSummon() const { if (IsSummon()) return reinterpret_cast<TempSummon const*>(this); else return nullptr; }
+        TempSummon* ToTempSummon() { return IsSummon() ? reinterpret_cast<TempSummon*>(this) : nullptr; }
+        TempSummon const* ToTempSummon() const { return IsSummon() ? reinterpret_cast<TempSummon const*>(this) : nullptr; }
 
         ObjectGuid GetTarget() const { return m_unitData->Target; }
         virtual void SetTarget(ObjectGuid const& /*guid*/) = 0;

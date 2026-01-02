@@ -797,29 +797,32 @@ float WorldObject::GetVisibilityRange() const
 
 float WorldObject::GetSightRange(WorldObject const* target) const
 {
-    if (ToUnit())
+    if (IsUnit())
     {
-        if (ToPlayer())
+        if (Player const* player = ToPlayer())
         {
-            if (target && target->IsVisibilityOverridden() && !target->ToPlayer())
-                return *target->m_visibilityDistanceOverride;
-            else if (target && target->IsFarVisible() && !target->ToPlayer())
-                return MAX_VISIBILITY_DISTANCE;
-            else if (ToPlayer()->GetCinematicMgr()->IsOnCinematic())
+            if (target && !target->IsPlayer())
+            {
+                if (target->IsVisibilityOverridden())
+                    return *target->m_visibilityDistanceOverride;
+                if (target->IsFarVisible())
+                    return MAX_VISIBILITY_DISTANCE;
+            }
+
+            if (player->GetCinematicMgr()->IsOnCinematic())
                 return DEFAULT_VISIBILITY_INSTANCE;
-            else
-                return GetMap()->GetVisibilityRange();
+
+            return GetMap()->GetVisibilityRange();
         }
-        else if (ToCreature())
-            return ToCreature()->m_SightDistance;
-        else
-            return SIGHT_RANGE_UNIT;
+
+        if (Creature const* creature = ToCreature())
+            return creature->m_SightDistance;
+
+        return SIGHT_RANGE_UNIT;
     }
 
-    if (ToDynObject() && isActiveObject())
-    {
+    if (IsDynObject() && isActiveObject())
         return GetMap()->GetVisibilityRange();
-    }
 
     return 0.0f;
 }
@@ -1589,8 +1592,8 @@ ObjectGuid WorldObject::GetCharmerOrOwnerOrOwnGUID() const
 {
     ObjectGuid guid = GetCharmerOrOwnerGUID();
     if (!guid.IsEmpty())
-        return guid;
-    return GetGUID();
+        guid = GetGUID();
+    return guid;
 }
 
 Unit* WorldObject::GetOwner() const
