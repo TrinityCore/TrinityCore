@@ -666,6 +666,25 @@ class spell_warr_execute_damage : public SpellScript
     }
 };
 
+// 400205 - Finishing Blows
+class spell_warr_finishing_blows : public AuraScript
+{
+    bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        Unit* target = eventInfo.GetActionTarget();
+        return target && target->HealthBelowPct(35);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_finishing_blows::CheckProc);
+    }
+};
+
 // 383848 - Frenzied Enrage (attached to 184362 - Enrage)
 class spell_warr_frenzied_enrage : public SpellScript
 {
@@ -1643,6 +1662,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_devastator);
     RegisterSpellScript(spell_warr_enrage_proc);
     RegisterSpellScript(spell_warr_execute_damage);
+    RegisterSpellScript(spell_warr_finishing_blows);
     RegisterSpellScript(spell_warr_frenzied_enrage);
     RegisterSpellScript(spell_warr_frenzy);
     RegisterSpellScript(spell_warr_frenzy_rampage);
