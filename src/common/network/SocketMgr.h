@@ -27,9 +27,12 @@
 
 namespace Trinity::Net
 {
-template<class SocketType>
+template <typename SocketType, typename ThreadType>
 class SocketMgr
 {
+    static_assert(std::is_base_of_v<NetworkThread<SocketType>, ThreadType>);
+    static_assert(std::is_final_v<ThreadType>);
+
 public:
     SocketMgr(SocketMgr const&) = delete;
     SocketMgr(SocketMgr&&) = delete;
@@ -135,10 +138,10 @@ protected:
     {
     }
 
-    virtual NetworkThread<SocketType>* CreateThreads() const = 0;
+    virtual ThreadType* CreateThreads() const = 0;
 
     std::unique_ptr<AsyncAcceptor> _acceptor;
-    std::unique_ptr<NetworkThread<SocketType>[]> _threads;
+    std::unique_ptr<ThreadType[]> _threads;
     int32 _threadCount;
 };
 }
