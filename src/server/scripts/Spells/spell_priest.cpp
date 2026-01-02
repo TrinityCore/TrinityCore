@@ -2082,25 +2082,28 @@ class spell_pri_lasting_words : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_RENEW, SPELL_PRIEST_LASTING_WORDS })
-            && ValidateSpellEffect({ {SPELL_PRIEST_LASTING_WORDS, _spellEff} });
+        return ValidateSpellInfo({ SPELL_PRIEST_RENEW })
+            && ValidateSpellEffect({ { SPELL_PRIEST_LASTING_WORDS, _spellEff } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAuraEffect(SPELL_PRIEST_LASTING_WORDS, _spellEff);
     }
 
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        Unit* target = GetHitUnit();
 
         AuraEffect const* lastingWordsEff = caster->GetAuraEffect(SPELL_PRIEST_LASTING_WORDS, _spellEff);
         if (!lastingWordsEff)
             return;
 
-        int32 renewDuration = lastingWordsEff->GetAmount();
-        CastSpellExtraArgs args(TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR | TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD);
-        args.SetTriggeringSpell(GetSpell());
-        args.AddSpellMod(SPELLVALUE_DURATION, renewDuration);
-
-        caster->CastSpell(target, SPELL_PRIEST_RENEW, args);
+        caster->CastSpell(GetHitUnit(), SPELL_PRIEST_RENEW, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell(),
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, lastingWordsEff->GetAmount() } }
+        });
     }
 
     void Register() override
@@ -2108,9 +2111,10 @@ class spell_pri_lasting_words : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_pri_lasting_words::HandleEffectHit, EFFECT_0, SPELL_EFFECT_HEAL);
     }
 
-    SpellEffIndex _spellEff{};
+    SpellEffIndex _spellEff;
+
 public:
-    explicit spell_pri_lasting_words(SpellEffIndex spellEff) : _spellEff{ spellEff } {}
+    explicit spell_pri_lasting_words(SpellEffIndex spellEff) : _spellEff(spellEff) { }
 };
 
 // 92833 - Leap of Faith
