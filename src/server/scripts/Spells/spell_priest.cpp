@@ -1617,6 +1617,32 @@ class spell_pri_essence_devourer_heal : public SpellScript
     }
 };
 
+// 1215245 - Eternal Sanctity
+class spell_pri_eternal_sanctity : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActor()->HasAura(SPELL_PRIEST_APOTHEOSIS);
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        if (Aura* apotheosisAura = eventInfo.GetActor()->GetAura(SPELL_PRIEST_APOTHEOSIS))
+            apotheosisAura->SetDuration(apotheosisAura->GetDuration() + aurEff->GetAmount());
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_eternal_sanctity::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_eternal_sanctity::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 246287 - Evangelism
 class spell_pri_evangelism : public SpellScript
 {
@@ -1793,7 +1819,7 @@ class spell_pri_harsh_discipline : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE_AURA })
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE_AURA, SPELL_PRIEST_CASTIGATION })
             && ValidateSpellEffect({ { SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1 }, { SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1 } });
     }
 
@@ -4522,6 +4548,7 @@ void AddSC_priest_spell_scripts()
     RegisterAreaTriggerAI(areatrigger_pri_entropic_rift);
     RegisterSpellScript(spell_pri_epiphany);
     RegisterSpellScript(spell_pri_essence_devourer_heal);
+    RegisterSpellScript(spell_pri_eternal_sanctity);
     RegisterSpellScript(spell_pri_evangelism);
     RegisterSpellScript(spell_pri_expiation);
     RegisterSpellScript(spell_pri_focused_mending);
