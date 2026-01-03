@@ -5090,7 +5090,7 @@ static std::pair<int32, SpellHealPredictionType> CalcPredictedHealing(SpellInfo 
                 case SPELL_AURA_OBS_MOD_HEALTH:
                     points += unitCaster->SpellHealingBonusDone(target,
                         spellInfo, spellEffectInfo.CalcValue(unitCaster, nullptr, target, nullptr, castItemEntry, castItemLevel),
-                        DIRECT_DAMAGE, spellEffectInfo, 1, spell) * spellInfo->GetMaxTicks();
+                        DIRECT_DAMAGE, spellEffectInfo, 1, spell) * spellEffectInfo.GetPeriodicTickCount();
                     break;
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                     if (SpellInfo const* triggered = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo->Difficulty))

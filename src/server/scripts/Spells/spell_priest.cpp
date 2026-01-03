@@ -3898,7 +3898,8 @@ class spell_pri_t10_heal_2p_bonus : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_BLESSED_HEALING });
+        return ValidateSpellEffect({ { SPELL_PRIEST_BLESSED_HEALING, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BLESSED_HEALING, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
@@ -3909,11 +3910,10 @@ class spell_pri_t10_heal_2p_bonus : public AuraScript
         if (!healInfo || !healInfo->GetHeal())
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BLESSED_HEALING, GetCastDifficulty());
+        SpellEffectInfo const& hotEffect = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_BLESSED_HEALING, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 amount = CalculatePct(static_cast<int32>(healInfo->GetHeal()), aurEff->GetAmount());
 
-        ASSERT(spellInfo->GetMaxTicks() > 0);
-        amount /= spellInfo->GetMaxTicks();
+        amount /= hotEffect.GetPeriodicTickCount();
 
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetProcTarget();
