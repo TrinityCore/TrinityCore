@@ -1821,26 +1821,11 @@ class spell_pri_harsh_discipline_aura : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo
+        return ValidateSpellEffect
         ({
-            SPELL_PRIEST_HARSH_DISCIPLINE,
-            SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE,
-            SPELL_PRIEST_PENANCE_CHANNEL_HEALING,
-            SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE,
-            SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING
-        })
-        && ValidateSpellEffect
-        ({
-            {SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1},
-            {SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1}
+            { SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1 },
+            { SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1 }
         });
-    }
-
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        uint32 spellId = eventInfo.GetSpellInfo()->Id;
-        return spellId == SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE || spellId == SPELL_PRIEST_PENANCE_CHANNEL_HEALING
-            || spellId == SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_DAMAGE || spellId == SPELL_PRIEST_DARK_REPRIMAND_CHANNEL_HEALING;
     }
 
     void CalculateAmount(AuraEffect const* /*auraEff*/, int32& amount, bool& canBeRecalculated) const
@@ -1870,16 +1855,9 @@ class spell_pri_harsh_discipline_aura : public AuraScript
         amount = static_cast<int32>(std::floor(pctDiff * 100.f));
     }
 
-    void HandleProc(ProcEventInfo& /*eventInfo*/)
-    {
-        ModStackAmount(-1);
-    }
-
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_harsh_discipline_aura::CheckProc);
         DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_harsh_discipline_aura::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
-        OnProc += AuraProcFn(spell_pri_harsh_discipline_aura::HandleProc);
     }
 };
 
