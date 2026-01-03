@@ -3627,8 +3627,6 @@ void Spell::cancel()
             SendChannelUpdate(0);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
-
-            m_appliedMods.clear();
             break;
         default:
             break;
