@@ -1625,18 +1625,15 @@ class spell_pri_eternal_sanctity : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         return eventInfo.GetActor()->HasAura(SPELL_PRIEST_APOTHEOSIS);
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
-        Aura* apotheosisAura = eventInfo.GetActor()->GetAura(SPELL_PRIEST_APOTHEOSIS);
-        if (!apotheosisAura)
-            return;
-
-        apotheosisAura->SetDuration(apotheosisAura->GetDuration() + aurEff->GetAmount());
+        if (Aura* apotheosisAura = eventInfo.GetActor()->GetAura(SPELL_PRIEST_APOTHEOSIS))
+            apotheosisAura->SetDuration(apotheosisAura->GetDuration() + aurEff->GetAmount());
     }
 
     void Register() override
@@ -1822,7 +1819,7 @@ class spell_pri_harsh_discipline : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE_AURA })
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE_AURA, SPELL_PRIEST_CASTIGATION })
             && ValidateSpellEffect({ { SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1 }, { SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1 } });
     }
 
