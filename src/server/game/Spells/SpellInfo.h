@@ -262,6 +262,8 @@ public:
     bool IsAreaAuraEffect() const;
     bool IsUnitOwnedAuraEffect() const;
 
+    uint32 GetPeriodicTickCount() const;
+
     int32 CalcValue(WorldObject const* caster = nullptr, int32 const* basePoints = nullptr, Unit const* target = nullptr, float* variance = nullptr) const;
     int32 CalcBaseValue(WorldObject const* caster, Unit const* target) const;
     float CalcValueMultiplier(WorldObject* caster, Spell* spell = nullptr) const;
@@ -555,8 +557,6 @@ class TC_GAME_API SpellInfo
         int32 CalcDuration(WorldObject const* caster = nullptr) const;
         int32 GetDuration() const;
         int32 GetMaxDuration() const;
-
-        uint32 GetMaxTicks() const;
 
         uint32 CalcCastTime(Spell* spell = nullptr) const;
         uint32 GetRecoveryTime() const;
