@@ -494,6 +494,23 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA || Effect == SPELL_EFFECT_APPLY_AURA_ON_PET;
 }
 
+uint32 SpellEffectInfo::GetPeriodicTickCount() const
+{
+    if (!ApplyAuraPeriod)
+        return 0;
+
+    int32 duration = _spellInfo->GetDuration();
+    // skip infinite periodics
+    if (duration <= 0)
+        return 0;
+
+    uint32 totalTicks = static_cast<uint32>(duration) / ApplyAuraPeriod;
+    if (_spellInfo->HasAttribute(SPELL_ATTR5_EXTRA_INITIAL_PERIOD))
+        ++totalTicks;
+
+    return totalTicks;
+}
+
 int32 SpellEffectInfo::CalcValue(WorldObject const* caster /*= nullptr*/, int32 const* bp /*= nullptr*/, Unit const* target /*= nullptr*/, float* variance /*= nullptr*/, uint32 castItemId /*= 0*/, int32 itemLevel /*= -1*/) const
 {
     double basePointsPerLevel = RealPointsPerLevel;
@@ -3938,48 +3955,6 @@ uint32 SpellInfo::CalcCastTime(Spell* spell /*= nullptr*/) const
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
-}
-
-uint32 SpellInfo::GetMaxTicks() const
-{
-    uint32 totalTicks = 0;
-    int32 DotDuration = GetDuration();
-
-    for (SpellEffectInfo const& effect : GetEffects())
-    {
-        if (effect.IsEffect(SPELL_EFFECT_APPLY_AURA))
-        {
-            switch (effect.ApplyAuraName)
-            {
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_FROM_CLIENT:
-                case SPELL_AURA_POWER_BURN:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_PERIODIC_DUMMY:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
-                    // skip infinite periodics
-                    if (effect.ApplyAuraPeriod > 0 && DotDuration > 0)
-                    {
-                        totalTicks = static_cast<uint32>(DotDuration) / effect.ApplyAuraPeriod;
-                        if (HasAttribute(SPELL_ATTR5_EXTRA_INITIAL_PERIOD))
-                            ++totalTicks;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    return totalTicks;
 }
 
 uint32 SpellInfo::GetRecoveryTime() const
