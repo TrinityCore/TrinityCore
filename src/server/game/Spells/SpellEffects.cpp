@@ -365,7 +365,7 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectUnused,                                   //274 SPELL_EFFECT_274
     &Spell::EffectUnused,                                   //275 SPELL_EFFECT_275
     &Spell::EffectLearnTransmogIllusion,                    //276 SPELL_EFFECT_LEARN_TRANSMOG_ILLUSION
-    &Spell::EffectNULL,                                     //277 SPELL_EFFECT_SET_CHROMIE_TIME
+    &Spell::EffectSetChromieTime,                           //277 SPELL_EFFECT_SET_CHROMIE_TIME
     &Spell::EffectNULL,                                     //278 SPELL_EFFECT_278
     &Spell::EffectNULL,                                     //279 SPELL_EFFECT_LEARN_GARR_TALENT
     &Spell::EffectUnused,                                   //280 SPELL_EFFECT_280
@@ -6096,6 +6096,24 @@ void Spell::EffectLearnTransmogIllusion()
         return;
 
     player->GetSession()->GetCollectionMgr()->AddTransmogIllusion(illusionId);
+}
+
+void Spell::EffectSetChromieTime()
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    Player* caster = m_caster->ToPlayer();
+    if (!caster)
+        return;
+
+    UIChromieTimeExpansionInfoEntry const* expansion = sUIChromieTimeExpansionInfoStore.LookupEntry(effectInfo->MiscValue);
+
+    if (!expansion)
+        return;
+
+    caster->SetChromieTime(expansion->ID, expansion->ExpansionMask);
+    TC_LOG_INFO("server", "SetChromietimeSpellEffect debug: expansionID: {}, ExpansionMask: {}", expansion->ID, expansion->ExpansionMask);
 }
 
 void Spell::EffectModifyAuraStacks()

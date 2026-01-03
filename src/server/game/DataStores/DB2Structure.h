@@ -570,6 +570,32 @@ struct BroadcastTextDurationEntry
     uint32 BroadcastTextID;
 };
 
+struct CampaignEntry
+{
+    uint32 ID;
+    LocalizedString Title;
+    LocalizedString Description;
+    int32 UiTextureKitID;
+    int32 RewardQuestID;
+    int32 Prerequisite;
+    int32 Field_9_0_1_35755_007;
+    int32 Completed;
+    int32 OnlyStallIf;
+    int32 UiQuestDetailsThemeID;
+    int32 Flags;
+    int32 DisplayPriority;
+    int32 Field_10_0_2_45779_012;
+    int32 Field_10_0_2_46144_013;
+};
+
+struct CampaignXQuestLineEntry
+{
+    uint32 ID;
+    uint32 CampaignID;
+    uint32 QuestLineID;
+    uint32 OrderIndex;
+};
+
 struct Cfg_CategoriesEntry
 {
     uint32 ID;
@@ -4686,6 +4712,24 @@ struct TransportRotationEntry
     std::array<float, 4> Rot;
     uint32 TimeIndex;
     uint32 GameObjectsID;
+};
+
+struct UIChromieTimeExpansionInfoEntry
+{
+    uint32 ID;
+    LocalizedString Name;
+    LocalizedString Description;
+    LocalizedString AllianceOverrideDesc;
+    LocalizedString HordeOverrideDesc;
+    int32 SpellID;
+    int32 MapAtlasElement;
+    int32 PreviewAtlasElement;
+    int32 ShowPlayerConditionID;
+    int32 ExpansionMask;
+    int32 ContentTuningID;
+    int32 CompletedPlayerConditionID;
+    int32 SortPriority;
+    int32 RecommendPlayerConditionID;
 };
 
 struct UiMapEntry
