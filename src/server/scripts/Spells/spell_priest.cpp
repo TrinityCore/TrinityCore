@@ -1793,71 +1793,47 @@ class spell_pri_harsh_discipline : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE, SPELL_PRIEST_HARSH_DISCIPLINE_AURA });
+        return ValidateSpellInfo({ SPELL_PRIEST_HARSH_DISCIPLINE_AURA })
+            && ValidateSpellEffect({ { SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1 }, { SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1 } });
     }
 
-    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_HARSH_DISCIPLINE);
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
-        Aura* aura = caster->GetAura(SPELL_PRIEST_HARSH_DISCIPLINE);
-        if (!aura)
-            return;
+        SpellInfo const* penanceChannel = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, GetCastDifficulty());
+        int32 additionalBolts = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
 
-        int32 rankStacks = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty())->GetEffect(EFFECT_1).CalcValue(caster);
+        // do the calc here
+        float channelDuration = penanceChannel->GetDuration();
+        float channelPeriod = penanceChannel->GetEffect(EFFECT_1).ApplyAuraPeriod;
+
+        float baseBolts = channelDuration / channelPeriod;
+        if (caster->HasAura(SPELL_PRIEST_CASTIGATION))
+            baseBolts += 1.0f;
+
+        float basePeriod = channelDuration / baseBolts;
+
+        float totalBolts = baseBolts + additionalBolts;
+        float newPeriod = channelDuration / totalBolts;
+        float pctDiff = GetPctOf(newPeriod - basePeriod, basePeriod);
+
         caster->CastSpell(caster, SPELL_PRIEST_HARSH_DISCIPLINE_AURA, CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .SpellValueOverrides = {{ SPELLVALUE_BASE_POINT1, rankStacks }}
-            });
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = {
+                { SPELLVALUE_BASE_POINT0, static_cast<int32>(std::floor(pctDiff)) },
+                { SPELLVALUE_BASE_POINT1, additionalBolts }
+            }
+        });
     }
 
     void Register() override
     {
         OnEffectHit += SpellEffectFn(spell_pri_harsh_discipline::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-// 373183 - Harsh Discipline (Aura)
-class spell_pri_harsh_discipline_aura : public AuraScript
-{
-    bool Validate(SpellInfo const* /*spellInfo*/) override
-    {
-        return ValidateSpellEffect
-        ({
-            { SPELL_PRIEST_HARSH_DISCIPLINE, EFFECT_1 },
-            { SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, EFFECT_1 }
-        });
-    }
-
-    void CalculateAmount(AuraEffect const* /*auraEff*/, int32& amount, bool& canBeRecalculated) const
-    {
-        canBeRecalculated = false;
-        Unit* caster = GetCaster();
-        if (!caster)
-            return;
-
-        SpellInfo const* harshDiscipline = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_HARSH_DISCIPLINE, GetCastDifficulty());
-        int32 additionalBolts = harshDiscipline->GetEffect(EFFECT_1).CalcValue(caster);
-
-        SpellInfo const* penanceChannel = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PENANCE_CHANNEL_DAMAGE, GetCastDifficulty());
-        int32 channelDuration = penanceChannel->GetDuration();
-        int32 channelPeriod = penanceChannel->GetEffect(EFFECT_1).ApplyAuraPeriod;
-
-        int32 baseBolts = (channelDuration / channelPeriod) + 1;
-        if (caster->HasAura(SPELL_PRIEST_CASTIGATION))
-            ++baseBolts;
-
-        int32 basePeriod = channelDuration / (baseBolts - 1);
-        int32 totalBolts = baseBolts + additionalBolts;
-
-        float newPeriod = static_cast<float>(channelDuration) / (totalBolts - 1);
-        float pctDiff = (newPeriod - basePeriod) / basePeriod;
-
-        amount = static_cast<int32>(std::floor(pctDiff * 100.f));
-    }
-
-    void Register() override
-    {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_harsh_discipline_aura::CalculateAmount, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
     }
 };
 
@@ -4554,7 +4530,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
     RegisterSpellScript(spell_pri_harsh_discipline);
-    RegisterSpellScript(spell_pri_harsh_discipline_aura);
     RegisterSpellScript(spell_pri_heavens_wrath);
     RegisterSpellScript(spell_pri_holy_mending);
     RegisterSpellScript(spell_pri_holy_words);
