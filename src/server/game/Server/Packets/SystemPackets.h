@@ -77,6 +77,7 @@ namespace WorldPackets
             bool SuggestionsEnabled = false;
 
             SavedThrottleObjectState ThrottleState;
+            SavedThrottleObjectState Unused1127;
         };
 
         struct SquelchInfo
@@ -84,6 +85,13 @@ namespace WorldPackets
             bool IsSquelched = false;
             ObjectGuid BnetAccountGuid;
             ObjectGuid GuildGuid;
+        };
+
+        struct GameModeData
+        {
+            uint8 GameMode = 0;
+            int32 Unused1127 = 0;
+            int32 GameModeRecordID = 0;
         };
 
         struct GameRuleValuePair
@@ -182,6 +190,7 @@ namespace WorldPackets
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
             RafSystemFeatureInfo RAFSystem;
+            std::vector<GameModeData> DisabledGameModes;
             std::vector<GameRuleValuePair> GameRules;
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
@@ -249,7 +258,9 @@ namespace WorldPackets
             int32 MaximumExpansionLevel              = 0;
             uint32 KioskSessionDurationMinutes       = 0;
             int32 ContentSetID                       = 0;     // Currently active Classic season
+            std::vector<GameModeData> DisabledGameModes;
             std::vector<GameRuleValuePair> GameRules;
+            std::vector<int32> AvailableGameModeIDs;
             int32 ActiveTimerunningSeasonID          = 0;
             int32 RemainingTimerunningSeasonSeconds  = 0;
             Duration<Seconds, int32> TimerunningConversionMinCharacterAge { 1_days };
@@ -282,6 +293,16 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             std::span<MirrorVarSingle> Variables;
+        };
+
+        class MOTD final : public ServerPacket
+        {
+        public:
+            MOTD() : ServerPacket(SMSG_MOTD) { }
+
+            WorldPacket const* Write() override;
+
+            std::vector<std::string> const* Text = nullptr;
         };
 
         class SetTimeZoneInformation final : public ServerPacket

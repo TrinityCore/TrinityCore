@@ -49,17 +49,17 @@ DEFINE_ENUM_FLAG(WaypointPathFlags);
 
 struct WaypointNode
 {
-    constexpr WaypointNode() : Id(0), X(0.f), Y(0.f), Z(0.f), MoveType(WaypointMoveType::Walk) { }
-    constexpr WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = { }, Optional<Milliseconds> delay = {})
-        : Id(id), X(x), Y(y), Z(z), Orientation(orientation), Delay(delay), MoveType(WaypointMoveType::Walk) { }
+    constexpr WaypointNode() = default;
+    constexpr WaypointNode(uint32 id, float x, float y, float z, Optional<float> orientation = {}, Optional<Milliseconds> delay = {}, Optional<WaypointMoveType> moveType = {})
+        : Id(id), X(x), Y(y), Z(z), Orientation(orientation), Delay(delay), MoveType(moveType) { }
 
-    uint32 Id;
-    float X;
-    float Y;
-    float Z;
-    Optional<float> Orientation;
-    Optional<Milliseconds> Delay;
-    WaypointMoveType MoveType;
+    uint32 Id = 0;
+    float X = 0.0f;
+    float Y = 0.0f;
+    float Z = 0.0f;
+    Optional<float> Orientation = {};
+    Optional<Milliseconds> Delay = {};
+    Optional<WaypointMoveType> MoveType = {};
 };
 
 struct WaypointPath

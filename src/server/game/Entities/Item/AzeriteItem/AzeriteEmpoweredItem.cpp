@@ -23,7 +23,6 @@
 
 AzeriteEmpoweredItem::AzeriteEmpoweredItem()
 {
-    m_objectType |= TYPEMASK_AZERITE_EMPOWERED_ITEM;
     m_objectTypeId = TYPEID_AZERITE_EMPOWERED_ITEM;
 
     m_entityFragments.Add(WowCS::EntityFragment::Tag_AzeriteEmpoweredItem, false);
