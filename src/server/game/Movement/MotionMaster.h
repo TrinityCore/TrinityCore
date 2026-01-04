@@ -157,7 +157,8 @@ class TC_GAME_API MotionMaster
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_DEFAULT,
+        void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::ForceWalk, MovementSlot slot = MOTION_SLOT_DEFAULT,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
         void MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle = {}, Optional<Milliseconds> duration = {}, bool ignoreTargetWalk = false, MovementSlot slot = MOTION_SLOT_ACTIVE,
             Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
