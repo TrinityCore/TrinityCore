@@ -243,6 +243,11 @@ enum PriestSpells
     SPELL_PVP_RULES_ENABLED_HARDCODED               = 134735
 };
 
+enum PriestSpellLabels
+{
+    SPELL_LABEL_PRIEST_APOTHEOSIS                   = 3635,
+};
+
 enum PriestSpellVisuals
 {
     SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE         = 52872,
@@ -1337,34 +1342,33 @@ private:
 // 1215241 - Divinity
 class spell_pri_divinity : public AuraScript
 {
-    bool Validate(SpellInfo const* /*spellInfo*/) override
+    bool Validate(SpellInfo const* spellInfo) override
     {
-        return ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS });
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS, spellInfo->GetEffect(EFFECT_2).TriggerSpell });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
-        return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_APOTHEOSIS;
+        return eventInfo.GetSpellInfo()->HasLabel(SPELL_LABEL_PRIEST_APOTHEOSIS);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = procInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, int32(sSpellMgr->AssertSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell, DIFFICULTY_NONE)->StackAmount) } }
+        });
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_pri_divinity::CheckProc);
-    }
-};
-
-// 1216314 - Divinity (Aura)
-class spell_pri_divinity_aura : public AuraScript
-{
-    void HandleApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-    {
-        Aura* aura = GetAura();
-        aura->SetStackAmount(aura->CalcMaxStackAmount());
-    }
-
-    void Register() override
-    {
-        AfterEffectApply += AuraEffectApplyFn(spell_pri_divinity_aura::HandleApply, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER, AURA_EFFECT_HANDLE_REAL);
+        OnEffectProc += AuraEffectProcFn(spell_pri_divinity::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
     }
 };
 
@@ -4576,7 +4580,6 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
     RegisterSpellScript(spell_pri_divinity);
-    RegisterSpellScript(spell_pri_divinity_aura);
     RegisterSpellScript(spell_pri_divine_procession);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_empowered_renew_heal);
