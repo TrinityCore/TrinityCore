@@ -29,6 +29,7 @@
 #include "IpBanCheckConnectionInitializer.h"
 #include "PacketLog.h"
 #include "ProtobufJSON.h"
+#include "QueryResultStructured.h"
 #include "RealmList.h"
 #include "RBAC.h"
 #include "RealmList.pb.h"
@@ -616,6 +617,7 @@ struct AccountInfo
     struct
     {
         uint32 Id;
+        std::string Email;
         bool IsLockedToIP;
         std::string LastIP;
         std::string LockCountry;
@@ -633,39 +635,42 @@ struct AccountInfo
         uint32 Recruiter;
         std::string OS;
         Minutes TimezoneOffset;
-        bool IsRectuiter;
+        bool IsRecruiter;
         AccountTypes Security;
         bool IsBanned;
     } Game;
 
     bool IsBanned() const { return BattleNet.IsBanned || Game.IsBanned; }
 
-    explicit AccountInfo(Field const* fields)
+    explicit AccountInfo(PreparedResultSet const* result)
     {
-        //           0              1           2          3                4            5           6               7         8            9    10                 11     12                13
-        // SELECT a.id, a.session_key, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, a.client_build, a.locale, a.recruiter, a.os, a.timezone_offset, ba.id, aa.SecurityLevel,
-        //                                                              14                                                            15    16
-        // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate, r.id
-        // FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?)
-        // LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id LEFT JOIN account r ON a.id = r.recruiter
-        // WHERE a.username = ? AND LENGTH(a.session_key) = 40 ORDER BY aa.RealmID DESC LIMIT 1
-        Game.Id = fields[0].GetUInt32();
-        Game.KeyData = fields[1].GetBinary<64>();
-        BattleNet.LastIP = fields[2].GetString();
-        BattleNet.IsLockedToIP = fields[3].GetBool();
-        BattleNet.LockCountry = fields[4].GetString();
-        Game.Expansion = fields[5].GetUInt8();
-        Game.MuteTime = fields[6].GetInt64();
-        Game.Build = fields[7].GetUInt32();
-        Game.Locale = LocaleConstant(fields[8].GetUInt8());
-        Game.Recruiter = fields[9].GetUInt32();
-        Game.OS = fields[10].GetString();
-        Game.TimezoneOffset = Minutes(fields[11].GetInt16());
-        BattleNet.Id = fields[12].GetUInt32();
-        Game.Security = AccountTypes(fields[13].GetUInt8());
-        BattleNet.IsBanned = fields[14].GetUInt32() != 0;
-        Game.IsBanned = fields[15].GetUInt32() != 0;
-        Game.IsRectuiter = fields[16].GetUInt32() != 0;
+        // SELECT a.id AS accountId, a.session_key_bnet, ba.last_ip, ba.locked, ba.lock_country, a.expansion, a.mutetime, a.client_build, a.locale, a.recruiter, a.os, a.timezone_offset, ba.id AS bnet_account_id, ba.email as bnet_account_email, aa.SecurityLevel,
+        // bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate AS is_bnet_banned, ab.unbandate > UNIX_TIMESTAMP() OR ab.unbandate = ab.bandate AS is_banned, r.id AS recruitId
+        // FROM account a LEFT JOIN account r ON a.id = r.recruiter LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id
+        // LEFT JOIN account_access aa ON a.id = aa.AccountID AND aa.RealmID IN (-1, ?) LEFT JOIN battlenet_account_bans bab ON ba.id = bab.id LEFT JOIN account_banned ab ON a.id = ab.id AND ab.active = 1
+        // WHERE a.username = ? AND LENGTH(a.session_key_bnet) = 64 ORDER BY aa.RealmID DESC LIMIT 1
+
+        DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(PreparedResultSet, (account_id)(session_key_bnet)(last_ip)(locked)(lock_country)(expansion)(mutetime)(client_build)
+            (locale)(recruiter)(os)(timezone_offset)(bnet_account_id)(bnet_account_email)(SecurityLevel)(is_bnet_banned)(is_banned)(recruitId)) fields { *result };
+
+        Game.Id = fields.account_id().GetUInt32();
+        Game.KeyData = fields.session_key_bnet().GetBinary<64>();
+        BattleNet.LastIP = fields.last_ip().GetStringView();
+        BattleNet.IsLockedToIP = fields.locked().GetBool();
+        BattleNet.LockCountry = fields.lock_country().GetStringView();
+        Game.Expansion = fields.expansion().GetUInt8();
+        Game.MuteTime = fields.mutetime().GetInt64();
+        Game.Build = fields.client_build().GetUInt32();
+        Game.Locale = LocaleConstant(fields.locale().GetUInt8());
+        Game.Recruiter = fields.recruiter().GetUInt32();
+        Game.OS = fields.os().GetStringView();
+        Game.TimezoneOffset = Minutes(fields.timezone_offset().GetInt16());
+        BattleNet.Id = fields.bnet_account_id().GetUInt32();
+        BattleNet.Email = fields.bnet_account_email().GetStringView();
+        Game.Security = AccountTypes(fields.SecurityLevel().GetUInt8());
+        BattleNet.IsBanned = fields.is_bnet_banned().GetUInt32() != 0;
+        Game.IsBanned = fields.is_banned().GetUInt32() != 0;
+        Game.IsRecruiter = fields.recruitId().GetUInt32() != 0;
 
         if (Game.Locale >= TOTAL_LOCALES)
             Game.Locale = LOCALE_enUS;
@@ -707,7 +712,7 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     std::string address = GetRemoteIpAddress().to_string();
 
-    AccountInfo account(result->Fetch());
+    AccountInfo account(result.get());
 
     ClientBuild::Info const* buildInfo = ClientBuild::GetBuildInfo(account.Game.Build);
     if (!buildInfo)
@@ -887,9 +892,9 @@ void WorldSocket::HandleAuthSessionCallback(std::shared_ptr<WorldPackets::Auth::
 
     _authed = true;
     _worldSession = new WorldSession(account.Game.Id, std::move(*joinTicket->mutable_gameaccount()), account.BattleNet.Id,
-        static_pointer_cast<WorldSocket>(shared_from_this()), account.Game.Security, account.Game.Expansion, mutetime,
-        account.Game.OS, account.Game.TimezoneOffset, account.Game.Build, buildVariant, account.Game.Locale,
-        account.Game.Recruiter, account.Game.IsRectuiter);
+        std::move(account.BattleNet.Email), static_pointer_cast<WorldSocket>(shared_from_this()), account.Game.Security,
+        account.Game.Expansion, mutetime, std::move(account.Game.OS), account.Game.TimezoneOffset, account.Game.Build, buildVariant,
+        account.Game.Locale, account.Game.Recruiter, account.Game.IsRecruiter);
 
     QueueQuery(_worldSession->LoadPermissionsAsync().WithPreparedCallback([this](PreparedQueryResult result)
     {

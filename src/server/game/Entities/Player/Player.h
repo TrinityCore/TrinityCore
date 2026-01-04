@@ -2233,7 +2233,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
             void operator()(Player const* player) const;
         };
 
-        void DestroyForPlayer(Player* target) const override;
+        void DestroyForPlayer(Player const* target) const override;
 
         // notifiers
         void SendAttackSwingCancelAttack() const;
@@ -2631,7 +2631,7 @@ class TC_GAME_API Player final : public Unit, public GridObject<Player>
         GuidUnorderedSet m_clientGUIDs;
         GuidUnorderedSet m_visibleTransports;
 
-        bool HaveAtClient(Object const* u) const;
+        bool HaveAtClient(BaseEntity const* u) const;
 
         bool IsNeverVisibleFor(WorldObject const* seer, bool allowServersideObjects = false) const override;
 

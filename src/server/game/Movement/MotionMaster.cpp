@@ -593,16 +593,15 @@ void MotionMaster::MoveTargetedHome()
     }
 }
 
-void MotionMaster::MoveRandom(float wanderDistance /*= 0.0f*/, Optional<Milliseconds> duration /*= {}*/, MovementSlot slot /*= MOTION_SLOT_DEFAULT*/,
+void MotionMaster::MoveRandom(float wanderDistance /*= 0.0f*/, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode /*= MovementWalkRunSpeedSelectionMode::ForceWalk*/, MovementSlot slot /*= MOTION_SLOT_DEFAULT*/,
     Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
 {
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '{}', started random movement (spawnDist: {})", _owner->GetGUID(), wanderDistance);
     if (_owner->GetTypeId() == TYPEID_UNIT)
-    {
-        TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveRandom: '{}', started random movement (spawnDist: {})", _owner->GetGUID(), wanderDistance);
-        Add(new RandomMovementGenerator<Creature>(wanderDistance, duration, std::move(scriptResult)), slot);
-    }
-    else if (scriptResult)
-        scriptResult->SetResult(MovementStopReason::Interrupted);
+        Add(new RandomMovementGenerator<Creature>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)), slot);
+    else
+        Add(new RandomMovementGenerator<Player>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)), slot);
 }
 
 void MotionMaster::MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle /*= {}*/, Optional<Milliseconds> duration /*= {}*/, bool ignoreTargetWalk /*= false*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/,
