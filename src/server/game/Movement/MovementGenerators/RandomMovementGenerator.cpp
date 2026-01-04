@@ -25,8 +25,10 @@
 #include "Random.h"
 
 template<class T>
-RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/) : _timer(0), _reference(), _wanderDistance(distance), _wanderSteps(0)
+RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration, Optional<float> speed,
+    MovementWalkRunSpeedSelectionMode speedSelectionMode,
+    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    : _timer(0), _speed(speed), _speedSelectionMode(speedSelectionMode), _wanderDistance(distance), _wanderSteps(0)
 {
     this->Mode = MOTION_MODE_DEFAULT;
     this->Priority = MOTION_PRIORITY_NORMAL;
@@ -36,10 +38,6 @@ RandomMovementGenerator<T>::RandomMovementGenerator(float distance, Optional<Mil
     if (duration)
         _duration.emplace(*duration);
 }
-
-template
-RandomMovementGenerator<Creature>::RandomMovementGenerator(float distance, Optional<Milliseconds> duration,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
 
 template<class T>
 MovementGeneratorType RandomMovementGenerator<T>::GetMovementGeneratorType() const
@@ -72,25 +70,17 @@ void RandomMovementGenerator<T>::Resume(uint32 overrideTimer)
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_PAUSED);
 }
 
-template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
-
 template<class T>
-void RandomMovementGenerator<T>::DoInitialize(T*) { }
-
-template<>
-void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
+void RandomMovementGenerator<T>::DoInitialize(T* owner)
 {
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
-    AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
+    this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
+    this->AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    if (!owner || !owner->IsAlive())
+    if (!owner->IsAlive())
         return;
 
     _reference = owner->GetPosition();
     owner->StopMoving();
-
-    if (_wanderDistance == 0.f)
-        _wanderDistance = owner->GetWanderDistance();
 
     // Retail seems to let a creature walk 2 up to 10 splines before triggering a pause
     _wanderSteps = urand(2, 10);
@@ -100,28 +90,19 @@ void RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoReset(T*) { }
-
-template<>
-void RandomMovementGenerator<Creature>::DoReset(Creature* owner)
+void RandomMovementGenerator<T>::DoReset(T* owner)
 {
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
     DoInitialize(owner);
 }
 
 template<class T>
-void RandomMovementGenerator<T>::SetRandomLocation(T*) { }
-
-template<>
-void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
+void RandomMovementGenerator<T>::SetRandomLocation(T* owner)
 {
-    if (!owner)
-        return;
-
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE | UNIT_STATE_LOST_CONTROL) || owner->IsMovementPreventedByCasting())
     {
-        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
+        this->AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
         _path = nullptr;
         return;
@@ -163,26 +144,30 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
         return;
     }
 
-    RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
+    this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
-    bool walk = true;
-    switch (owner->GetMovementTemplate().GetRandom())
+    Movement::MoveSplineInit init(owner);
+    init.MovebyPath(_path->GetPath());
+
+    switch (_speedSelectionMode)
     {
-        case CreatureRandomMovementType::CanRun:
-            walk = owner->IsWalking();
+        case MovementWalkRunSpeedSelectionMode::Default:
             break;
-        case CreatureRandomMovementType::AlwaysRun:
-            walk = false;
+        case MovementWalkRunSpeedSelectionMode::ForceRun:
+            init.SetWalk(false);
+            break;
+        case MovementWalkRunSpeedSelectionMode::ForceWalk:
+            init.SetWalk(true);
             break;
         default:
             break;
     }
 
-    Movement::MoveSplineInit init(owner);
-    init.MovebyPath(_path->GetPath());
-    init.SetWalk(walk);
+    if (_speed)
+        init.SetVelocity(*_speed);
+
     int32 splineDuration = init.Launch();
 
     --_wanderSteps;
@@ -200,18 +185,12 @@ void RandomMovementGenerator<Creature>::SetRandomLocation(Creature* owner)
 }
 
 template<class T>
-bool RandomMovementGenerator<T>::DoUpdate(T*, uint32)
+bool RandomMovementGenerator<T>::DoUpdate(T* owner, uint32 diff)
 {
-    return false;
-}
-
-template<>
-bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
-{
-    if (!owner || !owner->IsAlive())
+    if (!owner->IsAlive())
         return true;
 
-    if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED))
+    if (this->HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED | MOVEMENTGENERATOR_FLAG_PAUSED))
         return true;
 
     if (_duration)
@@ -219,46 +198,40 @@ bool RandomMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)
         _duration->Update(diff);
         if (_duration->Passed())
         {
-            RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
-            AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
+            this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY);
+            this->AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
             return false;
         }
     }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
-        AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
+        this->AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
         _path = nullptr;
         return true;
     }
     else
-        RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
+        this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
 
     _timer.Update(diff);
-    if ((HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
+    if ((this->HasFlag(MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING) && !owner->movespline->Finalized()) || (_timer.Passed() && owner->movespline->Finalized()))
         SetRandomLocation(owner);
 
     return true;
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoDeactivate(T*) { }
-
-template<>
-void RandomMovementGenerator<Creature>::DoDeactivate(Creature* owner)
+void RandomMovementGenerator<T>::DoDeactivate(T* owner)
 {
-    AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
+    this->AddFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoFinalize(T*, bool, bool) { }
-
-template<>
-void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active, bool movementInform)
+void RandomMovementGenerator<T>::DoFinalize(T* owner, bool active, bool movementInform)
 {
-    AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
+    this->AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
     if (active)
     {
         owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -268,15 +241,33 @@ void RandomMovementGenerator<Creature>::DoFinalize(Creature* owner, bool active,
         owner->SetWalk(false);
     }
 
-    if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
+    if (movementInform && this->HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
     {
-        SetScriptResult(MovementStopReason::Finished);
+        this->SetScriptResult(MovementStopReason::Finished);
         if (owner->IsAIEnabled())
             owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
     }
 }
 
-MovementGenerator* RandomMovementFactory::Create(Unit* /*object*/) const
+MovementGenerator* RandomMovementFactory::Create(Unit* object) const
 {
-    return new RandomMovementGenerator<Creature>();
+    Creature* owner = object->ToCreature();
+    MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default;
+    switch (owner->GetMovementTemplate().GetRandom())
+    {
+        case CreatureRandomMovementType::Walk:
+            speedSelectionMode = MovementWalkRunSpeedSelectionMode::ForceWalk;
+            break;
+        case CreatureRandomMovementType::CanRun:
+            break;
+        case CreatureRandomMovementType::AlwaysRun:
+            speedSelectionMode = MovementWalkRunSpeedSelectionMode::ForceRun;
+            break;
+        default:
+            break;
+    }
+
+    return new RandomMovementGenerator<Creature>(object->ToCreature()->GetWanderDistance(), {}, {}, speedSelectionMode);
 }
+
+template class RandomMovementGenerator<Creature>;
