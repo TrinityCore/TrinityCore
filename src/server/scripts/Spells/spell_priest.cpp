@@ -93,6 +93,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_STAR_SHADOW_DAMAGE          = 390845,
     SPELL_PRIEST_DIVINE_STAR_SHADOW_HEAL            = 390981,
     SPELL_PRIEST_DIVINE_WRATH                       = 40441,
+    SPELL_PRIEST_DIVINITY                           = 1215241,
+    SPELL_PRIEST_DIVINITY_AURA                      = 1216314,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 391339,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
     SPELL_PRIEST_ENTROPIC_RIFT                      = 447444,
@@ -239,6 +241,11 @@ enum PriestSpells
     SPELL_PRIEST_WHISPERING_SHADOWS                 = 406777,
     SPELL_PRIEST_WHISPERING_SHADOWS_DUMMY           = 391286,
     SPELL_PVP_RULES_ENABLED_HARDCODED               = 134735
+};
+
+enum PriestSpellLabels
+{
+    SPELL_LABEL_PRIEST_APOTHEOSIS                   = 3635,
 };
 
 enum PriestSpellVisuals
@@ -1330,6 +1337,39 @@ private:
     TaskScheduler _scheduler;
     Position _casterCurrentPosition;
     std::vector<ObjectGuid> _affectedUnits;
+};
+
+// 1215241 - Divinity
+class spell_pri_divinity : public AuraScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && ValidateSpellInfo({ SPELL_PRIEST_APOTHEOSIS, spellInfo->GetEffect(EFFECT_2).TriggerSpell });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetSpellInfo()->HasLabel(SPELL_LABEL_PRIEST_APOTHEOSIS);
+    }
+
+    void HandleProc(AuraEffect const* aurEff, ProcEventInfo const& procInfo)
+    {
+        PreventDefaultAction();
+
+        GetTarget()->CastSpell(GetTarget(), aurEff->GetSpellEffectInfo().TriggerSpell, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = procInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, int32(sSpellMgr->AssertSpellInfo(aurEff->GetSpellEffectInfo().TriggerSpell, DIFFICULTY_NONE)->StackAmount) } }
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_divinity::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_divinity::HandleProc, EFFECT_2, SPELL_AURA_PROC_TRIGGER_SPELL);
+    }
 };
 
 struct spell_pri_holy_words_base
@@ -4539,6 +4579,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_service);
     RegisterSpellScript(spell_pri_divine_star_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_divine_star);
+    RegisterSpellScript(spell_pri_divinity);
     RegisterSpellScript(spell_pri_divine_procession);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_empowered_renew_heal);
