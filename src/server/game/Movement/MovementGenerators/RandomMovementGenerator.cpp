@@ -22,6 +22,7 @@
 #include "MoveSplineInit.h"
 #include "MovementDefines.h"
 #include "PathGenerator.h"
+#include "Player.h"
 #include "Random.h"
 
 template<class T>
@@ -181,7 +182,8 @@ void RandomMovementGenerator<T>::SetRandomLocation(T* owner)
     }
 
     // Call for creature group update
-    owner->SignalFormationMovement();
+    if constexpr (std::is_base_of_v<Creature, T>)
+        owner->SignalFormationMovement();
 }
 
 template<class T>
@@ -244,8 +246,9 @@ void RandomMovementGenerator<T>::DoFinalize(T* owner, bool active, bool movement
     if (movementInform && this->HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED))
     {
         this->SetScriptResult(MovementStopReason::Finished);
-        if (owner->IsAIEnabled())
-            owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
+        if constexpr (std::is_base_of_v<Creature, T>)
+            if (owner->IsAIEnabled())
+                owner->AI()->MovementInform(RANDOM_MOTION_TYPE, 0);
     }
 }
 
@@ -271,3 +274,4 @@ MovementGenerator* RandomMovementFactory::Create(Unit* object) const
 }
 
 template class RandomMovementGenerator<Creature>;
+template class RandomMovementGenerator<Player>;
