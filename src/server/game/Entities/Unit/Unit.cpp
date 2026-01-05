@@ -53,6 +53,7 @@
 #include "Loot.h"
 #include "LootMgr.h"
 #include "LootPackets.h"
+#include "MapUtils.h"
 #include "MiscPackets.h"
 #include "MotionMaster.h"
 #include "MovementGenerator.h"
@@ -312,7 +313,7 @@ Unit::Unit(bool isWorldObject) :
     m_unitMovedByMe(nullptr), m_playerMovingMe(nullptr), m_charmer(nullptr), m_charmed(nullptr),
     i_motionMaster(std::make_unique<MotionMaster>(this)), m_regenTimer(0), m_vehicle(nullptr),
     m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(), m_combatManager(this),
-    m_threatManager(this), m_aiLocked(false), _playHoverAnim(false), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
+    m_threatManager(this), m_aiLocked(false), _aiAnimKitId(0), _movementAnimKitId(0), _meleeAnimKitId(0),
     _spellHistory(std::make_unique<SpellHistory>(this))
 {
     m_objectTypeId = TYPEID_UNIT;
@@ -1597,7 +1598,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             SpellInfo const* spellInfo = aurEff->GetSpellInfo();
 
             // Damage shield can be resisted...
-            SpellMissInfo missInfo = victim->SpellHitResult(this, spellInfo, false);
+            SpellMissInfo missInfo = victim->SpellHitResult(this, spellInfo, false, true);
             if (missInfo != SPELL_MISS_NONE)
             {
                 victim->SendSpellMiss(this, spellInfo->Id, missInfo);
@@ -5901,6 +5902,7 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
 
     m_attacking = victim;
     m_attacking->_addAttacker(this);
+    m_updateFlag.CombatVictim = true;
 
     // Set our target
     SetTarget(victim->GetGUID());
@@ -5951,6 +5953,7 @@ bool Unit::AttackStop()
 
     Unit* victim = m_attacking;
 
+    m_updateFlag.CombatVictim = false;
     m_attacking->_removeAttacker(this);
     m_attacking = nullptr;
 
@@ -7743,7 +7746,7 @@ int32 Unit::SpellAbsorbBonusTaken(Unit* caster, SpellInfo const* spellProto, int
     return static_cast<int32>(std::round(absorb));
 }
 
-bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute /*= false*/) const
+bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, uint32 effectMask, WorldObject const* caster, bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
     if (!spellInfo)
         return false;
@@ -7754,14 +7757,14 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
         if (!requireImmunityPurgesEffectAttribute)
             return range.begin() != range.end();
 
-        return std::any_of(range.begin(), range.end(), [](SpellImmuneContainer::value_type const& entry)
+        return std::ranges::any_of(range, [](uint32 immunitySpellId)
         {
-            if (SpellInfo const* immunitySourceSpell = sSpellMgr->GetSpellInfo(entry.second, DIFFICULTY_NONE))
+            if (SpellInfo const* immunitySourceSpell = sSpellMgr->GetSpellInfo(immunitySpellId, DIFFICULTY_NONE))
                 if (immunitySourceSpell->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
                     return true;
 
             return false;
-        });
+        }, Trinity::Containers::MapValue);
     };
 
     // Single spell immunity.
@@ -7792,7 +7795,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
     {
         // State/effect immunities applied by aura expect full spell immunity
         // Ignore effects with mechanic, they are supposed to be checked separately
-        if (!spellEffectInfo.IsEffect())
+        if (!spellEffectInfo.IsEffect() || !(effectMask & (1 << spellEffectInfo.EffectIndex)))
             continue;
         if (!IsImmunedToSpellEffect(spellInfo, spellEffectInfo, caster, requireImmunityPurgesEffectAttribute))
         {
@@ -7810,23 +7813,23 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo, WorldObject const* caste
     {
         uint32 schoolImmunityMask = 0;
         SpellImmuneContainer const& schoolList = m_spellImmune[IMMUNITY_SCHOOL];
-        for (auto itr = schoolList.begin(); itr != schoolList.end(); ++itr)
+        for (auto [auraSchoolImmunityMask, immunityAuraId] : schoolList)
         {
-            if ((itr->first & schoolMask) == 0)
+            if ((auraSchoolImmunityMask & schoolMask) == 0)
                 continue;
 
-            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(itr->second, GetMap()->GetDifficultyID());
+            SpellInfo const* immuneSpellInfo = sSpellMgr->GetSpellInfo(immunityAuraId, GetMap()->GetDifficultyID());
             if (requireImmunityPurgesEffectAttribute)
                 if (!immuneSpellInfo || !immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
                     continue;
 
-            if (!(immuneSpellInfo && immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)) && caster && caster->IsFriendlyTo(this))
+            if (!(spellInfo->NegativeEffects.to_ulong() & effectMask) && !(immuneSpellInfo && immuneSpellInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)))
                 continue;
 
             if (spellInfo->CanPierceImmuneAura(immuneSpellInfo))
                 continue;
 
-            schoolImmunityMask |= itr->first;
+            schoolImmunityMask |= auraSchoolImmunityMask;
         }
         if ((schoolImmunityMask & schoolMask) == schoolMask)
             return true;
@@ -7893,7 +7896,7 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask schoolMask) const
     return false;
 }
 
-bool Unit::IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo /*= nullptr*/) const
+bool Unit::IsImmunedToDamage(WorldObject const* /*caster*/, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo /*= nullptr*/) const
 {
     if (!spellInfo)
         return false;
@@ -7912,7 +7915,7 @@ bool Unit::IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellIn
             for (auto&& [immunitySchoolMask, immunityAuraId] : container)
             {
                 SpellInfo const* immuneAuraInfo = sSpellMgr->GetSpellInfo(immunityAuraId, GetMap()->GetDifficultyID());
-                if (immuneAuraInfo && !immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && caster->IsFriendlyTo(this))
+                if (spellInfo->IsPositive() && !(immuneAuraInfo && immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)))
                     continue;
 
                 if (immuneAuraInfo && spellInfo->CanPierceImmuneAura(immuneAuraInfo))
@@ -7937,7 +7940,7 @@ bool Unit::IsImmunedToDamage(WorldObject const* caster, SpellInfo const* spellIn
     return false;
 }
 
-bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* caster,
+bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo const& spellEffectInfo, WorldObject const* /*caster*/,
     bool requireImmunityPurgesEffectAttribute /*= false*/) const
 {
     if (!spellInfo)
@@ -7955,14 +7958,14 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
         if (!requireImmunityPurgesEffectAttribute)
             return range.begin() != range.end();
 
-        return std::any_of(range.begin(), range.end(), [](SpellImmuneContainer::value_type const& entry)
+        return std::ranges::any_of(range, [](uint32 immunitySpellId)
         {
-            if (SpellInfo const* immunitySourceSpell = sSpellMgr->GetSpellInfo(entry.second, DIFFICULTY_NONE))
+            if (SpellInfo const* immunitySourceSpell = sSpellMgr->GetSpellInfo(immunitySpellId, DIFFICULTY_NONE))
                 if (immunitySourceSpell->HasAttribute(SPELL_ATTR1_IMMUNITY_PURGES_EFFECT))
                     return true;
 
             return false;
-        });
+        }, Trinity::Containers::MapValue);
     };
 
     // If m_immuneToEffect type contain this effect type, IMMUNE effect.
@@ -7994,7 +7997,10 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
                 if (!(immuneAuraApply->GetMiscValue() & spellInfo->GetSchoolMask()))               // Check school
                     continue;
 
-                if (immuneAuraApply->GetSpellInfo()->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) || (caster && !IsFriendlyTo(caster))) // Harmful
+                if (!spellInfo->IsPositiveEffect(spellEffectInfo.EffectIndex)) // Harmful
+                    return true;
+
+                if (immuneAuraApply->GetSpellInfo()->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)) // Friendly
                     return true;
             }
         }
@@ -8003,26 +8009,24 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, SpellEffectInfo co
     return false;
 }
 
-bool Unit::IsImmunedToAuraPeriodicTick(WorldObject const* caster, SpellInfo const* spellInfo, SpellEffectInfo const* spellEffectInfo) const
+bool Unit::IsImmunedToAuraPeriodicTick(WorldObject const* /*caster*/, AuraEffect const* auraEffect) const
 {
-    if (!spellInfo)
+    if (auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) || auraEffect->GetSpellInfo()->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES) /*only school immunities are checked in this function*/)
         return false;
 
-    if (spellInfo->HasAttribute(SPELL_ATTR0_NO_IMMUNITIES) || spellInfo->HasAttribute(SPELL_ATTR2_NO_SCHOOL_IMMUNITIES) /*only school immunities are checked in this function*/)
+    if (auraEffect->GetSpellEffectInfo().EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
         return false;
 
-    if (spellEffectInfo && spellEffectInfo->EffectAttributes.HasFlag(SpellEffectAttributes::NoImmunity))
-        return false;
-
-    if (uint32 schoolMask = spellInfo->GetSchoolMask())
+    if (uint32 schoolMask = auraEffect->GetSpellInfo()->GetSchoolMask())
     {
         auto hasImmunity = [&](SpellImmuneContainer const& container)
         {
+            bool isPositive = auraEffect->GetBase()->GetApplicationOfTarget(GetGUID())->IsPositive();
             uint32 schoolImmunityMask = 0;
             for (auto&& [immunitySchoolMask, immunityAuraId] : container)
             {
                 SpellInfo const* immuneAuraInfo = sSpellMgr->GetSpellInfo(immunityAuraId, GetMap()->GetDifficultyID());
-                if (immuneAuraInfo && !immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS) && caster && caster->IsFriendlyTo(this))
+                if (isPositive && !(immuneAuraInfo && immuneAuraInfo->HasAttribute(SPELL_ATTR1_IMMUNITY_TO_HOSTILE_AND_FRIENDLY_EFFECTS)))
                     continue;
 
                 schoolImmunityMask |= immunitySchoolMask;
@@ -11199,6 +11203,7 @@ void Unit::SetAIAnimKitId(uint16 animKitId)
         return;
 
     _aiAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetAIAnimKit data;
     data.Unit = GetGUID();
@@ -11215,6 +11220,7 @@ void Unit::SetMovementAnimKitId(uint16 animKitId)
         return;
 
     _movementAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetMovementAnimKit data;
     data.Unit = GetGUID();
@@ -11231,6 +11237,7 @@ void Unit::SetMeleeAnimKitId(uint16 animKitId)
         return;
 
     _meleeAnimKitId = animKitId;
+    m_updateFlag.AnimKit = _aiAnimKitId != 0 || _movementAnimKitId != 0 || _meleeAnimKitId != 0;
 
     WorldPackets::Misc::SetMeleeAnimKit data;
     data.Unit = GetGUID();
@@ -12282,7 +12289,7 @@ Aura* Unit::AddAura(SpellInfo const* spellInfo, uint32 effMask, Unit* target)
     if (!target->IsAlive() && !spellInfo->IsPassive() && !spellInfo->HasAttribute(SPELL_ATTR2_ALLOW_DEAD_TARGET))
         return nullptr;
 
-    if (target->IsImmunedToSpell(spellInfo, this))
+    if (target->IsImmunedToSpell(spellInfo, effMask, this))
         return nullptr;
 
     for (SpellEffectInfo const& spellEffectInfo : spellInfo->GetEffects())
@@ -14072,7 +14079,7 @@ void Unit::SetPlayHoverAnim(bool enable, bool sendUpdate /*= true*/)
     if (IsPlayingHoverAnim() == enable)
         return;
 
-    _playHoverAnim = enable;
+    m_updateFlag.PlayHoverAnim = enable;
 
     if (!sendUpdate)
         return;
@@ -14121,7 +14128,7 @@ UF::UpdateFieldFlag Unit::GetUpdateFieldFlagsFor(Player const* target) const
     return flags;
 }
 
-void Unit::DestroyForPlayer(Player* target) const
+void Unit::DestroyForPlayer(Player const* target) const
 {
     if (Battleground* bg = target->GetBattleground())
     {
