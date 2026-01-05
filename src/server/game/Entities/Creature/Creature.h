@@ -160,7 +160,7 @@ class TC_GAME_API Creature : public Unit, public GridObject<Creature>, public Ma
         bool CanEnterWater() const override { return (CanSwim() || IsAmphibious()); };
         bool CanFly()  const override { return (IsFlying() || HasUnitMovementFlag(MOVEMENTFLAG_CAN_FLY)); }
 
-        MovementGeneratorType GetDefaultMovementType() const override { return m_defaultMovementType; }
+        MovementGeneratorType GetDefaultMovementType() const override;
         void SetDefaultMovementType(MovementGeneratorType mgt) { m_defaultMovementType = mgt; }
 
         CreatureClassifications GetCreatureClassification() const { return GetCreatureTemplate()->Classification; }
