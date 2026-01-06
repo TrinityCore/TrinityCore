@@ -1406,7 +1406,7 @@ class spell_pri_divine_word : public AuraScript
 // 372784 - Divine Word: Sanctuary
 class spell_pri_divine_word_sanctuary : public AuraScript
 {
-    bool Validate(SpellInfo const* spellInfo) override
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
         return ValidateSpellInfo({ SPELL_PRIEST_DIVINE_WORD_SANCTUARY_HEAL });
     }
