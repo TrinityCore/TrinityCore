@@ -932,7 +932,7 @@ struct npc_ball_of_flame : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id) override
     {
-        if (type == CHASE_MOTION_TYPE && id == _chaseGUID.GetCounter() && _chaseGUID)
+        if (type == CHASE_MOTION_TYPE && id == _chaseGUID.GetCounter() && !_chaseGUID.IsEmpty())
         {
             me->RemoveAurasDueToSpell(SPELL_BALL_OF_FLAMES_PERIODIC);
             DoCastSelf(SPELL_FLAMES);

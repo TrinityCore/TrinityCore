@@ -363,23 +363,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
         mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // Parachutes
 
     /* process position-change */
-    WorldPacket data(opcode, recvPacket.size());
-    int64 movementTime = (int64) movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
-
     movementInfo.guid = mover->GetGUID();
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
+    mover->m_movementInfo = movementInfo;
+
+    WorldPacket data(opcode, recvPacket.size());
     WriteMovementInfo(&data, &movementInfo);
     mover->SendMessageToSet(&data, _player);
-
-    mover->m_movementInfo = movementInfo;
 
     // Some vehicles allow the passenger to turn by himself
     if (Vehicle* vehicle = mover->GetVehicle())
@@ -540,16 +530,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     }
 
     /* the client data has been verified. let's do the actual change now */
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
 
     mover->m_movementInfo = movementInfo;
     mover->UpdatePosition(movementInfo.pos);
@@ -607,7 +588,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvData*/)
 {
     WorldPacket data(SMSG_MOUNTSPECIAL_ANIM, 8);
-    data << uint64(GetPlayer()->GetGUID());
+    data << GetPlayer()->GetGUID();
 
     GetPlayer()->SendMessageToSet(&data, false);
 }
@@ -640,17 +621,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
     MovementInfo movementInfo;
     movementInfo.guid = guid;
     ReadMovementInfo(recvData, &movementInfo);
-
-    int64 movementTime = (int64)movementInfo.time + _timeSyncClockDelta;
-    if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-    {
-        TC_LOG_WARN("misc", "The computed movement time using clockDelta is erronous. Using fallback instead");
-        movementInfo.time = GameTime::GetGameTimeMS();
-    }
-    else
-    {
-        movementInfo.time = (uint32)movementTime;
-    }
+    movementInfo.time = AdjustClientMovementTime(movementInfo.time);
 
     mover->m_movementInfo = movementInfo;
     mover->UpdatePosition(movementInfo.pos);

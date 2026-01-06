@@ -413,7 +413,7 @@ public:
             player->SaveRecallPosition();
 
         // try going to entrance
-        if (AreaTrigger const* exit = sObjectMgr->GetGoBackTrigger(mapId))
+        if (AreaTriggerTeleport const* exit = sObjectMgr->GetGoBackTrigger(mapId))
         {
             if (player->TeleportTo(exit->target_mapId, exit->target_X, exit->target_Y, exit->target_Z, exit->target_Orientation + M_PI))
             {
@@ -431,7 +431,7 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_INSTANCE_NO_EXIT, mapName, mapId);
 
         // try going to start
-        if (AreaTrigger const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
+        if (AreaTriggerTeleport const* entrance = sObjectMgr->GetMapEntranceTrigger(mapId))
         {
             if (player->TeleportTo(entrance->target_mapId, entrance->target_X, entrance->target_Y, entrance->target_Z, entrance->target_Orientation))
             {

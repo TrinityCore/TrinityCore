@@ -284,7 +284,7 @@ struct boss_ymiron : public BossAI
     void DespawnBoatGhosts(ObjectGuid& CreatureGUID)
     {
         // @todo: fire visual after ancestor despawns.
-        if (CreatureGUID)
+        if (!CreatureGUID.IsEmpty())
             if (Creature* temp = ObjectAccessor::GetCreature(*me, CreatureGUID))
                 temp->DisappearAndDie();
 

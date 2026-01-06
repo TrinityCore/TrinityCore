@@ -41,7 +41,6 @@ typedef std::map<WMOAreaTableKey, WMOAreaTableEntry const*> WMOAreaInfoByTripple
 
 DBCStorage <AreaTableEntry> sAreaTableStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
-DBCStorage <AreaPOIEntry> sAreaPOIStore(AreaPOIEntryfmt);
 
 static WMOAreaInfoByTripple sWMOAreaInfoByTripple;
 
@@ -123,6 +122,7 @@ DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
 DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
+DBCStorage <LFGDungeonExpansionEntry> sLFGDungeonExpansionStore(LFGDungeonExpansionfmt);
 DBCStorage <LightEntry> sLightStore(LightEntryfmt);
 DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypefmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
@@ -287,7 +287,6 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sAchievementCriteriaStore,           "Achievement_Criteria.dbc");
     LOAD_DBC(sAreaTriggerStore,                   "AreaTrigger.dbc");
     LOAD_DBC(sAreaGroupStore,                     "AreaGroup.dbc");
-    LOAD_DBC(sAreaPOIStore,                       "AreaPOI.dbc");
     LOAD_DBC(sAuctionHouseStore,                  "AuctionHouse.dbc");
     LOAD_DBC(sBankBagSlotPricesStore,             "BankBagSlotPrices.dbc");
     LOAD_DBC(sBannedAddOnsStore,                  "BannedAddOns.dbc");
@@ -346,6 +345,7 @@ void LoadDBCStores(const std::string& dataPath)
     LOAD_DBC(sItemRandomSuffixStore,              "ItemRandomSuffix.dbc");
     LOAD_DBC(sItemSetStore,                       "ItemSet.dbc");
     LOAD_DBC(sLFGDungeonStore,                    "LFGDungeons.dbc");
+    LOAD_DBC(sLFGDungeonExpansionStore,           "LFGDungeonExpansion.dbc");
     LOAD_DBC(sLightStore,                         "Light.dbc");
     LOAD_DBC(sLiquidTypeStore,                    "LiquidType.dbc");
     LOAD_DBC(sLockStore,                          "Lock.dbc");

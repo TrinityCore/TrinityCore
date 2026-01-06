@@ -45,6 +45,7 @@
 enum StableResultCode
 {
     STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
+    STABLE_ERR_INVALID_SLOT = 0x03,                         // "That slot is locked"
     STABLE_ERR_STABLE       = 0x06,                         // currently used in most fail cases
     STABLE_SUCCESS_STABLE   = 0x08,                         // stable success
     STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
@@ -222,7 +223,7 @@ void WorldSession::SendSpiritResurrect()
     {
         WorldLocation const& corpseLocation = _player->GetCorpseLocation();
         corpseGrave = sObjectMgr->GetClosestGraveyard(corpseLocation.GetPositionX(), corpseLocation.GetPositionY(),
-            corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam());
+            corpseLocation.GetPositionZ(), corpseLocation.GetMapId(), _player->GetTeam(), _player);
     }
 
     // now can spawn bones
@@ -232,7 +233,7 @@ void WorldSession::SendSpiritResurrect()
     if (corpseGrave)
     {
         WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveyard(
-            _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetMapId(), _player->GetTeam());
+            _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetMapId(), _player->GetTeam(), _player);
 
         if (corpseGrave != ghostGrave)
             _player->TeleportTo(corpseGrave->Continent, corpseGrave->Loc.X, corpseGrave->Loc.Y, corpseGrave->Loc.Z, _player->GetOrientation());
@@ -273,7 +274,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     npc->CastSpell(_player, bindspell, true);
 
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
-    data << uint64(npc->GetGUID());
+    data << npc->GetGUID();
     data << uint32(bindspell);
     SendPacket(&data);
 
@@ -307,7 +308,7 @@ void WorldSession::SendStablePet(ObjectGuid guid)
 
     WorldPacket data(MSG_LIST_STABLED_PETS, 200);           // guess size
 
-    data << uint64(guid);
+    data << guid;
 
     size_t wpos = data.wpos();
     data << uint8(0);                                       // place holder for slot show number
@@ -437,7 +438,7 @@ void WorldSession::HandleStablePet(WorldPacket& recvData)
     }
 
     // not free stable slot
-    SendPetStableResult(STABLE_ERR_STABLE);
+    SendPetStableResult(STABLE_ERR_INVALID_SLOT);
 }
 
 void WorldSession::HandleUnstablePet(WorldPacket& recvData)
@@ -728,7 +729,7 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket& recvData)
     // reputation discount
     float discountMod = _player->GetReputationPriceDiscount(unit);
 
-    if (itemGUID)
+    if (!itemGUID.IsEmpty())
     {
         TC_LOG_DEBUG("network", "ITEM: Repair {}, at {}", itemGUID.ToString(), npcGUID.ToString());
 

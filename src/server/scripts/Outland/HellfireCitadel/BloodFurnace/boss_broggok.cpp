@@ -66,7 +66,7 @@ enum BroggokEvents
 
 enum BroggokMisc
 {
-    PATH_ROOM                        = 1381150,
+    PATH_ROOM                        = 11049200,
     NPC_BROGGOK_POISON_CLOUD         = 17662,
     NPC_INCOMBAT_TRIGGER             = 16006
 };

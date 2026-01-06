@@ -567,7 +567,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         LfgProposalPlayer &data = proposal.players[itRoles->first];
         data.role = itRoles->second;
         data.group = proposalGroups.find(itRoles->first)->second;
-        if (!proposal.isNew && data.group && data.group == proposal.group) // Player from existing group, autoaccept
+        if (!proposal.isNew && !data.group.IsEmpty() && data.group == proposal.group) // Player from existing group, autoaccept
             data.accept = LFG_ANSWER_AGREE;
     }
 
@@ -636,9 +636,13 @@ void LFGQueue::UpdateQueueTimers(time_t currTime)
     }
 }
 
-time_t LFGQueue::GetJoinTime(ObjectGuid guid)
+time_t LFGQueue::GetJoinTime(ObjectGuid guid) const
 {
-    return QueueDataStore[guid].joinTime;
+    LfgQueueDataContainer::const_iterator itr = QueueDataStore.find(guid);
+    if (itr != QueueDataStore.end())
+        return itr->second.joinTime;
+
+    return 0;
 }
 
 std::string LFGQueue::DumpQueueInfo() const

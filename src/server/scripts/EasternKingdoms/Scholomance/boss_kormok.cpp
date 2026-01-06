@@ -15,23 +15,40 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * Timers requires to be revisited
+ */
+
 #include "ScriptMgr.h"
 #include "scholomance.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "SpellScript.h"
+
+enum KormokTexts
+{
+    SAY_SPAWN                           = 0,
+    SAY_AGGRO                           = 1,
+    SAY_DEATH                           = 2,
+    EMOTE_FRENZY                        = 3
+};
 
 enum KormokSpells
 {
-    SPELL_SHADOWBOLT_VOLLEY             = 20741,
+    // Combat
+    SPELL_SHADOW_BOLT_VOLLEY            = 17228,
     SPELL_BONE_SHIELD                   = 27688,
-
+    SPELL_BLOODLUST                     = 27689,
     SPELL_SUMMON_BONE_MAGES             = 27695,
+    SPELL_SUMMON_BONE_MINIONS           = 27687,
+    SPELL_FRENZY                        = 8269,
+
+    // Scripts
     SPELL_SUMMON_BONE_MAGE_FRONT_LEFT   = 27696,
     SPELL_SUMMON_BONE_MAGE_FRONT_RIGHT  = 27697,
     SPELL_SUMMON_BONE_MAGE_BACK_RIGHT   = 27698,
     SPELL_SUMMON_BONE_MAGE_BACK_LEFT    = 27699,
 
-    SPELL_SUMMON_BONE_MINIONS           = 27687,
     SPELL_SUMMON_BONE_MINION_FRONT      = 27690,
     SPELL_SUMMON_BONE_MINION_BACK       = 27691,
     SPELL_SUMMON_BONE_MINION_LEFT       = 27692,
@@ -40,34 +57,94 @@ enum KormokSpells
 
 enum KormokEvents
 {
-    EVENT_SHADOWBOLT_VOLLEY = 1,
+    // Combat
+    EVENT_SHADOWBOLT_VOLLEY             = 1,
     EVENT_BONE_SHIELD,
+    EVENT_BLOODLUST,
     EVENT_SUMMON_MAGES,
-    EVENT_SUMMON_MINIONS
+    EVENT_SUMMON_MINIONS,
+    EVENT_FRENZY,
+
+    // Intro
+    EVENT_INTRO_1,
+    EVENT_INTRO_2,
+    EVENT_INTRO_3
 };
 
 // 16118 - Kormok
 struct boss_kormok : public ScriptedAI
 {
-    boss_kormok(Creature* creature) : ScriptedAI(creature) { }
+    boss_kormok(Creature* creature) : ScriptedAI(creature), _frenzied(false) { }
+
+    void JustAppeared() override
+    {
+        _events.ScheduleEvent(EVENT_INTRO_1, 0s);
+    }
 
     void Reset() override
     {
         _events.Reset();
+        _frenzied = false;
     }
 
     void JustEngagedWith(Unit* /*who*/) override
     {
-        _events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10s);
+        Talk(SAY_AGGRO);
+
+        _events.ScheduleEvent(EVENT_SHADOWBOLT_VOLLEY, 10s, 15s);
         _events.ScheduleEvent(EVENT_BONE_SHIELD, 2s);
+        _events.ScheduleEvent(EVENT_BLOODLUST, 20s, 30s);
         _events.ScheduleEvent(EVENT_SUMMON_MAGES, 10s, 15s);
         _events.ScheduleEvent(EVENT_SUMMON_MINIONS, 5s, 10s);
+    }
+
+    void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
+    {
+        if (!_frenzied && me->HealthBelowPctDamaged(20, damage))
+        {
+            _frenzied = true;
+            _events.ScheduleEvent(EVENT_FRENZY, 0s);
+        }
+    }
+
+    void OnSpellCast(SpellInfo const* spell) override
+    {
+        if (spell->Id == SPELL_FRENZY)
+            Talk(EMOTE_FRENZY);
+    }
+
+    void JustDied(Unit* /*killer*/) override
+    {
+        Talk(SAY_DEATH);
     }
 
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
+        {
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_INTRO_1:
+                        me->SetImmuneToPC(true);
+                        _events.ScheduleEvent(EVENT_INTRO_2, 2s);
+                        break;
+                    case EVENT_INTRO_2:
+                        Talk(SAY_SPAWN);
+                        _events.ScheduleEvent(EVENT_INTRO_3, 5s);
+                        break;
+                    case EVENT_INTRO_3:
+                        me->SetImmuneToPC(false);
+                        break;
+                    default:
+                        break;
+                }
+            }
             return;
+        }
 
         _events.Update(diff);
 
@@ -79,12 +156,16 @@ struct boss_kormok : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_SHADOWBOLT_VOLLEY:
-                    DoCastSelf(SPELL_SHADOWBOLT_VOLLEY);
-                    _events.Repeat(15s);
+                    DoCastSelf(SPELL_SHADOW_BOLT_VOLLEY);
+                    _events.Repeat(15s, 20s);
                     break;
                 case EVENT_BONE_SHIELD:
                     DoCastSelf(SPELL_BONE_SHIELD);
                     _events.Repeat(45s);
+                    break;
+                case EVENT_BLOODLUST:
+                    DoCastSelf(SPELL_BLOODLUST);
+                    _events.Repeat(30s, 40s);
                     break;
                 case EVENT_SUMMON_MAGES:
                     DoCastSelf(SPELL_SUMMON_BONE_MAGES);
@@ -93,6 +174,9 @@ struct boss_kormok : public ScriptedAI
                 case EVENT_SUMMON_MINIONS:
                     DoCastSelf(SPELL_SUMMON_BONE_MINIONS);
                     _events.Repeat(20s, 25s);
+                    break;
+                case EVENT_FRENZY:
+                    DoCastSelf(SPELL_FRENZY);
                     break;
                 default:
                     break;
@@ -106,6 +190,7 @@ struct boss_kormok : public ScriptedAI
     }
 
 private:
+    bool _frenzied;
     EventMap _events;
 };
 

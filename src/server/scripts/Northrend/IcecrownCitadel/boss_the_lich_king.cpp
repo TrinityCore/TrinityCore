@@ -425,28 +425,6 @@ class FrozenThroneResetWorker
         }
 };
 
-class LichKingStartMovementEvent : public BasicEvent
-{
-    public:
-        LichKingStartMovementEvent(Creature* summoner, Creature* owner)
-            : _summonerGuid(summoner->GetGUID()), _owner(owner)
-        {
-        }
-
-        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
-        {
-            _owner->SetReactState(REACT_AGGRESSIVE);
-            if (Creature* _summoner = ObjectAccessor::GetCreature(*_owner, _summonerGuid))
-                if (Unit* target = _summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(_summoner)))
-                    _owner->AI()->AttackStart(target);
-            return true;
-        }
-
-    private:
-        ObjectGuid _summonerGuid;
-        Creature* _owner;
-};
-
 class VileSpiritActivateEvent : public BasicEvent
 {
     public:
@@ -720,7 +698,7 @@ struct boss_the_lich_king : public BossAI
                 summon->CastSpell(summon, SPELL_RISEN_WITCH_DOCTOR_SPAWN, true);
                 summon->SetReactState(REACT_PASSIVE);
                 summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                summon->m_Events.AddEvent(new LichKingStartMovementEvent(me, summon), summon->m_Events.CalculateTime(5s));
+                SetAggressiveStateAfter(5s, summon, true, me, StartCombatArgs().SetAvoidTargetVictim(true));
                 break;
             case NPC_SHADOW_TRAP:
                 summon->CastSpell(summon, SPELL_SHADOW_TRAP_VISUAL, true);
@@ -1497,7 +1475,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
 
                         triggers.sort(Trinity::ObjectDistanceOrderPred(me));
                         DoCast(target, SPELL_VALKYR_CARRY);
-                        _dropPoint.Relocate(triggers.front());
+                        _dropPoint.Relocate(triggers.front()->GetPositionX(), triggers.front()->GetPositionY(), me->GetFloorZ() + 2.f);
                         _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1s + 500ms);
                     }
                 }
@@ -2843,6 +2821,30 @@ class spell_the_lich_king_harvest_souls_teleport : public SpellScript
     }
 };
 
+// 74399 - Charge (Valkyr)
+class spell_the_lich_king_valkyr_charge : public SpellScript
+{
+    PrepareSpellScript(spell_the_lich_king_valkyr_charge);
+
+    void ChargeDest(SpellEffIndex effIndex)
+    {
+        PreventHitDefaultEffect(effIndex);
+
+        Unit* caster = GetCaster();
+        Unit* target = GetExplTargetUnit();
+        if (!target)
+            return;
+
+        Position pos = target->GetPosition();
+        caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, caster->GetFloorZ() + 2.f);
+    }
+
+    void Register() override
+    {
+        OnEffectLaunch += SpellEffectFn(spell_the_lich_king_valkyr_charge::ChargeDest, EFFECT_0, SPELL_EFFECT_CHARGE_DEST);
+    }
+};
+
 class achievement_been_waiting_long_time : public AchievementCriteriaScript
 {
     public:
@@ -2917,6 +2919,7 @@ void AddSC_boss_the_lich_king()
     RegisterSpellScriptWithArgs(spell_trigger_spell_from_caster, "spell_the_lich_king_mass_resurrection", SPELL_MASS_RESURRECTION_REAL);
     RegisterSpellScript(spell_the_lich_king_play_movie);
     RegisterSpellScript(spell_the_lich_king_harvest_souls_teleport);
+    RegisterSpellScript(spell_the_lich_king_valkyr_charge);
 
     // Achievements
     new achievement_been_waiting_long_time();

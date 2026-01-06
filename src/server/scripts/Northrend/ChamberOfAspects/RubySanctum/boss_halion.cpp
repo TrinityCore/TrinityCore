@@ -554,7 +554,7 @@ struct npc_halion_controller : public ScriptedAI
 
     void JustAppeared() override
     {
-        if (_instance->GetGuidData(DATA_HALION) || _instance->GetBossState(DATA_GENERAL_ZARITHRIAN) != DONE)
+        if (!_instance->GetGuidData(DATA_HALION).IsEmpty() || _instance->GetBossState(DATA_GENERAL_ZARITHRIAN) != DONE)
             return;
 
         Reset();
@@ -625,7 +625,7 @@ struct npc_halion_controller : public ScriptedAI
                 _events.ScheduleEvent(EVENT_START_INTRO, 2s);
                 break;
             case ACTION_INTRO_HALION_2:
-                if (_instance->GetGuidData(DATA_HALION))
+                if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
                     return;
 
                 for (uint8 i = DATA_BURNING_TREE_1; i <= DATA_BURNING_TREE_4; ++i)
@@ -702,7 +702,7 @@ struct npc_halion_controller : public ScriptedAI
                     break;
                 case EVENT_INTRO_PROGRESS_3:
                     DoCastSelf(SPELL_FIERY_EXPLOSION);
-                    if (_instance->GetGuidData(DATA_HALION))
+                    if (!_instance->GetGuidData(DATA_HALION).IsEmpty())
                         return;
                     if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                         halion->AI()->Talk(SAY_INTRO);

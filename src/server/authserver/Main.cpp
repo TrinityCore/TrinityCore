@@ -63,9 +63,10 @@ namespace fs = boost::filesystem;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
 #include "ServiceWin32.h"
-char serviceName[] = "authserver";
-char serviceLongName[] = "TrinityCore auth service";
-char serviceDescription[] = "TrinityCore World of Warcraft emulator auth service";
+#include <tchar.h>
+TCHAR serviceName[] = _T("authserver");
+TCHAR serviceLongName[] = _T("TrinityCore auth service");
+TCHAR serviceDescription[] = _T("TrinityCore World of Warcraft emulator auth service");
 /*
 * -1 - not in service mode
 *  0 - stopped
@@ -102,12 +103,13 @@ int main(int argc, char** argv)
         return 0;
 
 #if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+    Trinity::Service::Init(serviceLongName, serviceName, serviceDescription, &main, &m_ServiceStatus);
     if (winServiceAction == "install")
-        return WinServiceInstall() == true ? 0 : 1;
+        return Trinity::Service::Install();
     if (winServiceAction == "uninstall")
-        return WinServiceUninstall() == true ? 0 : 1;
+        return Trinity::Service::Uninstall();
     if (winServiceAction == "run")
-        return WinServiceRun() ? 0 : 1;
+        return Trinity::Service::Run();
 #endif
 
     std::string configError;
@@ -378,3 +380,9 @@ variables_map GetConsoleArguments(int argc, char** argv, fs::path& configFile, f
 
     return variablesMap;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

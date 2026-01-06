@@ -140,7 +140,7 @@ public:
 
                 DeletedInfo info;
 
-                info.guid       = ObjectGuid(HighGuid::Player, fields[0].GetUInt32());
+                info.guid       = ObjectGuid::Create<HighGuid::Player>(fields[0].GetUInt32());
                 info.name       = fields[1].GetString();
                 info.accountId  = fields[2].GetUInt32();
 
@@ -180,11 +180,11 @@ public:
 
             if (!handler->GetSession())
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
+                    itr->guid.ToString().c_str(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
             else
                 handler->PSendSysMessage(LANG_CHARACTER_DELETED_LIST_LINE_CHAT,
-                    itr->guid.GetCounter(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
+                    itr->guid.ToString().c_str(), itr->name.c_str(), itr->accountName.empty() ? "<Not existing>" : itr->accountName.c_str(),
                     itr->accountId, dateStr.c_str());
         }
 
@@ -206,7 +206,7 @@ public:
     {
         if (delInfo.accountName.empty())                    // account does not exist
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_ACCOUNT, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
         }
 
@@ -214,13 +214,13 @@ public:
         uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
         if (charcount >= 10)
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
         }
 
-        if (sCharacterCache->GetCharacterGuidByName(delInfo.name))
+        if (!sCharacterCache->GetCharacterGuidByName(delInfo.name).IsEmpty())
         {
-            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.GetCounter(), delInfo.accountId);
+            handler->PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.guid.ToString().c_str(), delInfo.accountId);
             return;
         }
 
@@ -378,7 +378,7 @@ public:
                 if (handler->HasLowerSecurity(nullptr, player->GetGUID()))
                     return false;
 
-                handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+                handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
 
                 CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
                 stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
@@ -405,7 +405,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, static_cast<uint16>(AT_LOGIN_CUSTOMIZE));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -447,7 +447,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -471,7 +471,7 @@ public:
         }
         else
         {
-            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().GetCounter());
+            handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, handler->playerLink(*player).c_str(), player->GetGUID().ToString().c_str());
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
             stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
             stmt->setUInt32(1, player->GetGUID().GetCounter());
@@ -557,8 +557,7 @@ public:
             FactionState const& faction = itr->second;
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->Name[loc] : "#Not found#";
-            ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-            std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
+            std::string rankName = target->GetReputationMgr().GetReputationRankName(factionEntry);
             std::ostringstream ss;
             if (handler->GetSession())
                 ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
@@ -567,17 +566,17 @@ public:
 
             ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-            if (faction.Flags & FACTION_FLAG_VISIBLE)
+            if (faction.Flags.HasFlag(ReputationFlags::Visible))
                 ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
-            if (faction.Flags & FACTION_FLAG_AT_WAR)
+            if (faction.Flags.HasFlag(ReputationFlags::AtWar))
                 ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
-            if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
+            if (faction.Flags.HasFlag(ReputationFlags::Peaceful))
                 ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
-            if (faction.Flags & FACTION_FLAG_HIDDEN)
+            if (faction.Flags.HasFlag(ReputationFlags::Hidden))
                 ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
-            if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
+            if (faction.Flags.HasFlag(ReputationFlags::Header))
                 ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-            if (faction.Flags & FACTION_FLAG_INACTIVE)
+            if (faction.Flags.HasFlag(ReputationFlags::Inactive))
                 ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
 
             handler->SendSysMessage(ss.str().c_str());
@@ -750,7 +749,7 @@ public:
         AccountMgr::GetName(accountId, accountName);
 
         Player::DeleteFromDB(player, accountId, true, true);
-        handler->PSendSysMessage(LANG_CHARACTER_DELETED, player.GetName().c_str(), player.GetGUID().GetCounter(), accountName.c_str(), accountId);
+        handler->PSendSysMessage(LANG_CHARACTER_DELETED, player.GetName().c_str(), player.GetGUID().ToString().c_str(), accountName.c_str(), accountId);
 
         return true;
     }
@@ -791,7 +790,7 @@ public:
             // Update level and reset XP, everything else will be updated at login
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
             stmt->setUInt8(0, static_cast<uint8>(newlevel));
-            stmt->setUInt32(1, player->GetGUID());
+            stmt->setUInt32(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
         }
 
@@ -838,7 +837,7 @@ public:
             // Update level and reset XP, everything else will be updated at login
             CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_LEVEL);
             stmt->setUInt8(0, static_cast<uint8>(newlevel));
-            stmt->setUInt32(1, player->GetGUID());
+            stmt->setUInt32(1, player->GetGUID().GetCounter());
             CharacterDatabase.Execute(stmt);
         }
 
@@ -947,7 +946,7 @@ public:
 
         if (characterGUID)
         {
-            if (sCharacterCache->GetCharacterCacheByGuid(ObjectGuid(HighGuid::Player, *characterGUID)))
+            if (sCharacterCache->GetCharacterCacheByGuid(ObjectGuid::Create<HighGuid::Player>(*characterGUID)))
             {
                 handler->PSendSysMessage(LANG_CHARACTER_GUID_IN_USE, *characterGUID);
                 handler->SetSentErrorMessage(true);

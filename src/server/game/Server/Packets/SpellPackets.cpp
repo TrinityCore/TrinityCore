@@ -70,7 +70,7 @@ ByteBuffer& operator<<(ByteBuffer& data, SpellTargetData const& spellTargetData)
 
 ByteBuffer& operator<<(ByteBuffer& data, SpellMissStatus const& spellMissStatus)
 {
-    data << uint64(spellMissStatus.TargetGUID);
+    data << spellMissStatus.TargetGUID;
     data << uint8(spellMissStatus.Reason);
     if (spellMissStatus.Reason == SPELL_MISS_REFLECT)
         data << uint8(spellMissStatus.ReflectStatus);

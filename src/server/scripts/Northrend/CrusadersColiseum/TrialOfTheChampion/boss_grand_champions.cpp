@@ -187,28 +187,28 @@ public:
             switch (uiType)
             {
                 case 1:
-                    AddWaypoint(0, 747.36f, 634.07f, 411.572f);
-                    AddWaypoint(1, 780.43f, 607.15f, 411.82f);
-                    AddWaypoint(2, 785.99f, 599.41f, 411.92f);
-                    AddWaypoint(3, 778.44f, 601.64f, 411.79f);
+                    AddWaypoint(0, 747.36f, 634.07f, 411.572f, true);
+                    AddWaypoint(1, 780.43f, 607.15f, 411.82f, true);
+                    AddWaypoint(2, 785.99f, 599.41f, 411.92f, true);
+                    AddWaypoint(3, 778.44f, 601.64f, 411.79f, true);
                     uiWaypointPath = 1;
                     break;
                 case 2:
-                    AddWaypoint(0, 747.35f, 634.07f, 411.57f);
-                    AddWaypoint(1, 768.72f, 581.01f, 411.92f);
-                    AddWaypoint(2, 763.55f, 590.52f, 411.71f);
+                    AddWaypoint(0, 747.35f, 634.07f, 411.57f, true);
+                    AddWaypoint(1, 768.72f, 581.01f, 411.92f, true);
+                    AddWaypoint(2, 763.55f, 590.52f, 411.71f, true);
                     uiWaypointPath = 2;
                     break;
                 case 3:
-                    AddWaypoint(0, 747.35f, 634.07f, 411.57f);
-                    AddWaypoint(1, 784.02f, 645.33f, 412.39f);
-                    AddWaypoint(2, 775.67f, 641.91f, 411.91f);
+                    AddWaypoint(0, 747.35f, 634.07f, 411.57f, true);
+                    AddWaypoint(1, 784.02f, 645.33f, 412.39f, true);
+                    AddWaypoint(2, 775.67f, 641.91f, 411.91f, true);
                     uiWaypointPath = 3;
                     break;
             }
 
             if (uiType <= 3)
-                Start(false, true);
+                Start(false);
         }
 
         void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
@@ -395,7 +395,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiInterceptTimer <= uiDiff)
@@ -544,7 +544,7 @@ public:
                 uiFireBallTimer = 5000;
             } else uiFireBallTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiFireBallTimer <= uiDiff)
@@ -687,7 +687,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiChainLightningTimer <= uiDiff)
@@ -838,7 +838,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiLightningArrowsTimer <= uiDiff)
@@ -991,7 +991,7 @@ public:
                 }
             } else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || !me->m_movementInfo.transport.guid.IsEmpty())
                 return;
 
             if (uiEviscerateTimer <= uiDiff)

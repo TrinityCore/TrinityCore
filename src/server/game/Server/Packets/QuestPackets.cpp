@@ -54,7 +54,7 @@ WorldPacket const* WorldPackets::Quest::QueryQuestInfoResponse::Write()
     _worldPacket << uint32(Info.RewardHonor);
     _worldPacket << float(Info.RewardKillHonor);
     _worldPacket << uint32(Info.StartItem);
-    _worldPacket << uint32(Info.Flags & 0xFFFF);
+    _worldPacket << uint32(Info.Flags);
     _worldPacket << uint32(Info.RewardTitleId);
     _worldPacket << uint32(Info.RequiredPlayerKills);
     _worldPacket << uint32(Info.RewardTalents);

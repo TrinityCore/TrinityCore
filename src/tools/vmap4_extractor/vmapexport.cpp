@@ -87,13 +87,12 @@ bool ExtractSingleWmo(std::string& fname)
     // Copy files from archive
     std::string originalName = fname;
 
-    char szLocalFile[1024];
     char* plain_name = GetPlainName(&fname[0]);
-    fixnamen(plain_name, strlen(plain_name));
-    fixname2(plain_name, strlen(plain_name));
-    sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
+    FixNameCase(plain_name, strlen(plain_name));
+    FixNameSpaces(plain_name, strlen(plain_name));
+    std::string szLocalFile = Trinity::StringFormat("{}/{}", szWorkDirWmo, plain_name);
 
-    if (FileExists(szLocalFile))
+    if (FileExists(szLocalFile.c_str()))
         return true;
 
     int p = 0;
@@ -122,10 +121,10 @@ bool ExtractSingleWmo(std::string& fname)
         printf("Couldn't open RootWmo!!!\n");
         return true;
     }
-    FILE *output = fopen(szLocalFile,"wb");
+    FILE *output = fopen(szLocalFile.c_str(),"wb");
     if(!output)
     {
-        printf("couldn't open %s for writing!\n", szLocalFile);
+        printf("couldn't open %s for writing!\n", szLocalFile.c_str());
         return false;
     }
     froot.ConvertToVMAPRootWmo(output);
@@ -177,7 +176,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     // Delete the extracted file in the case of an error
     if (!file_ok)
-        remove(szLocalFile);
+        remove(szLocalFile.c_str());
     return true;
 }
 
@@ -303,7 +302,7 @@ int main(int argc, char ** argv)
         }
     }
 
-    printf("Extract %s. Beginning work ....\n", versionString);
+    printf("Extract %s. Beginning work ....\n\n", versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     success = boost::filesystem::create_directories(szWorkDirWmo) || boost::filesystem::is_directory(szWorkDirWmo);
@@ -353,7 +352,7 @@ int main(int argc, char ** argv)
         delete dbc;
         ParsMapFiles();
         //nError = ERROR_SUCCESS;
-        // Extract models, listed in DameObjectDisplayInfo.dbc
+        // Extract models, listed in GameObjectDisplayInfo.dbc
         ExtractGameobjectModels();
     }
 
@@ -367,3 +366,9 @@ int main(int argc, char ** argv)
     printf("Extract %s. Work complete. No errors.\n", versionString);
     return 0;
 }
+
+#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
+#include "WheatyExceptionReport.h"
+// must be at end of file because of init_seg pragma
+INIT_CRASH_HANDLER();
+#endif

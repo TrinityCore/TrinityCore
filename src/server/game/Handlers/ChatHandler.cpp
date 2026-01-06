@@ -128,8 +128,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
                 break;
             default:
-                TC_LOG_ERROR("network", "Player {}{} sent a chatmessage with an invalid language/message type combination",
-                                                     GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
+                TC_LOG_ERROR("network", "Player {} {} sent a chatmessage with an invalid language/message type combination",
+                    GetPlayer()->GetName(), GetPlayer()->GetGUID().ToString());
 
                 recvData.rfinish();
                 return;

@@ -17,10 +17,14 @@
 
 #include "CommonHelpers.h"
 #include "Common.h"
+#include "Creature.h"
+#include "CreatureAI.h"
 #include "Item.h"
 #include "ItemTemplate.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "SharedDefines.h"
+#include "UnitAI.h"
 
 enum PlayerSpecializationIconicSpellIds
 {
@@ -321,4 +325,41 @@ bool Trinity::Helpers::Entity::IsPlayerRangedAttacker(Player const* who)
         case CLASS_DRUID:
             return (Trinity::Helpers::Entity::GetPlayerSpecialization(who) == SPEC_DRUID_BALANCE);
     }
+}
+
+Trinity::Helpers::Events::SetAggresiveStateEvent::SetAggresiveStateEvent(Creature* owner, bool startCombat/* = true*/, ObjectGuid summonerGUID/* = ObjectGuid::Empty*/, StartCombatArgs const& combatArgs/* = { }*/) : _owner(owner), _startCombat(startCombat), _summonerGUID(summonerGUID), _combatArgs(combatArgs)
+{
+}
+
+bool Trinity::Helpers::Events::SetAggresiveStateEvent::Execute(uint64 /*time*/, uint32 /*diff*/)
+{
+    _owner->SetReactState(REACT_AGGRESSIVE);
+    if (_startCombat)
+    {
+        if (!_summonerGUID.IsEmpty())
+        {
+            if (Creature* summoner = ObjectAccessor::GetCreature(*_owner, _summonerGUID))
+                if (summoner->IsEngaged() && summoner->IsAIEnabled() && _owner->IsAIEnabled())
+                {
+                    if (_combatArgs.AvoidTargetVictim)
+                    {
+                        if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, NonTankTargetSelector(summoner, _combatArgs.TargetPlayers)))
+                            _owner->AI()->AttackStart(target);
+                    }
+                    else
+                    {
+                        if (Unit* target = summoner->AI()->SelectTarget(SelectTargetMethod::Random, 0, _combatArgs.Distance, _combatArgs.TargetPlayers))
+                            _owner->AI()->AttackStart(target);
+                    }
+                }
+        }
+        else if (Unit* currentVictim = _owner->SelectVictim())
+        {
+            if (_owner->IsAIEnabled())
+                _owner->AI()->AttackStart(currentVictim);
+        }
+        else if (_owner->IsAIEnabled())
+            _owner->AI()->DoZoneInCombat();
+    }
+    return true;
 }

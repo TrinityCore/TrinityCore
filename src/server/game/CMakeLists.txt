@@ -46,10 +46,6 @@ target_include_directories(game
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR})
 
-set_target_properties(game
-  PROPERTIES
-    DEFINE_SYMBOL TRINITY_API_EXPORT_GAME)
-
 target_link_libraries(game
   PRIVATE
     trinity-core-interface
@@ -63,9 +59,10 @@ if(TARGET efsw)
 endif()
 
 set_target_properties(game
-    PROPERTIES
-      FOLDER
-        "server")
+  PROPERTIES
+    COMPILE_WARNING_AS_ERROR ${WITH_WARNINGS_AS_ERRORS}
+    DEFINE_SYMBOL TRINITY_API_EXPORT_GAME
+    FOLDER "server")
 
 if(BUILD_SHARED_LIBS)
   if(UNIX)
