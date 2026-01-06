@@ -31,6 +31,8 @@ namespace UF
     struct ChrCustomizationChoice;
 }
 
+enum class LossOfControlType : uint8;
+
 namespace WorldPackets
 {
     namespace Spells
@@ -1206,6 +1208,26 @@ namespace WorldPackets
             explicit CancelQueuedSpell(WorldPacket&& packet) : ClientPacket(CMSG_CANCEL_QUEUED_SPELL, std::move(packet)) { }
 
             void Read() override { }
+        };
+
+        struct LossOfControlAuraData
+        {
+            uint32 Duration = 0;
+            uint8 AuraSlot = 0;
+            uint8 EffectIndex = 0;
+            LossOfControlType LocType = LossOfControlType(0);
+            uint8 EffectMechanic = 0;
+        };
+
+        class LossOfControlAuraUpdate final : public ServerPacket
+        {
+        public:
+            LossOfControlAuraUpdate() : ServerPacket(SMSG_LOSS_OF_CONTROL_AURA_UPDATE) { }
+
+            WorldPacket const* Write() override;
+
+            ObjectGuid AffectedGUID;
+            std::vector<LossOfControlAuraData> LossOfControlInfo;
         };
 
         ByteBuffer& operator>>(ByteBuffer& buffer, SpellCastRequest& request);
