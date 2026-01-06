@@ -7137,10 +7137,7 @@ Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iter
 
 AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
-    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
-    if (itr != _areaTriggerStore.end())
-        return &itr->second;
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_areaTriggerStore, trigger);
 }
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
@@ -7239,13 +7236,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             continue;
         }
 
-        AreaTriggerTeleport& at = _areaTriggerStore[Trigger_ID];
-
-        at.target_mapId       = portLoc->Loc.GetMapId();
-        at.target_X           = portLoc->Loc.GetPositionX();
-        at.target_Y           = portLoc->Loc.GetPositionY();
-        at.target_Z           = portLoc->Loc.GetPositionZ();
-        at.target_Orientation = portLoc->Loc.GetOrientation();
+        _areaTriggerStore[Trigger_ID] = portLoc;
 
     } while (result->NextRow());
 
@@ -7393,11 +7384,11 @@ AreaTriggerTeleport const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     uint32 entrance_map = parentId.value_or(mapEntry->CorpseMapID);
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {
-        if (itr->second.target_mapId == entrance_map)
+        if (itr->second->Loc.GetMapId() == entrance_map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if (atEntry && atEntry->ContinentID == Map)
-                return &itr->second;
+                return itr->second;
         }
     }
     return nullptr;
@@ -7410,11 +7401,10 @@ AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {
-        if (itr->second.target_mapId == Map)
+        if (itr->second->Loc.GetMapId() == Map)
         {
-            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry)
-                return &itr->second;
+            if (sAreaTriggerStore.HasRecord(itr->first))
+                return itr->second;
         }
     }
     return nullptr;
