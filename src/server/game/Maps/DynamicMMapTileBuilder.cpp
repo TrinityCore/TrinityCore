@@ -63,20 +63,18 @@ struct std::hash<TileCacheKey>
 {
     static std::size_t Compute(TileCacheKey const& key) noexcept
     {
-        size_t hashVal = 0;
-        Trinity::hash_combine(hashVal, key.TerrainMapId);
-        Trinity::hash_combine(hashVal, key.X);
-        Trinity::hash_combine(hashVal, key.Y);
+        Trinity::HashFnv1a<> hash;
+        hash.UpdateData(key.TerrainMapId);
+        hash.UpdateData(key.X);
+        hash.UpdateData(key.Y);
         for (TileCacheKeyObject const& object : key.Objects)
         {
-            Trinity::hash_combine(hashVal, object.DisplayId);
-            Trinity::hash_combine(hashVal, object.Scale);
-            Trinity::hash_combine(hashVal, object.Position[0]);
-            Trinity::hash_combine(hashVal, object.Position[1]);
-            Trinity::hash_combine(hashVal, object.Position[2]);
-            Trinity::hash_combine(hashVal, object.Rotation);
+            hash.UpdateData(object.DisplayId);
+            hash.UpdateData(object.Scale);
+            hash.UpdateData(object.Position);
+            hash.UpdateData(object.Rotation);
         }
-        return hashVal;
+        return hash.Value;
     }
 
     std::size_t operator()(TileCacheKey const& key) const noexcept

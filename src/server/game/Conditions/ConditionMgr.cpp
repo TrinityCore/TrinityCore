@@ -182,11 +182,11 @@ ConditionSourceInfo::ConditionSourceInfo(Map const* map) :
 
 std::size_t ConditionId::GetHash() const
 {
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, SourceGroup);
-    Trinity::hash_combine(hashVal, SourceEntry);
-    Trinity::hash_combine(hashVal, SourceId);
-    return hashVal;
+    Trinity::HashFnv1a<> hash;
+    hash.UpdateData(SourceGroup);
+    hash.UpdateData(SourceEntry);
+    hash.UpdateData(SourceId);
+    return hash.Value;
 }
 
 // Checks if object meets the condition
