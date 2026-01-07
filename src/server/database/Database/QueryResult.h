@@ -32,11 +32,11 @@ struct FieldLookupByAliasKey
     std::string_view Alias;
 
     // implicit constructor from string literal for users of the query result
-    consteval FieldLookupByAliasKey(char const* alias) : HashValue(HashFnv1a(alias)), Alias(alias) { }
+    consteval FieldLookupByAliasKey(char const* alias) : HashValue(HashFnv1a<>::GetHash(std::span(alias, std::char_traits<char>::length(alias)))), Alias(alias) { }
 
     // runtime only constructor used internally to fill alias to index mapping
     struct RuntimeInitTag { } static inline constexpr RuntimeInit = { };
-    FieldLookupByAliasKey(RuntimeInitTag, std::string_view alias) : HashValue(HashFnv1a(alias)), Alias(std::move(alias)) { }
+    FieldLookupByAliasKey(RuntimeInitTag, std::string_view alias) : HashValue(HashFnv1a<>::GetHash(alias)), Alias(std::move(alias)) { }
 
     friend bool operator==(FieldLookupByAliasKey const& left, FieldLookupByAliasKey const& right) = default;
 
