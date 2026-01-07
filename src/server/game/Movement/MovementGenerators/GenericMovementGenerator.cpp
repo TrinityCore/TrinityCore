@@ -30,6 +30,11 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
+GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit &init)>&& initializer, MovementGeneratorType type, uint32 id, Milliseconds duration) : GenericMovementGenerator(std::move(initializer), type, id)
+{
+    _duration.Reset(duration);
+}
+
 bool GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED) && !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING)) // Resume spline is not supported
@@ -62,7 +67,7 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!owner->movespline->isCyclic())
         _duration.Update(diff);
 
-    if (_duration.Passed() || owner->movespline->Finalized())
+    if (_duration.Passed() || (!HasFlag(MOVEMENTGENERATOR_FLAG_FIXED_DURATION) && owner->movespline->Finalized()))
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         return false;

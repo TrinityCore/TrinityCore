@@ -19,6 +19,7 @@
 #define MOTIONMASTER_H
 
 #include "Common.h"
+#include "Duration.h"
 #include "ObjectGuid.h"
 #include "Optional.h"
 #include "MovementDefines.h"
@@ -32,6 +33,7 @@
 
 class PathGenerator;
 class Unit;
+class WorldObject;
 struct Position;
 struct SplineChainLink;
 struct SplineChainResumeInfo;
@@ -123,6 +125,7 @@ class TC_GAME_API MotionMaster
         MovementSlot GetCurrentSlot() const;
         MovementGenerator* GetCurrentMovementGenerator() const;
         MovementGeneratorType GetCurrentMovementGeneratorType() const;
+        MovementGeneratorPriority GetCurrentMovementGeneratorPriority() const;
         MovementGeneratorType GetCurrentMovementGeneratorType(MovementSlot slot) const;
         MovementGenerator* GetCurrentMovementGenerator(MovementSlot slot) const;
         // Returns first found MovementGenerator that matches the given criteria
@@ -192,6 +195,8 @@ class TC_GAME_API MotionMaster
         void MovePath(WaypointPath& path, bool repeatable);
         void MoveRotate(uint32 id, uint32 time, RotateDirection direction);
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
+        void MoveFace(WorldObject const* object, Milliseconds duration = 1s, uint32 id = EVENT_FACE);
+        void MoveFace(float const orientation, Milliseconds duration = 1s, uint32 id = EVENT_FACE);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);
     private:

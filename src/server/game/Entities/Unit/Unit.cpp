@@ -5586,6 +5586,9 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
     }
 
+    if (HasUnitState(UNIT_STATE_DISTRACTED))
+        GetMotionMaster()->Remove(DISTRACT_MOTION_TYPE);
+
     if (m_attacking)
         m_attacking->_removeAttacker(this);
 
@@ -13245,35 +13248,22 @@ void Unit::SetInFront(WorldObject const* target)
         SetOrientation(GetAbsoluteAngle(target));
 }
 
-void Unit::SetFacingTo(float ori, bool force)
+void Unit::SetFacingTo(float ori, bool force/* = true*/, uint32 id/* = EVENT_FACE*/, Milliseconds duration/* = 0ms*/)
 {
     // do not face when already moving
-    if (!force && (!IsStopped() || !movespline->Finalized()))
+    if (!force && (!IsStopped() || !movespline->Finalized() || GetMotionMaster()->GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST))
         return;
 
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    if (HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !GetTransGUID().IsEmpty())
-        init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
-    init.SetFacing(ori);
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(ori, duration, id);
 }
 
-void Unit::SetFacingToObject(WorldObject const* object, bool force)
+void Unit::SetFacingToObject(WorldObject const* object, bool force/* = true*/, uint32 id/* = EVENT_FACE*/, Milliseconds duration/* = 0ms*/)
 {
     // do not face when already moving
-    if (!force && (!IsStopped() || !movespline->Finalized()))
+    if (!force && (!IsStopped() || !movespline->Finalized() || GetMotionMaster()->GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST))
         return;
 
-    /// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
-    Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZ(), false);
-    init.SetFacing(GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-
-    //GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-    init.Launch();
+    GetMotionMaster()->MoveFace(object, duration, id);
 }
 
 bool Unit::SetWalk(bool enable)

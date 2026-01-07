@@ -247,13 +247,14 @@ enum UnitState : uint32
     UNIT_STATE_FOLLOW_MOVE           = 0x08000000,
     UNIT_STATE_IGNORE_PATHFINDING    = 0x10000000, // do not use pathfinding in any MovementGenerator
     UNIT_STATE_FOLLOW_FORMATION_MOVE = 0x20000000,
+    UNIT_STATE_FACING                = 0x40000000,
 
     UNIT_STATE_ALL_STATE_SUPPORTED = UNIT_STATE_DIED | UNIT_STATE_MELEE_ATTACKING | UNIT_STATE_CHARMED | UNIT_STATE_STUNNED | UNIT_STATE_ROAMING | UNIT_STATE_CHASE
                                    | UNIT_STATE_FOCUSING | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT | UNIT_STATE_FOLLOW | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED
                                    | UNIT_STATE_DISTRACTED | UNIT_STATE_ISOLATED | UNIT_STATE_ATTACK_PLAYER | UNIT_STATE_CASTING
                                    | UNIT_STATE_POSSESSED | UNIT_STATE_CHARGING | UNIT_STATE_JUMPING | UNIT_STATE_MOVE | UNIT_STATE_ROTATING
                                    | UNIT_STATE_EVADE | UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE
-                                   | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE | UNIT_STATE_IGNORE_PATHFINDING | UNIT_STATE_FOLLOW_FORMATION_MOVE,
+                                   | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE | UNIT_STATE_IGNORE_PATHFINDING | UNIT_STATE_FOLLOW_FORMATION_MOVE | UNIT_STATE_FACING,
 
     UNIT_STATE_UNATTACKABLE        = UNIT_STATE_IN_FLIGHT,
     UNIT_STATE_MOVING              = UNIT_STATE_ROAMING_MOVE | UNIT_STATE_CONFUSED_MOVE | UNIT_STATE_FLEEING_MOVE | UNIT_STATE_CHASE_MOVE | UNIT_STATE_FOLLOW_MOVE | UNIT_STATE_FOLLOW_FORMATION_MOVE,
@@ -1227,8 +1228,8 @@ class TC_GAME_API Unit : public WorldObject
         bool SetHover(bool enable, bool updateAnimTier = true);
 
         void SetInFront(WorldObject const* target);
-        void SetFacingTo(float const ori, bool force = true);
-        void SetFacingToObject(WorldObject const* object, bool force = true);
+        void SetFacingTo(float const ori, bool force = true, uint32 id = EVENT_FACE, Milliseconds duration = 0ms);
+        void SetFacingToObject(WorldObject const* object, bool force = true, uint32 id = EVENT_FACE, Milliseconds duration = 0ms);
 
         void BuildHeartBeatMsg(WorldPacket* data) const;
 

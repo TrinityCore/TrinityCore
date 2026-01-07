@@ -64,6 +64,7 @@ struct npc_kalecgos : public ScriptedAI
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
             me->SetDisableGravity(false);
+            me->SetFacingTo(0.0698132f);
             _events.ScheduleEvent(EVENT_KALECGOS_LANDING, 1s);
         }
     }
@@ -76,7 +77,6 @@ struct npc_kalecgos : public ScriptedAI
         {
             case EVENT_KALECGOS_LANDING:
                 DoCastSelf(SPELL_CAMERA_SHAKE);
-                me->SetFacingTo(0.0698132f);
                 me->SetObjectScale(0.6f);
                 _events.ScheduleEvent(EVENT_KALECGOS_TRANSFORM, 1s);
                 break;

@@ -3414,6 +3414,7 @@ enum EventId
     EVENT_VEHICLE_BOARD     = 1007,
     EVENT_VEHICLE_EXIT      = 1008,
     EVENT_ASSIST_MOVE       = 1009,
+    EVENT_SPELL_FOCUS       = 1010,
 };
 
 enum ResponseCodes
