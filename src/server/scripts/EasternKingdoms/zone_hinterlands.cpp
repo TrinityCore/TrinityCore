@@ -62,6 +62,8 @@ Position const AmbushMoveTo[] =
     { 70.886589f,  -2874.335449f, 116.675f, 0.0f }
 };
 
+static constexpr uint32 PATH_ESCORT_RINJI = 62242;
+
 class npc_rinji : public CreatureScript
 {
 public:
@@ -140,7 +142,8 @@ public:
                 if (GameObject* go = me->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
                     go->UseDoorOrButton();
 
-                EscortAI::Start(false, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_RINJI);
+                Start(false, player->GetGUID(), quest);
             }
         }
 
@@ -164,7 +167,6 @@ public:
                 case 17:
                     Talk(SAY_RIN_COMPLETE, player);
                     player->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
-                    SetRun();
                     postEventCount = 1;
                     break;
             }

@@ -202,6 +202,8 @@ struct npc_freed_protodrake : public VehicleAI
     }
 };
 
+static constexpr uint32 PATH_ESCORT_ICEFANG = 236818;
+
 struct npc_icefang : public EscortAI
 {
     npc_icefang(Creature* creature) : EscortAI(creature) { }
@@ -215,7 +217,10 @@ struct npc_icefang : public EscortAI
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
             if (apply)
-                Start(false, true, who->GetGUID());
+            {
+                LoadPath(PATH_ESCORT_ICEFANG);
+                Start(false, who->GetGUID());
+            }
         }
     }
 

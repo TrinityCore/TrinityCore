@@ -59,6 +59,8 @@ enum Gilthares
     AREA_MERCHANT_COAST         = 391
 };
 
+static constexpr uint32 PATH_ESCORT_GILTHARES = 27722;
+
 class npc_gilthares : public CreatureScript
 {
 public:
@@ -122,7 +124,8 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
                 Talk(SAY_GIL_START, player);
-                Start(false, false, player->GetGUID(), quest);
+                LoadPath(PATH_ESCORT_GILTHARES);
+                Start(false, player->GetGUID(), quest);
             }
         }
     };
