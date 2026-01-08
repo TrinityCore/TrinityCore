@@ -163,13 +163,16 @@ struct TileCache
 private:
     void OnCacheCleanupTimerTick(boost::system::error_code const& error)
     {
-        if (error || !_builderThread.joinable() /*shutting down*/)
-            return;
-
         TimePoint now = GameTime::Now();
         RemoveOldCacheEntries(now - CACHE_MAX_AGE);
         _cacheCleanupTimer.expires_at(now + CACHE_CLEANUP_INTERVAL);
-        _cacheCleanupTimer.async_wait([this](boost::system::error_code const& error) { OnCacheCleanupTimerTick(error); });
+        _cacheCleanupTimer.async_wait([this](boost::system::error_code const& error)
+        {
+            if (error || !_builderThread.joinable() /*shutting down*/)
+                return;
+
+            OnCacheCleanupTimerTick(error);
+        });
     }
 
     void RemoveOldCacheEntries(TimePoint oldestPreservedEntryTimestamp)
