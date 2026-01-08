@@ -185,7 +185,7 @@ namespace WorldPackets
 
         struct CTROptions
         {
-            uint32 ConditionalFlags = 0;
+            std::span<uint32 const> ConditionalFlags;
             int8 FactionGroup = 0;
             uint32 ChromieTimeExpansionMask = 0;
         };

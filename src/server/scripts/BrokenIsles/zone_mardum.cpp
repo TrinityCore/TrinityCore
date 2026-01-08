@@ -216,7 +216,7 @@ struct npc_kayn_sunfury_invasion_begins : public ScriptedAI
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 3000);
             me->PlayObjectSound(SOUND_SPELL_DOUBLE_JUMP, me->GetGUID(), summonerPlayer);
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_DOUBLE_JUMP, 0, 0);
-            me->GetMotionMaster()->MoveJumpWithGravity(KaynDoubleJumpPosition, 24.0, 0.9874f, POINT_KAYN_MOVE_TO_DEMON);
+            me->GetMotionMaster()->MoveJump(POINT_KAYN_MOVE_TO_DEMON, KaynDoubleJumpPosition, 24.0f, {}, 1.5f);
         }
         else if (pointId == POINT_KAYN_MOVE_TO_DEMON)
         {
@@ -244,7 +244,7 @@ struct npc_jayce_darkweaver_invasion_begins : public ScriptedAI
         if (pathId == PATH_JAYCE_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPos, 12.0f, 15.2792f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, JayceJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_JAYCE_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -273,7 +273,7 @@ struct npc_allari_the_souleater_invasion_begins : public ScriptedAI
         if (pathId == PATH_ALLARI_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(AllariJumpPos, 12.0f, 9.2722f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, AllariJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_ALLARI_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -302,7 +302,7 @@ struct npc_korvas_bloodthorn_invasion_begins : public ScriptedAI
         if (pathId == PATH_KORVAS_INVASION_BEGINS)
         {
             me->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KORVAS_JUMP, 4, 2000);
-            me->GetMotionMaster()->MoveJumpWithGravity(KorvasJumpPos, 24.0f, 19.2911f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, KorvasJumpPos, 24.0f, {}, 5.0f);
         }
         else if (pathId == PATH_KORVAS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -331,7 +331,7 @@ struct npc_sevis_brightflame_invasion_begins : public ScriptedAI
         if (pathId == PATH_SEVIS_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(SevisJumpPos, 12.0f, 13.3033f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, SevisJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_SEVIS_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -360,7 +360,7 @@ struct npc_cyana_nightglaive_invasion_begins : public ScriptedAI
         if (pathId == PATH_CYANA_INVASION_BEGINS)
         {
             me->CastSpell(nullptr, SPELL_DEMON_HUNTER_GLIDE_STATE, true);
-            me->GetMotionMaster()->MoveJumpWithGravity(CyanaJumpPos, 12.0f, 8.4555f, POINT_ILLIDARI_LAND_POS);
+            me->GetMotionMaster()->MoveJump(POINT_ILLIDARI_LAND_POS, CyanaJumpPos, 12.0f, {}, 5.0f);
         }
         else if (pathId == PATH_CYANA_JUMP_INVASION_BEGINS)
             me->DespawnOrUnsummon();
@@ -501,7 +501,7 @@ public:
                 kaynClone->PlayObjectSound(SOUND_METAL_WEAPON_UNSHEATH, kaynClone->GetGUID(), player);
                 kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_GLIDE, 4, 3000);
                 kaynClone->SendPlaySpellVisualKit(SPELL_VISUAL_KIT_KAYN_WINGS, 4, 4000);
-                kaynClone->GetMotionMaster()->MoveJumpWithGravity(KaynJumpPos, 20.5f, 396.3535f, POINT_KAYN_TRIGGER_DOUBLE_JUMP);
+                kaynClone->GetMotionMaster()->MoveJump(POINT_KAYN_TRIGGER_DOUBLE_JUMP, KaynJumpPos, 23.0f, 1.5f);
                 kaynClone->SetSheath(SHEATH_STATE_MELEE);
                 kaynClone->SetNpcFlag(UNIT_NPC_FLAG_QUESTGIVER);
 
@@ -1850,7 +1850,7 @@ struct npc_jayce_darkweaver_cryptic_hollow_private : public ScriptedAI
             return;
 
         if (pointId == POINT_JAYCE_DARKWEAVER_PREPARE_JUMP)
-            me->GetMotionMaster()->MoveJumpWithGravity(JayceJumpPosition, 19.880844f, 32.78205f, POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE);
+            me->GetMotionMaster()->MoveJump(POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE, JayceJumpPosition, 20.0f, 4.0f);
         else if (pointId == POINT_JAYCE_DARKWEAVER_JUMP_TO_CAVE)
         {
             me->GetMotionMaster()->MovePath(PATH_JAYCE_DARKWEAVER_RUN_INTO_CAVE, false);
