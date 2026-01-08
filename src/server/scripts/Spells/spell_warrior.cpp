@@ -108,7 +108,9 @@ enum WarriorSpells
     SPELL_WARRIOR_WARBREAKER                        = 262161,
     SPELL_WARRIOR_WHIRLWIND_CLEAVE_AURA             = 85739,
     SPELL_WARRIOR_WHIRLWIND_ENERGIZE                = 280715,
-    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936
+    SPELL_WARRIOR_WRATH_AND_FURY                    = 392936,
+    SPELL_WARRIOR_TACTICIAN                         = 184783,
+    SPELL_WARRIOR_OVERPOWER                         = 7384
 };
 
 enum WarriorMisc
@@ -1407,6 +1409,64 @@ class spell_warr_sweeping_strikes : public AuraScript
     Unit* _procTarget = nullptr;
 };
 
+// 184783 - Tactician
+class spell_warr_tactician : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_WARRIOR_TACTICIAN, SPELL_WARRIOR_OVERPOWER });
+    }
+
+    bool CheckProc(ProcEventInfo const& eventInfo)
+    {
+
+        Unit* actor = eventInfo.GetActor();
+        if (!actor || !actor->HasAura(SPELL_WARRIOR_TACTICIAN))
+            return false;
+
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return false;
+
+        if (!procSpell->HasPowerTypeCost(POWER_RAGE))
+            return false;
+
+        return procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) > 0;
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = GetTarget();
+        if (!caster)
+            return;
+
+        SpellHistory* history = caster->GetSpellHistory();
+        if (!history)
+            return;
+
+        Spell const* procSpell = eventInfo.GetProcSpell();
+        if (!procSpell)
+            return;
+
+        int32 rageSpent = procSpell->GetPowerTypeCostAmount(POWER_RAGE).value_or(0) / 10;
+        if (rageSpent <= 0)
+            return;
+
+        if (!roll_chance_i(rageSpent))
+            return;
+
+        SpellInfo const* overpowerInfo = sSpellMgr->GetSpellInfo(SPELL_WARRIOR_OVERPOWER, GetCastDifficulty());
+        if (overpowerInfo->ChargeCategoryId)
+            history->RestoreCharge(overpowerInfo->ChargeCategoryId);
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_warr_tactician::CheckProc);
+        OnProc += AuraProcFn(spell_warr_tactician::HandleProc);
+    }
+};
+
 // 388933 - Tenderize
 class spell_warr_tenderize : public AuraScript
 {
@@ -1670,6 +1730,7 @@ void AddSC_warrior_spell_scripts()
     RegisterSpellScript(spell_warr_sudden_death);
     RegisterSpellScript(spell_warr_sudden_death_proc);
     RegisterSpellScript(spell_warr_sweeping_strikes);
+    RegisterSpellScript(spell_warr_tactician);
     RegisterSpellScript(spell_warr_tenderize);
     RegisterSpellScript(spell_warr_titanic_rage);
     RegisterSpellScript(spell_warr_trauma);
