@@ -136,7 +136,7 @@ struct TileCache
         MMAP::CreateVMapManager = &CreateVMapManager;
 
         // init timer
-        OnCacheCleanupTimerTick({});
+        OnCacheCleanupTimerTick();
 
         // start the worker
         _builderThread = std::thread([this] { _taskContext.run(); });
@@ -161,7 +161,7 @@ struct TileCache
     }
 
 private:
-    void OnCacheCleanupTimerTick(boost::system::error_code const& error)
+    void OnCacheCleanupTimerTick()
     {
         TimePoint now = GameTime::Now();
         RemoveOldCacheEntries(now - CACHE_MAX_AGE);
@@ -171,7 +171,7 @@ private:
             if (error || !_builderThread.joinable() /*shutting down*/)
                 return;
 
-            OnCacheCleanupTimerTick(error);
+            OnCacheCleanupTimerTick();
         });
     }
 
