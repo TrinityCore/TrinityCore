@@ -35,7 +35,7 @@ static void DoMovementInform(Unit* owner, Unit* target)
 }
 
 FollowMovementGenerator::FollowMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle, Optional<Milliseconds> duration,
-    bool ignoreTargetWalk /*= false*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    bool ignoreTargetWalk /*= false*/, Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle), _ignoreTargetWalk(ignoreTargetWalk), _checkTimer(CHECK_INTERVAL)
 {
     Mode = MOTION_MODE_DEFAULT;

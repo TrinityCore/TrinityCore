@@ -70,7 +70,7 @@ MovementGenerator* IdleMovementFactory::Create(Unit* /*object*/) const
 
 RotateMovementGenerator::RotateMovementGenerator(uint32 id, RotateDirection direction, Optional<Milliseconds> duration,
     Optional<float> turnSpeed, Optional<float> totalTurnAngle,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult) : _id(id), _duration(duration),
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult) : _id(id), _duration(duration),
     _turnSpeed(turnSpeed), _totalTurnAngle(totalTurnAngle),
     _direction(direction), _diffSinceLastUpdate(0)
 {

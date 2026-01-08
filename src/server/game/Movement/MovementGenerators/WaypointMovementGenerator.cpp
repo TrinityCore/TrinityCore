@@ -39,7 +39,7 @@ template <typename T>
 WaypointMovementGenerator<T>::WaypointMovementGenerator(uint32 pathId, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : PathMovementBase(sWaypointMgr->GetPath(pathId)), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),
@@ -58,7 +58,7 @@ template <typename T>
 WaypointMovementGenerator<T>::WaypointMovementGenerator(WaypointPath const& path, bool repeating, Optional<Milliseconds> duration, Optional<float> speed,
     MovementWalkRunSpeedSelectionMode speedSelectionMode, Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd,
     Optional<float> wanderDistanceAtPathEnds, Optional<bool> followPathBackwardsFromEndToStart, Optional<bool> exactSplinePath, bool generatePath,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult /*= {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult /*= {}*/)
     : PathMovementBase(std::make_unique<WaypointPath>(path)), _speed(speed), _speedSelectionMode(speedSelectionMode),
     _waitTimeRangeAtPathEnd(std::move(waitTimeRangeAtPathEnd)), _wanderDistanceAtPathEnds(wanderDistanceAtPathEnds),
     _followPathBackwardsFromEndToStart(followPathBackwardsFromEndToStart), _exactSplinePath(exactSplinePath), _repeating(repeating), _generatePath(generatePath),

@@ -34,7 +34,7 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium<Player, Fligh
 {
     public:
         explicit FlightPathMovementGenerator(Optional<float> speed,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult);
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult);
 
         MovementGeneratorType GetMovementGeneratorType() const override;
         bool GetResetPosition(Unit* owner, float& x, float& y, float& z) override;

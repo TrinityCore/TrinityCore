@@ -34,7 +34,7 @@ void MovementGenerator::SetScriptResult(MovementStopReason reason)
 {
     if (ScriptResult)
     {
-        ScriptResult->SetResult(reason);
-        ScriptResult.reset();
+        ScriptResult.SetResult(reason);
+        ScriptResult.Reset();
     }
 }
