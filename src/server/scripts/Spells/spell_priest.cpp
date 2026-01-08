@@ -3471,7 +3471,7 @@ class spell_pri_premonition_of_piety_heal : public SpellScript
             return targetA->ToUnit()->GetHealth() < targetB->ToUnit()->GetHealth();
         });
 
-        int32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PREMONITION_OF_PIETY, GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster);
+        uint32 maxTargets = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_PREMONITION_OF_PIETY, GetCastDifficulty())->GetEffect(EFFECT_3).CalcValue(caster);
         if (targets.size() > maxTargets)
             targets.resize(maxTargets);
 
