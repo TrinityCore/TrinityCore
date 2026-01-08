@@ -22896,7 +22896,7 @@ UF::PVPInfo const* Player::GetPvpInfoForBracket(int8 bracket) const
 }
 
 bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc /*= nullptr*/, uint32 spellid /*= 0*/, uint32 preferredMountDisplay /*= 0*/,
-    Optional<float> speed /*= {}*/, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
+    Optional<float> speed /*= {}*/, Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult /*= {}*/)
 {
     if (nodes.size() < 2)
     {
@@ -23076,13 +23076,13 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         ModifyMoney(-int64(firstcost));
         UpdateCriteria(CriteriaType::MoneySpentOnTaxis, firstcost);
         GetSession()->SendActivateTaxiReply(ERR_TAXIOK);
-        StartTaxiMovement(mount_display_id, sourcepath, 0, speed, Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>(scriptResult));
+        StartTaxiMovement(mount_display_id, sourcepath, 0, speed, Scripting::v2::ActionResultSetter(scriptResult));
     }
     return true;
 }
 
 bool Player::ActivateTaxiPathTo(uint32 taxi_path_id, uint32 spellid /*= 0*/, Optional<float> speed /*= {}*/,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>> const& scriptResult /*= {}*/)
+    Scripting::v2::ActionResultSetter<MovementStopReason> const& scriptResult /*= {}*/)
 {
     TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(taxi_path_id);
     if (!entry)
@@ -23158,7 +23158,7 @@ void Player::ContinueTaxiFlight()
 }
 
 void Player::StartTaxiMovement(uint32 mountDisplayId, uint32 path, uint32 pathNode, Optional<float> speed,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult)
 {
     // remove fake death
     RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags::Interacting);

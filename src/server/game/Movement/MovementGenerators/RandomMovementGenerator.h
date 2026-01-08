@@ -31,7 +31,7 @@ class RandomMovementGenerator : public MovementGeneratorMedium<T, RandomMovement
     public:
         explicit RandomMovementGenerator(float distance, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
         MovementGeneratorType GetMovementGeneratorType() const override;
 

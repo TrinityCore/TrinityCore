@@ -3892,7 +3892,7 @@ void Spell::_cast(bool skipCheck)
     }
 
     if (m_scriptResult && !m_scriptWaitsForSpellHit)
-        m_scriptResult->SetResult(SPELL_CAST_OK);
+        m_scriptResult.SetResult(SPELL_CAST_OK);
 
     CallScriptAfterCastHandlers();
 
@@ -4381,7 +4381,7 @@ void Spell::finish(SpellCastResult result)
     m_spellState = SPELL_STATE_FINISHED;
 
     if (m_scriptResult && (m_scriptWaitsForSpellHit || result != SPELL_CAST_OK))
-        m_scriptResult->SetResult(result);
+        m_scriptResult.SetResult(result);
 
     if (!m_caster)
         return;
