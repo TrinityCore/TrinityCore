@@ -3332,6 +3332,12 @@ class spell_pri_premonition : public SpellScript
         return ValidateSpellInfo({ _removeSpellId, _applySpellId });
     }
 
+    bool Load() override
+    {
+        // Don't cycle when cast by Clairvoyance or Priest Oracle 11.2 Class Set 4pc
+        return !GetSpell()->IsTriggered();
+    }
+
     void HandleEffectHit(SpellEffIndex /*effIndex*/) const
     {
         Unit* caster = GetCaster();
