@@ -21,7 +21,8 @@
 
 namespace WowCS
 {
-void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
+void EntityFragmentsHolder::Add(EntityFragment fragment, bool update,
+    EntityFragmentSerializeFn serializeCreate, EntityFragmentSerializeFn serializeUpdate, EntityFragmentIsChangedFn isChanged)
 {
     ASSERT(Count < Ids.size());
 
@@ -43,23 +44,34 @@ void EntityFragmentsHolder::Add(EntityFragment fragment, bool update)
 
     if (IsUpdateableFragment(fragment))
     {
-        ASSERT(UpdateableCount < UpdateableIds.size());
+        ASSERT(UpdateableCount < Updateable.Ids.size());
+        ASSERT(serializeCreate && serializeUpdate && isChanged);
 
-        auto insertedItr = insertSorted(UpdateableIds, UpdateableCount, fragment).first;
-        std::ptrdiff_t index = std::ranges::distance(UpdateableIds.begin(), insertedItr);
+        auto insertedItr = insertSorted(Updateable.Ids, UpdateableCount, fragment).first;
+        std::ptrdiff_t index = std::ranges::distance(Updateable.Ids.begin(), insertedItr);
         uint8 maskLowPart = ContentsChangedMask & ((1 << index) - 1);
         uint8 maskHighPart = (ContentsChangedMask & ~((1 << index) - 1)) << (1 + IsIndirectFragment(fragment));
         ContentsChangedMask = maskLowPart | maskHighPart;
         for (uint8 i = 0, maskIndex = 0; i < UpdateableCount; ++i)
         {
-            UpdateableMasks[i] = 1 << maskIndex++;
-            if (IsIndirectFragment(UpdateableIds[i]))
+            Updateable.Masks[i] = 1 << maskIndex++;
+            if (IsIndirectFragment(Updateable.Ids[i]))
             {
-                ContentsChangedMask |= UpdateableMasks[i]; // set the first bit to true to activate fragment
+                ContentsChangedMask |= Updateable.Masks[i]; // set the first bit to true to activate fragment
                 ++maskIndex;
-                UpdateableMasks[i] <<= 1;
+                Updateable.Masks[i] <<= 1;
             }
         }
+
+        auto insertAtIndex = []<typename T, size_t N>(std::array<T, N>& arr, uint8 size, std::ptrdiff_t i, T value)
+        {
+            std::ranges::move_backward(arr.begin() + i, arr.begin() + size - 1, arr.begin() + size);
+            arr[i] = value;
+        };
+
+        insertAtIndex(Updateable.SerializeCreate, UpdateableCount, index, serializeCreate);
+        insertAtIndex(Updateable.SerializeUpdate, UpdateableCount, index, serializeUpdate);
+        insertAtIndex(Updateable.IsChanged, UpdateableCount, index, isChanged);
     }
 
     if (update)
@@ -86,22 +98,32 @@ void EntityFragmentsHolder::Remove(EntityFragment fragment)
 
     if (IsUpdateableFragment(fragment))
     {
-        auto [removedItr, removed] = removeSorted(UpdateableIds, UpdateableCount, fragment);
+        auto [removedItr, removed] = removeSorted(Updateable.Ids, UpdateableCount, fragment);
         if (removed)
         {
-            std::ptrdiff_t index = std::ranges::distance(UpdateableIds.begin(), removedItr);
+            std::ptrdiff_t index = std::ranges::distance(Updateable.Ids.begin(), removedItr);
             uint8 maskLowPart = ContentsChangedMask & ((1 << index) - 1);
             uint8 maskHighPart = (ContentsChangedMask & ~((1 << index) - 1)) >> (1 + IsIndirectFragment(fragment));
             ContentsChangedMask = maskLowPart | maskHighPart;
             for (uint8 i = 0, maskIndex = 0; i < UpdateableCount; ++i)
             {
-                UpdateableMasks[i] = 1 << maskIndex++;
-                if (IsIndirectFragment(UpdateableIds[i]))
+                Updateable.Masks[i] = 1 << maskIndex++;
+                if (IsIndirectFragment(Updateable.Ids[i]))
                 {
                     ++maskIndex;
-                    UpdateableMasks[i] <<= 1;
+                    Updateable.Masks[i] <<= 1;
                 }
             }
+
+            auto removeAtIndex = []<typename T, size_t N>(std::array<T, N>& arr, uint8 oldSize, std::ptrdiff_t i, std::type_identity_t<T> value)
+            {
+                *std::ranges::move(arr.begin() + i + 1, arr.begin() + oldSize, arr.begin() + i).out = value;
+            };
+
+            uint8 oldSize = UpdateableCount + 1;
+            removeAtIndex(Updateable.SerializeCreate, oldSize, index, nullptr);
+            removeAtIndex(Updateable.SerializeUpdate, oldSize, index, nullptr);
+            removeAtIndex(Updateable.IsChanged, oldSize, index, nullptr);
         }
     }
 

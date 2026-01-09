@@ -38,6 +38,7 @@ enum AIs
 enum Spells
 {
     // generic
+    SPELL_LEAP                      = 67382, // intro
     SPELL_ANTI_AOE                  = 68595,
     SPELL_PVP_TRINKET               = 65547,
 
@@ -482,13 +483,13 @@ struct boss_toc_champion_controller : public BossAI
                 if (playerTeam == ALLIANCE)
                 {
                     champion->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                    champion->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos], 20.0f, 20.0f);
-                    champion->SetOrientation(0);
+                    champion->CastSpell(vChampionJumpTarget[pos], SPELL_LEAP);
                 }
                 else
                 {
-                    champion->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                    champion->GetMotionMaster()->MoveJump({ (ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ() }, 20.0f, 20.0f);
+                    Position jumpTarget = { (ToCCommonLoc[1].GetPositionX() * 2) - vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3 };
+                    champion->SetHomePosition(jumpTarget);
+                    champion->CastSpell(jumpTarget, SPELL_LEAP);
                     champion->SetOrientation(3);
                 }
             }
