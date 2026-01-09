@@ -94,7 +94,7 @@ protected:
     class HookList : public ::HookList<T>
     {
     public:
-        HookList& operator+=(T&& t);
+        HookList& operator+=(T&& t) noexcept;
     };
 
     class TC_GAME_API EffectHook
