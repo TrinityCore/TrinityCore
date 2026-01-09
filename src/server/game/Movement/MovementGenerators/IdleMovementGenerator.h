@@ -77,6 +77,7 @@ class DistractMovementGenerator : public MovementGenerator
     private:
         uint32 _timer;
         float _orientation;
+        float _originalOrientation;
 };
 
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
