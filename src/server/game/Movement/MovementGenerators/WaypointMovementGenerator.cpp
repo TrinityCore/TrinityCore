@@ -112,7 +112,7 @@ bool WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     if (!_path)
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({}) (_pathId: {})", owner->GetGUID().ToString(), _pathId);
-        return;
+        return false;
     }
 
     owner->StopMoving();

@@ -39,11 +39,13 @@ IdleMovementGenerator::IdleMovementGenerator()
 bool IdleMovementGenerator::Initialize(Unit* owner)
 {
     owner->StopMoving();
+    return true;
 }
 
 bool IdleMovementGenerator::Reset(Unit* owner)
 {
     owner->StopMoving();
+    return true;
 }
 
 void IdleMovementGenerator::Deactivate(Unit* /*owner*/)

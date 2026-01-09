@@ -89,7 +89,7 @@ bool ChaseMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
