@@ -14,7 +14,6 @@
 #    CRYPTOGRAPHY
 #    UPDATE SETTINGS
 #    HOTSWAP SETTINGS
-#    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
 #    SPAWN/RESPAWN SETTINGS
@@ -1580,70 +1579,6 @@ HotSwap.EnablePrefixCorrection = 1
 #                     "Debug" - Debug builds only
 
 HotSwap.ReCompilerBuildType = ""
-
-#
-###################################################################################################
-
-###################################################################################################
-# WARDEN SETTINGS
-#
-#    Warden.Enabled
-#        Description: Enable Warden anti-cheat system.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-Warden.Enabled = 0
-
-#
-#    Warden.NumInjectionChecks
-#    Warden.NumLuaSandboxChecks
-#    Warden.NumClientModChecks
-#        Description: Number of Warden checks of the respective category that are sent per cycle.
-#        Default:     9 - (Warden.NumInjectionChecks)
-#        Default:     1 - (Warden.NumLuaSandboxChecks)
-#        Default:     1 - (Warden.NumClientModChecks)
-#                     0 - (Disable category)
-
-Warden.NumInjectionChecks = 9
-Warden.NumLuaSandboxChecks = 1
-Warden.NumClientModChecks = 1
-
-#
-#    Warden.ClientResponseDelay
-#        Description: Time (in seconds) before client is getting disconnecting for not responding.
-#        Default:     600 - (10 Minutes)
-#                     0 - (Disabled, client won't be kicked)
-
-Warden.ClientResponseDelay = 600
-
-#
-#    Warden.ClientCheckHoldOff
-#        Description: Time (in seconds) to wait before sending the next check request to the client.
-#                     A low number increases traffic and load on client and server side.
-#        Default:     30 - (30 Seconds)
-#                     0  - (Send check as soon as possible)
-
-Warden.ClientCheckHoldOff = 30
-
-#
-#    Warden.ClientCheckFailAction
-#        Description: Default action being taken if a client check failed. Actions can be
-#                     overwritten for each single check via warden_action table in characters
-#                     database.
-#        Default:     0 - (Disabled, Logging only)
-#                     1 - (Kick)
-#                     2 - (Ban)
-
-Warden.ClientCheckFailAction = 0
-
-#
-#    Warden.BanDuration
-#        Description: Time (in seconds) an account will be banned if ClientCheckFailAction is set
-#                     to ban.
-#        Default:     86400 - (24 hours)
-#                     0     - (Permanent ban)
-
-Warden.BanDuration = 86400
 
 #
 ###################################################################################################
@@ -4235,7 +4170,6 @@ Logger.mmaps=3,Server
 #Logger.spells.effect.nospell=3,Console Server
 #Logger.sql.dev=3,Console Server
 #Logger.sql.driver=3,Console Server
-#Logger.warden=3,Console Server
 
 #
 #    Log.Async.Enable

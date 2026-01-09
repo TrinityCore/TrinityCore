@@ -62,7 +62,7 @@ enum Spells
     SPELL_SIMPLE_TELEPORT                   = 12980,
     SPELL_TELEPORT_VISUAL_ONLY              = 51347,
     SPELL_PARACHUTE_IC                      = 66657,
-    SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66251
+    SPELL_LAUNCH_NO_FALLING_DAMAGE          = 66227
 };
 
 enum ICWorldStates

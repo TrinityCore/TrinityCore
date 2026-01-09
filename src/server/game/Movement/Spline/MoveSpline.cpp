@@ -242,10 +242,6 @@ void MoveSpline::Initialize(MoveSplineInitArgs const& args)
                 float f_duration = MSToSec(spline_duration - effect_start_time);
                 vertical_acceleration = args.parabolic_amplitude * 8.f / (f_duration * f_duration);
             }
-            else if (args.vertical_acceleration != 0.0f)
-            {
-                vertical_acceleration = args.vertical_acceleration;
-            }
         }
     }
 }
@@ -309,7 +305,7 @@ bool MoveSplineInitArgs::_checkPathLengths()
 }
 
 MoveSplineInitArgs::MoveSplineInitArgs() : path_Idx_offset(0), velocity(0.f),
-parabolic_amplitude(0.f), vertical_acceleration(0.0f), effect_start_point(0),
+parabolic_amplitude(0.f), effect_start_point(0),
 splineId(0), initialOrientation(0.f),
 walk(false), HasVelocity(false), TransformForTransport(true)
 {
