@@ -1174,7 +1174,7 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                     {
                         if (movement->Mode > currentTopMovement->Mode)
                             currentTopMovement->Deactivate(_owner);
-                        else
+                        else if (movement->Mode == currentTopMovement->Mode)
                             Remove(itr, true, false);
                     }
                     else
