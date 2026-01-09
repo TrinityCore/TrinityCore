@@ -711,6 +711,34 @@ class spell_sholazar_lifeblood_dummy : public SpellScript
     }
 };
 
+/*######
+## Quest 12607: A Mammoth Undertaking
+######*/
+
+enum AMammothUndertaking
+{
+    SPELL_RIDE_SHATTERTUSK_MAMMOTH     = 51658
+};
+
+// 51656 - Mount Mammoth Cue
+class spell_sholazar_mount_mammoth_cue : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_RIDE_SHATTERTUSK_MAMMOTH });
+    }
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        GetHitUnit()->CastSpell(GetCaster(), SPELL_RIDE_SHATTERTUSK_MAMMOTH, true);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_sholazar_mount_mammoth_cue::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     RegisterCreatureAI(npc_jungle_punch_target);
@@ -726,4 +754,5 @@ void AddSC_sholazar_basin()
     RegisterSpellScript(spell_sholazar_flight_to_sholazar);
     RegisterSpellScript(spell_sholazar_despawn_fruit_tosser);
     RegisterSpellScript(spell_sholazar_lifeblood_dummy);
+    RegisterSpellScript(spell_sholazar_mount_mammoth_cue);
 }
