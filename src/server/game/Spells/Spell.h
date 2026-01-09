@@ -630,7 +630,7 @@ class TC_GAME_API Spell
 
         UsedSpellMods m_appliedMods;
 
-        Optional<Scripting::v2::ActionResultSetter<SpellCastResult>> m_scriptResult;
+        Scripting::v2::ActionResultSetter<SpellCastResult> m_scriptResult;
         bool m_scriptWaitsForSpellHit = false;
 
         int32 GetCastTime() const { return m_casttime; }
@@ -951,7 +951,6 @@ class TC_GAME_API Spell
 
         // effect helpers
         void SummonGuardian(SpellEffectInfo const* effect, uint32 entry, SummonPropertiesEntry const* properties, uint32 numSummons, ObjectGuid privateObjectOwner);
-        void CalculateJumpSpeeds(SpellEffectInfo const* effInfo, float dist, float& speedXY, float& speedZ);
 
         void UpdateSpellCastDataTargets(WorldPackets::Spells::SpellCastData& data);
         int32 GetSpellCastDataAmmo();
