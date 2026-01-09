@@ -101,6 +101,8 @@ enum PriestSpells
     SPELL_PRIEST_DIVINITY_AURA                      = 1216314,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 391339,
     SPELL_PRIEST_EMPOWERED_RENEW_HEAL               = 391359,
+    SPELL_PRIEST_EMPYREAL_BLAZE                     = 372616,
+    SPELL_PRIEST_EMPYREAL_BLAZE_AURA                = 372617,
     SPELL_PRIEST_ENTROPIC_RIFT                      = 447444,
     SPELL_PRIEST_ENTROPIC_RIFT_AREATRIGGER          = 447445,
     SPELL_PRIEST_ENTROPIC_RIFT_AURA                 = 450193,
@@ -1517,6 +1519,66 @@ class spell_pri_empowered_renew_heal : public AuraScript
     void Register() override
     {
         DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(spell_pri_empowered_renew_heal::CalculateHealing, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+    }
+};
+
+// 372616 - Empyreal Blaze
+class spell_pri_empyreal_blaze : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_HOLY_WORD_CHASTISE, SPELL_PRIEST_EMPYREAL_BLAZE_AURA });
+    }
+
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        if (!caster)
+            return;
+
+        caster->CastSpell(caster, SPELL_PRIEST_EMPYREAL_BLAZE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, aurEff->GetAmount() } }
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectProc += AuraEffectProcFn(spell_pri_empyreal_blaze::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// Triggered by 14914 - Holy Fire
+class spell_pri_empyreal_blaze_extend : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_EMPYREAL_BLAZE });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_EMPYREAL_BLAZE);
+    }
+
+    void HandleHit() const
+    {
+        Unit* target = GetHitUnit();
+        if (!target)
+            return;
+
+        Aura* holyFireAura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID());
+        if (!holyFireAura)
+            return;
+
+        GetSpell()->SetSpellValue({ SPELLVALUE_DURATION, holyFireAura->GetDuration() + Aura::CalcMaxDuration(GetSpellInfo(), GetCaster(), nullptr) + GetSpellValue()->Duration.value_or(0) });
+    }
+
+    void Register() override
+    {
+        OnHit += SpellHitFn(spell_pri_empyreal_blaze_extend::HandleHit);
     }
 };
 
@@ -4683,6 +4745,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_divine_procession);
     RegisterSpellScript(spell_pri_empowered_renew);
     RegisterSpellScript(spell_pri_empowered_renew_heal);
+    RegisterSpellScript(spell_pri_empyreal_blaze);
+    RegisterSpellScript(spell_pri_empyreal_blaze_extend);
     RegisterSpellScript(spell_pri_entropic_rift);
     RegisterSpellScript(spell_pri_entropic_rift_aura);
     RegisterSpellScript(spell_pri_entropic_rift_periodic);
