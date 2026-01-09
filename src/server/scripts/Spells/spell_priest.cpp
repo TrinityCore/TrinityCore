@@ -1530,27 +1530,22 @@ class spell_pri_empyreal_blaze : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_HOLY_WORD_CHASTISE, SPELL_PRIEST_EMPYREAL_BLAZE_AURA });
     }
 
-    bool CheckProc(ProcEventInfo& eventInfo)
-    {
-        return eventInfo.GetSpellInfo()->Id == SPELL_PRIEST_HOLY_WORD_CHASTISE;
-    }
-
-    void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         if (!caster)
             return;
 
-        int32 stacks = aurEff->GetAmount();
-
-        CastSpellExtraArgs args(aurEff);
-        args.AddSpellMod(SPELLVALUE_AURA_STACK, stacks);
-        caster->CastSpell(caster, SPELL_PRIEST_EMPYREAL_BLAZE_AURA, args);
+        caster->CastSpell(caster, SPELL_PRIEST_EMPYREAL_BLAZE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_AURA_STACK, aurEff->GetAmount() } }
+        });
     }
 
     void Register() override
     {
-        DoCheckProc += AuraCheckProcFn(spell_pri_empyreal_blaze::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_pri_empyreal_blaze::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
@@ -1568,49 +1563,23 @@ class spell_pri_empyreal_blaze_extend : public SpellScript
         return GetCaster()->HasAura(SPELL_PRIEST_EMPYREAL_BLAZE);
     }
 
-    void HandleHit()
+    void HandleHit() const
     {
         Unit* target = GetHitUnit();
         if (!target)
             return;
 
-        Aura* holyFireAura = target->GetAura(SPELL_PRIEST_HOLY_FIRE, GetCaster()->GetGUID());
+        Aura* holyFireAura = target->GetAura(GetSpellInfo()->Id, GetCaster()->GetGUID());
         if (!holyFireAura)
             return;
 
-        _hadAura = true;
-        _oldDuration = holyFireAura->GetDuration();
-        _oldMaxDuration = holyFireAura->GetMaxDuration();
-    }
-
-    void HandleAfterHit()
-    {
-        if (!_hadAura)
-            return;
-
-        Unit* target = GetHitUnit();
-        if (!target)
-            return;
-
-        Aura* holyFireAura = target->GetAura(SPELL_PRIEST_HOLY_FIRE, GetCaster()->GetGUID());
-        if (!holyFireAura)
-            return;
-
-        int32 durationExtend = GetSpellInfo()->GetDuration();
-
-        holyFireAura->SetDuration(_oldDuration + durationExtend);
-        holyFireAura->SetMaxDuration(_oldMaxDuration + durationExtend);
+        GetSpell()->SetSpellValue({ SPELLVALUE_DURATION, holyFireAura->GetDuration() + Aura::CalcMaxDuration(GetSpellInfo(), GetCaster(), nullptr) + GetSpellValue()->Duration.value_or(0) });
     }
 
     void Register() override
     {
         OnHit += SpellHitFn(spell_pri_empyreal_blaze_extend::HandleHit);
-        AfterHit += SpellHitFn(spell_pri_empyreal_blaze_extend::HandleAfterHit);
     }
-
-    bool _hadAura = false;
-    int32 _oldDuration{};
-    int32 _oldMaxDuration{};
 };
 
 // 447444 - Entropic Rift
