@@ -5586,9 +5586,6 @@ bool Unit::Attack(Unit* victim, bool meleeAttack)
             ClearUnitState(UNIT_STATE_MELEE_ATTACKING);
     }
 
-    if (HasUnitState(UNIT_STATE_DISTRACTED))
-        GetMotionMaster()->Remove(DISTRACT_MOTION_TYPE);
-
     if (m_attacking)
         m_attacking->_removeAttacker(this);
 
