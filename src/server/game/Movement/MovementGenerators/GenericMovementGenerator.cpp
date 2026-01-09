@@ -35,13 +35,13 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
     _duration.Reset(duration);
 }
 
-void GenericMovementGenerator::Initialize(Unit* owner)
+bool GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED) && !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING)) // Resume spline is not supported
     {
         RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
         AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-        return;
+        return false;
     }
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
@@ -53,11 +53,12 @@ void GenericMovementGenerator::Initialize(Unit* owner)
         _duration.Reset(init.Launch());
     else
         init.Launch();
+    return true;
 }
 
-void GenericMovementGenerator::Reset(Unit* owner)
+bool GenericMovementGenerator::Reset(Unit* owner)
 {
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)

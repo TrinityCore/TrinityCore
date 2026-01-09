@@ -52,7 +52,7 @@ static bool PositionOkay(Unit* owner, Unit* target, float range, Optional<ChaseA
     return !angle || angle->IsAngleOkay(target->GetRelativeAngle(owner));
 }
 
-void FollowMovementGenerator::Initialize(Unit* owner)
+bool FollowMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
@@ -61,13 +61,14 @@ void FollowMovementGenerator::Initialize(Unit* owner)
     UpdatePetSpeed(owner);
     _path = nullptr;
     _lastTargetPosition.reset();
+    return true;
 }
 
-void FollowMovementGenerator::Reset(Unit* owner)
+bool FollowMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool FollowMovementGenerator::Update(Unit* owner, uint32 diff)

@@ -38,7 +38,7 @@ MovementGeneratorType FormationMovementGenerator::GetMovementGeneratorType() con
     return FORMATION_MOTION_TYPE;
 }
 
-void FormationMovementGenerator::DoInitialize(Creature* owner)
+bool FormationMovementGenerator::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -47,17 +47,18 @@ void FormationMovementGenerator::DoInitialize(Creature* owner)
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
-        return;
+        return true;
     }
 
     _nextMoveTimer.Reset(0);
+    return true;
 }
 
-void FormationMovementGenerator::DoReset(Creature* owner)
+bool FormationMovementGenerator::DoReset(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 bool FormationMovementGenerator::DoUpdate(Creature* owner, uint32 diff)

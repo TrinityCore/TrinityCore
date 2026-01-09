@@ -45,27 +45,28 @@ MovementGeneratorType FleeingMovementGenerator<T>::GetMovementGeneratorType() co
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::DoInitialize(T* owner)
+bool FleeingMovementGenerator<T>::DoInitialize(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())
-        return;
+        return false;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
     owner->SetUnitFlag(UNIT_FLAG_FLEEING);
 
     _path = nullptr;
     SetTargetLocation(owner);
+    return true;
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::DoReset(T* owner)
+bool FleeingMovementGenerator<T>::DoReset(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>
@@ -223,10 +224,10 @@ template FleeingMovementGenerator<Player>::FleeingMovementGenerator(ObjectGuid);
 template FleeingMovementGenerator<Creature>::FleeingMovementGenerator(ObjectGuid);
 template MovementGeneratorType FleeingMovementGenerator<Player>::GetMovementGeneratorType() const;
 template MovementGeneratorType FleeingMovementGenerator<Creature>::GetMovementGeneratorType() const;
-template void FleeingMovementGenerator<Player>::DoInitialize(Player*);
-template void FleeingMovementGenerator<Creature>::DoInitialize(Creature*);
-template void FleeingMovementGenerator<Player>::DoReset(Player*);
-template void FleeingMovementGenerator<Creature>::DoReset(Creature*);
+template bool FleeingMovementGenerator<Player>::DoInitialize(Player*);
+template bool FleeingMovementGenerator<Creature>::DoInitialize(Creature*);
+template bool FleeingMovementGenerator<Player>::DoReset(Player*);
+template bool FleeingMovementGenerator<Creature>::DoReset(Creature*);
 template bool FleeingMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 template void FleeingMovementGenerator<Player>::DoDeactivate(Player*);
