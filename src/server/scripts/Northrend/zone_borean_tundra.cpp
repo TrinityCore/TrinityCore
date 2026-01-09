@@ -1418,12 +1418,11 @@ class spell_borean_tundra_magnataur_on_death_1 : public SpellScript
         if (!player)
             return;
 
-        for (uint32 spell : BlasterTargetSpells)
-            if (caster->HasAura(spell))
-            {
-                player->CastSpell(player, SPELL_MAGNATAUR_KILL_CREDIT);
-                caster->CastSpell(caster, SPELL_MAGNATAUR_ON_DEATH_2);
-            }
+        if (std::ranges::none_of(BlasterTargetSpells, [caster](uint32 spell) { return caster->HasAura(spell); }))
+            return;
+
+        player->CastSpell(player, SPELL_MAGNATAUR_KILL_CREDIT);
+        caster->CastSpell(caster, SPELL_MAGNATAUR_ON_DEATH_2);
     }
 
     void Register() override
