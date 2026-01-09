@@ -137,7 +137,6 @@ enum BrutallusEvents
     EVENT_INTRO_25,
     EVENT_INTRO_26,
     EVENT_INTRO_27,
-    EVENT_INTRO_28,
 
     EVENT_FROSTBOLT,
 
@@ -321,7 +320,7 @@ struct npc_madrigosa : public ScriptedAI
         } else if (type == EFFECT_MOTION_TYPE)
         {
             if (id == POINT_MADRIGOSA_FACE_1)
-                _events.ScheduleEvent(EVENT_INTRO_27, 100ms);
+                _events.ScheduleEvent(EVENT_INTRO_27, 0ms);
         }
     }
 
@@ -330,7 +329,14 @@ struct npc_madrigosa : public ScriptedAI
         if (action == ACTION_START_OUTRO)
             _events.ScheduleEvent(EVENT_OUTRO_1, 1min);
         else if (action == ACTION_CONTINUE_INTRO)
-            _events.ScheduleEvent(EVENT_INTRO_28, 100ms);
+        {
+            if (Creature* brutallus = _instance->GetCreature(DATA_BRUTALLUS))
+            {
+                brutallus->CastSpell(brutallus, SPELL_FEL_FIREBALL);
+                brutallus->SetImmuneToNPC(true);
+            }
+            _events.ScheduleEvent(EVENT_INTRO_12, 6s);
+        }
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo = nullptr*/) override
@@ -426,14 +432,6 @@ struct npc_madrigosa : public ScriptedAI
                         brutallus->CastSpell(brutallus, SPELL_FLAME_RING_2);
                         brutallus->SetFacingTo(1.383456826210021972f, true, POINT_BRUTALLUS_FACE_1);
                     }
-                    break;
-                case EVENT_INTRO_28:
-                    if (Creature* brutallus = _instance->GetCreature(DATA_BRUTALLUS))
-                    {
-                        brutallus->CastSpell(brutallus, SPELL_FEL_FIREBALL);
-                        brutallus->SetImmuneToNPC(true);
-                    }
-                    _events.ScheduleEvent(EVENT_INTRO_12, 6s);
                     break;
                 case EVENT_INTRO_12:
                     me->GetMotionMaster()->MovePoint(POINT_MADRIGOSA_LAND_2, MadrigosaMoveLandPos2);
