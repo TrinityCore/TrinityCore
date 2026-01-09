@@ -8773,7 +8773,7 @@ void Unit::AtExitCombat()
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LEAVE_COMBAT);
 }
 
-void Unit::AtEngage(Unit *)
+void Unit::AtEngage(Unit* /*target*/)
 {
     if (HasUnitState(UNIT_STATE_DISTRACTED))
         GetMotionMaster()->Remove(DISTRACT_MOTION_TYPE);
