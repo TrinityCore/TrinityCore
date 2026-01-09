@@ -37,9 +37,14 @@ enum BG_SA_Status
 
 enum BG_SA_GateState
 {
-    BG_SA_GATE_OK           = 1,
-    BG_SA_GATE_DAMAGED      = 2,
-    BG_SA_GATE_DESTROYED    = 3
+    // alliance is defender
+    BG_SA_ALLIANCE_GATE_OK          = 1,
+    BG_SA_ALLIANCE_GATE_DAMAGED     = 2,
+    BG_SA_ALLIANCE_GATE_DESTROYED   = 3,
+    // horde is defender
+    BG_SA_HORDE_GATE_OK             = 4,
+    BG_SA_HORDE_GATE_DAMAGED        = 5,
+    BG_SA_HORDE_GATE_DESTROYED      = 6,
 };
 
 enum BG_SA_EventIds
@@ -565,14 +570,9 @@ class BattlegroundSA : public Battleground
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
         void AddPlayer(Player* player) override;
-        /// Called when battle start
-        void StartingEventCloseDoors() override;
-        void StartingEventOpenDoors() override;
         /// Called for ini battleground, after that the first player be entered
         bool SetupBattleground() override;
         void Reset() override;
-        /// Called for generate packet contain worldstate data
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
         /// Called when a player kill a unit in bg
         void HandleKillUnit(Creature* creature, Player* killer) override;
         /// Return the nearest graveyard where player can respawn
@@ -666,6 +666,7 @@ class BattlegroundSA : public Battleground
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
 
+        bool IsGateDestroyed(BG_SA_Objects gateId) const;
         /// Id of attacker team
         TeamId Attackers;
 

@@ -26,7 +26,6 @@
 #include "ScriptMgr.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "WorldStatePackets.h"
 
 static BossBoundaryData const boundaries =
 {
@@ -223,12 +222,6 @@ class instance_ulduar : public InstanceMapScript
             bool lumberjacked;
             bool Unbroken;
             bool IsDriveMeCrazyEligible;
-
-            void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override
-            {
-                packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_TIMER_ENABLED, (_algalonTimer && _algalonTimer <= 60) ? 1 : 0);
-                packet.Worldstates.emplace_back(WORLD_STATE_ALGALON_DESPAWN_TIMER, std::min<int32>(_algalonTimer, 60));
-            }
 
             void OnPlayerEnter(Player* player) override
             {

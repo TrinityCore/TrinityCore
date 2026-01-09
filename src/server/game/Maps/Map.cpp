@@ -32,6 +32,7 @@
 #include "Log.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
+#include "MapUtils.h"
 #include "Metric.h"
 #include "MiscPackets.h"
 #include "MMapFactory.h"
@@ -49,6 +50,8 @@
 #include "Weather.h"
 #include "WeatherMgr.h"
 #include "World.h"
+#include "WorldStateMgr.h"
+#include "WorldStatePackets.h"
 #include <boost/heap/fibonacci_heap.hpp>
 #include <unordered_set>
 #include <vector>
@@ -297,6 +300,8 @@ i_scriptLock(false), _respawnTimes(std::make_unique<RespawnListContainer>()), _r
     _weatherUpdateTimer.SetInterval(time_t(1 * IN_MILLISECONDS));
 
     MMAP::MMapFactory::createOrGetMMapManager()->loadMapInstance(sWorld->GetDataPath(), GetId(), GetInstanceId());
+
+    _worldStateValues = sWorldStateMgr->GetInitialWorldStatesForMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -609,6 +614,48 @@ bool Map::AddPlayerToMap(Player* player)
 
     sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
+}
+
+int32 Map::GetWorldStateValue(int32 worldStateId) const
+{
+    if (int32 const* value = Trinity::Containers::MapGetValuePtr(_worldStateValues, worldStateId))
+        return *value;
+
+    return 0;
+}
+
+void Map::SetWorldStateValue(int32 worldStateId, int32 value, bool /*hidden*/ )
+{
+    auto [itr, inserted] = _worldStateValues.try_emplace(worldStateId, 0);
+    int32 oldValue = itr->second;
+    if (oldValue == value && !inserted)
+        return;
+
+    itr->second = value;
+
+    WorldStateTemplate const* worldStateTemplate = sWorldStateMgr->GetWorldStateTemplate(worldStateId);
+    if (worldStateTemplate)
+        sScriptMgr->OnWorldStateValueChange(worldStateTemplate, oldValue, value, this);
+
+    // Broadcast update to all players on the map
+    WorldPackets::WorldState::UpdateWorldState updateWorldState;
+    updateWorldState.VariableID = worldStateId;
+    updateWorldState.Value = value;
+    //updateWorldState.Hidden = hidden; // Unused 3.3.5
+    updateWorldState.Write();
+
+    for (MapReference const& mapReference : m_mapRefManager)
+    {
+        if (worldStateTemplate && !worldStateTemplate->AreaIds.empty())
+        {
+            bool isInAllowedArea = std::any_of(worldStateTemplate->AreaIds.begin(), worldStateTemplate->AreaIds.end(),
+                [playerAreaId = mapReference.GetSource()->GetAreaId()](uint32 requiredAreaId) { return IsInArea(playerAreaId, requiredAreaId); });
+            if (!isInAllowedArea)
+                continue;
+        }
+
+        mapReference.GetSource()->SendDirectMessage(updateWorldState.GetRawPacket());
+    }
 }
 
 template<class T>
@@ -3822,7 +3869,7 @@ template TC_GAME_API void Map::RemoveFromMap(DynamicObject*, bool);
 InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _parent, TeamId InstanceTeam)
   : Map(id, expiry, InstanceId, SpawnMode, _parent),
     m_resetAfterUnload(false), m_unloadWhenEmpty(false),
-    i_data(nullptr), i_script_id(0), i_script_team(InstanceTeam)
+    i_data(nullptr), i_script_id(0)
 {
     //lets initialize visibility distance for dungeons
     InstanceMap::InitVisibilityDistance();
@@ -3830,6 +3877,9 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
     // the timer is started by default, and stopped when the first player joins
     // this make sure it gets unloaded if for some reason no player joins
     m_unloadTimer = std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
+
+    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, InstanceTeam == TEAM_ALLIANCE, false, this);
+    sWorldStateMgr->SetValue(WS_TEAM_IN_INSTANCE_HORDE, InstanceTeam == TEAM_HORDE, false, this);
 }
 
 InstanceMap::~InstanceMap()
@@ -4306,6 +4356,15 @@ uint32 InstanceMap::GetMaxResetDelay() const
 {
     MapDifficulty const* mapDiff = GetMapDifficulty();
     return mapDiff ? mapDiff->resetTime : 0;
+}
+
+TeamId InstanceMap::GetTeamIdInInstance() const
+{
+    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_ALLIANCE, this))
+        return TEAM_ALLIANCE;
+    if (sWorldStateMgr->GetValue(WS_TEAM_IN_INSTANCE_HORDE, this))
+        return TEAM_HORDE;
+    return TEAM_NEUTRAL;
 }
 
 /* ******* Battleground Instance Maps ******* */

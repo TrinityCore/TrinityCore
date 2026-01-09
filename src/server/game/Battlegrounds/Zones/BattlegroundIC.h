@@ -728,10 +728,11 @@ enum BG_IC_Objectives
 
 enum ICWorldStates
 {
-    BG_IC_ALLIANCE_RENFORT_SET          = 4221,
-    BG_IC_HORDE_RENFORT_SET             = 4222,
-    BG_IC_ALLIANCE_RENFORT              = 4226,
-    BG_IC_HORDE_RENFORT                 = 4227,
+    BG_IC_ALLIANCE_REINFORCEMENTS_SET   = 4221,
+    BG_IC_HORDE_REINFORCEMENTS_SET      = 4222,
+    BG_IC_ALLIANCE_REINFORCEMENTS       = 4226,
+    BG_IC_HORDE_REINFORCEMENTS          = 4227,
+
     BG_IC_GATE_FRONT_H_WS_CLOSED        = 4317,
     BG_IC_GATE_WEST_H_WS_CLOSED         = 4318,
     BG_IC_GATE_EAST_H_WS_CLOSED         = 4319,
@@ -886,7 +887,7 @@ struct ICNodePoint
     bool needChange; // this is used for the 1 minute time period after the point is captured
     uint32 timer; // the same use for needChange
     uint32 last_entry; // the last gameobject_entry
-    uint32 worldStates[5]; // the worldstates that represent the node in the map
+    int32  worldStates[5]; // the worldstates that represent the node in the map
     ICNodeState nodeState;
 };
 
@@ -964,8 +965,6 @@ class BattlegroundIC : public Battleground
         WorldSafeLocsEntry const* GetClosestGraveyard(Player* player) override;
 
         /* Scorekeeping */
-        void FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet) override;
-
         void HandlePlayerResurrect(Player* player) override;
 
         uint32 GetNodeState(uint8 nodeType) const { return (uint8)nodePoint[nodeType].nodeState; }
@@ -1004,9 +1003,9 @@ class BattlegroundIC : public Battleground
             return i;
         }
 
-        uint32 GetWorldStateFromGateEntry(uint32 id, bool open)
+        int32 GetWorldStateFromGateEntry(uint32 id, bool open)
         {
-            uint32 uws = 0;
+            int32 uws = 0;
 
             switch (id)
             {
