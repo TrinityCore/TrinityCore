@@ -140,7 +140,7 @@ MovementGeneratorType RotateMovementGenerator::GetMovementGeneratorType() const
 
 //----------------------------------------------------//
 
-DistractMovementGenerator::DistractMovementGenerator(uint32 timer, float orientation) : _timer(timer), _orientation(orientation)
+DistractMovementGenerator::DistractMovementGenerator(uint32 timer, float orientation) : _timer(timer), _orientation(orientation), _originalOrientation(0.f)
 {
     Mode = MOTION_MODE_DEFAULT;
     Priority = MOTION_PRIORITY_HIGHEST;
@@ -156,6 +156,8 @@ void DistractMovementGenerator::Initialize(Unit* owner)
     // Distracted creatures stand up if not standing
     if (!owner->IsStandState())
         owner->SetStandState(UNIT_STAND_STATE_STAND);
+
+    _originalOrientation = owner->GetOrientation();
 
     Movement::MoveSplineInit init(owner);
     init.MoveTo(PositionToVector3(*owner), false);
@@ -196,13 +198,8 @@ void DistractMovementGenerator::Finalize(Unit* owner, bool/* active*/, bool move
 {
     AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
 
-    // TODO: This code should be handled somewhere else
-    // If this is a creature, then return orientation to original position (for idle movement creatures)
     if (movementInform && HasFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED) && owner->GetTypeId() == TYPEID_UNIT)
-    {
-        float angle = owner->ToCreature()->GetHomePosition().GetOrientation();
-        owner->SetFacingTo(angle);
-    }
+        owner->SetFacingTo(_originalOrientation, true);
 }
 
 MovementGeneratorType DistractMovementGenerator::GetMovementGeneratorType() const
