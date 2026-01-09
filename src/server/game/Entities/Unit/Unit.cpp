@@ -9258,6 +9258,12 @@ void Unit::AtExitCombat()
         UpdateNearbyPlayersInteractions();
 }
 
+void Unit::AtEngage(Unit* /*target*/)
+{
+    if (HasUnitState(UNIT_STATE_DISTRACTED))
+        GetMotionMaster()->Remove(DISTRACT_MOTION_TYPE);
+}
+
 void Unit::AtTargetAttacked(Unit* target, bool canInitialAggro)
 {
     if (!target->IsEngaged() && !canInitialAggro)
