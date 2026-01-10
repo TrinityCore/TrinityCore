@@ -83,6 +83,7 @@ enum PriestSpells
     SPELL_PRIEST_DIVINE_BLESSING                    = 40440,
     SPELL_PRIEST_DIVINE_FAVOR_CHASTISE              = 372761,
     SPELL_PRIEST_DIVINE_FAVOR_SERENITY              = 372791,
+    SPELL_PRIEST_DIVINE_HALO                        = 449806,
     SPELL_PRIEST_DIVINE_HYMN_HEAL                   = 64844,
     SPELL_PRIEST_DIVINE_IMAGE_SUMMON                = 392990,
     SPELL_PRIEST_DIVINE_IMAGE_EMPOWER               = 409387,
@@ -171,6 +172,7 @@ enum PriestSpells
     SPELL_PRIEST_PENANCE_CHANNEL_HEALING            = 47757,
     SPELL_PRIEST_PENANCE_DAMAGE                     = 47666,
     SPELL_PRIEST_PENANCE_HEALING                    = 47750,
+    SPELL_PRIEST_PHANTOM_REACH                      = 459559,
     SPELL_PRIEST_POWER_LEECH_MINDBENDER_MANA        = 123051,
     SPELL_PRIEST_POWER_LEECH_MINDBENDER_INSANITY    = 200010,
     SPELL_PRIEST_POWER_LEECH_SHADOWFIEND_MANA       = 343727,
@@ -2096,6 +2098,81 @@ class spell_pri_heavens_wrath : public AuraScript
     }
 };
 
+// 120517 - Halo (Holy)
+// 120644 - Halo (Shadow)
+class spell_pri_halo_effect_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PHANTOM_REACH, SPELL_PRIEST_POWER_SURGE, SPELL_PRIEST_DIVINE_HALO });
+    }
+
+    static void PreventUnwantedAura(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        Optional<SpellEffIndex> selectedEffect;
+        if (Unit* caster = GetSpell() ? GetCaster() : nullptr)
+        {
+            if (caster->HasAura(SPELL_PRIEST_DIVINE_HALO))
+                selectedEffect = caster->HasAura(SPELL_PRIEST_PHANTOM_REACH) ? EFFECT_5 : EFFECT_2;
+            else if (caster->HasAura(SPELL_PRIEST_POWER_SURGE))
+                selectedEffect = caster->HasAura(SPELL_PRIEST_PHANTOM_REACH) ? EFFECT_4 : EFFECT_1;
+            else
+                selectedEffect = caster->HasAura(SPELL_PRIEST_PHANTOM_REACH) ? EFFECT_3 : EFFECT_0;
+        }
+
+        if (selectedEffect != EFFECT_0)
+            OnEffectLaunch += SpellEffectFn(spell_pri_halo_effect_selector::PreventHitDefaultEffect, EFFECT_0, SPELL_EFFECT_CREATE_AREATRIGGER);
+
+        if (selectedEffect != EFFECT_1)
+            OnEffectLaunch += SpellEffectFn(spell_pri_halo_effect_selector::PreventHitDefaultEffect, EFFECT_1, SPELL_EFFECT_CREATE_AREATRIGGER);
+
+        if (selectedEffect != EFFECT_2)
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_effect_selector::PreventUnwantedAura, EFFECT_2, TARGET_UNIT_CASTER);
+
+        if (selectedEffect != EFFECT_3)
+            OnEffectLaunch += SpellEffectFn(spell_pri_halo_effect_selector::PreventHitDefaultEffect, EFFECT_3, SPELL_EFFECT_CREATE_AREATRIGGER);
+
+        if (selectedEffect != EFFECT_4)
+            OnEffectLaunch += SpellEffectFn(spell_pri_halo_effect_selector::PreventHitDefaultEffect, EFFECT_4, SPELL_EFFECT_CREATE_AREATRIGGER);
+
+        if (selectedEffect != EFFECT_5)
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_effect_selector::PreventUnwantedAura, EFFECT_5, TARGET_UNIT_CASTER);
+    }
+};
+
+// 449840 - Halo (Holy)
+// 453094 - Halo (Shadow)
+class spell_pri_halo_return_effect_selector : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_PHANTOM_REACH });
+    }
+
+    static void PreventUnwantedAura(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        Optional<SpellEffIndex> selectedEffect;
+        if (Unit* caster = GetSpell() ? GetCaster() : nullptr)
+            selectedEffect = caster->HasAura(SPELL_PRIEST_PHANTOM_REACH) ? EFFECT_1 : EFFECT_0;
+
+        if (selectedEffect != EFFECT_0)
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_return_effect_selector::PreventUnwantedAura, EFFECT_0, TARGET_UNIT_CASTER);
+
+        if (selectedEffect != EFFECT_1)
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_halo_return_effect_selector::PreventUnwantedAura, EFFECT_1, TARGET_UNIT_CASTER);
+    }
+};
+
 // 120644 - Halo (Shadow)
 class spell_pri_halo_shadow : public SpellScript
 {
@@ -2109,7 +2186,7 @@ class spell_pri_halo_shadow : public SpellScript
 
     void Register() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_pri_halo_shadow::HandleHitTarget, EFFECT_1, SPELL_EFFECT_ENERGIZE);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_halo_shadow::HandleHitTarget, EFFECT_6, SPELL_EFFECT_ENERGIZE);
     }
 };
 
@@ -2117,10 +2194,33 @@ class spell_pri_halo_shadow : public SpellScript
 // 120644 - Halo (Shadow)
 struct areatrigger_pri_halo : AreaTriggerAI
 {
-    areatrigger_pri_halo(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) {}
+    using AreaTriggerAI::AreaTriggerAI;
 
     void OnUnitEnter(Unit* unit) override
     {
+        if (Unit* caster = at->GetCaster())
+        {
+            if (caster->IsValidAttackTarget(unit))
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_DAMAGE : SPELL_PRIEST_HALO_HOLY_DAMAGE,
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+            else if (caster->IsValidAssistTarget(unit))
+                caster->CastSpell(unit, at->GetSpellId() == SPELL_PRIEST_HALO_SHADOW ? SPELL_PRIEST_HALO_SHADOW_HEAL : SPELL_PRIEST_HALO_HOLY_HEAL,
+                    TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS);
+        }
+    }
+};
+
+// 449840 - Halo (Holy)
+// 453094 - Halo (Shadow)
+struct areatrigger_pri_halo_return : AreaTriggerAI
+{
+    using AreaTriggerAI::AreaTriggerAI;
+
+    void OnUnitExit(Unit* unit, AreaTriggerExitReason reason) override
+    {
+        if (reason != AreaTriggerExitReason::NotInside)
+            return;
+
         if (Unit* caster = at->GetCaster())
         {
             if (caster->IsValidAttackTarget(unit))
@@ -4838,8 +4938,11 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_focused_mending);
     RegisterSpellScript(spell_pri_from_darkness_comes_light);
     RegisterSpellScript(spell_pri_guardian_spirit);
+    RegisterSpellScript(spell_pri_halo_effect_selector);
+    RegisterSpellScript(spell_pri_halo_return_effect_selector);
     RegisterSpellScript(spell_pri_halo_shadow);
     RegisterAreaTriggerAI(areatrigger_pri_halo);
+    RegisterAreaTriggerAI(areatrigger_pri_halo_return);
     RegisterSpellScript(spell_pri_harsh_discipline);
     RegisterSpellScript(spell_pri_heavens_wrath);
     RegisterSpellScript(spell_pri_holy_mending);
