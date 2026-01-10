@@ -601,7 +601,7 @@ void MotionMaster::MoveRandom(float wanderDistance /*= 0.0f*/, Optional<Millisec
     if (_owner->GetTypeId() == TYPEID_UNIT)
         Add(new RandomMovementGenerator<Creature>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)), slot);
     else
-        Add(new RandomMovementGenerator<Player>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)), slot);
+        Add(new RandomMovementGenerator<Player>(wanderDistance, duration, speed, speedSelectionMode, std::move(scriptResult)));
 }
 
 void MotionMaster::MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle /*= {}*/, Optional<Milliseconds> duration /*= {}*/, bool ignoreTargetWalk /*= false*/, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/,
@@ -1146,7 +1146,7 @@ void MotionMaster::MovePath(uint32 pathId, bool repeatable, Optional<Millisecond
             wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
     else
         Add(new WaypointMovementGenerator<Player>(pathId, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)));
 }
 
 void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration /*= {}*/, Optional<float> speed /*= {}*/,
@@ -1164,7 +1164,7 @@ void MotionMaster::MovePath(WaypointPath const& path, bool repeatable, Optional<
             wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
     else
         Add(new WaypointMovementGenerator<Player>(path, repeatable, duration, speed, speedSelectionMode, waitTimeRangeAtPathEnd,
-            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)), MOTION_SLOT_DEFAULT);
+            wanderDistanceAtPathEnds, followPathBackwardsFromEndToStart, exactSplinePath, generatePath, std::move(scriptResult)));
 }
 
 void MotionMaster::MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time /*= {}*/,
