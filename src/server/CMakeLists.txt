@@ -14,5 +14,6 @@ add_subdirectory(shared)
 add_subdirectory(bnetserver)
 add_subdirectory(game)
 add_subdirectory(scripts)
-add_subdirectory(worldserver)
 add_subdirectory(wp)
+add_subdirectory(worldserver)
+

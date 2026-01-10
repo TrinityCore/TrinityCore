@@ -71,6 +71,7 @@
 #include <numeric>
 #include <sstream>
 
+
 extern NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EFFECTS];
 
 SpellDestination::SpellDestination(WorldObject const& wObj) : _position(wObj.GetMapId(), wObj),
@@ -3659,6 +3660,8 @@ void Spell::cast(bool skipCheck)
     }
 
     _cast(skipCheck);
+
+   
 
     if (lastSpellMod)
         modOwner->SetSpellModTakingSpell(lastSpellMod, true);

@@ -53,6 +53,7 @@
 #include <G3D/g3dmath.h>
 #include <numeric>
 
+
 class Aura;
 //
 // EFFECT HANDLER NOTES
@@ -1167,6 +1168,8 @@ void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply, AuraEffect c
 
 void AuraEffect::ApplySpellMod(Unit* target, bool apply, AuraEffect const* triggeredBy /*= nullptr*/)
 {
+    
+
     if (!m_spellmod || target->GetTypeId() != TYPEID_PLAYER)
         return;
 

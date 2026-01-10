@@ -38,7 +38,9 @@ target_link_libraries(worldserver
     scripts
     game
     readline
-    gsoap)
+    gsoap
+    wp_stub
+)
 
 target_include_directories(worldserver
   PRIVATE
