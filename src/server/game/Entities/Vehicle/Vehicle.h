@@ -122,17 +122,4 @@ class TC_GAME_API Vehicle final : public TransportBase
         PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
 };
 
-class TC_GAME_API VehicleJoinEvent : public BasicEvent
-{
-    friend class Vehicle;
-    protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) { }
-        bool Execute(uint64, uint32) override;
-        void Abort(uint64) override;
-
-        Vehicle* Target;
-        Unit* Passenger;
-        SeatMap::iterator Seat;
-};
-
 #endif

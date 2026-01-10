@@ -265,6 +265,11 @@ namespace WorldPackets
             Optional<uint32> RestrictedAccountMaxLevel;
             Optional<uint64> RestrictedAccountMaxMoney;
             Optional<uint32> InstanceGroupSize;
+
+            ObjectGuid HouseGuid;
+            ObjectGuid HouseOwnerBnetAccount;
+            ObjectGuid HouseOwnerPlayer;
+            ObjectGuid NeighborhoodGuid;
         };
 
         class SetDungeonDifficulty final : public ClientPacket
