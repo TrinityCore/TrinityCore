@@ -25,7 +25,7 @@
 #include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
-enum Events
+enum NefarianEvents
 {
     // Victor Nefarius
     EVENT_SPAWN_ADD            = 1,
@@ -48,7 +48,7 @@ enum Events
     EVENT_SUCCESS_3            = 16,
 };
 
-enum Says
+enum NefarianSays
 {
     // Nefarius
     // UBRS
@@ -78,25 +78,25 @@ enum Says
     SAY_DEATH_KNIGHT           = 13
 };
 
-enum Gossip
+enum NefarianGossip
 {
-   GOSSIP_ID                   = 6045,
-   GOSSIP_OPTION_ID            = 0
+    GOSSIP_ID                   = 6045,
+    GOSSIP_OPTION_ID            = 0
 };
 
-enum Paths
+enum NefarianPaths
 {
     NEFARIUS_PATH_2            = 11037368,
     NEFARIUS_PATH_3            = 11037376
 };
 
-enum GameObjects
+enum NefarianGameObjects
 {
     GO_PORTCULLIS_ACTIVE       = 164726,
     GO_PORTCULLIS_TOBOSSROOMS  = 175186
 };
 
-enum Creatures
+enum NefarianCreatures
 {
     NPC_BRONZE_DRAKANOID       = 14263,
     NPC_BLUE_DRAKANOID         = 14261,
@@ -109,7 +109,7 @@ enum Creatures
     NPC_GYTH                   = 10339
 };
 
-enum Spells
+enum NefarianSpells
 {
     // Victor Nefarius
     // UBRS Spells
@@ -146,6 +146,11 @@ enum Spells
 // 22664
 // 22674
 // 22666
+};
+
+enum NefarianPoints
+{
+    POINT_FACING_CHROMATIC_CHAOS = 1,
 };
 
 Position const DrakeSpawnLoc[2] = // drakonid
@@ -240,6 +245,15 @@ struct boss_victor_nefarius : public BossAI
             events.ScheduleEvent(EVENT_SUCCESS_1, 5s);
     }
 
+    void MovementInform(uint32 type, uint32 id) override
+    {
+        if (type != EFFECT_MOTION_TYPE)
+            return;
+
+        if (id == POINT_FACING_CHROMATIC_CHAOS)
+            DoCast(SPELL_CHROMATIC_CHAOS);
+    }
+
     void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
@@ -263,8 +277,7 @@ struct boss_victor_nefarius : public BossAI
                         events.ScheduleEvent(EVENT_CHAOS_2, 2s);
                         break;
                     case EVENT_CHAOS_2:
-                        DoCast(SPELL_CHROMATIC_CHAOS);
-                        me->SetFacingTo(1.570796f);
+                        me->SetFacingTo(1.570796f, true, POINT_FACING_CHROMATIC_CHAOS);
                         break;
                     case EVENT_SUCCESS_1:
                         if (Unit* player = me->SelectNearestPlayer(60.0f))

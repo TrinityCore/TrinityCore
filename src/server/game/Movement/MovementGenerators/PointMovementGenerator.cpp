@@ -43,7 +43,7 @@ MovementGeneratorType PointMovementGenerator<T>::GetMovementGeneratorType() cons
 }
 
 template<class T>
-void PointMovementGenerator<T>::DoInitialize(T* owner)
+bool PointMovementGenerator<T>::DoInitialize(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -51,14 +51,14 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     if (_movementId == EVENT_CHARGE_PREPATH)
     {
         owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
-        return;
+        return true;
     }
 
     if (owner->HasUnitState(UNIT_STATE_NOT_MOVE) || owner->IsMovementPreventedByCasting())
     {
         MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INTERRUPTED);
         owner->StopMoving();
-        return;
+        return true;
     }
 
     owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
@@ -76,14 +76,15 @@ void PointMovementGenerator<T>::DoInitialize(T* owner)
     // Call for creature group update
     if (Creature* creature = owner->ToCreature())
         creature->SignalFormationMovement();
+    return true;
 }
 
 template<class T>
-void PointMovementGenerator<T>::DoReset(T* owner)
+bool PointMovementGenerator<T>::DoReset(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>
@@ -167,10 +168,10 @@ template PointMovementGenerator<Player>::PointMovementGenerator(uint32, float, f
 template PointMovementGenerator<Creature>::PointMovementGenerator(uint32, float, float, float, bool, float, Optional<float>);
 template MovementGeneratorType PointMovementGenerator<Player>::GetMovementGeneratorType() const;
 template MovementGeneratorType PointMovementGenerator<Creature>::GetMovementGeneratorType() const;
-template void PointMovementGenerator<Player>::DoInitialize(Player*);
-template void PointMovementGenerator<Creature>::DoInitialize(Creature*);
-template void PointMovementGenerator<Player>::DoReset(Player*);
-template void PointMovementGenerator<Creature>::DoReset(Creature*);
+template bool PointMovementGenerator<Player>::DoInitialize(Player*);
+template bool PointMovementGenerator<Creature>::DoInitialize(Creature*);
+template bool PointMovementGenerator<Player>::DoReset(Player*);
+template bool PointMovementGenerator<Creature>::DoReset(Creature*);
 template bool PointMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool PointMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 template void PointMovementGenerator<Player>::DoDeactivate(Player*);

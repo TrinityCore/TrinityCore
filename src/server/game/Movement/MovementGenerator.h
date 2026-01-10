@@ -40,6 +40,7 @@ enum MovementGeneratorFlags : uint16
     MOVEMENTGENERATOR_FLAG_INFORM_ENABLED         = 0x080,
     MOVEMENTGENERATOR_FLAG_FINALIZED              = 0x100,
     MOVEMENTGENERATOR_FLAG_PERSIST_ON_DEATH       = 0x200,
+    MOVEMENTGENERATOR_FLAG_FIXED_DURATION         = 0x400,
 
     MOVEMENTGENERATOR_FLAG_TRANSITORY = MOVEMENTGENERATOR_FLAG_SPEED_UPDATE_PENDING | MOVEMENTGENERATOR_FLAG_INTERRUPTED
 };
@@ -51,9 +52,9 @@ class TC_GAME_API MovementGenerator
         virtual ~MovementGenerator();
 
         // on top first update
-        virtual void Initialize(Unit*) = 0;
+        virtual bool Initialize(Unit*) = 0;
         // on top reassign
-        virtual void Reset(Unit*) = 0;
+        virtual bool Reset(Unit*) = 0;
         // on top on MotionMaster::Update
         virtual bool Update(Unit*, uint32 diff) = 0;
         // on current top if another movement replaces
@@ -86,14 +87,14 @@ template<class T, class D>
 class MovementGeneratorMedium : public MovementGenerator
 {
     public:
-        void Initialize(Unit* owner) override
+        bool Initialize(Unit* owner) override
         {
-            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(owner));
+            return (static_cast<D*>(this))->DoInitialize(static_cast<T*>(owner));
         }
 
-        void Reset(Unit* owner) override
+        bool Reset(Unit* owner) override
         {
-            (static_cast<D*>(this))->DoReset(static_cast<T*>(owner));
+            return (static_cast<D*>(this))->DoReset(static_cast<T*>(owner));
         }
 
         bool Update(Unit* owner, uint32 diff) override

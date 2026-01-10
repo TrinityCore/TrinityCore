@@ -207,6 +207,18 @@ MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType() const
     return movement->GetMovementGeneratorType();
 }
 
+MovementGeneratorPriority MotionMaster::GetCurrentMovementGeneratorPriority() const
+{
+    if (Empty())
+        return MOTION_PRIORITY_NONE;
+
+    MovementGenerator const* movement = GetCurrentMovementGenerator();
+    if (!movement)
+        return MOTION_PRIORITY_NONE;
+
+    return MovementGeneratorPriority(movement->Priority);
+}
+
 MovementGeneratorType MotionMaster::GetCurrentMovementGeneratorType(MovementSlot slot) const
 {
     if (Empty() || IsInvalidMovementSlot(slot))
@@ -301,19 +313,20 @@ void MotionMaster::Update(uint32 diff)
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
 
     MovementGenerator* top = GetCurrentMovementGenerator();
+    bool initialized = false;
     if (HasFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING) && IsStatic(top))
     {
         RemoveFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
-        top->Initialize(_owner);
+        initialized = top->Initialize(_owner);
     }
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
-        top->Initialize(_owner);
+        initialized = top->Initialize(_owner);
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED))
-        top->Reset(_owner);
+        initialized = top->Reset(_owner);
 
     ASSERT(!top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED), "MotionMaster:Update: update called on an uninitialized top! (%s) (type: %u, flags: %u)", _owner->GetGUID().ToString().c_str(), top->GetMovementGeneratorType(), top->Flags);
 
-    if (!top->Update(_owner, diff))
+    if (!initialized && !top->Update(_owner, diff))
     {
         ASSERT(top == GetCurrentMovementGenerator(), "MotionMaster::Update: top was modified while updating! (%s)", _owner->GetGUID().ToString().c_str());
 
@@ -1062,6 +1075,51 @@ void MotionMaster::MoveFormation(Unit* leader, float range, float angle, uint32 
         TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFormation: '{}', started to move in a formation with leader {}", _owner->GetGUID().ToString(), leader->GetGUID().ToString());
         Add(new FormationMovementGenerator(leader, range, angle, point1, point2), MOTION_SLOT_DEFAULT);
     }
+}
+
+void MotionMaster::MoveFace(WorldObject const* object, Milliseconds duration/* = 1s*/, uint32 id/* = EVENT_FACE*/)
+{
+    if (!object || GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST)
+        return;
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID().ToString(), object->GetGUID().ToString());
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, this](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), false);
+        if (object)
+            init.SetFacing(_owner->GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
+    };
+
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, duration);
+    movement->Priority = MOTION_PRIORITY_NORMAL;
+    movement->Mode = MOTION_MODE_OVERRIDE;
+    movement->BaseUnitState = UNIT_STATE_FACING;
+    movement->AddFlag(MOVEMENTGENERATOR_FLAG_FIXED_DURATION);
+    Add(movement);
+}
+
+void MotionMaster::MoveFace(float const orientation, Milliseconds duration/* = 1s*/, uint32 id/* = EVENT_FACE*/)
+{
+    if (GetCurrentMovementGeneratorPriority() == MOTION_PRIORITY_HIGHEST)
+        return;
+
+    TC_LOG_DEBUG("movement.motionmaster", "MotionMaster::MoveFace: '{}', faces '{}'", _owner->GetGUID().ToString(), orientation);
+
+    std::function<void(Movement::MoveSplineInit&)> initializer = [=, this](Movement::MoveSplineInit& init)
+    {
+        init.MoveTo(_owner->GetPositionX(), _owner->GetPositionY(), _owner->GetPositionZ(), false);
+        if (_owner->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !_owner->GetTransGUID().IsEmpty())
+            init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
+        init.SetFacing(orientation);
+    };
+
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, duration);
+    movement->Priority = MOTION_PRIORITY_NORMAL;
+    movement->Mode = MOTION_MODE_OVERRIDE;
+    movement->BaseUnitState = UNIT_STATE_FACING;
+    movement->AddFlag(MOVEMENTGENERATOR_FLAG_FIXED_DURATION);
+    Add(movement);
 }
 
 void MotionMaster::LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id/*= 0*/, MovementGeneratorPriority priority/* = MOTION_PRIORITY_NORMAL*/, MovementGeneratorType type/*= EFFECT_MOTION_TYPE*/)

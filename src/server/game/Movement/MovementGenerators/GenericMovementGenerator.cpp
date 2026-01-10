@@ -30,13 +30,18 @@ GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::
     BaseUnitState = UNIT_STATE_ROAMING;
 }
 
-void GenericMovementGenerator::Initialize(Unit* owner)
+GenericMovementGenerator::GenericMovementGenerator(std::function<void(Movement::MoveSplineInit &init)>&& initializer, MovementGeneratorType type, uint32 id, Milliseconds duration) : GenericMovementGenerator(std::move(initializer), type, id)
+{
+    _duration.Reset(duration);
+}
+
+bool GenericMovementGenerator::Initialize(Unit* owner)
 {
     if (HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED) && !HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING)) // Resume spline is not supported
     {
         RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
         AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-        return;
+        return false;
     }
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
@@ -44,12 +49,16 @@ void GenericMovementGenerator::Initialize(Unit* owner)
 
     Movement::MoveSplineInit init(owner);
     _splineInit(init);
-    _duration.Reset(init.Launch());
+    if (!HasFlag(MOVEMENTGENERATOR_FLAG_FIXED_DURATION))
+        _duration.Reset(init.Launch());
+    else
+        init.Launch();
+    return true;
 }
 
-void GenericMovementGenerator::Reset(Unit* owner)
+bool GenericMovementGenerator::Reset(Unit* owner)
 {
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
@@ -61,7 +70,7 @@ bool GenericMovementGenerator::Update(Unit* owner, uint32 diff)
     if (!owner->movespline->isCyclic())
         _duration.Update(diff);
 
-    if (_duration.Passed() || owner->movespline->Finalized())
+    if (_duration.Passed() || (!HasFlag(MOVEMENTGENERATOR_FLAG_FIXED_DURATION) && owner->movespline->Finalized()))
     {
         AddFlag(MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
         return false;

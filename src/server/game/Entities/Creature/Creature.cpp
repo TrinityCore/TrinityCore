@@ -3086,7 +3086,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 
     // If we are not allowed to turn during cast but have a focus target, face the target
     if (!turnDisabled && noTurnDuringCast && target)
-        SetFacingToObject(target, false);
+        SetFacingToObject(target, false, EVENT_SPELL_FOCUS, Milliseconds(focusSpell->GetCastTime()));
 
     if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_FOCUSING);
@@ -3148,17 +3148,22 @@ void Creature::ReacquireSpellFocusTarget()
         if (!_spellFocusInfo.Target.IsEmpty())
         {
             if (WorldObject const* objTarget = ObjectAccessor::GetWorldObject(*this, _spellFocusInfo.Target))
-                SetFacingToObject(objTarget, false);
+                SetFacingToObject(objTarget, false, EVENT_SPELL_FOCUS);
         }
-        else
-            SetFacingTo(_spellFocusInfo.Orientation, false);
+        else if (_spellFocusInfo.Orientation.has_value())
+            SetFacingTo(_spellFocusInfo.Orientation.value(), false, EVENT_SPELL_FOCUS);
     }
     _spellFocusInfo.Delay = 0;
+    _spellFocusInfo.Target.Clear();
+    _spellFocusInfo.Orientation.reset();
+    _spellFocusInfo.Spell = nullptr;
 }
 
 void Creature::DoNotReacquireSpellFocusTarget()
 {
     _spellFocusInfo.Delay = 0;
+    _spellFocusInfo.Target.Clear();
+    _spellFocusInfo.Orientation.reset();
     _spellFocusInfo.Spell = nullptr;
 }
 
