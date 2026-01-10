@@ -97,7 +97,7 @@ bool WaypointMovementGenerator<Creature>::GetResetPosition(Unit* /*owner*/, floa
     return true;
 }
 
-void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
+bool WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -112,15 +112,16 @@ void WaypointMovementGenerator<Creature>::DoInitialize(Creature* owner)
     if (!_path)
     {
         TC_LOG_ERROR("sql.sql", "WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({}) (_pathId: {})", owner->GetGUID().ToString(), _pathId);
-        return;
+        return false;
     }
 
     owner->StopMoving();
 
     _nextMoveTime.Reset(1000);
+    return true;
 }
 
-void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
+bool WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
@@ -128,6 +129,7 @@ void WaypointMovementGenerator<Creature>::DoReset(Creature* owner)
 
     if (!HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED) && _nextMoveTime.Passed())
         _nextMoveTime.Reset(1); // Needed so that Update does not behave as if node was reached
+    return true;
 }
 
 bool WaypointMovementGenerator<Creature>::DoUpdate(Creature* owner, uint32 diff)

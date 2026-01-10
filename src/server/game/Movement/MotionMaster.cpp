@@ -301,19 +301,20 @@ void MotionMaster::Update(uint32 diff)
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
 
     MovementGenerator* top = GetCurrentMovementGenerator();
+    bool initialized = false;
     if (HasFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING) && IsStatic(top))
     {
         RemoveFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
-        top->Initialize(_owner);
+        initialized = top->Initialize(_owner);
     }
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
-        top->Initialize(_owner);
+        initialized = top->Initialize(_owner);
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED))
-        top->Reset(_owner);
+        initialized = top->Reset(_owner);
 
     ASSERT(!top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED), "MotionMaster:Update: update called on an uninitialized top! (%s) (type: %u, flags: %u)", _owner->GetGUID().ToString().c_str(), top->GetMovementGeneratorType(), top->Flags);
 
-    if (!top->Update(_owner, diff))
+    if (!initialized && !top->Update(_owner, diff))
     {
         ASSERT(top == GetCurrentMovementGenerator(), "MotionMaster::Update: top was modified while updating! (%s)", _owner->GetGUID().ToString().c_str());
 
