@@ -1,3 +1,52 @@
+⚔️ TrinityCore + WWrapper (WP) — ARPG Platform with Custom Library & API 🛠️
+
+Welcome to my TrinityCore WP!
+This repository combines official TrinityCore updates with my custom enhancements, creating a fully functional ARPG platform with a custom library, API, and extended features, while maintaining full compatibility with the original project.
+
+📌 What's Inside
+
+🔄 Synchronized master branch
+All recent TrinityCore commits are carefully merged with my local modifications and optimizations. The commit history is clean and conflicts are resolved locally with minimal changes.
+
+🧩 Custom Library & API
+
+Fully integrated WP Adapter and WP Library tailored for ARPG projects
+
+Custom API to implement unique ARPG mechanics
+
+Configured pipelines and utilities for fast testing and module integration
+
+⚡ Hook Preservation & Compatibility
+Modifications are designed to keep standard TrinityCore hooks intact, allowing official features to work while extending them for ARPG purposes.
+
+🎯 Fork Objective
+
+The goal of this repository is to create a fully functional ARPG platform on top of TrinityCore with:
+
+🛠️ Custom library & API for unique ARPG mechanics
+
+🔗 Minimal hook interference with the official server
+
+🌐 Integration of official TrinityCore updates into a single working repository
+
+🧪 Convenient local development: test, fix, and extend functionality safely
+
+💡 Advantages
+
+✅ Single branch containing both official and custom changes
+
+🧩 Custom library & API for ARPG mechanics, preserving all official hooks
+
+🔄 Up-to-date server with regular upstream synchronization
+
+🚀 Ready for local build and testing immediately
+
+📝 Transparent commit history for easy tracking and rollback
+
+MY DISCORD: yukoNw
+
+
+
 # ![logo](https://community.trinitycore.org/public/style_images/1_trinitycore.png) TrinityCore (master)
 
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Average time to resolve an issue") [![Percentage of issues still open](https://isitmaintained.com/badge/open/TrinityCore/TrinityCore.svg)](https://isitmaintained.com/project/TrinityCore/TrinityCore "Percentage of issues still open")
