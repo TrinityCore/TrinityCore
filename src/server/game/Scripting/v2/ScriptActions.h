@@ -28,7 +28,7 @@ class ActionBase;
 template<typename T>
 class ActionResultSetter;
 
-class ActionBase
+class TC_GAME_API ActionBase
 {
 public:
     ActionBase();
