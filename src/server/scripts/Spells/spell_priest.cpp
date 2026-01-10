@@ -178,6 +178,8 @@ enum PriestSpells
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE             = 198069,
     SPELL_PRIEST_POWER_OF_THE_DARK_SIDE_TINT        = 225795,
     SPELL_PRIEST_POWER_SURGE                        = 453109,
+    SPELL_PRIEST_POWER_SURGE_HALO_VISUAL            = 454342,
+    SPELL_PRIEST_POWER_SURGE_HALO_VISUAL_RETURN     = 467824, // TODO: cast when triggering first return halo from Divine Halo (from halo on expire script)
     SPELL_PRIEST_POWER_SURGE_PERIODIC_HOLY          = 453112,
     SPELL_PRIEST_POWER_SURGE_PERIODIC_SHADOW        = 453113,
     SPELL_PRIEST_POWER_WORD_LIFE                    = 373481,
@@ -2912,15 +2914,16 @@ class spell_pri_power_surge : public AuraScript
             SPELL_PRIEST_HALO_HOLY,
             SPELL_PRIEST_HALO_SHADOW,
             SPELL_PRIEST_POWER_SURGE_PERIODIC_HOLY,
-            SPELL_PRIEST_POWER_SURGE_PERIODIC_SHADOW
+            SPELL_PRIEST_POWER_SURGE_PERIODIC_SHADOW,
+            SPELL_PRIEST_POWER_SURGE_HALO_VISUAL
         });
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
 
-        uint32 spellId{};
+        uint32 spellId = 0;
         switch (eventInfo.GetSpellInfo()->Id)
         {
             case SPELL_PRIEST_HALO_HOLY:
@@ -2933,12 +2936,19 @@ class spell_pri_power_surge : public AuraScript
                 return;
         }
 
-        caster->CastSpell(caster, spellId);
+        CastSpellExtraArgs args = CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = eventInfo.GetProcSpell(),
+            .TriggeringAura = aurEff
+        };
+
+        caster->CastSpell(caster, SPELL_PRIEST_POWER_SURGE_HALO_VISUAL, args);
+        caster->CastSpell(caster, spellId, args);
     }
 
     void Register() override
     {
-        OnProc += AuraProcFn(spell_pri_power_surge::HandleProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_power_surge::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
     }
 };
 
@@ -2951,9 +2961,9 @@ class spell_pri_power_surge_periodic : public AuraScript
         return ValidateSpellInfo({ _spellId });
     }
 
-    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
     {
-        GetTarget()->CastSpell(GetTarget(), _spellId, TRIGGERED_FULL_MASK);
+        GetTarget()->CastSpell(GetTarget(), _spellId, TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_IGNORE_CAST_TIME | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
@@ -2961,9 +2971,10 @@ class spell_pri_power_surge_periodic : public AuraScript
         OnEffectPeriodic += AuraEffectPeriodicFn(spell_pri_power_surge_periodic::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
     }
 
-    uint32 _spellId{};
+    uint32 _spellId;
+
 public:
-    explicit spell_pri_power_surge_periodic(uint32 haloSpellId) : _spellId{ haloSpellId } {}
+    explicit spell_pri_power_surge_periodic(uint32 haloSpellId) : _spellId(haloSpellId) {}
 };
 
 // 194509 - Power Word: Radiance
