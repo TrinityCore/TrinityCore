@@ -96,13 +96,13 @@ bool SplineChainMovementGenerator::Initialize(Unit* owner)
     {
         TC_LOG_WARN("movement", "SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize ({})", owner->GetGUID().ToString());
         _msToNext = 0;
-        return true;
+        return false;
     }
 
     if (_nextFirstWP) // this is a resumed movegen that has to start with a partial spline
     {
         if (HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
-            return true;
+            return false;
 
         SplineChainLink const& thisLink = _chain[_nextIndex];
         if (_nextFirstWP >= thisLink.Points.size())
@@ -126,6 +126,7 @@ bool SplineChainMovementGenerator::Initialize(Unit* owner)
     }
     else
     {
+        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
         _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
         SendSplineFor(owner, _nextIndex, _msToNext);
 
@@ -146,7 +147,7 @@ bool SplineChainMovementGenerator::Reset(Unit* owner)
 
 bool SplineChainMovementGenerator::Update(Unit* owner, uint32 diff)
 {
-    if (!owner || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
+    if (!owner || !_chainSize || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
         return false;
 
     // _msToNext being zero here means we're on the final spline

@@ -57,11 +57,10 @@ bool FollowMovementGenerator::Initialize(Unit* owner)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED | MOVEMENTGENERATOR_FLAG_INFORM_ENABLED);
 
-    owner->StopMoving();
     UpdatePetSpeed(owner);
     _path = nullptr;
     _lastTargetPosition.reset();
-    return true;
+    return false;
 }
 
 bool FollowMovementGenerator::Reset(Unit* owner)

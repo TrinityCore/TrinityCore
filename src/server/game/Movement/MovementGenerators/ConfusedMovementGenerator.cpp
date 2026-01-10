@@ -50,12 +50,11 @@ bool ConfusedMovementGenerator<T>::DoInitialize(T* owner)
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
     owner->SetUnitFlag(UNIT_FLAG_CONFUSED);
-    owner->StopMoving();
 
     _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
     _path = nullptr;
-    return true;
+    return false;
 }
 
 template<class T>

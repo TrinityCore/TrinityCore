@@ -82,7 +82,7 @@ bool ChaseMovementGenerator::Initialize(Unit* /*owner*/)
 
     _path = nullptr;
     _lastTargetPosition.reset();
-    return true;
+    return false;
 }
 
 bool ChaseMovementGenerator::Reset(Unit* owner)

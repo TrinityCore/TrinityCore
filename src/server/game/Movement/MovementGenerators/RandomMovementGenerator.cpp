@@ -69,7 +69,7 @@ void RandomMovementGenerator<T>::Resume(uint32 overrideTimer /*= 0*/)
 template MovementGeneratorType RandomMovementGenerator<Creature>::GetMovementGeneratorType() const;
 
 template<class T>
-bool RandomMovementGenerator<T>::DoInitialize(T*) { }
+bool RandomMovementGenerator<T>::DoInitialize(T*) { return false; }
 
 template<>
 bool RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
@@ -81,7 +81,6 @@ bool RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
         return false;
 
     _reference = owner->GetPosition();
-    owner->StopMoving();
 
     if (_wanderDistance == 0.f)
         _wanderDistance = owner->GetWanderDistance();
@@ -91,11 +90,11 @@ bool RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 
     _timer.Reset(0);
     _path = nullptr;
-    return true;
+    return false;
 }
 
 template<class T>
-bool RandomMovementGenerator<T>::DoReset(T*) { }
+bool RandomMovementGenerator<T>::DoReset(T*) { return false; }
 
 template<>
 bool RandomMovementGenerator<Creature>::DoReset(Creature* owner)

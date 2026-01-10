@@ -36,7 +36,7 @@ bool GenericMovementGenerator::Initialize(Unit* owner)
     {
         RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
         AddFlag(MOVEMENTGENERATOR_FLAG_FINALIZED);
-        return false;
+        return true;
     }
 
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);

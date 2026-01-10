@@ -81,7 +81,7 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
 }
 
 template<class T>
-bool HomeMovementGenerator<T>::DoInitialize(T*) { }
+bool HomeMovementGenerator<T>::DoInitialize(T*) { return false; }
 
 template<>
 bool HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
@@ -96,7 +96,7 @@ bool HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 }
 
 template<class T>
-bool HomeMovementGenerator<T>::DoReset(T*) { }
+bool HomeMovementGenerator<T>::DoReset(T*) { return false; }
 
 template<>
 bool HomeMovementGenerator<Creature>::DoReset(Creature* owner)
