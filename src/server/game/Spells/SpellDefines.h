@@ -284,6 +284,7 @@ enum TriggerCastFlags : uint32
     TRIGGERED_IGNORE_EQUIPPED_ITEM_REQUIREMENT      = 0x00080000,   //!< Will ignore equipped item requirements
     TRIGGERED_IGNORE_TARGET_CHECK                   = 0x00100000,   //!< Will ignore most target checks (mostly DBC target checks)
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00200000,   //!< Will ignore caster aura states including combat requirements and death state
+    TRIGGERED_SUPPRESS_CASTER_ANIM                  = 0x00400000,   //!< Will not play cast animations on caster
     TRIGGERED_FULL_DEBUG_MASK                       = 0xFFFFFFFF
 };
 
