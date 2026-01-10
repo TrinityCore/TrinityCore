@@ -19,6 +19,7 @@
 #define TRINITYCORE_SCRIPT_ACTIONS_H
 
 #include "ScriptActionResult.h"
+#include "Define.h"
 #include "Duration.h"
 
 namespace Scripting::v2
