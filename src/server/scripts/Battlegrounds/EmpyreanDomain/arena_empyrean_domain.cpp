@@ -24,6 +24,7 @@
 #include "Map.h"
 #include "MotionMaster.h"
 #include "Player.h"
+#include "ScriptActions.h"
 #include "ScriptMgr.h"
 #include "TaskScheduler.h"
 
@@ -84,6 +85,28 @@ namespace EmpyreanDomain
         static constexpr std::string_view Guard03 = "empyrean_domain_guard_03"sv;
         static constexpr std::string_view Guard04 = "empyrean_domain_guard_04"sv;
     }
+
+    class PlayerMoveDownEvent : public BasicEvent
+    {
+    public:
+        explicit PlayerMoveDownEvent(Player* player, std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> const& action) : _player(player), _action(action) { }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/) override
+        {
+            if (!_action->IsReady())
+            {
+                _player->m_Events.AddEventAtOffset(this, 500ms);
+                return false;
+            }
+
+            _player->RemoveAurasDueToSpell(Spells::WingsCosmetic);
+            return true;
+        }
+
+    private:
+        Player* _player;
+        std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> _action;
+    };
 }
 
 struct arena_empyrean_domain : ArenaScript
@@ -218,7 +241,11 @@ struct arena_empyrean_domain : ArenaScript
             init.SetVelocity(17.5f);
         };
 
-        player->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 1);
+        std::shared_ptr<Scripting::v2::ActionResult<MovementStopReason>> waitEvent = std::make_shared<Scripting::v2::ActionResult<MovementStopReason>>();
+        Scripting::v2::ActionResultSetter<MovementStopReason> actionResultSetter = Scripting::v2::ActionResult<MovementStopReason>::GetResultSetter(waitEvent);
+        player->GetMotionMaster()->LaunchMoveSpline(std::move(initializer), 1, MOTION_PRIORITY_NORMAL, EFFECT_MOTION_TYPE, std::move(actionResultSetter));
+
+        player->m_Events.AddEventAtOffset(new EmpyreanDomain::PlayerMoveDownEvent(player, waitEvent), 500ms);
     }
 
 private:
