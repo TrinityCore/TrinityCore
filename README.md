@@ -1,46 +1,45 @@
-⚔️ TrinityCore + WWrapper (WP) — ARPG Platform with Custom Library & API 🛠️
+⚔️ TrinityCore + Wrapper (WP) — Stable WoW World Platform with Runtime Modules 🛠️
 
-Welcome to my TrinityCore WP!
-This repository combines official TrinityCore updates with my custom enhancements, creating a fully functional ARPG platform with a custom library, API, and extended features, while maintaining full compatibility with the original project.
+Welcome to my TrinityCore + Dev. yukoNw !
+This repository combines official TrinityCore updates with my custom enhancements, creating a stable and playable WoW world platform. The key difference: game logic is handled by runtime modules, loaded as DLL libraries, without needing to rebuild the server.
 
 📌 What's Inside
+🔄 Synchronized Master Branch
 
-🔄 Synchronized master branch
-All recent TrinityCore commits are carefully merged with my local modifications and optimizations. The commit history is clean and conflicts are resolved locally with minimal changes.
+All recent TrinityCore commits are carefully merged with my local modifications and optimizations. The commit history is clean, and conflicts are resolved locally with minimal changes.
 
-🧩 Custom Library & API
+🧩 Adapter + Library (WP)
 
-Fully integrated WP Adapter and WP Library tailored for ARPG projects
+WP Adapter — a minimal layer inside worldserver that intercepts only the necessary TrinityCore methods (spells, damage, combat, movement, etc.)
 
-Custom API to implement unique ARPG mechanics
+WP Library — a runtime library that processes events, routes them to modules, and returns the results back to the adapter
+
+Support for dynamic DLL modules, which can be loaded, unloaded, and updated without rebuilding the server
 
 Configured pipelines and utilities for fast testing and module integration
 
 ⚡ Hook Preservation & Compatibility
-Modifications are designed to keep standard TrinityCore hooks intact, allowing official features to work while extending them for ARPG purposes.
+
+Modifications are designed to keep standard TrinityCore hooks intact. This allows official features to continue working while extending functionality through runtime modules.
 
 🎯 Fork Objective
 
-The goal of this repository is to create a fully functional ARPG platform on top of TrinityCore with:
+The goal of this repository is to create a stable and playable WoW world on top of TrinityCore with the ability to:
 
-🛠️ Custom library & API for unique ARPG mechanics
+🛠️ Use runtime modules via the adapter + library for any game mechanics
 
-🔗 Minimal hook interference with the official server
+🔗 Minimize interference with the official server hooks
 
-🌐 Integration of official TrinityCore updates into a single working repository
+🌐 Integrate official TrinityCore updates into a single working repository
 
-🧪 Convenient local development: test, fix, and extend functionality safely
+🧪 Safely test, extend, and fix logic without rebuilding the worldserver
 
 💡 Advantages
 
-✅ Single branch containing both official and custom changes
-
-🧩 Custom library & API for ARPG mechanics, preserving all official hooks
-
+✅ Single repository containing both official and custom changes
+🧩 Adapter + runtime library supporting DLL modules
 🔄 Up-to-date server with regular upstream synchronization
-
-🚀 Ready for local build and testing immediately
-
+🚀 Ready for local build and testing immediately after cloning
 📝 Transparent commit history for easy tracking and rollback
 
 MY DISCORD: yukoNw
