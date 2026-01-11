@@ -72,30 +72,30 @@ void RandomMovementGenerator<T>::Resume(uint32 overrideTimer)
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoInitialize(T* owner)
+bool RandomMovementGenerator<T>::DoInitialize(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED | MOVEMENTGENERATOR_FLAG_TIMED_PAUSED);
     this->AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner->IsAlive())
-        return;
+        return false;
 
     _reference = owner->GetPosition();
-    owner->StopMoving();
 
     // Retail seems to let a creature walk 2 up to 10 splines before triggering a pause
     _wanderSteps = urand(2, 10);
 
     _timer.Reset(0);
     _path = nullptr;
+    return true;
 }
 
 template<class T>
-void RandomMovementGenerator<T>::DoReset(T* owner)
+bool RandomMovementGenerator<T>::DoReset(T* owner)
 {
     this->RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>

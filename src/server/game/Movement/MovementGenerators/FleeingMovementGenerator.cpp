@@ -43,23 +43,24 @@ MovementGeneratorType FleeingMovementGenerator::GetMovementGeneratorType() const
     return FLEEING_MOTION_TYPE;
 }
 
-void FleeingMovementGenerator::Initialize(Unit* owner)
+bool FleeingMovementGenerator::Initialize(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())
-        return;
+        return false;
 
     _path = nullptr;
     SetTargetLocation(owner);
+    return true;
 }
 
-void FleeingMovementGenerator::Reset(Unit* owner)
+bool FleeingMovementGenerator::Reset(Unit* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    Initialize(owner);
+    return Initialize(owner);
 }
 
 bool FleeingMovementGenerator::Update(Unit* owner, uint32 diff)
