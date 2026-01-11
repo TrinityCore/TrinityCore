@@ -44,8 +44,8 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium<Creat
         void Resume(uint32 overrideTimer = 0) override;
         bool GetResetPosition(Unit*, float& x, float& y, float& z) override;
 
-        void DoInitialize(Creature*);
-        void DoReset(Creature*);
+        bool DoInitialize(Creature*);
+        bool DoReset(Creature*);
         bool DoUpdate(Creature*, uint32);
         void DoDeactivate(Creature*);
         void DoFinalize(Creature*, bool, bool);
