@@ -40,29 +40,29 @@ MovementGeneratorType ConfusedMovementGenerator<T>::GetMovementGeneratorType() c
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoInitialize(T* owner)
+bool ConfusedMovementGenerator<T>::DoInitialize(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     MovementGenerator::AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
     if (!owner || !owner->IsAlive())
-        return;
+        return false;
 
     // TODO: UNIT_FIELD_FLAGS should not be handled by generators
     owner->SetUnitFlag(UNIT_FLAG_CONFUSED);
-    owner->StopMoving();
 
     _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
     _path = nullptr;
+    return true;
 }
 
 template<class T>
-void ConfusedMovementGenerator<T>::DoReset(T* owner)
+bool ConfusedMovementGenerator<T>::DoReset(T* owner)
 {
     MovementGenerator::RemoveFlag(MOVEMENTGENERATOR_FLAG_TRANSITORY | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>
@@ -167,10 +167,10 @@ template ConfusedMovementGenerator<Player>::ConfusedMovementGenerator();
 template ConfusedMovementGenerator<Creature>::ConfusedMovementGenerator();
 template MovementGeneratorType ConfusedMovementGenerator<Player>::GetMovementGeneratorType() const;
 template MovementGeneratorType ConfusedMovementGenerator<Creature>::GetMovementGeneratorType() const;
-template void ConfusedMovementGenerator<Player>::DoInitialize(Player*);
-template void ConfusedMovementGenerator<Creature>::DoInitialize(Creature*);
-template void ConfusedMovementGenerator<Player>::DoReset(Player*);
-template void ConfusedMovementGenerator<Creature>::DoReset(Creature*);
+template bool ConfusedMovementGenerator<Player>::DoInitialize(Player*);
+template bool ConfusedMovementGenerator<Creature>::DoInitialize(Creature*);
+template bool ConfusedMovementGenerator<Player>::DoReset(Player*);
+template bool ConfusedMovementGenerator<Creature>::DoReset(Creature*);
 template bool ConfusedMovementGenerator<Player>::DoUpdate(Player*, uint32);
 template bool ConfusedMovementGenerator<Creature>::DoUpdate(Creature*, uint32);
 template void ConfusedMovementGenerator<Player>::DoDeactivate(Player*);

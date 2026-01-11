@@ -81,10 +81,10 @@ void HomeMovementGenerator<Creature>::SetTargetLocation(Creature* owner)
 }
 
 template<class T>
-void HomeMovementGenerator<T>::DoInitialize(T*) { }
+bool HomeMovementGenerator<T>::DoInitialize(T*) { return false; }
 
 template<>
-void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
+bool HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
@@ -92,17 +92,18 @@ void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
     owner->SetNoSearchAssistance(false);
 
     SetTargetLocation(owner);
+    return true;
 }
 
 template<class T>
-void HomeMovementGenerator<T>::DoReset(T*) { }
+bool HomeMovementGenerator<T>::DoReset(T*) { return false; }
 
 template<>
-void HomeMovementGenerator<Creature>::DoReset(Creature* owner)
+bool HomeMovementGenerator<Creature>::DoReset(Creature* owner)
 {
     RemoveFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED);
 
-    DoInitialize(owner);
+    return DoInitialize(owner);
 }
 
 template<class T>
