@@ -53,6 +53,7 @@ enum PriestSpells
     SPELL_PRIEST_ATONEMENT                          = 81749,
     SPELL_PRIEST_ATONEMENT_EFFECT                   = 194384,
     SPELL_PRIEST_ATONEMENT_HEAL                     = 81751,
+    SPELL_PRIEST_AUSPICIOUS_SPIRITS                 = 155271,
     SPELL_PRIEST_BENEDICTION                        = 193157,
     SPELL_PRIEST_BINDING_HEALS_HEAL                 = 368276,
     SPELL_PRIEST_BLAZE_OF_LIGHT                     = 215768,
@@ -218,6 +219,8 @@ enum PriestSpells
     SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE           = 32409,
     SPELL_PRIEST_SHADOW_MEND_PERIODIC_DUMMY         = 187464,
     SPELL_PRIEST_SHADOW_WORD_PAIN                   = 589,
+    SPELL_PRIEST_SHADOWY_APPARITION_DUMMY           = 341263,
+    SPELL_PRIEST_SHADOWY_APPARITION_MISSILE         = 148859,
     SPELL_PRIEST_SHIELD_DISCIPLINE                  = 197045,
     SPELL_PRIEST_SHIELD_DISCIPLINE_EFFECT           = 47755,
     SPELL_PRIEST_SIN_AND_PUNISHMENT                 = 87204,
@@ -263,8 +266,34 @@ enum PriestSpellLabels
 
 enum PriestSpellVisuals
 {
-    SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE         = 52872,
-    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING           = 38945
+    SPELL_VISUAL_PRIEST_POWER_WORD_RADIANCE                 = 52872,
+    SPELL_VISUAL_PRIEST_PRAYER_OF_MENDING                   = 38945,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_MALE       = 33554,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_FEMALE     = 33566,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_ORC_MALE         = 33567,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_ORC_FEMALE       = 33568,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DWARF_MALE       = 33569,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DWARF_FEMALE     = 33570,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_NIGHTELF_MALE    = 33571,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_NIGHTELF_FEMALE  = 33572,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_UNDEAD_MALE      = 33573,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_UNDEAD_FEMALE    = 33574,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TAUREN_MALE      = 33575,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TAUREN_FEMALE    = 33576,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GNOME_MALE       = 33577,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GNOME_FEMALE     = 33578,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TROLL_MALE       = 33579,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TROLL_FEMALE     = 33580,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GOBLIN_MALE      = 33581,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GOBLIN_FEMALE    = 33582,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_BELF_MALE        = 33583,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_BELF_FEMALE      = 33584,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DRAENEI_MALE     = 33585,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DRAENEI_FEMALE   = 33586,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_WORGEN_MALE      = 33587,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_WORGEN_FEMALE    = 33588,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_MALE    = 33589,
+    SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_FEMALE  = 33590,
 };
 
 enum PriestSummons
@@ -729,6 +758,30 @@ class spell_pri_atonement_passive : public AuraScript
     void Register() override
     {
         OnEffectProc += AuraEffectProcFn(spell_pri_atonement_passive::HandleOnProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 155271 - Auspicious Spirits (attached to 148859 - Shadowy Apparition)
+class spell_pri_auspicious_spirits : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_AUSPICIOUS_SPIRITS });
+    }
+
+    bool Load() override
+    {
+        return !GetCaster()->HasAura(SPELL_PRIEST_AUSPICIOUS_SPIRITS);
+    }
+
+    static void PreventTarget(SpellScript const&, WorldObject*& target)
+    {
+        target = nullptr;
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_pri_auspicious_spirits::PreventTarget, EFFECT_1, TARGET_UNIT_CASTER);
     }
 };
 
@@ -4163,6 +4216,121 @@ class spell_pri_shadow_word_death : public SpellScript
     }
 };
 
+// 341491 - Shadowy Apparitions
+class spell_pri_shadowy_apparitions : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOWY_APPARITION_DUMMY });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        // PROC_FLAG_DEAL_HARMFUL_PERIODIC is set on the spell for Tormented Spirits talent
+        // Devouring Plague cannot proc this on periodic ticks
+        return !(eventInfo.GetTypeMask() & PROC_FLAG_DEAL_HARMFUL_PERIODIC)
+            && !eventInfo.GetSpellInfo()->IsAffected(SPELLFAMILY_PRIEST, { 0x8000, 0x0, 0x0, 0x0 });
+    }
+
+public:
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        caster->CastSpell(caster, SPELL_PRIEST_SHADOWY_APPARITION_DUMMY, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_shadowy_apparitions::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_pri_shadowy_apparitions::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
+// 341263 - Shadowy Apparition (Dummy)
+class spell_pri_shadowy_apparition_dummy : public SpellScript
+{
+    static constexpr uint32 GetSpellVisual(Races race, Gender gender)
+    {
+        switch (race)
+        {
+            case RACE_HUMAN:
+            case RACE_KUL_TIRAN:
+            case RACE_DRACTHYR_ALLIANCE:
+            case RACE_DRACTHYR_HORDE:
+            default:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_HUMAN_FEMALE;
+            case RACE_ORC:
+            case RACE_MAGHAR_ORC:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_ORC_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_ORC_FEMALE;
+            case RACE_DWARF:
+            case RACE_DARK_IRON_DWARF:
+            case RACE_EARTHEN_DWARF_HORDE:
+            case RACE_EARTHEN_DWARF_ALLIANCE:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DWARF_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DWARF_FEMALE;
+            case RACE_NIGHTELF:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_NIGHTELF_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_NIGHTELF_FEMALE;
+            case RACE_UNDEAD_PLAYER:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_UNDEAD_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_UNDEAD_FEMALE;
+            case RACE_TAUREN:
+            case RACE_HIGHMOUNTAIN_TAUREN:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TAUREN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TAUREN_FEMALE;
+            case RACE_GNOME:
+            case RACE_MECHAGNOME:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GNOME_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GNOME_FEMALE;
+            case RACE_TROLL:
+            case RACE_ZANDALARI_TROLL:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TROLL_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_TROLL_FEMALE;
+            case RACE_GOBLIN:
+            case RACE_VULPERA:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GOBLIN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_GOBLIN_FEMALE;
+            case RACE_BLOODELF:
+            case RACE_NIGHTBORNE:
+            case RACE_VOID_ELF:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_BELF_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_BELF_FEMALE;
+            case RACE_DRAENEI:
+            case RACE_LIGHTFORGED_DRAENEI:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DRAENEI_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_DRAENEI_FEMALE;
+            case RACE_WORGEN:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_WORGEN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_WORGEN_FEMALE;
+            case RACE_PANDAREN_NEUTRAL:
+            case RACE_PANDAREN_ALLIANCE:
+            case RACE_PANDAREN_HORDE:
+                return gender == GENDER_MALE ? SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_MALE : SPELL_VISUAL_PRIEST_SHADOWY_APPARITION_PANDAREN_FEMALE;
+        }
+    }
+
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VAMPIRIC_TOUCH, SPELL_PRIEST_SHADOWY_APPARITION_MISSILE });
+    }
+
+    void FilterTargets(std::list<WorldObject*>& targets) const
+    {
+        targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_PRIEST_VAMPIRIC_TOUCH, GetCaster()->GetGUID()));
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->SendPlaySpellVisual(target, GetSpellVisual(static_cast<Races>(caster->GetRace()), caster->GetGender()), 0, 0, 6.0f);
+        caster->CastSpell(target, SPELL_PRIEST_SHADOWY_APPARITION_MISSILE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_shadowy_apparition_dummy::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadowy_apparition_dummy::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 109186 - Surge of Light
 class spell_pri_surge_of_light : public AuraScript
 {
@@ -4901,6 +5069,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_atonement_effect);
     RegisterSpellScript(spell_pri_atonement_effect_aura);
     RegisterSpellScript(spell_pri_atonement_passive);
+    RegisterSpellScript(spell_pri_auspicious_spirits);
     RegisterSpellScript(spell_pri_benediction);
     RegisterSpellScript(spell_pri_binding_heals);
     RegisterSpellScript(spell_pri_blaze_of_light);
@@ -4999,6 +5168,8 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_shadow_mend);
     RegisterSpellScript(spell_pri_shadow_mend_periodic_damage);
     RegisterSpellScript(spell_pri_shadow_word_death);
+    RegisterSpellScript(spell_pri_shadowy_apparitions);
+    RegisterSpellScript(spell_pri_shadowy_apparition_dummy);
     RegisterSpellScript(spell_pri_surge_of_light);
     RegisterSpellScript(spell_pri_trail_of_light);
     RegisterSpellScript(spell_pri_train_of_thought);
