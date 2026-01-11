@@ -45,7 +45,7 @@ bool GenericMovementGenerator::Initialize(Unit* owner)
     Movement::MoveSplineInit init(owner);
     _splineInit(init);
     _duration.Reset(init.Launch());
-    return true;
+    return _duration.GetExpiry() > 0ms;
 }
 
 bool GenericMovementGenerator::Reset(Unit* owner)
