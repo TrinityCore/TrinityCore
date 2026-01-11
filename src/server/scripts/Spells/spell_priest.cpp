@@ -146,6 +146,9 @@ enum PriestSpells
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P             = 405556,
     SPELL_PRIEST_HOLY_10_1_CLASS_SET_4P_EFFECT      = 409479,
     SPELL_PRIEST_INDEMNITY                          = 373049,
+    SPELL_PRIEST_INESCAPABLE_TORMENT                = 373427,
+    SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT       = 373441,
+    SPELL_PRIEST_INESCAPABLE_TORMENT_DAMAGE         = 373442,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LASTING_WORDS                      = 471504,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -300,7 +303,8 @@ enum PriestSummons
 {
     NPC_PRIEST_DIVINE_IMAGE                         = 198236,
     NPC_PRIEST_MINDBENDER                           = 62982,
-    NPC_PRIEST_SHADOWFIEND                          = 19668
+    NPC_PRIEST_SHADOWFIEND                          = 19668,
+    NPC_PRIEST_VOIDWRAITH                           = 224466
 };
 
 class RaidCheck
@@ -2484,6 +2488,52 @@ class spell_pri_holy_word_salvation_cooldown_reduction : public SpellScript
     void Register() override
     {
         AfterCast += SpellCastFn(spell_pri_holy_word_salvation_cooldown_reduction::ReduceCooldown);
+    }
+};
+
+// 373427 - Inescapable Torment
+// Triggered by 8092 - Mind Blast, 32379 - Shadow Word: Death
+// Triggered by 47758 - Penance (Channel) and 373129 - Dark Reprimand (Channel)
+class spell_pri_inescapable_torment : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT })
+            && ValidateSpellEffect({ { SPELL_PRIEST_INESCAPABLE_TORMENT, EFFECT_1 } });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_PRIEST_INESCAPABLE_TORMENT);
+    }
+
+    static TempSummon* GetSummon(Unit const* owner)
+    {
+        for (Unit* summon : owner->m_Controlled)
+            if (summon->GetEntry() == NPC_PRIEST_SHADOWFIEND || summon->GetEntry() == NPC_PRIEST_MINDBENDER || summon->GetEntry() == NPC_PRIEST_VOIDWRAITH)
+                return summon->ToTempSummon();
+        return nullptr;
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit const* caster = GetCaster();
+        TempSummon* summon = GetSummon(caster);
+        if (!summon)
+            return;
+
+        summon->CastSpell(GetHitUnit(), SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        int32 durationExtend = sSpellMgr->AssertSpellInfo(SPELL_PRIEST_INESCAPABLE_TORMENT, DIFFICULTY_NONE)->GetEffect(EFFECT_1).CalcValue(caster);
+        summon->ModifyTimer(Milliseconds(durationExtend));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleEffectHit, EFFECT_0, SPELL_EFFECT_ANY);
     }
 };
 
@@ -5155,6 +5205,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_word_chastise);
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
+    RegisterSpellScript(spell_pri_inescapable_torment);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_serenity", EFFECT_0);
     RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_sanctify", EFFECT_1);
