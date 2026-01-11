@@ -2649,20 +2649,26 @@ class spell_pri_mental_decay : public AuraScript
         return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_PAIN, SPELL_PRIEST_VAMPIRIC_TOUCH });
     }
 
-    void HandleEffectProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
-        Unit* target = eventInfo.GetActionTarget();
-        if (!caster || !target)
+        if (!caster)
             return;
 
+        Unit* target = eventInfo.GetActionTarget();
         int32 durationExtend = aurEff->GetAmount() * IN_MILLISECONDS;
 
         if (Aura* shadowWordPain = target->GetOwnedAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()))
+        {
+            shadowWordPain->SetMaxDuration(shadowWordPain->GetDuration() + durationExtend);
             shadowWordPain->SetDuration(shadowWordPain->GetDuration() + durationExtend);
+        }
 
         if (Aura* vampiricTouch = target->GetOwnedAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID()))
+        {
+            vampiricTouch->SetMaxDuration(vampiricTouch->GetDuration() + durationExtend);
             vampiricTouch->SetDuration(vampiricTouch->GetDuration() + durationExtend);
+        }
     }
 
     void Register() override

@@ -1,6 +1,6 @@
-DELETE FROM `spell_script_names` WHERE `ScriptName` IN ('spell_pri_mental_decay');
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pri_mental_decay';
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-(375994, 'spell_pri_mental_decay');
+(375994,'spell_pri_mental_decay');
 
 DELETE FROM `spell_proc` WHERE `SpellId` IN (375994);
 INSERT INTO `spell_proc` (`SpellId`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`SpellFamilyMask3`,`ProcFlags`,`ProcFlags2`,`SpellTypeMask`,`SpellPhaseMask`,`HitMask`,`AttributesMask`,`DisableEffectsMask`,`ProcsPerMinute`,`Chance`,`Cooldown`,`Charges`) VALUES
