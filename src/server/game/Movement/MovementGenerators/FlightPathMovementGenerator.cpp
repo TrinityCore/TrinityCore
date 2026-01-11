@@ -33,7 +33,7 @@
 #define PLAYER_FLIGHT_SPEED 32.0f
 
 FlightPathMovementGenerator::FlightPathMovementGenerator(Optional<float> speed,
-    Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult)
+    Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult)
 {
     _speed = speed;
     _endGridX = 0.0f;

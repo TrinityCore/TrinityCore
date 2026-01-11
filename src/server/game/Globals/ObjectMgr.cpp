@@ -4673,9 +4673,9 @@ void ObjectMgr::LoadQuests()
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
 
-        // 0           1      2        3                4            5          6         7          8                     9
-        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.Description, "
-        //   10                11            12                   13                     14
+        // 0           1      2        3                4            5          6                   7         8          9                     10                    11          12
+        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.SecondaryAmount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.ParentObjectiveID, qo.Visible, qo.Description, "
+        //   13                14            15                   16                     17
             "qoce.GameEventID, qoce.SpellID, qoce.ConversationID, qoce.UpdatePhaseShift, qoce.UpdateZoneAuras",                                                           "quest_objectives qo",  "LEFT JOIN quest_objectives_completion_effect qoce ON qo.ID = qoce.ObjectiveID ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     },
 
         // 0        1                  2                     3       4
@@ -4691,7 +4691,13 @@ void ObjectMgr::LoadQuests()
         { "QuestId, PlayerConditionId, QuestgiverCreatureId, Text, locale",                                                                                               "quest_completion_log_conditional", "ORDER BY OrderIndex",        "conditional completion log", &Quest::LoadConditionalConditionalQuestCompletionLog },
 
         // 0        1
-        { "QuestID, TreasurePickerID",                                                                                                                                    "quest_treasure_pickers", "ORDER BY OrderIndex",                  "treasure pickers", &Quest::LoadTreasurePickers }
+        { "QuestID, TreasurePickerID",                                                                                                                                    "quest_treasure_pickers", "ORDER BY OrderIndex",                  "treasure pickers", &Quest::LoadTreasurePickers },
+
+        // 0        1
+        { "QuestID, HouseRoomID",                                                                                                                                         "quest_reward_house_room", "ORDER BY OrderIndex",                 "house room rewards", &Quest::LoadRewardHouseRoom },
+
+        // 0        1
+        { "QuestID, HouseDecorID",                                                                                                                                        "quest_reward_house_decor", "ORDER BY OrderIndex",                "house decor rewards", &Quest::LoadRewardHouseDecor }
     };
 
     for (QuestLoaderHelper const& loader : QuestLoaderHelpers)
@@ -7131,10 +7137,7 @@ Trinity::IteratorPair<std::unordered_map<uint32, WorldSafeLocsEntry>::const_iter
 
 AreaTriggerTeleport const* ObjectMgr::GetAreaTrigger(uint32 trigger) const
 {
-    AreaTriggerContainer::const_iterator itr = _areaTriggerStore.find(trigger);
-    if (itr != _areaTriggerStore.end())
-        return &itr->second;
-    return nullptr;
+    return Trinity::Containers::MapGetValuePtr(_areaTriggerStore, trigger);
 }
 
 AccessRequirement const* ObjectMgr::GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
@@ -7233,13 +7236,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
             continue;
         }
 
-        AreaTriggerTeleport& at = _areaTriggerStore[Trigger_ID];
-
-        at.target_mapId       = portLoc->Loc.GetMapId();
-        at.target_X           = portLoc->Loc.GetPositionX();
-        at.target_Y           = portLoc->Loc.GetPositionY();
-        at.target_Z           = portLoc->Loc.GetPositionZ();
-        at.target_Orientation = portLoc->Loc.GetOrientation();
+        _areaTriggerStore[Trigger_ID] = portLoc;
 
     } while (result->NextRow());
 
@@ -7387,11 +7384,11 @@ AreaTriggerTeleport const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
     uint32 entrance_map = parentId.value_or(mapEntry->CorpseMapID);
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {
-        if (itr->second.target_mapId == entrance_map)
+        if (itr->second->Loc.GetMapId() == entrance_map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if (atEntry && atEntry->ContinentID == Map)
-                return &itr->second;
+                return itr->second;
         }
     }
     return nullptr;
@@ -7404,11 +7401,10 @@ AreaTriggerTeleport const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
 {
     for (AreaTriggerContainer::const_iterator itr = _areaTriggerStore.begin(); itr != _areaTriggerStore.end(); ++itr)
     {
-        if (itr->second.target_mapId == Map)
+        if (itr->second->Loc.GetMapId() == Map)
         {
-            AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
-            if (atEntry)
-                return &itr->second;
+            if (sAreaTriggerStore.HasRecord(itr->first))
+                return itr->second;
         }
     }
     return nullptr;
@@ -7664,8 +7660,9 @@ void ObjectMgr::LoadGameObjectTemplate()
         go.name = db2go->Name[sWorld->GetDefaultDbcLocale()];
         go.size = db2go->Scale;
         memset(go.raw.data, 0, sizeof(go.raw.data));
-        std::copy(db2go->PropValue.begin(), db2go->PropValue.end(), std::begin(go.raw.data));
+        std::ranges::copy(db2go->PropValue, std::begin(go.raw.data));
         go.ContentTuningId = 0;
+        go.RequiredLevel = 0;
         go.ScriptId = 0;
     }
 
@@ -7675,8 +7672,8 @@ void ObjectMgr::LoadGameObjectTemplate()
                                              "Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, "
     //                                        21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
                                              "Data13, Data14, Data15, Data16, Data17, Data18, Data19, Data20, Data21, Data22, Data23, Data24, Data25, Data26, Data27, Data28, "
-    //                                        37      38       39     40      41      42      43               44      45          46
-                                             "Data29, Data30, Data31, Data32, Data33, Data34, ContentTuningId, AIName, ScriptName, StringId "
+    //                                        37      38       39     40      41      42      43               44             45      46          47
+                                             "Data29, Data30, Data31, Data32, Data33, Data34, ContentTuningId, RequiredLevel, AIName, ScriptName, StringId "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -7706,9 +7703,10 @@ void ObjectMgr::LoadGameObjectTemplate()
             got.raw.data[i] = fields[8 + i].GetUInt32();
 
         got.ContentTuningId = fields[43].GetInt32();
-        got.AIName = fields[44].GetString();
-        got.ScriptId = GetScriptId(fields[45].GetStringView());
-        got.StringId = fields[46].GetString();
+        got.RequiredLevel = fields[44].GetInt32();
+        got.AIName = fields[45].GetString();
+        got.ScriptId = GetScriptId(fields[46].GetStringView());
+        got.StringId = fields[47].GetString();
 
         // Checks
         if (!got.AIName.empty() && !sGameObjectAIRegistry->HasItem(got.AIName))
@@ -12030,76 +12028,84 @@ void ObjectMgr::LoadJumpChargeParams()
     // need for reload case
     _jumpChargeParams.clear();
 
-    //                                               0   1      2                            3            4              5                6                 7
-    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
+    QueryResult result = WorldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, minHeight, maxHeight, unlimitedSpeed, spellVisualId, progressCurveId, parabolicCurveId, triggerSpellId FROM jump_charge_params");
     if (!result)
     {
         return;
     }
 
+    DEFINE_FIELD_ACCESSOR_CACHE_ANONYMOUS(ResultSet, (id)(speed)(treatSpeedAsMoveTimeSeconds)(minHeight)(maxHeight)(unlimitedSpeed)
+        (spellVisualId)(progressCurveId)(parabolicCurveId)(triggerSpellId)) fields { *result };
+
     do
     {
-        Field* fields = result->Fetch();
+        int32 id = fields.id().GetInt32();
+        JumpChargeParams& params = _jumpChargeParams[id];
+        params.Speed = fields.speed().GetFloat();
+        params.TreatSpeedAsMoveTimeSeconds = fields.treatSpeedAsMoveTimeSeconds().GetBool();
+        params.UnlimitedSpeed = fields.unlimitedSpeed().GetBool();
+        params.MinHeight = fields.minHeight().GetFloatOrNull();
+        params.MaxHeight = fields.maxHeight().GetFloatOrNull();
+        params.SpellVisualId = fields.spellVisualId().GetInt32OrNull();
+        params.ProgressCurveId = fields.progressCurveId().GetInt32OrNull();
+        params.ParabolicCurveId = fields.parabolicCurveId().GetInt32OrNull();
+        params.TriggerSpellId = fields.triggerSpellId().GetInt32OrNull();
 
-        int32 id = fields[0].GetInt32();
-        float speed = fields[1].GetFloat();
-        bool treatSpeedAsMoveTimeSeconds = fields[2].GetBool();
-        float jumpGravity = fields[3].GetFloat();
-        Optional<int32> spellVisualId = fields[4].GetInt32OrNull();
-        Optional<int32> progressCurveId = fields[5].GetInt32OrNull();
-        Optional<int32> parabolicCurveId = fields[6].GetInt32OrNull();
-        Optional<int32> triggerSpellId = fields[7].GetInt32OrNull();
-
-        if (speed <= 0.0f)
+        if (params.Speed <= 0.0f)
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid speed {} for id {}, set to default charge speed {}.",
-                speed, id, SPEED_CHARGE);
-            speed = SPEED_CHARGE;
+                params.Speed, id, SPEED_CHARGE);
+            params.Speed = SPEED_CHARGE;
         }
 
-        if (jumpGravity <= 0.0f)
+        if (params.MinHeight && *params.MinHeight <= 0.0f)
         {
-            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid jump gravity {} for id {}, set to default {}.",
-                jumpGravity, id, Movement::gravity);
-            jumpGravity = Movement::gravity;
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid min height {} for id {}, set to none.",
+                params.MinHeight, id);
+            params.MinHeight.reset();
         }
 
-        if (spellVisualId && !sSpellVisualStore.LookupEntry(*spellVisualId))
+        if (params.MaxHeight && *params.MaxHeight <= 0.0f)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid max height {} for id {}, set to none.",
+                params.MaxHeight, id);
+            params.MaxHeight.reset();
+        }
+
+        if (params.MinHeight && params.MaxHeight && *params.MinHeight >= *params.MaxHeight)
+        {
+            TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` uses invalid max height {} (must be greated than min height {}) for id {}, set to none.",
+                params.MaxHeight, params.MinHeight, id);
+            params.MaxHeight.reset();
+        }
+
+        if (params.SpellVisualId && !sSpellVisualStore.LookupEntry(*params.SpellVisualId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing SpellVisual: {} for id {}, ignored.",
-                *spellVisualId, id);
-            spellVisualId.reset();
+                *params.SpellVisualId, id);
+            params.SpellVisualId.reset();
         }
 
-        if (progressCurveId && !sCurveStore.LookupEntry(*progressCurveId))
+        if (params.ProgressCurveId && !sCurveStore.LookupEntry(*params.ProgressCurveId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing progress Curve: {} for id {}, ignored.",
-                *progressCurveId, id);
-            progressCurveId.reset();
+                *params.ProgressCurveId, id);
+            params.ProgressCurveId.reset();
         }
 
-        if (parabolicCurveId && !sCurveStore.LookupEntry(*parabolicCurveId))
+        if (params.ParabolicCurveId && !sCurveStore.LookupEntry(*params.ParabolicCurveId))
         {
             TC_LOG_ERROR("sql.sql", "Table `jump_charge_params` references non-existing parabolic Curve: {} for id {}, ignored.",
-                *parabolicCurveId, id);
-            parabolicCurveId.reset();
+                *params.ParabolicCurveId, id);
+            params.ParabolicCurveId.reset();
         }
 
-        if (triggerSpellId && !sSpellMgr->GetSpellInfo(*triggerSpellId, DIFFICULTY_NONE))
+        if (params.TriggerSpellId && !sSpellMgr->GetSpellInfo(*params.TriggerSpellId, DIFFICULTY_NONE))
         {
             TC_LOG_DEBUG("sql.sql", "Table `jump_charge_params` references non-existing trigger spell id: {} for id {}, ignored.",
-                *triggerSpellId, id);
-            triggerSpellId.reset();
+                *params.TriggerSpellId, id);
+            params.TriggerSpellId.reset();
         }
-
-        JumpChargeParams& params = _jumpChargeParams[id];
-        params.Speed = speed;
-        params.TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds;
-        params.JumpGravity = jumpGravity;
-        params.SpellVisualId = spellVisualId;
-        params.ProgressCurveId = progressCurveId;
-        params.ParabolicCurveId = parabolicCurveId;
-        params.TriggerSpellId = triggerSpellId;
 
     } while (result->NextRow());
 

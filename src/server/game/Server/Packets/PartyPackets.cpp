@@ -183,9 +183,12 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyMemberAuraStates const& aura)
 
 ByteBuffer& operator<<(ByteBuffer& data, CTROptions const& ctrOptions)
 {
-    data << uint32(ctrOptions.ConditionalFlags);
+    data << Size<uint32>(ctrOptions.ConditionalFlags);
     data << int8(ctrOptions.FactionGroup);
     data << uint32(ctrOptions.ChromieTimeExpansionMask);
+
+    if (!ctrOptions.ConditionalFlags.empty())
+        data.append(ctrOptions.ConditionalFlags.data(), ctrOptions.ConditionalFlags.size());
 
     return data;
 }
