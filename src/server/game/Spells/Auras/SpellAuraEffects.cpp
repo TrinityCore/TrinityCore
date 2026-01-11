@@ -6383,7 +6383,8 @@ void AuraEffect::HandleCreateAreaTrigger(AuraApplication const* aurApp, uint8 mo
     if (apply)
     {
         AreaTriggerCreatePropertiesId createPropertiesId = { uint32(GetMiscValue()), false };
-        AreaTrigger::CreateAreaTrigger(createPropertiesId, *target, GetBase()->GetDuration(), GetCaster(), target, GetBase()->GetSpellVisual(), GetSpellInfo(), nullptr, this);
+        Position pos = { target->GetPositionX(), target->GetPositionY(), target->GetPositionZ() }; // drop orientation for attached areatrigger
+        AreaTrigger::CreateAreaTrigger(createPropertiesId, pos, GetBase()->GetDuration(), GetCaster(), target, GetBase()->GetSpellVisual(), GetSpellInfo(), nullptr, this);
     }
     else
     {
