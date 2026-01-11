@@ -593,13 +593,7 @@ struct npc_valkyr_of_odyn : public ScriptedAI
             case POINT_JUMP:
                 _scheduler.Schedule(250ms, [this](TaskContext /*context*/)
                 {
-                    /*
-                     * (MovementMonsterSpline) (MovementSpline) MoveTime: 3111
-                     * (MovementMonsterSpline) (MovementSpline) JumpGravity: 19.2911 -> +-Movement::gravity
-                     * 1.4125f is guessed value. Which makes the JumpGravity way closer to the intended one. Not sure how to do it 100% blizzlike.
-                     * Also the MoveTime is not correct but I don't know how to set it here.
-                     */
-                    me->GetMotionMaster()->MoveJump({ 1107.84f, 7222.57f, 38.9725f, me->GetOrientation() }, me->GetSpeed(MOVE_RUN), Movement::gravity * 1.4125f, POINT_DESPAWN_JUMP);
+                    me->GetMotionMaster()->MoveJump(POINT_DESPAWN_JUMP, { 1107.84f, 7222.57f, 38.9725f, me->GetOrientation() });
                 });
                 break;
             case POINT_DESPAWN:
@@ -610,12 +604,13 @@ struct npc_valkyr_of_odyn : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 /*type*/, uint32 id) override
+    void MovementInform(uint32 type, uint32 id) override
     {
         switch (id)
         {
             case POINT_DESPAWN_JUMP:
-                me->DespawnOrUnsummon();
+                if (type == EFFECT_MOTION_TYPE)
+                    me->DespawnOrUnsummon();
                 break;
             default:
                 break;
