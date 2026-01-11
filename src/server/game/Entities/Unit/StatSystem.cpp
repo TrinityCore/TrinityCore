@@ -597,6 +597,7 @@ float const m_diminishing_k[MAX_CLASSES] =
     0.9830f,  // Demon Hunter
     0.9880f,  // Evoker
     1.0f,     // Adventurer
+    1.0f,     // Traveler
 };
 
 // helper function
@@ -622,7 +623,7 @@ float CalculateDiminishingReturns(float const (&capArray)[MAX_CLASSES], uint8 pl
     return result;
 }
 
-float const parry_cap[MAX_CLASSES] =
+constexpr float parry_cap[MAX_CLASSES] =
 {
     65.631440f,     // Warrior
     65.631440f,     // Paladin
@@ -638,6 +639,7 @@ float const parry_cap[MAX_CLASSES] =
     65.631440f,     // Demon Hunter
     0.0f,           // Evoker
     0.0f,           // Adventurer
+    0.0f,           // Traveler
 };
 
 void Player::UpdateParryPercentage()
@@ -663,7 +665,7 @@ void Player::UpdateParryPercentage()
     SetUpdateFieldStatValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::ParryPercentage), value);
 }
 
-float const dodge_cap[MAX_CLASSES] =
+constexpr float dodge_cap[MAX_CLASSES] =
 {
     65.631440f,     // Warrior
     65.631440f,     // Paladin
@@ -679,6 +681,7 @@ float const dodge_cap[MAX_CLASSES] =
     145.560408f,    // Demon Hunter
     145.560408f,    // Evoker
     0.0f,           // Adventurer
+    0.0f,           // Traveler
 };
 
 void Player::UpdateDodgePercentage()

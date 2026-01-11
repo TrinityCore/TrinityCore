@@ -48,6 +48,7 @@ struct GameObjectTemplate
     std::string unk1;
     float   size;
     int32   ContentTuningId;
+    int32   RequiredLevel;
     union
     {
         // 0 GAMEOBJECT_TYPE_DOOR
