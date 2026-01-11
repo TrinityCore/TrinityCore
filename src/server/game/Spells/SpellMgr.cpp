@@ -2618,9 +2618,10 @@ void SpellMgr::LoadSpellInfoStore()
     {
         SpellVisualVector& visuals = loadData[{ visual->SpellID, Difficulty(visual->DifficultyID) }].Visuals;
 
-        auto where = std::ranges::lower_bound(visuals, visual->CasterPlayerConditionID, std::ranges::greater(), &SpellXSpellVisualEntry::CasterPlayerConditionID);
+        auto where = std::ranges::lower_bound(visuals, std::make_pair(visual->Priority, visual->CasterPlayerConditionID), std::ranges::greater(),
+            [](SpellXSpellVisualEntry const* other) { return std::make_pair(other->Priority, other->CasterPlayerConditionID); });
 
-        // sorted with unconditional visuals being last
+        // sorted with unconditional visuals being last at each priority level
         visuals.insert(where, visual);
     }
 
