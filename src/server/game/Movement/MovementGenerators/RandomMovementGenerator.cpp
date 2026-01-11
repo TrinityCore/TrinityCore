@@ -90,7 +90,7 @@ bool RandomMovementGenerator<Creature>::DoInitialize(Creature* owner)
 
     _timer.Reset(0);
     _path = nullptr;
-    return false;
+    return true;
 }
 
 template<class T>

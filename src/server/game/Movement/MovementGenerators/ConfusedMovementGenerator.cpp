@@ -54,7 +54,7 @@ bool ConfusedMovementGenerator<T>::DoInitialize(T* owner)
     _timer.Reset(0);
     owner->GetPosition(_x, _y, _z);
     _path = nullptr;
-    return false;
+    return true;
 }
 
 template<class T>

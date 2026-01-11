@@ -51,7 +51,7 @@ bool FormationMovementGenerator::DoInitialize(Creature* owner)
     }
 
     _nextMoveTimer.Reset(0);
-    return false;
+    return true;
 }
 
 bool FormationMovementGenerator::DoReset(Creature* owner)

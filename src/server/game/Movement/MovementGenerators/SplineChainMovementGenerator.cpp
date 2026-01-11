@@ -51,6 +51,8 @@ uint32 SplineChainMovementGenerator::SendPathSpline(Unit* owner, float velocity,
     uint32 nodeCount = path.size();
     ASSERT(nodeCount > 1, "SplineChainMovementGenerator::SendPathSpline: Every path must have source & destination (size > 1)! (%s)", owner->GetGUID().ToString().c_str());
 
+    owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
+
     Movement::MoveSplineInit init(owner);
     if (nodeCount > 2)
         init.MovebyPath(path);
@@ -111,7 +113,6 @@ bool SplineChainMovementGenerator::Initialize(Unit* owner)
             _nextFirstWP = thisLink.Points.size() - 1;
         }
 
-        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
         Movement::PointsArray partial(thisLink.Points.begin() + (_nextFirstWP-1), thisLink.Points.end());
         SendPathSpline(owner, thisLink.Velocity, partial);
 
@@ -126,7 +127,6 @@ bool SplineChainMovementGenerator::Initialize(Unit* owner)
     }
     else
     {
-        owner->AddUnitState(UNIT_STATE_ROAMING_MOVE);
         _msToNext = std::max(_chain[_nextIndex].TimeToNext, 1u);
         SendSplineFor(owner, _nextIndex, _msToNext);
 
@@ -147,7 +147,7 @@ bool SplineChainMovementGenerator::Reset(Unit* owner)
 
 bool SplineChainMovementGenerator::Update(Unit* owner, uint32 diff)
 {
-    if (!owner || !_chainSize || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
+    if (!owner || HasFlag(MOVEMENTGENERATOR_FLAG_FINALIZED))
         return false;
 
     // _msToNext being zero here means we're on the final spline
@@ -176,7 +176,11 @@ bool SplineChainMovementGenerator::Update(Unit* owner, uint32 diff)
         }
     }
     else
+    {
         _msToNext -= diff;
+        if (owner->movespline->Finalized())
+            owner->ClearUnitState(UNIT_STATE_ROAMING_MOVE);
+    }
 
     return true;
 }

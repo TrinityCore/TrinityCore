@@ -77,7 +77,7 @@ bool RotateMovementGenerator::Initialize(Unit* /*owner*/)
     RemoveFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED);
     AddFlag(MOVEMENTGENERATOR_FLAG_INITIALIZED);
 
-    return false;
+    return true;
     /*
      *  TODO: This code should be handled somewhere else, like MovementInform
      *
