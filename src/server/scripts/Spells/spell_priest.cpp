@@ -2542,26 +2542,30 @@ class spell_pri_inescapable_torment : public SpellScript
 // 373212 - Insidious Ire
 class spell_pri_insidious_ire : public AuraScript
 {
-    void HandleProc(ProcEventInfo& eventInfo)
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         Unit* caster = eventInfo.GetActor();
         Unit* target = eventInfo.GetActionTarget();
 
-        Aura* swPain = target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID());
-        Aura* devPlague = target->GetAura(SPELL_PRIEST_DEVOURING_PLAGUE, caster->GetGUID());
-        Aura* vampTouch = target->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID());
-        if (!swPain || !devPlague || !vampTouch)
+        Aura const* requiredAuras[] =
+        {
+            target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()),
+            target->GetAura(SPELL_PRIEST_DEVOURING_PLAGUE, caster->GetGUID()),
+            target->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID())
+        };
+
+        if (advstd::ranges::contains(requiredAuras, nullptr))
         {
             caster->RemoveAurasDueToSpell(SPELL_PRIEST_INSIDIOUS_IRE_AURA);
             return;
         }
 
-        int32 shortestDuration = std::min({ swPain->GetDuration(), devPlague->GetDuration(), vampTouch->GetDuration() });
+        int32 shortestDuration = std::ranges::min(requiredAuras, {}, [](Aura const* a) { return a->GetDuration(); })->GetDuration();
 
-        caster->CastSpell(caster, SPELL_PRIEST_INSIDIOUS_IRE_AURA, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-
-        if (Aura* insidiousAura = caster->GetAura(SPELL_PRIEST_INSIDIOUS_IRE_AURA))
-            insidiousAura->SetDuration(shortestDuration);
+        caster->CastSpell(caster, SPELL_PRIEST_INSIDIOUS_IRE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, shortestDuration } }
+        });
     }
 
     void Register() override
