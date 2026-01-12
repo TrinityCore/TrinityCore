@@ -37,6 +37,7 @@
 #include "SpellMgr.h"
 #include "TraitMgr.h"
 #include "Vehicle.h"
+#include <boost/container/small_vector.hpp>
 #include <G3D/g3dmath.h>
 #include <bit>
 
@@ -4463,17 +4464,36 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
 
 uint32 SpellInfo::GetSpellXSpellVisualId(WorldObject const* caster /*= nullptr*/, WorldObject const* viewer /*= nullptr*/) const
 {
-    for (SpellXSpellVisualEntry const* visual : _visuals)
+    auto canUseSpellVisual = [=](SpellXSpellVisualEntry const* visual)
     {
         if (visual->CasterPlayerConditionID)
             if (!caster || !caster->IsPlayer() || !ConditionMgr::IsPlayerMeetingCondition(caster->ToPlayer(), visual->CasterPlayerConditionID))
-                continue;
+                return false;
 
         if (UnitConditionEntry const* unitCondition = sUnitConditionStore.LookupEntry(visual->CasterUnitConditionID))
             if (!caster || !caster->IsUnit() || !ConditionMgr::IsUnitMeetingCondition(caster->ToUnit(), Object::ToUnit(viewer), unitCondition))
-                continue;
+                return false;
 
-        return visual->ID;
+        return true;
+    };
+
+    for (auto itr = _visuals.begin(); itr != _visuals.end(); ++itr)
+    {
+        if (!canUseSpellVisual(*itr))
+            continue;
+
+        // match found, now select among all visuals with the same priority
+        boost::container::small_vector<SpellXSpellVisualEntry const*, 4> visualCandidates;
+        visualCandidates.push_back(*itr);
+
+        for (auto itr2 = itr + 1; itr2 != _visuals.end() && (*itr)->Priority == (*itr2)->Priority ; ++itr2)
+            if (canUseSpellVisual(*itr))
+                visualCandidates.push_back(*itr);
+
+        if (visualCandidates.size() == 1)
+            return visualCandidates.front()->ID;    // special case, ignores Probability
+
+        return (*Trinity::Containers::SelectRandomWeightedContainerElement(visualCandidates, [](SpellXSpellVisualEntry const* visual) { return visual->Probability; }))->ID;
     }
 
     return 0;

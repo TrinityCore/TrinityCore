@@ -265,11 +265,11 @@ void LFGMgr::LoadLFGDungeons()
                 continue;
             }
 
-            dungeon.map = at->target_mapId;
-            dungeon.x = at->target_X;
-            dungeon.y = at->target_Y;
-            dungeon.z = at->target_Z;
-            dungeon.o = at->target_Orientation;
+            dungeon.map = at->Loc.GetMapId();
+            dungeon.x = at->Loc.GetPositionX();
+            dungeon.y = at->Loc.GetPositionY();
+            dungeon.z = at->Loc.GetPositionZ();
+            dungeon.o = at->Loc.GetOrientation();
         }
 
         if (dungeon.type != LFG_TYPE_RANDOM)
