@@ -3511,7 +3511,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerLevelWithinContentTuning: // 268
         {
             uint8 level = referencePlayer->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
             {
                 if (secondaryAsset)
                     return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
@@ -3524,7 +3524,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref || !ref->IsUnit())
                 return false;
             uint8 level = ref->ToUnit()->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
             {
                 if (secondaryAsset)
                     return level >= levels->MinLevelWithDelta && level <= levels->MaxLevelWithDelta;
@@ -3544,7 +3544,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerLevelWithinOrAboveContentTuning: // 272
         {
             uint8 level = referencePlayer->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
                 return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
             return false;
         }
@@ -3553,7 +3553,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             if (!ref || !ref->IsUnit())
                 return false;
             uint8 level = ref->ToUnit()->GetLevel();
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, 0))
+            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(reqValue, {}))
                 return secondaryAsset ? level >= levels->MinLevelWithDelta : level >= levels->MinLevel;
             return false;
         }
@@ -3700,7 +3700,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             return referencePlayer->m_activePlayerData->RuneforgePowers[block] & (1 << bit);
         }
         case ModifierTreeType::PlayerInChromieTimeForScaling: // 304
-            if (!(referencePlayer->m_playerData->CtrOptions->ConditionalFlags & 1))
+            if (referencePlayer->m_playerData->CtrOptions->ConditionalFlags.empty() || !(referencePlayer->m_playerData->CtrOptions->ConditionalFlags[0] & 1))
                 return false;
             break;
         case ModifierTreeType::IsRaFRecruit: // 305
@@ -4060,6 +4060,16 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::PlayerIsInGuild: // 404
             if (!referencePlayer->GetGuildId())
                 return false;
+            break;
+        case ModifierTreeType::PlayerMoneyIsRelOp: // 417
+            switch (reqValue)
+            {
+                case 1: if (referencePlayer->GetMoney() <= secondaryAsset) return false; break;
+                case 2: if (referencePlayer->GetMoney() >= secondaryAsset) return false; break;
+                case 3: if (referencePlayer->GetMoney() < secondaryAsset) return false; break;
+                case 4: if (referencePlayer->GetMoney() > secondaryAsset) return false; break;
+                default: if (referencePlayer->GetMoney() != secondaryAsset) return false; break;
+            }
             break;
         default:
             return false;

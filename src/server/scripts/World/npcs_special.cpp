@@ -1920,7 +1920,7 @@ class npc_train_wrecker : public CreatureScript
                     {
                         case EVENT_DO_JUMP:
                             if (GameObject* target = VerifyTarget())
-                                me->GetMotionMaster()->MoveJump(*target, 5.0, 10.0, MOVEID_JUMP);
+                                me->GetMotionMaster()->MoveJump(MOVEID_JUMP, *target, 3.0f, 1.0f);
                             _nextAction = 0;
                             break;
                         case EVENT_DO_WRECK:

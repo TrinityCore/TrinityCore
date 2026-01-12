@@ -1476,14 +1476,15 @@ class spell_warr_trauma : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_WARRIOR_TRAUMA_EFFECT });
+        return ValidateSpellEffect({ { SPELL_WARRIOR_TRAUMA_EFFECT, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount();
     }
 
     void HandleProc(AuraEffect* aurEff, ProcEventInfo& eventInfo)
     {
         Unit* target = eventInfo.GetActionTarget();
         //Get 25% of damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-        int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetMaxTicks());
+        int32 damage = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()) / sSpellMgr->AssertSpellInfo(SPELL_WARRIOR_TRAUMA_EFFECT, GetCastDifficulty())->GetEffect(EFFECT_0).GetPeriodicTickCount());
         CastSpellExtraArgs args(TRIGGERED_FULL_MASK);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
         GetCaster()->CastSpell(target, SPELL_WARRIOR_TRAUMA_EFFECT, args);
