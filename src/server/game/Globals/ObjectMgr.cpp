@@ -76,7 +76,6 @@
 #include <limits>
 #include <numeric>
 
-ScriptMapMap sSpellScripts;
 ScriptMapMap sEventScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type)
@@ -84,7 +83,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
     std::string res = "";
     switch (type)
     {
-        case SCRIPTS_SPELL:         res = "spell_scripts";      break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
         default: break;
     }
@@ -96,7 +94,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
     ScriptMapMap* res = nullptr;
     switch (type)
     {
-        case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
         default: break;
     }
@@ -5327,9 +5324,8 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
     scripts->clear();                                       // need for reload support
 
-    bool isSpellScriptTable = (type == SCRIPTS_SPELL);
     //                                                 0    1       2         3         4          5    6  7  8  9
-    QueryResult result = WorldDatabase.PQuery("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{} FROM {}", isSpellScriptTable ? ", effIndex" : "", tableName);
+    QueryResult result = WorldDatabase.PQuery("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o FROM {}", tableName);
 
     if (!result)
     {
@@ -5345,8 +5341,6 @@ void ObjectMgr::LoadScripts(ScriptsType type)
         ScriptInfo tmp;
         tmp.type      = type;
         tmp.id           = fields[0].GetUInt32();
-        if (isSpellScriptTable)
-            tmp.id      |= fields[10].GetUInt8() << 24;
         tmp.delay        = fields[1].GetUInt32();
         tmp.command      = ScriptCommands(fields[2].GetUInt32());
         tmp.Raw.nData[0] = fields[3].GetUInt32();
@@ -5632,35 +5626,6 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     while (result->NextRow());
 
     TC_LOG_INFO("server.loading", ">> Loaded {} script definitions in {} ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadSpellScripts()
-{
-    LoadScripts(SCRIPTS_SPELL);
-
-    // check ids
-    for (ScriptMapMap::const_iterator itr = sSpellScripts.begin(); itr != sSpellScripts.end(); ++itr)
-    {
-        uint32 spellId = uint32(itr->first) & 0x00FFFFFF;
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId, DIFFICULTY_NONE);
-
-        if (!spellInfo)
-        {
-            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` has not existing spell (Id: {}) as script id", spellId);
-            continue;
-        }
-
-        SpellEffIndex i = SpellEffIndex((uint32(itr->first) >> 24) & 0x000000FF);
-        if (uint32(i) >= spellInfo->GetEffects().size())
-        {
-            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` has too high effect index {} for spell (Id: {}) as script id", uint32(i), spellId);
-            continue;
-        }
-
-        //check for correct spellEffect
-        if (!spellInfo->GetEffect(i).Effect || (spellInfo->GetEffect(i).Effect != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->GetEffect(i).Effect != SPELL_EFFECT_DUMMY))
-            TC_LOG_ERROR("sql.sql", "Table `spell_scripts` - spell {} effect {} is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, uint32(i));
-    }
 }
 
 void ObjectMgr::LoadEventSet()
