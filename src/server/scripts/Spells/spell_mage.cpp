@@ -1292,7 +1292,9 @@ class spell_mage_ignite : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_MAGE_IGNITE, SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE });
+        return ValidateSpellInfo({ SPELL_MAGE_HOT_STREAK, SPELL_MAGE_PYROBLAST, SPELL_MAGE_FLAMESTRIKE })
+            && ValidateSpellEffect({ { SPELL_MAGE_IGNITE, EFFECT_0 } })
+            && sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, DIFFICULTY_NONE)->GetEffect(EFFECT_0).GetPeriodicTickCount() > 0;
     }
 
     bool CheckProc(ProcEventInfo& eventInfo)
@@ -1304,14 +1306,13 @@ class spell_mage_ignite : public AuraScript
     {
         PreventDefaultAction();
 
-        SpellInfo const* igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty());
+        SpellEffectInfo const& igniteDot = sSpellMgr->AssertSpellInfo(SPELL_MAGE_IGNITE, GetCastDifficulty())->GetEffect(EFFECT_0);
         int32 pct = aurEff->GetAmount();
 
-        ASSERT(igniteDot->GetMaxTicks() > 0);
         if (spell_mage_hot_streak_ignite_marker::IsActive(eventInfo.GetProcSpell()))
             pct *= 2;
 
-        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+        int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot.GetPeriodicTickCount());
 
         CastSpellExtraArgs args(aurEff);
         args.AddSpellMod(SPELLVALUE_BASE_POINT0, amount);
