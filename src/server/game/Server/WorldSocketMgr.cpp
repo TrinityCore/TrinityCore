@@ -31,7 +31,7 @@ void WorldSocketThread::SocketRemoved(std::shared_ptr<WorldSocket>const& sock)
     sScriptMgr->OnSocketClose(sock);
 }
 
-WorldSocketMgr::WorldSocketMgr() : BaseSocketMgr(), _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
+WorldSocketMgr::WorldSocketMgr() : _socketSystemSendBufferSize(-1), _socketApplicationSendBufferSize(65536), _tcpNoDelay(true)
 {
 }
 
@@ -61,13 +61,8 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
         return false;
     }
 
-    if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
+    if (!SocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
-
-    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
-    {
-        OnSocketOpen(std::move(sock), threadIndex);
-    });
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -75,12 +70,12 @@ bool WorldSocketMgr::StartNetwork(Trinity::Asio::IoContext& ioContext, std::stri
 
 void WorldSocketMgr::StopNetwork()
 {
-    BaseSocketMgr::StopNetwork();
+    SocketMgr::StopNetwork();
 
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -106,10 +101,5 @@ void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint3
         }
     }
 
-    BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
-}
-
-WorldSocketThread* WorldSocketMgr::CreateThreads() const
-{
-    return new WorldSocketThread[GetNetworkThreadCount()];
+    SocketMgr::OnSocketOpen(std::move(sock));
 }

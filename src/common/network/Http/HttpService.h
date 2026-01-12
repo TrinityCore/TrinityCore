@@ -113,12 +113,12 @@ template<typename Callable, typename SessionImpl>
 concept HttpRequestHandler = invocable_r<Callable, RequestHandlerResult, std::shared_ptr<SessionImpl>, RequestContext&>;
 
 template<typename SessionImpl>
-class HttpNetworkThread final : public NetworkThread<SessionImpl>
+class HttpService;
+
+template<typename SessionImpl>
+class HttpNetworkThread final : public NetworkThread<SessionImpl, HttpNetworkThread<SessionImpl>>
 {
 public:
-    explicit HttpNetworkThread(SessionService* service) : _service(service) { }
-
-protected:
     void SocketRemoved(std::shared_ptr<SessionImpl> const& session) override
     {
         if (Optional<boost::uuids::uuid> id = session->GetSessionId())
@@ -126,13 +126,24 @@ protected:
     }
 
 private:
+    friend class HttpService<SessionImpl>;
     SessionService* _service = nullptr;
 };
 
 template<typename SessionImpl>
-class HttpService : public SocketMgr<SessionImpl, HttpNetworkThread<SessionImpl>>, public DispatcherService, public SessionService
+struct HttpServiceTraits
 {
-    using BaseSocketMgr = SocketMgr<SessionImpl, HttpNetworkThread<SessionImpl>>;
+    using Self = HttpService<SessionImpl>;
+    using SocketType = SessionImpl;
+    using ThreadType = HttpNetworkThread<SessionImpl>;
+};
+
+template<typename SessionImpl>
+class HttpService : public SocketMgr<HttpServiceTraits<SessionImpl>>, public DispatcherService, public SessionService
+{
+    using BaseSocketMgr = SocketMgr<HttpServiceTraits<SessionImpl>>;
+
+    friend BaseSocketMgr;
 
 public:
     HttpService(std::string_view loggerSuffix) : DispatcherService(loggerSuffix), SessionService(loggerSuffix), _ioContext(nullptr), _logger("server.http.")
@@ -176,11 +187,11 @@ public:
     }
 
 protected:
-    HttpNetworkThread<SessionImpl>* CreateThreads() const final
+    std::unique_ptr<HttpNetworkThread<SessionImpl>[]> CreateThreads() const override
     {
-        HttpNetworkThread<SessionImpl>* threads = static_cast<HttpNetworkThread<SessionImpl>*>(::operator new(sizeof(HttpNetworkThread<SessionImpl>) * this->GetNetworkThreadCount()));
+        std::unique_ptr<HttpNetworkThread<SessionImpl>[]> threads = std::make_unique<HttpNetworkThread<SessionImpl>[]>(this->GetNetworkThreadCount());
         for (int32 i = 0; i < this->GetNetworkThreadCount(); ++i)
-            new (&threads[i]) HttpNetworkThread<SessionImpl>(const_cast<HttpService*>(this));
+            threads[i]._service = const_cast<HttpService*>(this);
         return threads;
     }
 
