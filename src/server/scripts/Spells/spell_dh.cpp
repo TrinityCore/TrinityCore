@@ -207,6 +207,7 @@ enum DemonHunterSpells
     SPELL_DH_SIGIL_OF_SILENCE_AOE                  = 204490,
     SPELL_DH_SIGIL_OF_SPITE                        = 390163,
     SPELL_DH_SIGIL_OF_SPITE_AOE                    = 389860,
+    SPELL_DH_SOULMONGER_ABSORB                     = 391234,
     SPELL_DH_SOUL_BARRIER                          = 227225,
     SPELL_DH_SOUL_CLEAVE                           = 228477,
     SPELL_DH_SOUL_CLEAVE_DMG                       = 228478,
@@ -1918,6 +1919,42 @@ private:
     std::vector<uint32> _damagePerSecond;
 };
 
+// 389711 - Soulmonger
+class spell_dh_soulmonger : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DH_SOULMONGER_ABSORB, EFFECT_0 } });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetActionTarget()->HealthAbovePctHealed(100, eventInfo.GetHealInfo()->GetHeal());
+    }
+
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* target = eventInfo.GetActionTarget();
+        int32 amount = eventInfo.GetHealInfo()->GetHeal();
+        if (AuraEffect const* existingAbsorb = target->GetAuraEffect(SPELL_DH_SOULMONGER_ABSORB, EFFECT_0))
+            amount += existingAbsorb->GetAmount();
+
+        amount = std::min(amount, int32(target->CountPctFromMaxHealth(aurEff->GetAmount())));
+
+        target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_dh_soulmonger::CheckProc);
+        OnEffectProc += AuraEffectProcFn(spell_dh_soulmonger::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
+    }
+};
+
 // 391166 - Soul Furnace
 class spell_dh_soul_furnace : public AuraScript
 {
@@ -2220,6 +2257,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_sigil_of_chains);
     RegisterSpellScript(spell_dh_sigil_of_flame);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
+    RegisterSpellScript(spell_dh_soulmonger);
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
