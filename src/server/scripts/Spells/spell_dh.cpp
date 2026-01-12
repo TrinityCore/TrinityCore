@@ -1924,24 +1924,33 @@ class spell_dh_soulmonger : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DH_SOULMONGER_ABSORB });
+        return ValidateSpellEffect({ { SPELL_DH_SOULMONGER_ABSORB, EFFECT_0 } });
     }
 
-    void HandleEffectProc(AuraEffect const* aurEff, ProcEventInfo const& /*eventInfo*/) const
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
-        Unit* target = GetTarget();
-        int32 amount = CalculatePct(target->GetMaxHealth(), aurEff->GetAmount());
+        return eventInfo.GetActionTarget()->HealthAbovePctHealed(100, eventInfo.GetHealInfo()->GetHeal());
+    }
 
-        if (target->IsFullHealth())
-            target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB , CastSpellExtraArgsInit{
-                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-                .TriggeringAura = aurEff,
-                .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
-            });
+    static void HandleEffectProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* target = eventInfo.GetActionTarget();
+        int32 amount = eventInfo.GetHealInfo()->GetHeal();
+        if (AuraEffect const* existingAbsorb = target->GetAuraEffect(SPELL_DH_SOULMONGER_ABSORB, EFFECT_0))
+            amount += existingAbsorb->GetAmount();
+
+        amount = std::min(amount, int32(target->CountPctFromMaxHealth(aurEff->GetAmount())));
+
+        target->CastSpell(target, SPELL_DH_SOULMONGER_ABSORB, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, amount } }
+        });
     }
 
     void Register() override
     {
+        DoCheckProc += AuraCheckProcFn(spell_dh_soulmonger::CheckProc);
         OnEffectProc += AuraEffectProcFn(spell_dh_soulmonger::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
     }
 };
