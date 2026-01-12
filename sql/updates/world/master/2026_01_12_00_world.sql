@@ -1,4 +1,4 @@
-SET @CGUID := 50000000;
+SET @CGUID := 9004555;
 
 -- Creature
 DELETE FROM `creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+1;
