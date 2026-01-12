@@ -10,7 +10,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `zoneId`, `areaId`, `spawnDifficult
 UPDATE `creature_template` SET `npcflag`=2, `unit_flags2`=0x800 WHERE `entry`=189602; -- Toddy Whiskers
 
 -- Phases
-DELETE FROM `phase_name` WHERE `ID` IN (19168,19258,24300,19825);
+DELETE FROM `phase_name` WHERE `ID` IN (19168,19258,24300);
 INSERT INTO `phase_name` (`ID`, `Name`) VALUES
 (19168, 'Cosmetic - See Wrathion in Stormwind Keep'),
 (19258, 'Cosmetic - See Scalecommander Azurathel in Stormwind Keep'),
@@ -21,16 +21,17 @@ INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
 (1519, 19168, 'See Wrathion in Stormwind Keep'),
 (1519, 19258, 'See Scalecommander Azurathel in Stormwind Keep');
 
+-- Correct condition for Toddy
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 26 AND `SourceGroup` = 19125;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
+(26, 19125, 1519, 0, 0, 47, 0, 66589, 74, 0, '', 1, 0, 0, '', 'Apply Phase 19125 If Quest 66589 is not In Progress | complete | rewarded');
+
 -- Quest
 DELETE FROM `creature_queststarter` WHERE (`id`=189569 AND `quest`=65436);
 INSERT INTO `creature_queststarter` (`id`, `quest`, `VerifiedBuild`) VALUES
 (189569, 65436, 64978); -- The Dragon Isles Await offered by Wrathion
 
 UPDATE `creature_questender` SET `VerifiedBuild`=64978 WHERE (`id`=189569 AND `quest`=65436);
-
-DELETE FROM `quest_objectives_completion_effect` WHERE `ObjectiveID`=451775;
-INSERT INTO `quest_objectives_completion_effect` (`ObjectiveID`, `GameEventID`, `SpellID`, `ConversationID`, `UpdatePhaseShift`, `UpdateZoneAuras`) VALUES 
-(451775, NULL, 1224573, 17844, 1, 1);
 
 -- Difficulty
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=65299 WHERE (`Entry`=189602 AND `DifficultyID`=0); -- 189602 (Toddy Whiskers) - CanSwim
@@ -44,7 +45,7 @@ UPDATE `gossip_menu` SET `VerifiedBuild`=64978 WHERE (`MenuID`=30065 AND `TextID
 -- Creature Text
 DELETE FROM `creature_text` WHERE `CreatureID`=189569 AND `comment`='The Dragon Isles Awaits - Wrathion to Player';
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
-(189569, 0, 0, 'Ah, here is the hero I spoke of.', 12, 0, 100, 1, 0, 204308, 227404, 0, 'The Dragon Isles Awaits - Wrathion to Player'); -- BroadcastTextID: 224604 - 227404
+(189569, 0, 0, 'Ah, here is the hero I spoke of.', 12, 0, 100, 1, 0, 204308, 227404, 5, 'The Dragon Isles Awaits - Wrathion to Player'); -- BroadcastTextID: 224604 - 227404
 
 -- Conversation
 DELETE FROM `conversation_actors` WHERE (`ConversationId`=17844 AND `Idx`=1);
