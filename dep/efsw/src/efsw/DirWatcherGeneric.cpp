@@ -1,67 +1,53 @@
+#include <efsw/Debug.hpp>
 #include <efsw/DirWatcherGeneric.hpp>
 #include <efsw/FileSystem.hpp>
-#include <efsw/Debug.hpp>
 #include <efsw/String.hpp>
 
 namespace efsw {
 
-DirWatcherGeneric::DirWatcherGeneric( DirWatcherGeneric * parent, WatcherGeneric * ws, const std::string& directory, bool recursive, bool reportNewFiles ) :
-	Parent( parent ),
-	Watch( ws ),
-	Recursive( recursive ),
-	Deleted( false )
-{
+DirWatcherGeneric::DirWatcherGeneric( DirWatcherGeneric* parent, WatcherGeneric* ws,
+									  const std::string& directory, bool recursive,
+									  bool reportNewFiles ) :
+	Parent( parent ), Watch( ws ), Recursive( recursive ), Deleted( false ) {
 	resetDirectory( directory );
 
-	if ( !reportNewFiles )
-	{
+	if ( !reportNewFiles ) {
 		DirSnap.scan();
-	}
-	else
-	{
+	} else {
 		DirectorySnapshotDiff Diff = DirSnap.scan();
 
-		if ( Diff.changed() )
-		{
+		if ( Diff.changed() ) {
 			FileInfoList::iterator it;
 
-			DiffIterator( FilesCreated )
-			{
+			DiffIterator( FilesCreated ) {
 				handleAction( ( *it ).Filepath, Actions::Add );
 			}
 		}
 	}
 }
 
-DirWatcherGeneric::~DirWatcherGeneric()
-{
+DirWatcherGeneric::~DirWatcherGeneric() {
 	/// If the directory was deleted mark the files as deleted
-	if ( Deleted )
-	{
+	if ( Deleted ) {
 		DirectorySnapshotDiff Diff = DirSnap.scan();
 
-		if ( !DirSnap.exists() )
-		{
+		if ( !DirSnap.exists() ) {
 			FileInfoList::iterator it;
 
-			DiffIterator( FilesDeleted )
-			{
-				handleAction( (*it).Filepath, Actions::Delete );
+			DiffIterator( FilesDeleted ) {
+				handleAction( ( *it ).Filepath, Actions::Delete );
 			}
 
-			DiffIterator( DirsDeleted )
-			{
-				handleAction( (*it).Filepath, Actions::Delete );
+			DiffIterator( DirsDeleted ) {
+				handleAction( ( *it ).Filepath, Actions::Delete );
 			}
 		}
 	}
 
 	DirWatchMap::iterator it = Directories.begin();
 
-	for ( ; it != Directories.end(); ++it )
-	{
-		if ( Deleted )
-		{
+	for ( ; it != Directories.end(); ++it ) {
+		if ( Deleted ) {
 			/// If the directory was deleted, mark the flag for file deletion
 			it->second->Deleted = true;
 		}
@@ -70,24 +56,22 @@ DirWatcherGeneric::~DirWatcherGeneric()
 	}
 }
 
-void DirWatcherGeneric::resetDirectory( std::string directory )
-{
+void DirWatcherGeneric::resetDirectory( std::string directory ) {
 	std::string dir( directory );
 
 	/// Is this a recursive watch?
-	if ( Watch->Directory != directory )
-	{
-		if ( !( directory.size() && ( directory.at(0) == FileSystem::getOSSlash() || directory.at( directory.size() - 1 ) == FileSystem::getOSSlash() ) ) )
-		{
+	if ( Watch->Directory != directory ) {
+		if ( !( directory.size() &&
+				( directory.at( 0 ) == FileSystem::getOSSlash() ||
+				  directory.at( directory.size() - 1 ) == FileSystem::getOSSlash() ) ) ) {
 			/// Get the real directory
-			if ( NULL != Parent )
-			{
-				FileSystem::dirAddSlashAtEnd(directory);
+			if ( NULL != Parent ) {
+				std::string parentPath( Parent->DirSnap.DirectoryInfo.Filepath );
+				FileSystem::dirAddSlashAtEnd( parentPath );
+				FileSystem::dirAddSlashAtEnd( directory );
 
-				dir = Parent->DirSnap.DirectoryInfo.Filepath + directory;
-			}
-			else
-			{
+				dir = parentPath + directory;
+			} else {
 				efDEBUG( "resetDirectory(): Parent is NULL. Fatal error." );
 			}
 		}
@@ -96,161 +80,140 @@ void DirWatcherGeneric::resetDirectory( std::string directory )
 	DirSnap.setDirectoryInfo( dir );
 }
 
-void DirWatcherGeneric::handleAction( const std::string &filename, unsigned long action, std::string oldFilename)
-{
-	Watch->Listener->handleFileAction( Watch->ID, DirSnap.DirectoryInfo.Filepath, FileSystem::fileNameFromPath( filename ), (Action)action, oldFilename );
+void DirWatcherGeneric::handleAction( const std::string& filename, unsigned long action,
+									  std::string oldFilename ) {
+	Watch->Listener->handleFileAction( Watch->ID, DirSnap.DirectoryInfo.Filepath,
+									   FileSystem::fileNameFromPath( filename ), (Action)action,
+									   oldFilename );
 }
 
-void DirWatcherGeneric::addChilds( bool reportNewFiles )
-{
-	if ( Recursive )
-	{
+void DirWatcherGeneric::addChilds( bool reportNewFiles ) {
+	if ( Recursive ) {
 		/// Create the subdirectories watchers
 		std::string dir;
 
-		for ( FileInfoMap::iterator it = DirSnap.Files.begin(); it != DirSnap.Files.end(); it++ )
-		{
-			if ( it->second.isDirectory() && it->second.isReadable() && !FileSystem::isRemoteFS( it->second.Filepath ) )
-			{
+		for ( FileInfoMap::iterator it = DirSnap.Files.begin(); it != DirSnap.Files.end(); it++ ) {
+			if ( it->second.isDirectory() && it->second.isReadable() &&
+				 !FileSystem::isRemoteFS( it->second.Filepath ) ) {
 				/// Check if the directory is a symbolic link
 				std::string curPath;
 				std::string link( FileSystem::getLinkRealPath( it->second.Filepath, curPath ) );
 
 				dir = it->first;
 
-				if ( "" != link )
-				{
+				if ( "" != link ) {
 					/// Avoid adding symlinks directories if it's now enabled
-					if ( !Watch->WatcherImpl->mFileWatcher->followSymlinks() )
-					{
+					if ( !Watch->WatcherImpl->mFileWatcher->followSymlinks() ) {
 						continue;
 					}
 
 					/// If it's a symlink check if the realpath exists as a watcher, or
 					/// if the path is outside the current dir
-					if ( Watch->WatcherImpl->pathInWatches( link ) || Watch->pathInWatches( link ) || !Watch->WatcherImpl->linkAllowed( curPath, link ) )
-					{
+					if ( Watch->WatcherImpl->pathInWatches( link ) ||
+						 Watch->pathInWatches( link ) ||
+						 !Watch->WatcherImpl->linkAllowed( curPath, link ) ) {
 						continue;
-					}
-					else
-					{
+					} else {
 						dir = link;
 					}
-				}
-				else
-				{
-					if ( Watch->pathInWatches( dir ) || Watch->WatcherImpl->pathInWatches( dir ) )
-					{
+				} else {
+					if ( Watch->pathInWatches( dir ) || Watch->WatcherImpl->pathInWatches( dir ) ) {
 						continue;
 					}
 				}
 
-				if ( reportNewFiles )
-				{
+				if ( reportNewFiles ) {
 					handleAction( dir, Actions::Add );
 				}
 
-				Directories[dir] = new DirWatcherGeneric( this, Watch, dir, Recursive, reportNewFiles );
+				Directories[dir] =
+					new DirWatcherGeneric( this, Watch, dir, Recursive, reportNewFiles );
 
-				Directories[dir]->addChilds( reportNewFiles  );
+				Directories[dir]->addChilds( reportNewFiles );
 			}
 		}
 	}
 }
 
-void DirWatcherGeneric::watch( bool reportOwnChange )
-{
+void DirWatcherGeneric::watch( bool reportOwnChange ) {
 	DirectorySnapshotDiff Diff = DirSnap.scan();
 
-	if ( reportOwnChange && Diff.DirChanged && NULL != Parent )
-	{
-		Watch->Listener->handleFileAction( Watch->ID, FileSystem::pathRemoveFileName( DirSnap.DirectoryInfo.Filepath ), FileSystem::fileNameFromPath( DirSnap.DirectoryInfo.Filepath ), Actions::Modified );
+	if ( reportOwnChange && Diff.DirChanged && NULL != Parent ) {
+		Watch->Listener->handleFileAction(
+			Watch->ID, FileSystem::pathRemoveFileName( DirSnap.DirectoryInfo.Filepath ),
+			FileSystem::fileNameFromPath( DirSnap.DirectoryInfo.Filepath ), Actions::Modified );
 	}
 
-	if ( Diff.changed() )
-	{
+	if ( Diff.changed() ) {
 		FileInfoList::iterator it;
 		MovedList::iterator mit;
 
 		/// Files
-		DiffIterator( FilesCreated )
-		{
-			handleAction( (*it).Filepath, Actions::Add );
+		DiffIterator( FilesCreated ) {
+			handleAction( ( *it ).Filepath, Actions::Add );
 		}
 
-		DiffIterator( FilesModified )
-		{
-			handleAction( (*it).Filepath, Actions::Modified );
+		DiffIterator( FilesModified ) {
+			handleAction( ( *it ).Filepath, Actions::Modified );
 		}
 
-		DiffIterator( FilesDeleted )
-		{
-			handleAction( (*it).Filepath, Actions::Delete );
+		DiffIterator( FilesDeleted ) {
+			handleAction( ( *it ).Filepath, Actions::Delete );
 		}
 
-		DiffMovedIterator( FilesMoved )
-		{
-			handleAction( (*mit).second.Filepath, Actions::Moved, (*mit).first );
+		DiffMovedIterator( FilesMoved ) {
+			handleAction( ( *mit ).second.Filepath, Actions::Moved, ( *mit ).first );
 		}
 
 		/// Directories
-		DiffIterator( DirsCreated )
-		{
-			createDirectory( (*it).Filepath );
+		DiffIterator( DirsCreated ) {
+			createDirectory( ( *it ).Filepath );
 		}
 
-		DiffIterator( DirsModified )
-		{
-			handleAction( (*it).Filepath, Actions::Modified );
+		DiffIterator( DirsModified ) {
+			handleAction( ( *it ).Filepath, Actions::Modified );
 		}
 
-		DiffIterator( DirsDeleted )
-		{
-			handleAction( (*it).Filepath, Actions::Delete );
-			removeDirectory( (*it).Filepath );
+		DiffIterator( DirsDeleted ) {
+			handleAction( ( *it ).Filepath, Actions::Delete );
+			removeDirectory( ( *it ).Filepath );
 		}
 
-		DiffMovedIterator( DirsMoved )
-		{
-			handleAction( (*mit).second.Filepath, Actions::Moved, (*mit).first );
-			moveDirectory( (*mit).first, (*mit).second.Filepath );
+		DiffMovedIterator( DirsMoved ) {
+			handleAction( ( *mit ).second.Filepath, Actions::Moved, ( *mit ).first );
+			moveDirectory( ( *mit ).first, ( *mit ).second.Filepath );
 		}
 	}
 
 	/// Process the subdirectories looking for changes
-	for ( DirWatchMap::iterator dit = Directories.begin(); dit != Directories.end(); ++dit )
-	{
+	for ( DirWatchMap::iterator dit = Directories.begin(); dit != Directories.end(); ++dit ) {
 		/// Just watch
 		dit->second->watch();
 	}
 }
 
-void DirWatcherGeneric::watchDir( std::string &dir )
-{
-	DirWatcherGeneric * watcher = Watch->WatcherImpl->mFileWatcher->allowOutOfScopeLinks() ?
-									findDirWatcher( dir ) :
-									findDirWatcherFast( dir );
+void DirWatcherGeneric::watchDir( std::string& dir ) {
+	DirWatcherGeneric* watcher = Watch->WatcherImpl->mFileWatcher->allowOutOfScopeLinks()
+									 ? findDirWatcher( dir )
+									 : findDirWatcherFast( dir );
 
-	if ( NULL != watcher )
-	{
+	if ( NULL != watcher ) {
 		watcher->watch( true );
 	}
 }
 
-DirWatcherGeneric * DirWatcherGeneric::findDirWatcherFast( std::string dir )
-{
+DirWatcherGeneric* DirWatcherGeneric::findDirWatcherFast( std::string dir ) {
 	// remove the common base ( dir should always start with the same base as the watcher )
 	efASSERT( !dir.empty() );
 	efASSERT( dir.size() >= DirSnap.DirectoryInfo.Filepath.size() );
-	efASSERT( DirSnap.DirectoryInfo.Filepath == dir.substr( 0, DirSnap.DirectoryInfo.Filepath.size() ) );
+	efASSERT( DirSnap.DirectoryInfo.Filepath ==
+			  dir.substr( 0, DirSnap.DirectoryInfo.Filepath.size() ) );
 
-	if ( dir.size() >= DirSnap.DirectoryInfo.Filepath.size() )
-	{
+	if ( dir.size() >= DirSnap.DirectoryInfo.Filepath.size() ) {
 		dir = dir.substr( DirSnap.DirectoryInfo.Filepath.size() - 1 );
 	}
 
-	if ( dir.size() == 1 )
-	{
+	if ( dir.size() == 1 ) {
 		efASSERT( dir[0] == FileSystem::getOSSlash() );
 		return this;
 	}
@@ -258,22 +221,18 @@ DirWatcherGeneric * DirWatcherGeneric::findDirWatcherFast( std::string dir )
 	size_t level = 0;
 	std::vector<std::string> dirv = String::split( dir, FileSystem::getOSSlash(), false );
 
-	DirWatcherGeneric * watcher = this;
+	DirWatcherGeneric* watcher = this;
 
-	while ( level < dirv.size() )
-	{
+	while ( level < dirv.size() ) {
 		// search the dir level in the current watcher
-		DirWatchMap::iterator it = watcher->Directories.find( dirv[ level ] );
+		DirWatchMap::iterator it = watcher->Directories.find( dirv[level] );
 
 		// found? continue with the next level
-		if ( it != watcher->Directories.end() )
-		{
+		if ( it != watcher->Directories.end() ) {
 			watcher = it->second;
 
 			level++;
-		}
-		else
-		{
+		} else {
 			// couldn't found the folder level?
 			// directory not watched
 			return NULL;
@@ -283,22 +242,16 @@ DirWatcherGeneric * DirWatcherGeneric::findDirWatcherFast( std::string dir )
 	return watcher;
 }
 
-DirWatcherGeneric * DirWatcherGeneric::findDirWatcher( std::string dir )
-{
-	if ( DirSnap.DirectoryInfo.Filepath == dir )
-	{
+DirWatcherGeneric* DirWatcherGeneric::findDirWatcher( std::string dir ) {
+	if ( DirSnap.DirectoryInfo.Filepath == dir ) {
 		return this;
-	}
-	else
-	{
-		DirWatcherGeneric * watcher = NULL;
+	} else {
+		DirWatcherGeneric* watcher = NULL;
 
-		for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it )
-		{
+		for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it ) {
 			watcher = it->second->findDirWatcher( dir );
 
-			if ( NULL != watcher )
-			{
+			if ( NULL != watcher ) {
 				return watcher;
 			}
 		}
@@ -307,22 +260,22 @@ DirWatcherGeneric * DirWatcherGeneric::findDirWatcher( std::string dir )
 	return NULL;
 }
 
-DirWatcherGeneric * DirWatcherGeneric::createDirectory( std::string newdir )
-{
+DirWatcherGeneric* DirWatcherGeneric::createDirectory( std::string newdir ) {
 	FileSystem::dirRemoveSlashAtEnd( newdir );
 	newdir = FileSystem::fileNameFromPath( newdir );
 
-	DirWatcherGeneric * dw = NULL;
+	DirWatcherGeneric* dw = NULL;
 
 	/// Check if the directory is a symbolic link
-	std::string dir( DirSnap.DirectoryInfo.Filepath + newdir );
+	std::string parentPath( DirSnap.DirectoryInfo.Filepath );
+	FileSystem::dirAddSlashAtEnd( parentPath );
+	std::string dir( parentPath + newdir );
 
 	FileSystem::dirAddSlashAtEnd( dir );
 
 	FileInfo fi( dir );
 
-	if ( !fi.isDirectory() || !fi.isReadable() || FileSystem::isRemoteFS( dir ) )
-	{
+	if ( !fi.isDirectory() || !fi.isReadable() || FileSystem::isRemoteFS( dir ) ) {
 		return NULL;
 	}
 
@@ -330,57 +283,48 @@ DirWatcherGeneric * DirWatcherGeneric::createDirectory( std::string newdir )
 	std::string link( FileSystem::getLinkRealPath( dir, curPath ) );
 	bool skip = false;
 
-	if ( "" != link )
-	{
+	if ( "" != link ) {
 		/// Avoid adding symlinks directories if it's now enabled
-		if ( !Watch->WatcherImpl->mFileWatcher->followSymlinks() )
-		{
+		if ( !Watch->WatcherImpl->mFileWatcher->followSymlinks() ) {
 			skip = true;
 		}
 
 		/// If it's a symlink check if the realpath exists as a watcher, or
 		/// if the path is outside the current dir
-		if ( Watch->WatcherImpl->pathInWatches( link ) || Watch->pathInWatches( link ) || !Watch->WatcherImpl->linkAllowed( curPath, link ) )
-		{
+		if ( Watch->WatcherImpl->pathInWatches( link ) || Watch->pathInWatches( link ) ||
+			 !Watch->WatcherImpl->linkAllowed( curPath, link ) ) {
 			skip = true;
-		}
-		else
-		{
+		} else {
 			dir = link;
 		}
-	}
-	else
-	{
-		if ( Watch->pathInWatches( dir ) || Watch->WatcherImpl->pathInWatches( dir ) )
-		{
+	} else {
+		if ( Watch->pathInWatches( dir ) || Watch->WatcherImpl->pathInWatches( dir ) ) {
 			skip = true;
 		}
 	}
 
-	if ( !skip )
-	{
+	if ( !skip ) {
 		handleAction( newdir, Actions::Add );
 
 		/// Creates the new directory watcher of the subfolder and check for new files
 		dw = new DirWatcherGeneric( this, Watch, dir, Recursive );
-		
+
 		dw->addChilds();
 
 		dw->watch();
 
 		/// Add it to the list of directories
-		Directories[ newdir ] = dw;
+		Directories[newdir] = dw;
 	}
 
 	return dw;
 }
 
-void DirWatcherGeneric::removeDirectory( std::string dir )
-{
+void DirWatcherGeneric::removeDirectory( std::string dir ) {
 	FileSystem::dirRemoveSlashAtEnd( dir );
 	dir = FileSystem::fileNameFromPath( dir );
 
-	DirWatcherGeneric * dw			= NULL;
+	DirWatcherGeneric* dw = NULL;
 	DirWatchMap::iterator dit;
 
 	/// Folder deleted
@@ -388,8 +332,7 @@ void DirWatcherGeneric::removeDirectory( std::string dir )
 	/// Search the folder, it should exists
 	dit = Directories.find( dir );
 
-	if ( dit != Directories.end() )
-	{
+	if ( dit != Directories.end() ) {
 		dw = dit->second;
 
 		/// Flag it as deleted so it fire the event for every file inside deleted
@@ -403,49 +346,43 @@ void DirWatcherGeneric::removeDirectory( std::string dir )
 	}
 }
 
-void DirWatcherGeneric::moveDirectory( std::string oldDir, std::string newDir )
-{
+void DirWatcherGeneric::moveDirectory( std::string oldDir, std::string newDir ) {
 	FileSystem::dirRemoveSlashAtEnd( oldDir );
 	oldDir = FileSystem::fileNameFromPath( oldDir );
 
 	FileSystem::dirRemoveSlashAtEnd( newDir );
 	newDir = FileSystem::fileNameFromPath( newDir );
 
-	DirWatcherGeneric * dw			= NULL;
+	DirWatcherGeneric* dw = NULL;
 	DirWatchMap::iterator dit;
 
 	/// Directory existed?
 	dit = Directories.find( oldDir );
 
-	if ( dit != Directories.end() )
-	{
+	if ( dit != Directories.end() ) {
 		dw = dit->second;
 
 		/// Remove the directory from the map
 		Directories.erase( dit->first );
 
-		Directories[ newDir ] = dw;
+		Directories[newDir] = dw;
 
 		dw->resetDirectory( newDir );
 	}
 }
 
-bool DirWatcherGeneric::pathInWatches( std::string path )
-{
-	if ( DirSnap.DirectoryInfo.Filepath == path )
-	{
+bool DirWatcherGeneric::pathInWatches( std::string path ) {
+	if ( DirSnap.DirectoryInfo.Filepath == path ) {
 		return true;
 	}
 
-	for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it )
-	{
-		 if ( it->second->pathInWatches( path ) )
-		 {
-			 return true;
-		 }
+	for ( DirWatchMap::iterator it = Directories.begin(); it != Directories.end(); ++it ) {
+		if ( it->second->pathInWatches( path ) ) {
+			return true;
+		}
 	}
 
 	return false;
 }
 
-} 
+} // namespace efsw

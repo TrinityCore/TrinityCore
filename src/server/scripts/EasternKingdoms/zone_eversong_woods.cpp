@@ -26,26 +26,25 @@ enum Partygoer_Pather
     EVENT_RANDOM_ACTION_PATHER,
     EVENT_REMOVE_EQUIPMENT_PATHER,
     EVENT_STOP_DANCING_PATHER,
-
-    PATH_FIRST_PATH               = 4755520,
-    PATH_LAST_PATH                = 4755552,
 };
+
+static constexpr std::array<uint32, 5> PARTYGOER_PATHS = { 4755520, 4755528, 4755536, 4755544, 4755552 };
 
 struct npc_partygoer_pather : public ScriptedAI
 {
-    npc_partygoer_pather(Creature* creature) : ScriptedAI(creature), _path(PATH_FIRST_PATH) { }
+    npc_partygoer_pather(Creature* creature) : ScriptedAI(creature), _path(PARTYGOER_PATHS.begin()) { }
 
     void JustAppeared() override
     {
-        _path = PATH_FIRST_PATH;
+        _path = PARTYGOER_PATHS.begin();
         _events.ScheduleEvent(EVENT_RANDOM_ACTION_PATHER, 11s, 14s);
     }
 
     void WaypointPathEnded(uint32 /*nodeId*/, uint32 /*pathId*/) override
     {
         ++_path;
-        if (_path > PATH_LAST_PATH)
-            _path = PATH_FIRST_PATH;
+        if (_path == PARTYGOER_PATHS.end())
+            _path = PARTYGOER_PATHS.begin();
 
         _events.ScheduleEvent(EVENT_RANDOM_ACTION_PATHER, 11s, 14s);
     }
@@ -59,7 +58,7 @@ struct npc_partygoer_pather : public ScriptedAI
             switch (eventId)
             {
                 case EVENT_PATH:
-                    me->GetMotionMaster()->MovePath(_path, false);
+                    me->GetMotionMaster()->MovePath(*_path, false);
                     break;
                 case EVENT_RANDOM_ACTION_PATHER:
                 {
@@ -110,7 +109,7 @@ struct npc_partygoer_pather : public ScriptedAI
 
 private:
     EventMap _events;
-    uint32 _path;
+    std::array<uint32, 5>::const_iterator _path;
 };
 
 enum Partygoer

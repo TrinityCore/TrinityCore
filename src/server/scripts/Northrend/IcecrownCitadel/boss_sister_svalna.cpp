@@ -514,6 +514,8 @@ private:
     bool _isEventInProgress;
 };
 
+static constexpr uint32 PATH_ESCORT_CROK_SCOURGEBANE = 297034;
+
 // 37129 - Crok Scourgebane
 struct npc_crok_scourgebane : public EscortAI
 {
@@ -749,7 +751,8 @@ struct npc_crok_scourgebane : public EscortAI
                     Talk(SAY_CROK_INTRO_3);
                     break;
                 case EVENT_START_PATHING:
-                    Start(true, true);
+                    LoadPath(PATH_ESCORT_CROK_SCOURGEBANE),
+                    Start(true);
                     break;
                 case EVENT_SCOURGE_STRIKE:
                     DoCastVictim(SPELL_SCOURGE_STRIKE);

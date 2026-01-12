@@ -300,20 +300,27 @@ void MotionMaster::Update(uint32 diff)
 
     AddFlag(MOTIONMASTER_FLAG_UPDATE);
 
+    enum class InitState : uint8
+    {
+        Failed,
+        Success,
+        AlreadyInitialized
+    } initializationState = InitState::AlreadyInitialized;
+
     MovementGenerator* top = GetCurrentMovementGenerator();
     if (HasFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING) && IsStatic(top))
     {
         RemoveFlag(MOTIONMASTER_FLAG_STATIC_INITIALIZATION_PENDING);
-        top->Initialize(_owner);
+        initializationState = top->Initialize(_owner) ? InitState::Success : InitState::Failed;
     }
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING))
-        top->Initialize(_owner);
+        initializationState = top->Initialize(_owner) ? InitState::Success : InitState::Failed;
     if (top->HasFlag(MOVEMENTGENERATOR_FLAG_DEACTIVATED))
-        top->Reset(_owner);
+        initializationState = top->Reset(_owner) ? InitState::Success : InitState::Failed;
 
     ASSERT(!top->HasFlag(MOVEMENTGENERATOR_FLAG_INITIALIZATION_PENDING | MOVEMENTGENERATOR_FLAG_DEACTIVATED), "MotionMaster:Update: update called on an uninitialized top! (%s) (type: %u, flags: %u)", _owner->GetGUID().ToString().c_str(), top->GetMovementGeneratorType(), top->Flags);
 
-    if (!top->Update(_owner, diff))
+    if (initializationState == InitState::Failed || !top->Update(_owner, initializationState == InitState::AlreadyInitialized ? diff : 0))
     {
         ASSERT(top == GetCurrentMovementGenerator(), "MotionMaster::Update: top was modified while updating! (%s)", _owner->GetGUID().ToString().c_str());
 
@@ -387,16 +394,16 @@ void MotionMaster::Remove(MovementGenerator* movement, MovementSlot slot/* = MOT
     }
 }
 
-void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
+void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/, MovementGeneratorMode mode/* = MOTION_MODE_DEFAULT*/)
 {
     if (IsInvalidMovementGeneratorType(type) || IsInvalidMovementSlot(slot))
         return;
 
     if (HasFlag(MOTIONMASTER_FLAG_DELAYED))
     {
-        DelayedActionDefine action = [this, type, slot]()
+        DelayedActionDefine action = [this, type, slot, mode]()
         {
-            Remove(type, slot);
+            Remove(type, slot, mode);
         };
         _delayedActions.emplace_back(std::move(action), MOTIONMASTER_DELAYED_REMOVE_TYPE);
         return;
@@ -414,9 +421,9 @@ void MotionMaster::Remove(MovementGeneratorType type, MovementSlot slot/* = MOTI
         case MOTION_SLOT_ACTIVE:
             if (!_generators.empty())
             {
-                auto itr = std::find_if(_generators.begin(), _generators.end(), [type](MovementGenerator const* a) -> bool
+                auto itr = std::find_if(_generators.begin(), _generators.end(), [type, mode](MovementGenerator const* a) -> bool
                 {
-                    return a->GetMovementGeneratorType() == type;
+                    return a->GetMovementGeneratorType() == type && a->Mode == mode;
                 });
 
                 if (itr != _generators.end())
@@ -1153,35 +1160,6 @@ void MotionMaster::DirectClear(std::function<bool(MovementGenerator*)> const& fi
 
 void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = MOTION_SLOT_ACTIVE*/)
 {
-/*
-    if (MovementGenerator* curr = _slot[slot])
-    {
-        _slot[slot] = nullptr; // in case a new one is generated in this slot during directdelete
-        if (_top == slot && (_cleanFlag & MOTIONMMASTER_CLEANFLAG_UPDATE))
-            DelayedDelete(curr);
-        else
-            DirectDelete(curr);
-    }
-    else if (_top < slot)
-    {
-        _top = slot;
-    }
-
-    _slot[slot] = m;
-    if (_top > slot)
-        _initialize[slot] = true;
-    else
-    {
-        _initialize[slot] = false;
-        m->Initialize(_owner);
-    }
-*/
-
-    /*
-     * NOTE: This mimics old behaviour: only one MOTION_SLOT_IDLE, MOTION_SLOT_ACTIVE, MOTION_SLOT_CONTROLLED
-     * On future changes support for multiple will be added
-     */
-
     switch (slot)
     {
         case MOTION_SLOT_DEFAULT:
@@ -1198,16 +1176,22 @@ void MotionMaster::DirectAdd(MovementGenerator* movement, MovementSlot slot/* = 
                 if (movement->Priority >= (*_generators.begin())->Priority)
                 {
                     auto itr = _generators.begin();
-                    if (movement->Priority == (*itr)->Priority)
-                        Remove(itr, true, false);
+                    MovementGenerator* currentTopMovement = *itr;
+                    if (movement->Priority == currentTopMovement->Priority)
+                    {
+                        if (movement->Mode > currentTopMovement->Mode)
+                            currentTopMovement->Deactivate(_owner);
+                        else if (movement->Mode == currentTopMovement->Mode)
+                            Remove(itr, true, false);
+                    }
                     else
-                        (*itr)->Deactivate(_owner);
+                        currentTopMovement->Deactivate(_owner);
                 }
                 else
                 {
                     auto itr = std::find_if(_generators.begin(), _generators.end(), [movement](MovementGenerator const* a) -> bool
                     {
-                        return a->Priority == movement->Priority;
+                        return a->Priority == movement->Priority && a->Mode == movement->Mode;
                     });
 
                     if (itr != _generators.end())

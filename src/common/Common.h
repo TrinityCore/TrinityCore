@@ -31,7 +31,7 @@ enum TimeConstants
     DAY             = HOUR*24,
     WEEK            = DAY*7,
     MONTH           = DAY*30,
-    YEAR            = MONTH*12,
+    YEAR            = DAY*365,
     IN_MILLISECONDS = 1000
 };
 

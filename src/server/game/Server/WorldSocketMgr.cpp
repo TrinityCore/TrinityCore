@@ -23,21 +23,16 @@
 
 #include <boost/system/error_code.hpp>
 
-static void OnSocketAccept(tcp::socket&& sock, uint32 threadIndex)
-{
-    sWorldSocketMgr.OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
-}
-
-class WorldSocketThread : public NetworkThread<WorldSocket>
+class WorldSocketThread : public Trinity::Net::NetworkThread<WorldSocket>
 {
 public:
-    void SocketAdded(std::shared_ptr<WorldSocket> sock) override
+    void SocketAdded(std::shared_ptr<WorldSocket> const& sock) override
     {
         sock->SetSendBufferSize(sWorldSocketMgr.GetApplicationSendBufferSize());
         sScriptMgr->OnSocketOpen(sock);
     }
 
-    void SocketRemoved(std::shared_ptr<WorldSocket> sock) override
+    void SocketRemoved(std::shared_ptr<WorldSocket>const& sock) override
     {
         sScriptMgr->OnSocketClose(sock);
     }
@@ -74,7 +69,10 @@ bool WorldSocketMgr::StartWorldNetwork(Trinity::Asio::IoContext& ioContext, std:
     if (!BaseSocketMgr::StartNetwork(ioContext, bindIp, port, threadCount))
         return false;
 
-    _acceptor->AsyncAcceptWithCallback<&OnSocketAccept>();
+    _acceptor->AsyncAccept([this](Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
+    {
+        OnSocketOpen(std::move(sock), threadIndex);
+    });
 
     sScriptMgr->OnNetworkStart();
     return true;
@@ -87,7 +85,7 @@ void WorldSocketMgr::StopNetwork()
     sScriptMgr->OnNetworkStop();
 }
 
-void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
+void WorldSocketMgr::OnSocketOpen(Trinity::Net::IoContextTcpSocket&& sock, uint32 threadIndex)
 {
     // set some options here
     if (_socketSystemSendBufferSize >= 0)
@@ -115,10 +113,10 @@ void WorldSocketMgr::OnSocketOpen(tcp::socket&& sock, uint32 threadIndex)
 
     //sock->m_OutBufferSize = static_cast<size_t> (m_SockOutUBuff);
 
-    BaseSocketMgr::OnSocketOpen(std::forward<tcp::socket>(sock), threadIndex);
+    BaseSocketMgr::OnSocketOpen(std::move(sock), threadIndex);
 }
 
-NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
+Trinity::Net::NetworkThread<WorldSocket>* WorldSocketMgr::CreateThreads() const
 {
     return new WorldSocketThread[GetNetworkThreadCount()];
 }
