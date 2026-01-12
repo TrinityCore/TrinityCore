@@ -79,7 +79,6 @@ private:
     void MigrateLegacyPasswordHashes() const;
 
     JSON::Login::FormInputs _formInputs;
-    std::string _bindIP;
     uint16 _port;
     std::string _externalHostname;
     std::string _localHostname;

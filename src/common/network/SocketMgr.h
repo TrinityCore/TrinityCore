@@ -27,13 +27,14 @@
 
 namespace Trinity::Net
 {
-template <typename SocketType, typename ThreadType>
+template <typename Traits>
 class SocketMgr
 {
-    static_assert(std::is_base_of_v<NetworkThread<SocketType>, ThreadType>);
-    static_assert(std::is_final_v<ThreadType>);
-
 public:
+    using Self = typename Traits::Self;
+    using SocketType = typename Traits::SocketType;
+    using ThreadType = typename Traits::ThreadType;
+
     SocketMgr(SocketMgr const&) = delete;
     SocketMgr(SocketMgr&&) = delete;
     SocketMgr& operator=(SocketMgr const&) = delete;
@@ -67,14 +68,16 @@ public:
 
         _acceptor = std::move(acceptor);
         _threadCount = threadCount;
-        _threads.reset(CreateThreads());
+        _threads = static_cast<Self*>(this)->CreateThreads();
 
         ASSERT(_threads);
 
         for (int32 i = 0; i < _threadCount; ++i)
             _threads[i].Start();
 
-        _acceptor->SetSocketFactory([this]() { return GetSocketForAccept(); });
+        _acceptor->AsyncAccept(
+            [this]{ return SelectThreadWithMinConnections(); },
+            [this](IoContextTcpSocket&& sock) { static_cast<Self*>(this)->OnSocketOpen(std::move(sock)); });
 
         return true;
     }
@@ -99,14 +102,19 @@ public:
             _threads[i].Wait();
     }
 
-    virtual void OnSocketOpen(IoContextTcpSocket&& sock, uint32 threadIndex)
+    virtual void OnSocketOpen(IoContextTcpSocket&& sock)
     {
         try
         {
+            int32 threadIndex = 0;
+            for (; threadIndex < _threadCount; ++threadIndex)
+                if (_threads[threadIndex].GetIoContext()->get_executor() == sock.get_executor())
+                    break;
+
             std::shared_ptr<SocketType> newSocket = std::make_shared<SocketType>(std::move(sock));
             newSocket->Start();
 
-            _threads[threadIndex].AddSocket(newSocket);
+            _threads[threadIndex].AddSocket(std::move(newSocket));
         }
         catch (boost::system::system_error const& err)
         {
@@ -116,21 +124,15 @@ public:
 
     int32 GetNetworkThreadCount() const { return _threadCount; }
 
-    uint32 SelectThreadWithMinConnections() const
+    Asio::IoContext* SelectThreadWithMinConnections() const
     {
-        uint32 min = 0;
+        ThreadType* min = &_threads[0];
 
-        for (int32 i = 1; i < _threadCount; ++i)
-            if (_threads[i].GetConnectionCount() < _threads[min].GetConnectionCount())
+        for (ThreadType* i = min + 1; i != _threads.get() + _threadCount; ++i)
+            if (i->GetConnectionCount() < min->GetConnectionCount())
                 min = i;
 
-        return min;
-    }
-
-    std::pair<IoContextTcpSocket*, uint32> GetSocketForAccept()
-    {
-        uint32 threadIndex = SelectThreadWithMinConnections();
-        return std::make_pair(_threads[threadIndex].GetSocketForAccept(), threadIndex);
+        return min->GetIoContext();
     }
 
 protected:
@@ -138,7 +140,10 @@ protected:
     {
     }
 
-    virtual ThreadType* CreateThreads() const = 0;
+    virtual std::unique_ptr<ThreadType[]> CreateThreads() const
+    {
+        return std::make_unique<ThreadType[]>(GetNetworkThreadCount());
+    }
 
     std::unique_ptr<AsyncAcceptor> _acceptor;
     std::unique_ptr<ThreadType[]> _threads;
