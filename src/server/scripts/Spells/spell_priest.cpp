@@ -77,6 +77,7 @@ enum PriestSpells
     SPELL_PRIEST_DARK_REPRIMAND_DAMAGE              = 373130,
     SPELL_PRIEST_DARK_REPRIMAND_HEALING             = 400187,
     SPELL_PRIEST_DAZZLING_LIGHT                     = 196810,
+    SPELL_PRIEST_DEVOURING_PLAGUE                   = 335467,
     SPELL_PRIEST_DISPERSING_LIGHT                   = 1215265,
     SPELL_PRIEST_DISPERSING_LIGHT_HEAL              = 1215266,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47515,
@@ -149,6 +150,7 @@ enum PriestSpells
     SPELL_PRIEST_INESCAPABLE_TORMENT                = 373427,
     SPELL_PRIEST_INESCAPABLE_TORMENT_TELEPORT       = 373441,
     SPELL_PRIEST_INESCAPABLE_TORMENT_DAMAGE         = 373442,
+    SPELL_PRIEST_INSIDIOUS_IRE_AURA                 = 373213,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
     SPELL_PRIEST_LASTING_WORDS                      = 471504,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
@@ -2534,6 +2536,41 @@ class spell_pri_inescapable_torment : public SpellScript
     void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_pri_inescapable_torment::HandleEffectHit, EFFECT_0, SPELL_EFFECT_ANY);
+    }
+};
+
+// 373212 - Insidious Ire
+class spell_pri_insidious_ire : public AuraScript
+{
+    static void HandleProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+
+        Aura const* requiredAuras[] =
+        {
+            target->GetAura(SPELL_PRIEST_SHADOW_WORD_PAIN, caster->GetGUID()),
+            target->GetAura(SPELL_PRIEST_DEVOURING_PLAGUE, caster->GetGUID()),
+            target->GetAura(SPELL_PRIEST_VAMPIRIC_TOUCH, caster->GetGUID())
+        };
+
+        if (advstd::ranges::contains(requiredAuras, nullptr))
+        {
+            caster->RemoveAurasDueToSpell(SPELL_PRIEST_INSIDIOUS_IRE_AURA);
+            return;
+        }
+
+        int32 shortestDuration = std::ranges::min(requiredAuras, {}, [](Aura const* a) { return a->GetDuration(); })->GetDuration();
+
+        caster->CastSpell(caster, SPELL_PRIEST_INSIDIOUS_IRE_AURA, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .SpellValueOverrides = { { SPELLVALUE_DURATION, shortestDuration } }
+        });
+    }
+
+    void Register() override
+    {
+        OnProc += AuraProcFn(spell_pri_insidious_ire::HandleProc);
     }
 };
 
@@ -5206,6 +5243,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_holy_word_salvation);
     RegisterSpellScript(spell_pri_holy_word_salvation_cooldown_reduction);
     RegisterSpellScript(spell_pri_inescapable_torment);
+    RegisterSpellScript(spell_pri_insidious_ire);
     RegisterSpellScript(spell_pri_item_t6_trinket);
     RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_serenity", EFFECT_0);
     RegisterSpellScriptWithArgs(spell_pri_lasting_words, "spell_pri_lasting_words_sanctify", EFFECT_1);
