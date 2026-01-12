@@ -60,6 +60,11 @@ DELETE FROM `conversation_template` WHERE `Id`=17844;
 INSERT INTO `conversation_template` (`Id`, `FirstLineID`, `TextureKitId`, `VerifiedBuild`) VALUES
 (17844, 45415, 0, 64978);
 
+-- Item: Lost Dragonscale - Teleport position
+DELETE FROM `spell_target_position` WHERE (`ID`=410137 AND `EffectIndex`=0 AND `OrderIndex`=0);
+INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `OrderIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
+(410137, 0, 0, 0, -8330.240234375, 319.970001220703125, 155.350006103515625, 64978); -- Spell: 410137 (Lost Dragonscale) Effect 0: 252 (SPELL_EFFECT_TELEPORT_UNITS)
+
  -- Wrathion smart ai
 SET @ENTRY := 189569;
 UPDATE `creature_template` SET `AIName` = 'SmartAI', `ScriptName` = '' WHERE `entry` = @ENTRY;
@@ -72,7 +77,10 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 22 AND `SourceEntry` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `Comment`) VALUES 
 (22, 1, 189569, 0, 0, 9, 0, 65436, 0, 0, '', 0, 'Action invoker has quest The Dragon Isles Await (65436) active');
 
--- Item: Lost Dragonscale - Teleport position
-DELETE FROM `spell_target_position` WHERE (`ID`=410137 AND `EffectIndex`=0 AND `OrderIndex`=0);
-INSERT INTO `spell_target_position` (`ID`, `EffectIndex`, `OrderIndex`, `MapID`, `PositionX`, `PositionY`, `PositionZ`, `VerifiedBuild`) VALUES
-(410137, 0, 0, 0, -8330.240234375, 319.970001220703125, 155.350006103515625, 64978); -- Spell: 410137 (Lost Dragonscale) Effect 0: 252 (SPELL_EFFECT_TELEPORT_UNITS)
+-- The Dragon Isles Await
+SET @ENTRY := 65436;
+INSERT IGNORE INTO `quest_template_addon` (`ID`) VALUES (@ENTRY);
+UPDATE `quest_template_addon` SET `ScriptName` = 'SmartQuest' WHERE `ID` = @ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type` = 5 AND `entryOrGuid` = @ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`, `Difficulties`) VALUES
+(@ENTRY, 5, 0, 0, 47, 0, 100, 0, 0, 0, 0, 0, 0, 143, 17844, 0, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'On quest accepted - Player who accepted: Start conversation 17844', '');
