@@ -169,7 +169,10 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
 
     SetSpellVisual(spellVisual);
     if (!IsStaticSpawn())
+    {
         SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetScale), GetCreateProperties()->TimeToTargetScale != 0 ? GetCreateProperties()->TimeToTargetScale : *m_areaTriggerData->Duration);
+        SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::TimeToTargetPos), *m_areaTriggerData->Duration);
+    }
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::BoundsRadius2D), GetCreateProperties()->Shape.GetMaxSearchRadius());
     SetUpdateFieldValue(areaTriggerData.ModifyValue(&UF::AreaTriggerData::DecalPropertiesID), GetCreateProperties()->DecalPropertiesId);
     if (IsServerSide())
@@ -206,8 +209,6 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             fieldFlags |= AreaTriggerFieldFlags::AbsoluteOrientation;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasDynamicShape))
             fieldFlags |= AreaTriggerFieldFlags::DynamicShape;
-        if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasAttached))
-            fieldFlags |= AreaTriggerFieldFlags::Attached;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFaceMovementDir))
             fieldFlags |= AreaTriggerFieldFlags::FaceMovementDir;
         if (flags.HasFlag(AreaTriggerCreatePropertiesFlag::HasFollowsTerrain))
@@ -234,8 +235,9 @@ bool AreaTrigger::Create(AreaTriggerCreatePropertiesId areaTriggerCreateProperti
             PhasingHandler::InitDbPhaseShift(GetPhaseShift(), spawnData->phaseUseFlags, spawnData->phaseId, spawnData->phaseGroup);
     }
 
-    if (target && HasAreaTriggerFlag(AreaTriggerFieldFlags::Attached))
+    if (target && aurEff)
     {
+        SetAreaTriggerFlag(AreaTriggerFieldFlags::Attached);
         m_movementInfo.transport.guid = target->GetGUID();
         m_updateFlag.MovementTransport = true;
     }

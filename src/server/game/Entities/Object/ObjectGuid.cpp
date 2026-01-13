@@ -18,7 +18,6 @@
 #include "ObjectGuid.h"
 #include "ByteBuffer.h"
 #include "Errors.h"
-#include "Hash.h"
 #include "RealmList.h"
 #include "StringFormat.h"
 #include "Util.h"
@@ -836,21 +835,6 @@ std::string ObjectGuid::ToHexString() const
 ObjectGuid ObjectGuid::FromString(std::string_view guidString)
 {
     return Info.Parse(guidString);
-}
-
-std::size_t ObjectGuid::GetHash() const
-{
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, _data[0]);
-    Trinity::hash_combine(hashVal, _data[1]);
-    return hashVal;
-}
-
-std::array<uint8, 16> ObjectGuid::GetRawValue() const
-{
-    std::array<uint8, 16> raw;
-    memcpy(raw.data(), _data.data(), BytesSize);
-    return raw;
 }
 
 void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)

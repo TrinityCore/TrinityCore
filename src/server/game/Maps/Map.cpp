@@ -2907,6 +2907,10 @@ TransferAbortParams InstanceMap::CannotEnter(Player* player)
             return lockError;
     }
 
+    if (Group* owningGroup = GetOwningGroup())
+        if (!player->IsInGroup(owningGroup->GetGUID()))
+            return TRANSFER_ABORT_MAX_PLAYERS;
+
     return Map::CannotEnter(player);
 }
 
