@@ -135,7 +135,7 @@ class TC_GAME_API MotionMaster
         void Remove(MovementGenerator* movement, MovementSlot slot = MOTION_SLOT_ACTIVE);
         // Removes first found movement
         // NOTE: MOTION_SLOT_DEFAULT will be autofilled with IDLE_MOTION_TYPE
-        void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE);
+        void Remove(MovementGeneratorType type, MovementSlot slot = MOTION_SLOT_ACTIVE, MovementGeneratorMode mode = MOTION_MODE_DEFAULT);
         // NOTE: MOTION_SLOT_DEFAULT wont be affected
         void Clear();
         // Removes all movements for the given MovementSlot

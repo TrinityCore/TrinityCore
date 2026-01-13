@@ -28,8 +28,8 @@ class IdleMovementGenerator : public MovementGenerator
     public:
         explicit IdleMovementGenerator();
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override { return true; }
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;
@@ -41,8 +41,8 @@ class RotateMovementGenerator : public MovementGenerator
     public:
         explicit RotateMovementGenerator(uint32 id, uint32 time, RotateDirection direction);
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;
@@ -58,8 +58,8 @@ class DistractMovementGenerator : public MovementGenerator
     public:
         explicit DistractMovementGenerator(uint32 timer, float orientation);
 
-        void Initialize(Unit*) override;
-        void Reset(Unit*) override;
+        bool Initialize(Unit*) override;
+        bool Reset(Unit*) override;
         bool Update(Unit*, uint32) override;
         void Deactivate(Unit*) override;
         void Finalize(Unit*, bool, bool) override;
@@ -68,6 +68,7 @@ class DistractMovementGenerator : public MovementGenerator
     private:
         uint32 _timer;
         float _orientation;
+        float _originalOrientation;
 };
 
 class AssistanceDistractMovementGenerator : public DistractMovementGenerator
