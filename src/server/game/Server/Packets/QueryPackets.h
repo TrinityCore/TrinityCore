@@ -138,12 +138,19 @@ namespace WorldPackets
             std::string_view Name;
         };
 
+        struct HouseLookupData
+        {
+            ObjectGuid Guid;
+            std::string_view Name;
+        };
+
         struct NameCacheLookupResult
         {
             ObjectGuid Player;
             uint8 Result = 0; // 0 - full packet, != 0 - only guid
             Optional<PlayerGuidLookupData> Data;
             Optional<GuildGuidLookupData> GuildData;
+            Optional<HouseLookupData> HouseData;
         };
 
         class QueryPlayerNamesResponse final : public ServerPacket
@@ -234,7 +241,8 @@ namespace WorldPackets
             std::array<uint32, MAX_GAMEOBJECT_DATA> Data = { };
             float Size = 0.0f;
             std::vector<int32> QuestItems;
-            uint32 ContentTuningId = 0;
+            int32 ContentTuningId = 0;
+            int32 RequiredLevel = 0;
         };
 
         class QueryGameObjectResponse final : public ServerPacket

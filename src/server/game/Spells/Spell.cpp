@@ -533,6 +533,9 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     if (IsIgnoringCooldowns())
         m_castFlagsEx |= CAST_FLAG_EX_IGNORE_COOLDOWN;
 
+    if (_triggeredCastFlags & TRIGGERED_SUPPRESS_CASTER_ANIM)
+        m_castFlagsEx |= CAST_FLAG_EX_SUPPRESS_CASTER_ANIM;
+
     unitTarget = nullptr;
     itemTarget = nullptr;
     gameObjTarget = nullptr;
@@ -2434,7 +2437,9 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
     // Calculate hit result
     WorldObject* caster = m_originalCaster ? m_originalCaster : m_caster;
-    targetInfo.MissCondition = caster->SpellHitResult(target, m_spellInfo, m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)));
+    targetInfo.MissCondition = caster->SpellHitResult(target, m_spellInfo,
+        m_canReflect && !(IsPositive() && m_caster->IsFriendlyTo(target)),
+        false /*immunity will be checked after complete EffectMask is known*/);
 
     // Spell have speed - need calculate incoming time
     // Incoming time is zero for self casts. At least I think so.
@@ -2479,7 +2484,9 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     {
         // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
         Unit* unitCaster = ASSERT_NOTNULL(m_caster->ToUnit());
-        targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo, false); // can't reflect twice
+        targetInfo.ReflectResult = unitCaster->SpellHitResult(unitCaster, m_spellInfo,
+            false /*can't reflect twice*/,
+            false /*immunity will be checked after complete EffectMask is known*/);
 
         // Proc spell reflect aura when missile hits the original target
         target->m_Events.AddEvent(new ProcReflectDelayed(target, m_originalCasterGUID), target->m_Events.CalculateTime(Milliseconds(targetInfo.TimeDelay)));
@@ -3099,7 +3106,7 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, TargetInfo& hitInfo)
             return SPELL_MISS_EVADE;
 
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
-    if (hitInfo.TimeDelay && unit->IsImmunedToSpell(m_spellInfo, m_caster))
+    if (hitInfo.TimeDelay && unit->IsImmunedToSpell(m_spellInfo, hitInfo.EffectMask, m_caster))
         return SPELL_MISS_IMMUNE;
 
     CallScriptBeforeHitHandlers(hitInfo.MissCondition);
@@ -3620,8 +3627,6 @@ void Spell::cancel()
             SendChannelUpdate(0, SPELL_FAILED_INTERRUPTED);
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
-
-            m_appliedMods.clear();
             break;
         default:
             break;
@@ -3890,7 +3895,7 @@ void Spell::_cast(bool skipCheck)
     }
 
     if (m_scriptResult && !m_scriptWaitsForSpellHit)
-        m_scriptResult->SetResult(SPELL_CAST_OK);
+        m_scriptResult.SetResult(SPELL_CAST_OK);
 
     CallScriptAfterCastHandlers();
 
@@ -4379,7 +4384,7 @@ void Spell::finish(SpellCastResult result)
     m_spellState = SPELL_STATE_FINISHED;
 
     if (m_scriptResult && (m_scriptWaitsForSpellHit || result != SPELL_CAST_OK))
-        m_scriptResult->SetResult(result);
+        m_scriptResult.SetResult(result);
 
     if (!m_caster)
         return;
@@ -5086,7 +5091,7 @@ static std::pair<int32, SpellHealPredictionType> CalcPredictedHealing(SpellInfo 
                 case SPELL_AURA_OBS_MOD_HEALTH:
                     points += unitCaster->SpellHealingBonusDone(target,
                         spellInfo, spellEffectInfo.CalcValue(unitCaster, nullptr, target, nullptr, castItemEntry, castItemLevel),
-                        DIRECT_DAMAGE, spellEffectInfo, 1, spell) * spellInfo->GetMaxTicks();
+                        DIRECT_DAMAGE, spellEffectInfo, 1, spell) * spellEffectInfo.GetPeriodicTickCount();
                     break;
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
                     if (SpellInfo const* triggered = sSpellMgr->GetSpellInfo(spellEffectInfo.TriggerSpell, spellInfo->Difficulty))
@@ -8612,6 +8617,10 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
     if (!targetUnit)
         return;
 
+    // Check immunity now that EffectMask is known
+    if (targetUnit->IsImmunedToSpell(GetSpellInfo(), targetInfo.EffectMask, m_caster))
+        targetInfo.MissCondition = SPELL_MISS_IMMUNE;
+
     // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
     if (m_originalCaster && targetInfo.MissCondition != SPELL_MISS_EVADE && !m_originalCaster->IsFriendlyTo(targetUnit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)) && (m_spellInfo->HasInitialAggro() || targetUnit->IsEngaged()))
         m_originalCaster->SetInCombatWith(targetUnit, true);
@@ -8622,7 +8631,11 @@ void Spell::PreprocessSpellLaunch(TargetInfo& targetInfo)
         unit = targetUnit;
     // In case spell reflect from target, do all effect on caster (if hit)
     else if (targetInfo.MissCondition == SPELL_MISS_REFLECT && targetInfo.ReflectResult == SPELL_MISS_NONE)
+    {
         unit = m_caster->ToUnit();
+        if (unit && unit->IsImmunedToSpell(GetSpellInfo(), targetInfo.EffectMask, unit))
+            targetInfo.ReflectResult = SPELL_MISS_IMMUNE;
+    }
 
     if (!unit)
         return;

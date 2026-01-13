@@ -866,15 +866,15 @@ struct npc_aysa_cloudsinger_summon : public ScriptedAI
 
         _scheduler.Schedule(3s, [this](TaskContext task)
         {
-            me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[0], 12.0f, 17.4735f);
+            me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[0], 12.0f, {}, 5.0f);
 
             task.Schedule(1700ms, [this](TaskContext task)
             {
-                me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[1], 12.0f, 10.7163f);
+                me->GetMotionMaster()->MoveJump(EVENT_JUMP, aysaJumpPos[1], 12.0f, {}, 5.0f);
 
                 task.Schedule(2s, [this](TaskContext /*task*/)
                 {
-                    me->GetMotionMaster()->MoveJumpWithGravity(aysaJumpPos[2], 12.0f, 14.6923f, POINT_JUMP);
+                    me->GetMotionMaster()->MoveJump(POINT_JUMP, aysaJumpPos[2], 12.0f, {}, 5.0f);
                 });
             });
         });

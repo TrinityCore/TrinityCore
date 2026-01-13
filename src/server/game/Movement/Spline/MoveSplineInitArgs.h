@@ -78,7 +78,6 @@ namespace Movement
         int32 path_Idx_offset;
         float velocity;
         float parabolic_amplitude;
-        float vertical_acceleration;
         int32 effect_start_point;
         uint32 splineId;
         float initialOrientation;

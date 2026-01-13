@@ -65,12 +65,11 @@ class ActionResult : public ActionBase
 public:
     [[nodiscard]] static ActionResultSetter<T> GetResultSetter(std::shared_ptr<ActionResult> action)
     {
-        T* resultPtr = &action->_result;
-        return ActionResultSetter<T>(std::move(action), resultPtr);
+        return ActionResultSetter<T>(std::shared_ptr<ActionResultValueHolder<T>>(std::move(action), &action->_result));
     }
 
 private:
-    T _result = { };
+    ActionResultValueHolder<T> _result = { .Action = *this };
 };
 
 template<>

@@ -186,6 +186,8 @@ namespace WorldPackets
             std::vector<QuestObjective> Objectives;
             std::vector<ConditionalQuestText> ConditionalQuestDescription;
             std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
+            std::span<int32 const> RewardHouseRoomIDs;
+            std::span<int32 const> RewardHouseDecorIDs;
             int32 RewardItems[QUEST_REWARD_ITEM_COUNT] = { };
             int32 RewardAmount[QUEST_REWARD_ITEM_COUNT] = { };
             int32 ItemDrop[QUEST_ITEM_DROP_COUNT] = { };
@@ -333,12 +335,12 @@ namespace WorldPackets
             int32 PortraitGiverMount = 0;
             int32 PortraitGiverModelSceneID = 0;
             int32 QuestGiverCreatureID = 0;
-            std::string QuestTitle;
-            std::string RewardText;
-            std::string PortraitGiverText;
-            std::string PortraitGiverName;
-            std::string PortraitTurnInText;
-            std::string PortraitTurnInName;
+            std::string_view QuestTitle;
+            std::string_view RewardText;
+            std::string_view PortraitGiverText;
+            std::string_view PortraitGiverName;
+            std::string_view PortraitTurnInText;
+            std::string_view PortraitTurnInName;
             std::vector<ConditionalQuestText> ConditionalRewardText;
             QuestGiverOfferReward QuestData;
             int32 QuestPackageID = 0;
@@ -430,13 +432,13 @@ namespace WorldPackets
             int32 QuestInfoID = 0;
             int32 QuestSessionBonus = 0;
             int32 QuestGiverCreatureID = 0;
-            std::string PortraitGiverText;
-            std::string PortraitGiverName;
-            std::string PortraitTurnInText;
-            std::string PortraitTurnInName;
-            std::string QuestTitle;
-            std::string LogDescription;
-            std::string DescriptionText;
+            std::string_view PortraitGiverText;
+            std::string_view PortraitGiverName;
+            std::string_view PortraitTurnInText;
+            std::string_view PortraitTurnInName;
+            std::string_view QuestTitle;
+            std::string_view LogDescription;
+            std::string_view DescriptionText;
             std::vector<ConditionalQuestText> ConditionalDescriptionText;
             bool DisplayPopup = false;
             bool StartCheat = false;
@@ -481,8 +483,8 @@ namespace WorldPackets
             int32 StatusFlags           = 0;
             int32 QuestInfoID           = 0;
             std::array<uint32, 4> QuestFlags = { };
-            std::string QuestTitle;
-            std::string CompletionText;
+            std::string_view QuestTitle;
+            std::string_view CompletionText;
             std::vector<ConditionalQuestText> ConditionalCompletionText;
         };
 
@@ -542,7 +544,7 @@ namespace WorldPackets
             uint32 GreetEmoteDelay      = 0;
             uint32 GreetEmoteType       = 0;
             std::vector<NPC::ClientGossipText> QuestDataText;
-            std::string Greeting;
+            std::string_view Greeting;
         };
 
         class QuestUpdateComplete final : public ServerPacket

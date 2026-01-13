@@ -203,8 +203,10 @@ namespace WorldPackets
         struct SpellTargetData
         {
             uint32 Flags = 0;
+            bool Unknown1127_2 = false;
             ObjectGuid Unit;
             ObjectGuid Item;
+            ObjectGuid Unknown1127_1;
             Optional<TargetLocation> SrcLocation;
             Optional<TargetLocation> DstLocation;
             Optional<float> Orientation;
