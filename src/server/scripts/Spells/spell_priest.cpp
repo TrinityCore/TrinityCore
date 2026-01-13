@@ -999,6 +999,56 @@ class spell_pri_dark_indulgence : public SpellScript
     }
 };
 
+// 1240364 - Death's Torment
+class spell_pri_deaths_torment : public AuraScript
+{
+public:
+    struct Data
+    {
+        int32 DamagePct = 0;
+        int32 BacklashPct = 10; // for some weird reason its 10% for backlash, not 15%
+        int32 EnergizePct = 25; // for some weird reason its 25% for energize, not 15%
+    };
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_SHADOW_WORD_DEATH })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_1 } });
+    }
+
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
+    {
+        return eventInfo.GetProcSpell()->m_customArg.type() != typeid(Data);
+    }
+
+    void HandleProc(ProcEventInfo const& eventInfo) const
+    {
+        Unit* caster = eventInfo.GetActor();
+        Unit* target = eventInfo.GetActionTarget();
+
+        int32 maxHits = GetEffect(EFFECT_0)->GetAmount();
+        int32 effectiveness = GetEffect(EFFECT_1)->GetAmount();
+
+        for (int32 i = 1; i <= maxHits; ++i)
+        {
+            caster->m_Events.AddEventAtOffset([caster, targetGuid = target->GetGUID(), effectiveness]
+            {
+                if (Unit* target = ObjectAccessor::GetUnit(*caster, targetGuid))
+                    caster->CastSpell(target, SPELL_PRIEST_SHADOW_WORD_DEATH, CastSpellExtraArgsInit{
+                        .TriggerFlags = TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_SPELL_AND_CATEGORY_CD | TRIGGERED_IGNORE_POWER_COST | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                        .CustomArg = Data{ .DamagePct = effectiveness }
+                    });
+            }, i * 250ms);
+        }
+    }
+
+    void Register() override
+    {
+        DoCheckProc += AuraCheckProcFn(spell_pri_deaths_torment::CheckProc);
+        OnProc += AuraProcFn(spell_pri_deaths_torment::HandleProc);
+    }
+};
+
 // 1215265 - Dispersing Light
 class spell_pri_dispersing_light : public AuraScript
 {
@@ -4310,6 +4360,10 @@ class spell_pri_shadow_word_death : public SpellScript
     {
         if (victim->HealthBelowPct(GetEffectInfo(EFFECT_2).CalcValue(GetCaster())))
             AddPct(pctMod, GetEffectInfo(EFFECT_3).CalcValue(GetCaster()));
+
+        // handles Death's Torment talent
+        if (spell_pri_deaths_torment::Data const* deathsTorment = std::any_cast<spell_pri_deaths_torment::Data>(&GetSpell()->m_customArg))
+            ApplyPct(pctMod, deathsTorment->DamagePct);
     }
 
     void DetermineKillStatus(DamageInfo const& damageInfo, uint32& /*resistAmount*/, int32& /*absorbAmount*/) const
@@ -4319,6 +4373,11 @@ class spell_pri_shadow_word_death : public SpellScript
         {
             Unit* caster = GetCaster();
             int32 backlashDamage = caster->CountPctFromMaxHealth(GetEffectInfo(EFFECT_5).CalcValue(caster));
+
+            // Death's Torment effectiveness on backlash too
+            if (spell_pri_deaths_torment::Data const* deathsTorment = std::any_cast<spell_pri_deaths_torment::Data>(&GetSpell()->m_customArg))
+                backlashDamage = CalculatePct(backlashDamage, deathsTorment->BacklashPct);
+
             caster->m_Events.AddEventAtOffset([caster, originalCastId = GetSpell()->m_castId, backlashDamage]
             {
                 caster->CastSpell(caster, SPELL_PRIEST_SHADOW_WORD_DEATH_DAMAGE, CastSpellExtraArgs()
@@ -4330,12 +4389,20 @@ class spell_pri_shadow_word_death : public SpellScript
         }
     }
 
+    void HandleDeathsTormentEnergize(SpellEffIndex /*effIndex*/)
+    {
+        if (spell_pri_deaths_torment::Data const* deathsTorment = std::any_cast<spell_pri_deaths_torment::Data>(&GetSpell()->m_customArg))
+            SetEffectValue(CalculatePct(GetEffectValue(), deathsTorment->EnergizePct));
+    }
+
     void Register() override
     {
         CalcDamage += SpellCalcDamageFn(spell_pri_shadow_word_death::HandleDamageCalculation);
 
         // abuse OnCalculateResistAbsorb to determine if this spell will kill target or not (its still not perfect - happens before absorbs are applied)
         OnCalculateResistAbsorb += SpellOnResistAbsorbCalculateFn(spell_pri_shadow_word_death::DetermineKillStatus);
+
+        OnEffectHitTarget += SpellEffectFn(spell_pri_shadow_word_death::HandleDeathsTormentEnergize, EFFECT_4, SPELL_EFFECT_ENERGIZE);
     }
 };
 
@@ -5200,6 +5267,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_circle_of_healing);
     RegisterSpellScript(spell_pri_crystalline_reflection);
     RegisterSpellScript(spell_pri_dark_indulgence);
+    RegisterSpellScript(spell_pri_deaths_torment);
     RegisterSpellScript(spell_pri_dispersing_light);
     RegisterSpellScript(spell_pri_dispersing_light_heal);
     RegisterSpellScript(spell_pri_divine_aegis);
