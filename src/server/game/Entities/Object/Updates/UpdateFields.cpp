@@ -8478,24 +8478,6 @@ void ConversationData::ClearChangesMask()
     _changesMask.ResetAll();
 }
 
-void AaBox::WriteCreate(ByteBuffer& data, BaseEntity const* owner, Player const* receiver) const
-{
-    data << Low;
-    data << High;
-}
-
-void AaBox::WriteUpdate(ByteBuffer& data, bool ignoreChangesMask, BaseEntity const* owner, Player const* receiver) const
-{
-    data << Low;
-    data << High;
-}
-
-bool AaBox::operator==(AaBox const& right) const
-{
-    return Low == right.Low
-        && High == right.High;
-}
-
 void MeshObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, Object const* owner, Player const* receiver) const
 {
     data.WriteBit(IsWMO);
@@ -8504,7 +8486,7 @@ void MeshObjectData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fie
     data << int32(FileDataID);
     if (Geobox.has_value())
     {
-        Geobox->WriteCreate(data, owner, receiver);
+        data << *Geobox;
     }
     data.FlushBits();
     data.FlushBits();
@@ -8542,7 +8524,7 @@ void MeshObjectData::WriteUpdate(ByteBuffer& data, Mask const& changesMask, bool
         {
             if (Geobox.has_value())
             {
-                Geobox->WriteUpdate(data, ignoreNestedChangesMask, owner, receiver);
+                data << *Geobox;
             }
         }
     }
@@ -8948,7 +8930,7 @@ void HousingPlayerHouseData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldF
     data << *BnetAccount;
     data << int32(PlotIndex);
     data << uint32(Level);
-    data << uint64(Field_20);
+    data << uint64(Favor);
     data << uint32(InteriorDecorPlacementBudget);
     data << uint32(ExteriorDecorPlacementBudget);
     data << uint32(ExteriorFixtureBudget);
@@ -8982,7 +8964,7 @@ void HousingPlayerHouseData::WriteUpdate(ByteBuffer& data, Mask const& changesMa
         }
         if (changesMask[4])
         {
-            data << uint64(Field_20);
+            data << uint64(Favor);
         }
         if (changesMask[5])
         {
@@ -9012,7 +8994,7 @@ void HousingPlayerHouseData::ClearChangesMask()
     Base::ClearChangesMask(BnetAccount);
     Base::ClearChangesMask(PlotIndex);
     Base::ClearChangesMask(Level);
-    Base::ClearChangesMask(Field_20);
+    Base::ClearChangesMask(Favor);
     Base::ClearChangesMask(InteriorDecorPlacementBudget);
     Base::ClearChangesMask(ExteriorDecorPlacementBudget);
     Base::ClearChangesMask(ExteriorFixtureBudget);
@@ -9059,7 +9041,7 @@ void HousingCornerstoneData::ClearChangesMask()
 
 void HousingPlotAreaTriggerData::WriteCreate(ByteBuffer& data, EnumFlag<UpdateFieldFlag> fieldVisibilityFlags, AreaTrigger const* owner, Player const* receiver) const
 {
-    data << uint32(Field_0);
+    data << uint32(PlotID);
     data << *HouseOwnerGUID;
     data << *HouseGUID;
     data << *HouseOwnerBnetAccountGUID;
@@ -9079,7 +9061,7 @@ void HousingPlotAreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& chang
     {
         if (changesMask[1])
         {
-            data << uint32(Field_0);
+            data << uint32(PlotID);
         }
         if (changesMask[2])
         {
@@ -9098,7 +9080,7 @@ void HousingPlotAreaTriggerData::WriteUpdate(ByteBuffer& data, Mask const& chang
 
 void HousingPlotAreaTriggerData::ClearChangesMask()
 {
-    Base::ClearChangesMask(Field_0);
+    Base::ClearChangesMask(PlotID);
     Base::ClearChangesMask(HouseOwnerGUID);
     Base::ClearChangesMask(HouseGUID);
     Base::ClearChangesMask(HouseOwnerBnetAccountGUID);
