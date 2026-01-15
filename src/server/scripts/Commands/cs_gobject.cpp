@@ -85,7 +85,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *guidLow);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -318,12 +318,12 @@ public:
 
         if (GameObject::DeleteFromDB(spawnId))
         {
-            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, spawnId);
+            handler->PSendSysMessage(LANG_COMMAND_DELOBJMESSAGE, *spawnId);
             return true;
         }
         else
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, spawnId);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *spawnId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -338,7 +338,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *guidLow);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -377,7 +377,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *guidLow);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -434,7 +434,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *guidLow);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -591,7 +591,7 @@ public:
         GameObject* object = handler->GetObjectFromPlayerMapByDbGuid(guidLow);
         if (!object)
         {
-            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guidLow);
+            handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, *guidLow);
             handler->SetSentErrorMessage(true);
             return false;
         }
