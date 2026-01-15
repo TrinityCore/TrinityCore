@@ -18,8 +18,11 @@
 #include "Containers.h"
 #include "Conversation.h"
 #include "ConversationAI.h"
+#include "MotionMaster.h"
+#include "ObjectAccessor.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "TemporarySummon.h"
 
 namespace Scripts::KhazAlgar::CampaignsVisionsOfAShadowedSun
@@ -41,6 +44,16 @@ namespace Paths
 {
     static constexpr uint32 VereesaOztanIslePath = 23104200;
     static constexpr uint32 AratorOztanIslePath = 23103900;
+}
+
+namespace Points
+{
+    static constexpr uint32 RunToCliff = 1;
+}
+
+namespace Actions
+{
+    static constexpr uint32 ActionSkipConversation = 1;
 }
 
 namespace Gossips
@@ -93,10 +106,87 @@ struct npc_vereesa_windrunner_oztan_isle : public ScriptedAI
         {
             CloseGossipMenuFor(player);
 
-            // Todo
+            Creature* clone = me->SummonPersonalClone(me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!clone)
+                return true;
+
+            clone->AI()->DoAction(Actions::ActionSkipConversation);
         }
         return true;
     }
+};
+
+// 231042 - Vereesa Windrunner
+struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
+{
+    npc_vereesa_windrunner_oztan_isle_private(Creature* creature) : ScriptedAI(creature) {}
+
+    void DoAction(int32 action) override
+    {
+        if (action != Actions::ActionSkipConversation)
+        {
+            Player* player = me->GetDemonCreatorPlayer();
+            if (!player)
+                return;
+
+            Creature* aratorObject = me->FindNearestCreatureWithOptions(10.0f, { .CreatureId = Creatures::AratorOztanIsle, .IgnorePhases = true });
+            if (!aratorObject)
+                return;
+
+            Creature* aratorClone = aratorObject->SummonPersonalClone(aratorObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player);
+            if (!aratorClone)
+                return;
+
+            me->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+            aratorClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
+
+            _scheduler.Schedule(1s, [this, aratorGuid = aratorClone->GetGUID()](TaskContext task)
+            {
+                Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
+                if (!aratorClone)
+                    return;
+
+                me->SetMountDisplayId(Mounts::VereesaWindrunnerMount);
+                aratorClone->SetMountDisplayId(Mounts::AratorMount);
+                task.Schedule(2s, [this, aratorGuid](TaskContext /*task*/)
+                {
+                    Creature* aratorClone = ObjectAccessor::GetCreature(*me, aratorGuid);
+                    if (!aratorClone)
+                        return;
+
+                    me->GetMotionMaster()->MovePath(Paths::VereesaOztanIslePath, false);
+                    aratorClone->GetMotionMaster()->MovePath(Paths::AratorOztanIslePath, false);
+                });
+            });
+        }
+    }
+
+    void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+    {
+        Player* player = me->GetDemonCreatorPlayer();
+        if (!player)
+            return;
+
+        if (pathId == Paths::VereesaOztanIslePath)
+        {
+            player->KilledMonsterCredit(Creatures::VereesaWindrunnerOztanIsle);
+            me->DespawnOrUnsummon();
+        }
+    }
+
+    void UpdateAI(uint32 diff) override
+    {
+        _scheduler.Update(diff);
+    }
+private:
+    TaskScheduler _scheduler;
+};
+
+CreatureAI* VereesaWindrunnerOztanIsleAISelector(Creature* creature)
+{
+    if (creature->IsPrivateObject())
+        return new npc_vereesa_windrunner_oztan_isle_private(creature);
+    return new npc_vereesa_windrunner_oztan_isle(creature);
 };
 
 // 27493 - Conversation: Vereesas Tale
@@ -171,8 +261,8 @@ void AddSC_campaign_visions_of_a_shadowed_sun()
 {
     using namespace Scripts::KhazAlgar::CampaignsVisionsOfAShadowedSun;
 
-    // Creature
-    RegisterCreatureAI(npc_vereesa_windrunner_oztan_isle);
+    // AISelector
+    new FactoryCreatureScript<CreatureAI, &VereesaWindrunnerOztanIsleAISelector>("npc_vereesa_windrunner_oztan_isle");
 
     // Conversation
     RegisterConversationAI(conversation_vereesas_tale);
