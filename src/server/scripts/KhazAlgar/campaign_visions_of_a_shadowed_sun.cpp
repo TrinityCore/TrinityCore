@@ -46,11 +46,6 @@ namespace Paths
     static constexpr uint32 AratorOztanIslePath = 23103900;
 }
 
-namespace Points
-{
-    static constexpr uint32 RunToCliff = 1;
-}
-
 namespace Actions
 {
     static constexpr uint32 ActionSkipConversation = 1;
