@@ -3086,7 +3086,7 @@ void Creature::SetSpellFocus(Spell const* focusSpell, WorldObject const* target)
 
     // If we are not allowed to turn during cast but have a focus target, face the target
     if (!turnDisabled && noTurnDuringCast && target)
-        SetFacingToObject(target, false, EVENT_SPELL_FOCUS, Milliseconds(focusSpell->GetCastTime()));
+        SetFacingToObject(target, false, EVENT_SPELL_FOCUS);
 
     if (noTurnDuringCast)
         AddUnitState(UNIT_STATE_FOCUSING);
