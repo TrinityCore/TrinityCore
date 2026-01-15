@@ -57,8 +57,7 @@ enum NightbanePoints
     POINT_PHASE_TWO_FLY         = 3,
     POINT_PHASE_TWO_PRE_FLY     = 4,
     POINT_PHASE_TWO_LANDING     = 5,
-    POINT_PHASE_TWO_END         = 6,
-    POINT_FACE_RAIN_OF_BONES    = 7
+    POINT_PHASE_TWO_END         = 6
 };
 
 enum NightbaneSplineChain
@@ -248,12 +247,6 @@ public:
                 else if (pointId == POINT_PHASE_TWO_PRE_FLY)
                     events.ScheduleEvent(EVENT_PRE_FLY_END, Milliseconds(1));
             }
-            else if (type == EFFECT_MOTION_TYPE)
-            {
-                if (pointId == POINT_FACE_RAIN_OF_BONES)
-                    if (Unit* target = ObjectAccessor::GetUnit(*me, _rainOfBonesTarget))
-                        DoCast(target, SPELL_RAIN_OF_BONES);
-            }
         }
 
         void StartPhaseFly()
@@ -332,8 +325,7 @@ public:
                     ResetThreatList();
                     if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0.0f, true))
                     {
-                        _rainOfBonesTarget = target->GetGUID();
-                        me->SetFacingToObject(target, true, POINT_FACE_RAIN_OF_BONES);
+                        me->SetFacingToObject(target);
                         DoCast(target, SPELL_RAIN_OF_BONES);
                     }
                     break;
@@ -384,7 +376,6 @@ public:
 
         private:
             uint8 _flyCount;
-            ObjectGuid _rainOfBonesTarget;
     };
 
     CreatureAI* GetAI(Creature* creature) const override

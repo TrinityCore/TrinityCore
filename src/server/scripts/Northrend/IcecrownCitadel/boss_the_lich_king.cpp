@@ -313,22 +313,21 @@ Position const SpiritWardenSpawn  = {495.3406f, -2529.983f, 1050.000f, 1.5592f};
 
 enum LichKingPoints
 {
-    POINT_CENTER_1 = 1,
-    POINT_CENTER_2,
-    POINT_CENTER_3,
-    POINT_CENTER_4,
-    POINT_TIRION_INTRO ,
-    POINT_LK_INTRO_1,
-    POINT_LK_INTRO_2,
-    POINT_LK_INTRO_3,
-    POINT_TIRION_CHARGE,
-    POINT_DROP_PLAYER,
-    POINT_LK_OUTRO_1,
-    POINT_TIRION_OUTRO_1,
-    POINT_OUTRO_JUMP,
-    POINT_LK_OUTRO_2,
-    POINT_GROUND,
-    POINT_SIPHON,
+    POINT_CENTER_1          = 1,
+    POINT_CENTER_2          = 2,
+    POINT_TIRION_INTRO      = 3,
+    POINT_LK_INTRO_1        = 4,
+    POINT_LK_INTRO_2        = 5,
+    POINT_LK_INTRO_3        = 6,
+    POINT_TIRION_CHARGE     = 7,
+    POINT_DROP_PLAYER       = 8,
+    POINT_LK_OUTRO_1        = 9,
+    POINT_TIRION_OUTRO_1    = 10,
+    POINT_OUTRO_JUMP        = 11,
+    POINT_LK_OUTRO_2        = 12,
+    POINT_GROUND            = 13,
+    POINT_SIPHON            = 14,
+    POINT_CHARGE            = 1003, // globally used number for charge spell effects
 };
 
 enum LichKingActions
@@ -661,7 +660,7 @@ struct boss_the_lich_king : public BossAI
             me->SetReactState(REACT_PASSIVE);
             me->AttackStop();
             me->InterruptNonMeleeSpells(true);
-            me->GetMotionMaster()->MovePoint(POINT_CENTER_3, CenterPosition);
+            me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
             return;
         }
 
@@ -786,7 +785,7 @@ struct boss_the_lich_king : public BossAI
 
     void MovementInform(uint32 type, uint32 pointId) override
     {
-        if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
         switch (pointId)
@@ -804,9 +803,7 @@ struct boss_the_lich_king : public BossAI
                 events.ScheduleEvent(EVENT_INTRO_TALK_1, 9s, 0, PHASE_INTRO);
                 break;
             case POINT_CENTER_1:
-                me->SetFacingTo(0.0f, true, POINT_CENTER_2);
-                break;
-            case POINT_CENTER_2:
+                me->SetFacingTo(0.0f);
                 Talk(SAY_LK_REMORSELESS_WINTER);
                 me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                 DoCastSelf(SPELL_REMORSELESS_WINTER_1);
@@ -819,10 +816,8 @@ struct boss_the_lich_king : public BossAI
                 events.ScheduleEvent(EVENT_DEFILE, 97s, 0, PHASE_TWO);
                 events.ScheduleEvent(EVENT_SOUL_REAPER, 94s, 0, PHASE_TWO);
                 break;
-            case POINT_CENTER_3:
-                me->SetFacingTo(0.0f, true, POINT_CENTER_4);
-                break;
-            case POINT_CENTER_4:
+            case POINT_CENTER_2:
+                me->SetFacingTo(0.0f);
                 Talk(SAY_LK_REMORSELESS_WINTER);
                 me->GetMap()->SetZoneMusic(AREA_ICECROWN_CITADEL, MUSIC_SPECIAL);
                 DoCastSelf(SPELL_REMORSELESS_WINTER_2);
@@ -1466,7 +1461,7 @@ struct npc_valkyr_shadowguard : public ScriptedAI
                 else
                     me->DespawnOrUnsummon(1s);
                 break;
-            case EVENT_CHARGE:
+            case POINT_CHARGE:
                 if (Player* target = ObjectAccessor::GetPlayer(*me, _grabbedPlayer))
                 {
                     me->RemoveUnitFlag(UNIT_FLAG_UNINTERACTIBLE);
