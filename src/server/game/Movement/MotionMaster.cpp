@@ -1097,7 +1097,7 @@ void MotionMaster::MoveFace(WorldObject const* object, Milliseconds duration/* =
             init.SetFacing(_owner->GetAbsoluteAngle(object));   // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
     };
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, duration);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), FACE_MOTION_TYPE, id, duration);
     movement->Priority = MOTION_PRIORITY_NORMAL;
     movement->Mode = MOTION_MODE_OVERRIDE;
     movement->BaseUnitState = UNIT_STATE_FACING;
@@ -1120,7 +1120,7 @@ void MotionMaster::MoveFace(float const orientation, Milliseconds duration/* = 1
         init.SetFacing(orientation);
     };
 
-    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), EFFECT_MOTION_TYPE, id, duration);
+    GenericMovementGenerator* movement = new GenericMovementGenerator(std::move(initializer), FACE_MOTION_TYPE, id, duration);
     movement->Priority = MOTION_PRIORITY_NORMAL;
     movement->Mode = MOTION_MODE_OVERRIDE;
     movement->BaseUnitState = UNIT_STATE_FACING;
