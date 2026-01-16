@@ -31,6 +31,7 @@ EndScriptData */
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "zulaman.h"
+#include <algorithm>
 
 enum Misc
 {
