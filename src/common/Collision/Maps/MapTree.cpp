@@ -365,8 +365,7 @@ namespace VMAP
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
-        TC_METRIC_EVENT("map_events", "LoadMapTile",
-            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
+        TC_METRIC_EVENT("map_events", "LoadMapTile", Trinity::StringFormat("Map: {} TileX: {} TileY: {}", iMapID, tileX, tileY));
         return result;
     }
 
@@ -432,8 +431,7 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
-        TC_METRIC_EVENT("map_events", "UnloadMapTile",
-            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
+        TC_METRIC_EVENT("map_events", "UnloadMapTile", Trinity::StringFormat("Map: {} TileX: {} TileY: {}", iMapID, tileX, tileY));
     }
 
     std::span<ModelInstance const> StaticMapTree::getModelInstances() const
