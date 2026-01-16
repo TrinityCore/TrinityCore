@@ -46,7 +46,7 @@ class boss_janalai : public CreatureScript
 
         struct boss_janalaiAI : public BossAI
         {
-            boss_janalaiAI(Creature* creature) : BossAI(creature, DATA_JANALAI) { }
+            boss_janalaiAI(Creature* creature) : BossAI(creature, BOSS_JANALAI) { }
 
             void Reset() override
             {

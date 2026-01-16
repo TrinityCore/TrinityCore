@@ -49,7 +49,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         struct boss_hex_lord_malacrassAI : public BossAI
         {
-            boss_hex_lord_malacrassAI(Creature* creature) : BossAI(creature, DATA_HEXLORD) { }
+            boss_hex_lord_malacrassAI(Creature* creature) : BossAI(creature, BOSS_HEXLORD) { }
 
             void Reset() override
             {
