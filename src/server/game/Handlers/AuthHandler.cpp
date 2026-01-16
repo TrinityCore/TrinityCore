@@ -138,6 +138,8 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
         }, gameRule.Value);
     }
 
+    features.AvailableGameModeIDs.push_back(8); // GameMode.db2, standard
+
     SendPacket(features.Write());
 
     WorldPackets::System::MirrorVarSingle vars[] =
@@ -148,6 +150,13 @@ void WorldSession::SendFeatureSystemStatusGlueScreen()
         { "bpayStoreEnable"sv, "0"sv },
         { "recentAlliesEnabledClient"sv, "0"sv },
         { "browserEnabled"sv, "0"sv },
+        { "housingEnableCreateGuildNeighborhood"sv, "0"sv },
+        { "housingEnableDeleteHouse"sv, "0"sv },
+        { "housingServiceEnabled"sv, "0"sv },
+        { "housingEnableMoveHouse"sv, "0"sv },
+        { "housingEnableCreateCharterNeighborhood"sv, "0"sv },
+        { "housingEnableBuyHouse"sv, "0"sv },
+        { "housingMarketEnabled"sv, "0"sv },
     };
 
     WorldPackets::System::MirrorVars variables;

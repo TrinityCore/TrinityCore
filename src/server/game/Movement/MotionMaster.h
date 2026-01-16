@@ -157,21 +157,22 @@ class TC_GAME_API MotionMaster
 
         void MoveIdle();
         void MoveTargetedHome();
-        void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {}, MovementSlot slot = MOTION_SLOT_DEFAULT,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+        void MoveRandom(float wanderDistance = 0.0f, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
+            MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::ForceWalk, MovementSlot slot = MOTION_SLOT_DEFAULT,
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveFollow(Unit* target, float dist, Optional<ChaseAngle> angle = {}, Optional<Milliseconds> duration = {}, bool ignoreTargetWalk = false, MovementSlot slot = MOTION_SLOT_ACTIVE,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveChase(Unit* target, Optional<ChaseRange> dist = {}, Optional<ChaseAngle> angle = {});
         void MoveChase(Unit* target, float dist, float angle) { MoveChase(target, ChaseRange(dist), ChaseAngle(angle)); }
         void MoveConfused();
         void MoveFleeing(Unit* enemy, Milliseconds time = 0ms,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, Position const& pos, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePoint(uint32 id, float x, float y, float z, bool generatePath = true, Optional<float> finalOrient = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default, Optional<float> closeEnoughDistance = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         /*
          *  Makes the unit move toward the target until it is at a certain distance from it. The unit then stops.
          *  Only works in 2D.
@@ -181,13 +182,13 @@ class TC_GAME_API MotionMaster
         // These two movement types should only be used with creatures having landing/takeoff animations
         void MoveLand(uint32 id, Position const& pos, Optional<int32> tierTransitionId = {}, Optional<float> velocity = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveTakeoff(uint32 id, Position const& pos, Optional<int32> tierTransitionId = {}, Optional<float> velocity = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveTierTransition(uint32 id, Position const& pos, AnimTier newAnimTier, Optional<int32> tierTransitionId = {}, Optional<float> velocity = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveCharge(float x, float y, float z, float speed = SPEED_CHARGE, uint32 id = EVENT_CHARGE, bool generatePath = false, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveCharge(PathGenerator const& path, float speed = SPEED_CHARGE, Unit const* target = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
         void MoveKnockbackFrom(Position const& origin, float speedXY, float speedZ, float angle = M_PI, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr);
@@ -195,32 +196,32 @@ class TC_GAME_API MotionMaster
             Optional<float> minHeight = {}, Optional<float> maxHeight = {},
             MovementFacingTarget const& facing = {}, bool orientationFixed = false, bool unlimitedSpeed = false, Optional<float> speedMultiplier = {},
             JumpArrivalCastArgs const* arrivalCast = nullptr, Movement::SpellEffectExtraData const* spellEffectExtraData = nullptr,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveCirclePath(float x, float y, float z, float radius, bool clockwise, uint8 stepCount,
             Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         // Walk along spline chain stored in DB (script_spline_chain_meta and script_spline_chain_waypoints)
         void MoveAlongSplineChain(uint32 pointId, uint16 dbChainId, bool walk);
         void MoveAlongSplineChain(uint32 pointId, std::vector<SplineChainLink> const& chain, bool walk);
         void ResumeSplineChain(SplineChainResumeInfo const& info);
         void MoveFall(uint32 id = 0,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveSeekAssistance(float x, float y, float z);
         void MoveSeekAssistanceDistract(uint32 timer);
         void MoveTaxiFlight(uint32 path, uint32 pathnode, Optional<float> speed = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveDistract(uint32 time, float orientation);
         void MovePath(uint32 pathId, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MovePath(WaypointPath const& path, bool repeatable, Optional<Milliseconds> duration = {}, Optional<float> speed = {},
             MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode::Default,
             Optional<std::pair<Milliseconds, Milliseconds>> waitTimeRangeAtPathEnd = {}, Optional<float> wanderDistanceAtPathEnds = {},
             Optional<bool> followPathBackwardsFromEndToStart = {}, Optional<bool> exactSplinePath = {}, bool generatePath = true,
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
 
         /**
          * \brief Makes the Unit turn in place
@@ -233,7 +234,7 @@ class TC_GAME_API MotionMaster
          */
         void MoveRotate(uint32 id, RotateDirection direction, Optional<Milliseconds> time = {},
             Optional<float> turnSpeed = {}, Optional<float> totalTurnAngle = {},
-            Optional<Scripting::v2::ActionResultSetter<MovementStopReason>>&& scriptResult = {});
+            Scripting::v2::ActionResultSetter<MovementStopReason>&& scriptResult = {});
         void MoveFormation(Unit* leader, float range, float angle, uint32 point1, uint32 point2);
 
         void LaunchMoveSpline(std::function<void(Movement::MoveSplineInit& init)>&& initializer, uint32 id = 0, MovementGeneratorPriority priority = MOTION_PRIORITY_NORMAL, MovementGeneratorType type = EFFECT_MOTION_TYPE);

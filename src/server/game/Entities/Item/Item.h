@@ -246,8 +246,8 @@ class TC_GAME_API Item : public Object
         void SaveRefundDataToDB();
         void DeleteRefundDataFromDB(CharacterDatabaseTransaction* trans);
 
-        Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return nullptr; }
-        Bag const* ToBag() const { if (IsBag()) return reinterpret_cast<Bag const*>(this); else return nullptr; }
+        Bag* ToBag() { return IsBag() ? reinterpret_cast<Bag*>(this) : nullptr; }
+        Bag const* ToBag() const { return IsBag() ? reinterpret_cast<Bag const*>(this) : nullptr; }
         AzeriteItem* ToAzeriteItem() { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem*>(this) : nullptr; }
         AzeriteItem const* ToAzeriteItem() const { return IsAzeriteItem() ? reinterpret_cast<AzeriteItem const*>(this) : nullptr; }
         AzeriteEmpoweredItem* ToAzeriteEmpoweredItem() { return IsAzeriteEmpoweredItem() ? reinterpret_cast<AzeriteEmpoweredItem*>(this) : nullptr; }
