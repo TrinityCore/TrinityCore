@@ -39,6 +39,19 @@ enum Misc
     WORLDSTATE_TIME_TO_SACRIFICE   = 3106
 };
 
+struct NalorakkWaveDefinition
+{
+    std::string_view StringId;
+    uint8 CreatureCount;
+    ZAActionIds ActionId;
+} static constexpr NalorakkEventWaves[] =
+{
+    { .StringId = "NalorakkWave1", .CreatureCount = 3, .ActionId = ACTION_WAVE_DONE_1 },
+    { .StringId = "NalorakkWave2", .CreatureCount = 4, .ActionId = ACTION_WAVE_DONE_2 },
+    { .StringId = "NalorakkWave3", .CreatureCount = 2, .ActionId = ACTION_WAVE_DONE_3 },
+    { .StringId = "NalorakkWave4", .CreatureCount = 4, .ActionId = ACTION_WAVE_DONE_4 },
+};
+
 // Chests spawn at bear/eagle/dragonhawk/lynx bosses
 // The loots depend on how many bosses have been killed, but not the entries of the chests
 // But we cannot add loots to gameobject, so we have to use the fixed loot_template
@@ -161,40 +174,16 @@ class instance_zulaman : public InstanceMapScript
                 if (!creature)
                     return;
 
-                if (creature->HasStringId("NalorakkWave1"))
+                auto nalorakkEventWave = std::ranges::find_if(NalorakkEventWaves,
+                    [creature](std::string_view stringId) { return creature->HasStringId(stringId); }, &NalorakkWaveDefinition::StringId);
+                if (nalorakkEventWave != std::ranges::end(NalorakkEventWaves))
                 {
-                    ++killedUnitInWaveCounter[0];
+                    std::ptrdiff_t waveIndex = std::ranges::distance(std::ranges::begin(NalorakkEventWaves), nalorakkEventWave);
+                    ++killedUnitInWaveCounter[waveIndex];
 
-                    if (killedUnitInWaveCounter[0] == 3)
+                    if (killedUnitInWaveCounter[waveIndex] == nalorakkEventWave->CreatureCount)
                         if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
-                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_1);
-                }
-
-                if (creature->HasStringId("NalorakkWave2"))
-                {
-                    ++killedUnitInWaveCounter[1];
-
-                    if (killedUnitInWaveCounter[1] == 4)
-                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
-                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_2);
-                }
-
-                if (creature->HasStringId("NalorakkWave3"))
-                {
-                    ++killedUnitInWaveCounter[2];
-
-                    if (killedUnitInWaveCounter[2] == 2)
-                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
-                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_3);
-                }
-
-                if (creature->HasStringId("NalorakkWave4"))
-                {
-                    ++killedUnitInWaveCounter[3];
-
-                    if (killedUnitInWaveCounter[3] == 4)
-                        if (Creature* nalorakk = GetCreature(BOSS_NALORAKK))
-                            nalorakk->AI()->DoAction(ACTION_WAVE_DONE_4);
+                            nalorakk->AI()->DoAction(nalorakkEventWave->ActionId);
                 }
             }
 

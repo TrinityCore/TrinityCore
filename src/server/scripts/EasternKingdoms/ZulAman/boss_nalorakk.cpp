@@ -108,7 +108,7 @@ enum NalorakkPaths
     PATH_WAVE_DONE_3                = 3
 };
 
-static constexpr std::array<uint32, 4> WaveTexts =
+static constexpr std::array<uint8, 4> WaveTexts =
 {
     SAY_WAVE_1,
     SAY_WAVE_2,
