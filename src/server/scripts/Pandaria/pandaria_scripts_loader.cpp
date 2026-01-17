@@ -16,6 +16,11 @@
  */
 
 // This is where scripts loading function should be declared:
+
+// Terrace of Endless Spring
+void AddSC_boss_protectors_of_the_endless();
+void AddSC_instance_terrace_of_endless_spring();
+
 void AddSC_zone_the_jade_forest();
 void AddSC_zone_the_wandering_isle();
 
@@ -23,6 +28,10 @@ void AddSC_zone_the_wandering_isle();
 // void Add${NameOfDirectory}Scripts()
 void AddPandariaScripts()
 {
+    // Terrace of Endless Spring
+    AddSC_boss_protectors_of_the_endless();
+    AddSC_instance_terrace_of_endless_spring();
+
     AddSC_zone_the_jade_forest();
     AddSC_zone_the_wandering_isle();
 }
