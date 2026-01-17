@@ -3038,6 +3038,18 @@ void SpellMgr::LoadSpellInfoCorrections()
         });
     }
 
+    // In sniffs creatures are summoned at caster's position, not at random position
+    ApplySpellFix({
+        38019, // Summon Wave A Mob
+        38247, // Summon Wave B Mob
+        38242, // Summon Wave C Mob
+        38244  // Summon Wave D Mob
+    }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->_GetEffect(EFFECT_0).TargetA = SpellImplicitTargetInfo(TARGET_DEST_CASTER);
+        spellInfo->_GetEffect(EFFECT_0).RadiusEntry = 0;
+    });
+
     // this one is here because we have no SP bonus for dmgclass none spell
     // but this one should since it's DBC data
     ApplySpellFix({
