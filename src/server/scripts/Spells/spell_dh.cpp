@@ -1531,13 +1531,21 @@ class spell_dh_painbringer_reduce_damage : public AuraScript
         return ValidateSpellInfo({ SPELL_DH_PAINBRINGER_DUMMY });
     }
 
-    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/) const
+    void OnApply(AuraEffect const* aurEff, AuraEffectHandleModes mode) const
     {
         Unit* target = GetTarget();
-        target->CastSpell(target, SPELL_DH_PAINBRINGER_DUMMY, CastSpellExtraArgsInit{
-            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
-            .TriggeringAura = aurEff
-        });
+
+        if (mode & AURA_EFFECT_HANDLE_REAL)
+            target->CastSpell(target, SPELL_DH_PAINBRINGER_DUMMY, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringAura = aurEff
+            });
+
+        target->m_Events.AddEventAtOffset([self = GetAura()->GetWeakPtr()]
+        {
+            if (Trinity::unique_strong_ref_ptr<Aura> aura = self.lock())
+                aura->ModStackAmount(-1, AURA_REMOVE_BY_EXPIRE, false);
+        }, Milliseconds(GetMaxDuration()));
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
@@ -1547,7 +1555,7 @@ class spell_dh_painbringer_reduce_damage : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_dh_painbringer_reduce_damage::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(spell_dh_painbringer_reduce_damage::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         AfterEffectRemove += AuraEffectRemoveFn(spell_dh_painbringer_reduce_damage::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
