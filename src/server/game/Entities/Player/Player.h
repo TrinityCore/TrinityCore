@@ -1966,8 +1966,6 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         void SendInitWorldStates(uint32 zoneId, uint32 areaId);
         void SendUpdateWorldState(uint32 variable, uint32 value) const;
         void SendDirectMessage(WorldPacket const* data) const;
-        void SendBGWeekendWorldStates() const;
-        void SendBattlefieldWorldStates() const;
 
         void SendAurasForTarget(Unit* target, bool force = false) const;
 

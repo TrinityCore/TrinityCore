@@ -144,22 +144,13 @@ void OPvPCapturePointEP_EWT::ChangeState()
         SendObjectiveComplete(EP_EWT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EP_EWT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_EWT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_EWT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_EWT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_EWT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
-}
-
 void OPvPCapturePointEP_EWT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_EWT_A, (m_TowerState & EP_TS_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_EWT_H, (m_TowerState & EP_TS_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_EWT_N_A, (m_TowerState & EP_TS_N_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_EWT_N_H, (m_TowerState & EP_TS_N_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_EWT_N, (m_TowerState & EP_TS_N) != 0);
+    m_PvP->SetWorldState(EP_EWT_A, (m_TowerState & EP_TS_A) != 0);
+    m_PvP->SetWorldState(EP_EWT_H, (m_TowerState & EP_TS_H) != 0);
+    m_PvP->SetWorldState(EP_EWT_N_A, (m_TowerState & EP_TS_N_A) != 0);
+    m_PvP->SetWorldState(EP_EWT_N_H, (m_TowerState & EP_TS_N_H) != 0);
+    m_PvP->SetWorldState(EP_EWT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
 void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
@@ -252,22 +243,13 @@ void OPvPCapturePointEP_NPT::ChangeState()
         SendObjectiveComplete(EP_NPT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EP_NPT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_NPT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_NPT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_NPT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_NPT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
-}
-
 void OPvPCapturePointEP_NPT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_NPT_A, (m_TowerState & EP_TS_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_NPT_H, (m_TowerState & EP_TS_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_NPT_N_A, (m_TowerState & EP_TS_N_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_NPT_N_H, (m_TowerState & EP_TS_N_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_NPT_N, (m_TowerState & EP_TS_N) != 0);
+    m_PvP->SetWorldState(EP_NPT_A, (m_TowerState & EP_TS_A) != 0);
+    m_PvP->SetWorldState(EP_NPT_H, (m_TowerState & EP_TS_H) != 0);
+    m_PvP->SetWorldState(EP_NPT_N_A, (m_TowerState & EP_TS_N_A) != 0);
+    m_PvP->SetWorldState(EP_NPT_N_H, (m_TowerState & EP_TS_N_H) != 0);
+    m_PvP->SetWorldState(EP_NPT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
 void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
@@ -347,22 +329,13 @@ void OPvPCapturePointEP_CGT::ChangeState()
         SendObjectiveComplete(EP_CGT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EP_CGT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_CGT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_CGT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_CGT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_CGT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
-}
-
 void OPvPCapturePointEP_CGT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_CGT_A, (m_TowerState & EP_TS_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_CGT_H, (m_TowerState & EP_TS_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_CGT_N_A, (m_TowerState & EP_TS_N_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_CGT_N_H, (m_TowerState & EP_TS_N_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_CGT_N, (m_TowerState & EP_TS_N) != 0);
+    m_PvP->SetWorldState(EP_CGT_A, (m_TowerState & EP_TS_A) != 0);
+    m_PvP->SetWorldState(EP_CGT_H, (m_TowerState & EP_TS_H) != 0);
+    m_PvP->SetWorldState(EP_CGT_N_A, (m_TowerState & EP_TS_N_A) != 0);
+    m_PvP->SetWorldState(EP_CGT_N_H, (m_TowerState & EP_TS_N_H) != 0);
+    m_PvP->SetWorldState(EP_CGT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
 void OPvPCapturePointEP_CGT::LinkGraveyard(uint32 team)
@@ -446,22 +419,13 @@ void OPvPCapturePointEP_PWT::ChangeState()
         SendObjectiveComplete(EP_PWT_CM, ObjectGuid::Empty);
 }
 
-void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EP_PWT_A, (m_TowerState & EP_TS_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_PWT_H, (m_TowerState & EP_TS_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_PWT_N_A, (m_TowerState & EP_TS_N_A) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_PWT_N_H, (m_TowerState & EP_TS_N_H) != 0 ? 1 : 0);
-    packet.Worldstates.emplace_back(EP_PWT_N, (m_TowerState & EP_TS_N) != 0 ? 1 : 0);
-}
-
 void OPvPCapturePointEP_PWT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_PWT_A, (m_TowerState & EP_TS_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_PWT_H, (m_TowerState & EP_TS_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_PWT_N_A, (m_TowerState & EP_TS_N_A) != 0);
-    m_PvP->SendUpdateWorldState(EP_PWT_N_H, (m_TowerState & EP_TS_N_H) != 0);
-    m_PvP->SendUpdateWorldState(EP_PWT_N, (m_TowerState & EP_TS_N) != 0);
+    m_PvP->SetWorldState(EP_PWT_A, (m_TowerState & EP_TS_A) != 0);
+    m_PvP->SetWorldState(EP_PWT_H, (m_TowerState & EP_TS_H) != 0);
+    m_PvP->SetWorldState(EP_PWT_N_A, (m_TowerState & EP_TS_N_A) != 0);
+    m_PvP->SetWorldState(EP_PWT_N_H, (m_TowerState & EP_TS_N_H) != 0);
+    m_PvP->SetWorldState(EP_PWT_N, (m_TowerState & EP_TS_N) != 0);
 }
 
 void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
@@ -548,8 +512,8 @@ bool OutdoorPvPEP::Update(uint32 diff)
                 ++m_AllianceTowersControlled;
             else if (EP_Controls[i] == HORDE)
                 ++m_HordeTowersControlled;
-            SendUpdateWorldState(EP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-            SendUpdateWorldState(EP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
+            SetWorldState(EP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
+            SetWorldState(EP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
             BuffTeams();
         }
         return true;
@@ -618,43 +582,38 @@ void OutdoorPvPEP::SetControlledState(uint32 index, uint32 state)
     EP_Controls[index] = state;
 }
 
-void OutdoorPvPEP::FillInitialWorldStates(WorldPackets::WorldState::InitWorldStates& packet)
-{
-    packet.Worldstates.emplace_back(EP_UI_TOWER_COUNT_A, m_AllianceTowersControlled);
-    packet.Worldstates.emplace_back(EP_UI_TOWER_COUNT_H, m_HordeTowersControlled);
-
-    for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
-        itr->second->FillInitialWorldStates(packet);
-}
-
 void OutdoorPvPEP::SendRemoveWorldStates(Player* player)
 {
-    player->SendUpdateWorldState(EP_UI_TOWER_COUNT_A, 0);
-    player->SendUpdateWorldState(EP_UI_TOWER_COUNT_H, 0);
+    WorldPackets::WorldState::InitWorldStates initWorldStates;
+    initWorldStates.MapID = player->GetMapId();
+    initWorldStates.ZoneID = player->GetZoneId();
+    initWorldStates.AreaID = player->GetAreaId();
+    initWorldStates.Worldstates.emplace_back(EP_UI_TOWER_COUNT_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_UI_TOWER_COUNT_H, 0);
 
-    player->SendUpdateWorldState(EP_EWT_A, 0);
-    player->SendUpdateWorldState(EP_EWT_H, 0);
-    player->SendUpdateWorldState(EP_EWT_N, 0);
-    player->SendUpdateWorldState(EP_EWT_N_A, 0);
-    player->SendUpdateWorldState(EP_EWT_N_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_EWT_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_EWT_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_EWT_N, 0);
+    initWorldStates.Worldstates.emplace_back(EP_EWT_N_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_EWT_N_H, 0);
 
-    player->SendUpdateWorldState(EP_PWT_A, 0);
-    player->SendUpdateWorldState(EP_PWT_H, 0);
-    player->SendUpdateWorldState(EP_PWT_N, 0);
-    player->SendUpdateWorldState(EP_PWT_N_A, 0);
-    player->SendUpdateWorldState(EP_PWT_N_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_PWT_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_PWT_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_PWT_N, 0);
+    initWorldStates.Worldstates.emplace_back(EP_PWT_N_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_PWT_N_H, 0);
 
-    player->SendUpdateWorldState(EP_NPT_A, 0);
-    player->SendUpdateWorldState(EP_NPT_H, 0);
-    player->SendUpdateWorldState(EP_NPT_N, 0);
-    player->SendUpdateWorldState(EP_NPT_N_A, 0);
-    player->SendUpdateWorldState(EP_NPT_N_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_NPT_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_NPT_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_NPT_N, 0);
+    initWorldStates.Worldstates.emplace_back(EP_NPT_N_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_NPT_N_H, 0);
 
-    player->SendUpdateWorldState(EP_CGT_A, 0);
-    player->SendUpdateWorldState(EP_CGT_H, 0);
-    player->SendUpdateWorldState(EP_CGT_N, 0);
-    player->SendUpdateWorldState(EP_CGT_N_A, 0);
-    player->SendUpdateWorldState(EP_CGT_N_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_CGT_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_CGT_H, 0);
+    initWorldStates.Worldstates.emplace_back(EP_CGT_N, 0);
+    initWorldStates.Worldstates.emplace_back(EP_CGT_N_A, 0);
+    initWorldStates.Worldstates.emplace_back(EP_CGT_N_H, 0);
 }
 
 class OutdoorPvP_eastern_plaguelands : public OutdoorPvPScript
