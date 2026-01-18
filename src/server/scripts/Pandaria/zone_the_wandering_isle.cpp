@@ -1413,7 +1413,7 @@ namespace Scripts::WanderingIsle::Quest_29421
                 switch (eventId)
                 {
                 case Events::Event_check_player:
-                {                    
+                {
                     Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
 
                     me->Attack(player, true);
@@ -1467,7 +1467,7 @@ namespace Scripts::WanderingIsle::Quest_29421
     };
 
     enum Spells1
-    {        
+    {
         SPELL_FURY_KICK_DAMAGE = 108957
     };
 
@@ -1513,7 +1513,7 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
-
+    
     using namespace Scripts::WanderingIsle::Quest_29421;
     RegisterCreatureAI(npc_li_fei);
     RegisterSpellScript(spell_fire_crash);
