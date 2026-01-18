@@ -1231,6 +1231,99 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29422
+{
+    namespace Spells
+    {
+        static constexpr uint32 spell_fan_the_flames_throw_wood = 109090;
+        static constexpr uint32 spell_fan_the_flames_blow_air = 109095;
+        static constexpr uint32 spell_fan_the_flames_blow_air_big = 109105;
+        static constexpr uint32 spell_fan_the_flames_blow_air_bigger = 109109;
+    }
+
+    static constexpr uint32 npc_huo = 57779;
+    static constexpr uint32 huo_guid = 450607;
+
+    // 29422
+    class quest_29422_huo_the_spirit_of_fire : public QuestScript
+    {
+    public:
+        quest_29422_huo_the_spirit_of_fire() : QuestScript("quest_29422_huo_the_spirit_of_fire") {}
+
+        void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+        {
+            if (newStatus == QUEST_STATUS_NONE)
+            {
+                PhasingHandler::OnConditionChange(player);
+            }
+            else if (newStatus == QUEST_STATUS_INCOMPLETE)
+            {
+                PhasingHandler::OnConditionChange(player);
+            }
+            else if (newStatus == QUEST_STATUS_COMPLETE)
+            {
+                PhasingHandler::OnConditionChange(player);
+            }
+        }
+    };
+
+    // 102522
+    class spell_fan_the_flames : public AuraScript
+    {
+        PrepareAuraScript(spell_fan_the_flames);
+
+        uint32 tick = 0;
+
+        void HandlePeriodic(AuraEffect const* /*aurEff*/)
+        {
+            Unit* caster = GetCaster();
+
+            tick++;
+
+            if (Unit* target = GetTarget()->FindNearestCreature(npc_huo, GetSpellInfo()->GetMaxRange(), true))
+            {
+                if (tick == 1 || tick == 4 || tick == 6)
+                    caster->CastSpell(target, Spells::spell_fan_the_flames_throw_wood, true);
+                if (tick == 8 || tick == 10 || tick == 13 || tick == 15)
+                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air, true);
+                if (tick == 12 || tick == 14)
+                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_big, true);
+                if (tick == 16)
+                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_bigger, true);
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_fan_the_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    // 109090, 109095, 109105, 109109
+    class spell_fan_the_flames_throw_wood_and_all_blow_air : public SpellScript
+    {       
+        void SelectTarget(WorldObject*& target)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (!caster)
+                return;
+
+            Map* map = caster->GetMap();
+            Creature* huo = map->GetCreatureBySpawnId(huo_guid);
+
+            if (!huo)
+                return;
+
+            target = huo;
+        }
+
+        void Register() override
+        {
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_fan_the_flames_throw_wood_and_all_blow_air::SelectTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        }
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1254,4 +1347,9 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29422;
+    new quest_29422_huo_the_spirit_of_fire();
+    RegisterSpellScript(spell_fan_the_flames);
+    RegisterSpellScript(spell_fan_the_flames_throw_wood_and_all_blow_air);
 }
