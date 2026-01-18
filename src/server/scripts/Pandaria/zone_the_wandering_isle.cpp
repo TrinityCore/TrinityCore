@@ -1301,7 +1301,7 @@ namespace Scripts::WanderingIsle::Quest_29422
 
     // 109090, 109095, 109105, 109109
     class spell_fan_the_flames_throw_wood_and_all_blow_air : public SpellScript
-    {       
+    {
         void SelectTarget(WorldObject*& target)
         {
             Player* caster = GetCaster()->ToPlayer();
