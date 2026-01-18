@@ -1236,7 +1236,6 @@ namespace Scripts::WanderingIsle::Quest_29421
 {
     static constexpr uint32 Quest_Parchemin_Volant = 29421;
     static constexpr uint32 Quest_Credit = 54734;
-
     static constexpr uint32 Li_Fei_Talk_0 = 0;
 
     namespace Spells
@@ -1246,9 +1245,9 @@ namespace Scripts::WanderingIsle::Quest_29421
         static constexpr uint32 spell_flying_shadow_kick = 108936;
         static constexpr uint32 spell_flying_shadow_kick_1 = 108944;
         static constexpr uint32 spell_feet_of_fury = 108958;
-
         static constexpr uint32 spell_fire_crash_invis = 108150;
         static constexpr uint32 spell_fire_crash_phase_shift = 102515;
+        static constexpr uint32 spell_fury_kick_damage = 108957;
     }
 
     namespace Guids
@@ -1297,7 +1296,6 @@ namespace Scripts::WanderingIsle::Quest_29421
     // 102499
     class spell_fire_crash : public SpellScript
     {
-
         void SetDest(SpellDestination& dest) const
         {
             dest.Relocate(playerJumpPos);
@@ -1316,7 +1314,6 @@ namespace Scripts::WanderingIsle::Quest_29421
         {
             float distance = 4.0f;
             float orientation = GetCaster()->GetVictim()->GetOrientation();
-
             float targetX = GetCaster()->GetVictim()->GetPositionX() - distance * std::cos(orientation);
             float targetY = GetCaster()->GetVictim()->GetPositionY() - distance * std::sin(orientation);
             float targetZ = GetCaster()->GetVictim()->GetPositionZ();
@@ -1341,14 +1338,10 @@ namespace Scripts::WanderingIsle::Quest_29421
                 return;
 
             _playerGuid.Clear();
-
             _playerGuid = summoner->ToPlayer()->GetGUID();
-
             me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFaction(16);
-
             me->GetMotionMaster()->MoveFollow(summoner->ToPlayer(), 1.0f);
-
             me->Attack(summoner->ToUnit(), true);
 
             _events.RescheduleEvent(Events::Event_check_player, 1500ms);
@@ -1466,12 +1459,6 @@ namespace Scripts::WanderingIsle::Quest_29421
         ObjectGuid _playerGuid;
     };
 
-    enum Spells1
-    {
-        SPELL_FURY_KICK_DAMAGE = 108957
-    };
-
-
     class spell_fury_kick_channel : public AuraScript
     {
         PrepareAuraScript(spell_fury_kick_channel);
@@ -1480,7 +1467,7 @@ namespace Scripts::WanderingIsle::Quest_29421
         {
             PreventDefaultAction();
 
-            GetCaster()->CastSpell(GetCaster()->GetVictim(), SPELL_FURY_KICK_DAMAGE, true);
+            GetCaster()->CastSpell(GetCaster()->GetVictim(), Spells::spell_fury_kick_damage, true);
         }
 
         void Register() override
