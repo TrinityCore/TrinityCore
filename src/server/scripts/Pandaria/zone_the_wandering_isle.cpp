@@ -1404,7 +1404,7 @@ namespace Scripts::WanderingIsle::Quest_29421
             }
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             _events.Update(diff);
 
