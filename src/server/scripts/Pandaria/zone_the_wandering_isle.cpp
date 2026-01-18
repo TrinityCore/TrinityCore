@@ -1509,11 +1509,11 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
     RegisterSpellScript(spell_flame_spout);
-    
+
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
-    
+
     using namespace Scripts::WanderingIsle::Quest_29421;
     RegisterCreatureAI(npc_li_fei);
     RegisterSpellScript(spell_fire_crash);
