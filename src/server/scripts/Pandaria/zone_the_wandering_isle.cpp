@@ -1265,7 +1265,7 @@ namespace Scripts::WanderingIsle::Quest_29421
         static constexpr uint32 Event_shadow_kick_stun = 4;
     }
 
-    static constexpr Position playerJumpPos = { 1354.744751, 3937.895996, 109.416115, 2.898135 };
+    static constexpr Position playerJumpPos = { 1354.744751f, 3937.895996f, 109.416115f, 2.898135f };
 
     //450596
     struct npc_li_fei : public ScriptedAI
@@ -1361,7 +1361,7 @@ namespace Scripts::WanderingIsle::Quest_29421
             damage = victim->IsPlayer() ? (damage / 10) : 0;
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* spellInfo = nullptr) override
+        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType /*damageType*/, SpellInfo const* /*spellInfo*/) override
         {
             damage = attacker->IsPlayer() ? (damage * 5) : (damage / 2);
 
@@ -1413,8 +1413,7 @@ namespace Scripts::WanderingIsle::Quest_29421
                 switch (eventId)
                 {
                 case Events::Event_check_player:
-                {
-                    bool checkPassed = true;
+                {                    
                     Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
 
                     me->Attack(player, true);
@@ -1477,7 +1476,7 @@ namespace Scripts::WanderingIsle::Quest_29421
     {
         PrepareAuraScript(spell_fury_kick_channel);
 
-        void PeriodicTick(AuraEffect const* aurEff)
+        void PeriodicTick(AuraEffect const* /*aurEff*/)
         {
             PreventDefaultAction();
 
