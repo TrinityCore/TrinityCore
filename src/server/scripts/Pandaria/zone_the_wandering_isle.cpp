@@ -1393,7 +1393,7 @@ namespace Scripts::WanderingIsle::Quest_29421
             }
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* victim) override
         {
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
