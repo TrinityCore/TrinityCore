@@ -1231,6 +1231,265 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29421
+{
+    static constexpr uint32 Quest_Parchemin_Volant = 29421;
+    static constexpr uint32 Quest_Credit = 54734;
+
+    static constexpr uint32 Li_Fei_Talk_0 = 0;
+
+    namespace Spells
+    {
+        static constexpr uint32 spell_fire_crash_cove = 108149;
+
+        static constexpr uint32 spell_flying_shadow_kick = 108936;
+        static constexpr uint32 spell_flying_shadow_kick_1 = 108944;
+        static constexpr uint32 spell_feet_of_fury = 108958;
+
+        static constexpr uint32 spell_fire_crash_invis = 108150;
+        static constexpr uint32 spell_fire_crash_phase_shift = 102515;
+    }
+
+    namespace Guids
+    {
+        static constexpr uint32 Li_Fei_for_summon_guid = 450605;
+        static constexpr uint32 Li_Fei_quest_guid = 450596;
+    }
+
+    namespace Events
+    {
+        static constexpr uint32 Event_check_player = 1;
+        static constexpr uint32 Event_feet_of_fury = 2;
+        static constexpr uint32 Event_shadow_kick = 3;
+        static constexpr uint32 Event_shadow_kick_stun = 4;
+    }
+
+    static constexpr Position playerJumpPos = { 1354.744751, 3937.895996, 109.416115, 2.898135 };
+
+    //450596
+    struct npc_li_fei : public ScriptedAI
+    {
+        npc_li_fei(Creature* creature) : ScriptedAI(creature) {}
+
+        void OnQuestAccept(Player* player, Quest const* quest) override
+        {
+            if (quest->GetQuestId() == Quest_Parchemin_Volant)
+            {
+                player->CastSpell(player, Spells::spell_fire_crash_cove);
+
+                Map* map = player->GetMap();
+                Creature* lifei = map->GetCreatureBySpawnId(Guids::Li_Fei_for_summon_guid);
+
+                if (!lifei)
+                    return;
+
+                TempSummon* lifeiClone = lifei->SummonPersonalClone(lifei->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->ToPlayer());
+
+                if (!lifeiClone)
+                    return;
+
+                PhasingHandler::SetAlwaysVisible(lifeiClone, true, true);
+            }
+        }
+    };
+
+    // 102499
+    class spell_fire_crash : public SpellScript
+    {
+
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(playerJumpPos);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_fire_crash::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 108936
+    class spell_flying_shadow_kick : public SpellScript
+    {
+        void HandleTeleport(SpellEffIndex /*effIndex*/)
+        {
+            float distance = 4.0f;
+            float orientation = GetCaster()->GetVictim()->GetOrientation();
+
+            float targetX = GetCaster()->GetVictim()->GetPositionX() - distance * std::cos(orientation);
+            float targetY = GetCaster()->GetVictim()->GetPositionY() - distance * std::sin(orientation);
+            float targetZ = GetCaster()->GetVictim()->GetPositionZ();
+
+            Position pos(targetX, targetY, targetZ, orientation);
+            GetHitDest()->Relocate(pos);
+        }
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_flying_shadow_kick::HandleTeleport, EFFECT_0, SPELL_EFFECT_TELEPORT_UNITS);
+        }
+    };
+
+    //54734
+    struct npc_li_fei_fight : public ScriptedAI
+    {
+        npc_li_fei_fight(Creature* creature) : ScriptedAI(creature) {}
+
+        void IsSummonedBy(WorldObject* summoner) override
+        {
+            if (me->GetAreaId() != 5849)
+                return;
+
+            _playerGuid.Clear();
+
+            _playerGuid = summoner->ToPlayer()->GetGUID();
+
+            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+            me->SetFaction(16);
+
+            me->GetMotionMaster()->MoveFollow(summoner->ToPlayer(), 1.0f);
+
+            me->Attack(summoner->ToUnit(), true);
+
+            _events.RescheduleEvent(Events::Event_check_player, 1500ms);
+            _events.RescheduleEvent(Events::Event_feet_of_fury, 5000ms);
+            _events.RescheduleEvent(Events::Event_shadow_kick, 10000ms);
+        }
+
+        void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
+        {
+            damage = victim->IsPlayer() ? (damage / 10) : 0;
+        }
+
+        void DamageTaken(Unit* attacker, uint32& damage, DamageEffectType damageType, SpellInfo const* spellInfo = nullptr) override
+        {
+            damage = attacker->IsPlayer() ? (damage * 5) : (damage / 2);
+
+            if (me->HealthBelowPctDamaged(50, damage))
+            {
+                damage = 0;
+                me->SetFaction(35);
+                me->CombatStop();
+                me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+
+                if (Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid))
+                {
+                    player->KilledMonsterCredit(Quest_Credit, ObjectGuid::Empty);
+                    player->RemoveAurasDueToSpell(Spells::spell_fire_crash_cove);
+                    player->RemoveAurasDueToSpell(Spells::spell_fire_crash_invis);
+                    player->RemoveAurasDueToSpell(Spells::spell_fire_crash_phase_shift);
+
+                    Map* map = player->GetMap();
+                    Creature* lifei = map->GetCreatureBySpawnId(Guids::Li_Fei_quest_guid);
+
+                    if (!lifei)
+                        return;
+
+                    sCreatureTextMgr->SendChat(lifei, Li_Fei_Talk_0, player);
+
+                    me->DespawnOrUnsummon();
+                }
+            }
+        }
+
+        void KilledUnit(Unit* victim)
+        {
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+            {
+                victim->ToPlayer()->SetQuestStatus(Quest_Parchemin_Volant, QUEST_STATUS_FAILED);
+
+                if (victim->GetGUID() == _playerGuid)
+                    me->DespawnOrUnsummon(3s);
+            }
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            _events.Update(diff);
+
+            if (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case Events::Event_check_player:
+                {
+                    bool checkPassed = true;
+                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+
+                    me->Attack(player, true);
+
+                    if (!player || !player->IsAlive())
+                    {
+                        _playerGuid.Clear();
+                        me->DespawnOrUnsummon(3s);
+                        break;
+                    }
+
+                    if (player->GetQuestStatus(Quest_Parchemin_Volant) != QUEST_STATUS_INCOMPLETE)
+                    {
+                        _playerGuid.Clear();
+                        me->DespawnOrUnsummon(3s);
+                        break;
+                    }
+
+                    _events.RescheduleEvent(Events::Event_check_player, 2500ms);
+                    break;
+                }
+                case Events::Event_feet_of_fury:
+                {
+                    if (me->GetVictim())
+                        me->CastSpell(me, Spells::spell_feet_of_fury);
+
+                    _events.RescheduleEvent(Events::Event_feet_of_fury, 10000ms);
+                    break;
+                }
+                case Events::Event_shadow_kick:
+                {
+                    if (me->GetVictim())
+                        me->CastSpell(me->GetVictim(), Spells::spell_flying_shadow_kick);
+
+                    _events.RescheduleEvent(Events::Event_shadow_kick_stun, 1000ms);
+                    _events.RescheduleEvent(Events::Event_shadow_kick, 12500ms);
+                    break;
+                }
+                case Events::Event_shadow_kick_stun:
+                {
+                    if (me->GetVictim())
+                        me->CastSpell(me->GetVictim(), Spells::spell_flying_shadow_kick_1);
+                    break;
+                }
+                }
+            }
+        }
+    private:
+        EventMap _events;
+        ObjectGuid _playerGuid;
+    };
+
+    enum Spells1
+    {        
+        SPELL_FURY_KICK_DAMAGE = 108957
+    };
+
+
+    class spell_fury_kick_channel : public AuraScript
+    {
+        PrepareAuraScript(spell_fury_kick_channel);
+
+        void PeriodicTick(AuraEffect const* aurEff)
+        {
+            PreventDefaultAction();
+
+            GetCaster()->CastSpell(GetCaster()->GetVictim(), SPELL_FURY_KICK_DAMAGE, true);
+        }
+
+        void Register() override
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_fury_kick_channel::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1250,8 +1509,15 @@ void AddSC_zone_the_wandering_isle()
     RegisterSpellScript(spell_ride_drake);
     RegisterSpellScript(spell_meditation_timer_bar);
     RegisterSpellScript(spell_flame_spout);
-
+    
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29421;
+    RegisterCreatureAI(npc_li_fei);
+    RegisterSpellScript(spell_fire_crash);
+    RegisterSpellScript(spell_flying_shadow_kick);
+    RegisterCreatureAI(npc_li_fei_fight);
+    RegisterSpellScript(spell_fury_kick_channel);
 }
