@@ -1423,7 +1423,6 @@ namespace Scripts::WanderingIsle::Quest_29423
                     if (player->GetDistance(973.311829, 3603.419434, 195.528030) <= 7.0f)
                     {
                         me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
-
                         me->SetFloating(true);
                         me->SetSpeed(MOVE_RUN, 3.0f);
                         me->GetMotionMaster()->MovePoint(1, Positions::huoFirstPoint, true, { 6.249388f });
@@ -1434,8 +1433,6 @@ namespace Scripts::WanderingIsle::Quest_29423
                 }
                 case Events::event_second_huo_position:
                 {
-                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
-
                     me->GetMotionMaster()->MovePoint(2, Positions::huoSecondPoint);
                 }
                 }
@@ -1455,20 +1452,17 @@ namespace Scripts::WanderingIsle::Quest_29423
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
         {
-            if (player)
+            if (!player)
+                return false;
+
+            if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_INCOMPLETE)
             {
-                if (!player)
+                Creature* chia = player->FindNearestCreatureWithOptions(30.0f, { .StringId = "Chia_Hui_Talk_Event_Starter", .IgnorePhases = true });
+
+                if (!chia)
                     return false;
 
-                if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_INCOMPLETE)
-                {
-                    Creature* chia = player->FindNearestCreatureWithOptions(30.0f, { .StringId = "Chia_Hui_Talk_Event_Starter", .IgnorePhases = true });
-
-                    if (!chia)
-                        return false;
-
-                    player->CastSpell(chia, Spells::spell_start_talk_event);
-                }
+                player->CastSpell(chia, Spells::spell_start_talk_event);            
             }
         }
     };
@@ -1552,10 +1546,8 @@ namespace Scripts::WanderingIsle::Quest_29423
 
                 aysa->SetSpeed(MOVE_WALK, 6.0f);
                 ji->SetSpeed(MOVE_WALK, 6.0f);
-
                 aysa->GetMotionMaster()->MovePath(Path::aysa, false);
                 ji->GetMotionMaster()->MovePath(Path::ji, false);
-
             }
             else if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_COMPLETE)
             {
@@ -1567,7 +1559,6 @@ namespace Scripts::WanderingIsle::Quest_29423
 
                 aysa->SetSpeed(MOVE_WALK, 6.0f);
                 ji->SetSpeed(MOVE_WALK, 6.0f);
-
                 aysa->GetMotionMaster()->MovePath(Path::aysa, false);
                 ji->GetMotionMaster()->MovePath(Path::ji, false);
             }
@@ -1594,12 +1585,10 @@ namespace Scripts::WanderingIsle::Quest_29423
                     {
                         me->AI()->Talk(Talks::shanxi_talk_2);
                     });
-
                 _scheduler.Schedule(26s, [this](TaskContext /*task*/)
                     {
                         Talk(Talks::shanxi_talk_3);
                     });
-
                 _scheduler.Schedule(40s, [this](TaskContext /*task*/)
                     {
                         Talk(Talks::shanxi_talk_4);
