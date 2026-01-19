@@ -1231,6 +1231,173 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29521
+{
+    static constexpr uint32 Quest_The_Singing_Pools = 29521;
+
+    namespace Positions
+    {
+        static constexpr Position caiSpawnPos = { 934.0156f, 3513.154f, 188.1347f, 0.0f };
+        static constexpr Position denSpawnPos = { 949.37f, 3510.0f, 187.7983f, 0.0f };
+    }
+
+    namespace NpcInfo
+    {
+        static constexpr uint32 npc_cai = 60250;
+        static constexpr uint32 npc_den = 60249;
+    }
+
+    namespace Spells
+    {
+        static constexpr uint32 spell_summon_child_1 = 116190;
+    }
+
+    namespace Texts
+    {
+        static constexpr uint32 den_talk_0 = 0;
+        static constexpr uint32 den_talk_1 = 1;
+        static constexpr uint32 den_talk_2 = 2;
+
+        static constexpr uint32 cai_talk_0 = 0;
+        static constexpr uint32 cai_talk_1 = 1;
+        static constexpr uint32 cai_talk_2 = 2;
+        static constexpr uint32 cai_talk_3 = 3;
+    }
+
+    // 7784
+    class at_temple_east_quest_29521_childs : public AreaTriggerScript
+    {
+    public:
+        at_temple_east_quest_29521_childs() : AreaTriggerScript("at_temple_east_quest_29521_childs") {}
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (!player)
+                return false;
+
+            if (player->GetQuestStatus(Quest_The_Singing_Pools) == QUEST_STATUS_COMPLETE)
+            {
+                player->CastSpell(player, Spells::spell_summon_child_1);
+            }
+            return true;
+        }
+    };
+
+    // 116190 
+    class spell_summon_child_1 : public SpellScript
+    {
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(Positions::caiSpawnPos);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_1::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 116191 
+    class spell_summon_child_2 : public SpellScript
+    {
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(Positions::denSpawnPos);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_child_2::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    //60250, 60249
+    struct npc_summoned_childs : public ScriptedAI
+    {
+        npc_summoned_childs(Creature* creature) : ScriptedAI(creature) {}
+
+        void IsSummonedBy(WorldObject* summoner) override
+        {
+            if (Player* player = summoner->ToPlayer())
+            {
+                _playerGuid = player->GetGUID();
+
+                if (me->GetEntry() == NpcInfo::npc_den)
+                {
+                    me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 2);
+                }
+                else if (me->GetEntry() == NpcInfo::npc_cai)
+                {
+                    me->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI / 4);
+                }
+
+                _scheduler.Schedule(7s, [this](TaskContext /*task*/)
+                    {
+                        if (me->GetEntry() == NpcInfo::npc_cai)
+                        {
+                            me->AI()->Talk(Texts::cai_talk_0);
+                        }
+                    });
+                _scheduler.Schedule(14s, [this](TaskContext /*task*/)
+                    {
+                        if (me->GetEntry() == NpcInfo::npc_den)
+                        {
+                            me->AI()->Talk(Texts::den_talk_0);
+                        }
+                    });
+                _scheduler.Schedule(21s, [this](TaskContext /*task*/)
+                    {
+                        if (me->GetEntry() == NpcInfo::npc_cai)
+                        {
+                            me->AI()->Talk(Texts::cai_talk_1);
+                        }
+                    });
+                _scheduler.Schedule(29s, [this](TaskContext /*task*/)
+                    {
+                        if (me->GetEntry() == NpcInfo::npc_den)
+                        {
+                            me->AI()->Talk(Texts::den_talk_1);
+                        }
+                    });
+                _scheduler.Schedule(37s, [this](TaskContext /*task*/)
+                    {
+                        if (me->GetEntry() == NpcInfo::npc_cai)
+                        {
+                            me->AI()->Talk(Texts::cai_talk_2);
+                        }
+                    });
+                _scheduler.Schedule(45s, [this](TaskContext /*task*/)
+                    {
+                        Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+
+                        if (me->GetEntry() == NpcInfo::npc_den)
+                        {
+                            me->AI()->Talk(Texts::den_talk_2);
+                            me->GetMotionMaster()->MoveFleeing(player);
+                            me->DespawnOrUnsummon(3s);
+                        }
+                        else if (me->GetEntry() == NpcInfo::npc_cai)
+                        {
+                            me->AI()->Talk(Texts::cai_talk_3);
+                            me->GetMotionMaster()->MoveFleeing(player);
+                            me->DespawnOrUnsummon(3s);
+                        }
+                    });
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        ObjectGuid _playerGuid;
+
+        TaskScheduler _scheduler;
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1254,4 +1421,10 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29521;
+    new at_temple_east_quest_29521_childs();
+    RegisterSpellScript(spell_summon_child_1);
+    RegisterSpellScript(spell_summon_child_2);
+    RegisterCreatureAI(npc_summoned_childs);
 }
