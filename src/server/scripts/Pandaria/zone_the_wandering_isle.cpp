@@ -1626,7 +1626,6 @@ namespace Scripts::WanderingIsle::Quest_29423
     };
 };
 
-
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
