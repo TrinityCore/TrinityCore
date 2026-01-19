@@ -1350,7 +1350,7 @@ namespace Scripts::WanderingIsle::SingingPools
                 break;
             }
             return false;
-        }        
+        }
     };
 };
 
