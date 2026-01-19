@@ -1420,7 +1420,7 @@ namespace Scripts::WanderingIsle::Quest_29423
                 {
                     Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
 
-                    if (player->GetDistance(973.311829, 3603.419434, 195.528030) <= 7.0f)
+                    if (player->GetDistance(973.311829f, 3603.419434f, 195.528030f) <= 7.0f)
                     {
                         me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
                         me->SetFloating(true);
