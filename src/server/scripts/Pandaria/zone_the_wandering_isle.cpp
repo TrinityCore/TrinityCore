@@ -1283,7 +1283,7 @@ namespace Scripts::WanderingIsle::Quest_29521
         }
     };
 
-    // 116190 
+    // 116190
     class spell_summon_child_1 : public SpellScript
     {
         void SetDest(SpellDestination& dest) const
@@ -1297,7 +1297,7 @@ namespace Scripts::WanderingIsle::Quest_29521
         }
     };
 
-    // 116191 
+    // 116191
     class spell_summon_child_2 : public SpellScript
     {
         void SetDest(SpellDestination& dest) const
