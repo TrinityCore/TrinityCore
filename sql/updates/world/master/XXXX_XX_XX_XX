@@ -22,5 +22,4 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (108958 , 'spell_fury_kick_channel');
 
 -- Creature Template Difficulty
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x0, `VerifiedBuild`=64978 WHERE (`Entry`=54734 AND `DifficultyID`=0); -- 54734 (Master Li Fei) - 
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x0, `VerifiedBuild`=64978 WHERE (`Entry`=54734 AND `DifficultyID`=1); -- 54734 (Master Li Fei) - 
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x0, `VerifiedBuild`=64978 WHERE (`Entry`=54734 AND `DifficultyID` IN (0, 1)); -- 54734 (Master Li Fei) - 
