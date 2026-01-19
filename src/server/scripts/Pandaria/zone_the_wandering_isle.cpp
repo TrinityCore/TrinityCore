@@ -1462,7 +1462,7 @@ namespace Scripts::WanderingIsle::Quest_29423
                 if (!chia)
                     return false;
 
-                player->CastSpell(chia, Spells::spell_start_talk_event);            
+                player->CastSpell(chia, Spells::spell_start_talk_event);
             }
         }
     };
