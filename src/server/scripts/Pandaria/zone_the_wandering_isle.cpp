@@ -1251,7 +1251,7 @@ namespace Scripts::WanderingIsle::Quest_29422
      {
          switch (newStatus)
          {
-         case QUEST_STATUS_NONE:             
+         case QUEST_STATUS_NONE:
          case QUEST_STATUS_INCOMPLETE:
          case QUEST_STATUS_COMPLETE:
              PhasingHandler::OnConditionChange(player);
@@ -1277,7 +1277,7 @@ namespace Scripts::WanderingIsle::Quest_29422
      {
          if (!GetCaster())
             return;
-         
+
          tick++;
 
          if (Unit* target = GetTarget()->FindNearestCreature(npc_huo, GetSpellInfo()->GetMaxRange(), true))
