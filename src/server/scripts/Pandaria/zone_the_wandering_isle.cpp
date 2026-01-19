@@ -1244,60 +1244,75 @@ namespace Scripts::WanderingIsle::Quest_29422
     static constexpr uint32 npc_huo = 57779;
     static constexpr uint32 huo_guid = 450607;
 
-    // 29422
-    class quest_29422_huo_the_spirit_of_fire : public QuestScript
-    {
-    public:
-        quest_29422_huo_the_spirit_of_fire() : QuestScript("quest_29422_huo_the_spirit_of_fire") {}
+     // 29422
+ class quest_29422_huo_the_spirit_of_fire : public QuestScript
+ {
+ public:
+     quest_29422_huo_the_spirit_of_fire() : QuestScript("quest_29422_huo_the_spirit_of_fire") {}
 
-        void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
-        {
-            if (newStatus == QUEST_STATUS_NONE)
-            {
-                PhasingHandler::OnConditionChange(player);
+     void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+     {
+         switch (newStatus)
+         {
+         case QUEST_STATUS_NONE:             
+         case QUEST_STATUS_INCOMPLETE:
+         case QUEST_STATUS_COMPLETE:
+             PhasingHandler::OnConditionChange(player);
+             break;
+         default:
+             break;
+         }
+     }
+ };
+
+     // 102522
+ class spell_fan_the_flames : public AuraScript
+ {
+     bool Validate(SpellInfo const* /*spellInfo*/) override
+     {
+         return ValidateSpellInfo({ Spells::spell_fan_the_flames_throw_wood, Spells::spell_fan_the_flames_blow_air,
+             Spells::spell_fan_the_flames_blow_air_big, Spells::spell_fan_the_flames_blow_air_bigger });
+     }
+
+     uint32 tick = 0;
+
+     void HandlePeriodic(AuraEffect const* /*aurEff*/)
+     {
+         Unit* caster = GetCaster();
+
+         tick++;
+
+         if (Unit* target = GetTarget()->FindNearestCreature(npc_huo, GetSpellInfo()->GetMaxRange(), true))
+         {
+             switch (tick)
+             {
+             case 1: case 4: case 6:
+                 caster->CastSpell(target, Spells::spell_fan_the_flames_throw_wood);
+                 break;
+
+             case 8: case 10: case 13: case 15:
+                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air);
+                 break;
+
+             case 12: case 14:
+                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_big);
+                 break;
+
+             case 16:
+                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_bigger);
+                 break;
+
+             default:
+                 break;
             }
-            else if (newStatus == QUEST_STATUS_INCOMPLETE)
-            {
-                PhasingHandler::OnConditionChange(player);
-            }
-            else if (newStatus == QUEST_STATUS_COMPLETE)
-            {
-                PhasingHandler::OnConditionChange(player);
-            }
-        }
-    };
+         }
+     }
 
-    // 102522
-    class spell_fan_the_flames : public AuraScript
-    {
-        PrepareAuraScript(spell_fan_the_flames);
-
-        uint32 tick = 0;
-
-        void HandlePeriodic(AuraEffect const* /*aurEff*/)
-        {
-            Unit* caster = GetCaster();
-
-            tick++;
-
-            if (Unit* target = GetTarget()->FindNearestCreature(npc_huo, GetSpellInfo()->GetMaxRange(), true))
-            {
-                if (tick == 1 || tick == 4 || tick == 6)
-                    caster->CastSpell(target, Spells::spell_fan_the_flames_throw_wood, true);
-                if (tick == 8 || tick == 10 || tick == 13 || tick == 15)
-                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air, true);
-                if (tick == 12 || tick == 14)
-                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_big, true);
-                if (tick == 16)
-                    caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_bigger, true);
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectPeriodic += AuraEffectPeriodicFn(spell_fan_the_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-        }
-    };
+     void Register() override
+     {
+         OnEffectPeriodic += AuraEffectPeriodicFn(spell_fan_the_flames::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+     }
+ };
 
     // 109090, 109095, 109105, 109109
     class spell_fan_the_flames_throw_wood_and_all_blow_air : public SpellScript
@@ -1308,8 +1323,7 @@ namespace Scripts::WanderingIsle::Quest_29422
             if (!caster)
                 return;
 
-            Map* map = caster->GetMap();
-            Creature* huo = map->GetCreatureBySpawnId(huo_guid);
+            Creature* huo = caster->FindNearestCreatureWithOptions(10.0f, { .StringId = "Huo_Pre_Ignition" });
 
             if (!huo)
                 return;
