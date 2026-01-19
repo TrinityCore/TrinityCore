@@ -1450,7 +1450,7 @@ namespace Scripts::WanderingIsle::Quest_29423
     public:
         at_talk_on_huo_follow_quest_29423() : AreaTriggerScript("at_talk_on_huo_follow_quest_29423") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (!player)
                 return false;
