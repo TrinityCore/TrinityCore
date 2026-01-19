@@ -1464,6 +1464,7 @@ namespace Scripts::WanderingIsle::Quest_29423
 
                 player->CastSpell(chia, Spells::spell_start_talk_event);
             }
+            return true;
         }
     };
 
@@ -1562,6 +1563,7 @@ namespace Scripts::WanderingIsle::Quest_29423
                 aysa->GetMotionMaster()->MovePath(Path::aysa, false);
                 ji->GetMotionMaster()->MovePath(Path::ji, false);
             }
+            return true;
         }
     };
 
