@@ -1287,19 +1287,19 @@ namespace Scripts::WanderingIsle::Quest_29422
              switch (tick)
              {
              case 1: case 4: case 6:
-                 caster->CastSpell(target, Spells::spell_fan_the_flames_throw_wood);
+                 GetCaster()->CastSpell(target, Spells::spell_fan_the_flames_throw_wood);
                  break;
 
              case 8: case 10: case 13: case 15:
-                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air);
+                 GetCaster()->CastSpell(target, Spells::spell_fan_the_flames_blow_air);
                  break;
 
              case 12: case 14:
-                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_big);
+                 GetCaster()->CastSpell(target, Spells::spell_fan_the_flames_blow_air_big);
                  break;
 
              case 16:
-                 caster->CastSpell(target, Spells::spell_fan_the_flames_blow_air_bigger);
+                 GetCaster()->CastSpell(target, Spells::spell_fan_the_flames_blow_air_bigger);
                  break;
 
              default:
