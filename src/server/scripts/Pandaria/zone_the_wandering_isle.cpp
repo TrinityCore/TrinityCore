@@ -31,7 +31,7 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
-#include "AreaTriggerData.h"
+#include "AreaTriggerDataStore.h"
 
 enum TraineeMisc
 {
