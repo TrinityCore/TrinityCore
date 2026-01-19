@@ -4,7 +4,7 @@ UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBu
 UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x30000100, `VerifiedBuild`=64978 WHERE (`Entry`=57779 AND `DifficultyID`=1); -- 57779 (Huo) - Sessile, CanSwim, Floating
 
 UPDATE `creature` SET `PhaseId`= 632 WHERE `guid` IN (450608); 
-UPDATE `creature` SET `PhaseId`= 631 WHERE `guid` IN (450607); 
+UPDATE `creature` SET `PhaseId`= 631, `StringId` = 'Huo_Pre_Ignition' WHERE `guid` IN (450607); 
 
 DELETE FROM `phase_area` WHERE `PhaseId` IN (631, 632);
 INSERT INTO `phase_area` (`AreaId`, `PhaseId`, `Comment`) VALUES
