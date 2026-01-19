@@ -1305,22 +1305,22 @@ namespace Scripts::WanderingIsle::SingingPools
             switch (areaTrigger->ID)
             {
             case SingingPoolsAreaTriggers::at_frog_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_frog_pool_2)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_frog_pool_2)))
                     if (player->HasAura(Spells::spell_curse_of_the_frog))
                         player->RemoveAura(Spells::spell_curse_of_the_frog);
                 break;
             case SingingPoolsAreaTriggers::at_frog_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_frog_pool_1)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_frog_pool_1)))
                     if (player->HasAura(Spells::spell_curse_of_the_frog))
                         player->RemoveAura(Spells::spell_curse_of_the_frog);
                 break;
             case SingingPoolsAreaTriggers::at_skunk_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_skunk_pool_2)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_skunk_pool_2)))
                     if (player->HasAura(Spells::spell_curse_of_the_skunk))
                         player->RemoveAura(Spells::spell_curse_of_the_skunk);
                 break;
             case SingingPoolsAreaTriggers::at_skunk_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_skunk_pool_1)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_skunk_pool_1)))
                     if (player->HasAura(Spells::spell_curse_of_the_skunk))
                         player->RemoveAura(Spells::spell_curse_of_the_skunk);
                 break;
@@ -1329,28 +1329,28 @@ namespace Scripts::WanderingIsle::SingingPools
                     player->RemoveAura(Spells::spell_curse_of_the_crocodile);
                 break;
             case SingingPoolsAreaTriggers::at_crane_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_crane_pool_2)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_crane_pool_2)))
                     if (player->HasAura(Spells::spell_curse_of_the_crane))
                         player->RemoveAura(Spells::spell_curse_of_the_crane);
                 break;
             case SingingPoolsAreaTriggers::at_crane_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_crane_pool_1)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_crane_pool_1)))
                     if (player->HasAura(Spells::spell_curse_of_the_crane))
                         player->RemoveAura(Spells::spell_curse_of_the_crane);
                 break;
             case SingingPoolsAreaTriggers::at_turtle_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_turtle_pool_2)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_turtle_pool_2)))
                     if (player->HasAura(Spells::spell_curse_of_the_turtle))
                         player->RemoveAura(Spells::spell_curse_of_the_turtle);
                 break;
             case SingingPoolsAreaTriggers::at_turtle_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.AssertEntry(SingingPoolsAreaTriggers::at_turtle_pool_1)))
+                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_turtle_pool_1)))
                     if (player->HasAura(Spells::spell_curse_of_the_turtle))
                         player->RemoveAura(Spells::spell_curse_of_the_turtle);
                 break;
             }
             return false;
-        }
+        }        
     };
 };
 
