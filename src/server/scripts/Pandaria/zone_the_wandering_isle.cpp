@@ -31,6 +31,7 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
+#include "AreaTriggerData.h"
 
 enum TraineeMisc
 {
@@ -1350,7 +1351,7 @@ namespace Scripts::WanderingIsle::SingingPools
                 break;
             }
             return false;
-        }        
+        }
     };
 };
 
