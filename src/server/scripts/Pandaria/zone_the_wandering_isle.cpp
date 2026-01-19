@@ -1316,7 +1316,7 @@ namespace Scripts::WanderingIsle::Quest_29423
         }
     };
 
-    // 128700   
+    // 128700
     class spell_summon_fire_spirit : public SpellScript
     {
         void SelectTarget(WorldObject*& target)
@@ -1339,7 +1339,7 @@ namespace Scripts::WanderingIsle::Quest_29423
         }
     };
 
-    // 109178   
+    // 109178
     class spell_despawn_fire_spirit : public SpellScript
     {
         void HandleHitTarget(SpellEffIndex /*effIndex*/)
@@ -1483,12 +1483,12 @@ namespace Scripts::WanderingIsle::Quest_29423
                 return;
 
             if (Player* player = caster->ToPlayer())
-            {               
+            {
                 Creature* lin = me->FindNearestCreatureWithOptions(15.0f, { .StringId = "Brewer_Lin_Talk_Event", .IgnorePhases = true });
                 Creature* zhen = me->FindNearestCreatureWithOptions(15.0f, { .StringId = "Brewer_Zhen_Talk_Event", .IgnorePhases = true });
 
                 if (!lin || !zhen)
-                    return;                              
+                    return;
 
                 me->SetFacingToObject(player);
                 lin->SetFacingToObject(player);
@@ -1518,8 +1518,8 @@ namespace Scripts::WanderingIsle::Quest_29423
             _scheduler.Update(diff);
         }
 
-    private:        
-        TaskScheduler _scheduler;   
+    private:
+        TaskScheduler _scheduler;
     };
 
     // 7835
