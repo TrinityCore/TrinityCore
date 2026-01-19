@@ -31,7 +31,6 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
-#include "CreatureTextMgr.h"
 
 enum TraineeMisc
 {
