@@ -1337,7 +1337,7 @@ struct npc_li_fei_fight : public ScriptedAI
         _events.RescheduleEvent(Events::Event_check_player, 1500ms);
         _events.RescheduleEvent(Events::Event_feet_of_fury, 5000ms);
         _events.RescheduleEvent(Events::Event_shadow_kick, 10000ms);
-    }  
+    }
 
     void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
     {
