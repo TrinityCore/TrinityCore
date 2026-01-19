@@ -1241,9 +1241,6 @@ namespace Scripts::WanderingIsle::Quest_29422
         static constexpr uint32 spell_fan_the_flames_blow_air_bigger = 109109;
     }
 
-    static constexpr uint32 npc_huo = 57779;
-    static constexpr uint32 huo_guid = 450607;
-
      // 29422
  class quest_29422_huo_the_spirit_of_fire : public QuestScript
  {
@@ -1278,8 +1275,9 @@ namespace Scripts::WanderingIsle::Quest_29422
 
      void HandlePeriodic(AuraEffect const* /*aurEff*/)
      {
-         Unit* caster = GetCaster();
-
+         if (!GetCaster())
+            return;
+         
          tick++;
 
          if (Unit* target = GetTarget()->FindNearestCreature(npc_huo, GetSpellInfo()->GetMaxRange(), true))
