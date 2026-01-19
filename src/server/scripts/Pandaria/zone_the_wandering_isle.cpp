@@ -1241,6 +1241,8 @@ namespace Scripts::WanderingIsle::Quest_29422
         static constexpr uint32 spell_fan_the_flames_blow_air_bigger = 109109;
     }
 
+    static constexpr uint32 npc_huo = 57779;
+
      // 29422
  class quest_29422_huo_the_spirit_of_fire : public QuestScript
  {
