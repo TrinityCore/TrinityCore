@@ -6,12 +6,14 @@ INSERT INTO `gameobject_addon` (`guid`, `parent_rotation0`, `parent_rotation1`, 
 UPDATE `gameobject` SET `PhaseId`=504 WHERE `guid`=300148;
 
 -- Talks
+DELETE FROM `creature_text` WHERE `CreatureID` IN (54135) AND `GroupID` = 0;
 INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `BroadcastTextId`, `TextRange`, `comment`) VALUES
 (54135, 0, 0, 'Ты $gзаслужил:заслужила; право пройти. Хо ждет тебя.', 12, 0, 100, 0, 0, 0, 0, 0, 'Мастер Ли Фэй to Player');
 
 -- ScriptNames
 UPDATE `creature_template` SET `ScriptName`= 'npc_li_fei_fight' WHERE `entry`=54734; 
-UPDATE `creature` SET `ScriptName`= 'npc_li_fei' WHERE `guid`=450596; 
+UPDATE `creature` SET `ScriptName`= 'npc_li_fei', `StringId`= 'Li_Fei_Talk' WHERE `guid`=450596; 
+UPDATE `creature` SET `StringId`= 'Li_Fei_Fight' WHERE `guid`=450605; 
 
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (102499, 108936, 108958);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
