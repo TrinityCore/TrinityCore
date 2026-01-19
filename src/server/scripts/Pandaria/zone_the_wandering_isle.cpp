@@ -1244,7 +1244,7 @@ namespace Scripts::WanderingIsle::SingingPools
         static constexpr uint32 spell_curse_of_the_crane = 102941;
         static constexpr uint32 spell_curse_of_the_crocodile = 102942;
         static constexpr uint32 spell_ride_vehicle_pole = 102717;
-        static constexpr uint32 spell_ride_vehicle_near_bell_pole = 107049;
+        //static constexpr uint32 spell_ride_vehicle_near_bell_pole = 107049;
         static constexpr uint32 spell_training_bell_exclusion_aura = 133381;
     }
 
