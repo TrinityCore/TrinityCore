@@ -1269,7 +1269,6 @@ struct npc_li_fei : public ScriptedAI
     {
         if (quest->GetQuestId() == Quest_Parchemin_Volant)
         {
-            
             Creature* lifei = player->FindNearestCreatureWithOptions(15.0f, { .StringId = "Li_Fei_Fight", .IgnorePhases = true});
 
             if (!lifei)
@@ -1338,7 +1337,7 @@ struct npc_li_fei_fight : public ScriptedAI
         _events.RescheduleEvent(Events::Event_check_player, 1500ms);
         _events.RescheduleEvent(Events::Event_feet_of_fury, 5000ms);
         _events.RescheduleEvent(Events::Event_shadow_kick, 10000ms);
-    }       
+    }  
 
     void DamageDealt(Unit* victim, uint32& damage, DamageEffectType /*damageType*/) override
     {
@@ -1350,7 +1349,7 @@ struct npc_li_fei_fight : public ScriptedAI
         damage = attacker->IsPlayer() ? (damage * 5) : (damage / 2);
 
         if (me->HealthBelowPctDamaged(50, damage))
-        {                
+        {
             me->SetImmuneToPC(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
 
@@ -1365,7 +1364,7 @@ struct npc_li_fei_fight : public ScriptedAI
 
                 if (!lifei)
                     return;
-                
+
                 lifei->Talk(Li_Fei_Talk_0, CHAT_MSG_SAY, 15.0f, player);
 
                 me->GetMotionMaster()->MovePoint(1, me->GetRespawnPosition());
