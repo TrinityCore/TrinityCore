@@ -1522,7 +1522,7 @@ namespace Scripts::WanderingIsle::Quest_29423
     public:
         at_enter_temple_quest_29423() : AreaTriggerScript("at_enter_temple_quest_29423") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
         {
             if (!player)
                 return false;
@@ -1569,7 +1569,7 @@ namespace Scripts::WanderingIsle::Quest_29423
     {
         npc_shanxi_quest(Creature* creature) : ScriptedAI(creature) {}
 
-        void OnQuestReward(Player* player, Quest const* quest, LootItemType type, uint32 opt) override
+        void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
         {
             if (quest->GetQuestId() == quest_the_passion_of_shen_zin_su)
             {
