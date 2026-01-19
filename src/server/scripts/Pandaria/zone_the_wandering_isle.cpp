@@ -33,6 +33,7 @@
 #include "TemporarySummon.h"
 #include "AreaTrigger.h"
 #include "AreaTriggerDataStore.h"
+#include "DB2Stores.h"
 
 enum TraineeMisc
 {
