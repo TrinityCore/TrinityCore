@@ -41,12 +41,15 @@ DELETE FROM `quest_request_items_locale` WHERE (`ID`=29662 AND `locale`='ruRU');
 INSERT INTO `quest_request_items_locale` (`ID`, `locale`, `CompletionText`, `VerifiedBuild`) VALUES
 (29662, 'ruRU', 'Если я начну хвастаться своей силой, ты мне не поверишь. Лучше я покажу.', 65299);
 
-UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry` IN (57620, 55021, 65467, 56394, 56393, 55015) AND `DifficultyID`=0); -- CanSwim
+UPDATE `creature_template_difficulty` SET `StaticFlags1`=0x10000000, `VerifiedBuild`=64978 WHERE (`Entry` IN (57620, 55021, 65467, 56394, 56393, 55015, 57638) AND `DifficultyID`=0); -- CanSwim
+UPDATE `creature_template_difficulty` SET `ContentTuningID`=80, `StaticFlags1`=0x20000100, `VerifiedBuild`=65299 WHERE (`Entry`=57636 AND `DifficultyID`=0); -- 57636 (Stack of Reeds) - Sessile, Floating
 
 UPDATE `creature_template` SET `npcflag`=4289 WHERE `entry`=57620; -- Whittler Dewei
 UPDATE `creature_template` SET `ScriptName`= 'npc_whitefeather_crane', `unit_flags3`=0x4000000 WHERE `entry`=55015; -- Whitefeather Crane
+UPDATE `creature_template` SET `speed_run`=1, `BaseAttackTime`=2000, `unit_flags2`=0x4000800, `unit_flags3`=0x41000000 WHERE `entry`=57636; -- Stack of Reeds
+UPDATE `creature_template` SET `ScriptName`= 'npc_jojo_ironbrow_summon', `BaseAttackTime`=2000, `unit_flags`=0x300, `unit_flags2`=0x800 WHERE `entry`=57638; -- Jojo Ironbrow
 
-DELETE FROM `npc_vendor` WHERE (`entry`=57620 AND `item`=39505 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=20815 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=39354 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=6260 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2324 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2604 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=6529 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=4289 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=3371 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2880 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2320 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=30817 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2678 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=6217 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=6256 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=5956 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=85663 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=2901 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=7005 AND `ExtendedCost`=0 AND `type`=1) OR (`entry`=57620 AND `item`=4470 AND `ExtendedCost`=0 AND `type`=1);
+DELETE FROM `npc_vendor` WHERE `entry`=57620;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `type`, `PlayerConditionID`, `IgnoreFiltering`, `VerifiedBuild`) VALUES
 (57620, 20, 39505, 0, 0, 1, 0, 0, 64978), -- Набор виртуозного начертателя
 (57620, 19, 20815, 0, 0, 1, 0, 0, 64978), -- Инструменты ювелира
@@ -72,3 +75,75 @@ INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `maxcount`, `ExtendedCost`, `
 DELETE FROM `gameobject_template_locale` WHERE `entry`=209507 AND `locale`='ruRU';
 INSERT INTO `gameobject_template_locale` (`entry`, `locale`, `name`, `castBarCaption`, `unk1`, `VerifiedBuild`) VALUES 
 (209507, 'ruRU', 'Жесткий тростник', 'Извлечение', NULL, 64978);
+
+DELETE FROM `quest_template_addon` WHERE `ID` IN (29662);
+INSERT INTO `quest_template_addon` (`ID`, `MaxLevel`, `AllowableClasses`, `SourceSpellID`, `PrevQuestID`, `NextQuestID`, `ExclusiveGroup`, `BreadcrumbForQuestId`, `RewardMailTemplateID`, `RewardMailDelay`, `RequiredSkillID`, `RequiredSkillPoints`, `RequiredMinRepFaction`, `RequiredMaxRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepValue`, `ProvidedItemCount`, `SpecialFlags`, `ScriptName`) VALUES
+(29662, 0, 0, 0, 0, 29676, -29661521, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'SmartQuest');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=29662 AND `source_type`=5;
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `Difficulties`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `event_param5`, `event_param_string`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `action_param7`, `action_param_string`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_param4`, `target_param_string`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
+(29662, 5, 0, 0, '', 50, 0, 100, 0, 0, 0, 0, 0, 0, '', 11, 108786, 0, 0, 0, 0, 0, 0, NULL, 7, 0, 0, 0, 0, NULL, 0, 0, 0, 0, 'On Quest 29662 Reward - Cast on Player - Summon Stack of Reeds');
+
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (108786, 108808);
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+(108786, 'spell_summon_stack_of_reeds'),
+(108808, 'spell_summon_jojo_ironbrow');
+
+DELETE FROM `creature_text` WHERE (`CreatureID` IN (57638));
+INSERT INTO `creature_text` (`CreatureID`, `GroupID`, `ID`, `Text`, `Type`, `Language`, `Probability`, `Emote`, `Duration`, `Sound`, `SoundPlayType`, `BroadcastTextId`, `comment`) VALUES
+(57638, 0, 0, 'The reeds of the Singing Pools are the hardest in all of the land, but they are as air before my mighty brow.', 12, 0, 100, 1, 0, 0, 0, 0, 'Jojo Ironbrow to Player'),
+(57638, 1, 0, 'Many have tested my claim, and I yet stand proven.', 12, 0, 100, 2, 0, 0, 0, 0, 'Jojo Ironbrow to Player');
+
+DELETE FROM `creature_text_locale` WHERE (`CreatureID` IN (57638) AND `Locale`='ruRU');
+INSERT INTO `creature_text_locale` (`CreatureID`, `GroupID`, `ID`, `Locale`, `Text`) VALUES 
+(57638, 0, 0, 'ruRU', 'Тростник Поющих прудов – прочнейший в этих краях, но для моего лба даже он – не прочнее воздуха.'),
+(57638, 1, 0, 'ruRU', 'Многие пытались испытать меня, но я несокрушим.');
+
+-- Jojo Ironbrow Path
+
+DELETE FROM `waypoint_path` WHERE `PathId`=5763800;
+INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES 
+(5763800, 0, 2, NULL, 'Jojo Ironbow - 57638');
+
+DELETE FROM `waypoint_path_node` WHERE `PathId`=5763800;
+INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`) VALUES 
+(5763800, 1, 1027.379, 3287.417, 126.2935),
+(5763800, 2, 1017.188, 3284.896, 122.1512),
+(5763800, 3, 1008.779, 3281.773, 126.0961),
+(5763800, 4, 1002.936, 3280.243, 129.183),
+(5763800, 5, 995.3472, 3277.767, 131.9249),
+(5763800, 6, 987.7708, 3274.967, 132.621),
+(5763800, 7, 980.6025, 3271.603, 132.3108),
+(5763800, 8, 972.566, 3266.958, 129.9221),
+(5763800, 9, 965.8785, 3262.287, 126.9234),
+(5763800, 10, 957.291, 3258.333, 124.2717),
+(5763800, 11, 954.6875, 3250.521, 123.0217),
+(5763800, 12, 956.0166, 3239.251, 119.8172),
+(5763800, 13, 958.2917, 3227.129, 119.1829),
+(5763800, 14, 961.0208, 3215.984, 118.8171),
+(5763800, 15, 965.2934, 3203.267, 119.1047),
+(5763800, 16, 968.9957, 3193.558, 119.7131),
+(5763800, 17, 965.625, 3186.459, 117.8083),
+(5763800, 18, 960.5972, 3180.624, 117.5583),
+(5763800, 19, 952.6045, 3169.271, 115.5682),
+(5763800, 20, 945.833, 3161.459, 115.3083),
+(5763800, 21, 938.7257, 3150.678, 116.1175),
+(5763800, 22, 930.743, 3137.845, 113.3987),
+(5763800, 23, 925.1771, 3127.699, 110.4666),
+(5763800, 24, 921.0226, 3119.696, 110.343),
+(5763800, 25, 917.9167, 3111.247, 110.0449),
+(5763800, 26, 916.8212, 3100.016, 108.6972),
+(5763800, 27, 918, 3090.027, 105.8014),
+(5763800, 28, 919.632, 3082.332, 102.7485),
+(5763800, 29, 922.191, 3071.392, 102.6767),
+(5763800, 30, 925.3594, 3059.755, 102.7432),
+(5763800, 31, 928.5191, 3048.86, 102.7789),
+(5763800, 32, 931.0364, 3042.571, 102.7266),
+(5763800, 33, 934.375, 3034.375, 102.8546),
+(5763800, 34, 937.5, 3030.209, 103.7299),
+(5763800, 35, 941.0504, 3025.699, 105.1759),
+(5763800, 36, 944.791, 3022.917, 105.7299),
+(5763800, 37, 958.5417, 3019.446, 105.591),
+(5763800, 38, 965.6684, 3015.705, 105.6983),
+(5763800, 39, 968.5799, 3009.252, 105.6935),
+(5763800, 40, 966.8698, 3002.406, 105.0397);
