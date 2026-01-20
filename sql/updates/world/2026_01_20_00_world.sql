@@ -13,4 +13,3 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 14 AND `SourceGroup` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ConditionStringValue1`, `NegativeCondition`, `ErrorType`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
 (14, 14006, 5002, 0, 0, 15, 0, 4, 0, 0, '', 1, 0, 0, '', 'Show gossip text if player is not a Hunter'),
 (14, 14006, 4888, 0, 0, 15, 0, 4, 0, 0, '', 0, 0, 0, '', 'Show gossip text if player is a Hunter');
-
