@@ -1231,6 +1231,87 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29662
+{
+    static constexpr uint32 spell_curse_of_the_frog = 102938;
+    static constexpr uint32 spell_razor_beak = 109088;
+
+    static constexpr uint32 event_check_players = 1;
+    static constexpr uint32 event_cast_razor_beak = 2;
+
+    // 55015 aggro and evade on frog pool 
+    struct npc_whitefeather_crane : public ScriptedAI
+    {
+        npc_whitefeather_crane(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset() override
+        {
+            _events.Reset();
+            _events.RescheduleEvent(event_check_players, 1s);
+        }
+
+        void EnterCombat()
+        {
+            _events.CancelEvent(event_check_players);
+            _events.RescheduleEvent(event_cast_razor_beak, 8s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (!UpdateVictim())
+            {
+                if (_events.ExecuteEvent() == event_check_players)
+                {
+                    if (Player* player = me->SelectNearestPlayer(10.0f))
+                    {
+                        if (player->IsAlive() && !player->IsGameMaster() && player->HasAura(spell_curse_of_the_frog))
+                        {
+                            AttackStart(player);
+                            EnterCombat();
+                            return;
+                        }
+                    }
+                    _events.RescheduleEvent(event_check_players, 1s);
+                }
+                return;
+            }
+
+            if (Unit* victim = me->GetVictim())
+            {
+                if (!victim->HasAura(spell_curse_of_the_frog))
+                {
+                    if (me->IsInCombat())
+                    {
+                        EnterEvadeMode();
+                        _events.RescheduleEvent(event_check_players, 1s);
+                    }
+                    return;
+                }
+            }
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case event_cast_razor_beak:
+                    if (Unit* target = me->GetVictim())
+                    {
+                        DoCast(target, spell_razor_beak);
+                    }
+                    _events.RescheduleEvent(event_cast_razor_beak, 8s);
+                    break;
+                }
+            }
+
+            me->DoMeleeAttackIfReady();
+        }
+        private:
+            EventMap _events;
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1254,4 +1335,7 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29662;
+    RegisterCreatureAI(npc_whitefeather_crane);
 }
