@@ -1237,7 +1237,7 @@ namespace Scripts::WanderingIsle::Quest_29662
     {
         static constexpr uint32 spell_curse_of_the_frog = 102938;
         static constexpr uint32 spell_razor_beak = 109088;
-        
+
         static constexpr uint32 spell_jojo_headbash_reeds_cast = 129272;
         static constexpr uint32 spell_jojo_headbash_stack_of_reeds_impact = 108798;
     }
@@ -1338,7 +1338,7 @@ namespace Scripts::WanderingIsle::Quest_29662
             EventMap _events;
     };
 
-    // 108786 
+    // 108786
     class spell_summon_stack_of_reeds : public SpellScript
     {
 
@@ -1353,7 +1353,7 @@ namespace Scripts::WanderingIsle::Quest_29662
         }
     };
 
-    // 108808 
+    // 108808
     class spell_summon_jojo_ironbrow : public SpellScript
     {
 
@@ -1374,7 +1374,7 @@ namespace Scripts::WanderingIsle::Quest_29662
         void FilterTargets(std::list<WorldObject*>& targets)
         {
             targets.remove_if([](WorldObject* target)
-                {                   
+                {
                     if (target->GetEntry() != npc_Stack_of_Reeds)
                     {
                         return true;
@@ -1408,7 +1408,7 @@ namespace Scripts::WanderingIsle::Quest_29662
                     });
                 _scheduler.Schedule(3s, [this](TaskContext /*task*/)
                     {
-                        me->SetAIAnimKitId(0);                       
+                        me->SetAIAnimKitId(0);
                     });
                 _scheduler.Schedule(4s, [this](TaskContext /*task*/)
                     {
@@ -1430,10 +1430,10 @@ namespace Scripts::WanderingIsle::Quest_29662
             }
         }
 
-        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override
+        void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
         {
             if (pathId == path_jojo)
-            {                
+            {
                 me->DespawnOrUnsummon();
             }
         }
@@ -1447,7 +1447,7 @@ namespace Scripts::WanderingIsle::Quest_29662
         ObjectGuid _playerGuid;
 
         TaskScheduler _scheduler;
-    };   
+    };
 };
 
 void AddSC_zone_the_wandering_isle()
