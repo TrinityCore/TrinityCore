@@ -13857,6 +13857,10 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId, bool showQues
                 case GossipOptionNpc::Trainer:
                 case GossipOptionNpc::Binder:
                 case GossipOptionNpc::Banker:
+                    break;
+                case GossipOptionNpc::ChromieTimeNpc:
+                    canTalk = true;
+                    break;
                 case GossipOptionNpc::PetitionVendor:
                 case GossipOptionNpc::GuildTabardVendor:
                 case GossipOptionNpc::Auctioneer:
@@ -14051,7 +14055,8 @@ void Player::OnGossipSelect(WorldObject* source, int32 gossipOptionId, uint32 me
             break;
         case GossipOptionNpc::GarrisonRecruitment: // NYI
             break;
-        case GossipOptionNpc::ChromieTimeNpc: // NYI
+        case GossipOptionNpc::ChromieTimeNpc:
+            SendChromieTimeSelectExpansion(guid);
             break;
         case GossipOptionNpc::RuneforgeLegendaryCrafting: // NYI
             break;
@@ -16053,6 +16058,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::LegendaryRewardCompleteNoPOI : QuestGiverStatus::LegendaryRewardCompletePOI;
                 else if (quest->IsDailyOrWeekly())
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::RepeatableRewardCompleteNoPOI : QuestGiverStatus::RepeatableRewardCompletePOI;
+                else if (quest->IsCampaign(this))
+                    result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::JourneyRewardCompleteNoPOI : QuestGiverStatus::JourneyRewardCompleteNoPOI;
                 else
                     result |= quest->HasFlag(QUEST_FLAGS_HIDE_REWARD_POI) ? QuestGiverStatus::RewardCompleteNoPOI : QuestGiverStatus::RewardCompletePOI;
                 break;
@@ -16067,6 +16074,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     result |= QuestGiverStatus::LegendaryReward;
                 else if (quest->IsDailyOrWeekly())
                     result |= QuestGiverStatus::RepeatableReward;
+                else if (quest->IsCampaign(this))
+                    result |= QuestGiverStatus::JourneyReward;
                 else
                     result |= QuestGiverStatus::Reward;
                 break;
@@ -16110,6 +16119,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                         result |= isTrivial ? QuestGiverStatus::TrivialLegendaryQuest : QuestGiverStatus::LegendaryQuest;
                     else if (quest->IsDailyOrWeekly())
                         result |= isTrivial ? QuestGiverStatus::TrivialRepeatableQuest : QuestGiverStatus::RepeatableQuest;
+                    else if (quest->IsCampaign(this))
+                        result |= isTrivial ? QuestGiverStatus::TrivialJourneyQuest : QuestGiverStatus::JourneyQuest;
                     else
                         result |= isTrivial ? QuestGiverStatus::Trivial : QuestGiverStatus::Quest;
                 }
@@ -16117,6 +16128,8 @@ QuestGiverStatus Player::GetQuestDialogStatus(Object const* questgiver) const
                     result |= QuestGiverStatus::FutureImportantQuest;
                 else if (quest->HasFlagEx(QUEST_FLAGS_EX_LEGENDARY))
                     result |= QuestGiverStatus::FutureLegendaryQuest;
+                else if (quest->IsCampaign(this))
+                    result |= QuestGiverStatus::FutureJourneyQuest;
                 else
                     result |= QuestGiverStatus::Future;
             }
@@ -18567,6 +18580,9 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
 
         _restMgr->AddRestBonus(REST_TYPE_XP, time_diff * _restMgr->CalcExtraPerSec(REST_TYPE_XP, bubble));
     }
+
+    if (GetChromieTime())
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), GetChromieTime());
 
     // Unlock battle pet system if it's enabled in bnet account
     if (GetSession()->GetBattlePetMgr()->IsBattlePetSystemEnabled())
@@ -31148,3 +31164,91 @@ bool Player::CanExecutePendingSpellCastRequest()
 
     return true;
 }
+
+void Player::SetChromieTime(uint32 expansionID, uint16 expansionMask)
+{
+    ObjectGuid guid = GetGUID();
+    UIChromieTimeExpansionInfoEntry const* expansion = sUIChromieTimeExpansionInfoStore.LookupEntry(expansionID);
+
+    if (!expansion)
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), ChromietimeCurrent);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::FactionGroup), GetTeam() == ALLIANCE ? 3 : 5);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ConditionalFlags), 16420);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ChromieTimeExpansionMask), 0);
+    }
+    else
+    {
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_activePlayerData).ModifyValue(&UF::ActivePlayerData::UiChromieTimeExpansionID), expansionID);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::FactionGroup), GetTeam() == ALLIANCE ? 3 : 5);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ConditionalFlags), 5);
+        SetUpdateFieldValue(m_values.ModifyValue(&Player::m_playerData).ModifyValue(&UF::PlayerData::CtrOptions).ModifyValue(&UF::CTROptions::ChromieTimeExpansionMask), expansionMask);
+    }
+
+    WorldPackets::NPC::ChromieTimeSelectExpansionSuccess success;
+    SendDirectMessage(success.Write());
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHROMIE_TIME);
+    stmt->setUInt16(0, expansionID);
+    stmt->setUInt64(1, guid.GetCounter());
+    CharacterDatabase.Execute(stmt);
+}
+
+uint16 Player::GetChromieTime()
+{
+    ObjectGuid guid = GetGUID();
+
+    CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHROMIE_TIME);
+    stmt->setUInt64(0, guid.GetCounter());
+    PreparedQueryResult chromieTime = CharacterDatabase.Query(stmt);
+
+    if (!chromieTime)
+        return 0;
+    Field* fields = chromieTime->Fetch();
+    uint16 _chromieTime = fields[0].GetUInt16();
+
+    return _chromieTime;
+}
+
+uint8 Player::GetChromieTimeExpansionLevel(uint8 chromieTime)
+{
+    switch (chromieTime)
+    {
+    case ChromieTime::ChromietimeOutland:
+        return EXPANSION_THE_BURNING_CRUSADE;
+        break;
+    case ChromieTime::ChromietimeLichking:
+        return EXPANSION_WRATH_OF_THE_LICH_KING;
+        break;
+    case ChromieTime::ChromietimeCataclysm:
+        return EXPANSION_CATACLYSM;
+        break;
+    case ChromieTime::ChromietimePandaria:
+        return EXPANSION_MISTS_OF_PANDARIA;
+        break;
+    case ChromieTime::ChromietimeDraenor:
+        return EXPANSION_WARLORDS_OF_DRAENOR;
+        break;
+    case ChromieTime::ChromietimeLegion:
+        return EXPANSION_LEGION;
+        break;
+    case ChromieTime::ChromietimeShadowlands:
+        return EXPANSION_SHADOWLANDS;
+        break;
+    case ChromieTime::ChromietimeDragonflight:
+        return EXPANSION_DRAGONFLIGHT;
+    case ChromieTime::ChromietimeCurrent:
+    default:
+        return EXPANSION_THE_WAR_WITHIN;
+        break;
+    }
+}
+
+void Player::SendChromieTimeSelectExpansion(ObjectGuid guid) const
+{
+    WorldPackets::NPC::NPCInteractionOpenResult npcInteraction;
+    npcInteraction.Npc = guid;
+    npcInteraction.InteractionType = PlayerInteractionType::ChromieTime;
+    SendDirectMessage(npcInteraction.Write());
+}
+

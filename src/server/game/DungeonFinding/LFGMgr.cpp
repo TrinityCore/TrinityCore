@@ -43,7 +43,7 @@ namespace lfg
 {
 
 LFGDungeonData::LFGDungeonData() : id(0), name(), map(0), type(0), expansion(0), group(0), contentTuningId(0),
-    difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0)
+    difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f), requiredItemLevel(0), finalDungeonEncounterId(0), reuiredPlayerCondition(0)
 {
 }
 
@@ -51,7 +51,7 @@ LFGDungeonData::LFGDungeonData(LFGDungeonsEntry const* dbc) : id(dbc->ID), name(
     type(uint8(dbc->TypeID)), expansion(uint8(dbc->ExpansionLevel)), group(uint8(dbc->GroupID)),
     contentTuningId(uint32(dbc->ContentTuningID)), difficulty(Difficulty(dbc->DifficultyID)),
     seasonal((dbc->Flags[0] & LFG_FLAG_SEASONAL) != 0), x(0.0f), y(0.0f), z(0.0f), o(0.0f),
-    requiredItemLevel(0), finalDungeonEncounterId(0)
+    requiredItemLevel(0), finalDungeonEncounterId(0), reuiredPlayerCondition(0)
 {
     if (JournalEncounterEntry const* journalEncounter = sJournalEncounterStore.LookupEntry(dbc->FinalEncounterID))
         finalDungeonEncounterId = journalEncounter->DungeonEncounterID;
@@ -1728,7 +1728,7 @@ uint32 LFGMgr::GetSelectedRandomDungeon(ObjectGuid guid)
 LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
 {
     TC_LOG_TRACE("lfg.data.player.dungeons.locked.get", "Player: {}, LockedDungeons.", guid.ToString());
-    LfgLockMap lock;
+    lfg::LfgLockMap lock;
     Player* player = ObjectAccessor::FindConnectedPlayer(guid);
     if (!player)
     {
@@ -1736,68 +1736,85 @@ LfgLockMap LFGMgr::GetLockedDungeons(ObjectGuid guid)
         return lock;
     }
 
-    uint8 level = player->GetLevel();
-    uint8 expansion = player->GetSession()->GetExpansion();
-    LfgDungeonSet const& dungeons = GetDungeonsByRandom(0);
+    uint8 playerLevel = player->GetLevel();
+    uint8 playerSelectedExpansion = player->GetChromieTimeExpansionLevel(player->GetChromieTime());
+    uint32 contentTuningReplacementConditionMask = player->m_playerData->CtrOptions->ConditionalFlags;
     bool denyJoin = !player->GetSession()->HasPermission(rbac::RBAC_PERM_JOIN_DUNGEON_FINDER);
 
-    for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end(); ++it)
+    for (LFGDungeonsEntry const* dungeon : sLFGDungeonsStore)
     {
-        LFGDungeonData const* dungeon = GetLFGDungeon(*it);
-        if (!dungeon) // should never happen - We provide a list from sLfgDungeonsStore
-            continue;
-
         uint32 lockStatus = [&]() -> uint32
-        {
-            if (denyJoin)
-                return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (dungeon->expansion > expansion)
-                return LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, player))
-                return LFG_LOCKSTATUS_NOT_IN_SEASON;
-            if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->map, player))
-                return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (sInstanceLockMgr.FindActiveInstanceLock(guid, { dungeon->map, Difficulty(dungeon->difficulty) }))
-                return LFG_LOCKSTATUS_RAID_LOCKED;
-            if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->contentTuningId, player->m_playerData->CtrOptions->ConditionalFlags))
             {
-                if (levels->MinLevel > level)
-                    return LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-                if (levels->MaxLevel < level)
-                    return LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
-            }
-            if (dungeon->seasonal && !IsSeasonActive(dungeon->id))
-                return LFG_LOCKSTATUS_NOT_IN_SEASON;
-            if (dungeon->requiredItemLevel > player->GetAverageItemLevel())
-                return LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-            if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty)))
-            {
-                if (ar->achievement && !player->HasAchieved(ar->achievement))
-                    return LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
-                if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
-                    return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
-                    return LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                if (denyJoin)
+                    return lfg::LFG_LOCKSTATUS_RAID_LOCKED;
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, dungeon->MapID, player))
+                    return lfg::LFG_LOCKSTATUS_NOT_IN_SEASON;
+                if (DisableMgr::IsDisabledFor(DISABLE_TYPE_LFG_MAP, dungeon->MapID, player))
+                    return lfg::LFG_LOCKSTATUS_RAID_LOCKED;
 
-                if (ar->item)
+                if (player->GetChromieTime() > ChromietimeCurrent && dungeon->ExpansionLevel != playerSelectedExpansion)
                 {
-                    if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
-                        return LFG_LOCKSTATUS_MISSING_ITEM;
+                    return lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
                 }
-                else if (ar->item2 && !player->HasItemCount(ar->item2))
-                    return LFG_LOCKSTATUS_MISSING_ITEM;
-            }
 
-            /* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
-            lockData = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
-            lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
-            lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
-            */
-            return 0;
-        }();
+                // TODO: Playerconditions
+
+                if (Optional<ContentTuningLevels> levels = sDB2Manager.GetContentTuningData(dungeon->ContentTuningID, contentTuningReplacementConditionMask))
+                {
+                    if (levels->MinLevel > playerLevel)
+                        return lfg::LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+                    //                 if (levels->MaxLevel < playerLevel)
+                    //                     return lfg::LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+                }
+
+                if ((dungeon->Flags[0] & lfg::LFG_FLAG_SEASONAL) && !sLFGMgr->IsSeasonActive(dungeon->ID))
+                {
+                    return lfg::LFG_LOCKSTATUS_NOT_IN_SEASON;
+                }
+
+                //if (dungeon->MinGear > player->GetAverageItemLevel() && dungeon->DifficultyID == DIFFICULTY_HEROIC)
+                //    return lfg::LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+
+                if (AccessRequirement const* ar = sObjectMgr->GetAccessRequirement(dungeon->MapID, Difficulty(dungeon->DifficultyID)))
+                {
+                    if (ar->achievement && !player->HasAchieved(ar->achievement))
+                        return lfg::LFG_LOCKSTATUS_MISSING_ACHIEVEMENT;
+                    if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
+                        return lfg::LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                    if (player->GetTeam() == HORDE && ar->quest_H && !player->GetQuestRewardStatus(ar->quest_H))
+                        return lfg::LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+
+                    if (ar->item)
+                    {
+                        if (!player->HasItemCount(ar->item) && (!ar->item2 || !player->HasItemCount(ar->item2)))
+                            return lfg::LFG_LOCKSTATUS_MISSING_ITEM;
+                    }
+                    else if (ar->item2 && !player->HasItemCount(ar->item2))
+                        return lfg::LFG_LOCKSTATUS_MISSING_ITEM;
+                }
+                if (dungeon->DifficultyID != DIFFICULTY_NORMAL && dungeon->DifficultyID != DIFFICULTY_HEROIC)
+                    return lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
+                /* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
+                lockData = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
+                lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
+                lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
+                */
+
+                return 0;
+            }();
 
         if (lockStatus)
-            lock[dungeon->Entry()] = LfgLockInfoData(lockStatus, dungeon->requiredItemLevel, player->GetAverageItemLevel());
+        {
+            switch (lockStatus)
+            {
+            case lfg::LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION:
+                lock[dungeon->Entry()] = lfg::LfgLockInfoData(lockStatus, dungeon->MinGear, player->GetAverageItemLevel(), true);
+                break;
+            default:
+                lock[dungeon->Entry()] = lfg::LfgLockInfoData(lockStatus, dungeon->MinGear, player->GetAverageItemLevel(), false);
+                break;
+            }
+        }
     }
 
     return lock;

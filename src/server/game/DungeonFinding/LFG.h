@@ -108,7 +108,8 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
     LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
     LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
-    LFG_LOCKSTATUS_MISSING_ACHIEVEMENT           = 1034
+    LFG_LOCKSTATUS_MISSING_ACHIEVEMENT           = 1034,
+    LFG_LOCKSTATUS_NOT_IN_CHROMIETIME            = 2000
 };
 
 /// Answer state (Also used to check compatibilites)
@@ -121,12 +122,13 @@ enum LfgAnswer
 
 struct TC_GAME_API LfgLockInfoData
 {
-    LfgLockInfoData(uint32 _lockStatus = 0, uint16 _requiredItemLevel = 0, float _currentItemLevel = 0) :
-        lockStatus(_lockStatus), requiredItemLevel(_requiredItemLevel), currentItemLevel(_currentItemLevel) { }
+    LfgLockInfoData(uint32 _lockStatus = 0, uint16 _requiredItemLevel = 0, float _currentItemLevel = 0, bool _softLock = false) :
+        lockStatus(_lockStatus), requiredItemLevel(_requiredItemLevel), currentItemLevel(_currentItemLevel), softLock(_softLock) { }
 
     uint32 lockStatus;
     uint16 requiredItemLevel;
     float currentItemLevel;
+    bool softLock;
 };
 
 typedef std::set<uint32> LfgDungeonSet;

@@ -809,6 +809,42 @@ struct BroadcastTextDurationLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 4, &BroadcastTextDurationMeta::Instance, HOTFIX_SEL_BROADCAST_TEXT_DURATION };
 };
 
+struct CampaignLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[14] =
+    {
+        {.IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        {.IsSigned = false, .Type = FT_STRING, .Name = "Title" },
+        {.IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "UiTextureKitID" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "RewardQuestID" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Prerequisite" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Field_9_0_1_35755_007" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Completed" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "OnlyStallIf" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "UiQuestDetailsThemeID" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "DisplayPriority" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Field_10_0_2_45779_012" },
+        {.IsSigned = true, .Type = FT_INT, .Name = "Field_10_0_2_46144_013" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &CampaignMeta::Instance, HOTFIX_SEL_CAMPAIGN };
+};
+
+struct CampaignXQuestLineLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        {.IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        {.IsSigned = false, .Type = FT_INT, .Name = "CampaignID" },
+        {.IsSigned = false, .Type = FT_INT, .Name = "QuestLineID" },
+        {.IsSigned = false, .Type = FT_INT, .Name = "OrderIndex" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &CampaignXQuestLineMeta::Instance, HOTFIX_SEL_CAMPAIGN_X_QUEST_LINE };
+};
+
 struct CfgCategoriesLoadInfo
 {
     static constexpr DB2FieldMeta Fields[7] =
@@ -6567,6 +6603,29 @@ struct TransportRotationLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 7, &TransportRotationMeta::Instance, HOTFIX_SEL_TRANSPORT_ROTATION };
+};
+
+struct UiChromieTimeExpansionInfoLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[14] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "AllianceOverrideDesc" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "HordeOverrideDesc" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SpellID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "MapAtlasElement" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "PreviewAtlasElement" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ShowPlayerConditionID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ExpansionMask" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ContentTuningID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CompletedPlayerConditionID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SortPriority" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "RecommendPlayerConditionID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 14, &UIChromieTimeExpansionInfoMeta::Instance, HOTFIX_SEL_UI_CHROMIE_TIME_EXPANSION_INFO };
 };
 
 struct UiMapLoadInfo

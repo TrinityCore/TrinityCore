@@ -105,6 +105,33 @@ enum Expansions
 
 #define CURRENT_EXPANSION EXPANSION_THE_WAR_WITHIN
 
+enum ChromieTimeExpansionMask : int32
+{
+    PortalToOutland         = 2,
+    FallOfTheLiechKing      = 4,
+    TheCataclysm            = 9,
+    WildsOfPandaria         = 16,
+    Draenor                 = 32,
+    TheLegionInvasion       = 64,
+    BattleForAzeroth        = 128,
+    Shadowlands             = 256,
+    Dragonflight            = 512
+};
+
+enum ChromieTime : int32
+{
+    ChromietimeCurrent          = 0,
+    ChromietimeCataclysm        = 5,
+    ChromietimeOutland          = 6,
+    ChromietimeLichking         = 7,
+    ChromietimePandaria         = 8,
+    ChromietimeDraenor          = 9,
+    ChromietimeLegion           = 10,
+    ChromietimeShadowlands      = 14,
+    ChromietimeBattleForAzeroth = 15,
+    ChromietimeDragonflight     = 16,
+};
+
 constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
 {
     switch (expansion)
