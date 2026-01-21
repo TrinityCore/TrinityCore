@@ -1237,7 +1237,7 @@ namespace Scripts::WanderingIsle::Quest_29662
     {
         static constexpr uint32 spell_curse_of_the_frog = 102938;
         static constexpr uint32 spell_razor_beak = 109088;
-
+        
         static constexpr uint32 spell_jojo_headbash_reeds_cast = 129272;
         static constexpr uint32 spell_jojo_headbash_stack_of_reeds_impact = 108798;
     }
@@ -1263,7 +1263,7 @@ namespace Scripts::WanderingIsle::Quest_29662
     }
 
     static constexpr uint16 Jojo_AiAnimKitID = 2935;
-
+    static constexpr uint32 npc_Stack_of_Reeds = 57636;
     static constexpr uint32 path_jojo = 5763800;
 
     // 55015 aggro on frog pool
@@ -1338,7 +1338,7 @@ namespace Scripts::WanderingIsle::Quest_29662
             EventMap _events;
     };
 
-    // 108786
+    // 108786 
     class spell_summon_stack_of_reeds : public SpellScript
     {
 
@@ -1353,7 +1353,7 @@ namespace Scripts::WanderingIsle::Quest_29662
         }
     };
 
-    // 108808
+    // 108808 
     class spell_summon_jojo_ironbrow : public SpellScript
     {
 
@@ -1365,6 +1365,27 @@ namespace Scripts::WanderingIsle::Quest_29662
         void Register() override
         {
             OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_jojo_ironbrow::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 108798 spell_jojo_headbash_stack_of_reeds_impact
+    class spell_jojo_headbash_filter : public SpellScript
+    {
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            targets.remove_if([](WorldObject* target)
+                {                   
+                    if (target->GetEntry() != npc_Stack_of_Reeds)
+                    {
+                        return true;
+                    }
+                    return false;
+                });
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_jojo_headbash_filter::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
         }
     };
 
@@ -1385,13 +1406,14 @@ namespace Scripts::WanderingIsle::Quest_29662
                     {
                         me->AI()->Talk(Talks::Jojo_Talk_0, player);
                     });
-
                 _scheduler.Schedule(3s, [this](TaskContext /*task*/)
                     {
-                        me->SetAIAnimKitId(1);
+                        me->SetAIAnimKitId(0);                       
+                    });
+                _scheduler.Schedule(4s, [this](TaskContext /*task*/)
+                    {
                         me->GetMotionMaster()->MovePoint(1, Positions::JojoMovePoint);
                     });
-
                 _scheduler.Schedule(6200ms, [this](TaskContext /*task*/)
                     {
                         me->CastSpell(me, Spells::spell_jojo_headbash_reeds_cast);
@@ -1408,10 +1430,10 @@ namespace Scripts::WanderingIsle::Quest_29662
             }
         }
 
-        void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+        void WaypointPathEnded(uint32 nodeId, uint32 pathId) override
         {
             if (pathId == path_jojo)
-            {
+            {                
                 me->DespawnOrUnsummon();
             }
         }
@@ -1425,7 +1447,7 @@ namespace Scripts::WanderingIsle::Quest_29662
         ObjectGuid _playerGuid;
 
         TaskScheduler _scheduler;
-    };
+    };   
 };
 
 void AddSC_zone_the_wandering_isle()
@@ -1456,5 +1478,6 @@ void AddSC_zone_the_wandering_isle()
     RegisterCreatureAI(npc_whitefeather_crane);
     RegisterSpellScript(spell_summon_stack_of_reeds);
     RegisterSpellScript(spell_summon_jojo_ironbrow);
+    RegisterSpellScript(spell_jojo_headbash_filter);
     RegisterCreatureAI(npc_jojo_ironbrow_summon);
 }
