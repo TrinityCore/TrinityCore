@@ -4,7 +4,7 @@ SET @ENTRY := 488;
 SET @PATH := @ENTRY * 100;
 DELETE FROM `waypoint_path` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 0, 0x02, NULL, 'Protector Weaver - Cyclic Path');
+(@PATH, 0, 0x0, NULL, 'Protector Weaver - Cosmetic Path');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -28,7 +28,7 @@ SET @ENTRY := 489;
 SET @PATH := @ENTRY * 100;
 DELETE FROM `waypoint_path` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 0, 0x02, NULL, 'Protector Dutfield - Cyclic Path');
+(@PATH, 0, 0x0, NULL, 'Protector Dutfield - Cosmetic Path');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
@@ -53,7 +53,7 @@ SET @ENTRY := 874;
 SET @PATH := @ENTRY * 100;
 DELETE FROM `waypoint_path` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
-(@PATH, 0, 0x03, NULL, 'Protector Korelor - Cosmetic Path');
+(@PATH, 0, 0x01, NULL, 'Protector Korelor - Cosmetic Path');
 
 DELETE FROM `waypoint_path_node` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
