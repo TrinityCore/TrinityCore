@@ -236,7 +236,7 @@ public:
     {
     public:
         explicit GarrisonInfo(GarrTypeEntry const* garrType, GarrSiteLevelEntry const* siteLevel)
-            : GarrType(garrType), GarrSiteLevel(siteLevel), _numFollowerActivationsRemainingToday(1), _numMissionsStartedToday(0), _minAutoTroopLevel(0)
+            : _garrType(garrType), _garrSiteLevel(siteLevel), _numFollowerActivationsRemainingToday(1), _numMissionsStartedToday(0), _minAutoTroopLevel(0)
         {
 
         }
@@ -249,12 +249,12 @@ public:
         void SetMinAutoTroopLevel(int32 minAutoTroopLevel) { _minAutoTroopLevel = minAutoTroopLevel; }
         int32 GetMinAutoTroopLevel() const { return _minAutoTroopLevel; }
 
-        GarrTypeEntry const* GetGarrType() const { return GarrType; }
-        GarrSiteLevelEntry const* GetGarrSiteLevel() const { return GarrSiteLevel; }
+        GarrTypeEntry const* GetGarrType() const { return _garrType; }
+        GarrSiteLevelEntry const* GetGarrSiteLevel() const { return _garrSiteLevel; }
 
     private:
-        GarrTypeEntry const* GarrType;
-        GarrSiteLevelEntry const* GarrSiteLevel;
+        GarrTypeEntry const* _garrType;
+        GarrSiteLevelEntry const* _garrSiteLevel;
 
         uint32 _numFollowerActivationsRemainingToday;
         uint32 _numMissionsStartedToday;
