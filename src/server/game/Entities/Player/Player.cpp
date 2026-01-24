@@ -25275,8 +25275,9 @@ void Player::DailyReset()
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    if (_garrison)
-        _garrison->ResetFollowerActivationLimit();
+    // todo what about the other garrisons?
+    if (Garrison::GarrisonInfo* garrisonInfo = _garrison->GetGarrisonInfo(GARRISON_TYPE_GARRISON))
+        garrisonInfo->ResetFollowerActivationLimit();
 
     FailCriteria(CriteriaFailEvent::DailyQuestsCleared, 0);
 }
@@ -29682,18 +29683,13 @@ bool Player::IsInWhisperWhiteList(ObjectGuid guid)
 
 void Player::CreateGarrison(uint32 garrSiteId)
 {
-    std::unique_ptr<Garrison> garrison(new Garrison(this));
-    if (garrison->Create(garrSiteId))
-        _garrison = std::move(garrison);
+    _garrison->Create(garrSiteId);
 }
 
 void Player::DeleteGarrison()
 {
-    if (_garrison)
-    {
-        _garrison->Delete();
-        _garrison.reset();
-    }
+    if (Garrison::GarrisonInfo* garrisonInfo = _garrison->GetGarrisonInfo(GARRISON_TYPE_GARRISON))
+        _garrison->Delete(garrisonInfo->GetGarrSiteLevel()->GarrSiteID);
 }
 
 void Player::SendMovementSetCollisionHeight(float height, WorldPackets::Movement::UpdateCollisionHeightReason reason)
