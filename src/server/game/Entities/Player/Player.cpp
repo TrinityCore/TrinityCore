@@ -29689,7 +29689,7 @@ void Player::CreateGarrison(uint32 garrSiteId)
 void Player::DeleteGarrison()
 {
     if (Garrison::GarrisonInfo* garrisonInfo = _garrison->GetGarrisonInfo(GARRISON_TYPE_GARRISON))
-        _garrison->Delete(garrisonInfo->GetGarrSiteLevel()->GarrSiteID);
+        _garrison->Delete(garrisonInfo->GarrSiteLevel->GarrSiteID);
 }
 
 void Player::SendMovementSetCollisionHeight(float height, WorldPackets::Movement::UpdateCollisionHeightReason reason)
