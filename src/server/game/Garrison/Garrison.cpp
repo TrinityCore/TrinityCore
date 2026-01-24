@@ -85,10 +85,10 @@ bool Garrison::LoadFromDB(PreparedQueryResult garrisons, PreparedQueryResult blu
             continue;
         }
 
-        std::unique_ptr<GarrisonInfo> garrInfo = std::make_unique<GarrisonInfo>(garrTypeEntry, garrSiteLevel);
+        GarrisonInfo garrInfo(garrTypeEntry, garrSiteLevel);
 
-        garrInfo->SetNumFollowerActivationRemainingToday(fields[2].GetUInt32());
-        _garrisonInfo[garrTypeEntry->ID] = std::move(garrInfo);
+        garrInfo.NumFollowerActivationsRemainingToday = fields[2].GetUInt32();
+        _garrisonInfo.emplace(garrTypeEntry->ID, std::move(garrInfo));
 
     } while (garrisons->NextRow());
 
@@ -195,9 +195,9 @@ void Garrison::SaveToDB(CharacterDatabaseTransaction trans)
     for (auto const& garrInfo : _garrisonInfo | std::views::values)
     {
         stmt->setUInt64(0, _owner->GetGUID().GetCounter());
-        stmt->setUInt8(1, garrInfo->GetGarrType()->ID);
-        stmt->setUInt32(2, garrInfo->GetGarrSiteLevel()->ID);
-        stmt->setUInt32(3, garrInfo->GetNumFollowerActivationsRemainingToday());
+        stmt->setUInt8(1, garrInfo.GarrType->ID);
+        stmt->setUInt32(2, garrInfo.GarrSiteLevel->ID);
+        stmt->setUInt32(3, garrInfo.NumFollowerActivationsRemainingToday);
         trans->Append(stmt);
     }
 
@@ -287,7 +287,7 @@ bool Garrison::Create(uint32 garrSiteId)
     if (_garrisonInfo.contains(garrType->ID))
         return false;
 
-    _garrisonInfo[garrType->ID] = std::make_unique<GarrisonInfo>(garrType, siteLevel);
+    _garrisonInfo.emplace(garrType->ID, GarrisonInfo(garrType, siteLevel));
 
     InitializePlots();
 
@@ -329,13 +329,13 @@ void Garrison::InitializePlots()
 {
     for (auto const& garrisonInfo : _garrisonInfo | std::views::values)
     {
-        if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(garrisonInfo->GetGarrSiteLevel()->ID))
+        if (std::vector<GarrSiteLevelPlotInstEntry const*> const* plots = sGarrisonMgr.GetGarrPlotInstForSiteLevel(garrisonInfo.GarrSiteLevel->ID))
         {
             for (std::size_t i = 0; i < plots->size(); ++i)
             {
                 uint32 garrPlotInstanceId = plots->at(i)->GarrPlotInstanceID;
                 GarrPlotInstanceEntry const* plotInstance = sGarrPlotInstanceStore.LookupEntry(garrPlotInstanceId);
-                GameObjectsEntry const* gameObject = sGarrisonMgr.GetPlotGameObject(garrisonInfo->GetGarrSiteLevel()->MapID, garrPlotInstanceId);
+                GameObjectsEntry const* gameObject = sGarrisonMgr.GetPlotGameObject(garrisonInfo.GarrSiteLevel->MapID, garrPlotInstanceId);
                 if (!plotInstance || !gameObject)
                     continue;
 
@@ -367,9 +367,9 @@ void Garrison::Enter() const
     if (!garrInfo)
         return;
 
-    if (MapEntry const* map = sMapStore.LookupEntry(garrInfo->GetGarrSiteLevel()->MapID))
+    if (MapEntry const* map = sMapStore.LookupEntry(garrInfo->GarrSiteLevel->MapID))
         if (int32(_owner->GetMapId()) == map->ParentMapID)
-            _owner->TeleportTo(WorldLocation(garrInfo->GetGarrSiteLevel()->MapID, *_owner), TELE_TO_SEAMLESS);
+            _owner->TeleportTo(WorldLocation(garrInfo->GarrSiteLevel->MapID, *_owner), TELE_TO_SEAMLESS);
 }
 
 void Garrison::Leave() const
@@ -378,8 +378,8 @@ void Garrison::Leave() const
     if (!garrInfo)
         return;
 
-    if (MapEntry const* map = sMapStore.LookupEntry(garrInfo->GetGarrSiteLevel()->MapID))
-        if (_owner->GetMapId() == garrInfo->GetGarrSiteLevel()->MapID)
+    if (MapEntry const* map = sMapStore.LookupEntry(garrInfo->GarrSiteLevel->MapID))
+        if (_owner->GetMapId() == garrInfo->GarrSiteLevel->MapID)
             _owner->TeleportTo(WorldLocation(map->ParentMapID, *_owner), TELE_TO_SEAMLESS);
 }
 
@@ -484,7 +484,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
 
         Plot* plot = GetPlot(garrPlotInstanceId);
         uint32 oldBuildingId = 0;
-        Map* map = FindMap(garrisonInfo->GetGarrSiteLevel());
+        Map* map = FindMap(garrisonInfo->GarrSiteLevel);
         GarrBuildingEntry const* building = sGarrBuildingStore.AssertEntry(garrBuildingId);
         if (map)
             plot->DeleteGameObject(map);
@@ -493,7 +493,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         {
             oldBuildingId = plot->BuildingInfo.PacketInfo->GarrBuildingID;
             if (sGarrBuildingStore.AssertEntry(oldBuildingId)->BuildingType != building->BuildingType)
-                plot->ClearBuildingInfo(static_cast<GarrisonType>(garrisonInfo->GetGarrType()->ID), _owner);
+                plot->ClearBuildingInfo(static_cast<GarrisonType>(garrisonInfo->GarrType->ID), _owner);
         }
 
         plot->SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
@@ -507,7 +507,7 @@ void Garrison::PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId)
         if (oldBuildingId)
         {
             WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
-            buildingRemoved.GarrTypeID = static_cast<GarrisonType>(garrisonInfo->GetGarrType()->ID);
+            buildingRemoved.GarrTypeID = static_cast<GarrisonType>(garrisonInfo->GarrType->ID);
             buildingRemoved.Result = GARRISON_SUCCESS;
             buildingRemoved.GarrPlotInstanceID = garrPlotInstanceId;
             buildingRemoved.GarrBuildingID = oldBuildingId;
@@ -657,14 +657,14 @@ void Garrison::SendRemoteInfo() const
 
     for (auto const& garrisonInfo : _garrisonInfo | std::views::values)
     {
-        MapEntry const* garrisonMap = sMapStore.LookupEntry(garrisonInfo->GetGarrSiteLevel()->MapID);
+        MapEntry const* garrisonMap = sMapStore.LookupEntry(garrisonInfo.GarrSiteLevel->MapID);
         if (!garrisonMap || int32(_owner->GetMapId()) != garrisonMap->ParentMapID)
             continue;
 
         WorldPackets::Garrison::GarrisonRemoteSiteInfo& remoteSiteInfo = remoteInfo.Sites.emplace_back();
-        remoteSiteInfo.GarrSiteLevelID = garrisonInfo->GetGarrSiteLevel()->ID;
+        remoteSiteInfo.GarrSiteLevelID = garrisonInfo.GarrSiteLevel->ID;
         for (const auto& [plotInstanceId, plot] : _plots)
-            if (plot.BuildingInfo.GarrBuilding && plot.BuildingInfo.GarrBuilding->GarrTypeID == garrisonInfo->GetGarrType()->ID)
+            if (plot.BuildingInfo.GarrBuilding && plot.BuildingInfo.GarrBuilding->GarrTypeID == garrisonInfo.GarrType->ID)
                 remoteSiteInfo.Buildings.emplace_back(plotInstanceId, plot.BuildingInfo.GarrBuilding->ID);
     }
 
@@ -970,22 +970,22 @@ void Garrison::SendInfoResult() const
     for (auto const& [PacketInfo, FollowerEntry] : _followers | std::views::values)
         followersByGarrType[FollowerEntry->GarrTypeID].push_back(&PacketInfo);
 
-    std::ranges::transform(_garrisonInfo | std::views::values, std::back_inserter(result.Garrisons), [&](std::unique_ptr<GarrisonInfo> const& garrisonInfo)
+    std::ranges::transform(_garrisonInfo | std::views::values, std::back_inserter(result.Garrisons), [&](GarrisonInfo const& garrisonInfo)
     {
         WorldPackets::Garrison::GarrisonInfo garrison;
-        garrison.GarrTypeID = garrisonInfo->GetGarrType()->ID;
-        garrison.GarrSiteID = garrisonInfo->GetGarrSiteLevel()->GarrSiteID;
-        garrison.GarrSiteLevelID = garrisonInfo->GetGarrSiteLevel()->ID;
-        garrison.NumFollowerActivationsRemaining = garrisonInfo->GetNumFollowerActivationsRemainingToday();
+        garrison.GarrTypeID = garrisonInfo.GarrType->ID;
+        garrison.GarrSiteID = garrisonInfo.GarrSiteLevel->GarrSiteID;
+        garrison.GarrSiteLevelID = garrisonInfo.GarrSiteLevel->ID;
+        garrison.NumFollowerActivationsRemaining = garrisonInfo.NumFollowerActivationsRemainingToday;
 
-        if (plotsByGarrType.contains(garrisonInfo->GetGarrType()->ID))
-            garrison.Plots = std::move(plotsByGarrType[garrisonInfo->GetGarrType()->ID]);
+        if (plotsByGarrType.contains(garrisonInfo.GarrType->ID))
+            garrison.Plots = std::move(plotsByGarrType[garrisonInfo.GarrType->ID]);
 
-        if (buildingsByGarrType.contains(garrisonInfo->GetGarrType()->ID))
-            garrison.Buildings = std::move(buildingsByGarrType[garrisonInfo->GetGarrType()->ID]);
+        if (buildingsByGarrType.contains(garrisonInfo.GarrType->ID))
+            garrison.Buildings = std::move(buildingsByGarrType[garrisonInfo.GarrType->ID]);
 
-        if (followersByGarrType.contains(garrisonInfo->GetGarrType()->ID))
-            garrison.Followers = std::move(followersByGarrType[garrisonInfo->GetGarrType()->ID]);
+        if (followersByGarrType.contains(garrisonInfo.GarrType->ID))
+            garrison.Followers = std::move(followersByGarrType[garrisonInfo.GarrType->ID]);
 
         return garrison;
     });

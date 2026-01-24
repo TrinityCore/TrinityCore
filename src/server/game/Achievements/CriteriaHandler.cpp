@@ -2409,7 +2409,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonTierEqualOrGreaterThan: // 126
         {
             Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
-            if (!garrisonInfo || garrisonInfo->GetGarrSiteLevel()->GarrLevel < reqValue)
+            if (!garrisonInfo || garrisonInfo->GarrSiteLevel->GarrLevel < reqValue)
                 return false;
             break;
         }
@@ -2844,7 +2844,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
         case ModifierTreeType::GarrisonTierEqual: // 170
         {
             Garrison::GarrisonInfo const* garrisonInfo = referencePlayer->GetGarrison()->GetGarrisonInfo(static_cast<GarrisonType>(secondaryAsset));
-            if (!garrisonInfo || garrisonInfo->GetGarrSiteLevel()->GarrLevel != reqValue)
+            if (!garrisonInfo || garrisonInfo->GarrSiteLevel->GarrLevel != reqValue)
                 return false;
             break;
         }

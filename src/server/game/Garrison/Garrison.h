@@ -32,8 +32,13 @@ class GameObject;
 class Map;
 class Player;
 
+struct GarrBuildingEntry;
+struct GarrFollowerEntry;
+struct GarrPlotEntry;
+struct GarrPlotInstanceEntry;
 struct GarrTypeEntry;
 struct GarrSiteLevelEntry;
+struct GarrSiteLevelPlotInstEntry;
 
 enum GarrisonType : uint8
 {
@@ -232,33 +237,19 @@ public:
         uint32 Count;
     };
 
-    class GarrisonInfo
+    struct GarrisonInfo
     {
-    public:
         explicit GarrisonInfo(GarrTypeEntry const* garrType, GarrSiteLevelEntry const* siteLevel)
-            : _garrType(garrType), _garrSiteLevel(siteLevel), _numFollowerActivationsRemainingToday(1), _numMissionsStartedToday(0), _minAutoTroopLevel(0)
-        {
+            : GarrType(garrType), GarrSiteLevel(siteLevel) { }
 
-        }
+        uint32 NumFollowerActivationsRemainingToday = 1;
+        uint32 NumMissionsStartedToday = 0;
+        int32 MinAutoTroopLevel = 0;
 
-        void ResetFollowerActivationLimit() { _numFollowerActivationsRemainingToday = 1; }
-        void SetNumFollowerActivationRemainingToday(uint32 numFollowerActivationsRemainingToday) { _numFollowerActivationsRemainingToday = numFollowerActivationsRemainingToday; }
-        uint32 GetNumFollowerActivationsRemainingToday() const { return _numFollowerActivationsRemainingToday; }
-        void SetNumMissionsStartedToday(uint32 numMissionsStartedToday) { _numMissionsStartedToday = numMissionsStartedToday; }
-        uint32 GetNumMissionsStartedToday() const { return _numMissionsStartedToday; }
-        void SetMinAutoTroopLevel(int32 minAutoTroopLevel) { _minAutoTroopLevel = minAutoTroopLevel; }
-        int32 GetMinAutoTroopLevel() const { return _minAutoTroopLevel; }
+        GarrTypeEntry const* GarrType;
+        GarrSiteLevelEntry const* GarrSiteLevel;
 
-        GarrTypeEntry const* GetGarrType() const { return _garrType; }
-        GarrSiteLevelEntry const* GetGarrSiteLevel() const { return _garrSiteLevel; }
-
-    private:
-        GarrTypeEntry const* _garrType;
-        GarrSiteLevelEntry const* _garrSiteLevel;
-
-        uint32 _numFollowerActivationsRemainingToday;
-        uint32 _numMissionsStartedToday;
-        int32 _minAutoTroopLevel;
+        void ResetFollowerActivationLimit() { NumFollowerActivationsRemainingToday = 1; }
     };
 
     explicit Garrison(Player* owner);
@@ -328,7 +319,7 @@ private:
     GarrisonError CheckBuildingRemoval(uint32 garrPlotInstanceId) const;
     Player* _owner;
 
-    std::unordered_map<uint8, std::unique_ptr<GarrisonInfo>> _garrisonInfo;
+    std::unordered_map<uint8, GarrisonInfo> _garrisonInfo;
     std::vector<FollowerSoftCapInfo> _followerSoftCaps;
 
     std::unordered_map<uint32 /*garrPlotInstanceId*/, Plot> _plots;
