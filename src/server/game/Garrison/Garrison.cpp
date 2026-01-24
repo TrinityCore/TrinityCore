@@ -421,7 +421,7 @@ void Garrison::LearnBlueprint(uint32 garrBuildingId)
     GarrBuildingEntry const* garrBuilding = sGarrBuildingStore.LookupEntry(garrBuildingId);
 
     WorldPackets::Garrison::GarrisonLearnBlueprintResult learnBlueprintResult;
-    learnBlueprintResult.GarrTypeID = garrBuilding ? garrBuilding->GarrTypeID : GARRISON_TYPE_NONE;
+    learnBlueprintResult.GarrTypeID = garrBuilding ? garrBuilding->GarrTypeID : 0;
     learnBlueprintResult.BuildingID = garrBuildingId;
     learnBlueprintResult.Result = GARRISON_SUCCESS;
 
@@ -440,7 +440,7 @@ void Garrison::UnlearnBlueprint(uint32 garrBuildingId)
     GarrBuildingEntry const* garrBuilding = sGarrBuildingStore.LookupEntry(garrBuildingId);
 
     WorldPackets::Garrison::GarrisonUnlearnBlueprintResult unlearnBlueprintResult;
-    unlearnBlueprintResult.GarrTypeID = garrBuilding ? garrBuilding->GarrTypeID : GARRISON_TYPE_NONE;
+    unlearnBlueprintResult.GarrTypeID = garrBuilding ? garrBuilding->GarrTypeID : 0;
     unlearnBlueprintResult.BuildingID = garrBuildingId;
     unlearnBlueprintResult.Result = GARRISON_SUCCESS;
 
@@ -527,13 +527,13 @@ void Garrison::CancelBuildingConstruction(uint32 garrPlotInstanceId)
     {
         WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
         buildingRemoved.Result = GARRISON_ERROR_INVALID_PLOT_INSTANCEID;
-        buildingRemoved.GarrTypeID = GARRISON_TYPE_NONE;
+        buildingRemoved.GarrTypeID = 0;
         _owner->SendDirectMessage(buildingRemoved.Write());
         return;
     }
 
     WorldPackets::Garrison::GarrisonBuildingRemoved buildingRemoved;
-    buildingRemoved.GarrTypeID = GARRISON_TYPE_NONE;
+    buildingRemoved.GarrTypeID = 0;
     buildingRemoved.Result = CheckBuildingRemoval(garrPlotInstanceId);
     if (buildingRemoved.Result == GARRISON_SUCCESS)
     {
