@@ -21,18 +21,23 @@
 #include "Define.h"
 #include "DatabaseEnvFwd.h"
 #include "GarrisonPackets.h"
+#include "MapUtils.h"
 #include "Optional.h"
 #include "QuaternionData.h"
 #include "SharedDefines.h"
+
 #include <unordered_map>
 
 class GameObject;
 class Map;
 class Player;
+
+struct GarrTypeEntry;
 struct GarrSiteLevelEntry;
 
-enum GarrisonType
+enum GarrisonType : uint8
 {
+    GARRISON_TYPE_NONE          = 0,
     GARRISON_TYPE_GARRISON      = 2,
     GARRISON_TYPE_CLASS_ORDER   = 3,
     GARRISON_TYPE_WAR_CAMPAIGN  = 9,
@@ -191,6 +196,7 @@ public:
         ObjectGuid Guid;
         std::unordered_set<ObjectGuid> Spawns;
         Optional<WorldPackets::Garrison::GarrisonBuildingInfo> PacketInfo;
+        GarrBuildingEntry const* GarrBuilding;
     };
 
     struct Plot
@@ -205,6 +211,10 @@ public:
         uint32 EmptyGameObjectId = 0;
         uint32 GarrSiteLevelPlotInstId = 0;
         Building BuildingInfo;
+
+        GarrPlotEntry const* PlotEntry = nullptr;
+        GarrPlotInstanceEntry const* PlotInstanceEntry = nullptr;
+        GarrSiteLevelPlotInstEntry const* SiteLevelPlotInstEntry = nullptr;
     };
 
     struct Follower
@@ -213,6 +223,42 @@ public:
         bool HasAbility(uint32 garrAbilityId) const;
 
         WorldPackets::Garrison::GarrisonFollower PacketInfo;
+        GarrFollowerEntry const* FollowerEntry;
+    };
+
+    struct FollowerSoftCapInfo
+    {
+        uint8 FollowerTypeID;
+        uint32 Count;
+    };
+
+    class GarrisonInfo
+    {
+    public:
+        explicit GarrisonInfo(GarrTypeEntry const* garrType, GarrSiteLevelEntry const* siteLevel)
+            : GarrType(garrType), GarrSiteLevel(siteLevel), _numFollowerActivationsRemainingToday(1), _numMissionsStartedToday(0), _minAutoTroopLevel(0)
+        {
+
+        }
+
+        void ResetFollowerActivationLimit() { _numFollowerActivationsRemainingToday = 1; }
+        void SetNumFollowerActivationRemainingToday(uint32 numFollowerActivationsRemainingToday) { _numFollowerActivationsRemainingToday = numFollowerActivationsRemainingToday; }
+        uint32 GetNumFollowerActivationsRemainingToday() const { return _numFollowerActivationsRemainingToday; }
+        void SetNumMissionsStartedToday(uint32 numMissionsStartedToday) { _numMissionsStartedToday = numMissionsStartedToday; }
+        uint32 GetNumMissionsStartedToday() const { return _numMissionsStartedToday; }
+        void SetMinAutoTroopLevel(int32 minAutoTroopLevel) { _minAutoTroopLevel = minAutoTroopLevel; }
+        int32 GetMinAutoTroopLevel() const { return _minAutoTroopLevel; }
+
+        GarrTypeEntry const* GetGarrType() const { return GarrType; }
+        GarrSiteLevelEntry const* GetGarrSiteLevel() const { return GarrSiteLevel; }
+
+    private:
+        GarrTypeEntry const* GarrType;
+        GarrSiteLevelEntry const* GarrSiteLevel;
+
+        uint32 _numFollowerActivationsRemainingToday;
+        uint32 _numMissionsStartedToday;
+        int32 _minAutoTroopLevel;
     };
 
     explicit Garrison(Player* owner);
@@ -223,7 +269,7 @@ public:
     static void DeleteFromDB(ObjectGuid::LowType ownerGuid, CharacterDatabaseTransaction trans);
 
     bool Create(uint32 garrSiteId);
-    void Delete();
+    void Delete(uint32 garrSiteId);
     void Upgrade();
 
     void Enter() const;
@@ -231,8 +277,6 @@ public:
 
     static constexpr GarrisonFactionIndex GetFaction(Team team) { return team == HORDE ? GARRISON_FACTION_INDEX_HORDE : GARRISON_FACTION_INDEX_ALLIANCE; }
     GarrisonFactionIndex GetFaction() const;
-    GarrisonType GetType() const { return GARRISON_TYPE_GARRISON; }
-    GarrSiteLevelEntry const* GetSiteLevel() const { return _siteLevel; }
 
     // Plots
     std::vector<Plot*> GetPlots();
@@ -242,7 +286,7 @@ public:
     // Buildings
     void LearnBlueprint(uint32 garrBuildingId);
     void UnlearnBlueprint(uint32 garrBuildingId);
-    bool HasBlueprint(uint32 garrBuildingId) const { return _knownBuildings.find(garrBuildingId) != _knownBuildings.end(); }
+    bool HasBlueprint(uint32 garrBuildingId) const { return _knownBuildings.contains(garrBuildingId); }
     void PlaceBuilding(uint32 garrPlotInstanceId, uint32 garrBuildingId);
     void CancelBuildingConstruction(uint32 garrPlotInstanceId);
     void ActivateBuilding(uint32 garrPlotInstanceId);
@@ -261,21 +305,31 @@ public:
         return count;
     }
 
-    void BuildInfoPacket(WorldPackets::Garrison::GarrisonInfo& garrison) const;
+    void SendInfoResult() const;
     void SendRemoteInfo() const;
     void SendBlueprintAndSpecializationData();
     void SendMapData(Player* receiver) const;
 
-    void ResetFollowerActivationLimit() { _followerActivationsRemainingToday = 1; }
+    bool HasGarrisonOfType(GarrisonType type) const { return _garrisonInfo.contains(type); }
+    GarrisonInfo const* GetGarrisonInfo(GarrisonType type) const
+    {
+        return Trinity::Containers::MapGetValuePtr(_garrisonInfo, type);
+    }
+
+    GarrisonInfo* GetGarrisonInfo(GarrisonType type)
+    {
+        return Trinity::Containers::MapGetValuePtr(_garrisonInfo, type);
+    }
 
 private:
-    Map* FindMap() const;
+    Map* FindMap(GarrSiteLevelEntry const* siteLevel) const;
     void InitializePlots();
     GarrisonError CheckBuildingPlacement(uint32 garrPlotInstanceId, uint32 garrBuildingId) const;
     GarrisonError CheckBuildingRemoval(uint32 garrPlotInstanceId) const;
     Player* _owner;
-    GarrSiteLevelEntry const* _siteLevel;
-    uint32 _followerActivationsRemainingToday;
+
+    std::unordered_map<uint8, std::unique_ptr<GarrisonInfo>> _garrisonInfo;
+    std::vector<FollowerSoftCapInfo> _followerSoftCaps;
 
     std::unordered_map<uint32 /*garrPlotInstanceId*/, Plot> _plots;
     std::unordered_set<uint32 /*garrBuildingId*/> _knownBuildings;
