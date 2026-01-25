@@ -1,12 +1,13 @@
 -- Protector Weaver path
 SET @MOVERGUID := 275167;
 SET @ENTRY := 488;
-SET @PATH := @ENTRY * 100;
-DELETE FROM `waypoint_path` WHERE `PathId` = @PATH;
+SET @PATHOFFSET := 0;
+SET @PATH := @ENTRY * 100 + @PATHOFFSET;
+DELETE FROM `waypoint_path` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
 (@PATH, 0, 0x0, NULL, 'Protector Weaver - Cosmetic Path');
 
-DELETE FROM `waypoint_path_node` WHERE `PathId` = @PATH;
+DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
 (@PATH, 0, -10503.813, 1032.656, 95.926506, NULL, 0),
 (@PATH, 1, -10498.092, 1032.9823, 95.87571, NULL, 0),
@@ -17,7 +18,7 @@ INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, 
 (@PATH, 6, -10506.956, 1021.8047, 95.84116, NULL, 0),
 (@PATH, 7, -10508.083, 1027.1096, 95.85617, NULL, 0);
 
-UPDATE `creature` SET `position_x`=-10503.813, `position_y`=1032.656, `position_z`=95.926506, `orientation`=0.270, `wander_distance`=0, `MovementType`=2 WHERE `guid`=@MOVERGUID;
+UPDATE `creature` SET `position_x`=-10503.813, `position_y`=1032.656, `position_z`=95.926506, `orientation`=0, `wander_distance`=0, `MovementType`=2 WHERE `guid`=@MOVERGUID;
 DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `SheathState`, `PvpFlags`) VALUES
 (@MOVERGUID, @PATH, 1, 1);
@@ -30,19 +31,22 @@ DELETE FROM `waypoint_path` WHERE `PathId` = @PATH;
 INSERT INTO `waypoint_path` (`PathId`, `MoveType`, `Flags`, `Velocity`, `Comment`) VALUES
 (@PATH, 0, 0x0, NULL, 'Protector Dutfield - Cosmetic Path');
 
-DELETE FROM `waypoint_path_node` WHERE `PathId` = @PATH;
+DELETE FROM `waypoint_path_node` WHERE `PathId`= @PATH;
 INSERT INTO `waypoint_path_node` (`PathId`, `NodeId`, `PositionX`, `PositionY`, `PositionZ`, `Orientation`, `Delay`) VALUES
-(@PATH, 0, -10503.619, 1006.0582, 60.596302, NULL, 0),
-(@PATH, 1, -10493.653, 1008.3578, 60.480694, NULL, 0),
-(@PATH, 2, -10484.865, 1014.4223, 60.584194, NULL, 0),
-(@PATH, 3, -10481.817, 1029.5293, 60.521385, NULL, 0),
-(@PATH, 4, -10487.994, 1041.0077, 60.47728, NULL, 0),
-(@PATH, 5, -10499.225, 1045.555, 60.584198, NULL, 0),
-(@PATH, 6, -10516.6, 1039.7664, 60.555386, NULL, 0),
-(@PATH, 7, -10521.006, 1024.1843, 60.563126, NULL, 0),
-(@PATH, 8, -10511.894, 1008.2119, 60.46465, NULL, 0);
+(@PATH, 0, -10521.006, 1024.1843, 60.563126, NULL, 0),
+(@PATH, 1, -10518.504, 1019.7985, 60.60384, NULL, 0),
+(@PATH, 2, -10515.286, 1014.1583, 60.5842, NULL, 0),
+(@PATH, 3, -10512.503, 1009.2794, 60.46545, NULL, 0),
+(@PATH, 4, -10511.894, 1008.2119, 60.46465, NULL, 0),
+(@PATH, 5, -10503.619, 1006.0582, 60.596302, NULL, 0),
+(@PATH, 6, -10493.653, 1008.3578, 60.480694, NULL, 0),
+(@PATH, 7, -10484.865, 1014.4223, 60.584194, NULL, 0),
+(@PATH, 8, -10481.817, 1029.5293, 60.521385, NULL, 0),
+(@PATH, 9, -10487.994, 1041.0077, 60.47728, NULL, 0),
+(@PATH, 10, -10499.225, 1045.555, 60.584198, NULL, 0),
+(@PATH, 11, -10516.6, 1039.7664, 60.555386, NULL, 0);
 
-UPDATE `creature` SET `position_x`=-10503.619, `position_y`=1006.0582, `position_z`=60.596302, `orientation`=0.604, `wander_distance`=0, `MovementType`=2 WHERE `guid`=@MOVERGUID;
+UPDATE `creature` SET `position_x`=-10521.006, `position_y`=1024.1843, `position_z`=60.563126, `orientation`=0, `wander_distance`=0, `MovementType`=2 WHERE `guid`=@MOVERGUID;
 DELETE FROM `creature_addon` WHERE `guid`=@MOVERGUID;
 INSERT INTO `creature_addon` (`guid`, `PathId`, `SheathState`, `PvpFlags`) VALUES
 (@MOVERGUID, @PATH, 1, 1);
