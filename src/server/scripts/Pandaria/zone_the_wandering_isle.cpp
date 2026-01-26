@@ -1231,6 +1231,403 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29423
+{
+    static constexpr uint32 quest_the_passion_of_shen_zin_su = 29423;
+    static constexpr uint32 credit_the_passion_of_shen_zin_su = 61128;
+
+    namespace Spells
+    {
+        static constexpr uint32 spell_summon_spirit_of_fire = 128700;
+        static constexpr uint32 spell_despawn_spirit_of_fire = 109178;
+        static constexpr uint32 spell_summon_spirit_of_fire_on_relog = 102632;
+
+        static constexpr uint32 spell_start_talk_event = 116220;
+
+        static constexpr uint32 spell_fire_form = 109135;
+        static constexpr uint32 spell_forcecast_fire_turn_in_statue_brazier_change = 106665;
+    }
+
+    namespace NpcInfo
+    {
+        static constexpr uint32 npc_huo = 54958;
+
+        static constexpr uint32 npc_aysa = 61126;
+        static constexpr uint32 npc_ji = 61127;
+    }
+
+    namespace Talks
+    {
+        static constexpr uint32 chia_hui_autumnleaf_talk = 0;
+        static constexpr uint32 brewer_lin_talk = 0;
+        static constexpr uint32 shanxi_talk_0 = 0;
+        static constexpr uint32 shanxi_talk_1 = 1;
+        static constexpr uint32 shanxi_talk_2 = 2;
+        static constexpr uint32 shanxi_talk_3 = 3;
+        static constexpr uint32 shanxi_talk_4 = 4;
+        static constexpr uint32 shanxi_talk_5 = 5;
+        static constexpr uint32 shanxi_talk_6 = 6;
+        static constexpr uint32 aysa_talk = 0;
+        static constexpr uint32 ji_talk = 0;
+    }
+
+    namespace Positions
+    {
+        static constexpr Position aysaSpawnPos = { 992.00347900390625f, 3600.757080078125f, 193.11480712890625f, 3.087874650955200195f };
+        static constexpr Position jiSpawnPos = { 992.107666015625f, 3604.552978515625f, 193.1151580810546875f, 2.968008279800415039f };
+
+        static constexpr Position huoFirstPoint = { 955.1213f, 3604.0388f, 200.71686f, 6.249388f };
+        static constexpr Position huoSecondPoint = { 950.00757f, 3601.0044f, 203.8194f };
+    }
+
+    namespace Path
+    {
+        static constexpr uint32 aysa = 50000000;
+        static constexpr uint32 ji = 50000001;
+        static constexpr uint32 ji_away = 50000002;
+        static constexpr uint32 aysa_away = 50000003;
+    }
+
+    namespace Events
+    {
+        static constexpr uint32 event_delivery_huo = 1;
+        static constexpr uint32 event_second_huo_position = 2;
+    }
+
+    class quest_29423_the_passion_of_shen_zin_su : public QuestScript
+    {
+    public:
+        quest_29423_the_passion_of_shen_zin_su() : QuestScript("quest_29423_the_passion_of_shen_zin_su") {}
+
+        void OnQuestStatusChange(Player* player, Quest const* /*quest*/, QuestStatus /*oldStatus*/, QuestStatus newStatus) override
+        {
+            if (newStatus == QUEST_STATUS_NONE)
+            {
+                player->CastSpell(player, Spells::spell_despawn_spirit_of_fire, true);
+                player->RemoveAurasDueToSpell(Spells::spell_summon_spirit_of_fire);
+                player->RemoveAurasDueToSpell(Spells::spell_summon_spirit_of_fire_on_relog);
+                PhasingHandler::OnConditionChange(player);
+            }
+            else if (newStatus == QUEST_STATUS_INCOMPLETE)
+            {
+                player->CastSpell(player, Spells::spell_summon_spirit_of_fire, true);
+                PhasingHandler::OnConditionChange(player);
+            }
+        }
+    };
+
+    // 128700
+    class spell_summon_fire_spirit : public SpellScript
+    {
+        void SelectTarget(WorldObject*& target)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (!caster)
+                return;
+
+            Creature* huo = caster->FindNearestCreatureWithOptions(15.0f, { .StringId = "Huo_Pre_Ignition", .IgnorePhases = true });
+
+            if (!huo)
+                return;
+
+            target = huo;
+        }
+
+        void Register() override
+        {
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_summon_fire_spirit::SelectTarget, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 109178
+    class spell_despawn_fire_spirit : public SpellScript
+    {
+        void HandleHitTarget(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* huo = GetHitUnit()->FindNearestCreature(NpcInfo::npc_huo, GetSpellInfo()->GetMaxRange(), true))
+                huo->ToCreature()->DespawnOrUnsummon();
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_despawn_fire_spirit::HandleHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    // 102632 PlayerScript On Relog
+    class player_quest_29423_summon_on_relog : public PlayerScript
+    {
+    public:
+        player_quest_29423_summon_on_relog() : PlayerScript("player_quest_29423_summon_on_relog") {}
+
+        void OnLogin(Player* player, bool /*loginFirst*/)
+        {
+            if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_INCOMPLETE)
+            {
+                player->CastSpell(player, Spells::spell_summon_spirit_of_fire_on_relog, true);
+            }
+        }
+    };
+
+    //54958
+    struct npc_huo_follower : public ScriptedAI
+    {
+        npc_huo_follower(Creature* creature) : ScriptedAI(creature) {}
+
+        void IsSummonedBy(WorldObject* summoner) override
+        {
+            if (Player* player = summoner->ToPlayer())
+            {
+                _playerGuid = player->GetGUID();
+
+                me->SetFloating(false);
+                me->SetSpeed(MOVE_RUN, 7.0f);
+                me->GetMotionMaster()->MoveFollow(player, 3.0f);
+
+                _events.RescheduleEvent(Events::event_delivery_huo, 20s);
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 pointId) override
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+
+            if (pointId == 1)
+            {
+                me->CastSpell(player, Spells::spell_fire_form);
+
+                _events.RescheduleEvent(Events::event_second_huo_position, 7s);
+            }
+            else if (pointId == 2)
+            {
+                me->CastSpell(player, Spells::spell_forcecast_fire_turn_in_statue_brazier_change);
+                PhasingHandler::OnConditionChange(player);
+                me->DespawnOrUnsummon();
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case Events::event_delivery_huo:
+                {
+                    Player* player = ObjectAccessor::GetPlayer(*me, _playerGuid);
+
+                    if (player->GetDistance(973.311829f, 3603.419434f, 195.528030f) <= 7.0f)
+                    {
+                        me->GetMotionMaster()->Remove(FOLLOW_MOTION_TYPE);
+                        me->SetFloating(true);
+                        me->SetSpeed(MOVE_RUN, 3.0f);
+                        me->GetMotionMaster()->MovePoint(1, Positions::huoFirstPoint, true, { 6.249388f });
+                    }
+                    else
+                        _events.RescheduleEvent(Events::event_delivery_huo, 2s);
+                    break;
+                }
+                case Events::event_second_huo_position:
+                {
+                    me->GetMotionMaster()->MovePoint(2, Positions::huoSecondPoint);
+                }
+                }
+            }
+        }
+    private:
+        ObjectGuid _playerGuid;
+
+        EventMap _events;
+    };
+
+    // 7750
+    class at_talk_on_huo_follow_quest_29423 : public AreaTriggerScript
+    {
+    public:
+        at_talk_on_huo_follow_quest_29423() : AreaTriggerScript("at_talk_on_huo_follow_quest_29423") {}
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (!player)
+                return false;
+
+            if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* chia = player->FindNearestCreatureWithOptions(30.0f, { .StringId = "Chia_Hui_Talk_Event_Starter", .IgnorePhases = true });
+
+                if (!chia)
+                    return false;
+
+                player->CastSpell(chia, Spells::spell_start_talk_event);
+            }
+            return true;
+        }
+    };
+
+    struct npc_chia_hui_autumnleaf : public ScriptedAI
+    {
+        npc_chia_hui_autumnleaf(Creature* creature) : ScriptedAI(creature) {}
+
+        void SpellHit(WorldObject* caster, SpellInfo const* spellInfo) override
+        {
+            if (spellInfo->Id != Spells::spell_start_talk_event)
+                return;
+
+            if (Player* player = caster->ToPlayer())
+            {
+                Creature* lin = me->FindNearestCreatureWithOptions(15.0f, { .StringId = "Brewer_Lin_Talk_Event", .IgnorePhases = true });
+                Creature* zhen = me->FindNearestCreatureWithOptions(15.0f, { .StringId = "Brewer_Zhen_Talk_Event", .IgnorePhases = true });
+
+                if (!lin || !zhen)
+                    return;
+
+                me->SetFacingToObject(player);
+                lin->SetFacingToObject(player);
+                zhen->SetFacingToObject(player);
+
+                me->AI()->Talk(Talks::chia_hui_autumnleaf_talk, player);
+
+                _scheduler.Schedule(2s, [this, lin, zhen, player](TaskContext /*task*/)
+                    {
+                        me->SetFacingToObject(player);
+                        lin->SetFacingToObject(player);
+                        zhen->SetFacingToObject(player);
+
+                        lin->AI()->Talk(Talks::brewer_lin_talk);
+                    });
+                _scheduler.Schedule(4s, [this, lin, zhen](TaskContext /*task*/)
+                    {
+                        me->SetFacingTo(2.381570f);
+                        lin->SetFacingTo(5.455640f);
+                        zhen->SetFacingTo(4.906480f);
+                    });
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+
+    // 7835
+    class at_enter_temple_quest_29423 : public AreaTriggerScript
+    {
+    public:
+        at_enter_temple_quest_29423() : AreaTriggerScript("at_enter_temple_quest_29423") {}
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+        {
+            if (!player)
+                return false;
+
+            if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_INCOMPLETE)
+            {
+                Creature* shanxi = player->FindNearestCreatureWithOptions(30.0f, { .StringId = "ShanXi_Talk", .IgnorePhases = true });
+
+                if (!shanxi)
+                    return false;
+
+                shanxi->AI()->Talk(Talks::shanxi_talk_0);
+
+                player->KilledMonsterCredit(credit_the_passion_of_shen_zin_su);
+
+                TempSummon* aysa = player->SummonCreature(NpcInfo::npc_aysa, Positions::aysaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->GetGUID());
+                TempSummon* ji = player->SummonCreature(NpcInfo::npc_ji, Positions::jiSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->GetGUID());
+
+                if (!aysa || !ji)
+                    return false;
+
+                aysa->SetSpeed(MOVE_WALK, 6.0f);
+                ji->SetSpeed(MOVE_WALK, 6.0f);
+                aysa->GetMotionMaster()->MovePath(Path::aysa, false);
+                ji->GetMotionMaster()->MovePath(Path::ji, false);
+            }
+            else if (player->GetQuestStatus(quest_the_passion_of_shen_zin_su) == QUEST_STATUS_COMPLETE)
+            {
+                TempSummon* aysa = player->SummonCreature(NpcInfo::npc_aysa, Positions::aysaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->GetGUID());
+                TempSummon* ji = player->SummonCreature(NpcInfo::npc_ji, Positions::jiSpawnPos, TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, player->GetGUID());
+
+                if (!aysa || !ji)
+                    return false;
+
+                aysa->SetSpeed(MOVE_WALK, 6.0f);
+                ji->SetSpeed(MOVE_WALK, 6.0f);
+                aysa->GetMotionMaster()->MovePath(Path::aysa, false);
+                ji->GetMotionMaster()->MovePath(Path::ji, false);
+            }
+            return true;
+        }
+    };
+
+    struct npc_shanxi_quest : public ScriptedAI
+    {
+        npc_shanxi_quest(Creature* creature) : ScriptedAI(creature) {}
+
+        void OnQuestReward(Player* player, Quest const* quest, LootItemType /*type*/, uint32 /*opt*/) override
+        {
+            if (quest->GetQuestId() == quest_the_passion_of_shen_zin_su)
+            {
+                Creature* ji = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = NpcInfo::npc_ji, .IgnorePhases = true });
+                Creature* aysa = player->FindNearestCreatureWithOptions(15.0f, { .CreatureId = NpcInfo::npc_aysa, .IgnorePhases = true });
+
+                if (!ji || !aysa)
+                    return;
+
+                me->AI()->Talk(Talks::shanxi_talk_1, player);
+
+                _scheduler.Schedule(10s, [this](TaskContext /*task*/)
+                    {
+                        me->AI()->Talk(Talks::shanxi_talk_2);
+                    });
+                _scheduler.Schedule(26s, [this](TaskContext /*task*/)
+                    {
+                        Talk(Talks::shanxi_talk_3);
+                    });
+                _scheduler.Schedule(40s, [this](TaskContext /*task*/)
+                    {
+                        Talk(Talks::shanxi_talk_4);
+                    });
+                _scheduler.Schedule(49s, [ji](TaskContext /*task*/)
+                    {
+                        ji->AI()->Talk(Talks::ji_talk);
+                        ji->GetMotionMaster()->MovePath(Path::ji_away, false);
+                        ji->DespawnOrUnsummon(20s);
+                    });
+                _scheduler.Schedule(52s, [this](TaskContext /*task*/)
+                    {
+                        Talk(Talks::shanxi_talk_5);
+                    });
+                _scheduler.Schedule(60s, [aysa](TaskContext /*task*/)
+                    {
+                        aysa->AI()->Talk(Talks::aysa_talk);
+                        aysa->GetMotionMaster()->MovePath(Path::aysa_away, false);
+                        aysa->DespawnOrUnsummon(20s);
+                    });
+                _scheduler.Schedule(63s, [this](TaskContext /*task*/)
+                    {
+                        Talk(Talks::shanxi_talk_6);
+                    });
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        TaskScheduler _scheduler;
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1254,4 +1651,15 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29423;
+    new quest_29423_the_passion_of_shen_zin_su();
+    RegisterSpellScript(spell_summon_fire_spirit);
+    RegisterSpellScript(spell_despawn_fire_spirit);
+    RegisterCreatureAI(npc_huo_follower);
+    new player_quest_29423_summon_on_relog();
+    RegisterCreatureAI(npc_chia_hui_autumnleaf);
+    new at_talk_on_huo_follow_quest_29423();
+    new at_enter_temple_quest_29423();
+    RegisterCreatureAI(npc_shanxi_quest);
 }
