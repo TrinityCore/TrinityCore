@@ -35,7 +35,7 @@
  * Visual effect of Pure Nether Beam doesn't stop. Looks like client bug, saw same in WoTLK classic
  * Drowned emote during transition doesn't trigger, not set manually in sniffs (doesn't work if set manually either way). From my observation this boss has
    different bugs in different expansions. Something is fixed in one and is broken in another
- * Critical bug: If Gravity Lapse occurs when player has Arcane Disruption debuff, teleport from Gravity Lapse bugs player's position. As result, 
+ * Critical bug: If Gravity Lapse occurs when player has Arcane Disruption debuff, teleport from Gravity Lapse bugs player's position. As result,
    player's position will kinda stuck. Distance command will always return same position no matter where you are. You will be not able to loot Kael'thas because
    you're kinda far away from the corpse. Even leaving instance through portal in impossible. Teleporting to another map fixes this bug. Currently
    Arcane Disruption is disabled in phase 5 completely
