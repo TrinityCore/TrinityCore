@@ -1231,6 +1231,225 @@ class spell_flame_spout : public AuraScript
     }
 };
 
+namespace Scripts::WanderingIsle::Quest_29662
+{
+    namespace Spells
+    {
+        static constexpr uint32 spell_curse_of_the_frog = 102938;
+        static constexpr uint32 spell_razor_beak = 109088;
+
+        static constexpr uint32 spell_jojo_headbash_reeds_cast = 129272;
+        static constexpr uint32 spell_jojo_headbash_stack_of_reeds_impact = 108798;
+    }
+
+    namespace Events
+    {
+        static constexpr uint32 event_check_players = 1;
+        static constexpr uint32 event_cast_razor_beak = 2;
+    }
+
+    namespace Talks
+    {
+        static constexpr uint32 Jojo_Talk_0 = 0;
+        static constexpr uint32 Jojo_Talk_1 = 1;
+    }
+
+    namespace Positions
+    {
+        static constexpr Position JojoSpawnPoint = { 1039.49f, 3283.11f, 129.523f, 1.81514f };
+        static constexpr Position StackOfReedsSpawnPoint = { 1038.5538330078125f, 3286.385498046875f, 128.25982666015625f, 4.921828269958496093f };
+
+        static constexpr Position JojoMovePoint = { 1039.19f, 3284.26f, 129.3971f, 0.0f };
+    }
+
+    static constexpr uint16 Jojo_AiAnimKitID = 2935;
+    static constexpr uint32 npc_Stack_of_Reeds = 57636;
+    static constexpr uint32 path_jojo = 5763800;
+
+    // 55015 aggro on frog pool
+    struct npc_whitefeather_crane : public ScriptedAI
+    {
+        npc_whitefeather_crane(Creature* creature) : ScriptedAI(creature) {}
+
+        void Reset() override
+        {
+            _events.Reset();
+            _events.RescheduleEvent(Events::event_check_players, 1s);
+        }
+
+        void EnterCombat()
+        {
+            _events.CancelEvent(Events::event_check_players);
+            _events.RescheduleEvent(Events::event_cast_razor_beak, 8s);
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _events.Update(diff);
+
+            if (!UpdateVictim())
+            {
+                if (_events.ExecuteEvent() == Events::event_check_players)
+                {
+                    if (Player* player = me->SelectNearestPlayer(10.0f))
+                    {
+                        if (player->IsAlive() && !player->IsGameMaster() && player->HasAura(Spells::spell_curse_of_the_frog))
+                        {
+                            AttackStart(player);
+                            EnterCombat();
+                            return;
+                        }
+                    }
+                    _events.RescheduleEvent(Events::event_check_players, 1s);
+                }
+                return;
+            }
+
+            if (Unit* victim = me->GetVictim())
+            {
+                if (!victim->HasAura(Spells::spell_curse_of_the_frog))
+                {
+                    if (me->IsInCombat())
+                    {
+                        EnterEvadeMode();
+                        _events.RescheduleEvent(Events::event_check_players, 1s);
+                    }
+                    return;
+                }
+            }
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                case Events::event_cast_razor_beak:
+                    if (Unit* target = me->GetVictim())
+                    {
+                        DoCast(target, Spells::spell_razor_beak);
+                    }
+                    _events.RescheduleEvent(Events::event_cast_razor_beak, 8s);
+                    break;
+                }
+            }
+
+            me->DoMeleeAttackIfReady();
+        }
+        private:
+            EventMap _events;
+    };
+
+    // 108786
+    class spell_summon_stack_of_reeds : public SpellScript
+    {
+
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(Positions::StackOfReedsSpawnPoint);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_stack_of_reeds::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 108808
+    class spell_summon_jojo_ironbrow : public SpellScript
+    {
+
+        void SetDest(SpellDestination& dest) const
+        {
+            dest.Relocate(Positions::JojoSpawnPoint);
+        }
+
+        void Register() override
+        {
+            OnDestinationTargetSelect += SpellDestinationTargetSelectFn(spell_summon_jojo_ironbrow::SetDest, EFFECT_0, TARGET_DEST_NEARBY_ENTRY);
+        }
+    };
+
+    // 108798 spell_jojo_headbash_stack_of_reeds_impact
+    class spell_jojo_headbash_filter : public SpellScript
+    {
+        void FilterTargets(std::list<WorldObject*>& targets)
+        {
+            targets.remove_if([](WorldObject* target)
+                {
+                    if (target->GetEntry() != npc_Stack_of_Reeds)
+                    {
+                        return true;
+                    }
+                    return false;
+                });
+        }
+
+        void Register() override
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_jojo_headbash_filter::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
+        }
+    };
+
+    // 57638
+    struct npc_jojo_ironbrow_summon : public ScriptedAI
+    {
+        npc_jojo_ironbrow_summon(Creature* creature) : ScriptedAI(creature) {}
+
+        void IsSummonedBy(WorldObject* summoner) override
+        {
+            if (Player* player = summoner->ToPlayer())
+            {
+                _playerGuid = player->GetGUID();
+
+                me->SetAIAnimKitId(Jojo_AiAnimKitID);
+
+                _scheduler.Schedule(1s, [this , player](TaskContext /*task*/)
+                    {
+                        me->AI()->Talk(Talks::Jojo_Talk_0, player);
+                    });
+                _scheduler.Schedule(3s, [this](TaskContext /*task*/)
+                    {
+                        me->SetAIAnimKitId(0);
+                    });
+                _scheduler.Schedule(4s, [this](TaskContext /*task*/)
+                    {
+                        me->GetMotionMaster()->MovePoint(1, Positions::JojoMovePoint);
+                    });
+                _scheduler.Schedule(6200ms, [this](TaskContext /*task*/)
+                    {
+                        me->CastSpell(me, Spells::spell_jojo_headbash_reeds_cast);
+                    });
+                _scheduler.Schedule(8700ms, [this, player](TaskContext /*task*/)
+                    {
+                        me->RemoveAurasDueToSpell(Spells::spell_jojo_headbash_stack_of_reeds_impact);
+                        me->AI()->Talk(Talks::Jojo_Talk_1, player);
+                    });
+                _scheduler.Schedule(14700ms, [this](TaskContext /*task*/)
+                    {
+                        me->GetMotionMaster()->MovePath(path_jojo, false);
+                    });
+            }
+        }
+
+        void WaypointPathEnded(uint32 /*nodeId*/, uint32 pathId) override
+        {
+            if (pathId == path_jojo)
+            {
+                me->DespawnOrUnsummon();
+            }
+        }
+
+        void UpdateAI(uint32 diff) override
+        {
+            _scheduler.Update(diff);
+        }
+
+    private:
+        ObjectGuid _playerGuid;
+
+        TaskScheduler _scheduler;
+    };
+};
+
 void AddSC_zone_the_wandering_isle()
 {
     RegisterCreatureAI(npc_tushui_huojin_trainee);
@@ -1254,4 +1473,11 @@ void AddSC_zone_the_wandering_isle()
     new at_min_dimwind_captured();
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
+
+    using namespace Scripts::WanderingIsle::Quest_29662;
+    RegisterCreatureAI(npc_whitefeather_crane);
+    RegisterSpellScript(spell_summon_stack_of_reeds);
+    RegisterSpellScript(spell_summon_jojo_ironbrow);
+    RegisterSpellScript(spell_jojo_headbash_filter);
+    RegisterCreatureAI(npc_jojo_ironbrow_summon);
 }
