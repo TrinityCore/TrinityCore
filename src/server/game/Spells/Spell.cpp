@@ -499,7 +499,10 @@ m_spellValue(new SpellValue(m_spellInfo, caster)), _spellEvent(nullptr)
     }
 
     if (Player const* modOwner = caster->GetSpellModOwner())
+    {
         modOwner->ApplySpellMod(info, SpellModOp::Doses, m_spellValue->AuraStackAmount, this);
+        modOwner->ApplySpellMod(info, SpellModOp::MaxTargets, m_spellValue->MaxAffectedTargets, this);
+    }
 
     if (!originalCasterGUID.IsEmpty())
         m_originalCasterGUID = originalCasterGUID;

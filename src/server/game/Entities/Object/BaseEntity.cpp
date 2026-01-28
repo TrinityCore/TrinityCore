@@ -265,6 +265,8 @@ void BaseEntity::BuildMovementUpdate(ByteBuffer* data, CreateObjectBits flags, P
         *data << uint32(0);                                             // RemoveForcesIDs.size()
         *data << uint32(0);                                             // MoveIndex
 
+        *data << float(unit->m_movementInfo.gravityModifier);
+
         //for (std::size_t i = 0; i < RemoveForcesIDs.size(); ++i)
         //    *data << ObjectGuid(RemoveForcesIDs);
 

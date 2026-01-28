@@ -280,9 +280,10 @@ enum Stats : uint16
     STAT_AGILITY                       = 1,
     STAT_STAMINA                       = 2,
     STAT_INTELLECT                     = 3,
+    STAT_SPIRIT                        = 4,
 };
 
-#define MAX_STATS                        4
+#define MAX_STATS                        5
 
 // EnumUtils: DESCRIBE THIS
 enum Powers : int8
@@ -1019,6 +1020,43 @@ enum SpellAttr15 : uint32
     SPELL_ATTR15_UNK31                           = 0x80000000  // TITLE Unknown attribute 31@Attr15
 };
 
+// EnumUtils: DESCRIBE THIS
+enum SpellAttr16 : uint32
+{
+    SPELL_ATTR16_UNK0                            = 0x00000001, // TITLE Unknown attribute 0@Attr16
+    SPELL_ATTR16_UNK1                            = 0x00000002, // TITLE Unknown attribute 1@Attr16
+    SPELL_ATTR16_UNK2                            = 0x00000004, // TITLE Unknown attribute 2@Attr16
+    SPELL_ATTR16_UNK3                            = 0x00000008, // TITLE Unknown attribute 3@Attr16
+    SPELL_ATTR16_UNK4                            = 0x00000010, // TITLE Unknown attribute 4@Attr16
+    SPELL_ATTR16_UNK5                            = 0x00000020, // TITLE Unknown attribute 5@Attr16
+    SPELL_ATTR16_UNK6                            = 0x00000040, // TITLE Unknown attribute 6@Attr16
+    SPELL_ATTR16_UNK7                            = 0x00000080, // TITLE Unknown attribute 7@Attr16
+    SPELL_ATTR16_UNK8                            = 0x00000100, // TITLE Unknown attribute 8@Attr16
+    SPELL_ATTR16_UNK9                            = 0x00000200, // TITLE Unknown attribute 9@Attr16
+    SPELL_ATTR16_UNK10                           = 0x00000400, // TITLE Unknown attribute 10@Attr16
+    SPELL_ATTR16_UNK11                           = 0x00000800, // TITLE Unknown attribute 11@Attr16
+    SPELL_ATTR16_UNK12                           = 0x00001000, // TITLE Unknown attribute 12@Attr16
+    SPELL_ATTR16_UNK13                           = 0x00002000, // TITLE Unknown attribute 13@Attr16
+    SPELL_ATTR16_UNK14                           = 0x00004000, // TITLE Unknown attribute 14@Attr16
+    SPELL_ATTR16_UNK15                           = 0x00008000, // TITLE Unknown attribute 15@Attr16
+    SPELL_ATTR16_UNK16                           = 0x00010000, // TITLE Unknown attribute 16@Attr16
+    SPELL_ATTR16_UNK17                           = 0x00020000, // TITLE Unknown attribute 17@Attr16
+    SPELL_ATTR16_UNK18                           = 0x00040000, // TITLE Unknown attribute 18@Attr16
+    SPELL_ATTR16_UNK19                           = 0x00080000, // TITLE Unknown attribute 19@Attr16
+    SPELL_ATTR16_UNK20                           = 0x00100000, // TITLE Unknown attribute 20@Attr16
+    SPELL_ATTR16_UNK21                           = 0x00200000, // TITLE Unknown attribute 21@Attr16
+    SPELL_ATTR16_UNK22                           = 0x00400000, // TITLE Unknown attribute 22@Attr16
+    SPELL_ATTR16_UNK23                           = 0x00800000, // TITLE Unknown attribute 23@Attr16
+    SPELL_ATTR16_UNK24                           = 0x01000000, // TITLE Unknown attribute 24@Attr16
+    SPELL_ATTR16_UNK25                           = 0x02000000, // TITLE Unknown attribute 25@Attr16
+    SPELL_ATTR16_UNK26                           = 0x04000000, // TITLE Unknown attribute 26@Attr16
+    SPELL_ATTR16_UNK27                           = 0x08000000, // TITLE Unknown attribute 27@Attr16
+    SPELL_ATTR16_UNK28                           = 0x10000000, // TITLE Unknown attribute 28@Attr16
+    SPELL_ATTR16_UNK29                           = 0x20000000, // TITLE Unknown attribute 29@Attr16
+    SPELL_ATTR16_UNK30                           = 0x40000000, // TITLE Unknown attribute 30@Attr16
+    SPELL_ATTR16_UNK31                           = 0x80000000  // TITLE Unknown attribute 31@Attr16
+};
+
 #define MIN_SPECIALIZATION_LEVEL    10
 #define MAX_SPECIALIZATIONS         5
 #define PET_SPEC_OVERRIDE_CLASS_INDEX MAX_CLASSES
@@ -1651,8 +1689,8 @@ enum SpellEffectName
     SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT     = 350, // MiscValue[0] = ExteriorComponent
     SPELL_EFFECT_LEARN_HOUSE_THEME                  = 351, // MiscValue[0] = HouseTheme
     SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE = 352, // MiscValue[0] = RoomComponentTexture
-
-    //                                              = 354, // MiscValue[0] = NeighborhoodInitiative
+    SPELL_EFFECT_CREATE_AREATRIGGER_2               = 353,
+    SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE        = 354, // MiscValue[0] = NeighborhoodInitiative
     TOTAL_SPELL_EFFECTS
 };
 
@@ -1982,7 +2020,8 @@ enum SpellCastResult : int32
     SPELL_FAILED_ITEM_MOD_APPEARANCE_GROUP_ALREADY_KNOWN        = 320,
     SPELL_FAILED_ITEM_CREATION_DISABLED_FOR_EVENT               = 321,
     SPELL_FAILED_WARBAND_SCENE_ALREADY_KNOWN                    = 322,
-    SPELL_FAILED_UNKNOWN                                        = 323,
+    SPELL_FAILED_TRANSMOG_OUTFIT_ALREADY_KNOWN                  = 323,
+    SPELL_FAILED_UNKNOWN                                        = 324,
 
     // ok cast value - here in case a future version removes SPELL_FAILED_SUCCESS and we need to use a custom value (not sent to client either way)
     SPELL_CAST_OK                                               = SPELL_FAILED_SUCCESS  // SKIP
@@ -8573,14 +8612,26 @@ enum class GameError : uint32
     ERR_CHARTER_SIGNATURE_REQUEST_FAILED_GENERIC                    = 1213,
     ERR_CHARTER_SYSTEM_REQUEST_FAILED_GENERIC                       = 1214,
     ERR_HOUSING_ACTION_UNAVAILABLE                                  = 1215,
-    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1216,
-    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1217,
-    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1218,
-    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1219,
-    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1220,
-    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1221,
-    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1222,
-    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1223,
+    ERR_HOUSING_EXTERIOR_FAILSAFE_RESET                             = 1216,
+    ERR_HOUSING_RESULT_MISSING_EXPANSION_ACCESS                     = 1217,
+    ERR_HOUSING_RESULT_PERMISSION_DENIED                            = 1218,
+    ERR_GUILD_NEIGHBORHOOD_BUILT_HOUSE_S                            = 1219,
+    ERR_GUILD_NEIGHBORHOOD_SOLD_HOUSE_S                             = 1220,
+    ERR_GUILD_NEIGHBORHOOD_NEW_SUBDIVISION                          = 1221,
+    ERR_GUILD_NEIGHBORHOOD_RENAME_S                                 = 1222,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME                                 = 1223,
+    ERR_CHARTER_SIGNATURE_REMOVED                                   = 1224,
+    ERR_ENDEAVOR_REWARD_AVAILABLE                                   = 1225,
+    ERR_HOUSING_RESULT_COSMETIC_OWNER_NOT_IN_GUILD                  = 1226,
+    ERR_HOUSING_RESULT_PLOT_NOT_VACANT                              = 1227,
+    ERR_HOUSING_RESULT_PLOT_RESERVED                                = 1228,
+    ERR_HOUSING_RESULT_MISSING_PRIVATE_NEIGHBORHOOD_INVITE          = 1229,
+    ERR_CHARTER_NEIGHBORHOOD_OWNERSHIP_TRANSFER_SUCCESS             = 1230,
+    ERR_CHARTER_NEIGHBORHOOD_RENAME_NOTIFICATION_S                  = 1231,
+    ERR_RECENT_ALLY_PIN_SERVER_ERROR                                = 1232,
+    ERR_PVP_TRAINING_GROUNDS_DISABLED                               = 1233,
+    ERR_SOLO_JOIN_TRAINING_GROUND                                   = 1234,
+    ERR_LFG_JOINED_TRAINING_GROUNDS_QUEUE                           = 1235,
 };
 
 enum class MountResult : uint32

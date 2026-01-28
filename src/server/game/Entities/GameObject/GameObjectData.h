@@ -27,6 +27,26 @@
 #include <set>
 #include <string>
 
+// TODO: Reorder properly, this is temporary to fix compile
+enum class GameObjectChestFlags : int32
+{
+    Consumable                  = 0x0001,
+    RequireLOS                  = 0x0002,
+    LeaveLoot                   = 0x0004,
+    NotInCombat                 = 0x0008,
+    LogLoot                     = 0x0010,
+    UseGroupLootRules           = 0x0020,
+    FloatingTooltip             = 0x0040,
+    GroupXP                     = 0x0080,
+    DamageImmuneOK              = 0x0100,
+    GiganticAOI                 = 0x0200,
+    LargeAOI                    = 0x0400,
+    TurnPersonalLootSecurityOff = 0x0800,
+    ForceSingleLooter           = 0x1000
+};
+
+DEFINE_ENUM_FLAG(GameObjectChestFlags);
+
 struct DestructibleHitpoint
 {
     uint32 Id;
@@ -107,38 +127,38 @@ struct GameObjectTemplate
             uint32 open;                                    // 0 open, References: Lock_, NoValue = 0
             uint32 chestLoot;                               // 1 chestLoot (legacy/classic), References: Treasure, NoValue = 0
             uint32 chestRestockTime;                        // 2 chestRestockTime, int, Min value: 0, Max value: 1800000, Default value: 0
-            uint32 consumable;                              // 3 consumable, enum { false, true, }; Default: false
+            uint32 Unused;                                  // 3 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 minRestock;                              // 4 minRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 maxRestock;                              // 5 maxRestock, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 triggeredEvent;                          // 6 triggeredEvent, References: GameEvents, NoValue = 0
             uint32 linkedTrap;                              // 7 linkedTrap, References: GameObjects, NoValue = 0
             uint32 questID;                                 // 8 questID, References: QuestV2, NoValue = 0
             uint32 InteractRadiusOverride;                  // 9 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
-            uint32 requireLOS;                              // 10 require LOS, enum { false, true, }; Default: false
-            uint32 leaveLoot;                               // 11 leaveLoot, enum { false, true, }; Default: false
-            uint32 notInCombat;                             // 12 notInCombat, enum { false, true, }; Default: false
-            uint32 logloot;                                 // 13 log loot, enum { false, true, }; Default: false
+            uint32 Unused2;                                 // 10 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused3;                                 // 11 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused4;                                 // 12 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused5;                                 // 13 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 openTextID;                              // 14 openTextID, References: BroadcastText, NoValue = 0
-            uint32 usegrouplootrules;                       // 15 use group loot rules, enum { false, true, }; Default: false
-            uint32 floatingTooltip;                         // 16 floatingTooltip, enum { false, true, }; Default: false
+            uint32 Unused6;                                 // 15 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused7;                                 // 16 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 conditionID1;                            // 17 conditionID1, References: PlayerCondition, NoValue = 0
             int32 xpLevel;                                  // 18 xpLevel, int, Min value: -2147483648, Max value: 2147483647, Default value: 0
             uint32 xpDifficulty;                            // 19 xpDifficulty, enum { No Exp, Trivial, Very Small, Small, Substandard, Standard, High, Epic, Dungeon, 5, }; Default: No Exp
-            uint32 Unused;                                  // 20 Unused, int, Min value: 0, Max value: 123, Default value: 0
-            uint32 GroupXP;                                 // 21 Group XP, enum { false, true, }; Default: false
-            uint32 DamageImmuneOK;                          // 22 Damage Immune OK, enum { false, true, }; Default: false
+            uint32 ChestFlags;                              // 20 Chest Flags, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 OneTimeChestCharacterFlag;               // 21 One Time Chest Character Flag, References: PlayerDataFlagCharacter, NoValue = 0
+            uint32 OneTimeChestAccountFlag;                 // 22 One Time Chest Account Flag, References: PlayerDataFlagAccount, NoValue = 0
             uint32 trivialSkillLow;                         // 23 trivialSkillLow, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 trivialSkillHigh;                        // 24 trivialSkillHigh, int, Min value: 0, Max value: 65535, Default value: 0
             uint32 DungeonEncounter;                        // 25 Dungeon Encounter, References: DungeonEncounter, NoValue = 0
             uint32 spell;                                   // 26 spell, References: Spell, NoValue = 0
-            uint32 GiganticAOI;                             // 27 Gigantic AOI, enum { false, true, }; Default: false
-            uint32 LargeAOI;                                // 28 Large AOI, enum { false, true, }; Default: false
+            uint32 Unused8;                                 // 27 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused9;                                 // 28 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 SpawnVignette;                           // 29 Spawn Vignette, References: vignette, NoValue = 0
             uint32 chestPersonalLoot;                       // 30 chest Personal Loot, References: Treasure, NoValue = 0
-            uint32 turnpersonallootsecurityoff;             // 31 turn personal loot security off, enum { false, true, }; Default: false
-            uint32 ChestProperties;                         // 32 Chest Properties, References: ChestProperties, NoValue = 0
+            uint32 Unused10;                                // 31 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 Unused11;                                // 32 Unused, References: ChestProperties, NoValue = 0
             uint32 chestPushLoot;                           // 33 chest Push Loot, References: Treasure, NoValue = 0
-            uint32 ForceSingleLooter;                       // 34 Force Single Looter, enum { false, true, }; Default: false
+            uint32 Unused12;                                // 34 Unused, int, Min value: 0, Max value: 2147483647, Default value: 0
         } chest;
         // 4 GAMEOBJECT_TYPE_BINDER
         struct
@@ -194,6 +214,8 @@ struct GameObjectTemplate
             uint32 triggeredEvent;                          // 3 triggeredEvent, References: GameEvents, NoValue = 0
             uint32 conditionID1;                            // 4 conditionID1, References: PlayerCondition, NoValue = 0
             uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
+            uint32 CustomSitAnimKit;                        // 6 Custom Sit Anim Kit, References: AnimKit, NoValue = 0
+            int32 CustomSitHeightOffset;                    // 7 Custom Sit Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
         } chair;
         // 8 GAMEOBJECT_TYPE_SPELL_FOCUS
         struct
@@ -503,7 +525,7 @@ struct GameObjectTemplate
         // 31 GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY
         struct
         {
-            uint32 InstanceType;                            // 0 Instance Type, enum { Not Instanced, Party Dungeon, Raid Dungeon, PVP Battlefield, Arena Battlefield, Scenario, WoWLabs, }; Default: Party Dungeon
+            uint32 InstanceType;                            // 0 Instance Type, enum { Not Instanced, Party Dungeon, Raid Dungeon, PVP Battlefield, Arena Battlefield, Scenario, WoWLabs, House Interior, House Neighborhood, }; Default: Party Dungeon
             uint32 DifficultyNormal;                        // 1 Difficulty Normal, References: animationdata, NoValue = 0
             uint32 DifficultyHeroic;                        // 2 Difficulty Heroic, References: animationdata, NoValue = 0
             uint32 DifficultyEpic;                          // 3 Difficulty Epic, References: animationdata, NoValue = 0
@@ -520,8 +542,8 @@ struct GameObjectTemplate
         struct
         {
             uint32 chairheight;                             // 0 chairheight, int, Min value: 0, Max value: 2, Default value: 1
-            int32 HeightOffset;                             // 1 Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
-            uint32 SitAnimKit;                              // 2 Sit Anim Kit, References: AnimKit, NoValue = 0
+            int32 CustomSitHeightOffset;                    // 1 Custom Sit Height Offset (inches), int, Min value: -100, Max value: 100, Default value: 0
+            uint32 CustomSitAnimKit;                        // 2 Custom Sit Anim Kit, References: AnimKit, NoValue = 0
             uint32 InteractRadiusOverride;                  // 3 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 CustomizationFeatureMask;                // 4 Customization Feature Mask, int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 Preventteleportingtheplayeroutofthebarbershopchair;// 5 Prevent teleporting the player out of the barbershop chair, enum { false, true, }; Default: false
@@ -701,14 +723,15 @@ struct GameObjectTemplate
         // 48 GAMEOBJECT_TYPE_UI_LINK
         struct
         {
-            uint32 UILinkType;                              // 0 UI Link Type(Deprecated), enum { Adventure Journal, Obliterum Forge, Scrapping Machine, Item Interaction, }; Default: Adventure Journal
+            uint32 UILinkType;                              // 0 UI Link Type(Deprecated), enum { Adventure Journal, Obliterum Forge, Scrapping Machine, Item Interaction, Cornerstone Interaction, }; Default: Adventure Journal
             uint32 allowMounted;                            // 1 allowMounted, enum { false, true, }; Default: false
             uint32 GiganticAOI;                             // 2 Gigantic AOI, enum { false, true, }; Default: false
             uint32 spellFocusType;                          // 3 spellFocusType, References: SpellFocusObject, NoValue = 0
             uint32 radius;                                  // 4 radius, int, Min value: 0, Max value: 50, Default value: 10
             uint32 InteractRadiusOverride;                  // 5 Interact Radius Override (Yards * 100), int, Min value: 0, Max value: 2147483647, Default value: 0
             uint32 ItemInteractionID;                       // 6 Item Interaction ID, References: UiItemInteraction, NoValue = 0
-            uint32 PlayerInteractionType;                   // 7 Player Interaction Type, enum { None, TradePartner, Item, Gossip, QuestGiver, Merchant, TaxiNode, Trainer, Banker, AlliedRaceDetailsGiver, GuildBanker, Registrar, Vendor, PetitionVendor, GuildTabardVendor, TalentMaster, SpecializationMaster, MailInfo, SpiritHealer, AreaSpiritHealer, Binder, Auctioneer, StableMaster, BattleMaster, Transmogrifier, LFGDungeon, VoidStorageBanker, BlackMarketAuctioneer, AdventureMap, WorldMap, GarrArchitect, GarrTradeskill, GarrMission, ShipmentCrafter, GarrRecruitment, GarrTalent, Trophy, PlayerChoice, ArtifactForge, ObliterumForge, ScrappingMachine, ContributionCollector, AzeriteRespec, IslandQueue, ItemInteraction, ChromieTime, CovenantPreview, AnimaDiversion, LegendaryCrafting, WeeklyRewards, Soulbind, CovenantSanctum, NewPlayerGuide, ItemUpgrade, AdventureJournal, Renown, AzeriteForge, PerksProgramVendor, ProfessionsCraftingOrder, Professions, ProfessionsCustomerOrder, TraitSystem, BarbersChoice, JailersTowerBuffs, MajorFactionRenown, PersonalTabardVendor, ForgeMaster, CharacterBanker, AccountBanker, ProfessionRespec, PlaceholderType71, PlaceholderType72, PlaceholderType73, PlaceholderType74, PlaceholderType75, PlaceholderType76, GuildRename, PlaceholderType76, }; Default: None
+            uint32 PlayerInteractionType;                   // 7 Player Interaction Type, enum { None, TradePartner, Item, Gossip, QuestGiver, Merchant, TaxiNode, Trainer, Banker, AlliedRaceDetailsGiver, GuildBanker, Registrar, Vendor, PetitionVendor, GuildTabardVendor, TalentMaster, SpecializationMaster, MailInfo, SpiritHealer, AreaSpiritHealer, Binder, Auctioneer, StableMaster, BattleMaster, Transmogrifier, LFGDungeon, VoidStorageBanker, BlackMarketAuctioneer, AdventureMap, WorldMap, GarrArchitect, GarrTradeskill, GarrMission, ShipmentCrafter, GarrRecruitment, GarrTalent, Trophy, PlayerChoice, ArtifactForge, ObliterumForge, ScrappingMachine, ContributionCollector, AzeriteRespec, IslandQueue, ItemInteraction, ChromieTime, CovenantPreview, AnimaDiversion, LegendaryCrafting, WeeklyRewards, Soulbind, CovenantSanctum, NewPlayerGuide, ItemUpgrade, AdventureJournal, Renown, AzeriteForge, PerksProgramVendor, ProfessionsCraftingOrder, Professions, ProfessionsCustomerOrder, TraitSystem, BarbersChoice, JailersTowerBuffs, MajorFactionRenown, PersonalTabardVendor, ForgeMaster, CharacterBanker, AccountBanker, ProfessionRespec, CornerstoneInteraction, RenameNeighborhood, HousingBulletinBoard, HousingPedestal, CreateGuildNeighborhood, NeighborhoodCharter, GuildRename, OpenNeighborhoodCharterConfirmation, OpenHouseFinder, TieredEntrance, }; Default: None
+            uint32 spell;                                   // 8 spell, References: Spell, NoValue = 0
         } UILink;
         // 49 GAMEOBJECT_TYPE_KEYSTONE_RECEPTACLE
         struct
@@ -868,7 +891,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:  return chest.consumable != 0;
+            case GAMEOBJECT_TYPE_CHEST:  return chest.Unused != 0; // TODO: update database values and research flag order
+            // case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::Consumable);
             case GAMEOBJECT_TYPE_GOOBER: return goober.consumable != 0;
             default: return false;
         }
@@ -995,7 +1019,8 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_BUTTON: return button.requireLOS;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.requireLOS;
-            case GAMEOBJECT_TYPE_CHEST: return chest.requireLOS;
+            case GAMEOBJECT_TYPE_CHEST: return chest.Unused2; // TODO: update database values and research flag order
+            // case GAMEOBJECT_TYPE_CHEST: return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::RequireLOS);
             case GAMEOBJECT_TYPE_TRAP: return trap.requireLOS;
             case GAMEOBJECT_TYPE_GOOBER: return goober.requireLOS;
             case GAMEOBJECT_TYPE_FLAGSTAND: return flagStand.requireLOS;
@@ -1053,7 +1078,8 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
             case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
-            case GAMEOBJECT_TYPE_CHEST:      return !chest.DamageImmuneOK;
+            case GAMEOBJECT_TYPE_CHEST:      return !chest.OneTimeChestAccountFlag; // TODO: update database values and research flag order
+            // case GAMEOBJECT_TYPE_CHEST:      return !EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::DamageImmuneOK);
             case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune;
@@ -1065,7 +1091,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:          return chest.notInCombat;
+            case GAMEOBJECT_TYPE_CHEST:          return chest.Unused4; // TODO: update database values and research flag order
+            //case GAMEOBJECT_TYPE_CHEST:          return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::NotInCombat);
             case GAMEOBJECT_TYPE_GATHERING_NODE: return gatheringNode.notInCombat;
             default: return 0;
         }
@@ -1119,6 +1146,16 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_FISHINGHOLE:           return fishingHole.chestLoot;
             case GAMEOBJECT_TYPE_GATHERING_NODE:        return gatheringNode.chestLoot;
             default: return 0;
+        }
+    }
+
+    bool IsUsingGroupLootRules() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_CHEST: return chest.Unused6 != 0; // TODO: update database values and research flag order
+            //case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::UseGroupLootRules);
+            default: return false;
         }
     }
 
@@ -1264,7 +1301,8 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:                  return door.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_BUTTON:                return button.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_QUESTGIVER:            return questgiver.GiganticAOI != 0;
-            case GAMEOBJECT_TYPE_CHEST:                 return chest.GiganticAOI != 0;
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.Unused8 != 0; // TODO: update database values and research flag order
+            // case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::GiganticAOI);
             case GAMEOBJECT_TYPE_GENERIC:               return generic.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
@@ -1292,7 +1330,8 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:                 return chest.LargeAOI != 0;
+            case GAMEOBJECT_TYPE_CHEST:                 return chest.Unused9 != 0; // TODO: update database values and research flag order
+            // case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::LargeAOI);
             case GAMEOBJECT_TYPE_GENERIC:               return generic.LargeAOI != 0;
             case GAMEOBJECT_TYPE_GOOBER:                return goober.LargeAOI != 0;
             case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.LargeAOI != 0;

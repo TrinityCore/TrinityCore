@@ -115,6 +115,24 @@ namespace WorldPackets
             int32 Type = 0;
         };
 
+        struct QuestInfoObjective
+        {
+            uint32 ID               = 0;
+            uint32 QuestID          = 0;
+            uint8 Type              = 0;
+            int8 StorageIndex       = 0;
+            int32 ObjectID          = 0;
+            int32 Amount            = 0;
+            int32 ConditionalAmount = 0;
+            uint32 Flags            = 0;
+            uint32 Flags2           = 0;
+            float ProgressBarWeight = 0.0f;
+            int32 ParentObjectiveID = 0;
+            bool Visible            = false;
+            std::string_view Description;
+            std::span<int32 const> VisualEffects;
+        };
+
         struct ConditionalQuestText
         {
             int32 PlayerConditionID = 0;
@@ -142,6 +160,7 @@ namespace WorldPackets
             int32 RewardSpell               = 0;
             int32 RewardHonor               = 0;
             float RewardKillHonor           = 0.0f;
+            int32 RewardFavor               = 0;
             int32 RewardArtifactXPDifficulty = 0;
             float RewardArtifactXPMultiplier = 0.0f;
             int32 RewardArtifactCategoryID  = 0;
@@ -178,12 +197,12 @@ namespace WorldPackets
             int32 AreaGroupID               = 0;
             int64 TimeAllowed               = 0;
             std::span<int32 const> TreasurePickerID;
-            std::span<int32 const> TreasurePickerID2;   // unknown purpose, used only sometimes and only if TreasurePickerID is empty
+            std::span<int32 const> NonDisplayableTreasurePickerIDs;
             int32 Expansion                 = 0;
             int32 ManagedWorldStateID       = 0;
             int32 QuestSessionBonus         = 0;
             int32 QuestGiverCreatureID      = 0; // used to select ConditionalQuestText
-            std::vector<QuestObjective> Objectives;
+            std::vector<QuestInfoObjective> Objectives;
             std::vector<ConditionalQuestText> ConditionalQuestDescription;
             std::vector<ConditionalQuestText> ConditionalQuestCompletionLog;
             std::span<int32 const> RewardHouseRoomIDs;
@@ -555,6 +574,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             int32 QuestID = 0;
+            bool HideCreditMessage = false;
         };
 
         class QuestConfirmAcceptResponse final : public ServerPacket
