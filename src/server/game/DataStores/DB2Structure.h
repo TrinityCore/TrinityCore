@@ -2035,6 +2035,19 @@ struct GarrTalentTreeEntry
     int32 CurrencyID;
 };
 
+struct GarrTypeEntry
+{
+    uint8 ID;
+    uint32 PrimaryCurrencyTypeID;
+    uint32 SecondaryCurrencyTypeID;
+    uint32 ExpansionID;
+    int32 Flags;
+    float AutoFollowerHealRate;
+    int32 MissionCostCurveID;
+    float AutoFollowerHealCostMult;
+    std::array<int32, 2> MapIDs;
+};
+
 struct GemPropertiesEntry
 {
     uint32 ID;
