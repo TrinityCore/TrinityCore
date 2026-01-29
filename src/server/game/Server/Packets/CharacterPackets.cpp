@@ -16,7 +16,6 @@
  */
 
 #include "CharacterPackets.h"
-#include "CharacterPackets.h"
 #include "ClubUtils.h"
 #include "DB2Stores.h"
 #include "Field.h"
