@@ -448,6 +448,7 @@ class TC_GAME_API Spell
         void EffectSendChatMessage();
         void EffectGrantBattlePetExperience();
         void EffectLearnTransmogIllusion();
+        void EffectCraftItem();
         void EffectModifyAuraStacks();
         void EffectModifyCooldown();
         void EffectModifyCooldowns();
@@ -547,7 +548,7 @@ class TC_GAME_API Spell
         SpellState getState() const { return m_spellState; }
         void setState(SpellState state) { m_spellState = state; }
 
-        void DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr);
+        Item* DoCreateItem(uint32 itemId, ItemContext context = ItemContext::NONE, std::vector<int32> const* bonusListIDs = nullptr, bool update = true);
 
         bool CheckEffectTarget(Unit const* target, SpellEffectInfo const& spellEffectInfo, Position const* losPosition) const;
         bool CheckEffectTarget(GameObject const* target, SpellEffectInfo const& spellEffectInfo) const;

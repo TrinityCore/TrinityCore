@@ -1406,6 +1406,75 @@ struct CorruptionEffectsLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 5, &CorruptionEffectsMeta::Instance, HOTFIX_SEL_CORRUPTION_EFFECTS };
 };
 
+struct CraftingDataLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[16] =
+    {
+        { .IsSigned = false, .Type =FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "Type" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "CraftingDifficultyID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "CraftedItemID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "ItemBonusTreeID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "CraftingDifficulty" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "Field_10_0_0_44649_005" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "CraftSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "ReCraftSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "InspirationSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "Field_10_0_0_44649_009" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "Field_10_0_0_45141_011" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "FirstCraftFlagQuestID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "FirstCraftTreasureID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "Field_10_2_5_52432_014" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "CraftedTreasureID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 16, &CraftingDataMeta::Instance, HOTFIX_SEL_CRAFTING_DATA };
+};
+
+struct CraftingDataItemQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[3] =
+    {
+        { .IsSigned = false, .Type =FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "ItemID" },
+        { .IsSigned = false, .Type =FT_INT, .Name = "CraftingDataID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 3, &CraftingDataItemQualityMeta::Instance, HOTFIX_SEL_CRAFTING_DATA_ITEM_QUALITY };
+};
+
+struct CraftingDifficultyLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[8] =
+    {
+        { .IsSigned = false, .Type =FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "MaxRandomSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "CraftSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "ReCraftSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "InspirationSkillBonusPercent" },
+        { .IsSigned = false, .Type =FT_FLOAT, .Name = "Field_10_0_0_44649_004" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "ConcentrationSkillCurveID" },
+        { .IsSigned = true, .Type =FT_INT, .Name = "ConcentrationDifficultyCurveID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 8, &CraftingDifficultyMeta::Instance, HOTFIX_SEL_CRAFTING_DIFFICULTY };
+};
+
+struct CraftingDifficultyQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Order" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "CraftingQualityID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "QualityPercentage" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "Field_10_0_0_44895_004" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "CraftingDifficultyID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &CraftingDifficultyQualityMeta::Instance, HOTFIX_SEL_CRAFTING_DIFFICULTY_QUALITY };
+};
+
 struct CraftingQualityLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =
@@ -1416,6 +1485,21 @@ struct CraftingQualityLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &CraftingQualityMeta::Instance, HOTFIX_SEL_CRAFTING_QUALITY };
+};
+
+struct CraftingReagentQualityLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "OrderIndex" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ItemID" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "MaxDifficultyAdjustment" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "ReagentEffectPct" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ModifiedCraftingCategoryID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &CraftingReagentQualityMeta::Instance, HOTFIX_SEL_CRAFTING_REAGENT_QUALITY };
 };
 
 struct CreatureDisplayInfoLoadInfo
@@ -3994,6 +4078,19 @@ struct MawPowerLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 3, &MawPowerMeta::Instance, HOTFIX_SEL_MAW_POWER };
 };
 
+struct MCRSlotXMCRCategoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[4] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingCategoryID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Order" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ModifiedCraftingReagentSlotID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 4, &MCRSlotXMCRCategoryMeta::Instance, HOTFIX_SEL_MCR_SLOT_X_MCR_CATEGORY };
+};
+
 struct ModifiedCraftingItemLoadInfo
 {
     static constexpr DB2FieldMeta Fields[3] =
@@ -4004,6 +4101,68 @@ struct ModifiedCraftingItemLoadInfo
     };
 
     static constexpr DB2LoadInfo Instance{ Fields, 3, &ModifiedCraftingItemMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_ITEM };
+};
+
+struct ModifiedCraftingCategoryLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "DisplayName" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field_9_0_1_33978_001" },
+        { .IsSigned = false, .Type = FT_FLOAT, .Name = "MatQualityWeight" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field_10_0_0_44649_004" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ModifiedCraftingCategoryMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_CATEGORY };
+};
+
+struct ModifiedCraftingReagentItemLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Description" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingCategoryID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ItemBonusTreeID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Flags" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field_9_1_0_38511_004" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ItemContextOffset" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ModifiedCraftingReagentItemMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_ITEM };
+};
+
+struct ModifiedCraftingReagentSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = false, .Type = FT_STRING, .Name = "Name" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field_9_0_1_33978_001" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "PlayerConditionID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ReagentType" },
+        { .IsSigned = true, .Type = FT_BYTE, .Name = "Field_10_0_2_46091_005" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &ModifiedCraftingReagentSlotMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_REAGENT_SLOT };
+};
+
+struct ModifiedCraftingSpellSlotLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[7] =
+    {
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "SpellID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Slot" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ModifiedCraftingReagentSlotID" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Field_9_0_1_35679_003" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ReagentCount" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "ReagentReCraftCount" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 7, &ModifiedCraftingSpellSlotMeta::Instance, HOTFIX_SEL_MODIFIED_CRAFTING_SPELL_SLOT };
 };
 
 struct ModifierTreeLoadInfo
