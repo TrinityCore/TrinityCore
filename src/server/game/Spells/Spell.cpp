@@ -3848,7 +3848,7 @@ void Spell::update(uint32 difftime)
     }
 
     // check if the unit caster has moved before the spell finished
-    if (m_timer != 0 && m_caster->IsUnit() && m_caster->ToUnit()->isMoving() && CheckMovement() != SPELL_CAST_OK)
+    if (m_timer != 0 && m_caster->IsUnit() && m_caster->ToUnit()->isMoving() && m_caster->ToUnit()->GetMotionMaster()->GetCurrentMovementGeneratorType() != FACE_MOTION_TYPE && CheckMovement() != SPELL_CAST_OK)
         cancel();
 
     switch (m_spellState)
