@@ -27,7 +27,6 @@
 #include <set>
 #include <string>
 
-// TODO: Reorder properly, this is temporary to fix compile
 enum class GameObjectChestFlags : int32
 {
     Consumable                  = 0x0001,
@@ -891,8 +890,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:  return chest.Unused != 0; // TODO: update database values and research flag order
-            // case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::Consumable);
+            case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::Consumable);
             case GAMEOBJECT_TYPE_GOOBER: return goober.consumable != 0;
             default: return false;
         }
@@ -1019,8 +1017,7 @@ struct GameObjectTemplate
         {
             case GAMEOBJECT_TYPE_BUTTON: return button.requireLOS;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.requireLOS;
-            case GAMEOBJECT_TYPE_CHEST: return chest.Unused2; // TODO: update database values and research flag order
-            // case GAMEOBJECT_TYPE_CHEST: return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::RequireLOS);
+            case GAMEOBJECT_TYPE_CHEST: return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::RequireLOS);
             case GAMEOBJECT_TYPE_TRAP: return trap.requireLOS;
             case GAMEOBJECT_TYPE_GOOBER: return goober.requireLOS;
             case GAMEOBJECT_TYPE_FLAGSTAND: return flagStand.requireLOS;
@@ -1078,8 +1075,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
             case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
             case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.noDamageImmune;
-            case GAMEOBJECT_TYPE_CHEST:      return !chest.OneTimeChestAccountFlag; // TODO: update database values and research flag order
-            // case GAMEOBJECT_TYPE_CHEST:      return !EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::DamageImmuneOK);
+            case GAMEOBJECT_TYPE_CHEST:      return !EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::DamageImmuneOK);
             case GAMEOBJECT_TYPE_GOOBER:     return goober.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGSTAND:  return flagStand.noDamageImmune;
             case GAMEOBJECT_TYPE_FLAGDROP:   return flagDrop.noDamageImmune;
@@ -1091,8 +1087,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:          return chest.Unused4; // TODO: update database values and research flag order
-            //case GAMEOBJECT_TYPE_CHEST:          return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::NotInCombat);
+            case GAMEOBJECT_TYPE_CHEST:          return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::NotInCombat);
             case GAMEOBJECT_TYPE_GATHERING_NODE: return gatheringNode.notInCombat;
             default: return 0;
         }
@@ -1153,8 +1148,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST: return chest.Unused6 != 0; // TODO: update database values and research flag order
-            //case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::UseGroupLootRules);
+            case GAMEOBJECT_TYPE_CHEST:  return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::UseGroupLootRules);
             default: return false;
         }
     }
@@ -1301,8 +1295,7 @@ struct GameObjectTemplate
             case GAMEOBJECT_TYPE_DOOR:                  return door.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_BUTTON:                return button.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_QUESTGIVER:            return questgiver.GiganticAOI != 0;
-            case GAMEOBJECT_TYPE_CHEST:                 return chest.Unused8 != 0; // TODO: update database values and research flag order
-            // case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::GiganticAOI);
+            case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::GiganticAOI);
             case GAMEOBJECT_TYPE_GENERIC:               return generic.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_TRAP:                  return trap.GiganticAOI != 0;
             case GAMEOBJECT_TYPE_SPELL_FOCUS:           return spellFocus.GiganticAOI != 0;
@@ -1330,8 +1323,7 @@ struct GameObjectTemplate
     {
         switch (type)
         {
-            case GAMEOBJECT_TYPE_CHEST:                 return chest.Unused9 != 0; // TODO: update database values and research flag order
-            // case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::LargeAOI);
+            case GAMEOBJECT_TYPE_CHEST:                 return EnumFlag(static_cast<GameObjectChestFlags>(chest.ChestFlags)).HasFlag(GameObjectChestFlags::LargeAOI);
             case GAMEOBJECT_TYPE_GENERIC:               return generic.LargeAOI != 0;
             case GAMEOBJECT_TYPE_GOOBER:                return goober.LargeAOI != 0;
             case GAMEOBJECT_TYPE_DUNGEON_DIFFICULTY:    return dungeonDifficulty.LargeAOI != 0;
