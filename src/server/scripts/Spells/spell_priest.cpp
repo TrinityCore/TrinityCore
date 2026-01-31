@@ -254,6 +254,7 @@ enum PriestSpells
     SPELL_PRIEST_UNFURLING_DARKNESS_DEBUFF          = 341291,
     SPELL_PRIEST_VAMPIRIC_EMBRACE_HEAL              = 15290,
     SPELL_PRIEST_VAMPIRIC_TOUCH                     = 34914,
+    SPELL_PRIEST_VOID_VOLLEY_DAMAGE                 = 1242189,
     SPELL_PRIEST_VOID_SHIELD                        = 199144,
     SPELL_PRIEST_VOID_SHIELD_EFFECT                 = 199145,
     SPELL_PRIEST_VOICE_OF_HARMONY                   = 390994,
@@ -5175,6 +5176,70 @@ class spell_pri_voice_of_harmony : public AuraScript
     }
 };
 
+// 1242173 - Void Volley
+class spell_pri_void_volley : public SpellScript
+{
+    class BoltEvent : public BasicEvent
+    {
+    public:
+        static constexpr Milliseconds Period = 75ms;
+
+        explicit BoltEvent(Unit* caster, ObjectGuid target, ObjectGuid originalCastId, int32 count) :
+            _caster(caster), _target(target), _originalCastId(originalCastId), _count(count) { }
+
+        bool Execute(uint64 time, uint32) override
+        {
+            Unit* target = ObjectAccessor::GetUnit(*_caster, _target);
+            if (!target)
+                return true;
+
+            _caster->CastSpell(target, SPELL_PRIEST_VOID_VOLLEY_DAMAGE, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .OriginalCastId = _originalCastId
+            });
+
+            if (--_count)
+            {
+                _caster->m_Events.AddEvent(this, Milliseconds(time) + Period);
+                return false;
+            }
+            return true;
+        }
+
+    private:
+        Unit* _caster;
+        ObjectGuid _target;
+        ObjectGuid _originalCastId;
+        int32 _count;
+    };
+
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_PRIEST_VOID_VOLLEY_DAMAGE })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } });
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/) const
+    {
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(target, SPELL_PRIEST_VOID_VOLLEY_DAMAGE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
+
+        int32 bolts = target == GetExplTargetUnit() ? GetEffectValue() : GetEffectInfo(EFFECT_2).CalcValue(caster);
+        if (bolts > 1)
+            caster->m_Events.AddEventAtOffset(new BoltEvent(caster, target->GetGUID(), GetSpell()->m_originalCastId, bolts - 1), BoltEvent::Period);
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_pri_void_volley::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 205385 - Shadow Crash
 class spell_pri_whispering_shadows : public SpellScript
 {
@@ -5381,6 +5446,7 @@ void AddSC_priest_spell_scripts()
     RegisterSpellScript(spell_pri_vampiric_embrace_target);
     RegisterSpellScript(spell_pri_vampiric_touch);
     RegisterSpellScript(spell_pri_voice_of_harmony);
+    RegisterSpellScript(spell_pri_void_volley);
     RegisterSpellScript(spell_pri_whispering_shadows);
     RegisterSpellScript(spell_pri_whispering_shadows_effect);
 }
