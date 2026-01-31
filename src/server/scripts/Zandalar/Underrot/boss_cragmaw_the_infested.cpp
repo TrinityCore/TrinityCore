@@ -155,7 +155,7 @@ struct boss_cragmaw_the_infested : public BossAI
     void MovementInform(uint32 /*type*/, uint32 id) override
     {
         if (id == POINT_TANTRUM_START_RND_MOVEMENT)
-            me->GetMotionMaster()->MoveRandom(20.0f);
+            me->GetMotionMaster()->MoveRandom(20.0f, {}, {}, MovementWalkRunSpeedSelectionMode::ForceRun);
     }
 
     void OnChannelFinished(SpellInfo const* spell) override
