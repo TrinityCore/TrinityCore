@@ -318,6 +318,9 @@ namespace VMAP
                 ModelSpawn spawn;
                 if (ModelSpawn::readFromFile(fileResult.TileFile.get(), spawn))
                 {
+                    if (spawn.flags & MOD_PATH_ONLY && !vm->LoadPathOnlyModels)
+                        continue;
+
                     // acquire model instance
                     std::shared_ptr<WorldModel> model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
@@ -362,8 +365,7 @@ namespace VMAP
         }
         else
             iLoadedTiles[packTileID(tileX, tileY)] = false;
-        TC_METRIC_EVENT("map_events", "LoadMapTile",
-            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
+        TC_METRIC_EVENT("map_events", "LoadMapTile", Trinity::StringFormat("Map: {} TileX: {} TileY: {}", iMapID, tileX, tileY));
         return result;
     }
 
@@ -402,6 +404,9 @@ namespace VMAP
                     if (!ModelSpawn::readFromFile(fileResult.TileFile.get(), spawn))
                         break;
 
+                    if (spawn.flags & MOD_PATH_ONLY && !vm->LoadPathOnlyModels)
+                        continue;
+
                     // update tree
                     uint32 referencedNode = 0;
                     if (fread(&referencedNode, sizeof(uint32), 1, fileResult.SpawnIndicesFile.get()) != 1)
@@ -426,8 +431,7 @@ namespace VMAP
             }
         }
         iLoadedTiles.erase(tile);
-        TC_METRIC_EVENT("map_events", "UnloadMapTile",
-            "Map: " + std::to_string(iMapID) + " TileX: " + std::to_string(tileX) + " TileY: " + std::to_string(tileY));
+        TC_METRIC_EVENT("map_events", "UnloadMapTile", Trinity::StringFormat("Map: {} TileX: {} TileY: {}", iMapID, tileX, tileY));
     }
 
     std::span<ModelInstance const> StaticMapTree::getModelInstances() const

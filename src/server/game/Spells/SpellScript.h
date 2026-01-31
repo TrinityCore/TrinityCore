@@ -52,7 +52,7 @@ class WorldObject;
 struct SpellDestination;
 struct SpellModifier;
 struct SpellValue;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum class ItemContext : uint8;
 
 #define SPELL_EFFECT_ANY ((uint16)-1)
@@ -94,7 +94,7 @@ protected:
     class HookList : public ::HookList<T>
     {
     public:
-        HookList& operator+=(T&& t);
+        HookList& operator+=(T&& t) noexcept;
     };
 
     class TC_GAME_API EffectHook
@@ -174,9 +174,9 @@ protected:
         Ret(* Thunk)(BaseClass&, Args..., StorageType);
     };
 
-    uint8 m_currentScriptState;
     std::string_view m_scriptName;
     uint32 m_scriptSpellId;
+    uint8 m_currentScriptState;
 
 private:
 
@@ -1727,13 +1727,14 @@ public:
     HookList<EffectCalcCritChanceHandler> DoEffectCalcCritChance;
     #define AuraEffectCalcCritChanceFn(F, I, N) EffectCalcCritChanceHandler(&F, I, N)
 
-    // executed when aura effect calculates damage or healing for dots and hots
+    // executed when aura effect calculates damage or healing for dots and hots or initial absorb aura amount calculation
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcDamageFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // example: DoEffectCalcDamageAndHealing += AuraEffectCalcHealingFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
     // where function is: void function(AuraEffect const* aurEff, Unit* victim, int32& damageOrHealing, int32& flatMod, float& pctMod);
     HookList<EffectCalcDamageAndHealingHandler> DoEffectCalcDamageAndHealing;
     #define AuraEffectCalcDamageFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
     #define AuraEffectCalcHealingFn(F, I, N) EffectCalcDamageAndHealingHandler(&F, I, N)
+    #define AuraEffectCalcAbsorbFn(F, I) EffectCalcDamageAndHealingHandler(&F, I, SPELL_AURA_SCHOOL_ABSORB)
 
     // executed when absorb aura effect is going to reduce damage
     // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);

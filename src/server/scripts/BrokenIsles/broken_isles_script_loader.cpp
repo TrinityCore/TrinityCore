@@ -32,6 +32,10 @@ void AddSC_instance_trial_of_valor();
 void AddSC_boss_amalgam_of_souls();
 void AddSC_instance_black_rook_hold();
 
+// Neltharion's Lair
+void AddSC_boss_rokmora();
+void AddSC_instance_neltharions_lair();
+
 // Eye of Azshara
 void AddSC_boss_king_deepbeard();
 void AddSC_instance_eye_of_azshara();
@@ -58,6 +62,10 @@ void AddBrokenIslesScripts()
     // Black Rook Hold
     AddSC_boss_amalgam_of_souls();
     AddSC_instance_black_rook_hold();
+
+    // Neltharion's Lair
+    AddSC_boss_rokmora();
+    AddSC_instance_neltharions_lair();
 
     // Eye of Azshara
     AddSC_boss_king_deepbeard();
