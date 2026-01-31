@@ -40,8 +40,8 @@
 
 // Database updater base information
 #define DATABASE_MYSQL_EXECUTABLE   R"(@MYSQL_EXECUTABLE@)"
-#define DATABASE_FULL_DATABASE      "TDB_full_world_1125.25101_2025_10_29.sql"
-#define DATABASE_HOTFIXES_DATABASE  "TDB_full_hotfixes_1125.25101_2025_10_29.sql"
+#define DATABASE_FULL_DATABASE      "TDB_full_world_1127.26011_2026_01_14.sql"
+#define DATABASE_HOTFIXES_DATABASE  "TDB_full_hotfixes_1127.26011_2026_01_14.sql"
 
 // Windows resource defines
 #define TRINITY_COMPANYNAME_STR         "TrinityCore Developers"

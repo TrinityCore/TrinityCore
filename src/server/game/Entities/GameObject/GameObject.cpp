@@ -105,6 +105,7 @@ WorldPacket GameObjectTemplate::BuildQueryData(LocaleConstant loc) const
 
     memcpy(stats.Data.data(), raw.data, MAX_GAMEOBJECT_DATA * sizeof(int32));
     stats.ContentTuningId = ContentTuningId;
+    stats.RequiredLevel = RequiredLevel;
 
     queryTemp.Write();
     queryTemp.ShrinkToFit();
@@ -429,9 +430,9 @@ public:
         return 1;
     }
 
-    std::vector<uint32> const* GetPauseTimes() const
+    std::span<uint32 const> GetPauseTimes() const
     {
-        return &_stopFrames;
+        return _stopFrames;
     }
 
     ObjectGuid GetTransportGUID() const override { return _owner.GetGUID(); }
@@ -835,7 +836,6 @@ void SetControlZoneValue::Execute(GameObjectTypeBase& type) const
 GameObject::GameObject() : WorldObject(false), MapObject(),
     m_goValue(), m_stringIds(), m_AI(nullptr), m_respawnCompatibilityMode(false), _animKitId(0), _worldEffectID(0)
 {
-    m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
 
     m_updateFlag.Stationary = true;
@@ -1023,7 +1023,7 @@ bool GameObject::Create(uint32 entry, Map* map, Position const& pos, QuaternionD
         m_updateFlag.ServerTime = true;
     }
 
-    Object::_Create(guid);
+    _Create(guid);
 
     m_goInfo = goInfo;
     m_goTemplateAddon = sObjectMgr->GetGameObjectTemplateAddon(entry);
@@ -1556,7 +1556,7 @@ void GameObject::Update(uint32 diff)
                         m_loot->Update();
 
                         // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                        if (GetGOInfo()->chest.consumable == 0 && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
+                        if (!GetGOInfo()->IsDespawnAtAction() && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
                         {
                             m_restockTime = 0;
                             m_lootState = GO_READY;
@@ -2621,7 +2621,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                 if (info->GetLootId())
                 {
                     Group const* group = player->GetGroup();
-                    bool groupRules = group && info->chest.usegrouplootrules;
+                    bool groupRules = group && info->IsUsingGroupLootRules();
 
                     Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
                     m_loot.reset(loot);
@@ -3237,7 +3237,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
 
-            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.SitAnimKit);
+            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.CustomSitAnimKit);
             return;
         }
         case GAMEOBJECT_TYPE_NEW_FLAG:
@@ -3874,7 +3874,7 @@ void GameObject::OnLootRelease(Player* looter)
         case GAMEOBJECT_TYPE_CHEST:
         {
             GameObjectTemplate const* goInfo = GetGOInfo();
-            if (!goInfo->chest.consumable && goInfo->chest.chestPersonalLoot)
+            if (!goInfo->IsDespawnAtAction() && goInfo->chest.chestPersonalLoot)
             {
                 DespawnForPlayer(looter, goInfo->chest.chestRestockTime
                     ? Seconds(goInfo->chest.chestRestockTime)
@@ -4136,12 +4136,13 @@ void GameObject::ClearUpdateMask(bool remove)
     Object::ClearUpdateMask(remove);
 }
 
-std::vector<uint32> const* GameObject::GetPauseTimes() const
+std::span<uint32 const> GameObject::GetPauseTimes() const
 {
+    std::span<uint32 const> result;
     if (GameObjectType::Transport const* transport = dynamic_cast<GameObjectType::Transport const*>(m_goTypeImpl.get()))
-        return transport->GetPauseTimes();
+        result = transport->GetPauseTimes();
 
-    return nullptr;
+    return result;
 }
 
 void GameObject::SetPathProgressForClient(float progress)
@@ -4252,6 +4253,8 @@ void GameObject::SetAnimKitId(uint16 animKitId, bool oneshot)
         _animKitId = animKitId;
     else
         _animKitId = 0;
+
+    m_updateFlag.AnimKit = _animKitId != 0;
 
     WorldPackets::GameObject::GameObjectActivateAnimKit activateAnimKit;
     activateAnimKit.ObjectGUID = GetGUID();

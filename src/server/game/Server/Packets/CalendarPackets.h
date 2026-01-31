@@ -448,7 +448,7 @@ namespace WorldPackets
 
             int32 MapID = 0;
             bool Extend = false;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
         };
 
         class CalendarModeratorStatusQuery final : public ClientPacket
@@ -485,7 +485,7 @@ namespace WorldPackets
             WorldPacket const* Write() override;
 
             uint64 InstanceID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 TimeRemaining = 0;
             WowTime ServerTime;
             int32 MapID = 0;
@@ -500,7 +500,7 @@ namespace WorldPackets
 
             uint64 InstanceID = 0;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
         };
 
         class CalendarRaidLockoutUpdated final : public ServerPacket
@@ -512,7 +512,7 @@ namespace WorldPackets
 
             WowTime ServerTime;
             int32 MapID = 0;
-            uint32 DifficultyID = 0;
+            int16 DifficultyID = 0;
             int32 NewTimeRemaining = 0;
             int32 OldTimeRemaining = 0;
         };
