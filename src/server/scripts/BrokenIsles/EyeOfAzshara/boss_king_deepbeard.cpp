@@ -34,6 +34,7 @@ enum KingDeepbeardSpells
     SPELL_GASEOUS_BUBBLES       = 193018,
     SPELL_GASEOUS_EXPLOSION     = 193047,
     SPELL_GROUND_SLAM           = 193093,
+    SPELL_GROUND_SLAM_MISSILE   = 193056,
     SPELL_QUAKE                 = 193152,
     SPELL_FRENZY                = 197550
 };
@@ -48,21 +49,22 @@ enum KingDeepbeardEvents
 
 enum KingDeepbeardTexts
 {
-    SAY_AGGRO                 = 0,
-    SAY_GASEOUS_BUBBLES       = 1,
-    SAY_QUAKE                 = 2,
-    SAY_CALL_THE_SEAS_WARNING = 3,
-    SAY_CALL_THE_SEAS         = 4,
-    SAY_FRENZY_WARNING        = 5,
-    SAY_FRENZY                = 6,
-    SAY_DEATH                 = 7,
-    SAY_SLAY                  = 8,
-    SAY_WIPE                  = 9
+    SAY_AGGRO                   = 0,
+    SAY_GASEOUS_BUBBLES         = 1,
+    SAY_QUAKE                   = 2,
+    SAY_CALL_THE_SEAS_WARNING   = 3,
+    SAY_CALL_THE_SEAS           = 4,
+    SAY_FRENZY_WARNING          = 5,
+    SAY_FRENZY                  = 6,
+    SAY_DEATH                   = 7,
+    SAY_SLAY                    = 8,
+    SAY_WIPE                    = 9
 };
 
 enum KingDeepbeardMisc
 {
-    NPC_CALL_THE_SEAS     = 97844
+    NPC_CALL_THE_SEAS           = 97844,
+    NPC_QUAKE                   = 97916,
 };
 
 // 91797 - King Deepbeard
@@ -81,6 +83,20 @@ struct boss_king_deepbeard : public BossAI
             return;
 
         Talk(SAY_SLAY);
+    }
+
+    void RemoveQuakes()
+    {
+        std::list<Creature*> quakes;
+        Trinity::AllCreaturesOfEntryInRange checker(me, NPC_QUAKE, 200.0f);
+        Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, quakes, checker);
+        Cell::VisitAllObjects(me, searcher, 200.0f);
+
+        if (quakes.empty())
+            return;
+
+        for (Creature* quake : quakes)
+            quake->DespawnOrUnsummon();
     }
 
     void RemoveCallTheSeas()
@@ -104,6 +120,7 @@ struct boss_king_deepbeard : public BossAI
         instance->SetBossState(DATA_KING_DEEPBEARD, DONE);
         Talk(SAY_DEATH);
 
+        RemoveQuakes();
         RemoveCallTheSeas();
     }
 
@@ -114,10 +131,11 @@ struct boss_king_deepbeard : public BossAI
 
         Talk(SAY_WIPE);
 
+        RemoveQuakes();
+        RemoveCallTheSeas();
+
         _EnterEvadeMode();
         _DespawnAtEvade();
-
-        RemoveCallTheSeas();
     }
 
     void JustEngagedWith(Unit* who) override
@@ -207,15 +225,17 @@ struct boss_king_deepbeard : public BossAI
 // 193093 - Ground Slam
 class spell_king_deepbeard_ground_slam : public SpellScript
 {
-    void HandleScript(SpellEffIndex /*effIndex*/) const
+    bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        GetCaster()->CastSpell(GetHitUnit()->GetPosition(), GetEffectValue(), TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+        return ValidateSpellInfo({ SPELL_GROUND_SLAM_MISSILE });
     }
 
-    void Register() override
+    void OnPrecast() override
     {
-        OnEffectHitTarget += SpellEffectFn(spell_king_deepbeard_ground_slam::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        GetCaster()->CastSpell(GetExplTargetUnit()->GetPosition(), SPELL_GROUND_SLAM_MISSILE, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
+
+    void Register() override { }
 };
 
 // 193018 - Gaseous Bubbles

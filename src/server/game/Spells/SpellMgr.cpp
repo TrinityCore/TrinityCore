@@ -4765,6 +4765,18 @@ void SpellMgr::LoadSpellInfoCorrections()
     // ENDOF BLACK ROOK HOLD SPELLS
 
     //
+    // EYE OF AZSHARA SPELLS
+    //
+
+    // Gaseous Bubbles
+    ApplySpellFix({ 193018 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_AURA_IS_DEBUFF;
+    });
+
+    // ENDOF EYE OF AZSHARA SPELLS
+
+    //
     // ANTORUS THE BURNING THRONE SPELLS
     //
 

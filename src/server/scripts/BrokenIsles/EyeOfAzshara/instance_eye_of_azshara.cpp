@@ -22,7 +22,7 @@
 
 BossBoundaryData const boundaries =
 {
-    { DATA_KING_DEEPBEARD, new CircleBoundary(Position(-3450.758301f, 4154.493652f, 23.183308f), 45.0f) }
+    { DATA_KING_DEEPBEARD, new CircleBoundary(Position(-3448.65f, 4161.68f, 29.18f), 68.0f) }
 };
 
 ObjectData const creatureData[] =
@@ -65,6 +65,7 @@ public:
             LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
             LoadDungeonEncounterData(encounters);
+            LoadBossBoundaries(boundaries);
         }
     };
 
