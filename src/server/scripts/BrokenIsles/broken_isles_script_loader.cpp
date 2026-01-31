@@ -36,6 +36,10 @@ void AddSC_instance_black_rook_hold();
 void AddSC_boss_rokmora();
 void AddSC_instance_neltharions_lair();
 
+// Eye of Azshara
+void AddSC_boss_king_deepbeard();
+void AddSC_instance_eye_of_azshara();
+
 // Orderhalls
 void AddSC_orderhall_warrior();
 void AddSC_orderhall_rogue();
@@ -62,6 +66,10 @@ void AddBrokenIslesScripts()
     // Neltharion's Lair
     AddSC_boss_rokmora();
     AddSC_instance_neltharions_lair();
+
+    // Eye of Azshara
+    AddSC_boss_king_deepbeard();
+    AddSC_instance_eye_of_azshara();
 
     // Orderhalls
     AddSC_orderhall_warrior();
