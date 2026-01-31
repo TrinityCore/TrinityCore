@@ -98,6 +98,7 @@ enum Expansions
     EXPANSION_SHADOWLANDS              = 8,
     EXPANSION_DRAGONFLIGHT             = 9,
     EXPANSION_THE_WAR_WITHIN           = 10,
+    EXPANSION_MIDNIGHT                 = 11,
     MAX_EXPANSIONS,
 
     MAX_ACCOUNT_EXPANSIONS
@@ -131,6 +132,8 @@ constexpr uint32 GetMaxLevelForExpansion(uint32 expansion)
             return 70;
         case EXPANSION_THE_WAR_WITHIN:
             return 80;
+        case EXPANSION_MIDNIGHT:
+            return 90;
         default:
             break;
     }
