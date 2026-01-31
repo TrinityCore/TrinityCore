@@ -376,6 +376,7 @@ class TC_GAME_API Aura
         virtual std::string GetDebugInfo() const;
 
         Trinity::unique_weak_ptr<Aura> GetWeakPtr() const { return m_scriptRef; }
+        Trinity::unique_weak_ptr<AuraEffect> GetEffectWeakPtr(SpellEffIndex index) const { return { m_scriptRef, GetEffect(index) }; }
 
         Aura(Aura const&) = delete;
         Aura(Aura&&) = delete;

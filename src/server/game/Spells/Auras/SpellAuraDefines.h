@@ -308,7 +308,7 @@ enum AuraType : uint32
     SPELL_AURA_MOD_DETAUNT                                  = 221,
     SPELL_AURA_REMOVE_TRANSMOG_COST                         = 222,
     SPELL_AURA_REMOVE_BARBER_SHOP_COST                      = 223,
-    SPELL_AURA_LEARN_TALENT                                 = 224,  // NYI
+    SPELL_AURA_MOD_TRAIT_NODE_ENTRY_RANK                    = 224,  // NYI; Amount = ranks, MiscValue[0] = TraitNodeEntryID, MiscValue[1] = TraitNodeID (there are leftover deprecated spells that still have data referring to its old implementation, SPELL_AURA_LEARN_TALENT)
     SPELL_AURA_MOD_VISIBILITY_RANGE                         = 225,
     SPELL_AURA_PERIODIC_DUMMY                               = 226,
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,
@@ -730,6 +730,16 @@ enum AuraType : uint32
     SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT                 = 643, // NYI
     SPELL_AURA_644                                          = 644,
     SPELL_AURA_645                                          = 645,
+    SPELL_AURA_ADD_FLAT_PVP_MODIFIER                        = 646,
+    SPELL_AURA_ADD_PCT_PVP_MODIFIER                         = 647,
+    SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL         = 648,
+    SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL          = 649,
+    SPELL_AURA_650                                          = 650,
+    SPELL_AURA_651                                          = 651,
+    SPELL_AURA_652                                          = 652,
+    SPELL_AURA_653                                          = 653,
+    SPELL_AURA_654                                          = 654,
+    SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST           = 655,
 
     TOTAL_AURAS
 };

@@ -920,7 +920,7 @@ class instance_violet_hold : public InstanceMapScript
                     task.Schedule(Seconds(6), [this](TaskContext task)
                     {
                         if (Creature* cyanigosa = GetCreature(DATA_CYANIGOSA))
-                            cyanigosa->GetMotionMaster()->MoveJump(CyanigosaJumpLocation, 10.0f, 27.44744f);
+                            cyanigosa->GetMotionMaster()->MoveJump(EVENT_JUMP, CyanigosaJumpLocation, {}, 8.0f);
 
                         task.Schedule(Seconds(7), [this](TaskContext /*task*/)
                         {

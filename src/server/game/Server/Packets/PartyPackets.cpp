@@ -144,9 +144,12 @@ WorldPacket const* GroupUninvite::Write()
 void RequestPartyMemberStats::Read()
 {
     _worldPacket >> OptionalInit(PartyIndex);
-    _worldPacket >> TargetGUID;
+    _worldPacket >> Size<uint32>(Targets);
     if (PartyIndex)
         _worldPacket >> *PartyIndex;
+
+    for (ObjectGuid& target : Targets)
+        _worldPacket >> target;
 }
 
 ByteBuffer& operator<<(ByteBuffer& data, PartyMemberPhase const& phase)
@@ -183,9 +186,12 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyMemberAuraStates const& aura)
 
 ByteBuffer& operator<<(ByteBuffer& data, CTROptions const& ctrOptions)
 {
-    data << uint32(ctrOptions.ConditionalFlags);
+    data << Size<uint32>(ctrOptions.ConditionalFlags);
     data << int8(ctrOptions.FactionGroup);
     data << uint32(ctrOptions.ChromieTimeExpansionMask);
+
+    if (!ctrOptions.ConditionalFlags.empty())
+        data.append(ctrOptions.ConditionalFlags.data(), ctrOptions.ConditionalFlags.size());
 
     return data;
 }
@@ -497,10 +503,10 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyPlayerInfo const& playerInfo)
 
 ByteBuffer& operator<<(ByteBuffer& data, ChallengeModeData const& challengeMode)
 {
-    data << int32(challengeMode.Unknown_1120_1);
-    data << int32(challengeMode.Unknown_1120_2);
-    data << uint64(challengeMode.Unknown_1120_3);
-    data << int64(challengeMode.Unknown_1120_4);
+    data << int32(challengeMode.MapID);
+    data << int32(challengeMode.InitialPlayerCount);
+    data << uint64(challengeMode.InstanceID);
+    data << challengeMode.StartTime;
     data << challengeMode.KeystoneOwnerGUID;
     data << challengeMode.LeaverGUID;
     data << challengeMode.InstanceAbandonVoteCooldown;
@@ -540,9 +546,9 @@ ByteBuffer& operator<<(ByteBuffer& data, PartyLootSettings const& lootSettings)
 
 ByteBuffer& operator<<(ByteBuffer& data, PartyDifficultySettings const& difficultySettings)
 {
-    data << uint32(difficultySettings.DungeonDifficultyID);
-    data << uint32(difficultySettings.RaidDifficultyID);
-    data << uint32(difficultySettings.LegacyRaidDifficultyID);
+    data << int16(difficultySettings.DungeonDifficultyID);
+    data << int16(difficultySettings.RaidDifficultyID);
+    data << int16(difficultySettings.LegacyRaidDifficultyID);
 
     return data;
 }
@@ -821,7 +827,7 @@ void SendPingWorldPoint::Read()
     _worldPacket >> SenderGUID;
     _worldPacket >> MapID;
     _worldPacket >> Point;
-    _worldPacket >> As<int32>(Type);
+    _worldPacket >> As<int8>(Type);
     _worldPacket >> PinFrameID;
     _worldPacket >> Transport;
     _worldPacket >> PingDuration;

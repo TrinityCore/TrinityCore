@@ -20,12 +20,11 @@
 #include "Battleground.h"
 #include "GameObject.h"
 #include "GameObjectAI.h"
-#include "Map.h"
-#include "MotionMaster.h"
 #include "ObjectAccessor.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
@@ -243,45 +242,58 @@ class spell_ioc_parachute_ic : public AuraScript
 class StartLaunchEvent : public BasicEvent
 {
     public:
-        StartLaunchEvent(Map const* map, Position const& pos, ObjectGuid const& guid) : _map(map), _pos(pos), _guid(guid)
+        StartLaunchEvent(Unit* target, Position const& pos, float speedXY, float speedZ)
+            : _target(target), _pos(pos), _speedXY(speedXY), _speedZ(speedZ)
         {
         }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/) override
         {
-            Player* player = ObjectAccessor::GetPlayer(_map, _guid);
-            if (!player || !player->GetVehicle())
-                return true;
-
-            player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
-            float speedZ = 10.0f;
-            float dist = player->GetExactDist2d(&_pos);
-
-            player->ExitVehicle();
-            player->GetMotionMaster()->MoveJump(_pos, dist, speedZ, EVENT_JUMP, _pos.GetOrientation());
+            _target->KnockbackFrom(_pos, _speedXY, _speedZ, 0);
             return true;
         }
 
     private:
-        Map const* _map;
+        Unit* _target;
         Position _pos;
-        ObjectGuid _guid;
+        float _speedXY;
+        float _speedZ;
 };
 
 // 66218 - Launch
 class spell_ioc_launch : public SpellScript
 {
-    void Launch()
+    void Launch() const
     {
-        if (!GetCaster()->IsCreature() || !GetExplTargetDest())
+        if (!GetExplTargetDest())
             return;
 
-        GetCaster()->m_Events.AddEventAtOffset(new StartLaunchEvent(GetCaster()->GetMap(), *GetExplTargetDest(), GetHitUnit()->GetGUID()), 2500ms);
+        Unit* caster = GetCaster();
+        Unit* target = GetHitUnit();
+
+        caster->CastSpell(caster, SPELL_LAUNCH_NO_FALLING_DAMAGE, true);
+
+        target->m_Events.AddEventAtOffset(new StartLaunchEvent(target, *GetExplTargetDest(),
+            GetSpell()->m_targets.GetSpeedXY(), GetSpell()->m_targets.GetSpeedZ()), 2500ms);
     }
 
     void Register() override
     {
         AfterHit += SpellHitFn(spell_ioc_launch::Launch);
+    }
+};
+
+// 66251 - Launch
+class spell_ioc_launch_exit_vehicle : public SpellScript
+{
+    void ExitVehicle() const
+    {
+        GetHitUnit()->ExitVehicle();
+    }
+
+    void Register() override
+    {
+        AfterHit += SpellHitFn(spell_ioc_launch_exit_vehicle::ExitVehicle);
     }
 };
 
@@ -384,6 +396,7 @@ void AddSC_isle_of_conquest()
     RegisterSpellScript(spell_ioc_gunship_portal);
     RegisterSpellScript(spell_ioc_parachute_ic);
     RegisterSpellScript(spell_ioc_launch);
+    RegisterSpellScript(spell_ioc_launch_exit_vehicle);
     RegisterSpellScript(spell_ioc_seaforium_blast_credit);
     new at_ioc_exploit();
     new at_ioc_backdoor_job();
