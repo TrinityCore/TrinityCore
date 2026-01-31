@@ -84,7 +84,8 @@ enum RokmoraTexts
 
 enum RokmoraConversation
 {
-    POINT_INTRO                 = 0,
+    POINT_NAVAROGG_JUMP         = 0,
+    POINT_NAVAROGG_INTRO        = 1,
     CONVO_ACTOR_NAVARROGG       = 52530,
     CONVO_ULAROGG_INTRO_LINE_03 = 3992,
 
@@ -194,8 +195,7 @@ struct boss_rokmora : public BossAI
                         DoCastSelf(SPELL_ROKMORA_COMBAT_CONVO_1);
                         DoCastSelf(SPELL_SHATTER);
                     }
-                    else
-                        events.Repeat(500ms);
+                    events.Repeat(500ms);
                     break;
                 }
                 default:
@@ -248,10 +248,7 @@ class spell_rokmora_shatter : public SpellScript
 
     void HandleShatter() const
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster)
-            return;
-
+        Unit* caster = GetCaster();
         CastSpellExtraArgs args;
         args.TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR;
         caster->CastSpell(caster, SPELL_SHATTER_KILL_SKITTERS, args);
@@ -276,34 +273,46 @@ class spell_rokmora_razor_shards : public SpellScript
         return ValidateSpellInfo({ SPELL_RAZOR_SHARDS_VISUAL, SPELL_RAZOR_SHARDS_VISUAL_2 });
     }
 
+    Position GetRandomRazorShardPosition(Unit* caster) const
+    {
+        Position pos(*caster);
+        float randomAngle = frand(float(M_PI) / -7.0f, float(M_PI) / 7.0f);
+        float randomDist = frand(2.0f, 40.0f);
+
+        float angleToOrigin = caster->GetAbsoluteAngle(_targetOrigin);
+        caster->MovePosition(pos, randomDist, randomAngle - caster->GetOrientation() + angleToOrigin);
+        return pos;
+    }
+
+    void OnPrecast() override
+    {
+        Unit* target = GetExplTargetUnit();
+        _targetOrigin = target->GetPosition();
+    }
+
     void HandleCast() const
     {
         Unit* caster = GetCaster();
-        Position pos(*caster);
-
-        float randomAngle = frand(float(M_PI) / -7.0f, float(M_PI) / 7.0f);
-        float randomDist = frand(7.0f, 30.0f);
 
         for (uint8 i = 0; i < 20; ++i)
         {
-            caster->MovePosition(pos, randomDist, randomAngle);
-            caster->CastSpell(pos, SPELL_RAZOR_SHARDS_VISUAL, CastSpellExtraArgsInit{
+            caster->CastSpell(GetRandomRazorShardPosition(caster), SPELL_RAZOR_SHARDS_VISUAL, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
                 .TriggeringSpell = GetSpell()
             });
         }
 
         for (uint8 i = 0; i < 7; ++i)
-        {
-            caster->MovePosition(pos, randomDist, randomAngle);
-            caster->CastSpell(pos, SPELL_RAZOR_SHARDS_VISUAL_2, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
-        }
+            caster->CastSpell(GetRandomRazorShardPosition(caster), SPELL_RAZOR_SHARDS_VISUAL_2, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
     void Register() override
     {
         AfterCast += SpellCastFn(spell_rokmora_razor_shards::HandleCast);
     }
+
+private:
+    Position _targetOrigin;
 };
 
 // 192799 - Choking Dust
@@ -392,7 +401,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
         _scheduler.Schedule(delay, [this](TaskContext)
         {
             DoCastSelf(SPELL_JUMP_TO_GROUND_COSMETIC);
-            me->GetMotionMaster()->MoveJump(NavarroggJumpIntroPosition, 50.0f, 50.0f);
+            me->GetMotionMaster()->MoveJump(POINT_NAVAROGG_JUMP, NavarroggJumpIntroPosition, 50.0f, 50.0f);
         });
 
         delay += 2s;
@@ -422,7 +431,7 @@ struct npc_rokmora_navarrogg_intro : public ScriptedAI
 
             rokmora->AI()->DoCastSelf(SPELL_BOSS_INTRO_EMERGE);
 
-            me->GetMotionMaster()->MovePoint(POINT_INTRO, NavarroggIntroPosition2);
+            me->GetMotionMaster()->MovePoint(POINT_NAVAROGG_INTRO, NavarroggIntroPosition2);
         });
 
         delay += 1s;
@@ -521,20 +530,12 @@ class spell_rokmora_emerge_aura : public AuraScript
 {
     void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster)
-            return;
-
-        caster->AddUnitState(UNIT_STATE_ROOT);
+        GetCaster()->AddUnitState(UNIT_STATE_ROOT);
     }
 
     void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/) const
     {
-        Creature* caster = GetCaster()->ToCreature();
-        if (!caster)
-            return;
-
-        caster->ClearUnitState(UNIT_STATE_ROOT);
+        GetCaster()->ClearUnitState(UNIT_STATE_ROOT);
     }
 
     void Register() override
