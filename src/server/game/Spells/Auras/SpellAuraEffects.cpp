@@ -440,7 +440,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SPELL_OVERRIDE_NAME_GROUP
-    &AuraEffect::HandleNULL,                                      //371
+    &AuraEffect::HandleNoImmediateEffect,                         //371 SPELL_AURA_DISABLE_AUTOATTACK implemented in Unit::_UpdateAutoRepeatSpell and Unit::AttackerStateUpdate
     &AuraEffect::HandleNULL,                                      //372 SPELL_AURA_OVERRIDE_MOUNT_FROM_SET
     &AuraEffect::HandleNULL,                                      //373 SPELL_AURA_MOD_SPEED_NO_CONTROL
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_MODIFY_FALL_DAMAGE_PCT implemented in Player::HandleFall
