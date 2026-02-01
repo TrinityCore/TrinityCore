@@ -2136,7 +2136,6 @@ class spell_dru_t10_restoration_4p_bonus_dummy : public AuraScript
 };
 
 // 400223 - Thorns of Iron (Damage)
-// 106830 - Thrash (Cat Form)
 class spell_dru_thorns_of_iron_damage : public SpellScript
 {
     void HandleEffectHit(SpellEffIndex effIndex)
@@ -2156,7 +2155,8 @@ class spell_dru_thorns_of_iron_damage : public SpellScript
     }
 };
 
-// 77758 - Thrash
+// 77758 - Thrash (Bear Form)
+// 106830 - Thrash (Cat Form)
 class spell_dru_thrash : public SpellScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2172,7 +2172,10 @@ class spell_dru_thrash : public SpellScript
     {
         uint32 bleedSpell = (GetSpellInfo()->Id == SPELL_DRUID_THRASH_CAT) ? SPELL_DRUID_THRASH_CAT_BLEED : SPELL_DRUID_THRASH_BEAR_BLEED;
 
-        GetCaster()->CastSpell(GetHitUnit(), bleedSpell);
+        GetCaster()->CastSpell(GetHitUnit(), bleedSpell, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+            .TriggeringSpell = GetSpell()
+        });
     }
 
     void Register() override
