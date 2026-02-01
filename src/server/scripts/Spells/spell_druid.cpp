@@ -930,6 +930,72 @@ private:
     float _damageMultiplier = 0.0f;
 };
 
+// 197721 - Flourish
+class spell_dru_flourish : public SpellScript
+{
+    void FilterTargets(std::list<WorldObject*>& targets)
+    {
+        targets.remove_if([&](WorldObject const* target)
+        {
+            return !IsTargetValidForFlourish(target);
+        });
+    }
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/) const
+    {
+        auto const it = _targetAndAuras.find(GetHitUnit()->GetGUID());
+        if (it == _targetAndAuras.end())
+            return;
+
+        Milliseconds const extraDuration = Seconds(GetEffectValue());
+
+        for (Aura* aura : it->second)
+        {
+            aura->SetDuration(aura->GetDuration() + extraDuration.count());
+            aura->SetMaxDuration(aura->GetMaxDuration() + extraDuration.count());
+        }
+    }
+
+    void Register() override
+    {
+        OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dru_flourish::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_flourish::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+
+private:
+    bool IsTargetValidForFlourish(WorldObject const* target)
+    {
+        Unit const* unitTarget = target->ToUnit();
+        if (!unitTarget)
+            return false;
+
+        bool hasValidAura = false;
+
+        for (AuraEffect const* auraEff : unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HEAL))
+        {
+            Aura* aura = auraEff->GetBase();
+            if (!aura || aura->GetCasterGUID() != GetCaster()->GetGUID())
+                continue;
+
+            SpellInfo const* auraInfo = aura->GetSpellInfo();
+            if (!auraInfo || auraInfo->SpellFamilyName != SPELLFAMILY_DRUID)
+                continue;
+
+            RegisterAffectedAurasForTarget(unitTarget->GetGUID(), aura);
+            hasValidAura = true;
+        }
+
+        return hasValidAura;
+    }
+
+    void RegisterAffectedAurasForTarget(ObjectGuid const& guid, Aura* aura)
+    {
+        _targetAndAuras[guid].push_back(aura);
+    }
+
+    std::unordered_map<ObjectGuid, std::list<Aura*>> _targetAndAuras;
+};
+
 // 37336 - Druid Forms Trinket
 class spell_dru_forms_trinket : public AuraScript
 {
@@ -2651,6 +2717,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_embrace_of_the_dream_effect);
     RegisterSpellAndAuraScriptPair(spell_dru_entangling_roots, spell_dru_entangling_roots_aura);
     RegisterSpellScript(spell_dru_ferocious_bite);
+    RegisterSpellScript(spell_dru_flourish);
     RegisterSpellScript(spell_dru_forms_trinket);
     RegisterSpellScript(spell_dru_galactic_guardian);
     RegisterSpellScript(spell_dru_germination);
