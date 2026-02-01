@@ -35,6 +35,20 @@
 #include "AreaTriggerDataStore.h"
 #include "DB2Stores.h"
 
+namespace Scripts::Pandaria::TheWanderingIsle
+{
+namespace Spells
+{
+    // Singing Pools
+    static constexpr uint32 CurseOfTheFrog = 102938;
+    static constexpr uint32 CurseOfTheSkunk = 102939;
+    static constexpr uint32 CurseOfTheTurtle = 102940;
+    static constexpr uint32 CurseOfTheCrane = 102941;
+    static constexpr uint32 CurseOfTheCrocodile = 102942;
+    static constexpr uint32 RideVehiclePole = 102717;
+    static constexpr uint32 TrainingBellPoleExitExclusion = 133381;
+}
+
 enum TraineeMisc
 {
     SAY_FINISH_FIGHT                    = 0,
@@ -1234,131 +1248,63 @@ class spell_flame_spout : public AuraScript
     }
 };
 
-namespace Scripts::WanderingIsle::SingingPools
+template<uint32 CurseSpellID>
+class at_singing_pools_transform_base : public AreaTriggerScript
 {
-    namespace Spells
+public:
+    at_singing_pools_transform_base(char const* scriptName) : AreaTriggerScript(scriptName) {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        static constexpr uint32 spell_curse_of_the_frog = 102938;
-        static constexpr uint32 spell_curse_of_the_skunk = 102939;
-        static constexpr uint32 spell_curse_of_the_turtle = 102940;
-        static constexpr uint32 spell_curse_of_the_crane = 102941;
-        static constexpr uint32 spell_curse_of_the_crocodile = 102942;
-        static constexpr uint32 spell_ride_vehicle_pole = 102717;
-        //static constexpr uint32 spell_ride_vehicle_near_bell_pole = 107049;
-        static constexpr uint32 spell_training_bell_exclusion_aura = 133381;
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(CurseSpellID))
+            player->CastSpell(player, CurseSpellID);
+
+        return true;
     }
 
-    namespace SingingPoolsAreaTriggers
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-        static constexpr uint32 at_frog_pool_1 = 6986;
-        static constexpr uint32 at_frog_pool_2 = 6987;
-        static constexpr uint32 at_skunk_pool_1 = 6988;
-        static constexpr uint32 at_skunk_pool_2 = 6989;
-        static constexpr uint32 at_crocodile_pool = 6990;
-        static constexpr uint32 at_crane_pool_1 = 6991;
-        static constexpr uint32 at_crane_pool_2 = 6992;
-        static constexpr uint32 at_turtle_pool_1 = 7011;
-        static constexpr uint32 at_turtle_pool_2 = 7012;
+        player->RemoveAurasDueToSpell(CurseSpellID);
+        return true;
+    }
+};
+
+// 6986
+// 6987
+class at_singing_pools_transform_frog : public AreaTriggerScript
+{
+public:
+    at_singing_pools_transform_frog() : AreaTriggerScript("at_singing_pools_transform_frog") {}
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
+    {
+        if (!player->IsAlive() || player->HasAura(Spells::RideVehiclePole))
+            return true;
+
+        if (!player->HasAura(Spells::CurseOfTheFrog))
+            player->CastSpell(player, Spells::CurseOfTheFrog);
+
+        if (player->HasAura(Spells::TrainingBellPoleExitExclusion))
+            player->RemoveAura(Spells::TrainingBellPoleExitExclusion);
+
+        return true;
     }
 
-    class at_singing_pools_transform : public AreaTriggerScript
+    bool OnExit(Player* player, AreaTriggerEntry const* /*areaTrigger*/) override
     {
-    public:
-        at_singing_pools_transform() : AreaTriggerScript("at_singing_pools_transform") {}
-
-        bool OnTrigger(Player* player, AreaTriggerEntry const* areaTrigger) override
-        {
-            if (player->IsAlive() && !player->HasAura(Spells::spell_ride_vehicle_pole))
-            {
-                switch (areaTrigger->ID)
-                {
-                case SingingPoolsAreaTriggers::at_frog_pool_1:
-                case SingingPoolsAreaTriggers::at_frog_pool_2:
-                    if (!player->HasAura(Spells::spell_curse_of_the_frog))
-                        player->CastSpell(player, Spells::spell_curse_of_the_frog);
-                    if (player->HasAura(Spells::spell_training_bell_exclusion_aura))
-                        player->RemoveAura(Spells::spell_training_bell_exclusion_aura);
-                    break;
-                case SingingPoolsAreaTriggers::at_skunk_pool_1:
-                case SingingPoolsAreaTriggers::at_skunk_pool_2:
-                    if (!player->HasAura(Spells::spell_curse_of_the_skunk))
-                        player->CastSpell(player, Spells::spell_curse_of_the_skunk);
-                    break;
-                case SingingPoolsAreaTriggers::at_crocodile_pool:
-                    if (!player->HasAura(Spells::spell_curse_of_the_crocodile))
-                        player->CastSpell(player, Spells::spell_curse_of_the_crocodile);
-                    break;
-                case SingingPoolsAreaTriggers::at_crane_pool_1:
-                case SingingPoolsAreaTriggers::at_crane_pool_2:
-                    if (!player->HasAura(Spells::spell_curse_of_the_crane))
-                        player->CastSpell(player, Spells::spell_curse_of_the_crane);
-                    break;
-                case SingingPoolsAreaTriggers::at_turtle_pool_1:
-                case SingingPoolsAreaTriggers::at_turtle_pool_2:
-                    if (!player->HasAura(Spells::spell_curse_of_the_turtle))
-                        player->CastSpell(player, Spells::spell_curse_of_the_turtle);
-                    break;
-                }
-            }
-            return false;
-        }
-
-        bool OnExit(Player* player, AreaTriggerEntry const* areaTrigger) override
-        {
-            switch (areaTrigger->ID)
-            {
-            case SingingPoolsAreaTriggers::at_frog_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_frog_pool_2)))
-                    if (player->HasAura(Spells::spell_curse_of_the_frog))
-                        player->RemoveAura(Spells::spell_curse_of_the_frog);
-                break;
-            case SingingPoolsAreaTriggers::at_frog_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_frog_pool_1)))
-                    if (player->HasAura(Spells::spell_curse_of_the_frog))
-                        player->RemoveAura(Spells::spell_curse_of_the_frog);
-                break;
-            case SingingPoolsAreaTriggers::at_skunk_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_skunk_pool_2)))
-                    if (player->HasAura(Spells::spell_curse_of_the_skunk))
-                        player->RemoveAura(Spells::spell_curse_of_the_skunk);
-                break;
-            case SingingPoolsAreaTriggers::at_skunk_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_skunk_pool_1)))
-                    if (player->HasAura(Spells::spell_curse_of_the_skunk))
-                        player->RemoveAura(Spells::spell_curse_of_the_skunk);
-                break;
-            case SingingPoolsAreaTriggers::at_crocodile_pool:
-                if (player->HasAura(Spells::spell_curse_of_the_crocodile))
-                    player->RemoveAura(Spells::spell_curse_of_the_crocodile);
-                break;
-            case SingingPoolsAreaTriggers::at_crane_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_crane_pool_2)))
-                    if (player->HasAura(Spells::spell_curse_of_the_crane))
-                        player->RemoveAura(Spells::spell_curse_of_the_crane);
-                break;
-            case SingingPoolsAreaTriggers::at_crane_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_crane_pool_1)))
-                    if (player->HasAura(Spells::spell_curse_of_the_crane))
-                        player->RemoveAura(Spells::spell_curse_of_the_crane);
-                break;
-            case SingingPoolsAreaTriggers::at_turtle_pool_1:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_turtle_pool_2)))
-                    if (player->HasAura(Spells::spell_curse_of_the_turtle))
-                        player->RemoveAura(Spells::spell_curse_of_the_turtle);
-                break;
-            case SingingPoolsAreaTriggers::at_turtle_pool_2:
-                if (!player->IsInAreaTrigger(sAreaTriggerStore.LookupEntry(SingingPoolsAreaTriggers::at_turtle_pool_1)))
-                    if (player->HasAura(Spells::spell_curse_of_the_turtle))
-                        player->RemoveAura(Spells::spell_curse_of_the_turtle);
-                break;
-            }
-            return false;
-        }
-    };
+        player->RemoveAurasDueToSpell(Spells::CurseOfTheFrog);
+        return true;
+    }
+};
 };
 
 void AddSC_zone_the_wandering_isle()
 {
+    using namespace Scripts::Pandaria::TheWanderingIsle;
+
     RegisterCreatureAI(npc_tushui_huojin_trainee);
     RegisterCreatureAI(npc_huojin_trainee);
     RegisterCreatureAI(npc_tushui_leading_trainee);
@@ -1381,6 +1327,9 @@ void AddSC_zone_the_wandering_isle()
     new at_cave_of_meditation();
     new at_inside_of_cave_of_meditation();
 
-    using namespace Scripts::WanderingIsle::SingingPools;
-    new at_singing_pools_transform();
+    new at_singing_pools_transform_frog();
+    new at_singing_pools_transform_base<Spells::CurseOfTheSkunk>("at_singing_pools_transform_skunk");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrocodile>("at_singing_pools_transform_crocodile");
+    new at_singing_pools_transform_base<Spells::CurseOfTheCrane>("at_singing_pools_transform_crane");
+    new at_singing_pools_transform_base<Spells::CurseOfTheTurtle>("at_singing_pools_transform_turtle");
 }
