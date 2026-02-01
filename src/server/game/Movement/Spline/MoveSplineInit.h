@@ -59,12 +59,6 @@ namespace Movement
          * can't be combined with final animation
          */
         void SetParabolic(float amplitude, int32 start_point);
-        /** Adds movement by parabolic trajectory
-         * @param vertical_acceleration  vertical acceleration
-         * @param start_point            point index on the path where parabolic movement starts
-         * can't be combined with final animation
-         */
-        void SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point);
         /* Plays animation after movement done
          * can't be combined with parabolic movement
          */
@@ -189,16 +183,6 @@ namespace Movement
     {
         args.effect_start_point = start_point;
         args.parabolic_amplitude = amplitude;
-        args.vertical_acceleration = 0.0f;
-        args.flags.Parabolic = true;
-        args.animTier.reset();
-    }
-
-    inline void MoveSplineInit::SetParabolicVerticalAcceleration(float vertical_acceleration, int32 start_point)
-    {
-        args.effect_start_point = start_point;
-        args.parabolic_amplitude = 0.0f;
-        args.vertical_acceleration = vertical_acceleration;
         args.flags.Parabolic = true;
         args.animTier.reset();
     }
