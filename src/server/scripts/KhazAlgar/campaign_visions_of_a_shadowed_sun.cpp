@@ -119,7 +119,7 @@ struct npc_vereesa_windrunner_oztan_isle_private : public ScriptedAI
 
     void DoAction(int32 action) override
     {
-        if (action != Actions::ActionSkipConversation)
+        if (action == Actions::ActionSkipConversation)
         {
             Player* player = me->GetDemonCreatorPlayer();
             if (!player)
