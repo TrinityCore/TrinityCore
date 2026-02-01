@@ -68,18 +68,18 @@ namespace Gossips
 
 namespace Conversations
 {
-    namespace ConversationIds
+    namespace Ids
     {
         static constexpr uint32 ConversationVereesasTale = 27493;
     }
 
-    namespace ConversationActors
+    namespace Actors
     {
         static constexpr uint32 VereesaActorOztanIsle = 102984;
         static constexpr uint32 AratorActorOztanIsle = 102985;
     }
 
-    namespace ConversationLines
+    namespace Lines
     {
         static constexpr uint32 VereesaOztanIsleSetFacing = 75392;
     }
@@ -96,7 +96,7 @@ struct npc_vereesa_windrunner_oztan_isle : public ScriptedAI
         {
             CloseGossipMenuFor(player);
 
-            Conversation::CreateConversation(Conversations::ConversationIds::ConversationVereesasTale, player, *player, player->GetGUID(), nullptr, false);
+            Conversation::CreateConversation(Conversations::Ids::ConversationVereesasTale, player, *player, player->GetGUID(), nullptr, false);
         }
         else if (menuId == Gossips::MenuIds::GossipVereesaOztanIsle && gossipListId == Gossips::Options::OptionSkipListenToVereesasTale)
         {
@@ -194,20 +194,26 @@ public:
     void OnCreate(Unit* creator) override
     {
         Creature* vereesaObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = Creatures::VereesaWindrunnerOztanIsle, .IgnorePhases = true });
+        if (!vereesaObject)
+            return;
+
         Creature* aratorObject = GetClosestCreatureWithOptions(creator, 10.0f, { .CreatureId = Creatures::AratorOztanIsle, .IgnorePhases = true });
-        if (!vereesaObject || !aratorObject)
+        if (!aratorObject)
             return;
 
         TempSummon* vereesaClone = vereesaObject->SummonPersonalClone(vereesaObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
+        if (!vereesaClone)
+            return;
+
         TempSummon* aratorClone = aratorObject->SummonPersonalClone(aratorObject->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0s, 0, 0, creator->ToPlayer());
-        if (!vereesaClone || !aratorClone)
+        if (!aratorClone)
             return;
 
         vereesaClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
         aratorClone->RemoveNpcFlag(NPCFlags(UNIT_NPC_FLAG_GOSSIP | UNIT_NPC_FLAG_QUESTGIVER));
 
-        conversation->AddActor(Conversations::ConversationActors::VereesaActorOztanIsle, 0, vereesaClone->GetGUID());
-        conversation->AddActor(Conversations::ConversationActors::AratorActorOztanIsle, 1, aratorClone->GetGUID());
+        conversation->AddActor(Conversations::Actors::VereesaActorOztanIsle, 0, vereesaClone->GetGUID());
+        conversation->AddActor(Conversations::Actors::AratorActorOztanIsle, 1, aratorClone->GetGUID());
         conversation->Start();
     }
 
@@ -224,7 +230,7 @@ public:
             if (Creature* vereesaClone = conversation->GetActorCreature(0))
                 vereesaClone->SetFacingToObject(player);
 
-        }, conversation->GetLineEndTime(privateOwnerLocale, Conversations::ConversationLines::VereesaOztanIsleSetFacing));
+        }, conversation->GetLineEndTime(privateOwnerLocale, Conversations::Lines::VereesaOztanIsleSetFacing));
 
         conversation->m_Events.AddEvent([conversation = conversation]()
         {
