@@ -120,6 +120,7 @@ namespace WorldPackets
         {
             uint32 WarbandScenePlacementID = 0;
             int32 Type = 0;
+            int32 ContentSetID = 0;
             ObjectGuid Guid;
         };
 
@@ -129,6 +130,7 @@ namespace WorldPackets
             uint8 OrderIndex = 0;
             uint32 WarbandSceneID = 0;
             uint32 Flags = 0;    ///< enum WarbandGroupFlags { Collapsed = 1 }
+            int32 ContentSetID = 0;
             std::vector<WarbandGroupMember> Members;
             std::string_view Name;
         };
@@ -183,20 +185,20 @@ namespace WorldPackets
 
                 struct VisualItemInfo
                 {
+                    uint32 ItemID           = 0;
+                    uint32 TransmogrifiedItemID = 0;
+                    uint8 Subclass          = 0;
+                    uint8 InvType           = 0;
                     uint32 DisplayID        = 0;
                     uint32 DisplayEnchantID = 0;
                     int32 SecondaryItemModifiedAppearanceID = 0; // also -1 is some special value
-                    uint8 InvType           = 0;
-                    uint8 Subclass          = 0;
-                    uint32 ItemID           = 0;
-                    uint32 TransmogrifiedItemID = 0;
                 };
 
                 std::array<VisualItemInfo, 19> VisualItems = { };
                 CustomTabardInfo PersonalTabard;
-                uint32 Unused1110_1 = 0;
-                bool Unused1110_2 = false;
-                bool Unused1110_3 = false;
+                uint32 RealmQueue = 0;
+                bool RealmInfoFound = false;
+                bool IsRealmOffline = false;
             };
 
             struct CharacterRestrictionAndMailData
@@ -205,8 +207,7 @@ namespace WorldPackets
                 uint32 RestrictionFlags  = 0;
                 std::vector<std::string> MailSenders;
                 std::vector<uint32> MailSenderTypes;
-                bool RpeResetAvailable = false;
-                bool RpeResetQuestClearAvailable = false;
+                bool RpeAvailable = false;
             };
 
             struct CharacterInfo
@@ -230,6 +231,13 @@ namespace WorldPackets
                 int16 PvpRatingAssociatedSpecID = 0;
             };
 
+            struct ClassUnlock
+            {
+               int8 ClassID = 0;
+               bool HasUnlockedAchievement = false;
+               uint32 AchievementID = 0;
+            };
+
             struct RaceUnlock
             {
                 int8 RaceID = 0;
@@ -237,7 +245,8 @@ namespace WorldPackets
                 bool HasUnlockedAchievement = false;
                 bool HasHeritageArmorUnlockAchievement = false;
                 bool HideRaceOnClient = false;
-                bool Unused1027 = false;
+                bool FactionBalanceDisabled = false;
+                std::vector<ClassUnlock> ClassUnlocks;
             };
 
             struct UnlockedConditionalAppearance
@@ -255,7 +264,7 @@ namespace WorldPackets
                 };
 
                 int8 RaceID = 0;
-                int32 Reason = 0;
+                int8 Reason = 0;
             };
 
             explicit EnumCharactersResult() : ServerPacket(SMSG_ENUM_CHARACTERS_RESULT) { }
@@ -269,7 +278,8 @@ namespace WorldPackets
             bool IsRestrictedNewPlayer            = false; ///< forbids using level boost and class trials
             bool IsNewcomerChatCompleted          = false; ///< forbids hero classes and allied races
             bool IsRestrictedTrial                = false;
-            bool DontCreateCharacterDisplays      = false;
+            bool IsAccountLapsedPlayer            = false;
+            bool ForceCharacterListSort           = false;
 
             int32 MaxCharacterLevel     = 1;
             Optional<uint32> ClassDisableMask;
@@ -547,6 +557,7 @@ namespace WorldPackets
 
             ObjectGuid Guid;      ///< Guid of the player that is logging in
             float FarClip = 0.0f; ///< Visibility distance (for terrain)
+            bool RPE = false;
         };
 
         class LoginVerifyWorld final : public ServerPacket

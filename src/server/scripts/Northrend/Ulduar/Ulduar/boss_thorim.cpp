@@ -958,7 +958,7 @@ struct npc_thorim_trashAI : public ScriptedAI
                     heal += spellEffectInfo.CalcValue(caster);
 
                 if (spellEffectInfo.IsEffect(SPELL_EFFECT_APPLY_AURA) && spellEffectInfo.IsAura(SPELL_AURA_PERIODIC_HEAL))
-                    heal += spellInfo->GetMaxTicks() * spellEffectInfo.CalcValue(caster);
+                    heal += spellEffectInfo.GetPeriodicTickCount() * spellEffectInfo.CalcValue(caster);
             }
             return heal;
         }
