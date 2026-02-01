@@ -1625,7 +1625,7 @@ protected:
     bool ToCatForm() const override { return true; }
 };
 
-// 1822 Rake
+// 1822 - Rake
 class spell_dru_rake : public SpellScript
 {
     bool Validate(SpellInfo const* spellInfo) override
@@ -1649,7 +1649,10 @@ class spell_dru_rake : public SpellScript
     void HandleEffectHit(SpellEffIndex /*effIndex*/)
     {
         if (_wasStealth)
-            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_RAKE_STUN);
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_RAKE_STUN, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
     }
 
     void Register() override
@@ -1658,7 +1661,8 @@ class spell_dru_rake : public SpellScript
         OnEffectHitTarget += SpellEffectFn(spell_dru_rake::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 
-    bool _wasStealth{};
+private:
+    bool _wasStealth = false;
 };
 
 // 1079 - Rip
