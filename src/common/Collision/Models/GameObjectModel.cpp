@@ -144,7 +144,7 @@ std::unique_ptr<GameObjectModel> GameObjectModel::Create(std::unique_ptr<GameObj
 {
     std::unique_ptr<GameObjectModel> mdl(new GameObjectModel());
     if (!mdl->initialize(std::move(modelOwner), dataPath))
-        return nullptr;
+        mdl = nullptr;
 
     return mdl;
 }
