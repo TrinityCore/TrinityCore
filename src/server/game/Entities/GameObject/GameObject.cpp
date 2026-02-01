@@ -1556,7 +1556,7 @@ void GameObject::Update(uint32 diff)
                         m_loot->Update();
 
                         // Non-consumable chest was partially looted and restock time passed, restock all loot now
-                        if (GetGOInfo()->chest.consumable == 0 && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
+                        if (!GetGOInfo()->IsDespawnAtAction() && m_restockTime && GameTime::GetGameTime() >= m_restockTime)
                         {
                             m_restockTime = 0;
                             m_lootState = GO_READY;
@@ -2621,7 +2621,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
                 if (info->GetLootId())
                 {
                     Group const* group = player->GetGroup();
-                    bool groupRules = group && info->chest.usegrouplootrules;
+                    bool groupRules = group && info->IsUsingGroupLootRules();
 
                     Loot* loot = new Loot(GetMap(), GetGUID(), LOOT_CHEST, groupRules ? group : nullptr);
                     m_loot.reset(loot);
@@ -3237,7 +3237,7 @@ void GameObject::Use(Unit* user, bool ignoreCastInProgress /*= false*/)
             // fallback, will always work
             player->TeleportTo(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
 
-            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.SitAnimKit);
+            player->SetStandState(UnitStandStateType(UNIT_STAND_STATE_SIT_LOW_CHAIR + info->barberChair.chairheight), info->barberChair.CustomSitAnimKit);
             return;
         }
         case GAMEOBJECT_TYPE_NEW_FLAG:
@@ -3874,7 +3874,7 @@ void GameObject::OnLootRelease(Player* looter)
         case GAMEOBJECT_TYPE_CHEST:
         {
             GameObjectTemplate const* goInfo = GetGOInfo();
-            if (!goInfo->chest.consumable && goInfo->chest.chestPersonalLoot)
+            if (!goInfo->IsDespawnAtAction() && goInfo->chest.chestPersonalLoot)
             {
                 DespawnForPlayer(looter, goInfo->chest.chestRestockTime
                     ? Seconds(goInfo->chest.chestRestockTime)
