@@ -121,6 +121,7 @@ enum DruidSpells
     SPELL_DRUID_NEW_MOON_OVERRIDE              = 274295,
     SPELL_DRUID_POWER_OF_THE_ARCHDRUID         = 392302,
     SPELL_DRUID_PROWL                          = 5215,
+    SPELL_DRUID_RAKE_STUN                      = 163505,
     SPELL_DRUID_REGROWTH                       = 8936,
     SPELL_DRUID_REJUVENATION                   = 774,
     SPELL_DRUID_REJUVENATION_GERMINATION       = 155777,
@@ -1624,6 +1625,46 @@ protected:
     bool ToCatForm() const override { return true; }
 };
 
+// 1822 - Rake
+class spell_dru_rake : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_RAKE_STUN })
+            && ValidateSpellEffect({ { spellInfo->Id, EFFECT_3 } });
+    }
+
+    bool Load() override
+    {
+        _wasStealth = GetCaster()->HasStealthAura();
+        return true;
+    }
+
+    void CalculateDamage(SpellEffectInfo const& /*spellEffectInfo*/, Unit* /*victim*/, int32& /*damage*/, int32& /*flatMod*/, float& pctMod) const
+    {
+        if (_wasStealth)
+            AddPct(pctMod, GetEffectInfo(EFFECT_3).CalcValue(GetCaster()));
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        if (_wasStealth)
+            GetCaster()->CastSpell(GetHitUnit(), SPELL_DRUID_RAKE_STUN, CastSpellExtraArgsInit{
+                .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                .TriggeringSpell = GetSpell()
+            });
+    }
+
+    void Register() override
+    {
+        CalcDamage += SpellCalcDamageFn(spell_dru_rake::CalculateDamage);
+        OnEffectHitTarget += SpellEffectFn(spell_dru_rake::HandleEffectHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+
+private:
+    bool _wasStealth = false;
+};
+
 // 1079 - Rip
 class spell_dru_rip : public AuraScript
 {
@@ -2636,6 +2677,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_omen_of_clarity_restoration);
     RegisterSpellScript(spell_dru_power_of_the_archdruid);
     RegisterSpellScript(spell_dru_prowl);
+    RegisterSpellScript(spell_dru_rake);
     RegisterSpellScript(spell_dru_rip);
     RegisterSpellAndAuraScriptPair(spell_dru_savage_roar, spell_dru_savage_roar_aura);
     RegisterSpellScript(spell_dru_shooting_stars);
