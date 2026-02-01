@@ -2311,7 +2311,7 @@ class spell_dh_violent_transformation : public AuraScript
     }
 };
 
-// 452403 - Wave of Debilitation (attached to 179057 - Chaos Nova)
+// 179057 - Chaos Nova
 class spell_dh_wave_of_debilitation : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
@@ -2329,8 +2329,7 @@ class spell_dh_wave_of_debilitation : public AuraScript
         if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
             return;
 
-        Unit* caster = GetCaster();
-        if (caster)
+        if (Unit* caster = GetCaster())
             caster->CastSpell(GetTarget(), SPELL_DH_WAVE_OF_DEBILITATION_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
     }
 
