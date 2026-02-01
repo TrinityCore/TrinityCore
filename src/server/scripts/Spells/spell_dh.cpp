@@ -189,6 +189,7 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOULS_HAVOC_LESSER_TRIGGER  = 228536,
     SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER = 209687,
     SPELL_DH_SHATTERED_SOULS_MARKER                = 221461,
+    SPELL_DH_SHATTERED_SOULS_VENGEANCE             = 204254,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SHEAR_PASSIVE                         = 203783,
     SPELL_DH_SIGIL_OF_CHAINS                       = 202138,
@@ -1918,6 +1919,21 @@ struct at_dh_shattered_souls : public AreaTriggerAI
     {
         unit->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         at->Remove();
+    }
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->HasAura(SPELL_DH_SHATTERED_SOULS_VENGEANCE))
+                caster->CastSpell(caster, SPELL_DH_SOUL_FRAGMENT_COUNTER, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                });
+    }
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->RemoveAuraFromStack(SPELL_DH_SOUL_FRAGMENT_COUNTER);
     }
 };
 
