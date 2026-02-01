@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AreaTrigger.h"
+#include "AreaTriggerDataStore.h"
 #include "CellImpl.h"
 #include "Containers.h"
 #include "CreatureAI.h"
@@ -31,9 +33,6 @@
 #include "SpellScript.h"
 #include "TaskScheduler.h"
 #include "TemporarySummon.h"
-#include "AreaTrigger.h"
-#include "AreaTriggerDataStore.h"
-#include "DB2Stores.h"
 
 namespace Scripts::Pandaria::TheWanderingIsle
 {
