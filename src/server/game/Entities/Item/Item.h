@@ -86,6 +86,7 @@ struct BonusData
     uint32 ItemLevelOffsetCurveId;
     uint32 ItemLevelOffsetItemLevel;
     uint32 ItemLevelOffset;
+    uint32 ItemSquishEraID;
     std::array<ItemEffectEntry const*, 13> Effects;
     std::size_t EffectCount;
     uint32 LimitCategory;
@@ -95,6 +96,7 @@ struct BonusData
     bool CanRecraft;
     bool HasFixedLevel;
     bool CannotTradeBindOnPickup;
+    bool IgnoreSquish;
 
     void Initialize(ItemTemplate const* proto);
     void Initialize(WorldPackets::Item::ItemInstance const& itemInstance);

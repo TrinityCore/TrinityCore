@@ -127,15 +127,27 @@ namespace UF
     }
 
     template<typename K, typename V>
-    inline void RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
+    inline bool RemoveMapUpdateFieldValue(MapUpdateFieldSetter<K, V>& setter, std::type_identity_t<K> const& key)
     {
-        setter.RemoveKey(key);
+        return setter.RemoveKey(key);
     }
 
     template<typename T>
-    inline void RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
+    inline bool InsertSetUpdateFieldValue(SetUpdateFieldSetter<T>& setter, std::type_identity_t<T> const& key)
     {
-        setter.RemoveValue();
+        return setter.Insert(key);
+    }
+
+    template<typename T>
+    inline bool RemoveSetUpdateFieldValue(SetUpdateFieldSetter<T>& setter, std::type_identity_t<T> const& key)
+    {
+        return setter.Remove(key);
+    }
+
+    template<typename T>
+    inline bool RemoveOptionalUpdateFieldValue(OptionalUpdateFieldSetter<T>& setter)
+    {
+        return setter.RemoveValue();
     }
 }
 
@@ -250,13 +262,6 @@ class TC_GAME_API BaseEntity
             UF::RemoveDynamicUpdateFieldValue(setter, index);
         }
 
-        template<typename K, typename V>
-        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
-        {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveMapUpdateFieldValue(setter, key);
-        }
-
         template<typename T>
         void ClearDynamicUpdateFieldValues(UF::DynamicUpdateFieldSetter<T> setter)
         {
@@ -264,11 +269,32 @@ class TC_GAME_API BaseEntity
             UF::ClearDynamicUpdateFieldValues(setter);
         }
 
+        template<typename K, typename V>
+        void RemoveMapUpdateFieldValue(UF::MapUpdateFieldSetter<K, V> setter, std::type_identity_t<K> const& key)
+        {
+            if (UF::RemoveMapUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
+        template<typename T>
+        void InsertSetUpdateFieldValue(UF::SetUpdateFieldSetter<T> setter, std::type_identity_t<T> const& key)
+        {
+            if (UF::InsertSetUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
+        template<typename T>
+        void RemoveSetUpdateFieldValue(UF::SetUpdateFieldSetter<T> setter, std::type_identity_t<T> const& key)
+        {
+            if (UF::RemoveSetUpdateFieldValue(setter, key))
+                AddToObjectUpdateIfNeeded();
+        }
+
         template<typename T>
         void RemoveOptionalUpdateFieldValue(UF::OptionalUpdateFieldSetter<T> setter)
         {
-            AddToObjectUpdateIfNeeded();
-            UF::RemoveOptionalUpdateFieldValue(setter);
+            if (UF::RemoveOptionalUpdateFieldValue(setter))
+                AddToObjectUpdateIfNeeded();
         }
 
         // stat system helpers
