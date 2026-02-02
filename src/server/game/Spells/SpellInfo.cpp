@@ -629,11 +629,8 @@ int32 SpellEffectInfo::CalcBaseValue(WorldObject const* caster, Unit const* targ
                 return 0;
 
             uint32 effectiveItemLevel = itemLevel != -1 ? uint32(itemLevel) : 1u;
-            if (_spellInfo->Scaling.ScalesFromItemLevel || _spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
+            if (_spellInfo->HasAttribute(SPELL_ATTR11_SCALES_WITH_ITEM_LEVEL))
             {
-                if (_spellInfo->Scaling.ScalesFromItemLevel)
-                    effectiveItemLevel = _spellInfo->Scaling.ScalesFromItemLevel;
-
                 if (Scaling.Class == -8 || Scaling.Class == -9)
                 {
                     RandPropPointsEntry const* randPropPoints = sRandPropPointsStore.LookupEntry(effectiveItemLevel);
@@ -1285,6 +1282,8 @@ std::array<SpellEffectInfo::StaticData, TOTAL_SPELL_EFFECTS> SpellEffectInfo::_d
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 350 SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 351 SPELL_EFFECT_LEARN_HOUSE_THEME
     {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 352 SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_DEST}, // 353 SPELL_EFFECT_CREATE_AREATRIGGER_2
+    {EFFECT_IMPLICIT_TARGET_NONE,     TARGET_OBJECT_TYPE_NONE}, // 354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
 } };
 
 SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, SpellInfoLoadHelper const& data)
@@ -1329,6 +1328,7 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
         AttributesEx13 = _misc->Attributes[13];
         AttributesEx14 = _misc->Attributes[14];
         AttributesEx15 = _misc->Attributes[15];
+        AttributesEx16 = _misc->Attributes[16];
         CastTimeEntry = sSpellCastTimesStore.LookupEntry(_misc->CastingTimeIndex);
         DurationEntry = sSpellDurationStore.LookupEntry(_misc->DurationIndex);
         RangeEntry = sSpellRangeStore.LookupEntry(_misc->RangeIndex);
@@ -1347,7 +1347,6 @@ SpellInfo::SpellInfo(SpellNameEntry const* spellName, ::Difficulty difficulty, S
     {
         Scaling.MinScalingLevel = _scaling->MinScalingLevel;
         Scaling.MaxScalingLevel = _scaling->MaxScalingLevel;
-        Scaling.ScalesFromItemLevel = _scaling->ScalesFromItemLevel;
     }
 
     // SpellAuraOptionsEntry

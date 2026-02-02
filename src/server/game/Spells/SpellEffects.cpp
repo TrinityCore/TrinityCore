@@ -441,6 +441,8 @@ NonDefaultConstructible<SpellEffectHandlerFn> SpellEffectHandlers[TOTAL_SPELL_EF
     &Spell::EffectNULL,                                     //350 SPELL_EFFECT_LEARN_HOUSE_EXTERIOR_COMPONENT
     &Spell::EffectNULL,                                     //351 SPELL_EFFECT_LEARN_HOUSE_THEME
     &Spell::EffectNULL,                                     //352 SPELL_EFFECT_LEARN_HOUSE_ROOM_COMPONENT_TEXTURE
+    &Spell::EffectCreateAreaTrigger,                        //353 SPELL_EFFECT_CREATE_AREATRIGGER_2
+    &Spell::EffectNULL,                                     //354 SPELL_EFFECT_SET_NEIGHBORHOOD_INITIATIVE
 };
 
 void Spell::EffectNULL()

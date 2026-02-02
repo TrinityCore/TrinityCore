@@ -2087,7 +2087,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
                 return ConditionMgr::IsMeetingWorldStateExpression(referencePlayer->GetMap(), worldStateExpression);
             return false;
         case ModifierTreeType::DungeonDifficulty: // 68
-            if (referencePlayer->GetMap()->GetDifficultyID() != reqValue)
+            if (referencePlayer->GetMap()->GetDifficultyID() != int32(reqValue))
                 return false;
             break;
         case ModifierTreeType::PlayerLevelEqualOrGreaterThan: // 69
@@ -3090,7 +3090,7 @@ bool CriteriaHandler::ModifierSatisfied(ModifierTreeEntry const* modifier, uint6
             Scenario const* scenario = referencePlayer->GetScenario();
             if (!scenario)
                 return false;
-            if (scenario->GetEntry()->Type != reqValue)
+            if (scenario->GetEntry()->Type != int32(reqValue))
                 return false;
             break;
         }
