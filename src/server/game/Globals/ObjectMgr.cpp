@@ -942,7 +942,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        Difficulty difficulty = Difficulty(fields[1].GetUInt8());
+        Difficulty difficulty = Difficulty(fields[1].GetInt32());
 
         auto itr = _creatureTemplateStore.find(entry);
         if (itr == _creatureTemplateStore.end())
@@ -951,7 +951,7 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
             continue;
         }
 
-        CreatureDifficulty creatureDifficulty;
+        CreatureDifficulty& creatureDifficulty    = itr->second.difficultyStore.try_emplace(difficulty).first->second;
         creatureDifficulty.DeltaLevelMin          = fields[2].GetInt16();
         creatureDifficulty.DeltaLevelMax          = fields[3].GetInt16();
         creatureDifficulty.ContentTuningID        = fields[4].GetInt32();
@@ -989,8 +989,6 @@ void ObjectMgr::LoadCreatureTemplateDifficulty()
                 entry, creatureDifficulty.GoldMin, creatureDifficulty.GoldMax, creatureDifficulty.GoldMin);
             creatureDifficulty.GoldMax = creatureDifficulty.GoldMin;
         }
-
-        itr->second.difficultyStore[difficulty] = creatureDifficulty;
 
         ++count;
     } while (result->NextRow());
@@ -4256,7 +4254,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         uint32 oldMSTime = getMSTime();
 
-        QueryResult raceStatsResult = WorldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
+        QueryResult raceStatsResult = WorldDatabase.Query("SELECT race, str, agi, sta, inte, spi FROM player_racestats");
 
         if (!raceStatsResult)
         {
@@ -4280,8 +4278,8 @@ void ObjectMgr::LoadPlayerInfo()
 
         } while (raceStatsResult->NextRow());
 
-        //                                                  0      1     2    3    4    5
-        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
+        //                                                  0      1     2    3    4    5    6
+        QueryResult result  = WorldDatabase.Query("SELECT class, level, str, agi, sta, inte, spi FROM player_classlevelstats");
 
         if (!result)
         {
@@ -4579,37 +4577,21 @@ void ObjectMgr::LoadQuests()
     _exclusiveQuestGroups.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT "
-        //0  1          2               3                4            5            6                  7                8                   9
         "ID, QuestType, QuestPackageID, ContentTuningID, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, "
-        //10                    11                     12                13           14           15               16
-        "RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardSpell, RewardHonor, RewardKillHonor, StartItem, "
-        //17                         18                          19                        20     21       22        23
+        "RewardMoneyDifficulty, RewardMoneyMultiplier, RewardBonusMoney, RewardSpell, RewardHonor, RewardKillHonor, RewardFavor, StartItem, "
         "RewardArtifactXPDifficulty, RewardArtifactXPMultiplier, RewardArtifactCategoryID, Flags, FlagsEx, FlagsEx2, FlagsEx3, "
-        //24          25             26         27                 28           29             30         31
         "RewardItem1, RewardAmount1, ItemDrop1, ItemDropQuantity1, RewardItem2, RewardAmount2, ItemDrop2, ItemDropQuantity2, "
-        //32          33             34         35                 36           37             38         39
         "RewardItem3, RewardAmount3, ItemDrop3, ItemDropQuantity3, RewardItem4, RewardAmount4, ItemDrop4, ItemDropQuantity4, "
-        //40                  41                         42                          43                   44                         45
         "RewardChoiceItemID1, RewardChoiceItemQuantity1, RewardChoiceItemDisplayID1, RewardChoiceItemID2, RewardChoiceItemQuantity2, RewardChoiceItemDisplayID2, "
-        //46                  47                         48                          49                   50                         51
         "RewardChoiceItemID3, RewardChoiceItemQuantity3, RewardChoiceItemDisplayID3, RewardChoiceItemID4, RewardChoiceItemQuantity4, RewardChoiceItemDisplayID4, "
-        //52                  53                         54                          55                   56                         57
         "RewardChoiceItemID5, RewardChoiceItemQuantity5, RewardChoiceItemDisplayID5, RewardChoiceItemID6, RewardChoiceItemQuantity6, RewardChoiceItemDisplayID6, "
-        //58           59    60    61           62           63                 64                 65
         "POIContinent, POIx, POIy, POIPriority, RewardTitle, RewardArenaPoints, RewardSkillLineID, RewardNumSkillUps, "
-        //66            67                  68                         69
         "PortraitGiver, PortraitGiverMount, PortraitGiverModelSceneID, PortraitTurnIn, "
-        //70               71                   72                      73                   74                75                   76                      77
         "RewardFactionID1, RewardFactionValue1, RewardFactionOverride1, RewardFactionCapIn1, RewardFactionID2, RewardFactionValue2, RewardFactionOverride2, RewardFactionCapIn2, "
-        //78               79                   80                      81                   82                83                   84                      85
         "RewardFactionID3, RewardFactionValue3, RewardFactionOverride3, RewardFactionCapIn3, RewardFactionID4, RewardFactionValue4, RewardFactionOverride4, RewardFactionCapIn4, "
-        //86               87                   88                      89                   90
         "RewardFactionID5, RewardFactionValue5, RewardFactionOverride5, RewardFactionCapIn5, RewardFactionFlags, "
-        //91                92                  93                 94                  95                 96                  97                 98
         "RewardCurrencyID1, RewardCurrencyQty1, RewardCurrencyID2, RewardCurrencyQty2, RewardCurrencyID3, RewardCurrencyQty3, RewardCurrencyID4, RewardCurrencyQty4, "
-        //99                 100                 101          102          103             104               105        106                  107
         "AcceptedSoundKitID, CompleteSoundKitID, AreaGroupID, TimeAllowed, AllowableRaces, ResetByScheduler, Expansion, ManagedWorldStateID, QuestSessionBonus, "
-        //108      109             110               111              112                113                114                 115                 116
         "LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog "
         "FROM quest_template");
     if (!result)
@@ -4673,8 +4655,8 @@ void ObjectMgr::LoadQuests()
         // 0        1
         { "QuestId, RewardMailSenderEntry",                                                                                                                               "quest_mail_sender",    "",                                       "mail sender entries", &Quest::LoadQuestMailSender    },
 
-        // 0           1      2        3                4            5          6                   7         8          9                     10                    11          12
-        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.SecondaryAmount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.ParentObjectiveID, qo.Visible, qo.Description, "
+        // 0           1      2        3                4            5          6                     7         8          9                     10                    11          12
+        { "qo.QuestID, qo.ID, qo.Type, qo.StorageIndex, qo.ObjectID, qo.Amount, qo.ConditionalAmount, qo.Flags, qo.Flags2, qo.ProgressBarWeight, qo.ParentObjectiveID, qo.Visible, qo.Description, "
         //   13                14            15                   16                     17
             "qoce.GameEventID, qoce.SpellID, qoce.ConversationID, qoce.UpdatePhaseShift, qoce.UpdateZoneAuras",                                                           "quest_objectives qo",  "LEFT JOIN quest_objectives_completion_effect qoce ON qo.ID = qoce.ObjectiveID ORDER BY `Order` ASC, StorageIndex ASC", "quest objectives",    &Quest::LoadQuestObjective     },
 
@@ -7295,8 +7277,8 @@ void ObjectMgr::LoadAccessRequirements()
             continue;
         }
 
-        uint32 difficulty = fields[1].GetUInt8();
-        if (!sDB2Manager.GetMapDifficultyData(mapid, Difficulty(difficulty)))
+        Difficulty difficulty = Difficulty(fields[1].GetInt32());
+        if (!sDB2Manager.GetMapDifficultyData(mapid, difficulty))
         {
             TC_LOG_ERROR("sql.sql", "Map {} referenced in `access_requirement` does not have difficulty {}, skipped", mapid, difficulty);
             continue;
@@ -7743,8 +7725,6 @@ void ObjectMgr::LoadGameObjectTemplate()
                 if (got.chest.open)
                     CheckGOLockId(&got, got.chest.open, 0);
 
-                CheckGOConsumable(&got, got.chest.consumable, 3);
-
                 if (got.chest.linkedTrap)               // linked trap
                     CheckGOLinkedTrapId(&got, got.chest.linkedTrap, 7);
                 break;
@@ -7844,11 +7824,11 @@ void ObjectMgr::LoadGameObjectTemplate()
             case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
                 CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
 
-                if (got.barberChair.SitAnimKit && !sAnimKitStore.LookupEntry(got.barberChair.SitAnimKit))
+                if (got.barberChair.CustomSitAnimKit && !sAnimKitStore.LookupEntry(got.barberChair.CustomSitAnimKit))
                 {
                     TC_LOG_ERROR("sql.sql", "GameObject (Entry: {} GoType: {}) have data2 = {} but AnimKit.dbc (Id: {}) not exist, set to 0.",
-                       entry, got.type, got.barberChair.SitAnimKit, got.barberChair.SitAnimKit);
-                    got.barberChair.SitAnimKit = 0;
+                       entry, got.type, got.barberChair.CustomSitAnimKit, got.barberChair.CustomSitAnimKit);
+                    got.barberChair.CustomSitAnimKit = 0;
                 }
                 break;
             case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
@@ -10905,7 +10885,7 @@ void ObjectMgr::LoadCreatureQuestItems()
         Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        Difficulty difficulty = Difficulty(fields[1].GetUInt8());
+        Difficulty difficulty = Difficulty(fields[1].GetInt32());
         uint32 item  = fields[2].GetUInt32();
         uint32 idx   = fields[3].GetUInt32();
 
@@ -10996,7 +10976,7 @@ void ObjectMgr::LoadCreatureStaticFlagsOverride()
         Field* fields = result->Fetch();
 
         ObjectGuid::LowType spawnId = fields[0].GetUInt64();
-        Difficulty difficultyId = static_cast<Difficulty>(fields[1].GetUInt8());
+        Difficulty difficultyId = static_cast<Difficulty>(fields[1].GetInt32());
 
         CreatureData const* creatureData = GetCreatureData(spawnId);
         if (!creatureData)
@@ -11008,7 +10988,7 @@ void ObjectMgr::LoadCreatureStaticFlagsOverride()
         // DIFFICULTY_NONE is always a valid fallback
         if (difficultyId != DIFFICULTY_NONE)
         {
-            if (std::find(creatureData->spawnDifficulties.begin(), creatureData->spawnDifficulties.end(), difficultyId) == creatureData->spawnDifficulties.end())
+            if (!advstd::ranges::contains(creatureData->spawnDifficulties, difficultyId))
             {
                 TC_LOG_ERROR("sql.sql", "Table `creature_static_flags_override` has data for a creature that is not available for the specified DifficultyId (SpawnId: {}, DifficultyId: {}), skipped", spawnId, difficultyId);
                 continue;

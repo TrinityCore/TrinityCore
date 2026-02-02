@@ -440,7 +440,7 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SPELL_OVERRIDE_NAME_GROUP
-    &AuraEffect::HandleNULL,                                      //371
+    &AuraEffect::HandleNoImmediateEffect,                         //371 SPELL_AURA_DISABLE_AUTOATTACK implemented in Unit::_UpdateAutoRepeatSpell and Unit::AttackerStateUpdate
     &AuraEffect::HandleNULL,                                      //372 SPELL_AURA_OVERRIDE_MOUNT_FROM_SET
     &AuraEffect::HandleNULL,                                      //373 SPELL_AURA_MOD_SPEED_NO_CONTROL
     &AuraEffect::HandleNoImmediateEffect,                         //374 SPELL_AURA_MODIFY_FALL_DAMAGE_PCT implemented in Player::HandleFall
@@ -715,6 +715,16 @@ NonDefaultConstructible<pAuraEffectHandler> AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //643 SPELL_AURA_MOD_RANGED_ATTACK_SPEED_FLAT
     &AuraEffect::HandleNULL,                                      //644
     &AuraEffect::HandleNULL,                                      //645
+    &AuraEffect::HandleNULL,                                      //646 SPELL_AURA_ADD_FLAT_PVP_MODIFIER
+    &AuraEffect::HandleNULL,                                      //647 SPELL_AURA_ADD_PCT_PVP_MODIFIER
+    &AuraEffect::HandleNULL,                                      //648 SPELL_AURA_ADD_FLAT_PVP_MODIFIER_BY_SPELL_LABEL
+    &AuraEffect::HandleNULL,                                      //649 SPELL_AURA_ADD_PCT_PVP_MODIFIER_BY_SPELL_LABEL
+    &AuraEffect::HandleNULL,                                      //650
+    &AuraEffect::HandleNULL,                                      //651
+    &AuraEffect::HandleNULL,                                      //652
+    &AuraEffect::HandleNULL,                                      //653
+    &AuraEffect::HandleNULL,                                      //654
+    &AuraEffect::HandleNULL,                                      //655 SPELL_AURA_REMOVE_TRANSMOG_OUTFIT_UPDATE_COST
 };
 
 AuraEffect::AuraEffect(Aura* base, SpellEffectInfo const& spellEfffectInfo, int32 const* baseAmount, Unit* caster) :

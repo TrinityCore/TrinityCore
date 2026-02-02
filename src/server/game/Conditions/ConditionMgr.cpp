@@ -264,7 +264,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo) const
         }
         case CONDITION_DIFFICULTY_ID:
         {
-            condMeets = map->GetDifficultyID() == ConditionValue1;
+            condMeets = map->GetDifficultyID() == int32(ConditionValue1);
             break;
         }
         case CONDITION_SCENARIO_STEP:

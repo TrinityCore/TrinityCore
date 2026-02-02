@@ -55,6 +55,7 @@ enum class EntityFragment : uint8
     PlayerHouseInfoComponent_C  = 32, //  UPDATEABLE, INDIRECT,
     FHousingStorage_C           = 33, //  UPDATEABLE,
     FHousingFixture_C           = 34, //  UPDATEABLE,
+    PlayerInitiativeComponent_C = 37, //  UPDATEABLE, INDIRECT,
     Tag_Item                    = 200, //  TAG,
     Tag_Container               = 201, //  TAG,
     Tag_AzeriteEmpoweredItem    = 202, //  TAG,
@@ -97,7 +98,8 @@ inline constexpr bool IsUpdateableFragment(EntityFragment frag)
         || frag == EntityFragment::FMirroredPositionData_C
         || frag == EntityFragment::PlayerHouseInfoComponent_C
         || frag == EntityFragment::FHousingStorage_C
-        || frag == EntityFragment::FHousingFixture_C;
+        || frag == EntityFragment::FHousingFixture_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
 }
 
 inline constexpr bool IsIndirectFragment(EntityFragment frag)
@@ -105,7 +107,8 @@ inline constexpr bool IsIndirectFragment(EntityFragment frag)
     return frag == EntityFragment::CGObject
         || frag == EntityFragment::FPlayerOwnershipLink
         || frag == EntityFragment::CActor
-        || frag == EntityFragment::PlayerHouseInfoComponent_C;
+        || frag == EntityFragment::PlayerHouseInfoComponent_C
+        || frag == EntityFragment::PlayerInitiativeComponent_C;
 }
 
 template <auto /*FragmentMemberPtr*/>
@@ -146,9 +149,10 @@ struct EntityFragmentsHolder
         EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
     };
 
-    template <std::size_t N>
     struct UpdateableFragments
     {
+        static constexpr std::size_t N = 4;
+
         std::array<EntityFragment, N> Ids =
         {
             EntityFragment::End, EntityFragment::End, EntityFragment::End, EntityFragment::End
@@ -159,7 +163,7 @@ struct EntityFragmentsHolder
         std::array<EntityFragmentIsChangedFn, N> IsChanged = { };
     };
 
-    UpdateableFragments<4> Updateable;
+    UpdateableFragments Updateable;
 
     uint8 Count = 0;
     bool IdsChanged = false;
