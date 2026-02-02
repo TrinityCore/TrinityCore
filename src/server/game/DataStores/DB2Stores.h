@@ -172,6 +172,7 @@ TC_GAME_API extern DB2Storage<ItemSetSpellEntry>                    sItemSetSpel
 TC_GAME_API extern DB2Storage<ItemSparseEntry>                      sItemSparseStore;
 TC_GAME_API extern DB2Storage<ItemSpecEntry>                        sItemSpecStore;
 TC_GAME_API extern DB2Storage<ItemSpecOverrideEntry>                sItemSpecOverrideStore;
+TC_GAME_API extern DB2Storage<ItemSquishEraEntry>                   sItemSquishEraStore;
 TC_GAME_API extern DB2Storage<ItemXBonusTreeEntry>                  sItemXBonusTreeStore;
 TC_GAME_API extern DB2Storage<ItemXItemEffectEntry>                 sItemXItemEffectStore;
 TC_GAME_API extern DB2Storage<JournalEncounterEntry>                sJournalEncounterStore;
@@ -472,8 +473,8 @@ public:
     static char const* GetChrRaceName(uint8 race, LocaleConstant locale = DEFAULT_LOCALE);
     ChrSpecializationEntry const* GetChrSpecializationByIndex(uint32 class_, uint32 index) const;
     ChrSpecializationEntry const* GetDefaultChrSpecializationForClass(uint32 class_) const;
-    uint32 GetRedirectedContentTuningId(uint32 contentTuningId, uint32 redirectFlag) const;
-    Optional<ContentTuningLevels> GetContentTuningData(uint32 contentTuningId, uint32 redirectFlag, bool forItem = false) const;
+    uint32 GetRedirectedContentTuningId(uint32 contentTuningId, std::span<uint32 const> redirectFlag) const;
+    Optional<ContentTuningLevels> GetContentTuningData(uint32 contentTuningId, std::span<uint32 const> redirectFlag, bool forItem = false) const;
     bool HasContentTuningLabel(uint32 contentTuningId, int32 label) const;
     static char const* GetCreatureFamilyPetName(uint32 petfamily, LocaleConstant locale);
     std::span<int32 const> GetCreatureLabels(uint32 creatureDifficultyId) const;
@@ -519,7 +520,6 @@ public:
     std::vector<uint32> const* GetPhasesForGroup(uint32 group) const;
     PowerTypeEntry const* GetPowerTypeEntry(Powers power) const;
     PowerTypeEntry const* GetPowerTypeByName(std::string const& name) const;
-    uint8 GetPvpItemLevelBonus(uint32 itemId) const;
     static PVPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
     static PVPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id);
     uint32 GetRequiredLevelForPvpTalentSlot(uint8 slot, Classes class_) const;
