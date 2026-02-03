@@ -77,7 +77,7 @@ namespace WorldPackets
             bool SuggestionsEnabled = false;
 
             SavedThrottleObjectState ThrottleState;
-            SavedThrottleObjectState Unused1127;
+            SavedThrottleObjectState ExpensiveThrottleState;
         };
 
         struct SquelchInfo
@@ -90,7 +90,7 @@ namespace WorldPackets
         struct GameModeData
         {
             uint8 GameMode = 0;
-            int32 Unused1127 = 0;
+            int32 ContentSetID = 0;
             int32 GameModeRecordID = 0;
         };
 
@@ -145,7 +145,6 @@ namespace WorldPackets
             Duration<Seconds, uint32> NotFoundCacheTimeSeconds = 10s;
             bool ItemRestorationButtonEnabled        = false;
             bool CharUndeleteEnabled                 = false; ///< Implemented
-            bool BpayStoreDisabledByParentalControls = false;
             bool CommerceServerEnabled               = false;
             bool VeteranTokenRedeemWillKick          = false;
             bool WorldTokenRedeemWillKick            = false;
@@ -173,19 +172,22 @@ namespace WorldPackets
             bool LfgRequireAuthenticatorEnabled      = false;
             bool ScriptsDisallowedForBeta            = false;
             bool TimerunningEnabled                  = false;
-            bool WarGamesEnabled                     = false; // classic only
+            bool PlayerIdentityOptionsEnabled                     = false; // classic only
             bool IsPlayerContentTrackingEnabled      = false;
-            bool SellAllJunkEnabled                  = false;
-            bool GroupFinderEnabled                  = true;  // classic only
-            bool IsPremadeGroupEnabled               = true;  // classic only
+            bool LfdEnabled                  = false;
+            bool LfrEnabled                  = true;  // classic only
+            bool PetHappinessEnabled               = true;  // classic only
             bool GuildEventsEditsEnabled             = true;
             bool GuildTradeSkillsEnabled             = true;
             bool BNSendWhisperUseV2Services          = true;  ///< BNSendWhisper will send to v2.WhisperService instead of v1.NotificationService
             bool BNSendGameDataUseV2Services         = true;  ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool IsAccountCurrencyTransferEnabled    = false;
+            bool NetEaseChatTelemetryEnabled         = false;
             bool LobbyMatchmakerQueueFromMainlineEnabled = false;
             bool CanSendLobbyMatchmakerPartyCustomizations = false;
-            bool AddonProfilerEnabled                = false;
+            bool AddonProfilingEnabled                = false;
+            bool GlobalUserGeneratedContentMuteEnabled = false;
+            bool AccountUserGeneratedContentIsRisky   = false;
 
             SocialQueueConfig QuickJoinConfig;
             SquelchInfo Squelch;
@@ -221,6 +223,7 @@ namespace WorldPackets
             bool BpayStoreDisabledByParentalControls = false; // NYI
             bool CharUndeleteEnabled                 = false;
             bool CommerceServerEnabled               = false; // NYI
+            bool PaidCharacterTransfersBetweenBnetAccountsEnabled = false;
             bool VeteranTokenRedeemWillKick          = false; // NYI
             bool WorldTokenRedeemWillKick            = false; // NYI
             bool ExpansionPreorderInStore            = false; // NYI
@@ -229,7 +232,6 @@ namespace WorldPackets
             bool BoostEnabled                        = false; // classic only
             bool TrialBoostEnabled                   = false; // NYI
             bool RedeemForBalanceAvailable           = false; // NYI
-            bool PaidCharacterTransfersBetweenBnetAccountsEnabled = false;
             bool LiveRegionCharacterListEnabled      = false; // NYI
             bool LiveRegionCharacterCopyEnabled      = false; // NYI
             bool LiveRegionAccountCopyEnabled        = false; // NYI
@@ -246,7 +248,9 @@ namespace WorldPackets
             bool BNSendGameDataUseV2Services         = true; ///< BNSendGameData will send to v2.NotificationService instead of v1.NotificationService
             bool CharacterSelectListModeRealmless    = false;
             bool WowTokenLimitedMode                 = false; // classic only
-            bool PandarenLevelBoostAllowed           = false; // classic only
+            bool NavBarEnabled                       = false;
+            bool GlobalUserGeneratedContentMuteEnabled = false;
+            bool AccountUserGeneratedContentIsRisky  = false;
             Optional<EuropaTicketConfig> EuropaTicketSystemStatus;
             std::vector<int32> LiveRegionCharacterCopySourceRegions;
             uint32 CommercePricePollTimeSeconds      = 0;     // NYI

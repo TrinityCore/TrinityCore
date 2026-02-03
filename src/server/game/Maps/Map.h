@@ -77,7 +77,7 @@ struct SummonPropertiesEntry;
 struct UpdateAdditionalSaveDataEvent;
 struct UpdateBossStateSaveDataEvent;
 class Transport;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum WeatherState : uint32;
 enum class ItemContext : uint8;
 

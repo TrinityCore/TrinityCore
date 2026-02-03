@@ -183,6 +183,7 @@ namespace WorldPackets
             bool HideChatLog = false;
             bool FakeSenderName = false;
             Optional<ObjectGuid> ChannelGUID;
+            Optional<uint32> EncounterEventID;
         };
 
         class Emote final : public ServerPacket

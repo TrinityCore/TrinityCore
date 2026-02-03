@@ -207,6 +207,7 @@ WorldPacket const* Chat::Write()
     _worldPacket << Bits<1>(FakeSenderName);
     _worldPacket << OptionalInit(BroadcastTextID);
     _worldPacket << OptionalInit(ChannelGUID);
+    _worldPacket << OptionalInit(EncounterEventID);
     _worldPacket.FlushBits();
 
     _worldPacket << SizedString::Data(SenderName);
@@ -220,6 +221,9 @@ WorldPacket const* Chat::Write()
 
     if (ChannelGUID)
         _worldPacket << *ChannelGUID;
+
+    if (EncounterEventID)
+        _worldPacket << uint32(*EncounterEventID);
 
     return &_worldPacket;
 }

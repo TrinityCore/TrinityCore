@@ -2254,6 +2254,9 @@ void Unit::AttackerStateUpdate(Unit* victim, WeaponAttackType attType, bool extr
     if (HasAuraType(SPELL_AURA_DISABLE_ATTACKING_EXCEPT_ABILITIES))
         return;
 
+    if (HasAuraType(SPELL_AURA_DISABLE_AUTOATTACK))
+        return;
+
     if (!victim->IsAlive())
         return;
 
@@ -3004,6 +3007,9 @@ void Unit::_UpdateSpells(uint32 time)
 void Unit::_UpdateAutoRepeatSpell()
 {
     SpellInfo const* autoRepeatSpellInfo = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo;
+
+    if (HasAuraType(SPELL_AURA_DISABLE_AUTOATTACK))
+        return;
 
     // check "realtime" interrupts
     // don't cancel spells which are affected by a SPELL_AURA_CAST_WHILE_WALKING effect
@@ -13902,18 +13908,18 @@ bool Unit::SetCanAdvFly(bool enable)
 
 bool Unit::SetMoveCantSwim(bool cantSwim)
 {
-    if (cantSwim == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM))
+    if (cantSwim == HasExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM))
         return false;
 
     if (cantSwim)
-        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM);
+        AddExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM);
     else
-        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CANT_SWIM);
+        RemoveExtraUnitMovementFlag2(MOVEMENTFLAG3_CANNOT_SWIM);
 
     static OpcodeServer const cantSwimOpcodeTable[2] =
     {
-        SMSG_MOVE_UNSET_CANT_SWIM,
-        SMSG_MOVE_SET_CANT_SWIM,
+        SMSG_MOVE_UNSET_CANNOT_SWIM,
+        SMSG_MOVE_SET_CANNOT_SWIM,
     };
 
     if (Player* playerMover = GetPlayerMovingMe())

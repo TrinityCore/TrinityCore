@@ -29,6 +29,7 @@ class InstanceMap;
 class InstanceScenario;
 struct ScenarioEntry;
 struct ScenarioStepEntry;
+enum Difficulty : int16;
 
 struct ScenarioData
 {
@@ -45,7 +46,7 @@ struct ScenarioData
 struct ScenarioDBData
 {
     uint32 MapID;
-    uint8 DifficultyID;
+    Difficulty DifficultyID;
     uint32 Scenario_A;
     uint32 Scenario_H;
 };

@@ -632,7 +632,7 @@ class TC_GAME_API Spell
 
             struct
             {
-                uint32 Data[2];
+                uint32 Data[3];
             } Raw;
         } m_misc;
         std::any m_customArg;

@@ -36,7 +36,7 @@ class Player;
 class Spell;
 class Unit;
 class WorldObject;
-enum Difficulty : uint8;
+enum Difficulty : int16;
 enum ProcFlags : uint32;
 enum ProcFlags2 : int32;
 enum SpellCastResult : int32;
@@ -190,9 +190,24 @@ enum class SpellModOp : uint8
     MaxAuraStacks               = 37,
     ProcCooldown                = 38,
     PowerCost2                  = 39, // Used when SpellPowerEntry::PowerIndex == 2
+    MaxTargets                  = 40
 };
 
-#define MAX_SPELLMOD 40
+#define MAX_SPELLMOD 41
+
+enum class SpellPvpModifier : uint8
+{
+    HealingAndDamage            = 0,
+    PeriodicHealingAndDamage    = 1,
+    BonusCoefficient            = 2,
+
+    Points                      = 4,
+    PointsIndex0                = 5,
+    PointsIndex1                = 6,
+    PointsIndex2                = 7,
+    PointsIndex3                = 8,
+    PointsIndex4                = 9,
+};
 
 enum SpellValueMod : int32
 {
