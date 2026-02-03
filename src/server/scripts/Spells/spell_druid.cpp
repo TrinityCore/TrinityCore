@@ -2477,7 +2477,7 @@ class spell_dru_twin_moonfire : public SpellScript
         if (targets.empty())
             return;
 
-        targets.remove_if([hitUnit, caster](Unit* target) -> bool
+        targets.remove_if([hitUnit](Unit* target) -> bool
         {
             return !target || target == hitUnit || target->HasBreakableByDamageCrowdControlAura() || !target->IsInCombat();
         });
