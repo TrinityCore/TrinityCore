@@ -2241,7 +2241,7 @@ class spell_dru_thrash : public SpellScript
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = GetSpell()
         });
-        }
+    }
 
     void Register() override
     {
@@ -2267,8 +2267,8 @@ class spell_dru_thrash_bear_bleed : public AuraScript
         if (!caster)
             return;
 
-            if (caster->HasAura(SPELL_DRUID_BLOOD_FRENZY_AURA))
-                caster->CastSpell(caster, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN, true);
+        if (caster->HasAura(SPELL_DRUID_BLOOD_FRENZY_AURA))
+            caster->CastSpell(caster, SPELL_DRUID_BLOOD_FRENZY_RAGE_GAIN, true);
     }
 
     void Register() override
