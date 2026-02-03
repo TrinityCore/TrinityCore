@@ -116,6 +116,7 @@ enum DruidSpells
     SPELL_DRUID_MANGLE_TALENT                  = 231064,
     SPELL_DRUID_MASS_ENTANGLEMENT              = 102359,
     SPELL_DRUID_MATTED_FUR                     = 385786,
+    SPELL_DRUID_MOONFIRE                       = 8921,
     SPELL_DRUID_MOONFIRE_DAMAGE                = 164812,
     SPELL_DRUID_NATURES_GRACE_TALENT           = 450347,
     SPELL_DRUID_NEW_MOON                       = 274281,
@@ -144,6 +145,8 @@ enum DruidSpells
     SPELL_DRUID_THRASH_BEAR_BLEED              = 192090,
     SPELL_DRUID_THRASH_CAT                     = 106830,
     SPELL_DRUID_THRASH_CAT_BLEED               = 405233,
+    SPELL_DRUID_TWIN_MOONS                     = 279620,
+    SPELL_DRUID_TWIN_MOONFIRE                  = 372567,
     SPELL_DRUID_UMBRAL_EMBRACE                 = 393763,
     SPELL_DRUID_UMBRAL_INSPIRATION_TALENT      = 450418,
     SPELL_DRUID_UMBRAL_INSPIRATION_AURA        = 450419,
@@ -2445,6 +2448,73 @@ class spell_dru_tiger_dash_aura : public AuraScript
     }
 };
 
+// 8921 - Moonfire
+class spell_dru_twin_moonfire : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DRUID_TWIN_MOONFIRE, SPELL_DRUID_TWIN_MOONS, SPELL_DRUID_MOONFIRE_DAMAGE });
+    }
+
+    bool Load() override
+    {
+        return !GetSpell()->IsTriggered() && GetCaster()->HasAura(SPELL_DRUID_TWIN_MOONFIRE);
+    }
+
+    void HandleEffectHit(SpellEffIndex /*effIndex*/)
+    {
+        Unit* caster = GetCaster();
+        Unit* hitUnit = GetHitUnit();
+
+        SpellInfo const* moonfireSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_MOONFIRE_DAMAGE, GetCastDifficulty());
+        float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
+
+        std::list<Unit*> targets;
+        Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::UnitListSearcher searcher(hitUnit, targets, check);
+        Cell::VisitAllObjects(hitUnit, searcher, maxRange);
+
+        if (targets.empty())
+            return;
+
+        targets.remove_if([hitUnit](Unit* target) -> bool
+        {
+            return !target || target == hitUnit || target->HasBreakableByDamageCrowdControlAura() || !target->IsInCombat();
+        });
+
+        if (targets.empty())
+            return;
+
+        targets.sort([caster, hitUnit](Unit const* lhs, Unit const* rhs) -> bool
+        {
+            Aura* auraA = lhs->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, caster->GetGUID());
+            Aura* auraB = rhs->GetAura(SPELL_DRUID_MOONFIRE_DAMAGE, caster->GetGUID());
+
+            if (!auraA)
+            {
+                if (auraB)
+                    return true;
+                return hitUnit->GetExactDist(lhs) < hitUnit->GetExactDist(rhs);
+            }
+
+            if (!auraB)
+                return false;
+
+            return auraA->GetDuration() < auraB->GetDuration();
+        });
+
+        caster->CastSpell(targets.front(), SPELL_DRUID_MOONFIRE, CastSpellExtraArgsInit{
+            .TriggerFlags = TRIGGERED_FULL_MASK | TRIGGERED_SUPPRESS_CASTER_ANIM,
+            .TriggeringSpell = GetSpell()
+        });
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dru_twin_moonfire::HandleEffectHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
 // 393763 - Umbral Embrace
 class spell_dru_umbral_embrace : public AuraScript
 {
@@ -2724,6 +2794,7 @@ void AddSC_druid_spell_scripts()
     RegisterSpellScript(spell_dru_travel_form);
     RegisterSpellAndAuraScriptPair(spell_dru_travel_form_dummy, spell_dru_travel_form_dummy_aura);
     RegisterSpellAndAuraScriptPair(spell_dru_tiger_dash, spell_dru_tiger_dash_aura);
+    RegisterSpellScript(spell_dru_twin_moonfire);
     RegisterSpellScript(spell_dru_umbral_embrace);
     RegisterSpellScript(spell_dru_umbral_embrace_damage);
     RegisterSpellScript(spell_dru_umbral_inspiration);
