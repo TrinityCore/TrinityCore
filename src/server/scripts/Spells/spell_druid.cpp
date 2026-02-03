@@ -2480,7 +2480,7 @@ class spell_dru_twin_moonfire : public SpellScript
 
         targets.remove_if([hitUnit, caster](Unit* target) -> bool
         {
-            return !target || target == hitUnit || target->HasBreakableByDamageCrowdControlAura() || !target->IsInCombatWith(caster);
+            return !target || target == hitUnit || target->HasBreakableByDamageCrowdControlAura() || !target->IsInCombat();
         });
 
         if (targets.empty())
