@@ -29,8 +29,6 @@ namespace MMAP
     constexpr char MAP_FILE_NAME_FORMAT[] = "{}mmaps/{:04}.mmap";
     constexpr char TILE_FILE_NAME_FORMAT[] = "{}mmaps/{:04}_{:02}_{:02}.mmtile";
 
-    static thread_local bool thread_safe_environment = false;
-
     using NavMeshQuerySet = std::unordered_map<std::pair<uint32, uint32>, dtNavMeshQuery>;
     using MMapTileSet = std::unordered_map<uint32, dtTileRef>;
 
@@ -71,14 +69,17 @@ namespace MMAP
 
         std::pair<MeshDataMap::iterator, bool> GetMeshData(uint32 mapId, uint32 instanceId)
         {
-            // for maps that won't have dynamic mesh, return 0 to reuse the same mesh across all instances
             return meshData.try_emplace(GetInstanceIdForMeshLookup(mapId, instanceId));
         }
 
         MeshDataMap::iterator FindMeshData(uint32 mapId, uint32 instanceId)
         {
-            // for maps that won't have dynamic mesh, return 0 to reuse the same mesh across all instances
             return meshData.find(GetInstanceIdForMeshLookup(mapId, instanceId));
+        }
+
+        MeshDataMap::node_type RemoveMeshData(uint32 mapId, uint32 instanceId)
+        {
+            return meshData.extract(GetInstanceIdForMeshLookup(mapId, instanceId));
         }
     };
 
@@ -97,13 +98,10 @@ namespace MMAP
         // the caller must pass the list of all mapIds that will be used in the MMapManager lifetime
         for (auto const& [mapId, childMapIds] : mapData)
         {
-            loadedMMaps[mapId].reset(new MMapData());
+            loadedMMaps.try_emplace(mapId, new MMapData());
             for (uint32 childMapId : childMapIds)
                 parentMapData[childMapId] = mapId;
         }
-
-        // mark the loading main thread as safe
-        thread_safe_environment = true;
     }
 
     MMapDataSet::const_iterator MMapManager::GetMMapData(uint32 mapId) const
@@ -124,20 +122,8 @@ namespace MMAP
     LoadResult MMapManager::loadMapData(std::string_view basePath, uint32 mapId, uint32 instanceId)
     {
         // we already have this map loaded?
-        MMapDataSet::iterator itr;
-        if (thread_safe_environment)
-        {
-            bool needsLoading;
-            std::tie(itr, needsLoading) = loadedMMaps.try_emplace(mapId);
-            if (needsLoading)
-                itr->second.reset(new MMapData());
-        }
-        else
-        {
-            itr = loadedMMaps.find(mapId);
-            if (itr == loadedMMaps.end())
-                ABORT_MSG("Invalid mapId %u passed to MMapManager after startup in thread unsafe environment", mapId);
-        }
+        MMapDataSet::iterator itr = loadedMMaps.find(mapId);
+        ASSERT(itr != loadedMMaps.end(), "Invalid mapId %u passed to MMapManager after startup in thread unsafe environment", mapId);
 
         auto [meshItr, needsLoading] = itr->second->GetMeshData(mapId, instanceId);
         if (!needsLoading)
@@ -230,7 +216,7 @@ namespace MMAP
         }
 
         // get this mmap data
-        MMapData* mmap = loadedMMaps[mapId].get();
+        MMapData* mmap = Trinity::Containers::MapGetValuePtr(loadedMMaps, mapId);
         MMapMapData& meshData = mmap->GetMeshData(mapId, instanceId).first->second;
 
         // check if we already have this tile loaded
@@ -327,7 +313,7 @@ namespace MMAP
                 return false;
         }
 
-        MMapData* mmap = loadedMMaps[meshMapId].get();
+        MMapData* mmap = Trinity::Containers::MapGetValuePtr(loadedMMaps, meshMapId);
         auto [queryItr, inserted] = mmap->navMeshQueries.try_emplace({ instanceMapId, instanceId });
         if (!inserted)
             return true;
@@ -340,7 +326,6 @@ namespace MMAP
         // allocate mesh query
         if (dtStatusFailed(queryItr->second.init(&mmap->GetMeshData(meshMapId, instanceId).first->second.navMesh, 1024)))
         {
-            mmap->navMeshQueries.erase(queryItr);
             TC_LOG_ERROR("maps", "MMAP:GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {:04} instanceId {}", instanceMapId, instanceId);
             return false;
         }
@@ -397,20 +382,21 @@ namespace MMAP
             return;
         }
 
-        if (MMapData::GetInstanceIdForMeshLookup(mapId, std::numeric_limits<uint32>::max()) == 0)
+        if (!isRebuildingTilesEnabledOnMap(mapId))
         {
-            // unload all tiles from given map
-            MMapMapData& mesh = itr->second->meshData[0];
-            for (auto const& [tileId, tileRef] : mesh.loadedTileRefs)
+            if (MeshDataMap::node_type meshNode = itr->second->RemoveMeshData(mapId, 0))
             {
-                uint32 x = (tileId >> 16);
-                uint32 y = (tileId & 0x0000FFFF);
-                if (dtStatusFailed(mesh.navMesh.removeTile(tileRef, nullptr, nullptr)))
-                    TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", mapId, x, y);
-                else
+                for (auto const& [tileId, tileRef] : meshNode.mapped().loadedTileRefs)
                 {
-                    --loadedTiles;
-                    TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:04}[{:02}, {:02}] from {:04}", mapId, x, y, mapId);
+                    uint32 x = (tileId >> 16);
+                    uint32 y = (tileId & 0x0000FFFF);
+                    if (dtStatusFailed(meshNode.mapped().navMesh.removeTile(tileRef, nullptr, nullptr)))
+                        TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", mapId, x, y);
+                    else
+                    {
+                        --loadedTiles;
+                        TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:04}[{:02}, {:02}] from {:04}", mapId, x, y, mapId);
+                    }
                 }
             }
         }
@@ -436,24 +422,24 @@ namespace MMAP
         if (!erased)
             TC_LOG_DEBUG("maps", "MMAP:unloadMapInstance: Asked to unload not loaded dtNavMeshQuery mapId {:04} instanceId {}", instanceMapId, instanceId);
 
-        MeshDataMap::iterator meshItr = mmap->FindMeshData(meshMapId, instanceId);
-        if (meshItr != mmap->meshData.end())
+        if (isRebuildingTilesEnabledOnMap(meshMapId))
         {
-            // unload all tiles from given map
-            for (auto const& [tileId, tileRef] : meshItr->second.loadedTileRefs)
+            if (MeshDataMap::node_type meshNode = mmap->RemoveMeshData(meshMapId, instanceId))
             {
-                uint32 x = (tileId >> 16);
-                uint32 y = (tileId & 0x0000FFFF);
-                if (dtStatusFailed(meshItr->second.navMesh.removeTile(tileRef, nullptr, nullptr)))
-                    TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", meshMapId, x, y);
-                else
+                // unload all tiles from given map
+                for (auto const& [tileId, tileRef] : meshNode.mapped().loadedTileRefs)
                 {
-                    --loadedTiles;
-                    TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:04}[{:02}, {:02}] from {:04}", meshMapId, x, y, meshMapId);
+                    uint32 x = (tileId >> 16);
+                    uint32 y = (tileId & 0x0000FFFF);
+                    if (dtStatusFailed(meshNode.mapped().navMesh.removeTile(tileRef, nullptr, nullptr)))
+                        TC_LOG_ERROR("maps", "MMAP:unloadMap: Could not unload {:04}_{:02}_{:02}.mmtile from navmesh", meshMapId, x, y);
+                    else
+                    {
+                        --loadedTiles;
+                        TC_LOG_DEBUG("maps", "MMAP:unloadMap: Unloaded mmtile {:04}[{:02}, {:02}] from {:04}", meshMapId, x, y, meshMapId);
+                    }
                 }
             }
-
-            mmap->meshData.erase(meshItr);
         }
 
         TC_LOG_DEBUG("maps", "MMAP:unloadMapInstance: Unloaded mapId {:04} instanceId {}", instanceMapId, instanceId);
@@ -474,7 +460,7 @@ namespace MMAP
 
     dtNavMeshQuery const* MMapManager::GetNavMeshQuery(uint32 meshMapId, uint32 instanceMapId, uint32 instanceId)
     {
-        auto itr = GetMMapData(meshMapId);
+        MMapDataSet::const_iterator itr = GetMMapData(meshMapId);
         if (itr == loadedMMaps.end())
             return nullptr;
 

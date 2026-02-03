@@ -18,7 +18,6 @@
 #include "ObjectGuid.h"
 #include "ByteBuffer.h"
 #include "Errors.h"
-#include "Hash.h"
 #include "RealmList.h"
 #include "StringFormat.h"
 #include "Util.h"
@@ -191,21 +190,61 @@ namespace
         {
             ctx.advance_to(AppendTypeName(ctx, typeName));
             ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRealmId()));
-            ctx.advance_to(AppendComponent<padding<8>, hex>(ctx, guid.GetRawValue(0)));
+            switch (uint8 subType = (guid.GetRawValue(1) >> 40) & 0x3)
+            {
+                case 0:
+                    // no subType
+                    ctx.advance_to(AppendComponent<padding<8>, hex>(ctx, guid.GetRawValue(0)));
+                    break;
+                case 1: // characterless (plunderstorm)
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, subType));
+                    ctx.advance_to(AppendComponent<padding<16>, hex>(ctx, guid.GetRawValue(0)));
+                    break;
+                case 2: // npc-as-player
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, subType));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(1) >> 16 & 0xFFFFFF)); // creature id?
+                    ctx.advance_to(AppendComponent<padding<16>, hex>(ctx, guid.GetRawValue(0)));
+                    break;
+                default:
+                    break;
+            }
+
             return ctx.out();
         }
 
         static ObjectGuid ParsePlayer(HighGuid /*type*/, std::string_view guidString)
         {
             uint32 realmId = 0;
+            uint8 subType = 0;
+            uint32 arg1 = 0;
             uint64 dbId = UI64LIT(0);
 
             if (!ParseComponent<dec>(guidString, &realmId)
-                || !ParseComponent<hex>(guidString, &dbId)
-                || !ParseDone(guidString))
+                || !ParseComponent<hex>(guidString, &dbId))
                 return ObjectGuid::FromStringFailed;
 
-            return ObjectGuidFactory::CreatePlayer(realmId, dbId);
+            if (!ParseDone(guidString))
+            {
+                // dbId holds playerType at this point
+                switch (dbId)
+                {
+                    case 1: // characterless (plunderstorm)
+                        break;
+                    case 2: // npc-as-player
+                        if (!ParseComponent<dec>(guidString, &arg1)) // creature id?
+                            return ObjectGuid::FromStringFailed;
+                        break;
+                    default:
+                        return ObjectGuid::FromStringFailed;
+                }
+
+                subType = dbId;
+                if (!ParseComponent<hex>(guidString, &dbId)
+                    || !ParseDone(guidString))
+                    return ObjectGuid::FromStringFailed;
+            }
+
+            return ObjectGuidFactory::CreatePlayer(realmId, subType, arg1, dbId);
         }
 
         static fmt::appender FormatItem(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
@@ -659,6 +698,74 @@ namespace
             return ObjectGuidFactory::CreateLMMLobby(realmId, arg2, arg3, arg4, arg5);
         }
 
+        static fmt::appender FormatHousing(fmt::format_context& ctx, std::string_view typeName, ObjectGuid const& guid)
+        {
+            ctx.advance_to(AppendTypeName(ctx, typeName));
+            switch (uint32 subType = (guid.GetRawValue(1) >> 53) & 0x1F)
+            {
+                case 1:
+                case 4:
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, subType));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1) >> 32) & 0xFFFF));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1)) & 0xFFFFFFFF));
+                    ctx.advance_to(AppendComponent<no_padding, hex>(ctx, guid.GetRawValue(0)));
+                    break;
+                case 2:
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, subType));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1)) & 0xFFFFFFFF));
+                    ctx.advance_to(AppendComponent<no_padding, hex>(ctx, guid.GetRawValue(0)));
+                    break;
+                case 3:
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, subType));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1)) & 0x7FFF));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, guid.GetRawValue(0)));
+                    ctx.advance_to(AppendComponent<no_padding, dec>(ctx, uint32(guid.GetRawValue(1) >> 15) & 0x3F));
+                    break;
+                default:
+                    break;
+            }
+            return ctx.out();
+        }
+
+        static ObjectGuid ParseHousing(HighGuid /*type*/, std::string_view guidString)
+        {
+            uint32 subType = 0;
+
+            if (!ParseComponent<dec>(guidString, &subType))
+                return ObjectGuid::FromStringFailed;
+
+            uint32 arg1 = 0;
+            uint32 arg2 = 0;
+            uint64 arg3 = UI64LIT(0);
+
+            switch (subType)
+            {
+                case 1:
+                case 4:
+                    if (!ParseComponent<dec>(guidString, &arg1)
+                        || !ParseComponent<dec>(guidString, &arg2)
+                        || !ParseComponent<hex>(guidString, &arg3)
+                        || !ParseDone(guidString))
+                        return ObjectGuid::FromStringFailed;
+                    break;
+                case 2:
+                    if (!ParseComponent<dec>(guidString, &arg2)
+                        || !ParseComponent<hex>(guidString, &arg3)
+                        || !ParseDone(guidString))
+                        return ObjectGuid::FromStringFailed;
+                    break;
+                case 3:
+                    if (!ParseComponent<dec>(guidString, &arg2)
+                        || !ParseComponent<dec>(guidString, &arg3)
+                        || !ParseComponent<dec>(guidString, &arg1)
+                        || !ParseDone(guidString))
+                        return ObjectGuid::FromStringFailed;
+                    break;
+            }
+
+            return ObjectGuidFactory::CreateHousing(subType, arg1, arg2, arg3);
+        }
+
         ObjectGuidInfo();
     } Info;
 
@@ -724,6 +831,9 @@ namespace
         SET_GUID_INFO(ArenaTeam, FormatGuild, ParseGuild);
         SET_GUID_INFO(LMMParty, FormatClient, ParseClient);
         SET_GUID_INFO(LMMLobby, FormatLMMLobby, ParseLMMLobby);
+        SET_GUID_INFO(Housing, FormatHousing, ParseHousing);
+        SET_GUID_INFO(MeshObject, FormatWorldObject, ParseWorldObject);
+        SET_GUID_INFO(Entity, FormatWorldObject, ParseWorldObject);
 
 #undef SET_GUID_INFO
     }
@@ -767,21 +877,6 @@ ObjectGuid ObjectGuid::FromString(std::string_view guidString)
     return Info.Parse(guidString);
 }
 
-std::size_t ObjectGuid::GetHash() const
-{
-    std::size_t hashVal = 0;
-    Trinity::hash_combine(hashVal, _data[0]);
-    Trinity::hash_combine(hashVal, _data[1]);
-    return hashVal;
-}
-
-std::array<uint8, 16> ObjectGuid::GetRawValue() const
-{
-    std::array<uint8, 16> raw;
-    memcpy(raw.data(), _data.data(), BytesSize);
-    return raw;
-}
-
 void ObjectGuid::SetRawValue(std::span<uint8 const> rawBytes)
 {
     ASSERT(rawBytes.size() == BytesSize, SZFMTD " == " SZFMTD, rawBytes.size(), BytesSize);
@@ -807,10 +902,12 @@ constexpr ObjectGuid ObjectGuidFactory::CreateUniq(ObjectGuid::LowType id)
         id);
 }
 
-ObjectGuid ObjectGuidFactory::CreatePlayer(uint32 realmId, ObjectGuid::LowType dbId)
+ObjectGuid ObjectGuidFactory::CreatePlayer(uint32 realmId, uint8 subType, uint32 arg1, ObjectGuid::LowType dbId)
 {
     return ObjectGuid(uint64((uint64(HighGuid::Player) << 58)
-        | (uint64(GetRealmIdForObjectGuid(realmId)) << 42)),
+        | (uint64(GetRealmIdForObjectGuid(realmId)) << 42)
+        | (uint64(subType & 0x3) << 40)
+        | (uint64(arg1 & 0xFFFFFF) << 16)),
         dbId);
 }
 
@@ -950,6 +1047,35 @@ ObjectGuid ObjectGuidFactory::CreateLMMLobby(uint32 realmId, uint32 arg2, uint8 
         | (uint64(arg3 & 0xFF) << 18)
         | (uint64(arg4 & 0xFF) << 10)),
         counter);
+}
+
+ObjectGuid ObjectGuidFactory::CreateHousing(uint32 subType, uint32 arg1, uint32 arg2, uint64 arg3)
+{
+    switch (subType)
+    {
+        case 1:
+        case 4:
+            return ObjectGuid(uint64((uint64(HighGuid::Housing) << 58)
+                | (uint64(subType & 0x1F) << 53)
+                | (uint64(arg1 & 0xFFFF) << 32)
+                | (uint64(arg2 & 0xFFFFFFFF))),
+                arg3);
+        case 2:
+            return ObjectGuid(uint64((uint64(HighGuid::Housing) << 58)
+                | (uint64(subType & 0x1F) << 53)
+                | (uint64(arg2 & 0xFFFFFFFF))),
+                arg3);
+        case 3:
+            return ObjectGuid(uint64((uint64(HighGuid::Housing) << 58)
+                | (uint64(subType & 0x1F) << 53)
+                | (uint64(arg1 & 0x3F) << 15)
+                | (uint64(arg2 & 0x7FFF))),
+                arg3);
+        default:
+            break;
+    }
+
+    return ObjectGuid::Empty;
 }
 
 ObjectGuid const ObjectGuid::Empty = ObjectGuid::Create<HighGuid::Null>();
