@@ -4419,6 +4419,16 @@ struct TraitCondEntry
     EnumFlag<TraitCondFlags> GetFlags() const { return static_cast<TraitCondFlags>(Flags); }
 };
 
+struct TraitCondAccountElementEntry
+{
+    int64 ElementValueInt;
+    uint32 ID;
+    uint32 PlayerDataElementAccountID;
+    uint8 Comparison;
+    int32 Unused1110;
+    int32 PlayerDataElementCharacterID;
+};
+
 struct TraitCostEntry
 {
     char const* InternalName;

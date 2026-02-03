@@ -1850,6 +1850,11 @@ void HotfixDatabaseConnection::DoPrepareStatements()
         "TraitCondAccountElementID FROM trait_cond WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_COND, "SELECT MAX(ID) + 1 FROM trait_cond", CONNECTION_SYNCH);
 
+    // TraitCondAccountElement.db2
+    PrepareStatement(HOTFIX_SEL_TRAIT_COND_ACCOUNT_ELEMENT, "SELECT ElementValueInt, ID, PlayerDataElementAccountID, Comparison, Unused1110, "
+        "PlayerDataElementCharacterID FROM trait_cond_account_element WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
+    PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_COND_ACCOUNT_ELEMENT, "SELECT MAX(ID) + 1 FROM trait_cond_account_element", CONNECTION_SYNCH);
+
     // TraitCost.db2
     PrepareStatement(HOTFIX_SEL_TRAIT_COST, "SELECT InternalName, ID, Amount, TraitCurrencyID, CurveID FROM trait_cost WHERE (`VerifiedBuild` > 0) = ?", CONNECTION_SYNCH);
     PREPARE_MAX_ID_STMT(HOTFIX_SEL_TRAIT_COST, "SELECT MAX(ID) + 1 FROM trait_cost", CONNECTION_SYNCH);

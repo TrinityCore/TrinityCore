@@ -6181,6 +6181,21 @@ struct TraitCondLoadInfo
     static constexpr DB2LoadInfo Instance{ Fields, 17, &TraitCondMeta::Instance, HOTFIX_SEL_TRAIT_COND };
 };
 
+struct TraitCondAccountElementLoadInfo
+{
+    static constexpr DB2FieldMeta Fields[6] =
+    {
+        { .IsSigned = true, .Type = FT_LONG, .Name = "ElementValueInt" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "ID" },
+        { .IsSigned = false, .Type = FT_INT, .Name = "PlayerDataElementAccountID" },
+        { .IsSigned = false, .Type = FT_BYTE, .Name = "Comparison" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "Unused1110" },
+        { .IsSigned = true, .Type = FT_INT, .Name = "PlayerDataElementCharacterID" },
+    };
+
+    static constexpr DB2LoadInfo Instance{ Fields, 6, &TraitCondAccountElementMeta::Instance, HOTFIX_SEL_TRAIT_COND_ACCOUNT_ELEMENT };
+};
+
 struct TraitCostLoadInfo
 {
     static constexpr DB2FieldMeta Fields[5] =
