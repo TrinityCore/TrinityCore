@@ -876,6 +876,7 @@ struct TC_GAME_API ItemTemplate
     uint32 GetPlayerLevelToItemLevelCurveId() const { return ExtendedData->PlayerLevelToItemLevelCurveID; }
     uint32 GetItemLevelOffsetCurveId() const { return ExtendedData->ItemLevelOffsetCurveID; }
     uint32 GetItemLevelOffsetItemLevel() const { return ExtendedData->ItemLevelOffsetItemLevel; }
+    uint32 GetItemSquishEraId() const { return ExtendedData->ItemSquishEraID; }
     uint32 GetDamageType() const { return ExtendedData->DamageDamageType; }
     uint32 GetDelay() const { return ExtendedData->ItemDelay; }
     float GetRangedModRange() const { return ExtendedData->ItemRange; }

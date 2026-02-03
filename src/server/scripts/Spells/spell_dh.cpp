@@ -176,6 +176,7 @@ enum DemonHunterSpells
     SPELL_DH_RETALIATION_TALENT                    = 389729,
     SPELL_DH_RETALIATION_PROC                      = 391160,
     SPELL_DH_SEVER                                 = 235964,
+    SPELL_DH_SHATTERED_RESTORATION                 = 389824,
     SPELL_DH_SHATTER_SOUL                          = 210038,
     SPELL_DH_SHATTER_SOUL_VENGEANCE_FRONT_RIGHT    = 209980,
     SPELL_DH_SHATTER_SOUL_VENGEANCE_BACK_RIGHT     = 209981,
@@ -189,6 +190,7 @@ enum DemonHunterSpells
     SPELL_DH_SHATTERED_SOULS_HAVOC_LESSER_TRIGGER  = 228536,
     SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER = 209687,
     SPELL_DH_SHATTERED_SOULS_MARKER                = 221461,
+    SPELL_DH_SHATTERED_SOULS_VENGEANCE             = 204254,
     SPELL_DH_SHEAR                                 = 203782,
     SPELL_DH_SHEAR_PASSIVE                         = 203783,
     SPELL_DH_SIGIL_OF_CHAINS                       = 202138,
@@ -230,6 +232,8 @@ enum DemonHunterSpells
     SPELL_DH_VENGEFUL_BONDS                        = 320635,
     SPELL_DH_VENGEFUL_RETREAT                      = 198813,
     SPELL_DH_VENGEFUL_RETREAT_TRIGGER              = 198793,
+    SPELL_DH_WAVE_OF_DEBILITATION_TALENT           = 452403,
+    SPELL_DH_WAVE_OF_DEBILITATION_SLOW             = 453263,
 };
 
 enum DemonHunterSpellCategories
@@ -1842,6 +1846,26 @@ private:
     int32 _furySpent = 0;
 };
 
+// 389824 - Shattered Restoration (attached to 202644, 228532, 178963, 210042, 203794 - Consume Soul)
+class spell_dh_shattered_restoration : public SpellScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellEffect({ { SPELL_DH_SHATTERED_RESTORATION, EFFECT_0 } });
+    }
+
+    void CalculateHealingBonus(SpellEffectInfo const& /*spellEffectInfo*/, Unit const* /*victim*/, int32 const& /*healing*/, int32 const& /*flatMod*/, float& pctMod) const
+    {
+        if (AuraEffect* const shatteredRestoration = GetCaster()->GetAuraEffect(SPELL_DH_SHATTERED_RESTORATION, EFFECT_0))
+            AddPct(pctMod, shatteredRestoration->GetAmount());
+    }
+
+    void Register() override
+    {
+        CalcHealing += SpellCalcHealingFn(spell_dh_shattered_restoration::CalculateHealingBonus);
+    }
+};
+
 // 178940 - Shattered Souls
 // 204254 - Shattered Souls
 class spell_dh_shattered_souls : public AuraScript
@@ -1919,6 +1943,21 @@ struct at_dh_shattered_souls : public AreaTriggerAI
         unit->CastSpell(at->GetPosition(), SpellId, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
         at->Remove();
     }
+
+    void OnInitialize() override
+    {
+        if (Unit* caster = at->GetCaster())
+            if (caster->HasAura(SPELL_DH_SHATTERED_SOULS_VENGEANCE))
+                caster->CastSpell(caster, SPELL_DH_SOUL_FRAGMENT_COUNTER, CastSpellExtraArgsInit{
+                    .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
+                });
+    }
+
+    void OnRemove() override
+    {
+        if (Unit* caster = at->GetCaster())
+            caster->RemoveAuraFromStack(SPELL_DH_SOUL_FRAGMENT_COUNTER);
+    }
 };
 
 using at_dh_shattered_souls_havoc_demon = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_HAVOC_DEMON>;
@@ -1927,6 +1966,45 @@ using at_dh_shattered_souls_havoc_shattered = at_dh_shattered_souls<SPELL_DH_CON
 using at_dh_shattered_souls_vengeance_demon = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_VENGEANCE_DEMON>;
 using at_dh_shattered_souls_vengeance_lesser = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_VENGEANCE_LESSER>;
 using at_dh_shattered_souls_vengeance_shattered = at_dh_shattered_souls<SPELL_DH_CONSUME_SOUL_VENGEANCE_SHATTERED>;
+
+// 207407 - Soul Carver
+class spell_dh_soul_carver : public SpellScript
+{
+    bool Validate(SpellInfo const* spellInfo) override
+    {
+        return ValidateSpellEffect({ { spellInfo->Id, EFFECT_2 } })
+            && spell_dh_shattered_souls_base_lesser::Validate();
+    }
+
+    void HandleSoulFragments(SpellEffIndex /*effIndex*/) const
+    {
+        spell_dh_shattered_souls_base_lesser::CreateFragments(GetHitUnit(), GetCaster(), GetEffectInfo(EFFECT_2).CalcValue(GetCaster()));
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_dh_soul_carver::HandleSoulFragments, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
+    }
+};
+
+class spell_dh_soul_carver_aura : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return spell_dh_shattered_souls_base_lesser::Validate();
+    }
+
+    void HandleEffectPeriodic(AuraEffect const* /*aurEff*/) const
+    {
+        if (Unit* caster = GetCaster())
+            spell_dh_shattered_souls_base_lesser::CreateFragments(GetTarget(), caster, GetEffectInfo(EFFECT_3).CalcValue(caster));
+    }
+
+    void Register() override
+    {
+        OnEffectPeriodic += AuraEffectPeriodicFn(spell_dh_soul_carver_aura::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+    }
+};
 
 // 210788 - Soul Fragments
 class spell_dh_soul_fragments_damage_taken_tracker : public AuraScript
@@ -2254,6 +2332,34 @@ class spell_dh_violent_transformation : public AuraScript
     }
 };
 
+// 179057 - Chaos Nova
+class spell_dh_wave_of_debilitation : public AuraScript
+{
+    bool Validate(SpellInfo const* /*spellInfo*/) override
+    {
+        return ValidateSpellInfo({ SPELL_DH_WAVE_OF_DEBILITATION_TALENT, SPELL_DH_WAVE_OF_DEBILITATION_SLOW });
+    }
+
+    bool Load() override
+    {
+        return GetCaster()->HasAura(SPELL_DH_WAVE_OF_DEBILITATION_TALENT);
+    }
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEATH)
+            return;
+
+        if (Unit* caster = GetCaster())
+            caster->CastSpell(GetTarget(), SPELL_DH_WAVE_OF_DEBILITATION_SLOW, TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_dh_wave_of_debilitation::OnRemove, EFFECT_0, SPELL_AURA_MOD_STUN, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_demon_hunter_spell_scripts()
 {
     RegisterSpellScript(spell_dh_army_unto_oneself);
@@ -2306,6 +2412,7 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_restless_hunter);
     RegisterSpellScript(spell_dh_retaliation);
     RegisterSpellScript(spell_dh_shattered_destiny);
+    RegisterSpellScript(spell_dh_shattered_restoration);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_havoc", SPELL_DH_SHATTERED_SOULS_HAVOC);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls, "spell_dh_shattered_souls_vengeance", SPELL_DH_SHATTER_SOUL);
     RegisterSpellScriptWithArgs(spell_dh_shattered_souls_trigger, "spell_dh_shattered_souls_havoc_trigger", SPELL_DH_SHATTERED_SOULS_HAVOC_SHATTERED_TRIGGER, SPELL_DH_SHATTERED_SOULS_HAVOC_DEMON_TRIGGER);
@@ -2322,12 +2429,14 @@ void AddSC_demon_hunter_spell_scripts()
     RegisterSpellScript(spell_dh_sigil_of_flame);
     RegisterSpellScriptWithArgs(spell_dh_elysian_decree, "spell_dh_sigil_of_spite", SPELL_DH_SIGIL_OF_SPITE);
     RegisterSpellScript(spell_dh_soulmonger);
+    RegisterSpellAndAuraScriptPair(spell_dh_soul_carver, spell_dh_soul_carver_aura);
     RegisterSpellScript(spell_dh_soul_fragments_damage_taken_tracker);
     RegisterSpellScript(spell_dh_student_of_suffering);
     RegisterSpellScript(spell_dh_tactical_retreat);
     RegisterSpellScript(spell_dh_unhindered_assault);
     RegisterSpellScript(spell_dh_vengeful_retreat_damage);
     RegisterSpellScript(spell_dh_violent_transformation);
+    RegisterSpellScript(spell_dh_wave_of_debilitation);
 
     RegisterAreaTriggerAI(areatrigger_dh_darkness);
     RegisterAreaTriggerAI(areatrigger_dh_sigil_of_chains);
