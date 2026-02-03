@@ -1430,25 +1430,18 @@ class spell_dru_matted_fur_absorb : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_MATTED_FUR });
+        return ValidateSpellEffect({ { SPELL_DRUID_MATTED_FUR, EFFECT_0 } });
     }
 
-    void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+    static void CalculateAmount(AuraScript const&, AuraEffect const* /*aurEff*/, Unit const* victim, int32& baseAbsorb, int32& /*flatMod*/, float& /*pctMod*/)
     {
-        canBeRecalculated = false;
-
-        Player* player = Object::ToPlayer(GetUnitOwner());
-        if (!player)
-            return;
-
-        int32 baseVal = player->GetAuraEffect(SPELL_DRUID_MATTED_FUR, EFFECT_0)->GetAmount();
-        amount = static_cast<int32>((baseVal / 100.f) * 1.25f * player->GetTotalAttackPowerValue(BASE_ATTACK));
-        AddPct(amount, player->GetRatingBonusValue(CR_VERSATILITY_DAMAGE_DONE) + player->GetTotalAuraModifier(SPELL_AURA_MOD_VERSATILITY));
+        if (AuraEffect const* passiveEffect = victim->GetAuraEffect(SPELL_DRUID_MATTED_FUR, EFFECT_0))
+            baseAbsorb = static_cast<int32>(victim->GetTotalAttackPowerValue(BASE_ATTACK) * 0.0125f * passiveEffect->GetAmount());
     }
 
     void Register() override
     {
-        DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_matted_fur_absorb::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+        DoEffectCalcDamageAndHealing += AuraEffectCalcAbsorbFn(spell_dru_matted_fur_absorb::CalculateAmount, EFFECT_0);
     }
 };
 
