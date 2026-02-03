@@ -2465,13 +2465,12 @@ class spell_dru_twin_moonfire : public SpellScript
     {
         Unit* caster = GetCaster();
         Unit* hitUnit = GetHitUnit();
-        Position destPos = hitUnit->GetPosition();
 
         SpellInfo const* moonfireSpellInfo = sSpellMgr->AssertSpellInfo(SPELL_DRUID_MOONFIRE_DAMAGE, GetCastDifficulty());
         float maxRange = sSpellMgr->AssertSpellInfo(SPELL_DRUID_TWIN_MOONS, GetCastDifficulty())->GetEffect(EFFECT_0).CalcValue(caster);
 
         std::list<Unit*> targets;
-        Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, &destPos, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
+        Trinity::WorldObjectSpellAreaTargetCheck check(maxRange, hitUnit, caster, caster, moonfireSpellInfo, TARGET_CHECK_ENEMY, nullptr, TARGET_OBJECT_TYPE_UNIT);
         Trinity::UnitListSearcher searcher(hitUnit, targets, check);
         Cell::VisitAllObjects(hitUnit, searcher, maxRange);
 
