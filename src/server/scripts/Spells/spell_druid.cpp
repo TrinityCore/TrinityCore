@@ -58,6 +58,8 @@ enum DruidSpells
     SPELL_DRUID_BRAMBLES_REFLECT               = 203958,
     SPELL_DRUID_BRISTLING_FUR_GAIN_RAGE        = 204031,
     SPELL_DRUID_CAT_FORM                       = 768,
+    SPELL_DRUID_CRASHING_STAR_TALENT           = 468978,
+    SPELL_DRUID_CRASHING_STAR_DAMAGE           = 468981,
     SPELL_DRUID_CULTIVATION                    = 200390,
     SPELL_DRUID_CULTIVATION_HEAL               = 200389,
     SPELL_DRUID_CURIOUS_BRAMBLEPATCH           = 330670,
@@ -1773,8 +1775,8 @@ class spell_dru_shooting_stars : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS_DAMAGE })
-            && ValidateSpellEffect({ { SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1 } })
+        return ValidateSpellInfo({ SPELL_DRUID_SHOOTING_STARS_DAMAGE, SPELL_DRUID_CRASHING_STAR_DAMAGE })
+            && ValidateSpellEffect({ { SPELL_DRUID_MOONFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_SUNFIRE_DAMAGE, EFFECT_1 }, { SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0 } })
             && sSpellMgr->AssertSpellInfo(SPELL_DRUID_MOONFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE)
             && sSpellMgr->AssertSpellInfo(SPELL_DRUID_SUNFIRE_DAMAGE, DIFFICULTY_NONE)->GetEffect(EFFECT_1).IsAura(SPELL_AURA_PERIODIC_DAMAGE);
     }
@@ -1814,9 +1816,16 @@ class spell_dru_shooting_stars : public AuraScript
 
         Trinity::Containers::RandomResize(targets, procs);
         for (Unit* target : targets)
-            caster->CastSpell(target, SPELL_DRUID_SHOOTING_STARS_DAMAGE, CastSpellExtraArgsInit{
+        {
+            uint32 spellId = SPELL_DRUID_SHOOTING_STARS_DAMAGE;
+            AuraEffect const* crashingStarTalent = caster->GetAuraEffect(SPELL_DRUID_CRASHING_STAR_TALENT, EFFECT_0);
+            if (crashingStarTalent && roll_chance_i(crashingStarTalent->GetAmount()))
+                spellId = SPELL_DRUID_CRASHING_STAR_DAMAGE;
+
+            caster->CastSpell(target, spellId, CastSpellExtraArgsInit{
                 .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR
             });
+        }
     }
 
     void Register() override
