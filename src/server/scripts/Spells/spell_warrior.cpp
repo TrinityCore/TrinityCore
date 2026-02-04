@@ -82,7 +82,6 @@ enum WarriorSpells
     SPELL_WARRIOR_RALLYING_CRY                      = 97463,
     SPELL_WARRIOR_RAVAGER                           = 228920,
     SPELL_WARRIOR_RECKLESSNESS                      = 1719,
-    SPELL_WARRIOR_REVENGE                           = 6572,
     SPELL_WARRIOR_RUMBLING_EARTH                    = 275339,
     SPELL_WARRIOR_SHIELD_BLOCK_AURA                 = 132404,
     SPELL_WARRIOR_SHIELD_CHARGE_EFFECT              = 385953,
@@ -758,57 +757,41 @@ class spell_warr_frothing_berserker : public AuraScript
 {
     bool Validate(SpellInfo const* /*spellInfo*/) override
     {
-        return ValidateSpellInfo({
-            SPELL_WARRIOR_REVENGE,
-            SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE
-        });
+        return ValidateSpellInfo({ SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE });
     }
 
-    bool CheckProc(ProcEventInfo const& eventInfo)
+    static bool CheckProc(AuraScript const&, ProcEventInfo const& eventInfo)
     {
         Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return false;
-
-        Optional<int32> spentRage = procSpell->GetPowerTypeCostAmount(POWER_RAGE);
-        return spentRage && *spentRage > 0;
+        return procSpell && procSpell->GetPowerTypeCostAmount(POWER_RAGE) > 0;
     }
 
-    void HandleProc(ProcEventInfo& eventInfo)
+    template <ChrSpecialization Spec>
+    static bool CheckSpecialization(AuraScript const&, AuraEffect const* /*aurEff*/, ProcEventInfo const& eventInfo)
     {
-        Unit* target = GetTarget();
+        return eventInfo.GetActor()->IsPlayer() && eventInfo.GetActor()->ToPlayer()->GetPrimarySpecialization() == Spec;
+    }
 
+    static void HandleProc(AuraScript const&, AuraEffect const* aurEff, ProcEventInfo const& eventInfo)
+    {
+        Unit* target = eventInfo.GetActor();
         Spell const* procSpell = eventInfo.GetProcSpell();
-        if (!procSpell)
-            return;
-
-        Optional<int32> spentRage = procSpell->GetPowerTypeCostAmount(POWER_RAGE);
-        if (!spentRage || *spentRage <= 0)
-            return;
-
-        int32 actualCost = *spentRage / 10;
-        SpellInfo const* procInfo = procSpell->GetSpellInfo();
-
-        // Determine refund percentage
-        int32 refundPct = GetEffectInfo(EFFECT_0).CalcValue(target);
-        if (procInfo->SpellFamilyFlags[0] & 0x400) 
-            refundPct = GetEffectInfo(EFFECT_2).CalcValue(GetTarget()); //50% for Revenge
-
-        int32 refundRage = (actualCost * refundPct) / 100;
-        if (refundRage <= 0)
-            return;
-
+        int32 spentRage = *procSpell->GetPowerTypeCostAmount(POWER_RAGE);
         target->CastSpell(target, SPELL_WARRIOR_FROTHING_BERSERKER_ENERGIZE, CastSpellExtraArgsInit{
             .TriggerFlags = TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_DONT_REPORT_CAST_ERROR,
             .TriggeringSpell = procSpell,
-            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, refundRage * 10 } }
+            .TriggeringAura = aurEff,
+            .SpellValueOverrides = { { SPELLVALUE_BASE_POINT0, CalculatePct(spentRage, aurEff->GetAmount()) } }
         });
     }
 
     void Register() override
     {
         DoCheckProc += AuraCheckProcFn(spell_warr_frothing_berserker::CheckProc);
-        OnProc += AuraProcFn(spell_warr_frothing_berserker::HandleProc);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorArms>, EFFECT_0, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorFury>, EFFECT_1, SPELL_AURA_DUMMY);
+        DoCheckEffectProc += AuraCheckEffectProcFn(spell_warr_frothing_berserker::CheckSpecialization<ChrSpecialization::WarriorProtection>, EFFECT_2, SPELL_AURA_DUMMY);
+        OnEffectProc += AuraEffectProcFn(spell_warr_frothing_berserker::HandleProc, EFFECT_ALL, SPELL_AURA_DUMMY);
     }
 };
 
